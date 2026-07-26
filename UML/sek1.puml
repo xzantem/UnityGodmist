@@ -1,0 +1,40 @@
+@startuml
+title Diagram sekwencji - Handel z NPC
+
+actor Gracz
+participant "NpcView" as NpcView
+participant "NpcService" as NpcService
+participant "NpcInstance" as NpcInstance
+participant "ShopInventory" as ShopInventory
+participant "InventoryService" as InventoryService
+participant "CharacterInstance" as Character
+participant "Inventory" as Inventory
+participant "UiService" as UiService
+
+Gracz -> NpcView : Rozpoczęcie rozmowy
+NpcView -> NpcService : Żądanie otwarcia handlu
+NpcService -> NpcInstance : Pobranie danych NPC
+NpcInstance -> ShopInventory : Pobranie oferty sklepu
+NpcService -> Character : Pobranie honoru aktywnej postaci
+NpcService --> UiService : Dane oferty i cen
+UiService --> Gracz : Wyświetlenie okna handlu
+
+Gracz -> UiService : Wybór przedmiotu do kupna
+UiService -> InventoryService : Żądanie zakupu
+InventoryService -> ShopInventory : Sprawdzenie dostępności przedmiotu
+InventoryService -> Character : Sprawdzenie ilości złota
+InventoryService -> Inventory : Sprawdzenie pojemności / wagi
+
+alt Zakup możliwy
+  InventoryService -> Character : Odjęcie złota
+  InventoryService -> ShopInventory : Usunięcie przedmiotu z oferty
+  InventoryService -> Inventory : Dodanie przedmiotu
+  InventoryService -> NpcInstance : Aktualizacja spentGoldTotal
+  InventoryService --> UiService : Potwierdzenie zakupu
+  UiService --> Gracz : Aktualizacja widoku sklepu
+else Zakup niemożliwy
+  InventoryService --> UiService : Komunikat o błędzie
+  UiService --> Gracz : Informacja o braku możliwości zakupu
+end
+
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+title Diagram stanów - CharacterLifeState
+
+[*] --> Alive
+
+Alive --> Downed : HP = 0 w walce
+Downed --> Alive : Podniesienie
+Downed --> Dead : Nie podniesiono w 3 turach
+Alive --> Dead : Natychmiastowa smierc
+
+Dead --> [*]
+@enduml

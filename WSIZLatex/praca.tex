@@ -1,0 +1,188 @@
+%==============================================================================
+% Praca dyplomowa (WSIiZ) — plik główny
+%==============================================================================
+
+\documentclass[pl,auxsup]{wsiz}
+
+%------------------------------------------------------------------------------
+% JĘZYK / KODOWANIE (pdfLaTeX)
+%------------------------------------------------------------------------------
+\usepackage[main=polish]{babel}
+\addto\captionspolish{%
+  \renewcommand{\contentsname}{Spis treści}%
+  \renewcommand{\listfigurename}{Spis rysunków}%
+  \renewcommand{\listtablename}{Spis tabel}%
+  \renewcommand{\figurename}{Rys.}%
+  \renewcommand{\tablename}{Tab.}%
+}
+
+
+%------------------------------------------------------------------------------
+% MATEMATYKA (włącz, jeśli realnie używasz)
+%------------------------------------------------------------------------------
+\usepackage{mathtools}
+\usepackage{amssymb}
+
+%------------------------------------------------------------------------------
+% FLOATY (tylko jeśli używasz [H])
+%------------------------------------------------------------------------------
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{xurl} % lepsze łamanie długich adresów
+
+%------------------------------------------------------------------------------
+% TABELE (włączaj wg potrzeby)
+%------------------------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage[flushleft]{threeparttable}
+
+% Kolumna X-centrowana o kontrolowanej szerokości
+\newcolumntype{C}[1]{>{\hsize=#1\hsize\centering\arraybackslash}X}
+
+%------------------------------------------------------------------------------
+% LISTINGI (kod źródłowy)
+%------------------------------------------------------------------------------
+\usepackage{listings}
+\usepackage{listingsutf8}
+\usepackage{xcolor}
+
+% Nazwy po polsku (listings)
+\renewcommand{\lstlistlistingname}{Spis listingów}
+\renewcommand{\lstlistingname}{Listing}
+
+
+
+% Kolory dla kodu (bez konfliktu z "green")
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+
+% Ustawienia listings — jeden spójny blok
+\lstdefinestyle{mystyle}{
+  inputencoding=utf8,
+  extendedchars=true,
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{codegray},
+  numbersep=6pt,
+  showstringspaces=false,
+  tabsize=2,
+  keywordstyle=\color{blue},
+  commentstyle=\color{codegreen},
+  stringstyle=\color{red}, 
+}
+\lstset{style=mystyle}
+
+%------------------------------------------------------------------------------
+% PODKREŚLANIE (ulem) + NUMERY LINII (lineno)
+%------------------------------------------------------------------------------
+\usepackage[normalem]{ulem}
+\usepackage{lineno}
+
+%------------------------------------------------------------------------------
+% CYTOWANIA (przydatne z babel)
+%------------------------------------------------------------------------------
+\usepackage{csquotes}
+
+%------------------------------------------------------------------------------
+% ZMIENNE DOKUMENTU (dla klasy wsiz)
+%------------------------------------------------------------------------------
+\author{Patryk Rzegocki}
+\shortauthor{P. Rzegocki}
+\noAlbum{69840}
+
+\titlePL{Godmist – projekt fabularnej gry RPG typu dungeon crawler z turowym systemem walki}
+\titleEN{Godmist – Design of a Story-Driven Dungeon Crawler RPG with a Turn-Based Combat System}
+
+\shorttitlePL{Godmist – projekt fabularnej gry RPG typu dungeon crawler z turowym systemem walki}
+\shorttitleEN{Godmist – Design of a Story-Driven Dungeon Crawler RPG with a Turn-Based Combat System}
+
+\thesistype{INŻYNIERIA OPROGRAMOWANIA}
+
+\supervisor{mgr inż. Ewa Żesławska}
+% \secondsupervisor{dr Jan Nowak 2}
+
+\degreeprogramme{INFORMATYKA}
+\specialization{Programowanie}
+
+\faculty{Kolegium Informatyki Stosowanej}
+
+\date{2026}
+
+%------------------------------------------------------------------------------
+% USTAWIENIA SPISU TREŚCI / NUMERACJI
+%------------------------------------------------------------------------------
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{2}
+
+\brokenpenalty=10000\relax
+
+%==============================================================================
+\begin{document}
+%==============================================================================
+
+%------------------------------------------------------------------------------
+% Strona tytułowa + podziękowania
+%------------------------------------------------------------------------------
+
+\titlepages
+% Jeśli chcesz stopkę z autorem i skróconym tytułem (lewy dół) + numer w środku:
+% \thesisheaders
+\tableofcontents
+
+
+
+
+
+%------------------------------------------------------------------------------
+% Numeracja linii (włącz gdy potrzebujesz, np. do recenzji)
+%------------------------------------------------------------------------------
+\clearpage
+% \linenumbers
+
+%------------------------------------------------------------------------------
+% Rozdziały
+%-----------------------------------------------------------------------------
+
+\selectlanguage{polish}
+\include{chapters/chapter001}
+\include{chapters/chapter002}
+\include{chapters/chapter003}
+\include{chapters/chapter004}
+
+%------------------------------------------------------------------------------
+% Spisy (rysunki / tabele / listingi)
+%------------------------------------------------------------------------------
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Spis rysunków}
+\listoffigures
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Spis tabel}
+\listoftables
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Spis listingów}
+\lstlistoflistings
+
+%------------------------------------------------------------------------------
+% Bibliografia
+%------------------------------------------------------------------------------
+
+\cleardoublepage
+\selectlanguage{polish}
+\begingroup
+  \renewcommand{\emph}[1]{\textit{#1}}
+  \addcontentsline{toc}{chapter}{Bibliografia}
+  \nocite{*}
+  \bibliographystyle{plain}
+  \bibliography{bibliografia}
+\endgroup
+\renewcommand{\emph}[1]{\uline{#1}}
+
+
+\end{document}

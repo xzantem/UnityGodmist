@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Godmist UI Mockup - Postać i Ekwipunek</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen screen-equipment">
+      <div class="backdrop"></div>
+      <div class="vignette"></div>
+
+      <header class="topbar">
+        <div class="topbar__left">
+          <div class="topbar__kicker">Godmist / Arungard</div>
+          <h1>Postać i ekwipunek</h1>
+        </div>
+        <div class="topbar__right">
+          <div class="chip chip--gold">3198 złota</div>
+          <div class="chip">Drużyna 4/5</div>
+          <div class="chip">Schowek dostępny</div>
+        </div>
+      </header>
+
+      <aside class="party-rail">
+        <div class="party-rail__header">Drużyna</div>
+
+        <article class="party-card party-card--active">
+          <div class="avatar"></div>
+          <div class="party-card__body">
+            <div class="party-card__name">Jerzy</div>
+            <div class="party-card__meta">Zwiadowca • Poziom 18</div>
+            <div class="mini-bars">
+              <span class="mini-bars__hp"></span>
+              <span class="mini-bars__res"></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="party-card">
+          <div class="avatar avatar--violet"></div>
+          <div class="party-card__body">
+            <div class="party-card__name">Maela</div>
+            <div class="party-card__meta">Czarodziejka • Poziom 17</div>
+            <div class="mini-bars">
+              <span class="mini-bars__hp"></span>
+              <span class="mini-bars__res mini-bars__res--mana"></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="party-card">
+          <div class="avatar avatar--ash"></div>
+          <div class="party-card__body">
+            <div class="party-card__name">Orven</div>
+            <div class="party-card__meta">Wojownik • Poziom 18</div>
+            <div class="mini-bars">
+              <span class="mini-bars__hp"></span>
+              <span class="mini-bars__res mini-bars__res--rage"></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="party-card">
+          <div class="avatar avatar--teal"></div>
+          <div class="party-card__body">
+            <div class="party-card__name">Kara</div>
+            <div class="party-card__meta">Paladynka • Poziom 16</div>
+            <div class="mini-bars">
+              <span class="mini-bars__hp"></span>
+              <span class="mini-bars__res mini-bars__res--mana"></span>
+            </div>
+          </div>
+        </article>
+      </aside>
+
+      <section class="layout layout-equipment">
+        <section class="panel panel-profile panel--subdued">
+          <div class="panel__crest"></div>
+          <div class="character-head">
+            <div>
+              <div class="eyebrow">Aktywna postać</div>
+              <h2>Jerzy z Arungardu</h2>
+              <p class="subtle">Zwiadowca • Humanoid • Honor +34</p>
+            </div>
+            <button class="ghost-button">Przełącz postać</button>
+          </div>
+
+          <div class="resource-stack">
+            <div class="resource-card resource-card--hp">
+              <label>Zdrowie</label>
+              <strong>84 / 100</strong>
+              <div class="bar"><span style="width:84%"></span></div>
+            </div>
+            <div class="resource-card resource-card--ap">
+              <label>AP</label>
+              <strong>62 / 100</strong>
+              <div class="bar"><span style="width:62%"></span></div>
+            </div>
+            <div class="resource-card resource-card--momentum">
+              <label>Pęd</label>
+              <strong>37 / 60</strong>
+              <div class="bar"><span style="width:61%"></span></div>
+            </div>
+          </div>
+
+          <div class="tab-strip">
+            <button class="tab-strip__item tab-strip__item--active">Statystyki</button>
+            <button class="tab-strip__item">Efekty</button>
+            <button class="tab-strip__item">Drzewka</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-tile">
+              <span>Atak</span>
+              <strong>29 - 41</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Obrona fiz.</span>
+              <strong>22</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Obrona mag.</span>
+              <strong>15</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Unik</span>
+              <strong>18%</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Kryt. szansa</span>
+              <strong>27%</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Kryt. obrażenia</span>
+              <strong>176%</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Szybkość</span>
+              <strong>24</strong>
+            </div>
+            <div class="stat-tile">
+              <span>Regeneracja zasobu</span>
+              <strong>+4</strong>
+            </div>
+          </div>
+
+          <div class="status-panel">
+            <div class="status-panel__header">Aktywne efekty i pasywy</div>
+            <ul>
+              <li><span class="keyword">Niewidzialność</span> po zabójstwie</li>
+              <li><span class="keyword">Lekkie ostrza</span> -12% kosztu AP</li>
+              <li><span class="keyword">Krew łowcy</span> +18% vs humanoidy</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="panel panel-paperdoll">
+          <div class="panel__header">
+            <div>
+              <div class="eyebrow">Wyposażenie</div>
+              <h2>Aktualny zestaw</h2>
+            </div>
+            <div class="slot-legend">
+              <span><i class="dot dot--gold"></i> Unikat</span>
+              <span><i class="dot dot--violet"></i> Galduryt</span>
+            </div>
+          </div>
+
+          <div class="paperdoll">
+            <div class="paperdoll__silhouette"></div>
+
+            <button class="equipment-slot equipment-slot--weapon is-selected">
+              <small>Broń</small>
+              <strong>Sztylet Pomiotu Mgły</strong>
+              <span>Rare • Arcydzieło • +40%</span>
+            </button>
+
+            <button class="equipment-slot equipment-slot--armor">
+              <small>Pancerz</small>
+              <strong>Tunika tropiciela</strong>
+              <span>Ancient • Doskonała • +20%</span>
+            </button>
+
+            <button class="equipment-slot equipment-slot--necklace">
+              <small>Naszyjnik</small>
+              <strong>Amulet trzech lun</strong>
+              <span>Legendary</span>
+            </button>
+
+            <button class="equipment-slot equipment-slot--ring">
+              <small>Pierścień</small>
+              <strong>Piaskowy sygnet</strong>
+              <span>Rare</span>
+            </button>
+
+            <button class="equipment-slot equipment-slot--bracelet">
+              <small>Bransoleta</small>
+              <strong>Bransoleta cieni</strong>
+              <span>Uncommon</span>
+            </button>
+
+            <button class="equipment-slot equipment-slot--earrings">
+              <small>Kolczyki</small>
+              <strong>Kolce kruka</strong>
+              <span>Rare</span>
+            </button>
+          </div>
+
+          <div class="item-focus">
+            <div class="item-focus__left">
+              <div class="item-icon item-icon--weapon"></div>
+              <div>
+                <div class="eyebrow">Wybrany przedmiot</div>
+                <h3>Sztylet Pomiotu Mgły</h3>
+                <p class="subtle">Rare • Arcydzieło • Poziom 25 • Wymaga: Zwiadowca</p>
+              </div>
+            </div>
+            <div class="socket-row">
+              <span class="socket socket--filled"></span>
+              <span class="socket socket--filled"></span>
+              <span class="socket socket--empty"></span>
+              <span class="socket socket--locked"></span>
+              <span class="socket socket--locked"></span>
+            </div>
+          </div>
+
+          <div class="compare-grid">
+            <div class="compare-tile">
+              <span>Atak</span>
+              <strong>18 - 31</strong>
+              <em>+4 - +7</em>
+            </div>
+            <div class="compare-tile">
+              <span>Szansa kryt.</span>
+              <strong>11%</strong>
+              <em>+3%</em>
+            </div>
+            <div class="compare-tile">
+              <span>Celność</span>
+              <strong>24</strong>
+              <em>+5</em>
+            </div>
+            <div class="compare-tile">
+              <span>Efekt pasywny</span>
+              <strong>On-hit bleed</strong>
+              <em>Tier B</em>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel panel-inventory panel--subdued">
+          <div class="panel__header panel__header--tight">
+            <div>
+              <div class="eyebrow">Ekwipunek</div>
+              <h2>Przedmioty</h2>
+            </div>
+            <button class="ghost-button">Do schowka</button>
+          </div>
+
+          <div class="inventory-toolbar">
+            <div class="pill-group">
+              <button class="pill pill--active">Wszystko</button>
+              <button class="pill">Broń</button>
+              <button class="pill">Pancerz</button>
+              <button class="pill">Biżuteria</button>
+              <button class="pill">Materiały</button>
+            </div>
+            <div class="weight-indicator">Waga 34.2 / 70</div>
+          </div>
+
+          <div class="inventory-grid">
+            <button class="inventory-item inventory-item--selected rare">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Sztylet mroku</span>
+            </button>
+            <button class="inventory-item ancient">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Tunika łowcy</span>
+            </button>
+            <button class="inventory-item legendary">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Amulet run</span>
+            </button>
+            <button class="inventory-item uncommon">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Bransoleta popiolu</span>
+            </button>
+            <button class="inventory-item common">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Mikstura leczenia</span>
+            </button>
+            <button class="inventory-item mythic">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Galduryt wichru</span>
+            </button>
+            <button class="inventory-item rare">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Kolce kruka</span>
+            </button>
+            <button class="inventory-item common">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Skora wilka x12</span>
+            </button>
+            <button class="inventory-item rare">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Noz zwiadowcy</span>
+            </button>
+            <button class="inventory-item uncommon">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Proszek lodu x4</span>
+            </button>
+            <button class="inventory-item common">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Alkohol alch. x7</span>
+            </button>
+            <button class="inventory-item ancient">
+              <span class="inventory-item__icon"></span>
+              <span class="inventory-item__name">Runiczny kamień</span>
+            </button>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-card__header">
+              <div>
+                <div class="eyebrow">Podgląd</div>
+                <h3>Sztylet mroku</h3>
+              </div>
+              <div class="rarity-tag">Rare</div>
+            </div>
+            <p class="detail-card__text">
+              Lekka broń zwiadowcy o wysokiej celności. Po trafieniu może nałożyć
+              <span class="keyword">Krwawienie</span>.
+            </p>
+            <div class="detail-actions">
+              <button class="action action--primary">Wyposaż</button>
+              <button class="action">Porównaj</button>
+              <button class="action">Przenieś</button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

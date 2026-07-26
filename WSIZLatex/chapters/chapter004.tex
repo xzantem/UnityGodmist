@@ -1,0 +1,33 @@
+\chapter{Podsumowanie}
+\label{cha:podsumowanie}
+
+W niniejszej pracy przedstawiono projekt systemu gry komputerowej \emph{Godmist} z perspektywy inżynierii oprogramowania. Opracowanie objęło analizę problemu, przegląd istniejących rozwiązań, określenie wymagań, modelowanie systemu, opis struktury danych, architektury rozwiązania, założeń interfejsu użytkownika oraz propozycji testów. Dzięki temu możliwe było przedstawienie projektu nie tylko jako koncepcji gry, ale również jako spójnego systemu informatycznego.
+
+\section{Ocena realizacji założeń}
+\label{sec:ocena-realizacji-zalozen}
+
+Założony cel pracy został osiągnięty w zakresie przygotowania dokumentacji projektowej systemu. Opracowano model rozwiązania obejmujący najważniejsze mechaniki gry, takie jak eksploracja lochów, walka turowa, rozwój postaci, system ekwipunku, crafting, obsługa NPC, questy oraz trwałość stanu gry. Przygotowane modele pozwalają uporządkować zależności pomiędzy poszczególnymi elementami systemu i stanowią podstawę do dalszych prac implementacyjnych.
+
+Istotnym rezultatem pracy jest również rozdzielenie projektu na warstwy odpowiedzialności, obejmujące definicje danych, stan runtime, serwisy systemowe, warstwę prezentacji oraz trwałość danych. Takie podejście sprzyja modularności rozwiązania i zwiększa jego podatność na dalszą rozbudowę.
+
+\section{Wnioski końcowe}
+\label{sec:wnioski-koncowe}
+
+Przeprowadzona analiza pokazała, że projekt gry \emph{Godmist} wymaga integracji wielu współdziałających podsystemów, które muszą pozostawać ze sobą w zgodzie zarówno na poziomie logiki rozgrywki, jak i modelu danych. Z punktu widzenia inżynierii oprogramowania najważniejsze okazało się odpowiednie rozdzielenie definicji danych od zmiennego stanu gry oraz zaprojektowanie spójnej struktury pośredniczącej pomiędzy eksploracją, walką, przedmiotami, misjami i zapisem gry.
+
+Dokumentacja przygotowana w ramach pracy porządkuje te zależności i tworzy podstawę do dalszej realizacji projektu. Można zatem uznać, że \emph{Godmist} został poprawnie opisany jako projekt systemu informatycznego o złożonej strukturze i wielu współzależnych modułach.
+
+\section{Możliwe kierunki dalszego rozwoju}
+\label{sec:kierunki-dalszego-rozwoju}
+
+Projekt może być w przyszłości rozwijany zarówno od strony technicznej, jak i projektowej. Do najważniejszych kierunków dalszych prac należą:
+\begin{itemize}
+    \item pełna implementacja systemu w środowisku Unity,
+    \item rozbudowa dialogów i warstwy fabularnej,
+    \item rozwinięcie systemu lochów, przeciwników i zagadek,
+    \item dalsze dopracowanie interfejsu użytkownika,
+    \item rozszerzenie zestawu testów o testy wykonywane na działającej implementacji,
+    \item balansowanie mechanik związanych z walką, rozwojem postaci i przedmiotami.
+\end{itemize}
+
+Przedstawiona dokumentacja może stanowić punkt wyjścia do dalszej realizacji projektu oraz kolejnych iteracji rozwojowych systemu.

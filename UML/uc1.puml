@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam nodesep 35
+skinparam ranksep 45
+
+actor "Gracz" as Player
+
+rectangle "System Godmist - Sesja gry, eksploracja i walka" {
+
+  rectangle "Sesja i eksploracja" {
+    usecase "Rozpoczęcie\nnowej gry" as UC1
+    usecase "Wczytanie\ngry" as UC2
+    usecase "Zapis\ngry" as UC3
+
+    usecase "Eksploracja\nmiasta" as UC4
+    usecase "Eksploracja\nlochu" as UC5
+    usecase "Opuszczenie\nlochu" as UC7
+    usecase "Powrót\ndo miasta" as UC8
+
+    UC1 -[hidden]down-> UC2
+    UC2 -[hidden]down-> UC3
+    UC4 -[hidden]down-> UC5
+    UC5 -[hidden]down-> UC7
+    UC7 -[hidden]down-> UC8
+  }
+
+  rectangle "Walka" {
+    usecase "Rozpoczęcie\nwalki" as UC6
+    usecase "Wykonanie tury\nw walce" as D1
+    usecase "Zakończenie\nwalki" as D8
+
+    usecase "Ruch\npostaci" as D2
+    usecase "Użycie\numiejętności" as D3
+    usecase "Użycie przedmiotu\nw walce" as D4
+    usecase "Podniesienie powalonej\npostaci" as D5
+    usecase "Próba ucieczki\nz walki" as D6
+    usecase "Zakończenie\ntury" as D7
+
+    UC6 -[hidden]down-> D1
+    D1 -[hidden]down-> D8
+
+    D2 -[hidden]right-> D5
+    D3 -[hidden]right-> D6
+    D4 -[hidden]right-> D7
+  }
+}
+
+Player --> UC1
+Player --> UC2
+Player --> UC3
+Player --> UC4
+Player --> UC5
+Player --> UC7
+
+UC5 .> UC6 : <<extend>>
+UC7 .> UC8 : <<include>>
+
+UC6 .> D1 : <<include>>
+UC6 .> D8 : <<include>>
+
+D1 .> D2 : <<include>>
+D1 .> D3 : <<include>>
+D1 .> D4 : <<include>>
+D1 .> D5 : <<include>>
+D1 .> D6 : <<include>>
+D1 .> D7 : <<include>>
+
+@enduml

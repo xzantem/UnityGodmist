@@ -1,0 +1,149 @@
+@startuml
+top to bottom direction
+skinparam shadowing false
+skinparam linetype polyline
+skinparam packageStyle rectangle
+
+actor "Gracz" as Player
+
+rectangle "System Godmist" {
+  ' Główne przypadki użycia - blisko gracza
+  usecase "Rozpoczęcie\nnowej gry" as UC1
+  usecase "Wczytanie\ngry" as UC2
+  usecase "Zapis\ngry" as UC3
+  usecase "Eksploracja\nmiasta" as UC4
+  usecase "Eksploracja\nlochu" as UC5
+  usecase "Zarządzanie\ndrużyną" as UC6
+  usecase "Zarządzanie\nekwipunkiem" as UC7
+  usecase "Handel\nz NPC" as UC8
+  usecase "Crafting\nu NPC" as UC9
+  usecase "Zarządzanie\nquestami" as UC10
+  usecase "Rozpoczęcie\nwalki" as UC11
+  usecase "Opuszczenie\nlochu" as UC12
+  usecase "Powrót\ndo miasta" as UC13
+
+  ' Szczegóły - dalej od gracza
+  usecase "Przegląd statystyk\npostaci" as D1
+  usecase "Rozwijanie\npostaci" as D2
+  usecase "Inwestowanie punktów\nw drzewko skilli" as D3
+
+  usecase "Wyposażanie\nprzedmiotów" as D4
+  usecase "Przenoszenie przedmiotów\ndo schowka" as D5
+  usecase "Używanie\nprzedmiotów" as D6
+
+  usecase "Kupowanie\nprzedmiotów" as D7
+  usecase "Sprzedawanie\nprzedmiotów" as D8
+  usecase "Odkup\nprzedmiotów" as D9
+
+  usecase "Tworzenie\nprzedmiotów" as D10
+  usecase "Ulepszanie\nwyposażenia" as D11
+  usecase "Przekuwanie\nwyposażenia" as D12
+  usecase "Infuzja\nwyposażenia" as D13
+  usecase "Identyfikacja\ngaldurytów" as D14
+  usecase "Osadzanie\ngaldurytów" as D15
+
+  usecase "Przyjęcie\nquesta" as D16
+  usecase "Śledzenie postępu\nquesta" as D17
+  usecase "Zakończenie\nquesta" as D18
+
+  usecase "Wykonanie tury\nw walce" as D19
+  usecase "Ruch\npostaci" as D20
+  usecase "Użycie\numiejętności" as D21
+  usecase "Użycie przedmiotu\nw walce" as D22
+  usecase "Podniesienie powalonej\npostaci" as D23
+  usecase "Próba ucieczki\nz walki" as D24
+  usecase "Zakończenie\ntury" as D25
+  usecase "Zakończenie\nwalki" as D26
+
+  ' Układ głównych przypadków w jednej kolumnie
+  UC1 -[hidden]-> UC2
+  UC2 -[hidden]-> UC3
+  UC3 -[hidden]-> UC4
+  UC4 -[hidden]-> UC5
+  UC5 -[hidden]-> UC6
+  UC6 -[hidden]-> UC7
+  UC7 -[hidden]-> UC8
+  UC8 -[hidden]-> UC9
+  UC9 -[hidden]-> UC10
+  UC10 -[hidden]-> UC11
+  UC11 -[hidden]-> UC12
+  UC12 -[hidden]-> UC13
+
+  ' Układ szczegółów w drugiej kolumnie / grupach
+  D1 -[hidden]-> D2
+  D2 -[hidden]-> D3
+
+  D4 -[hidden]-> D5
+  D5 -[hidden]-> D6
+
+  D7 -[hidden]-> D8
+  D8 -[hidden]-> D9
+
+  D10 -[hidden]-> D11
+  D11 -[hidden]-> D12
+  D12 -[hidden]-> D13
+  D13 -[hidden]-> D14
+  D14 -[hidden]-> D15
+
+  D16 -[hidden]-> D17
+  D17 -[hidden]-> D18
+
+  D19 -[hidden]-> D20
+  D20 -[hidden]-> D21
+  D21 -[hidden]-> D22
+  D22 -[hidden]-> D23
+  D23 -[hidden]-> D24
+  D24 -[hidden]-> D25
+  D25 -[hidden]-> D26
+}
+
+Player --> UC1
+Player --> UC2
+Player --> UC3
+Player --> UC4
+Player --> UC5
+Player --> UC6
+Player --> UC7
+Player --> UC8
+Player --> UC9
+Player --> UC10
+Player --> UC11
+Player --> UC12
+Player --> UC13
+
+UC6 .> D1 : <<include>>
+UC6 .> D2 : <<include>>
+D2 .> D3 : <<include>>
+
+UC7 .> D4 : <<include>>
+UC7 .> D5 : <<include>>
+UC7 .> D6 : <<include>>
+
+UC8 .> D7 : <<include>>
+UC8 .> D8 : <<include>>
+UC8 .> D9 : <<include>>
+
+UC9 .> D10 : <<include>>
+UC9 .> D11 : <<include>>
+UC9 .> D12 : <<include>>
+UC9 .> D13 : <<include>>
+UC9 .> D14 : <<include>>
+UC9 .> D15 : <<include>>
+
+UC10 .> D16 : <<include>>
+UC10 .> D17 : <<include>>
+UC10 .> D18 : <<include>>
+
+UC11 .> D19 : <<include>>
+D19 .> D20 : <<include>>
+D19 .> D21 : <<include>>
+D19 .> D22 : <<include>>
+D19 .> D23 : <<include>>
+D19 .> D24 : <<include>>
+D19 .> D25 : <<include>>
+UC11 .> D26 : <<include>>
+
+UC5 .> UC11 : <<extend>>
+UC12 .> UC13 : <<include>>
+
+@enduml

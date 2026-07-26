@@ -1,0 +1,29 @@
+@startuml
+title Diagram sekwencji - Przełączenie aktywnej postaci poza walką
+
+actor Gracz
+participant "UiService" as UiService
+participant "GameManager" as GameManager
+participant "GameSession" as GameSession
+participant "CharacterInstance" as CurrentCharacter
+participant "CharacterInstance" as SelectedCharacter
+participant "CharacterView" as CharacterView
+
+Gracz -> UiService : Wybór portretu postaci
+UiService -> GameManager : Żądanie zmiany aktywnej postaci
+GameManager -> GameSession : Sprawdzenie aktualnego trybu gry
+
+alt Zmiana dozwolona
+  GameManager -> GameSession : Pobranie wybranej postaci
+  GameSession --> GameManager : SelectedCharacter
+  GameManager -> CurrentCharacter : Wyłączenie aktywnego sterowania
+  GameManager -> SelectedCharacter : Ustawienie jako aktywnej postaci
+  GameManager -> CharacterView : Przeniesienie kontroli kamery i wejścia
+  GameManager --> UiService : Potwierdzenie zmiany
+  UiService --> Gracz : Aktualizacja HUD i zaznaczenia
+else Zmiana niedozwolona
+  GameManager --> UiService : Odrzucenie żądania
+  UiService --> Gracz : Komunikat o braku możliwości zmiany
+end
+
+@enduml

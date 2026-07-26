@@ -1,0 +1,184 @@
+@startuml
+title Diagram ERD - Model danych zapisu gry Godmist
+
+hide methods
+hide stereotypes
+skinparam linetype polyline
+skinparam ranksep 90
+skinparam nodesep 60
+left to right direction
+
+entity "GameSaveData" as GameSaveData {
+  * saveId : string
+  --
+  createdAt : string
+  updatedAt : string
+  saveVersion : integer
+}
+
+entity "WorldSaveData" as WorldSaveData {
+  activeEndingId : string [0..1]
+}
+
+entity "WorldFlagSaveData" as WorldFlagSaveData {
+  * flagId : string
+  --
+  value : string
+}
+
+entity "SettingsSaveData" as SettingsSaveData {
+  autosaveRotationCount : integer
+}
+
+entity "StashSaveData" as StashSaveData {
+}
+
+entity "CharacterSaveData" as CharacterSaveData {
+  * characterId : string
+  --
+  level : integer
+  currentExperience : integer
+  availableSkillPoints : integer
+  currentHealth : integer
+  honor : integer
+  lifeState : CharacterLifeState
+  availabilityState : CharacterAvailabilityState
+}
+
+entity "SkillRuntimeSaveData" as SkillRuntimeSaveData {
+  * skillId : string
+  --
+  isUnlocked : boolean
+  isEquipped : boolean
+  isToggledOn : boolean
+}
+
+entity "PassiveEffectSaveData" as PassiveEffectSaveData {
+  * effectId : string
+  --
+  sourceEntityId : string
+  stacks : integer
+  remainingDuration : integer
+  payload : string
+}
+
+entity "ItemSaveData" as ItemSaveData {
+  * instanceId : string
+  --
+  itemId : string
+  currentRarity : RarityTier
+  itemLevel : integer
+}
+
+entity "EquipmentItemSaveData" as EquipmentItemSaveData {
+  quality : EquipmentQuality
+  upgradePercent : integer
+  requiredClass : CharacterClassType
+  socketCapacity : integer
+}
+
+entity "GalduryteSaveData" as GalduryteSaveData {
+  isIdentified : boolean
+}
+
+entity "QuestSaveData" as QuestSaveData {
+  * questId : string
+  --
+  status : QuestStatus
+  currentStageIndex : integer
+}
+
+entity "QuestObjectiveProgressSaveData" as QuestObjectiveProgressSaveData {
+  * objectiveId : string
+  --
+  currentAmount : integer
+  isCompleted : boolean
+}
+
+entity "QuestFlagSaveData" as QuestFlagSaveData {
+  * flagId : string
+  --
+  value : string
+}
+
+entity "NpcSaveData" as NpcSaveData {
+  * npcId : string
+  --
+  loyaltyLevel : integer
+  spentGoldTotal : integer
+}
+
+entity "ShopInventorySaveData" as ShopInventorySaveData {
+  lastRefreshTime : string
+}
+
+entity "BuybackEntrySaveData" as BuybackEntrySaveData {
+  soldPrice : integer
+}
+
+entity "DungeonSaveData" as DungeonSaveData {
+  * dungeonId : string
+  --
+  seed : integer
+  currentFloorIndex : integer
+  isCompleted : boolean
+}
+
+entity "VisitedRoomSaveData" as VisitedRoomSaveData {
+  * roomId : string
+}
+
+entity "DungeonObjectSaveData" as DungeonObjectSaveData {
+  * objectId : string
+  --
+  isActive : boolean
+}
+
+entity "DungeonEncounterSaveData" as DungeonEncounterSaveData {
+  * encounterId : string
+  --
+  isCleared : boolean
+}
+
+entity "DungeonHistorySaveData" as DungeonHistorySaveData {
+  * dungeonId : string
+  --
+  seed : integer
+  wasCompleted : boolean
+}
+
+GameSaveData ||--|| WorldSaveData
+GameSaveData ||--|| SettingsSaveData
+GameSaveData ||--|| StashSaveData
+GameSaveData ||--o{ CharacterSaveData
+GameSaveData ||--o{ QuestSaveData
+GameSaveData ||--o{ NpcSaveData
+GameSaveData ||--o{ DungeonSaveData
+
+WorldSaveData ||--o{ WorldFlagSaveData
+
+CharacterSaveData ||--o{ SkillRuntimeSaveData
+CharacterSaveData ||--o{ PassiveEffectSaveData
+CharacterSaveData ||--o{ ItemSaveData
+CharacterSaveData ||--o{ EquipmentItemSaveData
+
+StashSaveData ||--o{ ItemSaveData
+
+QuestSaveData ||--o{ QuestObjectiveProgressSaveData
+QuestSaveData ||--o{ QuestFlagSaveData
+
+NpcSaveData ||--o| ShopInventorySaveData
+ShopInventorySaveData ||--o{ ItemSaveData
+ShopInventorySaveData ||--o{ BuybackEntrySaveData
+BuybackEntrySaveData }o--|| ItemSaveData
+
+DungeonSaveData ||--o{ VisitedRoomSaveData
+DungeonSaveData ||--o{ DungeonObjectSaveData
+DungeonSaveData ||--o{ DungeonEncounterSaveData
+DungeonSaveData ||--o{ DungeonHistorySaveData
+
+EquipmentItemSaveData --|> ItemSaveData
+GalduryteSaveData --|> ItemSaveData
+EquipmentItemSaveData ||--o{ GalduryteSaveData
+
+@enduml

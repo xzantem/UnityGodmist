@@ -1,0 +1,38 @@
+@startuml
+title Diagram aktywności - Crafting u NPC
+
+start
+
+:Gracz rozpoczyna rozmowę z NPC;
+:System sprawdza dostępne usługi NPC;
+
+if (Czy NPC oferuje crafting?) then (tak)
+  :Otwarcie okna craftingu;
+  :Wyświetlenie dostępnych kategorii receptur;
+else (nie)
+  :Wyświetlenie braku usługi craftingu;
+  stop
+endif
+
+:Gracz wybiera kategorię i recepturę;
+:System wyświetla wymagane materiały\noraz przewidywany wynik;
+
+if (Czy gracz potwierdza wykonanie?) then (tak)
+  :System sprawdza dostępność materiałów;
+
+  if (Czy materiały są dostępne?) then (tak)
+    :Pobranie materiałów z ekwipunku;
+    :Wygenerowanie przedmiotu wynikowego;
+    :Dodanie przedmiotu do ekwipunku gracza;
+    :Aktualizacja stanu lojalności NPC;
+    :Wyświetlenie wyniku craftingu;
+  else (nie)
+    :Wyświetlenie komunikatu o braku materiałów;
+  endif
+
+else (nie)
+  :Anulowanie craftingu;
+endif
+
+stop
+@enduml

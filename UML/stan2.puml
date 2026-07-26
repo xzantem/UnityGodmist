@@ -1,0 +1,15 @@
+@startuml
+title Diagram stanów - QuestInstance
+
+[*] --> Unavailable
+
+Unavailable --> Available : Spelniono warunki
+Available --> Active : Przyjecie questa
+Active --> Active : Aktualizacja postepu
+Active --> Completed : Ukonczono cele
+Active --> Failed : Niepowodzenie questa
+Completed --> TurnedIn : Odbior nagrody
+
+TurnedIn --> [*]
+Failed --> [*]
+@enduml

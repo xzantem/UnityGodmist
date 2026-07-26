@@ -1,0 +1,165 @@
+\chapter{Wprowadzenie, analiza problemu i wymagania}
+\label{cha:wprowadzenie-analiza}
+
+Przedmiotem niniejszej pracy jest projekt systemu gry komputerowej \emph{Godmist}. Jest to gra typu single player RPG, łącząca eksplorację lochów, rozwój drużyny postaci, walkę turową na siatce kwadratowej, system przedmiotów i craftingu, interakcje z postaciami niezależnymi oraz realizację misji. Projekt został przygotowany z perspektywy inżynierii oprogramowania, dlatego oprócz warstwy rozgrywki uwzględniono również strukturę danych, architekturę systemu, trwałość stanu gry oraz sposób modelowania najważniejszych procesów.
+
+Tworzenie gry tego typu stanowi interesujące wyzwanie projektowe, ponieważ wymaga połączenia wielu współzależnych mechanizmów w jedną spójną całość. System musi jednocześnie obsługiwać eksplorację miasta i lochów, walkę wielu jednostek, rozwój postaci, zarządzanie ekwipunkiem, crafting, handel, questy oraz zapis i odczyt stanu gry. Każdy z tych obszarów posiada własne reguły, lecz dopiero ich integracja decyduje o jakości końcowego rozwiązania. Z tego powodu projekt \emph{Godmist} może być traktowany nie tylko jako koncepcja gry, ale również jako przykład złożonego systemu informatycznego o wielu warstwach odpowiedzialności.
+
+\section{Cel i zakres pracy}
+\label{sec:cel-i-zakres}
+
+Celem pracy jest opracowanie projektu systemu gry RPG, który umożliwia prowadzenie rozgrywki opartej na eksploracji proceduralnych lochów, rozwoju drużyny oraz zarządzaniu zasobami gracza. System ma zapewniać spójną obsługę kluczowych elementów rozgrywki, takich jak walka turowa, postęp postaci, przedmioty, NPC, misje oraz trwałość danych. Istotnym celem jest również zaprojektowanie rozwiązania w sposób modularny, tak aby możliwe było jego dalsze rozwijanie i rozbudowa o kolejne mechaniki.
+
+Zakres pracy obejmuje analizę problemu projektowego, przegląd wybranych istniejących rozwiązań, sformułowanie wymagań funkcjonalnych i niefunkcjonalnych, przygotowanie modeli UML, opracowanie logicznego modelu danych, przedstawienie technologii i wymagań sprzętowych, zaprojektowanie interfejsu użytkownika oraz wskazanie propozycji testów. Praca nie koncentruje się na pełnej implementacji gry, lecz na przygotowaniu kompletnej dokumentacji projektowej, która może stanowić podstawę dalszej realizacji systemu.
+
+\section{Analiza problemu}
+\label{sec:analiza-problemu}
+
+Projektowanie gry \emph{Godmist} wymaga rozwiązania problemu integracji wielu mechanizmów, które w praktyce muszą działać równocześnie i pozostawać ze sobą w zgodzie. W odróżnieniu od prostych aplikacji użytkowych, system gry RPG nie realizuje jednego procesu biznesowego, lecz obsługuje złożone środowisko interaktywne, w którym użytkownik może w dowolnym momencie zmieniać kontekst działania. Gracz porusza się pomiędzy eksploracją lokacji, zarządzaniem drużyną, walką, rozwojem postaci, craftowaniem przedmiotów, realizacją misji oraz zapisaniem aktualnego stanu gry. Z punktu widzenia inżynierii oprogramowania oznacza to konieczność zaprojektowania systemu odpornego na dużą liczbę stanów i przejść pomiędzy nimi.
+
+Jednym z głównych wyzwań jest model postaci i drużyny. Każda postać posiada własne statystyki, klasę, zasób klasowy, umiejętności aktywne, pasywki, efekty statusu, ekwipunek oraz postęp w drzewkach rozwoju. Jednocześnie system musi rozróżniać stan trwały postaci od stanu tymczasowego występującego w walce. Oznacza to potrzebę rozdzielenia definicji danych od runtime'owego stanu rozgrywki oraz właściwego modelowania relacji między nimi.
+
+Drugim istotnym problemem jest walka turowa na siatce kwadratowej. Mechanika walki obejmuje kolejkę tur opartą na szybkości jednostek, punkty akcji, używanie umiejętności i przedmiotów, interakcję z obiektami mapy, system powalenia i śmierci, ucieczkę z walki oraz zależności pomiędzy wieloma drużynami. Oprócz samego modelu walki system musi poprawnie przenosić stan postaci pomiędzy eksploracją a starciem oraz zachowywać spójność danych po jego zakończeniu.
+
+Kolejnym wyzwaniem jest model przedmiotów i progresji ekwipunku. W projekcie występują zarówno zwykłe przedmioty użytkowe, jak i złożone elementy wyposażenia generowane z części, posiadające jakość, rzadkość, poziom, możliwość ulepszania, infuzji, przekuwania oraz osadzania galdurytów. Oznacza to konieczność zaprojektowania elastycznej struktury danych, która z jednej strony pozwoli modelować różne typy przedmiotów, a z drugiej nie doprowadzi do nadmiernej komplikacji systemu.
+
+Istotną trudność stanowi również powiązanie eksploracji z trwałością danych. Lochy proceduralne wymagają generatora, ale po wejściu do nich ich stan musi zostać zapamiętany przynajmniej do momentu opuszczenia instancji. Gra korzysta z zapisu w plikach JSON, a nie z klasycznej relacyjnej bazy danych, dlatego model danych musi umożliwiać czytelne przechowywanie stanu postaci, przedmiotów, misji, lochów, NPC i świata przy zachowaniu spójności identyfikatorów oraz relacji pomiędzy encjami.
+
+Na poziomie architektury problemem jest także podział odpowiedzialności pomiędzy definicje danych, logikę domenową, serwisy oraz warstwę prezentacji. W projekcie zakłada się wykorzystanie silnika Unity, co sprzyja oddzieleniu definicji \texttt{ScriptableObject}, klas runtime opisujących stan gry, serwisów koordynujących logikę oraz klas \texttt{MonoBehaviour} odpowiedzialnych za widok, wejście użytkownika i integrację ze sceną. Poprawne rozdzielenie tych warstw jest warunkiem późniejszej rozbudowy projektu oraz utrzymania porządku w kodzie.
+
+\section{Przegląd istniejących rozwiązań}
+\label{sec:przeglad-rozwiazan}
+
+Projekt \emph{Godmist} nie powstaje w oderwaniu od istniejących gier reprezentujących podobne mechaniki lub zbliżony sposób prowadzenia rozgrywki. Analiza wybranych rozwiązań pozwala wskazać elementy, które sprawdziły się w praktyce, a także lepiej określić własne założenia projektowe. Do porównania wybrano trzy tytuły: \emph{Baldur's Gate 3}, \emph{Darkest Dungeon} oraz \emph{Clair Obscur: Expedition 33}. Każdy z nich reprezentuje inny aspekt projektowanego systemu.
+
+\subsection{Baldur's Gate 3}
+\label{subsec:bg3}
+
+\emph{Baldur's Gate 3} jest rozbudowaną grą RPG opartą na zarządzaniu drużyną, eksploracji świata, interakcji z postaciami niezależnymi oraz realizacji zadań fabularnych i pobocznych. Jedną z najważniejszych cech tego rozwiązania jest silne powiązanie eksploracji z narracją i strukturą drużyny. Gracz nie steruje jedynie pojedynczym bohaterem, lecz zarządza grupą postaci, które posiadają własne role, umiejętności i znaczenie fabularne. Istotne jest także to, że część działań poza walką, takich jak rozmowy czy wybór aktywnej postaci, wpływa na dalszy przebieg rozgrywki.
+
+Dla projektu \emph{Godmist} inspirujące są przede wszystkim: model aktywnej drużyny, możliwość zmiany kontrolowanej postaci poza walką, obecność miasta lub huba pełniącego funkcję miejsca przygotowania do kolejnych wypraw oraz silne połączenie systemu misji z eksploracją i postaciami niezależnymi. Podobnie jak w \emph{Baldur's Gate 3}, w projekcie zakłada się, że gracz zarządza drużyną bohaterów, rozwija ich wyposażenie, realizuje zadania i podejmuje decyzje wpływające na stan świata.
+
+Różnica polega jednak na tym, że \emph{Godmist} nie jest klasycznym izometrycznym cRPG nastawionym w równym stopniu na narrację i swobodę dialogową. Większy nacisk położono tutaj na eksplorację lochów, powtarzalny cykl wypraw do niebezpiecznych miejsc i rozwój systemów związanych z walką oraz przedmiotami. Można więc uznać, że projekt przejmuje z \emph{Baldur's Gate 3} logikę drużyny, miasta i zadań, ale rozwija ją w kierunku bardziej systemowego dungeon crawlera.
+
+\subsection{Darkest Dungeon}
+\label{subsec:darkest-dungeon}
+
+\emph{Darkest Dungeon} stanowi jeden z najważniejszych punktów odniesienia dla projektu \emph{Godmist}, ponieważ również opiera się na cyklu przygotowania drużyny, wyprawy do lochu, walki, zdobywania nagród i powrotu do miejsca pełniącego funkcję huba. Kluczową cechą tego typu gier jest napięcie wynikające z ryzyka wyprawy. Gracz musi podejmować decyzje dotyczące składu drużyny, wyposażenia, użycia zasobów oraz opłacalności dalszej eksploracji. Istotna staje się nie tylko sama walka, ale również zarządzanie konsekwencjami wcześniejszych decyzji.
+
+W projekcie \emph{Godmist} podobna jest sama struktura rozgrywki. Gracz przygotowuje drużynę w mieście, korzysta z usług NPC, a następnie udaje się do lochu, gdzie eksploruje pomieszczenia, uruchamia pułapki, walczy z przeciwnikami, zbiera łup i stara się bezpiecznie wrócić. W obu rozwiązaniach ważna jest także możliwość utraty części postępu lub postaci oraz konieczność inwestowania zdobytych zasobów w dalszy rozwój.
+
+Jednocześnie \emph{Godmist} różni się od \emph{Darkest Dungeon} sposobem prowadzenia eksploracji i walki. Zamiast modelu bardziej abstrakcyjnego, projekt zakłada poruszanie się po mapie 2D złożonej z pokoi i korytarzy oraz walkę odbywającą się na tej samej siatce pól, bez przejścia do całkowicie osobnego ekranu walki. Dodatkowo rozwój postaci i ekwipunku w \emph{Godmist} ma większy nacisk na klasy, drzewka umiejętności, części wyposażenia i system craftingu. Oznacza to, że inspirowana została przede wszystkim struktura wypraw i zarządzania ryzykiem, natomiast sama implementacja podsystemów jest bardziej rozbudowana.
+
+\subsection{Clair Obscur: Expedition 33}
+\label{subsec:coe33}
+
+Trzecim istotnym punktem odniesienia jest \emph{Clair Obscur: Expedition 33}. Tytuł ten stanowi dobrą inspirację przede wszystkim w obszarze rozwoju postaci, personalizacji buildów oraz kompozycji drużyny. W tego typu rozwiązaniach ważne jest, aby każda postać posiadała odrębny styl gry, własne ścieżki rozwoju oraz zestaw umiejętności pozwalających budować synergie z innymi członkami zespołu. Gracz powinien odczuwać, że rozwój nie polega jedynie na zwiększaniu liczb, ale również na kształtowaniu roli postaci w drużynie.
+
+W \emph{Godmist} podobny cel realizowany jest przez system klas, zasobów klasowych, aktywnych umiejętności, pasywek oraz drzewek skilli podzielonych na trzy niezależne ścieżki rozwoju. Każda klasa posiada własną tożsamość mechaniczną, własny zasób i inny zestaw możliwych buildów. Taki model wspiera różnorodność stylów gry oraz pozwala na świadome budowanie drużyny pod konkretną strategię.
+
+Różnica polega na tym, że \emph{Clair Obscur: Expedition 33} nie jest grą skoncentrowaną na wyprawach do proceduralnych lochów, zarządzaniu miastem czy generowanym ekwipunku. W projekcie \emph{Godmist} element progresji postaci został połączony z bardziej rozbudowanym systemem lootu, craftingu i eksploracji. Oznacza to, że inspiracja dotyczy głównie jakości rozwoju postaci, a nie ogólnej struktury całej gry.
+
+\subsection{Wnioski z analizy porównawczej}
+\label{subsec:wnioski-z-analizy}
+
+Przeprowadzona analiza pokazuje, że projekt \emph{Godmist} łączy elementy pochodzące z kilku różnych nurtów gier RPG i dungeon crawlerów. Z \emph{Baldur's Gate 3} przejmuje ideę zarządzania drużyną, eksploracji świata, interakcji z NPC i systemu misji. Z \emph{Darkest Dungeon} czerpie strukturę wypraw do lochów, znaczenie przygotowania do wyprawy, napięcie związane z ryzykiem oraz rolę miasta jako centrum zaplecza. Z kolei \emph{Clair Obscur: Expedition 33} stanowi inspirację w obszarze progresji postaci, różnicowania klas i tworzenia wyraźnych ścieżek rozwoju.
+
+Na tle tych rozwiązań \emph{Godmist} stanowi próbę połączenia eksploracji proceduralnych lochów, walki turowej, craftingu, systemu przedmiotów i rozwoju drużyny w jednym spójnym systemie. Własną cechą projektu jest połączenie podejścia dungeon crawlerowego z rozbudowaną strukturą danych i modularną architekturą, co czyni go dobrym obiektem analizy z perspektywy inżynierii oprogramowania.
+
+\section{Opis biznesowy systemu}
+\label{sec:opis-biznesowy}
+
+Choć projekt \emph{Godmist} dotyczy gry single player, możliwe jest opisanie go jako systemu informatycznego dostarczającego użytkownikowi określony zestaw funkcji. System ma umożliwiać prowadzenie rozgrywki polegającej na eksploracji miasta i lochów, zarządzaniu drużyną, walce, rozwoju postaci oraz trwałym zapisie postępu. Głównym użytkownikiem końcowym systemu jest gracz, który korzysta z udostępnionych funkcji w celu realizacji zadań, zdobywania zasobów i rozwijania drużyny.
+
+System powinien być zaprojektowany w sposób modułowy, ponieważ obejmuje wiele współpracujących obszarów funkcjonalnych. Z perspektywy użytkownika istotne są nie tylko pojedyncze mechaniki, ale również płynne przechodzenie pomiędzy nimi. Gracz powinien mieć możliwość przygotowania drużyny w mieście, wyruszenia do lochu, prowadzenia eksploracji, rozpoczynania starć, zdobywania łupów, powrotu do miasta oraz dalszego inwestowania zdobytych zasobów. Tego typu cykl rozgrywki wymaga logicznie spójnego systemu zarządzania stanem gry.
+
+\subsection{Wymagania funkcjonalne}
+\label{subsec:wymagania-funkcjonalne}
+
+Wymagania funkcjonalne określają, jakie operacje i usługi system \emph{Godmist} powinien realizować z perspektywy użytkownika oraz logiki rozgrywki. Poniższa lista obejmuje kluczowe funkcje projektowanego systemu.
+
+\begin{itemize}
+    \item \textbf{WF-01.} System ma umożliwiać rozpoczęcie nowej gry oraz utworzenie nowego stanu kampanii.
+    \item \textbf{WF-02.} System ma umożliwiać wczytanie wcześniej zapisanego stanu gry.
+    \item \textbf{WF-03.} System ma umożliwiać zapis postępu gry w sposób ręczny oraz automatyczny w określonych momentach rozgrywki.
+    \item \textbf{WF-04.} System ma umożliwiać poruszanie drużyną po mapie miasta oraz po mapach lochów.
+    \item \textbf{WF-05.} System ma umożliwiać przełączanie aktywnie kontrolowanej postaci poza walką pomiędzy członkami drużyny kontrolowanymi przez gracza.
+    \item \textbf{WF-06.} System ma umożliwiać interakcję z obiektami środowiskowymi, takimi jak drzwi, skrzynie, dźwignie, pułapki i inne obiekty interaktywne.
+    \item \textbf{WF-07.} System ma umożliwiać rozpoczynanie dialogów z postaciami niezależnymi.
+    \item \textbf{WF-08.} System ma umożliwiać inicjowanie walki na skutek wejścia w obszar starcia, interakcji skryptowej lub określonego wyboru dialogowego.
+    \item \textbf{WF-09.} System ma umożliwiać prowadzenie walki w trybie turowym na planszy podzielonej na pola siatki kwadratowej.
+    \item \textbf{WF-10.} System ma wyznaczać kolejność tur na podstawie parametrów postaci i stanu bieżącej walki.
+    \item \textbf{WF-11.} System ma umożliwiać wykonywanie ruchu postaci po planszy w trakcie walki z uwzględnieniem kosztu punktów akcji.
+    \item \textbf{WF-12.} System ma uwzględniać wpływ terenu i przeszkód na możliwość ruchu, koszt ruchu oraz dostępność wybranych pól.
+    \item \textbf{WF-13.} System ma umożliwiać używanie umiejętności aktywnych podczas walki.
+    \item \textbf{WF-14.} System ma uwzględniać koszt punktów akcji oraz koszt zasobu klasowego podczas używania umiejętności.
+    \item \textbf{WF-15.} System ma obsługiwać różne typy celowania umiejętności, w tym cele pojedyncze, obszarowe, liniowe, łańcuchowe oraz niestandardowe.
+    \item \textbf{WF-16.} System ma obsługiwać różne efekty umiejętności, w tym zadawanie obrażeń, leczenie, nakładanie statusów, modyfikację statystyk, przesunięcia, teleportację, tarczę, przywracanie zasobów i tworzenie obiektów.
+    \item \textbf{WF-17.} System ma umożliwiać używanie przedmiotów bojowych i użytkowych podczas walki.
+    \item \textbf{WF-18.} System ma umożliwiać próbę ucieczki z walki zgodnie z przyjętymi regułami mechaniki.
+    \item \textbf{WF-19.} System ma umożliwiać podnoszenie powalonych postaci przez uprawnione jednostki podczas walki.
+    \item \textbf{WF-20.} System ma obsługiwać zakończenie walki wraz z odpowiednim rozstrzygnięciem wyniku starcia.
+    \item \textbf{WF-21.} System ma obsługiwać statystyki postaci, w tym zdrowie, atak, obronę fizyczną i magiczną, unik, szansę trafienia krytycznego, obrażenia krytyczne, szybkość oraz regenerację zasobu.
+    \item \textbf{WF-22.} System ma obsługiwać klasowe zasoby postaci, takie jak rage, momentum i mana, wraz z ich regeneracją i zużyciem.
+    \item \textbf{WF-23.} System ma obsługiwać statusy i efekty czasowe, w tym efekty pozytywne, negatywne i neutralne.
+    \item \textbf{WF-24.} System ma obsługiwać odporności postaci na wybrane rodzaje efektów i ograniczeń.
+    \item \textbf{WF-25.} System ma umożliwiać zdobywanie doświadczenia przez postacie oraz rozwój poziomu postaci.
+    \item \textbf{WF-26.} System ma umożliwiać przydzielanie punktów rozwoju do drzewek umiejętności przypisanych do klasy postaci.
+    \item \textbf{WF-27.} System ma obsługiwać odblokowywanie aktywnych i pasywnych umiejętności na podstawie postępu w drzewkach rozwoju.
+    \item \textbf{WF-28.} System ma umożliwiać zarządzanie ekwipunkiem postaci, w tym przenoszenie, przechowywanie, zużywanie i sprzedawanie przedmiotów.
+    \item \textbf{WF-29.} System ma obsługiwać wspólny schowek drużyny dostępny w mieście.
+    \item \textbf{WF-30.} System ma umożliwiać wyposażanie postaci w broń, pancerz i biżuterię zgodnie z ograniczeniami klasowymi i poziomowymi.
+    \item \textbf{WF-31.} System ma obsługiwać przedmioty instancyjne z własnymi cechami, takimi jak poziom, rzadkość, jakość, ulepszenie oraz efekty dodatkowe.
+    \item \textbf{WF-32.} System ma obsługiwać system galdurytów, ich identyfikację, osadzanie w wyposażeniu oraz wynikające z tego efekty pasywne.
+    \item \textbf{WF-33.} System ma umożliwiać tworzenie przedmiotów u odpowiednich postaci niezależnych, w tym broni, pancerzy, biżuterii, mikstur, bomb, materiałów pośrednich i galdurytów.
+    \item \textbf{WF-34.} System ma umożliwiać ulepszanie, przekuwanie oraz infuzję wybranych elementów wyposażenia.
+    \item \textbf{WF-35.} System ma obsługiwać handel z postaciami niezależnymi, w tym kupowanie, sprzedawanie i odkup przedmiotów.
+    \item \textbf{WF-36.} System ma obsługiwać lojalność wybranych postaci niezależnych i jej wpływ na dostępność usług oraz ceny.
+    \item \textbf{WF-37.} System ma obsługiwać parametr honoru postaci oraz jego wpływ na wybrane interakcje społeczne i ekonomiczne.
+    \item \textbf{WF-38.} System ma umożliwiać przyjmowanie, śledzenie i realizowanie zadań głównych, pobocznych, towarzyszy, frakcyjnych i radiant.
+    \item \textbf{WF-39.} System ma obsługiwać wieloetapowe zadania wraz z celami, warunkami dostępności, nagrodami i flagami świata.
+    \item \textbf{WF-40.} System ma umożliwiać generowanie proceduralnych lochów na podstawie ustalonych parametrów, motywów oraz reguł zawartości.
+    \item \textbf{WF-41.} System ma obsługiwać lochy predefiniowane oraz lochy częściowo proceduralne zawierające gwarantowane pomieszczenia i zdarzenia.
+    \item \textbf{WF-42.} System ma zapamiętywać stan odwiedzonych lochów, w tym układ, odwiedzone pomieszczenia, pokonane spotkania oraz zdobyty łup.
+    \item \textbf{WF-43.} System ma obsługiwać postacie niezależne świadczące różne typy usług, takie jak handel, kowalstwo, alchemia, runotwórstwo i zadania.
+    \item \textbf{WF-44.} System ma umożliwiać wyświetlanie odpowiednich widoków interfejsu użytkownika dla eksploracji, walki, ekwipunku, rozwoju, craftingu, handlu, questów i zapisu gry.
+    \item \textbf{WF-45.} System ma umożliwiać zarządzanie wieloma zapisami gry w formie listy kampanii i stanów zapisu.
+\end{itemize}
+
+\subsection{Wymagania niefunkcjonalne}
+\label{subsec:wymagania-niefunkcjonalne}
+
+Wymagania niefunkcjonalne określają ograniczenia jakościowe, technologiczne i organizacyjne projektowanego systemu. Dotyczą one sposobu działania systemu, jego wydajności, architektury oraz wygody użytkowania.
+
+\begin{itemize}
+    \item \textbf{WN-01.} System ma działać jako aplikacja typu single player, niewymagająca logowania użytkownika ani stałego połączenia z Internetem.
+    \item \textbf{WN-02.} System ma być rozwijany z wykorzystaniem silnika Unity.
+    \item \textbf{WN-03.} System ma być implementowany w języku C\#.
+    \item \textbf{WN-04.} System ma przechowywać trwały stan gry w plikach w formacie JSON.
+    \item \textbf{WN-05.} Architektura systemu ma rozdzielać definicje danych, stan runtime, logikę systemową, warstwę prezentacji oraz mechanizmy trwałości danych.
+    \item \textbf{WN-06.} System ma umożliwiać dalszą rozbudowę o nowe klasy postaci, umiejętności, przedmioty, questy, NPC oraz lochy bez konieczności przebudowy całej architektury.
+    \item \textbf{WN-07.} System ma wykorzystywać identyfikatory logiczne w sposób zapewniający spójne odwoływanie się do definicji danych i instancji zapisu.
+    \item \textbf{WN-08.} System ma zachowywać spójność danych po zapisaniu i ponownym wczytaniu gry.
+    \item \textbf{WN-09.} System ma uniemożliwiać wykonanie operacji prowadzących do oczywistej niespójności stanu rozgrywki, w szczególności w obszarach walki, ekwipunku, questów i zapisu.
+    \item \textbf{WN-10.} Interfejs użytkownika ma być czytelny i dostosowany do obsługi z użyciem myszy oraz klawiatury.
+    \item \textbf{WN-11.} Interfejs użytkownika ma zachowywać spójność wizualną i funkcjonalną pomiędzy głównymi ekranami systemu.
+    \item \textbf{WN-12.} System ma dostarczać użytkownikowi jednoznacznej informacji o wynikach wykonywanych operacji, takich jak zapis gry, zakup przedmiotu, użycie umiejętności lub brak spełnienia warunków działania.
+    \item \textbf{WN-13.} System ma zapewniać akceptowalny czas reakcji podczas przełączania widoków, otwierania okien interfejsu oraz wykonywania podstawowych operacji użytkownika.
+    \item \textbf{WN-14.} System ma zapewniać akceptowalny czas generowania i wczytywania lochów w typowych scenariuszach użytkowania.
+    \item \textbf{WN-15.} System ma zachowywać stabilność działania podczas dłuższej sesji gry obejmującej wielokrotne walki, interakcje, handel i zapisywanie stanu.
+    \item \textbf{WN-16.} System ma umożliwiać utrzymanie i testowanie poszczególnych modułów w sposób względnie niezależny.
+    \item \textbf{WN-17.} System ma być przygotowany do stosowania podejścia zdarzeniowego w komunikacji pomiędzy wybranymi modułami.
+    \item \textbf{WN-18.} System ma umożliwiać tworzenie narzędzi debugowych i edytorowych wspierających rozwój projektu w środowisku Unity.
+    \item \textbf{WN-19.} System ma być odporny na częściowe uszkodzenie pojedynczego zapisu w tym sensie, że uszkodzenie jednego pliku zapisu nie powinno uniemożliwiać korzystania z pozostałych zapisów.
+    \item \textbf{WN-20.} System ma umożliwiać rozwój dokumentacji projektowej i modelu klas w sposób zgodny z rzeczywistą architekturą implementacji.
+    \item \textbf{WN-21.} System ma wspierać modularne dodawanie nowych danych konfiguracyjnych z wykorzystaniem obiektów \texttt{ScriptableObject}.
+    \item \textbf{WN-22.} System ma być możliwy do uruchomienia na typowym komputerze osobistym klasy konsumenckiej, spełniającym wymagania środowiska uruchomieniowego Unity.
+    \item \textbf{WN-23.} System ma zapewniać możliwość dalszego rozwinięcia warstwy fabularnej, zawartości lochów oraz złożoności mechanik bez konieczności zmiany podstawowych założeń technologicznych.
+    \item \textbf{WN-24.} Nazewnictwo elementów systemu, struktur danych i modułów powinno być spójne w kodzie, dokumentacji i modelach projektowych.
+    \item \textbf{WN-25.} System powinien być projektowany w sposób ograniczający nadmierne uzależnienie logiki domenowej od klas widoku i elementów sceny Unity.
+\end{itemize}
+
+\section{Podsumowanie rozdziału}
+\label{sec:podsumowanie-rozdzialu-1}
+
+W rozdziale przedstawiono cel i zakres pracy, omówiono problem projektowy oraz dokonano przeglądu wybranych istniejących rozwiązań. Na tej podstawie określono również podstawowe wymagania funkcjonalne i niefunkcjonalne projektowanego systemu. Ustalenia te stanowią punkt wyjścia do dalszego modelowania, projektowania architektury oraz opisu struktury danych gry \emph{Godmist}.

@@ -1,0 +1,64 @@
+using System;
+using Godmist.Core.Enums;
+using Godmist.Runtime.Combat;
+using UnityEngine;
+
+namespace Godmist.Systems.Combat
+{
+    public class CombatRecoverySystem
+    {
+        private readonly Action<string> battleLog;
+
+        public CombatRecoverySystem(Action<string> battleLog = null)
+        {
+            this.battleLog = battleLog;
+        }
+
+        public int Heal(BattleUnit target, int requestedAmount)
+        {
+            if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead || requestedAmount <= 0) return 0;
+
+            var stats = target.Character.Stats;
+
+            if (stats == null) return 0;
+
+            var maxHealth = Mathf.Max(0, Mathf.RoundToInt(stats.MaxHealth.GetValue()));
+
+            if (maxHealth <= 0) return 0;
+
+            var previousHealth = target.Character.CurrentHealth;
+
+            target.Character.CurrentHealth = Mathf.Min(maxHealth, previousHealth + requestedAmount);
+
+            var restoredHealth = target.Character.CurrentHealth - previousHealth;
+
+            if (restoredHealth <= 0) return 0;
+
+            if (target.Character.LifeState == CharacterLifeState.Downed)
+            {
+                target.Character.LifeState = CharacterLifeState.Alive;
+                target.DownedTurnsRemaining = 0;
+
+                battleLog?.Invoke($"{target.Character.Definition.DisplayName} zostaje podniesiony i odzyskuje {restoredHealth} HP.");
+
+                return restoredHealth;
+            }
+
+            battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredHealth} HP.");
+
+            return restoredHealth;
+        }
+
+        public int RestoreResource(BattleUnit target, int requestedAmount)
+        {
+            if (target?.Character == null || target.Character.LifeState != CharacterLifeState.Alive 
+                || target.Character.ResourcePool == null || requestedAmount <= 0) return 0;
+
+            var restoredAmount =target.Character.ResourcePool.Restore(requestedAmount);
+
+            if (restoredAmount > 0) battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredAmount} zasobu.");
+
+            return restoredAmount;
+        }
+    }
+}

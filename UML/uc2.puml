@@ -1,0 +1,47 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam nodesep 25
+skinparam ranksep 35
+
+actor "Gracz" as Player
+
+rectangle "System Godmist - Zarządzanie postacią i ekwipunkiem" {
+
+  rectangle "Postacie i rozwój" {
+    usecase "Zarządzanie\ndrużyną" as UC1
+    usecase "Przegląd statystyk\npostaci" as D1
+    usecase "Rozwijanie\npostaci" as D2
+    usecase "Inwestowanie punktów\nw drzewko skilli" as D3
+
+    UC1 -[hidden]down-> D1
+    D1 -[hidden]right-> D2
+    D2 -[hidden]down-> D3
+  }
+
+  rectangle "Ekwipunek" {
+    usecase "Zarządzanie\nekwipunkiem" as UC2
+    usecase "Wyposażanie\nprzedmiotów" as D4
+    usecase "Przenoszenie przedmiotów\ndo schowka" as D5
+    usecase "Używanie\nprzedmiotów" as D6
+
+    UC2 -[hidden]down-> D5
+    D4 -[hidden]right-> D5
+    D5 -[hidden]right-> D6
+  }
+}
+
+Player --> UC1
+Player --> UC2
+
+UC1 .> D1 : <<include>>
+UC1 .> D2 : <<include>>
+D2 .> D3 : <<include>>
+
+UC2 .> D4 : <<include>>
+UC2 .> D5 : <<include>>
+UC2 .> D6 : <<include>>
+
+@enduml

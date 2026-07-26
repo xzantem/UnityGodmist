@@ -1,0 +1,158 @@
+@startuml
+title Diagram klas - Uproszczony model domenowy systemu Godmist
+
+hide methods
+hide stereotypes
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ranksep 80
+skinparam nodesep 50
+left to right direction
+
+package "Postacie i rozwoj" {
+  class CharacterDefinition {
+    characterId: string
+    displayName: string
+    isMainCharacter: bool
+  }
+
+  class CharacterClassData {
+    classId: string
+    className: string
+    resourceType: ResourceType
+  }
+
+  class CharacterInstance {
+    characterId: string
+    level: int
+    currentHealth: int
+    honor: int
+    lifeState: CharacterLifeState
+    availabilityState: CharacterAvailabilityState
+  }
+
+  class SkillTreeDefinition {
+    treeId: string
+    name: string
+  }
+
+  class SkillTreeInstance {
+    treeId: string
+    investedPoints: int
+  }
+
+  class SkillData {
+    skillId: string
+    name: string
+    actionCost: int
+    resourceCost: int
+  }
+
+  class PassiveEffectData {
+    effectId: string
+    description: string
+  }
+}
+
+package "Przedmioty i ekwipunek" {
+  class ItemDefinition {
+    itemId: string
+    name: string
+    itemType: ItemType
+    baseRarity: RarityTier
+  }
+
+  class ItemInstance {
+    instanceId: string
+    itemLevel: int
+    currentRarity: RarityTier
+  }
+
+  class EquipmentItemInstance {
+    quality: EquipmentQuality
+    upgradePercent: int
+    socketCapacity: int
+  }
+
+  class Inventory {
+    currentWeight: float
+    maxWeight: float
+  }
+
+  class Stash {
+    isUnlimited: bool
+  }
+}
+
+package "Swiat gry" {
+  class NpcDefinition {
+    npcId: string
+    displayName: string
+  }
+
+  class NpcInstance {
+    npcId: string
+    loyaltyLevel: int
+  }
+
+  class QuestDefinition {
+    questId: string
+    name: string
+    questType: QuestType
+  }
+
+  class QuestInstance {
+    questId: string
+    status: QuestStatus
+    currentStageIndex: int
+  }
+
+  class DungeonDefinition {
+    dungeonId: string
+    name: string
+    theme: DungeonTheme
+  }
+
+  class DungeonInstance {
+    dungeonId: string
+    seed: int
+    isCompleted: bool
+  }
+}
+
+package "Trwalosc danych" {
+  class GameSaveData {
+    saveId: string
+    createdAt: string
+    saveVersion: int
+  }
+}
+
+CharacterInstance --> CharacterDefinition : 1..1
+CharacterInstance --> CharacterClassData : 1..1
+
+CharacterClassData o-- "1..3" SkillTreeDefinition
+CharacterInstance *-- "1..3" SkillTreeInstance
+SkillTreeInstance --> SkillTreeDefinition : 1..1
+SkillTreeDefinition o-- "0..*" SkillData
+SkillTreeDefinition o-- "0..*" PassiveEffectData
+
+CharacterInstance *-- "1..1" Inventory
+Inventory *-- "0..*" ItemInstance
+ItemInstance --> ItemDefinition : 1..1
+EquipmentItemInstance --|> ItemInstance
+Stash *-- "0..*" ItemInstance
+
+NpcInstance --> NpcDefinition : 1..1
+QuestInstance --> QuestDefinition : 1..1
+DungeonInstance --> DungeonDefinition : 1..1
+
+GameSaveData o-- "0..*" CharacterInstance
+GameSaveData o-- "0..*" QuestInstance
+GameSaveData o-- "0..*" NpcInstance
+GameSaveData o-- "0..*" DungeonInstance
+GameSaveData o-- "1..1" Stash
+
+@enduml

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Godmist UI Mockup - Walka</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen screen-combat">
+      <div class="backdrop backdrop--combat"></div>
+      <div class="vignette"></div>
+
+      <section class="scene-frame">
+        <div class="scene-frame__grid"></div>
+        <div class="scene-placeholder scene-placeholder--combat">
+          <div class="scene-placeholder__badge">Scena walki</div>
+          <h2>Tutaj będzie plansza taktyczna z jednostkami i obiektami</h2>
+          <p>
+            W finalnej wersji środek ekranu zajmie pole bitwy na siatce kwadratowej:
+            postacie, przeciwnicy, przeszkody, pułapki, zasięgi, ścieżki ruchu i podświetlenia celów.
+            HUD ma dostarczać informacje strategiczne, ale nadal zostawiać środek scenie.
+          </p>
+        </div>
+      </section>
+
+      <div class="combat-bottom-shell"></div>
+
+      <div class="hud-widget hud-widget--top-left">
+        <section class="encounter-card">
+          <div class="eyebrow">Starcie</div>
+          <h1>Zasadzka w katakumbach</h1>
+          <p>Runda 4 • Tura gracza • Wrogowie: 5 • Sojusznicy: 4</p>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--top-right hud-widget--top-right-combat">
+        <section class="initiative-widget">
+          <div class="initiative-widget__header">
+            <span>Kolejka tur</span>
+          </div>
+          <div class="initiative-list">
+            <div class="initiative-chip initiative-chip--active">Jerzy</div>
+            <div class="initiative-chip initiative-chip--enemy">Kultysta</div>
+            <div class="initiative-chip">Maela</div>
+            <div class="initiative-chip initiative-chip--enemy">Rycerz kości</div>
+            <div class="initiative-chip">Orven</div>
+            <div class="initiative-chip initiative-chip--enemy">Plugawiciel</div>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--left-middle">
+        <section class="party-strip">
+          <div class="party-strip__header">
+            <span>Drużyna</span>
+            <span class="tiny">Statusy i zasoby</span>
+          </div>
+          <div class="party-strip__list party-strip__list--vertical">
+            <article class="portrait-card portrait-card--active">
+              <div class="portrait-card__avatar"></div>
+              <div class="portrait-card__body">
+                <strong>Jerzy</strong>
+                <span>Zwiadowca • Pęd 37/60 • AP 62/100</span>
+                <div class="mini-bars">
+                  <span class="mini-bars__hp"></span>
+                  <span class="mini-bars__res"></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="portrait-card">
+              <div class="portrait-card__avatar portrait-card__avatar--violet"></div>
+              <div class="portrait-card__body">
+                <strong>Maela</strong>
+                <span>Czarodziejka • Mana 48/72 • Gotowa</span>
+                <div class="mini-bars">
+                  <span class="mini-bars__hp"></span>
+                  <span class="mini-bars__res mini-bars__res--mana"></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="portrait-card">
+              <div class="portrait-card__avatar portrait-card__avatar--ash"></div>
+              <div class="portrait-card__body">
+                <strong>Orven</strong>
+                <span>Wojownik • Rage 0/100 • Gotowy</span>
+                <div class="mini-bars">
+                  <span class="mini-bars__hp"></span>
+                  <span class="mini-bars__res mini-bars__res--rage"></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="portrait-card portrait-card--downed">
+              <div class="portrait-card__avatar portrait-card__avatar--teal"></div>
+              <div class="portrait-card__body">
+                <strong>Kara</strong>
+                <span>Powalona • 2 tury do śmierci</span>
+                <div class="mini-bars">
+                  <span class="mini-bars__hp mini-bars__hp--empty"></span>
+                  <span class="mini-bars__res mini-bars__res--mana"></span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--right-middle">
+        <section class="target-widget">
+          <div class="eyebrow">Wybrany cel</div>
+          <h2>Kultysta mgły</h2>
+          <p>Humanoid • Poziom 17</p>
+          <div class="target-stats">
+            <div class="target-stat">
+              <span>HP</span>
+              <strong>52 / 84</strong>
+            </div>
+            <div class="target-stat">
+              <span>Obrona</span>
+              <strong>14</strong>
+            </div>
+            <div class="target-stat">
+              <span>Unik</span>
+              <strong>9%</strong>
+            </div>
+          </div>
+          <div class="target-effects">
+            <span class="status-pill status-pill--negative">Krwawienie</span>
+            <span class="status-pill">Osłabienie</span>
+          </div>
+          <div class="context-actions">
+            <span class="context-key">LPM</span>
+            <span>Atak / wybór celu</span>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--bottom-left">
+        <section class="active-unit-card">
+          <div class="active-unit-card__portrait"></div>
+          <div class="active-unit-card__body">
+            <div class="eyebrow">Aktywna postać</div>
+            <h2>Jerzy / Zwiadowca</h2>
+            <div class="resource-stack resource-stack--compact">
+              <div class="resource-card resource-card--hp">
+                <label>Zdrowie</label>
+                <strong>84 / 100</strong>
+                <div class="bar"><span style="width:84%"></span></div>
+              </div>
+              <div class="resource-card resource-card--ap">
+                <label>AP</label>
+                <strong>62 / 100</strong>
+                <div class="bar"><span style="width:62%"></span></div>
+              </div>
+              <div class="resource-card resource-card--momentum">
+                <label>Pęd</label>
+                <strong>37 / 60</strong>
+                <div class="bar"><span style="width:61%"></span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--bottom-center combat-bottom-bar">
+        <section class="combat-skillbar">
+          <div class="combat-skillbar__header">
+            <span>Akcje i umiejętności</span>
+          </div>
+          <div class="combat-skillbar__list">
+            <button class="skill-button skill-button--move">
+              <span class="skill-button__key">1</span>
+              <strong>Ruch</strong>
+              <em>Rosnący koszt AP</em>
+            </button>
+            <button class="skill-button skill-button--active">
+              <span class="skill-button__key">2</span>
+              <strong>Rzut nożem</strong>
+              <em>18 AP • 12 pędu</em>
+            </button>
+            <button class="skill-button">
+              <span class="skill-button__key">3</span>
+              <strong>Szarża cienia</strong>
+              <em>24 AP • 18 pędu</em>
+            </button>
+            <button class="skill-button">
+              <span class="skill-button__key">4</span>
+              <strong>Mikstura</strong>
+              <em>20% max AP</em>
+            </button>
+            <button class="skill-button">
+              <span class="skill-button__key">5</span>
+              <strong>Interakcja</strong>
+              <em>20% max AP</em>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="hud-widget hud-widget--bottom-right">
+        <section class="combat-action-panel">
+          <button class="action action--primary action--wide">Zakończ turę</button>
+          <button class="action action--wide">Podnieś</button>
+          <button class="action action--wide">Ucieczka</button>
+          <button class="action action--wide">Log</button>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

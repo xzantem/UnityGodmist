@@ -1,0 +1,52 @@
+@startuml
+title Diagram aktywności - Przyjęcie i realizacja questa
+
+start
+
+:Gracz rozmawia z NPC\nlub znajduje obiekt fabularny;
+:System identyfikuje dostępny quest;
+
+if (Czy warunki odblokowania są spełnione?) then (tak)
+  :Wyświetlenie informacji o queście;
+
+  if (Czy gracz akceptuje quest?) then (tak)
+    :Dodanie questa do dziennika;
+    :Ustawienie pierwszego etapu;
+    :Aktywacja celów etapu;
+  else (nie)
+    :Brak zmian w dzienniku;
+    stop
+  endif
+
+else (nie)
+  :Quest pozostaje niedostępny;
+  stop
+endif
+
+while (Czy quest został ukończony?) is (nie)
+  :Gracz wykonuje działania w świecie gry;
+  :System śledzi postęp celów etapu;
+
+  if (Czy cel został zaktualizowany?) then (tak)
+    :Aktualizacja postępu w dzienniku;
+  endif
+
+  if (Czy wszystkie wymagane cele etapu są ukończone?) then (tak)
+    :Przyznanie nagrody etapowej,\njeśli istnieje;
+
+    if (Czy istnieje kolejny etap?) then (tak)
+      :Przejście do kolejnego etapu;
+      :Aktywacja nowych celów;
+    else (nie)
+      :Oznaczenie questa jako ukończony;
+    endif
+  endif
+
+endwhile (tak)
+
+:System przyznaje nagrody końcowe;
+:System aktualizuje flagi świata,\nodblokowania i kolejne questy;
+:Wyświetlenie informacji o ukończeniu questa;
+
+stop
+@enduml
