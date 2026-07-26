@@ -9,6 +9,7 @@ namespace Godmist.Views.Game
     {
         [Header("Scene Flow")]
         [SerializeField] private string combatSceneName = "CombatSandbox";
+        [SerializeField] private string explorationSceneName = "ExplorationSandbox";
 
         public static GameBootstrap Instance { get; private set; }
         public GameSession Session { get; private set; }
@@ -46,6 +47,17 @@ namespace Godmist.Views.Game
             }
 
             sceneLoader.TryLoadScene(combatSceneName, GameModeState.Combat);
+        }
+
+        public void StartExploration()
+        {
+            if (sceneLoader == null)
+            {
+                Debug.LogError("GameBootstrap: brak SceneLoader.");
+                return;
+            }
+
+            sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration);
         }
     }
 }

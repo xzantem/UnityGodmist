@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Data.Characters;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Game;
+using Godmist.Views.Game;
+using UnityEngine;
+
+namespace Godmist.Views.Exploration
+{
+    public class ExplorationSandboxBootstrap : MonoBehaviour
+    {
+        [SerializeField] private ExplorationPartyController partyController;
+        [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
+
+        private void Start()
+        {
+            var gameBootstrap = GameBootstrap.Instance;
+
+            if (gameBootstrap == null)
+            {
+                Debug.LogError("ExplorationSandboxBootstrap: uruchom scene przez Bootstrap.");
+                return;
+            }
+
+            var session = gameBootstrap.Session;
+            var characterViews = new List<ExplorationCharacterView>();
+
+            foreach (var binding in partyBindings)
+            {
+                var character = GetOrCreateCharacter(session, binding);
+
+                if (character == null) continue;
+
+                if (!session.PlayerParty.ContainsMember(character.CharacterId))
+                {
+                    session.TryAddCharacterToActiveParty(character.CharacterId);
+                }
+
+                binding.CharacterView.Bind(character);
+                characterViews.Add(binding.CharacterView);
+            }
+
+            if (string.IsNullOrEmpty(session.PlayerParty.ActiveLeaderId) && characterViews.Count > 0)
+            {
+                session.TrySetActiveLeader(characterViews[0].CharacterId);
+            }
+
+            partyController.Initialize(session, characterViews);
+        }
+
+        private static CharacterInstance GetOrCreateCharacter(
+            GameSession session,
+            ExplorationCharacterBinding binding)
+        {
+            if (binding == null || binding.Definition == null || binding.CharacterView == null) return null;
+
+            var characterId = binding.Definition.Id;
+
+            if (string.IsNullOrWhiteSpace(characterId))
+            {
+                Debug.LogError("ExplorationSandboxBootstrap: CharacterDefinition ma puste Id.");
+                return null;
+            }
+
+            if (session.CharactersById
+                .TryGetValue(characterId, out var existingCharacter)) return existingCharacter;
+
+            var character = new CharacterInstance
+            {
+                CharacterId = characterId,
+                Definition = binding.Definition,
+                ClassData = binding.ClassData,
+                LifeState = CharacterLifeState.Alive,
+                AvailabilityState = CharacterAvailabilityState.Available
+            };
+
+            return session.TryRegisterCharacter(character) ? character : null;
+        }
+    }
+
+    [Serializable]
+    public class ExplorationCharacterBinding
+    {
+        public CharacterDefinition Definition;
+        public CharacterClassData ClassData;
+        public ExplorationCharacterView CharacterView;
+    }
+}

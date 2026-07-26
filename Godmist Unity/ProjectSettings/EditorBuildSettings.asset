@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/_Project/Scenes/Bootstrap/Bootstrap.unity
     guid: 0ef38b0e71c21724f902ae1c0cd5b1c1
   - enabled: 1
+    path: Assets/_Project/Scenes/Sandbox/ExplorationSandbox.unity
+    guid: b29fd250f5967554c801a3206e9b405c
+  - enabled: 1
     path: Assets/_Project/Scenes/Sandbox/CombatSandbox.unity
     guid: cd4e8be48eb204b4b893b33df55481bf
   m_configObjects:

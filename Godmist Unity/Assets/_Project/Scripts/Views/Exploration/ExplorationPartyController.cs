@@ -1,0 +1,196 @@
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Runtime.Game;
+using UnityEngine;
+
+namespace Godmist.Views.Exploration
+{
+    public class ExplorationPartyController : MonoBehaviour
+    {
+        [SerializeField] private float movementSpeed = 4f;
+        [SerializeField] private float followerDistance = 1f;
+        [SerializeField] private ExplorationCameraFollow cameraController;
+
+        private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
+
+        private GameSession gameSession;
+
+        [SerializeField] private float arrivalDistance = 0.05f;
+
+        private Camera worldCamera;
+        private Vector2? movementDestination;
+
+        public Transform ActiveLeaderTransform
+        {
+            get
+            {
+                var leaderView = GetActiveLeaderView();
+                return leaderView != null ? leaderView.transform : null;
+            }
+        }
+
+        public void Initialize(GameSession session, IReadOnlyList<ExplorationCharacterView> characterViews)
+        {
+            if (gameSession != null)
+            {
+                gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
+            }
+
+            gameSession = session;
+            worldCamera = Camera.main;
+            viewsById.Clear();
+
+            foreach (var characterView in characterViews)
+            {
+                if (characterView == null || string.IsNullOrWhiteSpace(characterView.CharacterId)) continue;
+
+                viewsById[characterView.CharacterId] = characterView;
+            }
+
+            gameSession.PlayerParty.ActiveLeaderChanged += HandleActiveLeaderChanged;
+
+            RefreshLeaderVisuals();
+        }
+
+        private void Update()
+        {
+            if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
+
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                TryCycleLeader();
+            }
+
+            if (!Input.GetMouseButtonDown(0) || worldCamera == null) return;
+
+            var mousePosition = Input.mousePosition;
+            mousePosition.z = -worldCamera.transform.position.z;
+
+            movementDestination = worldCamera.ScreenToWorldPoint(mousePosition);
+        }
+
+        private void FixedUpdate()
+        {
+            if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
+
+            var leaderView = GetActiveLeaderView();
+
+            if (leaderView == null) return;
+
+            var movement = GetMovementDirection(leaderView);
+
+            if (movement.sqrMagnitude > 0f)
+            {
+                leaderView.Move(movement * movementSpeed * Time.fixedDeltaTime);
+            }
+
+            MoveFollowers(leaderView);
+        }
+
+        private void OnDestroy()
+        {
+            if (gameSession == null) return;
+
+            gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
+        }
+
+        private void MoveFollowers(ExplorationCharacterView leaderView)
+        {
+            var previousView = leaderView;
+
+            foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
+            {
+                if (characterId == gameSession.PlayerParty.ActiveLeaderId) continue;
+
+                if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
+
+                followerView.MoveTowards(previousView.Position, 
+                    movementSpeed * Time.fixedDeltaTime, followerDistance);
+
+                previousView = followerView;
+            }
+        }
+
+        private void TryCycleLeader()
+        {
+            var memberIds = gameSession.PlayerParty.ActiveMemberIds;
+
+            if (memberIds.Count < 2) return;
+
+            var currentIndex = 0;
+
+            for (var index = 0; index < memberIds.Count; index++)
+            {
+                if (memberIds[index] == gameSession.PlayerParty.ActiveLeaderId)
+                {
+                    currentIndex = index;
+                    break;
+                }
+            }
+
+            for (var offset = 1; offset <= memberIds.Count; offset++)
+            {
+                var candidateIndex = (currentIndex + offset) % memberIds.Count;
+
+                if (gameSession.TrySetActiveLeader(memberIds[candidateIndex])) return;
+            }
+        }
+
+        private ExplorationCharacterView GetActiveLeaderView()
+        {
+            viewsById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leaderView);
+
+            return leaderView;
+        }
+
+        private void HandleActiveLeaderChanged(string previousLeaderId, string nextLeaderId)
+        {
+            movementDestination = null;
+            
+            RefreshLeaderVisuals();
+        }
+
+        private void RefreshLeaderVisuals()
+        {
+            if (gameSession == null) return;
+
+            foreach (var characterView in viewsById.Values)
+            {
+                characterView.SetIsActiveLeader(characterView.CharacterId == gameSession.PlayerParty.ActiveLeaderId);
+            }
+        }
+
+        private Vector2 GetMovementDirection(ExplorationCharacterView leaderView)
+        {
+            if (cameraController == null || cameraController.IsFollowingLeader)
+            {
+                var keyboardMovement = new Vector2(
+                    Input.GetAxisRaw("Horizontal"),
+                    Input.GetAxisRaw("Vertical"));
+
+                if (keyboardMovement.sqrMagnitude > 1f)
+                {
+                    keyboardMovement.Normalize();
+                }
+
+                if (keyboardMovement.sqrMagnitude > 0f)
+                {
+                    movementDestination = null;
+                    return keyboardMovement;
+                }
+            }
+
+            if (!movementDestination.HasValue) return Vector2.zero;
+
+            var offset = movementDestination.Value - leaderView.Position;
+
+            if (offset.sqrMagnitude <= arrivalDistance * arrivalDistance)
+            {
+                movementDestination = null;
+                return Vector2.zero;
+            }
+
+            return offset.normalized;
+        }
+    }
+}
