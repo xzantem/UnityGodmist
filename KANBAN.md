@@ -106,9 +106,75 @@ Brak kart.
 
 ## Backlog
 
+### Milestone: Gameplay Loop v1
+
+- `[P1] Wprowadzic GameSession i GameModeState v1` - `Core / Architecture`
+- `[P1] Zrefaktoryzowac GameBootstrap i SceneLoader v1` - `Core / Architecture`
+- `[P1] Dodac Party runtime oraz przelaczanie lidera poza walka v1` - `Core / Architecture`, `UI / UX`
+- `[P1] Utworzyc ExplorationSandbox z ruchem po statycznej mapie v1` - `World / Dungeon / Exploration`
+- `[P1] Dodac DungeonDefinition i DungeonInstance dla lochu statycznego v1` - `World / Dungeon / Exploration`, `Content / Data`
+- `[P1] Dodac EncounterDefinition, trigger walki i CombatSessionFactory v1` - `Combat`, `World / Dungeon / Exploration`
+- `[P1] Polaczyc wynik walki ze stanem lochu i druzyny v1` - `Combat`, `World / Dungeon / Exploration`
+- `[P1] Gameplay Loop v1 - acceptance pass` - `Core / Architecture`, `Combat`, `World / Dungeon / Exploration`, `Tools / Editor / Debug`
+
+### Milestone: Rewards and Progression v1
+
+- `[P1] Dodac zdobywanie XP, level i skill points v1` - `Core / Architecture`, `Design / Systems`
+- `[P1] Dodac ItemDefinition, ItemInstance i Inventory v1` - `Items / Inventory / Economy`, `Content / Data`
+- `[P1] Dodac EquipmentSet oraz walidacje slotow i wymagan v1` - `Items / Inventory / Economy`
+- `[P1] Dodac pipeline statystyk z equipment i passive effects v1` - `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
+- `[P1] Dodac combat rewards i LootTable v1` - `Items / Inventory / Economy`, `Combat`
+- `[P2] Dodac Inventory i Equipment UI v1` - `UI / UX`, `Items / Inventory / Economy`
+- `[P1] Rewards and Progression v1 - acceptance pass` - `Items / Inventory / Economy`, `Combat`, `Tools / Editor / Debug`
+
+### Milestone: Save and Load v1
+
+- `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture`
+- `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX`
+- `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration`
+- `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture`
+- `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`
+
+### Milestone: Arungard, NPC and Quests v1
+
+- `[P1] Dodac Arungard jako statyczna lokacje i powrot z lochu v1` - `World / Dungeon / Exploration`
+- `[P1] Dodac NpcDefinition, NpcInstance i NpcView v1` - `NPC / Quest / Dialogue`, `Content / Data`
+- `[P1] Dodac dialogi NPC v1` - `NPC / Quest / Dialogue`, `UI / UX`
+- `[P1] Dodac QuestDefinition, QuestInstance i cele etapow v1` - `NPC / Quest / Dialogue`, `Content / Data`
+- `[P1] Dodac odbieranie nagrod questowych i world flags v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`
+- `[P2] Dodac podstawowy handel NPC v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `UI / UX`
+- `[P1] Arungard, NPC and Quests v1 - acceptance pass` - `NPC / Quest / Dialogue`, `Tools / Editor / Debug`
+
+### Milestone: Dungeon Framework v1
+
+- `[P1] Dodac model pokoi, polaczen i floorow lochu v1` - `World / Dungeon / Exploration`, `Content / Data`
+- `[P1] Dodac katalog szablonow pokoi i corridorow v1` - `World / Dungeon / Exploration`, `Content / Data`
+- `[P1] Dodac DungeonGeneratorService dla seedowanego layoutu v1` - `World / Dungeon / Exploration`
+- `[P1] Dodac generowanie encounterow, obiektow i lootu z danych theme v1` - `World / Dungeon / Exploration`, `Content / Data`
+- `[P2] Dodac minimape, odwiedzone pokoje i fog of war v1` - `UI / UX`, `World / Dungeon / Exploration`
+- `[P2] Dodac skrzynie, drzwi, dzwignie, pulapki i proste zagadki poza walka v1` - `World / Dungeon / Exploration`
+- `[P1] Dungeon Framework v1 - acceptance pass` - `World / Dungeon / Exploration`, `Tools / Editor / Debug`
+
+### Combat Core v2
+
+- `[P1] Ujednolicic PassiveEffectRuntime i TimedPassiveEffect dla statusow oraz modifierow v1` - `Combat`, `Core / Architecture`
+- `[P1] Dodac pipeline warunkow efektow po effect ID/index v1` - `Combat`
+- `[P2] Dodac Poison, Fire i podstawowe buff/debuff statusy v1` - `Combat`, `Content / Data`
+- `[P2] Dodac scheduled effects i wieloturowe skille v1` - `Combat`
+- `[P2] Dodac reakcje oraz podstawowe counterattack v1` - `Combat`
+- `[P2] Rozszerzyc AI o role, personality i scoring v1` - `Combat`
+
 ## Sprint: Combat Sandbox - domkniecie vertical slice
 
-Brak kart.
+Zamkniety: zobacz sekcje `Done`.
+
+## Git checkpoints
+
+- Commit po zamknieciu jednej karty: kod, assety, testy i zmiana dokumentacji stanowia jeden spojny commit.
+- Nie commitujemy pojedynczych checklist itemow ani niedzialajacego stanu posredniego.
+- Po zakonczeniu milestone'u wykonujemy acceptance pass, push na GitHub i tag wersji.
+- Aktualny checkpoint: `v0.1.0-combat-sandbox` po uporzadkowaniu lokalnej nazwy galezi na `main`.
+- Kolejny checkpoint: `v0.2.0-gameplay-loop` po zamknieciu Gameplay Loop v1.
 
 ## PÃ³Åºniej, ale nadal bez osobnego Iceboxa
 
