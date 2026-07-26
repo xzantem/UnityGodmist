@@ -2,6 +2,8 @@
 .codex-chatgpt-share-snapshot.txt
 .agents/
 .vscode/
+~$*.docx
+~$*.xlsx
 
 # Unity generated files
 [Ll]ibrary/
