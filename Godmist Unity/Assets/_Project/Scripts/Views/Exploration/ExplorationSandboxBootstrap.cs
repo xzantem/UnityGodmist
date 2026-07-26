@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Dungeons;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Views.Game;
 using UnityEngine;
@@ -12,6 +14,7 @@ namespace Godmist.Views.Exploration
     public class ExplorationSandboxBootstrap : MonoBehaviour
     {
         [SerializeField] private ExplorationPartyController partyController;
+        [SerializeField] private DungeonDefinition dungeonDefinition;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
 
         private void Start()
@@ -25,6 +28,7 @@ namespace Godmist.Views.Exploration
             }
 
             var session = gameBootstrap.Session;
+            InitializeDungeon(session);
             var characterViews = new List<ExplorationCharacterView>();
 
             foreach (var binding in partyBindings)
@@ -48,6 +52,20 @@ namespace Godmist.Views.Exploration
             }
 
             partyController.Initialize(session, characterViews);
+        }
+
+        private void InitializeDungeon(GameSession session)
+        {
+            if (dungeonDefinition == null)
+            {
+                Debug.LogError("ExplorationSandboxBootstrap: brak DungeonDefinition.");
+                return;
+            }
+
+            if (session.ActiveDungeon != null && session.ActiveDungeon.DungeonId == dungeonDefinition.Id) return;
+
+            var dungeon = new DungeonInstance(dungeonDefinition, seed: 0);
+            session.TrySetActiveDungeon(dungeon);
         }
 
         private static CharacterInstance GetOrCreateCharacter(

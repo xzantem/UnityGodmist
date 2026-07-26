@@ -2195,6 +2195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Exploration.ExplorationSandboxBootstrap
   partyController: {fileID: 385230092}
+  dungeonDefinition: {fileID: 11400000, guid: c0b76f47cda503a4c9c39893d36b71bb, type: 2}
   partyBindings:
   - Definition: {fileID: 11400000, guid: de6e9e26cd986e144b254dcc7b76b803, type: 2}
     ClassData: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}

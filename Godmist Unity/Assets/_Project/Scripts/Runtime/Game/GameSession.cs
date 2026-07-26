@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Dungeons;
 
 namespace Godmist.Runtime.Game
 {
@@ -12,6 +13,8 @@ namespace Godmist.Runtime.Game
         public GameModeState CurrentMode { get; private set; }
         public Party PlayerParty { get; } = new();
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
+
+        public DungeonInstance ActiveDungeon { get; private set; }
 
         public event Action<GameModeState, GameModeState> ModeChanged;
 
@@ -92,6 +95,23 @@ namespace Godmist.Runtime.Game
             if (!CanLeadParty(characterId)) return false;
 
             return PlayerParty.TrySetActiveLeader(characterId);
+        }
+
+        public bool TrySetActiveDungeon(DungeonInstance dungeon)
+        {
+            if (dungeon == null || string.IsNullOrWhiteSpace(dungeon.DungeonId)) return false;
+            if (ReferenceEquals(ActiveDungeon, dungeon)) return false;
+
+            ActiveDungeon = dungeon;
+            return true;
+        }
+
+        public bool TryClearActiveDungeon()
+        {
+            if (ActiveDungeon == null) return false;
+
+            ActiveDungeon = null;
+            return true;
         }
 
         private bool CanJoinActiveParty(string characterId)
