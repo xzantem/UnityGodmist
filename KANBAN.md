@@ -45,6 +45,7 @@ Brak kart.
 Brak kart.
 
 ## Done
+- `[P1] Dodac Party runtime oraz przelaczanie lidera poza walka v1` - `Core / Architecture`, `UI / UX`
 - `[P1] Zrefaktoryzowac GameBootstrap i SceneLoader v1` - `Core / Architecture`
 - `[P1] Wprowadzic GameSession i GameModeState v1` - `Core / Architecture`
 - `[P1] Combat Sandbox - acceptance pass` — `Combat`, `Tools / Editor / Debug`
@@ -109,7 +110,6 @@ Brak kart.
 ## Backlog
 
 ### Milestone: Gameplay Loop v1
-- `[P1] Dodac Party runtime oraz przelaczanie lidera poza walka v1` - `Core / Architecture`, `UI / UX`
 - `[P1] Utworzyc ExplorationSandbox z ruchem po statycznej mapie v1` - `World / Dungeon / Exploration`
 - `[P1] Dodac DungeonDefinition i DungeonInstance dla lochu statycznego v1` - `World / Dungeon / Exploration`, `Content / Data`
 - `[P1] Dodac EncounterDefinition, trigger walki i CombatSessionFactory v1` - `Combat`, `World / Dungeon / Exploration`
