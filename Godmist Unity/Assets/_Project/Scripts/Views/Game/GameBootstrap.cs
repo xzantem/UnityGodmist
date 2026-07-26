@@ -1,47 +1,51 @@
+using Godmist.Core.Enums;
+using Godmist.Runtime.Game;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Godmist.Views.Game
 {
+    [RequireComponent(typeof(SceneLoader))]
     public class GameBootstrap : MonoBehaviour
     {
         [Header("Scene Flow")]
         [SerializeField] private string combatSceneName = "CombatSandbox";
-        [SerializeField] private bool loadCombatOnStart = true;
 
-        private bool isLoading;
+        public static GameBootstrap Instance { get; private set; }
+        public GameSession Session { get; private set; }
 
-        private void Start()
+        private SceneLoader sceneLoader;
+
+        private void Awake()
         {
-            if (loadCombatOnStart)
+            if (Instance != null && Instance != this)
             {
-                StartCombat();
+                Destroy(gameObject);
+                return;
             }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            Session = new GameSession(GameModeState.Menu);
+
+            sceneLoader = GetComponent<SceneLoader>();
+            sceneLoader.Initialize(Session);
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
         }
 
         public void StartCombat()
         {
-            if (isLoading)
+            if (sceneLoader == null)
             {
+                Debug.LogError("GameBootstrap: brak SceneLoader.");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(combatSceneName))
-            {
-                Debug.LogError("GameBootstrap: brak nazwy sceny walki.");
-                return;
-            }
-
-            if (!Application.CanStreamedLevelBeLoaded(combatSceneName))
-            {
-                Debug.LogError(
-                    $"GameBootstrap: scena '{combatSceneName}' " +
-                    "nie jest dodana do Build Settings.");
-                return;
-            }
-
-            isLoading = true;
-            SceneManager.LoadScene(combatSceneName);
+            sceneLoader.TryLoadScene(combatSceneName, GameModeState.Combat);
         }
     }
 }
