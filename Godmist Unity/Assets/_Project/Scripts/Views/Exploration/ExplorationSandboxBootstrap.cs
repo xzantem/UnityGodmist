@@ -6,6 +6,7 @@ using Godmist.Data.Dungeons;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Characters;
 using Godmist.Views.Game;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private ExplorationPartyController partyController;
         [SerializeField] private DungeonDefinition dungeonDefinition;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
+        private readonly CharacterInstanceFactory characterFactory = new();
 
         private void Start()
         {
@@ -68,7 +70,7 @@ namespace Godmist.Views.Exploration
             session.TrySetActiveDungeon(dungeon);
         }
 
-        private static CharacterInstance GetOrCreateCharacter(
+        private CharacterInstance GetOrCreateCharacter(
             GameSession session,
             ExplorationCharacterBinding binding)
         {
@@ -85,14 +87,13 @@ namespace Godmist.Views.Exploration
             if (session.CharactersById
                 .TryGetValue(characterId, out var existingCharacter)) return existingCharacter;
 
-            var character = new CharacterInstance
+            if (binding.ClassData == null)
             {
-                CharacterId = characterId,
-                Definition = binding.Definition,
-                ClassData = binding.ClassData,
-                LifeState = CharacterLifeState.Alive,
-                AvailabilityState = CharacterAvailabilityState.Available
-            };
+                Debug.LogError("ExplorationSandboxBootstrap: brak CharacterClassData.");
+                return null;
+            }
+
+            var character = characterFactory.Create(binding.Definition, binding.ClassData);
 
             return session.TryRegisterCharacter(character) ? character : null;
         }

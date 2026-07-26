@@ -8,6 +8,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
+using Godmist.Views.Game;
 using UnityEngine;
 
 namespace Godmist.Views.Combat
@@ -62,12 +63,13 @@ namespace Godmist.Views.Combat
         private CombatInteractionSystem interactionSystem;
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
+        private bool usesGameSessionCombat;
         public event Action<CombatMapObject> CombatMapObjectChanged;
 
         private void Start()
         {
             turnSystem = new CombatTurnSystem(AddBattleLog, HandleUnitTurnBegan, HandleUnitTurnEnded);
-            Session = CreateSandboxSession();
+            Session = CreateInitialSession();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
             resourceRuleSystem = new ResourceRuleSystem(AddBattleLog);
@@ -104,7 +106,7 @@ namespace Godmist.Views.Combat
         }
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.R))
             {
                 RestartCombatForDebug();
                 return;
@@ -118,17 +120,18 @@ namespace Godmist.Views.Combat
                 RequestEndTurn();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.K))
+            
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.K))
             {
                 RemoveFirstEnemyForDebug();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.L))
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.L))
             {
                 RemoveActivePlayerUnitForDebug();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.O))
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.O))
             {
                 DownFirstAllyForDebug();
                 return;
@@ -266,6 +269,12 @@ namespace Godmist.Views.Combat
         // Debug Commands
         private void RestartCombatForDebug()
         {
+            if (usesGameSessionCombat)
+            {
+                Debug.LogWarning("Restart debugowy jest niedostepny dla walki uruchomionej z eksploracji.");
+                return;
+            }
+
             Session = CreateSandboxSession();
 
             battleLog?.ClearLog();
@@ -707,6 +716,20 @@ namespace Godmist.Views.Combat
 
             return positions.Where(position => 
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, position)).ToList();
+        }
+
+        private CombatSession CreateInitialSession()
+        {
+            var gameSession = GameBootstrap.Instance?.Session;
+
+            if (gameSession?.ActiveCombat != null)
+            {
+                usesGameSessionCombat = true;
+                return gameSession.ActiveCombat;
+            }
+
+            usesGameSessionCombat = false;
+            return CreateSandboxSession();
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 
 namespace Godmist.Runtime.Game
@@ -15,6 +16,7 @@ namespace Godmist.Runtime.Game
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
 
         public DungeonInstance ActiveDungeon { get; private set; }
+        public CombatSession ActiveCombat { get; private set; }
 
         public event Action<GameModeState, GameModeState> ModeChanged;
 
@@ -111,6 +113,23 @@ namespace Godmist.Runtime.Game
             if (ActiveDungeon == null) return false;
 
             ActiveDungeon = null;
+            return true;
+        }
+
+        public bool TrySetActiveCombat(CombatSession combat)
+        {
+            if (combat == null || string.IsNullOrWhiteSpace(combat.CombatId)) return false;
+            if (ActiveCombat != null) return false;
+
+            ActiveCombat = combat;
+            return true;
+        }
+
+        public bool TryClearActiveCombat()
+        {
+            if (ActiveCombat == null) return false;
+
+            ActiveCombat = null;
             return true;
         }
 
