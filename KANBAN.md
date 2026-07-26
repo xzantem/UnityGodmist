@@ -45,6 +45,7 @@ Brak kart.
 Brak kart.
 
 ## Done
+- `[P1] Wprowadzic GameSession i GameModeState v1` - `Core / Architecture`
 - `[P1] Combat Sandbox - acceptance pass` — `Combat`, `Tools / Editor / Debug`
 - `[P2] Dodać line of sight skilli v1` — `Combat`, `World / Dungeon / Exploration`
 - `[P2] Dodać Escape v1` — `Combat`
@@ -107,8 +108,6 @@ Brak kart.
 ## Backlog
 
 ### Milestone: Gameplay Loop v1
-
-- `[P1] Wprowadzic GameSession i GameModeState v1` - `Core / Architecture`
 - `[P1] Zrefaktoryzowac GameBootstrap i SceneLoader v1` - `Core / Architecture`
 - `[P1] Dodac Party runtime oraz przelaczanie lidera poza walka v1` - `Core / Architecture`, `UI / UX`
 - `[P1] Utworzyc ExplorationSandbox z ruchem po statycznej mapie v1` - `World / Dungeon / Exploration`
