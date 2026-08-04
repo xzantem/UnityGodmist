@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Types;
 
 namespace Godmist.Runtime.Effects
 {
@@ -11,6 +12,7 @@ namespace Godmist.Runtime.Effects
         public int Stacks = 1;
         public int RemainingDuration;
         public int TotalDamage;
+        public List<StatModifier> StatModifiers = new();
 
         public PassiveEffectRuntime()
         {

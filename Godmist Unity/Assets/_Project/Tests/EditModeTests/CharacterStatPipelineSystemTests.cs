@@ -1,0 +1,193 @@
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Core.Types;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Effects;
+using Godmist.Runtime.Items;
+using Godmist.Systems.Characters;
+using NUnit.Framework;
+
+namespace Godmist.Tests.EditMode
+{
+    public class CharacterStatPipelineSystemTests
+    {
+        private CharacterStatPipelineSystem statPipeline;
+
+        [SetUp]
+        public void SetUp()
+        {
+            statPipeline = new CharacterStatPipelineSystem();
+        }
+
+        [Test]
+        public void Refresh_AppliesAllModifierStagesInCorrectOrder()
+        {
+            var character = CreateCharacter();
+
+            character.Equipment.Weapon = new EquipmentItemInstance
+            {
+                StatModifiers = new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = CharacterStatType.MaxHealth,
+                        Operation = StatModifierOperation.FlatBase,
+                        Value = 20f
+                    },
+                    new()
+                    {
+                        StatType = CharacterStatType.MaxHealth,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Additive,
+                        Value = 0.10f
+                    },
+                    new()
+                    {
+                        StatType = CharacterStatType.MaxHealth,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Multiplicative,
+                        Value = 0.10f
+                    },
+                    new()
+                    {
+                        StatType = CharacterStatType.MaxHealth,
+                        Operation = StatModifierOperation.FlatAbsolute,
+                        Value = 7f
+                    }
+                }
+            };
+
+            statPipeline.Refresh(character);
+
+            Assert.That(
+                character.Stats.MaxHealth.GetValue(),
+                Is.EqualTo(152.2f).Within(0.001f));
+        }
+
+        [Test]
+        public void Refresh_AdditivePercentModifiers_AreSummed()
+        {
+            var character = CreateCharacter();
+
+            character.Equipment.Weapon = new EquipmentItemInstance
+            {
+                StatModifiers = new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Additive,
+                        Value = 0.05f
+                    },
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Additive,
+                        Value = 0.05f
+                    }
+                }
+            };
+
+            statPipeline.Refresh(character);
+
+            Assert.That(
+                character.Stats.Speed.GetValue(),
+                Is.EqualTo(110f).Within(0.001f));
+        }
+
+        [Test]
+        public void Refresh_MultiplicativePercentModifiers_AreAppliedSeparately()
+        {
+            var character = CreateCharacter();
+
+            character.Equipment.Weapon = new EquipmentItemInstance
+            {
+                StatModifiers = new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Multiplicative,
+                        Value = 0.05f
+                    },
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Percent,
+                        Stacking = StatModifierStacking.Multiplicative,
+                        Value = 0.20f
+                    }
+                }
+            };
+
+            statPipeline.Refresh(character);
+
+            Assert.That(
+                character.Stats.Speed.GetValue(),
+                Is.EqualTo(126f).Within(0.001f));
+        }
+
+        [Test]
+        public void Refresh_RemovingSource_ReturnsStatToBaseValue()
+        {
+            var character = CreateCharacter();
+
+            character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                StatModifiers = new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = CharacterStatType.MinAttack,
+                        Operation = StatModifierOperation.FlatBase,
+                        Value = 30f
+                    }
+                }
+            });
+
+            statPipeline.Refresh(character);
+
+            Assert.That(
+                character.Stats.MinAttack.GetValue(),
+                Is.EqualTo(50f).Within(0.001f));
+
+            character.PassiveEffects.Clear();
+            statPipeline.Refresh(character);
+
+            Assert.That(
+                character.Stats.MinAttack.GetValue(),
+                Is.EqualTo(20f).Within(0.001f));
+        }
+
+        private static CharacterInstance CreateCharacter()
+        {
+            return new CharacterInstance
+            {
+                CurrentHealth = 100,
+                Stats = new CharacterStats
+                {
+                    MaxHealth = new Stat(100f),
+                    MinAttack = new Stat(20f),
+                    MaxAttack = new Stat(30f),
+                    PhysicalDefense = new Stat(10f),
+                    MagicalDefense = new Stat(10f),
+                    Dodge = new Stat(0f),
+                    CritChance = new Stat(0.1f),
+                    CritDamage = new Stat(1.5f),
+                    Speed = new Stat(100f),
+                    ResourceRegeneration = new Stat(2f)
+                },
+                ResourcePool = new ResourcePool(
+                    ResourceType.Mana,
+                    0,
+                    100,
+                    2),
+                Equipment = new EquipmentSet(),
+                PassiveEffects = new List<PassiveEffectRuntime>()
+            };
+        }
+    }
+}
