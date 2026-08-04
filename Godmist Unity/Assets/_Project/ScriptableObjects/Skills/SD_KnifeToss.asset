@@ -19,14 +19,26 @@ MonoBehaviour:
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 1
   targetModes:
-  - targetType: 3
+  - targetType: 0
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
-    useRelativeRange: 1
+    useRelativeRange: 0
+    relativeRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+  - targetType: 0
+    targetingType: 0
+    absoluteRange:
+      shape: 1
+      minRange: 1
+      maxRange: 4
+    useRelativeRange: 0
     relativeRange:
       shape: 1
       minRange: 0

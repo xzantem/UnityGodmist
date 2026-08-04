@@ -76,5 +76,15 @@ namespace Godmist.Views.Exploration
             labelRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
             labelRenderer.sortingOrder = bodyRenderer.sortingOrder + 1;
         }
+
+        public void SetPosition(Vector2 position)
+        {
+            transform.position = position;
+
+            if (body != null)
+            {
+                body.position = position;
+            }
+        }
     }
 }

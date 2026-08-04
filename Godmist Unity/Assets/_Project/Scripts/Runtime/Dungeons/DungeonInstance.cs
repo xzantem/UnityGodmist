@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Godmist.Data.Dungeons;
 
 namespace Godmist.Runtime.Dungeons
@@ -10,6 +12,12 @@ namespace Godmist.Runtime.Dungeons
         public int Seed { get; }
         public int CurrentFloorIndex { get; private set; }
         public bool IsCompleted { get; private set; }
+
+        private readonly HashSet<string> clearedEncounterIds = new();
+
+        public Vector2 PlayerPosition { get; private set; }
+        public bool HasPlayerPosition { get; private set; }
+        public IReadOnlyCollection<string> ClearedEncounterIds => clearedEncounterIds;
 
         public DungeonInstance(DungeonDefinition definition, int seed)
         {
@@ -53,6 +61,24 @@ namespace Godmist.Runtime.Dungeons
 
             IsCompleted = true;
             return true;
+        }
+
+        public void SetPlayerPosition(Vector2 position)
+        {
+            PlayerPosition = position;
+            HasPlayerPosition = true;
+        }
+
+        public bool IsEncounterCleared(string encounterId)
+        {
+            return !string.IsNullOrWhiteSpace(encounterId) && clearedEncounterIds.Contains(encounterId);
+        }
+
+        public bool TryMarkEncounterCleared(string encounterId)
+        {
+            if (string.IsNullOrWhiteSpace(encounterId)) return false;
+
+            return clearedEncounterIds.Add(encounterId);
         }
     }
 }

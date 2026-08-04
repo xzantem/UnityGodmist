@@ -85,6 +85,8 @@ namespace Godmist.Views.Exploration
             }
 
             MoveFollowers(leaderView);
+
+            gameSession.ActiveDungeon?.SetPlayerPosition(leaderView.Position);
         }
 
         private void OnDestroy()
@@ -191,6 +193,30 @@ namespace Godmist.Views.Exploration
             }
 
             return offset.normalized;
+        }
+
+        public void RestorePartyFormation(Vector2 leaderPosition)
+        {
+            var leaderView = GetActiveLeaderView();
+
+            if (leaderView == null) return;
+
+            leaderView.SetPosition(leaderPosition);
+
+            var previousView = leaderView;
+
+            foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
+            {
+                if (characterId == gameSession.PlayerParty.ActiveLeaderId) continue;
+                if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
+
+                var followerPosition = previousView.Position + Vector2.left * followerDistance;
+
+                followerView.SetPosition(followerPosition);
+                previousView = followerView;
+            }
+
+            Physics2D.SyncTransforms();
         }
     }
 }

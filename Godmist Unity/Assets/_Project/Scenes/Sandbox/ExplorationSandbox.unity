@@ -2310,7 +2310,7 @@ MonoBehaviour:
     ClassData: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
     CharacterView: {fileID: 6401026765587194410}
   - Definition: {fileID: 11400000, guid: 28eba9f7a64e2ff45859b802054c5de2, type: 2}
-    ClassData: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+    ClassData: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
     CharacterView: {fileID: 426591344}
 --- !u!1001 &1808448276995200314
 PrefabInstance:

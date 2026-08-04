@@ -2,6 +2,7 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
@@ -50,6 +51,30 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(session.TryClearActiveDungeon(), Is.True);
             Assert.That(session.ActiveDungeon, Is.Null);
+        }
+
+        [Test]
+        public void DungeonState_StoresPlayerPositionAndClearedEncounter()
+        {
+            var dungeon = new DungeonInstance("dungeon.test", 1);
+            var playerPosition = new Vector2(4.5f, -2f);
+
+            dungeon.SetPlayerPosition(playerPosition);
+
+            Assert.That(dungeon.HasPlayerPosition, Is.True);
+            Assert.That(dungeon.PlayerPosition, Is.EqualTo(playerPosition));
+
+            Assert.That(
+                dungeon.IsEncounterCleared("encounter.test"),
+                Is.False);
+
+            Assert.That(
+                dungeon.TryMarkEncounterCleared("encounter.test"),
+                Is.True);
+
+            Assert.That(
+                dungeon.IsEncounterCleared("encounter.test"),
+                Is.True);
         }
     }
 }

@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.13683698, g: 0.17350812, b: 0.23584908, a: 0.6666667}
@@ -727,9 +727,7 @@ MonoBehaviour:
   bandageSkill: {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
   restoreResourceSkill: {fileID: 11400000, guid: df54c066b175bb54db92a5d27f1e25f9, type: 2}
   enemyStrikeSkill: {fileID: 11400000, guid: f8550d086d504a140a7456d156c22d89, type: 2}
-  blockedPositions:
-  - X: 5
-    Y: 4
+  blockedPositions: []
 --- !u!114 &235486239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -932,7 +930,6 @@ MonoBehaviour:
   encounterInfoText: {fileID: 2062999580}
   turnOrderText: {fileID: 916865433}
   activeUnitText: {fileID: 758320188}
-  actionHintText: {fileID: 0}
 --- !u!1 &416080811
 GameObject:
   m_ObjectHideFlags: 0
@@ -4551,6 +4548,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1683159897}
   - component: {fileID: 1683159898}
+  - component: {fileID: 1683159899}
   m_Layer: 0
   m_Name: Obstacle_3_4
   m_TagString: Untagged
@@ -4632,6 +4630,26 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &1683159899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1683159896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45c0cd50781d4d40929080b903c6e62, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatMapObjectView
+  sandboxBootstrap: {fileID: 235486238}
+  objectId: obstacle.high_tree.01
+  targetRenderer: {fileID: 1683159898}
+  activeColor: {r: 0.95, g: 0.68, b: 0.2, a: 1}
+  activatedLeverColor: {r: 0.35, g: 0.8, b: 0.45, a: 1}
+  inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
+  closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
+  openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
 --- !u!1 &1759156876
 GameObject:
   m_ObjectHideFlags: 0
@@ -5214,6 +5232,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2052594797}
   - component: {fileID: 2052594798}
+  - component: {fileID: 2052594799}
   m_Layer: 0
   m_Name: Obstacle_5_4
   m_TagString: Untagged
@@ -5295,6 +5314,26 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &2052594799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052594796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45c0cd50781d4d40929080b903c6e62, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatMapObjectView
+  sandboxBootstrap: {fileID: 235486238}
+  objectId: obstacle.sandbox.02
+  targetRenderer: {fileID: 2052594798}
+  activeColor: {r: 0.95, g: 0.68, b: 0.2, a: 1}
+  activatedLeverColor: {r: 0.35, g: 0.8, b: 0.45, a: 1}
+  inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
+  closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
+  openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
 --- !u!1 &2062999578
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,15 +13,33 @@ namespace Godmist.Views.Exploration
         [SerializeField] private float actionPointsPerSpeed = 0.25f;
 
         private bool isTriggered;
+        private bool isArmed;
+        private bool hasInitialized;
 
         private void Update()
         {
+            if (!hasInitialized)
+            {
+                TryInitializeTrigger();
+                return;
+            }
+
             if (isTriggered || partyController == null || encounterDefinition == null) return;
-            if (partyController.ActiveLeaderTransform == null) return;
 
-            var offset = partyController.ActiveLeaderTransform.position - transform.position;
+            if (IsEncounterCleared())
+            {
+                gameObject.SetActive(false);
+                return;
+            }
 
-            if (offset.sqrMagnitude > triggerRadius * triggerRadius) return;
+            if (!isArmed)
+            {
+                if (!IsLeaderWithinRange()) isArmed = true;
+
+                return;
+            }
+
+            if (!IsLeaderWithinRange()) return;
 
             TryStartEncounter();
         }
@@ -48,6 +66,41 @@ namespace Godmist.Views.Exploration
 
             isTriggered = true;
             gameBootstrap.StartCombat();
+        }
+
+        private void TryInitializeTrigger()
+        {
+            if (partyController == null || encounterDefinition == null) return;
+            if (partyController.ActiveLeaderTransform == null) return;
+
+            hasInitialized = true;
+
+            if (IsEncounterCleared())
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            // Po ucieczce drużyna wraca obok encounteru.
+            // Musi najpierw oddalić się poza zasięg, aby wywołać go ponownie.
+            isArmed = !IsLeaderWithinRange();
+        }
+
+        private bool IsLeaderWithinRange()
+        {
+            if (partyController?.ActiveLeaderTransform == null) return false;
+
+            var offset = partyController.ActiveLeaderTransform.position - transform.position;
+
+            return offset.sqrMagnitude <= triggerRadius * triggerRadius;
+        }
+
+        private bool IsEncounterCleared()
+        {
+            var activeDungeon = GameBootstrap.Instance?.Session.ActiveDungeon;
+
+            return activeDungeon != null
+                && activeDungeon.IsEncounterCleared(encounterDefinition.Id);
         }
     }
 }
