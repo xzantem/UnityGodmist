@@ -31,3 +31,6 @@ MonoBehaviour:
     <ResourceRegeneration>k__BackingField: 0
   <StartingSkills>k__BackingField:
   - {fileID: 11400000, guid: f8550d086d504a140a7456d156c22d89, type: 2}
+  <ExperienceReward>k__BackingField: 24
+  <GoldReward>k__BackingField: 10
+  <LootTable>k__BackingField: {fileID: 11400000, guid: 6b648c85efa0c634eb4f43c19bd3a210, type: 2}

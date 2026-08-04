@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Interfaces;
 using Godmist.Data.Skills;
+using Godmist.Data.Items;
 using UnityEngine;
 
 namespace Godmist.Data.Characters
@@ -16,5 +17,8 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public string RecruitmentQuestId { get; private set; } = string.Empty;
         [field: SerializeField] public CharacterBaseStatsData BaseStats { get; private set; } = new();
         [field: SerializeField] public List<SkillData> StartingSkills { get; private set; } = new();
+        [field: SerializeField] public int ExperienceReward { get; private set; }
+        [field: SerializeField] public int GoldReward { get; private set; }
+        [field: SerializeField] public LootTableData LootTable { get; private set; }
     }
 }

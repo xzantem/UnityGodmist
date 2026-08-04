@@ -63,6 +63,7 @@ namespace Godmist.Views.Combat
         private CombatInteractionSystem interactionSystem;
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
+        private readonly CombatRewardSystem rewardSystem = new();
         private bool usesGameSessionCombat;
         private bool hasRequestedExplorationReturn;
         public event Action<CombatMapObject> CombatMapObjectChanged;
@@ -756,6 +757,8 @@ namespace Godmist.Views.Combat
 
             if (outcome == CombatOutcomeState.Victory)
             {
+                rewardSystem.TryGrantVictoryRewards(gameSession, Session);
+
                 gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
             }
 

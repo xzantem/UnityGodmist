@@ -10,6 +10,8 @@ namespace Godmist.Runtime.Combat
         public string CombatId = string.Empty;
         public CombatOutcomeState Outcome = CombatOutcomeState.Ongoing;
         public int CurrentEscapeChancePercent = 60;
+        public CombatRewardResult Rewards = new();
+        public bool RewardsGranted;
         
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();

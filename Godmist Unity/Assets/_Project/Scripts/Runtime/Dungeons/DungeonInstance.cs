@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Godmist.Data.Dungeons;
+using Godmist.Runtime.Combat;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -14,6 +15,7 @@ namespace Godmist.Runtime.Dungeons
         public bool IsCompleted { get; private set; }
 
         private readonly HashSet<string> clearedEncounterIds = new();
+        private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();
 
         public Vector2 PlayerPosition { get; private set; }
         public bool HasPlayerPosition { get; private set; }
@@ -79,6 +81,27 @@ namespace Godmist.Runtime.Dungeons
             if (string.IsNullOrWhiteSpace(encounterId)) return false;
 
             return clearedEncounterIds.Add(encounterId);
+        }
+
+        public bool TryGetPreRolledRewards(
+            string encounterId,
+            out CombatRewardResult rewards)
+        {
+            rewards = null;
+
+            return !string.IsNullOrWhiteSpace(encounterId)
+                && rewardsByEncounterId.TryGetValue(encounterId, out rewards);
+        }
+
+        public bool TryStorePreRolledRewards(
+            string encounterId,
+            CombatRewardResult rewards)
+        {
+            if (string.IsNullOrWhiteSpace(encounterId) || rewards == null) return false;
+            if (rewardsByEncounterId.ContainsKey(encounterId)) return false;
+
+            rewardsByEncounterId.Add(encounterId, rewards);
+            return true;
         }
     }
 }

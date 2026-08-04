@@ -13,6 +13,7 @@ namespace Godmist.Systems.Combat
     {
         private readonly float actionPointsPerSpeed;
         private readonly CharacterInstanceFactory characterFactory = new();
+        private readonly CombatRewardSystem rewardSystem = new();
 
         public CombatSessionFactory(float actionPointsPerSpeed = 0.25f)
         {
@@ -39,7 +40,8 @@ namespace Godmist.Systems.Combat
                 CombatId = encounter.Id,
                 Outcome = CombatOutcomeState.Ongoing,
                 Grid = new BattleGrid(encounter.GridWidth, encounter.GridHeight),
-                Units = new List<BattleUnit>()
+                Units = new List<BattleUnit>(),
+                Rewards = ResolveRewards(gameSession, encounter)
             };
 
             var playerIndex = 0;
@@ -122,6 +124,25 @@ namespace Godmist.Systems.Combat
                 IsReadyToEscape = false,
                 IsPlayerSide = isPlayerSide
             };
+        }
+
+        private CombatRewardResult ResolveRewards(
+            GameSession gameSession,
+            EncounterDefinition encounter)
+        {
+            var dungeon = gameSession.ActiveDungeon;
+
+            if (dungeon != null
+                && dungeon.TryGetPreRolledRewards(encounter.Id, out var rewards))
+            {
+                return rewards;
+            }
+
+            var rolledRewards = rewardSystem.RollEncounterRewards(encounter);
+
+            dungeon?.TryStorePreRolledRewards(encounter.Id, rolledRewards);
+
+            return rolledRewards;
         }
     }
 }

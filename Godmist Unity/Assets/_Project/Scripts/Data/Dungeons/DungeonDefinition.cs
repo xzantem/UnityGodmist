@@ -1,5 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Core.Interfaces;
+using System.Collections.Generic;
+using Godmist.Data.Combat;
 using UnityEngine;
 
 namespace Godmist.Data.Dungeons
@@ -14,5 +16,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public DungeonTheme Theme { get; private set; }
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
+
+        [field: SerializeField]
+        public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
     }
 }
