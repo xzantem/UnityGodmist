@@ -8,6 +8,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
+using Godmist.Views.Game;
 using UnityEngine;
 
 namespace Godmist.Views.Combat
@@ -62,12 +63,14 @@ namespace Godmist.Views.Combat
         private CombatInteractionSystem interactionSystem;
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
+        private bool usesGameSessionCombat;
+        private bool hasRequestedExplorationReturn;
         public event Action<CombatMapObject> CombatMapObjectChanged;
 
         private void Start()
         {
             turnSystem = new CombatTurnSystem(AddBattleLog, HandleUnitTurnBegan, HandleUnitTurnEnded);
-            Session = CreateSandboxSession();
+            Session = CreateInitialSession();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
             resourceRuleSystem = new ResourceRuleSystem(AddBattleLog);
@@ -104,7 +107,8 @@ namespace Godmist.Views.Combat
         }
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.R))
+            if (usesGameSessionCombat && TryReturnToExploration()) return;
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.R))
             {
                 RestartCombatForDebug();
                 return;
@@ -118,17 +122,18 @@ namespace Godmist.Views.Combat
                 RequestEndTurn();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.K))
+            
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.K))
             {
                 RemoveFirstEnemyForDebug();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.L))
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.L))
             {
                 RemoveActivePlayerUnitForDebug();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.O))
+            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.O))
             {
                 DownFirstAllyForDebug();
                 return;
@@ -154,11 +159,13 @@ namespace Godmist.Views.Combat
             }
             session.MapObjects.Add(new DoorCombatMapObject("door.sandbox.01", 
                 new GridPosition(4, 4), DoorInteractionMode.DirectAndLever));
-            session.MapObjects.Add(new LeverCombatMapObject("lever.sandbox.01", 
+            session.MapObjects.Add(new LeverCombatMapObject("lever.sandbox.01",
                 new GridPosition(4, 3), "door.sandbox.01"));
 
-            session.MapObjects.Add(new ObstacleCombatMapObject("obstacle.high_tree.01", 
+            session.MapObjects.Add(new ObstacleCombatMapObject("obstacle.high_tree.01",
                 new GridPosition(3, 4), blocksMovement: true, blocksLineOfSight: true));
+            session.MapObjects.Add(new ObstacleCombatMapObject("obstacle.sandbox.02",
+                new GridPosition(5, 4), blocksMovement: true, blocksLineOfSight: false));
 
             var jerzy = CreateUnit(jerzyDefinition, scoutClass, new GridPosition(1, 1),
                 100, 0, 200, ResourceType.Momentum, 60f, true);
@@ -266,6 +273,12 @@ namespace Godmist.Views.Combat
         // Debug Commands
         private void RestartCombatForDebug()
         {
+            if (usesGameSessionCombat)
+            {
+                Debug.LogWarning("Restart debugowy jest niedostepny dla walki uruchomionej z eksploracji.");
+                return;
+            }
+
             Session = CreateSandboxSession();
 
             battleLog?.ClearLog();
@@ -707,6 +720,50 @@ namespace Godmist.Views.Combat
 
             return positions.Where(position => 
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, position)).ToList();
+        }
+
+        private CombatSession CreateInitialSession()
+        {
+            var gameSession = GameBootstrap.Instance?.Session;
+
+            if (gameSession?.ActiveCombat != null)
+            {
+                usesGameSessionCombat = true;
+                return gameSession.ActiveCombat;
+            }
+
+            usesGameSessionCombat = false;
+            return CreateSandboxSession();
+        }
+
+        private bool TryReturnToExploration()
+        {
+            if (hasRequestedExplorationReturn || Session == null) return false;
+
+            var outcome = Session.Outcome;
+
+            if (outcome != CombatOutcomeState.Victory
+                && outcome != CombatOutcomeState.Escaped)
+            {
+                return false;
+            }
+
+            var gameBootstrap = GameBootstrap.Instance;
+
+            if (gameBootstrap == null) return false;
+
+            var gameSession = gameBootstrap.Session;
+
+            if (outcome == CombatOutcomeState.Victory)
+            {
+                gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
+            }
+
+            hasRequestedExplorationReturn = true;
+            gameSession.TryClearActiveCombat();
+            gameBootstrap.StartExploration();
+
+            return true;
         }
     }
 }

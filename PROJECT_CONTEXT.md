@@ -1633,6 +1633,14 @@ Current goal:
 - Character definitions such as Jerzy, companions, and enemies should be stored as `CharacterDefinition : ScriptableObject`.
 - Class definitions such as Warrior/Scout/Mage/Paladin should be stored as `CharacterClassData : ScriptableObject`.
 
+## Confirmed Character Template Direction
+
+- The direct `BaseStats` currently placed on `CharacterDefinition` are temporary bootstrap data for the first exploration/combat loop.
+- The intended final model is composition through reusable `CharacterTemplateDefinition : ScriptableObject` assets, for example a `Rogue Template`.
+- A character definition should reference a template instead of duplicating its full baseline statline.
+- Templates will use the benchmark and progression data from `design/Statystyki Postaci.xlsx` as their source material.
+- `CharacterDefinition` remains the place for the character's identity and future individual differences, such as unique skills or explicit stat overrides.
+
 ## Additional Imported Design References
 
 The `design/` folder contains additional high-level and content-side references that should be treated as supplementary context rather than as overrides of previously confirmed decisions. If any spreadsheet/docx content conflicts with already confirmed rules in this file, the previously confirmed rules remain authoritative.

@@ -16,3 +16,20 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Wladimir
   <IsMainCharacter>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
+  <BaseStats>k__BackingField:
+    <MaxHealth>k__BackingField: 100
+    <MinAttack>k__BackingField: 8
+    <MaxAttack>k__BackingField: 12
+    <PhysicalDefense>k__BackingField: 10
+    <MagicalDefense>k__BackingField: 10
+    <Dodge>k__BackingField: 15
+    <CritChance>k__BackingField: 0.25
+    <CritDamage>k__BackingField: 1.5
+    <Speed>k__BackingField: 50
+    <WeaponAccuracy>k__BackingField: 100
+    <MaxResource>k__BackingField: 100
+    <ResourceRegeneration>k__BackingField: 0
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
+  - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}

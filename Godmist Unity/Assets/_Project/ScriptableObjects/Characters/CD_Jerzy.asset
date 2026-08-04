@@ -16,3 +16,22 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Jerzy
   <IsMainCharacter>k__BackingField: 1
   <RecruitmentQuestId>k__BackingField: 
+  <BaseStats>k__BackingField:
+    <MaxHealth>k__BackingField: 300
+    <MinAttack>k__BackingField: 18
+    <MaxAttack>k__BackingField: 36
+    <PhysicalDefense>k__BackingField: 8
+    <MagicalDefense>k__BackingField: 4
+    <Dodge>k__BackingField: 17
+    <CritChance>k__BackingField: 0.25
+    <CritDamage>k__BackingField: 1.5
+    <Speed>k__BackingField: 55
+    <WeaponAccuracy>k__BackingField: 85
+    <MaxResource>k__BackingField: 200
+    <ResourceRegeneration>k__BackingField: 0
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  - {fileID: 11400000, guid: f25f02c088e5d35418e8cc5dcacf68b2, type: 2}
+  - {fileID: 11400000, guid: 4185f27a2e084cd4391613b86a0ad98f, type: 2}
+  - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}
+  - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}

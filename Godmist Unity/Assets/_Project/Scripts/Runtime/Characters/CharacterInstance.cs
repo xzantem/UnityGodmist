@@ -10,6 +10,8 @@ namespace Godmist.Runtime.Characters
     [Serializable]
     public class CharacterInstance
     {
+        public string CharacterId = string.Empty;
+        
         public CharacterDefinition Definition;
         public CharacterClassData ClassData;
 

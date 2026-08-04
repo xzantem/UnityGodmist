@@ -29,6 +29,11 @@ namespace Godmist.Views.Combat
             Refresh();
         }
 
+        private void Update()
+        {
+            Refresh();
+        }
+
         private void OnDisable()
         {
             if (sandboxBootstrap != null)
@@ -49,6 +54,8 @@ namespace Godmist.Views.Combat
             if (sandboxBootstrap == null || targetRenderer == null) return;
 
             var mapObject = sandboxBootstrap.GetCombatMapObject(objectId);
+
+            targetRenderer.enabled = mapObject != null;
 
             if (mapObject == null) return;
 
