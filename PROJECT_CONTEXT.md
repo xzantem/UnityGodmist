@@ -1246,6 +1246,9 @@ Current goal:
   - room contents
   - enemies
   - effectively most things
+- `DungeonDefinition.EncounterDefinitions` is the candidate pool of regular encounter variants for a dungeon.
+- The generator decides which rooms receive an encounter and whether a regular encounter may repeat.
+- An optional final boss encounter is a separate guaranteed assignment, not an ordinary random-pool entry.
 - Some generated elements are still scripted by difficulty/rules, for example:
   - boss near the end
   - two required puzzles to open passage

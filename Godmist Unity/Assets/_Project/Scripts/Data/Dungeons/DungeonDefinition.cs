@@ -17,7 +17,27 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
 
+        [field: Header("Procedural generation")]
+        [field: SerializeField, Min(1)] public int MinFloorCount { get; private set; } = 1;
+
+        [field: SerializeField, Min(1)] public int MaxFloorCount { get; private set; } = 1;
+
+        [field: SerializeField, Min(2)] public int MinRoomCountPerFloor { get; private set; } = 6;
+
+        [field: SerializeField, Min(2)] public int MaxRoomCountPerFloor { get; private set; } = 9;
+
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
+
+        private void OnValidate()
+        {
+            MinFloorCount = Mathf.Max(1, MinFloorCount);
+            MaxFloorCount = Mathf.Max(MinFloorCount, MaxFloorCount);
+
+            MinRoomCountPerFloor = Mathf.Max(2, MinRoomCountPerFloor);
+            MaxRoomCountPerFloor = Mathf.Max(
+                MinRoomCountPerFloor,
+                MaxRoomCountPerFloor);
+        }
     }
 }
