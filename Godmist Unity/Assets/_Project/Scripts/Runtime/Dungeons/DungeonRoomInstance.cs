@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -8,12 +9,14 @@ namespace Godmist.Runtime.Dungeons
         public string RoomId { get; }
         public DungeonRoomType RoomType { get; }
         public string TemplateId { get; }
+        public Vector2Int LayoutPosition { get; }
         public bool IsVisited { get; private set; }
 
         public DungeonRoomInstance(
             string roomId,
             DungeonRoomType roomType,
-            string templateId = null)
+            string templateId = null,
+            Vector2Int layoutPosition = default)
         {
             if (string.IsNullOrWhiteSpace(roomId))
             {
@@ -25,7 +28,8 @@ namespace Godmist.Runtime.Dungeons
             RoomId = roomId;
             RoomType = roomType;
             TemplateId = templateId ?? string.Empty;
-}
+            LayoutPosition = layoutPosition;
+        }
 
         public bool TryMarkVisited()
         {
