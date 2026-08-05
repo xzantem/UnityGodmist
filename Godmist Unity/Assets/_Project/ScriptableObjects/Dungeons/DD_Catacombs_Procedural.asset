@@ -21,4 +21,5 @@ MonoBehaviour:
   <MaxFloorCount>k__BackingField: 1
   <MinRoomCountPerFloor>k__BackingField: 6
   <MaxRoomCountPerFloor>k__BackingField: 9
+  <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 3dd0625e5ba1be246a83e3aa80662cf7, type: 2}
   <EncounterDefinitions>k__BackingField: []

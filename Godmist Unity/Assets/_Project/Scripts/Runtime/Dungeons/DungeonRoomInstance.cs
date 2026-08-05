@@ -7,11 +7,13 @@ namespace Godmist.Runtime.Dungeons
     {
         public string RoomId { get; }
         public DungeonRoomType RoomType { get; }
+        public string TemplateId { get; }
         public bool IsVisited { get; private set; }
 
         public DungeonRoomInstance(
             string roomId,
-            DungeonRoomType roomType)
+            DungeonRoomType roomType,
+            string templateId = null)
         {
             if (string.IsNullOrWhiteSpace(roomId))
             {
@@ -22,7 +24,8 @@ namespace Godmist.Runtime.Dungeons
 
             RoomId = roomId;
             RoomType = roomType;
-        }
+            TemplateId = templateId ?? string.Empty;
+}
 
         public bool TryMarkVisited()
         {

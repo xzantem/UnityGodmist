@@ -26,6 +26,10 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField, Min(2)] public int MaxRoomCountPerFloor { get; private set; } = 9;
 
+        [field: Header("Room templates")]
+        [field: SerializeField]
+        public DungeonRoomTemplateCatalog RoomTemplateCatalog { get; private set; }
+        
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
 

@@ -1222,6 +1222,8 @@ Current goal:
 - Some of these may be mandatory if they block the only path or are required to open progression, for example via a lever.
 - The end of a dungeon may or may not contain a boss.
 - Optional rooms may exist.
+- An optional room is not part of the required `Start -> Final` route. For generator v1 it is a one-connection side branch; later it may also create an optional loop.
+- Room templates use rectangular `SizeInCells` for the first generator. Irregular footprints such as L/T-shaped rooms are deferred until after the playable dungeon loop, then represented as a cell footprint rather than only a rectangle.
 - Rooms may contain chests, puzzle rewards, or rewards for defeating monsters.
 - Battlefield shape depends on the current dungeon room/corridor.
 - Example: a narrow corridor yields a narrow battlefield; a forest dungeon may include stones and trees as obstacles.

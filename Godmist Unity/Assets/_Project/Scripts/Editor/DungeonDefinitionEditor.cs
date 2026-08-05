@@ -15,6 +15,7 @@ namespace Godmist.Editor
         private SerializedProperty maxFloorCountProperty;
         private SerializedProperty minRoomCountProperty;
         private SerializedProperty maxRoomCountProperty;
+        private SerializedProperty roomTemplateCatalogProperty;
         private SerializedProperty encounterDefinitionsProperty;
 
         private void OnEnable()
@@ -28,6 +29,7 @@ namespace Godmist.Editor
             maxFloorCountProperty = serializedObject.FindProperty("<MaxFloorCount>k__BackingField");
             minRoomCountProperty = serializedObject.FindProperty("<MinRoomCountPerFloor>k__BackingField");
             maxRoomCountProperty = serializedObject.FindProperty("<MaxRoomCountPerFloor>k__BackingField");
+            roomTemplateCatalogProperty = serializedObject.FindProperty("<RoomTemplateCatalog>k__BackingField");
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
         }
 
@@ -48,6 +50,7 @@ namespace Godmist.Editor
                     "Procedural generation",
                     EditorStyles.boldLabel);
 
+                EditorGUILayout.PropertyField(roomTemplateCatalogProperty);
                 EditorGUILayout.PropertyField(minFloorCountProperty);
                 EditorGUILayout.PropertyField(maxFloorCountProperty);
                 EditorGUILayout.PropertyField(minRoomCountProperty);
