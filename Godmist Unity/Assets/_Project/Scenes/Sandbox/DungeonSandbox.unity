@@ -164,6 +164,7 @@ GameObject:
   - component: {fileID: 375354599}
   - component: {fileID: 375354602}
   - component: {fileID: 375354603}
+  - component: {fileID: 375354604}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -302,6 +303,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonCameraFramer
   padding: 4
+--- !u!114 &375354604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375354598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5058c2805897d045b6f680f8e8b68d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Exploration.ExplorationCameraFollow
+  partyController: {fileID: 1638332307}
+  cameraBounds: {fileID: 0}
+  followSpeed: 8
+  toggleModeKey: 102
+  cameraOffset: {x: 0, y: 0, z: -10}
+  keyboardPanSpeed: 10
+  inventoryEquipmentPanel: {fileID: 0}
 --- !u!1 &745474791
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,10 +366,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 812ad947da2b2104aa31262b831544be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonSandboxBootstrap
-  dungeonDefinition: {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
   layoutView: {fileID: 985978350}
   cameraFramer: {fileID: 375354603}
-  seed: 15
+  partySpawner: {fileID: 1638332306}
+  exitPrefab: {fileID: 8231603590257206229, guid: fc6bfeb83f6835a438f186e62aa2361e, type: 3}
+  exitsRoot: {fileID: 774521137}
 --- !u!1 &746692608
 GameObject:
   m_ObjectHideFlags: 0
@@ -376,6 +397,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 985978349}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &774521136
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 774521137}
+  m_Layer: 0
+  m_Name: DungeonExits
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &774521137
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774521136}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.9797, y: 3.99492, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -414,6 +466,7 @@ Transform:
   - {fileID: 746692609}
   - {fileID: 1073657535}
   - {fileID: 1319673681}
+  - {fileID: 774521137}
   m_Father: {fileID: 1922610319}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &985978350
@@ -494,6 +547,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 985978349}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1638332305
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1638332308}
+  - component: {fileID: 1638332307}
+  - component: {fileID: 1638332306}
+  m_Layer: 0
+  m_Name: DungeonParty
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1638332306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638332305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6049fa5b2c6a32c41ba9b1556611a8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonPartySpawner
+  partyController: {fileID: 1638332307}
+  characterPrefab: {fileID: 4011232049458454462, guid: d07175dd420fb0f4682b5900c7ed77fe, type: 3}
+  partyRoot: {fileID: 1638332308}
+--- !u!114 &1638332307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638332305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4adfa73bfa01fc448be22d0807facfbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Exploration.ExplorationPartyController
+  movementSpeed: 4
+  followerDistance: 1
+  cameraController: {fileID: 375354604}
+  inventoryEquipmentPanel: {fileID: 0}
+  arrivalDistance: 0.05
+--- !u!4 &1638332308
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638332305}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.9797, y: 3.99492, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1922610318
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,3 +651,4 @@ SceneRoots:
   - {fileID: 375354601}
   - {fileID: 231680767}
   - {fileID: 1922610319}
+  - {fileID: 1638332308}

@@ -16,10 +16,8 @@ namespace Godmist.Views.Exploration
     public class ExplorationSandboxBootstrap : MonoBehaviour
     {
         [SerializeField] private ExplorationPartyController partyController;
-        [SerializeField] private DungeonDefinition dungeonDefinition;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
-        private readonly DungeonEncounterRewardPreparationSystem rewardPreparationSystem = new();
 
         private void Start()
         {
@@ -32,7 +30,6 @@ namespace Godmist.Views.Exploration
             }
 
             var session = gameBootstrap.Session;
-            InitializeDungeon(session);
             var characterViews = new List<ExplorationCharacterView>();
 
             foreach (var binding in partyBindings)
@@ -61,22 +58,6 @@ namespace Godmist.Views.Exploration
             {
                 partyController.RestorePartyFormation(session.ActiveDungeon.PlayerPosition);
             }
-        }
-
-        private void InitializeDungeon(GameSession session)
-        {
-            if (dungeonDefinition == null)
-            {
-                Debug.LogError("ExplorationSandboxBootstrap: brak DungeonDefinition.");
-                return;
-            }
-
-            if (session.ActiveDungeon != null && session.ActiveDungeon.DungeonId == dungeonDefinition.Id) return;
-
-            var dungeon = new DungeonInstance(dungeonDefinition, seed: 0);
-
-            rewardPreparationSystem.Prepare(dungeon);
-            session.TrySetActiveDungeon(dungeon);
         }
 
         private CharacterInstance GetOrCreateCharacter(
