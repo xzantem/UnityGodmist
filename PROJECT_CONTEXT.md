@@ -1230,6 +1230,11 @@ Current goal:
 - Some quest dungeons may be 90% procedural but guarantee specific rooms.
 - Dungeons have themes.
 - Themes affect enemies, obstacles, room content, and loot.
+- Themes also define the preferred procedural layout style. The generator must support both direct room-to-room passages and routed corridors; a graph connection does not automatically mean a corridor.
+  - catacombs and temples: more ordered layouts, with doors usually centred on room walls and many rooms connected by narrow corridors.
+  - forests and deserts: more organic/chaotic layouts, with larger positional offsets, long narrow spaces, and less regular connections between rooms.
+  - a room may have multiple direct exits on the same wall when their door positions do not overlap.
+  - this must be data-driven through a reusable layout profile referenced by `DungeonDefinition`, rather than hard-coded directly from `DungeonTheme`; a themed or story dungeon may override the default profile.
 - Example themes/enemy pools include:
   - catacombs: undead, skeletons
   - forest: bandits, elves, wolves, infected trees
@@ -1240,7 +1245,7 @@ Current goal:
   - mountains: trolls, rocs, Skullbreaker tribals, random travelers
   - swamp: carnivorous plants, alligators, drowned ones, mosquitoes
   - story/fabular dungeons: enemy set depends on the dungeon
-- Corridors are separate entities and always connect at least two rooms.
+- A corridor is represented as a normal `DungeonRoomType.Corridor` room with a narrow template. It is not a separately generated route/entity between two rooms; every generated graph connection is a direct doorway or open passage between adjacent rooms.
 - Dungeons do not necessarily have only one exit; they may have multiple exits.
 - Procedural dungeons generate:
   - room count in a range

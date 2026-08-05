@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -6,6 +7,11 @@ namespace Godmist.Runtime.Dungeons
     {
         public string FirstRoomId { get; }
         public string SecondRoomId { get; }
+
+        public bool HasGeometry { get; private set; }
+        public Vector2Int FirstDoorCell { get; private set; }
+        public Vector2Int SecondDoorCell { get; private set; }
+        public int DoorwayWidth { get; private set; }
 
         public DungeonRoomConnection(
             string firstRoomId,
@@ -36,6 +42,24 @@ namespace Godmist.Runtime.Dungeons
 
             FirstRoomId = firstRoomId;
             SecondRoomId = secondRoomId;
+        }
+
+        public bool TrySetDirectPassage(
+            Vector2Int firstDoorCell,
+            Vector2Int secondDoorCell,
+            int doorwayWidth)
+        {
+            if (doorwayWidth < 1)
+            {
+                return false;
+            }
+
+            FirstDoorCell = firstDoorCell;
+            SecondDoorCell = secondDoorCell;
+            DoorwayWidth = doorwayWidth;
+            HasGeometry = true;
+
+            return true;
         }
 
         public bool Connects(string firstRoomId, string secondRoomId)

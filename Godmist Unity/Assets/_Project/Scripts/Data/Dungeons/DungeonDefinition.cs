@@ -16,6 +16,7 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public DungeonTheme Theme { get; private set; }
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
+        [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
         [field: Header("Procedural generation")]
         [field: SerializeField, Min(1)] public int MinFloorCount { get; private set; } = 1;
@@ -25,6 +26,14 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField, Min(3)] public int MinRoomCountPerFloor { get; private set; } = 6;
 
         [field: SerializeField, Min(3)] public int MaxRoomCountPerFloor { get; private set; } = 9;
+
+        [field: SerializeField, Min(0)] public int MinOptionalRoomCount { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MaxOptionalRoomCount { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MinLoopConnections { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MaxLoopConnections { get; private set; } = 0;
 
         [field: Header("Room templates")]
         [field: SerializeField]
@@ -42,6 +51,16 @@ namespace Godmist.Data.Dungeons
             MaxRoomCountPerFloor = Mathf.Max(
                 MinRoomCountPerFloor,
                 MaxRoomCountPerFloor);
+
+            MinOptionalRoomCount = Mathf.Max(0, MinOptionalRoomCount);
+            MaxOptionalRoomCount = Mathf.Max(
+                MinOptionalRoomCount,
+                MaxOptionalRoomCount);
+
+            MinLoopConnections = Mathf.Max(0, MinLoopConnections);
+            MaxLoopConnections = Mathf.Max(
+                MinLoopConnections,
+                MaxLoopConnections);
         }
     }
 }

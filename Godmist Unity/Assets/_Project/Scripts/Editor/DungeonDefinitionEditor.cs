@@ -1,6 +1,5 @@
 using Godmist.Data.Dungeons;
 using UnityEditor;
-using UnityEngine;
 
 namespace Godmist.Editor
 {
@@ -12,10 +11,15 @@ namespace Godmist.Editor
         private SerializedProperty themeProperty;
         private SerializedProperty isProceduralProperty;
         private SerializedProperty isStoryDungeonProperty;
+        private SerializedProperty layoutProfileProperty;
         private SerializedProperty minFloorCountProperty;
         private SerializedProperty maxFloorCountProperty;
         private SerializedProperty minRoomCountProperty;
         private SerializedProperty maxRoomCountProperty;
+        private SerializedProperty minOptionalRoomCountProperty;
+        private SerializedProperty maxOptionalRoomCountProperty;
+        private SerializedProperty minLoopConnectionsProperty;
+        private SerializedProperty maxLoopConnectionsProperty;
         private SerializedProperty roomTemplateCatalogProperty;
         private SerializedProperty encounterDefinitionsProperty;
 
@@ -26,10 +30,15 @@ namespace Godmist.Editor
             themeProperty = serializedObject.FindProperty("<Theme>k__BackingField");
             isProceduralProperty = serializedObject.FindProperty("<IsProcedural>k__BackingField");
             isStoryDungeonProperty = serializedObject.FindProperty("<IsStoryDungeon>k__BackingField");
+            layoutProfileProperty = serializedObject.FindProperty("<LayoutProfile>k__BackingField");
             minFloorCountProperty = serializedObject.FindProperty("<MinFloorCount>k__BackingField");
             maxFloorCountProperty = serializedObject.FindProperty("<MaxFloorCount>k__BackingField");
             minRoomCountProperty = serializedObject.FindProperty("<MinRoomCountPerFloor>k__BackingField");
             maxRoomCountProperty = serializedObject.FindProperty("<MaxRoomCountPerFloor>k__BackingField");
+            minOptionalRoomCountProperty = serializedObject.FindProperty("<MinOptionalRoomCount>k__BackingField");
+            maxOptionalRoomCountProperty = serializedObject.FindProperty("<MaxOptionalRoomCount>k__BackingField");
+            minLoopConnectionsProperty = serializedObject.FindProperty("<MinLoopConnections>k__BackingField");
+            maxLoopConnectionsProperty = serializedObject.FindProperty("<MaxLoopConnections>k__BackingField");
             roomTemplateCatalogProperty = serializedObject.FindProperty("<RoomTemplateCatalog>k__BackingField");
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
         }
@@ -43,6 +52,7 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(themeProperty);
             EditorGUILayout.PropertyField(isProceduralProperty);
             EditorGUILayout.PropertyField(isStoryDungeonProperty);
+            EditorGUILayout.PropertyField(layoutProfileProperty);
 
             if (isProceduralProperty.boolValue)
             {
@@ -56,6 +66,10 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(maxFloorCountProperty);
                 EditorGUILayout.PropertyField(minRoomCountProperty);
                 EditorGUILayout.PropertyField(maxRoomCountProperty);
+                EditorGUILayout.PropertyField(minOptionalRoomCountProperty);
+                EditorGUILayout.PropertyField(maxOptionalRoomCountProperty);
+                EditorGUILayout.PropertyField(minLoopConnectionsProperty);
+                EditorGUILayout.PropertyField(maxLoopConnectionsProperty);
             }
 
             EditorGUILayout.Space();

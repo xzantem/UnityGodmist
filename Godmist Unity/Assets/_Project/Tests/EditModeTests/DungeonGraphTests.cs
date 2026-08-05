@@ -1,6 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
@@ -47,6 +48,32 @@ namespace Godmist.Tests.EditMode
                 Is.True);
 
             Assert.That(floor.Connections, Has.Count.EqualTo(2));
+        }
+
+        [Test]
+        public void Connection_TrySetDirectPassage_SavesDoorwayGeometry()
+        {
+            var connection = new DungeonRoomConnection(
+                "room.first",
+                "room.second");
+
+            var result = connection.TrySetDirectPassage(
+                new Vector2Int(7, 3),
+                new Vector2Int(8, 3),
+                1);
+
+            Assert.That(result, Is.True);
+            Assert.That(connection.HasGeometry, Is.True);
+
+            Assert.That(
+                connection.FirstDoorCell,
+                Is.EqualTo(new Vector2Int(7, 3)));
+
+            Assert.That(
+                connection.SecondDoorCell,
+                Is.EqualTo(new Vector2Int(8, 3)));
+
+            Assert.That(connection.DoorwayWidth, Is.EqualTo(1));
         }
 
         [Test]

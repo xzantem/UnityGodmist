@@ -63,6 +63,16 @@ namespace Godmist.Tests.EditMode
         public void Generate_OptionalRoomsHaveOneConnection()
         {
             var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                1);
             var generator = new DungeonGeneratorService();
 
             var dungeon = generator.Generate(definition, 9876);
@@ -85,6 +95,255 @@ namespace Godmist.Tests.EditMode
 
                 Assert.That(connectionCount, Is.EqualTo(1));
             }
+        }
+
+        [Test]
+        public void Generate_SeveralSeeds_DoesNotOverlapRoomAreas()
+        {
+            var definition = CreateDefinition(6, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                2);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                2);
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                for (var firstIndex = 0;
+                    firstIndex < floor.Rooms.Count;
+                    firstIndex++)
+                {
+                    var firstBounds = GetRoomBounds(
+                        floor.Rooms[firstIndex],
+                        definition.RoomTemplateCatalog);
+
+                    for (var secondIndex = firstIndex + 1;
+                        secondIndex < floor.Rooms.Count;
+                        secondIndex++)
+                    {
+                        var secondBounds = GetRoomBounds(
+                            floor.Rooms[secondIndex],
+                            definition.RoomTemplateCatalog);
+
+                        Assert.That(
+                            firstBounds.Overlaps(secondBounds),
+                            Is.False,
+                            $"Seed {seed}: pokoje '{floor.Rooms[firstIndex].RoomId}' "
+                            + $"i '{floor.Rooms[secondIndex].RoomId}' nakladaja sie.");
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Generate_Connections_CreateAdjacentDoorways()
+        {
+            var definition = CreateDefinition(6, 9);
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                foreach (var connection in floor.Connections)
+                {
+                    floor.TryGetRoom(
+                        connection.FirstRoomId,
+                        out var firstRoom);
+
+                    floor.TryGetRoom(
+                        connection.SecondRoomId,
+                        out var secondRoom);
+
+                    var firstRoomBounds = GetRoomBounds(
+                        firstRoom,
+                        definition.RoomTemplateCatalog);
+
+                    var secondRoomBounds = GetRoomBounds(
+                        secondRoom,
+                        definition.RoomTemplateCatalog);
+
+                    Assert.That(connection.HasGeometry, Is.True);
+
+                    Assert.That(
+                        firstRoomBounds.Contains(connection.FirstDoorCell),
+                        Is.True);
+
+                    Assert.That(
+                        secondRoomBounds.Contains(connection.SecondDoorCell),
+                        Is.True);
+
+                    var cellDistance = Mathf.Abs(
+                                        connection.FirstDoorCell.x
+                                        - connection.SecondDoorCell.x)
+                                    + Mathf.Abs(
+                                        connection.FirstDoorCell.y
+                                        - connection.SecondDoorCell.y);
+
+                    Assert.That(
+                        cellDistance,
+                        Is.EqualTo(1),
+                        $"Seed {seed}: drzwi polaczenia nie sa sasiednie.");
+                }
+            }
+        }
+
+        [Test]
+        public void Generate_DoesNotReuseDoorwayCellOnSameRoomWall()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                3);
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var usedDoorways = new HashSet<string>();
+
+                foreach (var connection in dungeon.Floors[0].Connections)
+                {
+                    Assert.That(
+                        usedDoorways.Add(
+                            BuildDoorwayKey(
+                                connection.FirstRoomId,
+                                connection.FirstDoorCell,
+                                connection.SecondDoorCell)),
+                        Is.True,
+                        $"Seed {seed}: powtorzone drzwi pierwszego pokoju.");
+
+                    Assert.That(
+                        usedDoorways.Add(
+                            BuildDoorwayKey(
+                                connection.SecondRoomId,
+                                connection.SecondDoorCell,
+                                connection.FirstDoorCell)),
+                        Is.True,
+                        $"Seed {seed}: powtorzone drzwi drugiego pokoju.");
+                }
+            }
+        }
+
+        [Test]
+        public void Generate_RejectsLoopConnectionsUntilLayoutPassV2()
+        {
+            var definition = CreateDefinition(6, 6);
+
+            SetAutoProperty(
+                definition,
+                "MinLoopConnections",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxLoopConnections",
+                1);
+
+            var generator = new DungeonGeneratorService();
+
+            Assert.That(
+                () => generator.Generate(definition, 12345),
+                Throws.TypeOf<System.InvalidOperationException>());
+        }
+
+        [Test]
+        public void Generate_ConfiguredOptionalRoomRange_IsRespected()
+        {
+            var definition = CreateDefinition(6, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                2);
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                var optionalRoomCount = 0;
+
+                foreach (var room in floor.Rooms)
+                {
+                    if (room.RoomType == DungeonRoomType.Optional)
+                    {
+                        optionalRoomCount++;
+                    }
+                }
+
+                Assert.That(optionalRoomCount, Is.InRange(1, 2));
+            }
+        }
+
+        [Test]
+        public void Generate_SeveralSeeds_CanAttachOptionalRoomToOptionalRoom()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                2);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                2);
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                foreach (var connection in floor.Connections)
+                {
+                    floor.TryGetRoom(
+                        connection.FirstRoomId,
+                        out var firstRoom);
+
+                    floor.TryGetRoom(
+                        connection.SecondRoomId,
+                        out var secondRoom);
+
+                    if (firstRoom.RoomType == DungeonRoomType.Optional
+                        && secondRoom.RoomType == DungeonRoomType.Optional)
+                    {
+                        Assert.Pass(
+                            $"Seed {seed} utworzyl branching pokoi opcjonalnych.");
+                    }
+                }
+            }
+
+            Assert.Fail(
+                "Zaden z testowanych seedow nie utworzyl branching pokoi opcjonalnych.");
         }
 
         [Test]
@@ -111,6 +370,7 @@ namespace Godmist.Tests.EditMode
                 catalog,
                 "Id",
                 "dungeon.test.templates");
+                
 
             SetAutoProperty(
                 catalog,
@@ -142,6 +402,44 @@ namespace Godmist.Tests.EditMode
                         DungeonRoomType.Final,
                         new Vector2Int(10, 10))
                 });
+
+            var layoutProfile = ScriptableObject.CreateInstance<
+                DungeonLayoutProfile>();
+
+            SetAutoProperty(
+                layoutProfile,
+                "Id",
+                "layout.test");
+
+            SetAutoProperty(
+                layoutProfile,
+                "DoorPlacementStyle",
+                DungeonDoorPlacementStyle.Centered);
+
+            SetAutoProperty(
+                layoutProfile,
+                "MaxLateralOffsetCells",
+                0);
+
+            SetAutoProperty(
+                layoutProfile,
+                "MainPathTurnChance",
+                0.5f);
+
+            SetAutoProperty(
+                layoutProfile,
+                "CorridorRoomChance",
+                0.4f);
+
+            SetAutoProperty(
+                layoutProfile,
+                "MinDoorwayWidth",
+                1);
+
+            SetAutoProperty(
+                layoutProfile,
+                "MaxDoorwayWidth",
+                1);
 
             var definition = ScriptableObject.CreateInstance<
                 DungeonDefinition>();
@@ -178,8 +476,33 @@ namespace Godmist.Tests.EditMode
 
             SetAutoProperty(
                 definition,
+                "MinOptionalRoomCount",
+                0);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                0);
+
+            SetAutoProperty(
+                definition,
+                "MinLoopConnections",
+                0);
+
+            SetAutoProperty(
+                definition,
+                "MaxLoopConnections",
+                0);
+
+            SetAutoProperty(
+                definition,
                 "RoomTemplateCatalog",
                 catalog);
+
+            SetAutoProperty(
+                definition,
+                "LayoutProfile",
+                layoutProfile);
 
             return definition;
         }
@@ -197,6 +520,27 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(template, "SizeInCells", sizeInCells);
 
             return template;
+        }
+
+        private static RectInt GetRoomBounds(
+            DungeonRoomInstance room,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            foreach (var template in catalog.Templates)
+            {
+                if (template != null && template.Id == room.TemplateId)
+                {
+                    return new RectInt(
+                        room.LayoutPosition,
+                        template.SizeInCells);
+                }
+            }
+
+            Assert.Fail(
+                $"Nie znaleziono szablonu '{room.TemplateId}' "
+                + $"dla pokoju '{room.RoomId}'.");
+
+            return default;
         }
 
         private static DungeonRoomInstance FindRoom(
@@ -304,6 +648,17 @@ namespace Godmist.Tests.EditMode
                 $"Nie znaleziono backing field dla {propertyName}.");
 
             field.SetValue(target, value);
+        }
+
+        private static string BuildDoorwayKey(
+            string roomId,
+            Vector2Int doorwayCell,
+            Vector2Int connectedDoorwayCell)
+        {
+            var direction = connectedDoorwayCell - doorwayCell;
+
+            return $"{roomId}:{direction.x}:{direction.y}:"
+                + $"{doorwayCell.x}:{doorwayCell.y}";
         }
     }
 }

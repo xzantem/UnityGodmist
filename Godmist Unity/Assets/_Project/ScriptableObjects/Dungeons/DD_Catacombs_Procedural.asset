@@ -17,9 +17,14 @@ MonoBehaviour:
   <Theme>k__BackingField: 0
   <IsProcedural>k__BackingField: 1
   <IsStoryDungeon>k__BackingField: 0
+  <LayoutProfile>k__BackingField: {fileID: 11400000, guid: 681f292da1385ca48a9bc4bf9656a075, type: 2}
   <MinFloorCount>k__BackingField: 1
   <MaxFloorCount>k__BackingField: 1
-  <MinRoomCountPerFloor>k__BackingField: 6
-  <MaxRoomCountPerFloor>k__BackingField: 9
+  <MinRoomCountPerFloor>k__BackingField: 12
+  <MaxRoomCountPerFloor>k__BackingField: 18
+  <MinOptionalRoomCount>k__BackingField: 0
+  <MaxOptionalRoomCount>k__BackingField: 6
+  <MinLoopConnections>k__BackingField: 0
+  <MaxLoopConnections>k__BackingField: 0
   <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 3dd0625e5ba1be246a83e3aa80662cf7, type: 2}
   <EncounterDefinitions>k__BackingField: []
