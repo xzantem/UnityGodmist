@@ -7,6 +7,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Game;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private DungeonDefinition dungeonDefinition;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
+        private readonly DungeonEncounterRewardPreparationSystem rewardPreparationSystem = new();
 
         private void Start()
         {
@@ -72,6 +74,8 @@ namespace Godmist.Views.Exploration
             if (session.ActiveDungeon != null && session.ActiveDungeon.DungeonId == dungeonDefinition.Id) return;
 
             var dungeon = new DungeonInstance(dungeonDefinition, seed: 0);
+
+            rewardPreparationSystem.Prepare(dungeon);
             session.TrySetActiveDungeon(dungeon);
         }
 

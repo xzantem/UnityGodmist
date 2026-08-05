@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Effects;
+using Godmist.Runtime.Items;
 
 namespace Godmist.Runtime.Characters
 {
@@ -23,6 +24,9 @@ namespace Godmist.Runtime.Characters
         public ResourcePool ResourcePool;
         public ResistanceSet Resistances;
         public ShieldPool ShieldPool;
+        
+        public Inventory Inventory = new();
+        public EquipmentSet Equipment = new();
 
         public int CurrentHealth;
         public int Honor;

@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
 using Godmist.Data.Skills;
+using Godmist.Runtime.Items;
 using Godmist.Runtime.Characters;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace Godmist.Systems.Characters
 {
     public class CharacterInstanceFactory
     {
+        private readonly CharacterStatPipelineSystem statPipeline = new();
+
         public CharacterInstance Create(
             CharacterDefinition definition,
             CharacterClassData classData)
@@ -36,7 +39,7 @@ namespace Godmist.Systems.Characters
 
             var startingResource = classData.ResourceType == ResourceType.Mana ? maxResource : 0;
 
-            return new CharacterInstance
+            var character = new CharacterInstance
             {
                 CharacterId = definition.Id,
                 Definition = definition,
@@ -72,11 +75,15 @@ namespace Godmist.Systems.Characters
 
                 Resistances = new ResistanceSet(),
                 ShieldPool = new ShieldPool(),
+                Inventory = new Inventory(),
                 Skills = definition.StartingSkills != null ? new List<SkillData>(definition.StartingSkills)
                     : new List<SkillData>(),
 
-                PassiveEffects = new List<Godmist.Runtime.Effects.PassiveEffectRuntime>()
+                PassiveEffects = new List<Runtime.Effects.PassiveEffectRuntime>()
             };
+
+            statPipeline.Refresh(character);
+            return character;
         }
     }
 }

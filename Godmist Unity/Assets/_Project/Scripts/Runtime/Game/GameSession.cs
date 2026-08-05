@@ -4,19 +4,22 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
+using Godmist.Runtime.Items;
 
 namespace Godmist.Runtime.Game
 {
     public class GameSession
     {
         private readonly Dictionary<string, CharacterInstance> charactersById = new();
-
+        private readonly List<ItemInstance> pendingLoot = new();
         public GameModeState CurrentMode { get; private set; }
         public Party PlayerParty { get; } = new();
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
-
         public DungeonInstance ActiveDungeon { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
+        public int Gold { get; private set; }
+        public IReadOnlyList<ItemInstance> PendingLoot => pendingLoot;
+        public CombatRewardResult LastCombatRewards { get; private set; }
 
         public event Action<GameModeState, GameModeState> ModeChanged;
 
@@ -131,6 +134,46 @@ namespace Godmist.Runtime.Game
 
             ActiveCombat = null;
             return true;
+        }
+
+        public bool TryAddGold(int amount)
+        {
+            if (amount <= 0) return false;
+
+            Gold += amount;
+            return true;
+        }
+
+        public void AddPendingLoot(IEnumerable<ItemInstance> items)
+        {
+            if (items == null) return;
+
+            foreach (var item in items)
+            {
+                if (item != null) pendingLoot.Add(item);
+            }
+        }
+
+        public bool TryRemovePendingLoot(string itemInstanceId, out ItemInstance item)
+        {
+            item = null;
+
+            if (string.IsNullOrWhiteSpace(itemInstanceId)) return false;
+
+            var index = pendingLoot.FindIndex(
+                candidate => candidate != null
+                    && candidate.InstanceId == itemInstanceId);
+
+            if (index < 0) return false;
+
+            item = pendingLoot[index];
+            pendingLoot.RemoveAt(index);
+            return true;
+        }
+
+        public void SetLastCombatRewards(CombatRewardResult rewards)
+        {
+            LastCombatRewards = rewards;
         }
 
         private bool CanJoinActiveParty(string characterId)

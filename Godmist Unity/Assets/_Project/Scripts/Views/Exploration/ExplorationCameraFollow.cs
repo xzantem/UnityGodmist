@@ -1,4 +1,5 @@
 using UnityEngine;
+using Godmist.Views.UI;
 
 namespace Godmist.Views.Exploration
 {
@@ -16,6 +17,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private KeyCode toggleModeKey = KeyCode.F;
         [SerializeField] private Vector3 cameraOffset = new(0f, 0f, -10f);
         [SerializeField] private float keyboardPanSpeed = 10f;
+        [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
 
         private Camera worldCamera;
         private CameraMode currentMode = CameraMode.FollowLeader;
@@ -30,6 +32,11 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
+            if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
+            {
+                isPanning = false;
+                return;
+            }
             if (Input.GetKeyDown(toggleModeKey))
             {
                 currentMode = currentMode == CameraMode.FollowLeader

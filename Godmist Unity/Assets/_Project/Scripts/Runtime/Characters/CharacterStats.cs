@@ -1,4 +1,5 @@
 using System;
+using Godmist.Core.Enums;
 using Godmist.Core.Types;
 
 namespace Godmist.Runtime.Characters
@@ -16,5 +17,34 @@ namespace Godmist.Runtime.Characters
         public Stat CritDamage;
         public Stat Speed;
         public Stat ResourceRegeneration;
+
+        public ref Stat GetStat(CharacterStatType statType)
+        {
+            switch (statType)
+            {
+                case CharacterStatType.MaxHealth:
+                    return ref MaxHealth;
+                case CharacterStatType.MinAttack:
+                    return ref MinAttack;
+                case CharacterStatType.MaxAttack:
+                    return ref MaxAttack;
+                case CharacterStatType.PhysicalDefense:
+                    return ref PhysicalDefense;
+                case CharacterStatType.MagicalDefense:
+                    return ref MagicalDefense;
+                case CharacterStatType.Dodge:
+                    return ref Dodge;
+                case CharacterStatType.CritChance:
+                    return ref CritChance;
+                case CharacterStatType.CritDamage:
+                    return ref CritDamage;
+                case CharacterStatType.Speed:
+                    return ref Speed;
+                case CharacterStatType.ResourceRegeneration:
+                    return ref ResourceRegeneration;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(statType), statType, null);
+            }
+        }
     }
 }
