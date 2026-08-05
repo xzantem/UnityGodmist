@@ -45,6 +45,7 @@ Brak kart.
 - `[P1] Dodac combat rewards i LootTable v1` - `Items / Inventory / Economy`, `Combat`
 
 ## Done
+- `[P2] Dodac Inventory i Equipment UI v1` - `UI / UX`, `Items / Inventory / Economy`
 - `[P1] Dodac pipeline statystyk z equipment i passive effects v1` - `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
 - `[P1] Dodac EquipmentSet oraz walidacje slotow i wymagan v1` - `Items / Inventory / Economy`
 - `[P1] Dodac ItemDefinition, ItemInstance i Inventory v1` - `Items / Inventory / Economy`, `Content / Data`
@@ -122,7 +123,6 @@ Brak kart.
 
 ### Milestone: Rewards and Progression v1
 
-- `[P2] Dodac Inventory i Equipment UI v1` - `UI / UX`, `Items / Inventory / Economy`
 - `[P1] Rewards and Progression v1 - acceptance pass` - `Items / Inventory / Economy`, `Combat`, `Tools / Editor / Debug`
 
 ### Milestone: Save and Load v1

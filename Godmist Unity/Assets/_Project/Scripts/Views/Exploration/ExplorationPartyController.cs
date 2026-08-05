@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
+using Godmist.Views.UI;
 using UnityEngine;
 
 namespace Godmist.Views.Exploration
@@ -10,6 +11,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private float movementSpeed = 4f;
         [SerializeField] private float followerDistance = 1f;
         [SerializeField] private ExplorationCameraFollow cameraController;
+        [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
 
         private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
 
@@ -56,6 +58,8 @@ namespace Godmist.Views.Exploration
         {
             if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
 
+            if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;
+
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 TryCycleLeader();
@@ -72,6 +76,8 @@ namespace Godmist.Views.Exploration
         private void FixedUpdate()
         {
             if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
+
+            if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;
 
             var leaderView = GetActiveLeaderView();
 

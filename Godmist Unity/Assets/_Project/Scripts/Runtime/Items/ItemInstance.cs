@@ -35,5 +35,16 @@ namespace Godmist.Runtime.Items
             CurrentRarity = definition.BaseRarity;
             ItemLevel = 0;
         }
+
+        public virtual bool CanStackWith(ItemInstance other)
+        {
+            if (Definition == null || other?.Definition == null) return false;
+
+            if (!Definition.IsStackable || !other.Definition.IsStackable) return false;
+
+            return Definition.Id == other.Definition.Id
+                && CurrentRarity == other.CurrentRarity
+                && ItemLevel == other.ItemLevel;
+        }
     }
 }
