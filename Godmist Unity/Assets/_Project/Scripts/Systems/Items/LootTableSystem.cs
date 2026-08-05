@@ -10,9 +10,14 @@ namespace Godmist.Systems.Items
     {
         private readonly Func<float> randomValue;
 
-        public LootTableSystem(Func<float> randomValue = null)
+        private readonly ItemInstanceFactory itemInstanceFactory;
+
+        public LootTableSystem(
+            Func<float> randomValue = null,
+            ItemInstanceFactory itemInstanceFactory = null)
         {
             this.randomValue = randomValue ?? (() => UnityEngine.Random.value);
+            this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
         }
 
         public List<ItemInstance> RollLoot(LootTableData lootTable)
@@ -35,7 +40,7 @@ namespace Godmist.Systems.Items
 
                 for (var index = 0; index < amount; index++)
                 {
-                    items.Add(new ItemInstance(entry.ItemDefinition));
+                    items.Add(itemInstanceFactory.Create(entry.ItemDefinition));
                 }
             }
 

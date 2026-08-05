@@ -189,18 +189,16 @@ namespace Godmist.Tests.EditMode
             EquipmentSlot slot,
             string instanceId)
         {
-            var definition = ScriptableObject.CreateInstance<ItemDefinition>();
+            var definition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
 
             SetAutoProperty(definition, "Id", definitionId);
             SetAutoProperty(definition, "DisplayName", definitionId);
             SetAutoProperty(definition, "ItemType", itemType);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
             SetAutoProperty(definition, "Weight", 1f);
+            SetAutoProperty(definition, "EquipmentSlot", slot);
 
-            return new EquipmentItemInstance(
-                definition,
-                slot,
-                instanceId);
+            return new EquipmentItemInstance(definition, instanceId);
         }
 
         private static void SetAutoProperty(
@@ -208,9 +206,24 @@ namespace Godmist.Tests.EditMode
             string propertyName,
             object value)
         {
-            var field = target.GetType().GetField(
-                $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var type = target.GetType();
+            FieldInfo field = null;
+
+            while (type != null && field == null)
+            {
+                field = type.GetField(
+                    $"<{propertyName}>k__BackingField",
+                    BindingFlags.Instance
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly);
+
+                type = type.BaseType;
+            }
+
+            Assert.That(
+                field,
+                Is.Not.Null,
+                $"Nie znaleziono backing field dla właściwości '{propertyName}'.");
 
             field.SetValue(target, value);
         }

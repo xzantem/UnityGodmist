@@ -3,6 +3,7 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Items;
+using Godmist.Runtime.Items;
 using Godmist.Systems.Items;
 using NUnit.Framework;
 using UnityEngine;
@@ -65,6 +66,34 @@ namespace Godmist.Tests.EditMode
             Assert.That(items, Has.Count.EqualTo(3));
         }
 
+        [Test]
+        public void RollLoot_EquipmentDefinition_CreatesEquipmentItemInstance()
+        {
+            var definition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+
+            SetAutoProperty(definition, "Id", "item.test_weapon");
+            SetAutoProperty(definition, "DisplayName", "Testowy miecz");
+            SetAutoProperty(definition, "ItemType", ItemType.Weapon);
+            SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+            SetAutoProperty(definition, "EquipmentSlot", EquipmentSlot.Weapon);
+
+            var lootTable = CreateLootTable(
+                definition,
+                dropChance: 1f,
+                amount: new IntRange(1, 1));
+
+            var lootTableSystem = new LootTableSystem(() => 0f);
+
+            var items = lootTableSystem.RollLoot(lootTable);
+
+            Assert.That(items, Has.Count.EqualTo(1));
+            Assert.That(items[0], Is.TypeOf<EquipmentItemInstance>());
+
+            var equipmentItem = items[0] as EquipmentItemInstance;
+
+            Assert.That(equipmentItem.EquipmentSlot, Is.EqualTo(EquipmentSlot.Weapon));
+        }
+
         private static ItemDefinition CreateItemDefinition(string id)
         {
             var definition = ScriptableObject.CreateInstance<ItemDefinition>();
@@ -99,9 +128,19 @@ namespace Godmist.Tests.EditMode
             string propertyName,
             object value)
         {
-            var field = target.GetType().GetField(
-                $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var type = target.GetType();
+            FieldInfo field = null;
+
+            while (type != null && field == null)
+            {
+                field = type.GetField(
+                    $"<{propertyName}>k__BackingField",
+                    BindingFlags.Instance
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly);
+
+                type = type.BaseType;
+            }
 
             Assert.That(
                 field,

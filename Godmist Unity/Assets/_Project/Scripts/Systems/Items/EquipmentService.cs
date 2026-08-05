@@ -83,7 +83,7 @@ namespace Godmist.Systems.Items
 
         private static bool IsCompatibleWithSlot(EquipmentItemInstance item)
         {
-            if (item.Definition == null) return false;
+            if (item?.EquipmentDefinition == null) return false;
 
             return item.EquipmentSlot switch
             {

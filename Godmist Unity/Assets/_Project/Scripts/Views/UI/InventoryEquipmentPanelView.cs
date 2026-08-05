@@ -4,6 +4,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Items;
+using Godmist.Systems.Characters;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
@@ -34,6 +35,8 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI weightText;
         [SerializeField] private TextMeshProUGUI detailsText;
         [SerializeField] private TextMeshProUGUI messageText;
+        [SerializeField] private TextMeshProUGUI experienceText;
+        [SerializeField] private TextMeshProUGUI goldText;
 
         [Header("Dynamic lists")]
         [SerializeField] private Transform partyMembersContent;
@@ -50,6 +53,7 @@ namespace Godmist.Views.UI
         [SerializeField] private Button unequipButton;
         [SerializeField] private Button claimLootButton;
 
+        private readonly CharacterProgressionSystem progressionSystem = new();
         private readonly InventoryService inventoryService = new();
         private readonly EquipmentService equipmentService = new();
         private readonly LootCollectionService lootCollectionService = new();
@@ -207,6 +211,12 @@ namespace Godmist.Views.UI
                 return;
             }
 
+            if (selectedCharacter.LifeState == CharacterLifeState.Dead)
+            {
+                SetMessage("Martwa postac nie moze odebrac lupu.");
+                return;
+            }
+
             if (!lootCollectionService.TryClaimPendingLoot(
                     gameSession,
                     selectedCharacter.CharacterId,
@@ -258,7 +268,12 @@ namespace Godmist.Views.UI
             if (selectedCharacter == null)
             {
                 selectedCharacterText.text = "Brak wybranej postaci";
+                experienceText.text = "XP: -";
                 weightText.text = "Waga: -";
+                goldText.text = gameSession != null
+                    ? $"Zloto: {gameSession.Gold}"
+                    : "Zloto: -";
+
                 return;
             }
 
@@ -273,12 +288,19 @@ namespace Godmist.Views.UI
             selectedCharacterText.text =
                 $"{characterName} | {className} | poziom {selectedCharacter.Level}";
 
+            experienceText.text = selectedCharacter.Level >= CharacterProgressionSystem.MaximumLevel
+                ? "XP: maksymalny poziom"
+                : $"XP: {selectedCharacter.CurrentExperience} / "
+                + $"{progressionSystem.GetExperienceRequiredForNextLevel(selectedCharacter.Level)}";
+
             var currentWeight = inventoryService.GetCurrentWeight(selectedCharacter.Inventory);
             var maxWeight = selectedCharacter.Inventory.MaxWeight;
 
             weightText.text = maxWeight.HasValue
                 ? $"Waga: {currentWeight:0.##}/{maxWeight.Value:0.##} kg"
                 : $"Waga: {currentWeight:0.##} kg";
+
+            goldText.text = $"Zloto: {gameSession?.Gold ?? 0}";
         }
 
         private void RefreshInventory()
@@ -348,8 +370,13 @@ namespace Godmist.Views.UI
 
             var requirements = equipmentItem == null
                 ? string.Empty
-                : $"\nWymagany poziom: {equipmentItem.RequiredLevel}"
-                  + $"\nWymagana klasa: {equipmentItem.RequiredClassId}";
+                : $"\nWymagany poziom: {equipmentItem.RequiredLevel}";
+
+            if (equipmentItem != null
+                && !string.IsNullOrWhiteSpace(equipmentItem.RequiredClassId))
+            {
+                requirements += $"\nWymagana klasa: {equipmentItem.RequiredClassId}";
+            }
 
             var modifiers = equipmentItem == null
                 ? string.Empty
@@ -375,7 +402,8 @@ namespace Godmist.Views.UI
                 && equipmentItem != null;
 
             claimLootButton.interactable = selectedItemSource == SelectedItemSource.PendingLoot
-                && selectedCharacter != null;
+                && selectedCharacter != null
+                && selectedCharacter.LifeState != CharacterLifeState.Dead;
         }
 
         private CharacterInstance GetInitialCharacter()

@@ -42,9 +42,11 @@ Brak kart.
 
 ## In Progress
 
-- `[P1] Dodac combat rewards i LootTable v1` - `Items / Inventory / Economy`, `Combat`
+Brak kart.
 
 ## Done
+- `[P1] Rewards and Progression v1 - acceptance pass` - `Items / Inventory / Economy`, `Combat`, `Tools / Editor / Debug`
+- `[P1] Dodac combat rewards i LootTable v1` - `Items / Inventory / Economy`, `Combat`
 - `[P2] Dodac Inventory i Equipment UI v1` - `UI / UX`, `Items / Inventory / Economy`
 - `[P1] Dodac pipeline statystyk z equipment i passive effects v1` - `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
 - `[P1] Dodac EquipmentSet oraz walidacje slotow i wymagan v1` - `Items / Inventory / Economy`
@@ -123,7 +125,7 @@ Brak kart.
 
 ### Milestone: Rewards and Progression v1
 
-- `[P1] Rewards and Progression v1 - acceptance pass` - `Items / Inventory / Economy`, `Combat`, `Tools / Editor / Debug`
+Zamkniety: nagrody po walce, XP, zloto, loot i podstawowy przeplyw inventory/equipment zostaly zweryfikowane w acceptance passie.
 
 ### Milestone: Save and Load v1
 
