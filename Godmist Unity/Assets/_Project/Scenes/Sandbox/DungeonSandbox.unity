@@ -322,6 +322,52 @@ MonoBehaviour:
   cameraOffset: {x: 0, y: 0, z: -10}
   keyboardPanSpeed: 10
   inventoryEquipmentPanel: {fileID: 0}
+--- !u!1 &484441481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 484441482}
+  - component: {fileID: 484441483}
+  m_Layer: 0
+  m_Name: DungeonEncounters
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &484441482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484441481}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1922610319}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &484441483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484441481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed8ec889bf6899443a7f27db8feb3e0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonEncounterSpawner
+  encounterTriggerPrefab: {fileID: 3523326451104930914, guid: ddaf131f3a49b8c42b6e39878504db87, type: 3}
+  encountersRoot: {fileID: 484441482}
 --- !u!1 &648830552
 GameObject:
   m_ObjectHideFlags: 0
@@ -447,6 +493,7 @@ MonoBehaviour:
   floorMapView: {fileID: 1329287977}
   cameraFollow: {fileID: 375354604}
   partySpawner: {fileID: 1638332306}
+  encounterSpawner: {fileID: 484441483}
   exitPrefab: {fileID: 8231603590257206229, guid: fc6bfeb83f6835a438f186e62aa2361e, type: 3}
   exitsRoot: {fileID: 774521137}
 --- !u!1 &746692608
@@ -972,6 +1019,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 985978349}
+  - {fileID: 484441482}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

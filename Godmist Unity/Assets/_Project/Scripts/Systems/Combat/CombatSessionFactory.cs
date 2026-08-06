@@ -3,6 +3,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
 using UnityEngine;
@@ -20,35 +21,77 @@ namespace Godmist.Systems.Combat
             this.actionPointsPerSpeed = actionPointsPerSpeed;
         }
 
+        // Zachowujemy ten wariant dla CombatSandboxa i ręcznie uruchamianych walk.
         public bool TryCreate(
             GameSession gameSession,
             EncounterDefinition encounter,
             out CombatSession combatSession)
         {
+            var combatId = encounter != null ? encounter.Id : string.Empty;
+
+            return TryCreate(
+                gameSession,
+                encounter,
+                combatId,
+                out combatSession);
+        }
+
+        // Wariant używany przez encounter wygenerowany wewnątrz lochu.
+        public bool TryCreate(
+            GameSession gameSession,
+            DungeonEncounterInstance encounterInstance,
+            out CombatSession combatSession)
+        {
             combatSession = null;
 
-            if (gameSession == null || encounter == null
-                || string.IsNullOrWhiteSpace(encounter.Id)
-                || encounter.GridWidth <= 0 || encounter.GridHeight <= 0
-                || encounter.Enemies == null || encounter.Enemies.Count == 0)
+            if (encounterInstance == null) return false;
+
+            return TryCreate(
+                gameSession,
+                encounterInstance.Definition,
+                encounterInstance.InstanceId,
+                out combatSession);
+        }
+
+        private bool TryCreate(
+            GameSession gameSession,
+            EncounterDefinition encounter,
+            string combatId,
+            out CombatSession combatSession)
+        {
+            combatSession = null;
+
+            if (gameSession == null
+                || encounter == null
+                || string.IsNullOrWhiteSpace(combatId)
+                || encounter.GridWidth <= 0
+                || encounter.GridHeight <= 0
+                || encounter.Enemies == null
+                || encounter.Enemies.Count == 0)
             {
                 return false;
             }
 
             var session = new CombatSession
             {
-                CombatId = encounter.Id,
+                CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
                 Grid = new BattleGrid(encounter.GridWidth, encounter.GridHeight),
                 Units = new List<BattleUnit>(),
-                Rewards = ResolveRewards(gameSession, encounter)
+                Rewards = ResolveRewards(gameSession, encounter, combatId)
             };
 
             var playerIndex = 0;
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
-                if (!gameSession.CharactersById.TryGetValue(characterId, out var character)) continue;
+                if (!gameSession.CharactersById.TryGetValue(
+                        characterId,
+                        out var character))
+                {
+                    continue;
+                }
+
                 if (character.LifeState != CharacterLifeState.Alive) continue;
 
                 var position = new GridPosition(1, playerIndex + 1);
@@ -109,6 +152,7 @@ namespace Godmist.Systems.Combat
             bool isPlayerSide)
         {
             var speed = character.Stats.Speed.GetValue();
+
             var maxActionPoints = Mathf.Max(
                 0,
                 Mathf.RoundToInt(speed * actionPointsPerSpeed));
@@ -128,19 +172,20 @@ namespace Godmist.Systems.Combat
 
         private CombatRewardResult ResolveRewards(
             GameSession gameSession,
-            EncounterDefinition encounter)
+            EncounterDefinition encounter,
+            string combatId)
         {
             var dungeon = gameSession.ActiveDungeon;
 
             if (dungeon != null
-                && dungeon.TryGetPreRolledRewards(encounter.Id, out var rewards))
+                && dungeon.TryGetPreRolledRewards(combatId, out var rewards))
             {
                 return rewards;
             }
 
             var rolledRewards = rewardSystem.RollEncounterRewards(encounter);
 
-            dungeon?.TryStorePreRolledRewards(encounter.Id, rolledRewards);
+            dungeon?.TryStorePreRolledRewards(combatId, rolledRewards);
 
             return rolledRewards;
         }

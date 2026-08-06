@@ -1,8 +1,8 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
-using Godmist.Views.Game;
 using Godmist.Views.Exploration;
+using Godmist.Views.Game;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
@@ -12,6 +12,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonFloorMapView floorMapView;
         [SerializeField] private ExplorationCameraFollow cameraFollow;
         [SerializeField] private DungeonPartySpawner partySpawner;
+        [SerializeField] private DungeonEncounterSpawner encounterSpawner;
 
         [SerializeField] private DungeonExitView exitPrefab;
         [SerializeField] private Transform exitsRoot;
@@ -29,10 +30,13 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            if (floorMapView == null || partySpawner == null)
+            if (floorMapView == null
+                || partySpawner == null
+                || encounterSpawner == null)
             {
                 Debug.LogError(
-                    "DungeonSandboxBootstrap: brak DungeonFloorMapView lub DungeonPartySpawner.");
+                    "DungeonSandboxBootstrap: brak DungeonFloorMapView, "
+                    + "DungeonPartySpawner lub DungeonEncounterSpawner.");
 
                 return;
             }
@@ -70,6 +74,13 @@ namespace Godmist.Views.Dungeons
                 }
 
                 if (!partySpawner.TrySpawn(session, startPosition))
+                {
+                    return;
+                }
+
+                if (!encounterSpawner.Rebuild(
+                        floor,
+                        partySpawner.PartyController))
                 {
                     return;
                 }

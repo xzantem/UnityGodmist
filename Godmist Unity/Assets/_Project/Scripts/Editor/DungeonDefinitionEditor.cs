@@ -22,6 +22,9 @@ namespace Godmist.Editor
         private SerializedProperty maxLoopConnectionsProperty;
         private SerializedProperty roomTemplateCatalogProperty;
         private SerializedProperty encounterDefinitionsProperty;
+        private SerializedProperty minEncounterCountPerFloor;
+        private SerializedProperty maxEncounterCountPerFloor;
+        private SerializedProperty allowEncounterDefinitionRepeats;
 
         private void OnEnable()
         {
@@ -41,6 +44,10 @@ namespace Godmist.Editor
             maxLoopConnectionsProperty = serializedObject.FindProperty("<MaxLoopConnections>k__BackingField");
             roomTemplateCatalogProperty = serializedObject.FindProperty("<RoomTemplateCatalog>k__BackingField");
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
+            minEncounterCountPerFloor = serializedObject.FindProperty("<MinEncounterCountPerFloor>k__BackingField");
+            maxEncounterCountPerFloor = serializedObject.FindProperty("<MaxEncounterCountPerFloor>k__BackingField");
+            allowEncounterDefinitionRepeats = 
+                serializedObject.FindProperty("<AllowEncounterDefinitionRepeats>k__BackingField");
         }
 
         public override void OnInspectorGUI()
@@ -70,6 +77,10 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(maxOptionalRoomCountProperty);
                 EditorGUILayout.PropertyField(minLoopConnectionsProperty);
                 EditorGUILayout.PropertyField(maxLoopConnectionsProperty);
+
+                EditorGUILayout.PropertyField(minEncounterCountPerFloor);
+                EditorGUILayout.PropertyField(maxEncounterCountPerFloor);
+                EditorGUILayout.PropertyField(allowEncounterDefinitionRepeats);
             }
 
             EditorGUILayout.Space();

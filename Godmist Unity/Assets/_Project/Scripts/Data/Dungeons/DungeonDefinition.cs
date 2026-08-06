@@ -42,6 +42,13 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
 
+        [field: Header("Encounters")]
+        [field: SerializeField, Min(0)] public int MinEncounterCountPerFloor { get; private set; } = 1;
+
+        [field: SerializeField, Min(0)] public int MaxEncounterCountPerFloor { get; private set; } = 3;
+
+        [field: SerializeField] public bool AllowEncounterDefinitionRepeats { get; private set; } = true;
+
         private void OnValidate()
         {
             MinFloorCount = Mathf.Max(1, MinFloorCount);
@@ -61,6 +68,11 @@ namespace Godmist.Data.Dungeons
             MaxLoopConnections = Mathf.Max(
                 MinLoopConnections,
                 MaxLoopConnections);
+
+            MinEncounterCountPerFloor = Mathf.Max(0, MinEncounterCountPerFloor);
+            MaxEncounterCountPerFloor = Mathf.Max(
+                MinEncounterCountPerFloor,
+                MaxEncounterCountPerFloor);
         }
     }
 }

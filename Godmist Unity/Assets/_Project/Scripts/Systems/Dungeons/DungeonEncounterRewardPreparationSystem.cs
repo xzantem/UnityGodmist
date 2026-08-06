@@ -9,30 +9,41 @@ namespace Godmist.Systems.Dungeons
     {
         public void Prepare(DungeonInstance dungeon)
         {
-            if (dungeon?.Definition?.EncounterDefinitions == null) return;
+            if (dungeon == null) return;
 
             var random = new Random(dungeon.Seed);
+
             var lootTableSystem = new LootTableSystem(
                 () => (float)random.NextDouble());
 
             var rewardSystem = new CombatRewardSystem(
                 lootTableSystem: lootTableSystem);
 
-            foreach (var encounter in dungeon.Definition.EncounterDefinitions)
+            foreach (var floor in dungeon.Floors)
             {
-                if (encounter == null || string.IsNullOrWhiteSpace(encounter.Id))
+                foreach (var encounterInstance in floor.Encounters)
                 {
-                    continue;
+                    if (encounterInstance == null
+                        || string.IsNullOrWhiteSpace(encounterInstance.InstanceId)
+                        || encounterInstance.Definition == null)
+                    {
+                        continue;
+                    }
+
+                    if (dungeon.TryGetPreRolledRewards(
+                            encounterInstance.InstanceId,
+                            out _))
+                    {
+                        continue;
+                    }
+
+                    var rewards = rewardSystem.RollEncounterRewards(
+                        encounterInstance.Definition);
+
+                    dungeon.TryStorePreRolledRewards(
+                        encounterInstance.InstanceId,
+                        rewards);
                 }
-
-                if (dungeon.TryGetPreRolledRewards(encounter.Id, out _))
-                {
-                    continue;
-                }
-
-                var rewards = rewardSystem.RollEncounterRewards(encounter);
-
-                dungeon.TryStorePreRolledRewards(encounter.Id, rewards);
             }
         }
     }

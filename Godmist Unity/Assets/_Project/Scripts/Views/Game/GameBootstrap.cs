@@ -20,6 +20,7 @@ namespace Godmist.Views.Game
         private SceneLoader sceneLoader;
         private readonly DungeonGeneratorService dungeonGenerator = new();
         private readonly DungeonEncounterRewardPreparationSystem rewardPreparationSystem = new();
+        private readonly DungeonEncounterPlacementSystem encounterPlacementSystem = new();
 
         private void Awake()
         {
@@ -84,6 +85,8 @@ namespace Godmist.Views.Game
             try
             {
                 var dungeon = dungeonGenerator.Generate(definition, seed);
+
+                encounterPlacementSystem.Place(dungeon);
 
                 rewardPreparationSystem.Prepare(dungeon);
 
