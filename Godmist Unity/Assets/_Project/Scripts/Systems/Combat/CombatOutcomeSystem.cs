@@ -51,13 +51,13 @@ namespace Godmist.Systems.Combat
                 return;
             }
 
-            var anyPlayerUnitsLeft = session.Units.Exists(
+            var anyLivingPlayerUnits = session.Units.Exists(
                 unit => unit != null
                     && unit.IsPlayerSide
                     && unit.Character != null
-                    && unit.Character.LifeState != CharacterLifeState.Dead);
+                    && unit.Character.LifeState == CharacterLifeState.Alive);
 
-            if (!anyPlayerUnitsLeft)
+            if (!anyLivingPlayerUnits)
             {
                 session.Outcome = CombatOutcomeState.Defeat;
                 battleLog?.Invoke("Porazka.");

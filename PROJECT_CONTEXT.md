@@ -275,6 +275,9 @@ Resistances are better modeled as a dedicated resistance set rather than ordinar
 - A character may become downed.
 - A downed character can be revived during combat.
 - There are `3` turns to revive a downed character.
+- `Downed` prolongs combat only while at least one player-side unit remains `Alive` and can revive allies. If no
+  player-side unit is `Alive`, combat immediately resolves as `Defeat`; it does not wait for every downed unit to
+  exhaust its individual death timer.
 - Every hit on a downed target accelerates death by one additional turn.
 - Reviving a downed target automatically ends the acting unit's turn.
 - If the main character dies, or the entire party dies, the game returns to a save.
@@ -1230,6 +1233,12 @@ Current goal:
 - An optional room is not part of the required `Start -> Final` route. For generator v1 it is a one-connection side branch; later it may also create an optional loop.
 - Room templates use rectangular `SizeInCells` for the first generator. Irregular footprints such as L/T-shaped rooms are deferred until after the playable dungeon loop, then represented as a cell footprint rather than only a rectangle.
 - Rooms may contain chests, puzzle rewards, or rewards for defeating monsters.
+- Dungeon-object placement v1 may choose any valid non-passage cell in an eligible room. It is intentionally only a
+  vertical-slice rule.
+- Later, a `DungeonRoomTemplate` should define semantic content anchors/areas for objects and encounters, for example
+  a chest at the far end of a narrow corridor, an obstacle on a chosen choke point, a trap sequence, or a guarded
+  reward. The generator then selects from those anchors instead of treating every valid cell as equivalent.
+- Separate rooms may touch physically while remaining separated by a wall; adjacency alone does not create a passage.
 - Battlefield shape depends on the current dungeon room/corridor.
 - Example: a narrow corridor yields a narrow battlefield; a forest dungeon may include stones and trees as obstacles.
 - Some quest dungeons may be 90% procedural but guarantee specific rooms.

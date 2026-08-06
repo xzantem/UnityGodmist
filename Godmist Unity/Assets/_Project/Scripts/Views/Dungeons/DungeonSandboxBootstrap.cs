@@ -13,6 +13,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private ExplorationCameraFollow cameraFollow;
         [SerializeField] private DungeonPartySpawner partySpawner;
         [SerializeField] private DungeonEncounterSpawner encounterSpawner;
+        [SerializeField] private DungeonObjectSpawner objectSpawner;
 
         [SerializeField] private DungeonExitView exitPrefab;
         [SerializeField] private Transform exitsRoot;
@@ -32,11 +33,12 @@ namespace Godmist.Views.Dungeons
 
             if (floorMapView == null
                 || partySpawner == null
-                || encounterSpawner == null)
+                || encounterSpawner == null || objectSpawner == null)
             {
                 Debug.LogError(
                     "DungeonSandboxBootstrap: brak DungeonFloorMapView, "
-                    + "DungeonPartySpawner lub DungeonEncounterSpawner.");
+                    + "DungeonPartySpawner, DungeonEncounterSpawner "
+                    + "lub DungeonObjectSpawner.");
 
                 return;
             }
@@ -68,6 +70,8 @@ namespace Godmist.Views.Dungeons
                 }
 
                 if (!partySpawner.TrySpawn(session, spawnPosition)) return;
+
+                if (!objectSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 
                 if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 

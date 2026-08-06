@@ -2176,7 +2176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonEntranceView
   partyController: {fileID: 385230092}
   dungeonDefinition: {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
-  seed: 12345
+  seed: 15
   interactionRadius: 1.25
   interactionKey: 101
 --- !u!58 &276334572
@@ -10531,9 +10531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24a8c623838c1d147b27429219c2205e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Exploration.EncounterTriggerView
-  partyController: {fileID: 385230092}
-  encounterDefinition: {fileID: 11400000, guid: f70fadf3a76a46141837274e5f0228b1, type: 2}
-  triggerRadius: 1.25
+  triggerCollider: {fileID: 0}
   actionPointsPerSpeed: 0.25
 --- !u!212 &1988445093
 SpriteRenderer:

@@ -21,6 +21,7 @@ namespace Godmist.Views.Game
         private readonly DungeonGeneratorService dungeonGenerator = new();
         private readonly DungeonEncounterRewardPreparationSystem rewardPreparationSystem = new();
         private readonly DungeonEncounterPlacementSystem encounterPlacementSystem = new();
+        private readonly DungeonObjectPlacementSystem objectPlacementSystem = new();
 
         private void Awake()
         {
@@ -93,7 +94,7 @@ namespace Godmist.Views.Game
                 var dungeon = dungeonGenerator.Generate(definition, seed);
 
                 encounterPlacementSystem.Place(dungeon);
-
+                objectPlacementSystem.Place(dungeon);
                 rewardPreparationSystem.Prepare(dungeon);
 
                 if (!Session.TrySetActiveDungeon(dungeon)) return false;
@@ -109,6 +110,23 @@ namespace Godmist.Views.Game
                 return false;
             }
         }
+
+        public bool TryRestartAfterDefeat()
+        {
+            if (sceneLoader == null)
+            {
+                Debug.LogError("GameBootstrap: brak SceneLoader.");
+                return false;
+            }
+
+            Session = new GameSession(GameModeState.Menu);
+            sceneLoader.Initialize(Session);
+
+            return sceneLoader.TryLoadScene(
+                explorationSceneName,
+                GameModeState.Exploration);
+        }
+
         public bool TryExitDungeon()
         {
             if (Session == null || Session.ActiveDungeon == null) return false;

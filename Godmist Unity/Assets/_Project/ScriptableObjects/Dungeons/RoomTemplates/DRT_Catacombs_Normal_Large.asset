@@ -15,4 +15,4 @@ MonoBehaviour:
   <Id>k__BackingField: room.catacombs.normal.large.v1
   <DisplayName>k__BackingField: "Katakumby - du\u017Cy pok\xF3j"
   <RoomType>k__BackingField: 1
-  <SizeInCells>k__BackingField: {x: 12, y: 8}
+  <SizeInCells>k__BackingField: {x: 16, y: 12}

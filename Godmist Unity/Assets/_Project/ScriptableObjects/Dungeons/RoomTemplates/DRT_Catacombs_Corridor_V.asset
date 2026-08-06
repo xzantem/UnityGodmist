@@ -15,4 +15,4 @@ MonoBehaviour:
   <Id>k__BackingField: room.catacombs.corridor.vertical.v1
   <DisplayName>k__BackingField: Katakumby - korytarz pionowy
   <RoomType>k__BackingField: 3
-  <SizeInCells>k__BackingField: {x: 2, y: 6}
+  <SizeInCells>k__BackingField: {x: 3, y: 8}

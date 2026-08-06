@@ -17,5 +17,5 @@ MonoBehaviour:
   <MaxLateralOffsetCells>k__BackingField: 4
   <MainPathTurnChance>k__BackingField: 0.802
   <MinDoorwayWidth>k__BackingField: 1
-  <MaxDoorwayWidth>k__BackingField: 1
+  <MaxDoorwayWidth>k__BackingField: 2
   <CorridorRoomChance>k__BackingField: 0.55

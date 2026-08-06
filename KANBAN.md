@@ -37,14 +37,14 @@ Priorytety:
 
 ## Ready
 
-Brak kart.
+
 
 
 ## In Progress
 
-Brak kart.
-
 ## Done
+- `[P1] Procedural Dungeon Loop v1 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+- `[P2] Dodac podstawowe obiekty lochu: skrzynia i przeszkoda v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`
 - `[P1] Powrot do aktywnego lochu po walce v1` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
 - `[P1] Dodac generowanie encounterow i triggerow walki w lochu v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
 - `[P1] Dodac grywalna mape podlogi lochu: podlogi, sciany, drzwi i kolizje v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
@@ -131,9 +131,13 @@ Brak kart.
 ## Backlog
 
 ### Milestone: Playable Dungeon Loop v1
-- `[P1] Polaczyc wynik walki z wygenerowanym stanem lochu v1` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`
-- `[P2] Dodac podstawowe obiekty lochu: skrzynia i przeszkoda v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`
-- `[P1] Playable Dungeon Loop v1 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+
+Zamkniety: zobacz sekcje `Done`.
+
+### Pozniej: rozbudowa danych lochow
+- `[P2] Dodac semantyczne content anchors do DungeonRoomTemplate` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+  - Szablon pokoju definiuje dozwolone punkty/obszary dla skrzyn, przeszkod, pulapek i encounterow.
+  - Pozwala tworzyc recznie zaprojektowane sytuacje, np. nagrode na koncu waskiego przejscia za przeszkodami lub walka.
 
 ### Milestone: Save and Load v1
 

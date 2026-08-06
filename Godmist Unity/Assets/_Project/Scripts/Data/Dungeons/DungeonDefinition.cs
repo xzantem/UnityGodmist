@@ -49,6 +49,16 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField] public bool AllowEncounterDefinitionRepeats { get; private set; } = true;
 
+        [field: Header("Dungeon objects")]
+        [field: SerializeField]
+        public List<DungeonObjectDefinition> ObjectDefinitions { get; private set; } = new();
+
+        [field: SerializeField, Min(0)]
+        public int MinObjectCountPerFloor { get; private set; } = 1;
+
+        [field: SerializeField, Min(0)]
+        public int MaxObjectCountPerFloor { get; private set; } = 3;
+
         private void OnValidate()
         {
             MinFloorCount = Mathf.Max(1, MinFloorCount);
@@ -73,6 +83,11 @@ namespace Godmist.Data.Dungeons
             MaxEncounterCountPerFloor = Mathf.Max(
                 MinEncounterCountPerFloor,
                 MaxEncounterCountPerFloor);
+
+            MinObjectCountPerFloor = Mathf.Max(0, MinObjectCountPerFloor);
+            MaxObjectCountPerFloor = Mathf.Max(
+                MinObjectCountPerFloor,
+                MaxObjectCountPerFloor);
         }
     }
 }

@@ -25,6 +25,9 @@ namespace Godmist.Editor
         private SerializedProperty minEncounterCountPerFloor;
         private SerializedProperty maxEncounterCountPerFloor;
         private SerializedProperty allowEncounterDefinitionRepeats;
+        private SerializedProperty objectDefinitionsProperty;
+        private SerializedProperty minObjectCountPerFloorProperty;
+        private SerializedProperty maxObjectCountPerFloorProperty;
 
         private void OnEnable()
         {
@@ -46,6 +49,9 @@ namespace Godmist.Editor
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
             minEncounterCountPerFloor = serializedObject.FindProperty("<MinEncounterCountPerFloor>k__BackingField");
             maxEncounterCountPerFloor = serializedObject.FindProperty("<MaxEncounterCountPerFloor>k__BackingField");
+            objectDefinitionsProperty = serializedObject.FindProperty("<ObjectDefinitions>k__BackingField");
+            minObjectCountPerFloorProperty = serializedObject.FindProperty("<MinObjectCountPerFloor>k__BackingField");
+            maxObjectCountPerFloorProperty = serializedObject.FindProperty("<MaxObjectCountPerFloor>k__BackingField");
             allowEncounterDefinitionRepeats = 
                 serializedObject.FindProperty("<AllowEncounterDefinitionRepeats>k__BackingField");
         }
@@ -81,10 +87,16 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(minEncounterCountPerFloor);
                 EditorGUILayout.PropertyField(maxEncounterCountPerFloor);
                 EditorGUILayout.PropertyField(allowEncounterDefinitionRepeats);
+
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Dungeon objects", EditorStyles.boldLabel);
+                EditorGUILayout.PropertyField(minObjectCountPerFloorProperty);
+                EditorGUILayout.PropertyField(maxObjectCountPerFloorProperty);
             }
 
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(encounterDefinitionsProperty);
+            EditorGUILayout.PropertyField(objectDefinitionsProperty);
 
             serializedObject.ApplyModifiedProperties();
         }

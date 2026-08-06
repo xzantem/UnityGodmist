@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -8,11 +9,13 @@ namespace Godmist.Runtime.Dungeons
         private readonly List<DungeonRoomInstance> rooms = new();
         private readonly List<DungeonRoomConnection> connections = new();
         private readonly List<DungeonEncounterInstance> encounters = new();
+        private readonly List<DungeonObjectInstance> objects = new();
 
         public int FloorIndex { get; }
         public IReadOnlyList<DungeonRoomInstance> Rooms => rooms;
         public IReadOnlyList<DungeonRoomConnection> Connections => connections;
         public IReadOnlyList<DungeonEncounterInstance> Encounters => encounters;
+        public IReadOnlyList<DungeonObjectInstance> Objects => objects;
 
         public DungeonFloorMap Map { get; private set; }
 
@@ -61,46 +64,21 @@ namespace Godmist.Runtime.Dungeons
             return false;
         }
 
-        public bool TryAddConnection(
-            string firstRoomId,
-            string secondRoomId)
+        public bool TryAddConnection(string firstRoomId, string secondRoomId)
         {
-            if (!TryGetRoom(firstRoomId, out _)
-                || !TryGetRoom(secondRoomId, out _))
-            {
-                return false;
-            }
+            if (!TryGetRoom(firstRoomId, out _) || !TryGetRoom(secondRoomId, out _)) return false;
 
-            if (string.Equals(
-                    firstRoomId,
-                    secondRoomId,
-                    StringComparison.Ordinal))
-            {
-                return false;
-            }
+            if (string.Equals(firstRoomId, secondRoomId, StringComparison.Ordinal)) return false;
+            if (connections.Exists(connection => connection.Connects(firstRoomId, secondRoomId))) return false;
 
-            if (connections.Exists(
-                    connection => connection.Connects(
-                        firstRoomId,
-                        secondRoomId)))
-            {
-                return false;
-            }
-
-            connections.Add(
-                new DungeonRoomConnection(
-                    firstRoomId,
-                    secondRoomId));
+            connections.Add(new DungeonRoomConnection(firstRoomId, secondRoomId));
 
             return true;
         }
         
         public bool TrySetMap(DungeonFloorMap map)
         {
-            if (map == null || Map != null)
-            {
-                return false;
-            }
+            if (map == null || Map != null) return false;
 
             Map = map;
             return true;
@@ -114,6 +92,23 @@ namespace Godmist.Runtime.Dungeons
 
             encounters.Add(encounter);
             return true;
+        }
+
+        public bool TryAddObject(DungeonObjectInstance dungeonObject)
+        {
+            if (dungeonObject == null ||  objects.Exists(
+                existing => string.Equals(existing.InstanceId, dungeonObject.InstanceId, StringComparison.Ordinal))
+                || objects.Exists(existing => existing.Position == dungeonObject.Position)) return false;
+
+            objects.Add(dungeonObject);
+            return true;
+        }
+
+        public bool TryGetActiveObjectAt(Vector2Int position, out DungeonObjectInstance dungeonObject)
+        {
+            dungeonObject = objects.Find(existing => existing.IsActive && existing.Position == position);
+
+            return dungeonObject != null;
         }
     }
 }
