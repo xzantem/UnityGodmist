@@ -268,7 +268,22 @@ namespace Godmist.Systems.Dungeons
                 }
             }
 
-            BuildConnectionGeometry(floor, roomSizesById, definition.LayoutProfile, random);
+            BuildConnectionGeometry(
+                floor,
+                roomSizesById,
+                definition.LayoutProfile,
+                random);
+
+            var floorMapBuilder = new DungeonFloorMapBuilder();
+
+            if (!floor.TrySetMap(
+                    floorMapBuilder.Build(
+                        floor,
+                        definition.RoomTemplateCatalog)))
+            {
+                throw new InvalidOperationException(
+                    "Nie udalo sie przypisac mapy do pietra lochu.");
+            }
 
             return floor;
         }

@@ -2,14 +2,15 @@ using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Game;
+using Godmist.Views.Exploration;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
 {
     public class DungeonSandboxBootstrap : MonoBehaviour
     {
-        [SerializeField] private DungeonLayoutView layoutView;
-        [SerializeField] private DungeonCameraFramer cameraFramer;
+        [SerializeField] private DungeonFloorMapView floorMapView;
+        [SerializeField] private ExplorationCameraFollow cameraFollow;
         [SerializeField] private DungeonPartySpawner partySpawner;
 
         [SerializeField] private DungeonExitView exitPrefab;
@@ -28,10 +29,10 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            if (layoutView == null || partySpawner == null)
+            if (floorMapView == null || partySpawner == null)
             {
                 Debug.LogError(
-                    "DungeonSandboxBootstrap: brak DungeonLayoutView lub DungeonPartySpawner.");
+                    "DungeonSandboxBootstrap: brak DungeonFloorMapView lub DungeonPartySpawner.");
 
                 return;
             }
@@ -46,9 +47,16 @@ namespace Godmist.Views.Dungeons
 
             try
             {
-                layoutView.Rebuild(
-                    dungeon,
-                    dungeon.Definition.RoomTemplateCatalog);
+                if (!dungeon.TryGetCurrentFloor(out var floor)
+                    || floor.Map == null)
+                {
+                    Debug.LogError(
+                        "DungeonSandboxBootstrap: aktywne pietro nie ma wygenerowanej mapy.");
+
+                    return;
+                }
+
+                floorMapView.Rebuild(floor.Map);
 
                 if (!TryGetRoomCenter(
                         dungeon,
@@ -95,10 +103,10 @@ namespace Godmist.Views.Dungeons
                     partySpawner.PartyController,
                     exitPosition);
 
-                if (cameraFramer != null
-                    && layoutView.TryGetWorldBounds(out var worldBounds))
+                if (floorMapView.TryGetWorldBounds(out var worldBounds))
                 {
-                    cameraFramer.Frame(worldBounds);
+                    cameraFollow?.SetWorldBounds(worldBounds);
+                    cameraFollow?.SnapToLeader();
                 }
             }
             catch (Exception exception)

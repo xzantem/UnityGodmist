@@ -12,6 +12,8 @@ namespace Godmist.Runtime.Dungeons
         public IReadOnlyList<DungeonRoomInstance> Rooms => rooms;
         public IReadOnlyList<DungeonRoomConnection> Connections => connections;
 
+        public DungeonFloorMap Map { get; private set; }
+
         public DungeonFloorInstance(int floorIndex)
         {
             if (floorIndex < 0)
@@ -88,6 +90,17 @@ namespace Godmist.Runtime.Dungeons
                     firstRoomId,
                     secondRoomId));
 
+            return true;
+        }
+        
+        public bool TrySetMap(DungeonFloorMap map)
+        {
+            if (map == null || Map != null)
+            {
+                return false;
+            }
+
+            Map = map;
             return true;
         }
     }

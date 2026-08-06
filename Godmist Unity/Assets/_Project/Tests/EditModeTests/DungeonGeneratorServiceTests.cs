@@ -145,6 +145,59 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Generate_CreatesWalkableMapForEveryRoomCell()
+        {
+            var definition = CreateDefinition(6, 6);
+            var generator = new DungeonGeneratorService();
+
+            var dungeon = generator.Generate(definition, 12345);
+            var floor = dungeon.Floors[0];
+
+            Assert.That(floor.Map, Is.Not.Null);
+
+            foreach (var room in floor.Rooms)
+            {
+                var bounds = GetRoomBounds(
+                    room,
+                    definition.RoomTemplateCatalog);
+
+                for (var x = bounds.xMin; x < bounds.xMax; x++)
+                {
+                    for (var y = bounds.yMin; y < bounds.yMax; y++)
+                    {
+                        Assert.That(
+                            floor.Map.IsWalkable(new Vector2Int(x, y)),
+                            Is.True,
+                            $"Komorka {x},{y} pokoju '{room.RoomId}' nie jest przechodnia.");
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Generate_ConnectionsCreatePassableDoorways()
+        {
+            var definition = CreateDefinition(6, 9);
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                foreach (var connection in floor.Connections)
+                {
+                    Assert.That(
+                        floor.Map.CanMoveBetween(
+                            connection.FirstDoorCell,
+                            connection.SecondDoorCell),
+                        Is.True,
+                        $"Seed {seed}: drzwi polaczenia nie sa przechodnie.");
+                }
+            }
+        }
+
+        [Test]
         public void Generate_Connections_CreateAdjacentDoorways()
         {
             var definition = CreateDefinition(6, 9);
