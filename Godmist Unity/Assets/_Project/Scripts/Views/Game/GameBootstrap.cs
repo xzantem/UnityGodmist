@@ -65,22 +65,28 @@ namespace Godmist.Views.Game
 
             sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration);
         }
+
+        public bool TryReturnFromCombat()
+        {
+            if (sceneLoader == null || Session == null) return false;
+
+            var destinationSceneName = Session.ActiveDungeon != null ? dungeonSceneName : explorationSceneName;
+
+            return sceneLoader.TryLoadScene(destinationSceneName, GameModeState.Exploration);
+        }
+
         public bool TryEnterDungeon(
             DungeonDefinition definition,
             int seed)
         {
             if (definition == null || !definition.IsProcedural)
             {
-                Debug.LogError(
-                    "GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
+                Debug.LogError("GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
 
                 return false;
             }
 
-            if (Session == null || Session.ActiveDungeon != null)
-            {
-                return false;
-            }
+            if (Session == null || Session.ActiveDungeon != null) return false;
 
             try
             {
@@ -90,17 +96,9 @@ namespace Godmist.Views.Game
 
                 rewardPreparationSystem.Prepare(dungeon);
 
-                if (!Session.TrySetActiveDungeon(dungeon))
-                {
-                    return false;
-                }
+                if (!Session.TrySetActiveDungeon(dungeon)) return false;
 
-                if (sceneLoader.TryLoadScene(
-                        dungeonSceneName,
-                        GameModeState.Exploration))
-                {
-                    return true;
-                }
+                if (sceneLoader.TryLoadScene(dungeonSceneName, GameModeState.Exploration)) return true;
 
                 Session.TryClearActiveDungeon();
                 return false;
@@ -113,19 +111,11 @@ namespace Godmist.Views.Game
         }
         public bool TryExitDungeon()
         {
-            if (Session == null || Session.ActiveDungeon == null)
-            {
-                return false;
-            }
+            if (Session == null || Session.ActiveDungeon == null) return false;
 
             var dungeon = Session.ActiveDungeon;
 
-            if (!sceneLoader.TryLoadScene(
-                    explorationSceneName,
-                    GameModeState.Exploration))
-            {
-                return false;
-            }
+            if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
 
             dungeon.TryMarkCompleted();
             Session.TryClearActiveDungeon();

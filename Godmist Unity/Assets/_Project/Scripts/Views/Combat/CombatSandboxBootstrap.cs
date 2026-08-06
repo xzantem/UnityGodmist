@@ -743,11 +743,7 @@ namespace Godmist.Views.Combat
 
             var outcome = Session.Outcome;
 
-            if (outcome != CombatOutcomeState.Victory
-                && outcome != CombatOutcomeState.Escaped)
-            {
-                return false;
-            }
+            if (outcome != CombatOutcomeState.Victory && outcome != CombatOutcomeState.Escaped) return false;
 
             var gameBootstrap = GameBootstrap.Instance;
 
@@ -762,9 +758,10 @@ namespace Godmist.Views.Combat
                 gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
             }
 
+            if (!gameBootstrap.TryReturnFromCombat()) return false;
+
             hasRequestedExplorationReturn = true;
             gameSession.TryClearActiveCombat();
-            gameBootstrap.StartExploration();
 
             return true;
         }

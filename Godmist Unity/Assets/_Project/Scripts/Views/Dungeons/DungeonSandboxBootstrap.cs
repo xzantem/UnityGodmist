@@ -51,68 +51,45 @@ namespace Godmist.Views.Dungeons
 
             try
             {
-                if (!dungeon.TryGetCurrentFloor(out var floor)
-                    || floor.Map == null)
+                if (!dungeon.TryGetCurrentFloor(out var floor) || floor.Map == null)
                 {
-                    Debug.LogError(
-                        "DungeonSandboxBootstrap: aktywne pietro nie ma wygenerowanej mapy.");
+                    Debug.LogError("DungeonSandboxBootstrap: aktywne pietro nie ma wygenerowanej mapy.");
 
                     return;
                 }
 
                 floorMapView.Rebuild(floor.Map);
 
-                if (!TryGetRoomCenter(
-                        dungeon,
-                        DungeonRoomType.Start,
-                        out var startPosition))
+                if (!TryGetDungeonSpawnPosition(dungeon, out var spawnPosition))
                 {
-                    Debug.LogError(
-                        "DungeonSandboxBootstrap: nie znaleziono pokoju Start.");
+                    Debug.LogError("DungeonSandboxBootstrap: nie znaleziono pozycji spawnu druzyny.");
 
                     return;
                 }
 
-                if (!partySpawner.TrySpawn(session, startPosition))
-                {
-                    return;
-                }
+                if (!partySpawner.TrySpawn(session, spawnPosition)) return;
 
-                if (!encounterSpawner.Rebuild(
-                        floor,
-                        partySpawner.PartyController))
-                {
-                    return;
-                }
+                if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 
-                if (!TryGetRoomCenter(
-                        dungeon,
-                        DungeonRoomType.Final,
-                        out var exitPosition))
+                if (!TryGetRoomCenter(dungeon, DungeonRoomType.Final, out var exitPosition))
                 {
-                    Debug.LogError(
-                        "DungeonSandboxBootstrap: nie znaleziono pokoju Final.");
+                    Debug.LogError("DungeonSandboxBootstrap: nie znaleziono pokoju Final.");
 
                     return;
                 }
 
                 if (exitPrefab == null)
                 {
-                    Debug.LogError(
-                        "DungeonSandboxBootstrap: brak prefabu DungeonExitView.");
+                    Debug.LogError("DungeonSandboxBootstrap: brak prefabu DungeonExitView.");
 
                     return;
                 }
 
                 var exitParent = exitsRoot != null ? exitsRoot : transform;
 
-                var exitView = Instantiate(
-                    exitPrefab,
-                    exitParent);
+                var exitView = Instantiate(exitPrefab, exitParent);
 
-                exitView.Initialize(
-                    partySpawner.PartyController,
-                    exitPosition);
+                exitView.Initialize(partySpawner.PartyController, exitPosition);
 
                 if (floorMapView.TryGetWorldBounds(out var worldBounds))
                 {
@@ -124,6 +101,21 @@ namespace Godmist.Views.Dungeons
             {
                 Debug.LogException(exception);
             }
+        }
+
+        private static bool TryGetDungeonSpawnPosition(DungeonInstance dungeon, out Vector2 position)
+        {
+            position = default;
+
+            if (dungeon == null) return false;
+
+            if (dungeon.HasPlayerPosition)
+            {
+                position = dungeon.PlayerPosition;
+                return true;
+            }
+
+            return TryGetRoomCenter(dungeon, DungeonRoomType.Start, out position);
         }
 
         private static bool TryGetRoomCenter(
@@ -145,15 +137,9 @@ namespace Godmist.Views.Dungeons
                     continue;
                 }
 
-                foreach (var template in dungeon
-                             .Definition
-                             .RoomTemplateCatalog
-                             .Templates)
+                foreach (var template in dungeon.Definition.RoomTemplateCatalog.Templates)
                 {
-                    if (template == null || template.Id != room.TemplateId)
-                    {
-                        continue;
-                    }
+                    if (template == null || template.Id != room.TemplateId) continue;
 
                     center = new Vector2(
                         room.LayoutPosition.x + template.SizeInCells.x * 0.5f,

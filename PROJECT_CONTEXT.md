@@ -1063,6 +1063,10 @@ Current goal:
 - Combat starts when entering a combat-trigger range.
 - Combat trigger shape depends on the room/space, for example a wide rectangle in a corridor or a square in a room.
 - Combat happens on the same map, which is divided into tiles.
+- In Combat v2, a combat grid must be derived from the current dungeon-map area rather than from an independent fixed arena in `EncounterDefinition`.
+- The combat area inherits the real local geometry: room dimensions, walls, pillars/high obstacles, walkable cells, doors, and other relevant combat map objects.
+- A fight may span multiple adjacent smaller rooms when their doors or open passages make them part of the active combat space. Closed doors remain blocking map objects until opened.
+- Example: an encounter started in a `4x12` room with a central pillar uses that same `4x12` tactical area and retains the pillar as an obstacle.
 - Hidden encounters and dialogue-started fights are possible.
 - Starting positions depend on the point of contact.
 
@@ -1200,6 +1204,7 @@ Current goal:
   - first the unit prepares to escape
   - then, if successful, it becomes ready to escape
   - escaping without other units being ready causes those others to be abandoned and die
+- Future combat UI requirement: before confirming an escape that would abandon anyone, show a confirmation modal listing each non-ready allied character by name, for example: "Wladimir zostanie porzucony". Cancelling the modal must not consume AP, change escape chance, or execute a roll.
 
 ## Combat Map Object Direction
 
