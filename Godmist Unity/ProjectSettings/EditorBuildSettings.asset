@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/Scenes/Sandbox/CombatSandbox.unity
     guid: cd4e8be48eb204b4b893b33df55481bf
+  - enabled: 1
+    path: Assets/_Project/Scenes/Sandbox/DungeonSandbox.unity
+    guid: 1baa661d4e43fc74c9cc93dce8a22a77
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

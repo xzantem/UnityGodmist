@@ -30,6 +30,37 @@ namespace Godmist.Views.Exploration
             worldCamera = GetComponent<Camera>();
         }
 
+        public void SetWorldBounds(Bounds worldBounds)
+        {
+            if (cameraBounds == null)
+            {
+                return;
+            }
+
+            cameraBounds.transform.position = new Vector3(
+                worldBounds.center.x,
+                worldBounds.center.y,
+                cameraBounds.transform.position.z);
+
+            cameraBounds.size = new Vector2(
+                worldBounds.size.x,
+                worldBounds.size.y);
+        }
+
+        public void SnapToLeader()
+        {
+            if (partyController == null
+                || partyController.ActiveLeaderTransform == null)
+            {
+                return;
+            }
+
+            var targetPosition = partyController.ActiveLeaderTransform.position
+                                + cameraOffset;
+
+            transform.position = ClampToBounds(targetPosition);
+        }
+
         private void Update()
         {
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)

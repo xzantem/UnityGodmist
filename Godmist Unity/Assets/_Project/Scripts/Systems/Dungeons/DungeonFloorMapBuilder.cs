@@ -1,0 +1,188 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Data.Dungeons;
+using Godmist.Runtime.Dungeons;
+using UnityEngine;
+
+namespace Godmist.Systems.Dungeons
+{
+    public class DungeonFloorMapBuilder
+    {
+        private static readonly Vector2Int[] CardinalDirections =
+        {
+            Vector2Int.up,
+            Vector2Int.right,
+            Vector2Int.down,
+            Vector2Int.left
+        };
+
+        public DungeonFloorMap Build(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            if (floor == null)
+            {
+                throw new ArgumentNullException(nameof(floor));
+            }
+
+            if (catalog == null)
+            {
+                throw new ArgumentNullException(nameof(catalog));
+            }
+
+            var templatesById = BuildTemplateLookup(catalog);
+            var map = new DungeonFloorMap();
+
+            AddRoomFloorCells(floor, templatesById, map);
+
+            var openEdges = BuildOpenEdges(floor, map);
+
+            AddWallEdges(map, openEdges);
+
+            return map;
+        }
+
+        private static Dictionary<string, DungeonRoomTemplateDefinition>
+            BuildTemplateLookup(DungeonRoomTemplateCatalog catalog)
+        {
+            var templatesById =
+                new Dictionary<string, DungeonRoomTemplateDefinition>();
+
+            foreach (var template in catalog.Templates)
+            {
+                if (template == null
+                    || string.IsNullOrWhiteSpace(template.Id))
+                {
+                    continue;
+                }
+
+                if (!templatesById.TryAdd(template.Id, template))
+                {
+                    throw new InvalidOperationException(
+                        $"Powtorzony RoomTemplateId '{template.Id}'.");
+                }
+            }
+
+            return templatesById;
+        }
+
+        private static void AddRoomFloorCells(
+            DungeonFloorInstance floor,
+            Dictionary<string, DungeonRoomTemplateDefinition> templatesById,
+            DungeonFloorMap map)
+        {
+            foreach (var room in floor.Rooms)
+            {
+                if (!templatesById.TryGetValue(
+                        room.TemplateId,
+                        out var template))
+                {
+                    throw new InvalidOperationException(
+                        $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
+                }
+
+                for (var x = 0; x < template.SizeInCells.x; x++)
+                {
+                    for (var y = 0; y < template.SizeInCells.y; y++)
+                    {
+                        var cell = room.LayoutPosition
+                                   + new Vector2Int(x, y);
+
+                        if (!map.TryAddFloorCell(cell, room.RoomId))
+                        {
+                            throw new InvalidOperationException(
+                                $"Komorka {cell} nalezy do wiecej niz jednego pokoju.");
+                        }
+                    }
+                }
+            }
+        }
+
+        private static HashSet<DungeonCellEdge> BuildOpenEdges(
+            DungeonFloorInstance floor,
+            DungeonFloorMap map)
+        {
+            var openEdges = new HashSet<DungeonCellEdge>();
+
+            foreach (var connection in floor.Connections)
+            {
+                if (!connection.HasGeometry)
+                {
+                    throw new InvalidOperationException(
+                        $"Polaczenie '{connection.FirstRoomId}' "
+                        + $"-> '{connection.SecondRoomId}' nie ma geometrii.");
+                }
+
+                var normal = connection.SecondDoorCell
+                             - connection.FirstDoorCell;
+
+                var lateral = normal.x != 0
+                    ? Vector2Int.up
+                    : Vector2Int.right;
+
+                for (var offset = 0;
+                    offset < connection.DoorwayWidth;
+                    offset++)
+                {
+                    var firstDoorCell = connection.FirstDoorCell
+                                        + lateral * offset;
+
+                    var secondDoorCell = connection.SecondDoorCell
+                                         + lateral * offset;
+
+                    if (!map.IsWalkable(firstDoorCell)
+                        || !map.IsWalkable(secondDoorCell))
+                    {
+                        throw new InvalidOperationException(
+                            "Drzwi wskazuja komorke poza podloga lochu.");
+                    }
+
+                    openEdges.Add(
+                        new DungeonCellEdge(
+                            firstDoorCell,
+                            secondDoorCell));
+                }
+            }
+
+            return openEdges;
+        }
+
+        private static void AddWallEdges(
+            DungeonFloorMap map,
+            HashSet<DungeonCellEdge> openEdges)
+        {
+            foreach (var cell in map.FloorCells)
+            {
+                foreach (var direction in CardinalDirections)
+                {
+                    var neighbour = cell + direction;
+
+                    if (!map.IsWalkable(neighbour))
+                    {
+                        map.TryAddWall(cell, neighbour);
+                        continue;
+                    }
+
+                    map.TryGetRoomId(cell, out var roomId);
+                    map.TryGetRoomId(neighbour, out var neighbourRoomId);
+
+                    if (roomId == neighbourRoomId)
+                    {
+                        continue;
+                    }
+
+                    var edge = new DungeonCellEdge(
+                        cell,
+                        neighbour);
+
+                    if (openEdges.Contains(edge))
+                    {
+                        continue;
+                    }
+
+                    map.TryAddWall(cell, neighbour);
+                }
+            }
+        }
+    }
+}

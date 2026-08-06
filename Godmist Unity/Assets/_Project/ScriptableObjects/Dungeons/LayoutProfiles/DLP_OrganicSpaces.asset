@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 196b3bada7a9b6e43a318024a275f263, type: 3}
+  m_Name: DLP_OrganicSpaces
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonLayoutProfile
+  <Id>k__BackingField: layout.organic_spaces
+  <DoorPlacementStyle>k__BackingField: 2
+  <MaxLateralOffsetCells>k__BackingField: 4
+  <MainPathTurnChance>k__BackingField: 0.6
+  <MinDoorwayWidth>k__BackingField: 1
+  <MaxDoorwayWidth>k__BackingField: 2
+  <CorridorRoomChance>k__BackingField: 0.694

@@ -739,9 +739,25 @@ namespace Godmist.Views.Combat
 
         private bool TryReturnToExploration()
         {
-            if (hasRequestedExplorationReturn || Session == null) return false;
+            if (hasRequestedExplorationReturn || Session == null)
+            {
+                return false;
+            }
 
             var outcome = Session.Outcome;
+
+            if (outcome == CombatOutcomeState.Defeat)
+            {
+                var restarted = GameBootstrap.Instance?.TryRestartAfterDefeat() ?? false;
+
+                if (!restarted)
+                {
+                    return false;
+                }
+
+                hasRequestedExplorationReturn = true;
+                return true;
+            }
 
             if (outcome != CombatOutcomeState.Victory
                 && outcome != CombatOutcomeState.Escaped)
@@ -751,7 +767,10 @@ namespace Godmist.Views.Combat
 
             var gameBootstrap = GameBootstrap.Instance;
 
-            if (gameBootstrap == null) return false;
+            if (gameBootstrap == null)
+            {
+                return false;
+            }
 
             var gameSession = gameBootstrap.Session;
 
@@ -762,9 +781,13 @@ namespace Godmist.Views.Combat
                 gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
             }
 
+            if (!gameBootstrap.TryReturnFromCombat())
+            {
+                return false;
+            }
+
             hasRequestedExplorationReturn = true;
             gameSession.TryClearActiveCombat();
-            gameBootstrap.StartExploration();
 
             return true;
         }

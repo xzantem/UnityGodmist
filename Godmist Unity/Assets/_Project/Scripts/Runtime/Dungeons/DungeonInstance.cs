@@ -16,10 +16,12 @@ namespace Godmist.Runtime.Dungeons
 
         private readonly HashSet<string> clearedEncounterIds = new();
         private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();
+        private readonly List<DungeonFloorInstance> floors = new();
 
         public Vector2 PlayerPosition { get; private set; }
         public bool HasPlayerPosition { get; private set; }
         public IReadOnlyCollection<string> ClearedEncounterIds => clearedEncounterIds;
+        public IReadOnlyList<DungeonFloorInstance> Floors => floors;
 
         public DungeonInstance(DungeonDefinition definition, int seed)
         {
@@ -52,6 +54,7 @@ namespace Godmist.Runtime.Dungeons
         public bool TrySetCurrentFloorIndex(int floorIndex)
         {
             if (floorIndex < 0 || floorIndex == CurrentFloorIndex) return false;
+            if (!TryGetFloor(floorIndex, out _)) return false;
 
             CurrentFloorIndex = floorIndex;
             return true;
@@ -102,6 +105,37 @@ namespace Godmist.Runtime.Dungeons
 
             rewardsByEncounterId.Add(encounterId, rewards);
             return true;
+        }
+
+        public bool TryAddFloor(DungeonFloorInstance floor)
+        {
+            if (floor == null
+                || floors.Exists(
+                    existing => existing.FloorIndex == floor.FloorIndex))
+            {
+                return false;
+            }
+
+            floors.Add(floor);
+            floors.Sort(
+                (left, right) => left.FloorIndex.CompareTo(right.FloorIndex));
+
+            return true;
+        }
+
+        public bool TryGetFloor(
+            int floorIndex,
+            out DungeonFloorInstance floor)
+        {
+            floor = floors.Find(
+                candidate => candidate.FloorIndex == floorIndex);
+
+            return floor != null;
+        }
+
+        public bool TryGetCurrentFloor(out DungeonFloorInstance floor)
+        {
+            return TryGetFloor(CurrentFloorIndex, out floor);
         }
     }
 }

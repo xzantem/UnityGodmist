@@ -275,6 +275,9 @@ Resistances are better modeled as a dedicated resistance set rather than ordinar
 - A character may become downed.
 - A downed character can be revived during combat.
 - There are `3` turns to revive a downed character.
+- `Downed` prolongs combat only while at least one player-side unit remains `Alive` and can revive allies. If no
+  player-side unit is `Alive`, combat immediately resolves as `Defeat`; it does not wait for every downed unit to
+  exhaust its individual death timer.
 - Every hit on a downed target accelerates death by one additional turn.
 - Reviving a downed target automatically ends the acting unit's turn.
 - If the main character dies, or the entire party dies, the game returns to a save.
@@ -1063,6 +1066,10 @@ Current goal:
 - Combat starts when entering a combat-trigger range.
 - Combat trigger shape depends on the room/space, for example a wide rectangle in a corridor or a square in a room.
 - Combat happens on the same map, which is divided into tiles.
+- In Combat v2, a combat grid must be derived from the current dungeon-map area rather than from an independent fixed arena in `EncounterDefinition`.
+- The combat area inherits the real local geometry: room dimensions, walls, pillars/high obstacles, walkable cells, doors, and other relevant combat map objects.
+- A fight may span multiple adjacent smaller rooms when their doors or open passages make them part of the active combat space. Closed doors remain blocking map objects until opened.
+- Example: an encounter started in a `4x12` room with a central pillar uses that same `4x12` tactical area and retains the pillar as an obstacle.
 - Hidden encounters and dialogue-started fights are possible.
 - Starting positions depend on the point of contact.
 
@@ -1200,6 +1207,7 @@ Current goal:
   - first the unit prepares to escape
   - then, if successful, it becomes ready to escape
   - escaping without other units being ready causes those others to be abandoned and die
+- Future combat UI requirement: before confirming an escape that would abandon anyone, show a confirmation modal listing each non-ready allied character by name, for example: "Wladimir zostanie porzucony". Cancelling the modal must not consume AP, change escape chance, or execute a roll.
 
 ## Combat Map Object Direction
 
@@ -1222,12 +1230,25 @@ Current goal:
 - Some of these may be mandatory if they block the only path or are required to open progression, for example via a lever.
 - The end of a dungeon may or may not contain a boss.
 - Optional rooms may exist.
+- An optional room is not part of the required `Start -> Final` route. For generator v1 it is a one-connection side branch; later it may also create an optional loop.
+- Room templates use rectangular `SizeInCells` for the first generator. Irregular footprints such as L/T-shaped rooms are deferred until after the playable dungeon loop, then represented as a cell footprint rather than only a rectangle.
 - Rooms may contain chests, puzzle rewards, or rewards for defeating monsters.
+- Dungeon-object placement v1 may choose any valid non-passage cell in an eligible room. It is intentionally only a
+  vertical-slice rule.
+- Later, a `DungeonRoomTemplate` should define semantic content anchors/areas for objects and encounters, for example
+  a chest at the far end of a narrow corridor, an obstacle on a chosen choke point, a trap sequence, or a guarded
+  reward. The generator then selects from those anchors instead of treating every valid cell as equivalent.
+- Separate rooms may touch physically while remaining separated by a wall; adjacency alone does not create a passage.
 - Battlefield shape depends on the current dungeon room/corridor.
 - Example: a narrow corridor yields a narrow battlefield; a forest dungeon may include stones and trees as obstacles.
 - Some quest dungeons may be 90% procedural but guarantee specific rooms.
 - Dungeons have themes.
 - Themes affect enemies, obstacles, room content, and loot.
+- Themes also define the preferred procedural layout style. The generator must support both direct room-to-room passages and routed corridors; a graph connection does not automatically mean a corridor.
+  - catacombs and temples: more ordered layouts, with doors usually centred on room walls and many rooms connected by narrow corridors.
+  - forests and deserts: more organic/chaotic layouts, with larger positional offsets, long narrow spaces, and less regular connections between rooms.
+  - a room may have multiple direct exits on the same wall when their door positions do not overlap.
+  - this must be data-driven through a reusable layout profile referenced by `DungeonDefinition`, rather than hard-coded directly from `DungeonTheme`; a themed or story dungeon may override the default profile.
 - Example themes/enemy pools include:
   - catacombs: undead, skeletons
   - forest: bandits, elves, wolves, infected trees
@@ -1238,7 +1259,7 @@ Current goal:
   - mountains: trolls, rocs, Skullbreaker tribals, random travelers
   - swamp: carnivorous plants, alligators, drowned ones, mosquitoes
   - story/fabular dungeons: enemy set depends on the dungeon
-- Corridors are separate entities and always connect at least two rooms.
+- A corridor is represented as a normal `DungeonRoomType.Corridor` room with a narrow template. It is not a separately generated route/entity between two rooms; every generated graph connection is a direct doorway or open passage between adjacent rooms.
 - Dungeons do not necessarily have only one exit; they may have multiple exits.
 - Procedural dungeons generate:
   - room count in a range
@@ -1246,6 +1267,9 @@ Current goal:
   - room contents
   - enemies
   - effectively most things
+- `DungeonDefinition.EncounterDefinitions` is the candidate pool of regular encounter variants for a dungeon.
+- The generator decides which rooms receive an encounter and whether a regular encounter may repeat.
+- An optional final boss encounter is a separate guaranteed assignment, not an ordinary random-pool entry.
 - Some generated elements are still scripted by difficulty/rules, for example:
   - boss near the end
   - two required puzzles to open passage

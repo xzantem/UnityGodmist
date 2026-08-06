@@ -48,7 +48,7 @@ MonoBehaviour:
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
-    damageMultiplier: 1
+    damageMultiplier: 100
     damageType: 0
     pushDistance: 1
     baseChance: 1

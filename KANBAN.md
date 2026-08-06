@@ -37,14 +37,23 @@ Priorytety:
 
 ## Ready
 
-Brak kart.
+
 
 
 ## In Progress
 
-Brak kart.
-
 ## Done
+- `[P1] Procedural Dungeon Loop v1 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+- `[P2] Dodac podstawowe obiekty lochu: skrzynia i przeszkoda v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`
+- `[P1] Powrot do aktywnego lochu po walce v1` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
+- `[P1] Dodac generowanie encounterow i triggerow walki w lochu v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
+- `[P1] Dodac grywalna mape podlogi lochu: podlogi, sciany, drzwi i kolizje v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
+- `[P1] Dodac wejscie do lochu, spawn druzyny i wyjscie z lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`
+- `[P1] Utworzyc scene DungeonSandbox i widok wygenerowanego lochu v1` - `World / Dungeon / Exploration`, `UI / UX`
+- `[P1] Dodac DungeonGeneratorService dla seedowanego layoutu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `Tools / Editor / Debug`
+- `[P1] Dodac katalog szablonow pokoi i korytarzy v1` - `World / Dungeon / Exploration`, `Content / Data`
+- `[P1] Dodac runtime graph pokoi, polaczen i pieter lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`
+- `[P1] Rozszerzyc DungeonDefinition o konfiguracje proceduralnego lochu v1` - `World / Dungeon / Exploration`, `Content / Data`
 - `[P1] Rewards and Progression v1 - acceptance pass` - `Items / Inventory / Economy`, `Combat`, `Tools / Editor / Debug`
 - `[P1] Dodac combat rewards i LootTable v1` - `Items / Inventory / Economy`, `Combat`
 - `[P2] Dodac Inventory i Equipment UI v1` - `UI / UX`, `Items / Inventory / Economy`
@@ -121,11 +130,14 @@ Brak kart.
 
 ## Backlog
 
-### Milestone: Gameplay Loop v1
+### Milestone: Playable Dungeon Loop v1
 
-### Milestone: Rewards and Progression v1
+Zamkniety: zobacz sekcje `Done`.
 
-Zamkniety: nagrody po walce, XP, zloto, loot i podstawowy przeplyw inventory/equipment zostaly zweryfikowane w acceptance passie.
+### Pozniej: rozbudowa danych lochow
+- `[P2] Dodac semantyczne content anchors do DungeonRoomTemplate` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+  - Szablon pokoju definiuje dozwolone punkty/obszary dla skrzyn, przeszkod, pulapek i encounterow.
+  - Pozwala tworzyc recznie zaprojektowane sytuacje, np. nagrode na koncu waskiego przejscia za przeszkodami lub walka.
 
 ### Milestone: Save and Load v1
 
@@ -144,16 +156,6 @@ Zamkniety: nagrody po walce, XP, zloto, loot i podstawowy przeplyw inventory/equ
 - `[P1] Dodac odbieranie nagrod questowych i world flags v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`
 - `[P2] Dodac podstawowy handel NPC v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `UI / UX`
 - `[P1] Arungard, NPC and Quests v1 - acceptance pass` - `NPC / Quest / Dialogue`, `Tools / Editor / Debug`
-
-### Milestone: Dungeon Framework v1
-
-- `[P1] Dodac model pokoi, polaczen i floorow lochu v1` - `World / Dungeon / Exploration`, `Content / Data`
-- `[P1] Dodac katalog szablonow pokoi i corridorow v1` - `World / Dungeon / Exploration`, `Content / Data`
-- `[P1] Dodac DungeonGeneratorService dla seedowanego layoutu v1` - `World / Dungeon / Exploration`
-- `[P1] Dodac generowanie encounterow, obiektow i lootu z danych theme v1` - `World / Dungeon / Exploration`, `Content / Data`
-- `[P2] Dodac minimape, odwiedzone pokoje i fog of war v1` - `UI / UX`, `World / Dungeon / Exploration`
-- `[P2] Dodac skrzynie, drzwi, dzwignie, pulapki i proste zagadki poza walka v1` - `World / Dungeon / Exploration`
-- `[P1] Dungeon Framework v1 - acceptance pass` - `World / Dungeon / Exploration`, `Tools / Editor / Debug`
 
 ### Combat Core v2
 

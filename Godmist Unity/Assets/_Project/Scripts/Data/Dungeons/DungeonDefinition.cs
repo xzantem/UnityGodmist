@@ -16,8 +16,78 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public DungeonTheme Theme { get; private set; }
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
+        [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
+        [field: Header("Procedural generation")]
+        [field: SerializeField, Min(1)] public int MinFloorCount { get; private set; } = 1;
+
+        [field: SerializeField, Min(1)] public int MaxFloorCount { get; private set; } = 1;
+
+        [field: SerializeField, Min(3)] public int MinRoomCountPerFloor { get; private set; } = 6;
+
+        [field: SerializeField, Min(3)] public int MaxRoomCountPerFloor { get; private set; } = 9;
+
+        [field: SerializeField, Min(0)] public int MinOptionalRoomCount { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MaxOptionalRoomCount { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MinLoopConnections { get; private set; } = 0;
+
+        [field: SerializeField, Min(0)] public int MaxLoopConnections { get; private set; } = 0;
+
+        [field: Header("Room templates")]
+        [field: SerializeField]
+        public DungeonRoomTemplateCatalog RoomTemplateCatalog { get; private set; }
+        
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
+
+        [field: Header("Encounters")]
+        [field: SerializeField, Min(0)] public int MinEncounterCountPerFloor { get; private set; } = 1;
+
+        [field: SerializeField, Min(0)] public int MaxEncounterCountPerFloor { get; private set; } = 3;
+
+        [field: SerializeField] public bool AllowEncounterDefinitionRepeats { get; private set; } = true;
+
+        [field: Header("Dungeon objects")]
+        [field: SerializeField]
+        public List<DungeonObjectDefinition> ObjectDefinitions { get; private set; } = new();
+
+        [field: SerializeField, Min(0)]
+        public int MinObjectCountPerFloor { get; private set; } = 1;
+
+        [field: SerializeField, Min(0)]
+        public int MaxObjectCountPerFloor { get; private set; } = 3;
+
+        private void OnValidate()
+        {
+            MinFloorCount = Mathf.Max(1, MinFloorCount);
+            MaxFloorCount = Mathf.Max(MinFloorCount, MaxFloorCount);
+
+            MinRoomCountPerFloor = Mathf.Max(3, MinRoomCountPerFloor);
+            MaxRoomCountPerFloor = Mathf.Max(
+                MinRoomCountPerFloor,
+                MaxRoomCountPerFloor);
+
+            MinOptionalRoomCount = Mathf.Max(0, MinOptionalRoomCount);
+            MaxOptionalRoomCount = Mathf.Max(
+                MinOptionalRoomCount,
+                MaxOptionalRoomCount);
+
+            MinLoopConnections = Mathf.Max(0, MinLoopConnections);
+            MaxLoopConnections = Mathf.Max(
+                MinLoopConnections,
+                MaxLoopConnections);
+
+            MinEncounterCountPerFloor = Mathf.Max(0, MinEncounterCountPerFloor);
+            MaxEncounterCountPerFloor = Mathf.Max(
+                MinEncounterCountPerFloor,
+                MaxEncounterCountPerFloor);
+
+            MinObjectCountPerFloor = Mathf.Max(0, MinObjectCountPerFloor);
+            MaxObjectCountPerFloor = Mathf.Max(
+                MinObjectCountPerFloor,
+                MaxObjectCountPerFloor);
+        }
     }
 }

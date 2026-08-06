@@ -1,0 +1,108 @@
+using System.Collections.Generic;
+using Godmist.Runtime.Dungeons;
+using Godmist.Views.Exploration;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+namespace Godmist.Views.Dungeons
+{
+    public class DungeonObjectSpawner : MonoBehaviour
+    {
+        [SerializeField] private Tilemap floorTilemap;
+        [SerializeField] private DungeonChestView chestPrefab;
+        [SerializeField] private DungeonObstacleView obstaclePrefab;
+        [SerializeField] private Transform objectsRoot;
+
+        private readonly List<DungeonObjectView> spawnedObjects = new();
+
+        public bool Rebuild(
+            DungeonFloorInstance floor,
+            ExplorationPartyController partyController)
+        {
+            ClearSpawnedObjects();
+
+            if (floor == null || partyController == null || floorTilemap == null)
+            {
+                Debug.LogError(
+                    "DungeonObjectSpawner: brak pietra, PartyController lub Tilemapy.");
+
+                return false;
+            }
+
+            foreach (var dungeonObject in floor.Objects)
+            {
+                if (dungeonObject == null || !dungeonObject.IsActive) continue;
+
+                var parent = objectsRoot != null ? objectsRoot : transform;
+
+                var worldPosition = floorTilemap.GetCellCenterWorld(
+                    new Vector3Int(
+                        dungeonObject.Position.x,
+                        dungeonObject.Position.y,
+                        0));
+
+                if (dungeonObject is ChestDungeonObjectInstance chest)
+                {
+                    if (chestPrefab == null)
+                    {
+                        Debug.LogError(
+                            "DungeonObjectSpawner: brak prefabu DungeonChestView.");
+
+                        return false;
+                    }
+
+                    var chestView = Instantiate(chestPrefab, parent);
+
+                    chestView.name = $"Chest_{chest.InstanceId}";
+                    chestView.Initialize(
+                        partyController,
+                        chest,
+                        worldPosition);
+
+                    spawnedObjects.Add(chestView);
+                    continue;
+                }
+
+                if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
+                {
+                    if (obstaclePrefab == null)
+                    {
+                        Debug.LogError(
+                            "DungeonObjectSpawner: brak prefabu DungeonObstacleView.");
+
+                        return false;
+                    }
+
+                    var obstacleView = Instantiate(obstaclePrefab, parent);
+
+                    obstacleView.name = $"Obstacle_{obstacle.InstanceId}";
+                    obstacleView.Initialize(
+                        obstacle,
+                        worldPosition);
+
+                    spawnedObjects.Add(obstacleView);
+                }
+            }
+
+            return true;
+        }
+
+        private void OnDestroy()
+        {
+            ClearSpawnedObjects();
+        }
+
+        private void ClearSpawnedObjects()
+        {
+            foreach (var objectView in spawnedObjects)
+            {
+                if (objectView != null)
+                {
+                    Destroy(objectView.gameObject);
+                }
+            }
+
+            spawnedObjects.Clear();
+        }
+    }
+}
