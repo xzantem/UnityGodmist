@@ -1,6 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.NPC;
 using NUnit.Framework;
 
 namespace Godmist.Tests.EditMode
@@ -113,6 +114,37 @@ namespace Godmist.Tests.EditMode
             CollectionAssert.Contains(
                 session.PlayerParty.BenchMemberIds,
                 "jerzy");
+        }
+
+        [Test]
+        public void TryRequestNpcInteraction_WhenNpcIsRegistered_RaisesEvent()
+        {
+            var session = new GameSession();
+            var npc = new NpcInstance
+            {
+                NpcId = "npc.arungard.questgiver_01"
+            };
+
+            NpcInstance receivedNpc = null;
+
+            session.NpcInteractionRequested += nextNpc => receivedNpc = nextNpc;
+
+            Assert.That(session.TryRegisterNpc(npc), Is.True);
+
+            var result = session.TryRequestNpcInteraction(npc.NpcId);
+
+            Assert.That(result, Is.True);
+            Assert.That(receivedNpc, Is.SameAs(npc));
+        }
+
+        [Test]
+        public void TryRequestNpcInteraction_WhenNpcIsUnknown_ReturnsFalse()
+        {
+            var session = new GameSession();
+
+            var result = session.TryRequestNpcInteraction("npc.unknown");
+
+            Assert.That(result, Is.False);
         }
 
         private static CharacterInstance CreateCharacter(

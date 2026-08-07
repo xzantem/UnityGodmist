@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8b5d3e068985d54f9b8fc5905709e1a, type: 3}
+  m_Name: QD_InvestigateCatacombs
+  m_EditorClassIdentifier: Data::Godmist.Data.Quests.QuestDefinition
+  <Id>k__BackingField: quest.arungard.investigate_catacombs.v1
+  <DisplayName>k__BackingField: Zbadaj Katakumby
+  <Description>k__BackingField: "Stra\u017Cnik obawia si\u0119, \u017Ce w Katakumbach
+    ponownie pojawili si\u0119 nieumarli. Wejd\u017A do lochu i wr\xF3\u0107 do Arungardu."
+  <QuestType>k__BackingField: 3
+  <StartStageId>k__BackingField: stage.explore_catacombs
+  <Stages>k__BackingField:
+  - <StageId>k__BackingField: stage.explore_catacombs
+    <Description>k__BackingField: "Dotrzyj do wyj\u015Bcia z Katakumb."
+    <Objectives>k__BackingField:
+    - <ObjectiveId>k__BackingField: objective.exit_catacombs
+      <Description>k__BackingField: "Opu\u015B\u0107 Katakumby."
+      <ObjectiveType>k__BackingField: 5
+      <TargetId>k__BackingField: dungeon.catacombs.procedural.v1
+      <RequiredAmount>k__BackingField: 1
+      <IsOptional>k__BackingField: 0
+    <CompletionRewards>k__BackingField:
+    - rewardType: 0
+      amount: 30
+      itemDefinition: {fileID: 0}
+      worldFlagId: 
+      worldFlagValue: true
+    - rewardType: 1
+      amount: 25
+      itemDefinition: {fileID: 0}
+      worldFlagId: 
+      worldFlagValue: true
+    - rewardType: 3
+      amount: 2
+      itemDefinition: {fileID: 0}
+      worldFlagId: 
+      worldFlagValue: true
+    - rewardType: 2
+      amount: 1
+      itemDefinition: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+      worldFlagId: 
+      worldFlagValue: true
+    - rewardType: 4
+      amount: 1
+      itemDefinition: {fileID: 0}
+      worldFlagId: world.quest.investigate_catacombs.completed
+      worldFlagValue: true
+    <Transitions>k__BackingField: []

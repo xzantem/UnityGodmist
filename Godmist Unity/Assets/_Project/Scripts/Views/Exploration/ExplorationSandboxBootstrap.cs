@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Godmist.Core.Enums;
 using Godmist.Data.Characters;
-using Godmist.Data.Dungeons;
 using Godmist.Runtime.Characters;
-using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
-using Godmist.Systems.Dungeons;
 using Godmist.Views.Game;
+using Godmist.Data.NPC;
+using Godmist.Runtime.NPC;
+using Godmist.Systems.NPC;
+using Godmist.Views.NPC;
 using UnityEngine;
 
 namespace Godmist.Views.Exploration
@@ -17,7 +17,9 @@ namespace Godmist.Views.Exploration
     {
         [SerializeField] private ExplorationPartyController partyController;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
+        [SerializeField] private List<NpcSceneBinding> npcBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
+        private readonly NpcInstanceFactory npcFactory = new();
 
         private void Start()
         {
@@ -45,6 +47,18 @@ namespace Godmist.Views.Exploration
 
                 binding.CharacterView.Bind(character);
                 characterViews.Add(binding.CharacterView);
+            }
+
+            foreach (var binding in npcBindings)
+            {
+                var npc = GetOrCreateNpc(session, binding);
+
+                if (npc == null)
+                {
+                    continue;
+                }
+
+                binding.NpcView.Initialize(partyController, npc);
             }
 
             if (string.IsNullOrEmpty(session.PlayerParty.ActiveLeaderId) && characterViews.Count > 0)
@@ -87,6 +101,33 @@ namespace Godmist.Views.Exploration
 
             return session.TryRegisterCharacter(character) ? character : null;
         }
+
+        private NpcInstance GetOrCreateNpc(
+            GameSession session,
+            NpcSceneBinding binding)
+        {
+            if (binding == null || binding.Definition == null || binding.NpcView == null)
+            {
+                return null;
+            }
+
+            var npcId = binding.Definition.Id;
+
+            if (string.IsNullOrWhiteSpace(npcId))
+            {
+                Debug.LogError("ExplorationSandboxBootstrap: NpcDefinition ma puste Id.");
+                return null;
+            }
+
+            if (session.NpcsById.TryGetValue(npcId, out var existingNpc))
+            {
+                return existingNpc;
+            }
+
+            var npc = npcFactory.Create(binding.Definition);
+
+            return session.TryRegisterNpc(npc) ? npc : null;
+        }
     }
 
     [Serializable]
@@ -95,5 +136,12 @@ namespace Godmist.Views.Exploration
         public CharacterDefinition Definition;
         public CharacterClassData ClassData;
         public ExplorationCharacterView CharacterView;
+    }
+
+    [Serializable]
+    public class NpcSceneBinding
+    {
+        public NpcDefinition Definition;
+        public NpcView NpcView;
     }
 }

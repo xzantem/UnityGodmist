@@ -56,21 +56,51 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
+            if (gameSession == null)
+            {
+                return;
+            }
 
-            if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;
+            if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
+            {
+                return;
+            }
+
+            if (gameSession.CurrentMode == GameModeState.Dialogue)
+            {
+                if (Input.GetKeyDown(KeyCode.Tab))
+                {
+                    TryCycleLeader();
+                }
+
+                return;
+            }
+
+            if (gameSession.CurrentMode != GameModeState.Exploration)
+            {
+                return;
+            }
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 TryCycleLeader();
             }
 
-            if (!Input.GetMouseButtonDown(0) || worldCamera == null) return;
+            if (!Input.GetMouseButtonDown(0) || worldCamera == null)
+            {
+                return;
+            }
 
-            var mousePosition = Input.mousePosition;
-            mousePosition.z = -worldCamera.transform.position.z;
+            TryMoveLeaderToPointerPosition();
+        }
 
-            movementDestination = worldCamera.ScreenToWorldPoint(mousePosition);
+        private void TryMoveLeaderToPointerPosition()
+        {
+            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            movementDestination = new Vector2(
+                pointerWorldPosition.x,
+                pointerWorldPosition.y);
         }
 
         private void FixedUpdate()
