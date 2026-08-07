@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 500065705c691fe47951bff40c34b3d5, type: 3}
+  m_Name: TRD_Arungard_Trader
+  m_EditorClassIdentifier: Data::Godmist.Data.NPC.TraderRoleData
+  <InitialOffer>k__BackingField:
+  - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
+  - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}

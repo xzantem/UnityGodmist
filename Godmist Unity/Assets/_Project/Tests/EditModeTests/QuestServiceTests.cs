@@ -368,14 +368,26 @@ namespace Godmist.Tests.EditMode
             string propertyName,
             object value)
         {
+            var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
             var field = target.GetType().GetField(
                 $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+                bindingFlags);
+
+            if (field == null)
+            {
+                var serializedFieldName =
+                    char.ToLowerInvariant(propertyName[0]) + propertyName[1..];
+
+                field = target.GetType().GetField(
+                    serializedFieldName,
+                    bindingFlags);
+            }
 
             Assert.That(
                 field,
                 Is.Not.Null,
-                $"Nie znaleziono pola backing field dla {propertyName}.");
+                $"Nie znaleziono pola dla {propertyName}.");
 
             field.SetValue(target, value);
         }
