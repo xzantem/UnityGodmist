@@ -19,6 +19,13 @@ namespace Godmist.Systems.NPC
             return Mathf.Max(0, item.Definition.BaseValue);
         }
 
+        public int GetPriceFromBuyback(BuybackEntry entry)
+        {
+            if (entry?.Item?.Definition == null) return 0;
+
+            return Mathf.Max(0, entry.SoldPrice);
+        }
+
         public int GetPriceWhenSellingToTrader(
             NpcInstance trader,
             ItemInstance item)
@@ -83,6 +90,52 @@ namespace Godmist.Systems.NPC
             return true;
         }
 
+        public bool TryBuyFromBuyback(
+            GameSession session,
+            NpcInstance trader,
+            CharacterInstance buyer,
+            string itemInstanceId,
+            out int paidGold)
+        {
+            paidGold = 0;
+
+            if (!CanTrade(trader)
+                || session == null
+                || buyer?.Inventory == null
+                || string.IsNullOrWhiteSpace(itemInstanceId))
+            {
+                return false;
+            }
+
+            var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
+            var price = GetPriceFromBuyback(entry);
+
+            if (entry == null || price <= 0 || session.Gold < price) return false;
+
+            trader.ShopInventory.BuybackStock.Remove(entry);
+
+            if (!inventoryService.TryAddItem(buyer.Inventory, entry.Item))
+            {
+                trader.ShopInventory.BuybackStock.Add(entry);
+                return false;
+            }
+
+            if (!session.TrySpendGold(price))
+            {
+                inventoryService.TryRemoveItem(
+                    buyer.Inventory,
+                    entry.Item.InstanceId,
+                    out _);
+
+                trader.ShopInventory.BuybackStock.Add(entry);
+                return false;
+            }
+
+            trader.SpentGoldTotal += price;
+            paidGold = price;
+            return true;
+        }
+
         public bool TrySellToTrader(
             GameSession session,
             NpcInstance trader,
@@ -113,7 +166,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            if (!TryAddToBuyback(trader.ShopInventory, removedItem))
+            if (!TryAddToBuyback(trader.ShopInventory, removedItem, price))
             {
                 inventoryService.TryAddItem(seller.Inventory, removedItem);
                 return false;
@@ -165,18 +218,40 @@ namespace Godmist.Systems.NPC
             return null;
         }
 
-        private static bool TryAddToBuyback(
+        private static BuybackEntry FindBuybackEntry(
             ShopInventory shopInventory,
-            ItemInstance item)
+            string itemInstanceId)
         {
-            if (shopInventory?.BuybackStock == null || item == null) return false;
+            if (shopInventory?.BuybackStock == null) return null;
 
-            foreach (var candidate in shopInventory.BuybackStock)
+            foreach (var entry in shopInventory.BuybackStock)
             {
-                if (candidate?.InstanceId == item.InstanceId) return false;
+                if (entry?.Item?.InstanceId == itemInstanceId) return entry;
             }
 
-            shopInventory.BuybackStock.Add(item);
+            return null;
+        }
+
+        private static bool TryAddToBuyback(
+            ShopInventory shopInventory,
+            ItemInstance item,
+            int soldPrice)
+        {
+            if (shopInventory?.BuybackStock == null
+                || item == null
+                || soldPrice <= 0)
+            {
+                return false;
+            }
+
+            if (FindBuybackEntry(shopInventory, item.InstanceId) != null)
+            {
+                return false;
+            }
+
+            shopInventory.BuybackStock.Add(
+                new BuybackEntry(item, soldPrice));
+
             return true;
         }
 
@@ -187,7 +262,7 @@ namespace Godmist.Systems.NPC
             if (shopInventory?.BuybackStock == null) return;
 
             shopInventory.BuybackStock.RemoveAll(
-                item => item?.InstanceId == itemInstanceId);
+                entry => entry?.Item?.InstanceId == itemInstanceId);
         }
     }
 }

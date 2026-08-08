@@ -24,6 +24,7 @@ namespace Godmist.Views.Game
         public GameSession Session { get; private set; }
         public DialogueService DialogueService { get; private set; }
         public QuestService QuestService { get; private set; }
+        public TradeService TradeService { get; private set; }
 
         public event Action<DungeonInstance> DungeonExited;
 
@@ -208,6 +209,7 @@ namespace Godmist.Views.Game
         {
             DialogueService = new DialogueService();
             QuestService = new QuestService(Session);
+            TradeService = new TradeService();
 
             dialogueQuestActionSystem = new DialogueQuestActionSystem(
                 DialogueService,

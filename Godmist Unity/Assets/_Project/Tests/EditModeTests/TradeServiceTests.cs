@@ -101,7 +101,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.Gold, Is.EqualTo(50));
             Assert.That(seller.Inventory.Items, Is.Empty);
             Assert.That(trader.ShopInventory.BuybackStock, Has.Count.EqualTo(1));
-            Assert.That(trader.ShopInventory.BuybackStock[0], Is.SameAs(item));
+            Assert.That(trader.ShopInventory.BuybackStock[0].Item, Is.SameAs(item));
+            Assert.That(trader.ShopInventory.BuybackStock[0].SoldPrice, Is.EqualTo(50));
         }
 
         [Test]
@@ -127,6 +128,41 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.Gold, Is.EqualTo(0));
             Assert.That(trader.ShopInventory.Items, Has.Count.EqualTo(1));
             Assert.That(buyer.Inventory.Items, Is.Empty);
+        }
+
+        [Test]
+        public void TryBuyFromBuyback_ReturnsExactSoldItemForOriginalSellPrice()
+        {
+            var service = new TradeService();
+            var session = new GameSession();
+            var trader = CreateTrader(new List<ItemType> { ItemType.Material });
+            var character = new CharacterInstance();
+            var item = CreateItem("item.material", ItemType.Material, 100);
+
+            character.Inventory.Items.Add(item);
+
+            var didSell = service.TrySellToTrader(
+                session,
+                trader,
+                character,
+                item.InstanceId,
+                out var receivedGold);
+
+            var didBuyBack = service.TryBuyFromBuyback(
+                session,
+                trader,
+                character,
+                item.InstanceId,
+                out var paidGold);
+
+            Assert.That(didSell, Is.True);
+            Assert.That(receivedGold, Is.EqualTo(50));
+            Assert.That(didBuyBack, Is.True);
+            Assert.That(paidGold, Is.EqualTo(50));
+            Assert.That(session.Gold, Is.EqualTo(0));
+            Assert.That(trader.ShopInventory.BuybackStock, Is.Empty);
+            Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(character.Inventory.Items[0], Is.SameAs(item));
         }
 
         private static NpcInstance CreateTrader(List<ItemType> relevantItemTypes)

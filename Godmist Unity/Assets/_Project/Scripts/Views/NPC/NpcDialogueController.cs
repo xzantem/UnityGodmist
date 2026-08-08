@@ -1,10 +1,13 @@
 using Godmist.Core.Enums;
+using Godmist.Data.NPC;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.NPC;
 using Godmist.Views.Game;
+using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Godmist.Views.NPC
 {
@@ -16,6 +19,10 @@ namespace Godmist.Views.NPC
         [SerializeField] private TextMeshProUGUI dialogueText;
         [SerializeField] private Transform choicesContent;
         [SerializeField] private DialogueChoiceButtonView choiceButtonPrefab;
+
+        [Header("NPC services")]
+        [SerializeField] private Button tradeButton;
+        [SerializeField] private TradePanelView tradePanel;
 
         private DialogueService dialogueService;
         private GameSession gameSession;
@@ -36,15 +43,18 @@ namespace Godmist.Views.NPC
                 return;
             }
 
-            gameSession.NpcInteractionRequested +=
-                HandleNpcInteractionRequested;
-
-            gameSession.PlayerParty.ActiveLeaderChanged +=
-                HandleActiveLeaderChanged;
+            gameSession.NpcInteractionRequested += HandleNpcInteractionRequested;
+            gameSession.PlayerParty.ActiveLeaderChanged += HandleActiveLeaderChanged;
 
             dialogueService.DialogueStarted += HandleDialogueStarted;
             dialogueService.DialogueNodeChanged += HandleDialogueNodeChanged;
             dialogueService.DialogueEnded += HandleDialogueEnded;
+
+            if (tradeButton != null)
+            {
+                tradeButton.onClick.AddListener(TryOpenTrade);
+                tradeButton.gameObject.SetActive(false);
+            }
 
             panelRoot.SetActive(false);
         }
@@ -53,20 +63,20 @@ namespace Godmist.Views.NPC
         {
             if (gameSession != null)
             {
-                gameSession.NpcInteractionRequested -=
-                    HandleNpcInteractionRequested;
-
-                gameSession.PlayerParty.ActiveLeaderChanged -=
-                    HandleActiveLeaderChanged;
+                gameSession.NpcInteractionRequested -= HandleNpcInteractionRequested;
+                gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
             }
 
             if (dialogueService != null)
             {
                 dialogueService.DialogueStarted -= HandleDialogueStarted;
-                dialogueService.DialogueNodeChanged -=
-                    HandleDialogueNodeChanged;
-
+                dialogueService.DialogueNodeChanged -= HandleDialogueNodeChanged;
                 dialogueService.DialogueEnded -= HandleDialogueEnded;
+            }
+
+            if (tradeButton != null)
+            {
+                tradeButton.onClick.RemoveListener(TryOpenTrade);
             }
         }
 
@@ -78,17 +88,11 @@ namespace Godmist.Views.NPC
                 return;
             }
 
-            var initiatorCharacterId =
-                gameSession.PlayerParty.ActiveLeaderId;
+            var initiatorCharacterId = gameSession.PlayerParty.ActiveLeaderId;
 
-            if (string.IsNullOrWhiteSpace(initiatorCharacterId))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(initiatorCharacterId)) return;
 
-            dialogueService.TryStartDialogue(
-                npc,
-                initiatorCharacterId);
+            dialogueService.TryStartDialogue(npc, initiatorCharacterId);
         }
 
         private void HandleDialogueStarted(DialogueSession dialogue)
@@ -106,6 +110,7 @@ namespace Godmist.Views.NPC
         {
             ClearChoices();
             panelRoot.SetActive(false);
+            SetTradeButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -128,14 +133,18 @@ namespace Godmist.Views.NPC
             if (gameSession == null || dialogue == null)
             {
                 panelRoot.SetActive(false);
+                SetTradeButtonVisible(false);
                 return;
             }
 
-            var shouldShowDialogue =
-                gameSession.PlayerParty.ActiveLeaderId ==
-                dialogue.InitiatorCharacterId;
+            var shouldShowDialogue = gameSession.PlayerParty.ActiveLeaderId
+                == dialogue.InitiatorCharacterId;
 
             panelRoot.SetActive(shouldShowDialogue);
+
+            var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
+
+            SetTradeButtonVisible(shouldShowDialogue && isTrader);
 
             if (shouldShowDialogue)
             {
@@ -152,10 +161,7 @@ namespace Godmist.Views.NPC
 
             foreach (var choice in dialogue.CurrentNode.Choices)
             {
-                var choiceView = Instantiate(
-                    choiceButtonPrefab,
-                    choicesContent);
-
+                var choiceView = Instantiate(choiceButtonPrefab, choicesContent);
                 choiceView.Bind(choice, TrySelectChoice);
             }
         }
@@ -164,21 +170,13 @@ namespace Godmist.Views.NPC
         {
             var dialogue = dialogueService.ActiveDialogue;
 
-            if (dialogue == null || string.IsNullOrWhiteSpace(choiceId))
-            {
-                return;
-            }
+            if (dialogue == null || string.IsNullOrWhiteSpace(choiceId)) return;
 
-            for (var index = 0;
-                 index < dialogue.CurrentNode.Choices.Count;
-                 index++)
+            for (var index = 0; index < dialogue.CurrentNode.Choices.Count; index++)
             {
                 var choice = dialogue.CurrentNode.Choices[index];
 
-                if (choice.ChoiceId != choiceId)
-                {
-                    continue;
-                }
+                if (choice.ChoiceId != choiceId) continue;
 
                 dialogueService.TrySelectChoice(index);
                 return;
@@ -188,11 +186,31 @@ namespace Godmist.Views.NPC
                 $"Nie znaleziono wyboru dialogowego o ID '{choiceId}'.");
         }
 
+        private void TryOpenTrade()
+        {
+            var dialogue = dialogueService.ActiveDialogue;
+
+            if (dialogue == null || tradePanel == null) return;
+
+            if (!tradePanel.Open(dialogue.Npc, dialogue.InitiatorCharacterId))
+            {
+                return;
+            }
+
+            dialogueService.TryEndDialogue();
+        }
+
+        private void SetTradeButtonVisible(bool isVisible)
+        {
+            if (tradeButton != null)
+            {
+                tradeButton.gameObject.SetActive(isVisible);
+            }
+        }
+
         private void ClearChoices()
         {
-            for (var index = choicesContent.childCount - 1;
-                 index >= 0;
-                 index--)
+            for (var index = choicesContent.childCount - 1; index >= 0; index--)
             {
                 Destroy(choicesContent.GetChild(index).gameObject);
             }
