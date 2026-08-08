@@ -231,6 +231,14 @@ namespace Godmist.Runtime.Game
             return true;
         }
 
+        public bool TrySpendGold(int amount)
+        {
+            if (amount <= 0 || Gold < amount) return false;
+
+            Gold -= amount;
+            return true;
+        }
+
         public void AddPendingLoot(IEnumerable<ItemInstance> items)
         {
             if (items == null) return;
