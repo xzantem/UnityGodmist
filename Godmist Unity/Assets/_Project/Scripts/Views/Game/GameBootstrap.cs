@@ -1,7 +1,12 @@
+using System;
 using Godmist.Core.Enums;
-using Godmist.Runtime.Game;
 using Godmist.Data.Dungeons;
+using Godmist.Runtime.Dungeons;
+using Godmist.Runtime.Game;
+using Godmist.Runtime.NPC;
 using Godmist.Systems.Dungeons;
+using Godmist.Systems.NPC;
+using Godmist.Systems.Quests;
 using UnityEngine;
 
 namespace Godmist.Views.Game
@@ -11,17 +16,31 @@ namespace Godmist.Views.Game
     {
         [Header("Scene Flow")]
         [SerializeField] private string combatSceneName = "CombatSandbox";
-        [SerializeField] private string explorationSceneName = "ExplorationSandbox";
+        [SerializeField] private string explorationSceneName = "Arungard";
         [SerializeField] private string dungeonSceneName = "DungeonSandbox";
 
         public static GameBootstrap Instance { get; private set; }
+
         public GameSession Session { get; private set; }
+        public DialogueService DialogueService { get; private set; }
+        public QuestService QuestService { get; private set; }
+        public TradeService TradeService { get; private set; }
+
+        public event Action<DungeonInstance> DungeonExited;
 
         private SceneLoader sceneLoader;
+        private QuestObjectiveProgressSystem questObjectiveProgressSystem;
+        private DialogueQuestActionSystem dialogueQuestActionSystem;
+
         private readonly DungeonGeneratorService dungeonGenerator = new();
-        private readonly DungeonEncounterRewardPreparationSystem rewardPreparationSystem = new();
-        private readonly DungeonEncounterPlacementSystem encounterPlacementSystem = new();
-        private readonly DungeonObjectPlacementSystem objectPlacementSystem = new();
+        private readonly DungeonEncounterRewardPreparationSystem
+            rewardPreparationSystem = new();
+
+        private readonly DungeonEncounterPlacementSystem
+            encounterPlacementSystem = new();
+
+        private readonly DungeonObjectPlacementSystem
+            objectPlacementSystem = new();
 
         private void Awake()
         {
@@ -38,11 +57,18 @@ namespace Godmist.Views.Game
 
             sceneLoader = GetComponent<SceneLoader>();
             sceneLoader.Initialize(Session);
+
+            InitializeRuntimeServices();
         }
 
         private void OnDestroy()
         {
-            if (Instance == this) Instance = null;
+            UnsubscribeRuntimeServices();
+
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         public void StartCombat()
@@ -64,16 +90,25 @@ namespace Godmist.Views.Game
                 return;
             }
 
-            sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration);
+            sceneLoader.TryLoadScene(
+                explorationSceneName,
+                GameModeState.Exploration);
         }
 
         public bool TryReturnFromCombat()
         {
-            if (sceneLoader == null || Session == null) return false;
+            if (sceneLoader == null || Session == null)
+            {
+                return false;
+            }
 
-            var destinationSceneName = Session.ActiveDungeon != null ? dungeonSceneName : explorationSceneName;
+            var destinationSceneName = Session.ActiveDungeon != null
+                ? dungeonSceneName
+                : explorationSceneName;
 
-            return sceneLoader.TryLoadScene(destinationSceneName, GameModeState.Exploration);
+            return sceneLoader.TryLoadScene(
+                destinationSceneName,
+                GameModeState.Exploration);
         }
 
         public bool TryEnterDungeon(
@@ -82,12 +117,16 @@ namespace Godmist.Views.Game
         {
             if (definition == null || !definition.IsProcedural)
             {
-                Debug.LogError("GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
+                Debug.LogError(
+                    "GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
 
                 return false;
             }
 
-            if (Session == null || Session.ActiveDungeon != null) return false;
+            if (Session == null || Session.ActiveDungeon != null)
+            {
+                return false;
+            }
 
             try
             {
@@ -97,14 +136,22 @@ namespace Godmist.Views.Game
                 objectPlacementSystem.Place(dungeon);
                 rewardPreparationSystem.Prepare(dungeon);
 
-                if (!Session.TrySetActiveDungeon(dungeon)) return false;
+                if (!Session.TrySetActiveDungeon(dungeon))
+                {
+                    return false;
+                }
 
-                if (sceneLoader.TryLoadScene(dungeonSceneName, GameModeState.Exploration)) return true;
+                if (sceneLoader.TryLoadScene(
+                    dungeonSceneName,
+                    GameModeState.Exploration))
+                {
+                    return true;
+                }
 
                 Session.TryClearActiveDungeon();
                 return false;
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Debug.LogException(exception);
                 return false;
@@ -119,8 +166,12 @@ namespace Godmist.Views.Game
                 return false;
             }
 
+            UnsubscribeRuntimeServices();
+
             Session = new GameSession(GameModeState.Menu);
             sceneLoader.Initialize(Session);
+
+            InitializeRuntimeServices();
 
             return sceneLoader.TryLoadScene(
                 explorationSceneName,
@@ -129,16 +180,69 @@ namespace Godmist.Views.Game
 
         public bool TryExitDungeon()
         {
-            if (Session == null || Session.ActiveDungeon == null) return false;
+            if (Session == null || Session.ActiveDungeon == null)
+            {
+                return false;
+            }
 
             var dungeon = Session.ActiveDungeon;
 
-            if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
+            if (!sceneLoader.TryLoadScene(
+                explorationSceneName,
+                GameModeState.Exploration))
+            {
+                return false;
+            }
 
             dungeon.TryMarkCompleted();
-            Session.TryClearActiveDungeon();
 
+            questObjectiveProgressSystem?.ReportDungeonExited(
+                dungeon.DungeonId);
+
+            DungeonExited?.Invoke(dungeon);
+
+            Session.TryClearActiveDungeon();
             return true;
+        }
+
+        private void InitializeRuntimeServices()
+        {
+            DialogueService = new DialogueService();
+            QuestService = new QuestService(Session);
+            TradeService = new TradeService();
+
+            dialogueQuestActionSystem = new DialogueQuestActionSystem(
+                DialogueService,
+                QuestService);
+
+            questObjectiveProgressSystem =
+                new QuestObjectiveProgressSystem(
+                    Session,
+                    QuestService);
+
+            DialogueService.DialogueEnded += HandleDialogueEnded;
+        }
+
+        private void UnsubscribeRuntimeServices()
+        {
+            dialogueQuestActionSystem?.Dispose();
+            dialogueQuestActionSystem = null;
+
+            if (DialogueService != null)
+            {
+                DialogueService.DialogueEnded -= HandleDialogueEnded;
+            }
+        }
+
+        private void HandleDialogueEnded(NpcInstance npc)
+        {
+            if (npc == null)
+            {
+                return;
+            }
+
+            questObjectiveProgressSystem?.ReportNpcDialogueCompleted(
+                npc.NpcId);
         }
     }
 }

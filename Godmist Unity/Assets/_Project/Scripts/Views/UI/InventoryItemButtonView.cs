@@ -23,22 +23,29 @@ namespace Godmist.Views.UI
             ItemInstance nextItem,
             int stackCount,
             bool isSelected,
-            Action<ItemInstance> nextSelectionCallback)
+            Action<ItemInstance> nextSelectionCallback,
+            string contextInfo = null)
         {
             item = nextItem;
             selectionCallback = nextSelectionCallback;
 
             var definition = item?.Definition;
 
-            var stackSuffix = stackCount >1 ? $" x{stackCount}" : string.Empty;
+            var stackSuffix = stackCount > 1 ? $" x{stackCount}" : string.Empty;
 
-            itemNameText.text = definition != null
-                ? $"{definition.DisplayName}{stackSuffix}"
-                : "Nieprawidlowy przedmiot";
+            if (itemNameText != null)
+            {
+                var itemName = definition != null ? definition.DisplayName : "-";
+                itemNameText.text = $"{itemName}{stackSuffix}";
+            }
 
-            itemInfoText.text = definition != null
+            var defaultInfo = definition != null
                 ? $"{item.CurrentRarity} | poziom {item.ItemLevel} | {definition.Weight:0.##} kg"
                 : "-";
+
+            itemInfoText.text = string.IsNullOrWhiteSpace(contextInfo)
+                ? defaultInfo
+                : $"{defaultInfo}\n{contextInfo}";
 
             if (iconImage != null)
             {

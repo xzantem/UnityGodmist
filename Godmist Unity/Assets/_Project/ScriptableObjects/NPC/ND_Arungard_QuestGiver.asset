@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e75613dca0fdce24fbdd229fc1763f87, type: 3}
+  m_Name: ND_Arungard_QuestGiver
+  m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
+  <Id>k__BackingField: npc.arungard.questgiver_01
+  <DisplayName>k__BackingField: "Stra\u017Cnik Katakumb"
+  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <BaseDialogue>k__BackingField: {fileID: 11400000, guid: a3412699bad779a48b2c95267fc9ea43, type: 2}
+  <Roles>k__BackingField:
+  - {fileID: 11400000, guid: 4b7697cbb566c4644ba41fa18eaff1f7, type: 2}

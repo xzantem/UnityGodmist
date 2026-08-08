@@ -947,7 +947,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Game.GameBootstrap
   combatSceneName: CombatSandbox
-  explorationSceneName: ExplorationSandbox
+  explorationSceneName: Arungard
+  dungeonSceneName: DungeonSandbox
 --- !u!114 &1465567936
 MonoBehaviour:
   m_ObjectHideFlags: 0
