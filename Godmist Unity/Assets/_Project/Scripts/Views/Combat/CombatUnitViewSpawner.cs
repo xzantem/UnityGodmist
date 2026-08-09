@@ -75,6 +75,7 @@ namespace Godmist.Views.Combat
 
                 var view = Instantiate(battleUnitPrefab, unitsRoot);
                 view.Bind(unit);
+                view.SetWorldPosition(GridToWorldPosition(unit.Position), true);
                 views.Add(unit, view);
             }
         }
@@ -88,7 +89,7 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
-                view.transform.position = GridToWorldPosition(unit.Position);
+                view.SetWorldPosition(GridToWorldPosition(unit.Position));
                 view.Refresh();
             }
         }

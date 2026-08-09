@@ -6078,7 +6078,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonFloorMapView
   floorTilemap: {fileID: 1441778419}
-  floorTile: {fileID: 11400000, guid: 86d563864d84e7c4798ed900b07cd6ac, type: 2}
+  floorTile: {fileID: 11400000, guid: 296f61084efe49de831c2f26a8842ec0, type: 2}
   wallSegmentPrefab: {fileID: 5195768252353925608, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
   wallsRoot: {fileID: 1850466267}
 --- !u!4 &1329287978

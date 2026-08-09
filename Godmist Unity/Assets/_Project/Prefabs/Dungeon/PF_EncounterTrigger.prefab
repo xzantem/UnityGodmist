@@ -44,5 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24a8c623838c1d147b27429219c2205e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Exploration.EncounterTriggerView
-  triggerCollider: {fileID: 0}
   actionPointsPerSpeed: 0.25
+  combatStartDistance: 0.85
+  chaseSpeed: 3.9

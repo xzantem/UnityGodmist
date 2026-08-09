@@ -102,6 +102,11 @@ namespace Godmist.Systems.Combat
                     combatId)
             };
 
+            if (dungeonContext != null)
+            {
+                AddDungeonMapObjects(session, dungeonContext);
+            }
+
             var occupiedPositions = new HashSet<GridPosition>();
 
             if (!TryAddPlayerUnits(
@@ -192,12 +197,23 @@ namespace Godmist.Systems.Combat
                         dungeonContext,
                         dungeonContext.PartyAnchorWorldPosition);
 
+                var enemyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.EnemyAnchorWorldPosition);
+
+                DungeonCombatSpawnResolver.ResolveOpposingEdges(
+                    partyAnchor,
+                    enemyAnchor,
+                    out var partyEdge,
+                    out _);
+
                 var reservedPositions = new HashSet<GridPosition>(
                     occupiedPositions);
 
                 if (!dungeonCombatSpawnResolver.TryResolveGroupPositions(
                         session.Grid,
-                        partyAnchor,
+                        partyEdge,
                         characters.Count,
                         reservedPositions,
                         out positions))
@@ -264,17 +280,28 @@ namespace Godmist.Systems.Combat
             }
             else
             {
+                var partyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.PartyAnchorWorldPosition);
+
                 var enemyAnchor =
                     DungeonBattleGridFactory.ToBattlePosition(
                         dungeonContext,
                         dungeonContext.EnemyAnchorWorldPosition);
+
+                DungeonCombatSpawnResolver.ResolveOpposingEdges(
+                    partyAnchor,
+                    enemyAnchor,
+                    out _,
+                    out var enemyEdge);
 
                 var reservedPositions = new HashSet<GridPosition>(
                     occupiedPositions);
 
                 if (!dungeonCombatSpawnResolver.TryResolveGroupPositions(
                         session.Grid,
-                        enemyAnchor,
+                        enemyEdge,
                         validEnemies.Count,
                         reservedPositions,
                         out positions))
@@ -310,6 +337,28 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        private static void AddDungeonMapObjects(
+            CombatSession session,
+            DungeonCombatContext context)
+        {
+            foreach (var mapObject in context.MapObjects)
+            {
+                if (mapObject.ObjectType
+                    != Godmist.Core.Enums.DungeonObjectType.Obstacle)
+                {
+                    continue;
+                }
+
+                session.MapObjects.Add(new ObstacleCombatMapObject(
+                    mapObject.ObjectInstanceId,
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        context,
+                        mapObject.WorldPosition),
+                    mapObject.BlocksMovement,
+                    mapObject.BlocksLineOfSight));
+            }
         }
 
         private static DungeonCombatContext GetDungeonCombatContext(

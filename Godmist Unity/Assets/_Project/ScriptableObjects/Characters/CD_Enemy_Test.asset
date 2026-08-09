@@ -14,6 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: enemy.test
   <DisplayName>k__BackingField: Enemy Test
+  <VisualSprite>k__BackingField: {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}
+  - {fileID: -9220170934936323435, guid: ec3a05b350643974f9365ac98ce5e28c, type: 3}
+  - {fileID: 6042680455125406518, guid: df50bfff37d371747954260e03524416, type: 3}
+  - {fileID: 2932469630006617533, guid: f508a2291cf15c740840dafaaeddac0d, type: 3}
+  <IdleAnimationFramesPerSecond>k__BackingField: 4
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: -4604387559850027499, guid: dc4e0d4d9dbf01c49b181952b7de4d1f, type: 3}
+  - {fileID: -9091610501002314651, guid: 636980c2a0533b947bd97fcae5bd25d4, type: 3}
+  - {fileID: -5093054398897925809, guid: 01e75d0de4ded4a4096630319ab11638, type: 3}
+  - {fileID: 91344271923446119, guid: c2e36cf20b59a1c45abf80b31a589e6b, type: 3}
+  <RunAnimationFramesPerSecond>k__BackingField: 8
+  <HitSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: 
   <BaseStats>k__BackingField:

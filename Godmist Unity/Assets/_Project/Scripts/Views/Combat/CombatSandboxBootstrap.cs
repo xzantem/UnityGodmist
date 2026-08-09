@@ -10,6 +10,7 @@ using Godmist.Systems.Combat;
 using Godmist.Views.UI;
 using Godmist.Views.Game;
 using UnityEngine;
+using Godmist.Runtime.Game;
 
 namespace Godmist.Views.Combat
 {
@@ -45,6 +46,9 @@ namespace Godmist.Views.Combat
         [SerializeField] private SkillData enemyStrikeSkill;
         [Header("Debug Obstacles")]
         [SerializeField] private List<GridPosition> blockedPositions = new();
+        [Header("Dungeon Combat Area")]
+        [SerializeField] private CombatDungeonAreaView dungeonAreaView;
+        [SerializeField] private CombatCameraFramer cameraFramer;
         
 
         // Systems
@@ -72,6 +76,7 @@ namespace Godmist.Views.Combat
         {
             turnSystem = new CombatTurnSystem(AddBattleLog, HandleUnitTurnBegan, HandleUnitTurnEnded);
             Session = CreateInitialSession();
+            RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
             resourceRuleSystem = new ResourceRuleSystem(AddBattleLog);
@@ -183,6 +188,30 @@ namespace Godmist.Views.Combat
             session.Units.Add(enemyB);
 
             return session;
+        }
+
+        private void RebuildDungeonCombatArea()
+        {
+            if (dungeonAreaView == null) return;
+
+            if (!usesGameSessionCombat)
+            {
+                dungeonAreaView.ClearArea();
+                return;
+            }
+
+            var context = GameBootstrap.Instance?
+                .Session
+                .ActiveDungeonCombatContext;
+
+            if (context == null) return;
+
+            dungeonAreaView.Rebuild(context);
+
+            if (dungeonAreaView.TryGetWorldBounds(out var worldBounds))
+            {
+                cameraFramer?.Frame(worldBounds);
+            }
         }
 
         private BattleUnit CreateUnit(
@@ -737,6 +766,29 @@ namespace Godmist.Views.Combat
             return CreateSandboxSession();
         }
 
+        private static void RestoreDungeonPositionAfterEscape(
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (gameSession?.ActiveDungeon == null || combatSession == null) return;
+
+            if (!gameSession.ActiveDungeon.TryGetCurrentFloor(out var floor)) return;
+
+            if (!floor.TryGetEncounter(
+                    combatSession.CombatId,
+                    out var encounter))
+            {
+                return;
+            }
+
+            if (!encounter.HasRetreatPosition) return;
+
+            gameSession.ActiveDungeon.SetPlayerPosition(
+                new Vector2(
+                    encounter.RetreatPosition.x,
+                    encounter.RetreatPosition.y));
+        }
+
         private bool TryReturnToExploration()
         {
             if (hasRequestedExplorationReturn || Session == null)
@@ -779,6 +831,11 @@ namespace Godmist.Views.Combat
                 rewardSystem.TryGrantVictoryRewards(gameSession, Session);
 
                 gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
+            }
+
+            if (outcome == CombatOutcomeState.Escaped)
+            {
+                RestoreDungeonPositionAfterEscape(gameSession, Session);
             }
 
             if (!gameBootstrap.TryReturnFromCombat())
