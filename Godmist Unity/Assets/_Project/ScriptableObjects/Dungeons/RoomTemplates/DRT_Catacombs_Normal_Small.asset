@@ -20,3 +20,6 @@ MonoBehaviour:
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 2, y: 3}
     <Direction>k__BackingField: 1
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 6, y: 6}
+    <Direction>k__BackingField: 1
