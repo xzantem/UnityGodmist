@@ -7,8 +7,12 @@ namespace Godmist.Systems.Combat
     {
         public bool HasLineOfSight(CombatSession session, GridPosition origin, GridPosition destination)
         {
-            if (session?.Grid == null || !session.Grid.IsWithinBounds(origin) 
-                || !session.Grid.IsWithinBounds(destination)) return false;
+            if (session?.Grid == null
+                || !session.Grid.IsWalkable(origin)
+                || !session.Grid.IsWalkable(destination))
+            {
+                return false;
+            }
 
             if (origin == destination) return true;
 

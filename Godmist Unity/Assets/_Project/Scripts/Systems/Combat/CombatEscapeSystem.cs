@@ -57,6 +57,7 @@ namespace Godmist.Systems.Combat
         private void CompleteEscape(CombatSession session)
         {
             var playerUnits = session.Units.Where(unit => unit != null && unit.IsPlayerSide).ToList();
+            var mainCharacterWasAbandoned = false;
 
             foreach (var unit in playerUnits)
             {
@@ -69,6 +70,11 @@ namespace Godmist.Systems.Combat
                 }
                 else if(unit.Character != null && unit.Character.LifeState != CharacterLifeState.Dead)
                 {
+                    if (unit.Character.Definition != null
+                        && unit.Character.Definition.IsMainCharacter)
+                    {
+                        mainCharacterWasAbandoned = true;
+                    }
                     unit.Character.CurrentHealth = 0;
                     unit.Character.LifeState = CharacterLifeState.Dead;
                     unit.DownedTurnsRemaining = 0;
@@ -83,9 +89,13 @@ namespace Godmist.Systems.Combat
             session.ActiveUnit = null;
             session.ActiveTurnIndex = -1;
             session.CurrentEscapeChancePercent = BaseEscapeChancePercent;
-            session.Outcome = CombatOutcomeState.Escaped;
+            session.Outcome = mainCharacterWasAbandoned
+                ? CombatOutcomeState.Defeat
+                : CombatOutcomeState.Escaped;
 
-            battleLog?.Invoke("Drużyna opuszcza walkę.");
+            battleLog?.Invoke(mainCharacterWasAbandoned
+                ? "Główna postać została porzucona. Drużyna ponosi porażkę."
+                : "Drużyna opuszcza walkę.");
         }
 
         private static string GetUnitName(BattleUnit unit)

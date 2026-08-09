@@ -329,7 +329,7 @@ namespace Godmist.Systems.Combat
             GridPosition position)
         {
             return session.Grid != null
-                && session.Grid.IsWithinBounds(position)
+                && session.Grid.IsWalkable(position)
                 && IsPositionWithinRange(
                     caster.Position,
                     position,

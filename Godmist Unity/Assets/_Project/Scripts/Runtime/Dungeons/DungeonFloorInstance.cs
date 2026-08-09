@@ -94,6 +94,32 @@ namespace Godmist.Runtime.Dungeons
             return true;
         }
 
+        public bool TryGetEncounter(
+            string encounterId,
+            out DungeonEncounterInstance encounter)
+        {
+            encounter = null;
+
+            if (string.IsNullOrWhiteSpace(encounterId)) return false;
+
+            foreach (var candidate in encounters)
+            {
+                if (candidate == null
+                    || !string.Equals(
+                        candidate.InstanceId,
+                        encounterId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                encounter = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryAddObject(DungeonObjectInstance dungeonObject)
         {
             if (dungeonObject == null ||  objects.Exists(

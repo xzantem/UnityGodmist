@@ -26,38 +26,38 @@ namespace Godmist.Views.Dungeons
         {
             ClearSpawnedViews();
 
-            if (floor == null || partyController == null)
+            if (floor == null
+                || floor.Map == null
+                || partyController == null)
             {
                 Debug.LogError(
-                    "DungeonEncounterSpawner: brak pietra lub PartyController.");
+                    "DungeonEncounterSpawner: brak pietra, mapy lub PartyController.");
 
                 return false;
             }
 
-            if (encounterTriggerPrefab == null)
+            if (encounterTriggerPrefab == null || enemyViewPrefab == null)
             {
                 Debug.LogError(
-                    "DungeonEncounterSpawner: brak prefabu EncounterTriggerView.");
-
-                return false;
-            }
-
-            if (enemyViewPrefab == null)
-            {
-                Debug.LogError(
-                    "DungeonEncounterSpawner: brak prefabu widocznego przeciwnika.");
+                    "DungeonEncounterSpawner: brak prefabu triggera lub widocznego przeciwnika.");
 
                 return false;
             }
 
             foreach (var encounterInstance in floor.Encounters)
             {
-                if (encounterInstance == null || IsEncounterCleared(encounterInstance))
+                if (encounterInstance == null
+                    || IsEncounterCleared(encounterInstance))
                 {
                     continue;
                 }
 
-                SpawnEnemyViews(encounterInstance);
+                var enemyViews = SpawnEnemyViews(encounterInstance);
+
+                if (enemyViews.Count == 0)
+                {
+                    continue;
+                }
 
                 var triggerParent = encountersRoot != null
                     ? encountersRoot
@@ -72,7 +72,9 @@ namespace Godmist.Views.Dungeons
 
                 triggerView.Initialize(
                     partyController,
-                    encounterInstance);
+                    floor.Map,
+                    encounterInstance,
+                    enemyViews);
 
                 spawnedTriggers.Add(triggerView);
             }
@@ -80,14 +82,15 @@ namespace Godmist.Views.Dungeons
             return true;
         }
 
-        private void SpawnEnemyViews(
+        private List<ExplorationCharacterView> SpawnEnemyViews(
             DungeonEncounterInstance encounterInstance)
         {
+            var result = new List<ExplorationCharacterView>();
             var enemies = encounterInstance.Definition?.Enemies;
 
             if (enemies == null || enemies.Count == 0)
             {
-                return;
+                return result;
             }
 
             var validEnemyCount = 0;
@@ -102,7 +105,7 @@ namespace Godmist.Views.Dungeons
 
             if (validEnemyCount == 0)
             {
-                return;
+                return result;
             }
 
             var enemyIndex = 0;
@@ -125,14 +128,25 @@ namespace Godmist.Views.Dungeons
                 enemyView.Bind(enemyData.CharacterDefinition);
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
-                enemyView.SetPosition(GetFormationPosition(
-                    encounterInstance.TriggerArea,
-                    enemyIndex,
-                    validEnemyCount));
+
+                var position = enemyIndex == 0
+                    ? new Vector2(
+                        encounterInstance.ExplorationPosition.x,
+                        encounterInstance.ExplorationPosition.y)
+                    : GetFormationPosition(
+                        encounterInstance.TriggerArea,
+                        enemyIndex,
+                        validEnemyCount);
+
+                enemyView.SetPosition(position);
 
                 spawnedEnemyViews.Add(enemyView);
+                result.Add(enemyView);
+
                 enemyIndex++;
             }
+
+            return result;
         }
 
         private static Vector2 GetFormationPosition(

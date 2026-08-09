@@ -7,6 +7,7 @@ using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
+using UnityEngine;
 
 namespace Godmist.Runtime.Game
 {
@@ -26,6 +27,7 @@ namespace Godmist.Runtime.Game
         public string TrackedQuestId => trackedQuestId;
         public DungeonInstance ActiveDungeon { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
+        public DungeonCombatContext ActiveDungeonCombatContext { get; private set; }
         public int Gold { get; private set; }
         public IReadOnlyList<ItemInstance> PendingLoot => pendingLoot;
         public CombatRewardResult LastCombatRewards { get; private set; }
@@ -206,6 +208,37 @@ namespace Godmist.Runtime.Game
             return true;
         }
 
+        public bool TrySetActiveDungeonCombatContext(
+            DungeonCombatContext context)
+        {
+            if (context == null
+                || ActiveDungeonCombatContext != null
+                || ActiveDungeon == null
+                || context.DungeonId != ActiveDungeon.DungeonId)
+            {
+                return false;
+            }
+
+            ActiveDungeonCombatContext = context;
+            Debug.Log(
+                $"DungeonCombatContext: dungeon={context.DungeonId}, "
+                + $"floor={context.FloorIndex}, "
+                + $"encounter={context.EncounterInstanceId}, "
+                + $"room={context.EncounterRoomId}, "
+                + $"cells={context.WorldCells.Count}, "
+                + $"walls={context.WallEdges.Count}, "
+                + $"objects={context.MapObjects.Count}");
+            return true;
+        }
+
+        public bool TryClearActiveDungeonCombatContext()
+        {
+            if (ActiveDungeonCombatContext == null) return false;
+
+            ActiveDungeonCombatContext = null;
+            return true;
+        }
+
         public bool TrySetActiveCombat(CombatSession combat)
         {
             if (combat == null || string.IsNullOrWhiteSpace(combat.CombatId)) return false;
@@ -220,6 +253,7 @@ namespace Godmist.Runtime.Game
             if (ActiveCombat == null) return false;
 
             ActiveCombat = null;
+            TryClearActiveDungeonCombatContext();
             return true;
         }
 

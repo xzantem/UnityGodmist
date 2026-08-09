@@ -59,10 +59,43 @@ namespace Godmist.Views.Dungeons
                 return false;
             }
 
+            if (!TryEnsureActiveLeaderHasView(session))
+            {
+                Debug.LogError(
+                    "DungeonPartySpawner: nie udalo sie wybrac zywego lidera druzyny.");
+
+                return false;
+            }
+
             partyController.Initialize(session, spawnedViews);
             partyController.RestorePartyFormation(startPosition);
 
             return true;
+        }
+
+        private bool TryEnsureActiveLeaderHasView(GameSession session)
+        {
+            if (session == null || spawnedViews.Count == 0) return false;
+
+            foreach (var spawnedView in spawnedViews)
+            {
+                if (spawnedView != null
+                    && spawnedView.CharacterId
+                        == session.PlayerParty.ActiveLeaderId)
+                {
+                    return true;
+                }
+            }
+
+            var fallbackLeader = spawnedViews[0];
+
+            if (fallbackLeader == null
+                || string.IsNullOrWhiteSpace(fallbackLeader.CharacterId))
+            {
+                return false;
+            }
+
+            return session.TrySetActiveLeader(fallbackLeader.CharacterId);
         }
 
         private void ClearSpawnedViews()
