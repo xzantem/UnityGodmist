@@ -31,8 +31,10 @@ namespace Godmist.Tests.EditMode
         public void TryInteract_DirectAndLeverDoor_TogglesOpenAndClosed()
         {
             var actor = CreateActor();
+
             var door = new DoorCombatMapObject(
                 "door.test.01",
+                new GridPosition(1, 1),
                 new GridPosition(2, 1),
                 DoorInteractionMode.DirectAndLever);
 
@@ -44,33 +46,42 @@ namespace Godmist.Tests.EditMode
             var opened = system.TryInteract(
                 session,
                 actor,
-                door.Position);
+                door.Edge.SecondCell);
 
             Assert.That(opened, Is.True);
             Assert.That(door.IsOpen, Is.True);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.False);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.False);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(80));
 
             var closed = system.TryInteract(
                 session,
                 actor,
-                door.Position);
+                door.Edge.SecondCell);
 
             Assert.That(closed, Is.True);
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.True);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.True);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(60));
         }
 
         [Test]
-        public void TryInteract_LeverOnlyDoor_TogglesThroughLever()
+        public void TryInteract_LeverControlledDoor_TogglesThroughLever()
         {
             var actor = CreateActor();
 
             var door = new DoorCombatMapObject(
                 "door.test.01",
                 new GridPosition(3, 1),
-                DoorInteractionMode.LeverOnly);
+                new GridPosition(4, 1),
+                DoorInteractionMode.DirectAndLever);
 
             var lever = new LeverCombatMapObject(
                 "lever.test.01",
@@ -90,7 +101,11 @@ namespace Godmist.Tests.EditMode
             Assert.That(opened, Is.True);
             Assert.That(lever.IsActivated, Is.True);
             Assert.That(door.IsOpen, Is.True);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.False);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.False);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(80));
 
             var closed = system.TryInteract(
@@ -101,7 +116,11 @@ namespace Godmist.Tests.EditMode
             Assert.That(closed, Is.True);
             Assert.That(lever.IsActivated, Is.False);
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.True);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.True);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(60));
         }
 
@@ -112,6 +131,7 @@ namespace Godmist.Tests.EditMode
 
             var door = new DoorCombatMapObject(
                 "door.test.01",
+                new GridPosition(1, 1),
                 new GridPosition(2, 1),
                 DoorInteractionMode.LeverOnly);
 
@@ -123,11 +143,15 @@ namespace Godmist.Tests.EditMode
             var interacted = system.TryInteract(
                 session,
                 actor,
-                door.Position);
+                door.Edge.SecondCell);
 
             Assert.That(interacted, Is.False);
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.True);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.True);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(100));
         }
 
@@ -139,6 +163,7 @@ namespace Godmist.Tests.EditMode
             var door = new DoorCombatMapObject(
                 "door.test.01",
                 new GridPosition(3, 1),
+                new GridPosition(4, 1),
                 DoorInteractionMode.DirectOnly);
 
             var lever = new LeverCombatMapObject(
@@ -159,7 +184,11 @@ namespace Godmist.Tests.EditMode
             Assert.That(interacted, Is.False);
             Assert.That(lever.IsActivated, Is.False);
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.True);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.True);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(100));
         }
 
@@ -172,6 +201,7 @@ namespace Godmist.Tests.EditMode
 
             var door = new DoorCombatMapObject(
                 "door.test.01",
+                new GridPosition(1, 1),
                 new GridPosition(2, 1),
                 DoorInteractionMode.DirectOnly);
 
@@ -183,11 +213,15 @@ namespace Godmist.Tests.EditMode
             var interacted = system.TryInteract(
                 session,
                 actor,
-                door.Position);
+                door.Edge.SecondCell);
 
             Assert.That(interacted, Is.False);
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.Grid.IsBlocked(door.Position), Is.True);
+            Assert.That(
+                session.Grid.HasBlockedEdge(
+                    door.Edge.FirstCell,
+                    door.Edge.SecondCell),
+                Is.True);
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(19));
         }
 

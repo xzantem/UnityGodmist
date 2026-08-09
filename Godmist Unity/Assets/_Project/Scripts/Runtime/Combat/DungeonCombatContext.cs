@@ -122,9 +122,15 @@ namespace Godmist.Runtime.Combat
     {
         public string ObjectInstanceId { get; }
         public DungeonObjectType ObjectType { get; }
+
         public Vector2Int WorldPosition { get; }
+        public bool UsesEdge { get; }
+        public DungeonCellEdge Edge { get; }
+
         public bool BlocksMovement { get; }
         public bool BlocksLineOfSight { get; }
+        public bool IsOpen { get; }
+        public DoorInteractionMode DoorInteractionMode { get; }
 
         public DungeonCombatMapObjectSnapshot(
             string objectInstanceId,
@@ -138,6 +144,23 @@ namespace Godmist.Runtime.Combat
             WorldPosition = worldPosition;
             BlocksMovement = blocksMovement;
             BlocksLineOfSight = blocksLineOfSight;
+        }
+
+        public DungeonCombatMapObjectSnapshot(
+            string objectInstanceId,
+            DungeonCellEdge edge,
+            bool isOpen,
+            DoorInteractionMode doorInteractionMode)
+        {
+            ObjectInstanceId = objectInstanceId;
+            ObjectType = DungeonObjectType.Door;
+            WorldPosition = edge.FirstCell;
+            UsesEdge = true;
+            Edge = edge;
+            IsOpen = isOpen;
+            DoorInteractionMode = doorInteractionMode;
+            BlocksMovement = !isOpen;
+            BlocksLineOfSight = !isOpen;
         }
     }
 }

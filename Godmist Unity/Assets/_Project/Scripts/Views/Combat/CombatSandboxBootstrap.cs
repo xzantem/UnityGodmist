@@ -163,8 +163,11 @@ namespace Godmist.Views.Combat
             {
                 session.Grid.SetBlocked(blockedPosition);
             }
-            session.MapObjects.Add(new DoorCombatMapObject("door.sandbox.01", 
-                new GridPosition(4, 4), DoorInteractionMode.DirectAndLever));
+            session.MapObjects.Add(new DoorCombatMapObject(
+                "door.sandbox.01",
+                new GridPosition(4, 4),
+                new GridPosition(4, 5),
+                DoorInteractionMode.DirectAndLever));
             session.MapObjects.Add(new LeverCombatMapObject("lever.sandbox.01",
                 new GridPosition(4, 3), "door.sandbox.01"));
 

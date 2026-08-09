@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Runtime.Dungeons;
 using UnityEngine;
@@ -38,6 +39,7 @@ namespace Godmist.Systems.Dungeons
             var openEdges = BuildOpenEdges(floor, map);
 
             AddWallEdges(map, openEdges);
+            AddStructuralWalls(floor, templatesById, map);
 
             return map;
         }
@@ -181,6 +183,55 @@ namespace Godmist.Systems.Dungeons
                     }
 
                     map.TryAddWall(cell, neighbour);
+                }
+            }
+        }
+
+        private static void AddStructuralWalls(
+            DungeonFloorInstance floor,
+            Dictionary<string, DungeonRoomTemplateDefinition> templatesById,
+            DungeonFloorMap map)
+        {
+            foreach (var room in floor.Rooms)
+            {
+                if (!templatesById.TryGetValue(
+                        room.TemplateId,
+                        out var template))
+                {
+                    throw new InvalidOperationException(
+                        $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
+                }
+
+                foreach (var anchor in template.StructuralAnchors)
+                {
+                    if (anchor == null
+                        || anchor.Type != DungeonStructuralAnchorType.Wall)
+                    {
+                        continue;
+                    }
+
+                    var firstCell = room.LayoutPosition + anchor.LocalCell;
+                    var secondCell = firstCell + anchor.GetDirectionOffset();
+
+                    if (!map.IsWalkable(firstCell)
+                        || !map.IsWalkable(secondCell))
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica sciany w szablonie '{template.Id}' "
+                            + "wskazuje pole poza pokojem.");
+                    }
+
+                    if (!map.TryGetRoomId(firstCell, out var firstRoomId)
+                        || !map.TryGetRoomId(secondCell, out var secondRoomId)
+                        || firstRoomId != room.RoomId
+                        || secondRoomId != room.RoomId)
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica sciany w szablonie '{template.Id}' "
+                            + "nie moze wychodzic poza granice pokoju.");
+                    }
+
+                    map.TryAddWall(firstCell, secondCell);
                 }
             }
         }

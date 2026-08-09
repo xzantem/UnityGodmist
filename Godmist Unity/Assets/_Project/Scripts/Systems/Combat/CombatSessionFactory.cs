@@ -346,18 +346,36 @@ namespace Godmist.Systems.Combat
             foreach (var mapObject in context.MapObjects)
             {
                 if (mapObject.ObjectType
-                    != Godmist.Core.Enums.DungeonObjectType.Obstacle)
+                    == Godmist.Core.Enums.DungeonObjectType.Obstacle)
+                {
+                    session.MapObjects.Add(new ObstacleCombatMapObject(
+                        mapObject.ObjectInstanceId,
+                        DungeonBattleGridFactory.ToBattlePosition(
+                            context,
+                            mapObject.WorldPosition),
+                        mapObject.BlocksMovement,
+                        mapObject.BlocksLineOfSight));
+
+                    continue;
+                }
+
+                if (mapObject.ObjectType
+                    != Godmist.Core.Enums.DungeonObjectType.Door
+                    || !mapObject.UsesEdge)
                 {
                     continue;
                 }
 
-                session.MapObjects.Add(new ObstacleCombatMapObject(
+                session.MapObjects.Add(new DoorCombatMapObject(
                     mapObject.ObjectInstanceId,
                     DungeonBattleGridFactory.ToBattlePosition(
                         context,
-                        mapObject.WorldPosition),
-                    mapObject.BlocksMovement,
-                    mapObject.BlocksLineOfSight));
+                        mapObject.Edge.FirstCell),
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        context,
+                        mapObject.Edge.SecondCell),
+                    mapObject.DoorInteractionMode,
+                    mapObject.IsOpen));
             }
         }
 

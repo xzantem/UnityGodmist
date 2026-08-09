@@ -73,6 +73,7 @@ namespace Godmist.Tests.EditMode
             var door = new DoorCombatMapObject(
                 "door.test.01",
                 new GridPosition(3, 1),
+                new GridPosition(4, 1),
                 DoorInteractionMode.DirectAndLever);
 
             session.MapObjects.Add(door);

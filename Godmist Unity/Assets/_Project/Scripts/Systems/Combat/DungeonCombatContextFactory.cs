@@ -114,6 +114,23 @@ namespace Godmist.Systems.Combat
                 var blocksMovement = false;
                 var blocksLineOfSight = false;
 
+                if (dungeonObject is DoorDungeonObjectInstance door)
+                {
+                    if (!combatCells.Contains(door.Edge.FirstCell)
+                        || !combatCells.Contains(door.Edge.SecondCell))
+                    {
+                        continue;
+                    }
+
+                    snapshots.Add(new DungeonCombatMapObjectSnapshot(
+                        door.InstanceId,
+                        door.Edge,
+                        door.IsOpen,
+                        door.InteractionMode));
+
+                    continue;
+                }
+
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
                 {
                     blocksMovement = obstacle.BlocksMovement;

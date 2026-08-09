@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Interfaces;
 using UnityEngine;
@@ -15,6 +16,9 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField]
         public Vector2Int SizeInCells { get; private set; } = new(8, 8);
+        [field: Header("Structural anchors")]
+        [field: SerializeField]
+        public List<DungeonStructuralAnchorData> StructuralAnchors { get; private set; } = new();
 
         private void OnValidate()
         {

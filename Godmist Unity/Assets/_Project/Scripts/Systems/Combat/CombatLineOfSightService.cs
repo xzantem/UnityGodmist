@@ -5,7 +5,10 @@ namespace Godmist.Systems.Combat
 {
     public class CombatLineOfSightService
     {
-        public bool HasLineOfSight(CombatSession session, GridPosition origin, GridPosition destination)
+        public bool HasLineOfSight(
+            CombatSession session,
+            GridPosition origin,
+            GridPosition destination)
         {
             if (session?.Grid == null
                 || !session.Grid.IsWalkable(origin)
@@ -26,13 +29,15 @@ namespace Godmist.Systems.Combat
 
             while (currentX != destination.X || currentY != destination.Y)
             {
+                var previousPosition = new GridPosition(currentX, currentY);
                 var doubledError = error * 2;
+
                 if (doubledError > -deltaY)
                 {
                     error -= deltaY;
                     currentX += stepX;
                 }
-                
+
                 if (doubledError < deltaX)
                 {
                     error += deltaX;
@@ -41,23 +46,95 @@ namespace Godmist.Systems.Combat
 
                 var currentPosition = new GridPosition(currentX, currentY);
 
-                if (currentPosition == destination) return true;
+                if (BlocksLineOfSight(
+                        session,
+                        previousPosition,
+                        currentPosition))
+                {
+                    return false;
+                }
 
-                if (BlocksLineOfSight(session, currentPosition)) return false;
+                if (currentPosition == destination) return true;
             }
-            
+
             return true;
         }
 
-        private static bool BlocksLineOfSight(CombatSession session, GridPosition position)
+        private static bool BlocksLineOfSight(
+            CombatSession session,
+            GridPosition previousPosition,
+            GridPosition currentPosition)
         {
             foreach (var mapObject in session.MapObjects)
             {
-                if (mapObject != null && mapObject.Position == position
-                    && mapObject.BlocksLineOfSight) return true;
+                if (mapObject == null || !mapObject.BlocksLineOfSight)
+                {
+                    continue;
+                }
+
+                if (mapObject is DoorCombatMapObject door)
+                {
+                    if (CrossesDoorEdge(
+                            previousPosition,
+                            currentPosition,
+                            door.Edge))
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if (mapObject.Position == currentPosition)
+                {
+                    return true;
+                }
             }
 
             return false;
+        }
+
+        private static bool CrossesDoorEdge(
+            GridPosition previousPosition,
+            GridPosition currentPosition,
+            BattleCellEdge edge)
+        {
+            if (IsSameEdge(
+                    previousPosition,
+                    currentPosition,
+                    edge))
+            {
+                return true;
+            }
+
+            var horizontalStep = new GridPosition(
+                currentPosition.X,
+                previousPosition.Y);
+
+            var verticalStep = new GridPosition(
+                previousPosition.X,
+                currentPosition.Y);
+
+            return IsSameEdge(previousPosition, horizontalStep, edge)
+                || IsSameEdge(horizontalStep, currentPosition, edge)
+                || IsSameEdge(previousPosition, verticalStep, edge)
+                || IsSameEdge(verticalStep, currentPosition, edge);
+        }
+
+        private static bool IsSameEdge(
+            GridPosition firstCell,
+            GridPosition secondCell,
+            BattleCellEdge edge)
+        {
+            var deltaX = Math.Abs(secondCell.X - firstCell.X);
+            var deltaY = Math.Abs(secondCell.Y - firstCell.Y);
+
+            if (deltaX + deltaY != 1) return false;
+
+            return (edge.FirstCell == firstCell
+                    && edge.SecondCell == secondCell)
+                || (edge.FirstCell == secondCell
+                    && edge.SecondCell == firstCell);
         }
     }
 }
