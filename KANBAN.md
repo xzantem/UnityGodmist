@@ -182,7 +182,7 @@ Zamkniety: zobacz sekcje `Done`.
 - `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture` - Done
 - `[P1] Dodac CampaignId i strukture katalogow zapisow v1` - `Core / Architecture` - Done
 - `[P1] Dodac liste oraz zarzadzanie zapisami kampanii v1` - `Core / Architecture`, `UI / UX` - Done
-- `[P1] Dodac menu pauzy i UI zapisow v1` - `UI / UX`, `Core / Architecture`
+- `[P1] Dodac menu pauzy i UI zapisow v1` - `UI / UX`, `Core / Architecture` - Done
 - `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`
 
 ### Milestone: Dungeon Combat Integration v1

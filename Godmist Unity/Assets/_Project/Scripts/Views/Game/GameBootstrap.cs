@@ -173,6 +173,42 @@ namespace Godmist.Views.Game
             return TryReplaceSession(restoredSession, out message);
         }
 
+        public bool TryLoadSave(
+            GameSaveSummary summary,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (Session?.ActiveCombat != null)
+            {
+                message = "Nie można wczytać gry podczas walki.";
+                return false;
+            }
+
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            if (contentCatalog == null)
+            {
+                message = "GameBootstrap: brak GameContentCatalog.";
+                return false;
+            }
+
+            if (!SaveManager.TryLoadSave(
+                    summary,
+                    contentCatalog,
+                    out var restoredSession,
+                    out message))
+            {
+                return false;
+            }
+
+            return TryReplaceSession(restoredSession, out message);
+        }
+
         public bool TryReturnFromCombat()
         {
             if (sceneLoader == null || Session == null)
