@@ -51,7 +51,24 @@ namespace Godmist.Systems.Combat
 
             foreach (var mapObject in context.MapObjects)
             {
-                if (!mapObject.BlocksMovement) continue;
+                if (mapObject.UsesEdge)
+                {
+                    grid.SetBlockedEdge(
+                        ToBattlePosition(
+                            context,
+                            mapObject.Edge.FirstCell),
+                        ToBattlePosition(
+                            context,
+                            mapObject.Edge.SecondCell),
+                        mapObject.BlocksMovement);
+
+                    continue;
+                }
+
+                if (!mapObject.BlocksMovement)
+                {
+                    continue;
+                }
 
                 grid.SetBlocked(
                     ToBattlePosition(

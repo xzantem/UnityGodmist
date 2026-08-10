@@ -167,6 +167,51 @@ namespace Godmist.Tests.EditMode
                 Is.EqualTo(new GridPosition(1, 0)));
         }
 
+        [Test]
+        public void TryCreate_ClosedDoorBlocksOnlyItsEdge()
+        {
+            var firstWorldCell = new Vector2Int(10, 20);
+            var secondWorldCell = new Vector2Int(11, 20);
+
+            var door = new DungeonCombatMapObjectSnapshot(
+                "door.test",
+                new DungeonCellEdge(
+                    firstWorldCell,
+                    secondWorldCell),
+                isOpen: false,
+                DoorInteractionMode.DirectOnly);
+
+            var context = CreateContext(
+                new[]
+                {
+                    firstWorldCell,
+                    secondWorldCell
+                },
+                mapObjects: new[] { door });
+
+            var factory = new DungeonBattleGridFactory();
+
+            factory.TryCreate(context, out var grid);
+
+            var firstBattleCell = new GridPosition(0, 0);
+            var secondBattleCell = new GridPosition(1, 0);
+
+            Assert.That(grid.IsBlocked(firstBattleCell), Is.False);
+            Assert.That(grid.IsBlocked(secondBattleCell), Is.False);
+
+            Assert.That(
+                grid.HasBlockedEdge(
+                    firstBattleCell,
+                    secondBattleCell),
+                Is.True);
+
+            Assert.That(
+                grid.CanMoveBetween(
+                    firstBattleCell,
+                    secondBattleCell),
+                Is.False);
+        }
+
         private static DungeonCombatContext CreateContext(
             Vector2Int[] worldCells,
             DungeonCellEdge[] wallEdges = null,

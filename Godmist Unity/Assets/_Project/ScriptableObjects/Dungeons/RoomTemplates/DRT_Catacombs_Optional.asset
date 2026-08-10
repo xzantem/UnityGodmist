@@ -16,3 +16,13 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Katakumby - opcjonalny pok\xF3j"
   <RoomType>k__BackingField: 2
   <SizeInCells>k__BackingField: {x: 12, y: 12}
+  <StructuralAnchors>k__BackingField:
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 4, y: 4}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 4}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 5, y: 4}
+    <Direction>k__BackingField: 0

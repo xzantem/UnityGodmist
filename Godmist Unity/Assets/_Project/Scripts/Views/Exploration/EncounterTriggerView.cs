@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Dungeons;
+using Godmist.Views.Dungeons;
 using Godmist.Views.Game;
 using UnityEngine;
 
@@ -8,18 +10,30 @@ namespace Godmist.Views.Exploration
 {
     public class EncounterTriggerView : MonoBehaviour
     {
+        private sealed class EnemyNavigationState
+        {
+            public List<Vector2Int> Path { get; } = new();
+            public int NextWaypointIndex { get; set; }
+            public Vector2Int TargetCell { get; set; }
+        }
+
         [Header("Combat")]
         [SerializeField] private float actionPointsPerSpeed = 0.25f;
         [SerializeField] private float combatStartDistance = 0.85f;
 
         [Header("Exploration Chase")]
         [SerializeField] private float chaseSpeed = 4.5f;
+        [SerializeField] private float waypointArrivalDistance = 0.03f;
 
         private readonly Dictionary<ExplorationCharacterView, Vector2>
             homePositionByEnemy = new();
 
+        private readonly Dictionary<ExplorationCharacterView, EnemyNavigationState>
+            navigationByEnemy = new();
+
         private ExplorationPartyController partyController;
         private DungeonFloorMap floorMap;
+        private DungeonFloorMapView floorMapView;
         private DungeonEncounterInstance encounterInstance;
         private readonly DungeonCombatContextFactory dungeonCombatContextFactory = new();
         private IReadOnlyList<ExplorationCharacterView> enemyViews;
@@ -32,22 +46,25 @@ namespace Godmist.Views.Exploration
         public void Initialize(
             ExplorationPartyController nextPartyController,
             DungeonFloorMap nextFloorMap,
+            DungeonFloorMapView nextFloorMapView,
             DungeonEncounterInstance nextEncounterInstance,
             IReadOnlyList<ExplorationCharacterView> nextEnemyViews)
         {
             partyController = nextPartyController;
             floorMap = nextFloorMap;
+            floorMapView = nextFloorMapView;
             encounterInstance = nextEncounterInstance;
             enemyViews = nextEnemyViews;
 
             if (partyController == null
                 || floorMap == null
+                || floorMapView == null
                 || encounterInstance == null
                 || enemyViews == null
                 || enemyViews.Count == 0)
             {
                 Debug.LogError(
-                    "EncounterTriggerView: brak PartyController, mapy, "
+                    "EncounterTriggerView: brak PartyController, mapy, widoku mapy, "
                     + "encounteru lub widocznych przeciwnikow.");
 
                 enabled = false;
@@ -66,12 +83,17 @@ namespace Godmist.Views.Exploration
             }
 
             homePositionByEnemy.Clear();
+            navigationByEnemy.Clear();
 
             foreach (var enemyView in enemyViews)
             {
-                if (enemyView == null) continue;
+                if (enemyView == null)
+                {
+                    continue;
+                }
 
                 homePositionByEnemy[enemyView] = enemyView.Position;
+                navigationByEnemy[enemyView] = new EnemyNavigationState();
             }
 
             hasInitialized = true;
@@ -84,7 +106,10 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (!hasInitialized || isTriggered) return;
+            if (!hasInitialized || isTriggered)
+            {
+                return;
+            }
 
             if (IsEncounterCleared())
             {
@@ -141,7 +166,7 @@ namespace Godmist.Views.Exploration
 
         private void MoveEnemiesTowardsLeader()
         {
-            var leaderPosition = partyController.ActiveLeaderTransform.position;
+            var leaderPosition = (Vector2)partyController.ActiveLeaderTransform.position;
 
             foreach (var enemyView in enemyViews)
             {
@@ -150,16 +175,149 @@ namespace Godmist.Views.Exploration
                     continue;
                 }
 
-                enemyView.MoveTowards(
+                var chaseStopDistance = Mathf.Max(
+                    0f,
+                    combatStartDistance - 0.1f);
+
+                TryMoveEnemyAlongFloor(
+                    enemyView,
                     leaderPosition,
-                    chaseSpeed * Time.deltaTime,
-                    0f);
+                    chaseStopDistance);
             }
 
-            if (chaserView == null) return;
+            if (chaserView == null)
+            {
+                return;
+            }
 
             encounterInstance.TrySetExplorationPosition(
                 ToGridPosition(chaserView.Position));
+        }
+
+        private bool TryMoveEnemyAlongFloor(
+            ExplorationCharacterView enemyView,
+            Vector2 targetPosition,
+            float stopDistance)
+        {
+            if (enemyView == null || floorMap == null)
+            {
+                return false;
+            }
+
+            if (!navigationByEnemy.TryGetValue(enemyView, out var state))
+            {
+                state = new EnemyNavigationState();
+                navigationByEnemy[enemyView] = state;
+            }
+
+            var targetCell = ToGridPosition(targetPosition);
+
+            if (ShouldRebuildPath(enemyView, state, targetCell)
+                && !TryBuildPath(enemyView, state, targetCell))
+            {
+                return false;
+            }
+
+            AdvanceReachedWaypoints(enemyView, state);
+
+            if (state.NextWaypointIndex >= state.Path.Count)
+            {
+                enemyView.MoveTowards(
+                    targetPosition,
+                    chaseSpeed * Time.deltaTime,
+                    stopDistance);
+
+                return true;
+            }
+
+            var nextCell = state.Path[state.NextWaypointIndex];
+            var isFinalWaypoint = state.NextWaypointIndex
+                == state.Path.Count - 1;
+
+            if (isFinalWaypoint)
+            {
+                enemyView.MoveTowards(
+                    targetPosition,
+                    chaseSpeed * Time.deltaTime,
+                    stopDistance);
+
+                return true;
+            }
+
+            enemyView.MoveTowards(
+                floorMapView.CellToWorldCenter(nextCell),
+                chaseSpeed * Time.deltaTime,
+                0f);
+
+            return true;
+        }
+
+        private bool ShouldRebuildPath(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state,
+            Vector2Int targetCell)
+        {
+            if (state.Path.Count == 0 || state.TargetCell != targetCell)
+            {
+                return true;
+            }
+
+            if (state.NextWaypointIndex >= state.Path.Count)
+            {
+                return ToGridPosition(enemyView.Position) != targetCell;
+            }
+
+            var currentCell = ToGridPosition(enemyView.Position);
+            var nextCell = state.Path[state.NextWaypointIndex];
+
+            return currentCell != nextCell
+                && !floorMap.CanMoveBetween(currentCell, nextCell);
+        }
+
+        private bool TryBuildPath(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state,
+            Vector2Int targetCell)
+        {
+            var startCell = ToGridPosition(enemyView.Position);
+
+            if (!DungeonExplorationPathfinder.TryFindPath(
+                    floorMap,
+                    startCell,
+                    targetCell,
+                    out var path))
+            {
+                state.Path.Clear();
+                state.NextWaypointIndex = 0;
+
+                return false;
+            }
+
+            state.Path.Clear();
+            state.Path.AddRange(path);
+            state.TargetCell = targetCell;
+            state.NextWaypointIndex = path.Count > 1 ? 1 : 0;
+
+            return true;
+        }
+
+        private void AdvanceReachedWaypoints(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state)
+        {
+            while (state.NextWaypointIndex < state.Path.Count)
+            {
+                var waypoint = state.Path[state.NextWaypointIndex];
+                var waypointPosition = floorMapView.CellToWorldCenter(waypoint);
+
+                if (Vector2.Distance(enemyView.Position, waypointPosition)
+                    > waypointArrivalDistance)
+                {
+                    return;
+                }
+
+                state.NextWaypointIndex++;
+            }
         }
 
         private bool IsAnyEnemyCloseEnoughToStartCombat()
@@ -174,24 +332,13 @@ namespace Godmist.Views.Exploration
                 }
 
                 if (Vector2.Distance(enemyView.Position, leaderPosition)
-                    <= combatStartDistance)
+                    <= combatStartDistance + 0.05f)
                 {
                     return true;
                 }
             }
 
             return false;
-        }
-
-        private bool IsLeaderInsideEncounterArea()
-        {
-            var leaderPosition = partyController.ActiveLeaderTransform.position;
-            var area = encounterInstance.TriggerArea;
-
-            return leaderPosition.x >= area.xMin
-                && leaderPosition.x < area.xMax
-                && leaderPosition.y >= area.yMin
-                && leaderPosition.y < area.yMax;
         }
 
         private bool IsLeaderInEncounterRoom()
@@ -205,7 +352,10 @@ namespace Godmist.Views.Exploration
 
         private void BeginReturningHome()
         {
-            if (!encounterInstance.TryClearAlerted()) return;
+            if (!encounterInstance.TryClearAlerted())
+            {
+                return;
+            }
 
             isReturningHome = true;
         }
@@ -216,12 +366,12 @@ namespace Godmist.Views.Exploration
 
             foreach (var pair in homePositionByEnemy)
             {
-                if (pair.Key == null) continue;
+                if (pair.Key == null)
+                {
+                    continue;
+                }
 
-                pair.Key.MoveTowards(
-                    pair.Value,
-                    chaseSpeed * Time.deltaTime,
-                    0f);
+                TryMoveEnemyAlongFloor(pair.Key, pair.Value, 0f);
 
                 if (Vector2.Distance(pair.Key.Position, pair.Value) > 0.001f)
                 {
@@ -229,11 +379,17 @@ namespace Godmist.Views.Exploration
                 }
             }
 
-            if (!allEnemiesReturned) return;
+            if (!allEnemiesReturned)
+            {
+                return;
+            }
 
             isReturningHome = false;
 
-            if (chaserView == null) return;
+            if (chaserView == null)
+            {
+                return;
+            }
 
             encounterInstance.TrySetExplorationPosition(
                 ToGridPosition(chaserView.Position));
@@ -286,15 +442,9 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            Debug.Log(
-                $"Dungeon combat grid: {combatSession.Grid.Width}x"
-                + $"{combatSession.Grid.Height}, "
-                + $"units={combatSession.Units.Count}");
-
             if (!gameSession.TrySetActiveCombat(combatSession))
             {
                 gameSession.TryClearActiveDungeonCombatContext();
-
                 return;
             }
 
@@ -324,16 +474,22 @@ namespace Godmist.Views.Exploration
             gameObject.SetActive(false);
         }
 
-        private static Vector2Int ToGridPosition(Vector3 worldPosition)
+        private Vector2Int ToGridPosition(Vector3 worldPosition)
         {
-            return new Vector2Int(
-                Mathf.RoundToInt(worldPosition.x),
-                Mathf.RoundToInt(worldPosition.y));
+            return floorMapView.WorldToCell(worldPosition);
+        }
+
+        private Vector2Int ToGridPosition(Vector2 worldPosition)
+        {
+            return floorMapView.WorldToCell(worldPosition);
         }
 
         private void OnDrawGizmosSelected()
         {
-            if (encounterInstance == null) return;
+            if (encounterInstance == null)
+            {
+                return;
+            }
 
             var area = encounterInstance.TriggerArea;
 

@@ -68,6 +68,7 @@ namespace Godmist.Views.Combat
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
         private readonly CombatRewardSystem rewardSystem = new();
+        private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
         private bool usesGameSessionCombat;
         private bool hasRequestedExplorationReturn;
         public event Action<CombatMapObject> CombatMapObjectChanged;
@@ -209,7 +210,7 @@ namespace Godmist.Views.Combat
 
             if (context == null) return;
 
-            dungeonAreaView.Rebuild(context);
+            dungeonAreaView.Rebuild(context, this);
 
             if (dungeonAreaView.TryGetWorldBounds(out var worldBounds))
             {
@@ -829,11 +830,21 @@ namespace Godmist.Views.Combat
 
             var gameSession = gameBootstrap.Session;
 
+            if (!dungeonCombatOutcomeSystem.TryApplyOutcome(
+                    gameSession,
+                    Session))
+            {
+                Debug.LogError(
+                    "CombatSandboxBootstrap: nie udalo sie zapisac wyniku walki w stanie lochu.");
+
+                return false;
+            }
+
+            Debug.Log($"Return from combat: outcome={outcome}");
+
             if (outcome == CombatOutcomeState.Victory)
             {
                 rewardSystem.TryGrantVictoryRewards(gameSession, Session);
-
-                gameSession.ActiveDungeon?.TryMarkEncounterCleared(Session.CombatId);
             }
 
             if (outcome == CombatOutcomeState.Escaped)
@@ -845,6 +856,8 @@ namespace Godmist.Views.Combat
             {
                 return false;
             }
+
+            Debug.Log("Requesting dungeon scene load after escape.");
 
             hasRequestedExplorationReturn = true;
             gameSession.TryClearActiveCombat();

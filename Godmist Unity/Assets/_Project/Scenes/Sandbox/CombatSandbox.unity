@@ -556,6 +556,7 @@ MonoBehaviour:
   wallSegmentPrefab: {fileID: 5139432452536502971, guid: ce08d7530edf074458c556233e6c12bf, type: 3}
   wallsRoot: {fileID: 1991749619}
   blockingObjectPrefab: {fileID: 6637048728370231414, guid: 0f566c8c45c01d34c8418065c2401eb2, type: 3}
+  doorPrefab: {fileID: 7948540361546663684, guid: 672028124c2bc674a86b81a5ab67740f, type: 3}
   objectsRoot: {fileID: 29146435}
 --- !u!1 &187763888
 GameObject:

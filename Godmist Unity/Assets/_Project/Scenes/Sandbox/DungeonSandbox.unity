@@ -2276,6 +2276,7 @@ MonoBehaviour:
   enemyViewPrefab: {fileID: 4011232049458454462, guid: d07175dd420fb0f4682b5900c7ed77fe, type: 3}
   enemyViewsRoot: {fileID: 210917976}
   enemyTint: {r: 0.8509804, g: 0.3529412, b: 0.3529412, a: 1}
+  floorMapView: {fileID: 1329287977}
 --- !u!1 &487655856
 GameObject:
   m_ObjectHideFlags: 0
@@ -2323,6 +2324,7 @@ MonoBehaviour:
   floorTilemap: {fileID: 1441778419}
   chestPrefab: {fileID: 6450316471294715145, guid: 8ec342ea5d7e3b04cbe59ad3be42443c, type: 3}
   obstaclePrefab: {fileID: 6899838912411245855, guid: d090491c19006d84bbe84d77cbc24912, type: 3}
+  doorPrefab: {fileID: 337228898627737318, guid: 2292e3aee2720074ea482e70d0a1dc6f, type: 3}
   objectsRoot: {fileID: 487655857}
 --- !u!1 &503133533
 GameObject:

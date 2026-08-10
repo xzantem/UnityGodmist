@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -15,8 +16,9 @@ namespace Godmist.Views.Combat
         [SerializeField] private CombatWallSegmentView wallSegmentPrefab;
         [SerializeField] private Transform wallsRoot;
 
-        [Header("Blocking Objects")]
+        [Header("Objects")]
         [SerializeField] private SpriteRenderer blockingObjectPrefab;
+        [SerializeField] private CombatDoorView doorPrefab;
         [SerializeField] private Transform objectsRoot;
 
         private readonly List<GameObject> spawnedWalls = new();
@@ -25,17 +27,20 @@ namespace Godmist.Views.Combat
         private Bounds worldBounds;
         private bool hasWorldBounds;
 
-        public void Rebuild(DungeonCombatContext context)
+        public void Rebuild(
+            DungeonCombatContext context,
+            CombatSandboxBootstrap sandboxBootstrap)
         {
             ClearArea();
 
             if (context == null
+                || sandboxBootstrap == null
                 || floorTilemap == null
                 || floorTile == null
                 || wallSegmentPrefab == null)
             {
                 Debug.LogError(
-                    "CombatDungeonAreaView: brak kontekstu, Tilemapy, Tile lub prefabu sciany.");
+                    "CombatDungeonAreaView: brak kontekstu, bootstrapu, Tilemapy, Tile lub prefabu sciany.");
 
                 return;
             }
@@ -77,7 +82,7 @@ namespace Godmist.Views.Combat
                 spawnedWalls.Add(wallSegment.gameObject);
             }
 
-            SpawnBlockingObjects(context);
+            SpawnMapObjects(context, sandboxBootstrap);
             RebuildWorldBounds(context);
         }
 
@@ -115,38 +120,99 @@ namespace Godmist.Views.Combat
             return hasWorldBounds;
         }
 
-        private void SpawnBlockingObjects(
-            DungeonCombatContext context)
+        private void SpawnMapObjects(
+            DungeonCombatContext context,
+            CombatSandboxBootstrap sandboxBootstrap)
         {
-            if (blockingObjectPrefab == null) return;
-
             var objectParent = objectsRoot != null
                 ? objectsRoot
                 : transform;
 
             foreach (var mapObject in context.MapObjects)
             {
-                if (!mapObject.BlocksMovement) continue;
+                if (mapObject.ObjectType == DungeonObjectType.Obstacle)
+                {
+                    SpawnObstacle(context, mapObject, objectParent);
+                    continue;
+                }
 
-                var localPosition = ToBattlePosition(
-                    context,
-                    mapObject.WorldPosition);
-
-                var view = Instantiate(
-                    blockingObjectPrefab,
-                    objectParent);
-
-                view.transform.position = new Vector3(
-                    localPosition.X,
-                    localPosition.Y,
-                    -0.1f);
-
-                spawnedObjects.Add(view.gameObject);
+                if (mapObject.ObjectType == DungeonObjectType.Door
+                    && mapObject.UsesEdge)
+                {
+                    SpawnDoor(
+                        context,
+                        sandboxBootstrap,
+                        mapObject,
+                        objectParent);
+                }
             }
         }
 
-        private void RebuildWorldBounds(
-            DungeonCombatContext context)
+        private void SpawnObstacle(
+            DungeonCombatContext context,
+            DungeonCombatMapObjectSnapshot mapObject,
+            Transform objectParent)
+        {
+            if (blockingObjectPrefab == null || !mapObject.BlocksMovement)
+            {
+                return;
+            }
+
+            var localPosition = ToBattlePosition(
+                context,
+                mapObject.WorldPosition);
+
+            var view = Instantiate(
+                blockingObjectPrefab,
+                objectParent);
+
+            view.transform.position = new Vector3(
+                localPosition.X,
+                localPosition.Y,
+                -0.1f);
+
+            spawnedObjects.Add(view.gameObject);
+        }
+
+        private void SpawnDoor(
+            DungeonCombatContext context,
+            CombatSandboxBootstrap sandboxBootstrap,
+            DungeonCombatMapObjectSnapshot snapshot,
+            Transform objectParent)
+        {
+            if (doorPrefab == null)
+            {
+                Debug.LogError(
+                    "CombatDungeonAreaView: brak prefabu CombatDoorView.");
+
+                return;
+            }
+
+            var door = sandboxBootstrap.GetCombatMapObject(
+                snapshot.ObjectInstanceId) as DoorCombatMapObject;
+
+            if (door == null)
+            {
+                Debug.LogError(
+                    $"CombatDungeonAreaView: brak runtime drzwi '{snapshot.ObjectInstanceId}'.");
+
+                return;
+            }
+
+            var view = Instantiate(
+                doorPrefab,
+                objectParent);
+
+            view.name = $"CombatDoor_{door.ObjectId}";
+            view.Initialize(
+                sandboxBootstrap,
+                door,
+                floorTilemap);
+
+            spawnedObjects.Add(view.gameObject);
+        }
+
+        private void RebuildWorldBounds(DungeonCombatContext context)
         {
             var bounds = context.WorldBounds;
 

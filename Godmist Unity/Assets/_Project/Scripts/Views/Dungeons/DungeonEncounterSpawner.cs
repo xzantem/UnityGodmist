@@ -17,6 +17,8 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private Transform enemyViewsRoot;
         [SerializeField] private Color enemyTint = new(0.85f, 0.35f, 0.35f, 1f);
 
+        [SerializeField] private DungeonFloorMapView floorMapView;
+
         private readonly List<EncounterTriggerView> spawnedTriggers = new();
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 
@@ -28,10 +30,11 @@ namespace Godmist.Views.Dungeons
 
             if (floor == null
                 || floor.Map == null
-                || partyController == null)
+                || partyController == null
+                || floorMapView == null)
             {
                 Debug.LogError(
-                    "DungeonEncounterSpawner: brak pietra, mapy lub PartyController.");
+                    "DungeonEncounterSpawner: brak pietra, mapy, PartyController lub DungeonFloorMapView.");
 
                 return false;
             }
@@ -73,6 +76,7 @@ namespace Godmist.Views.Dungeons
                 triggerView.Initialize(
                     partyController,
                     floor.Map,
+                    floorMapView,
                     encounterInstance,
                     enemyViews);
 
@@ -129,16 +133,15 @@ namespace Godmist.Views.Dungeons
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
 
-                var position = enemyIndex == 0
-                    ? new Vector2(
-                        encounterInstance.ExplorationPosition.x,
-                        encounterInstance.ExplorationPosition.y)
-                    : GetFormationPosition(
+                var cell = enemyIndex == 0
+                    ? encounterInstance.ExplorationPosition
+                    : GetFormationCell(
                         encounterInstance.TriggerArea,
                         enemyIndex,
                         validEnemyCount);
 
-                enemyView.SetPosition(position);
+                enemyView.SetPosition(
+                    floorMapView.CellToWorldCenter(cell));
 
                 spawnedEnemyViews.Add(enemyView);
                 result.Add(enemyView);
@@ -149,24 +152,21 @@ namespace Godmist.Views.Dungeons
             return result;
         }
 
-        private static Vector2 GetFormationPosition(
+        private static Vector2Int GetFormationCell(
             RectInt area,
             int index,
             int memberCount)
         {
-            var columns = Mathf.Min(
-                memberCount,
-                Mathf.Max(1, area.width));
-
-            var rows = Mathf.CeilToInt(
-                memberCount / (float)columns);
+            var width = Mathf.Max(1, area.width);
+            var height = Mathf.Max(1, area.height);
+            var columns = Mathf.Min(memberCount, width);
 
             var column = index % columns;
             var row = index / columns;
 
-            return new Vector2(
-                area.xMin + (column + 0.5f) * area.width / columns,
-                area.yMin + (row + 0.5f) * area.height / rows);
+            return new Vector2Int(
+                area.xMin + Mathf.Min(column, width - 1),
+                area.yMin + Mathf.Min(row, height - 1));
         }
 
         private static bool IsEncounterCleared(

@@ -46,4 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Exploration.EncounterTriggerView
   actionPointsPerSpeed: 0.25
   combatStartDistance: 0.85
-  chaseSpeed: 3.9
+  chaseSpeed: 4.25
+  waypointArrivalDistance: 0.03
