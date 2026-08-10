@@ -65,25 +65,33 @@ namespace Godmist.Views.Combat
 
             var destination = GetGridPositionUnderMouse();
 
-            if (sandboxBootstrap.TryInteractAt(destination))
-            {
-                cacheValid = false;
-                return;
-            }
             if (sandboxBootstrap.TryReviveAt(destination))
             {
                 cacheValid = false;
                 return;
             }
 
-            if (!reachablePaths.TryGetValue(
-                    destination,
-                    out var path))
+            var forceInteraction = Input.GetKey(KeyCode.LeftControl)
+                                || Input.GetKey(KeyCode.RightControl);
+
+            if (forceInteraction
+                && sandboxBootstrap.TryInteractAt(destination))
             {
+                cacheValid = false;
                 return;
             }
 
-            if (sandboxBootstrap.TryMoveActiveUnitAlongPath(path))
+            if (reachablePaths.TryGetValue(destination, out var path))
+            {
+                if (sandboxBootstrap.TryMoveActiveUnitAlongPath(path))
+                {
+                    cacheValid = false;
+                }
+
+                return;
+            }
+
+            if (sandboxBootstrap.TryInteractAt(destination))
             {
                 cacheValid = false;
             }

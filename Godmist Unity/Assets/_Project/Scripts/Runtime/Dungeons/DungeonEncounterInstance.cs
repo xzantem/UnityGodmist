@@ -1,6 +1,6 @@
-using UnityEngine;
 using System;
 using Godmist.Data.Combat;
+using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -11,12 +11,23 @@ namespace Godmist.Runtime.Dungeons
         public string RoomId { get; }
         public RectInt TriggerArea { get; }
 
-        public DungeonEncounterInstance
-            (string instanceId, EncounterDefinition definition, string roomId, RectInt triggerArea)
+        public bool IsAlerted { get; private set; }
+        public Vector2Int ExplorationPosition { get; private set; }
+
+        public bool HasRetreatPosition { get; private set; }
+        public Vector2Int RetreatPosition { get; private set; }
+
+        public DungeonEncounterInstance(
+            string instanceId,
+            EncounterDefinition definition,
+            string roomId,
+            RectInt triggerArea)
         {
             if (string.IsNullOrWhiteSpace(instanceId))
             {
-                throw new ArgumentException("Encounter InstanceId cannot be empty.", nameof(instanceId));
+                throw new ArgumentException(
+                    "Encounter InstanceId cannot be empty.",
+                    nameof(instanceId));
             }
 
             if (definition == null)
@@ -26,18 +37,61 @@ namespace Godmist.Runtime.Dungeons
 
             if (string.IsNullOrWhiteSpace(roomId))
             {
-                throw new ArgumentException("Encounter RoomId cannot be empty", nameof(roomId));
+                throw new ArgumentException(
+                    "Encounter RoomId cannot be empty.",
+                    nameof(roomId));
             }
 
             if (triggerArea.width <= 0 || triggerArea.height <= 0)
             {
-                throw new ArgumentException("Encounter trigger area must have positive size", nameof(triggerArea));
+                throw new ArgumentException(
+                    "Encounter trigger area must have positive size.",
+                    nameof(triggerArea));
             }
 
             InstanceId = instanceId;
             Definition = definition;
             RoomId = roomId;
             TriggerArea = triggerArea;
+
+            ExplorationPosition = new Vector2Int(
+                triggerArea.xMin + triggerArea.width / 2,
+                triggerArea.yMin + triggerArea.height / 2);
+        }
+
+        public bool TrySetAlerted()
+        {
+            if (IsAlerted) return false;
+
+            IsAlerted = true;
+            return true;
+        }
+
+        public bool TryClearAlerted()
+        {
+            if (!IsAlerted) return false;
+
+            IsAlerted = false;
+            return true;
+        }
+
+        
+
+        public bool TrySetExplorationPosition(Vector2Int position)
+        {
+            if (ExplorationPosition == position) return false;
+
+            ExplorationPosition = position;
+            return true;
+        }
+
+        public bool TrySetRetreatPosition(Vector2Int position)
+        {
+            if (HasRetreatPosition && RetreatPosition == position) return false;
+
+            RetreatPosition = position;
+            HasRetreatPosition = true;
+            return true;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
@@ -15,13 +16,14 @@ namespace Godmist.Systems.Combat
         private readonly float actionPointsPerSpeed;
         private readonly CharacterInstanceFactory characterFactory = new();
         private readonly CombatRewardSystem rewardSystem = new();
+        private readonly DungeonBattleGridFactory dungeonBattleGridFactory = new();
+        private readonly DungeonCombatSpawnResolver dungeonCombatSpawnResolver = new();
 
         public CombatSessionFactory(float actionPointsPerSpeed = 0.25f)
         {
             this.actionPointsPerSpeed = actionPointsPerSpeed;
         }
 
-        // Zachowujemy ten wariant dla CombatSandboxa i ręcznie uruchamianych walk.
         public bool TryCreate(
             GameSession gameSession,
             EncounterDefinition encounter,
@@ -36,7 +38,6 @@ namespace Godmist.Systems.Combat
                 out combatSession);
         }
 
-        // Wariant używany przez encounter wygenerowany wewnątrz lochu.
         public bool TryCreate(
             GameSession gameSession,
             DungeonEncounterInstance encounterInstance,
@@ -64,10 +65,27 @@ namespace Godmist.Systems.Combat
             if (gameSession == null
                 || encounter == null
                 || string.IsNullOrWhiteSpace(combatId)
-                || encounter.GridWidth <= 0
-                || encounter.GridHeight <= 0
                 || encounter.Enemies == null
                 || encounter.Enemies.Count == 0)
+            {
+                return false;
+            }
+
+            var dungeonContext = GetDungeonCombatContext(
+                gameSession,
+                combatId);
+
+            if (dungeonContext == null
+                && (encounter.GridWidth <= 0
+                    || encounter.GridHeight <= 0))
+            {
+                return false;
+            }
+
+            if (!TryCreateGrid(
+                    encounter,
+                    dungeonContext,
+                    out var battleGrid))
             {
                 return false;
             }
@@ -76,12 +94,71 @@ namespace Godmist.Systems.Combat
             {
                 CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
-                Grid = new BattleGrid(encounter.GridWidth, encounter.GridHeight),
+                Grid = battleGrid,
                 Units = new List<BattleUnit>(),
-                Rewards = ResolveRewards(gameSession, encounter, combatId)
+                Rewards = ResolveRewards(
+                    gameSession,
+                    encounter,
+                    combatId)
             };
 
-            var playerIndex = 0;
+            if (dungeonContext != null)
+            {
+                AddDungeonMapObjects(session, dungeonContext);
+            }
+
+            var occupiedPositions = new HashSet<GridPosition>();
+
+            if (!TryAddPlayerUnits(
+                    gameSession,
+                    session,
+                    dungeonContext,
+                    occupiedPositions))
+            {
+                return false;
+            }
+
+            if (!TryAddEnemyUnits(
+                    encounter,
+                    session,
+                    dungeonContext,
+                    occupiedPositions))
+            {
+                return false;
+            }
+
+            combatSession = session;
+            return true;
+        }
+
+        private bool TryCreateGrid(
+            EncounterDefinition encounter,
+            DungeonCombatContext dungeonContext,
+            out BattleGrid battleGrid)
+        {
+            battleGrid = null;
+
+            if (dungeonContext == null)
+            {
+                battleGrid = new BattleGrid(
+                    encounter.GridWidth,
+                    encounter.GridHeight);
+
+                return true;
+            }
+
+            return dungeonBattleGridFactory.TryCreate(
+                dungeonContext,
+                out battleGrid);
+        }
+
+        private bool TryAddPlayerUnits(
+            GameSession gameSession,
+            CombatSession session,
+            DungeonCombatContext dungeonContext,
+            HashSet<GridPosition> occupiedPositions)
+        {
+            var characters = new List<CharacterInstance>();
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
@@ -92,21 +169,88 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (character.LifeState != CharacterLifeState.Alive) continue;
+                if (character.LifeState != CharacterLifeState.Alive)
+                {
+                    continue;
+                }
 
-                var position = new GridPosition(1, playerIndex + 1);
+                characters.Add(character);
+            }
 
-                if (position.Y >= encounter.GridHeight) return false;
+            if (characters.Count == 0) return false;
+
+            List<GridPosition> positions;
+
+            if (dungeonContext == null)
+            {
+                positions = new List<GridPosition>();
+
+                for (var index = 0; index < characters.Count; index++)
+                {
+                    positions.Add(new GridPosition(1, index + 1));
+                }
+            }
+            else
+            {
+                var partyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.PartyAnchorWorldPosition);
+
+                var enemyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.EnemyAnchorWorldPosition);
+
+                DungeonCombatSpawnResolver.ResolveOpposingEdges(
+                    partyAnchor,
+                    enemyAnchor,
+                    out var partyEdge,
+                    out _);
+
+                var reservedPositions = new HashSet<GridPosition>(
+                    occupiedPositions);
+
+                if (!dungeonCombatSpawnResolver.TryResolveGroupPositions(
+                        session.Grid,
+                        partyEdge,
+                        characters.Count,
+                        reservedPositions,
+                        out positions))
+                {
+                    return false;
+                }
+            }
+
+            for (var index = 0; index < characters.Count; index++)
+            {
+                var position = positions[index];
+
+                if (!session.Grid.IsWalkable(position)
+                    || session.Grid.IsBlocked(position)
+                    || occupiedPositions.Contains(position))
+                {
+                    return false;
+                }
 
                 session.Units.Add(CreateBattleUnit(
-                    character,
+                    characters[index],
                     position,
                     isPlayerSide: true));
 
-                playerIndex++;
+                occupiedPositions.Add(position);
             }
 
-            if (playerIndex == 0) return false;
+            return true;
+        }
+
+        private bool TryAddEnemyUnits(
+            EncounterDefinition encounter,
+            CombatSession session,
+            DungeonCombatContext dungeonContext,
+            HashSet<GridPosition> occupiedPositions)
+        {
+            var validEnemies = new List<EncounterEnemyData>();
 
             foreach (var enemyData in encounter.Enemies)
             {
@@ -118,14 +262,62 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
-                var position = new GridPosition(
-                    enemyData.SpawnPosition.x,
-                    enemyData.SpawnPosition.y);
+                validEnemies.Add(enemyData);
+            }
 
-                if (position.X < 0 || position.Y < 0
-                    || position.X >= encounter.GridWidth
-                    || position.Y >= encounter.GridHeight
-                    || session.IsPositionOccupied(position))
+            List<GridPosition> positions;
+
+            if (dungeonContext == null)
+            {
+                positions = new List<GridPosition>();
+
+                foreach (var enemyData in validEnemies)
+                {
+                    positions.Add(new GridPosition(
+                        enemyData.SpawnPosition.x,
+                        enemyData.SpawnPosition.y));
+                }
+            }
+            else
+            {
+                var partyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.PartyAnchorWorldPosition);
+
+                var enemyAnchor =
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        dungeonContext,
+                        dungeonContext.EnemyAnchorWorldPosition);
+
+                DungeonCombatSpawnResolver.ResolveOpposingEdges(
+                    partyAnchor,
+                    enemyAnchor,
+                    out _,
+                    out var enemyEdge);
+
+                var reservedPositions = new HashSet<GridPosition>(
+                    occupiedPositions);
+
+                if (!dungeonCombatSpawnResolver.TryResolveGroupPositions(
+                        session.Grid,
+                        enemyEdge,
+                        validEnemies.Count,
+                        reservedPositions,
+                        out positions))
+                {
+                    return false;
+                }
+            }
+
+            for (var index = 0; index < validEnemies.Count; index++)
+            {
+                var enemyData = validEnemies[index];
+                var position = positions[index];
+
+                if (!session.Grid.IsWalkable(position)
+                    || session.Grid.IsBlocked(position)
+                    || occupiedPositions.Contains(position))
                 {
                     return false;
                 }
@@ -140,10 +332,69 @@ namespace Godmist.Systems.Combat
                     enemy,
                     position,
                     isPlayerSide: false));
+
+                occupiedPositions.Add(position);
             }
 
-            combatSession = session;
             return true;
+        }
+
+        private static void AddDungeonMapObjects(
+            CombatSession session,
+            DungeonCombatContext context)
+        {
+            foreach (var mapObject in context.MapObjects)
+            {
+                if (mapObject.ObjectType
+                    == Godmist.Core.Enums.DungeonObjectType.Obstacle)
+                {
+                    session.MapObjects.Add(new ObstacleCombatMapObject(
+                        mapObject.ObjectInstanceId,
+                        DungeonBattleGridFactory.ToBattlePosition(
+                            context,
+                            mapObject.WorldPosition),
+                        mapObject.BlocksMovement,
+                        mapObject.BlocksLineOfSight));
+
+                    continue;
+                }
+
+                if (mapObject.ObjectType
+                    != Godmist.Core.Enums.DungeonObjectType.Door
+                    || !mapObject.UsesEdge)
+                {
+                    continue;
+                }
+
+                session.MapObjects.Add(new DoorCombatMapObject(
+                    mapObject.ObjectInstanceId,
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        context,
+                        mapObject.Edge.FirstCell),
+                    DungeonBattleGridFactory.ToBattlePosition(
+                        context,
+                        mapObject.Edge.SecondCell),
+                    mapObject.DoorInteractionMode,
+                    mapObject.IsOpen));
+            }
+        }
+
+        private static DungeonCombatContext GetDungeonCombatContext(
+            GameSession gameSession,
+            string combatId)
+        {
+            var context = gameSession.ActiveDungeonCombatContext;
+
+            if (context == null
+                || !string.Equals(
+                    context.EncounterInstanceId,
+                    combatId,
+                    StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return context;
         }
 
         private BattleUnit CreateBattleUnit(
@@ -178,14 +429,19 @@ namespace Godmist.Systems.Combat
             var dungeon = gameSession.ActiveDungeon;
 
             if (dungeon != null
-                && dungeon.TryGetPreRolledRewards(combatId, out var rewards))
+                && dungeon.TryGetPreRolledRewards(
+                    combatId,
+                    out var rewards))
             {
                 return rewards;
             }
 
-            var rolledRewards = rewardSystem.RollEncounterRewards(encounter);
+            var rolledRewards = rewardSystem.RollEncounterRewards(
+                encounter);
 
-            dungeon?.TryStorePreRolledRewards(combatId, rolledRewards);
+            dungeon?.TryStorePreRolledRewards(
+                combatId,
+                rolledRewards);
 
             return rolledRewards;
         }

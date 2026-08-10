@@ -14,6 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: wladimir
   <DisplayName>k__BackingField: Wladimir
+  <VisualSprite>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  - {fileID: 3142486352412476369, guid: c05a800a628c3024181df9c5c424f4b6, type: 3}
+  - {fileID: 5311782179231711814, guid: f328fee5d66084f4080f1251536000fc, type: 3}
+  - {fileID: 430475065234430554, guid: 9c4d8b8306bff944aa5ce252be7e653d, type: 3}
+  <IdleAnimationFramesPerSecond>k__BackingField: 4
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: -6918904722710735950, guid: 8c80a77d999c981409732e93de04f471, type: 3}
+  - {fileID: -1824817003286416738, guid: 2429203248e46da4c823483ab0df394c, type: 3}
+  - {fileID: 2388322067273261879, guid: c4d18c04d8e61d44a9a6008084f36163, type: 3}
+  - {fileID: 5928817031311551676, guid: 870894bddc802a54f988b4c9965a8baa, type: 3}
+  <RunAnimationFramesPerSecond>k__BackingField: 8
+  <HitSprite>k__BackingField: {fileID: 2380540920117777034, guid: adba2cf0ab753f44b97680b8b6f07933, type: 3}
   <IsMainCharacter>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
   <BaseStats>k__BackingField:

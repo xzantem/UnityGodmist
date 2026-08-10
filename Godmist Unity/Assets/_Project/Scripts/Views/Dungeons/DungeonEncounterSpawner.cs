@@ -1,57 +1,84 @@
 using System.Collections.Generic;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
+using Godmist.Views.Game;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
 {
     public class DungeonEncounterSpawner : MonoBehaviour
     {
+        [Header("Encounter Trigger")]
         [SerializeField] private EncounterTriggerView encounterTriggerPrefab;
         [SerializeField] private Transform encountersRoot;
 
+        [Header("Visible Enemies")]
+        [SerializeField] private ExplorationCharacterView enemyViewPrefab;
+        [SerializeField] private Transform enemyViewsRoot;
+        [SerializeField] private Color enemyTint = new(0.85f, 0.35f, 0.35f, 1f);
+
+        [SerializeField] private DungeonFloorMapView floorMapView;
+
         private readonly List<EncounterTriggerView> spawnedTriggers = new();
+        private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 
         public bool Rebuild(
             DungeonFloorInstance floor,
             ExplorationPartyController partyController)
         {
-            ClearSpawnedTriggers();
+            ClearSpawnedViews();
 
-            if (floor == null || partyController == null)
+            if (floor == null
+                || floor.Map == null
+                || partyController == null
+                || floorMapView == null)
             {
                 Debug.LogError(
-                    "DungeonEncounterSpawner: brak pietra lub PartyController.");
+                    "DungeonEncounterSpawner: brak pietra, mapy, PartyController lub DungeonFloorMapView.");
 
                 return false;
             }
 
-            if (encounterTriggerPrefab == null)
+            if (encounterTriggerPrefab == null || enemyViewPrefab == null)
             {
                 Debug.LogError(
-                    "DungeonEncounterSpawner: brak prefabu EncounterTriggerView.");
+                    "DungeonEncounterSpawner: brak prefabu triggera lub widocznego przeciwnika.");
 
                 return false;
             }
 
             foreach (var encounterInstance in floor.Encounters)
             {
-                if (encounterInstance == null) continue;
+                if (encounterInstance == null
+                    || IsEncounterCleared(encounterInstance))
+                {
+                    continue;
+                }
 
-                var parent = encountersRoot != null
+                var enemyViews = SpawnEnemyViews(encounterInstance);
+
+                if (enemyViews.Count == 0)
+                {
+                    continue;
+                }
+
+                var triggerParent = encountersRoot != null
                     ? encountersRoot
                     : transform;
 
                 var triggerView = Instantiate(
                     encounterTriggerPrefab,
-                    parent);
+                    triggerParent);
 
                 triggerView.name =
                     $"EncounterTrigger_{encounterInstance.InstanceId}";
 
                 triggerView.Initialize(
                     partyController,
-                    encounterInstance);
+                    floor.Map,
+                    floorMapView,
+                    encounterInstance,
+                    enemyViews);
 
                 spawnedTriggers.Add(triggerView);
             }
@@ -59,12 +86,105 @@ namespace Godmist.Views.Dungeons
             return true;
         }
 
-        private void OnDestroy()
+        private List<ExplorationCharacterView> SpawnEnemyViews(
+            DungeonEncounterInstance encounterInstance)
         {
-            ClearSpawnedTriggers();
+            var result = new List<ExplorationCharacterView>();
+            var enemies = encounterInstance.Definition?.Enemies;
+
+            if (enemies == null || enemies.Count == 0)
+            {
+                return result;
+            }
+
+            var validEnemyCount = 0;
+
+            foreach (var enemyData in enemies)
+            {
+                if (enemyData?.CharacterDefinition != null)
+                {
+                    validEnemyCount++;
+                }
+            }
+
+            if (validEnemyCount == 0)
+            {
+                return result;
+            }
+
+            var enemyIndex = 0;
+            var parent = enemyViewsRoot != null
+                ? enemyViewsRoot
+                : transform;
+
+            foreach (var enemyData in enemies)
+            {
+                if (enemyData?.CharacterDefinition == null)
+                {
+                    continue;
+                }
+
+                var enemyView = Instantiate(enemyViewPrefab, parent);
+
+                enemyView.name =
+                    $"EncounterEnemy_{encounterInstance.InstanceId}_{enemyIndex:00}";
+
+                enemyView.Bind(enemyData.CharacterDefinition);
+                enemyView.SetIsActiveLeader(false);
+                enemyView.SetTint(enemyTint);
+
+                var cell = enemyIndex == 0
+                    ? encounterInstance.ExplorationPosition
+                    : GetFormationCell(
+                        encounterInstance.TriggerArea,
+                        enemyIndex,
+                        validEnemyCount);
+
+                enemyView.SetPosition(
+                    floorMapView.CellToWorldCenter(cell));
+
+                spawnedEnemyViews.Add(enemyView);
+                result.Add(enemyView);
+
+                enemyIndex++;
+            }
+
+            return result;
         }
 
-        private void ClearSpawnedTriggers()
+        private static Vector2Int GetFormationCell(
+            RectInt area,
+            int index,
+            int memberCount)
+        {
+            var width = Mathf.Max(1, area.width);
+            var height = Mathf.Max(1, area.height);
+            var columns = Mathf.Min(memberCount, width);
+
+            var column = index % columns;
+            var row = index / columns;
+
+            return new Vector2Int(
+                area.xMin + Mathf.Min(column, width - 1),
+                area.yMin + Mathf.Min(row, height - 1));
+        }
+
+        private static bool IsEncounterCleared(
+            DungeonEncounterInstance encounterInstance)
+        {
+            var activeDungeon = GameBootstrap.Instance?.Session.ActiveDungeon;
+
+            return activeDungeon != null
+                && activeDungeon.IsEncounterCleared(
+                    encounterInstance.InstanceId);
+        }
+
+        private void OnDestroy()
+        {
+            ClearSpawnedViews();
+        }
+
+        private void ClearSpawnedViews()
         {
             foreach (var triggerView in spawnedTriggers)
             {
@@ -75,6 +195,16 @@ namespace Godmist.Views.Dungeons
             }
 
             spawnedTriggers.Clear();
+
+            foreach (var enemyView in spawnedEnemyViews)
+            {
+                if (enemyView != null)
+                {
+                    Destroy(enemyView.gameObject);
+                }
+            }
+
+            spawnedEnemyViews.Clear();
         }
     }
 }

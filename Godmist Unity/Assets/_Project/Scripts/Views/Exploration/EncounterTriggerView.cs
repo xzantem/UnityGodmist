@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Dungeons;
+using Godmist.Views.Dungeons;
 using Godmist.Views.Game;
 using UnityEngine;
 
@@ -7,98 +10,389 @@ namespace Godmist.Views.Exploration
 {
     public class EncounterTriggerView : MonoBehaviour
     {
-        [SerializeField] private BoxCollider2D triggerCollider;
+        private sealed class EnemyNavigationState
+        {
+            public List<Vector2Int> Path { get; } = new();
+            public int NextWaypointIndex { get; set; }
+            public Vector2Int TargetCell { get; set; }
+        }
+
+        [Header("Combat")]
         [SerializeField] private float actionPointsPerSpeed = 0.25f;
+        [SerializeField] private float combatStartDistance = 0.85f;
+
+        [Header("Exploration Chase")]
+        [SerializeField] private float chaseSpeed = 4.5f;
+        [SerializeField] private float waypointArrivalDistance = 0.03f;
+
+        private readonly Dictionary<ExplorationCharacterView, Vector2>
+            homePositionByEnemy = new();
+
+        private readonly Dictionary<ExplorationCharacterView, EnemyNavigationState>
+            navigationByEnemy = new();
 
         private ExplorationPartyController partyController;
+        private DungeonFloorMap floorMap;
+        private DungeonFloorMapView floorMapView;
         private DungeonEncounterInstance encounterInstance;
+        private readonly DungeonCombatContextFactory dungeonCombatContextFactory = new();
+        private IReadOnlyList<ExplorationCharacterView> enemyViews;
+        private ExplorationCharacterView chaserView;
 
         private bool isTriggered;
-        private bool isArmed;
         private bool hasInitialized;
+        private bool isReturningHome;
 
         public void Initialize(
             ExplorationPartyController nextPartyController,
-            DungeonEncounterInstance nextEncounterInstance)
+            DungeonFloorMap nextFloorMap,
+            DungeonFloorMapView nextFloorMapView,
+            DungeonEncounterInstance nextEncounterInstance,
+            IReadOnlyList<ExplorationCharacterView> nextEnemyViews)
         {
             partyController = nextPartyController;
+            floorMap = nextFloorMap;
+            floorMapView = nextFloorMapView;
             encounterInstance = nextEncounterInstance;
+            enemyViews = nextEnemyViews;
 
-            if (partyController == null || encounterInstance == null)
+            if (partyController == null
+                || floorMap == null
+                || floorMapView == null
+                || encounterInstance == null
+                || enemyViews == null
+                || enemyViews.Count == 0)
             {
                 Debug.LogError(
-                    "EncounterTriggerView: brak PartyController lub DungeonEncounterInstance.");
+                    "EncounterTriggerView: brak PartyController, mapy, widoku mapy, "
+                    + "encounteru lub widocznych przeciwnikow.");
 
                 enabled = false;
                 return;
             }
 
-            ConfigureTriggerArea();
+            chaserView = enemyViews[0];
+
+            if (chaserView == null)
+            {
+                Debug.LogError(
+                    "EncounterTriggerView: brak lidera grupy przeciwnikow.");
+
+                enabled = false;
+                return;
+            }
+
+            homePositionByEnemy.Clear();
+            navigationByEnemy.Clear();
+
+            foreach (var enemyView in enemyViews)
+            {
+                if (enemyView == null)
+                {
+                    continue;
+                }
+
+                homePositionByEnemy[enemyView] = enemyView.Position;
+                navigationByEnemy[enemyView] = new EnemyNavigationState();
+            }
 
             hasInitialized = true;
 
             if (IsEncounterCleared())
             {
-                gameObject.SetActive(false);
-                return;
+                HideEncounter();
             }
-
-            // Encounter nie uruchamia się natychmiast, jeżeli drużyna
-            // została odtworzona wewnątrz jego obszaru.
-            isArmed = !IsLeaderInsideTriggerArea();
         }
 
         private void Update()
         {
-            if (!hasInitialized || isTriggered) return;
-
-            if (partyController == null || encounterInstance == null) return;
+            if (!hasInitialized || isTriggered)
+            {
+                return;
+            }
 
             if (IsEncounterCleared())
             {
-                gameObject.SetActive(false);
+                HideEncounter();
                 return;
             }
 
-            if (!isArmed)
+            if (partyController?.ActiveLeaderTransform == null)
             {
-                if (!IsLeaderInsideTriggerArea())
+                return;
+            }
+
+            if (isReturningHome)
+            {
+                if (IsLeaderInEncounterRoom())
                 {
-                    isArmed = true;
+                    isReturningHome = false;
+                    encounterInstance.TrySetAlerted();
+                }
+                else
+                {
+                    ReturnEnemiesHome();
+                    return;
+                }
+            }
+
+            if (!encounterInstance.IsAlerted)
+            {
+                if (!IsLeaderInEncounterRoom())
+                {
+                    encounterInstance.TrySetRetreatPosition(
+                        ToGridPosition(
+                            partyController.ActiveLeaderTransform.position));
+
+                    return;
                 }
 
+                encounterInstance.TrySetAlerted();
+            }
+
+            if (!IsLeaderInEncounterRoom())
+            {
+                BeginReturningHome();
                 return;
             }
 
-            if (!IsLeaderInsideTriggerArea()) return;
+            MoveEnemiesTowardsLeader();
 
-            TryStartEncounter();
+            if (IsAnyEnemyCloseEnoughToStartCombat())
+            {
+                TryStartEncounter();
+            }
         }
 
-        private void ConfigureTriggerArea()
+        private void MoveEnemiesTowardsLeader()
         {
-            var triggerArea = encounterInstance.TriggerArea;
+            var leaderPosition = (Vector2)partyController.ActiveLeaderTransform.position;
 
-            transform.position = new Vector3(
-                triggerArea.xMin + triggerArea.width * 0.5f,
-                triggerArea.yMin + triggerArea.height * 0.5f,
+            foreach (var enemyView in enemyViews)
+            {
+                if (enemyView == null || !enemyView.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                var chaseStopDistance = Mathf.Max(
+                    0f,
+                    combatStartDistance - 0.1f);
+
+                TryMoveEnemyAlongFloor(
+                    enemyView,
+                    leaderPosition,
+                    chaseStopDistance);
+            }
+
+            if (chaserView == null)
+            {
+                return;
+            }
+
+            encounterInstance.TrySetExplorationPosition(
+                ToGridPosition(chaserView.Position));
+        }
+
+        private bool TryMoveEnemyAlongFloor(
+            ExplorationCharacterView enemyView,
+            Vector2 targetPosition,
+            float stopDistance)
+        {
+            if (enemyView == null || floorMap == null)
+            {
+                return false;
+            }
+
+            if (!navigationByEnemy.TryGetValue(enemyView, out var state))
+            {
+                state = new EnemyNavigationState();
+                navigationByEnemy[enemyView] = state;
+            }
+
+            var targetCell = ToGridPosition(targetPosition);
+
+            if (ShouldRebuildPath(enemyView, state, targetCell)
+                && !TryBuildPath(enemyView, state, targetCell))
+            {
+                return false;
+            }
+
+            AdvanceReachedWaypoints(enemyView, state);
+
+            if (state.NextWaypointIndex >= state.Path.Count)
+            {
+                enemyView.MoveTowards(
+                    targetPosition,
+                    chaseSpeed * Time.deltaTime,
+                    stopDistance);
+
+                return true;
+            }
+
+            var nextCell = state.Path[state.NextWaypointIndex];
+            var isFinalWaypoint = state.NextWaypointIndex
+                == state.Path.Count - 1;
+
+            if (isFinalWaypoint)
+            {
+                enemyView.MoveTowards(
+                    targetPosition,
+                    chaseSpeed * Time.deltaTime,
+                    stopDistance);
+
+                return true;
+            }
+
+            enemyView.MoveTowards(
+                floorMapView.CellToWorldCenter(nextCell),
+                chaseSpeed * Time.deltaTime,
                 0f);
 
-            if (triggerCollider == null)
+            return true;
+        }
+
+        private bool ShouldRebuildPath(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state,
+            Vector2Int targetCell)
+        {
+            if (state.Path.Count == 0 || state.TargetCell != targetCell)
             {
-                triggerCollider = GetComponent<BoxCollider2D>();
+                return true;
             }
 
-            if (triggerCollider == null)
+            if (state.NextWaypointIndex >= state.Path.Count)
             {
-                triggerCollider = gameObject.AddComponent<BoxCollider2D>();
+                return ToGridPosition(enemyView.Position) != targetCell;
             }
 
-            triggerCollider.isTrigger = true;
-            triggerCollider.offset = Vector2.zero;
-            triggerCollider.size = new Vector2(
-                triggerArea.width,
-                triggerArea.height);
+            var currentCell = ToGridPosition(enemyView.Position);
+            var nextCell = state.Path[state.NextWaypointIndex];
+
+            return currentCell != nextCell
+                && !floorMap.CanMoveBetween(currentCell, nextCell);
+        }
+
+        private bool TryBuildPath(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state,
+            Vector2Int targetCell)
+        {
+            var startCell = ToGridPosition(enemyView.Position);
+
+            if (!DungeonExplorationPathfinder.TryFindPath(
+                    floorMap,
+                    startCell,
+                    targetCell,
+                    out var path))
+            {
+                state.Path.Clear();
+                state.NextWaypointIndex = 0;
+
+                return false;
+            }
+
+            state.Path.Clear();
+            state.Path.AddRange(path);
+            state.TargetCell = targetCell;
+            state.NextWaypointIndex = path.Count > 1 ? 1 : 0;
+
+            return true;
+        }
+
+        private void AdvanceReachedWaypoints(
+            ExplorationCharacterView enemyView,
+            EnemyNavigationState state)
+        {
+            while (state.NextWaypointIndex < state.Path.Count)
+            {
+                var waypoint = state.Path[state.NextWaypointIndex];
+                var waypointPosition = floorMapView.CellToWorldCenter(waypoint);
+
+                if (Vector2.Distance(enemyView.Position, waypointPosition)
+                    > waypointArrivalDistance)
+                {
+                    return;
+                }
+
+                state.NextWaypointIndex++;
+            }
+        }
+
+        private bool IsAnyEnemyCloseEnoughToStartCombat()
+        {
+            var leaderPosition = partyController.ActiveLeaderTransform.position;
+
+            foreach (var enemyView in enemyViews)
+            {
+                if (enemyView == null || !enemyView.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                if (Vector2.Distance(enemyView.Position, leaderPosition)
+                    <= combatStartDistance + 0.05f)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsLeaderInEncounterRoom()
+        {
+            var leaderCell = ToGridPosition(
+                partyController.ActiveLeaderTransform.position);
+
+            return floorMap.TryGetRoomId(leaderCell, out var roomId)
+                && roomId == encounterInstance.RoomId;
+        }
+
+        private void BeginReturningHome()
+        {
+            if (!encounterInstance.TryClearAlerted())
+            {
+                return;
+            }
+
+            isReturningHome = true;
+        }
+
+        private void ReturnEnemiesHome()
+        {
+            var allEnemiesReturned = true;
+
+            foreach (var pair in homePositionByEnemy)
+            {
+                if (pair.Key == null)
+                {
+                    continue;
+                }
+
+                TryMoveEnemyAlongFloor(pair.Key, pair.Value, 0f);
+
+                if (Vector2.Distance(pair.Key.Position, pair.Value) > 0.001f)
+                {
+                    allEnemiesReturned = false;
+                }
+            }
+
+            if (!allEnemiesReturned)
+            {
+                return;
+            }
+
+            isReturningHome = false;
+
+            if (chaserView == null)
+            {
+                return;
+            }
+
+            encounterInstance.TrySetExplorationPosition(
+                ToGridPosition(chaserView.Position));
         }
 
         private void TryStartEncounter()
@@ -113,6 +407,26 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
+            if (!dungeonCombatContextFactory.TryCreate(
+                    gameSession.ActiveDungeon,
+                    encounterInstance,
+                    out var dungeonCombatContext))
+            {
+                Debug.LogError(
+                    "EncounterTriggerView: nie udalo sie utworzyc DungeonCombatContext.");
+
+                return;
+            }
+
+            if (!gameSession.TrySetActiveDungeonCombatContext(
+                    dungeonCombatContext))
+            {
+                Debug.LogError(
+                    "EncounterTriggerView: nie udalo sie zapisac DungeonCombatContext.");
+
+                return;
+            }
+
             var factory = new CombatSessionFactory(actionPointsPerSpeed);
 
             if (!factory.TryCreate(
@@ -120,29 +434,22 @@ namespace Godmist.Views.Exploration
                     encounterInstance,
                     out var combatSession))
             {
+                gameSession.TryClearActiveDungeonCombatContext();
+
                 Debug.LogError(
                     "EncounterTriggerView: nie udalo sie utworzyc CombatSession.");
 
                 return;
             }
 
-            if (!gameSession.TrySetActiveCombat(combatSession)) return;
+            if (!gameSession.TrySetActiveCombat(combatSession))
+            {
+                gameSession.TryClearActiveDungeonCombatContext();
+                return;
+            }
 
             isTriggered = true;
             gameBootstrap.StartCombat();
-        }
-
-        private bool IsLeaderInsideTriggerArea()
-        {
-            if (partyController?.ActiveLeaderTransform == null) return false;
-
-            var leaderPosition = partyController.ActiveLeaderTransform.position;
-            var triggerArea = encounterInstance.TriggerArea;
-
-            return leaderPosition.x >= triggerArea.xMin
-                && leaderPosition.x < triggerArea.xMax
-                && leaderPosition.y >= triggerArea.yMin
-                && leaderPosition.y < triggerArea.yMax;
         }
 
         private bool IsEncounterCleared()
@@ -154,9 +461,35 @@ namespace Godmist.Views.Exploration
                     encounterInstance.InstanceId);
         }
 
+        private void HideEncounter()
+        {
+            foreach (var enemyView in enemyViews)
+            {
+                if (enemyView != null)
+                {
+                    enemyView.gameObject.SetActive(false);
+                }
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        private Vector2Int ToGridPosition(Vector3 worldPosition)
+        {
+            return floorMapView.WorldToCell(worldPosition);
+        }
+
+        private Vector2Int ToGridPosition(Vector2 worldPosition)
+        {
+            return floorMapView.WorldToCell(worldPosition);
+        }
+
         private void OnDrawGizmosSelected()
         {
-            if (encounterInstance == null) return;
+            if (encounterInstance == null)
+            {
+                return;
+            }
 
             var area = encounterInstance.TriggerArea;
 

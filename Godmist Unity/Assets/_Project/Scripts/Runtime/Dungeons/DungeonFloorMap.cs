@@ -8,6 +8,7 @@ namespace Godmist.Runtime.Dungeons
         private readonly HashSet<Vector2Int> floorCells = new();
         private readonly Dictionary<Vector2Int, string> roomIdByCell = new();
         private readonly HashSet<DungeonCellEdge> wallEdges = new();
+        private readonly HashSet<DungeonCellEdge> closedDoorEdges = new();
 
         public IReadOnlyCollection<Vector2Int> FloorCells => floorCells;
         public IReadOnlyCollection<DungeonCellEdge> WallEdges => wallEdges;
@@ -72,6 +73,26 @@ namespace Godmist.Runtime.Dungeons
                     secondCell));
         }
 
+        public bool TrySetDoorState(
+            DungeonCellEdge edge,
+            bool isOpen)
+        {
+            if (!floorCells.Contains(edge.FirstCell)
+                || !floorCells.Contains(edge.SecondCell))
+            {
+                return false;
+            }
+
+            if (isOpen)
+            {
+                closedDoorEdges.Remove(edge);
+                return true;
+            }
+
+            closedDoorEdges.Add(edge);
+            return true;
+        }
+
         public bool CanMoveBetween(
             Vector2Int firstCell,
             Vector2Int secondCell)
@@ -89,7 +110,10 @@ namespace Godmist.Runtime.Dungeons
                 return false;
             }
 
-            return !HasWallBetween(firstCell, secondCell);
+            var edge = new DungeonCellEdge(firstCell, secondCell);
+
+            return !HasWallBetween(firstCell, secondCell)
+                && !closedDoorEdges.Contains(edge);
         }
     }
 }

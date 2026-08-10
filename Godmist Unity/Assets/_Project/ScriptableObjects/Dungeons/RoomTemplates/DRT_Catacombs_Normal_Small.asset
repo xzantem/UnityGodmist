@@ -16,3 +16,10 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Katakumby - ma\u0142y pok\xF3j"
   <RoomType>k__BackingField: 1
   <SizeInCells>k__BackingField: {x: 12, y: 12}
+  <StructuralAnchors>k__BackingField:
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 2, y: 3}
+    <Direction>k__BackingField: 1
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 6, y: 6}
+    <Direction>k__BackingField: 1

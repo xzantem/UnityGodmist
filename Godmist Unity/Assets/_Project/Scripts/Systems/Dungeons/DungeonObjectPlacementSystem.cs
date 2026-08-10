@@ -25,10 +25,17 @@ namespace Godmist.Systems.Dungeons
         {
             if (dungeon == null || dungeon.Definition == null) return;
 
-            var definitions = GetValidDefinitions(
+            var objectDefinitions = GetValidObjectDefinitions(
                 dungeon.Definition.ObjectDefinitions);
 
-            if (definitions.Count == 0) return;
+            var doorDefinitions = GetValidDoorDefinitions(
+                dungeon.Definition.ObjectDefinitions);
+
+            if (objectDefinitions.Count == 0
+                && doorDefinitions.Count == 0)
+            {
+                return;
+            }
 
             var random = new System.Random(
                 dungeon.Seed ^ ObjectPlacementSeedSalt);
@@ -38,13 +45,145 @@ namespace Godmist.Systems.Dungeons
 
             foreach (var floor in dungeon.Floors)
             {
+                if (floor == null
+                    || floor.Map == null
+                    || floor.Objects.Count > 0)
+                {
+                    continue;
+                }
+
+                PlaceDoorsOnFloor(
+                    dungeon,
+                    floor,
+                    doorDefinitions,
+                    random);
+
                 PlaceObjectsOnFloor(
                     dungeon,
                     floor,
-                    definitions,
+                    objectDefinitions,
                     lootTableSystem,
                     random);
             }
+        }
+
+        private static void PlaceDoorsOnFloor(
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            List<DoorDungeonObjectDefinition> definitions,
+            System.Random random)
+        {
+            if (definitions.Count == 0) return;
+
+            var candidates = GetDoorAnchorCandidates(
+                floor,
+                dungeon.Definition.RoomTemplateCatalog);
+
+            candidates.Sort(CompareDoorCandidates);
+            Shuffle(candidates, random);
+
+            for (var index = 0; index < candidates.Count; index++)
+            {
+                var definition = SelectDefinition(definitions, random);
+
+                if (definition == null) continue;
+
+                var candidate = candidates[index];
+
+                var instanceId =
+                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.door_{index:00}";
+
+                var door = new DoorDungeonObjectInstance(
+                    instanceId,
+                    definition,
+                    candidate.Edge);
+
+                if (!floor.TryAddObject(door))
+                {
+                    throw new InvalidOperationException(
+                        $"Nie udalo sie dodac drzwi '{instanceId}' do pietra "
+                        + $"{floor.FloorIndex}.");
+                }
+            }
+        }
+
+        private static List<DoorAnchorCandidate> GetDoorAnchorCandidates(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            var result = new List<DoorAnchorCandidate>();
+
+            if (catalog == null) return result;
+
+            var templatesById = BuildTemplateLookup(catalog);
+            var registeredEdges = new HashSet<DungeonCellEdge>();
+
+            foreach (var room in floor.Rooms)
+            {
+                if (!templatesById.TryGetValue(
+                        room.TemplateId,
+                        out var template))
+                {
+                    continue;
+                }
+
+                foreach (var anchor in template.StructuralAnchors)
+                {
+                    if (anchor == null
+                        || anchor.Type != DungeonStructuralAnchorType.Door)
+                    {
+                        continue;
+                    }
+
+                    var firstCell = room.LayoutPosition + anchor.LocalCell;
+                    var secondCell = firstCell + anchor.GetDirectionOffset();
+
+                    if (!floor.Map.IsWalkable(firstCell)
+                        || !floor.Map.IsWalkable(secondCell))
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica drzwi w szablonie '{template.Id}' "
+                            + "wskazuje pole poza pokojem.");
+                    }
+
+                    if (!floor.Map.TryGetRoomId(firstCell, out var firstRoomId)
+                        || !floor.Map.TryGetRoomId(secondCell, out var secondRoomId)
+                        || firstRoomId != room.RoomId
+                        || secondRoomId != room.RoomId)
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica drzwi w szablonie '{template.Id}' "
+                            + "nie moze wychodzic poza granice pokoju.");
+                    }
+
+                    var edge = new DungeonCellEdge(firstCell, secondCell);
+
+                    if (floor.Map.HasWallBetween(firstCell, secondCell))
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica drzwi w szablonie '{template.Id}' "
+                            + "naklada sie na statyczna sciane.");
+                    }
+
+                    if (!floor.Map.CanMoveBetween(firstCell, secondCell))
+                    {
+                        throw new InvalidOperationException(
+                            $"Kotwica drzwi w szablonie '{template.Id}' "
+                            + "nie wskazuje dostepnej krawedzi.");
+                    }
+
+                    if (!registeredEdges.Add(edge))
+                    {
+                        throw new InvalidOperationException(
+                            $"Powtorzona kotwica drzwi w szablonie "
+                            + $"'{template.Id}'.");
+                    }
+
+                    result.Add(new DoorAnchorCandidate(edge));
+                }
+            }
+
+            return result;
         }
 
         private static void PlaceObjectsOnFloor(
@@ -54,10 +193,7 @@ namespace Godmist.Systems.Dungeons
             LootTableSystem lootTableSystem,
             System.Random random)
         {
-            if (floor == null || floor.Map == null || floor.Objects.Count > 0)
-            {
-                return;
-            }
+            if (definitions.Count == 0) return;
 
             var candidatePositions = GetCandidatePositions(floor);
 
@@ -101,7 +237,7 @@ namespace Godmist.Systems.Dungeons
             }
         }
 
-        private static List<DungeonObjectDefinition> GetValidDefinitions(
+        private static List<DungeonObjectDefinition> GetValidObjectDefinitions(
             List<DungeonObjectDefinition> objectDefinitions)
         {
             var result = new List<DungeonObjectDefinition>();
@@ -111,6 +247,7 @@ namespace Godmist.Systems.Dungeons
             foreach (var definition in objectDefinitions)
             {
                 if (definition == null
+                    || definition is DoorDungeonObjectDefinition
                     || string.IsNullOrWhiteSpace(definition.Id)
                     || definition.SpawnWeight <= 0)
                 {
@@ -124,6 +261,52 @@ namespace Godmist.Systems.Dungeons
                 }
 
                 result.Add(definition);
+            }
+
+            return result;
+        }
+
+        private static List<DoorDungeonObjectDefinition> GetValidDoorDefinitions(
+            List<DungeonObjectDefinition> objectDefinitions)
+        {
+            var result = new List<DoorDungeonObjectDefinition>();
+
+            if (objectDefinitions == null) return result;
+
+            foreach (var definition in objectDefinitions)
+            {
+                if (definition is not DoorDungeonObjectDefinition door
+                    || string.IsNullOrWhiteSpace(door.Id)
+                    || door.SpawnWeight <= 0)
+                {
+                    continue;
+                }
+
+                result.Add(door);
+            }
+
+            return result;
+        }
+
+        private static Dictionary<string, DungeonRoomTemplateDefinition>
+            BuildTemplateLookup(DungeonRoomTemplateCatalog catalog)
+        {
+            var result =
+                new Dictionary<string, DungeonRoomTemplateDefinition>();
+
+            foreach (var template in catalog.Templates)
+            {
+                if (template == null
+                    || string.IsNullOrWhiteSpace(template.Id))
+                {
+                    continue;
+                }
+
+                if (!result.TryAdd(template.Id, template))
+                {
+                    throw new InvalidOperationException(
+                        $"Powtorzony RoomTemplateId '{template.Id}'.");
+                }
             }
 
             return result;
@@ -150,6 +333,7 @@ namespace Godmist.Systems.Dungeons
                 if (!floor.TryGetRoom(roomId, out var room)) continue;
                 if (!IsEligibleRoomType(room.RoomType)) continue;
                 if (IsPassageCell(floor.Map, cell)) continue;
+                if (IsOccupiedByDungeonObject(floor, cell)) continue;
 
                 result.Add(cell);
             }
@@ -161,6 +345,33 @@ namespace Godmist.Systems.Dungeons
         {
             return roomType == DungeonRoomType.Normal
                 || roomType == DungeonRoomType.Optional;
+        }
+
+        private static bool IsOccupiedByDungeonObject(
+            DungeonFloorInstance floor,
+            Vector2Int cell)
+        {
+            foreach (var dungeonObject in floor.Objects)
+            {
+                if (dungeonObject is DoorDungeonObjectInstance door)
+                {
+                    if (door.Edge.FirstCell == cell
+                        || door.Edge.SecondCell == cell)
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
+                if (dungeonObject != null
+                    && dungeonObject.Position == cell)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsPassageCell(
@@ -189,9 +400,10 @@ namespace Godmist.Systems.Dungeons
             return false;
         }
 
-        private static DungeonObjectDefinition SelectDefinition(
-            List<DungeonObjectDefinition> definitions,
+        private static T SelectDefinition<T>(
+            List<T> definitions,
             System.Random random)
+            where T : DungeonObjectDefinition
         {
             var totalWeight = 0;
 
@@ -245,20 +457,51 @@ namespace Godmist.Systems.Dungeons
             return null;
         }
 
-        private static int ComparePositions(Vector2Int left, Vector2Int right)
+        private static int ComparePositions(
+            Vector2Int left,
+            Vector2Int right)
         {
             var yComparison = left.y.CompareTo(right.y);
 
-            return yComparison != 0 ? yComparison : left.x.CompareTo(right.x);
+            return yComparison != 0
+                ? yComparison
+                : left.x.CompareTo(right.x);
         }
 
-        private static void Shuffle<T>(List<T> items, System.Random random)
+        private static int CompareDoorCandidates(
+            DoorAnchorCandidate left,
+            DoorAnchorCandidate right)
+        {
+            var firstCellComparison = ComparePositions(
+                left.Edge.FirstCell,
+                right.Edge.FirstCell);
+
+            return firstCellComparison != 0
+                ? firstCellComparison
+                : ComparePositions(
+                    left.Edge.SecondCell,
+                    right.Edge.SecondCell);
+        }
+
+        private static void Shuffle<T>(
+            List<T> items,
+            System.Random random)
         {
             for (var index = items.Count - 1; index > 0; index--)
             {
                 var swapIndex = random.Next(index + 1);
 
                 (items[index], items[swapIndex]) = (items[swapIndex], items[index]);
+            }
+        }
+
+        private readonly struct DoorAnchorCandidate
+        {
+            public DungeonCellEdge Edge { get; }
+
+            public DoorAnchorCandidate(DungeonCellEdge edge)
+            {
+                Edge = edge;
             }
         }
     }

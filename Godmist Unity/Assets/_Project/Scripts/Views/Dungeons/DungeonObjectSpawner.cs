@@ -11,6 +11,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private DungeonChestView chestPrefab;
         [SerializeField] private DungeonObstacleView obstaclePrefab;
+        [SerializeField] private DungeonDoorView doorPrefab;
         [SerializeField] private Transform objectsRoot;
 
         private readonly List<DungeonObjectView> spawnedObjects = new();
@@ -31,9 +32,35 @@ namespace Godmist.Views.Dungeons
 
             foreach (var dungeonObject in floor.Objects)
             {
-                if (dungeonObject == null || !dungeonObject.IsActive) continue;
+                if (dungeonObject == null || !dungeonObject.IsActive)
+                {
+                    continue;
+                }
 
                 var parent = objectsRoot != null ? objectsRoot : transform;
+
+                if (dungeonObject is DoorDungeonObjectInstance door)
+                {
+                    if (doorPrefab == null)
+                    {
+                        Debug.LogError(
+                            "DungeonObjectSpawner: brak prefabu DungeonDoorView.");
+
+                        return false;
+                    }
+
+                    var doorView = Instantiate(doorPrefab, parent);
+
+                    doorView.name = $"Door_{door.InstanceId}";
+                    doorView.Initialize(
+                        partyController,
+                        floor,
+                        door,
+                        floorTilemap);
+
+                    spawnedObjects.Add(doorView);
+                    continue;
+                }
 
                 var worldPosition = floorTilemap.GetCellCenterWorld(
                     new Vector3Int(

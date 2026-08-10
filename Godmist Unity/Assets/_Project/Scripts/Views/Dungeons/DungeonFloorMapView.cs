@@ -60,6 +60,29 @@ namespace Godmist.Views.Dungeons
             return hasWorldBounds;
         }
 
+        public Vector2Int WorldToCell(Vector3 worldPosition)
+        {
+            if (floorTilemap == null)
+            {
+                return Vector2Int.zero;
+            }
+
+            var cell = floorTilemap.WorldToCell(worldPosition);
+
+            return new Vector2Int(cell.x, cell.y);
+        }
+
+        public Vector2 CellToWorldCenter(Vector2Int cell)
+        {
+            if (floorTilemap == null)
+            {
+                return cell;
+            }
+
+            return floorTilemap.GetCellCenterWorld(
+                new Vector3Int(cell.x, cell.y, 0));
+        }
+
         private void Clear()
         {
             if (floorTilemap != null)

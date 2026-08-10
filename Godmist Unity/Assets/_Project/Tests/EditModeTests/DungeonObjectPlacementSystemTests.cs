@@ -102,6 +102,85 @@ namespace Godmist.Tests.EditMode
                 Has.Count.EqualTo(firstObjectCount));
         }
 
+        [Test]
+        public void Place_DoorAnchor_CreatesClosedDoorOnAnchoredEdge()
+        {
+            var definition = CreateDungeonDefinition(
+                minObjectCount: 0,
+                maxObjectCount: 0);
+
+            var catalog = ScriptableObject.CreateInstance<DungeonRoomTemplateCatalog>();
+
+            var template = ScriptableObject.CreateInstance<
+                DungeonRoomTemplateDefinition>();
+
+            var doorDefinition = ScriptableObject.CreateInstance<
+                DoorDungeonObjectDefinition>();
+
+            try
+            {
+                SetAutoProperty(
+                    definition,
+                    "RoomTemplateCatalog",
+                    catalog);
+
+                SetAutoProperty(template, "Id", "template.Normal");
+                SetAutoProperty(template, "SizeInCells", new Vector2Int(2, 2));
+
+                template.StructuralAnchors.Add(
+                    new DungeonStructuralAnchorData(
+                        DungeonStructuralAnchorType.Door,
+                        Vector2Int.zero,
+                        DungeonEdgeDirection.Right));
+
+                catalog.Templates.Add(template);
+
+                SetAutoProperty(doorDefinition, "Id", "door.test");
+                definition.ObjectDefinitions.Add(doorDefinition);
+
+                var dungeon = CreateDungeon(
+                    definition,
+                    seed: 12345,
+                    includeEncounterInNormalRoom: false);
+
+                var placementSystem = new DungeonObjectPlacementSystem();
+
+                placementSystem.Place(dungeon);
+
+                var floor = dungeon.Floors[0];
+                DoorDungeonObjectInstance generatedDoor = null;
+
+                foreach (var dungeonObject in floor.Objects)
+                {
+                    if (dungeonObject is DoorDungeonObjectInstance door)
+                    {
+                        generatedDoor = door;
+                        break;
+                    }
+                }
+
+                Assert.That(generatedDoor, Is.Not.Null);
+                Assert.That(
+                    generatedDoor.Edge.FirstCell,
+                    Is.EqualTo(new Vector2Int(4, 0)));
+                Assert.That(
+                    generatedDoor.Edge.SecondCell,
+                    Is.EqualTo(new Vector2Int(5, 0)));
+                Assert.That(generatedDoor.IsOpen, Is.False);
+                Assert.That(
+                    floor.Map.CanMoveBetween(
+                        generatedDoor.Edge.FirstCell,
+                        generatedDoor.Edge.SecondCell),
+                    Is.False);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(catalog);
+                UnityEngine.Object.DestroyImmediate(template);
+                UnityEngine.Object.DestroyImmediate(doorDefinition);
+            }
+        }
+
         private static DungeonDefinition CreateDungeonDefinition(
             int minObjectCount,
             int maxObjectCount)

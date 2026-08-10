@@ -186,7 +186,7 @@ namespace Godmist.Views.Combat
 
             if (UsesGridClickOnlyAsConfirmation(targetMode))
             {
-                if (session.Grid == null || !session.Grid.IsWithinBounds(targetPosition)) return;
+                if (session.Grid == null || !session.Grid.IsWalkable(targetPosition)) return;
 
                 selectedPositionsByModeIndex[currentTargetModeIndex] = null;
                 AdvanceTargetMode();

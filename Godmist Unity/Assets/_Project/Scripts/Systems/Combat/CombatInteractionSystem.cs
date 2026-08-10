@@ -23,6 +23,16 @@ namespace Godmist.Systems.Combat
 
             foreach (var mapObject in session.MapObjects)
             {
+                if (mapObject is DoorCombatMapObject door)
+                {
+                    session.Grid.SetBlockedEdge(
+                        door.Edge.FirstCell,
+                        door.Edge.SecondCell,
+                        door.BlocksMovement);
+
+                    continue;
+                }
+
                 if (mapObject != null && mapObject.BlocksMovement)
                 {
                     session.Grid.SetBlocked(mapObject.Position, true);
@@ -35,9 +45,15 @@ namespace Godmist.Systems.Combat
             if (session?.Grid == null || actor?.Character == null || session.ActiveUnit != actor
                 || actor.Character.LifeState != Core.Enums.CharacterLifeState.Alive) return false;
 
-            var mapObject = session.GetMapObjectAt(targetPosition);
+            var mapObject = FindInteractableObject(
+                session,
+                actor.Position,
+                targetPosition);
 
-            if (mapObject == null || !IsAdjacent(actor.Position, mapObject.Position)) return false;
+            if (mapObject == null)
+            {
+                return false;
+            }
 
             if (!mapObject.CanInteract())
             {
@@ -114,11 +130,44 @@ namespace Godmist.Systems.Combat
 
         private void ApplyDoorState(CombatSession session, DoorCombatMapObject door)
         {
-            session.Grid.SetBlocked(door.Position, door.BlocksMovement);
+            session.Grid.SetBlockedEdge(
+                door.Edge.FirstCell,
+                door.Edge.SecondCell,
+                door.BlocksMovement);
 
             onObjectChanged?.Invoke(door);
 
             battleLog?.Invoke($"Drzwi {door.ObjectId} zostaja {(door.IsOpen ? "otwarte" : "zamkniete")}.");
+        }
+
+        private static CombatMapObject FindInteractableObject(
+            CombatSession session,
+            GridPosition actorPosition,
+            GridPosition targetPosition)
+        {
+            foreach (var mapObject in session.MapObjects)
+            {
+                if (mapObject is DoorCombatMapObject door)
+                {
+                    if (door.ContainsCell(targetPosition)
+                        && door.ContainsCell(actorPosition)
+                        && actorPosition != targetPosition)
+                    {
+                        return door;
+                    }
+
+                    continue;
+                }
+
+                if (mapObject != null
+                    && mapObject.Position == targetPosition
+                    && IsAdjacent(actorPosition, targetPosition))
+                {
+                    return mapObject;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsAdjacent(GridPosition origin, GridPosition target)

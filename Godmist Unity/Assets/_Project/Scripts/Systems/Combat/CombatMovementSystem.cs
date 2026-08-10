@@ -62,8 +62,7 @@ namespace Godmist.Systems.Combat
                     {
                         continue;
                     }
-                    if (!session.Grid.IsWithinBounds(candidate)
-                        || session.Grid.IsBlocked(candidate)
+                    if (!session.Grid.CanMoveBetween(current, candidate)
                         || session.IsPositionOccupied(candidate, unit))
                     {
                         continue;

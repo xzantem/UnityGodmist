@@ -35,5 +35,6 @@ MonoBehaviour:
   <ObjectDefinitions>k__BackingField:
   - {fileID: 11400000, guid: d3bf5aa9a734ca9469f4667b9ecaa922, type: 2}
   - {fileID: 11400000, guid: 4757e2597fbf78f4d90f997789b5831e, type: 2}
+  - {fileID: 11400000, guid: 646b43c553df3c5488892474afab66ce, type: 2}
   <MinObjectCountPerFloor>k__BackingField: 4
   <MaxObjectCountPerFloor>k__BackingField: 6

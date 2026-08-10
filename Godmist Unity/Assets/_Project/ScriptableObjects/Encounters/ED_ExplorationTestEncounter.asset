@@ -21,3 +21,7 @@ MonoBehaviour:
     <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 53cc60ce4d17f0f4286723077e4226d9, type: 2}
     <ClassData>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
     <SpawnPosition>k__BackingField: {x: 6, y: 3}
+  - <InstanceId>k__BackingField: enemy.sandbox.02
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 53cc60ce4d17f0f4286723077e4226d9, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 4}
