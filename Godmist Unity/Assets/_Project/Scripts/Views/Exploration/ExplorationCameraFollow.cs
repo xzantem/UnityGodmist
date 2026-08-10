@@ -63,6 +63,8 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
                 isPanning = false;

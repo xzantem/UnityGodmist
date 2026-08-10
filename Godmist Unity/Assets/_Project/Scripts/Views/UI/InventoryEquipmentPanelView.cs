@@ -77,6 +77,8 @@ namespace Godmist.Views.UI
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             var session = GameBootstrap.Instance?.Session;
 
             if (session?.CurrentMode != GameModeState.Exploration) return;

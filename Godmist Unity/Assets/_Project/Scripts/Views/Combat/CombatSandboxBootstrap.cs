@@ -115,6 +115,7 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             if (usesGameSessionCombat && TryReturnToExploration()) return;
+            if (DevConsoleView.IsOpen) return;
             if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.R))
             {
                 RestartCombatForDebug();

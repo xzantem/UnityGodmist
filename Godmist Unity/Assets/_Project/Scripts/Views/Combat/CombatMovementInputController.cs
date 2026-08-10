@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godmist.Runtime.Combat;
+using Godmist.Views.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -43,6 +44,13 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen)
+            {
+                ClearHighlights();
+                cacheValid = false;
+                return;
+            }
+
             if (!HasControllableUnit())
             {
                 ClearHighlights();

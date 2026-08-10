@@ -42,8 +42,13 @@ Priorytety:
 
 ## In Progress
 
+- `[P1] Dodac Combat Scenario Runner v1` - `Tools / Editor / Debug`, `Combat`
+
 ## Done
 
+- `[P1] Rozszerzyc Dev Console o komendy gameplayowe v2` - `Tools / Editor / Debug`, `Combat`, `Core / Architecture`, `Items / Inventory / Economy`
+- `[P1] Rozszerzyc Dev Console o komendy globalne i targetowanie po characterId v1` - `Tools / Editor / Debug`, `Combat`, `Core / Architecture`
+- `[P1] Dodac Dev Console v1` - `Tools / Editor / Debug`, `Combat`
 - `[P1] Dodac generowanie drzwi z kotwic pomieszczen v1` - `World / Dungeon / Exploration`, `Content / Data`, `Combat`
 - `[P1] Dodac strukturalne kotwice pomieszczen v1` - `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
 - `[P1] Dodac wykrywanie, poscig i rozpoczecie walki przez encounter v1` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
@@ -191,13 +196,34 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-
-- `[P1] Ujednolicic PassiveEffectRuntime i TimedPassiveEffect dla statusow oraz modifierow v1` - `Combat`, `Core / Architecture`
-- `[P1] Dodac pipeline warunkow efektow po effect ID/index v1` - `Combat`
-- `[P2] Dodac Poison, Fire i podstawowe buff/debuff statusy v1` - `Combat`, `Content / Data`
-- `[P2] Dodac scheduled effects i wieloturowe skille v1` - `Combat`
-- `[P2] Dodac reakcje oraz podstawowe counterattack v1` - `Combat`
-- `[P2] Rozszerzyc AI o role, personality i scoring v1` - `Combat`
+- `[P2] Dodac autouzupelnianie i sugestie Dev Console v1` - `Tools / Editor / Debug`, `UI / UX`
+- `[P2] Dodac podglad runtime jednostki w narzedziach debugowych v1` - `Tools / Editor / Debug`, `Combat`
+- `[P1] Dodac walidatory danych combatowych v1` - `Tools / Editor / Debug`, `Combat`, `Content / Data`
+- `[P2] Dopracowac inspector SkillData v2` - `Tools / Editor / Debug`, `Combat`, `Content / Data`
+- `[P1] Ujednolicic PassiveEffectRuntime i TimedPassiveEffect dla statusow oraz modifierow v2` - `Combat`, `Core / Architecture`
+- `[P1] Dodac lifecycle passive effectow v2` - `Combat`, `Core / Architecture`
+- `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
+- `[P1] Zrefaktoryzowac aplikowanie i usuwanie statusow pod PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
+- `[P1] Zrefaktoryzowac warunki efektow na effectId/index v2` - `Combat`, `Core / Architecture`, `Content / Data`
+- `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
+- `[P1] Dodac runtime ModifyVar v2` - `Combat`, `Core / Architecture`
+- `[P1] Dodac zrodla i wygasanie modifierow v2` - `Combat`, `Core / Architecture`
+- `[P1] Dodac Poison i Burn v1` - `Combat`, `Content / Data`
+- `[P1] Przeniesc Stun i Immobilize do PassiveEffectRuntime oraz dodac Sleep, Freeze i Paralysis v1` - `Combat`, `Content / Data`
+- `[P2] Dodac Taunt i Invisibility v1` - `Combat`, `Content / Data`
+- `[P1] Dodac Pull i Fallback v1` - `Combat`, `World / Dungeon / Exploration`
+- `[P1] Dodac Charge i Teleport v1` - `Combat`, `World / Dungeon / Exploration`
+- `[P2] Dodac CreateObject i Summon v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+- `[P2] Dodac scheduled effects i wieloturowe skille v1` - `Combat`, `Content / Data`
+- `[P2] Dodac reakcje oraz podstawowe counterattack v1` - `Combat`, `Content / Data`
+- `[P1] Dodac scoring dostepnych skilli AI v1` - `Combat`
+- `[P2] Dodac role AI v1` - `Combat`, `Content / Data`
+- `[P2] Dodac personality AI v1` - `Combat`, `Content / Data`
+- `[P1] Przebudowac istniejacy CombatHUD do ukladu docelowego` - `UI / UX`, `Combat`
+- `[P1] Rozszerzyc Floating Combat Feedback v2` - `UI / UX`, `Combat`
+- `[P1] Dodac status indicators i tooltipy v1` - `UI / UX`, `Combat`
+- `[P2] Dodac wizualne stany obiektow i jednostek v1` - `UI / UX`, `Combat`, `World / Dungeon / Exploration`
+- `[P1] Combat Core v2 - acceptance pass` - `Combat`, `Tools / Editor / Debug`, `UI / UX`
 
 ## Sprint: Combat Sandbox - domkniecie vertical slice
 
@@ -210,54 +236,3 @@ Zamkniety: zobacz sekcje `Done`.
 - Po zakonczeniu milestone'u wykonujemy acceptance pass, push na GitHub i tag wersji.
 - Aktualny checkpoint: `v0.1.0-combat-sandbox` po uporzadkowaniu lokalnej nazwy galezi na `main`.
 - Kolejny checkpoint: `v0.2.0-gameplay-loop` po zamknieciu Gameplay Loop v1.
-
-## PÃ³Åºniej, ale nadal bez osobnego Iceboxa
-
-JeÅ›li na razie nie chcesz robiÄ‡ `Iceboxa`, to te rzeczy moÅ¼esz trzymaÄ‡ po prostu na dole `Backlogu` jako dalszy etap projektu:
-
-- `[P3] DodaÄ‡ scenÄ™ miasta` â€” `World / Dungeon / Exploration`
-- `[P3] DodaÄ‡ przejÅ›cie miasto -> loch` â€” `World / Dungeon / Exploration`
-- `[P3] DodaÄ‡ proceduralne generowanie lochÃ³w` â€” `World / Dungeon / Exploration`
-- `[P3] DodaÄ‡ system questÃ³w v1` â€” `NPC / Quest / Dialogue`
-- `[P3] DodaÄ‡ NPC i dialogi` â€” `NPC / Quest / Dialogue`
-- `[P3] DodaÄ‡ handel z NPC` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ crafting u NPC` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ peÅ‚ne inventory` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ equipment set` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ stash druÅ¼yny` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ loot table system` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ rarity tier system dla itemÃ³w` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ weapon i armor parts` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ jewelry system` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ galduryty` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ identyfikacjÄ™ galdurytÃ³w` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ socketing galdurytÃ³w` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ upgrade equipment` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ infuzjÄ™ wyposaÅ¼enia` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ przekuwanie wyposaÅ¼enia` â€” `Items / Inventory / Economy`
-- `[P3] DodaÄ‡ save/load system v1` â€” `Core / Architecture`
-- `[P3] DodaÄ‡ autosave` â€” `Core / Architecture`
-- `[P3] DodaÄ‡ loyalty system NPC` â€” `NPC / Quest / Dialogue`
-- `[P3] DodaÄ‡ honor system postaci` â€” `Design / Systems`
-- `[P3] DodaÄ‡ kilka klas grywalnych zamiast jednej` â€” `Content / Data`
-- `[P3] DodaÄ‡ peÅ‚ne drzewka skilli` â€” `Design / Systems`
-- `[P3] DodaÄ‡ passive effects runtime` â€” `Combat`
-- `[P3] DodaÄ‡ summon/create object skills` â€” `Combat`
-- `[P3] DodaÄ‡ push/pull/charge/fallback/teleport` â€” `Combat`
-- `[P3] DodaÄ‡ escape flow peÅ‚nej wersji` â€” `Combat`
-- `[P3] DodaÄ‡ bardziej zÅ‚oÅ¼one AI role i personality` â€” `Combat`
-- `[P3] DodaÄ‡ inspect panel postaci w walce` â€” `UI / UX`
-- `[P3] DodaÄ‡ peÅ‚ny quest journal` â€” `UI / UX`
-- `[P3] DodaÄ‡ ekran postaÄ‡ / ekwipunek` â€” `UI / UX`
-- `[P3] DodaÄ‡ ekran NPC interaction` â€” `UI / UX`
-- `[P3] DodaÄ‡ exploration HUD` â€” `UI / UX`
-- `[P3] DodaÄ‡ audio feedback i polish VFX` â€” `UI / UX`
-
-## Jak tego uÅ¼ywaÄ‡
-
-Na start:
-
-1. wrzuÄ‡ sekcjÄ™ `Ready` do kolumny `Ready`,
-2. resztÄ™ wrzuÄ‡ do `Backlog`,
-3. z `In Progress` trzymaj maksymalnie 1 duÅ¼Ä… rzecz albo 2-3 maÅ‚e,
-4. wszystko, co jest juÅ¼ zakodowane, ale wymaga sprawdzenia w grze, przerzucaj do `Playable / Test`.

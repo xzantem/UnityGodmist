@@ -28,6 +28,8 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (inspectPanel == null)
             {
                 return;

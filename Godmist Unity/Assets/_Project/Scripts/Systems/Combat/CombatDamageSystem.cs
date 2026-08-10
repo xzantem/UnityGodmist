@@ -64,6 +64,13 @@ namespace Godmist.Systems.Combat
             {
                 return 0;
             }
+            if (target.Character.DebugIsInvulnerable)
+            {
+                battleLog?.Invoke(
+                    $"{target.Character.Definition.DisplayName} ignoruje obrażenia (godmode).");
+
+                return 0;
+            }
             var incomingDamage = Mathf.Max(0, requestedDamage);
             if (incomingDamage <= 0)
             {

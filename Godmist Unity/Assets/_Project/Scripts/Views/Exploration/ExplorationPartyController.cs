@@ -56,6 +56,8 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+
             if (gameSession == null)
             {
                 return;
@@ -105,6 +107,8 @@ namespace Godmist.Views.Exploration
 
         private void FixedUpdate()
         {
+            if (DevConsoleView.IsOpen) return;
+
             if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;

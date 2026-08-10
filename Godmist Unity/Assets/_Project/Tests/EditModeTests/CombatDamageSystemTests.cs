@@ -29,6 +29,31 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ApplyDamage_DebugInvulnerableTarget_DoesNotChangeHealth()
+        {
+            var session = CreateSession(
+                out _,
+                out var enemy);
+
+            enemy.Character.DebugIsInvulnerable = true;
+
+            var damageSystem = new CombatDamageSystem();
+
+            var appliedDamage = damageSystem.ApplyDamage(
+                session,
+                null,
+                enemy,
+                40,
+                DamageType.Physical);
+
+            Assert.That(appliedDamage, Is.EqualTo(0));
+            Assert.That(enemy.Character.CurrentHealth, Is.EqualTo(100));
+            Assert.That(
+                enemy.Character.LifeState,
+                Is.EqualTo(CharacterLifeState.Alive));
+        }
+
+        [Test]
         public void ApplyDamage_UsesCurrentHealth()
         {
             var session = CreateSession(

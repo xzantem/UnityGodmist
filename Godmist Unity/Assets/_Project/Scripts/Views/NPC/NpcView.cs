@@ -3,6 +3,7 @@ using Godmist.Core.Interfaces;
 using Godmist.Runtime.NPC;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
+using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
 
@@ -61,6 +62,8 @@ namespace Godmist.Views.NPC
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (!Input.GetKeyDown(interactionKey)) return;
             if (!CanInteract()) return;
 

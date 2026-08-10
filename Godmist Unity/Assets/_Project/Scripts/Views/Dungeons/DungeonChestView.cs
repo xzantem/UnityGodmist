@@ -3,6 +3,7 @@ using Godmist.Core.Interfaces;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
+using Godmist.Views.UI;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
@@ -28,6 +29,8 @@ namespace Godmist.Views.Dungeons
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (!Input.GetKeyDown(interactionKey)) return;
             if (!CanInteract()) return;
 

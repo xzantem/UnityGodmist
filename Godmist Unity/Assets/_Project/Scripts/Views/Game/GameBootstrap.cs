@@ -32,6 +32,7 @@ namespace Godmist.Views.Game
         public QuestService QuestService { get; private set; }
         public TradeService TradeService { get; private set; }
         public SaveManager SaveManager { get; private set; }
+        public GameContentCatalog ContentCatalog => contentCatalog;
 
         public event Action<DungeonInstance> DungeonExited;
 

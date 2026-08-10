@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
+using Godmist.Views.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -154,6 +155,8 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (!IsSelectingTarget)
             {
                 return;
