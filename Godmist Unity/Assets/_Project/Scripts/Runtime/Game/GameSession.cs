@@ -19,6 +19,7 @@ namespace Godmist.Runtime.Game
         private string trackedQuestId = string.Empty;
         private readonly List<ItemInstance> pendingLoot = new();
         public GameModeState CurrentMode { get; private set; }
+        public string CampaignId { get; }
         public Party PlayerParty { get; } = new();
         public WorldState WorldState { get; } = new();
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
@@ -26,6 +27,8 @@ namespace Godmist.Runtime.Game
         public IReadOnlyDictionary<string, QuestInstance> QuestsById => questsById;
         public string TrackedQuestId => trackedQuestId;
         public DungeonInstance ActiveDungeon { get; private set; }
+        public bool HasExplorationPosition { get; private set; }
+        public Vector2 ExplorationPosition { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
         public DungeonCombatContext ActiveDungeonCombatContext { get; private set; }
         public int Gold { get; private set; }
@@ -37,9 +40,15 @@ namespace Godmist.Runtime.Game
         public event Action<NpcInstance> NpcInteractionRequested;
         public event Action<string> TrackedQuestChanged;
 
-        public GameSession(GameModeState initialMode = GameModeState.Menu)
+        public GameSession(
+            GameModeState initialMode = GameModeState.Menu,
+            string campaignId = null)
         {
             CurrentMode = initialMode;
+
+            CampaignId = string.IsNullOrWhiteSpace(campaignId)
+                ? Guid.NewGuid().ToString("N")
+                : campaignId.Trim();
         }
 
         public bool TrySetMode(GameModeState nextMode)
@@ -189,6 +198,21 @@ namespace Godmist.Runtime.Game
             if (!CanLeadParty(characterId)) return false;
 
             return PlayerParty.TrySetActiveLeader(characterId);
+        }
+
+        public bool TrySetExplorationPosition(Vector2 position)
+        {
+            if (float.IsNaN(position.x)
+                || float.IsNaN(position.y)
+                || float.IsInfinity(position.x)
+                || float.IsInfinity(position.y))
+            {
+                return false;
+            }
+
+            ExplorationPosition = position;
+            HasExplorationPosition = true;
+            return true;
         }
 
         public bool TrySetActiveDungeon(DungeonInstance dungeon)

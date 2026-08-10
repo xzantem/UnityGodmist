@@ -171,11 +171,19 @@ Zamkniety: zobacz sekcje `Done`.
 
 ### Milestone: Save and Load v1
 
-- `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture`
-- `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX`
-- `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration`
-- `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture`
-- `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`
+- `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture` - Done
+- `[P1] Dodac snapshoty runtime dla postaci, inventory i itemow v1` - `Core / Architecture`, `Items / Inventory / Economy` - Done
+- `[P1] Zapisywac questy, world flags oraz stan NPC v1` - `Core / Architecture`, `NPC / Quest / Dialogue` - Done
+- `[P1] Dodac GameContentCatalog v1` - `Core / Architecture`, `Content / Data` - Done
+- `[P1] Dodac API restore dla Quest i Dungeon runtime v1` - `Core / Architecture`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration` - Done
+- `[P1] Dodac GameSession restore factory v1` - `Core / Architecture`, `Content / Data`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration` - Done
+- `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX` - Done
+- `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration` - Done
+- `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture` - Done
+- `[P1] Dodac CampaignId i strukture katalogow zapisow v1` - `Core / Architecture` - Done
+- `[P1] Dodac liste oraz zarzadzanie zapisami kampanii v1` - `Core / Architecture`, `UI / UX` - Done
+- `[P1] Dodac menu pauzy i UI zapisow v1` - `UI / UX`, `Core / Architecture` - Done
+- `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture` - Done
 
 ### Milestone: Dungeon Combat Integration v1
 

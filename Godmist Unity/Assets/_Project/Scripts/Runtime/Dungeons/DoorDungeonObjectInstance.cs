@@ -28,5 +28,11 @@ namespace Godmist.Runtime.Dungeons
             IsOpen = isOpen;
             return true;
         }
+
+        public bool TryRestoreOpen(bool isOpen)
+        {
+            IsOpen = isOpen;
+            return true;
+        }
     }
 }

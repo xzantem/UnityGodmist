@@ -1,12 +1,15 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
+using Godmist.Data.World;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
+using Godmist.Runtime.Quests;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.NPC;
 using Godmist.Systems.Quests;
+using Godmist.Systems.SaveLoad;
 using UnityEngine;
 
 namespace Godmist.Views.Game
@@ -19,18 +22,24 @@ namespace Godmist.Views.Game
         [SerializeField] private string explorationSceneName = "Arungard";
         [SerializeField] private string dungeonSceneName = "DungeonSandbox";
 
+        [Header("Content")]
+        [SerializeField] private GameContentCatalog contentCatalog;
+
         public static GameBootstrap Instance { get; private set; }
 
         public GameSession Session { get; private set; }
         public DialogueService DialogueService { get; private set; }
         public QuestService QuestService { get; private set; }
         public TradeService TradeService { get; private set; }
+        public SaveManager SaveManager { get; private set; }
 
         public event Action<DungeonInstance> DungeonExited;
 
         private SceneLoader sceneLoader;
         private QuestObjectiveProgressSystem questObjectiveProgressSystem;
         private DialogueQuestActionSystem dialogueQuestActionSystem;
+        private bool autosaveRequested;
+        private string pendingAutosaveReason = string.Empty;
 
         private readonly DungeonGeneratorService dungeonGenerator = new();
         private readonly DungeonEncounterRewardPreparationSystem
@@ -54,11 +63,35 @@ namespace Godmist.Views.Game
             DontDestroyOnLoad(gameObject);
 
             Session = new GameSession(GameModeState.Menu);
+            SaveManager = new SaveManager();
 
             sceneLoader = GetComponent<SceneLoader>();
             sceneLoader.Initialize(Session);
 
             InitializeRuntimeServices();
+        }
+
+        private void Update()
+        {
+            if (!autosaveRequested)
+            {
+                return;
+            }
+
+            autosaveRequested = false;
+
+            if (TrySaveAutosave(
+                    pendingAutosaveReason,
+                    out var message))
+            {
+                Debug.Log(message);
+            }
+            else
+            {
+                Debug.LogWarning(message);
+            }
+
+            pendingAutosaveReason = string.Empty;
         }
 
         private void OnDestroy()
@@ -93,6 +126,87 @@ namespace Godmist.Views.Game
             sceneLoader.TryLoadScene(
                 explorationSceneName,
                 GameModeState.Exploration);
+        }
+
+        public bool TrySaveQuick(out string message)
+        {
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            return SaveManager.TrySaveQuick(Session, out message);
+        }
+
+        public bool TryLoadQuick(out string message)
+        {
+            message = string.Empty;
+
+            if (Session?.ActiveCombat != null)
+            {
+                message = "Nie można wczytać gry podczas walki.";
+                return false;
+            }
+
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            if (contentCatalog == null)
+            {
+                message = "GameBootstrap: brak GameContentCatalog.";
+                return false;
+            }
+
+            if (!SaveManager.TryLoadQuick(
+                    Session.CampaignId,
+                    contentCatalog,
+                    out var restoredSession,
+                    out message))
+            {
+                return false;
+            }
+
+            return TryReplaceSession(restoredSession, out message);
+        }
+
+        public bool TryLoadSave(
+            GameSaveSummary summary,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (Session?.ActiveCombat != null)
+            {
+                message = "Nie można wczytać gry podczas walki.";
+                return false;
+            }
+
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            if (contentCatalog == null)
+            {
+                message = "GameBootstrap: brak GameContentCatalog.";
+                return false;
+            }
+
+            if (!SaveManager.TryLoadSave(
+                    summary,
+                    contentCatalog,
+                    out var restoredSession,
+                    out message))
+            {
+                return false;
+            }
+
+            return TryReplaceSession(restoredSession, out message);
         }
 
         public bool TryReturnFromCombat()
@@ -142,12 +256,13 @@ namespace Godmist.Views.Game
                 }
 
                 if (sceneLoader.TryLoadScene(
-                    dungeonSceneName,
-                    GameModeState.Exploration))
+                        dungeonSceneName,
+                        GameModeState.Exploration))
                 {
+                    RequestAutosave("Wejście do lochu");
                     return true;
                 }
-
+                
                 Session.TryClearActiveDungeon();
                 return false;
             }
@@ -188,8 +303,8 @@ namespace Godmist.Views.Game
             var dungeon = Session.ActiveDungeon;
 
             if (!sceneLoader.TryLoadScene(
-                explorationSceneName,
-                GameModeState.Exploration))
+                    explorationSceneName,
+                    GameModeState.Exploration))
             {
                 return false;
             }
@@ -202,7 +317,51 @@ namespace Godmist.Views.Game
             DungeonExited?.Invoke(dungeon);
 
             Session.TryClearActiveDungeon();
+            RequestAutosave("Wyjście z lochu");
             return true;
+        }
+
+        private bool TryReplaceSession(
+            GameSession restoredSession,
+            out string message)
+        {
+            message = string.Empty;
+            autosaveRequested = false;
+            pendingAutosaveReason = string.Empty;
+
+            if (restoredSession == null || sceneLoader == null)
+            {
+                message = "Nie udało się przygotować odtworzonej sesji.";
+                return false;
+            }
+
+            var previousSession = Session;
+            var destinationSceneName = restoredSession.ActiveDungeon != null
+                ? dungeonSceneName
+                : explorationSceneName;
+
+            UnsubscribeRuntimeServices();
+
+            Session = restoredSession;
+            sceneLoader.Initialize(Session);
+            InitializeRuntimeServices();
+
+            if (sceneLoader.TryLoadScene(
+                    destinationSceneName,
+                    GameModeState.Exploration))
+            {
+                message = "Wczytano zapis gry.";
+                return true;
+            }
+
+            UnsubscribeRuntimeServices();
+
+            Session = previousSession;
+            sceneLoader.Initialize(Session);
+            InitializeRuntimeServices();
+
+            message = "Nie udało się załadować sceny po odtworzeniu zapisu.";
+            return false;
         }
 
         private void InitializeRuntimeServices()
@@ -221,6 +380,7 @@ namespace Godmist.Views.Game
                     QuestService);
 
             DialogueService.DialogueEnded += HandleDialogueEnded;
+            QuestService.QuestCompleted += HandleQuestCompleted;
         }
 
         private void UnsubscribeRuntimeServices()
@@ -228,10 +388,56 @@ namespace Godmist.Views.Game
             dialogueQuestActionSystem?.Dispose();
             dialogueQuestActionSystem = null;
 
+            if (QuestService != null)
+            {
+                QuestService.QuestCompleted -= HandleQuestCompleted;
+            }
             if (DialogueService != null)
             {
                 DialogueService.DialogueEnded -= HandleDialogueEnded;
             }
+        }
+
+        private bool TrySaveAutosave(
+            string reason,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            if (!SaveManager.TrySaveAutosave(Session, out message))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                message = $"Autosave ({reason}): {message}";
+            }
+
+            return true;
+        }
+
+        private void RequestAutosave(string reason)
+        {
+            autosaveRequested = true;
+            pendingAutosaveReason = reason ?? string.Empty;
+        }
+
+        private void HandleQuestCompleted(QuestInstance quest)
+        {
+            if (quest == null)
+            {
+                return;
+            }
+
+            RequestAutosave(
+                $"ukończenie questa '{quest.QuestId}'");
         }
 
         private void HandleDialogueEnded(NpcInstance npc)

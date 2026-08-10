@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ec0fbfb6b93f7c409c30b22da63dd00, type: 3}
+  m_Name: GC_MainContentCatalog
+  m_EditorClassIdentifier: Data::Godmist.Data.World.GameContentCatalog
+  <CharacterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: de6e9e26cd986e144b254dcc7b76b803, type: 2}
+  - {fileID: 11400000, guid: 28eba9f7a64e2ff45859b802054c5de2, type: 2}
+  - {fileID: 11400000, guid: 53cc60ce4d17f0f4286723077e4226d9, type: 2}
+  <CharacterClasses>k__BackingField:
+  - {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+  - {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
+  - {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  - {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+  <ItemDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
+  <SkillDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}
+  - {fileID: 11400000, guid: f25f02c088e5d35418e8cc5dcacf68b2, type: 2}
+  - {fileID: 11400000, guid: f8550d086d504a140a7456d156c22d89, type: 2}
+  - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
+  - {fileID: 11400000, guid: 4185f27a2e084cd4391613b86a0ad98f, type: 2}
+  - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
+  - {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  - {fileID: 11400000, guid: 7e460c15d4989af40bc79434f56e6519, type: 2}
+  - {fileID: 11400000, guid: df54c066b175bb54db92a5d27f1e25f9, type: 2}
+  - {fileID: 11400000, guid: ec91774393ba26d4582da5a8008b3d76, type: 2}
+  - {fileID: 11400000, guid: 72c56c8d06505ef4db6cf926d221d8e7, type: 2}
+  - {fileID: 11400000, guid: 7c9e56bd9ff673040ab916dea8498cbe, type: 2}
+  - {fileID: 11400000, guid: 6129cdb0ccff06c4294e74f797005ccc, type: 2}
+  <QuestDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 8f50b644b9390bb41902a1beb6bfc986, type: 2}
+  <NpcDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 1db441565dea98645a943ad6b5aa0556, type: 2}
+  <DungeonDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}

@@ -8,6 +8,13 @@ namespace Godmist.Systems.Items
     {
         public ItemInstance Create(ItemDefinition definition)
         {
+            return Create(definition, null);
+        }
+
+        public ItemInstance Create(
+            ItemDefinition definition,
+            string instanceId)
+        {
             if (definition == null)
             {
                 throw new ArgumentNullException(nameof(definition));
@@ -15,10 +22,12 @@ namespace Godmist.Systems.Items
 
             if (definition is EquipmentItemDefinition equipmentDefinition)
             {
-                return new EquipmentItemInstance(equipmentDefinition);
+                return new EquipmentItemInstance(
+                    equipmentDefinition,
+                    instanceId);
             }
 
-            return new ItemInstance(definition);
+            return new ItemInstance(definition, instanceId);
         }
     }
 }

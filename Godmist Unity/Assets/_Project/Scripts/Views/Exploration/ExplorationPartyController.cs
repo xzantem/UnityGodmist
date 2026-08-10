@@ -122,7 +122,14 @@ namespace Godmist.Views.Exploration
 
             MoveFollowers(leaderView);
 
-            gameSession.ActiveDungeon?.SetPlayerPosition(leaderView.Position);
+            if (gameSession.ActiveDungeon != null)
+            {
+                gameSession.ActiveDungeon.SetPlayerPosition(leaderView.Position);
+            }
+            else
+            {
+                gameSession.TrySetExplorationPosition(leaderView.Position);
+            }
         }
 
         private void OnDestroy()
