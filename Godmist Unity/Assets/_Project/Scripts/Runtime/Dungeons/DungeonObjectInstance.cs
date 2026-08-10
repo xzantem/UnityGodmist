@@ -43,5 +43,11 @@ namespace Godmist.Runtime.Dungeons
             IsActive = false;
             return true;
         }
+
+        public bool TryRestoreIsActive(bool isActive)
+        {
+            IsActive = isActive;
+            return true;
+        }
     }
 }

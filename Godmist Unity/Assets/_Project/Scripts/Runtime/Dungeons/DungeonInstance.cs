@@ -74,6 +74,51 @@ namespace Godmist.Runtime.Dungeons
             HasPlayerPosition = true;
         }
 
+        public bool TryRestoreState(
+            int currentFloorIndex,
+            bool isCompleted,
+            bool hasPlayerPosition,
+            Vector2 playerPosition,
+            IEnumerable<string> restoredClearedEncounterIds)
+        {
+            if (!TryGetFloor(currentFloorIndex, out _))
+            {
+                return false;
+            }
+
+            var validatedClearedEncounterIds = new HashSet<string>();
+
+            if (restoredClearedEncounterIds != null)
+            {
+                foreach (var encounterId in restoredClearedEncounterIds)
+                {
+                    if (string.IsNullOrWhiteSpace(encounterId))
+                    {
+                        return false;
+                    }
+
+                    validatedClearedEncounterIds.Add(encounterId);
+                }
+            }
+
+            CurrentFloorIndex = currentFloorIndex;
+            IsCompleted = isCompleted;
+
+            clearedEncounterIds.Clear();
+
+            foreach (var encounterId in validatedClearedEncounterIds)
+            {
+                clearedEncounterIds.Add(encounterId);
+            }
+
+            HasPlayerPosition = hasPlayerPosition;
+            PlayerPosition = hasPlayerPosition
+                ? playerPosition
+                : default;
+
+            return true;
+        }
+
         public bool IsEncounterCleared(string encounterId)
         {
             return !string.IsNullOrWhiteSpace(encounterId) && clearedEncounterIds.Contains(encounterId);

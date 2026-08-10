@@ -213,6 +213,118 @@ namespace Godmist.Runtime.Quests
             return true;
         }
 
+        public bool TryRestoreState(
+            QuestStatus status,
+            string currentStageId,
+            bool isHidden,
+            IReadOnlyDictionary<string, int> objectiveAmounts,
+            IReadOnlyDictionary<string, string> restoredQuestFlags,
+            IEnumerable<string> restoredBranchIds,
+            IEnumerable<string> restoredClaimedRewardKeys)
+        {
+            if (!Enum.IsDefined(typeof(QuestStatus), status)
+                || Definition.FindStage(currentStageId) == null)
+            {
+                return false;
+            }
+
+            var validatedObjectiveAmounts = new Dictionary<string, int>();
+
+            if (objectiveAmounts != null)
+            {
+                foreach (var objectiveAmount in objectiveAmounts)
+                {
+                    if (string.IsNullOrWhiteSpace(objectiveAmount.Key)
+                        || objectiveAmount.Value < 0
+                        || !progressByObjectiveId.ContainsKey(objectiveAmount.Key))
+                    {
+                        return false;
+                    }
+
+                    var requiredAmount = FindRequiredAmount(objectiveAmount.Key);
+
+                    if (requiredAmount <= 0)
+                    {
+                        return false;
+                    }
+
+                    validatedObjectiveAmounts[objectiveAmount.Key] = Math.Min(
+                        objectiveAmount.Value,
+                        requiredAmount);
+                }
+            }
+
+            var validatedFlags = new Dictionary<string, string>();
+
+            if (restoredQuestFlags != null)
+            {
+                foreach (var flag in restoredQuestFlags)
+                {
+                    if (string.IsNullOrWhiteSpace(flag.Key))
+                    {
+                        return false;
+                    }
+
+                    validatedFlags[flag.Key] = flag.Value ?? string.Empty;
+                }
+            }
+
+            if (!TryCreateValidatedIdSet(
+                    restoredBranchIds,
+                    out var validatedBranchIds)
+                || !TryCreateValidatedIdSet(
+                    restoredClaimedRewardKeys,
+                    out var validatedClaimedRewardKeys))
+            {
+                return false;
+            }
+
+            foreach (var progressPair in progressByObjectiveId)
+            {
+                var requiredAmount = FindRequiredAmount(progressPair.Key);
+
+                if (requiredAmount <= 0)
+                {
+                    return false;
+                }
+
+                validatedObjectiveAmounts.TryGetValue(
+                    progressPair.Key,
+                    out var restoredAmount);
+
+                progressPair.Value.TryRestoreState(
+                    restoredAmount,
+                    requiredAmount);
+            }
+
+            questFlags.Clear();
+
+            foreach (var flag in validatedFlags)
+            {
+                questFlags.Add(flag.Key, flag.Value);
+            }
+
+            chosenBranchIds.Clear();
+
+            foreach (var branchId in validatedBranchIds)
+            {
+                chosenBranchIds.Add(branchId);
+            }
+
+            claimedRewardKeys.Clear();
+
+            foreach (var rewardKey in validatedClaimedRewardKeys)
+            {
+                claimedRewardKeys.Add(rewardKey);
+            }
+
+            Status = status;
+            CurrentStageId = currentStageId;
+            IsHidden = isHidden;
+
+            return true;
+        }
+
         private QuestStageTransitionDefinition FindAvailableTransition(
             QuestStageDefinition stage)
         {
@@ -281,6 +393,50 @@ namespace Godmist.Runtime.Quests
                     transition.RequiredQuestFlagValue)
                 || currentFlagValue ==
                     transition.RequiredQuestFlagValue;
+        }
+
+        private int FindRequiredAmount(string objectiveId)
+        {
+            if (Definition.Stages == null)
+            {
+                return 0;
+            }
+
+            foreach (var stage in Definition.Stages)
+            {
+                var objective = stage?.FindObjective(objectiveId);
+
+                if (objective != null)
+                {
+                    return Math.Max(1, objective.RequiredAmount);
+                }
+            }
+
+            return 0;
+        }
+
+        private static bool TryCreateValidatedIdSet(
+            IEnumerable<string> source,
+            out HashSet<string> validatedIds)
+        {
+            validatedIds = new HashSet<string>();
+
+            if (source == null)
+            {
+                return true;
+            }
+
+            foreach (var id in source)
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return false;
+                }
+
+                validatedIds.Add(id);
+            }
+
+            return true;
         }
 
         private void InitializeObjectiveProgress()

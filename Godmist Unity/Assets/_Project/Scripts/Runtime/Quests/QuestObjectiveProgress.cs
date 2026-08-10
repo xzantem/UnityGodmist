@@ -31,5 +31,18 @@ namespace Godmist.Runtime.Quests
 
             return CurrentAmount != previousAmount;
         }
+
+        public bool TryRestoreState(int currentAmount, int requiredAmount)
+        {
+            if (currentAmount < 0 || requiredAmount <= 0)
+            {
+                return false;
+            }
+
+            CurrentAmount = Math.Min(currentAmount, requiredAmount);
+            IsCompleted = CurrentAmount >= requiredAmount;
+
+            return true;
+        }
     }
 }

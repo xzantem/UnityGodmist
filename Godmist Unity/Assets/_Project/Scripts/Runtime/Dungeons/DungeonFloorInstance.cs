@@ -120,6 +120,35 @@ namespace Godmist.Runtime.Dungeons
             return false;
         }
 
+        public bool TryGetObject(
+            string objectInstanceId,
+            out DungeonObjectInstance dungeonObject)
+        {
+            dungeonObject = null;
+
+            if (string.IsNullOrWhiteSpace(objectInstanceId))
+            {
+                return false;
+            }
+
+            foreach (var candidate in objects)
+            {
+                if (candidate == null
+                    || !string.Equals(
+                        candidate.InstanceId,
+                        objectInstanceId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                dungeonObject = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryAddObject(DungeonObjectInstance dungeonObject)
         {
             if (dungeonObject == null
@@ -192,6 +221,52 @@ namespace Godmist.Runtime.Dungeons
             }
 
             return false;
+        }
+
+        public bool TryRestoreRoomVisited(
+            string roomId,
+            bool isVisited)
+        {
+            if (!TryGetRoom(roomId, out var room))
+            {
+                return false;
+            }
+
+            return room.TryRestoreVisited(isVisited);
+        }
+
+        public bool TryRestoreObjectState(
+            string objectInstanceId,
+            bool isActive,
+            bool isDoor,
+            bool isOpen)
+        {
+            if (!TryGetObject(objectInstanceId, out var dungeonObject))
+            {
+                return false;
+            }
+
+            if (dungeonObject is DoorDungeonObjectInstance door)
+            {
+                if (!isDoor || Map == null)
+                {
+                    return false;
+                }
+
+                door.TryRestoreIsActive(isActive);
+                door.TryRestoreOpen(isOpen);
+
+                return Map.TrySetDoorState(
+                    door.Edge,
+                    !door.IsActive || door.IsOpen);
+            }
+
+            if (isDoor)
+            {
+                return false;
+            }
+
+            return dungeonObject.TryRestoreIsActive(isActive);
         }
 
         public bool TryGetActiveObjectAt(Vector2Int position, out DungeonObjectInstance dungeonObject)

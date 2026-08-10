@@ -38,5 +38,11 @@ namespace Godmist.Runtime.Dungeons
             IsVisited = true;
             return true;
         }
+
+        public bool TryRestoreVisited(bool isVisited)
+        {
+            IsVisited = isVisited;
+            return true;
+        }
     }
 }
