@@ -877,13 +877,13 @@ namespace Godmist.Systems.SaveLoad
             DungeonSaveData saveData,
             GameContentCatalog contentCatalog)
         {
-            if (saveData == null)
+            if (saveData == null
+                || string.IsNullOrWhiteSpace(saveData.DungeonId))
             {
                 return true;
             }
 
-            if (string.IsNullOrWhiteSpace(saveData.DungeonId)
-                || !contentCatalog.TryGetDungeon(
+            if (!contentCatalog.TryGetDungeon(
                     saveData.DungeonId,
                     out var definition)
                 || !definition.IsProcedural)
