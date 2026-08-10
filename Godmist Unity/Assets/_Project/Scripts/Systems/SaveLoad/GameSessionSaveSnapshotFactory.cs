@@ -6,6 +6,8 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
+using Godmist.Runtime.NPC;
+using Godmist.Runtime.Quests;
 
 namespace Godmist.Systems.SaveLoad
 {
@@ -89,6 +91,14 @@ namespace Godmist.Systems.SaveLoad
                 saveData.PendingLootItemInstanceIds.Add(item.InstanceId);
             }
 
+            if (!TryCaptureWorldFlags(session, saveData)
+                || !TryCaptureQuests(session, saveData)
+                || !TryCaptureNpcs(session, saveData, capturedItemIds))
+            {
+                ClearRuntimePayload(saveData);
+                return false;
+            }
+
             return true;
         }
 
@@ -99,6 +109,148 @@ namespace Godmist.Systems.SaveLoad
             saveData.Characters.Clear();
             saveData.ItemInstances.Clear();
             saveData.PendingLootItemInstanceIds.Clear();
+            saveData.WorldFlags.Clear();
+            saveData.Quests.Clear();
+            saveData.Npcs.Clear();
+        }
+
+        private static bool TryCaptureWorldFlags(
+            GameSession session,
+            GameSaveData saveData)
+        {
+            var flagIds = new List<string>(session.WorldState.FlagsById.Keys);
+            flagIds.Sort(StringComparer.Ordinal);
+
+            foreach (var flagId in flagIds)
+            {
+                saveData.WorldFlags.Add(new KeyValueSaveData
+                {
+                    Key = flagId,
+                    Value = session.WorldState.FlagsById[flagId]
+                });
+            }
+
+            return true;
+        }
+
+        private static bool TryCaptureQuests(
+            GameSession session,
+            GameSaveData saveData)
+        {
+            var questIds = new List<string>(session.QuestsById.Keys);
+            questIds.Sort(StringComparer.Ordinal);
+
+            foreach (var questId in questIds)
+            {
+                var quest = session.QuestsById[questId];
+
+                if (quest == null || string.IsNullOrWhiteSpace(quest.QuestId))
+                {
+                    return false;
+                }
+
+                var questSaveData = new QuestSaveData
+                {
+                    QuestId = quest.QuestId,
+                    Status = quest.Status,
+                    CurrentStageId = quest.CurrentStageId,
+                    IsHidden = quest.IsHidden,
+                    ChosenBranchIds = new List<string>(quest.ChosenBranchIds),
+                    ClaimedRewardKeys = new List<string>(quest.ClaimedRewardKeys)
+                };
+
+                foreach (var pair in quest.QuestFlags)
+                {
+                    questSaveData.QuestFlags.Add(new KeyValueSaveData
+                    {
+                        Key = pair.Key,
+                        Value = pair.Value
+                    });
+                }
+
+                foreach (var pair in quest.ProgressByObjectiveId)
+                {
+                    var progress = pair.Value;
+
+                    if (progress == null)
+                    {
+                        continue;
+                    }
+
+                    questSaveData.ObjectiveProgress.Add(
+                        new QuestObjectiveProgressSaveData
+                        {
+                            ObjectiveId = progress.ObjectiveId,
+                            CurrentAmount = progress.CurrentAmount,
+                            IsCompleted = progress.IsCompleted
+                        });
+                }
+
+                saveData.Quests.Add(questSaveData);
+            }
+
+            return true;
+        }
+
+        private static bool TryCaptureNpcs(
+            GameSession session,
+            GameSaveData saveData,
+            HashSet<string> capturedItemIds)
+        {
+            var npcIds = new List<string>(session.NpcsById.Keys);
+            npcIds.Sort(StringComparer.Ordinal);
+
+            foreach (var npcId in npcIds)
+            {
+                var npc = session.NpcsById[npcId];
+
+                if (npc == null || string.IsNullOrWhiteSpace(npc.NpcId))
+                {
+                    return false;
+                }
+
+                var npcSaveData = new NpcSaveData
+                {
+                    NpcId = npc.NpcId,
+                    LoyaltyLevel = npc.LoyaltyLevel,
+                    SpentGoldTotal = npc.SpentGoldTotal
+                };
+
+                if (npc.ShopInventory != null)
+                {
+                    foreach (var item in npc.ShopInventory.Items)
+                    {
+                        if (!TryCaptureItem(item, saveData, capturedItemIds))
+                        {
+                            return false;
+                        }
+
+                        npcSaveData.ShopItemInstanceIds.Add(item.InstanceId);
+                    }
+
+                    foreach (var buybackEntry in npc.ShopInventory.BuybackStock)
+                    {
+                        if (buybackEntry?.Item == null
+                            || !TryCaptureItem(
+                                buybackEntry.Item,
+                                saveData,
+                                capturedItemIds))
+                        {
+                            return false;
+                        }
+
+                        npcSaveData.BuybackEntries.Add(new BuybackEntrySaveData
+                        {
+                            ItemInstanceId = buybackEntry.Item.InstanceId,
+                            SoldPrice = buybackEntry.SoldPrice
+                        });
+                    }
+                }
+
+                saveData.Npcs.Add(npcSaveData);
+            }
+
+            return true;
         }
 
         private static void CopyParty(

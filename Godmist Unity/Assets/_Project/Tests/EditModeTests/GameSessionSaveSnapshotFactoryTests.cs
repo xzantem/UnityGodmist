@@ -2,10 +2,13 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Items;
+using Godmist.Data.Quests;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
+using Godmist.Runtime.NPC;
+using Godmist.Runtime.Quests;
 using Godmist.Systems.SaveLoad;
 using NUnit.Framework;
 using UnityEngine;
@@ -138,6 +141,103 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void CreateSnapshot_CapturesWorldQuestAndNpcState()
+        {
+            var questDefinition = CreateQuestDefinition(
+                "quest.catacombs",
+                "stage.explore",
+                "objective.leave");
+
+            var materialDefinition = CreateItemDefinition(
+                "material.iron",
+                ItemType.Material,
+                isStackable: true);
+
+            var quest = new QuestInstance(
+                questDefinition,
+                QuestStatus.Available);
+
+            quest.TrySetStatus(QuestStatus.Active);
+            quest.TrySetHidden(true);
+            quest.TryAddObjectiveProgress("objective.leave");
+            quest.TrySetQuestFlag("quest.flag.approached_guard", "true");
+            quest.TryRecordBranch("branch.help_guard");
+            quest.TryClaimReward("stage.explore.reward.0");
+
+            var shopItem = new ItemInstance(
+                materialDefinition,
+                "item.shop.01");
+
+            var buybackItem = new ItemInstance(
+                materialDefinition,
+                "item.buyback.01");
+
+            var npc = new NpcInstance
+            {
+                NpcId = "npc.guard",
+                LoyaltyLevel = 4,
+                SpentGoldTotal = 125,
+                ShopInventory = new ShopInventory()
+            };
+
+            npc.ShopInventory.Items.Add(shopItem);
+            npc.ShopInventory.BuybackStock.Add(
+                new BuybackEntry(buybackItem, soldPrice: 7));
+
+            var session = new GameSession();
+            session.WorldState.TrySetFlag("world.catacombs.opened", "true");
+            session.TryRegisterQuest(quest);
+            session.TryRegisterNpc(npc);
+
+            var factory = new GameSessionSaveSnapshotFactory();
+
+            var saveData = factory.CreateSnapshot(session, "Kampania testowa");
+
+            Assert.That(saveData.WorldFlags, Has.Count.EqualTo(1));
+            Assert.That(saveData.WorldFlags[0].Key, Is.EqualTo("world.catacombs.opened"));
+            Assert.That(saveData.WorldFlags[0].Value, Is.EqualTo("true"));
+
+            Assert.That(saveData.Quests, Has.Count.EqualTo(1));
+
+            var questSaveData = saveData.Quests[0];
+
+            Assert.That(questSaveData.QuestId, Is.EqualTo("quest.catacombs"));
+            Assert.That(questSaveData.Status, Is.EqualTo(QuestStatus.Active));
+            Assert.That(questSaveData.CurrentStageId, Is.EqualTo("stage.explore"));
+            Assert.That(questSaveData.IsHidden, Is.True);
+            Assert.That(questSaveData.ObjectiveProgress[0].ObjectiveId, Is.EqualTo("objective.leave"));
+            Assert.That(questSaveData.ObjectiveProgress[0].CurrentAmount, Is.EqualTo(1));
+            Assert.That(questSaveData.ObjectiveProgress[0].IsCompleted, Is.True);
+            Assert.That(questSaveData.QuestFlags[0].Key, Is.EqualTo("quest.flag.approached_guard"));
+            Assert.That(questSaveData.ChosenBranchIds, Is.EquivalentTo(new[] { "branch.help_guard" }));
+            Assert.That(
+                questSaveData.ClaimedRewardKeys,
+                Is.EquivalentTo(new[] { "stage.explore.reward.0" }));
+
+            Assert.That(saveData.Npcs, Has.Count.EqualTo(1));
+
+            var npcSaveData = saveData.Npcs[0];
+
+            Assert.That(npcSaveData.NpcId, Is.EqualTo("npc.guard"));
+            Assert.That(npcSaveData.LoyaltyLevel, Is.EqualTo(4));
+            Assert.That(npcSaveData.SpentGoldTotal, Is.EqualTo(125));
+            Assert.That(
+                npcSaveData.ShopItemInstanceIds,
+                Is.EquivalentTo(new[] { "item.shop.01" }));
+
+            Assert.That(npcSaveData.BuybackEntries, Has.Count.EqualTo(1));
+            Assert.That(
+                npcSaveData.BuybackEntries[0].ItemInstanceId,
+                Is.EqualTo("item.buyback.01"));
+            Assert.That(npcSaveData.BuybackEntries[0].SoldPrice, Is.EqualTo(7));
+
+            Assert.That(saveData.ItemInstances, Has.Count.EqualTo(2));
+
+            Object.DestroyImmediate(questDefinition);
+            Object.DestroyImmediate(materialDefinition);
+        }
+
+        [Test]
         public void CreateSnapshot_WhenCombatIsActive_ThrowsException()
         {
             var session = new GameSession();
@@ -151,6 +251,42 @@ namespace Godmist.Tests.EditMode
 
             Assert.Throws<System.InvalidOperationException>(
                 () => factory.CreateSnapshot(session, "Niepoprawny zapis"));
+        }
+
+        private static QuestDefinition CreateQuestDefinition(
+            string questId,
+            string stageId,
+            string objectiveId)
+        {
+            var objective = new QuestObjectiveDefinition();
+
+            SetAutoProperty(objective, "ObjectiveId", objectiveId);
+            SetAutoProperty(objective, "RequiredAmount", 1);
+
+            var stage = new QuestStageDefinition();
+
+            SetAutoProperty(stage, "StageId", stageId);
+            SetAutoProperty(
+                stage,
+                "Objectives",
+                new System.Collections.Generic.List<QuestObjectiveDefinition>
+                {
+                    objective
+                });
+
+            var definition = ScriptableObject.CreateInstance<QuestDefinition>();
+
+            SetAutoProperty(definition, "Id", questId);
+            SetAutoProperty(definition, "StartStageId", stageId);
+            SetAutoProperty(
+                definition,
+                "Stages",
+                new System.Collections.Generic.List<QuestStageDefinition>
+                {
+                    stage
+                });
+
+            return definition;
         }
 
         private static CharacterDefinition CreateCharacterDefinition(string id)

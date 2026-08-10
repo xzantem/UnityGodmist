@@ -19,6 +19,9 @@ namespace Godmist.Core.Serialization
         public List<CharacterSaveData> Characters = new();
         public List<ItemSaveData> ItemInstances = new();
         public List<string> PendingLootItemInstanceIds = new();
+        public List<KeyValueSaveData> WorldFlags = new();
+        public List<QuestSaveData> Quests = new();
+        public List<NpcSaveData> Npcs = new();
 
         public static GameSaveData CreateNew(string displayName)
         {
