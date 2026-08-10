@@ -115,6 +115,15 @@ namespace Godmist.Systems.SaveLoad
             var restoredSession = new GameSession(
                 GameModeState.Exploration, saveData.CampaignId);
 
+            if (saveData.HasExplorationPosition
+                && !restoredSession.TrySetExplorationPosition(
+                    new Vector2(
+                        saveData.ExplorationPositionX,
+                        saveData.ExplorationPositionY)))
+            {
+                return false;
+            }
+
             var assignedItemIds = new HashSet<string>(
                 StringComparer.Ordinal);
 

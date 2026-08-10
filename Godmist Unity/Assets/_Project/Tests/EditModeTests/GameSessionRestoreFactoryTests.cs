@@ -44,5 +44,37 @@ namespace Godmist.Tests.EditMode
                 Object.DestroyImmediate(catalog);
             }
         }
+
+        [Test]
+        public void TryCreate_RestoresExplorationPosition()
+        {
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+
+            try
+            {
+                var saveData = GameSaveData.CreateNew("Pozycja Arungardu");
+                saveData.Party.MaxActiveMembers = 5;
+                saveData.HasExplorationPosition = true;
+                saveData.ExplorationPositionX = 14.5f;
+                saveData.ExplorationPositionY = -7.25f;
+
+                var restoreFactory = new GameSessionRestoreFactory();
+
+                var result = restoreFactory.TryCreate(
+                    saveData,
+                    catalog,
+                    out GameSession restoredSession);
+
+                Assert.That(result, Is.True);
+                Assert.That(restoredSession.HasExplorationPosition, Is.True);
+                Assert.That(
+                    restoredSession.ExplorationPosition,
+                    Is.EqualTo(new Vector2(14.5f, -7.25f)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(catalog);
+            }
+        }
     }
 }

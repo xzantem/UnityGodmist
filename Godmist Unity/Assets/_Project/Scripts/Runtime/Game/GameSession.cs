@@ -27,6 +27,8 @@ namespace Godmist.Runtime.Game
         public IReadOnlyDictionary<string, QuestInstance> QuestsById => questsById;
         public string TrackedQuestId => trackedQuestId;
         public DungeonInstance ActiveDungeon { get; private set; }
+        public bool HasExplorationPosition { get; private set; }
+        public Vector2 ExplorationPosition { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
         public DungeonCombatContext ActiveDungeonCombatContext { get; private set; }
         public int Gold { get; private set; }
@@ -196,6 +198,21 @@ namespace Godmist.Runtime.Game
             if (!CanLeadParty(characterId)) return false;
 
             return PlayerParty.TrySetActiveLeader(characterId);
+        }
+
+        public bool TrySetExplorationPosition(Vector2 position)
+        {
+            if (float.IsNaN(position.x)
+                || float.IsNaN(position.y)
+                || float.IsInfinity(position.x)
+                || float.IsInfinity(position.y))
+            {
+                return false;
+            }
+
+            ExplorationPosition = position;
+            HasExplorationPosition = true;
+            return true;
         }
 
         public bool TrySetActiveDungeon(DungeonInstance dungeon)

@@ -93,6 +93,7 @@ namespace Godmist.Tests.EditMode
             session.TryRegisterCharacter(jerzy);
             session.TryAddCharacterToActiveParty("jerzy");
             session.TryAddGold(35);
+            session.TrySetExplorationPosition(new Vector2(12.5f, -3.25f));
             session.AddPendingLoot(new[] { pendingLoot });
 
             var factory = new GameSessionSaveSnapshotFactory();
@@ -101,6 +102,9 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(saveData.Gold, Is.EqualTo(35));
             Assert.That(saveData.CampaignId, Is.EqualTo(session.CampaignId));
+            Assert.That(saveData.HasExplorationPosition, Is.True);
+            Assert.That(saveData.ExplorationPositionX, Is.EqualTo(12.5f));
+            Assert.That(saveData.ExplorationPositionY, Is.EqualTo(-3.25f));
             Assert.That(saveData.Party.ActiveLeaderId, Is.EqualTo("jerzy"));
             Assert.That(saveData.Party.ActiveMemberIds, Is.EquivalentTo(new[] { "jerzy" }));
 

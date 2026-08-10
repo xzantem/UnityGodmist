@@ -72,6 +72,15 @@ namespace Godmist.Views.Exploration
             {
                 partyController.RestorePartyFormation(session.ActiveDungeon.PlayerPosition);
             }
+            else if (session.HasExplorationPosition)
+            {
+                partyController.RestorePartyFormation(session.ExplorationPosition);
+            }
+            else if (partyController.ActiveLeaderTransform != null)
+            {
+                session.TrySetExplorationPosition(
+                    partyController.ActiveLeaderTransform.position);
+            }
         }
 
         private CharacterInstance GetOrCreateCharacter(

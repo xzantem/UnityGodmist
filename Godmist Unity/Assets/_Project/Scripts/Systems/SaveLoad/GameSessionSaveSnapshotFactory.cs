@@ -59,6 +59,9 @@ namespace Godmist.Systems.SaveLoad
             saveData.UpdatedAtUtc = DateTime.UtcNow.ToString("O");
             saveData.Gold = session.Gold;
             saveData.TrackedQuestId = session.TrackedQuestId;
+            saveData.HasExplorationPosition = session.HasExplorationPosition;
+            saveData.ExplorationPositionX = session.ExplorationPosition.x;
+            saveData.ExplorationPositionY = session.ExplorationPosition.y;
 
             CopyParty(session.PlayerParty, saveData.Party);
 
@@ -115,6 +118,9 @@ namespace Godmist.Systems.SaveLoad
         {
             saveData.Gold = 0;
             saveData.TrackedQuestId = string.Empty;
+            saveData.HasExplorationPosition = false;
+            saveData.ExplorationPositionX = 0f;
+            saveData.ExplorationPositionY = 0f;
             saveData.Party = new PartySaveData();
             saveData.Characters.Clear();
             saveData.ItemInstances.Clear();
