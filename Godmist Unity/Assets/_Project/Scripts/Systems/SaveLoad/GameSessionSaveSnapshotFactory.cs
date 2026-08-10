@@ -57,6 +57,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.SaveVersion = GameSaveData.CurrentSaveVersion;
             saveData.UpdatedAtUtc = DateTime.UtcNow.ToString("O");
             saveData.Gold = session.Gold;
+            saveData.TrackedQuestId = session.TrackedQuestId;
 
             CopyParty(session.PlayerParty, saveData.Party);
 
@@ -112,6 +113,7 @@ namespace Godmist.Systems.SaveLoad
         private static void ClearRuntimePayload(GameSaveData saveData)
         {
             saveData.Gold = 0;
+            saveData.TrackedQuestId = string.Empty;
             saveData.Party = new PartySaveData();
             saveData.Characters.Clear();
             saveData.ItemInstances.Clear();

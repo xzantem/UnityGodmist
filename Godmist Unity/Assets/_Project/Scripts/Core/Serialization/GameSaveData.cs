@@ -15,6 +15,7 @@ namespace Godmist.Core.Serialization
         public string UpdatedAtUtc = string.Empty;
 
         public int Gold;
+        public string TrackedQuestId = string.Empty;
         public PartySaveData Party = new();
         public List<CharacterSaveData> Characters = new();
         public List<ItemSaveData> ItemInstances = new();
