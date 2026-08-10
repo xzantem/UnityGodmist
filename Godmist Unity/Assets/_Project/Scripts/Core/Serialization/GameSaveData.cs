@@ -22,6 +22,7 @@ namespace Godmist.Core.Serialization
         public List<KeyValueSaveData> WorldFlags = new();
         public List<QuestSaveData> Quests = new();
         public List<NpcSaveData> Npcs = new();
+        public DungeonSaveData ActiveDungeon;
 
         public static GameSaveData CreateNew(string displayName)
         {

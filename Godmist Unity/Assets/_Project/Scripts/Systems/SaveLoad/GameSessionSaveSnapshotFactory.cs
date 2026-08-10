@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
@@ -99,6 +100,12 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            if (!TryCaptureActiveDungeon(session, saveData))
+            {
+                ClearRuntimePayload(saveData);
+                return false;
+            }
+
             return true;
         }
 
@@ -112,6 +119,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.WorldFlags.Clear();
             saveData.Quests.Clear();
             saveData.Npcs.Clear();
+            saveData.ActiveDungeon = null;
         }
 
         private static bool TryCaptureWorldFlags(
@@ -250,6 +258,84 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Npcs.Add(npcSaveData);
             }
 
+            return true;
+        }
+
+        private static bool TryCaptureActiveDungeon(
+            GameSession session,
+            GameSaveData saveData)
+        {
+            if (session.ActiveDungeon == null)
+            {
+                saveData.ActiveDungeon = null;
+                return true;
+            }
+
+            var dungeon = session.ActiveDungeon;
+
+            if (string.IsNullOrWhiteSpace(dungeon.DungeonId))
+            {
+                return false;
+            }
+
+            var dungeonSaveData = new DungeonSaveData
+            {
+                DungeonId = dungeon.DungeonId,
+                Seed = dungeon.Seed,
+                CurrentFloorIndex = dungeon.CurrentFloorIndex,
+                IsCompleted = dungeon.IsCompleted,
+                HasPlayerPosition = dungeon.HasPlayerPosition,
+                PlayerPositionX = dungeon.PlayerPosition.x,
+                PlayerPositionY = dungeon.PlayerPosition.y,
+                ClearedEncounterIds = new List<string>(dungeon.ClearedEncounterIds)
+            };
+
+            foreach (var floor in dungeon.Floors)
+            {
+                if (floor == null)
+                {
+                    return false;
+                }
+
+                var floorDelta = new DungeonFloorDeltaSaveData
+                {
+                    FloorIndex = floor.FloorIndex
+                };
+
+                foreach (var room in floor.Rooms)
+                {
+                    if (room != null && room.IsVisited)
+                    {
+                        floorDelta.VisitedRoomIds.Add(room.RoomId);
+                    }
+                }
+
+                foreach (var dungeonObject in floor.Objects)
+                {
+                    if (dungeonObject == null)
+                    {
+                        continue;
+                    }
+
+                    var objectDelta = new DungeonObjectDeltaSaveData
+                    {
+                        ObjectInstanceId = dungeonObject.InstanceId,
+                        IsActive = dungeonObject.IsActive
+                    };
+
+                    if (dungeonObject is DoorDungeonObjectInstance door)
+                    {
+                        objectDelta.IsDoor = true;
+                        objectDelta.IsOpen = door.IsOpen;
+                    }
+
+                    floorDelta.ObjectDeltas.Add(objectDelta);
+                }
+
+                dungeonSaveData.FloorDeltas.Add(floorDelta);
+            }
+
+            saveData.ActiveDungeon = dungeonSaveData;
             return true;
         }
 

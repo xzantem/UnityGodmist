@@ -1,9 +1,11 @@
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Dungeons;
 using Godmist.Data.Items;
 using Godmist.Data.Quests;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
@@ -235,6 +237,58 @@ namespace Godmist.Tests.EditMode
 
             Object.DestroyImmediate(questDefinition);
             Object.DestroyImmediate(materialDefinition);
+        }
+
+        [Test]
+        public void CreateSnapshot_CapturesActiveDungeonAsSeedAndDeltas()
+        {
+            var dungeonDefinition = ScriptableObject.CreateInstance<DungeonDefinition>();
+
+            SetAutoProperty(dungeonDefinition, "Id", "dungeon.test");
+
+            var dungeon = new DungeonInstance(dungeonDefinition, seed: 12345);
+            var floor = new DungeonFloorInstance(0);
+
+            var startRoom = new DungeonRoomInstance(
+                "floor.0.start",
+                DungeonRoomType.Start);
+
+            var normalRoom = new DungeonRoomInstance(
+                "floor.0.normal",
+                DungeonRoomType.Normal);
+
+            startRoom.TryMarkVisited();
+
+            floor.TryAddRoom(startRoom);
+            floor.TryAddRoom(normalRoom);
+            dungeon.TryAddFloor(floor);
+            dungeon.SetPlayerPosition(new Vector2(12.5f, -4f));
+            dungeon.TryMarkEncounterCleared("encounter.floor.0.01");
+
+            var session = new GameSession();
+            session.TrySetActiveDungeon(dungeon);
+
+            var factory = new GameSessionSaveSnapshotFactory();
+
+            var saveData = factory.CreateSnapshot(session, "Kampania testowa");
+
+            Assert.That(saveData.ActiveDungeon, Is.Not.Null);
+            Assert.That(saveData.ActiveDungeon.DungeonId, Is.EqualTo("dungeon.test"));
+            Assert.That(saveData.ActiveDungeon.Seed, Is.EqualTo(12345));
+            Assert.That(saveData.ActiveDungeon.CurrentFloorIndex, Is.EqualTo(0));
+            Assert.That(saveData.ActiveDungeon.HasPlayerPosition, Is.True);
+            Assert.That(saveData.ActiveDungeon.PlayerPositionX, Is.EqualTo(12.5f));
+            Assert.That(saveData.ActiveDungeon.PlayerPositionY, Is.EqualTo(-4f));
+            Assert.That(
+                saveData.ActiveDungeon.ClearedEncounterIds,
+                Is.EquivalentTo(new[] { "encounter.floor.0.01" }));
+
+            Assert.That(saveData.ActiveDungeon.FloorDeltas, Has.Count.EqualTo(1));
+            Assert.That(
+                saveData.ActiveDungeon.FloorDeltas[0].VisitedRoomIds,
+                Is.EquivalentTo(new[] { "floor.0.start" }));
+
+            Object.DestroyImmediate(dungeonDefinition);
         }
 
         [Test]
