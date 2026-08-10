@@ -172,6 +172,7 @@ Zamkniety: zobacz sekcje `Done`.
 ### Milestone: Save and Load v1
 
 - `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture` - Done
+- `[P1] Dodac snapshoty runtime dla postaci, inventory i itemow v1` - `Core / Architecture`, `Items / Inventory / Economy` - Done
 - `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX`
 - `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration`
 - `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture`

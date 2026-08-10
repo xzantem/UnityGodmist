@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Godmist.Core.Serialization
 {
@@ -12,6 +13,12 @@ namespace Godmist.Core.Serialization
         public string DisplayName = string.Empty;
         public string CreatedAtUtc = string.Empty;
         public string UpdatedAtUtc = string.Empty;
+
+        public int Gold;
+        public PartySaveData Party = new();
+        public List<CharacterSaveData> Characters = new();
+        public List<ItemSaveData> ItemInstances = new();
+        public List<string> PendingLootItemInstanceIds = new();
 
         public static GameSaveData CreateNew(string displayName)
         {
@@ -28,5 +35,14 @@ namespace Godmist.Core.Serialization
                 UpdatedAtUtc = now
             };
         }
+    }
+
+    [Serializable]
+    public class PartySaveData
+    {
+        public int MaxActiveMembers;
+        public string ActiveLeaderId = string.Empty;
+        public List<string> ActiveMemberIds = new();
+        public List<string> BenchMemberIds = new();
     }
 }
