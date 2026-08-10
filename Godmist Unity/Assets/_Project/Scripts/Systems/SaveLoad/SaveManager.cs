@@ -22,14 +22,6 @@ namespace Godmist.Systems.SaveLoad
 
         public string SaveDirectoryPath => saveDirectoryPath;
 
-        public string QuickSavePath => Path.Combine(
-            saveDirectoryPath,
-            QuickSaveFileName);
-
-        public string AutosavePath => Path.Combine(
-            saveDirectoryPath,
-            AutosaveFileName);
-
         public SaveManager(string customSaveDirectoryPath = null)
         {
             saveDirectoryPath = string.IsNullOrWhiteSpace(
@@ -40,13 +32,34 @@ namespace Godmist.Systems.SaveLoad
                 : customSaveDirectoryPath;
         }
 
+        public string GetCampaignDirectoryPath(string campaignId)
+        {
+            return Path.Combine(
+                saveDirectoryPath,
+                campaignId?.Trim() ?? string.Empty);
+        }
+
+        public string GetQuickSavePath(string campaignId)
+        {
+            return Path.Combine(
+                GetCampaignDirectoryPath(campaignId),
+                QuickSaveFileName);
+        }
+
+        public string GetAutosavePath(string campaignId)
+        {
+            return Path.Combine(
+                GetCampaignDirectoryPath(campaignId),
+                AutosaveFileName);
+        }
+
         public bool TrySaveQuick(
             GameSession session,
             out string message)
         {
             return TrySave(
                 session,
-                QuickSavePath,
+                QuickSaveFileName,
                 QuickSaveDisplayName,
                 out message);
         }
@@ -57,12 +70,13 @@ namespace Godmist.Systems.SaveLoad
         {
             return TrySave(
                 session,
-                AutosavePath,
+                AutosaveFileName,
                 AutosaveDisplayName,
                 out message);
         }
 
         public bool TryLoadQuick(
+            string campaignId,
             GameContentCatalog contentCatalog,
             out GameSession session,
             out string message)
@@ -76,10 +90,16 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (!TryReadSaveData(
-                    QuickSavePath,
-                    out var saveData,
+            if (!TryGetCampaignSavePath(
+                    campaignId,
+                    QuickSaveFileName,
+                    out var path,
                     out message))
+            {
+                return false;
+            }
+
+            if (!TryReadSaveData(path, out var saveData, out message))
             {
                 return false;
             }
@@ -100,7 +120,7 @@ namespace Godmist.Systems.SaveLoad
 
         private bool TrySave(
             GameSession session,
-            string destinationPath,
+            string fileName,
             string displayName,
             out string message)
         {
@@ -115,6 +135,15 @@ namespace Godmist.Systems.SaveLoad
             if (session.ActiveCombat != null)
             {
                 message = "Nie można zapisać gry podczas walki.";
+                return false;
+            }
+
+            if (!TryGetCampaignSavePath(
+                    session.CampaignId,
+                    fileName,
+                    out var destinationPath,
+                    out message))
+            {
                 return false;
             }
 
@@ -166,6 +195,37 @@ namespace Godmist.Systems.SaveLoad
                 destinationPath,
                 json,
                 out message);
+        }
+
+        private bool TryGetCampaignSavePath(
+            string campaignId,
+            string fileName,
+            out string path,
+            out string message)
+        {
+            path = string.Empty;
+            message = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(campaignId))
+            {
+                message = "Brak CampaignId.";
+                return false;
+            }
+
+            if (campaignId.IndexOfAny(
+                    Path.GetInvalidFileNameChars()) >= 0
+                || campaignId.Contains("/")
+                || campaignId.Contains("\\"))
+            {
+                message = "CampaignId zawiera niedozwolone znaki.";
+                return false;
+            }
+
+            path = Path.Combine(
+                GetCampaignDirectoryPath(campaignId),
+                fileName);
+
+            return true;
         }
 
         private bool TryReadSaveData(

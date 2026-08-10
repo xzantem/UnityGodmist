@@ -180,6 +180,7 @@ Zamkniety: zobacz sekcje `Done`.
 - `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX` - Done
 - `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration` - Done
 - `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture` - Done
+- `[P1] Dodac CampaignId i strukture katalogow zapisow v1` - `Core / Architecture` - Done
 - `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`
 
 ### Milestone: Dungeon Combat Integration v1

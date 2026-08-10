@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Godmist.Core.Enums;
+using Godmist.Core.Serialization;
 using Godmist.Data.World;
 using Godmist.Runtime.Game;
 using Godmist.Systems.SaveLoad;
@@ -11,6 +12,8 @@ namespace Godmist.Tests.EditMode
 {
     public class SaveManagerTests
     {
+        private const string CampaignId = "campaign.test";
+
         private string temporaryDirectoryPath;
         private GameContentCatalog contentCatalog;
 
@@ -40,21 +43,25 @@ namespace Godmist.Tests.EditMode
         public void TrySaveAndLoadQuick_RoundTripsValidSession()
         {
             var saveManager = new SaveManager(temporaryDirectoryPath);
+
             var sourceSession = new GameSession(
-                GameModeState.Exploration);
+                GameModeState.Exploration,
+                CampaignId);
 
             var saveResult = saveManager.TrySaveQuick(
                 sourceSession,
                 out var saveMessage);
 
             var loadResult = saveManager.TryLoadQuick(
+                CampaignId,
                 contentCatalog,
                 out var restoredSession,
                 out var loadMessage);
 
             Assert.That(saveResult, Is.True, saveMessage);
             Assert.That(
-                File.Exists(saveManager.QuickSavePath),
+                File.Exists(
+                    saveManager.GetQuickSavePath(CampaignId)),
                 Is.True);
 
             Assert.That(loadResult, Is.True, loadMessage);
@@ -62,9 +69,15 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 restoredSession.CurrentMode,
                 Is.EqualTo(GameModeState.Exploration));
+
+            Assert.That(
+                restoredSession.CampaignId,
+                Is.EqualTo(CampaignId));
+
             Assert.That(
                 restoredSession.PlayerParty.MaxActiveMembers,
-                Is.EqualTo(sourceSession.PlayerParty.MaxActiveMembers));
+                Is.EqualTo(
+                    sourceSession.PlayerParty.MaxActiveMembers));
         }
 
         [Test]
@@ -73,6 +86,7 @@ namespace Godmist.Tests.EditMode
             var saveManager = new SaveManager(temporaryDirectoryPath);
 
             var result = saveManager.TryLoadQuick(
+                CampaignId,
                 contentCatalog,
                 out var restoredSession,
                 out var message);
@@ -88,13 +102,14 @@ namespace Godmist.Tests.EditMode
             var saveManager = new SaveManager(temporaryDirectoryPath);
 
             Directory.CreateDirectory(
-                saveManager.SaveDirectoryPath);
+                saveManager.GetCampaignDirectoryPath(CampaignId));
 
             File.WriteAllText(
-                saveManager.QuickSavePath,
+                saveManager.GetQuickSavePath(CampaignId),
                 "niepoprawny json");
 
             var result = saveManager.TryLoadQuick(
+                CampaignId,
                 contentCatalog,
                 out var restoredSession,
                 out var message);
@@ -105,27 +120,32 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void TrySaveAutosave_WritesSeparateAutosaveFile()
+        public void TrySaveAutosave_WritesSeparateCampaignAutosaveFile()
         {
             var saveManager = new SaveManager(temporaryDirectoryPath);
+
             var session = new GameSession(
-                GameModeState.Exploration);
+                GameModeState.Exploration,
+                CampaignId);
 
             var result = saveManager.TrySaveAutosave(
                 session,
                 out var message);
 
             Assert.That(result, Is.True, message);
+
             Assert.That(
-                File.Exists(saveManager.AutosavePath),
+                File.Exists(
+                    saveManager.GetAutosavePath(CampaignId)),
                 Is.True);
 
             Assert.That(
-                File.Exists(saveManager.QuickSavePath),
+                File.Exists(
+                    saveManager.GetQuickSavePath(CampaignId)),
                 Is.False);
 
             var json = File.ReadAllText(
-                saveManager.AutosavePath);
+                saveManager.GetAutosavePath(CampaignId));
 
             var serializer = new GameSaveJsonSerializer();
 
@@ -136,6 +156,27 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 saveData.DisplayName,
                 Is.EqualTo("Automatyczny zapis"));
+
+            Assert.That(
+                saveData.CampaignId,
+                Is.EqualTo(CampaignId));
+        }
+
+        [Test]
+        public void TrySaveQuick_WhenCampaignIdHasPathSeparator_ReturnsFalse()
+        {
+            var saveManager = new SaveManager(temporaryDirectoryPath);
+
+            var session = new GameSession(
+                GameModeState.Exploration,
+                "campaign/invalid");
+
+            var result = saveManager.TrySaveQuick(
+                session,
+                out var message);
+
+            Assert.That(result, Is.False);
+            Assert.That(message, Is.Not.Empty);
         }
     }
 }

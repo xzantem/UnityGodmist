@@ -113,7 +113,7 @@ namespace Godmist.Systems.SaveLoad
             }
 
             var restoredSession = new GameSession(
-                GameModeState.Exploration);
+                GameModeState.Exploration, saveData.CampaignId);
 
             var assignedItemIds = new HashSet<string>(
                 StringComparer.Ordinal);

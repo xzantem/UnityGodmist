@@ -19,6 +19,7 @@ namespace Godmist.Runtime.Game
         private string trackedQuestId = string.Empty;
         private readonly List<ItemInstance> pendingLoot = new();
         public GameModeState CurrentMode { get; private set; }
+        public string CampaignId { get; }
         public Party PlayerParty { get; } = new();
         public WorldState WorldState { get; } = new();
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
@@ -37,9 +38,15 @@ namespace Godmist.Runtime.Game
         public event Action<NpcInstance> NpcInteractionRequested;
         public event Action<string> TrackedQuestChanged;
 
-        public GameSession(GameModeState initialMode = GameModeState.Menu)
+        public GameSession(
+            GameModeState initialMode = GameModeState.Menu,
+            string campaignId = null)
         {
             CurrentMode = initialMode;
+
+            CampaignId = string.IsNullOrWhiteSpace(campaignId)
+                ? Guid.NewGuid().ToString("N")
+                : campaignId.Trim();
         }
 
         public bool TrySetMode(GameModeState nextMode)

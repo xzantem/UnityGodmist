@@ -29,7 +29,7 @@ namespace Godmist.Systems.SaveLoad
                     "Nie mozna utworzyc zapisu podczas aktywnej walki.");
             }
 
-            var saveData = GameSaveData.CreateNew(displayName);
+            var saveData = GameSaveData.CreateNew(displayName, session.CampaignId);
 
             if (!TryCaptureInto(saveData, session))
             {
@@ -55,6 +55,7 @@ namespace Godmist.Systems.SaveLoad
             ClearRuntimePayload(saveData);
 
             saveData.SaveVersion = GameSaveData.CurrentSaveVersion;
+            saveData.CampaignId = session.CampaignId;
             saveData.UpdatedAtUtc = DateTime.UtcNow.ToString("O");
             saveData.Gold = session.Gold;
             saveData.TrackedQuestId = session.TrackedQuestId;

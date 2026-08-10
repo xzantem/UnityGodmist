@@ -18,6 +18,7 @@ namespace Godmist.Tests.EditMode
             {
                 var saveData = GameSaveData.CreateNew("Restore test");
                 saveData.Party.MaxActiveMembers = 5;
+                saveData.CampaignId = "campaign.restore";
 
                 var restoreFactory = new GameSessionRestoreFactory();
 
@@ -29,6 +30,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(result, Is.True);
                 Assert.That(restoredSession, Is.Not.Null);
                 Assert.That(restoredSession.Gold, Is.EqualTo(0));
+                Assert.That(restoredSession.CampaignId, Is.EqualTo("campaign.restore"));
                 Assert.That(
                     restoredSession.PlayerParty.MaxActiveMembers,
                     Is.EqualTo(5));

@@ -10,6 +10,7 @@ namespace Godmist.Core.Serialization
 
         public int SaveVersion = CurrentSaveVersion;
         public string SaveId = string.Empty;
+        public string CampaignId = string.Empty;
         public string DisplayName = string.Empty;
         public string CreatedAtUtc = string.Empty;
         public string UpdatedAtUtc = string.Empty;
@@ -25,7 +26,9 @@ namespace Godmist.Core.Serialization
         public List<NpcSaveData> Npcs = new();
         public DungeonSaveData ActiveDungeon;
 
-        public static GameSaveData CreateNew(string displayName)
+        public static GameSaveData CreateNew(
+            string displayName,
+            string campaignId = null)
         {
             var now = DateTime.UtcNow.ToString("O");
 
@@ -33,6 +36,7 @@ namespace Godmist.Core.Serialization
             {
                 SaveVersion = CurrentSaveVersion,
                 SaveId = Guid.NewGuid().ToString("N"),
+                CampaignId = campaignId?.Trim() ?? string.Empty,
                 DisplayName = string.IsNullOrWhiteSpace(displayName)
                     ? "Nowa kampania"
                     : displayName.Trim(),

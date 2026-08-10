@@ -100,6 +100,7 @@ namespace Godmist.Tests.EditMode
             var saveData = factory.CreateSnapshot(session, "Kampania testowa");
 
             Assert.That(saveData.Gold, Is.EqualTo(35));
+            Assert.That(saveData.CampaignId, Is.EqualTo(session.CampaignId));
             Assert.That(saveData.Party.ActiveLeaderId, Is.EqualTo("jerzy"));
             Assert.That(saveData.Party.ActiveMemberIds, Is.EquivalentTo(new[] { "jerzy" }));
 

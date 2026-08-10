@@ -162,6 +162,7 @@ namespace Godmist.Views.Game
             }
 
             if (!SaveManager.TryLoadQuick(
+                    Session.CampaignId,
                     contentCatalog,
                     out var restoredSession,
                     out message))
