@@ -10,7 +10,10 @@ namespace Godmist.Systems.SaveLoad
     public class SaveManager
     {
         private const string QuickSaveFileName = "quicksave.json";
+        private const string AutosaveFileName = "autosave.json";
+
         private const string QuickSaveDisplayName = "Szybki zapis";
+        private const string AutosaveDisplayName = "Automatyczny zapis";
 
         private readonly string saveDirectoryPath;
         private readonly GameSaveJsonSerializer serializer = new();
@@ -22,6 +25,10 @@ namespace Godmist.Systems.SaveLoad
         public string QuickSavePath => Path.Combine(
             saveDirectoryPath,
             QuickSaveFileName);
+
+        public string AutosavePath => Path.Combine(
+            saveDirectoryPath,
+            AutosaveFileName);
 
         public SaveManager(string customSaveDirectoryPath = null)
         {
@@ -37,67 +44,21 @@ namespace Godmist.Systems.SaveLoad
             GameSession session,
             out string message)
         {
-            message = string.Empty;
-
-            if (session == null)
-            {
-                message = "Brak aktywnej sesji gry.";
-                return false;
-            }
-
-            if (session.ActiveCombat != null)
-            {
-                message = "Nie można zapisać gry podczas walki.";
-                return false;
-            }
-
-            GameSaveData saveData;
-
-            if (File.Exists(QuickSavePath))
-            {
-                if (!TryReadSaveData(
-                        QuickSavePath,
-                        out saveData,
-                        out message))
-                {
-                    message = $"Nie można nadpisać zapisu: {message}";
-                    return false;
-                }
-
-                saveData.DisplayName = QuickSaveDisplayName;
-
-                if (!snapshotFactory.TryCaptureInto(saveData, session))
-                {
-                    message = "Nie udało się utworzyć danych zapisu.";
-                    return false;
-                }
-            }
-            else
-            {
-                try
-                {
-                    saveData = snapshotFactory.CreateSnapshot(
-                        session,
-                        QuickSaveDisplayName);
-                }
-                catch (Exception exception)
-                {
-                    message = exception.Message;
-                    return false;
-                }
-            }
-
-            var json = serializer.Serialize(saveData);
-
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                message = "Serializacja zapisu zwróciła pusty wynik.";
-                return false;
-            }
-
-            return TryWriteText(
+            return TrySave(
+                session,
                 QuickSavePath,
-                json,
+                QuickSaveDisplayName,
+                out message);
+        }
+
+        public bool TrySaveAutosave(
+            GameSession session,
+            out string message)
+        {
+            return TrySave(
+                session,
+                AutosavePath,
+                AutosaveDisplayName,
                 out message);
         }
 
@@ -135,6 +96,76 @@ namespace Godmist.Systems.SaveLoad
 
             message = $"Wczytano zapis: {saveData.DisplayName}.";
             return true;
+        }
+
+        private bool TrySave(
+            GameSession session,
+            string destinationPath,
+            string displayName,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (session == null)
+            {
+                message = "Brak aktywnej sesji gry.";
+                return false;
+            }
+
+            if (session.ActiveCombat != null)
+            {
+                message = "Nie można zapisać gry podczas walki.";
+                return false;
+            }
+
+            GameSaveData saveData;
+
+            if (File.Exists(destinationPath))
+            {
+                if (!TryReadSaveData(
+                        destinationPath,
+                        out saveData,
+                        out message))
+                {
+                    message = $"Nie można nadpisać zapisu: {message}";
+                    return false;
+                }
+
+                saveData.DisplayName = displayName;
+
+                if (!snapshotFactory.TryCaptureInto(saveData, session))
+                {
+                    message = "Nie udało się utworzyć danych zapisu.";
+                    return false;
+                }
+            }
+            else
+            {
+                try
+                {
+                    saveData = snapshotFactory.CreateSnapshot(
+                        session,
+                        displayName);
+                }
+                catch (Exception exception)
+                {
+                    message = exception.Message;
+                    return false;
+                }
+            }
+
+            var json = serializer.Serialize(saveData);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                message = "Serializacja zapisu zwróciła pusty wynik.";
+                return false;
+            }
+
+            return TryWriteText(
+                destinationPath,
+                json,
+                out message);
         }
 
         private bool TryReadSaveData(

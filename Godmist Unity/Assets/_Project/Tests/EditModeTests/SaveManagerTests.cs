@@ -103,5 +103,39 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredSession, Is.Null);
             Assert.That(message, Is.Not.Empty);
         }
+
+        [Test]
+        public void TrySaveAutosave_WritesSeparateAutosaveFile()
+        {
+            var saveManager = new SaveManager(temporaryDirectoryPath);
+            var session = new GameSession(
+                GameModeState.Exploration);
+
+            var result = saveManager.TrySaveAutosave(
+                session,
+                out var message);
+
+            Assert.That(result, Is.True, message);
+            Assert.That(
+                File.Exists(saveManager.AutosavePath),
+                Is.True);
+
+            Assert.That(
+                File.Exists(saveManager.QuickSavePath),
+                Is.False);
+
+            var json = File.ReadAllText(
+                saveManager.AutosavePath);
+
+            var serializer = new GameSaveJsonSerializer();
+
+            Assert.That(
+                serializer.TryDeserialize(json, out var saveData),
+                Is.True);
+
+            Assert.That(
+                saveData.DisplayName,
+                Is.EqualTo("Automatyczny zapis"));
+        }
     }
 }

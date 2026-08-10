@@ -5,6 +5,7 @@ using Godmist.Data.World;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
+using Godmist.Runtime.Quests;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.NPC;
 using Godmist.Systems.Quests;
@@ -37,6 +38,8 @@ namespace Godmist.Views.Game
         private SceneLoader sceneLoader;
         private QuestObjectiveProgressSystem questObjectiveProgressSystem;
         private DialogueQuestActionSystem dialogueQuestActionSystem;
+        private bool autosaveRequested;
+        private string pendingAutosaveReason = string.Empty;
 
         private readonly DungeonGeneratorService dungeonGenerator = new();
         private readonly DungeonEncounterRewardPreparationSystem
@@ -66,6 +69,29 @@ namespace Godmist.Views.Game
             sceneLoader.Initialize(Session);
 
             InitializeRuntimeServices();
+        }
+
+        private void Update()
+        {
+            if (!autosaveRequested)
+            {
+                return;
+            }
+
+            autosaveRequested = false;
+
+            if (TrySaveAutosave(
+                    pendingAutosaveReason,
+                    out var message))
+            {
+                Debug.Log(message);
+            }
+            else
+            {
+                Debug.LogWarning(message);
+            }
+
+            pendingAutosaveReason = string.Empty;
         }
 
         private void OnDestroy()
@@ -196,9 +222,10 @@ namespace Godmist.Views.Game
                         dungeonSceneName,
                         GameModeState.Exploration))
                 {
+                    RequestAutosave("Wejście do lochu");
                     return true;
                 }
-
+                
                 Session.TryClearActiveDungeon();
                 return false;
             }
@@ -253,6 +280,7 @@ namespace Godmist.Views.Game
             DungeonExited?.Invoke(dungeon);
 
             Session.TryClearActiveDungeon();
+            RequestAutosave("Wyjście z lochu");
             return true;
         }
 
@@ -261,6 +289,8 @@ namespace Godmist.Views.Game
             out string message)
         {
             message = string.Empty;
+            autosaveRequested = false;
+            pendingAutosaveReason = string.Empty;
 
             if (restoredSession == null || sceneLoader == null)
             {
@@ -313,6 +343,7 @@ namespace Godmist.Views.Game
                     QuestService);
 
             DialogueService.DialogueEnded += HandleDialogueEnded;
+            QuestService.QuestCompleted += HandleQuestCompleted;
         }
 
         private void UnsubscribeRuntimeServices()
@@ -320,10 +351,56 @@ namespace Godmist.Views.Game
             dialogueQuestActionSystem?.Dispose();
             dialogueQuestActionSystem = null;
 
+            if (QuestService != null)
+            {
+                QuestService.QuestCompleted -= HandleQuestCompleted;
+            }
             if (DialogueService != null)
             {
                 DialogueService.DialogueEnded -= HandleDialogueEnded;
             }
+        }
+
+        private bool TrySaveAutosave(
+            string reason,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (SaveManager == null)
+            {
+                message = "GameBootstrap: brak SaveManager.";
+                return false;
+            }
+
+            if (!SaveManager.TrySaveAutosave(Session, out message))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                message = $"Autosave ({reason}): {message}";
+            }
+
+            return true;
+        }
+
+        private void RequestAutosave(string reason)
+        {
+            autosaveRequested = true;
+            pendingAutosaveReason = reason ?? string.Empty;
+        }
+
+        private void HandleQuestCompleted(QuestInstance quest)
+        {
+            if (quest == null)
+            {
+                return;
+            }
+
+            RequestAutosave(
+                $"ukończenie questa '{quest.QuestId}'");
         }
 
         private void HandleDialogueEnded(NpcInstance npc)
