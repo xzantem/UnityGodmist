@@ -20,7 +20,6 @@ namespace Godmist.Views.Dungeons
 
         private void Start()
         {
-            Debug.Log("DungeonSandboxBootstrap.Start entered.");
             var session = GameBootstrap.Instance?.Session;
             var dungeon = session?.ActiveDungeon;
 
@@ -71,8 +70,6 @@ namespace Godmist.Views.Dungeons
                 }
 
                 if (!partySpawner.TrySpawn(session, spawnPosition)) return;
-
-                Debug.Log("Dungeon party spawned.");
 
                 if (!objectSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 

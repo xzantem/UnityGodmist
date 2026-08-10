@@ -93,8 +93,6 @@ namespace Godmist.Systems.Combat
                 ? CombatOutcomeState.Defeat
                 : CombatOutcomeState.Escaped;
 
-            Debug.Log($"Escape complete: units={session.Units.Count}, outcome={session.Outcome}");
-
             battleLog?.Invoke(mainCharacterWasAbandoned
                 ? "Główna postać została porzucona. Drużyna ponosi porażkę."
                 : "Drużyna opuszcza walkę.");

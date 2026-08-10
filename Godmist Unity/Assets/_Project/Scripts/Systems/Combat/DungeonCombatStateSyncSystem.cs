@@ -21,6 +21,14 @@ namespace Godmist.Systems.Combat
 
             var context = gameSession.ActiveDungeonCombatContext;
 
+            if (!string.Equals(
+                    combatSession.CombatId,
+                    context.EncounterInstanceId,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
             if (!gameSession.ActiveDungeon.TryGetFloor(
                     context.FloorIndex,
                     out var floor))

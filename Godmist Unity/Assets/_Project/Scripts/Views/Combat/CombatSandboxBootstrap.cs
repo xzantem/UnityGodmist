@@ -840,8 +840,6 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
-            Debug.Log($"Return from combat: outcome={outcome}");
-
             if (outcome == CombatOutcomeState.Victory)
             {
                 rewardSystem.TryGrantVictoryRewards(gameSession, Session);
@@ -856,8 +854,6 @@ namespace Godmist.Views.Combat
             {
                 return false;
             }
-
-            Debug.Log("Requesting dungeon scene load after escape.");
 
             hasRequestedExplorationReturn = true;
             gameSession.TryClearActiveCombat();

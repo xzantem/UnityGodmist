@@ -220,14 +220,6 @@ namespace Godmist.Runtime.Game
             }
 
             ActiveDungeonCombatContext = context;
-            Debug.Log(
-                $"DungeonCombatContext: dungeon={context.DungeonId}, "
-                + $"floor={context.FloorIndex}, "
-                + $"encounter={context.EncounterInstanceId}, "
-                + $"room={context.EncounterRoomId}, "
-                + $"cells={context.WorldCells.Count}, "
-                + $"walls={context.WallEdges.Count}, "
-                + $"objects={context.MapObjects.Count}");
             return true;
         }
 
