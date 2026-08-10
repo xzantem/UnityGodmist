@@ -1,0 +1,127 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Data.Characters;
+using Godmist.Data.Dungeons;
+using Godmist.Data.Items;
+using Godmist.Data.NPC;
+using Godmist.Data.Quests;
+using Godmist.Data.Skills;
+using UnityEngine;
+
+namespace Godmist.Data.World
+{
+    [CreateAssetMenu(
+        fileName = "GameContentCatalog",
+        menuName = "Godmist/World/Game Content Catalog")]
+    public class GameContentCatalog : ScriptableObject
+    {
+        [field: SerializeField] public List<CharacterDefinition> CharacterDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<CharacterClassData> CharacterClasses { get; private set; } = new();
+        [field: SerializeField] public List<ItemDefinition> ItemDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<SkillData> SkillDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<QuestDefinition> QuestDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<NpcDefinition> NpcDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<DungeonDefinition> DungeonDefinitions { get; private set; } = new();
+
+        public bool TryGetCharacter(
+            string characterId,
+            out CharacterDefinition definition)
+        {
+            return TryFind(CharacterDefinitions, characterId, out definition);
+        }
+
+        public bool TryGetCharacterClass(
+            string classId,
+            out CharacterClassData definition)
+        {
+            return TryFind(CharacterClasses, classId, out definition);
+        }
+
+        public bool TryGetItem(
+            string itemId,
+            out ItemDefinition definition)
+        {
+            return TryFind(ItemDefinitions, itemId, out definition);
+        }
+
+        public bool TryGetSkill(
+            string skillId,
+            out SkillData definition)
+        {
+            return TryFind(SkillDefinitions, skillId, out definition);
+        }
+
+        public bool TryGetQuest(
+            string questId,
+            out QuestDefinition definition)
+        {
+            return TryFind(QuestDefinitions, questId, out definition);
+        }
+
+        public bool TryGetNpc(
+            string npcId,
+            out NpcDefinition definition)
+        {
+            return TryFind(NpcDefinitions, npcId, out definition);
+        }
+
+        public bool TryGetDungeon(
+            string dungeonId,
+            out DungeonDefinition definition)
+        {
+            return TryFind(DungeonDefinitions, dungeonId, out definition);
+        }
+
+        private static bool TryFind<T>(
+            List<T> definitions,
+            string id,
+            out T definition)
+            where T : ScriptableObject
+        {
+            definition = null;
+
+            if (definitions == null || string.IsNullOrWhiteSpace(id))
+            {
+                return false;
+            }
+
+            foreach (var candidate in definitions)
+            {
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                var candidateId = GetId(candidate);
+
+                if (!string.Equals(
+                        candidateId,
+                        id,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                definition = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static string GetId(ScriptableObject definition)
+        {
+            return definition switch
+            {
+                CharacterDefinition value => value.Id,
+                CharacterClassData value => value.Id,
+                ItemDefinition value => value.Id,
+                SkillData value => value.SkillId,
+                QuestDefinition value => value.Id,
+                NpcDefinition value => value.Id,
+                DungeonDefinition value => value.Id,
+                _ => string.Empty
+            };
+        }
+    }
+}
