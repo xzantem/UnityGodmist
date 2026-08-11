@@ -68,6 +68,7 @@ namespace Godmist.Core.Serialization
         public int Stacks;
         public bool IsTimed;
         public int RemainingDuration;
+        public PassiveEffectTickPhase TickPhase;
         public int TotalDamage;
         public List<StatModifierSaveData> StatModifiers = new();
     }

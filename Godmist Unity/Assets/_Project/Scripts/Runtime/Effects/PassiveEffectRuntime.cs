@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Core.Types;
 
 namespace Godmist.Runtime.Effects
@@ -11,9 +12,10 @@ namespace Godmist.Runtime.Effects
         public List<string> SourceEntityIds = new();
         public int Stacks = 1;
 
-        // False means a permanent passive/modifier.
+        // False means a permanent passive or modifier.
         public bool IsTimed;
         public int RemainingDuration;
+        public PassiveEffectTickPhase TickPhase = PassiveEffectTickPhase.None;
 
         public int TotalDamage;
         public List<StatModifier> StatModifiers = new();
@@ -28,7 +30,8 @@ namespace Godmist.Runtime.Effects
             int stacks,
             int remainingDuration,
             int totalDamage,
-            bool? isTimed = null)
+            bool? isTimed = null,
+            PassiveEffectTickPhase tickPhase = PassiveEffectTickPhase.None)
         {
             EffectId = effectId ?? string.Empty;
             SourceEntityIds = sourceEntityIds != null
@@ -38,6 +41,7 @@ namespace Godmist.Runtime.Effects
             Stacks = stacks;
             IsTimed = isTimed ?? remainingDuration > 0;
             RemainingDuration = remainingDuration;
+            TickPhase = IsTimed ? tickPhase : PassiveEffectTickPhase.None;
             TotalDamage = totalDamage;
         }
     }

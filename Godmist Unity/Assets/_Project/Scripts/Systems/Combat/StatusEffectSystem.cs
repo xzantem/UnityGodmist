@@ -73,6 +73,14 @@ namespace Godmist.Systems.Combat
 
             var existingEffect = FindEffect(target.Character.PassiveEffects, effect.StatusId);
 
+            if (existingEffect != null)
+            {
+                existingEffect.IsTimed = true;
+                existingEffect.TickPhase = IsBleed(effect.StatusId)
+                    ? PassiveEffectTickPhase.TurnStart
+                    : PassiveEffectTickPhase.TurnEnd;
+            }
+
             if (existingEffect == null)
             {
                 var sourceIds = new List<string>();
@@ -89,7 +97,8 @@ namespace Godmist.Systems.Combat
                         IsBleed(effect.StatusId) ? 1 : stacks,
                         duration,
                         totalDamage,
-                        isTimed: true));
+                        isTimed: true, tickPhase: IsBleed(effect.StatusId) 
+                            ? PassiveEffectTickPhase.TurnStart : PassiveEffectTickPhase.TurnEnd));
             }
             else if (IsBleed(effect.StatusId))
             {

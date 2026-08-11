@@ -83,7 +83,8 @@ namespace Godmist.Tests.EditMode
                 new() { "enemy.test" },
                 stacks: 2,
                 remainingDuration: 3,
-                totalDamage: 30));
+                totalDamage: 30,
+                tickPhase: PassiveEffectTickPhase.TurnStart));
 
             var pendingLoot = new ItemInstance(
                 materialDefinition,
@@ -121,6 +122,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(characterSaveData.ShieldLayers[0].CurrentValue, Is.EqualTo(12));
             Assert.That(characterSaveData.PassiveEffects[0].EffectId, Is.EqualTo("status.bleed"));
             Assert.That(characterSaveData.PassiveEffects[0].IsTimed, Is.True);
+            Assert.That(characterSaveData.PassiveEffects[0].TickPhase, Is.EqualTo(PassiveEffectTickPhase.TurnStart));
 
             Assert.That(
                 characterSaveData.InventoryItemInstanceIds,

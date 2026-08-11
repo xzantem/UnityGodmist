@@ -516,6 +516,7 @@ namespace Godmist.Systems.SaveLoad
                         : new List<string>(),
                     Stacks = effect.Stacks,
                     IsTimed = effect.IsTimed,
+                    TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,
                     TotalDamage = effect.TotalDamage,
                     StatModifiers = CopyStatModifiers(effect.StatModifiers)

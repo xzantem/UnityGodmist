@@ -511,7 +511,7 @@ namespace Godmist.Systems.SaveLoad
                         effectSaveData.Stacks,
                         effectSaveData.RemainingDuration,
                         effectSaveData.TotalDamage,
-                        isTimed)
+                        isTimed, effectSaveData.TickPhase)
                     {
                         StatModifiers = statModifiers
                     });
