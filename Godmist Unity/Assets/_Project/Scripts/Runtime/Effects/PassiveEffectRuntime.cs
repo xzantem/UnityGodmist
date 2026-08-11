@@ -10,7 +10,11 @@ namespace Godmist.Runtime.Effects
         public string EffectId = string.Empty;
         public List<string> SourceEntityIds = new();
         public int Stacks = 1;
+
+        // False means a permanent passive/modifier.
+        public bool IsTimed;
         public int RemainingDuration;
+
         public int TotalDamage;
         public List<StatModifier> StatModifiers = new();
 
@@ -23,7 +27,8 @@ namespace Godmist.Runtime.Effects
             List<string> sourceEntityIds,
             int stacks,
             int remainingDuration,
-            int totalDamage)
+            int totalDamage,
+            bool? isTimed = null)
         {
             EffectId = effectId ?? string.Empty;
             SourceEntityIds = sourceEntityIds != null
@@ -31,6 +36,7 @@ namespace Godmist.Runtime.Effects
                 : new List<string>();
 
             Stacks = stacks;
+            IsTimed = isTimed ?? remainingDuration > 0;
             RemainingDuration = remainingDuration;
             TotalDamage = totalDamage;
         }

@@ -502,13 +502,16 @@ namespace Godmist.Systems.SaveLoad
                     return false;
                 }
 
+                var isTimed = effectSaveData.IsTimed || effectSaveData.RemainingDuration > 0;
+
                 character.PassiveEffects.Add(
                     new PassiveEffectRuntime(
                         effectSaveData.EffectId,
                         effectSaveData.SourceEntityIds,
                         effectSaveData.Stacks,
                         effectSaveData.RemainingDuration,
-                        effectSaveData.TotalDamage)
+                        effectSaveData.TotalDamage,
+                        isTimed)
                     {
                         StatModifiers = statModifiers
                     });

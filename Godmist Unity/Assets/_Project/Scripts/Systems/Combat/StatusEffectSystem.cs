@@ -88,7 +88,8 @@ namespace Godmist.Systems.Combat
                         sourceIds,
                         IsBleed(effect.StatusId) ? 1 : stacks,
                         duration,
-                        totalDamage));
+                        totalDamage,
+                        isTimed: true));
             }
             else if (IsBleed(effect.StatusId))
             {
@@ -144,8 +145,16 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in unit.Character.PassiveEffects)
             {
-                if (effect != null && effect.RemainingDuration > 0 
-                    && string.Equals(effect.EffectId, statusId, StringComparison.OrdinalIgnoreCase)) return true;
+                if (effect != null
+                    && effect.IsTimed
+                    && effect.RemainingDuration > 0
+                    && string.Equals(
+                        effect.EffectId,
+                        statusId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -161,7 +170,18 @@ namespace Godmist.Systems.Combat
             {
                 var effect = effects[i];
 
-                if (effect == null || effect.RemainingDuration <= 0)
+                if (effect == null)
+                {
+                    effects.RemoveAt(i);
+                    continue;
+                }
+
+                if (!effect.IsTimed)
+                {
+                    continue;
+                }
+
+                if (effect.RemainingDuration <= 0)
                 {
                     effects.RemoveAt(i);
                     continue;
@@ -196,6 +216,11 @@ namespace Godmist.Systems.Combat
                 if (effect == null)
                 {
                     effects.RemoveAt(i);
+                    continue;
+                }
+
+                if (!effect.IsTimed)
+                {
                     continue;
                 }
 

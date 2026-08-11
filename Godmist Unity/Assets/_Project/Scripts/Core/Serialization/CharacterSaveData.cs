@@ -66,6 +66,7 @@ namespace Godmist.Core.Serialization
         public string EffectId = string.Empty;
         public List<string> SourceEntityIds = new();
         public int Stacks;
+        public bool IsTimed;
         public int RemainingDuration;
         public int TotalDamage;
         public List<StatModifierSaveData> StatModifiers = new();
