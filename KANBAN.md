@@ -46,11 +46,10 @@ Priorytety:
 
 ## In Progress
 
-- `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
-
 
 ## Done
 
+- `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
 - `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
 - `[P1] Zrefaktoryzowac aplikowanie i usuwanie statusow pod PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
 - `[P1] Zrefaktoryzowac warunki efektow na effectId/index v2` - `Combat`, `Core / Architecture`, `Content / Data`

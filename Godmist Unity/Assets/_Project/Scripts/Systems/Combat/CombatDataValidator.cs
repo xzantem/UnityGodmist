@@ -5,6 +5,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
+using UnityEngine;
 
 namespace Godmist.Systems.Combat
 {
@@ -266,6 +267,31 @@ namespace Godmist.Systems.Combat
                     {
                         report.AddError(
                             $"{prefix}: Base Value musi być większe od zera.");
+                    }
+                }
+
+                if (effect.EffectType == EffectType.ModifyStat)
+                {
+                    if (Mathf.Approximately(effect.ModifierValue, 0f))
+                    {
+                        report.AddError(
+                            $"{prefix}: Modifier Value nie może wynosić 0.");
+                    }
+
+                    if (effect.ModifierOperation == StatModifierOperation.Percent
+                        && effect.ModifierStacking
+                            == StatModifierStacking.Multiplicative
+                        && effect.ModifierValue < -1f)
+                    {
+                        report.AddError(
+                            $"{prefix}: multiplikatywny Modifier Value " +
+                            "nie może być mniejszy od -1.");
+                    }
+
+                    if (effect.DurationTurns < 0)
+                    {
+                        report.AddError(
+                            $"{prefix}: Duration Turns nie może być ujemne.");
                     }
                 }
 

@@ -11,6 +11,7 @@ using Godmist.Views.UI;
 using Godmist.Views.Game;
 using UnityEngine;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Characters;
 
 namespace Godmist.Views.Combat
 {
@@ -69,6 +70,10 @@ namespace Godmist.Views.Combat
         private CombatInteractionSystem interactionSystem;
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
+        private CharacterStatPipelineSystem statPipeline;
+        private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
+        private ModifyStatSystem modifyStatSystem;
+        private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
         private bool usesGameSessionCombat;
@@ -89,16 +94,32 @@ namespace Godmist.Views.Combat
                 RemoveUnitFromCombat, resourceRuleSystem);
             recoverySystem = new CombatRecoverySystem(AddBattleLog);
             reviveSystem = new CombatReviveSystem(AddBattleLog);
+            statPipeline = new CharacterStatPipelineSystem();
+
+            passiveEffectLifecycleSystem = new PassiveEffectLifecycleSystem(
+                AddBattleLog,
+                new IPassiveEffectTurnProcessor[]
+                {
+                    new BleedPassiveEffectProcessor(damageSystem)
+                },
+                statPipeline);
+
+            modifyStatSystem = new ModifyStatSystem(
+                AddBattleLog,
+                passiveEffectLifecycleSystem);
             statusEffectSystem = new StatusEffectSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
-                session => outcomeSystem.EvaluateCombatOutcome(session), damageSystem);
+                session => outcomeSystem.EvaluateCombatOutcome(session),
+                damageSystem,
+                passiveEffectLifecycleSystem);
             lineOfSightService = new CombatLineOfSightService();
             skillExecutionSystem = new SkillExecutionSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                statusEffectSystem, damageSystem, recoverySystem, lineOfSightService: lineOfSightService);
+                statusEffectSystem, damageSystem, recoverySystem,
+                lineOfSightService: lineOfSightService, modifyStatSystem: modifyStatSystem);
             movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem);
             interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
             interactionSystem.InitializeMapObjects(Session);
@@ -116,6 +137,7 @@ namespace Godmist.Views.Combat
         }
         private void Update()
         {
+            ClearCombatScopedEffectsIfNeeded();
             if (usesGameSessionCombat && TryReturnToExploration()) return;
             if (DevConsoleView.IsOpen) return;
             if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.R))
@@ -317,6 +339,7 @@ namespace Godmist.Views.Combat
             }
 
             Session = CreateInitialSession();
+            hasClearedCombatScopedEffects = false;
 
             battleLog?.ClearLog();
             AddBattleLog("Walka rozpoczęta ponownie.");
@@ -804,6 +827,19 @@ namespace Godmist.Views.Combat
                 new Vector2(
                     encounter.RetreatPosition.x,
                     encounter.RetreatPosition.y));
+        }
+
+        private void ClearCombatScopedEffectsIfNeeded()
+        {
+            if (hasClearedCombatScopedEffects
+                || Session == null
+                || Session.Outcome == CombatOutcomeState.Ongoing)
+            {
+                return;
+            }
+
+            passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
+            hasClearedCombatScopedEffects = true;
         }
 
         private bool TryReturnToExploration()

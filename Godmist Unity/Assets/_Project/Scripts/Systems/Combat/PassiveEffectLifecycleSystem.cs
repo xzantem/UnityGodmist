@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
+using Godmist.Systems.Characters;
 
 namespace Godmist.Systems.Combat
 {
@@ -11,17 +13,71 @@ namespace Godmist.Systems.Combat
     {
         private readonly Action<string> battleLog;
         private readonly IReadOnlyList<IPassiveEffectTurnProcessor> turnProcessors;
+        private readonly CharacterStatPipelineSystem statPipeline;
 
         public PassiveEffectLifecycleSystem(
             Action<string> battleLog = null,
-            IReadOnlyList<IPassiveEffectTurnProcessor> turnProcessors = null)
+            IReadOnlyList<IPassiveEffectTurnProcessor> turnProcessors = null,
+            CharacterStatPipelineSystem statPipeline = null)
         {
             this.battleLog = battleLog;
             this.turnProcessors = turnProcessors
                 ?? new List<IPassiveEffectTurnProcessor>();
+
+            this.statPipeline = statPipeline ?? new CharacterStatPipelineSystem();
         }
 
         public bool TryApplyTimedEffect(
+            CharacterInstance character,
+            PassiveEffectRuntime incomingEffect,
+            PassiveEffectStackingMode stackingMode,
+            out PassiveEffectRuntime appliedEffect)
+        {
+            appliedEffect = null;
+
+            if (incomingEffect == null)
+            {
+                return false;
+            }
+
+            incomingEffect.IsTimed = true;
+            incomingEffect.RemainingDuration = Math.Max(
+                1,
+                incomingEffect.RemainingDuration);
+
+            return TryApplyEffect(
+                character,
+                incomingEffect,
+                stackingMode,
+                out appliedEffect);
+        }
+
+        public bool TryApplyCombatScopedEffect(
+            CharacterInstance character,
+            PassiveEffectRuntime incomingEffect,
+            PassiveEffectStackingMode stackingMode,
+            out PassiveEffectRuntime appliedEffect)
+        {
+            appliedEffect = null;
+
+            if (incomingEffect == null)
+            {
+                return false;
+            }
+
+            incomingEffect.IsTimed = false;
+            incomingEffect.RemainingDuration = 0;
+            incomingEffect.TickPhase = PassiveEffectTickPhase.None;
+            incomingEffect.RemoveOnCombatEnd = true;
+
+            return TryApplyEffect(
+                character,
+                incomingEffect,
+                stackingMode,
+                out appliedEffect);
+        }
+
+        private bool TryApplyEffect(
             CharacterInstance character,
             PassiveEffectRuntime incomingEffect,
             PassiveEffectStackingMode stackingMode,
@@ -36,11 +92,6 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            incomingEffect.IsTimed = true;
-            incomingEffect.RemainingDuration = Math.Max(
-                1,
-                incomingEffect.RemainingDuration);
-
             incomingEffect.Stacks = Math.Max(1, incomingEffect.Stacks);
 
             var existingEffect = FindEffect(
@@ -50,12 +101,16 @@ namespace Godmist.Systems.Combat
             if (existingEffect == null)
             {
                 character.PassiveEffects.Add(incomingEffect);
+                if (HasStatModifiers(incomingEffect)) RefreshStats(character);
+
                 appliedEffect = incomingEffect;
                 return true;
             }
 
-            existingEffect.IsTimed = true;
+            existingEffect.IsTimed = incomingEffect.IsTimed;
             existingEffect.TickPhase = incomingEffect.TickPhase;
+            existingEffect.RemoveOnCombatEnd = incomingEffect.RemoveOnCombatEnd;
+            var existingEffectHadStatModifiers = HasStatModifiers(existingEffect);
 
             switch (stackingMode)
             {
@@ -73,6 +128,16 @@ namespace Godmist.Systems.Combat
                 case PassiveEffectStackingMode.ReplaceDuration:
                     existingEffect.RemainingDuration =
                         incomingEffect.RemainingDuration;
+                    break;
+
+                case PassiveEffectStackingMode.ReplaceDurationAndValues:
+                    existingEffect.RemainingDuration =
+                        incomingEffect.RemainingDuration;
+
+                    existingEffect.Stacks = incomingEffect.Stacks;
+                    existingEffect.TotalDamage = incomingEffect.TotalDamage;
+                    existingEffect.StatModifiers = CopyStatModifiers(
+                        incomingEffect.StatModifiers);
                     break;
 
                 default:
@@ -93,6 +158,9 @@ namespace Godmist.Systems.Combat
             AddSources(
                 existingEffect.SourceEntityIds,
                 incomingEffect.SourceEntityIds);
+
+            if (existingEffectHadStatModifiers || HasStatModifiers(existingEffect))
+                RefreshStats(character);
 
             appliedEffect = existingEffect;
             return true;
@@ -157,7 +225,14 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            return character.PassiveEffects.Remove(effect);
+            var wasRemoved = character.PassiveEffects.Remove(effect);
+
+            if (wasRemoved && HasStatModifiers(effect))
+            {
+                RefreshStats(character);
+            }
+
+            return wasRemoved;
         }
 
         public int RemoveExpiredEffects(CharacterInstance character)
@@ -169,15 +244,23 @@ namespace Godmist.Systems.Combat
 
             var removedCount = 0;
 
+            var removedStatModifiers = false;
+
             for (var index = character.PassiveEffects.Count - 1; index >= 0; index--)
             {
                 var effect = character.PassiveEffects[index];
 
                 if (effect == null || HasExpired(effect))
                 {
+                    removedStatModifiers |= HasStatModifiers(effect);
                     character.PassiveEffects.RemoveAt(index);
                     removedCount++;
                 }
+            }
+
+            if (removedStatModifiers)
+            {
+                RefreshStats(character);
             }
 
             return removedCount;
@@ -209,7 +292,10 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                var removedEffectHadStatModifiers = HasStatModifiers(effect);
                 character.PassiveEffects.RemoveAt(index);
+                if (removedEffectHadStatModifiers)
+                    RefreshStats(character);
                 return true;
             }
 
@@ -321,6 +407,89 @@ namespace Godmist.Systems.Combat
             return null;
         }
 
+        public int RemoveCombatScopedEffects(CombatSession session)
+        {
+            if (session?.Units == null)
+            {
+                return 0;
+            }
+
+            var removedCount = 0;
+
+            foreach (var unit in session.Units)
+            {
+                if (unit?.Character == null)
+                {
+                    continue;
+                }
+
+                removedCount += RemoveCombatScopedEffects(unit.Character);
+            }
+
+            return removedCount;
+        }
+
+        public int RemoveCombatScopedEffects(CharacterInstance character)
+        {
+            if (character?.PassiveEffects == null)
+            {
+                return 0;
+            }
+
+            var removedCount = 0;
+
+            var removedStatModifiers = false;
+
+            for (var index = character.PassiveEffects.Count - 1; index >= 0; index--)
+            {
+                var effect = character.PassiveEffects[index];
+
+                if (effect == null || !effect.RemoveOnCombatEnd)
+                {
+                    continue;
+                }
+                removedStatModifiers |= HasStatModifiers(effect);
+                character.PassiveEffects.RemoveAt(index);
+                removedCount++;
+            }
+
+            if (removedStatModifiers)
+            {
+                RefreshStats(character);
+            }
+
+            return removedCount;
+        }
+
+        private static List<StatModifier> CopyStatModifiers(
+            List<StatModifier> modifiers)
+        {
+            var copiedModifiers = new List<StatModifier>();
+
+            if (modifiers == null)
+            {
+                return copiedModifiers;
+            }
+
+            foreach (var modifier in modifiers)
+            {
+                if (modifier == null)
+                {
+                    continue;
+                }
+
+                copiedModifiers.Add(new StatModifier
+                {
+                    StatType = modifier.StatType,
+                    Operation = modifier.Operation,
+                    Stacking = modifier.Stacking,
+                    Value = modifier.Value
+                });
+            }
+
+            return copiedModifiers;
+        }
+
         private static PassiveEffectRuntime FindEffect(
             List<PassiveEffectRuntime> effects,
             string effectId)
@@ -369,6 +538,17 @@ namespace Godmist.Systems.Combat
 
                 targetSourceIds.Add(sourceId);
             }
+        }
+
+        private static bool HasStatModifiers(PassiveEffectRuntime effect)
+        {
+            return effect?.StatModifiers != null
+                && effect.StatModifiers.Count > 0;
+        }
+
+        private void RefreshStats(CharacterInstance character)
+        {
+            statPipeline?.Refresh(character);
         }
 
         private void LogExpiration(

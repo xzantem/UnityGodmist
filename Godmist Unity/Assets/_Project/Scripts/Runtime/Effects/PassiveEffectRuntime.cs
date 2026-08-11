@@ -16,6 +16,7 @@ namespace Godmist.Runtime.Effects
         public bool IsTimed;
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase = PassiveEffectTickPhase.None;
+        public bool RemoveOnCombatEnd;
 
         public int TotalDamage;
         public List<StatModifier> StatModifiers = new();
@@ -31,7 +32,8 @@ namespace Godmist.Runtime.Effects
             int remainingDuration,
             int totalDamage,
             bool? isTimed = null,
-            PassiveEffectTickPhase tickPhase = PassiveEffectTickPhase.None)
+            PassiveEffectTickPhase tickPhase = PassiveEffectTickPhase.None,
+            bool removeOnCombatEnd = false)
         {
             EffectId = effectId ?? string.Empty;
             SourceEntityIds = sourceEntityIds != null
@@ -43,6 +45,7 @@ namespace Godmist.Runtime.Effects
             RemainingDuration = remainingDuration;
             TickPhase = IsTimed ? tickPhase : PassiveEffectTickPhase.None;
             TotalDamage = totalDamage;
+            RemoveOnCombatEnd = removeOnCombatEnd;
         }
     }
 }

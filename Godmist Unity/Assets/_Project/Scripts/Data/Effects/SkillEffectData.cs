@@ -20,6 +20,16 @@ namespace Godmist.Data.Effects
         [SerializeField] private int durationTurns = 1;
         [SerializeField] private int stacks = 1;
         [SerializeField, Min(0f)] private float statusDamageMultiplier;
+        [SerializeField] private CharacterStatType modifierStatType =
+            CharacterStatType.MaxHealth;
+
+        [SerializeField] private StatModifierOperation modifierOperation =
+            StatModifierOperation.FlatBase;
+
+        [SerializeField] private StatModifierStacking modifierStacking =
+            StatModifierStacking.Additive;
+
+        [SerializeField] private float modifierValue;
         [SerializeField] private List<SkillEffectConditionData> conditions = new();
 
         public EffectType EffectType => effectType;
@@ -34,6 +44,10 @@ namespace Godmist.Data.Effects
         public int DurationTurns => durationTurns;
         public int Stacks => stacks;
         public float StatusDamageMultiplier => statusDamageMultiplier;
+        public CharacterStatType ModifierStatType => modifierStatType;
+        public StatModifierOperation ModifierOperation => modifierOperation;
+        public StatModifierStacking ModifierStacking => modifierStacking;
+        public float ModifierValue => modifierValue;
 
         public IReadOnlyList<SkillEffectConditionData>
             Conditions => conditions;

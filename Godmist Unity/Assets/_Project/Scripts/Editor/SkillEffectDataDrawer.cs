@@ -28,6 +28,10 @@ namespace Godmist.Editor
             var durationTurns = property.FindPropertyRelative("durationTurns");
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
             var conditions = property.FindPropertyRelative("conditions");
+            var modifierStatType = property.FindPropertyRelative("modifierStatType");
+            var modifierOperation = property.FindPropertyRelative("modifierOperation");
+            var modifierStacking = property.FindPropertyRelative("modifierStacking");
+            var modifierValue = property.FindPropertyRelative("modifierValue");
 
             var y = position.y;
 
@@ -50,6 +54,20 @@ namespace Godmist.Editor
                 || selectedEffect == EffectType.Shield)
             {
                 DrawField(position, ref y, baseValue);
+            }
+            else if (selectedEffect == EffectType.ModifyStat)
+            {
+                DrawField(position, ref y, modifierStatType);
+                DrawField(position, ref y, modifierOperation);
+
+                if ((StatModifierOperation)modifierOperation.enumValueIndex
+                    == StatModifierOperation.Percent)
+                {
+                    DrawField(position, ref y, modifierStacking);
+                }
+
+                DrawField(position, ref y, modifierValue);
+                DrawField(position, ref y, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyStatus)
             {
@@ -78,6 +96,10 @@ namespace Godmist.Editor
             var durationTurns = property.FindPropertyRelative("durationTurns");
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
             var conditions = property.FindPropertyRelative("conditions");
+            var modifierStatType = property.FindPropertyRelative("modifierStatType");
+            var modifierOperation = property.FindPropertyRelative("modifierOperation");
+            var modifierStacking = property.FindPropertyRelative("modifierStacking");
+            var modifierValue = property.FindPropertyRelative("modifierValue");
 
             var height = 0f;
 
@@ -101,6 +123,20 @@ namespace Godmist.Editor
                 || selectedEffect == EffectType.Shield)
             {
                 AddHeight(ref height, baseValue);
+            }
+            else if (selectedEffect == EffectType.ModifyStat)
+            {
+                AddHeight(ref height, modifierStatType);
+                AddHeight(ref height, modifierOperation);
+
+                if ((StatModifierOperation)modifierOperation.enumValueIndex
+                    == StatModifierOperation.Percent)
+                {
+                    AddHeight(ref height, modifierStacking);
+                }
+
+                AddHeight(ref height, modifierValue);
+                AddHeight(ref height, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyStatus)
             {

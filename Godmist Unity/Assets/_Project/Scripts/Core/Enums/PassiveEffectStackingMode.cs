@@ -4,6 +4,7 @@ namespace Godmist.Core.Enums
     {
         MaxDurationAndValues = 0,
         ReplaceDuration = 1,
-        ReplaceDurationAndAddTotalDamage = 2
+        ReplaceDurationAndAddTotalDamage = 2,
+        ReplaceDurationAndValues = 3
     }
 }

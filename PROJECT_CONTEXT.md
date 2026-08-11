@@ -496,6 +496,11 @@ Current goal:
 - Timed passive effects/statuses may carry extra payload kwargs such as `damage: 34`.
 - Timed passive effects do not always need stacks.
 - Timed passive effects do not always need payload data.
+- `ModifyStat` used by an active skill uses `durationTurns` as follows:
+  - `durationTurns > 0` creates a timed runtime passive effect.
+  - `durationTurns = 0` creates a combat-scoped non-timed passive effect; it remains active until that combat ends.
+- A reapplication of the same runtime `ModifyStat` effect refreshes its duration/scope and replaces its modifier values; values never accumulate from repeated application.
+- Combat-scoped runtime passive effects need an explicit end-of-combat marker so that future persistent passives from equipment or skill trees are not removed with them.
 
 ### Statuses
 

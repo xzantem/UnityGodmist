@@ -18,6 +18,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatRecoverySystem recoverySystem;
         private readonly CombatShieldSystem shieldSystem;
         private readonly CombatLineOfSightService lineOfSightService;
+        private readonly ModifyStatSystem modifyStatSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -27,7 +28,8 @@ namespace Godmist.Systems.Combat
             CombatDamageSystem damageSystem = null,
             CombatRecoverySystem recoverySystem = null,
             CombatShieldSystem shieldSystem = null,
-            CombatLineOfSightService lineOfSightService = null)
+            CombatLineOfSightService lineOfSightService = null,
+            ModifyStatSystem modifyStatSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -38,6 +40,7 @@ namespace Godmist.Systems.Combat
             this.recoverySystem = recoverySystem ?? new CombatRecoverySystem(battleLog);
             this.shieldSystem = shieldSystem ?? new CombatShieldSystem(battleLog);
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
+            this.modifyStatSystem = modifyStatSystem ?? new ModifyStatSystem();
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -103,7 +106,7 @@ namespace Godmist.Systems.Combat
                     }
 
                     resultsForEffect[target] =
-                        ExecuteEffect(session, caster, target, skill, effect);
+                        ExecuteEffect(session, caster, target, skill, effect, effectIndex);
                 }
 
                 resultsByEffectIndex[effectIndex] = resultsForEffect;
@@ -112,7 +115,7 @@ namespace Godmist.Systems.Combat
             return true;
         }
         private EffectExecutionResult ExecuteEffect(CombatSession session, BattleUnit caster, BattleUnit target, 
-            SkillData skill, SkillEffectData effect)
+            SkillData skill, SkillEffectData effect, int effectIndex)
         {
             switch (effect.EffectType)
             {
@@ -160,7 +163,11 @@ namespace Godmist.Systems.Combat
                     return new EffectExecutionResult
                         { Succeeded = grantedShield > 0, ShieldGranted = grantedShield };
                 }
-
+                case EffectType.ModifyStat:
+                {
+                    var wasApplied = modifyStatSystem != null && modifyStatSystem.Apply(caster, target, skill, effect, effectIndex);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
+                }
                 default:
                     Debug.LogWarning($"Nieobslugiwany typ efektu w skillu '{effect.EffectType}'.");
                     return EffectExecutionResult.None;
@@ -441,6 +448,15 @@ namespace Godmist.Systems.Combat
                 if (effect.TargetModeIndex < 0 || effect.TargetModeIndex >= skill.TargetModes.Count)
                 {
                     Debug.LogWarning($"Skill '{skill.SkillId}' ma efekt wskazujacy nieznany indeks trybu celu {effect.TargetModeIndex}.");
+                    return false;
+                }
+
+                if (effect.EffectType == EffectType.ModifyStat
+                    && Mathf.Approximately(effect.ModifierValue, 0f))
+                {
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' ma ModifyStat z wartością 0.");
+
                     return false;
                 }
 
