@@ -73,25 +73,40 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke($"{caster.Character.Definition.DisplayName} uzywa {skill.DisplayName}.");
 
-            var previousResults = new Dictionary<BattleUnit, EffectExecutionResult>();
+            var resultsByEffectIndex =
+                new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
 
-            foreach (var effect in skill.Effects)
+            for (var effectIndex = 0; effectIndex < skill.Effects.Count; effectIndex++)
             {
+                var effect = skill.Effects[effectIndex];
                 var targets = targetsByModeIndex[effect.TargetModeIndex];
+
+                var resultsForEffect =
+                    new Dictionary<BattleUnit, EffectExecutionResult>();
 
                 foreach (var target in targets)
                 {
-                    if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) continue;
-
-                    previousResults.TryGetValue(target, out var previousResult);
-
-                    if (!ShouldExecuteEffect(effect, caster, target, previousResult))
+                    if (target?.Character == null
+                        || target.Character.LifeState == CharacterLifeState.Dead)
                     {
-                        previousResults[target] = EffectExecutionResult.None;
                         continue;
                     }
-                    previousResults[target] = ExecuteEffect(session, caster, target, skill, effect);
+
+                    if (!ShouldExecuteEffect(
+                            effect,
+                            caster,
+                            target,
+                            resultsByEffectIndex))
+                    {
+                        resultsForEffect[target] = EffectExecutionResult.None;
+                        continue;
+                    }
+
+                    resultsForEffect[target] =
+                        ExecuteEffect(session, caster, target, skill, effect);
                 }
+
+                resultsByEffectIndex[effectIndex] = resultsForEffect;
             }
 
             return true;
@@ -156,10 +171,10 @@ namespace Godmist.Systems.Combat
             SkillEffectData effect,
             BattleUnit caster,
             BattleUnit target,
-            EffectExecutionResult previousResult)
+            IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
+                resultsByEffectIndex)
         {
-            if (effect?.Conditions == null
-                || effect.Conditions.Count == 0)
+            if (effect?.Conditions == null || effect.Conditions.Count == 0)
             {
                 return true;
             }
@@ -170,7 +185,7 @@ namespace Godmist.Systems.Combat
                         condition,
                         caster,
                         target,
-                        previousResult))
+                        resultsByEffectIndex))
                 {
                     return false;
                 }
@@ -183,41 +198,76 @@ namespace Godmist.Systems.Combat
             SkillEffectConditionData condition,
             BattleUnit caster,
             BattleUnit target,
-            EffectExecutionResult previousResult)
+            IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
+                resultsByEffectIndex)
         {
             if (condition == null)
             {
                 return false;
             }
 
-            return condition.ConditionType switch
+            switch (condition.ConditionType)
             {
-                EffectConditionType.Always => true,
+                case EffectConditionType.Always:
+                    return true;
 
-                EffectConditionType.PreviousEffectSucceeded =>
-                    previousResult.Succeeded,
-
-                EffectConditionType.PreviousEffectDealtHealthDamage =>
-                    previousResult.HealthDamage > 0,
-
-                EffectConditionType.TargetHasStatus =>
-                    HasStatus(target, condition.StatusId),
-
-                EffectConditionType.CasterHasStatus =>
-                    HasStatus(caster, condition.StatusId),
-
-                EffectConditionType.TargetHealthBelowPercent =>
-                    IsHealthBelowPercent(
+                case EffectConditionType.ReferencedEffectSucceeded:
+                    return TryGetReferencedEffectResult(
+                        condition,
                         target,
-                        condition.HealthPercentThreshold),
+                        resultsByEffectIndex,
+                        out var successResult)
+                        && successResult.Succeeded;
 
-                EffectConditionType.CasterHealthBelowPercent =>
-                    IsHealthBelowPercent(
+                case EffectConditionType.ReferencedEffectDealtHealthDamage:
+                    return TryGetReferencedEffectResult(
+                        condition,
+                        target,
+                        resultsByEffectIndex,
+                        out var damageResult)
+                        && damageResult.HealthDamage > 0;
+
+                case EffectConditionType.TargetHasStatus:
+                    return HasStatus(target, condition.StatusId);
+
+                case EffectConditionType.CasterHasStatus:
+                    return HasStatus(caster, condition.StatusId);
+
+                case EffectConditionType.TargetHealthBelowPercent:
+                    return IsHealthBelowPercent(
+                        target,
+                        condition.HealthPercentThreshold);
+
+                case EffectConditionType.CasterHealthBelowPercent:
+                    return IsHealthBelowPercent(
                         caster,
-                        condition.HealthPercentThreshold),
+                        condition.HealthPercentThreshold);
 
-                _ => false
-            };
+                default:
+                    return false;
+            }
+        }
+
+        private static bool TryGetReferencedEffectResult(
+            SkillEffectConditionData condition,
+            BattleUnit target,
+            IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
+                resultsByEffectIndex,
+            out EffectExecutionResult result)
+        {
+            result = EffectExecutionResult.None;
+
+            if (condition == null
+                || resultsByEffectIndex == null
+                || !resultsByEffectIndex.TryGetValue(
+                    condition.ReferencedEffectIndex,
+                    out var resultsForEffect)
+                || resultsForEffect == null)
+            {
+                return false;
+            }
+
+            return resultsForEffect.TryGetValue(target, out result);
         }
 
         private static bool HasStatus(
@@ -264,6 +314,15 @@ namespace Godmist.Systems.Combat
         {
             return conditionType == EffectConditionType.TargetHasStatus 
                 || conditionType == EffectConditionType.CasterHasStatus;
+        }
+
+        private static bool ConditionRequiresEffectReference(
+            EffectConditionType conditionType)
+        {
+            return conditionType
+                == EffectConditionType.ReferencedEffectSucceeded
+                || conditionType
+                == EffectConditionType.ReferencedEffectDealtHealthDamage;
         }
 
         private struct EffectExecutionResult
@@ -370,8 +429,9 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            foreach (var effect in skill.Effects)
+            for (var effectIndex = 0; effectIndex < skill.Effects.Count; effectIndex++)
             {
+                var effect = skill.Effects[effectIndex];
                 if (effect == null)
                 {
                     Debug.LogWarning($"Skill '{skill.SkillId}' zawiera pusty efekt.");
@@ -402,6 +462,19 @@ namespace Godmist.Systems.Combat
                     if (ConditionRequiresStatusId(condition.ConditionType) && string.IsNullOrWhiteSpace(condition.StatusId))
                     {
                         Debug.LogWarning($"Skill '{skill.SkillId}' ma warunek statusu bez statusId.");
+                        return false;
+                    }
+                    if (ConditionRequiresEffectReference(condition.ConditionType)
+                        && (condition.ReferencedEffectIndex < 0
+                            || condition.ReferencedEffectIndex >= effectIndex))
+                    {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' ma warunek efektu " +
+                            $"wskazujący niepoprawny indeks " +
+                            $"{condition.ReferencedEffectIndex}. " +
+                            $"Warunek efektu {effectIndex} może wskazywać wyłącznie " +
+                            "wcześniejszy efekt.");
+
                         return false;
                     }
                 }

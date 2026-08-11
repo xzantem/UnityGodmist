@@ -53,7 +53,7 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.ApplyStatus)
             {
-                DrawField(position, ref y, statusId);
+                DrawStatusIdPopup(position, ref y, statusId);
                 DrawField(position, ref y, baseChance);
                 DrawField(position, ref y, durationTurns);
                 DrawField(position, ref y, statusDamageMultiplier);
@@ -209,5 +209,23 @@ namespace Godmist.Editor
                 property,
                 includeChildren);
         }
-    }
+
+        private static void DrawStatusIdPopup(
+            Rect position,
+            ref float y,
+            SerializedProperty statusId)
+        {
+            var height = EditorGUIUtility.singleLineHeight;
+
+            var fieldRect = new Rect(
+                position.x,
+                y,
+                position.width,
+                height);
+
+            StatusEffectIdPopup.Draw(fieldRect, statusId, "Status");
+
+            y += height + Spacing;
+        }
+            }
 }

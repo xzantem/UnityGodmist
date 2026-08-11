@@ -1,4 +1,5 @@
 using System;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -8,7 +9,7 @@ namespace Godmist.Systems.Combat
 {
     public class BleedPassiveEffectProcessor : IPassiveEffectTurnProcessor
     {
-        public const string BleedId = "bleed";
+        public const string BleedId = StatusEffectIds.Bleed;
 
         private readonly CombatDamageSystem damageSystem;
 

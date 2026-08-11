@@ -12,17 +12,24 @@ namespace Godmist.Data.Effects
             EffectConditionType.Always;
 
         [SerializeField]
+        private int referencedEffectIndex = -1;
+
+        [SerializeField]
         private string statusId = string.Empty;
 
         [SerializeField, Range(0f, 1f)]
         private float healthPercentThreshold = 0.5f;
 
+
         public EffectConditionType ConditionType =>
             conditionType;
+
+        public int ReferencedEffectIndex => referencedEffectIndex;
 
         public string StatusId => statusId;
 
         public float HealthPercentThreshold =>
             healthPercentThreshold;
+
     }
 }

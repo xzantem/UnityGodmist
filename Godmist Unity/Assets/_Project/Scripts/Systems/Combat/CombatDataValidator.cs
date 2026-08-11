@@ -289,6 +289,42 @@ namespace Godmist.Systems.Combat
                             $"{prefix}: Base Chance musi mieścić się w zakresie 0-1.");
                     }
                 }
+
+                if (effect.Conditions == null)
+                {
+                    continue;
+                }
+
+                for (var conditionIndex = 0;
+                    conditionIndex < effect.Conditions.Count;
+                    conditionIndex++)
+                {
+                    var condition = effect.Conditions[conditionIndex];
+
+                    if (condition == null)
+                    {
+                        report.AddError(
+                            $"{prefix}, warunek [{conditionIndex}]: " +
+                            "warunek nie może być pusty.");
+
+                        continue;
+                    }
+
+                    if (!ConditionRequiresEffectReference(condition.ConditionType))
+                    {
+                        continue;
+                    }
+
+                    if (condition.ReferencedEffectIndex < 0
+                        || condition.ReferencedEffectIndex >= index)
+                    {
+                        report.AddError(
+                            $"{prefix}, warunek [{conditionIndex}]: " +
+                            $"Referenced Effect Index " +
+                            $"{condition.ReferencedEffectIndex} musi wskazywać " +
+                            "wcześniejszy efekt.");
+                    }
+                }
             }
         }
 
@@ -313,6 +349,15 @@ namespace Godmist.Systems.Combat
                 report.AddError(
                     $"{label}: Max Range nie może być mniejsze od Min Range.");
             }
+        }
+
+        private static bool ConditionRequiresEffectReference(
+            EffectConditionType conditionType)
+        {
+            return conditionType
+                == EffectConditionType.ReferencedEffectSucceeded
+                || conditionType
+                == EffectConditionType.ReferencedEffectDealtHealthDamage;
         }
     }
 }

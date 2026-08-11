@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
 using Godmist.Runtime.Combat;
@@ -10,8 +11,8 @@ namespace Godmist.Systems.Combat
 {
     public class StatusEffectSystem
     {
-        public const string StunId = "stun";
-        public const string ImmobilizeId = "immobilize";
+        public const string StunId = StatusEffectIds.Stun;
+        public const string ImmobilizeId = StatusEffectIds.Immobilize;
 
         private readonly Action<string> battleLog;
         private readonly CombatDamageSystem damageSystem;
@@ -257,13 +258,13 @@ namespace Godmist.Systems.Combat
             return statusId.ToLowerInvariant() switch
             {
                 BleedPassiveEffectProcessor.BleedId => resistances.BleedResistance,
-                "poison" => resistances.PoisonResistance,
-                "fire" => resistances.FireResistance,
-                "weakening" => resistances.WeakeningResistance,
+                StatusEffectIds.Poison => resistances.PoisonResistance,
+                StatusEffectIds.Burn => resistances.FireResistance,
+                StatusEffectIds.Weakening => resistances.WeakeningResistance,
                 StunId => resistances.SuppressionResistance,
                 ImmobilizeId => resistances.SuppressionResistance,
-                "sleep" => resistances.SuppressionResistance,
-                "paralysis" => resistances.SuppressionResistance,
+                StatusEffectIds.Sleep => resistances.SuppressionResistance,
+                StatusEffectIds.Paralysis => resistances.SuppressionResistance,
                 _ => 0f
             };
         }
@@ -287,11 +288,11 @@ namespace Godmist.Systems.Combat
                     => PassiveEffectStackingMode
                         .ReplaceDurationAndAddTotalDamage,
 
-                "poison"
+                StatusEffectIds.Poison
                     => PassiveEffectStackingMode
                         .ReplaceDurationAndAddTotalDamage,
 
-                "burn"
+                StatusEffectIds.Burn
                     => PassiveEffectStackingMode
                         .ReplaceDurationAndAddTotalDamage,
 
@@ -301,13 +302,13 @@ namespace Godmist.Systems.Combat
                 ImmobilizeId
                     => PassiveEffectStackingMode.ReplaceDuration,
 
-                "sleep"
+                StatusEffectIds.Sleep
                     => PassiveEffectStackingMode.ReplaceDuration,
 
-                "freeze"
+                StatusEffectIds.Freeze
                     => PassiveEffectStackingMode.ReplaceDuration,
 
-                "paralysis"
+                StatusEffectIds.Paralysis
                     => PassiveEffectStackingMode.ReplaceDuration,
 
                 _ => PassiveEffectStackingMode.MaxDurationAndValues

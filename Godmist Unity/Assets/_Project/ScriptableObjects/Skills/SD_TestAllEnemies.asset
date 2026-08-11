@@ -14,21 +14,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.knife_toss
   <DisplayName>k__BackingField: "Rzut no\u017Cem"
+  <SkillAccuracy>k__BackingField: 100
   <ActionCost>k__BackingField: 55
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 1
     targetingType: 0
+    absoluteRange:
+      shape: 1
+      minRange: 0
+      maxRange: 1
+    relativeRange:
+      shape: 1
+      minRange: 0
+      maxRange: 1
   effects:
   - effectType: 0
     targetModeIndex: 0
-    damageType: 0
     baseValue: 25
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageType: 0
     pushDistance: 1
     baseChance: 1
     statusId: 
     durationTurns: 1
     stacks: 1
-    statusDamagePerTurn: 0
+    statusDamageMultiplier: 0
+    conditions: []
+  - effectType: 2
+    targetModeIndex: 0
+    baseValue: 25
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageType: 0
+    pushDistance: 1
+    baseChance: 0.692
+    statusId: bleed
+    durationTurns: 1
+    stacks: 1
+    statusDamageMultiplier: 0
+    conditions:
+    - conditionType: 1
+      referencedEffectIndex: 0
+      statusId: 
+      healthPercentThreshold: 0
