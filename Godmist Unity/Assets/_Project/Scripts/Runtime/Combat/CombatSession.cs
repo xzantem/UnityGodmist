@@ -12,7 +12,7 @@ namespace Godmist.Runtime.Combat
         public int CurrentEscapeChancePercent = 60;
         public CombatRewardResult Rewards = new();
         public bool RewardsGranted;
-        
+        public bool IsDebugSession;       
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();
         public List<CombatMapObject> MapObjects = new();

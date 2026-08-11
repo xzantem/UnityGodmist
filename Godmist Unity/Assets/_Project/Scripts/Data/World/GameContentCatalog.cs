@@ -6,6 +6,7 @@ using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Data.Quests;
 using Godmist.Data.Skills;
+using Godmist.Data.Combat;
 using UnityEngine;
 
 namespace Godmist.Data.World
@@ -22,6 +23,7 @@ namespace Godmist.Data.World
         [field: SerializeField] public List<QuestDefinition> QuestDefinitions { get; private set; } = new();
         [field: SerializeField] public List<NpcDefinition> NpcDefinitions { get; private set; } = new();
         [field: SerializeField] public List<DungeonDefinition> DungeonDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
 
         public bool TryGetCharacter(
             string characterId,
@@ -72,6 +74,16 @@ namespace Godmist.Data.World
             return TryFind(DungeonDefinitions, dungeonId, out definition);
         }
 
+        public bool TryGetEncounter(
+            string encounterId,
+            out EncounterDefinition definition)
+        {
+            return TryFind(
+                EncounterDefinitions,
+                encounterId,
+                out definition);
+        }
+
         private static bool TryFind<T>(
             List<T> definitions,
             string id,
@@ -119,6 +131,7 @@ namespace Godmist.Data.World
                 SkillData value => value.SkillId,
                 QuestDefinition value => value.Id,
                 NpcDefinition value => value.Id,
+                EncounterDefinition value => value.Id,
                 DungeonDefinition value => value.Id,
                 _ => string.Empty
             };

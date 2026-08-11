@@ -113,17 +113,54 @@ namespace Godmist.Views.UI
 
             AppendOutput($"> {commandLine}");
 
+            var commandName = commandLine.Split(' ', 
+                System.StringSplitOptions.RemoveEmptyEntries)[0].ToLowerInvariant();
+
             var result = commandService.Execute(
                 commandLine,
                 gameSession,
                 combatSession,
-                GameBootstrap.Instance?.ContentCatalog);
+                GameBootstrap.Instance?.ContentCatalog,
+                StartDebugCombat);
 
             var prefix = result.Success ? "OK" : "BŁĄD";
             AppendOutput($"{prefix}: {result.Message}");
 
             commandInput.text = string.Empty;
+
+            if (result.Success && commandName == "combat")
+            {
+                Close();
+                return;
+            }
+
             FocusInput();
+        }
+
+        private static DevConsoleCommandResult StartDebugCombat(
+            string encounterId)
+        {
+            var gameBootstrap = GameBootstrap.Instance;
+
+            if (gameBootstrap == null)
+            {
+                return new DevConsoleCommandResult(
+                    false,
+                    "Brak GameBootstrap.");
+            }
+
+            if (!gameBootstrap.TryStartDebugCombat(
+                    encounterId,
+                    out var message))
+            {
+                return new DevConsoleCommandResult(
+                    false,
+                    message);
+            }
+
+            return new DevConsoleCommandResult(
+                true,
+                message);
         }
 
         private static CombatSession GetActiveCombatSession(

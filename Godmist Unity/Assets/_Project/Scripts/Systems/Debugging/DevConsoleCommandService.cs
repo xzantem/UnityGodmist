@@ -35,7 +35,8 @@ namespace Godmist.Systems.Debugging
             string commandLine,
             GameSession gameSession,
             CombatSession combatSession,
-            GameContentCatalog contentCatalog = null)
+            GameContentCatalog contentCatalog = null,
+            Func<string, DevConsoleCommandResult> combatHandler = null)
         {
             if (string.IsNullOrWhiteSpace(commandLine))
             {
@@ -67,6 +68,8 @@ namespace Godmist.Systems.Debugging
                     contentCatalog),
                 "items" => GetInventory(tokens, gameSession, combatSession),
                 "itemdefs" => GetItemDefinitions(contentCatalog),
+                "encounterdefs" => GetEncounterDefinitions(contentCatalog),
+                "combat" => StartCombat(tokens, combatSession, combatHandler),
                 _ => Fail($"Nieznana komenda: {tokens[0]}. Użyj: help")
             };
         }
@@ -90,7 +93,9 @@ namespace Godmist.Systems.Debugging
                 "setresource <characterId> <liczba> - ustawia zasób postaci\n" +
                 "itemdefs - lista itemId z katalogu contentu\n" +
                 "items <characterId> - zawartość inventory postaci\n" +
-                "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot");
+                "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
+                "encounterdefs - lista encounterId z katalogu contentu\n" +
+                "combat <encounterId> - uruchamia debugową walkę z encounterem");
         }
 
         private static DevConsoleCommandResult GetState(
@@ -581,6 +586,69 @@ namespace Godmist.Systems.Debugging
             }
 
             return Success(output.ToString());
+        }
+
+        private static DevConsoleCommandResult GetEncounterDefinitions(
+            GameContentCatalog contentCatalog)
+        {
+            if (contentCatalog?.EncounterDefinitions == null
+                || contentCatalog.EncounterDefinitions.Count == 0)
+            {
+                return Fail(
+                    "GameContentCatalog nie zawiera EncounterDefinition.");
+            }
+
+            var output = new StringBuilder("EncounterDefinition:");
+
+            foreach (var definition in contentCatalog.EncounterDefinitions
+                .Where(definition => definition != null)
+                .OrderBy(definition => definition.Id))
+            {
+                var enemyNames = definition.Enemies == null
+                    ? string.Empty
+                    : string.Join(
+                        ", ",
+                        definition.Enemies
+                            .Where(enemy => enemy?.CharacterDefinition != null)
+                            .Select(enemy => enemy.CharacterDefinition.DisplayName));
+
+                var enemiesText = string.IsNullOrWhiteSpace(enemyNames)
+                    ? "brak"
+                    : enemyNames;
+
+                output.Append(
+                    $"\n- {definition.Id} | {definition.DisplayName} | " +
+                    $"{definition.GridWidth}x{definition.GridHeight} | " +
+                    $"wrogowie: {enemiesText}");
+            }
+
+            return Success(output.ToString());
+        }
+        
+        private static DevConsoleCommandResult StartCombat(
+            IReadOnlyList<string> tokens,
+            CombatSession combatSession,
+            Func<string, DevConsoleCommandResult> combatHandler)
+        {
+            if (tokens.Count != 2)
+            {
+                return Fail("Uzycie: combat <encounterId>");
+            }
+
+            if (combatSession != null
+                && combatSession.Outcome == CombatOutcomeState.Ongoing)
+            {
+                return Fail(
+                    "Nie mozna uruchomic nowej walki podczas aktywnej walki.");
+            }
+
+            if (combatHandler == null)
+            {
+                return Fail(
+                    "Komenda combat nie jest dostepna w tym kontekscie.");
+            }
+
+            return combatHandler(tokens[1]);
         }
 
         private static bool TryReadOptionalCharacterTarget(

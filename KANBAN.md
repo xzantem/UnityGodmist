@@ -42,10 +42,9 @@ Priorytety:
 
 ## In Progress
 
-- `[P1] Dodac Combat Scenario Runner v1` - `Tools / Editor / Debug`, `Combat`
-
 ## Done
 
+- `[P1] Dodac Combat Scenario Runner v1` - `Tools / Editor / Debug`, `Combat`
 - `[P1] Rozszerzyc Dev Console o komendy gameplayowe v2` - `Tools / Editor / Debug`, `Combat`, `Core / Architecture`, `Items / Inventory / Economy`
 - `[P1] Rozszerzyc Dev Console o komendy globalne i targetowanie po characterId v1` - `Tools / Editor / Debug`, `Combat`, `Core / Architecture`
 - `[P1] Dodac Dev Console v1` - `Tools / Editor / Debug`, `Combat`

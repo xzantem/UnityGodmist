@@ -49,6 +49,8 @@ namespace Godmist.Views.Combat
         [Header("Dungeon Combat Area")]
         [SerializeField] private CombatDungeonAreaView dungeonAreaView;
         [SerializeField] private CombatCameraFramer cameraFramer;
+        [Header("Scenario Runner")]
+        [SerializeField] private CombatScenarioRunner scenarioRunner;
         
 
         // Systems
@@ -314,7 +316,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            Session = CreateSandboxSession();
+            Session = CreateInitialSession();
 
             battleLog?.ClearLog();
             AddBattleLog("Walka rozpoczęta ponownie.");
@@ -768,6 +770,16 @@ namespace Godmist.Views.Combat
             }
 
             usesGameSessionCombat = false;
+
+            if (scenarioRunner != null
+                && scenarioRunner.TryCreateSession(
+                    gameSession,
+                    actionPointsPerSpeed,
+                    out var encounterSession))
+            {
+                return encounterSession;
+            }
+
             return CreateSandboxSession();
         }
 
@@ -802,10 +814,25 @@ namespace Godmist.Views.Combat
             }
 
             var outcome = Session.Outcome;
+            var gameBootstrap = GameBootstrap.Instance;
+
+            if (gameBootstrap == null)
+            {
+                return false;
+            }
+
+            var gameSession = gameBootstrap.Session;
 
             if (outcome == CombatOutcomeState.Defeat)
             {
-                var restarted = GameBootstrap.Instance?.TryRestartAfterDefeat() ?? false;
+                if (Session.IsDebugSession)
+                {
+                    return TryFinishDebugCombat(
+                        gameBootstrap,
+                        gameSession);
+                }
+
+                var restarted = gameBootstrap.TryRestartAfterDefeat();
 
                 if (!restarted)
                 {
@@ -822,14 +849,12 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
-            var gameBootstrap = GameBootstrap.Instance;
-
-            if (gameBootstrap == null)
+            if (Session.IsDebugSession)
             {
-                return false;
+                return TryFinishDebugCombat(
+                    gameBootstrap,
+                    gameSession);
             }
-
-            var gameSession = gameBootstrap.Session;
 
             if (!dungeonCombatOutcomeSystem.TryApplyOutcome(
                     gameSession,
@@ -851,6 +876,21 @@ namespace Godmist.Views.Combat
                 RestoreDungeonPositionAfterEscape(gameSession, Session);
             }
 
+            if (!gameBootstrap.TryReturnFromCombat())
+            {
+                return false;
+            }
+
+            hasRequestedExplorationReturn = true;
+            gameSession.TryClearActiveCombat();
+
+            return true;
+        }
+
+        private bool TryFinishDebugCombat(
+            GameBootstrap gameBootstrap,
+            GameSession gameSession)
+        {
             if (!gameBootstrap.TryReturnFromCombat())
             {
                 return false;

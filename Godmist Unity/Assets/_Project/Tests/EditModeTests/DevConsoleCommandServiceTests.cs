@@ -10,6 +10,7 @@ using Godmist.Data.Items;
 using Godmist.Data.World;
 using UnityEngine;
 using NUnit.Framework;
+using Godmist.Data.Combat;
 
 namespace Godmist.Tests.EditMode
 {
@@ -297,6 +298,77 @@ namespace Godmist.Tests.EditMode
 
             Object.DestroyImmediate(material);
             Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_EncounterDefs_ListsEncounterDefinitions()
+        {
+            var service = new DevConsoleCommandService();
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var encounter = ScriptableObject.CreateInstance<EncounterDefinition>();
+
+            SetAutoProperty(
+                encounter,
+                "Id",
+                "combat.encounter.debug");
+
+            SetAutoProperty(
+                encounter,
+                "DisplayName",
+                "Debug Combat");
+
+            SetAutoProperty(encounter, "GridWidth", 8);
+            SetAutoProperty(encounter, "GridHeight", 8);
+            SetAutoProperty(
+                encounter,
+                "Enemies",
+                new List<EncounterEnemyData>());
+
+            catalog.EncounterDefinitions.Add(encounter);
+
+            var result = service.Execute(
+                "encounterdefs",
+                new GameSession(),
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(
+                result.Message,
+                Does.Contain("combat.encounter.debug"));
+
+            Assert.That(
+                result.Message,
+                Does.Contain("Debug Combat"));
+
+            Object.DestroyImmediate(encounter);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CombatCommand_ForwardsEncounterIdToHandler()
+        {
+            var service = new DevConsoleCommandService();
+            var receivedEncounterId = string.Empty;
+
+            var result = service.Execute(
+                "combat combat.encounter.debug",
+                new GameSession(),
+                null,
+                null,
+                encounterId =>
+                {
+                    receivedEncounterId = encounterId;
+
+                    return new DevConsoleCommandResult(
+                        true,
+                        "Uruchomiono walke.");
+                });
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(
+                receivedEncounterId,
+                Is.EqualTo("combat.encounter.debug"));
         }
 
         [Test]

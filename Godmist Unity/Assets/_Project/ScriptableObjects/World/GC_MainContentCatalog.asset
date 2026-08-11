@@ -44,3 +44,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1db441565dea98645a943ad6b5aa0556, type: 2}
   <DungeonDefinitions>k__BackingField:
   - {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
+  <EncounterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: f75344cd0e63cbe4db0ef60441fba08e, type: 2}
