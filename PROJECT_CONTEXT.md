@@ -370,6 +370,7 @@ Current goal:
 - Basic attack is just a normal skill.
 - Equipment passives work the same way as other passive effects, including conditional behavior.
 - Skills can apply multiple effects at once.
+- Future effect execution must support a shared resolved value for multiple effects of one skill. For example, a heal that targets both caster and selected ally should roll its random healing amount once and reuse that result for both effects, rather than rolling independently per target mode. The planned data-level link is an optional shared resolution/value ID on the relevant effects; this is not implemented in the current combat runtime.
 - Modifiers are mainly associated with skill trees and equipment.
 - Potion effects and active skill effects should generally be modeled as status effects.
 - Skills should include:
@@ -402,7 +403,7 @@ Current goal:
 - Skills may also use both absolute and relative range, where relative means relative to the target.
 - Range shapes may vary, for example square, radial, or ring.
 - `relativeRange` exists only when a skill selects an additional reference point beyond the caster, such as a unit, tile, or future obstacle/object.
-- In the current targeting `v1`, this applies to `Single` (the selected unit) and `AreaAroundTile` (the selected tile). A later obstacle/object target type should follow the same rule.
+- In the current targeting `v1`, this applies only to `AreaAroundTile` (the selected tile). `Single` resolves only the selected unit. Future target types such as `Chain` or an area around a chosen object/unit may introduce their own relative range rules once their runtime targeting exists.
 - `Caster` is a `TargetType`, not a `TargetingType`. It resolves the caster automatically, has no `TargetingType`, no absolute range, and no relative range.
 - `TargetingType` filters eligible units only for target types that can select or affect a relation group: `Enemies`, `Allies`, or `All`.
 - For `AreaAroundCaster`, `absoluteRange` directly describes the effect area around the caster; no separate target point or relative range is involved.
@@ -410,8 +411,7 @@ Current goal:
 - Do not add an `includeCaster` exception to targeting. A skill that affects both the caster and allies should use separate target modes (for example index `0` for allies and index `1` for caster), with equivalent effects assigned to each target-mode index.
 - Skill targeting UI should distinguish the absolute casting range from eligible targets: the general absolute range is visible after selecting a skill, while the relative area of an area-on-tile skill is previewed only while hovering a concrete selectable tile.
 - Units eligible under a skill's `TargetingType` are highlighted individually; selectable tile centers must not be rendered as if they were targets.
-- For `Single`, a relative area is previewed only while hovering an eligible selected unit. For `AreaAroundTile`, it is previewed around the currently hovered absolute-range tile, and units currently affected by that preview use a distinct highlight color.
-- For `Single`, the selected eligible unit always remains the reference point. Relative range may expand the effect around that unit but must never allow selecting an empty tile merely because an eligible unit falls inside the relative area.
+- For `AreaAroundTile`, relative range is previewed around the currently hovered absolute-range tile, and units currently affected by that preview use a distinct highlight color.
 - A relative `Square` uses side length `maxRange - minRange + 1`. An odd side length is centered on the selected reference point; an even side length is directional and extends away from the caster. For example, caster `(0,0)` and reference `(5,5)` with `0..1` produce `(5,5)` through `(6,6)`; caster `(7,7)` produces `(4,4)` through `(5,5)`.
 - If an axis has no caster-to-reference direction for an even relative square, the current temporary deterministic fallback is the positive axis.
 - Targeting patterns may include:

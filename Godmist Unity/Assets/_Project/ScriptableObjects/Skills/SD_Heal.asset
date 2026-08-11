@@ -19,6 +19,7 @@ MonoBehaviour:
   <ResourceCost>k__BackingField: 5
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 0
     targetingType: 1
@@ -26,18 +27,6 @@ MonoBehaviour:
       shape: 1
       minRange: 0
       maxRange: 4
-    useRelativeRange: 0
-    relativeRange:
-      shape: 0
-      minRange: 0
-      maxRange: 0
-  - targetType: 9
-    targetingType: 2
-    absoluteRange:
-      shape: 1
-      minRange: 0
-      maxRange: 5
-    useRelativeRange: 0
     relativeRange:
       shape: 0
       minRange: 0
@@ -45,19 +34,6 @@ MonoBehaviour:
   effects:
   - effectType: 3
     targetModeIndex: 0
-    baseValue: 25
-    damageValueSource: 0
-    damageMultiplier: 0
-    damageType: 0
-    pushDistance: 0
-    baseChance: 0
-    statusId: 
-    durationTurns: 0
-    stacks: 0
-    statusDamageMultiplier: 0
-    conditions: []
-  - effectType: 4
-    targetModeIndex: 1
     baseValue: 25
     damageValueSource: 0
     damageMultiplier: 0

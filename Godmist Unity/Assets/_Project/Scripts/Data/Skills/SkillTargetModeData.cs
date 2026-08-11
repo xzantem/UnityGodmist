@@ -18,20 +18,18 @@ namespace Godmist.Data.Skills
             new();
 
         [Header("Relative Range")]
-        [SerializeField] private bool useRelativeRange;
         [SerializeField] private SkillRangeData relativeRange =
             new();
 
         public TargetType TargetType => targetType;
         public TargetingType TargetingType => targetingType;
         public SkillRangeData AbsoluteRange => absoluteRange;
-        public bool UseRelativeRange => SupportsRelativeRange(TargetType) && useRelativeRange;
+        public bool UseRelativeRange => SupportsRelativeRange(TargetType);
         public SkillRangeData RelativeRange => relativeRange;
 
         public static bool SupportsRelativeRange(TargetType targetType)
         {
-            return targetType == TargetType.Single
-                || targetType == TargetType.AreaAroundTile;
+            return targetType == TargetType.AreaAroundTile;
         }
     }
 }
