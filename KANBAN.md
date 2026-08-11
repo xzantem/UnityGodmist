@@ -35,6 +35,10 @@ Priorytety:
 - `Design / Systems`
 - `Bug`
 
+## Backlog
+
+- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+
 ## Ready
 
 
@@ -44,6 +48,7 @@ Priorytety:
 
 ## Done
 
+- `[P2] Dodac autouzupelnianie i sugestie Dev Console v1` - `Tools / Editor / Debug`, `UI / UX`
 - `[P1] Dodac walidatory danych combatowych v1` - `Tools / Editor / Debug`, `Combat`, `Content / Data`
 - `[P1] Dodac Combat Scenario Runner v1` - `Tools / Editor / Debug`, `Combat`
 - `[P1] Rozszerzyc Dev Console o komendy gameplayowe v2` - `Tools / Editor / Debug`, `Combat`, `Core / Architecture`, `Items / Inventory / Economy`
@@ -196,7 +201,6 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-- `[P2] Dodac autouzupelnianie i sugestie Dev Console v1` - `Tools / Editor / Debug`, `UI / UX`
 - `[P2] Dodac podglad runtime jednostki w narzedziach debugowych v1` - `Tools / Editor / Debug`, `Combat`
 - `[P2] Dopracowac inspector SkillData v2` - `Tools / Editor / Debug`, `Combat`, `Content / Data`
 - `[P1] Ujednolicic PassiveEffectRuntime i TimedPassiveEffect dla statusow oraz modifierow v2` - `Combat`, `Core / Architecture`
