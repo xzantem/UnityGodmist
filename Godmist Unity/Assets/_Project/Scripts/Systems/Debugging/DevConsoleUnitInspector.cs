@@ -3,6 +3,9 @@ using System.Linq;
 using System.Text;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
+using Godmist.Systems.Combat;
+using UnityEngine;
 
 namespace Godmist.Systems.Debugging
 {
@@ -73,14 +76,14 @@ namespace Godmist.Systems.Debugging
             if (character.Resistances != null)
             {
                 output.AppendLine(
-                    $"Odporności: Krwawienie {character.Resistances.BleedResistance}% | " +
-                    $"Trucizna {character.Resistances.PoisonResistance}% | " +
-                    $"Ogień {character.Resistances.FireResistance}%");
+                    $"Odporności: Krwawienie {character.Resistances.BleedResistance:P0} | " +
+                    $"Trucizna {character.Resistances.PoisonResistance:P0} | " +
+                    $"Ogień {character.Resistances.FireResistance:P0}");
 
                 output.AppendLine(
-                    $"Osłabienia {character.Resistances.WeakeningResistance}% | " +
-                    $"Ograniczenia {character.Resistances.SuppressionResistance}% | " +
-                    $"Przesunięcia {character.Resistances.MoveResistance}%");
+                    $"Osłabienia {character.Resistances.WeakeningResistance:P0} | " +
+                    $"Ograniczenia {character.Resistances.SuppressionResistance:P0} | " +
+                    $"Przesunięcia {character.Resistances.MoveResistance:P0}");
             }
 
             AppendCombatData(output, battleUnit);
@@ -172,10 +175,52 @@ namespace Godmist.Systems.Debugging
 
                 output.AppendLine(
                     $"- {effect.EffectId} | stacki: {effect.Stacks} | " +
-                    $"czas: {duration} | obrażenia: {effect.TotalDamage} | " +
+                    $"czas: {duration} | {GetEffectValueText(effect, character)} | " +
                     $"źródła: {sources} | modyfikatory: " +
                     $"{effect.StatModifiers?.Count ?? 0}");
             }
+        }
+
+        private static string GetEffectValueText(
+            PassiveEffectRuntime effect,
+            CharacterInstance character)
+        {
+            if (!string.Equals(
+                    effect.EffectId,
+                    BleedPassiveEffectProcessor.BleedId,
+                    StringComparison.OrdinalIgnoreCase)
+                || effect.RemainingDuration <= 0)
+            {
+                return $"pula obrażeń: {effect.TotalDamage}";
+            }
+
+            var rawDamage = Mathf.CeilToInt(
+                effect.TotalDamage / (float)effect.RemainingDuration);
+
+            var resistance = Mathf.Clamp01(
+                character.Resistances?.BleedResistance ?? 0f);
+
+            var multiplier = GetBleedDamageMultiplier(resistance);
+
+            var finalDamage = Mathf.Max(
+                0,
+                Mathf.RoundToInt(rawDamage * multiplier));
+
+            return $"obrażenia/turę: {finalDamage} | " +
+                   $"surowe: {rawDamage} | " +
+                   $"odporność: {resistance:P0} | " +
+                   $"mnożnik: {multiplier:0.##}x | " +
+                   $"pula: {effect.TotalDamage}";
+        }
+
+        private static float GetBleedDamageMultiplier(float resistance)
+        {
+            if (resistance <= 0.5f)
+            {
+                return 2f - 2f * resistance;
+            }
+
+            return 1.5f - resistance;
         }
 
         private static void AppendInventory(

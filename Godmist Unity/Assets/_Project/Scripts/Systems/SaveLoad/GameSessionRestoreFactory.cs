@@ -13,6 +13,7 @@ using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
+using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.Items;
 using Godmist.Systems.NPC;
@@ -504,6 +505,18 @@ namespace Godmist.Systems.SaveLoad
 
                 var isTimed = effectSaveData.IsTimed || effectSaveData.RemainingDuration > 0;
 
+                var tickPhase = effectSaveData.TickPhase;
+
+                if (isTimed && tickPhase == PassiveEffectTickPhase.None)
+                {
+                    tickPhase = string.Equals(
+                        effectSaveData.EffectId,
+                        BleedPassiveEffectProcessor.BleedId,
+                        StringComparison.OrdinalIgnoreCase)
+                        ? PassiveEffectTickPhase.TurnStart
+                        : PassiveEffectTickPhase.TurnEnd;
+                }
+
                 character.PassiveEffects.Add(
                     new PassiveEffectRuntime(
                         effectSaveData.EffectId,
@@ -511,7 +524,7 @@ namespace Godmist.Systems.SaveLoad
                         effectSaveData.Stacks,
                         effectSaveData.RemainingDuration,
                         effectSaveData.TotalDamage,
-                        isTimed, effectSaveData.TickPhase)
+                        isTimed, tickPhase)
                     {
                         StatModifiers = statModifiers
                     });

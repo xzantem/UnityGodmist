@@ -177,7 +177,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     4,
-                    120));
+                    120, true, PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -211,7 +211,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     1,
-                    10));
+                    10, true, PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -244,7 +244,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     1,
-                    10));
+                    10, true, PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -377,7 +377,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     1,
-                    0));
+                    0, true, PassiveEffectTickPhase.TurnEnd));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -392,6 +392,30 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 StatusEffectSystem.IsStunned(enemy),
                 Is.False);
+        }
+
+        [Test]
+        public void RemoveStatus_RemovesAppliedStatus()
+        {
+            CreateSession(out var player, out var enemy);
+            
+            var effect = CreateBleedEffect(
+                duration: 3,
+                damagePerTurn: 10);
+
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyStatus(player, enemy, effect),
+                Is.True);
+
+            var removed = statusSystem.RemoveStatus(enemy, "bleed");
+
+            Assert.That(removed, Is.True);
+            Assert.That(
+                StatusEffectSystem.HasStatus(enemy, "bleed"),
+                Is.False);
+            Assert.That(enemy.Character.PassiveEffects, Is.Empty);
         }
     }
 }

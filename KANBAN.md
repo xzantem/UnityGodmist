@@ -46,10 +46,13 @@ Priorytety:
 
 ## In Progress
 
-- `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
+- `[P1] Zrefaktoryzowac warunki efektow na effectId/index v2` - `Combat`, `Core / Architecture`, `Content / Data`
+
 
 ## Done
 
+- `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
+- `[P1] Zrefaktoryzowac aplikowanie i usuwanie statusow pod PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac lifecycle passive effectow v2` - `Combat`, `Core / Architecture`
 - `[P1] Ujednolicic PassiveEffectRuntime i TimedPassiveEffect dla statusow oraz modifierow v2` - `Combat`, `Core / Architecture`
 - `[P2] Dopracowac inspector SkillData v2` - `Tools / Editor / Debug`, `Combat`, `Content / Data`
@@ -207,8 +210,6 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-- `[P1] Zrefaktoryzowac aplikowanie i usuwanie statusow pod PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
-- `[P1] Zrefaktoryzowac warunki efektow na effectId/index v2` - `Combat`, `Core / Architecture`, `Content / Data`
 - `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac runtime ModifyVar v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac zrodla i wygasanie modifierow v2` - `Combat`, `Core / Architecture`

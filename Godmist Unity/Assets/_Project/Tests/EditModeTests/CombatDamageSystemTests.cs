@@ -242,7 +242,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     4,
-                    120));
+                    120, true, PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -279,7 +279,7 @@ namespace Godmist.Tests.EditMode
                     new List<string>(),
                     1,
                     4,
-                    120));
+                    120, true, PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
