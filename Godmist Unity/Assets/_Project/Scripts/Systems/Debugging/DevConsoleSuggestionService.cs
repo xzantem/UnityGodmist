@@ -13,6 +13,7 @@ namespace Godmist.Systems.Debugging
         {
             "help",
             "state",
+            "unit",
             "characters",
             "gold",
             "xp",
@@ -120,6 +121,7 @@ namespace Godmist.Systems.Debugging
 
             return command == "xp"
                 || command == "heal"
+                || command == "unit"
                 || command == "resource"
                 || command == "godmode"
                 || command == "sethp"

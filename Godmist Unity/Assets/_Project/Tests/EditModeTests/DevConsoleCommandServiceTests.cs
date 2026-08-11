@@ -396,6 +396,67 @@ namespace Godmist.Tests.EditMode
             Object.DestroyImmediate(catalog);
         }
 
+        [Test]
+        public void Execute_UnitWithCharacterId_ReturnsDetailedRuntimeReport()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+
+            jerzy.CurrentHealth = 75;
+            jerzy.ShieldPool = new ShieldPool();
+            jerzy.ShieldPool.AddLayer(20, "test.shield");
+            jerzy.Honor = 15;
+            jerzy.DebugIsInvulnerable = true;
+
+            session.TryRegisterCharacter(jerzy);
+
+            var result = service.Execute(
+                "unit jerzy",
+                session,
+                null);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Message, Does.Contain("jerzy"));
+            Assert.That(result.Message, Does.Contain("HP: 75/100"));
+            Assert.That(result.Message, Does.Contain("Tarcza: 20"));
+            Assert.That(result.Message, Does.Contain("Honor: 15"));
+            Assert.That(result.Message, Does.Contain("Godmode: ON"));
+            Assert.That(
+                result.Message,
+                Does.Contain("Walka: postać nie uczestniczy"));
+        }
+
+        [Test]
+        public void Execute_UnitWithoutId_UsesActiveCombatUnit()
+        {
+            var service = new DevConsoleCommandService();
+            var jerzy = CreateCharacter("jerzy");
+
+            var unit = new BattleUnit
+            {
+                Character = jerzy,
+                Position = new GridPosition(3, 4),
+                CurrentActionPoints = 12,
+                MaxActionPoints = 15,
+                IsPlayerSide = true
+            };
+
+            var combatSession = new CombatSession();
+            combatSession.Units.Add(unit);
+            combatSession.ActiveUnit = unit;
+
+            var result = service.Execute(
+                "unit",
+                new GameSession(),
+                combatSession);
+
+            Assert.That(result.Success, Is.True);
+            Assert.That(result.Message, Does.Contain("jerzy"));
+            Assert.That(result.Message, Does.Contain("Pozycja: 3, 4"));
+            Assert.That(result.Message, Does.Contain("AP: 12/15"));
+        }
+
         private static ItemDefinition CreateItemDefinition(
             string id,
             string displayName)

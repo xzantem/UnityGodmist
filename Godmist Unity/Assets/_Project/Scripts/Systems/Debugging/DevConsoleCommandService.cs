@@ -70,6 +70,7 @@ namespace Godmist.Systems.Debugging
                 "itemdefs" => GetItemDefinitions(contentCatalog),
                 "encounterdefs" => GetEncounterDefinitions(contentCatalog),
                 "combat" => StartCombat(tokens, combatSession, combatHandler),
+                "unit" => InspectUnit(tokens, gameSession, combatSession),
                 _ => Fail($"Nieznana komenda: {tokens[0]}. Użyj: help")
             };
         }
@@ -81,6 +82,7 @@ namespace Godmist.Systems.Debugging
                 "help - lista komend\n" +
                 "state - stan sesji i walki\n" +
                 "characters - lista postaci oraz ich ID\n" +
+                "unit [characterId] - szczegółowy stan runtime postaci\n" +
                 "gold <liczba> - dodaje złoto\n" +
                 "xp <liczba> - XP aktywnej drużyny\n" +
                 "xp <characterId> <liczba> - XP wskazanej postaci\n" +
@@ -157,6 +159,54 @@ namespace Godmist.Systems.Debugging
             }
 
             return Success(output.ToString());
+        }
+
+        private static DevConsoleCommandResult InspectUnit(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (tokens.Count > 2)
+            {
+                return Fail("Użycie: unit [characterId]");
+            }
+
+            CharacterInstance target;
+
+            if (tokens.Count == 2)
+            {
+                if (!TryResolveCharacter(
+                        tokens[1],
+                        gameSession,
+                        combatSession,
+                        out target))
+                {
+                    return Fail($"Nie znaleziono postaci o ID: {tokens[1]}");
+                }
+            }
+            else
+            {
+                target = combatSession?.ActiveUnit?.Character;
+
+                if (target == null
+                    && gameSession != null
+                    && !string.IsNullOrWhiteSpace(
+                        gameSession.PlayerParty.ActiveLeaderId))
+                {
+                    gameSession.CharactersById.TryGetValue(
+                        gameSession.PlayerParty.ActiveLeaderId,
+                        out target);
+                }
+
+                if (target == null)
+                {
+                    return Fail(
+                        "Brak domyślnej postaci. Użycie: unit <characterId>");
+                }
+            }
+
+            return Success(
+                DevConsoleUnitInspector.BuildReport(target, combatSession));
         }
 
         private static DevConsoleCommandResult AddGold(
