@@ -49,6 +49,7 @@ Priorytety:
 
 ## Done
 
+- `[P1] Dodac runtime ModifyVar v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
 - `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
 - `[P1] Zrefaktoryzowac aplikowanie i usuwanie statusow pod PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
@@ -210,7 +211,6 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-- `[P1] Dodac runtime ModifyVar v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac zrodla i wygasanie modifierow v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac Poison i Burn v1` - `Combat`, `Content / Data`
 - `[P1] Przeniesc Stun i Immobilize do PassiveEffectRuntime oraz dodac Sleep, Freeze i Paralysis v1` - `Combat`, `Content / Data`

@@ -8,6 +8,7 @@ namespace Godmist.Core.Enums
         Heal = 3,
         RestoreResource = 4,
         Shield = 5,
-        ModifyStat = 6
+        ModifyStat = 6,
+        ModifyVar = 7
     }
 }

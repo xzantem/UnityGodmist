@@ -36,15 +36,6 @@ namespace Godmist.Views.Combat
         [Header("Debug References")]
         [SerializeField] private CombatBattleLog battleLog;
 
-        [Header("Skills")]
-        [SerializeField] private SkillData knifeTossSkill;
-        [SerializeField] private SkillData dashSkill;
-        [SerializeField] private SkillData focusSkill;
-        [SerializeField] private SkillData pushSkill;
-        [SerializeField] private SkillData bleedSkill;
-        [SerializeField] private SkillData bandageSkill;
-        [SerializeField] private SkillData restoreResourceSkill;
-        [SerializeField] private SkillData enemyStrikeSkill;
         [Header("Debug Obstacles")]
         [SerializeField] private List<GridPosition> blockedPositions = new();
         [Header("Dungeon Combat Area")]
@@ -73,12 +64,16 @@ namespace Godmist.Views.Combat
         private CharacterStatPipelineSystem statPipeline;
         private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
         private ModifyStatSystem modifyStatSystem;
+        private CombatVariableSystem combatVariableSystem;
+        private ModifyVarSystem modifyVarSystem;
         private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
         private bool usesGameSessionCombat;
         private bool hasRequestedExplorationReturn;
         public event Action<CombatMapObject> CombatMapObjectChanged;
+
+        private readonly CharacterInstanceFactory characterInstanceFactory = new();
 
         private void Start()
         {
@@ -88,10 +83,11 @@ namespace Godmist.Views.Combat
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
             resourceRuleSystem = new ResourceRuleSystem(AddBattleLog);
+            combatVariableSystem = new CombatVariableSystem();
             damageSystem = new CombatDamageSystem(
                 AddBattleLog,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                RemoveUnitFromCombat, resourceRuleSystem);
+                RemoveUnitFromCombat, resourceRuleSystem, combatVariableSystem);
             recoverySystem = new CombatRecoverySystem(AddBattleLog);
             reviveSystem = new CombatReviveSystem(AddBattleLog);
             statPipeline = new CharacterStatPipelineSystem();
@@ -107,6 +103,9 @@ namespace Godmist.Views.Combat
             modifyStatSystem = new ModifyStatSystem(
                 AddBattleLog,
                 passiveEffectLifecycleSystem);
+            modifyVarSystem = new ModifyVarSystem(
+                AddBattleLog,
+                passiveEffectLifecycleSystem);
             statusEffectSystem = new StatusEffectSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
@@ -119,7 +118,8 @@ namespace Godmist.Views.Combat
                 RemoveUnitFromCombat,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
                 statusEffectSystem, damageSystem, recoverySystem,
-                lineOfSightService: lineOfSightService, modifyStatSystem: modifyStatSystem);
+                lineOfSightService: lineOfSightService, modifyStatSystem: modifyStatSystem,
+                modifyVarSystem: modifyVarSystem);
             movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem);
             interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
             interactionSystem.InitializeMapObjects(Session);
@@ -254,68 +254,21 @@ namespace Godmist.Views.Combat
             float speed,
             bool isPlayerSide)
         {
-            var instance = new CharacterInstance
-            {
-                Definition = definition,
-                ClassData = classData,
-                Level = 1,
-                CurrentExperience = 0,
-                AvailableSkillPoints = 0,
-                CurrentHealth = health,
-                WeaponAccuracy = 100f,
-                Honor = 0,
-                LifeState = CharacterLifeState.Alive,
-                AvailabilityState = CharacterAvailabilityState.Available,
-                Stats = new CharacterStats {
-                    Speed = new Core.Types.Stat(speed), 
-                    MaxHealth = new Core.Types.Stat(health),
-                    MinAttack = new Core.Types.Stat(8),
-                    MaxAttack = new Core.Types.Stat(12),
-                    PhysicalDefense = new Core.Types.Stat(10),
-                    MagicalDefense = new Core.Types.Stat(10),
-                    Dodge = new Core.Types.Stat(15),
-                    CritChance = new Core.Types.Stat(0.25f),
-                    CritDamage = new Core.Types.Stat(1.5f),
-                    ResourceRegeneration = new Core.Types.Stat(0),
-                    },
-                ResourcePool = new ResourcePool(resourceType, resourceCurrent, resourceMax, 0),
-                Resistances = new ResistanceSet(),
-                ShieldPool = new ShieldPool()
-            };
+            var instance = characterInstanceFactory.Create(definition, classData);
+            instance.CurrentHealth = health;
+            instance.WeaponAccuracy = 100f;
+            instance.Stats.Speed = new Core.Types.Stat(speed);
+            instance.Stats.MaxHealth = new Core.Types.Stat(health);
+            instance.Stats.MinAttack = new Core.Types.Stat(8);
+            instance.Stats.MaxAttack = new Core.Types.Stat(12);
+            instance.Stats.PhysicalDefense = new Core.Types.Stat(10);
+            instance.Stats.MagicalDefense = new Core.Types.Stat(10);
+            instance.Stats.Dodge = new Core.Types.Stat(15);
+            instance.Stats.CritChance = new Core.Types.Stat(0.25f);
+            instance.Stats.CritDamage = new Core.Types.Stat(1.5f);
+            instance.Stats.ResourceRegeneration = new Core.Types.Stat(0);
+            instance.ResourcePool = new ResourcePool(resourceType, resourceCurrent, resourceMax, 0);
             var maxAp = turnSystem.CalculateMaxActionPoints(instance, actionPointsPerSpeed);
-
-            if (isPlayerSide)
-            {
-                if (knifeTossSkill != null)
-                {
-                    instance.Skills.Add(knifeTossSkill);
-                }
-                if (pushSkill != null)
-                {
-                    instance.Skills.Add(pushSkill);
-                }
-                if (bleedSkill != null)
-                {
-                    instance.Skills.Add(bleedSkill);
-                }
-                if (dashSkill != null)
-                {
-                    instance.Skills.Add(dashSkill);
-                }
-                if (focusSkill != null)
-                {
-                    instance.Skills.Add(focusSkill);
-                }
-                if (bandageSkill != null)
-                {
-                    instance.Skills.Add(bandageSkill);
-                }
-                if (restoreResourceSkill != null)
-                {
-                    instance.Skills.Add(restoreResourceSkill);
-                }
-            }
-            else if (enemyStrikeSkill != null) instance.Skills.Add(enemyStrikeSkill);
 
             return new BattleUnit
             {

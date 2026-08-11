@@ -20,6 +20,7 @@ namespace Godmist.Runtime.Effects
 
         public int TotalDamage;
         public List<StatModifier> StatModifiers = new();
+        public List<GameplayVariableModifier> VariableModifiers = new();
 
         public PassiveEffectRuntime()
         {

@@ -136,8 +136,8 @@ namespace Godmist.Systems.Combat
 
                     existingEffect.Stacks = incomingEffect.Stacks;
                     existingEffect.TotalDamage = incomingEffect.TotalDamage;
-                    existingEffect.StatModifiers = CopyStatModifiers(
-                        incomingEffect.StatModifiers);
+                    existingEffect.StatModifiers = CopyStatModifiers(incomingEffect.StatModifiers);
+                    existingEffect.VariableModifiers = CopyVariableModifiers(incomingEffect.VariableModifiers);
                     break;
 
                 default:
@@ -482,6 +482,34 @@ namespace Godmist.Systems.Combat
                 {
                     StatType = modifier.StatType,
                     Operation = modifier.Operation,
+                    Stacking = modifier.Stacking,
+                    Value = modifier.Value
+                });
+            }
+
+            return copiedModifiers;
+        }
+
+        private static List<GameplayVariableModifier> CopyVariableModifiers(
+            List<GameplayVariableModifier> modifiers)
+        {
+            var copiedModifiers = new List<GameplayVariableModifier>();
+
+            if (modifiers == null)
+            {
+                return copiedModifiers;
+            }
+
+            foreach (var modifier in modifiers)
+            {
+                if (modifier == null)
+                {
+                    continue;
+                }
+
+                copiedModifiers.Add(new GameplayVariableModifier
+                {
+                    VariableType = modifier.VariableType,
                     Stacking = modifier.Stacking,
                     Value = modifier.Value
                 });

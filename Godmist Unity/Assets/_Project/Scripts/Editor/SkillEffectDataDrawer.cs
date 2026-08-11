@@ -29,10 +29,10 @@ namespace Godmist.Editor
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType = property.FindPropertyRelative("modifierStatType");
+            var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
             var modifierOperation = property.FindPropertyRelative("modifierOperation");
             var modifierStacking = property.FindPropertyRelative("modifierStacking");
             var modifierValue = property.FindPropertyRelative("modifierValue");
-
             var y = position.y;
 
             DrawField(position, ref y, effectType);
@@ -69,6 +69,13 @@ namespace Godmist.Editor
                 DrawField(position, ref y, modifierValue);
                 DrawField(position, ref y, durationTurns);
             }
+            else if (selectedEffect == EffectType.ModifyVar)
+            {
+                DrawField(position, ref y, modifierVariableType);
+                DrawField(position, ref y, modifierStacking);
+                DrawField(position, ref y, modifierValue);
+                DrawField(position, ref y, durationTurns);
+            }
             else if (selectedEffect == EffectType.ApplyStatus)
             {
                 DrawStatusIdPopup(position, ref y, statusId);
@@ -97,6 +104,7 @@ namespace Godmist.Editor
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType = property.FindPropertyRelative("modifierStatType");
+            var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
             var modifierOperation = property.FindPropertyRelative("modifierOperation");
             var modifierStacking = property.FindPropertyRelative("modifierStacking");
             var modifierValue = property.FindPropertyRelative("modifierValue");
@@ -135,6 +143,13 @@ namespace Godmist.Editor
                     AddHeight(ref height, modifierStacking);
                 }
 
+                AddHeight(ref height, modifierValue);
+                AddHeight(ref height, durationTurns);
+            }
+            else if (selectedEffect == EffectType.ModifyVar)
+            {
+                AddHeight(ref height, modifierVariableType);
+                AddHeight(ref height, modifierStacking);
                 AddHeight(ref height, modifierValue);
                 AddHeight(ref height, durationTurns);
             }

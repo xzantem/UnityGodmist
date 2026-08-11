@@ -19,6 +19,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatShieldSystem shieldSystem;
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly ModifyStatSystem modifyStatSystem;
+        private readonly ModifyVarSystem modifyVarSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -29,7 +30,8 @@ namespace Godmist.Systems.Combat
             CombatRecoverySystem recoverySystem = null,
             CombatShieldSystem shieldSystem = null,
             CombatLineOfSightService lineOfSightService = null,
-            ModifyStatSystem modifyStatSystem = null)
+            ModifyStatSystem modifyStatSystem = null,
+            ModifyVarSystem modifyVarSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -41,6 +43,7 @@ namespace Godmist.Systems.Combat
             this.shieldSystem = shieldSystem ?? new CombatShieldSystem(battleLog);
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
             this.modifyStatSystem = modifyStatSystem ?? new ModifyStatSystem();
+            this.modifyVarSystem = modifyVarSystem ?? new ModifyVarSystem();
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -166,6 +169,13 @@ namespace Godmist.Systems.Combat
                 case EffectType.ModifyStat:
                 {
                     var wasApplied = modifyStatSystem != null && modifyStatSystem.Apply(caster, target, skill, effect, effectIndex);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
+                }
+                case EffectType.ModifyVar:
+                {
+                    var wasApplied = modifyVarSystem != null 
+                        && modifyVarSystem.Apply(caster, target, skill, effect, effectIndex);
+
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 default:
@@ -456,6 +466,15 @@ namespace Godmist.Systems.Combat
                 {
                     Debug.LogWarning(
                         $"Skill '{skill.SkillId}' ma ModifyStat z wartością 0.");
+
+                    return false;
+                }
+
+                if (effect.EffectType == EffectType.ModifyVar
+                    && Mathf.Approximately(effect.ModifierValue, 0f))
+                {
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' ma ModifyVar z wartością 0.");
 
                     return false;
                 }

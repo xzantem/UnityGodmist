@@ -22,6 +22,8 @@ namespace Godmist.Data.Effects
         [SerializeField, Min(0f)] private float statusDamageMultiplier;
         [SerializeField] private CharacterStatType modifierStatType =
             CharacterStatType.MaxHealth;
+        [SerializeField] private GameplayVariableType modifierVariableType =
+            GameplayVariableType.DamageDealtPercent;
 
         [SerializeField] private StatModifierOperation modifierOperation =
             StatModifierOperation.FlatBase;
@@ -45,6 +47,7 @@ namespace Godmist.Data.Effects
         public int Stacks => stacks;
         public float StatusDamageMultiplier => statusDamageMultiplier;
         public CharacterStatType ModifierStatType => modifierStatType;
+        public GameplayVariableType ModifierVariableType => modifierVariableType;
         public StatModifierOperation ModifierOperation => modifierOperation;
         public StatModifierStacking ModifierStacking => modifierStacking;
         public float ModifierValue => modifierValue;

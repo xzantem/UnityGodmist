@@ -11,16 +11,19 @@ namespace Godmist.Systems.Combat
         private readonly Action<CombatSession> evaluateOutcome;
         private readonly Action<BattleUnit> removeUnitFromCombat;
         private readonly ResourceRuleSystem resourceRuleSystem;
+        private readonly CombatVariableSystem combatVariableSystem;
 
         public CombatDamageSystem(Action<string> battleLog = null,
             Action<CombatSession> evaluateOutcome = null,
             Action<BattleUnit> removeUnitFromCombat = null,
-            ResourceRuleSystem resourceRuleSystem = null)
+            ResourceRuleSystem resourceRuleSystem = null,
+            CombatVariableSystem combatVariableSystem = null)
         {
             this.battleLog = battleLog;
             this.evaluateOutcome = evaluateOutcome;
             this.removeUnitFromCombat = removeUnitFromCombat;
             this.resourceRuleSystem = resourceRuleSystem;
+            this.combatVariableSystem = combatVariableSystem ?? new CombatVariableSystem();
         }
         public CombatDamageResult ResolveAndApplyDamage(CombatSession session, BattleUnit source, 
             BattleUnit target, int attackValue, DamageType damageType, float skillAccuracy)
@@ -71,7 +74,7 @@ namespace Godmist.Systems.Combat
 
                 return 0;
             }
-            var incomingDamage = Mathf.Max(0, requestedDamage);
+            var incomingDamage = combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage);
             if (incomingDamage <= 0)
             {
                 return 0;
