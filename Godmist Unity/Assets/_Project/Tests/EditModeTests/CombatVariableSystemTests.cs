@@ -104,10 +104,11 @@ namespace Godmist.Tests.EditMode
         {
             return new PassiveEffectRuntime(
                 "test.effect",
-                new List<string>(),
+                new List<PassiveEffectSourceRuntime>(),
                 stacks: 1,
                 remainingDuration: 0,
-                totalDamage: 0)
+                totalDamage: 0,
+                lifetime: PassiveEffectLifetime.Persistent)
             {
                 VariableModifiers = new List<GameplayVariableModifier>
                 {

@@ -54,10 +54,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(applied, Is.True);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(75f));
             Assert.That(target.Character.PassiveEffects, Has.Count.EqualTo(1));
-            Assert.That(target.Character.PassiveEffects[0].IsTimed, Is.True);
             Assert.That(
-                target.Character.PassiveEffects[0].RemoveOnCombatEnd,
-                Is.True);
+                target.Character.PassiveEffects[0].Lifetime,
+                Is.EqualTo(PassiveEffectLifetime.Timed));
 
             lifecycleSystem.ProcessTurnEnd(target);
 
@@ -100,8 +99,9 @@ namespace Godmist.Tests.EditMode
 
             var runtimeEffect = target.Character.PassiveEffects[0];
 
-            Assert.That(runtimeEffect.IsTimed, Is.False);
-            Assert.That(runtimeEffect.RemoveOnCombatEnd, Is.True);
+            Assert.That(
+                runtimeEffect.Lifetime,
+                Is.EqualTo(PassiveEffectLifetime.CombatScoped));
 
             var session = new CombatSession();
             session.Units.Add(target);

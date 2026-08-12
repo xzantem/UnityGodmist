@@ -11,8 +11,7 @@ namespace Godmist.Editor
     {
         private const float Spacing = 2f;
 
-        public override bool CanCacheInspectorGUI(
-            SerializedProperty property)
+        public override bool CanCacheInspectorGUI(SerializedProperty property)
         {
             return false;
         }
@@ -26,17 +25,12 @@ namespace Godmist.Editor
 
             var conditionType = property.FindPropertyRelative("conditionType");
             var statusId = property.FindPropertyRelative("statusId");
-            var healthThreshold = property.FindPropertyRelative(
-                "healthPercentThreshold");
-            var referencedEffectIndex = property.FindPropertyRelative(
-                "referencedEffectIndex");
-
+            var healthThreshold = property.FindPropertyRelative("healthPercentThreshold");
+            var referencedEffectIndex = property.FindPropertyRelative("referencedEffectIndex");
+            var selectedCondition = (EffectConditionType)conditionType.enumValueIndex;
             var y = position.y;
 
-            DrawField(position, ref y, conditionType);
-
-            var selectedCondition = (EffectConditionType)
-                conditionType.enumValueIndex;
+            DrawField(position, ref y, conditionType, "Condition Type");
 
             if (selectedCondition == EffectConditionType.TargetHasStatus
                 || selectedCondition == EffectConditionType.CasterHasStatus)
@@ -46,31 +40,22 @@ namespace Godmist.Editor
 
             if (RequiresEffectReference(selectedCondition))
             {
-                DrawReferencedEffectPopup(
-                    position,
-                    ref y,
-                    property,
-                    referencedEffectIndex);
+                DrawReferencedEffectPopup(position, ref y, property, referencedEffectIndex);
             }
 
             if (selectedCondition == EffectConditionType.TargetHealthBelowPercent
                 || selectedCondition == EffectConditionType.CasterHealthBelowPercent)
             {
-                DrawField(position, ref y, healthThreshold);
+                DrawField(position, ref y, healthThreshold, "Health Threshold (%)");
             }
 
             EditorGUI.EndProperty();
         }
 
-        public override float GetPropertyHeight(
-            SerializedProperty property,
-            GUIContent label)
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             var conditionType = property.FindPropertyRelative("conditionType");
-
-            var selectedCondition = (EffectConditionType)
-                conditionType.enumValueIndex;
-
+            var selectedCondition = (EffectConditionType)conditionType.enumValueIndex;
             var height = EditorGUIUtility.singleLineHeight;
 
             if (RequiresEffectReference(selectedCondition))
@@ -100,23 +85,14 @@ namespace Godmist.Editor
                 y,
                 position.width,
                 EditorGUIUtility.singleLineHeight);
-
-            var effects = conditionProperty.serializedObject
-                .FindProperty("effects");
-
-            var currentEffectIndex = GetOwningEffectIndex(
-                conditionProperty.propertyPath);
+            var effects = conditionProperty.serializedObject.FindProperty("effects");
+            var currentEffectIndex = GetOwningEffectIndex(conditionProperty.propertyPath);
 
             if (effects == null || currentEffectIndex <= 0)
             {
                 EditorGUI.BeginDisabledGroup(true);
-                EditorGUI.Popup(
-                    fieldRect,
-                    "Wynik efektu",
-                    0,
-                    new[] { "Brak wcześniejszego efektu" });
+                EditorGUI.Popup(fieldRect, "Effect Result", 0, new[] { "No previous effect" });
                 EditorGUI.EndDisabledGroup();
-
                 referencedEffectIndex.intValue = -1;
                 y += EditorGUIUtility.singleLineHeight + Spacing;
                 return;
@@ -128,11 +104,9 @@ namespace Godmist.Editor
             {
                 var effect = effects.GetArrayElementAtIndex(index);
                 var effectType = effect.FindPropertyRelative("effectType");
-
                 var effectTypeName = effectType == null
-                    ? "Nieznany"
+                    ? "Unknown"
                     : ((EffectType)effectType.enumValueIndex).ToString();
-
                 options[index] = $"{index} - {effectTypeName}";
             }
 
@@ -140,23 +114,18 @@ namespace Godmist.Editor
                 referencedEffectIndex.intValue,
                 0,
                 currentEffectIndex - 1);
-
             referencedEffectIndex.intValue = EditorGUI.Popup(
                 fieldRect,
-                "Wynik efektu",
+                "Effect Result",
                 selectedIndex,
                 options);
-
             y += EditorGUIUtility.singleLineHeight + Spacing;
         }
 
         private static int GetOwningEffectIndex(string propertyPath)
         {
             const string marker = "effects.Array.data[";
-
-            var markerIndex = propertyPath.IndexOf(
-                marker,
-                StringComparison.Ordinal);
+            var markerIndex = propertyPath.IndexOf(marker, StringComparison.Ordinal);
 
             if (markerIndex < 0)
             {
@@ -171,30 +140,19 @@ namespace Godmist.Editor
                 return -1;
             }
 
-            var indexText = propertyPath.Substring(
-                startIndex,
-                endIndex - startIndex);
-
-            return int.TryParse(indexText, out var effectIndex)
-                ? effectIndex
-                : -1;
+            var indexText = propertyPath.Substring(startIndex, endIndex - startIndex);
+            return int.TryParse(indexText, out var effectIndex) ? effectIndex : -1;
         }
 
         private static void DrawField(
             Rect position,
             ref float y,
-            SerializedProperty property)
+            SerializedProperty property,
+            string label)
         {
             var height = EditorGUI.GetPropertyHeight(property);
-
-            var fieldRect = new Rect(
-                position.x,
-                y,
-                position.width,
-                height);
-
-            EditorGUI.PropertyField(fieldRect, property);
-
+            var fieldRect = new Rect(position.x, y, position.width, height);
+            EditorGUI.PropertyField(fieldRect, property, new GUIContent(label));
             y += height + Spacing;
         }
 
@@ -204,25 +162,15 @@ namespace Godmist.Editor
             SerializedProperty statusId)
         {
             var height = EditorGUIUtility.singleLineHeight;
-
-            var fieldRect = new Rect(
-                position.x,
-                y,
-                position.width,
-                height);
-
+            var fieldRect = new Rect(position.x, y, position.width, height);
             StatusEffectIdPopup.Draw(fieldRect, statusId, "Status");
-
             y += height + Spacing;
         }
 
-        private static bool RequiresEffectReference(
-            EffectConditionType conditionType)
+        private static bool RequiresEffectReference(EffectConditionType conditionType)
         {
-            return conditionType
-                == EffectConditionType.ReferencedEffectSucceeded
-                || conditionType
-                == EffectConditionType.ReferencedEffectDealtHealthDamage;
+            return conditionType == EffectConditionType.ReferencedEffectSucceeded
+                || conditionType == EffectConditionType.ReferencedEffectDealtHealthDamage;
         }
     }
 }

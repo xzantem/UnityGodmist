@@ -32,7 +32,7 @@ namespace Godmist.Editor
             if (report.IsValid)
             {
                 EditorGUILayout.HelpBox(
-                    "EncounterDefinition jest poprawne.",
+                    "EncounterDefinition is valid.",
                     MessageType.Info);
             }
 

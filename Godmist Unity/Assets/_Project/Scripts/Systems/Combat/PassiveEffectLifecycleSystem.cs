@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Runtime.Characters;
@@ -40,10 +41,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            incomingEffect.IsTimed = true;
-            incomingEffect.RemainingDuration = Math.Max(
-                1,
-                incomingEffect.RemainingDuration);
+            incomingEffect.Lifetime = PassiveEffectLifetime.Timed;
+            incomingEffect.RemainingDuration = Math.Max(1, incomingEffect.RemainingDuration);
 
             return TryApplyEffect(
                 character,
@@ -65,10 +64,33 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            incomingEffect.IsTimed = false;
+            incomingEffect.Lifetime = PassiveEffectLifetime.CombatScoped;
             incomingEffect.RemainingDuration = 0;
             incomingEffect.TickPhase = PassiveEffectTickPhase.None;
-            incomingEffect.RemoveOnCombatEnd = true;
+
+            return TryApplyEffect(
+                character,
+                incomingEffect,
+                stackingMode,
+                out appliedEffect);
+        }
+
+        public bool TryApplyPersistentEffect(
+            CharacterInstance character,
+            PassiveEffectRuntime incomingEffect,
+            PassiveEffectStackingMode stackingMode,
+            out PassiveEffectRuntime appliedEffect)
+        {
+            appliedEffect = null;
+
+            if (incomingEffect == null)
+            {
+                return false;
+            }
+
+            incomingEffect.Lifetime = PassiveEffectLifetime.Persistent;
+            incomingEffect.RemainingDuration = 0;
+            incomingEffect.TickPhase = PassiveEffectTickPhase.None;
 
             return TryApplyEffect(
                 character,
@@ -107,9 +129,8 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
-            existingEffect.IsTimed = incomingEffect.IsTimed;
+            existingEffect.Lifetime = incomingEffect.Lifetime;
             existingEffect.TickPhase = incomingEffect.TickPhase;
-            existingEffect.RemoveOnCombatEnd = incomingEffect.RemoveOnCombatEnd;
             var existingEffectHadStatModifiers = HasStatModifiers(existingEffect);
 
             switch (stackingMode)
@@ -117,17 +138,17 @@ namespace Godmist.Systems.Combat
                 case PassiveEffectStackingMode.ReplaceDurationAndAddTotalDamage:
                     existingEffect.RemainingDuration =
                         incomingEffect.RemainingDuration;
-
                     existingEffect.TotalDamage = AddSafely(
                         existingEffect.TotalDamage,
                         incomingEffect.TotalDamage);
-
                     existingEffect.Stacks = 1;
                     break;
 
                 case PassiveEffectStackingMode.ReplaceDuration:
                     existingEffect.RemainingDuration =
                         incomingEffect.RemainingDuration;
+                    existingEffect.StatusHealPercent =
+                        incomingEffect.StatusHealPercent;
                     break;
 
                 case PassiveEffectStackingMode.ReplaceDurationAndValues:
@@ -136,6 +157,7 @@ namespace Godmist.Systems.Combat
 
                     existingEffect.Stacks = incomingEffect.Stacks;
                     existingEffect.TotalDamage = incomingEffect.TotalDamage;
+                    existingEffect.Sources = CopySources(incomingEffect.Sources);
                     existingEffect.StatModifiers = CopyStatModifiers(incomingEffect.StatModifiers);
                     existingEffect.VariableModifiers = CopyVariableModifiers(incomingEffect.VariableModifiers);
                     break;
@@ -155,9 +177,10 @@ namespace Godmist.Systems.Combat
                     break;
             }
 
-            AddSources(
-                existingEffect.SourceEntityIds,
-                incomingEffect.SourceEntityIds);
+            if (stackingMode != PassiveEffectStackingMode.ReplaceDurationAndValues)
+            {
+                AddSources(existingEffect.Sources, incomingEffect.Sources);
+            }
 
             if (existingEffectHadStatModifiers || HasStatModifiers(existingEffect))
                 RefreshStats(character);
@@ -213,7 +236,7 @@ namespace Godmist.Systems.Combat
         {
             if (character?.PassiveEffects == null
                 || effect == null
-                || !effect.IsTimed)
+                || effect.Lifetime != PassiveEffectLifetime.Timed)
             {
                 return false;
             }
@@ -330,13 +353,13 @@ namespace Godmist.Systems.Combat
         public static bool IsActive(PassiveEffectRuntime effect)
         {
             return effect != null
-                && (!effect.IsTimed || effect.RemainingDuration > 0);
+                && (effect.Lifetime != PassiveEffectLifetime.Timed
+                    || effect.RemainingDuration > 0);
         }
-
         public static bool HasExpired(PassiveEffectRuntime effect)
         {
             return effect != null
-                && effect.IsTimed
+                && effect.Lifetime == PassiveEffectLifetime.Timed
                 && effect.RemainingDuration <= 0;
         }
 
@@ -352,6 +375,16 @@ namespace Godmist.Systems.Combat
             }
 
             RemoveExpiredEffects(unit.Character);
+
+            if (StatusEffectSystem.IsParalyzed(unit))
+            {
+                if (tickPhase == PassiveEffectTickPhase.TurnEnd)
+                {
+                    AdvanceParalysisDuration(unit);
+                }
+
+                return true;
+            }
 
             var effects = GetEffectsForTick(unit.Character, tickPhase);
 
@@ -390,6 +423,26 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        private void AdvanceParalysisDuration(BattleUnit unit)
+        {
+            var paralysis = unit.Character.PassiveEffects.Find(effect =>
+                IsActive(effect)
+                && string.Equals(
+                    effect.EffectId,
+                    StatusEffectIds.Paralysis,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (paralysis == null)
+            {
+                return;
+            }
+
+            if (AdvanceDurationAndRemoveIfExpired(unit.Character, paralysis))
+            {
+                LogExpiration(unit, paralysis);
+            }
         }
 
         private IPassiveEffectTurnProcessor FindProcessor(
@@ -444,7 +497,7 @@ namespace Godmist.Systems.Combat
             {
                 var effect = character.PassiveEffects[index];
 
-                if (effect == null || !effect.RemoveOnCombatEnd)
+                if (effect == null || effect.Lifetime != PassiveEffectLifetime.CombatScoped)
                 {
                     continue;
                 }
@@ -459,6 +512,34 @@ namespace Godmist.Systems.Combat
             }
 
             return removedCount;
+        }
+
+        private static List<PassiveEffectSourceRuntime> CopySources(
+            List<PassiveEffectSourceRuntime> sources)
+        {
+            var copiedSources = new List<PassiveEffectSourceRuntime>();
+
+            if (sources == null)
+            {
+                return copiedSources;
+            }
+
+            foreach (var source in sources)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                copiedSources.Add(new PassiveEffectSourceRuntime
+                {
+                    SourceType = source.SourceType,
+                    SourceId = source.SourceId,
+                    SourceCharacterId = source.SourceCharacterId
+                });
+            }
+
+            return copiedSources;
         }
 
         private static List<StatModifier> CopyStatModifiers(
@@ -548,24 +629,56 @@ namespace Godmist.Systems.Combat
         }
 
         private static void AddSources(
-            List<string> targetSourceIds,
-            List<string> incomingSourceIds)
+            List<PassiveEffectSourceRuntime> targetSources,
+            List<PassiveEffectSourceRuntime> incomingSources)
         {
-            if (targetSourceIds == null || incomingSourceIds == null)
+            if (targetSources == null || incomingSources == null)
             {
                 return;
             }
 
-            foreach (var sourceId in incomingSourceIds)
+            foreach (var incomingSource in incomingSources)
             {
-                if (string.IsNullOrWhiteSpace(sourceId)
-                    || targetSourceIds.Contains(sourceId))
+                if (incomingSource == null || HasSource(targetSources, incomingSource))
                 {
                     continue;
                 }
 
-                targetSourceIds.Add(sourceId);
+                targetSources.Add(new PassiveEffectSourceRuntime
+                {
+                    SourceType = incomingSource.SourceType,
+                    SourceId = incomingSource.SourceId,
+                    SourceCharacterId = incomingSource.SourceCharacterId
+                });
             }
+        }
+
+        private static bool HasSource(
+            List<PassiveEffectSourceRuntime> sources,
+            PassiveEffectSourceRuntime candidate)
+        {
+            foreach (var source in sources)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                if (source.SourceType == candidate.SourceType
+                    && string.Equals(
+                        source.SourceId,
+                        candidate.SourceId,
+                        StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(
+                        source.SourceCharacterId,
+                        candidate.SourceCharacterId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool HasStatModifiers(PassiveEffectRuntime effect)

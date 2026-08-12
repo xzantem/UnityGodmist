@@ -1,3 +1,4 @@
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
 using UnityEditor;
@@ -17,16 +18,19 @@ namespace Godmist.Editor
             EditorGUI.BeginProperty(position, label, property);
 
             var effectType = property.FindPropertyRelative("effectType");
+            var polarity = property.FindPropertyRelative("polarity");
+            var alwaysHits = property.FindPropertyRelative("alwaysHits");
             var targetModeIndex = property.FindPropertyRelative("targetModeIndex");
             var baseValue = property.FindPropertyRelative("baseValue");
             var damageType = property.FindPropertyRelative("damageType");
             var damageValueSource = property.FindPropertyRelative("damageValueSource");
             var damageMultiplier = property.FindPropertyRelative("damageMultiplier");
-            var pushDistance = property.FindPropertyRelative("pushDistance");
+            var displacementDistance = property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
             var statusId = property.FindPropertyRelative("statusId");
             var durationTurns = property.FindPropertyRelative("durationTurns");
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
+            var statusHealPercent = property.FindPropertyRelative("statusHealPercent");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType = property.FindPropertyRelative("modifierStatType");
             var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
@@ -39,16 +43,39 @@ namespace Godmist.Editor
             DrawTargetModePopup(position, ref y, property, targetModeIndex);
 
             var selectedEffect = (EffectType)effectType.enumValueIndex;
+            var selectedPolarity = (EffectPolarity)polarity.enumValueIndex;
+
+            if (selectedEffect != EffectType.DealDamage)
+            {
+                DrawField(position, ref y, polarity);
+
+                if (selectedPolarity == EffectPolarity.Negative)
+                {
+                    DrawField(position, ref y, alwaysHits);
+                }
+            }
 
             if (selectedEffect == EffectType.DealDamage)
             {
                 DrawField(position, ref y, damageType);
                 DrawField(position, ref y, damageValueSource);
                 DrawField(position, ref y, damageMultiplier);
+
+                if ((DamageType)damageType.enumValueIndex == DamageType.Physical)
+                {
+                    DrawField(position, ref y, alwaysHits);
+                }
             }
-            else if (selectedEffect == EffectType.Push)
+            else if (selectedEffect == EffectType.Push
+                    || selectedEffect == EffectType.Pull
+                    || selectedEffect == EffectType.Fallback)
             {
-                DrawField(position, ref y, pushDistance);
+                DrawField(position, ref y, displacementDistance);
+
+                if (selectedEffect == EffectType.Pull)
+                {
+                    DrawField(position, ref y, baseChance);
+                }
             }
             else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource
                 || selectedEffect == EffectType.Shield)
@@ -81,7 +108,16 @@ namespace Godmist.Editor
                 DrawStatusIdPopup(position, ref y, statusId);
                 DrawField(position, ref y, baseChance);
                 DrawField(position, ref y, durationTurns);
-                DrawField(position, ref y, statusDamageMultiplier);
+
+                if (UsesStatusDamageMultiplier(statusId.stringValue))
+                {
+                    DrawField(position, ref y, statusDamageMultiplier);
+                }
+
+                if (statusId.stringValue == StatusEffectIds.Sleep)
+                {
+                    DrawField(position, ref y, statusHealPercent);
+                }
             }
             DrawField(position, ref y, conditions, true);
             EditorGUI.EndProperty();
@@ -92,16 +128,19 @@ namespace Godmist.Editor
             GUIContent label)
         {
             var effectType = property.FindPropertyRelative("effectType");
+            var polarity = property.FindPropertyRelative("polarity");
+            var alwaysHits = property.FindPropertyRelative("alwaysHits");
             var targetModeIndex = property.FindPropertyRelative("targetModeIndex");
             var baseValue = property.FindPropertyRelative("baseValue");
             var damageType = property.FindPropertyRelative("damageType");
             var damageValueSource = property.FindPropertyRelative("damageValueSource");
             var damageMultiplier = property.FindPropertyRelative("damageMultiplier");
-            var pushDistance = property.FindPropertyRelative("pushDistance");
+            var displacementDistance = property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
             var statusId = property.FindPropertyRelative("statusId");
             var durationTurns = property.FindPropertyRelative("durationTurns");
             var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
+            var statusHealPercent = property.FindPropertyRelative("statusHealPercent");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType = property.FindPropertyRelative("modifierStatType");
             var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
@@ -116,16 +155,39 @@ namespace Godmist.Editor
             AddHeight(ref height, targetModeIndex);
 
             var selectedEffect = (EffectType)effectType.enumValueIndex;
+            var selectedPolarity = (EffectPolarity)polarity.enumValueIndex;
+
+            if (selectedEffect != EffectType.DealDamage)
+            {
+                AddHeight(ref height, polarity);
+
+                if (selectedPolarity == EffectPolarity.Negative)
+                {
+                    AddHeight(ref height, alwaysHits);
+                }
+            }
 
             if (selectedEffect == EffectType.DealDamage)
             {
                 AddHeight(ref height, damageType);
                 AddHeight(ref height, damageValueSource);
                 AddHeight(ref height, damageMultiplier);
+
+                if ((DamageType)damageType.enumValueIndex == DamageType.Physical)
+                {
+                    AddHeight(ref height, alwaysHits);
+                }
             }
-            else if (selectedEffect == EffectType.Push)
+            else if (selectedEffect == EffectType.Push
+                    || selectedEffect == EffectType.Pull
+                    || selectedEffect == EffectType.Fallback)
             {
-                AddHeight(ref height, pushDistance);
+                AddHeight(ref height, displacementDistance);
+
+                if (selectedEffect == EffectType.Pull)
+                {
+                    AddHeight(ref height, baseChance);
+                }
             }
             else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource 
                 || selectedEffect == EffectType.Shield)
@@ -158,7 +220,16 @@ namespace Godmist.Editor
                 AddHeight(ref height, statusId);
                 AddHeight(ref height, baseChance);
                 AddHeight(ref height, durationTurns);
-                AddHeight(ref height, statusDamageMultiplier);
+
+                if (UsesStatusDamageMultiplier(statusId.stringValue))
+                {
+                    AddHeight(ref height, statusDamageMultiplier);
+                }
+
+                if (statusId.stringValue == StatusEffectIds.Sleep)
+                {
+                    AddHeight(ref height, statusHealPercent);
+                }
             }
 
             AddHeight(ref height, conditions, true);
@@ -278,5 +349,12 @@ namespace Godmist.Editor
 
             y += height + Spacing;
         }
-            }
+
+        private static bool UsesStatusDamageMultiplier(string statusId)
+        {
+            return statusId == StatusEffectIds.Bleed
+                || statusId == StatusEffectIds.Poison
+                || statusId == StatusEffectIds.Burn;
+        }
+    }
 }

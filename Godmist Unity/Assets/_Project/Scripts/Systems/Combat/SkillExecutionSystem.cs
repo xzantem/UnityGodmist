@@ -5,6 +5,7 @@ using Godmist.Data.Effects;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 
 namespace Godmist.Systems.Combat
 {
@@ -67,18 +68,28 @@ namespace Godmist.Systems.Combat
             return TryExecute(session, caster, skill, targetsByModeIndex);
         }
 
-        public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, 
+        public bool TryExecute(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
-            if (!CanExecute(session, caster, skill, targetsByModeIndex)) return false;
+            if (!CanExecute(session, caster, skill, targetsByModeIndex))
+            {
+                return false;
+            }
 
-            var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+            var actionCost = CombatActionCostCalculator.CalculateSkillCost(
+                caster,
+                skill);
 
             caster.CurrentActionPoints -= actionCost;
             caster.Character.ResourcePool?.Drain(skill.ResourceCost);
 
-            battleLog?.Invoke($"{caster.Character.Definition.DisplayName} uzywa {skill.DisplayName}.");
+            battleLog?.Invoke(
+                $"{caster.Character.Definition.DisplayName} używa {skill.DisplayName}.");
 
+            var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
                 new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
 
@@ -108,17 +119,45 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    resultsForEffect[target] =
-                        ExecuteEffect(session, caster, target, skill, effect, effectIndex);
+                    var wasHit = !RequiresHitRoll(effect)
+                        || ResolveTargetHit(
+                            caster,
+                            target,
+                            skill,
+                            hitByTarget);
+
+                    if (!wasHit)
+                    {
+                        resultsForEffect[target] = EffectExecutionResult.None;
+                        continue;
+                    }
+
+                    resultsForEffect[target] = ExecuteEffect(
+                        session,
+                        caster,
+                        target,
+                        skill,
+                        effect,
+                        effectIndex,
+                        wasHit);
                 }
 
                 resultsByEffectIndex[effectIndex] = resultsForEffect;
             }
 
+            if (IsOffensiveSkill(skill))
+            {
+                statusEffectSystem?.RemoveStatus(
+                    caster,
+                    StatusEffectIds.Invisibility);
+            }
+
+            CombatTurnSystem.RefreshMaxActionPoints(session);
+
             return true;
         }
         private EffectExecutionResult ExecuteEffect(CombatSession session, BattleUnit caster, BattleUnit target, 
-            SkillData skill, SkillEffectData effect, int effectIndex)
+            SkillData skill, SkillEffectData effect, int effectIndex, bool wasHit)
         {
             switch (effect.EffectType)
             {
@@ -127,7 +166,7 @@ namespace Godmist.Systems.Combat
                     var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
                         caster, effect.DamageValueSource, effect.DamageMultiplier);
                     var damageResult = damageSystem.ResolveAndApplyDamage(session, caster, target, attackValue, 
-                        effect.DamageType, skill.SkillAccuracy);
+                        effect.DamageType, wasHit);
 
                     return new EffectExecutionResult
                     {
@@ -138,13 +177,57 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Push:
                 {
-                    var wasPushed = ApplyPush(session, caster, target, effect);
+                    var wasPushed = TryApplyForcedDisplacement(
+                        session,
+                        target,
+                        caster,
+                        effect.DisplacementDistance,
+                        ForcedDisplacementDirection.AwayFromReference,
+                        "odepchnięty");
+
                     return new EffectExecutionResult { Succeeded = wasPushed };
+                }
+
+                case EffectType.Pull:
+                {
+                    if (statusEffectSystem == null
+                        || !statusEffectSystem.PassesMovementEffectChance(
+                            target,
+                            effect.BaseChance))
+                    {
+                        battleLog?.Invoke(
+                            $"{target.Character.Definition.DisplayName} opiera się przyciągnięciu.");
+
+                        return new EffectExecutionResult { Succeeded = false };
+                    }
+
+                    var wasPulled = TryApplyForcedDisplacement(
+                        session,
+                        target,
+                        caster,
+                        effect.DisplacementDistance,
+                        ForcedDisplacementDirection.TowardsReference,
+                        "przyciągnięty");
+
+                    return new EffectExecutionResult { Succeeded = wasPulled };
+                }
+
+                case EffectType.Fallback:
+                {
+                    var wasMovedBack = TryApplyForcedDisplacement(
+                        session,
+                        caster,
+                        target,
+                        effect.DisplacementDistance,
+                        ForcedDisplacementDirection.AwayFromReference,
+                        "wycofany");
+
+                    return new EffectExecutionResult { Succeeded = wasMovedBack };
                 }
                 case EffectType.ApplyStatus:
                 {
                     var wasApplied = statusEffectSystem != null && 
-                        statusEffectSystem.ApplyStatus(caster, target, effect);
+                        statusEffectSystem.ApplyStatus(caster, target, skill, effect, effectIndex);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.Heal:
@@ -342,6 +425,50 @@ namespace Godmist.Systems.Combat
                 == EffectConditionType.ReferencedEffectDealtHealthDamage;
         }
 
+        private static bool RequiresHitRoll(SkillEffectData effect)
+        {
+            if (effect == null || effect.AlwaysHits)
+            {
+                return false;
+            }
+
+            if (effect.EffectType == EffectType.DealDamage)
+            {
+                return !CombatDamageSystem.IsGuaranteedHitDamageType(
+                    effect.DamageType);
+            }
+
+            return effect.Polarity == EffectPolarity.Negative;
+        }
+
+        private bool ResolveTargetHit(
+            BattleUnit caster,
+            BattleUnit target,
+            SkillData skill,
+            Dictionary<BattleUnit, bool> hitByTarget)
+        {
+            if (hitByTarget.TryGetValue(target, out var wasHit))
+            {
+                return wasHit;
+            }
+
+            wasHit = CombatDamageSystem.RollHit(
+                caster,
+                target,
+                skill.SkillAccuracy);
+
+            hitByTarget.Add(target, wasHit);
+
+            if (!wasHit)
+            {
+                battleLog?.Invoke(
+                    $"{caster.Character.Definition.DisplayName} chybia "
+                    + $"{target.Character.Definition.DisplayName}.");
+            }
+
+            return wasHit;
+        }
+
         private struct EffectExecutionResult
         {
             public static EffectExecutionResult None => new();
@@ -353,16 +480,73 @@ namespace Godmist.Systems.Combat
             public int ShieldGranted;
         }
 
+        private static bool IsOffensiveSkill(SkillData skill)
+        {
+            if (skill?.TargetModes == null || skill.Effects == null)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect == null
+                    || effect.TargetModeIndex < 0
+                    || effect.TargetModeIndex >= skill.TargetModes.Count)
+                {
+                    continue;
+                }
+
+                var targetMode = skill.TargetModes[effect.TargetModeIndex];
+
+                if (targetMode != null
+                    && targetMode.TargetType != TargetType.Caster
+                    && targetMode.TargetingType == TargetingType.Enemies)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool ContainsTarget(
+            IReadOnlyList<BattleUnit> targets,
+            BattleUnit requiredTarget)
+        {
+            if (targets == null || requiredTarget == null)
+            {
+                return false;
+            }
+
+            foreach (var target in targets)
+            {
+                if (ReferenceEquals(target, requiredTarget))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool CanResolveWithoutUnitTargets(
+            SkillTargetModeData targetMode)
+        {
+            return targetMode?.TargetType == TargetType.AreaAroundTile;
+        }
+
         private bool CanExecute(CombatSession session, BattleUnit caster, SkillData skill, 
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
             if (session == null || caster?.Character == null || skill == null || targetsByModeIndex == null 
                 || caster.Character.LifeState != CharacterLifeState.Alive) return false;
 
-            if (StatusEffectSystem.IsStunned(caster))
+            if (StatusEffectSystem.IsHardCrowdControlled(caster))
             {
-                battleLog?.Invoke($"{caster.Character.Definition.DisplayName} " +
-                    "jest ogłuszony i nie może użyć umiejętności.");
+                battleLog?.Invoke(
+                    $"{caster.Character.Definition.DisplayName} " +
+                    "nie może użyć umiejętności przez status kontroli.");
+
                 return false;
             }
 
@@ -375,6 +559,11 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            var hasTaunter = StatusEffectSystem.TryGetTaunter(
+                session,
+                caster,
+                out var taunter);
+
             for (var targetModeIndex = 0; targetModeIndex < skill.TargetModes.Count; targetModeIndex++)
             {
                 var targetMode = skill.TargetModes[targetModeIndex];
@@ -385,9 +574,23 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
-                if (!targetsByModeIndex.TryGetValue(targetModeIndex, out var targets) || targets == null || targets.Count == 0)
+                if (!targetsByModeIndex.TryGetValue(targetModeIndex, out var targets)
+                    || targets == null
+                    || (!CanResolveWithoutUnitTargets(targetMode)
+                        && targets.Count == 0))
                 {
                     Debug.LogWarning($"Skill '{skill.SkillId}' nie ma celow dla trybu celu {targetModeIndex}.");
+                    return false;
+                }
+
+                if (hasTaunter
+                    && targetMode.TargetingType == TargetingType.Enemies
+                    && !ContainsTarget(targets, taunter))
+                {
+                    battleLog?.Invoke(
+                        $"{caster.Character.Definition.DisplayName} musi objąć Tauntem " +
+                        $"{taunter.Character.Definition.DisplayName}.");
+
                     return false;
                 }
 
@@ -397,6 +600,28 @@ namespace Godmist.Systems.Combat
                 {
                     if (target?.Character == null || !session.Units.Contains(target) 
                         || target.Character.LifeState == CharacterLifeState.Dead) return false;
+
+                    if (targetMode.TargetType == TargetType.Single
+                        && StatusEffectSystem.IsInvisible(target)
+                        && target.IsPlayerSide != caster.IsPlayerSide)
+                    {
+                        return false;
+                    }
+
+                    if (targetMode.TargetType == TargetType.All
+                        && StatusEffectSystem.IsInvisible(target))
+                    {
+                        return false;
+                    }
+
+                    if (StatusEffectSystem.IsParalyzed(target))
+                    {
+                        battleLog?.Invoke(
+                            $"{target.Character.Definition.DisplayName} " +
+                            "jest sparaliżowana i nie może być celem.");
+
+                        return false;
+                    }
 
                     if (skill.RequiresLineOfSight && !lineOfSightService.HasLineOfSight(session, caster.Position, 
                     target.Position))
@@ -528,63 +753,126 @@ namespace Godmist.Systems.Combat
             }
             return false;
         }
-        private bool ApplyPush(
-            CombatSession session,
-            BattleUnit caster,
-            BattleUnit target,
-            SkillEffectData effect)
+        private enum ForcedDisplacementDirection
         {
-            var directionX = Mathf.Clamp(
-                target.Position.X - caster.Position.X,
-                -1,
-                1);
-            var directionY = Mathf.Clamp(
-                target.Position.Y - caster.Position.Y,
-                -1,
-                1);
-            
-            if (directionX == 0 && directionY == 0)
+            AwayFromReference,
+            TowardsReference
+        }
+
+        private bool TryApplyForcedDisplacement(
+            CombatSession session,
+            BattleUnit movedUnit,
+            BattleUnit referenceUnit,
+            int displacementDistance,
+            ForcedDisplacementDirection direction,
+            string actionDescription)
+        {
+            if (session?.Grid == null || movedUnit == null || referenceUnit == null)
             {
-                Debug.LogWarning("Nie można określić kierunku odepchnięcia");
                 return false;
             }
-            var movedTiles = 0;
-            var pushDistance = Mathf.Max(1, effect.PushDistance);
 
-            for (var i = 0; i < pushDistance; i++)
+            var directionX = movedUnit.Position.X - referenceUnit.Position.X;
+            var directionY = movedUnit.Position.Y - referenceUnit.Position.Y;
+
+            if (direction == ForcedDisplacementDirection.TowardsReference)
             {
-                if (!session.Grid.TryMove(
-                        target.Position,
-                        directionX,
-                        directionY,
-                        out var nextPosition))                                                                                                                                                                                                  
+                directionX = -directionX;
+                directionY = -directionY;
+            }
+
+            if (directionX == 0 && directionY == 0)
+            {
+                battleLog?.Invoke(
+                    $"Nie można określić kierunku przesunięcia dla "
+                    + $"{movedUnit.Character.Definition.DisplayName}.");
+
+                return false;
+            }
+
+            var requestedDistance = Mathf.Max(1, displacementDistance);
+            var dominantAxisLength = Mathf.Max(
+                Mathf.Abs(directionX),
+                Mathf.Abs(directionY));
+
+            var stepRatioX = directionX / (float)dominantAxisLength;
+            var stepRatioY = directionY / (float)dominantAxisLength;
+
+            var previousOffsetX = 0;
+            var previousOffsetY = 0;
+            var movedTiles = 0;
+
+            for (var stepIndex = 1; stepIndex <= requestedDistance; stepIndex++)
+            {
+                var offsetX = Mathf.RoundToInt(stepRatioX * stepIndex);
+                var offsetY = Mathf.RoundToInt(stepRatioY * stepIndex);
+
+                var stepX = offsetX - previousOffsetX;
+                var stepY = offsetY - previousOffsetY;
+
+                previousOffsetX = offsetX;
+                previousOffsetY = offsetY;
+
+                if (stepX == 0 && stepY == 0)
                 {
-                    break;
+                    continue;
                 }
-                if (session.IsPositionOccupied(nextPosition, target))
+
+                var nextPosition = new GridPosition(
+                    movedUnit.Position.X + stepX,
+                    movedUnit.Position.Y + stepY);
+
+                if (!CanForcedDisplacementMove(
+                        session,
+                        movedUnit,
+                        nextPosition,
+                        stepX,
+                        stepY))
                 {
                     break;
                 }
 
-                target.Position = nextPosition;
+                movedUnit.Position = nextPosition;
                 movedTiles++;
             }
 
-            if (movedTiles > 0)
+            if (movedTiles <= 0)
             {
                 battleLog?.Invoke(
-                    $"{target.Character.Definition.DisplayName} zostaje " +
-                    $"odepchnięty o {movedTiles} pole/pola.");
+                    $"{movedUnit.Character.Definition.DisplayName} nie może zostać "
+                    + $"{actionDescription}.");
 
-                return true;
+                return false;
             }
-            else
+
+            battleLog?.Invoke(
+                $"{movedUnit.Character.Definition.DisplayName} zostaje "
+                + $"{actionDescription} o {movedTiles} pole/pola.");
+
+            return true;
+        }
+
+        private static bool CanForcedDisplacementMove(
+            CombatSession session,
+            BattleUnit movedUnit,
+            GridPosition nextPosition,
+            int stepX,
+            int stepY)
+        {
+            var currentPosition = movedUnit.Position;
+            var isDiagonal = stepX != 0 && stepY != 0;
+
+            if (!isDiagonal)
             {
-                battleLog?.Invoke(
-                    $"{target.Character.Definition.DisplayName} nie może " +
-                    $"zostać odecphnięty.");
+                return session.Grid.CanMoveBetween(currentPosition, nextPosition)
+                    && !session.IsPositionOccupied(nextPosition, movedUnit);
             }
-            return false;
+
+            return session.Grid.IsWalkable(currentPosition)
+                && session.Grid.IsWalkable(nextPosition)
+                && !session.Grid.IsBlocked(currentPosition)
+                && !session.Grid.IsBlocked(nextPosition)
+                && !session.IsPositionOccupied(nextPosition, movedUnit);
         }
     }
 }

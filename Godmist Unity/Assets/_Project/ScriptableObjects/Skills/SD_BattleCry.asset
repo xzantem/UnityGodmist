@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57a1aa6dfa4ff614099473e644dd70c5, type: 3}
-  m_Name: SD_ModifyVar_Test
+  m_Name: SD_BattleCry
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.battle_cry
   <DisplayName>k__BackingField: Battle Cry
@@ -31,19 +31,53 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+  - targetType: 9
+    targetingType: 1
+    absoluteRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+    relativeRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
   effects:
   - effectType: 7
+    polarity: 1
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
     damageType: 0
-    pushDistance: 0
+    displacementDistance: 0
+    baseChance: 0
+    statusId:
+    durationTurns: 3
+    stacks: 0
+    statusDamageMultiplier: 0
+    statusHealPercent: 0
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0.25
+    conditions: []
+  - effectType: 7
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 1
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 0
+    damageType: 0
+    displacementDistance: 0
     baseChance: 0
     statusId: 
     durationTurns: 3
     stacks: 0
     statusDamageMultiplier: 0
+    statusHealPercent: 0
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0

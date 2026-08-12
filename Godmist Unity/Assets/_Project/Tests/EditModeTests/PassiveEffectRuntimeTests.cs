@@ -12,16 +12,18 @@ namespace Godmist.Tests.EditMode
     public class PassiveEffectRuntimeTests
     {
         [Test]
-        public void Constructor_WithPositiveDuration_DefaultsToTimed()
+        public void Constructor_WithTimedLifetime_KeepsDuration()
         {
             var effect = new PassiveEffectRuntime(
                 "bleed",
-                new List<string>(),
+                new List<PassiveEffectSourceRuntime>(),
                 stacks: 1,
                 remainingDuration: 3,
-                totalDamage: 30);
+                totalDamage: 30,
+                lifetime: PassiveEffectLifetime.Timed,
+                tickPhase: PassiveEffectTickPhase.TurnStart);
 
-            Assert.That(effect.IsTimed, Is.True);
+            Assert.That(effect.Lifetime, Is.EqualTo(PassiveEffectLifetime.Timed));
             Assert.That(effect.RemainingDuration, Is.EqualTo(3));
         }
 
@@ -34,7 +36,7 @@ namespace Godmist.Tests.EditMode
                 StatModifiers = new List<StatModifier>()
             };
 
-            Assert.That(effect.IsTimed, Is.False);
+            Assert.That(effect.Lifetime, Is.EqualTo(PassiveEffectLifetime.Persistent));
         }
 
         [Test]
@@ -50,7 +52,7 @@ namespace Godmist.Tests.EditMode
                     new PassiveEffectRuntime
                     {
                         EffectId = "passive.test",
-                        IsTimed = false
+                        Lifetime = PassiveEffectLifetime.Persistent
                     }
                 }
             };

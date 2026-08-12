@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.knife_toss
   <DisplayName>k__BackingField: "Rzut no\u017Cem"
-  <SkillAccuracy>k__BackingField: 100
+  <SkillAccuracy>k__BackingField: 87
   <ActionCost>k__BackingField: 55
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
@@ -27,33 +27,39 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 4
-    useRelativeRange: 0
     relativeRange:
       shape: 1
       minRange: 0
       maxRange: 2
-  - targetType: 0
+  - targetType: 1
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
-    useRelativeRange: 0
     relativeRange:
       shape: 1
       minRange: 0
       maxRange: 2
   effects:
   - effectType: 0
+    polarity: 0
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
-    damageMultiplier: 100
+    damageMultiplier: 1
     damageType: 0
-    pushDistance: 1
+    displacementDistance: 1
     baseChance: 1
     statusId: 
     durationTurns: 1
     stacks: 1
     statusDamageMultiplier: 0
+    statusHealPercent: 0
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

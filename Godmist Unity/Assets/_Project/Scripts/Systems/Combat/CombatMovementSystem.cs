@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using UnityEngine;
@@ -20,11 +21,16 @@ namespace Godmist.Systems.Combat
 
         private readonly Action<string> battleLog;
         private readonly ResourceRuleSystem resourceRuleSystem;
+        private readonly StatusEffectSystem statusEffectSystem;
 
-        public CombatMovementSystem(Action<string> battleLog = null, ResourceRuleSystem resourceRuleSystem = null)
+        public CombatMovementSystem(
+            Action<string> battleLog = null,
+            ResourceRuleSystem resourceRuleSystem = null,
+            StatusEffectSystem statusEffectSystem = null)
         {
             this.battleLog = battleLog;
             this.resourceRuleSystem = resourceRuleSystem;
+            this.statusEffectSystem = statusEffectSystem;
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
@@ -38,8 +44,12 @@ namespace Godmist.Systems.Combat
             if (session?.Grid == null || unit?.Character == null 
                 || unit.Character.LifeState != CharacterLifeState.Alive) return reachablePaths;
 
-            if (StatusEffectSystem.IsStunned(unit) 
-                || StatusEffectSystem.IsImmobilized(unit)) return reachablePaths;
+            if ((StatusEffectSystem.IsHardCrowdControlled(unit)
+                    && !StatusEffectSystem.IsSleeping(unit))
+                || StatusEffectSystem.IsImmobilized(unit))
+            {
+                return reachablePaths;
+            }
 
             var queue = new Queue<GridPosition>();
             var paths = new Dictionary<GridPosition, List<GridPosition>>();
@@ -131,10 +141,14 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
-            if (StatusEffectSystem.IsStunned(unit) || StatusEffectSystem.IsImmobilized(unit))
+            if ((StatusEffectSystem.IsHardCrowdControlled(unit)
+                    && !StatusEffectSystem.IsSleeping(unit))
+                || StatusEffectSystem.IsImmobilized(unit))
             {
-                battleLog?.Invoke($"{unit.Character.Definition.DisplayName} " +
-                    "nie może się ruszyć przez unieruchomienie.");
+                battleLog?.Invoke(
+                    $"{unit.Character.Definition.DisplayName} " +
+                    "nie może się ruszyć przez status kontroli.");
+
                 return false;
             }
 
@@ -151,6 +165,16 @@ namespace Godmist.Systems.Combat
                 out var targetPosition)) return false;
 
             if (session.IsPositionOccupied(targetPosition, unit)) return false;
+
+            if (StatusEffectSystem.IsSleeping(unit))
+            {
+                if (statusEffectSystem == null)
+                {
+                    return false;
+                }
+
+                statusEffectSystem.RemoveStatus(unit, StatusEffectIds.Sleep);
+            }
 
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57a1aa6dfa4ff614099473e644dd70c5, type: 3}
-  m_Name: SD_ModifyStat_Test
+  m_Name: SD_Haste
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.haste
   <DisplayName>k__BackingField: Haste
@@ -21,8 +21,18 @@ MonoBehaviour:
   <IsToggle>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
   targetModes:
+  - targetType: 1
+    targetingType: 1
+    absoluteRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+    relativeRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
   - targetType: 9
-    targetingType: 0
+    targetingType: 1
     absoluteRange:
       shape: 0
       minRange: 0
@@ -33,18 +43,43 @@ MonoBehaviour:
       maxRange: 0
   effects:
   - effectType: 6
+    polarity: 1
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
     damageType: 0
-    pushDistance: 0
+    displacementDistance: 0
     baseChance: 0
-    statusId: 
+    statusId: bleed
     durationTurns: 2
     stacks: 0
     statusDamageMultiplier: 0
+    statusHealPercent: 0
     modifierStatType: 8
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 20
+    conditions: []
+  - effectType: 6
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 0
+    damageType: 0
+    displacementDistance: 0
+    baseChance: 0
+    statusId: bleed
+    durationTurns: 2
+    stacks: 0
+    statusDamageMultiplier: 0
+    statusHealPercent: 0
+    modifierStatType: 8
+    modifierVariableType: 0
     modifierOperation: 0
     modifierStacking: 0
     modifierValue: 20

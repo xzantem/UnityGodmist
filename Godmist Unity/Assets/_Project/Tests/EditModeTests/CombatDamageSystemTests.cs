@@ -239,10 +239,12 @@ namespace Godmist.Tests.EditMode
             player.Character.PassiveEffects.Add(
                 new PassiveEffectRuntime(
                     "bleed",
-                    new List<string>(),
+                    new List<PassiveEffectSourceRuntime>(),
                     1,
                     4,
-                    120, true, PassiveEffectTickPhase.TurnStart));
+                    120,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -264,6 +266,34 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ApplyDamage_EnemyDeath_TracksDefeatedEnemyBeforeRemoval()
+        {
+            var session = CreateSession(
+                out _,
+                out var enemy);
+
+            enemy.Character.CharacterId = "encounter.enemy.01";
+
+            BattleUnit removedUnit = null;
+
+            var damageSystem = new CombatDamageSystem(
+                removeUnitFromCombat: unit => removedUnit = unit);
+
+            damageSystem.ApplyDamage(
+                session,
+                null,
+                enemy,
+                100,
+                DamageType.Physical);
+
+            Assert.That(
+                session.DefeatedEnemyInstanceIds,
+                Does.Contain("encounter.enemy.01"));
+
+            Assert.That(removedUnit, Is.SameAs(enemy));
+        }
+
+        [Test]
         public void BleedAtZeroResistance_DoublesDamage()
         {
             var session = CreateSession(
@@ -276,10 +306,12 @@ namespace Godmist.Tests.EditMode
             player.Character.PassiveEffects.Add(
                 new PassiveEffectRuntime(
                     "bleed",
-                    new List<string>(),
+                    new List<PassiveEffectSourceRuntime>(),
                     1,
                     4,
-                    120, true, PassiveEffectTickPhase.TurnStart));
+                    120,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 

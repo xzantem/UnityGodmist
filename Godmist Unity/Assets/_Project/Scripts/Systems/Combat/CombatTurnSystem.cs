@@ -169,8 +169,7 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"Tura: {unit.Character.Definition.DisplayName}");
 
-            unit.CurrentActionPoints =
-                unit.MaxActionPoints;
+            RefreshMaxActionPoints(session, unit, refillCurrentActionPoints: true);
 
             unit.HasReacted = false;
             unit.MovementStepsThisTurn = 0;
@@ -194,6 +193,46 @@ namespace Godmist.Systems.Combat
                 0,
                 UnityEngine.Mathf.RoundToInt(
                     speed * actionPointsPerSpeed));
+        }
+
+        public static void RefreshMaxActionPoints(
+            CombatSession session,
+            BattleUnit unit,
+            bool refillCurrentActionPoints = false)
+        {
+            if (session == null || unit?.Character?.Stats?.Speed == null)
+            {
+                return;
+            }
+
+            var speed = unit.Character.Stats.Speed.GetValue();
+            var maxActionPoints = UnityEngine.Mathf.Max(
+                0,
+                UnityEngine.Mathf.RoundToInt(
+                    speed * session.ActionPointsPerSpeed));
+
+            unit.MaxActionPoints = maxActionPoints;
+            unit.CurrentActionPoints = refillCurrentActionPoints
+                ? maxActionPoints
+                : UnityEngine.Mathf.Min(unit.CurrentActionPoints, maxActionPoints);
+        }
+
+        public static void RefreshMaxActionPoints(
+            CombatSession session,
+            bool refillActiveUnit = false)
+        {
+            if (session?.Units == null)
+            {
+                return;
+            }
+
+            foreach (var unit in session.Units)
+            {
+                RefreshMaxActionPoints(
+                    session,
+                    unit,
+                    refillActiveUnit && unit == session.ActiveUnit);
+            }
         }
 
         private static BattleUnit FindNextScheduledUnit(

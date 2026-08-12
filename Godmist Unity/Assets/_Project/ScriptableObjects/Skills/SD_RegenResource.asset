@@ -17,8 +17,9 @@ MonoBehaviour:
   <SkillAccuracy>k__BackingField: 100
   <ActionCost>k__BackingField: 30
   <ResourceCost>k__BackingField: 0
-  <ResourceType>k__BackingField: 0
+  <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 9
     targetingType: 2
@@ -26,22 +27,29 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
-    useRelativeRange: 0
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
   effects:
   - effectType: 4
+    polarity: 1
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 10
     damageValueSource: 0
     damageMultiplier: 0
     damageType: 0
-    pushDistance: 0
+    displacementDistance: 0
     baseChance: 0
     statusId: 
     durationTurns: 0
     stacks: 0
     statusDamageMultiplier: 0
+    statusHealPercent: 0
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

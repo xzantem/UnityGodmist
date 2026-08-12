@@ -64,13 +64,35 @@ namespace Godmist.Core.Serialization
     public class PassiveEffectSaveData
     {
         public string EffectId = string.Empty;
-        public List<string> SourceEntityIds = new();
+        public List<PassiveEffectSourceSaveData> Sources = new();
+        public PassiveEffectLifetime Lifetime;
         public int Stacks;
-        public bool IsTimed;
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase;
         public int TotalDamage;
         public List<StatModifierSaveData> StatModifiers = new();
+        public List<GameplayVariableModifierSaveData> VariableModifiers = new();
+
+        // Migracja zapisów utworzonych przed wprowadzeniem Lifetime i Sources.
+        public bool HasLifetime;
+        public List<string> SourceEntityIds = new();
+        public bool IsTimed;
+    }
+
+    [Serializable]
+    public class PassiveEffectSourceSaveData
+    {
+        public PassiveEffectSourceType SourceType;
+        public string SourceId = string.Empty;
+        public string SourceCharacterId = string.Empty;
+    }
+
+    [Serializable]
+    public class GameplayVariableModifierSaveData
+    {
+        public GameplayVariableType VariableType;
+        public StatModifierStacking Stacking;
+        public float Value;
     }
 
     [Serializable]

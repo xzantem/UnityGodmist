@@ -44,9 +44,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!stateSyncSystem.TrySyncDoorStates(
-                    gameSession,
-                    combatSession))
+            if (!stateSyncSystem.TrySyncDoorStates(gameSession, combatSession)
+                || !stateSyncSystem.TrySyncDefeatedEnemyStates(gameSession, combatSession))
             {
                 return false;
             }

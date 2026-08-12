@@ -13,8 +13,10 @@ namespace Godmist.Runtime.Combat
         public CombatRewardResult Rewards = new();
         public bool RewardsGranted;
         public bool IsDebugSession;       
+        public float ActionPointsPerSpeed = 0.25f;
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();
+        public HashSet<string> DefeatedEnemyInstanceIds = new();
         public List<CombatMapObject> MapObjects = new();
 
         public List<BattleUnit> TurnOrder = new();
@@ -56,6 +58,13 @@ namespace Godmist.Runtime.Combat
             }
 
             return null;
+        }
+
+        public bool TryMarkEnemyDefeated(string enemyInstanceId)
+        {
+            if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
+
+            return DefeatedEnemyInstanceIds.Add(enemyInstanceId);
         }
     }
 }

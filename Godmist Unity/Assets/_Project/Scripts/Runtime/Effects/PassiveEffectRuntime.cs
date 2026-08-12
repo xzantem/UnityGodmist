@@ -9,16 +9,18 @@ namespace Godmist.Runtime.Effects
     public class PassiveEffectRuntime
     {
         public string EffectId = string.Empty;
-        public List<string> SourceEntityIds = new();
+        public List<PassiveEffectSourceRuntime> Sources = new();
         public int Stacks = 1;
 
-        // False means a permanent passive or modifier.
-        public bool IsTimed;
+        public PassiveEffectLifetime Lifetime =
+            PassiveEffectLifetime.Persistent;
+
         public int RemainingDuration;
-        public PassiveEffectTickPhase TickPhase = PassiveEffectTickPhase.None;
-        public bool RemoveOnCombatEnd;
+        public PassiveEffectTickPhase TickPhase =
+            PassiveEffectTickPhase.None;
 
         public int TotalDamage;
+        public float StatusHealPercent;
         public List<StatModifier> StatModifiers = new();
         public List<GameplayVariableModifier> VariableModifiers = new();
 
@@ -28,25 +30,32 @@ namespace Godmist.Runtime.Effects
 
         public PassiveEffectRuntime(
             string effectId,
-            List<string> sourceEntityIds,
+            List<PassiveEffectSourceRuntime> sources,
             int stacks,
             int remainingDuration,
             int totalDamage,
-            bool? isTimed = null,
-            PassiveEffectTickPhase tickPhase = PassiveEffectTickPhase.None,
-            bool removeOnCombatEnd = false)
+            PassiveEffectLifetime lifetime,
+            PassiveEffectTickPhase tickPhase =
+                PassiveEffectTickPhase.None,
+                float statusHealPercent = 0f)
         {
             EffectId = effectId ?? string.Empty;
-            SourceEntityIds = sourceEntityIds != null
-                ? new List<string>(sourceEntityIds)
-                : new List<string>();
+            Sources = sources != null
+                ? new List<PassiveEffectSourceRuntime>(sources)
+                : new List<PassiveEffectSourceRuntime>();
 
             Stacks = stacks;
-            IsTimed = isTimed ?? remainingDuration > 0;
-            RemainingDuration = remainingDuration;
-            TickPhase = IsTimed ? tickPhase : PassiveEffectTickPhase.None;
+            Lifetime = lifetime;
+            RemainingDuration = lifetime == PassiveEffectLifetime.Timed
+                ? remainingDuration
+                : 0;
+
+            TickPhase = lifetime == PassiveEffectLifetime.Timed
+                ? tickPhase
+                : PassiveEffectTickPhase.None;
+
             TotalDamage = totalDamage;
-            RemoveOnCombatEnd = removeOnCombatEnd;
+            StatusHealPercent = statusHealPercent;
         }
     }
 }

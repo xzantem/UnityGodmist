@@ -76,27 +76,23 @@ namespace Godmist.Systems.Combat
             SkillEffectData effect,
             int effectIndex)
         {
-            var sourceIds = new List<string>();
-            var sourceId = source?.Character?.Definition?.Id;
-
-            if (!string.IsNullOrWhiteSpace(sourceId))
+            var sources = new List<PassiveEffectSourceRuntime>
             {
-                sourceIds.Add(sourceId);
-            }
-
+                PassiveEffectSourceFactory.FromSkill(
+                    source,
+                    skill,
+                    effectIndex)
+            };
             var isTimed = effect.DurationTurns > 0;
 
             return new PassiveEffectRuntime(
                 BuildEffectId(skill.SkillId, effectIndex),
-                sourceIds,
+                sources,
                 stacks: 1,
                 remainingDuration: isTimed ? effect.DurationTurns : 0,
                 totalDamage: 0,
-                isTimed: isTimed,
-                tickPhase: isTimed
-                    ? PassiveEffectTickPhase.TurnEnd
-                    : PassiveEffectTickPhase.None,
-                removeOnCombatEnd: true)
+                tickPhase: isTimed ? PassiveEffectTickPhase.TurnEnd : PassiveEffectTickPhase.None,
+                lifetime: isTimed ? PassiveEffectLifetime.Timed : PassiveEffectLifetime.CombatScoped)
             {
                 VariableModifiers = new List<GameplayVariableModifier>
                 {

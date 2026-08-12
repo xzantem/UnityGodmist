@@ -16,6 +16,7 @@ namespace Godmist.Core.Constants
         public const string Sleep = "sleep";
         public const string Paralysis = "paralysis";
         public const string Immobilize = "immobilize";
+        public const string Chill = "chill";
 
         public const string Taunt = "taunt";
         public const string Invisibility = "invisibility";
@@ -27,12 +28,12 @@ namespace Godmist.Core.Constants
                 Bleed,
                 Poison,
                 Burn,
-                Weakening,
                 Stun,
                 Freeze,
                 Sleep,
                 Paralysis,
                 Immobilize,
+                Chill,
                 Taunt,
                 Invisibility,
                 Regeneration

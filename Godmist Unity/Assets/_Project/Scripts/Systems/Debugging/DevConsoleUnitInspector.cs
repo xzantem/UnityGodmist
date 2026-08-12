@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Text;
+using Godmist.Core.Constants;
+using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -164,31 +166,61 @@ namespace Godmist.Systems.Debugging
 
             foreach (var effect in effects)
             {
-                var duration = effect.RemainingDuration > 0
-                    ? effect.RemainingDuration.ToString()
-                    : "stały";
-
-                var sources = effect.SourceEntityIds == null
-                    || effect.SourceEntityIds.Count == 0
-                    ? "brak"
-                    : string.Join(", ", effect.SourceEntityIds);
+                var lifetime = GetLifetimeText(effect);
+                var sources = GetSourcesText(effect);
 
                 output.AppendLine(
                     $"- {effect.EffectId} | stacki: {effect.Stacks} | " +
-                    $"czas: {duration} | {GetEffectValueText(effect, character)} | " +
-                    $"źródła: {sources} | modyfikatory: " +
-                    $"{effect.StatModifiers?.Count ?? 0}");
+                    $"życie: {lifetime} | " +
+                    $"{GetEffectValueText(effect, character)} | " +
+                    $"źródła: {sources} | " +
+                    $"modyfikatory statystyk: " +
+                    $"{effect.StatModifiers?.Count ?? 0} | " +
+                    $"modyfikatory zmiennych: " +
+                    $"{effect.VariableModifiers?.Count ?? 0}");
             }
+        }
+
+        private static string GetLifetimeText(
+            PassiveEffectRuntime effect)
+        {
+            return effect.Lifetime switch
+            {
+                PassiveEffectLifetime.Timed =>
+                    $"{effect.RemainingDuration} tur",
+                PassiveEffectLifetime.CombatScoped =>
+                    "do końca walki",
+                PassiveEffectLifetime.Persistent =>
+                    "trwały",
+                _ => "nieznane"
+            };
+        }
+
+        private static string GetSourcesText(
+            PassiveEffectRuntime effect)
+        {
+            if (effect.Sources == null || effect.Sources.Count == 0)
+            {
+                return "brak";
+            }
+
+            var sourceTexts = effect.Sources
+                .Where(source => source != null)
+                .Select(source =>
+                    $"{source.SourceType}:{source.SourceId}" +
+                    $"@{source.SourceCharacterId}")
+                .ToList();
+
+            return sourceTexts.Count == 0
+                ? "brak"
+                : string.Join(", ", sourceTexts);
         }
 
         private static string GetEffectValueText(
             PassiveEffectRuntime effect,
             CharacterInstance character)
         {
-            if (!string.Equals(
-                    effect.EffectId,
-                    BleedPassiveEffectProcessor.BleedId,
-                    StringComparison.OrdinalIgnoreCase)
+            if (!IsDamageOverTimeStatus(effect.EffectId)
                 || effect.RemainingDuration <= 0)
             {
                 return $"pula obrażeń: {effect.TotalDamage}";
@@ -197,10 +229,11 @@ namespace Godmist.Systems.Debugging
             var rawDamage = Mathf.CeilToInt(
                 effect.TotalDamage / (float)effect.RemainingDuration);
 
-            var resistance = Mathf.Clamp01(
-                character.Resistances?.BleedResistance ?? 0f);
+            var resistance = GetDamageOverTimeResistance(
+                character,
+                effect.EffectId);
 
-            var multiplier = GetBleedDamageMultiplier(resistance);
+            var multiplier = GetDamageOverTimeMultiplier(resistance);
 
             var finalDamage = Mathf.Max(
                 0,
@@ -213,7 +246,43 @@ namespace Godmist.Systems.Debugging
                    $"pula: {effect.TotalDamage}";
         }
 
-        private static float GetBleedDamageMultiplier(float resistance)
+        private static bool IsDamageOverTimeStatus(string effectId)
+        {
+            return string.Equals(effectId, StatusEffectIds.Bleed,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(effectId, StatusEffectIds.Poison,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(effectId, StatusEffectIds.Burn,
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static float GetDamageOverTimeResistance(
+            CharacterInstance character,
+            string effectId)
+        {
+            var resistances = character?.Resistances;
+
+            if (resistances == null)
+            {
+                return 0f;
+            }
+
+            if (string.Equals(effectId, StatusEffectIds.Poison,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Mathf.Clamp01(resistances.PoisonResistance);
+            }
+
+            if (string.Equals(effectId, StatusEffectIds.Burn,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Mathf.Clamp01(resistances.FireResistance);
+            }
+
+            return Mathf.Clamp01(resistances.BleedResistance);
+        }
+
+        private static float GetDamageOverTimeMultiplier(float resistance)
         {
             if (resistance <= 0.5f)
             {

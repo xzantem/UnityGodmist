@@ -9,6 +9,8 @@ namespace Godmist.Core.Enums
         RestoreResource = 4,
         Shield = 5,
         ModifyStat = 6,
-        ModifyVar = 7
+        ModifyVar = 7,
+        Pull = 8,
+        Fallback = 9
     }
 }

@@ -19,24 +19,24 @@ namespace Godmist.Tests.EditMode
                 {
                     new PassiveEffectRuntime(
                         "bleed",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 2,
                         totalDamage: 10,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnStart),
                     new PassiveEffectRuntime(
                         "stun",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 2,
                         totalDamage: 0,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnEnd),
                     new PassiveEffectRuntime
                     {
                         EffectId = "passive.test",
-                        IsTimed = false
+                        Lifetime = PassiveEffectLifetime.Persistent
                     }
                 }
             };
@@ -56,11 +56,11 @@ namespace Godmist.Tests.EditMode
         {
             var effect = new PassiveEffectRuntime(
                 "bleed",
-                new List<string>(),
+                new List<PassiveEffectSourceRuntime>(),
                 stacks: 1,
                 remainingDuration: 3,
                 totalDamage: 30,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnStart);
 
             var character = new CharacterInstance
@@ -85,7 +85,7 @@ namespace Godmist.Tests.EditMode
             var lifecycleSystem = new PassiveEffectLifecycleSystem(
                 turnProcessors: new IPassiveEffectTurnProcessor[]
                 {
-                    new BleedPassiveEffectProcessor(new CombatDamageSystem())
+                    new DamageOverTimePassiveEffectProcessor(new CombatDamageSystem())
                 });
 
             lifecycleSystem.ProcessTurnStart(session, unit);
@@ -113,20 +113,20 @@ namespace Godmist.Tests.EditMode
 
             var firstEffect = new PassiveEffectRuntime(
                 "bleed",
-                new List<string> { "jerzy" },
+                Sources("jerzy"),
                 stacks: 1,
                 remainingDuration: 2,
                 totalDamage: 68,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnStart);
 
             var secondEffect = new PassiveEffectRuntime(
                 "bleed",
-                new List<string> { "wladimir" },
+                Sources("wladimir"),
                 stacks: 1,
                 remainingDuration: 5,
                 totalDamage: 130,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnStart);
 
             Assert.That(
@@ -150,7 +150,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(combinedEffect.TotalDamage, Is.EqualTo(198));
             Assert.That(combinedEffect.Stacks, Is.EqualTo(1));
             Assert.That(
-                combinedEffect.SourceEntityIds,
+                SourceCharacterIds(combinedEffect),
                 Is.EquivalentTo(new[] { "jerzy", "wladimir" }));
         }
 
@@ -166,20 +166,20 @@ namespace Godmist.Tests.EditMode
 
             var firstEffect = new PassiveEffectRuntime(
                 "stun",
-                new List<string> { "jerzy" },
+                Sources("jerzy"),
                 stacks: 1,
                 remainingDuration: 1,
                 totalDamage: 0,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnEnd);
 
             var secondEffect = new PassiveEffectRuntime(
                 "stun",
-                new List<string> { "wladimir" },
+                Sources("wladimir"),
                 stacks: 3,
                 remainingDuration: 2,
                 totalDamage: 10,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnEnd);
 
             system.TryApplyTimedEffect(
@@ -199,7 +199,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(combinedEffect.TotalDamage, Is.EqualTo(10));
             Assert.That(combinedEffect.Stacks, Is.EqualTo(3));
             Assert.That(
-                combinedEffect.SourceEntityIds,
+                SourceCharacterIds(combinedEffect),
                 Is.EquivalentTo(new[] { "jerzy", "wladimir" }));
         }
 
@@ -212,19 +212,19 @@ namespace Godmist.Tests.EditMode
                 {
                     new PassiveEffectRuntime(
                         "bleed",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 2,
                         totalDamage: 20,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnStart),
                     new PassiveEffectRuntime(
                         "stun",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 1,
                         totalDamage: 0,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnEnd)
                 }
             };
@@ -249,11 +249,11 @@ namespace Godmist.Tests.EditMode
                 {
                     new PassiveEffectRuntime(
                         "stun",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 0,
                         totalDamage: 0,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnEnd)
                 }
             };
@@ -270,11 +270,11 @@ namespace Godmist.Tests.EditMode
         {
             var effect = new PassiveEffectRuntime(
                 "stun",
-                new List<string>(),
+                new List<PassiveEffectSourceRuntime>(),
                 stacks: 1,
                 remainingDuration: 2,
                 totalDamage: 0,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnEnd);
 
             var character = new CharacterInstance
@@ -308,15 +308,15 @@ namespace Godmist.Tests.EditMode
                     new PassiveEffectRuntime
                     {
                         EffectId = "passive.permanent",
-                        IsTimed = false
+                        Lifetime = PassiveEffectLifetime.Persistent
                     },
                     new PassiveEffectRuntime(
                         "expired.status",
-                        new List<string>(),
+                        new List<PassiveEffectSourceRuntime>(),
                         stacks: 1,
                         remainingDuration: 0,
                         totalDamage: 0,
-                        isTimed: true,
+                        lifetime: PassiveEffectLifetime.Timed,
                         tickPhase: PassiveEffectTickPhase.TurnEnd)
                 }
             };
@@ -344,20 +344,20 @@ namespace Godmist.Tests.EditMode
 
             var firstEffect = new PassiveEffectRuntime(
                 "stun",
-                new List<string> { "jerzy" },
+                Sources("jerzy"),
                 stacks: 1,
                 remainingDuration: 2,
                 totalDamage: 0,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnEnd);
 
             var secondEffect = new PassiveEffectRuntime(
                 "stun",
-                new List<string> { "wladimir" },
+                Sources("wladimir"),
                 stacks: 3,
                 remainingDuration: 1,
                 totalDamage: 20,
-                isTimed: true,
+                lifetime: PassiveEffectLifetime.Timed,
                 tickPhase: PassiveEffectTickPhase.TurnEnd);
 
             system.TryApplyTimedEffect(
@@ -377,8 +377,39 @@ namespace Godmist.Tests.EditMode
             Assert.That(combinedEffect.Stacks, Is.EqualTo(1));
             Assert.That(combinedEffect.TotalDamage, Is.EqualTo(0));
             Assert.That(
-                combinedEffect.SourceEntityIds,
+                SourceCharacterIds(combinedEffect),
                 Is.EquivalentTo(new[] { "jerzy", "wladimir" }));
+        }
+
+        private static List<PassiveEffectSourceRuntime> Sources(
+            params string[] characterIds)
+        {
+            var sources = new List<PassiveEffectSourceRuntime>();
+
+            foreach (var characterId in characterIds)
+            {
+                sources.Add(new PassiveEffectSourceRuntime
+                {
+                    SourceType = PassiveEffectSourceType.Skill,
+                    SourceId = "test.effect",
+                    SourceCharacterId = characterId
+                });
+            }
+
+            return sources;
+        }
+
+        private static List<string> SourceCharacterIds(
+            PassiveEffectRuntime effect)
+        {
+            var characterIds = new List<string>();
+
+            foreach (var source in effect.Sources)
+            {
+                characterIds.Add(source.SourceCharacterId);
+            }
+
+            return characterIds;
         }
     }
 }

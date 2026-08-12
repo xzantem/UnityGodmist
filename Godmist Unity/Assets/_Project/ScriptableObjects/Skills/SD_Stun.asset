@@ -14,34 +14,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.stun
   <DisplayName>k__BackingField: "Og\u0142uszenie"
-  <SkillAccuracy>k__BackingField: 100
+  <SkillAccuracy>k__BackingField: 85
   <ActionCost>k__BackingField: 60
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 0
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
-      maxRange: 1
-    useRelativeRange: 0
+      maxRange: 2
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
   effects:
   - effectType: 2
+    polarity: 0
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
     damageType: 0
-    pushDistance: 0
-    baseChance: 1
+    displacementDistance: 0
+    baseChance: 0.805
     statusId: stun
-    durationTurns: 1
+    durationTurns: 2
     stacks: 0
     statusDamageMultiplier: 0
+    statusHealPercent: 0.2
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

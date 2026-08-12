@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Data.Effects;
+using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using UnityEngine;
@@ -13,6 +15,7 @@ namespace Godmist.Systems.Combat
     {
         public const string StunId = StatusEffectIds.Stun;
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
+        public const float ChillMaximumSpeed = 20f;
 
         private readonly Action<string> battleLog;
         private readonly CombatDamageSystem damageSystem;
@@ -32,19 +35,24 @@ namespace Godmist.Systems.Combat
                 evaluateOutcome,
                 removeUnitFromCombat);
 
+            var recoverySystem = new CombatRecoverySystem(battleLog);
+
             this.passiveEffectLifecycleSystem = passiveEffectLifecycleSystem
                 ?? new PassiveEffectLifecycleSystem(
                     battleLog,
                     new IPassiveEffectTurnProcessor[]
                     {
-                        new BleedPassiveEffectProcessor(this.damageSystem)
+                        new DamageOverTimePassiveEffectProcessor(this.damageSystem),
+                        new SleepPassiveEffectProcessor(recoverySystem)
                     });
         }
 
         public bool ApplyStatus(
             BattleUnit source,
             BattleUnit target,
-            SkillEffectData effect)
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex)
         {
             if (target?.Character == null || effect == null)
             {
@@ -71,7 +79,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var runtimeEffect = CreateRuntimeEffect(source, effect);
+            var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
 
             if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
                     target.Character,
@@ -88,7 +96,6 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
-
         public bool RemoveStatus(BattleUnit target, string statusId)
         {
             if (target?.Character == null)
@@ -120,6 +127,205 @@ namespace Godmist.Systems.Combat
             return HasStatus(unit, ImmobilizeId);
         }
 
+        public static bool IsFrozen(BattleUnit unit)
+        {
+            return HasStatus(unit, StatusEffectIds.Freeze);
+        }
+
+        public static bool IsSleeping(BattleUnit unit)
+        {
+            return HasStatus(unit, StatusEffectIds.Sleep);
+        }
+
+        public static bool IsParalyzed(BattleUnit unit)
+        {
+            return HasStatus(unit, StatusEffectIds.Paralysis);
+        }
+        public static bool IsTaunted(BattleUnit unit)
+        {
+            return HasStatus(unit, StatusEffectIds.Taunt);
+        }
+
+        public static bool IsInvisible(BattleUnit unit)
+        {
+            return HasStatus(unit, StatusEffectIds.Invisibility);
+        }
+
+        public static bool TryGetTaunter(
+            CombatSession session,
+            BattleUnit tauntedUnit,
+            out BattleUnit taunter)
+        {
+            taunter = null;
+
+            if (session?.Units == null || tauntedUnit?.Character?.PassiveEffects == null)
+            {
+                return false;
+            }
+
+            var tauntEffect = FindActiveStatus(
+                tauntedUnit,
+                StatusEffectIds.Taunt);
+
+            if (tauntEffect == null)
+            {
+                return false;
+            }
+
+            for (var sourceIndex = tauntEffect.Sources.Count - 1; sourceIndex >= 0; sourceIndex--)
+            {
+                var sourceCharacterId =
+                    tauntEffect.Sources[sourceIndex]?.SourceCharacterId;
+
+                if (string.IsNullOrWhiteSpace(sourceCharacterId))
+                {
+                    continue;
+                }
+
+                foreach (var candidate in session.Units)
+                {
+                    if (candidate?.Character == null
+                        || candidate.Character.LifeState == CharacterLifeState.Dead
+                        || !string.Equals(
+                            candidate.Character.CharacterId,
+                            sourceCharacterId,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    taunter = candidate;
+                    return true;
+                }
+            }
+
+            tauntedUnit.Character.PassiveEffects.Remove(tauntEffect);
+            return false;
+        }
+
+        public static int RemoveTauntsAppliedBy(
+            CombatSession session,
+            string sourceCharacterId)
+        {
+            if (session?.Units == null || string.IsNullOrWhiteSpace(sourceCharacterId))
+            {
+                return 0;
+            }
+
+            var removedCount = 0;
+
+            foreach (var unit in session.Units)
+            {
+                if (unit?.Character?.PassiveEffects == null)
+                {
+                    continue;
+                }
+
+                for (var effectIndex = unit.Character.PassiveEffects.Count - 1;
+                    effectIndex >= 0;
+                    effectIndex--)
+                {
+                    var effect = unit.Character.PassiveEffects[effectIndex];
+
+                    if (!string.Equals(
+                            effect?.EffectId,
+                            StatusEffectIds.Taunt,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var wasAppliedBySource = false;
+
+                    foreach (var source in effect.Sources)
+                    {
+                        if (string.Equals(
+                                source?.SourceCharacterId,
+                                sourceCharacterId,
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            wasAppliedBySource = true;
+                            break;
+                        }
+                    }
+
+                    if (!wasAppliedBySource)
+                    {
+                        continue;
+                    }
+
+                    unit.Character.PassiveEffects.RemoveAt(effectIndex);
+                    removedCount++;
+                }
+            }
+
+            return removedCount;
+        }
+
+        public static bool IsHardCrowdControlled(BattleUnit unit)
+        {
+            return IsStunned(unit)
+                || IsFrozen(unit)
+                || IsSleeping(unit)
+                || IsParalyzed(unit);
+        }
+
+        public static bool TryBreakFreeze(
+            BattleUnit unit,
+            out int remainingTurns)
+        {
+            remainingTurns = 0;
+
+            if (unit?.Character?.PassiveEffects == null)
+            {
+                return false;
+            }
+
+            var freeze = unit.Character.PassiveEffects.Find(effect =>
+                effect != null
+                && effect.Lifetime == PassiveEffectLifetime.Timed
+                && effect.RemainingDuration > 0
+                && string.Equals(
+                    effect.EffectId,
+                    StatusEffectIds.Freeze,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (freeze == null)
+            {
+                return false;
+            }
+
+            remainingTurns = freeze.RemainingDuration;
+            unit.Character.PassiveEffects.Remove(freeze);
+            return true;
+        }
+
+        private static PassiveEffectRuntime FindActiveStatus(
+            BattleUnit unit,
+            string statusId)
+        {
+            if (unit?.Character?.PassiveEffects == null
+                || string.IsNullOrWhiteSpace(statusId))
+            {
+                return null;
+            }
+
+            foreach (var effect in unit.Character.PassiveEffects)
+            {
+                if (effect != null
+                    && effect.RemainingDuration > 0
+                    && string.Equals(
+                        effect.EffectId,
+                        statusId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return effect;
+                }
+            }
+
+            return null;
+        }
+        
         public static bool HasStatus(BattleUnit unit, string statusId)
         {
             return unit?.Character != null
@@ -139,29 +345,64 @@ namespace Godmist.Systems.Combat
         }
 
         private static PassiveEffectRuntime CreateRuntimeEffect(
-            BattleUnit source,
-            SkillEffectData effect)
+            BattleUnit source, SkillData skill,
+            SkillEffectData effect, int effectIndex)
         {
             var duration = Mathf.Max(1, effect.DurationTurns);
-            var sourceIds = new List<string>();
-            var sourceId = source?.Character?.Definition?.Id ?? string.Empty;
-
-            if (!string.IsNullOrWhiteSpace(sourceId))
-            {
-                sourceIds.Add(sourceId);
-            }
-
             var damagePerTurn = CalculateStatusDamagePerTurn(source, effect);
             var totalDamage = CalculateTotalDamage(damagePerTurn, duration);
 
-            return new PassiveEffectRuntime(
+            var sourceEffect = skill != null && effectIndex >= 0
+                ? PassiveEffectSourceFactory.FromSkill(
+                    source,
+                    skill,
+                    effectIndex)
+                : PassiveEffectSourceFactory.FromRuntimeSystem(
+                    source,
+                    $"status.{effect.StatusId}");
+
+            var runtimeEffect = new PassiveEffectRuntime(
                 effect.StatusId,
-                sourceIds,
+                new List<PassiveEffectSourceRuntime> { sourceEffect },
                 Mathf.Max(1, effect.Stacks),
                 duration,
                 totalDamage,
-                isTimed: true,
-                tickPhase: ResolveTickPhase(effect.StatusId));
+                PassiveEffectLifetime.Timed,
+                ResolveTickPhase(effect.StatusId),
+                effect.StatusHealPercent);
+
+            if (string.Equals(
+                    effect.StatusId,
+                    StatusEffectIds.Chill,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                runtimeEffect.StatModifiers.Add(new StatModifier
+                {
+                    StatType = CharacterStatType.Speed,
+                    Operation = StatModifierOperation.Maximum,
+                    Stacking = StatModifierStacking.Additive,
+                Value = ChillMaximumSpeed
+            });
+            }
+
+            return runtimeEffect;
+        }
+
+        public bool PassesMovementEffectChance(
+            BattleUnit target,
+            float baseChance)
+        {
+            var clampedChance = Mathf.Clamp01(baseChance);
+
+            if (clampedChance <= 0f)
+            {
+                return false;
+            }
+
+            var resistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
+            var finalChance = CalculateEffectChance(clampedChance, resistance);
+
+            return UnityEngine.Random.value <= finalChance;
         }
 
         private bool PassesEffectChance(
@@ -257,12 +498,15 @@ namespace Godmist.Systems.Combat
 
             return statusId.ToLowerInvariant() switch
             {
-                BleedPassiveEffectProcessor.BleedId => resistances.BleedResistance,
+                StatusEffectIds.Bleed => resistances.BleedResistance,
                 StatusEffectIds.Poison => resistances.PoisonResistance,
                 StatusEffectIds.Burn => resistances.FireResistance,
                 StatusEffectIds.Weakening => resistances.WeakeningResistance,
                 StunId => resistances.SuppressionResistance,
                 ImmobilizeId => resistances.SuppressionResistance,
+                StatusEffectIds.Taunt => resistances.SuppressionResistance,
+                StatusEffectIds.Freeze => resistances.SuppressionResistance,
+                StatusEffectIds.Chill => resistances.SuppressionResistance,
                 StatusEffectIds.Sleep => resistances.SuppressionResistance,
                 StatusEffectIds.Paralysis => resistances.SuppressionResistance,
                 _ => 0f
@@ -271,31 +515,37 @@ namespace Godmist.Systems.Combat
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)
         {
-            return string.Equals(
-                statusId,
-                BleedPassiveEffectProcessor.BleedId,
-                StringComparison.OrdinalIgnoreCase)
-                ? PassiveEffectTickPhase.TurnStart
-                : PassiveEffectTickPhase.TurnEnd;
+            if (IsDamageOverTimeStatus(statusId)
+                || string.Equals(
+                    statusId,
+                    StatusEffectIds.Invisibility,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return PassiveEffectTickPhase.TurnStart;
+            }
+
+            return PassiveEffectTickPhase.TurnEnd;
+        }
+
+        private static bool IsDamageOverTimeStatus(string statusId)
+        {
+            return string.Equals(statusId, StatusEffectIds.Bleed,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Poison,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Burn,
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static PassiveEffectStackingMode ResolveStackingMode(
             string statusId)
         {
+            if (IsDamageOverTimeStatus(statusId))
+            {
+                return PassiveEffectStackingMode.ReplaceDurationAndAddTotalDamage;
+            }
             return statusId.ToLowerInvariant() switch
             {
-                BleedPassiveEffectProcessor.BleedId
-                    => PassiveEffectStackingMode
-                        .ReplaceDurationAndAddTotalDamage,
-
-                StatusEffectIds.Poison
-                    => PassiveEffectStackingMode
-                        .ReplaceDurationAndAddTotalDamage,
-
-                StatusEffectIds.Burn
-                    => PassiveEffectStackingMode
-                        .ReplaceDurationAndAddTotalDamage,
-
                 StunId
                     => PassiveEffectStackingMode.ReplaceDuration,
 
@@ -309,6 +559,12 @@ namespace Godmist.Systems.Combat
                     => PassiveEffectStackingMode.ReplaceDuration,
 
                 StatusEffectIds.Paralysis
+                    => PassiveEffectStackingMode.ReplaceDuration,
+
+                StatusEffectIds.Taunt
+                    => PassiveEffectStackingMode.ReplaceDuration,
+
+                StatusEffectIds.Invisibility
                     => PassiveEffectStackingMode.ReplaceDuration,
 
                 _ => PassiveEffectStackingMode.MaxDurationAndValues

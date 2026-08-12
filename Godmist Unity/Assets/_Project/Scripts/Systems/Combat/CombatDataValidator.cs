@@ -43,39 +43,39 @@ namespace Godmist.Systems.Combat
 
             if (skill == null)
             {
-                report.AddError("SkillData nie może być puste.");
+                report.AddError("SkillData cannot be null.");
                 return report;
             }
 
             if (string.IsNullOrWhiteSpace(skill.SkillId))
             {
-                report.AddError("Skill Id jest wymagane.");
+                report.AddError("Skill ID is required.");
             }
 
             if (string.IsNullOrWhiteSpace(skill.DisplayName))
             {
-                report.AddError("Display Name jest wymagane.");
+                report.AddError("Display Name is required.");
             }
 
             if (skill.SkillAccuracy < 0f || skill.SkillAccuracy > 100f)
             {
-                report.AddError("Skill Accuracy musi mieścić się w zakresie od 0 do 100.");
+                report.AddError("Skill Accuracy must be between 0 and 100.");
             }
 
             if (skill.ActionCost < 0 || skill.ActionCost > 100)
             {
                 report.AddError(
-                    "Action Cost musi być procentem Max AP w zakresie od 0 do 100.");
+                    "Action Cost must be a Max AP percentage between 0 and 100.");
             }
 
             if (skill.ResourceCost < 0)
             {
-                report.AddError("Resource Cost nie może być ujemne.");
+                report.AddError("Resource Cost cannot be negative.");
             }
 
             if (skill.TargetModes == null || skill.TargetModes.Count == 0)
             {
-                report.AddError("Skill musi posiadać przynajmniej jeden Target Mode.");
+                report.AddError("Skill must define at least one Target Mode.");
             }
             else
             {
@@ -84,7 +84,7 @@ namespace Godmist.Systems.Combat
 
             if (skill.Effects == null || skill.Effects.Count == 0)
             {
-                report.AddError("Skill musi posiadać przynajmniej jeden efekt.");
+                report.AddError("Skill must define at least one effect.");
             }
             else
             {
@@ -101,29 +101,29 @@ namespace Godmist.Systems.Combat
 
             if (encounter == null)
             {
-                report.AddError("EncounterDefinition nie może być puste.");
+                report.AddError("EncounterDefinition cannot be null.");
                 return report;
             }
 
             if (string.IsNullOrWhiteSpace(encounter.Id))
             {
-                report.AddError("Encounter Id jest wymagane.");
+                report.AddError("Encounter ID is required.");
             }
 
             if (string.IsNullOrWhiteSpace(encounter.DisplayName))
             {
-                report.AddError("Display Name jest wymagane.");
+                report.AddError("Display Name is required.");
             }
 
             if (encounter.GridWidth <= 0 || encounter.GridHeight <= 0)
             {
-                report.AddError("Wymiary gridu encountera muszą być większe od zera.");
+                report.AddError("Encounter grid dimensions must be greater than zero.");
             }
 
             if (encounter.Enemies == null || encounter.Enemies.Count == 0)
             {
                 report.AddError(
-                    "Encounter musi posiadać przynajmniej jednego przeciwnika.");
+                    "Encounter must define at least one enemy.");
                 return report;
             }
 
@@ -137,29 +137,29 @@ namespace Godmist.Systems.Combat
 
                 if (enemy == null)
                 {
-                    report.AddError($"{prefix}: wpis przeciwnika nie może być pusty.");
+                    report.AddError($"{prefix}: enemy entry cannot be null.");
                     continue;
                 }
 
                 if (string.IsNullOrWhiteSpace(enemy.InstanceId))
                 {
-                    report.AddError($"{prefix}: Instance Id jest wymagane.");
+                    report.AddError($"{prefix}: Instance ID is required.");
                 }
                 else if (!usedInstanceIds.Add(enemy.InstanceId))
                 {
                     report.AddError(
-                        $"{prefix}: Instance Id '{enemy.InstanceId}' jest powtórzone.");
+                        $"{prefix}: Instance ID '{enemy.InstanceId}' is duplicated.");
                 }
 
                 if (enemy.CharacterDefinition == null)
                 {
                     report.AddError(
-                        $"{prefix}: Character Definition jest wymagane.");
+                        $"{prefix}: Character Definition is required.");
                 }
 
                 if (enemy.ClassData == null)
                 {
-                    report.AddError($"{prefix}: Class Data jest wymagane.");
+                    report.AddError($"{prefix}: Class Data is required.");
                 }
 
                 var spawn = enemy.SpawnPosition;
@@ -171,14 +171,14 @@ namespace Godmist.Systems.Combat
                 {
                     report.AddError(
                         $"{prefix}: Spawn Position ({spawn.x}, {spawn.y}) " +
-                        "znajduje się poza gridem encountera.");
+                        "is outside the encounter grid.");
                 }
 
                 if (!usedSpawnPositions.Add((spawn.x, spawn.y)))
                 {
                     report.AddError(
                         $"{prefix}: Spawn Position ({spawn.x}, {spawn.y}) " +
-                        "jest używana przez więcej niż jednego przeciwnika.");
+                        "is used by more than one enemy.");
                 }
             }
 
@@ -196,7 +196,7 @@ namespace Godmist.Systems.Combat
 
                 if (targetMode == null)
                 {
-                    report.AddError($"{prefix}: Target Mode nie może być pusty.");
+                    report.AddError($"{prefix}: Target Mode cannot be null.");
                     continue;
                 }
 
@@ -217,7 +217,7 @@ namespace Godmist.Systems.Combat
                     && targetMode.UseRelativeRange)
                 {
                     report.AddError(
-                        $"{prefix}: Caster nie może używać Relative Range.");
+                        $"{prefix}: Caster cannot use Relative Range.");
                 }
             }
         }
@@ -233,7 +233,7 @@ namespace Godmist.Systems.Combat
 
                 if (effect == null)
                 {
-                    report.AddError($"{prefix}: efekt nie może być pusty.");
+                    report.AddError($"{prefix}: effect cannot be null.");
                     continue;
                 }
 
@@ -242,21 +242,33 @@ namespace Godmist.Systems.Combat
                 {
                     report.AddError(
                         $"{prefix}: Target Mode Index {effect.TargetModeIndex} " +
-                        "nie wskazuje istniejącego Target Mode.");
+                        "does not reference an existing Target Mode.");
                 }
 
                 if (effect.EffectType == EffectType.DealDamage
                     && effect.DamageMultiplier <= 0f)
                 {
                     report.AddError(
-                        $"{prefix}: Damage Multiplier musi być większy od zera.");
+                        $"{prefix}: Damage Multiplier must be greater than zero.");
                 }
 
-                if (effect.EffectType == EffectType.Push
-                    && effect.PushDistance <= 0)
+                if ((effect.EffectType == EffectType.Push
+                    || effect.EffectType == EffectType.Pull
+                    || effect.EffectType == EffectType.Fallback)
+                    && effect.DisplacementDistance <= 0)
                 {
                     report.AddError(
-                        $"{prefix}: Push Distance musi być większy od zera.");
+                        $"{prefix}: Displacement Distance must be greater than zero.");
+                }
+
+                if (effect.EffectType == EffectType.Fallback
+                    && effect.TargetModeIndex >= 0
+                    && effect.TargetModeIndex < skill.TargetModes.Count
+                    && skill.TargetModes[effect.TargetModeIndex].TargetType
+                        != TargetType.Single)
+                {
+                    report.AddError(
+                        $"{prefix}: Fallback requires Target Type set to Single.");
                 }
 
                 if (effect.EffectType == EffectType.Heal
@@ -266,7 +278,7 @@ namespace Godmist.Systems.Combat
                     if (effect.BaseValue <= 0)
                     {
                         report.AddError(
-                            $"{prefix}: Base Value musi być większe od zera.");
+                            $"{prefix}: Base Value must be greater than zero.");
                     }
                 }
 
@@ -275,7 +287,7 @@ namespace Godmist.Systems.Combat
                     if (Mathf.Approximately(effect.ModifierValue, 0f))
                     {
                         report.AddError(
-                            $"{prefix}: Modifier Value nie może wynosić 0.");
+                            $"{prefix}: Modifier Value cannot be zero.");
                     }
 
                     if (effect.ModifierOperation == StatModifierOperation.Percent
@@ -284,14 +296,14 @@ namespace Godmist.Systems.Combat
                         && effect.ModifierValue < -1f)
                     {
                         report.AddError(
-                            $"{prefix}: multiplikatywny Modifier Value " +
-                            "nie może być mniejszy od -1.");
+                            $"{prefix}: multiplicative Modifier Value " +
+                            "cannot be lower than -1.");
                     }
 
                     if (effect.DurationTurns < 0)
                     {
                         report.AddError(
-                            $"{prefix}: Duration Turns nie może być ujemne.");
+                            $"{prefix}: Duration Turns cannot be negative.");
                     }
                 }
 
@@ -300,20 +312,20 @@ namespace Godmist.Systems.Combat
                     if (Mathf.Approximately(effect.ModifierValue, 0f))
                     {
                         report.AddError(
-                            $"{prefix}: Modifier Value nie może wynosić 0.");
+                            $"{prefix}: Modifier Value cannot be zero.");
                     }
 
                     if (effect.ModifierStacking == StatModifierStacking.Multiplicative
                         && effect.ModifierValue < -1f)
                     {
                         report.AddError(
-                            $"{prefix}: multiplikatywny Modifier Value nie może być mniejszy od -1.");
+                            $"{prefix}: multiplicative Modifier Value cannot be lower than -1.");
                     }
 
                     if (effect.DurationTurns < 0)
                     {
                         report.AddError(
-                            $"{prefix}: Duration Turns nie może być ujemne.");
+                            $"{prefix}: Duration Turns cannot be negative.");
                     }
                 }
 
@@ -322,19 +334,19 @@ namespace Godmist.Systems.Combat
                     if (string.IsNullOrWhiteSpace(effect.StatusId))
                     {
                         report.AddError(
-                            $"{prefix}: Status Id jest wymagane dla Apply Status.");
+                            $"{prefix}: Status ID is required for Apply Status.");
                     }
 
                     if (effect.DurationTurns <= 0)
                     {
                         report.AddError(
-                            $"{prefix}: Duration Turns musi być większe od zera.");
+                            $"{prefix}: Duration Turns must be greater than zero.");
                     }
 
                     if (effect.BaseChance < 0f || effect.BaseChance > 1f)
                     {
                         report.AddError(
-                            $"{prefix}: Base Chance musi mieścić się w zakresie 0-1.");
+                            $"{prefix}: Base Chance must be between 0 and 1.");
                     }
                 }
 
@@ -352,8 +364,8 @@ namespace Godmist.Systems.Combat
                     if (condition == null)
                     {
                         report.AddError(
-                            $"{prefix}, warunek [{conditionIndex}]: " +
-                            "warunek nie może być pusty.");
+                            $"{prefix}, condition [{conditionIndex}]: " +
+                            "condition cannot be null.");
 
                         continue;
                     }
@@ -367,10 +379,10 @@ namespace Godmist.Systems.Combat
                         || condition.ReferencedEffectIndex >= index)
                     {
                         report.AddError(
-                            $"{prefix}, warunek [{conditionIndex}]: " +
+                            $"{prefix}, condition [{conditionIndex}]: " +
                             $"Referenced Effect Index " +
-                            $"{condition.ReferencedEffectIndex} musi wskazywać " +
-                            "wcześniejszy efekt.");
+                            $"{condition.ReferencedEffectIndex} must reference " +
+                            "a previous effect.");
                     }
                 }
             }
@@ -383,19 +395,19 @@ namespace Godmist.Systems.Combat
         {
             if (range == null)
             {
-                report.AddError($"{label} nie może być puste.");
+                report.AddError($"{label} cannot be null.");
                 return;
             }
 
             if (range.MinRange < 0)
             {
-                report.AddError($"{label}: Min Range nie może być ujemne.");
+                report.AddError($"{label}: Min Range cannot be negative.");
             }
 
             if (range.MaxRange < range.MinRange)
             {
                 report.AddError(
-                    $"{label}: Max Range nie może być mniejsze od Min Range.");
+                    $"{label}: Max Range cannot be lower than Min Range.");
             }
         }
 

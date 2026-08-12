@@ -6,6 +6,8 @@ namespace Godmist.Core.Enums
         Magical = 1,
         Inevitable = 2,
         Direct = 3,
-        Bleed = 4
+        Bleed = 4,
+        Poison = 5,
+        Burn = 6
     }
 }

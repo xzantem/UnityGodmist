@@ -16,9 +16,10 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Tarcza
   <SkillAccuracy>k__BackingField: 0
   <ActionCost>k__BackingField: 30
-  <ResourceCost>k__BackingField: 0
+  <ResourceCost>k__BackingField: 10
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 9
     targetingType: 0
@@ -26,35 +27,29 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
-    useRelativeRange: 0
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
   effects:
   - effectType: 5
-    targetModeIndex: 0
-    baseValue: 30
-    damageValueSource: 0
-    damageMultiplier: 0
-    damageType: 0
-    pushDistance: 0
-    baseChance: 0
-    statusId: 
-    durationTurns: 0
-    stacks: 0
-    statusDamageMultiplier: 0
-    conditions: []
-  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 20
     damageValueSource: 0
     damageMultiplier: 0
     damageType: 0
-    pushDistance: 0
+    displacementDistance: 0
     baseChance: 1
     statusId: bleed
     durationTurns: 5
     stacks: 0
     statusDamageMultiplier: 1
+    statusHealPercent: 0
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

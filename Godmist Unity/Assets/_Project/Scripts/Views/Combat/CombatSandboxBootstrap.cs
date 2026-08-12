@@ -96,7 +96,8 @@ namespace Godmist.Views.Combat
                 AddBattleLog,
                 new IPassiveEffectTurnProcessor[]
                 {
-                    new BleedPassiveEffectProcessor(damageSystem)
+                    new DamageOverTimePassiveEffectProcessor(damageSystem),
+                    new SleepPassiveEffectProcessor(recoverySystem)
                 },
                 statPipeline);
 
@@ -120,7 +121,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem, damageSystem, recoverySystem,
                 lineOfSightService: lineOfSightService, modifyStatSystem: modifyStatSystem,
                 modifyVarSystem: modifyVarSystem);
-            movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem);
+            movementSystem = movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem, statusEffectSystem);
             interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
             interactionSystem.InitializeMapObjects(Session);
             targetingService = new CombatTargetingService();
@@ -182,6 +183,7 @@ namespace Godmist.Views.Combat
             {
                 CombatId = "sandbox.combat.01",
                 Outcome = CombatOutcomeState.Ongoing,
+                ActionPointsPerSpeed = actionPointsPerSpeed,
                 Grid = new BattleGrid(gridWidth, gridHeight),
                 Units = new List<BattleUnit>()
             };
@@ -397,6 +399,10 @@ namespace Godmist.Views.Combat
             }
             resourceRuleSystem?.ProcessTurnStart(unit);
             statusEffectSystem?.ProcessTurnStart(Session, unit);
+            CombatTurnSystem.RefreshMaxActionPoints(
+                Session,
+                unit,
+                refillCurrentActionPoints: true);
 
             if (Session.Outcome != CombatOutcomeState.Ongoing
                 || !Session.Units.Contains(unit))
@@ -410,9 +416,14 @@ namespace Godmist.Views.Combat
                 turnSystem.AdvanceTurn(Session);
                 return;
             }
-            if (StatusEffectSystem.IsStunned(unit))
+            if (StatusEffectSystem.IsStunned(unit)
+                || StatusEffectSystem.IsFrozen(unit)
+                || StatusEffectSystem.IsParalyzed(unit))
             {
-                AddBattleLog($"{unit.Character.Definition.DisplayName} jest ogłuszony i traci turę.");
+                AddBattleLog(
+                    $"{unit.Character.Definition.DisplayName} " +
+                    "jest pod wpływem twardej kontroli i traci turę.");
+
                 turnSystem.EndActiveTurn(Session);
                 return;
             }
@@ -426,6 +437,13 @@ namespace Godmist.Views.Combat
         private void HandleUnitTurnEnded(BattleUnit unit)
         {
             statusEffectSystem?.ProcessTurnEnd(unit);
+            CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
+        }
+
+        private bool IsActiveUnitHardCrowdControlled()
+        {
+            return Session?.ActiveUnit != null
+                && StatusEffectSystem.IsHardCrowdControlled(Session.ActiveUnit);
         }
 
         public bool CanEndTurn()
@@ -449,6 +467,15 @@ namespace Godmist.Views.Combat
             if (!CanEscape() || escapeSystem == null) return;
 
             var actor = Session.ActiveUnit;
+
+            if (IsActiveUnitHardCrowdControlled())
+            {
+                AddBattleLog(
+                    $"{actor.Character.Definition.DisplayName} " +
+                    "nie może uciec przez status kontroli.");
+
+                return;
+            }
 
             if (!escapeSystem.TryEscape(Session, actor)) return;
 
@@ -554,7 +581,8 @@ namespace Godmist.Views.Combat
                     targetModeIndex,
                     selectedPosition);
 
-                if (targets.Count == 0) return false;
+                if (targets.Count == 0
+                    && targetMode.TargetType != TargetType.AreaAroundTile) return false;
 
                 targetsByModeIndex.Add(targetModeIndex, targets);
             }
@@ -565,6 +593,12 @@ namespace Godmist.Views.Combat
         {
             if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
                 || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
+
+            if (IsActiveUnitHardCrowdControlled())
+            {
+                AddBattleLog("Nie można interagować przez status kontroli.");
+                return false;
+            }
 
             if (!interactionSystem.TryInteract(Session, Session.ActiveUnit, position)) return false;
 
@@ -586,6 +620,12 @@ namespace Godmist.Views.Combat
                 || !Session.ActiveUnit.IsPlayerSide
                 || Session.Outcome != CombatOutcomeState.Ongoing)
             {
+                return false;
+            }
+
+            if (IsActiveUnitHardCrowdControlled())
+            {
+                AddBattleLog("Nie można podnieść sojusznika przez status kontroli.");
                 return false;
             }
 
@@ -650,9 +690,10 @@ namespace Godmist.Views.Combat
                 || targetMode == null || targetingService == null) return Array.Empty<BattleUnit>();
 
             var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
+            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
 
             var targets = targetingService.GetTargets(Session, Session.ActiveUnit, targetMode, 
-                selectedPosition, includeDownedTargets);
+                selectedPosition, includeDownedTargets, requiredEnemyTarget);
             return FilterTargetsByLineOfSight(skill, targets);
         }
         public IReadOnlyList<GridPosition> GetSelectableSkillPositions(SkillData skill, 
@@ -662,9 +703,10 @@ namespace Godmist.Views.Combat
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
             var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
+            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
 
             var positions = targetingService.GetSelectablePositions(Session, Session.ActiveUnit, 
-                targetMode, includeDownedTargets);
+                targetMode, includeDownedTargets, requiredEnemyTarget);
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
@@ -698,9 +740,10 @@ namespace Godmist.Views.Combat
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
             var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
+            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
 
             var positions = targetingService.GetEligibleTargetPositions(Session, Session.ActiveUnit, 
-                targetMode, includeDownedTargets);
+                targetMode, includeDownedTargets, requiredEnemyTarget);
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
@@ -715,6 +758,22 @@ namespace Godmist.Views.Combat
                     && effect.TargetModeIndex == targetModeIndex) return true;
             }
             return false;
+        }
+
+        private BattleUnit GetRequiredEnemyTarget(
+            SkillTargetModeData targetMode)
+        {
+            if (targetMode?.TargetingType != TargetingType.Enemies)
+            {
+                return null;
+            }
+
+            return StatusEffectSystem.TryGetTaunter(
+                Session,
+                Session.ActiveUnit,
+                out var taunter)
+                ? taunter
+                : null;
         }
 
         private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(SkillData skill, 

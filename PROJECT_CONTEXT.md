@@ -111,6 +111,7 @@ Resources are used for skills. Characters also have resource regeneration as a s
 - A character may gain multiple levels at once.
 - Stats grow automatically based on class.
 - Level up does not include manual stat point allocation.
+- Automatic stat growth is incremental. Each class/enemy archetype defines a base growth amount per stat, multiplied by the level-band coefficient `k`: levels `2-10` use `k = 1`, `11-20` use `k = 2`, `21-30` use `k = 3`, `31-40` use `k = 5`, and `41-50` use `k = 9`. For example, warrior `MaxHealth` growth of `12.5` gains `12.5` per level in levels `2-10`, then `25` per level in levels `11-20`.
 - Known experience formula from the previous conversation:
 
 `round(12 * (L^1.5) + 12)`
@@ -158,6 +159,7 @@ where:
 - Accuracy is the average of weapon accuracy and skill accuracy.
 - Dodge is compared against accuracy.
 - `Accuracy` is not really a persistent stat; it is a calculated value from `weaponAccuracy` and `skillAccuracy`.
+- `SkillAccuracy` is used only by `DealDamage` effects. Other effects do not use hit chance; their application is governed by their own resistance/effect-chance rules where applicable.
 - Critical chance and critical damage primarily affect only damage types that can crit.
 - Exceptions exist through passives and active abilities, for example magical/direct attacks that can crit or skills that always crit.
 - `CritDamage` is a multiplier. For example, `1.5` means a critical hit deals `50%` more damage than a normal hit.
@@ -289,6 +291,7 @@ Resistances are better modeled as a dedicated resistance set rather than ordinar
 - Enemies can also become downed, not only player units.
 - Neutral characters and allies can also be revived.
 - Automatic post-combat revival applies to allies after combat.
+- Outside combat, Downed characters are revived immediately.
 - A character may be alive but still unavailable for story reasons.
 - Recovered companions return ready to use.
 - Character state should be modeled with two dimensions:
@@ -501,6 +504,12 @@ Current goal:
   - `durationTurns = 0` creates a combat-scoped non-timed passive effect; it remains active until that combat ends.
 - A reapplication of the same runtime `ModifyStat` effect refreshes its duration/scope and replaces its modifier values; values never accumulate from repeated application.
 - Combat-scoped runtime passive effects need an explicit end-of-combat marker so that future persistent passives from equipment or skill trees are not removed with them.
+- Runtime `PassiveEffect` lifetime is explicit:
+  - `Timed` -- status or timed effect; it expires after its remaining duration.
+  - `CombatScoped` -- active-skill effect with no duration; it expires when the combat ends.
+  - `Persistent` -- future equipment or skill-tree passive; it survives combat.
+- Runtime effects retain structured sources instead of only character IDs. A source records its type, source ID and originating character ID.
+- Reapplying an effect merges distinct sources. Effects created by a skill use a source ID in the form `<skillId>.effect.<effectIndex>`.
 
 ### Statuses
 
@@ -632,9 +641,44 @@ Current goal:
   - `(0.25, 0.3333)`
   - `(0.50, 0.40)`
   - `(1.00, 0)`
-- The approved Bleed damage multiplier is piecewise linear:
-  - for `r <= 0.5`: `2 - 2r`
-  - for `r > 0.5`: `1.5 - r`
+  - The approved Bleed damage multiplier is piecewise linear:
+    - for `r <= 0.5`: `2 - 2r`
+    - for `r > 0.5`: `1.5 - r`
+
+### Confirmed Crowd-Control Status Rules
+
+- `Stun` is a hard CC: the affected unit loses its entire turn and cannot move,
+  use skills or items, interact, revive, or attempt escape.
+- `Freeze` is a hard CC. The first damaging hit received by the frozen unit ends
+  Freeze and increases that hit's damage by `50%` for every remaining Freeze turn.
+  Only a direct `DealDamage` effect can trigger this. The bonus applies to every
+  damage type and can combine with a critical hit.
+- `Sleep` is a hard CC and regenerates a percentage of MaxHP on every affected
+  turn; this percentage depends on the applying skill. The sleeping unit can
+  voluntarily end Sleep by choosing movement instead of ending its turn; that
+  movement is then performed normally. Sleep regeneration occurs at the end of
+  the affected unit's turn, not at turn start, and rounds healing up. Reapplying
+  Sleep replaces duration and updates the regeneration percentage to the latest
+  applying skill's value.
+- `Paralysis` is a hard CC that turns the target effectively to stone: it loses
+  its turn and cannot be targeted by any ability, including area effects. It is
+  completely immune while the status lasts. Paralysis also pauses every other
+  status effect, including DoTs: they neither tick nor lose duration until
+  Paralysis ends. This pause applies only to timed status effects, never to
+  persistent or combat-scoped passive effects from equipment or skill trees.
+- `Immobilize` blocks self-initiated movement: normal movement, Charge, Dash,
+  Teleport, and Fallback. It does not prevent Push or Pull because those are
+  initiated by another unit.
+- `Chill` (`Zmrożenie`) is a separate status that limits Speed to a maximum of
+  `20`; it must not increase a naturally lower Speed. The value is represented
+  in code by the named `StatusEffectSystem.ChillMaximumSpeed` constant. It uses Suppression
+  Resistance and reapplication uses `MaxDurationAndValues`.
+- Stun, Freeze, Sleep, and Paralysis are hard CC, use the suppression resistance
+  group, and reapply with `ReplaceDuration`.
+- `Regeneration` ticks at the end of the affected unit's turn. Its value can be either flat HP or a percentage of MaxHP, depending on the applying skill. Its reapplication follows the DoT rule: replace remaining duration and add total healing, then distribute the combined total over the new duration.
+- `Taunt` restricts offensive skills so that they may target only the character that most recently applied Taunt. Reapplying Taunt uses `ReplaceDuration` and the latest source replaces the previous taunter. Defensive and utility skills remain legal. AI under Taunt should prefer legal offensive skills against the current taunter over defensive or utility skills.
+- `Invisibility` uses `ReplaceDuration`. It ends immediately after its owner successfully executes an offensive skill against an enemy, regardless of whether the damage effect hits.
+- `Invisibility` removes the unit from `All` targeting and from direct target selection. It can still be hit by tile/pattern-based effects such as line, X-shape, area around tile, selected tile, and similar shapes; opponents must guess its position for these effects. Its expiry/break rules remain to be specified.
 
 ## Save Rules
 
@@ -1155,6 +1199,12 @@ Current goal:
 - Defend does not exist as a separate action.
 - Item use costs `20%` of MaxAP.
 - Interact costs `20%` of MaxAP.
+- Loot becomes available after an encounter is resolved. The player may collect it
+  from defeated enemies; collecting each individual item from a body costs `20%`
+  of the collector's MaxAP.
+- The current post-combat `Odbierz loot` / pending-loot flow is temporary. The
+  intended gameplay model is physical item collection from defeated enemies'
+  bodies during exploration after the encounter has ended.
 - Revive costs no AP but automatically ends the turn.
 - Escape costs no AP but automatically ends the turn.
 - Escape base chance is `60%`.
@@ -1169,6 +1219,7 @@ Current goal:
 - Projectile attacks can be blocked by an ally standing on the line.
 - Whether friendly fire exists depends on the skill.
 - Some skills affect everyone in range.
+- `TargetingType.All` includes enemies, allies, and neutral units. Neutral units are valid targets for all skills; the selected skill's targeting/type rules determine whether they are included.
 - Some skills affect only enemies, only allies, or also the caster.
 - Some target types allow targeting empty tiles, for example area, semi-area, or custom-shape targeting.
 - Melee/ranged tags make sense for skills, but are not directly tied to numeric range.
@@ -1186,6 +1237,7 @@ Current goal:
 - Downed enemies do not count as resolved for combat-end purposes.
 - Combat should end only when enemy-side relevant units are dead or escaped rather than merely downed.
 - If the player escapes, the rest of the combat is also simulated.
+- Experience rewards are granted to all active-party characters that are alive or downed when combat ends; dead characters receive no experience. On escape, the party keeps experience already earned, but uncollected gold and loot from the encounter are lost.
 
 ### AI
 

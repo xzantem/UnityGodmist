@@ -49,11 +49,18 @@ namespace Godmist.Systems.Combat
             if (session == null || session.Outcome != CombatOutcomeState.Ongoing || aiUnit?.Character == null
                 || aiUnit.Character.LifeState != CharacterLifeState.Alive) return;
 
+            var hasTaunter = StatusEffectSystem.TryGetTaunter(
+                session,
+                aiUnit,
+                out var taunter);
+
             var usedSkill = TryExecuteBestSkill(session, aiUnit);
 
             if (!usedSkill)
             {
-                var target = FindClosestPlayerUnit(session, aiUnit);
+                var target = hasTaunter
+                    ? taunter
+                    : FindClosestPlayerUnit(session, aiUnit);
 
                 if (target == null)
                 {
@@ -144,18 +151,41 @@ namespace Godmist.Systems.Combat
 
                 if (mode == null) return false;
 
+                var requiredEnemyTarget = mode.TargetingType == TargetingType.Enemies
+                    && StatusEffectSystem.TryGetTaunter(
+                        session,
+                        caster,
+                        out var taunter)
+                    ? taunter
+                    : null;
+
                 IReadOnlyList<BattleUnit> targets;
 
                 if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.AreaAroundTile)
                 {
-                    if (!TryFindBestTargetPosition(session, caster, skill, mode, 
-                        out var selectedPosition)) return false;
+                    if (!TryFindBestTargetPosition(
+                            session,
+                            caster,
+                            skill,
+                            mode,
+                            requiredEnemyTarget,
+                            out var selectedPosition)) return false;
 
-                    targets = targetingService.GetTargets(session, caster, mode, selectedPosition);
+                    targets = targetingService.GetTargets(
+                        session,
+                        caster,
+                        mode,
+                        selectedPosition,
+                        requiredEnemyTarget: requiredEnemyTarget);
                 }
                 else
                 {
-                    targets = targetingService.GetTargets(session, caster, mode, null);
+                    targets = targetingService.GetTargets(
+                        session,
+                        caster,
+                        mode,
+                        null,
+                        requiredEnemyTarget: requiredEnemyTarget);
                 }
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
@@ -168,12 +198,21 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private bool TryFindBestTargetPosition(CombatSession session, BattleUnit caster, SkillData skill, 
-        SkillTargetModeData mode, out GridPosition selectedPosition)
+        private bool TryFindBestTargetPosition(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            SkillTargetModeData mode,
+            BattleUnit requiredEnemyTarget,
+            out GridPosition selectedPosition)
         {
             selectedPosition = default;
 
-            var selectablePositions = targetingService.GetSelectablePositions(session, caster, mode)
+            var selectablePositions = targetingService.GetSelectablePositions(
+                    session,
+                    caster,
+                    mode,
+                    requiredEnemyTarget: requiredEnemyTarget)
                 .Where(position => !skill.RequiresLineOfSight 
                 || lineOfSightService.HasLineOfSight(session, caster.Position, position));
 
@@ -182,7 +221,12 @@ namespace Godmist.Systems.Combat
 
             foreach (var position in selectablePositions)
             {
-                var targets = targetingService.GetTargets(session, caster, mode, position);
+                var targets = targetingService.GetTargets(
+                    session,
+                    caster,
+                    mode,
+                    position,
+                    requiredEnemyTarget: requiredEnemyTarget);
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
 
@@ -269,6 +313,14 @@ namespace Godmist.Systems.Combat
                     
                     case EffectType.Push:
                         score += 30f * targets.Count;
+                        break;
+
+                    case EffectType.Pull:
+                        score += 30f * targets.Count;
+                        break;
+
+                    case EffectType.Fallback:
+                        score += 10f * targets.Count;
                         break;
                 }
             }
