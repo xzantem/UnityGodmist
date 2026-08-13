@@ -175,6 +175,25 @@ namespace Godmist.Systems.Debugging
 
             if (tokens.Count == 2)
             {
+                var combatMatches = combatSession?.Units?
+                    .Where(unit => unit?.Character != null
+                        && string.Equals(
+                            unit.Character.CharacterId,
+                            tokens[1],
+                            StringComparison.OrdinalIgnoreCase))
+                    .Select(unit => unit.Character)
+                    .ToList();
+
+                if (combatMatches != null && combatMatches.Count > 0)
+                {
+                    var reports = combatMatches.Select(character =>
+                        DevConsoleUnitInspector.BuildReport(
+                            character,
+                            combatSession));
+
+                    return Success(string.Join("\n\n---\n\n", reports));
+                }
+
                 if (!TryResolveCharacter(
                         tokens[1],
                         gameSession,

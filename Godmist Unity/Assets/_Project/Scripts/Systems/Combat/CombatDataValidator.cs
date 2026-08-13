@@ -73,24 +73,26 @@ namespace Godmist.Systems.Combat
                 report.AddError("Resource Cost cannot be negative.");
             }
 
-            if (skill.TargetModes == null || skill.TargetModes.Count == 0)
+            if (skill.Effects == null || skill.Effects.Count == 0)
+            {
+                report.AddError("Skill must define at least one effect.");
+                return report;
+            }
+
+            var isObjectPlacementOnlySkill =
+                IsObjectPlacementOnlySkill(skill);
+
+            if (!isObjectPlacementOnlySkill
+                && (skill.TargetModes == null || skill.TargetModes.Count == 0))
             {
                 report.AddError("Skill must define at least one Target Mode.");
             }
-            else
+            else if (!isObjectPlacementOnlySkill)
             {
                 ValidateTargetModes(skill, report);
             }
 
-            if (skill.Effects == null || skill.Effects.Count == 0)
-            {
-                report.AddError("Skill must define at least one effect.");
-            }
-            else
-            {
-                ValidateEffects(skill, report);
-            }
-
+            ValidateEffects(skill, report);
             return report;
         }
 
@@ -226,8 +228,27 @@ namespace Godmist.Systems.Combat
             SkillData skill,
             CombatDataValidationReport report)
         {
-            var teleportEffectCount = skill.Effects.Count(effect =>
-                effect?.EffectType == EffectType.Teleport);
+            var createObjectEffectCount = skill.Effects.Count(
+                effect => effect?.EffectType == EffectType.CreateObject);
+
+            var isObjectPlacementOnlySkill =
+                IsObjectPlacementOnlySkill(skill);
+
+            if (createObjectEffectCount > 0
+                && !isObjectPlacementOnlySkill)
+            {
+                report.AddError(
+                    "CreateObject can only be used in a skill containing CreateObject effects only in v1.");
+            }
+
+            if (createObjectEffectCount > 1)
+            {
+                report.AddError(
+                    "A skill can define at most one CreateObject effect in v1.");
+            }
+
+            var teleportEffectCount = skill.Effects.Count(
+                effect => effect?.EffectType == EffectType.Teleport);
 
             if (teleportEffectCount > 1)
             {
@@ -246,12 +267,44 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (effect.TargetModeIndex < 0
+                if (effect.EffectType == EffectType.CreateObject)
+                {
+                    if (effect.SummonedObjectDefinition == null)
+                    {
+                        report.AddError(
+                            $"{prefix}: Summoned Object Definition is required.");
+                    }
+
+                    ValidateRange(
+                        effect.ObjectPlacementRange,
+                        $"{prefix}: Object Placement Range",
+                        report);
+
+                    if (effect.MaxActiveObjects < 1)
+                    {
+                        report.AddError(
+                            $"{prefix}: Max Active Objects must be at least 1.");
+                    }
+
+                    if (effect.Conditions != null
+                        && effect.Conditions.Count > 0)
+                    {
+                        report.AddError(
+                            $"{prefix}: CreateObject conditions are not supported in v1.");
+                    }
+
+                    continue;
+                }
+
+                if (skill.TargetModes == null
+                    || effect.TargetModeIndex < 0
                     || effect.TargetModeIndex >= skill.TargetModes.Count)
                 {
                     report.AddError(
                         $"{prefix}: Target Mode Index {effect.TargetModeIndex} " +
                         "does not reference an existing Target Mode.");
+
+                    continue;
                 }
 
                 if (effect.EffectType == EffectType.DealDamage
@@ -268,18 +321,14 @@ namespace Godmist.Systems.Combat
                         $"{prefix}: Teleport Destination Range",
                         report);
 
-                    if (effect.TargetModeIndex >= 0
-                        && effect.TargetModeIndex < skill.TargetModes.Count)
-                    {
-                        var targetMode = skill.TargetModes[effect.TargetModeIndex];
+                    var targetMode = skill.TargetModes[effect.TargetModeIndex];
 
-                        if (targetMode != null
-                            && targetMode.TargetType != TargetType.Caster
-                            && targetMode.TargetType != TargetType.Single)
-                        {
-                            report.AddError(
-                                $"{prefix}: Teleport requires Target Type set to Caster or Single.");
-                        }
+                    if (targetMode != null
+                        && targetMode.TargetType != TargetType.Caster
+                        && targetMode.TargetType != TargetType.Single)
+                    {
+                        report.AddError(
+                            $"{prefix}: Teleport requires Target Type set to Caster or Single.");
                     }
                 }
 
@@ -293,8 +342,6 @@ namespace Godmist.Systems.Combat
                 }
 
                 if (effect.EffectType == EffectType.Fallback
-                    && effect.TargetModeIndex >= 0
-                    && effect.TargetModeIndex < skill.TargetModes.Count
                     && skill.TargetModes[effect.TargetModeIndex].TargetType
                         != TargetType.Single)
                 {
@@ -327,8 +374,7 @@ namespace Godmist.Systems.Combat
                         && effect.ModifierValue < -1f)
                     {
                         report.AddError(
-                            $"{prefix}: multiplicative Modifier Value " +
-                            "cannot be lower than -1.");
+                            $"{prefix}: multiplicative Modifier Value cannot be lower than -1.");
                     }
 
                     if (effect.DurationTurns < 0)
@@ -346,7 +392,8 @@ namespace Godmist.Systems.Combat
                             $"{prefix}: Modifier Value cannot be zero.");
                     }
 
-                    if (effect.ModifierStacking == StatModifierStacking.Multiplicative
+                    if (effect.ModifierStacking
+                            == StatModifierStacking.Multiplicative
                         && effect.ModifierValue < -1f)
                     {
                         report.AddError(
@@ -395,8 +442,7 @@ namespace Godmist.Systems.Combat
                     if (condition == null)
                     {
                         report.AddError(
-                            $"{prefix}, condition [{conditionIndex}]: " +
-                            "condition cannot be null.");
+                            $"{prefix}, condition [{conditionIndex}]: condition cannot be null.");
 
                         continue;
                     }
@@ -410,13 +456,29 @@ namespace Godmist.Systems.Combat
                         || condition.ReferencedEffectIndex >= index)
                     {
                         report.AddError(
-                            $"{prefix}, condition [{conditionIndex}]: " +
-                            $"Referenced Effect Index " +
-                            $"{condition.ReferencedEffectIndex} must reference " +
-                            "a previous effect.");
+                            $"{prefix}, condition [{conditionIndex}]: Referenced Effect Index " +
+                            $"{condition.ReferencedEffectIndex} must reference a previous effect.");
                     }
                 }
             }
+        }
+
+        private static bool IsObjectPlacementOnlySkill(SkillData skill)
+        {
+            if (skill?.Effects == null || skill.Effects.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType != EffectType.CreateObject)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static void ValidateRange(

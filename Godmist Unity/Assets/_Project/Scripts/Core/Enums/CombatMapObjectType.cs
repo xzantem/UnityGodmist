@@ -8,6 +8,7 @@ namespace Godmist.Core.Enums
         Lever = 3,
         Altar = 4,
         Obstacle = 5,
-        Destructible = 6
+        Destructible = 6,
+        SummonedObject = 7
     }
 }

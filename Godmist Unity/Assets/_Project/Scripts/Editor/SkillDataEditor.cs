@@ -41,7 +41,10 @@ namespace Godmist.Editor
 
             DrawIdentitySection();
             DrawCostSection();
-            DrawTargetingSection();
+            if (!UsesOnlyCreateObjectEffects())
+            {
+                DrawTargetingSection();
+            }
             DrawEffectsSection();
 
             serializedObject.ApplyModifiedProperties();
@@ -106,20 +109,31 @@ namespace Godmist.Editor
         {
             if (effects == null || effects.arraySize == 0)
             {
-                return true;
+                return false;
             }
 
             for (var index = 0; index < effects.arraySize; index++)
             {
                 var effect = effects.GetArrayElementAtIndex(index);
+
                 var effectType = (EffectType)effect
-                    .FindPropertyRelative("effectType").enumValueIndex;
-                var alwaysHits = effect.FindPropertyRelative("alwaysHits").boolValue;
+                    .FindPropertyRelative("effectType")
+                    .enumValueIndex;
+
+                if (effectType == EffectType.CreateObject)
+                {
+                    continue;
+                }
+
+                var alwaysHits = effect
+                    .FindPropertyRelative("alwaysHits")
+                    .boolValue;
 
                 if (effectType == EffectType.DealDamage)
                 {
                     var damageType = (DamageType)effect
-                        .FindPropertyRelative("damageType").enumValueIndex;
+                        .FindPropertyRelative("damageType")
+                        .enumValueIndex;
 
                     if (damageType == DamageType.Physical && !alwaysHits)
                     {
@@ -130,7 +144,8 @@ namespace Godmist.Editor
                 }
 
                 var polarity = (EffectPolarity)effect
-                    .FindPropertyRelative("polarity").enumValueIndex;
+                    .FindPropertyRelative("polarity")
+                    .enumValueIndex;
 
                 if (polarity == EffectPolarity.Negative && !alwaysHits)
                 {
@@ -166,8 +181,47 @@ namespace Godmist.Editor
             return false;
         }
 
+        private bool UsesOnlyCreateObjectEffects()
+        {
+            if (effects == null || effects.arraySize == 0)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < effects.arraySize; index++)
+            {
+                var effectType = (EffectType)effects
+                    .GetArrayElementAtIndex(index)
+                    .FindPropertyRelative("effectType")
+                    .enumValueIndex;
+
+                if (effectType != EffectType.CreateObject)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool SupportsLineOfSight()
         {
+            if (effects != null)
+            {
+                for (var index = 0; index < effects.arraySize; index++)
+                {
+                    var effectType = (EffectType)effects
+                        .GetArrayElementAtIndex(index)
+                        .FindPropertyRelative("effectType")
+                        .enumValueIndex;
+
+                    if (effectType == EffectType.CreateObject)
+                    {
+                        return true;
+                    }
+                }
+            }
+
             if (targetModes == null)
             {
                 return false;
@@ -177,7 +231,8 @@ namespace Godmist.Editor
             {
                 var targetType = (TargetType)targetModes
                     .GetArrayElementAtIndex(index)
-                    .FindPropertyRelative("targetType").enumValueIndex;
+                    .FindPropertyRelative("targetType")
+                    .enumValueIndex;
 
                 if (targetType != TargetType.Caster)
                 {

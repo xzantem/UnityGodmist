@@ -11,9 +11,16 @@ namespace Godmist.Editor
     {
         private const float Spacing = 2f;
 
-        public override bool CanCacheInspectorGUI(SerializedProperty property) { return false; }
+        public override bool CanCacheInspectorGUI(
+            SerializedProperty property)
+        {
+            return false;
+        }
 
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override void OnGUI(
+            Rect position,
+            SerializedProperty property,
+            GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
@@ -23,28 +30,76 @@ namespace Godmist.Editor
             var targetModeIndex = property.FindPropertyRelative("targetModeIndex");
             var baseValue = property.FindPropertyRelative("baseValue");
             var damageType = property.FindPropertyRelative("damageType");
-            var damageValueSource = property.FindPropertyRelative("damageValueSource");
-            var damageMultiplier = property.FindPropertyRelative("damageMultiplier");
-            var displacementDistance = property.FindPropertyRelative("displacementDistance");
+            var damageValueSource =
+                property.FindPropertyRelative("damageValueSource");
+            var damageMultiplier =
+                property.FindPropertyRelative("damageMultiplier");
+            var displacementDistance =
+                property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
             var statusId = property.FindPropertyRelative("statusId");
             var durationTurns = property.FindPropertyRelative("durationTurns");
-            var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
-            var statusHealPercent = property.FindPropertyRelative("statusHealPercent");
+            var statusDamageMultiplier =
+                property.FindPropertyRelative("statusDamageMultiplier");
+            var statusHealPercent =
+                property.FindPropertyRelative("statusHealPercent");
             var conditions = property.FindPropertyRelative("conditions");
-            var modifierStatType = property.FindPropertyRelative("modifierStatType");
-            var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
-            var modifierOperation = property.FindPropertyRelative("modifierOperation");
-            var modifierStacking = property.FindPropertyRelative("modifierStacking");
-            var modifierValue = property.FindPropertyRelative("modifierValue");
-            var teleportDestinationRange = property.FindPropertyRelative("teleportDestinationRange");
+            var modifierStatType =
+                property.FindPropertyRelative("modifierStatType");
+            var modifierVariableType =
+                property.FindPropertyRelative("modifierVariableType");
+            var modifierOperation =
+                property.FindPropertyRelative("modifierOperation");
+            var modifierStacking =
+                property.FindPropertyRelative("modifierStacking");
+            var modifierValue =
+                property.FindPropertyRelative("modifierValue");
+            var teleportDestinationRange =
+                property.FindPropertyRelative("teleportDestinationRange");
+            var summonedObjectDefinition =
+                property.FindPropertyRelative("summonedObjectDefinition");
+            var objectPlacementRange =
+                property.FindPropertyRelative("objectPlacementRange");
+            var maxActiveObjects =
+                property.FindPropertyRelative("maxActiveObjects");
+
             var y = position.y;
+            var selectedEffect =
+                (EffectType)effectType.enumValueIndex;
 
             DrawField(position, ref y, effectType);
-            DrawTargetModePopup(position, ref y, property, targetModeIndex);
 
-            var selectedEffect = (EffectType)effectType.enumValueIndex;
-            var selectedPolarity = (EffectPolarity)polarity.enumValueIndex;
+            if (selectedEffect == EffectType.CreateObject)
+            {
+                DrawField(
+                    position,
+                    ref y,
+                    summonedObjectDefinition,
+                    true);
+
+                DrawField(
+                    position,
+                    ref y,
+                    objectPlacementRange,
+                    true);
+
+                DrawField(
+                    position,
+                    ref y,
+                    maxActiveObjects);
+
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            DrawTargetModePopup(
+                position,
+                ref y,
+                property,
+                targetModeIndex);
+
+            var selectedPolarity =
+                (EffectPolarity)polarity.enumValueIndex;
 
             if (selectedEffect != EffectType.DealDamage)
             {
@@ -62,29 +117,36 @@ namespace Godmist.Editor
                 DrawField(position, ref y, damageValueSource);
                 DrawField(position, ref y, damageMultiplier);
 
-                if ((DamageType)damageType.enumValueIndex == DamageType.Physical)
+                if ((DamageType)damageType.enumValueIndex
+                    == DamageType.Physical)
                 {
                     DrawField(position, ref y, alwaysHits);
                 }
             }
             else if (selectedEffect == EffectType.Push
-                    || selectedEffect == EffectType.Pull
-                    || selectedEffect == EffectType.Fallback
-                    || selectedEffect == EffectType.Charge)
+                     || selectedEffect == EffectType.Pull
+                     || selectedEffect == EffectType.Fallback
+                     || selectedEffect == EffectType.Charge)
             {
                 DrawField(position, ref y, displacementDistance);
 
-                if (selectedEffect == EffectType.Pull || selectedEffect == EffectType.Charge)
+                if (selectedEffect == EffectType.Pull
+                    || selectedEffect == EffectType.Charge)
                 {
                     DrawField(position, ref y, baseChance);
                 }
             }
             else if (selectedEffect == EffectType.Teleport)
             {
-                DrawField(position, ref y, teleportDestinationRange, true);
+                DrawField(
+                    position,
+                    ref y,
+                    teleportDestinationRange,
+                    true);
             }
-            else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource
-                || selectedEffect == EffectType.Shield)
+            else if (selectedEffect == EffectType.Heal
+                     || selectedEffect == EffectType.RestoreResource
+                     || selectedEffect == EffectType.Shield)
             {
                 DrawField(position, ref y, baseValue);
             }
@@ -117,14 +179,21 @@ namespace Godmist.Editor
 
                 if (UsesStatusDamageMultiplier(statusId.stringValue))
                 {
-                    DrawField(position, ref y, statusDamageMultiplier);
+                    DrawField(
+                        position,
+                        ref y,
+                        statusDamageMultiplier);
                 }
 
                 if (statusId.stringValue == StatusEffectIds.Sleep)
                 {
-                    DrawField(position, ref y, statusHealPercent);
+                    DrawField(
+                        position,
+                        ref y,
+                        statusHealPercent);
                 }
             }
+
             DrawField(position, ref y, conditions, true);
             EditorGUI.EndProperty();
         }
@@ -139,30 +208,66 @@ namespace Godmist.Editor
             var targetModeIndex = property.FindPropertyRelative("targetModeIndex");
             var baseValue = property.FindPropertyRelative("baseValue");
             var damageType = property.FindPropertyRelative("damageType");
-            var damageValueSource = property.FindPropertyRelative("damageValueSource");
-            var damageMultiplier = property.FindPropertyRelative("damageMultiplier");
-            var displacementDistance = property.FindPropertyRelative("displacementDistance");
+            var damageValueSource =
+                property.FindPropertyRelative("damageValueSource");
+            var damageMultiplier =
+                property.FindPropertyRelative("damageMultiplier");
+            var displacementDistance =
+                property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
             var statusId = property.FindPropertyRelative("statusId");
             var durationTurns = property.FindPropertyRelative("durationTurns");
-            var statusDamageMultiplier = property.FindPropertyRelative("statusDamageMultiplier");
-            var statusHealPercent = property.FindPropertyRelative("statusHealPercent");
+            var statusDamageMultiplier =
+                property.FindPropertyRelative("statusDamageMultiplier");
+            var statusHealPercent =
+                property.FindPropertyRelative("statusHealPercent");
             var conditions = property.FindPropertyRelative("conditions");
-            var modifierStatType = property.FindPropertyRelative("modifierStatType");
-            var modifierVariableType = property.FindPropertyRelative("modifierVariableType");
-            var modifierOperation = property.FindPropertyRelative("modifierOperation");
-            var modifierStacking = property.FindPropertyRelative("modifierStacking");
-            var modifierValue = property.FindPropertyRelative("modifierValue");
-            var teleportDestinationRange = property.FindPropertyRelative("teleportDestinationRange");
+            var modifierStatType =
+                property.FindPropertyRelative("modifierStatType");
+            var modifierVariableType =
+                property.FindPropertyRelative("modifierVariableType");
+            var modifierOperation =
+                property.FindPropertyRelative("modifierOperation");
+            var modifierStacking =
+                property.FindPropertyRelative("modifierStacking");
+            var modifierValue =
+                property.FindPropertyRelative("modifierValue");
+            var teleportDestinationRange =
+                property.FindPropertyRelative("teleportDestinationRange");
+            var summonedObjectDefinition =
+                property.FindPropertyRelative("summonedObjectDefinition");
+            var objectPlacementRange =
+                property.FindPropertyRelative("objectPlacementRange");
+            var maxActiveObjects =
+                property.FindPropertyRelative("maxActiveObjects");
 
             var height = 0f;
+            var selectedEffect =
+                (EffectType)effectType.enumValueIndex;
 
             AddHeight(ref height, effectType);
 
+            if (selectedEffect == EffectType.CreateObject)
+            {
+                AddHeight(
+                    ref height,
+                    summonedObjectDefinition,
+                    true);
+
+                AddHeight(
+                    ref height,
+                    objectPlacementRange,
+                    true);
+
+                AddHeight(ref height, maxActiveObjects);
+
+                return height;
+            }
+
             AddHeight(ref height, targetModeIndex);
 
-            var selectedEffect = (EffectType)effectType.enumValueIndex;
-            var selectedPolarity = (EffectPolarity)polarity.enumValueIndex;
+            var selectedPolarity =
+                (EffectPolarity)polarity.enumValueIndex;
 
             if (selectedEffect != EffectType.DealDamage)
             {
@@ -180,29 +285,35 @@ namespace Godmist.Editor
                 AddHeight(ref height, damageValueSource);
                 AddHeight(ref height, damageMultiplier);
 
-                if ((DamageType)damageType.enumValueIndex == DamageType.Physical)
+                if ((DamageType)damageType.enumValueIndex
+                    == DamageType.Physical)
                 {
                     AddHeight(ref height, alwaysHits);
                 }
             }
             else if (selectedEffect == EffectType.Push
-                    || selectedEffect == EffectType.Pull
-                    || selectedEffect == EffectType.Fallback
-                    || selectedEffect == EffectType.Charge)
+                     || selectedEffect == EffectType.Pull
+                     || selectedEffect == EffectType.Fallback
+                     || selectedEffect == EffectType.Charge)
             {
                 AddHeight(ref height, displacementDistance);
 
-                if (selectedEffect == EffectType.Pull || selectedEffect == EffectType.Charge)
+                if (selectedEffect == EffectType.Pull
+                    || selectedEffect == EffectType.Charge)
                 {
                     AddHeight(ref height, baseChance);
                 }
             }
             else if (selectedEffect == EffectType.Teleport)
             {
-                AddHeight(ref height, teleportDestinationRange, true);
+                AddHeight(
+                    ref height,
+                    teleportDestinationRange,
+                    true);
             }
-            else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource 
-                || selectedEffect == EffectType.Shield)
+            else if (selectedEffect == EffectType.Heal
+                     || selectedEffect == EffectType.RestoreResource
+                     || selectedEffect == EffectType.Shield)
             {
                 AddHeight(ref height, baseValue);
             }
@@ -235,7 +346,9 @@ namespace Godmist.Editor
 
                 if (UsesStatusDamageMultiplier(statusId.stringValue))
                 {
-                    AddHeight(ref height, statusDamageMultiplier);
+                    AddHeight(
+                        ref height,
+                        statusDamageMultiplier);
                 }
 
                 if (statusId.stringValue == StatusEffectIds.Sleep)
@@ -245,7 +358,6 @@ namespace Godmist.Editor
             }
 
             AddHeight(ref height, conditions, true);
-
             return height;
         }
 
@@ -280,8 +392,14 @@ namespace Godmist.Editor
             SerializedProperty targetModeIndex)
         {
             var height = EditorGUIUtility.singleLineHeight;
-            var fieldRect = new Rect(position.x, y, position.width, height);
-            var targetModes = effectProperty.serializedObject.FindProperty("targetModes");
+            var fieldRect = new Rect(
+                position.x,
+                y,
+                position.width,
+                height);
+
+            var targetModes =
+                effectProperty.serializedObject.FindProperty("targetModes");
 
             if (targetModes == null || targetModes.arraySize == 0)
             {
@@ -296,23 +414,29 @@ namespace Godmist.Editor
 
             var labels = new string[targetModes.arraySize];
 
-            for (var index = 0; index < targetModes.arraySize; index++)
+            for (var index = 0;
+                 index < targetModes.arraySize;
+                 index++)
             {
-                var targetMode = targetModes.GetArrayElementAtIndex(index);
-                var targetType = targetMode.FindPropertyRelative("targetType");
-                var targetingType = targetMode.FindPropertyRelative("targetingType");
-                var targetTypeName = targetType.enumDisplayNames[targetType.enumValueIndex];
-                var selectedTargetType = (TargetType)targetType.enumValueIndex;
+                var targetMode =
+                    targetModes.GetArrayElementAtIndex(index);
 
-                if (selectedTargetType == TargetType.Caster)
-                {
-                    labels[index] = $"{index} - {targetTypeName}";
-                }
-                else
-                {
-                    var targetingTypeName = targetingType.enumDisplayNames[targetingType.enumValueIndex];
-                    labels[index] = $"{index} - {targetTypeName} / {targetingTypeName}";
-                }
+                var targetType =
+                    targetMode.FindPropertyRelative("targetType");
+
+                var targetingType =
+                    targetMode.FindPropertyRelative("targetingType");
+
+                var targetTypeName =
+                    targetType.enumDisplayNames[targetType.enumValueIndex];
+
+                var selectedTargetType =
+                    (TargetType)targetType.enumValueIndex;
+
+                labels[index] = selectedTargetType == TargetType.Caster
+                    ? $"{index} - {targetTypeName}"
+                    : $"{index} - {targetTypeName} / " +
+                      $"{targetingType.enumDisplayNames[targetingType.enumValueIndex]}";
             }
 
             var selectedIndex = Mathf.Clamp(
@@ -325,6 +449,27 @@ namespace Godmist.Editor
                 "Target Mode",
                 selectedIndex,
                 labels);
+
+            y += height + Spacing;
+        }
+
+        private static void DrawStatusIdPopup(
+            Rect position,
+            ref float y,
+            SerializedProperty statusId)
+        {
+            var height = EditorGUIUtility.singleLineHeight;
+
+            var fieldRect = new Rect(
+                position.x,
+                y,
+                position.width,
+                height);
+
+            StatusEffectIdPopup.Draw(
+                fieldRect,
+                statusId,
+                "Status");
 
             y += height + Spacing;
         }
@@ -344,25 +489,8 @@ namespace Godmist.Editor
                 includeChildren);
         }
 
-        private static void DrawStatusIdPopup(
-            Rect position,
-            ref float y,
-            SerializedProperty statusId)
-        {
-            var height = EditorGUIUtility.singleLineHeight;
-
-            var fieldRect = new Rect(
-                position.x,
-                y,
-                position.width,
-                height);
-
-            StatusEffectIdPopup.Draw(fieldRect, statusId, "Status");
-
-            y += height + Spacing;
-        }
-
-        private static bool UsesStatusDamageMultiplier(string statusId)
+        private static bool UsesStatusDamageMultiplier(
+            string statusId)
         {
             return statusId == StatusEffectIds.Bleed
                 || statusId == StatusEffectIds.Poison

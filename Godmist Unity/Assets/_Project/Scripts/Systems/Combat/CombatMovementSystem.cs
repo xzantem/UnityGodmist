@@ -73,7 +73,9 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
                     if (!session.Grid.CanMoveBetween(current, candidate)
-                        || session.IsPositionOccupied(candidate, unit))
+                        || session.IsPositionOccupied(candidate, unit)
+                        || session.DoesObjectBlockMovement(
+                            session.GetMapObjectAt(candidate)))
                     {
                         continue;
                     }
@@ -130,9 +132,9 @@ namespace Godmist.Systems.Combat
         }
 
         public bool TryMoveOneStep(
-            CombatSession session, 
-            BattleUnit unit, 
-            int deltaX, 
+            CombatSession session,
+            BattleUnit unit,
+            int deltaX,
             int deltaY)
         {
             if (session?.Grid == null
@@ -141,6 +143,7 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
+
             if ((StatusEffectSystem.IsHardCrowdControlled(unit)
                     && !StatusEffectSystem.IsSleeping(unit))
                 || StatusEffectSystem.IsImmobilized(unit))
@@ -152,19 +155,39 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (Math.Abs(deltaX) + Mathf.Abs(deltaY) != 1) return false;
+            if (Math.Abs(deltaX) + Mathf.Abs(deltaY) != 1)
+            {
+                return false;
+            }
 
-            var movementCost = CombatActionCostCalculator.CalculateMovementCost(unit);
+            var movementCost =
+                CombatActionCostCalculator.CalculateMovementCost(unit);
 
-            if (unit.CurrentActionPoints < movementCost) return false;
-            
+            if (unit.CurrentActionPoints < movementCost)
+            {
+                return false;
+            }
+
             if (!session.Grid.TryMove(
-                unit.Position, 
-                deltaX, 
-                deltaY, 
-                out var targetPosition)) return false;
+                    unit.Position,
+                    deltaX,
+                    deltaY,
+                    out var targetPosition))
+            {
+                return false;
+            }
 
-            if (session.IsPositionOccupied(targetPosition, unit)) return false;
+            if (session.IsPositionOccupied(targetPosition, unit))
+            {
+                return false;
+            }
+
+            var mapObject = session.GetMapObjectAt(targetPosition);
+
+            if (session.DoesObjectBlockMovement(mapObject))
+            {
+                return false;
+            }
 
             if (StatusEffectSystem.IsSleeping(unit))
             {
@@ -179,6 +202,7 @@ namespace Godmist.Systems.Combat
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;
             unit.MovementStepsThisTurn++;
+
             resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
 
             battleLog?.Invoke(
@@ -188,6 +212,7 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
+
         private static int CalculatePathCost(
             BattleUnit unit, 
             int pathLength)

@@ -190,6 +190,30 @@ namespace Godmist.Systems.Combat
             evaluateOutcome?.Invoke(session);
             return healthDamage;
         }
+
+        public int ApplySummonedObjectDamage(
+            CombatSession session,
+            BattleUnit target,
+            int requestedDamage,
+            DamageType damageType)
+        {
+            if (target?.Character == null || requestedDamage <= 0)
+            {
+                return 0;
+            }
+
+            var finalDamage = ApplyDefense(
+                target,
+                requestedDamage,
+                damageType);
+
+            return ApplyDamage(
+                session,
+                null,
+                target,
+                finalDamage,
+                damageType);
+        }
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
             var accuracy = (Mathf.Max(0f, weaponAccuracy) + Mathf.Max(0f, skillAccuracy)) * 0.5f;

@@ -71,6 +71,66 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool ApplyFromSummonedObject(
+            BattleUnit source,
+            BattleUnit target,
+            CharacterStatType statType,
+            StatModifierOperation operation,
+            StatModifierStacking stacking,
+            float value,
+            int durationTurns,
+            string sourceId)
+        {
+            if (target?.Character?.Stats == null || value == 0f)
+            {
+                return false;
+            }
+
+            var runtimeEffect = new PassiveEffectRuntime(
+                sourceId,
+                new List<PassiveEffectSourceRuntime>
+                {
+                    PassiveEffectSourceFactory.FromRuntimeSystem(source, sourceId)
+                },
+                1,
+                0,
+                0,
+                PassiveEffectLifetime.CombatScoped,
+                PassiveEffectTickPhase.None)
+            {
+                StatModifiers = new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = statType,
+                        Operation = operation,
+                        Stacking = stacking,
+                        Value = value
+                    }
+                }
+            };
+
+            return passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
+                target.Character,
+                runtimeEffect,
+                PassiveEffectStackingMode.ReplaceDurationAndValues,
+                out _);
+        }
+
+        public bool RemoveFromSummonedObject(
+            BattleUnit target,
+            string sourceId)
+        {
+            if (target?.Character == null || string.IsNullOrWhiteSpace(sourceId))
+            {
+                return false;
+            }
+
+            return passiveEffectLifecycleSystem.RemoveEffect(
+                target.Character,
+                sourceId);
+        }
+
         private static PassiveEffectRuntime CreateRuntimeEffect(
             BattleUnit source,
             SkillData skill,

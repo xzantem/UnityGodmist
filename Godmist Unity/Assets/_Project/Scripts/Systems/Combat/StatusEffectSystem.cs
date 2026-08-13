@@ -97,6 +97,71 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool ApplyStatus(
+            BattleUnit source,
+            BattleUnit target,
+            string statusId,
+            float baseChance,
+            int durationTurns,
+            int stacks,
+            float statusDamageMultiplier,
+            float statusHealPercent,
+            string sourceId)
+        {
+            if (target?.Character == null
+                || target.Character.LifeState != CharacterLifeState.Alive
+                || string.IsNullOrWhiteSpace(statusId))
+            {
+                return false;
+            }
+
+            var clampedChance = Mathf.Clamp01(baseChance);
+            var resistance = GetResistance(target, statusId);
+            var chance = CalculateEffectChance(clampedChance, resistance);
+
+            if (UnityEngine.Random.value > chance)
+            {
+                return false;
+            }
+
+            var duration = Mathf.Max(1, durationTurns);
+            var damagePerTurn = statusDamageMultiplier <= 0f
+                ? 0
+                : CombatDamageValueCalculator.CalculateDamageValue(
+                    source,
+                    DamageValueSource.AverageAttack,
+                    statusDamageMultiplier);
+
+            var runtimeEffect = new PassiveEffectRuntime(
+                statusId,
+                new List<PassiveEffectSourceRuntime>
+                {
+                    PassiveEffectSourceFactory.FromRuntimeSystem(
+                        source,
+                        sourceId)
+                },
+                Mathf.Max(1, stacks),
+                duration,
+                damagePerTurn * duration,
+                PassiveEffectLifetime.Timed,
+                ResolveTickPhase(statusId),
+                statusHealPercent);
+
+            if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
+                    target.Character,
+                    runtimeEffect,
+                    ResolveStackingMode(statusId),
+                    out _))
+            {
+                return false;
+            }
+
+            battleLog?.Invoke(
+                $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
+
+            return true;
+        }
+
         public bool ApplyGuaranteedStun(
             BattleUnit source,
             BattleUnit target,

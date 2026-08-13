@@ -13,6 +13,7 @@ namespace Godmist.Core.Enums
         Pull = 8,
         Fallback = 9,
         Charge = 10,
-        Teleport = 11
+        Teleport = 11,
+        CreateObject = 12
     }
 }

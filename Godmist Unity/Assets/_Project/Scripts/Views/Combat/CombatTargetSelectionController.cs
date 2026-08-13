@@ -52,6 +52,8 @@ namespace Godmist.Views.Combat
         private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
         private bool isSelectingTeleportDestination;
+        private SkillEffectData selectedCreateObjectEffect;
+        private bool isSelectingObjectPlacement;
         private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
 
         public bool IsSelectingTarget => selectedSkill != null;
@@ -80,37 +82,68 @@ namespace Godmist.Views.Combat
 
             var session = sandboxBootstrap?.Session;
 
-            if (skill == null || session == null || session.ActiveUnit == null || !session.ActiveUnit.IsPlayerSide
-                || session.Outcome != CombatOutcomeState.Ongoing) return;
-
-            if (skill.TargetModes == null || skill.TargetModes.Count == 0)
+            if (skill == null || session == null || session.ActiveUnit == null
+                || !session.ActiveUnit.IsPlayerSide
+                || session.Outcome != CombatOutcomeState.Ongoing)
             {
-                Debug.LogWarning($"Skill '{skill.SkillId}' nie ma trybow celu.");
                 return;
             }
 
-            foreach (var targetMode in skill.TargetModes)
+            var isObjectPlacementOnlySkill =
+                IsObjectPlacementOnlySkill(skill);
+
+            if (!isObjectPlacementOnlySkill
+                && (skill.TargetModes == null || skill.TargetModes.Count == 0))
             {
-                if (targetMode == null || !IsSupportedTargetType(targetMode.TargetType))
+                Debug.LogWarning($"Skill '{skill.SkillId}' has no target modes.");
+                return;
+            }
+
+            if (!isObjectPlacementOnlySkill)
+            {
+                foreach (var targetMode in skill.TargetModes)
                 {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' ma niepoprawny tryb celu.");
-                    return;
+                    if (targetMode == null
+                        || !IsSupportedTargetType(targetMode.TargetType))
+                    {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' has an invalid target mode.");
+
+                        return;
+                    }
                 }
             }
 
-            if (IsSelectingTarget) CancelTargetSelection();
+            if (IsSelectingTarget)
+            {
+                CancelTargetSelection();
+            }
 
             selectedSkill = skill;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
 
-            if (movementInputController != null) movementInputController.enabled = false;
+            if (movementInputController != null)
+            {
+                movementInputController.enabled = false;
+            }
 
             BeginCurrentTargetMode();
         }
         private void BeginCurrentTargetMode()
         {
-            while (selectedSkill != null && currentTargetModeIndex < selectedSkill.TargetModes.Count)
+            if (selectedSkill == null)
+            {
+                return;
+            }
+
+            if (IsObjectPlacementOnlySkill(selectedSkill))
+            {
+                TryCompleteSelection();
+                return;
+            }
+
+            while (currentTargetModeIndex < selectedSkill.TargetModes.Count)
             {
                 var targetMode = CurrentTargetMode;
 
@@ -118,7 +151,6 @@ namespace Godmist.Views.Combat
                 {
                     selectedPositionsByModeIndex[currentTargetModeIndex] = null;
                     currentTargetModeIndex++;
-
                     continue;
                 }
 
@@ -142,9 +174,15 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (TryBeginObjectPlacementSelection())
+            {
+                return;
+            }
+
             if (sandboxBootstrap.TryExecuteSkill(
                     selectedSkill,
                     selectedPositionsByModeIndex,
+                    null,
                     null))
             {
                 CancelTargetSelection();
@@ -159,20 +197,25 @@ namespace Godmist.Views.Combat
             selectedSkill = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+
             selectedTeleportEffect = null;
             selectedTeleportSourcePosition = default;
             isSelectingTeleportDestination = false;
 
+            selectedCreateObjectEffect = null;
+            isSelectingObjectPlacement = false;
+
             ClearAllHighlights();
 
-            if (movementInputController != null) movementInputController.enabled = true;
+            if (movementInputController != null)
+            {
+                movementInputController.enabled = true;
+            }
         }
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
-
-            if (!IsSelectingTarget)
+            if (DevConsoleView.IsOpen || !IsSelectingTarget)
             {
                 return;
             }
@@ -187,7 +230,8 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!isSelectingTeleportDestination)
+            if (!isSelectingTeleportDestination
+                && !isSelectingObjectPlacement)
             {
                 UpdateRelativeRangePreview();
             }
@@ -199,7 +243,8 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!Input.GetMouseButtonDown(0) || worldCamera == null)
+            if (!Input.GetMouseButtonDown(0)
+                || worldCamera == null)
             {
                 return;
             }
@@ -222,6 +267,26 @@ namespace Godmist.Views.Combat
                 if (sandboxBootstrap.TryExecuteSkill(
                         selectedSkill,
                         selectedPositionsByModeIndex,
+                        targetPosition,
+                        null))
+                {
+                    CancelTargetSelection();
+                }
+
+                return;
+            }
+
+            if (isSelectingObjectPlacement)
+            {
+                if (!selectablePositions.Contains(targetPosition))
+                {
+                    return;
+                }
+
+                if (sandboxBootstrap.TryExecuteSkill(
+                        selectedSkill,
+                        selectedPositionsByModeIndex,
+                        null,
                         targetPosition))
                 {
                     CancelTargetSelection();
@@ -357,10 +422,15 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
-            if (isSelectingTeleportDestination) return false;
+            if (isSelectingTeleportDestination
+                || isSelectingObjectPlacement)
+            {
+                return false;
+            }
 
             return CurrentTargetMode.UseRelativeRange;
         }
+
         private bool TryBeginTeleportDestinationSelection()
         {
             if (selectedSkill?.Effects == null || sandboxBootstrap?.Session?.ActiveUnit == null)
@@ -417,6 +487,53 @@ namespace Godmist.Views.Combat
 
                 SpawnHighlights(
                     destinations,
+                    relativeRangeHighlightColor,
+                    relativeRangeHighlights);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryBeginObjectPlacementSelection()
+        {
+            if (selectedSkill?.Effects == null
+                || sandboxBootstrap?.Session?.ActiveUnit == null
+                || !IsObjectPlacementOnlySkill(selectedSkill))
+            {
+                return false;
+            }
+
+            foreach (var effect in selectedSkill.Effects)
+            {
+                if (effect?.EffectType != EffectType.CreateObject)
+                {
+                    continue;
+                }
+
+                if (effect.SummonedObjectDefinition == null)
+                {
+                    return false;
+                }
+
+                selectedCreateObjectEffect = effect;
+                isSelectingObjectPlacement = true;
+
+                ClearAllHighlights();
+
+                var placements =
+                    sandboxBootstrap.GetObjectPlacementPositions(
+                        selectedSkill,
+                        selectedCreateObjectEffect);
+
+                foreach (var position in placements)
+                {
+                    selectablePositions.Add(position);
+                }
+
+                SpawnHighlights(
+                    placements,
                     relativeRangeHighlightColor,
                     relativeRangeHighlights);
 
@@ -505,6 +622,24 @@ namespace Godmist.Views.Combat
         {
             return targetMode.TargetType == TargetType.AreaAroundCaster
                 || targetMode.TargetType == TargetType.All;
+        }
+
+        private static bool IsObjectPlacementOnlySkill(SkillData skill)
+        {
+            if (skill?.Effects == null || skill.Effects.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType != EffectType.CreateObject)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool IsSupportedTargetType(

@@ -67,7 +67,7 @@ namespace Godmist.Systems.Combat
         {
             foreach (var mapObject in session.MapObjects)
             {
-                if (mapObject == null || !mapObject.BlocksLineOfSight)
+                if (mapObject == null || !session.DoesObjectBlockLineOfSight(mapObject))
                 {
                     continue;
                 }

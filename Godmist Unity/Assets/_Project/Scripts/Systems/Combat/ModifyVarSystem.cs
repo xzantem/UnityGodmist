@@ -70,6 +70,64 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool ApplyFromSummonedObject(
+            BattleUnit source,
+            BattleUnit target,
+            GameplayVariableType variableType,
+            StatModifierStacking stacking,
+            float value,
+            int durationTurns,
+            string sourceId)
+        {
+            if (target?.Character == null || value == 0f)
+            {
+                return false;
+            }
+
+            var runtimeEffect = new PassiveEffectRuntime(
+                sourceId,
+                new List<PassiveEffectSourceRuntime>
+                {
+                    PassiveEffectSourceFactory.FromRuntimeSystem(source, sourceId)
+                },
+                1,
+                0,
+                0,
+                PassiveEffectLifetime.CombatScoped,
+                PassiveEffectTickPhase.None)
+            {
+                VariableModifiers = new List<GameplayVariableModifier>
+                {
+                    new()
+                    {
+                        VariableType = variableType,
+                        Stacking = stacking,
+                        Value = value
+                    }
+                }
+            };
+
+            return passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
+                target.Character,
+                runtimeEffect,
+                PassiveEffectStackingMode.ReplaceDurationAndValues,
+                out _);
+        }
+
+        public bool RemoveFromSummonedObject(
+            BattleUnit target,
+            string sourceId)
+        {
+            if (target?.Character == null || string.IsNullOrWhiteSpace(sourceId))
+            {
+                return false;
+            }
+
+            return passiveEffectLifecycleSystem.RemoveEffect(
+                target.Character,
+                sourceId);
+        }
+
         private static PassiveEffectRuntime CreateRuntimeEffect(
             BattleUnit source,
             SkillData skill,

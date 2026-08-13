@@ -62,6 +62,7 @@ namespace Godmist.Views.Combat
         private CombatInteractionSystem interactionSystem;
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
+        private SummonedObjectSystem summonedObjectSystem;
         private CharacterStatPipelineSystem statPipeline;
         private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
         private ModifyStatSystem modifyStatSystem;
@@ -78,7 +79,12 @@ namespace Godmist.Views.Combat
 
         private void Start()
         {
-            turnSystem = new CombatTurnSystem(AddBattleLog, HandleUnitTurnBegan, HandleUnitTurnEnded);
+            turnSystem = new CombatTurnSystem(
+                AddBattleLog,
+                HandleUnitTurnBegan,
+                HandleUnitTurnEnded,
+                HandleSummonedObjectTurnBegan,
+                HandleSummonedObjectTurnEnded);
             Session = CreateInitialSession();
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
@@ -115,13 +121,28 @@ namespace Godmist.Views.Combat
                 damageSystem,
                 passiveEffectLifecycleSystem);
             lineOfSightService = new CombatLineOfSightService();
+            summonedObjectSystem = new SummonedObjectSystem(
+                AddBattleLog,
+                HandleCombatMapObjectChanged,
+                new SummonedObjectEffectExecutor(
+                    AddBattleLog,
+                    damageSystem,
+                    recoverySystem,
+                    new CombatShieldSystem(AddBattleLog),
+                    statusEffectSystem,
+                    modifyStatSystem,
+                    modifyVarSystem));
             skillExecutionSystem = new SkillExecutionSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                statusEffectSystem, damageSystem, recoverySystem,
-                lineOfSightService: lineOfSightService, modifyStatSystem: modifyStatSystem,
-                modifyVarSystem: modifyVarSystem);
+                statusEffectSystem,
+                damageSystem,
+                recoverySystem,
+                lineOfSightService: lineOfSightService,
+                modifyStatSystem: modifyStatSystem,
+                modifyVarSystem: modifyVarSystem,
+                summonedObjectSystem: summonedObjectSystem);
             movementSystem = movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem, statusEffectSystem);
             interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
             interactionSystem.InitializeMapObjects(Session);
@@ -351,10 +372,17 @@ namespace Godmist.Views.Combat
             var removedWasActive = Session.ActiveUnit == removedUnit;
 
             Session.Units.Remove(removedUnit);
-            Session.TurnOrder.Remove(removedUnit);
+            Session.TurnParticipants ??= new();
+            Session.TurnParticipants?.RemoveAll(
+                participant => participant?.Unit == removedUnit);
+            Session.TurnOrder = Session.TurnParticipants
+                .Where(participant => participant?.Unit != null)
+                .Select(participant => participant.Unit)
+                .ToList();
 
-            if (Session.TurnOrder.Count == 0)
+            if (Session.TurnParticipants.Count == 0)
             {
+                Session.ActiveParticipant = null;
                 Session.ActiveUnit = null;
                 Session.ActiveTurnIndex = 0;
                 return;
@@ -362,12 +390,11 @@ namespace Godmist.Views.Combat
 
             if (removedWasActive)
             {
-                if (Session.ActiveTurnIndex >= Session.TurnOrder.Count)
-                {
-                    Session.ActiveTurnIndex = 0;
-                }
-
-                Session.ActiveUnit = Session.TurnOrder[Session.ActiveTurnIndex];
+                Session.ActiveParticipant = null;
+                Session.ActiveUnit = null;
+                Session.ActiveSummonedObject = null;
+                Session.ActiveTurnIndex = -1;
+                turnSystem.AdvanceTurn(Session);
             }
             else
             {
@@ -379,9 +406,17 @@ namespace Godmist.Views.Combat
                 }
                 else
                 {
-                    Session.ActiveTurnIndex = 0;
-                    Session.ActiveUnit = Session.TurnOrder[0];
+                    Session.ActiveUnit = Session.TurnOrder.Count > 0
+                        ? Session.TurnOrder[0]
+                        : null;
+                    Session.ActiveTurnIndex = Session.ActiveUnit == null
+                        ? -1
+                        : 0;
                 }
+
+                Session.ActiveParticipant = Session.TurnParticipants
+                    .FirstOrDefault(
+                        participant => participant?.Unit == Session.ActiveUnit);
             }
         }
         private void AddBattleLog(string message)
@@ -439,6 +474,41 @@ namespace Godmist.Views.Combat
         {
             statusEffectSystem?.ProcessTurnEnd(unit);
             CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
+        }
+
+        private void HandleSummonedObjectTurnBegan(
+            SummonedCombatMapObject summonedObject)
+        {
+            if (summonedObject == null || Session == null)
+            {
+                return;
+            }
+
+            AddBattleLog(
+                $"{summonedObject.Definition?.DisplayName ?? summonedObject.ObjectId} " +
+                "wykonuje automatyczna ture.");
+
+            summonedObjectSystem.ExecuteTurnEffects(
+                Session,
+                summonedObject);
+
+            turnSystem.EndActiveTurn(Session);
+        }
+
+        private void HandleSummonedObjectTurnEnded(
+            SummonedCombatMapObject summonedObject)
+        {
+            if (summonedObject == null || Session == null)
+            {
+                return;
+            }
+
+            if (!summonedObject.AdvanceDuration())
+            {
+                return;
+            }
+
+            summonedObjectSystem?.Remove(Session, summonedObject);
         }
 
         private bool IsActiveUnitHardCrowdControlled()
@@ -530,17 +600,24 @@ namespace Godmist.Views.Combat
                 Session.ActiveUnit,
                 path);
         }
-        public bool TryExecuteSkill(SkillData skill, GridPosition? selectedPosition)
+        public bool TryExecuteSkill(
+            SkillData skill,
+            GridPosition? selectedPosition)
         {
             if (skill?.TargetModes == null || skill.TargetModes.Count != 1)
             {
-                Debug.LogWarning($"Skill '{skill?.SkillId}' wymaga wielu celow." +
-                    $" Uzyj wariantu z selectedPositionsByModeIndex.");
+                Debug.LogWarning(
+                    $"Skill '{skill?.SkillId}' wymaga wielu celów. " +
+                    "Użyj wariantu z selectedPositionsByModeIndex.");
+
                 return false;
             }
 
-            var selectedPositionsByModeIndex = new Dictionary<int, GridPosition?>
-                { [0] = selectedPosition };
+            var selectedPositionsByModeIndex =
+                new Dictionary<int, GridPosition?>
+                {
+                    [0] = selectedPosition
+                };
 
             return TryExecuteSkill(skill, selectedPositionsByModeIndex);
         }
@@ -549,13 +626,30 @@ namespace Godmist.Views.Combat
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
         {
-            return TryExecuteSkill(skill, selectedPositionsByModeIndex, null);
+            return TryExecuteSkill(
+                skill,
+                selectedPositionsByModeIndex,
+                null,
+                null);
         }
 
         public bool TryExecuteSkill(
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             GridPosition? teleportDestination)
+        {
+            return TryExecuteSkill(
+                skill,
+                selectedPositionsByModeIndex,
+                teleportDestination,
+                null);
+        }
+
+        public bool TryExecuteSkill(
+            SkillData skill,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
+            GridPosition? teleportDestination,
+            GridPosition? objectPlacementDestination)
         {
             if (Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null)
@@ -576,26 +670,53 @@ namespace Godmist.Views.Combat
                 Session.ActiveUnit,
                 skill,
                 targetsByModeIndex,
-                teleportDestination);
+                teleportDestination,
+                objectPlacementDestination);
         }
 
-        private bool TryBuildSkillTargetGroups(SkillData skill, 
-            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex, 
+        private bool TryBuildSkillTargetGroups(
+            SkillData skill,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
-            targetsByModeIndex = new Dictionary<int, IReadOnlyList<BattleUnit>>();
+            targetsByModeIndex =
+                new Dictionary<int, IReadOnlyList<BattleUnit>>();
 
-            if (skill?.TargetModes == null || selectedPositionsByModeIndex == null) return false;
+            if (skill == null || selectedPositionsByModeIndex == null)
+            {
+                return false;
+            }
 
-            for (var targetModeIndex = 0; targetModeIndex < skill.TargetModes.Count; targetModeIndex++)
+            if (IsObjectPlacementOnlySkill(skill))
+            {
+                return true;
+            }
+
+            if (skill.TargetModes == null || skill.TargetModes.Count == 0)
+            {
+                return false;
+            }
+
+            for (var targetModeIndex = 0;
+                targetModeIndex < skill.TargetModes.Count;
+                targetModeIndex++)
             {
                 var targetMode = skill.TargetModes[targetModeIndex];
 
-                if (targetMode == null) return false;
-                    
-                if (!selectedPositionsByModeIndex.TryGetValue(targetModeIndex, out var selectedPosition))
+                if (targetMode == null)
                 {
-                    if (targetMode.TargetType != TargetType.Caster) return false;
+                    return false;
+                }
+
+                if (!selectedPositionsByModeIndex.TryGetValue(
+                        targetModeIndex,
+                        out var selectedPosition))
+                {
+                    if (targetMode.TargetType != TargetType.Caster)
+                    {
+                        return false;
+                    }
+
                     selectedPosition = null;
                 }
 
@@ -606,10 +727,14 @@ namespace Godmist.Views.Combat
                     selectedPosition);
 
                 if (targets.Count == 0
-                    && targetMode.TargetType != TargetType.AreaAroundTile) return false;
+                    && targetMode.TargetType != TargetType.AreaAroundTile)
+                {
+                    return false;
+                }
 
                 targetsByModeIndex.Add(targetModeIndex, targets);
             }
+
             return true;
         }
 
@@ -832,6 +957,67 @@ namespace Godmist.Views.Combat
             }
 
             return validPositions;
+        }
+
+        public IReadOnlyList<GridPosition> GetObjectPlacementPositions(
+            SkillData skill,
+            SkillEffectData createObjectEffect)
+        {
+            if (Session == null || Session.ActiveUnit == null
+                || skill == null || createObjectEffect == null
+                || createObjectEffect.SummonedObjectDefinition == null
+                || targetingService == null)
+            {
+                return Array.Empty<GridPosition>();
+            }
+
+            var positions = targetingService.GetPositionsInRange(
+                Session,
+                Session.ActiveUnit.Position,
+                createObjectEffect.ObjectPlacementRange);
+
+            var validPositions = new List<GridPosition>();
+
+            foreach (var position in positions)
+            {
+                if (!Session.Grid.IsWalkable(position)
+                    || Session.Grid.IsBlocked(position)
+                    || Session.IsPositionOccupiedByMapObject(position))
+                {
+                    continue;
+                }
+
+                if (skill.RequiresLineOfSight
+                    && !lineOfSightService.HasLineOfSight(
+                        Session,
+                        Session.ActiveUnit.Position,
+                        position))
+                {
+                    continue;
+                }
+
+                validPositions.Add(position);
+            }
+
+            return validPositions;
+        }
+
+        private static bool IsObjectPlacementOnlySkill(SkillData skill)
+        {
+            if (skill?.Effects == null || skill.Effects.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType != EffectType.CreateObject)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool IsOccupiedByLivingUnit(GridPosition position)

@@ -23,12 +23,13 @@ namespace Godmist.Systems.Combat
         private readonly ModifyVarSystem modifyVarSystem;
         private readonly CombatChargeSystem chargeSystem;
         private readonly CombatTeleportSystem teleportSystem;
+        private readonly SummonedObjectSystem summonedObjectSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
             Action<BattleUnit> removeUnitFromCombat = null,
             Action<CombatSession> evaluateOutcome = null,
-            StatusEffectSystem statusEffectSystem = null, 
+            StatusEffectSystem statusEffectSystem = null,
             CombatDamageSystem damageSystem = null,
             CombatRecoverySystem recoverySystem = null,
             CombatShieldSystem shieldSystem = null,
@@ -36,21 +37,47 @@ namespace Godmist.Systems.Combat
             ModifyStatSystem modifyStatSystem = null,
             ModifyVarSystem modifyVarSystem = null,
             CombatChargeSystem chargeSystem = null,
-            CombatTeleportSystem teleportSystem = null)
+            CombatTeleportSystem teleportSystem = null,
+            SummonedObjectSystem summonedObjectSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
             this.evaluateOutcome = evaluateOutcome;
             this.statusEffectSystem = statusEffectSystem;
-            this.damageSystem = damageSystem ?? 
-                new CombatDamageSystem(battleLog, evaluateOutcome, removeUnitFromCombat);
-            this.recoverySystem = recoverySystem ?? new CombatRecoverySystem(battleLog);
-            this.shieldSystem = shieldSystem ?? new CombatShieldSystem(battleLog);
-            this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
-            this.modifyStatSystem = modifyStatSystem ?? new ModifyStatSystem();
-            this.modifyVarSystem = modifyVarSystem ?? new ModifyVarSystem();
-            this.chargeSystem = chargeSystem ?? new CombatChargeSystem(battleLog, this.statusEffectSystem);
-            this.teleportSystem = teleportSystem ?? new CombatTeleportSystem(battleLog, this.lineOfSightService);
+
+            this.damageSystem = damageSystem
+                ?? new CombatDamageSystem(
+                    battleLog,
+                    evaluateOutcome,
+                    removeUnitFromCombat);
+
+            this.recoverySystem = recoverySystem
+                ?? new CombatRecoverySystem(battleLog);
+
+            this.shieldSystem = shieldSystem
+                ?? new CombatShieldSystem(battleLog);
+
+            this.lineOfSightService = lineOfSightService
+                ?? new CombatLineOfSightService();
+
+            this.modifyStatSystem = modifyStatSystem
+                ?? new ModifyStatSystem();
+
+            this.modifyVarSystem = modifyVarSystem
+                ?? new ModifyVarSystem();
+
+            this.chargeSystem = chargeSystem
+                ?? new CombatChargeSystem(
+                    battleLog,
+                    this.statusEffectSystem);
+
+            this.teleportSystem = teleportSystem
+                ?? new CombatTeleportSystem(
+                    battleLog,
+                    this.lineOfSightService);
+
+            this.summonedObjectSystem = summonedObjectSystem
+                ?? new SummonedObjectSystem(battleLog);
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -95,37 +122,89 @@ namespace Godmist.Systems.Combat
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
             GridPosition? teleportDestination)
         {
+            return TryExecute(
+                session,
+                caster,
+                skill,
+                targetsByModeIndex,
+                teleportDestination,
+                null);
+        }
+
+        public bool TryExecute(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            GridPosition? teleportDestination,
+            GridPosition? objectPlacementDestination)
+        {
             if (!CanExecute(
                     session,
                     caster,
                     skill,
                     targetsByModeIndex,
-                    teleportDestination)) return false;
+                    teleportDestination,
+                    objectPlacementDestination))
+            {
+                return false;
+            }
 
-            var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+            var actionCost =
+                CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
             caster.CurrentActionPoints -= actionCost;
             caster.Character.ResourcePool?.Drain(skill.ResourceCost);
 
             battleLog?.Invoke(
-                $"{caster.Character.Definition.DisplayName} używa {skill.DisplayName}.");
+                $"{caster.Character.Definition.DisplayName} uses {skill.DisplayName}.");
 
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
                 new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
 
-            for (var effectIndex = 0; effectIndex < skill.Effects.Count; effectIndex++)
+            for (var effectIndex = 0;
+                effectIndex < skill.Effects.Count;
+                effectIndex++)
             {
                 var effect = skill.Effects[effectIndex];
+
+                if (effect.EffectType == EffectType.CreateObject)
+                {
+                    var resultsForEffect =
+                        new Dictionary<BattleUnit, EffectExecutionResult>();
+
+                    var created = summonedObjectSystem.TryCreate(
+                        session,
+                        caster,
+                        skill,
+                        effect,
+                        effectIndex,
+                        objectPlacementDestination.Value,
+                        out _);
+
+                    resultsForEffect[caster] =
+                        new EffectExecutionResult
+                        {
+                            Succeeded = created
+                        };
+
+                    resultsByEffectIndex[effectIndex] = resultsForEffect;
+                    continue;
+                }
+
                 var targets = targetsByModeIndex[effect.TargetModeIndex];
 
-                var resultsForEffect =
+                var resultsForNormalEffect =
                     new Dictionary<BattleUnit, EffectExecutionResult>();
 
                 foreach (var target in targets)
                 {
                     if (target?.Character == null
-                        || target.Character.LifeState == CharacterLifeState.Dead) continue;
+                        || target.Character.LifeState == CharacterLifeState.Dead)
+                    {
+                        continue;
+                    }
 
                     if (!ShouldExecuteEffect(
                             effect,
@@ -133,20 +212,28 @@ namespace Godmist.Systems.Combat
                             target,
                             resultsByEffectIndex))
                     {
-                        resultsForEffect[target] = EffectExecutionResult.None;
+                        resultsForNormalEffect[target] =
+                            EffectExecutionResult.None;
+
                         continue;
                     }
 
                     var wasHit = !RequiresHitRoll(effect)
-                        || ResolveTargetHit(caster, target, skill, hitByTarget);
+                        || ResolveTargetHit(
+                            caster,
+                            target,
+                            skill,
+                            hitByTarget);
 
                     if (!wasHit)
                     {
-                        resultsForEffect[target] = EffectExecutionResult.None;
+                        resultsForNormalEffect[target] =
+                            EffectExecutionResult.None;
+
                         continue;
                     }
 
-                    resultsForEffect[target] = ExecuteEffect(
+                    resultsForNormalEffect[target] = ExecuteEffect(
                         session,
                         caster,
                         target,
@@ -157,7 +244,8 @@ namespace Godmist.Systems.Combat
                         teleportDestination);
                 }
 
-                resultsByEffectIndex[effectIndex] = resultsForEffect;
+                resultsByEffectIndex[effectIndex] =
+                    resultsForNormalEffect;
             }
 
             if (IsOffensiveSkill(skill))
@@ -170,6 +258,7 @@ namespace Godmist.Systems.Combat
             CombatTurnSystem.RefreshMaxActionPoints(session);
             return true;
         }
+
         private EffectExecutionResult ExecuteEffect(
             CombatSession session,
             BattleUnit caster,
@@ -600,19 +689,26 @@ namespace Godmist.Systems.Combat
             return targetMode?.TargetType == TargetType.AreaAroundTile;
         }
 
-        private bool CanExecute(CombatSession session, BattleUnit caster, SkillData skill, 
+        private bool CanExecute(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
-            GridPosition? teleportDestination)
+            GridPosition? teleportDestination,
+            GridPosition? objectPlacementDestination)
         {
-            if (session == null || caster?.Character == null || skill == null || targetsByModeIndex == null 
-                || caster.Character.LifeState != CharacterLifeState.Alive) return false;
+            if (session == null || caster?.Character == null
+                || skill == null || targetsByModeIndex == null
+                || caster.Character.LifeState != CharacterLifeState.Alive)
+            {
+                return false;
+            }
 
             if (StatusEffectSystem.IsImmobilized(caster)
                 && ContainsMobilityEffect(skill))
             {
                 battleLog?.Invoke(
-                    $"{caster.Character.Definition.DisplayName} nie może użyć ruchowego skilla "
-                    + "przez unieruchomienie.");
+                    $"{caster.Character.Definition.DisplayName} cannot use a mobility skill while immobilized.");
 
                 return false;
             }
@@ -620,145 +716,235 @@ namespace Godmist.Systems.Combat
             if (StatusEffectSystem.IsHardCrowdControlled(caster))
             {
                 battleLog?.Invoke(
-                    $"{caster.Character.Definition.DisplayName} " +
-                    "nie może użyć umiejętności przez status kontroli.");
+                    $"{caster.Character.Definition.DisplayName} cannot use skills while crowd controlled.");
 
                 return false;
             }
 
-            if (session.Outcome != CombatOutcomeState.Ongoing || session.ActiveUnit != caster
-                || !session.Units.Contains(caster)) return false;
-
-            if (skill.TargetModes == null || skill.TargetModes.Count == 0)
+            if (session.Outcome != CombatOutcomeState.Ongoing
+                || session.ActiveUnit != caster
+                || !session.Units.Contains(caster))
             {
-                Debug.LogWarning($"Skill '{skill.SkillId}' nie ma trybow celu.");
                 return false;
             }
 
-            var hasTaunter = StatusEffectSystem.TryGetTaunter(
-                session,
-                caster,
-                out var taunter);
-
-            for (var targetModeIndex = 0; targetModeIndex < skill.TargetModes.Count; targetModeIndex++)
+            if (skill.Effects == null || skill.Effects.Count == 0)
             {
-                var targetMode = skill.TargetModes[targetModeIndex];
+                Debug.LogWarning($"Skill '{skill.SkillId}' has no effects.");
+                return false;
+            }
 
-                if (targetMode == null)
+            var isObjectPlacementOnlySkill = IsObjectPlacementOnlySkill(skill);
+
+            if (!isObjectPlacementOnlySkill
+                && (skill.TargetModes == null || skill.TargetModes.Count == 0))
+            {
+                Debug.LogWarning($"Skill '{skill.SkillId}' has no target modes.");
+                return false;
+            }
+
+            if (!isObjectPlacementOnlySkill)
+            {
+                var hasTaunter = StatusEffectSystem.TryGetTaunter(
+                    session,
+                    caster,
+                    out var taunter);
+
+                for (var targetModeIndex = 0;
+                    targetModeIndex < skill.TargetModes.Count;
+                    targetModeIndex++)
                 {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' ma pusty tryb celu.");
-                    return false;
-                }
+                    var targetMode = skill.TargetModes[targetModeIndex];
 
-                if (!targetsByModeIndex.TryGetValue(targetModeIndex, out var targets)
-                    || targets == null
-                    || (!CanResolveWithoutUnitTargets(targetMode)
-                        && targets.Count == 0))
-                {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' nie ma celow dla trybu celu {targetModeIndex}.");
-                    return false;
-                }
-
-                if (hasTaunter
-                    && targetMode.TargetingType == TargetingType.Enemies
-                    && !ContainsTarget(targets, taunter))
-                {
-                    battleLog?.Invoke(
-                        $"{caster.Character.Definition.DisplayName} musi objąć Tauntem " +
-                        $"{taunter.Character.Definition.DisplayName}.");
-
-                    return false;
-                }
-
-                var canHealDownedTarget = CanTargetModeIncludeDownedTargets(skill, targetModeIndex);
-
-                foreach (var target in targets)
-                {
-                    if (target?.Character == null || !session.Units.Contains(target) 
-                        || target.Character.LifeState == CharacterLifeState.Dead) return false;
-
-                    if (targetMode.TargetType == TargetType.Single
-                        && StatusEffectSystem.IsInvisible(target)
-                        && target.IsPlayerSide != caster.IsPlayerSide)
+                    if (targetMode == null)
                     {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' has an empty target mode.");
+
                         return false;
                     }
 
-                    if (targetMode.TargetType == TargetType.All
-                        && StatusEffectSystem.IsInvisible(target))
+                    if (!targetsByModeIndex.TryGetValue(
+                            targetModeIndex,
+                            out var targets)
+                        || targets == null
+                        || (!CanResolveWithoutUnitTargets(targetMode)
+                            && targets.Count == 0))
                     {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' has no targets for target mode {targetModeIndex}.");
+
                         return false;
                     }
 
-                    if (StatusEffectSystem.IsParalyzed(target))
+                    if (hasTaunter
+                        && targetMode.TargetingType == TargetingType.Enemies
+                        && !ContainsTarget(targets, taunter))
                     {
                         battleLog?.Invoke(
-                            $"{target.Character.Definition.DisplayName} " +
-                            "jest sparaliżowana i nie może być celem.");
+                            $"{caster.Character.Definition.DisplayName} must include " +
+                            $"{taunter.Character.Definition.DisplayName} because of Taunt.");
 
                         return false;
                     }
 
-                    if (skill.RequiresLineOfSight && !lineOfSightService.HasLineOfSight(session, caster.Position, 
-                    target.Position))
+                    var canTargetDowned =
+                        CanTargetModeIncludeDownedTargets(
+                            skill,
+                            targetModeIndex);
+
+                    foreach (var target in targets)
                     {
-                        battleLog?.Invoke("Brak linii widzenia do celu.");
+                        if (target?.Character == null
+                            || !session.Units.Contains(target)
+                            || target.Character.LifeState == CharacterLifeState.Dead)
+                        {
+                            return false;
+                        }
+
+                        if (targetMode.TargetType == TargetType.Single
+                            && StatusEffectSystem.IsInvisible(target)
+                            && target.IsPlayerSide != caster.IsPlayerSide)
+                        {
+                            return false;
+                        }
+
+                        if (targetMode.TargetType == TargetType.All
+                            && StatusEffectSystem.IsInvisible(target))
+                        {
+                            return false;
+                        }
+
+                        if (StatusEffectSystem.IsParalyzed(target))
+                        {
+                            battleLog?.Invoke(
+                                $"{target.Character.Definition.DisplayName} cannot be targeted while paralyzed.");
+
+                            return false;
+                        }
+
+                        if (skill.RequiresLineOfSight
+                            && !lineOfSightService.HasLineOfSight(
+                                session,
+                                caster.Position,
+                                target.Position))
+                        {
+                            battleLog?.Invoke("No line of sight to target.");
+                            return false;
+                        }
+
+                        if (target.Character.LifeState == CharacterLifeState.Downed
+                            && !canTargetDowned)
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                foreach (var targetModeIndex in targetsByModeIndex.Keys)
+                {
+                    if (targetModeIndex < 0
+                        || targetModeIndex >= skill.TargetModes.Count)
+                    {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' received an unknown target mode index {targetModeIndex}.");
+
                         return false;
                     }
-
-                    if (target.Character.LifeState == CharacterLifeState.Downed && !canHealDownedTarget) return false;
                 }
             }
 
-            foreach (var targetModeIndex in targetsByModeIndex.Keys)
-            {
-                if (targetModeIndex < 0 || targetModeIndex >= skill.TargetModes.Count)
-                {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' otrzymal nieznany indeks trybu celu {targetModeIndex}.");
-                    return false;
-                }
-            }
-
-            var actionCost =CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+            var actionCost =
+                CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
             if (caster.CurrentActionPoints < actionCost)
             {
-                battleLog?.Invoke("Brak wystarczajacej liczby AP.");
-                return false;
-            }
-            if (skill.ResourceCost > 0 && caster.Character.ResourcePool == null)
-            {
-                Debug.LogWarning($"Skill '{skill.SkillId}' nie ma wymaganego resource pool.");
-                return false;
-            }
-            if (skill.ResourceCost > 0 && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
-            {
-                Debug.LogWarning($"Skill '{skill.SkillId}' uzywa niezgodnego rodzaju zasobu.");
-                return false;
-            }
-            if (caster.Character.ResourcePool != null && caster.Character.ResourcePool.CurrentValue < skill.ResourceCost)
-            {
-                battleLog?.Invoke("Brak wystarczajacego zasobu.");
-                return false;
-            }
-            if (skill.Effects == null || skill.Effects.Count == 0)
-            {
-                Debug.LogWarning($"Skill '{skill.SkillId}' nie ma zadnych efektow.");
+                battleLog?.Invoke("Not enough AP.");
                 return false;
             }
 
-            for (var effectIndex = 0; effectIndex < skill.Effects.Count; effectIndex++)
+            if (skill.ResourceCost > 0
+                && caster.Character.ResourcePool == null)
+            {
+                Debug.LogWarning(
+                    $"Skill '{skill.SkillId}' requires a resource pool.");
+
+                return false;
+            }
+
+            if (skill.ResourceCost > 0
+                && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
+            {
+                Debug.LogWarning(
+                    $"Skill '{skill.SkillId}' uses an incompatible resource type.");
+
+                return false;
+            }
+
+            if (caster.Character.ResourcePool != null
+                && caster.Character.ResourcePool.CurrentValue < skill.ResourceCost)
+            {
+                battleLog?.Invoke("Not enough resource.");
+                return false;
+            }
+
+            for (var effectIndex = 0;
+                effectIndex < skill.Effects.Count;
+                effectIndex++)
             {
                 var effect = skill.Effects[effectIndex];
+
                 if (effect == null)
                 {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' zawiera pusty efekt.");
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' contains an empty effect.");
+
                     return false;
                 }
 
-                if (effect.TargetModeIndex < 0 || effect.TargetModeIndex >= skill.TargetModes.Count)
+                if (effect.EffectType == EffectType.CreateObject)
                 {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' ma efekt wskazujacy nieznany indeks trybu celu {effect.TargetModeIndex}.");
+                    if (!isObjectPlacementOnlySkill)
+                    {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' mixes CreateObject with normal target effects. " +
+                            "This is not supported in v1.");
+
+                        return false;
+                    }
+
+                    if (effect.SummonedObjectDefinition == null
+                        || !objectPlacementDestination.HasValue
+                        || !IsValidObjectPlacement(
+                            session,
+                            caster,
+                            skill,
+                            effect,
+                            objectPlacementDestination.Value))
+                    {
+                        return false;
+                    }
+
+                    if (effect.Conditions != null
+                        && effect.Conditions.Count > 0)
+                    {
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' uses conditions on CreateObject. " +
+                            "This is not supported in v1.");
+
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                if (skill.TargetModes == null
+                    || effect.TargetModeIndex < 0
+                    || effect.TargetModeIndex >= skill.TargetModes.Count)
+                {
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' has an effect with an invalid target mode index.");
+
                     return false;
                 }
 
@@ -766,7 +952,7 @@ namespace Godmist.Systems.Combat
                     && Mathf.Approximately(effect.ModifierValue, 0f))
                 {
                     Debug.LogWarning(
-                        $"Skill '{skill.SkillId}' ma ModifyStat z wartością 0.");
+                        $"Skill '{skill.SkillId}' has ModifyStat with value 0.");
 
                     return false;
                 }
@@ -775,14 +961,17 @@ namespace Godmist.Systems.Combat
                     && Mathf.Approximately(effect.ModifierValue, 0f))
                 {
                     Debug.LogWarning(
-                        $"Skill '{skill.SkillId}' ma ModifyVar z wartością 0.");
+                        $"Skill '{skill.SkillId}' has ModifyVar with value 0.");
 
                     return false;
                 }
 
-                if (effect.EffectType == EffectType.ApplyStatus && string.IsNullOrWhiteSpace(effect.StatusId))
+                if (effect.EffectType == EffectType.ApplyStatus
+                    && string.IsNullOrWhiteSpace(effect.StatusId))
                 {
-                    Debug.LogWarning($"Skill '{skill.SkillId}' nie ma statusId.");
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' has ApplyStatus without a status ID.");
+
                     return false;
                 }
 
@@ -818,30 +1007,37 @@ namespace Godmist.Systems.Combat
                     }
                 }
 
-                if (effect.Conditions == null) continue;
+                if (effect.Conditions == null)
+                {
+                    continue;
+                }
 
                 foreach (var condition in effect.Conditions)
                 {
                     if (condition == null)
                     {
-                        Debug.LogWarning($"Skill '{skill.SkillId}' zawiera pusty warunek efektu.");
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' contains an empty effect condition.");
+
                         return false;
                     }
-                    if (ConditionRequiresStatusId(condition.ConditionType) && string.IsNullOrWhiteSpace(condition.StatusId))
+
+                    if (ConditionRequiresStatusId(condition.ConditionType)
+                        && string.IsNullOrWhiteSpace(condition.StatusId))
                     {
-                        Debug.LogWarning($"Skill '{skill.SkillId}' ma warunek statusu bez statusId.");
+                        Debug.LogWarning(
+                            $"Skill '{skill.SkillId}' has a status condition without a status ID.");
+
                         return false;
                     }
+
                     if (ConditionRequiresEffectReference(condition.ConditionType)
                         && (condition.ReferencedEffectIndex < 0
                             || condition.ReferencedEffectIndex >= effectIndex))
                     {
                         Debug.LogWarning(
-                            $"Skill '{skill.SkillId}' ma warunek efektu " +
-                            $"wskazujący niepoprawny indeks " +
-                            $"{condition.ReferencedEffectIndex}. " +
-                            $"Warunek efektu {effectIndex} może wskazywać wyłącznie " +
-                            "wcześniejszy efekt.");
+                            $"Skill '{skill.SkillId}' has an invalid referenced effect index " +
+                            $"{condition.ReferencedEffectIndex} in effect {effectIndex}.");
 
                         return false;
                     }
@@ -850,6 +1046,66 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
+
+        private bool IsValidObjectPlacement(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            SkillEffectData effect,
+            GridPosition position)
+        {
+            if (session?.Grid == null
+                || caster == null
+                || effect?.SummonedObjectDefinition == null)
+            {
+                return false;
+            }
+
+            if (!session.Grid.IsWalkable(position)
+                || session.Grid.IsBlocked(position)
+                || session.IsPositionOccupiedByMapObject(position))
+            {
+                return false;
+            }
+
+            if (!CombatTargetingService.IsPositionWithinRange(
+                    caster.Position,
+                    position,
+                    effect.ObjectPlacementRange))
+            {
+                return false;
+            }
+
+            if (skill.RequiresLineOfSight
+                && !lineOfSightService.HasLineOfSight(
+                    session,
+                    caster.Position,
+                    position))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsObjectPlacementOnlySkill(SkillData skill)
+        {
+            if (skill?.Effects == null || skill.Effects.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType != EffectType.CreateObject)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        
         private static bool CanTargetModeIncludeDownedTargets(
             SkillData skill,
             int targetModeIndex)

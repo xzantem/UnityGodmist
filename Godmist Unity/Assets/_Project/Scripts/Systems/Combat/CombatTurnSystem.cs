@@ -13,15 +13,21 @@ namespace Godmist.Systems.Combat
         private readonly Action<string> battleLog;
         private readonly Action<BattleUnit> onUnitTurnBegan;
         private readonly Action<BattleUnit> onUnitTurnEnded;
+        private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnBegan;
+        private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnEnded;
 
         public CombatTurnSystem(
             Action<string> battleLog = null,
             Action<BattleUnit> onUnitTurnBegan = null,
-            Action<BattleUnit> onUnitTurnEnded = null)
+            Action<BattleUnit> onUnitTurnEnded = null,
+            Action<SummonedCombatMapObject> onSummonedObjectTurnBegan = null,
+            Action<SummonedCombatMapObject> onSummonedObjectTurnEnded = null)
         {
             this.battleLog = battleLog;
             this.onUnitTurnBegan = onUnitTurnBegan;
             this.onUnitTurnEnded = onUnitTurnEnded;
+            this.onSummonedObjectTurnBegan = onSummonedObjectTurnBegan;
+            this.onSummonedObjectTurnEnded = onSummonedObjectTurnEnded;
         }
 
         public void InitializeTurnOrder(CombatSession session)
@@ -31,150 +37,198 @@ namespace Godmist.Systems.Combat
                 return;
             }
 
-            session.TurnOrder = session.Units
+            session.TurnParticipants ??= new();
+            session.SummonedObjects ??= new();
+
+            session.TurnParticipants = session.Units
                 .Where(IsScheduledUnit)
+                .Select(unit => new CombatTurnParticipant(unit))
+                .Concat(session.SummonedObjects
+                    .Where(IsScheduledSummonedObject)
+                    .Select(summonedObject => new CombatTurnParticipant(summonedObject)))
                 .ToList();
 
-            foreach (var unit in session.TurnOrder)
+            foreach (var participant in session.TurnParticipants)
             {
-                unit.CurrentActionValue =
-                    CalculateBaseActionValue(unit);
+                participant.CurrentActionValue =
+                    CalculateBaseActionValue(participant);
             }
 
-            session.ActiveUnit = null;
-            session.ActiveTurnIndex = -1;
-
+            ClearActiveParticipant(session);
+            SyncLegacyState(session);
             AdvanceTurn(session);
         }
 
         public void EndActiveTurn(CombatSession session)
         {
-            if (session?.ActiveUnit == null || session.Outcome != CombatOutcomeState.Ongoing) return;
-
-            if (!IsAlive(session.ActiveUnit))
+            if (session == null
+                || session.Outcome != CombatOutcomeState.Ongoing)
             {
-                AdvanceTurn(session);
                 return;
             }
 
-            battleLog?.Invoke($"{session.ActiveUnit.Character.Definition.DisplayName} konczy ture");
+            EnsureActiveParticipant(session);
+            var participant = session.ActiveParticipant;
 
-            onUnitTurnEnded?.Invoke(session.ActiveUnit);
+            if (participant == null)
+            {
+                return;
+            }
 
-            session.ActiveUnit.CurrentActionValue = CalculateBaseActionValue(session.ActiveUnit);
+            if (participant.IsUnit)
+            {
+                if (!IsAlive(participant.Unit))
+                {
+                    ClearActiveParticipant(session);
+                    AdvanceTurn(session);
+                    return;
+                }
 
-            session.ActiveUnit = null;
+                battleLog?.Invoke(
+                    $"{participant.Unit.Character.Definition.DisplayName} konczy ture");
 
+                onUnitTurnEnded?.Invoke(participant.Unit);
+                participant.CurrentActionValue =
+                    CalculateBaseActionValue(participant);
+            }
+            else if (participant.IsSummonedObject)
+            {
+                battleLog?.Invoke(
+                    $"{participant.SummonedObject.Definition?.DisplayName ?? participant.SummonedObject.ObjectId} " +
+                    "konczy ture");
+
+                onSummonedObjectTurnEnded?.Invoke(participant.SummonedObject);
+
+                if (IsScheduledSummonedObject(participant.SummonedObject))
+                {
+                    participant.CurrentActionValue =
+                        CalculateBaseActionValue(participant);
+                }
+            }
+
+            ClearActiveParticipant(session);
             AdvanceTurn(session);
         }
 
         public void AdvanceTurn(CombatSession session)
         {
             if (session == null
-                || session.Outcome
-                    != CombatOutcomeState.Ongoing)
+                || session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return;
             }
 
-            RemoveDeadUnitsFromTurnOrder(session);
+            EnsureParticipants(session);
+            RemoveExpiredParticipants(session);
 
-            if (session.TurnOrder.Count == 0)
+            if (session.TurnParticipants.Count == 0)
             {
-                session.ActiveUnit = null;
-                session.ActiveTurnIndex = -1;
+                ClearActiveParticipant(session);
                 return;
             }
 
-            while (session.TurnOrder.Count > 0)
+            while (session.TurnParticipants.Count > 0)
             {
-                var nextUnit =
-                    FindNextScheduledUnit(session);
+                var nextParticipant = FindNextScheduledParticipant(session);
 
-                if (nextUnit == null)
+                if (nextParticipant == null)
                 {
-                    session.ActiveUnit = null;
-                    session.ActiveTurnIndex = -1;
+                    ClearActiveParticipant(session);
                     return;
                 }
 
-                var elapsedActionValue =
-                    Math.Max(0f, nextUnit.CurrentActionValue);
+                var elapsedActionValue = Math.Max(
+                    0f,
+                    nextParticipant.CurrentActionValue);
 
-                ReduceActionValues(
-                    session,
-                    elapsedActionValue);
+                ReduceActionValues(session, elapsedActionValue);
+                nextParticipant.CurrentActionValue = 0f;
 
-                nextUnit.CurrentActionValue = 0f;
-
-                if (nextUnit.Character.LifeState
-                    == CharacterLifeState.Downed)
+                if (nextParticipant.IsUnit
+                    && nextParticipant.Unit.Character.LifeState == CharacterLifeState.Downed)
                 {
-                    var wasRemoved =
-                        ProcessDownedTurn(session, nextUnit);
+                    var wasRemoved = ProcessDownedTurn(
+                        session,
+                        nextParticipant.Unit);
 
                     if (wasRemoved)
                     {
-                        RemoveDeadUnitsFromTurnOrder(
-                            session);
-
-                        if (session.TurnOrder.Count == 0)
-                        {
-                            session.ActiveUnit = null;
-                            session.ActiveTurnIndex = -1;
-                            return;
-                        }
-
+                        RemoveExpiredParticipants(session);
                         continue;
                     }
 
-                    nextUnit.CurrentActionValue =
-                        CalculateBaseActionValue(nextUnit);
+                    nextParticipant.CurrentActionValue =
+                        CalculateBaseActionValue(nextParticipant);
 
-                    SortTurnOrderByActionValue(session);
+                    SortTurnParticipants(session);
                     continue;
                 }
 
-                if (!IsAlive(nextUnit))
+                if (nextParticipant.IsUnit && !IsAlive(nextParticipant.Unit))
                 {
-                    RemoveDeadUnitsFromTurnOrder(session);
+                    RemoveExpiredParticipants(session);
                     continue;
                 }
 
-                session.ActiveUnit = nextUnit;
+                if (nextParticipant.IsSummonedObject
+                    && !IsScheduledSummonedObject(nextParticipant.SummonedObject))
+                {
+                    RemoveExpiredParticipants(session);
+                    continue;
+                }
 
-                SortTurnOrderByActionValue(session);
-
-                BeginActiveTurn(
-                    session,
-                    nextUnit);
-
+                session.ActiveParticipant = nextParticipant;
+                SyncLegacyState(session);
+                SortTurnParticipants(session);
+                BeginActiveTurn(session, nextParticipant);
                 return;
             }
 
-            session.ActiveUnit = null;
-            session.ActiveTurnIndex = -1;
+            ClearActiveParticipant(session);
         }
 
-        public void BeginActiveTurn(
-            CombatSession session,
-            BattleUnit unit)
+        public void BeginActiveTurn(CombatSession session, BattleUnit unit)
         {
-            if (session == null
-                || !IsAlive(unit))
+            if (session == null || !IsAlive(unit))
+            {
+                return;
+            }
+
+            BeginActiveTurn(session, new CombatTurnParticipant(unit));
+        }
+
+        private void BeginActiveTurn(
+            CombatSession session,
+            CombatTurnParticipant participant)
+        {
+            if (participant.IsUnit)
+            {
+                var unit = participant.Unit;
+
+                battleLog?.Invoke(
+                    $"Tura: {unit.Character.Definition.DisplayName}");
+
+                RefreshMaxActionPoints(
+                    session,
+                    unit,
+                    refillCurrentActionPoints: true);
+
+                unit.HasReacted = false;
+                unit.MovementStepsThisTurn = 0;
+                onUnitTurnBegan?.Invoke(unit);
+                return;
+            }
+
+            if (!participant.IsSummonedObject)
             {
                 return;
             }
 
             battleLog?.Invoke(
-                $"Tura: {unit.Character.Definition.DisplayName}");
+                $"Tura: {participant.SummonedObject.Definition?.DisplayName ?? participant.SummonedObject.ObjectId}");
 
-            RefreshMaxActionPoints(session, unit, refillCurrentActionPoints: true);
-
-            unit.HasReacted = false;
-            unit.MovementStepsThisTurn = 0;
-
-            onUnitTurnBegan?.Invoke(unit);
+            onSummonedObjectTurnBegan?.Invoke(
+                participant.SummonedObject);
         }
 
         public int CalculateMaxActionPoints(
@@ -186,8 +240,7 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            var speed =
-                character.Stats.Speed.GetValue();
+            var speed = character.Stats.Speed.GetValue();
 
             return UnityEngine.Mathf.Max(
                 0,
@@ -214,7 +267,9 @@ namespace Godmist.Systems.Combat
             unit.MaxActionPoints = maxActionPoints;
             unit.CurrentActionPoints = refillCurrentActionPoints
                 ? maxActionPoints
-                : UnityEngine.Mathf.Min(unit.CurrentActionPoints, maxActionPoints);
+                : UnityEngine.Mathf.Min(
+                    unit.CurrentActionPoints,
+                    maxActionPoints);
         }
 
         public static void RefreshMaxActionPoints(
@@ -235,12 +290,12 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        private static BattleUnit FindNextScheduledUnit(
+        private static CombatTurnParticipant FindNextScheduledParticipant(
             CombatSession session)
         {
-            return session.TurnOrder
-                .Where(IsScheduledUnit)
-                .OrderBy(unit => unit.CurrentActionValue)
+            return session.TurnParticipants
+                .Where(IsScheduledParticipant)
+                .OrderBy(participant => participant.CurrentActionValue)
                 .FirstOrDefault();
         }
 
@@ -248,94 +303,89 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             float amount)
         {
-            foreach (var unit in session.TurnOrder)
+            foreach (var participant in session.TurnParticipants)
             {
-                if (!IsScheduledUnit(unit))
+                if (!IsScheduledParticipant(participant))
                 {
                     continue;
                 }
 
-                unit.CurrentActionValue =
-                    UnityEngine.Mathf.Max(
-                        0f,
-                        unit.CurrentActionValue - amount);
+                participant.CurrentActionValue = UnityEngine.Mathf.Max(
+                    0f,
+                    participant.CurrentActionValue - amount);
             }
         }
 
-        private static void SortTurnOrderByActionValue(
-            CombatSession session)
+        private static void SortTurnParticipants(CombatSession session)
         {
-            session.TurnOrder = session.TurnOrder
-                .Where(IsScheduledUnit)
-                .OrderBy(unit => unit.CurrentActionValue)
+            session.TurnParticipants = session.TurnParticipants
+                .Where(IsScheduledParticipant)
+                .OrderBy(participant => participant.CurrentActionValue)
                 .ToList();
 
-            session.ActiveTurnIndex =
-                session.ActiveUnit == null
-                    ? -1
-                    : session.TurnOrder.IndexOf(
-                        session.ActiveUnit);
+            SyncLegacyState(session);
         }
 
-        private static void RemoveDeadUnitsFromTurnOrder(
-            CombatSession session)
+        private static void RemoveExpiredParticipants(CombatSession session)
         {
-            session.TurnOrder.RemoveAll(
-                unit => unit == null
-                    || unit.Character == null
-                    || unit.Character.LifeState
-                        == CharacterLifeState.Dead);
+            session.TurnParticipants.RemoveAll(
+                participant => !IsScheduledParticipant(participant));
 
-            session.ActiveTurnIndex =
-                session.ActiveUnit == null
-                    ? -1
-                    : session.TurnOrder.IndexOf(
-                        session.ActiveUnit);
+            SyncLegacyState(session);
         }
 
         private static float CalculateBaseActionValue(
-            BattleUnit unit)
+            CombatTurnParticipant participant)
         {
-            var speed =
-                unit.Character.Stats.Speed.GetValue();
+            var speed = participant.IsUnit
+                ? participant.Unit.Character.Stats.Speed.GetValue()
+                : participant.SummonedObject.Definition.TurnSpeed;
 
-            speed = UnityEngine.Mathf.Max(
-                0.01f,
-                speed);
-
+            speed = UnityEngine.Mathf.Max(0.01f, speed);
             return BaseActionValue / speed;
         }
 
-        private static bool IsScheduledUnit(
-            BattleUnit unit)
+        private static bool IsScheduledParticipant(
+            CombatTurnParticipant participant)
         {
-            return unit?.Character != null
-                && unit.Character.LifeState
-                    != CharacterLifeState.Dead;
+            return participant != null
+                && ((participant.IsUnit && IsScheduledUnit(participant.Unit))
+                    || (participant.IsSummonedObject
+                        && IsScheduledSummonedObject(participant.SummonedObject)));
         }
 
-        private static bool IsAlive(
-            BattleUnit unit)
+        private static bool IsScheduledUnit(BattleUnit unit)
         {
             return unit?.Character != null
-                && unit.Character.LifeState
-                    == CharacterLifeState.Alive;
+                && unit.Character.LifeState != CharacterLifeState.Dead;
+        }
+
+        private static bool IsScheduledSummonedObject(
+            SummonedCombatMapObject summonedObject)
+        {
+            return summonedObject != null
+                && summonedObject.Definition != null
+                && !summonedObject.IsExpired();
+        }
+
+        private static bool IsAlive(BattleUnit unit)
+        {
+            return unit?.Character != null
+                && unit.Character.LifeState == CharacterLifeState.Alive;
         }
 
         private bool ProcessDownedTurn(
             CombatSession session,
             BattleUnit unit)
         {
-            unit.DownedTurnsRemaining =
-                Math.Max(
-                    0,
-                    unit.DownedTurnsRemaining - 1);
+            unit.DownedTurnsRemaining = Math.Max(
+                0,
+                unit.DownedTurnsRemaining - 1);
 
             battleLog?.Invoke(
                 $"{unit.Character.Definition.DisplayName} " +
                 "nie wykonuje tury jako powalony. " +
-                $"Pozostale tury: " +
-                $"{unit.DownedTurnsRemaining}");
+                $"Pozostale tury: {unit.DownedTurnsRemaining}");
 
             if (unit.DownedTurnsRemaining > 0)
             {
@@ -343,17 +393,95 @@ namespace Godmist.Systems.Combat
             }
 
             unit.Character.CurrentHealth = 0;
-            unit.Character.LifeState =
-                CharacterLifeState.Dead;
+            unit.Character.LifeState = CharacterLifeState.Dead;
 
             battleLog?.Invoke(
                 $"{unit.Character.Definition.DisplayName} " +
                 "ginie po uplywie czasu na podniesienie.");
 
             session.Units.Remove(unit);
-            session.TurnOrder.Remove(unit);
+            session.TurnParticipants.RemoveAll(
+                participant => participant?.Unit == unit);
 
             return true;
+        }
+
+        private static void EnsureParticipants(CombatSession session)
+        {
+            session.TurnParticipants ??= new();
+            session.TurnOrder ??= new();
+            session.SummonedObjects ??= new();
+
+            if (session.TurnParticipants.Count > 0)
+            {
+                return;
+            }
+
+            session.TurnParticipants = session.TurnOrder
+                .Where(IsScheduledUnit)
+                .Select(unit => new CombatTurnParticipant(unit))
+                .Concat(session.SummonedObjects
+                    .Where(IsScheduledSummonedObject)
+                    .Select(item => new CombatTurnParticipant(item)))
+                .ToList();
+
+            foreach (var participant in session.TurnParticipants)
+            {
+                if (participant.CurrentActionValue <= 0f)
+                {
+                    participant.CurrentActionValue =
+                        CalculateBaseActionValue(participant);
+                }
+            }
+
+            EnsureActiveParticipant(session);
+        }
+
+        private static void EnsureActiveParticipant(CombatSession session)
+        {
+            if (session.ActiveParticipant != null)
+            {
+                return;
+            }
+
+            if (session.ActiveUnit != null)
+            {
+                session.ActiveParticipant = session.TurnParticipants
+                    .FirstOrDefault(participant =>
+                        participant?.Unit == session.ActiveUnit);
+            }
+
+            if (session.ActiveParticipant == null
+                && session.ActiveSummonedObject != null)
+            {
+                session.ActiveParticipant = session.TurnParticipants
+                    .FirstOrDefault(participant =>
+                        participant?.SummonedObject
+                            == session.ActiveSummonedObject);
+            }
+        }
+
+        private static void ClearActiveParticipant(CombatSession session)
+        {
+            session.ActiveParticipant = null;
+            session.ActiveUnit = null;
+            session.ActiveSummonedObject = null;
+            session.ActiveTurnIndex = -1;
+        }
+
+        private static void SyncLegacyState(CombatSession session)
+        {
+            session.TurnOrder = session.TurnParticipants
+                .Where(participant => participant?.Unit != null)
+                .Select(participant => participant.Unit)
+                .ToList();
+
+            session.ActiveUnit = session.ActiveParticipant?.Unit;
+            session.ActiveSummonedObject =
+                session.ActiveParticipant?.SummonedObject;
+            session.ActiveTurnIndex = session.ActiveUnit == null
+                ? -1
+                : session.TurnOrder.IndexOf(session.ActiveUnit);
         }
     }
 }
