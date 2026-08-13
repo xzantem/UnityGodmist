@@ -96,6 +96,42 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
+
+        public bool ApplyGuaranteedStun(
+            BattleUnit source,
+            BattleUnit target,
+            SkillData skill,
+            int effectIndex,
+            int durationTurns)
+        {
+            if (target?.Character == null
+                || target.Character.LifeState != CharacterLifeState.Alive) return false;
+
+            var sourceEffect = skill != null && effectIndex >= 0
+                ? PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
+                : PassiveEffectSourceFactory.FromRuntimeSystem(source, StatusEffectIds.Stun);
+
+            var runtimeEffect = new PassiveEffectRuntime(
+                StatusEffectIds.Stun,
+                new List<PassiveEffectSourceRuntime> { sourceEffect },
+                1,
+                Mathf.Max(1, durationTurns),
+                0,
+                PassiveEffectLifetime.Timed,
+                ResolveTickPhase(StatusEffectIds.Stun));
+
+            if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
+                    target.Character,
+                    runtimeEffect,
+                    ResolveStackingMode(StatusEffectIds.Stun),
+                    out _)) return false;
+
+            battleLog?.Invoke(
+                $"{target.Character.Definition.DisplayName} otrzymuje ogłuszenie.");
+
+            return true;
+        }
+
         public bool RemoveStatus(BattleUnit target, string statusId)
         {
             if (target?.Character == null)

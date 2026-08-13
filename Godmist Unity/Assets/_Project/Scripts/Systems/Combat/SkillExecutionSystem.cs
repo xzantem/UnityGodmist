@@ -21,6 +21,8 @@ namespace Godmist.Systems.Combat
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly ModifyStatSystem modifyStatSystem;
         private readonly ModifyVarSystem modifyVarSystem;
+        private readonly CombatChargeSystem chargeSystem;
+        private readonly CombatTeleportSystem teleportSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -32,7 +34,9 @@ namespace Godmist.Systems.Combat
             CombatShieldSystem shieldSystem = null,
             CombatLineOfSightService lineOfSightService = null,
             ModifyStatSystem modifyStatSystem = null,
-            ModifyVarSystem modifyVarSystem = null)
+            ModifyVarSystem modifyVarSystem = null,
+            CombatChargeSystem chargeSystem = null,
+            CombatTeleportSystem teleportSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -45,6 +49,8 @@ namespace Godmist.Systems.Combat
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
             this.modifyStatSystem = modifyStatSystem ?? new ModifyStatSystem();
             this.modifyVarSystem = modifyVarSystem ?? new ModifyVarSystem();
+            this.chargeSystem = chargeSystem ?? new CombatChargeSystem(battleLog, this.statusEffectSystem);
+            this.teleportSystem = teleportSystem ?? new CombatTeleportSystem(battleLog, this.lineOfSightService);
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -74,14 +80,29 @@ namespace Godmist.Systems.Combat
             SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
-            if (!CanExecute(session, caster, skill, targetsByModeIndex))
-            {
-                return false;
-            }
-
-            var actionCost = CombatActionCostCalculator.CalculateSkillCost(
+            return TryExecute(
+                session,
                 caster,
-                skill);
+                skill,
+                targetsByModeIndex,
+                null);
+        }
+
+        public bool TryExecute(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            GridPosition? teleportDestination)
+        {
+            if (!CanExecute(
+                    session,
+                    caster,
+                    skill,
+                    targetsByModeIndex,
+                    teleportDestination)) return false;
+
+            var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
             caster.CurrentActionPoints -= actionCost;
             caster.Character.ResourcePool?.Drain(skill.ResourceCost);
@@ -104,10 +125,7 @@ namespace Godmist.Systems.Combat
                 foreach (var target in targets)
                 {
                     if (target?.Character == null
-                        || target.Character.LifeState == CharacterLifeState.Dead)
-                    {
-                        continue;
-                    }
+                        || target.Character.LifeState == CharacterLifeState.Dead) continue;
 
                     if (!ShouldExecuteEffect(
                             effect,
@@ -120,11 +138,7 @@ namespace Godmist.Systems.Combat
                     }
 
                     var wasHit = !RequiresHitRoll(effect)
-                        || ResolveTargetHit(
-                            caster,
-                            target,
-                            skill,
-                            hitByTarget);
+                        || ResolveTargetHit(caster, target, skill, hitByTarget);
 
                     if (!wasHit)
                     {
@@ -139,7 +153,8 @@ namespace Godmist.Systems.Combat
                         skill,
                         effect,
                         effectIndex,
-                        wasHit);
+                        wasHit,
+                        teleportDestination);
                 }
 
                 resultsByEffectIndex[effectIndex] = resultsForEffect;
@@ -153,11 +168,17 @@ namespace Godmist.Systems.Combat
             }
 
             CombatTurnSystem.RefreshMaxActionPoints(session);
-
             return true;
         }
-        private EffectExecutionResult ExecuteEffect(CombatSession session, BattleUnit caster, BattleUnit target, 
-            SkillData skill, SkillEffectData effect, int effectIndex, bool wasHit)
+        private EffectExecutionResult ExecuteEffect(
+            CombatSession session,
+            BattleUnit caster,
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex,
+            bool wasHit,
+            GridPosition? teleportDestination)
         {
             switch (effect.EffectType)
             {
@@ -223,6 +244,37 @@ namespace Godmist.Systems.Combat
                         "wycofany");
 
                     return new EffectExecutionResult { Succeeded = wasMovedBack };
+                }
+                case EffectType.Charge:
+                {
+                    var charged = chargeSystem != null
+                        && chargeSystem.TryCharge(
+                            session,
+                            caster,
+                            target,
+                            skill,
+                            effect,
+                            effectIndex);
+
+                    return new EffectExecutionResult { Succeeded = charged };
+                }
+
+                case EffectType.Teleport:
+                {
+                    if (!teleportDestination.HasValue)
+                    {
+                        return EffectExecutionResult.None;
+                    }
+
+                    var teleported = teleportSystem != null
+                        && teleportSystem.TryTeleport(
+                            session,
+                            caster,
+                            target,
+                            teleportDestination.Value,
+                            skill.RequiresLineOfSight);
+
+                    return new EffectExecutionResult { Succeeded = teleported };
                 }
                 case EffectType.ApplyStatus:
                 {
@@ -509,6 +561,19 @@ namespace Godmist.Systems.Combat
             return false;
         }
 
+        private static bool ContainsMobilityEffect(SkillData skill)
+        {
+            if (skill?.Effects == null) return false;
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType == EffectType.Charge
+                    || effect?.EffectType == EffectType.Teleport) return true;
+            }
+
+            return false;
+        }
+
         private static bool ContainsTarget(
             IReadOnlyList<BattleUnit> targets,
             BattleUnit requiredTarget)
@@ -536,10 +601,21 @@ namespace Godmist.Systems.Combat
         }
 
         private bool CanExecute(CombatSession session, BattleUnit caster, SkillData skill, 
-            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            GridPosition? teleportDestination)
         {
             if (session == null || caster?.Character == null || skill == null || targetsByModeIndex == null 
                 || caster.Character.LifeState != CharacterLifeState.Alive) return false;
+
+            if (StatusEffectSystem.IsImmobilized(caster)
+                && ContainsMobilityEffect(skill))
+            {
+                battleLog?.Invoke(
+                    $"{caster.Character.Definition.DisplayName} nie może użyć ruchowego skilla "
+                    + "przez unieruchomienie.");
+
+                return false;
+            }
 
             if (StatusEffectSystem.IsHardCrowdControlled(caster))
             {
@@ -594,7 +670,7 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
-                var canHealDownedTarget = CanHealDownedTarget(skill, targetModeIndex);
+                var canHealDownedTarget = CanTargetModeIncludeDownedTargets(skill, targetModeIndex);
 
                 foreach (var target in targets)
                 {
@@ -710,6 +786,38 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                if (effect.EffectType == EffectType.Charge)
+                {
+                    var targets = targetsByModeIndex[effect.TargetModeIndex];
+
+                    if (targets.Count != 1
+                        || !chargeSystem.CanStartCharge(
+                            session,
+                            caster,
+                            targets[0],
+                            effect))
+                    {
+                        return false;
+                    }
+                }
+
+                if (effect.EffectType == EffectType.Teleport)
+                {
+                    var targets = targetsByModeIndex[effect.TargetModeIndex];
+
+                    if (targets.Count != 1
+                        || !teleportDestination.HasValue
+                        || !teleportSystem.CanTeleport(
+                            session,
+                            caster,
+                            targets[0],
+                            teleportDestination.Value,
+                            skill.RequiresLineOfSight))
+                    {
+                        return false;
+                    }
+                }
+
                 if (effect.Conditions == null) continue;
 
                 foreach (var condition in effect.Conditions)
@@ -742,15 +850,20 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
-        private static bool CanHealDownedTarget(SkillData skill, int targetModeIndex)
+        private static bool CanTargetModeIncludeDownedTargets(
+            SkillData skill,
+            int targetModeIndex)
         {
             if (skill?.Effects == null || targetModeIndex < 0) return false;
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType == EffectType.Heal
-                    && effect.TargetModeIndex == targetModeIndex) return true;
+                if (effect == null || effect.TargetModeIndex != targetModeIndex) continue;
+
+                if (effect.EffectType == EffectType.Heal
+                    || effect.EffectType == EffectType.Teleport) return true;
             }
+
             return false;
         }
         private enum ForcedDisplacementDirection

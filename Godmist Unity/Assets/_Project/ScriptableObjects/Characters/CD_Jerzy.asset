@@ -50,6 +50,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}
   - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
   - {fileID: 11400000, guid: 72c56c8d06505ef4db6cf926d221d8e7, type: 2}
+  - {fileID: 11400000, guid: 64476796537f2e2468b46fae9a0ad962, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

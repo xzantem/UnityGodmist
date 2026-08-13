@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using Godmist.Views.UI;
@@ -48,6 +49,9 @@ namespace Godmist.Views.Combat
         private SkillData selectedSkill;
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
         private int currentTargetModeIndex;
+        private SkillEffectData selectedTeleportEffect;
+        private GridPosition selectedTeleportSourcePosition;
+        private bool isSelectingTeleportDestination;
         private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
 
         public bool IsSelectingTarget => selectedSkill != null;
@@ -133,7 +137,15 @@ namespace Godmist.Views.Combat
 
         private void TryCompleteSelection()
         {
-            if (sandboxBootstrap.TryExecuteSkill(selectedSkill, selectedPositionsByModeIndex))
+            if (TryBeginTeleportDestinationSelection())
+            {
+                return;
+            }
+
+            if (sandboxBootstrap.TryExecuteSkill(
+                    selectedSkill,
+                    selectedPositionsByModeIndex,
+                    null))
             {
                 CancelTargetSelection();
                 return;
@@ -147,6 +159,9 @@ namespace Godmist.Views.Combat
             selectedSkill = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            selectedTeleportEffect = null;
+            selectedTeleportSourcePosition = default;
+            isSelectingTeleportDestination = false;
 
             ClearAllHighlights();
 
@@ -156,7 +171,7 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             if (DevConsoleView.IsOpen) return;
-            
+
             if (!IsSelectingTarget)
             {
                 return;
@@ -164,41 +179,80 @@ namespace Godmist.Views.Combat
 
             var session = sandboxBootstrap?.Session;
 
-            if (session == null || session.ActiveUnit == null || !session.ActiveUnit.IsPlayerSide 
+            if (session == null || session.ActiveUnit == null
+                || !session.ActiveUnit.IsPlayerSide
                 || session.Outcome != CombatOutcomeState.Ongoing)
             {
                 CancelTargetSelection();
                 return;
             }
 
-            UpdateRelativeRangePreview();
+            if (!isSelectingTeleportDestination)
+            {
+                UpdateRelativeRangePreview();
+            }
 
-            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
+            if (Input.GetKeyDown(KeyCode.Escape)
+                || Input.GetMouseButtonDown(1))
             {
                 CancelTargetSelection();
                 return;
             }
 
-            if (!Input.GetMouseButtonDown(0) || worldCamera == null) return;
+            if (!Input.GetMouseButtonDown(0) || worldCamera == null)
+            {
+                return;
+            }
 
-            if (EventSystem.current != null  && EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current != null
+                && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
 
             var targetPosition = GetGridPositionUnderMouse();
+
+            if (isSelectingTeleportDestination)
+            {
+                if (!selectablePositions.Contains(targetPosition))
+                {
+                    return;
+                }
+
+                if (sandboxBootstrap.TryExecuteSkill(
+                        selectedSkill,
+                        selectedPositionsByModeIndex,
+                        targetPosition))
+                {
+                    CancelTargetSelection();
+                }
+
+                return;
+            }
 
             var targetMode = CurrentTargetMode;
 
             if (UsesGridClickOnlyAsConfirmation(targetMode))
             {
-                if (session.Grid == null || !session.Grid.IsWalkable(targetPosition)) return;
+                if (session.Grid == null
+                    || !session.Grid.IsWalkable(targetPosition))
+                {
+                    return;
+                }
 
                 selectedPositionsByModeIndex[currentTargetModeIndex] = null;
                 AdvanceTargetMode();
                 return;
             }
 
-            if (!selectablePositions.Contains(targetPosition)) return;
+            if (!selectablePositions.Contains(targetPosition))
+            {
+                return;
+            }
 
-            selectedPositionsByModeIndex[currentTargetModeIndex] = targetPosition;
+            selectedPositionsByModeIndex[currentTargetModeIndex] =
+                targetPosition;
+
             AdvanceTargetMode();
         }
 
@@ -206,30 +260,56 @@ namespace Godmist.Views.Combat
         {
             ClearAllHighlights();
 
-            if (targetHighlightPrefab == null || targetHighlightRoot == null || selectedSkill == null) return;
+            if (targetHighlightPrefab == null
+                || targetHighlightRoot == null
+                || selectedSkill == null)
+            {
+                return;
+            }
 
-            var absolutePositions = sandboxBootstrap.GetAbsoluteSkillRangePositions(selectedSkill, CurrentTargetMode);
+            var absolutePositions =
+                sandboxBootstrap.GetAbsoluteSkillRangePositions(
+                    selectedSkill,
+                    CurrentTargetMode);
 
-            foreach (var position in absolutePositions) absoluteRangePositions.Add(position);
+            foreach (var position in absolutePositions)
+            {
+                absoluteRangePositions.Add(position);
+            }
 
-            SpawnHighlights(absolutePositions, absoluteRangeHighlightColor, absoluteRangeHighlights);
+            SpawnHighlights(
+                absolutePositions,
+                absoluteRangeHighlightColor,
+                absoluteRangeHighlights);
 
-            var selectable = sandboxBootstrap.GetSelectableSkillPositions(
-                selectedSkill,
-                CurrentTargetMode,
-                currentTargetModeIndex);
+            var selectable =
+                sandboxBootstrap.GetSelectableSkillPositions(
+                    selectedSkill,
+                    CurrentTargetMode,
+                    currentTargetModeIndex);
 
-            foreach (var position in selectable) selectablePositions.Add(position);
+            foreach (var position in selectable)
+            {
+                selectablePositions.Add(position);
+            }
 
-            var eligibleTargets = sandboxBootstrap.GetEligibleSkillTargetPositions(
-                selectedSkill,
-                CurrentTargetMode,
-                currentTargetModeIndex);
+            var eligibleTargets =
+                sandboxBootstrap.GetEligibleSkillTargetPositions(
+                    selectedSkill,
+                    CurrentTargetMode,
+                    currentTargetModeIndex);
 
-            foreach (var position in eligibleTargets) eligibleTargetPositions.Add(position);
+            foreach (var position in eligibleTargets)
+            {
+                eligibleTargetPositions.Add(position);
+            }
 
-            SpawnHighlights(eligibleTargets, targetHighlightColor, selectableTargetHighlights);
+            SpawnHighlights(
+                eligibleTargets,
+                targetHighlightColor,
+                selectableTargetHighlights);
         }
+
         private void UpdateRelativeRangePreview()
         {
             if (selectedSkill == null || !HasRelativeRangePreview())
@@ -271,11 +351,79 @@ namespace Godmist.Views.Combat
 
         private bool HasRelativeRangePreview()
         {
-            if (selectedSkill.TargetModes == null || selectedSkill.TargetModes.Count == 0) return false;
+            if (selectedSkill?.TargetModes == null
+                || selectedSkill.TargetModes.Count == 0)
+            {
+                return false;
+            }
 
-            var mode = CurrentTargetMode;
+            if (isSelectingTeleportDestination) return false;
 
-            return mode.UseRelativeRange;
+            return CurrentTargetMode.UseRelativeRange;
+        }
+        private bool TryBeginTeleportDestinationSelection()
+        {
+            if (selectedSkill?.Effects == null || sandboxBootstrap?.Session?.ActiveUnit == null)
+            {
+                return false;
+            }
+
+            foreach (var effect in selectedSkill.Effects)
+            {
+                if (effect?.EffectType != EffectType.Teleport)
+                {
+                    continue;
+                }
+
+                if (effect.TargetModeIndex < 0
+                    || effect.TargetModeIndex >= selectedSkill.TargetModes.Count)
+                {
+                    return false;
+                }
+
+                var sourceTargetMode =
+                    selectedSkill.TargetModes[effect.TargetModeIndex];
+
+                if (sourceTargetMode.TargetType == TargetType.Caster)
+                {
+                    selectedTeleportSourcePosition = sandboxBootstrap.Session.ActiveUnit.Position;
+                }
+                else if (!selectedPositionsByModeIndex.TryGetValue(
+                             effect.TargetModeIndex,
+                             out var selectedPosition)
+                         || !selectedPosition.HasValue)
+                {
+                    return false;
+                }
+                else
+                {
+                    selectedTeleportSourcePosition = selectedPosition.Value;
+                }
+
+                selectedTeleportEffect = effect;
+                isSelectingTeleportDestination = true;
+
+                ClearAllHighlights();
+
+                var destinations = sandboxBootstrap.GetTeleportDestinationPositions(
+                    selectedSkill,
+                    selectedTeleportEffect,
+                    selectedTeleportSourcePosition);
+
+                foreach (var position in destinations)
+                {
+                    selectablePositions.Add(position);
+                }
+
+                SpawnHighlights(
+                    destinations,
+                    relativeRangeHighlightColor,
+                    relativeRangeHighlights);
+
+                return true;
+            }
+
+            return false;
         }
 
         private void SpawnHighlights(

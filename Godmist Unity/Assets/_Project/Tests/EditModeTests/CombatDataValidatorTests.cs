@@ -39,7 +39,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(report.IsValid, Is.False);
             Assert.That(
                 report.Errors,
-                Has.Some.Contains("nie wskazuje istniejącego Target Mode"));
+                Has.Some.Contains("does not reference an existing Target Mode"));
 
             Object.DestroyImmediate(skill);
         }
@@ -58,7 +58,27 @@ namespace Godmist.Tests.EditMode
             Assert.That(report.IsValid, Is.False);
             Assert.That(
                 report.Errors,
-                Has.Some.Contains("Status Id jest wymagane"));
+                Has.Some.Contains("Status ID is required for Apply Status"));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void ValidateSkill_TeleportWithAreaTargetMode_ReturnsError()
+        {
+            var skill = CreateValidSkill();
+            var targetMode = skill.TargetModes[0];
+            var effect = skill.Effects[0];
+
+            SetPrivateField(targetMode, "targetType", TargetType.AreaAroundTile);
+            SetPrivateField(effect, "effectType", EffectType.Teleport);
+
+            var report = CombatDataValidator.ValidateSkill(skill);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("Teleport requires Target Type set to Caster or Single"));
 
             Object.DestroyImmediate(skill);
         }
@@ -92,7 +112,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(report.IsValid, Is.False);
             Assert.That(
                 report.Errors,
-                Has.Some.Contains("jest używana przez więcej niż jednego"));
+                Has.Some.Contains("is used by more than one enemy"));
 
             DestroyEncounterDependencies(encounter);
         }
@@ -110,7 +130,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(report.IsValid, Is.False);
             Assert.That(
                 report.Errors,
-                Has.Some.Contains("poza gridem encountera"));
+                Has.Some.Contains("is outside the encounter grid"));
 
             DestroyEncounterDependencies(encounter);
         }

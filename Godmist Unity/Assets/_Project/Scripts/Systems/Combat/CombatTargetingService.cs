@@ -212,11 +212,27 @@ namespace Godmist.Systems.Combat
             SkillTargetModeData mode,
             GridPosition center)
         {
+            if (mode == null || !mode.UseRelativeRange)
+            {
+                return new List<GridPosition>();
+            }
+
+            return GetRelativeRangePositions(
+                session,
+                caster,
+                mode.RelativeRange,
+                center);
+        }
+
+        public IReadOnlyList<GridPosition> GetRelativeRangePositions(
+            CombatSession session,
+            BattleUnit caster,
+            SkillRangeData range,
+            GridPosition center)
+        {
             var positions = new List<GridPosition>();
 
-            if (session?.Grid == null
-                || mode == null
-                || !mode.UseRelativeRange)
+            if (session?.Grid == null || caster?.Character == null || range == null)
             {
                 return positions;
             }
@@ -231,7 +247,35 @@ namespace Godmist.Systems.Combat
                             caster.Position,
                             center,
                             position,
-                            mode.RelativeRange))
+                            range))
+                    {
+                        positions.Add(position);
+                    }
+                }
+            }
+
+            return positions;
+        }
+
+        public IReadOnlyList<GridPosition> GetPositionsInRange(
+            CombatSession session,
+            GridPosition center,
+            SkillRangeData range)
+        {
+            var positions = new List<GridPosition>();
+
+            if (session?.Grid == null || range == null)
+            {
+                return positions;
+            }
+
+            for (var x = 0; x < session.Grid.Width; x++)
+            {
+                for (var y = 0; y < session.Grid.Height; y++)
+                {
+                    var position = new GridPosition(x, y);
+
+                    if (IsPositionWithinRange(center, position, range))
                     {
                         positions.Add(position);
                     }

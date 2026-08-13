@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
@@ -544,15 +545,38 @@ namespace Godmist.Views.Combat
             return TryExecuteSkill(skill, selectedPositionsByModeIndex);
         }
 
-        public bool TryExecuteSkill(SkillData skill, 
+        public bool TryExecuteSkill(
+            SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
         {
-            if (Session == null || Session.ActiveUnit == null || skillExecutionSystem == null 
-                || targetingService == null) return false;
+            return TryExecuteSkill(skill, selectedPositionsByModeIndex, null);
+        }
 
-            if (!TryBuildSkillTargetGroups(skill, selectedPositionsByModeIndex, out var targetsByModeIndex)) return false;
+        public bool TryExecuteSkill(
+            SkillData skill,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
+            GridPosition? teleportDestination)
+        {
+            if (Session == null || Session.ActiveUnit == null
+                || skillExecutionSystem == null || targetingService == null)
+            {
+                return false;
+            }
 
-            return skillExecutionSystem.TryExecute(Session, Session.ActiveUnit, skill, targetsByModeIndex);
+            if (!TryBuildSkillTargetGroups(
+                    skill,
+                    selectedPositionsByModeIndex,
+                    out var targetsByModeIndex))
+            {
+                return false;
+            }
+
+            return skillExecutionSystem.TryExecute(
+                Session,
+                Session.ActiveUnit,
+                skill,
+                targetsByModeIndex,
+                teleportDestination);
         }
 
         private bool TryBuildSkillTargetGroups(SkillData skill, 
@@ -683,30 +707,63 @@ namespace Godmist.Views.Combat
                 $"{ally.Character.Definition.DisplayName} " +
                 "zostaje powalony testowo.");
         }
-        public IReadOnlyList<BattleUnit> GetSkillTargets(SkillData skill, SkillTargetModeData targetMode,
-            int targetModeIndex, GridPosition? selectedPosition)
+        public IReadOnlyList<BattleUnit> GetSkillTargets(
+            SkillData skill,
+            SkillTargetModeData targetMode,
+            int targetModeIndex,
+            GridPosition? selectedPosition)
         {
-            if (Session == null || Session.ActiveUnit == null || skill == null 
-                || targetMode == null || targetingService == null) return Array.Empty<BattleUnit>();
+            if (Session == null || Session.ActiveUnit == null
+                || skill == null || targetMode == null
+                || targetingService == null)
+            {
+                return Array.Empty<BattleUnit>();
+            }
 
-            var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
-            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
+            var includeDownedTargets =
+                CanTargetModeIncludeDownedTargets(
+                    skill,
+                    targetModeIndex);
 
-            var targets = targetingService.GetTargets(Session, Session.ActiveUnit, targetMode, 
-                selectedPosition, includeDownedTargets, requiredEnemyTarget);
+            var requiredEnemyTarget =
+                GetRequiredEnemyTarget(targetMode);
+
+            var targets = targetingService.GetTargets(
+                Session,
+                Session.ActiveUnit,
+                targetMode,
+                selectedPosition,
+                includeDownedTargets,
+                requiredEnemyTarget);
+
             return FilterTargetsByLineOfSight(skill, targets);
         }
-        public IReadOnlyList<GridPosition> GetSelectableSkillPositions(SkillData skill, 
-            SkillTargetModeData targetMode, int targetModeIndex)
+        public IReadOnlyList<GridPosition> GetSelectableSkillPositions(
+            SkillData skill,
+            SkillTargetModeData targetMode,
+            int targetModeIndex)
         {
-            if (Session == null || Session.ActiveUnit == null || skill == null
-                || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
+            if (Session == null || Session.ActiveUnit == null
+                || skill == null || targetMode == null
+                || targetingService == null)
+            {
+                return Array.Empty<GridPosition>();
+            }
 
-            var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
-            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
+            var includeDownedTargets =
+                CanTargetModeIncludeDownedTargets(
+                    skill,
+                    targetModeIndex);
 
-            var positions = targetingService.GetSelectablePositions(Session, Session.ActiveUnit, 
-                targetMode, includeDownedTargets, requiredEnemyTarget);
+            var requiredEnemyTarget =
+                GetRequiredEnemyTarget(targetMode);
+
+            var positions = targetingService.GetSelectablePositions(
+                Session,
+                Session.ActiveUnit,
+                targetMode,
+                includeDownedTargets,
+                requiredEnemyTarget);
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
@@ -733,30 +790,123 @@ namespace Godmist.Views.Combat
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
-        public IReadOnlyList<GridPosition> GetEligibleSkillTargetPositions(SkillData skill, 
-            SkillTargetModeData targetMode, int targetModeIndex)
+        public IReadOnlyList<GridPosition> GetTeleportDestinationPositions(
+            SkillData skill,
+            SkillEffectData teleportEffect,
+            GridPosition selectedTargetPosition)
         {
-            if (Session == null || Session.ActiveUnit == null || skill == null
-                || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
+            if (Session == null || Session.ActiveUnit == null
+                || skill == null || teleportEffect == null
+                || targetingService == null)
+            {
+                return Array.Empty<GridPosition>();
+            }
 
-            var includeDownedTargets = CanTargetModeHealDowned(skill, targetModeIndex);
-            var requiredEnemyTarget = GetRequiredEnemyTarget(targetMode);
+            var destinationPositions = targetingService.GetPositionsInRange(
+                Session,
+                selectedTargetPosition,
+                teleportEffect.TeleportDestinationRange);
 
-            var positions = targetingService.GetEligibleTargetPositions(Session, Session.ActiveUnit, 
-                targetMode, includeDownedTargets, requiredEnemyTarget);
+            var validPositions = new List<GridPosition>();
+
+            foreach (var position in destinationPositions)
+            {
+                if (position == selectedTargetPosition
+                    || !Session.Grid.IsWalkable(position)
+                    || Session.Grid.IsBlocked(position)
+                    || IsOccupiedByLivingUnit(position))
+                {
+                    continue;
+                }
+
+                if (skill.RequiresLineOfSight
+                    && !lineOfSightService.HasLineOfSight(
+                        Session,
+                        Session.ActiveUnit.Position,
+                        position))
+                {
+                    continue;
+                }
+
+                validPositions.Add(position);
+            }
+
+            return validPositions;
+        }
+
+        private bool IsOccupiedByLivingUnit(GridPosition position)
+        {
+            foreach (var unit in Session.Units)
+            {
+                if (unit == null || unit.Character == null
+                    || unit.Character.LifeState == CharacterLifeState.Dead)
+                {
+                    continue;
+                }
+
+                if (unit.Position == position)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public IReadOnlyList<GridPosition> GetEligibleSkillTargetPositions(
+            SkillData skill,
+            SkillTargetModeData targetMode,
+            int targetModeIndex)
+        {
+            if (Session == null || Session.ActiveUnit == null
+                || skill == null || targetMode == null
+                || targetingService == null)
+            {
+                return Array.Empty<GridPosition>();
+            }
+
+            var includeDownedTargets =
+                CanTargetModeIncludeDownedTargets(
+                    skill,
+                    targetModeIndex);
+
+            var requiredEnemyTarget =
+                GetRequiredEnemyTarget(targetMode);
+
+            var positions = targetingService.GetEligibleTargetPositions(
+                Session,
+                Session.ActiveUnit,
+                targetMode,
+                includeDownedTargets,
+                requiredEnemyTarget);
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
-        private static bool CanTargetModeHealDowned(SkillData skill, int targetModeIndex)
+        private static bool CanTargetModeIncludeDownedTargets(
+            SkillData skill,
+            int targetModeIndex)
         {
-            if (skill?.Effects == null || targetModeIndex < 0) return false;
+            if (skill?.Effects == null || targetModeIndex < 0)
+            {
+                return false;
+            }
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType == EffectType.Heal
-                    && effect.TargetModeIndex == targetModeIndex) return true;
+                if (effect == null
+                    || effect.TargetModeIndex != targetModeIndex)
+                {
+                    continue;
+                }
+
+                if (effect.EffectType == EffectType.Heal
+                    || effect.EffectType == EffectType.Teleport)
+                {
+                    return true;
+                }
             }
+
             return false;
         }
 

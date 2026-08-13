@@ -11,6 +11,8 @@ namespace Godmist.Core.Enums
         ModifyStat = 6,
         ModifyVar = 7,
         Pull = 8,
-        Fallback = 9
+        Fallback = 9,
+        Charge = 10,
+        Teleport = 11
     }
 }

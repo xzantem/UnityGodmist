@@ -37,6 +37,7 @@ namespace Godmist.Editor
             var modifierOperation = property.FindPropertyRelative("modifierOperation");
             var modifierStacking = property.FindPropertyRelative("modifierStacking");
             var modifierValue = property.FindPropertyRelative("modifierValue");
+            var teleportDestinationRange = property.FindPropertyRelative("teleportDestinationRange");
             var y = position.y;
 
             DrawField(position, ref y, effectType);
@@ -68,14 +69,19 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.Push
                     || selectedEffect == EffectType.Pull
-                    || selectedEffect == EffectType.Fallback)
+                    || selectedEffect == EffectType.Fallback
+                    || selectedEffect == EffectType.Charge)
             {
                 DrawField(position, ref y, displacementDistance);
 
-                if (selectedEffect == EffectType.Pull)
+                if (selectedEffect == EffectType.Pull || selectedEffect == EffectType.Charge)
                 {
                     DrawField(position, ref y, baseChance);
                 }
+            }
+            else if (selectedEffect == EffectType.Teleport)
+            {
+                DrawField(position, ref y, teleportDestinationRange, true);
             }
             else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource
                 || selectedEffect == EffectType.Shield)
@@ -147,6 +153,7 @@ namespace Godmist.Editor
             var modifierOperation = property.FindPropertyRelative("modifierOperation");
             var modifierStacking = property.FindPropertyRelative("modifierStacking");
             var modifierValue = property.FindPropertyRelative("modifierValue");
+            var teleportDestinationRange = property.FindPropertyRelative("teleportDestinationRange");
 
             var height = 0f;
 
@@ -180,14 +187,19 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.Push
                     || selectedEffect == EffectType.Pull
-                    || selectedEffect == EffectType.Fallback)
+                    || selectedEffect == EffectType.Fallback
+                    || selectedEffect == EffectType.Charge)
             {
                 AddHeight(ref height, displacementDistance);
 
-                if (selectedEffect == EffectType.Pull)
+                if (selectedEffect == EffectType.Pull || selectedEffect == EffectType.Charge)
                 {
                     AddHeight(ref height, baseChance);
                 }
+            }
+            else if (selectedEffect == EffectType.Teleport)
+            {
+                AddHeight(ref height, teleportDestinationRange, true);
             }
             else if (selectedEffect == EffectType.Heal || selectedEffect == EffectType.RestoreResource 
                 || selectedEffect == EffectType.Shield)

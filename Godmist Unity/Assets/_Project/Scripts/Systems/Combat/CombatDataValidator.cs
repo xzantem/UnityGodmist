@@ -226,6 +226,15 @@ namespace Godmist.Systems.Combat
             SkillData skill,
             CombatDataValidationReport report)
         {
+            var teleportEffectCount = skill.Effects.Count(effect =>
+                effect?.EffectType == EffectType.Teleport);
+
+            if (teleportEffectCount > 1)
+            {
+                report.AddError(
+                    "A skill can define at most one Teleport effect in v1.");
+            }
+
             for (var index = 0; index < skill.Effects.Count; index++)
             {
                 var effect = skill.Effects[index];
@@ -250,6 +259,28 @@ namespace Godmist.Systems.Combat
                 {
                     report.AddError(
                         $"{prefix}: Damage Multiplier must be greater than zero.");
+                }
+
+                if (effect.EffectType == EffectType.Teleport)
+                {
+                    ValidateRange(
+                        effect.TeleportDestinationRange,
+                        $"{prefix}: Teleport Destination Range",
+                        report);
+
+                    if (effect.TargetModeIndex >= 0
+                        && effect.TargetModeIndex < skill.TargetModes.Count)
+                    {
+                        var targetMode = skill.TargetModes[effect.TargetModeIndex];
+
+                        if (targetMode != null
+                            && targetMode.TargetType != TargetType.Caster
+                            && targetMode.TargetType != TargetType.Single)
+                        {
+                            report.AddError(
+                                $"{prefix}: Teleport requires Target Type set to Caster or Single.");
+                        }
+                    }
                 }
 
                 if ((effect.EffectType == EffectType.Push

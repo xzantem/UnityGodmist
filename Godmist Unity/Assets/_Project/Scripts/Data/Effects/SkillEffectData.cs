@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Skills;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -19,6 +20,8 @@ namespace Godmist.Data.Effects
         [SerializeField] private DamageType damageType = DamageType.Physical;
         [FormerlySerializedAs("pushDistance")]
         [SerializeField, Min(1)] private int displacementDistance = 1;
+        [SerializeField] private SkillRangeData teleportDestinationRange =
+            new SkillRangeData(RangeShape.Square, 0, 2);
         [SerializeField, Range(0f, 1f)] private float baseChance = 1f;
         [SerializeField] private string statusId = string.Empty;
         [SerializeField] private int durationTurns = 1;
@@ -48,6 +51,7 @@ namespace Godmist.Data.Effects
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
         public int DisplacementDistance => displacementDistance;
+        public SkillRangeData TeleportDestinationRange => teleportDestinationRange;
         public float BaseChance => baseChance;
         public string StatusId => statusId;
         public int DurationTurns => durationTurns;
