@@ -84,7 +84,7 @@ namespace Godmist.Systems.Combat
                     break;
                 }
 
-                if (!TryMoveAiTowardsTarget(session, aiUnit, target))
+                if (!TryMoveAiForRole(session, aiUnit, target))
                 {
                     break;
                 }
@@ -401,7 +401,141 @@ namespace Godmist.Systems.Combat
 
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
-            return score - actionCost * 0.35f - skill.ResourceCost * 0.1f;
+            return score + CalculateRoleBonus(caster, skill, targetsByModeIndex)
+                - actionCost * 0.35f - skill.ResourceCost * 0.1f;
+        }
+
+        private static float CalculateRoleBonus(
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+        {
+            var role = caster?.Character?.Definition?.AiRole ?? CombatAiRole.Balanced;
+            var bonus = 0f;
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect == null || !targetsByModeIndex.TryGetValue(
+                        effect.TargetModeIndex, out var targets))
+                {
+                    continue;
+                }
+
+                var count = targets.Count;
+                bonus += role switch
+                {
+                    CombatAiRole.Dps when effect.EffectType == EffectType.DealDamage
+                        => 60f * count,
+                    CombatAiRole.Dps when effect.EffectType == EffectType.ApplyStatus
+                        => 20f * count,
+                    CombatAiRole.Tank when effect.EffectType == EffectType.Shield
+                        => 35f * count,
+                    CombatAiRole.Tank when effect.EffectType == EffectType.ApplyStatus
+                        && string.Equals(effect.StatusId, StatusEffectIds.Taunt,
+                            StringComparison.OrdinalIgnoreCase) => 90f * count,
+                    CombatAiRole.Tank when effect.EffectType == EffectType.Push
+                        || effect.EffectType == EffectType.Pull => 25f * count,
+                    CombatAiRole.Healer when effect.EffectType == EffectType.Heal
+                        || effect.EffectType == EffectType.RestoreResource => 70f * count,
+                    CombatAiRole.Support when effect.EffectType == EffectType.Shield
+                        || effect.EffectType == EffectType.ModifyStat
+                        || effect.EffectType == EffectType.ModifyVar => 55f * count,
+                    CombatAiRole.Support when effect.EffectType == EffectType.ApplyStatus
+                        => 40f * count,
+                    _ => 0f
+                };
+            }
+
+            return bonus;
+        }
+
+        private bool TryMoveAiForRole(
+            CombatSession session,
+            BattleUnit aiUnit,
+            BattleUnit target)
+        {
+            var role = aiUnit?.Character?.Definition?.AiRole ?? CombatAiRole.Balanced;
+            var desiredRange = GetPreferredCombatRange(aiUnit);
+            var distance = GetManhattanDistance(aiUnit.Position, target.Position);
+            var isSquishyRangedRole = role == CombatAiRole.Dps
+                || role == CombatAiRole.Healer;
+
+            if (isSquishyRangedRole && desiredRange > 1
+                && distance <= desiredRange)
+            {
+                return distance < desiredRange
+                    && TryMoveAiAwayFromTarget(
+                        session,
+                        aiUnit,
+                        target,
+                        desiredRange);
+            }
+
+            return TryMoveAiTowardsTarget(session, aiUnit, target);
+        }
+
+        private static int GetPreferredCombatRange(BattleUnit unit)
+        {
+            var maxRange = 1;
+            foreach (var skill in unit?.Character?.Skills ?? new List<SkillData>())
+            {
+                if (skill?.TargetModes == null || skill.Effects == null) continue;
+                foreach (var effect in skill.Effects)
+                {
+                    if (effect == null
+                        || effect.TargetModeIndex < 0
+                        || effect.TargetModeIndex >= skill.TargetModes.Count)
+                    {
+                        continue;
+                    }
+
+                    var mode = skill.TargetModes[effect.TargetModeIndex];
+                    if (mode?.TargetingType == TargetingType.Enemies
+                        && mode.TargetType != TargetType.Caster
+                        && mode.AbsoluteRange != null)
+                    {
+                        maxRange = Mathf.Max(
+                            maxRange,
+                            mode.AbsoluteRange.MaxRange);
+                    }
+                }
+            }
+
+            return maxRange;
+        }
+
+        private bool TryMoveAiAwayFromTarget(
+            CombatSession session,
+            BattleUnit aiUnit,
+            BattleUnit target,
+            int desiredRange)
+        {
+            GridPosition? bestPosition = null;
+            var bestDistance = GetManhattanDistance(aiUnit.Position, target.Position);
+
+            foreach (var direction in MovementDirections)
+            {
+                var candidate = new GridPosition(aiUnit.Position.X + direction.x,
+                    aiUnit.Position.Y + direction.y);
+                var candidateDistance = GetManhattanDistance(candidate, target.Position);
+                if (candidateDistance <= bestDistance || candidateDistance > desiredRange
+                    || session?.Grid == null || !session.Grid.IsWithinBounds(candidate)
+                    || session.Grid.IsBlocked(candidate)
+                    || session.IsPositionOccupied(candidate, aiUnit)
+                    || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate)))
+                {
+                    continue;
+                }
+
+                bestPosition = candidate;
+                bestDistance = candidateDistance;
+            }
+
+            return bestPosition.HasValue && movementSystem.TryMoveOneStep(
+                session,
+                aiUnit,
+                bestPosition.Value.X - aiUnit.Position.X,
+                bestPosition.Value.Y - aiUnit.Position.Y);
         }
 
         private static float CalculateEffectsScore(

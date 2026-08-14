@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godmist.Core.Interfaces;
 using Godmist.Data.Skills;
 using Godmist.Data.Items;
+using Godmist.Core.Enums;
 using UnityEngine;
 
 namespace Godmist.Data.Characters
@@ -20,6 +21,8 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public float RunAnimationFramesPerSecond { get; private set; } = 8f;
         [field: SerializeField] public Sprite HitSprite { get; private set; }
         [field: SerializeField] public bool IsMainCharacter { get; private set; }
+        [field: SerializeField] public CombatAiRole AiRole { get; private set; } =
+            CombatAiRole.Balanced;
         [field: SerializeField] public string RecruitmentQuestId { get; private set; } = string.Empty;
         [field: SerializeField] public CharacterBaseStatsData BaseStats { get; private set; } = new();
         [field: SerializeField] public List<SkillData> StartingSkills { get; private set; } = new();

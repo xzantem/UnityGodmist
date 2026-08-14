@@ -76,6 +76,25 @@ namespace Godmist.Tests.EditMode
             Assert.That(reviveScore, Is.GreaterThan(shieldScore));
         }
 
+        [Test]
+        public void GetPreferredCombatRange_IgnoresLongRangeHealForMeleeDps()
+        {
+            var meleeAttack = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            ConfigureTargetMode(meleeAttack, TargetingType.Enemies, 1);
+            var longRangeHeal = CreateSkill(CreateEffect(EffectType.Heal, 1f));
+            ConfigureTargetMode(longRangeHeal, TargetingType.Allies, 4);
+            var unit = CreateUnit("dps", 100, 10, 10);
+            unit.Character.Skills.Add(meleeAttack);
+            unit.Character.Skills.Add(longRangeHeal);
+            var method = typeof(SimpleCombatAiSystem).GetMethod(
+                "GetPreferredCombatRange",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            var range = (int)method.Invoke(null, new object[] { unit });
+
+            Assert.That(range, Is.EqualTo(1));
+        }
+
         private float CalculateScore(
             BattleUnit caster,
             SkillData skill,
@@ -107,6 +126,18 @@ namespace Godmist.Tests.EditMode
             });
             SetField(skill, "effects", new List<SkillEffectData> { effect });
             return skill;
+        }
+
+        private static void ConfigureTargetMode(
+            SkillData skill,
+            TargetingType targetingType,
+            int maxRange)
+        {
+            var mode = skill.TargetModes[0];
+            SetField(mode, "targetType", TargetType.Single);
+            SetField(mode, "targetingType", targetingType);
+            SetField(mode, "absoluteRange",
+                new SkillRangeData(RangeShape.Square, 1, maxRange));
         }
 
         private static SkillEffectData CreateEffect(EffectType type, float multiplier)
