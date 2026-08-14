@@ -21,6 +21,7 @@ namespace Godmist.Core.Constants
         public const string Taunt = "taunt";
         public const string Invisibility = "invisibility";
         public const string Regeneration = "regeneration";
+        public const string Counterattack = "counterattack";
 
         public static readonly IReadOnlyList<string> KnownIds =
             new[]
@@ -36,7 +37,8 @@ namespace Godmist.Core.Constants
                 Chill,
                 Taunt,
                 Invisibility,
-                Regeneration
+                Regeneration,
+                Counterattack
             };
     }
 }

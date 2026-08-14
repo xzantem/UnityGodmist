@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Effects;
+using Godmist.Data.Skills;
 
 namespace Godmist.Runtime.Effects
 {
@@ -21,6 +23,9 @@ namespace Godmist.Runtime.Effects
 
         public int TotalDamage;
         public float StatusHealPercent;
+        public SkillData CounterattackSkill;
+        public SkillRangeData CounterattackRange;
+        public List<SkillEffectData> CounterattackEffects = new();
         public List<StatModifier> StatModifiers = new();
         public List<GameplayVariableModifier> VariableModifiers = new();
 

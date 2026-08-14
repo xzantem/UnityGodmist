@@ -25,6 +25,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatTeleportSystem teleportSystem;
         private readonly SummonedObjectSystem summonedObjectSystem;
         private readonly SummonSystem summonSystem;
+        private readonly CombatReactionSystem reactionSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -40,7 +41,8 @@ namespace Godmist.Systems.Combat
             CombatChargeSystem chargeSystem = null,
             CombatTeleportSystem teleportSystem = null,
             SummonedObjectSystem summonedObjectSystem = null,
-            SummonSystem summonSystem = null)
+            SummonSystem summonSystem = null,
+            CombatReactionSystem reactionSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -81,6 +83,7 @@ namespace Godmist.Systems.Combat
             this.summonedObjectSystem = summonedObjectSystem
                 ?? new SummonedObjectSystem(battleLog);
             this.summonSystem = summonSystem ?? new SummonSystem(battleLog);
+            this.reactionSystem = reactionSystem ?? new CombatReactionSystem(battleLog);
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -279,7 +282,8 @@ namespace Godmist.Systems.Combat
                         effect,
                         effectIndex,
                         wasHit,
-                        teleportDestination);
+                        teleportDestination,
+                        isReactionExecution: false);
                 }
 
                 resultsByEffectIndex[effectIndex] =
@@ -412,6 +416,29 @@ namespace Godmist.Systems.Combat
             bool wasHit,
             GridPosition? teleportDestination)
         {
+            return ExecuteEffect(
+                session,
+                caster,
+                target,
+                skill,
+                effect,
+                effectIndex,
+                wasHit,
+                teleportDestination,
+                isReactionExecution: false);
+        }
+
+        private EffectExecutionResult ExecuteEffect(
+            CombatSession session,
+            BattleUnit caster,
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex,
+            bool wasHit,
+            GridPosition? teleportDestination,
+            bool isReactionExecution)
+        {
             switch (effect.EffectType)
             {
                 case EffectType.DealDamage:
@@ -420,6 +447,11 @@ namespace Godmist.Systems.Combat
                         caster, effect.DamageValueSource, effect.DamageMultiplier);
                     var damageResult = damageSystem.ResolveAndApplyDamage(session, caster, target, attackValue, 
                         effect.DamageType, wasHit);
+
+                    if (damageResult.Hit && !isReactionExecution)
+                    {
+                        TryExecuteCounterattack(session, target, caster);
+                    }
 
                     return new EffectExecutionResult
                     {
@@ -1288,6 +1320,73 @@ namespace Godmist.Systems.Combat
 
                 session.ScheduledEffects.RemoveAt(index);
                 ExecuteScheduledEffect(session, caster, scheduled);
+            }
+        }
+
+        private void TryExecuteCounterattack(
+            CombatSession session,
+            BattleUnit defender,
+            BattleUnit attacker)
+        {
+            if (!reactionSystem.TryConsumeCounterattack(
+                    defender,
+                    attacker,
+                    out var reactionSkill,
+                    out var reactionEffects))
+            {
+                return;
+            }
+
+            if (reactionEffects == null)
+            {
+                return;
+            }
+
+            var hitByTarget = new Dictionary<BattleUnit, bool>();
+            var resultsByEffectIndex =
+                new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
+
+            for (var effectIndex = 0;
+                effectIndex < reactionEffects.Count;
+                effectIndex++)
+            {
+                var effect = reactionEffects[effectIndex];
+                if (effect == null
+                    || attacker.Character.LifeState == CharacterLifeState.Dead)
+                {
+                    continue;
+                }
+
+                if (!ShouldExecuteEffect(effect, defender, attacker, resultsByEffectIndex))
+                {
+                    resultsByEffectIndex[effectIndex] =
+                        new Dictionary<BattleUnit, EffectExecutionResult>
+                        {
+                            [attacker] = EffectExecutionResult.None
+                        };
+                    continue;
+                }
+
+                var wasHit = !RequiresHitRoll(effect)
+                    || ResolveTargetHit(defender, attacker, reactionSkill, hitByTarget);
+                var result = wasHit
+                    ? ExecuteEffect(
+                        session,
+                        defender,
+                        attacker,
+                        reactionSkill,
+                        effect,
+                        effectIndex,
+                        wasHit,
+                        teleportDestination: null,
+                        isReactionExecution: true)
+                    : EffectExecutionResult.None;
+
+                resultsByEffectIndex[effectIndex] =
+                    new Dictionary<BattleUnit, EffectExecutionResult>
+                    {
+                        [attacker] = result
+                    };
             }
         }
 

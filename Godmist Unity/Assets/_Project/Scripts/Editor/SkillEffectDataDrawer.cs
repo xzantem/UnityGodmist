@@ -45,6 +45,10 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("statusDamageMultiplier");
             var statusHealPercent =
                 property.FindPropertyRelative("statusHealPercent");
+            var counterattackRange =
+                property.FindPropertyRelative("counterattackRange");
+            var counterattackEffects =
+                property.FindPropertyRelative("counterattackEffects");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType =
                 property.FindPropertyRelative("modifierStatType");
@@ -79,6 +83,8 @@ namespace Godmist.Editor
             var y = position.y;
             var selectedEffect =
                 (EffectType)effectType.enumValueIndex;
+            var isCounterattackEffect = property.propertyPath.Contains(
+                "counterattackEffects");
 
             DrawField(position, ref y, effectType);
 
@@ -117,11 +123,14 @@ namespace Godmist.Editor
                 return;
             }
 
-            DrawTargetModePopup(
-                position,
-                ref y,
-                property,
-                targetModeIndex);
+            if (!isCounterattackEffect)
+            {
+                DrawTargetModePopup(
+                    position,
+                    ref y,
+                    property,
+                    targetModeIndex);
+            }
 
             var selectedPolarity =
                 (EffectPolarity)polarity.enumValueIndex;
@@ -217,6 +226,12 @@ namespace Godmist.Editor
                         ref y,
                         statusHealPercent);
                 }
+
+                if (statusId.stringValue == StatusEffectIds.Counterattack)
+                {
+                    DrawField(position, ref y, counterattackRange, true);
+                    DrawField(position, ref y, counterattackEffects, true);
+                }
             }
 
             if (SupportsDelayedExecution(selectedEffect))
@@ -253,6 +268,10 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("statusDamageMultiplier");
             var statusHealPercent =
                 property.FindPropertyRelative("statusHealPercent");
+            var counterattackRange =
+                property.FindPropertyRelative("counterattackRange");
+            var counterattackEffects =
+                property.FindPropertyRelative("counterattackEffects");
             var conditions = property.FindPropertyRelative("conditions");
             var modifierStatType =
                 property.FindPropertyRelative("modifierStatType");
@@ -288,6 +307,8 @@ namespace Godmist.Editor
             var height = 0f;
             var selectedEffect =
                 (EffectType)effectType.enumValueIndex;
+            var isCounterattackEffect = property.propertyPath.Contains(
+                "counterattackEffects");
 
             AddHeight(ref height, effectType);
 
@@ -319,7 +340,10 @@ namespace Godmist.Editor
                 return height;
             }
 
-            AddHeight(ref height, targetModeIndex);
+            if (!isCounterattackEffect)
+            {
+                AddHeight(ref height, targetModeIndex);
+            }
 
             var selectedPolarity =
                 (EffectPolarity)polarity.enumValueIndex;
@@ -409,6 +433,12 @@ namespace Godmist.Editor
                 if (statusId.stringValue == StatusEffectIds.Sleep)
                 {
                     AddHeight(ref height, statusHealPercent);
+                }
+
+                if (statusId.stringValue == StatusEffectIds.Counterattack)
+                {
+                    AddHeight(ref height, counterattackRange, true);
+                    AddHeight(ref height, counterattackEffects, true);
                 }
             }
 

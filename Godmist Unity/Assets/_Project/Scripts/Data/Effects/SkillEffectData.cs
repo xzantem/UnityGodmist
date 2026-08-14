@@ -56,6 +56,11 @@ namespace Godmist.Data.Effects
         [SerializeField, Min(0f)] private float statusDamageMultiplier;
         [SerializeField, Range(0f, 1f)] private float statusHealPercent;
 
+        [Header("Counterattack")]
+        [SerializeField] private SkillRangeData counterattackRange =
+            new SkillRangeData(RangeShape.Square, 1, 1);
+        [SerializeField] private List<SkillEffectData> counterattackEffects = new();
+
         [SerializeField] private CharacterStatType modifierStatType =
             CharacterStatType.MaxHealth;
 
@@ -104,6 +109,9 @@ namespace Godmist.Data.Effects
         public int Stacks => stacks;
         public float StatusDamageMultiplier => statusDamageMultiplier;
         public float StatusHealPercent => statusHealPercent;
+        public SkillRangeData CounterattackRange => counterattackRange;
+        public IReadOnlyList<SkillEffectData> CounterattackEffects =>
+            counterattackEffects;
         public CharacterStatType ModifierStatType => modifierStatType;
         public GameplayVariableType ModifierVariableType =>
             modifierVariableType;

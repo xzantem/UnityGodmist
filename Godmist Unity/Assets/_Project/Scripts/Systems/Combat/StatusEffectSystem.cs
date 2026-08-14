@@ -472,6 +472,17 @@ namespace Godmist.Systems.Combat
                 ResolveTickPhase(effect.StatusId),
                 effect.StatusHealPercent);
 
+            if (string.Equals(effect.StatusId, StatusEffectIds.Counterattack,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                runtimeEffect.CounterattackSkill = skill;
+                runtimeEffect.CounterattackRange = effect.CounterattackRange;
+                runtimeEffect.CounterattackEffects =
+                    effect.CounterattackEffects != null
+                        ? new List<SkillEffectData>(effect.CounterattackEffects)
+                        : new List<SkillEffectData>();
+            }
+
             if (string.Equals(
                     effect.StatusId,
                     StatusEffectIds.Chill,
@@ -667,6 +678,9 @@ namespace Godmist.Systems.Combat
 
                 StatusEffectIds.Invisibility
                     => PassiveEffectStackingMode.ReplaceDuration,
+
+                StatusEffectIds.Counterattack
+                    => PassiveEffectStackingMode.ReplaceDurationAndValues,
 
                 _ => PassiveEffectStackingMode.MaxDurationAndValues
             };

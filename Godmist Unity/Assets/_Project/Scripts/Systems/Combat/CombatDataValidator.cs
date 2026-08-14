@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Effects;
@@ -472,6 +473,17 @@ namespace Godmist.Systems.Combat
                         report.AddError(
                             $"{prefix}: Base Chance must be between 0 and 1.");
                     }
+
+                    if (string.Equals(effect.StatusId, StatusEffectIds.Counterattack,
+                            System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        ValidateRange(effect.CounterattackRange,
+                            $"{prefix}: Counterattack Range", report);
+                        ValidateCounterattackEffects(
+                            effect.CounterattackEffects,
+                            prefix,
+                            report);
+                    }
                 }
 
                 if (effect.Conditions == null)
@@ -526,6 +538,67 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        private static void ValidateCounterattackEffects(
+            IReadOnlyList<SkillEffectData> effects,
+            string prefix,
+            CombatDataValidationReport report)
+        {
+            if (effects == null || effects.Count == 0)
+            {
+                report.AddError($"{prefix}: Counterattack requires at least one reaction effect.");
+                return;
+            }
+
+            for (var index = 0; index < effects.Count; index++)
+            {
+                var effect = effects[index];
+                var effectPrefix = $"{prefix}: Counterattack Effect [{index}]";
+
+                if (effect == null)
+                {
+                    report.AddError($"{effectPrefix} cannot be null.");
+                    continue;
+                }
+
+                if (!SupportsCounterattackEffect(effect.EffectType))
+                {
+                    report.AddError(
+                        $"{effectPrefix}: {effect.EffectType} is not supported in v1.");
+                }
+
+                if (effect.DelayCasterTurns > 0)
+                {
+                    report.AddError(
+                        $"{effectPrefix}: delayed effects are not supported in v1.");
+                }
+
+                if (effect.EffectType == EffectType.ApplyStatus
+                    && string.IsNullOrWhiteSpace(effect.StatusId))
+                {
+                    report.AddError($"{effectPrefix}: Status ID is required.");
+                }
+
+                if (effect.EffectType == EffectType.ApplyStatus
+                    && string.Equals(effect.StatusId, StatusEffectIds.Counterattack,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    report.AddError(
+                        $"{effectPrefix}: nested Counterattack is not supported in v1.");
+                }
+            }
+        }
+
+        private static bool SupportsCounterattackEffect(EffectType effectType)
+        {
+            return effectType == EffectType.DealDamage
+                || effectType == EffectType.ApplyStatus
+                || effectType == EffectType.Heal
+                || effectType == EffectType.RestoreResource
+                || effectType == EffectType.Shield
+                || effectType == EffectType.ModifyStat
+                || effectType == EffectType.ModifyVar;
         }
 
         private static void ValidateRange(
