@@ -380,6 +380,9 @@ namespace Godmist.Views.Combat
                 summonSystem?.RemoveSummonsCreatedBy(
                     Session,
                     removedUnit.Character.CharacterId);
+                skillExecutionSystem?.CancelScheduledEffectsByCaster(
+                    Session,
+                    removedUnit.Character.CharacterId);
             }
 
             Session.Units.Remove(removedUnit);
@@ -484,6 +487,7 @@ namespace Godmist.Views.Combat
         private void HandleUnitTurnEnded(BattleUnit unit)
         {
             statusEffectSystem?.ProcessTurnEnd(unit);
+            skillExecutionSystem?.ProcessScheduledEffects(Session, unit);
             summonSystem?.AdvanceDurationAtTurnEnd(Session, unit);
             CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
         }
@@ -496,6 +500,9 @@ namespace Godmist.Views.Combat
             }
 
             summonSystem?.RemoveSummonsCreatedBy(
+                Session,
+                unit.Character.CharacterId);
+            skillExecutionSystem?.CancelScheduledEffectsByCaster(
                 Session,
                 unit.Character.CharacterId);
         }
@@ -695,7 +702,8 @@ namespace Godmist.Views.Combat
                 skill,
                 targetsByModeIndex,
                 teleportDestination,
-                objectPlacementDestination);
+                objectPlacementDestination,
+                selectedPositionsByModeIndex);
         }
 
         private bool TryBuildSkillTargetGroups(

@@ -142,6 +142,19 @@ namespace Godmist.Systems.Combat
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination)
         {
+            return TryExecute(session, caster, skill, targetsByModeIndex,
+                teleportDestination, objectPlacementDestination, null);
+        }
+
+        public bool TryExecute(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            GridPosition? teleportDestination,
+            GridPosition? objectPlacementDestination,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
+        {
             if (!CanExecute(
                     session,
                     caster,
@@ -213,6 +226,13 @@ namespace Godmist.Systems.Combat
 
                 var targets = targetsByModeIndex[effect.TargetModeIndex];
 
+                if (effect.DelayCasterTurns > 0)
+                {
+                    ScheduleEffect(session, caster, skill, effect, effectIndex,
+                        targets, selectedPositionsByModeIndex);
+                    continue;
+                }
+
                 var resultsForNormalEffect =
                     new Dictionary<BattleUnit, EffectExecutionResult>();
 
@@ -275,6 +295,111 @@ namespace Godmist.Systems.Combat
 
             CombatTurnSystem.RefreshMaxActionPoints(session);
             return true;
+        }
+
+        private void ScheduleEffect(
+            CombatSession session, BattleUnit caster, SkillData skill,
+            SkillEffectData effect, int effectIndex,
+            IReadOnlyList<BattleUnit> targets,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositions)
+        {
+            var target = targets != null && targets.Count > 0 ? targets[0] : null;
+            GridPosition? position = target?.Position;
+            if (selectedPositions != null
+                && selectedPositions.TryGetValue(effect.TargetModeIndex, out var selected)
+                && selected.HasValue)
+                position = selected;
+
+            session.ScheduledEffects ??= new List<ScheduledCombatEffect>();
+            session.ScheduledEffects.Add(new ScheduledCombatEffect(
+                caster.Character.CharacterId, skill, effect, effectIndex,
+                effect.DelayCasterTurns + 1, target?.Character?.CharacterId, position));
+            battleLog?.Invoke($"{caster.Character.Definition.DisplayName} planuje efekt za {effect.DelayCasterTurns} tur.");
+        }
+
+        private void ExecuteScheduledEffect(CombatSession session, BattleUnit caster,
+            ScheduledCombatEffect scheduled)
+        {
+            var targets = ResolveScheduledTargets(session, caster, scheduled);
+            var hitByTarget = new Dictionary<BattleUnit, bool>();
+            var results = new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
+
+            foreach (var target in targets)
+            {
+                if (target?.Character == null
+                    || target.Character.LifeState == CharacterLifeState.Dead
+                    || !ShouldExecuteEffect(scheduled.Effect, caster, target, results))
+                    continue;
+
+                var wasHit = !RequiresHitRoll(scheduled.Effect)
+                    || ResolveTargetHit(caster, target, scheduled.Skill, hitByTarget);
+                if (wasHit)
+                    ExecuteEffect(session, caster, target, scheduled.Skill,
+                        scheduled.Effect, scheduled.EffectIndex, true, null);
+            }
+
+            battleLog?.Invoke($"Wykonuje sie opozniony efekt {scheduled.Skill.DisplayName}.");
+        }
+
+        private static IReadOnlyList<BattleUnit> ResolveScheduledTargets(
+            CombatSession session, BattleUnit caster, ScheduledCombatEffect scheduled)
+        {
+            var targets = new List<BattleUnit>();
+            if (session?.Units == null || scheduled?.Skill?.TargetModes == null
+                || scheduled.Effect.TargetModeIndex < 0
+                || scheduled.Effect.TargetModeIndex >= scheduled.Skill.TargetModes.Count)
+                return targets;
+
+            var mode = scheduled.Skill.TargetModes[scheduled.Effect.TargetModeIndex];
+            if (mode?.TargetType == TargetType.Single)
+            {
+                foreach (var unit in session.Units)
+                    if (unit?.Character?.CharacterId == scheduled.TargetCharacterId)
+                    {
+                        targets.Add(unit);
+                        break;
+                    }
+                return targets;
+            }
+            if (mode?.TargetType == TargetType.Caster)
+            {
+                targets.Add(caster);
+                return targets;
+            }
+            if (mode?.TargetType == TargetType.AreaAroundTile
+                && scheduled.TargetPosition.HasValue)
+            {
+                foreach (var unit in session.Units)
+                {
+                    if (unit?.Character == null
+                        || unit.Character.LifeState != CharacterLifeState.Alive
+                        || !IsScheduledTargetEligible(caster, unit,
+                            mode.TargetingType)
+                        || !CombatTargetingService.IsPositionWithinRange(
+                            scheduled.TargetPosition.Value,
+                            unit.Position,
+                            mode.RelativeRange))
+                    {
+                        continue;
+                    }
+
+                    targets.Add(unit);
+                }
+            }
+
+            return targets;
+        }
+
+        private static bool IsScheduledTargetEligible(
+            BattleUnit caster,
+            BattleUnit target,
+            TargetingType targetingType)
+        {
+            return targetingType == TargetingType.All
+                || targetingType == TargetingType.Allies
+                    && target.IsPlayerSide == caster.IsPlayerSide
+                || targetingType == TargetingType.Enemies
+                    && target.IsPlayerSide != caster.IsPlayerSide;
         }
 
         private EffectExecutionResult ExecuteEffect(
@@ -1134,6 +1259,51 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        public void ProcessScheduledEffects(
+            CombatSession session,
+            BattleUnit caster)
+        {
+            if (session?.ScheduledEffects == null || caster?.Character == null
+                || caster.Character.LifeState == CharacterLifeState.Dead)
+            {
+                return;
+            }
+
+            for (var index = session.ScheduledEffects.Count - 1; index >= 0; index--)
+            {
+                var scheduled = session.ScheduledEffects[index];
+                if (scheduled == null || scheduled.CasterCharacterId
+                    != caster.Character.CharacterId)
+                {
+                    continue;
+                }
+
+                scheduled.RemainingCasterTurns--;
+                if (scheduled.RemainingCasterTurns > 0)
+                {
+                    continue;
+                }
+
+                session.ScheduledEffects.RemoveAt(index);
+                ExecuteScheduledEffect(session, caster, scheduled);
+            }
+        }
+
+        public int CancelScheduledEffectsByCaster(
+            CombatSession session,
+            string casterCharacterId)
+        {
+            if (session?.ScheduledEffects == null
+                || string.IsNullOrWhiteSpace(casterCharacterId))
+            {
+                return 0;
+            }
+
+            return session.ScheduledEffects.RemoveAll(effect => effect != null
+                && string.Equals(effect.CasterCharacterId, casterCharacterId,
+                    StringComparison.OrdinalIgnoreCase));
         }
 
         private bool IsValidSummonPlacement(

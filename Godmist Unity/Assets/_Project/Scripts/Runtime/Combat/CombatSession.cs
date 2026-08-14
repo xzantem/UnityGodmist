@@ -16,6 +16,7 @@ namespace Godmist.Runtime.Combat
         public float ActionPointsPerSpeed = 0.25f;
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();
+        public List<ScheduledCombatEffect> ScheduledEffects = new();
         public List<SummonedBattleUnit> Summons = new();
         public HashSet<string> DefeatedEnemyInstanceIds = new();
         public List<CombatMapObject> MapObjects = new();

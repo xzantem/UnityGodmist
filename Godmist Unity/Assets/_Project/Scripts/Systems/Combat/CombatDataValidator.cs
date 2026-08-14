@@ -310,6 +310,19 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (effect.DelayCasterTurns > 0
+                    && (effect.EffectType == EffectType.CreateObject
+                        || effect.EffectType == EffectType.Summon
+                        || effect.EffectType == EffectType.Teleport
+                        || effect.EffectType == EffectType.Charge
+                        || effect.EffectType == EffectType.Push
+                        || effect.EffectType == EffectType.Pull
+                        || effect.EffectType == EffectType.Fallback))
+                {
+                    report.AddError(
+                        $"{prefix}: delayed {effect.EffectType} is not supported in v1.");
+                }
+
                 if (effect.EffectType == EffectType.Summon)
                 {
                     if (effect.SummonedCharacterDefinition == null)

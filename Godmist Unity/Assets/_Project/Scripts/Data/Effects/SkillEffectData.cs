@@ -23,6 +23,9 @@ namespace Godmist.Data.Effects
         [SerializeField, Min(1)] private int damageHitCount = 1;
         [SerializeField] private DamageType damageType = DamageType.Physical;
 
+        [Header("Scheduled Effect")]
+        [SerializeField, Min(0)] private int delayCasterTurns;
+
         [FormerlySerializedAs("pushDistance")]
         [SerializeField, Min(1)] private int displacementDistance = 1;
 
@@ -77,6 +80,7 @@ namespace Godmist.Data.Effects
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
         public int DamageHitCount => Mathf.Max(1, damageHitCount);
+        public int DelayCasterTurns => Mathf.Max(0, delayCasterTurns);
         public int DisplacementDistance => displacementDistance;
         public SkillRangeData TeleportDestinationRange => teleportDestinationRange;
         public SummonedObjectDefinition SummonedObjectDefinition =>

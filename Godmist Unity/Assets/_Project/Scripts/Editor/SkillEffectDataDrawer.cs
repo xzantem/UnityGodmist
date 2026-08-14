@@ -34,6 +34,8 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("damageValueSource");
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
+            var delayCasterTurns =
+                property.FindPropertyRelative("delayCasterTurns");
             var displacementDistance =
                 property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
@@ -217,6 +219,11 @@ namespace Godmist.Editor
                 }
             }
 
+            if (SupportsDelayedExecution(selectedEffect))
+            {
+                DrawField(position, ref y, delayCasterTurns);
+            }
+
             DrawField(position, ref y, conditions, true);
             EditorGUI.EndProperty();
         }
@@ -235,6 +242,8 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("damageValueSource");
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
+            var delayCasterTurns =
+                property.FindPropertyRelative("delayCasterTurns");
             var displacementDistance =
                 property.FindPropertyRelative("displacementDistance");
             var baseChance = property.FindPropertyRelative("baseChance");
@@ -403,8 +412,24 @@ namespace Godmist.Editor
                 }
             }
 
+            if (SupportsDelayedExecution(selectedEffect))
+            {
+                AddHeight(ref height, delayCasterTurns);
+            }
+
             AddHeight(ref height, conditions, true);
             return height;
+        }
+
+        private static bool SupportsDelayedExecution(EffectType effectType)
+        {
+            return effectType == EffectType.DealDamage
+                || effectType == EffectType.ApplyStatus
+                || effectType == EffectType.Heal
+                || effectType == EffectType.RestoreResource
+                || effectType == EffectType.Shield
+                || effectType == EffectType.ModifyStat
+                || effectType == EffectType.ModifyVar;
         }
 
         private static void DrawField(
