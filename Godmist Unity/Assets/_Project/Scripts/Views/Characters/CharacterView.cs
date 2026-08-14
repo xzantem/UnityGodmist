@@ -38,7 +38,16 @@ namespace Godmist.Views.Characters
             BoundUnit = unit;
             ConfigureVisual();
             lastKnownHealth = BoundUnit?.Character?.CurrentHealth ?? 0;
+            SetNameLabelVisible(false);
             Refresh();
+        }
+
+        public void SetNameLabelVisible(bool visible)
+        {
+            if (nameLabel != null)
+            {
+                nameLabel.gameObject.SetActive(visible);
+            }
         }
 
         public void Refresh()

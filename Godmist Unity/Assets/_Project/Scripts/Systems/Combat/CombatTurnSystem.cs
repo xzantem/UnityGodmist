@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
@@ -60,6 +61,65 @@ namespace Godmist.Systems.Combat
             ClearActiveParticipant(session);
             SyncLegacyState(session);
             AdvanceTurn(session);
+        }
+
+        /// <summary>
+        /// Projects the next unit turn events without changing the combat session.
+        /// A unit can appear more than once when its speed earns it multiple turns
+        /// inside the requested preview window.
+        /// </summary>
+        public static IReadOnlyList<BattleUnit> GetUpcomingUnitTurns(
+            CombatSession session,
+            int maxTurnCount)
+        {
+            var upcomingUnits = new List<BattleUnit>();
+            if (session?.TurnParticipants == null || maxTurnCount <= 0)
+            {
+                return upcomingUnits;
+            }
+
+            var previewParticipants = session.TurnParticipants
+                .Where(IsScheduledParticipant)
+                .Select((participant, index) => new TurnPreviewParticipant(
+                    participant,
+                    participant.CurrentActionValue,
+                    index))
+                .ToList();
+
+            var simulatedEventCount = 0;
+            var maxSimulatedEventCount = maxTurnCount
+                * Math.Max(1, previewParticipants.Count)
+                * 4;
+            while (upcomingUnits.Count < maxTurnCount
+                && previewParticipants.Count > 0
+                && simulatedEventCount < maxSimulatedEventCount)
+            {
+                simulatedEventCount++;
+                var nextParticipant = previewParticipants
+                    .OrderBy(participant => participant.ActionValue)
+                    .ThenBy(participant => participant.InitialOrder)
+                    .First();
+
+                var elapsedActionValue = Math.Max(0f, nextParticipant.ActionValue);
+                foreach (var participant in previewParticipants)
+                {
+                    participant.ActionValue = UnityEngine.Mathf.Max(
+                        0f,
+                        participant.ActionValue - elapsedActionValue);
+                }
+
+                if (nextParticipant.Participant.IsUnit)
+                {
+                    upcomingUnits.Add(nextParticipant.Participant.Unit);
+                }
+
+                // This mirrors EndActiveTurn: the selected participant receives its
+                // next AV cost, while all other AV values remain in the projected state.
+                nextParticipant.ActionValue = CalculateBaseActionValue(
+                    nextParticipant.Participant);
+            }
+
+            return upcomingUnits;
         }
 
         public void EndActiveTurn(CombatSession session)
@@ -375,6 +435,23 @@ namespace Godmist.Systems.Combat
         {
             return unit?.Character != null
                 && unit.Character.LifeState == CharacterLifeState.Alive;
+        }
+
+        private sealed class TurnPreviewParticipant
+        {
+            public CombatTurnParticipant Participant { get; }
+            public int InitialOrder { get; }
+            public float ActionValue { get; set; }
+
+            public TurnPreviewParticipant(
+                CombatTurnParticipant participant,
+                float actionValue,
+                int initialOrder)
+            {
+                Participant = participant;
+                ActionValue = actionValue;
+                InitialOrder = initialOrder;
+            }
         }
 
         private bool ProcessDownedTurn(

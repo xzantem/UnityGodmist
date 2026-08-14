@@ -139,8 +139,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Characters.CharacterView
   bodyRenderer: {fileID: 2270385703259272302}
   nameLabel: {fileID: 6915420012608762727}
-  playerSideColor: {r: 0.35, g: 0.75, b: 1, a: 1}
-  enemySideColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  playerSideColor: {r: 1, g: 1, b: 1, a: 1}
+  enemySideColor: {r: 1, g: 1, b: 1, a: 1}
+  movementSpeed: 6
+  hitReactionDuration: 0.15
 --- !u!1 &5741904289142605621
 GameObject:
   m_ObjectHideFlags: 0

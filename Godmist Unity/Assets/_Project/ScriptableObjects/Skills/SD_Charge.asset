@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57a1aa6dfa4ff614099473e644dd70c5, type: 3}
   m_Name: SD_Charge
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
-  <SkillId>k__BackingField: skill.teleport
-  <DisplayName>k__BackingField: Teleport
+  <SkillId>k__BackingField: skill.charge
+  <DisplayName>k__BackingField: Charge
+  <Icon>k__BackingField: {fileID: 8837743337478535082, guid: 36692b02b68624e49af0f212e46cae86, type: 3}
+  <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
   <ActionCost>k__BackingField: 70
   <ResourceCost>k__BackingField: 0
@@ -39,18 +41,40 @@ MonoBehaviour:
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
+    damageHitCount: 1
     damageType: 0
+    delayCasterTurns: 0
     displacementDistance: 5
     teleportDestinationRange:
       shape: 1
       minRange: 0
       maxRange: 3
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 1
     statusId: 
     durationTurns: 0
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0

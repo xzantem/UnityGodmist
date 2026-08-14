@@ -207,8 +207,8 @@ MonoBehaviour:
   nameLabel: {fileID: 6198129022348499675}
   body: {fileID: 2333303334119171999}
   movementCollider: {fileID: 3185174498380836762}
-  leaderColor: {r: 0.92, g: 0.68, b: 0.27, a: 1}
-  followerColor: {r: 0.35, g: 0.75, b: 1, a: 1}
+  leaderColor: {r: 1, g: 1, b: 1, a: 1}
+  followerColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &7422089678188437496
 GameObject:
   m_ObjectHideFlags: 0

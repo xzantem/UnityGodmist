@@ -50,8 +50,24 @@ Priorytety:
 ## In Progress
 
 
+## Playable / Test
+
+
 ## Done
 
+- `[P1] Przebudowac istniejacy CombatHUD do ukladu docelowego` - `UI / UX`, `Combat`
+- `[P2] Dodac personality AI v1` - `Combat`, `Content / Data`
+- `[P2] Dodac role AI v1` - `Combat`, `Content / Data`
+- `[P2] Dodac reakcje oraz podstawowe counterattack v1` - `Combat`, `Content / Data`
+- `[P1] Dodac scoring dostepnych skilli AI v1` - `Combat`
+- `[P2] Dodac scheduled effects i wieloturowe skille v1` - `Combat`, `Content / Data`
+- `[P2] Dodac CreateObject i Summon v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+- `[P1] Dodac zrodla i wygasanie modifierow v2` - `Combat`, `Core / Architecture`
+- `[P1] Dodac Poison i Burn v1` - `Combat`, `Content / Data`
+- `[P1] Przeniesc Stun i Immobilize do PassiveEffectRuntime oraz dodac Sleep, Freeze i Paralysis v1` - `Combat`, `Content / Data`
+- `[P2] Dodac Taunt i Invisibility v1` - `Combat`, `Content / Data`
+- `[P1] Dodac Pull i Fallback v1` - `Combat`, `World / Dungeon / Exploration`
+- `[P1] Dodac Charge i Teleport v1` - `Combat`, `World / Dungeon / Exploration`
 - `[P1] Dodac runtime ModifyVar v2` - `Combat`, `Core / Architecture`
 - `[P1] Dodac runtime ModifyStat v2` - `Combat`, `Core / Architecture`
 - `[P1] Przeniesc Bleed do PassiveEffectRuntime v2` - `Combat`, `Core / Architecture`
@@ -214,19 +230,6 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-- `[P1] Dodac zrodla i wygasanie modifierow v2` - `Combat`, `Core / Architecture`
-- `[P1] Dodac Poison i Burn v1` - `Combat`, `Content / Data`
-- `[P1] Przeniesc Stun i Immobilize do PassiveEffectRuntime oraz dodac Sleep, Freeze i Paralysis v1` - `Combat`, `Content / Data`
-- `[P2] Dodac Taunt i Invisibility v1` - `Combat`, `Content / Data`
-- `[P1] Dodac Pull i Fallback v1` - `Combat`, `World / Dungeon / Exploration`
-- `[P1] Dodac Charge i Teleport v1` - `Combat`, `World / Dungeon / Exploration`
-- `[P2] Dodac CreateObject i Summon v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-- `[P2] Dodac scheduled effects i wieloturowe skille v1` - `Combat`, `Content / Data`
-- `[P2] Dodac reakcje oraz podstawowe counterattack v1` - `Combat`, `Content / Data`
-- `[P1] Dodac scoring dostepnych skilli AI v1` - `Combat`
-- `[P2] Dodac role AI v1` - `Combat`, `Content / Data`
-- `[P2] Dodac personality AI v1` - `Combat`, `Content / Data`
-- `[P1] Przebudowac istniejacy CombatHUD do ukladu docelowego` - `UI / UX`, `Combat`
 - `[P1] Rozszerzyc Floating Combat Feedback v2` - `UI / UX`, `Combat`
 - `[P1] Dodac status indicators i tooltipy v1` - `UI / UX`, `Combat`
 - `[P2] Dodac wizualne stany obiektow i jednostek v1` - `UI / UX`, `Combat`, `World / Dungeon / Exploration`

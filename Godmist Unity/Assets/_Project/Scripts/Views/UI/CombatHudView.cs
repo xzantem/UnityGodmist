@@ -1,6 +1,7 @@
-using System.Linq;
+using System.Collections.Generic;
+using Godmist.Runtime.Combat;
+using Godmist.Systems.Combat;
 using Godmist.Views.Combat;
-using TMPro;
 using UnityEngine;
 
 namespace Godmist.Views.UI
@@ -8,109 +9,76 @@ namespace Godmist.Views.UI
     public class CombatHudView : MonoBehaviour
     {
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
+        [SerializeField] private Transform turnOrderContainer;
+        [SerializeField] private CombatTurnPortraitView turnOrderEntryPrefab;
+        [SerializeField, Min(1)] private int displayedTurnCount = 8;
+        [SerializeField] private CombatActiveUnitView activeUnitView;
 
-        [Header("Top Bar")]
-        [SerializeField] private TextMeshProUGUI encounterInfoText;
-        [SerializeField] private TextMeshProUGUI turnOrderText;
-
-        [Header("Bottom Panel")]
-        [SerializeField] private TextMeshProUGUI activeUnitText;
+        private readonly List<CombatTurnPortraitView> turnEntries = new();
 
         private void Update()
         {
-            if (sandboxBootstrap == null)
-            {
-                return;
-            }
-
-            var session = sandboxBootstrap.Session;
-
+            var session = sandboxBootstrap?.Session;
             if (session == null)
             {
-                SetNoSessionState();
+                SetVisible(false);
                 return;
             }
 
-            RefreshEncounterInfo(session);
+            SetVisible(true);
             RefreshTurnOrder(session);
-            RefreshActiveUnit(session);
+            activeUnitView?.Bind(session.ActiveUnit, true);
         }
 
-        private void SetNoSessionState()
+        private void SetVisible(bool visible)
         {
-            if (encounterInfoText != null)
+            if (activeUnitView != null)
             {
-                encounterInfoText.text = "Stan walki: brak sesji";
+                activeUnitView.gameObject.SetActive(visible);
             }
 
-            if (turnOrderText != null)
+            if (visible)
             {
-                turnOrderText.text = "Kolejka tur: -";
+                return;
             }
 
-            if (activeUnitText != null)
+            foreach (var entry in turnEntries)
             {
-                activeUnitText.text = "Brak aktywnej postaci";
+                if (entry != null)
+                {
+                    entry.gameObject.SetActive(false);
+                }
             }
         }
 
-        private void RefreshEncounterInfo(Runtime.Combat.CombatSession session)
+        private void RefreshTurnOrder(CombatSession session)
         {
-            if (encounterInfoText == null)
+            if (turnOrderContainer == null || turnOrderEntryPrefab == null
+                || session.TurnParticipants == null)
             {
                 return;
             }
 
-            encounterInfoText.text = $"Stan walki: {session.Outcome}";
-        }
-
-        private void RefreshTurnOrder(Runtime.Combat.CombatSession session)
-        {
-            if (turnOrderText == null)
+            var upcomingTurns = CombatTurnSystem.GetUpcomingUnitTurns(
+                session,
+                displayedTurnCount);
+            var count = upcomingTurns.Count;
+            while (turnEntries.Count < count)
             {
-                return;
+                turnEntries.Add(Instantiate(turnOrderEntryPrefab, turnOrderContainer));
             }
 
-            if (session.TurnOrder == null || session.TurnOrder.Count == 0)
+            for (var index = 0; index < turnEntries.Count; index++)
             {
-                turnOrderText.text = "Kolejka tur: -";
-                return;
+                var visible = index < count;
+                turnEntries[index].gameObject.SetActive(visible);
+                if (visible)
+                {
+                    turnEntries[index].Bind(
+                        upcomingTurns[index],
+                        index == 0 && upcomingTurns[index] == session.ActiveUnit);
+                }
             }
-
-            var names = session.TurnOrder
-                .Select(unit => unit.Character.Definition.DisplayName);
-
-            turnOrderText.text = $"Kolejka tur: {string.Join(" -> ", names)}";
-        }
-
-        private void RefreshActiveUnit(Runtime.Combat.CombatSession session)
-        {
-            if (activeUnitText == null)
-            {
-                return;
-            }
-
-            if (session.ActiveUnit == null)
-            {
-                activeUnitText.text = "Brak aktywnej postaci";
-                return;
-            }
-
-            var unit = session.ActiveUnit;
-            var character = unit.Character;
-            var resource = character.ResourcePool;
-            var shield = character.ShieldPool?.TotalShield ?? 0;
-            var healthText = shield > 0 
-                ? $"{character.CurrentHealth}(+{shield})/{character.Stats.MaxHealth.GetValue():0}"
-                : $"{character.CurrentHealth}/{character.Stats.MaxHealth.GetValue():0}";
-
-            activeUnitText.text =
-                $"Aktywna postać: {character.Definition.DisplayName}\n" +
-                $"Klasa: {character.ClassData.ClassName}\n" +
-                $"HP: {healthText}\n" +
-                $"AP: {unit.CurrentActionPoints}/{unit.MaxActionPoints}\n" +
-                $"Surowiec: {resource.CurrentValue}/{resource.MaxValue} ({resource.ResourceType})\n" +
-                $"Pozycja: [{unit.Position.X}, {unit.Position.Y}]";
         }
     }
 }

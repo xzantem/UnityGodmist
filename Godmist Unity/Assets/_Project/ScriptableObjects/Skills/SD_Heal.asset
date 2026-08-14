@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.heal
   <DisplayName>k__BackingField: Heal
+  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
-  <ActionCost>k__BackingField: 30
-  <ResourceCost>k__BackingField: 5
-  <ResourceType>k__BackingField: 2
+  <ActionCost>k__BackingField: 25
+  <ResourceCost>k__BackingField: 0
+  <ResourceType>k__BackingField: 1
   <IsToggle>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
   targetModes:
@@ -39,14 +41,40 @@ MonoBehaviour:
     baseValue: 25
     damageValueSource: 0
     damageMultiplier: 0
+    damageHitCount: 1
     damageType: 0
+    delayCasterTurns: 0
     displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 0
     statusId: 
     durationTurns: 0
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0

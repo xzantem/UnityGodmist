@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.battle_cry
   <DisplayName>k__BackingField: Battle Cry
+  <Icon>k__BackingField: {fileID: 6381842218762271717, guid: e50a9a373b731ad4c8bd6eba24879974, type: 3}
+  <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
   <ActionCost>k__BackingField: 30
   <ResourceCost>k__BackingField: 10
@@ -49,14 +51,40 @@ MonoBehaviour:
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
+    damageHitCount: 1
     damageType: 0
+    delayCasterTurns: 0
     displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 0
-    statusId:
+    statusId: 
     durationTurns: 3
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0
@@ -70,14 +98,40 @@ MonoBehaviour:
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
+    damageHitCount: 1
     damageType: 0
+    delayCasterTurns: 0
     displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 0
     statusId: 
     durationTurns: 3
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0

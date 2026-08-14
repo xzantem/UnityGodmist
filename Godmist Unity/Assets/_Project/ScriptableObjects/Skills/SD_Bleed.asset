@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.bleed
   <DisplayName>k__BackingField: "Krwawi\u0105cy Sztylet"
+  <Icon>k__BackingField: {fileID: -2070468402880673519, guid: e44fd3e2ccb2ffd4f93421e875295001, type: 3}
+  <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 75
   <ActionCost>k__BackingField: 65
   <ResourceCost>k__BackingField: 0
@@ -39,14 +41,40 @@ MonoBehaviour:
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 1
+    damageHitCount: 1
     damageType: 0
+    delayCasterTurns: 0
     displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 0.75
     statusId: bleed
     durationTurns: 4
     stacks: 1
     statusDamageMultiplier: 0.9
     statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0

@@ -11,6 +11,8 @@ namespace Godmist.Editor
     {
         private SerializedProperty skillId;
         private SerializedProperty displayName;
+        private SerializedProperty icon;
+        private SerializedProperty tooltipDescription;
         private SerializedProperty skillAccuracy;
         private SerializedProperty actionCost;
         private SerializedProperty resourceCost;
@@ -24,6 +26,9 @@ namespace Godmist.Editor
         {
             skillId = serializedObject.FindProperty("<SkillId>k__BackingField");
             displayName = serializedObject.FindProperty("<DisplayName>k__BackingField");
+            icon = serializedObject.FindProperty("<Icon>k__BackingField");
+            tooltipDescription = serializedObject.FindProperty(
+                "<TooltipDescription>k__BackingField");
             skillAccuracy = serializedObject.FindProperty("<SkillAccuracy>k__BackingField");
             actionCost = serializedObject.FindProperty("<ActionCost>k__BackingField");
             resourceCost = serializedObject.FindProperty("<ResourceCost>k__BackingField");
@@ -56,6 +61,10 @@ namespace Godmist.Editor
             EditorGUILayout.LabelField("Identity", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(skillId, new GUIContent("Skill ID"));
             EditorGUILayout.PropertyField(displayName, new GUIContent("Display Name"));
+            EditorGUILayout.PropertyField(icon, new GUIContent("Icon"));
+            EditorGUILayout.PropertyField(
+                tooltipDescription,
+                new GUIContent("Tooltip Description"));
             EditorGUILayout.Space(8);
         }
 

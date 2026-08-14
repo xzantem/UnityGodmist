@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.counterattack
   <DisplayName>k__BackingField: Counterattack
+  <Icon>k__BackingField: {fileID: -2821003873286155237, guid: 743798b620b92a64eb898b68a4307686, type: 3}
+  <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
   <ActionCost>k__BackingField: 20
   <ResourceCost>k__BackingField: 0

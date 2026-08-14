@@ -57,6 +57,7 @@ namespace Godmist.Views.Combat
         private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
 
         public bool IsSelectingTarget => selectedSkill != null;
+        public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()
         {
@@ -204,6 +205,7 @@ namespace Godmist.Views.Combat
 
             selectedCreateObjectEffect = null;
             isSelectingObjectPlacement = false;
+            HoveredUnit = null;
 
             ClearAllHighlights();
 
@@ -234,6 +236,11 @@ namespace Godmist.Views.Combat
                 && !isSelectingObjectPlacement)
             {
                 UpdateRelativeRangePreview();
+                UpdateHoveredUnit(session);
+            }
+            else
+            {
+                HoveredUnit = null;
             }
 
             if (Input.GetKeyDown(KeyCode.Escape)
@@ -589,6 +596,26 @@ namespace Godmist.Views.Combat
                 (worldPosition.y - gridOrigin.y) / cellSize);
 
             return new GridPosition(gridX, gridY);
+        }
+
+        private void UpdateHoveredUnit(CombatSession session)
+        {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                HoveredUnit = null;
+                return;
+            }
+
+            var position = GetGridPositionUnderMouse();
+            HoveredUnit = null;
+            foreach (var unit in session.Units)
+            {
+                if (unit != null && unit.Position == position)
+                {
+                    HoveredUnit = unit;
+                    return;
+                }
+            }
         }
 
         private void ClearAllHighlights()

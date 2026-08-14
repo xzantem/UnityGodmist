@@ -30,6 +30,20 @@ namespace Godmist.Views.Combat
         private CombatSession boundSession;
         private Sprite missingSprite;
 
+        public void ShowNameLabelsFor(
+            BattleUnit primaryUnit,
+            BattleUnit secondaryUnit = null)
+        {
+            foreach (var pair in views)
+            {
+                if (pair.Value != null)
+                {
+                    pair.Value.SetNameLabelVisible(
+                        pair.Key == primaryUnit || pair.Key == secondaryUnit);
+                }
+            }
+        }
+
         private void Awake()
         {
             if (sandboxBootstrap == null)
