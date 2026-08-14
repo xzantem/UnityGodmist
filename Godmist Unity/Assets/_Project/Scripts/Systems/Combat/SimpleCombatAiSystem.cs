@@ -402,7 +402,42 @@ namespace Godmist.Systems.Combat
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
             return score + CalculateRoleBonus(caster, skill, targetsByModeIndex)
+                + CalculatePersonalityBonus(caster, skill, targetsByModeIndex)
                 - actionCost * 0.35f - skill.ResourceCost * 0.1f;
+        }
+
+        private static float CalculatePersonalityBonus(
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+        {
+            var personality = caster?.Character?.Definition?.AiPersonality
+                ?? CombatAiPersonality.Neutral;
+            var bonus = 0f;
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect == null || !targetsByModeIndex.TryGetValue(
+                        effect.TargetModeIndex, out var targets))
+                {
+                    continue;
+                }
+
+                var count = targets.Count;
+                bonus += personality switch
+                {
+                    CombatAiPersonality.Aggressive
+                        when effect.EffectType == EffectType.DealDamage => 30f * count,
+                    CombatAiPersonality.Aggressive
+                        when effect.EffectType == EffectType.ApplyStatus => 15f * count,
+                    CombatAiPersonality.Cautious
+                        when effect.EffectType == EffectType.Heal
+                        || effect.EffectType == EffectType.Shield => 30f * count,
+                    _ => 0f
+                };
+            }
+
+            return bonus;
         }
 
         private static float CalculateRoleBonus(
@@ -455,12 +490,15 @@ namespace Godmist.Systems.Combat
             BattleUnit target)
         {
             var role = aiUnit?.Character?.Definition?.AiRole ?? CombatAiRole.Balanced;
+            var personality = aiUnit?.Character?.Definition?.AiPersonality
+                ?? CombatAiPersonality.Neutral;
             var desiredRange = GetPreferredCombatRange(aiUnit);
             var distance = GetManhattanDistance(aiUnit.Position, target.Position);
             var isSquishyRangedRole = role == CombatAiRole.Dps
                 || role == CombatAiRole.Healer;
 
-            if (isSquishyRangedRole && desiredRange > 1
+            if (personality != CombatAiPersonality.Aggressive
+                && isSquishyRangedRole && desiredRange > 1
                 && distance <= desiredRange)
             {
                 return distance < desiredRange
