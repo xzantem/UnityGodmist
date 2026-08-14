@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Runtime.Combat;
 using Godmist.Core.Enums;
+using Godmist.Core.Constants;
 using UnityEngine;
 using Godmist.Data.Skills;
 using Godmist.Data.Effects;
@@ -50,56 +51,81 @@ namespace Godmist.Systems.Combat
             if (session == null || session.Outcome != CombatOutcomeState.Ongoing || aiUnit?.Character == null
                 || aiUnit.Character.LifeState != CharacterLifeState.Alive) return;
 
-            var hasTaunter = StatusEffectSystem.TryGetTaunter(
-                session,
-                aiUnit,
-                out var taunter);
+            var usedZeroActionSkills = new HashSet<SkillData>();
 
-            var usedSkill = TryExecuteBestSkill(session, aiUnit);
-
-            if (!usedSkill)
+            while (session.Outcome == CombatOutcomeState.Ongoing
+                && aiUnit.Character.LifeState == CharacterLifeState.Alive
+                && aiUnit.CurrentActionPoints > 0)
             {
-                var target = hasTaunter
-                    ? taunter
-                    : FindClosestPlayerUnit(session, aiUnit);
+                if (TryExecuteBestSkill(
+                        session,
+                        aiUnit,
+                        usedZeroActionSkills,
+                        out var executedSkill))
+                {
+                    if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, executedSkill) == 0)
+                    {
+                        usedZeroActionSkills.Add(executedSkill);
+                    }
+
+                    continue;
+                }
+
+                var hasTaunter = StatusEffectSystem.TryGetTaunter(
+                    session,
+                    aiUnit,
+                    out var taunter);
+
+                var target = hasTaunter ? taunter : FindClosestPlayerUnit(session, aiUnit);
 
                 if (target == null)
                 {
                     evaluateOutcome?.Invoke(session);
-                    return;
+                    break;
                 }
 
-                while (session.Outcome == CombatOutcomeState.Ongoing && aiUnit.CurrentActionPoints > 0
-                    && !IsAdjacent(aiUnit.Position, target.Position))
+                if (!TryMoveAiTowardsTarget(session, aiUnit, target))
                 {
-                    if (!TryMoveAiTowardsTarget(session, aiUnit, target))
-                    {
-                        break;
-                    }
+                    break;
                 }
-                usedSkill = TryExecuteBestSkill(session, aiUnit);
             }
             if (session.Outcome == CombatOutcomeState.Ongoing) endTurn?.Invoke(session);
         }
 
-        private bool TryExecuteBestSkill(CombatSession session, BattleUnit aiUnit)
+        private bool TryExecuteBestSkill(
+            CombatSession session,
+            BattleUnit aiUnit,
+            ISet<SkillData> excludedZeroActionSkills,
+            out SkillData executedSkill)
         {
+            executedSkill = null;
+
             if (skillExecutionSystem == null) return false;
 
-            var selection = FindBestSkillSelection(session, aiUnit);
+            var selection = FindBestSkillSelection(session, aiUnit, excludedZeroActionSkills);
 
             if (selection == null) return false;
 
-            return skillExecutionSystem.TryExecute(
+            var wasExecuted = skillExecutionSystem.TryExecute(
                 session,
                 aiUnit,
                 selection.Skill,
                 selection.TargetsByModeIndex,
                 teleportDestination: null,
                 objectPlacementDestination: selection.SummonPlacementDestination);
+
+            if (wasExecuted)
+            {
+                executedSkill = selection.Skill;
+            }
+
+            return wasExecuted;
         }
 
-        private AiSkillSelection FindBestSkillSelection(CombatSession session, BattleUnit aiUnit)
+        private AiSkillSelection FindBestSkillSelection(
+            CombatSession session,
+            BattleUnit aiUnit,
+            ISet<SkillData> excludedZeroActionSkills)
         {
             if (aiUnit?.Character?.Skills == null) return null;
 
@@ -108,6 +134,13 @@ namespace Godmist.Systems.Combat
             foreach (var skill in aiUnit.Character.Skills)
             {
                 if (!CanAffordSkill(aiUnit, skill)) continue;
+
+                if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, skill) == 0
+                    && excludedZeroActionSkills != null
+                    && excludedZeroActionSkills.Contains(skill))
+                {
+                    continue;
+                }
 
                 GridPosition? summonPlacementDestination = null;
                 Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex;
@@ -250,6 +283,7 @@ namespace Godmist.Systems.Combat
                             caster,
                             skill,
                             mode,
+                            index,
                             requiredEnemyTarget,
                             out var selectedPosition)) return false;
 
@@ -285,6 +319,7 @@ namespace Godmist.Systems.Combat
             BattleUnit caster,
             SkillData skill,
             SkillTargetModeData mode,
+            int targetModeIndex,
             BattleUnit requiredEnemyTarget,
             out GridPosition selectedPosition)
         {
@@ -312,7 +347,11 @@ namespace Godmist.Systems.Combat
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
 
-                var score = CalculateTargetGroupScore(mode, targets);
+                var score = CalculateTargetGroupScore(
+                    caster,
+                    skill,
+                    targetModeIndex,
+                    targets);
 
                 if (!foundPosition || score > bestScore)
                 {
@@ -325,26 +364,15 @@ namespace Godmist.Systems.Combat
             return foundPosition;
         }
 
-        private static float CalculateTargetGroupScore(SkillTargetModeData mode, IReadOnlyList<BattleUnit> targets)
+        private static float CalculateTargetGroupScore(
+            BattleUnit caster,
+            SkillData skill,
+            int targetModeIndex,
+            IReadOnlyList<BattleUnit> targets)
         {
-            if (mode == null || targets == null || targets.Count == 0) return float.MinValue;
+            if (skill == null || targets == null || targets.Count == 0) return float.MinValue;
 
-            var score = targets.Count * 1000f;
-
-            foreach (var target in targets)
-            {
-                if (target?.Character == null) continue;
-                
-                var maxHealth = target.Character.Stats != null ? target.Character.Stats.MaxHealth.GetValue()
-                    : target.Character.CurrentHealth;
-
-                var missingHealth = Mathf.Max(0f, maxHealth - target.Character.CurrentHealth);
-
-                if (mode.TargetingType == TargetingType.Enemies) score += missingHealth;
-                else if (mode.TargetingType == TargetingType.Allies) score += missingHealth * 2f;
-            }
-
-            return score;
+            return CalculateEffectsScore(caster, skill, targetModeIndex, targets);
         }
 
         private static float CalculateSkillScore(BattleUnit caster, SkillData skill,
@@ -363,59 +391,124 @@ namespace Godmist.Systems.Combat
                 if (effect == null || !targetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets))
                     continue;
 
-                switch (effect.EffectType)
+                score += CalculateEffectsScore(caster, skill, effect.TargetModeIndex, targets, effect);
+
+                if (effect.DelayCasterTurns > 0)
                 {
-                    case EffectType.DealDamage:
-                        score += 200f * targets.Count;
-                        break;
-
-                    case EffectType.ApplyStatus:
-                        score += 100f * targets.Count;
-                        break;
-
-                    case EffectType.Heal:
-                        foreach (var target in targets)
-                        {
-                            var maxHealth = target.Character.Stats.MaxHealth.GetValue();
-                            var missingHealth = Mathf.Max(0f, maxHealth - target.Character.CurrentHealth);
-
-                            score += missingHealth * 2f;
-                        }
-                        break;
-
-                    case EffectType.RestoreResource:
-                        foreach (var target in targets)
-                        {
-                            var resourcePool = target.Character.ResourcePool;
-
-                            if (resourcePool != null)
-                            {
-                                score += Mathf.Max(0, resourcePool.MaxValue - resourcePool.CurrentValue);
-                            }
-                        }
-                        break;
-
-                    case EffectType.Shield:
-                        score += 25f * targets.Count;
-                        break;
-                    
-                    case EffectType.Push:
-                        score += 30f * targets.Count;
-                        break;
-
-                    case EffectType.Pull:
-                        score += 30f * targets.Count;
-                        break;
-
-                    case EffectType.Fallback:
-                        score += 10f * targets.Count;
-                        break;
+                    score += 25f * targets.Count;
                 }
             }
 
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
-            return score - actionCost * 0.1f;
+            return score - actionCost * 0.35f - skill.ResourceCost * 0.1f;
+        }
+
+        private static float CalculateEffectsScore(
+            BattleUnit caster,
+            SkillData skill,
+            int targetModeIndex,
+            IReadOnlyList<BattleUnit> targets,
+            SkillEffectData singleEffect = null)
+        {
+            var score = 0f;
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect == null || effect.TargetModeIndex != targetModeIndex
+                    || singleEffect != null && effect != singleEffect)
+                {
+                    continue;
+                }
+
+                foreach (var target in targets)
+                {
+                    if (target?.Character == null) continue;
+
+                    switch (effect.EffectType)
+                    {
+                        case EffectType.DealDamage:
+                        {
+                            var expectedDamage = CalculateExpectedDamage(caster, effect);
+                            score += expectedDamage;
+                            if (expectedDamage >= target.Character.CurrentHealth)
+                            {
+                                score += 10000f;
+                            }
+                            break;
+                        }
+                        case EffectType.ApplyStatus:
+                            score += IsHardControl(effect.StatusId) ? 300f : 100f;
+                            break;
+                        case EffectType.Heal:
+                            score += GetMissingHealth(target);
+                            if (target.Character.LifeState == CharacterLifeState.Downed)
+                            {
+                                score += 5000f;
+                            }
+                            break;
+                        case EffectType.RestoreResource:
+                            var resourcePool = target.Character.ResourcePool;
+                            if (resourcePool != null)
+                            {
+                                score += Mathf.Min(effect.BaseValue,
+                                    Mathf.Max(0, resourcePool.MaxValue - resourcePool.CurrentValue));
+                            }
+                            break;
+                        case EffectType.Shield:
+                            score += Mathf.Max(0, effect.BaseValue) * 0.5f;
+                            break;
+                        case EffectType.ModifyStat:
+                        case EffectType.ModifyVar:
+                            score += 40f;
+                            break;
+                        case EffectType.Push:
+                        case EffectType.Pull:
+                            score += 30f;
+                            break;
+                        case EffectType.Fallback:
+                            score += 10f;
+                            break;
+                    }
+                }
+            }
+
+            return score;
+        }
+
+        private static float CalculateExpectedDamage(BattleUnit caster, SkillEffectData effect)
+        {
+            if (caster?.Character?.Stats == null || effect == null) return 0f;
+
+            var minAttack = caster.Character.Stats.MinAttack.GetValue();
+            var maxAttack = caster.Character.Stats.MaxAttack.GetValue();
+            var attackValue = effect.DamageValueSource switch
+            {
+                DamageValueSource.MinAttack => minAttack,
+                DamageValueSource.MaxAttack => maxAttack,
+                DamageValueSource.AverageAttack => (minAttack + maxAttack) * 0.5f,
+                _ => (minAttack + maxAttack) * 0.5f
+            };
+
+            return Mathf.Max(0f, attackValue * effect.DamageMultiplier);
+        }
+
+        private static float GetMissingHealth(BattleUnit target)
+        {
+            if (target?.Character == null) return 0f;
+
+            var maxHealth = target.Character.Stats?.MaxHealth.GetValue()
+                ?? target.Character.CurrentHealth;
+            return Mathf.Max(0f, maxHealth - target.Character.CurrentHealth);
+        }
+
+        private static bool IsHardControl(string statusId)
+        {
+            return string.Equals(statusId, StatusEffectIds.Stun, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Immobilize, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Freeze, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Sleep, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Paralysis, StringComparison.OrdinalIgnoreCase);
         }
 
         public BattleUnit FindClosestPlayerUnit(CombatSession session, BattleUnit aiUnit)
