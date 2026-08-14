@@ -4,6 +4,7 @@ using Godmist.Runtime.Combat;
 using Godmist.Core.Enums;
 using UnityEngine;
 using Godmist.Data.Skills;
+using Godmist.Data.Effects;
 using System.Linq;
 
 namespace Godmist.Systems.Combat
@@ -89,7 +90,13 @@ namespace Godmist.Systems.Combat
 
             if (selection == null) return false;
 
-            return skillExecutionSystem.TryExecute(session, aiUnit, selection.Skill, selection.TargetsByModeIndex);
+            return skillExecutionSystem.TryExecute(
+                session,
+                aiUnit,
+                selection.Skill,
+                selection.TargetsByModeIndex,
+                teleportDestination: null,
+                objectPlacementDestination: selection.SummonPlacementDestination);
         }
 
         private AiSkillSelection FindBestSkillSelection(CombatSession session, BattleUnit aiUnit)
@@ -100,8 +107,36 @@ namespace Godmist.Systems.Combat
 
             foreach (var skill in aiUnit.Character.Skills)
             {
-                if (!CanAffordSkill(aiUnit, skill) 
-                    || !TryBuildTargets(session, aiUnit, skill, out var targetsByModeIndex)) continue;
+                if (!CanAffordSkill(aiUnit, skill)) continue;
+
+                GridPosition? summonPlacementDestination = null;
+                Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex;
+
+                if (IsSummonOnlySkill(skill))
+                {
+                    if (!TryFindSummonPlacement(
+                            session,
+                            aiUnit,
+                            skill.Effects[0],
+                            skill.RequiresLineOfSight,
+                            out var placement))
+                    {
+                        continue;
+                    }
+
+                    summonPlacementDestination = placement;
+                    targetsByModeIndex = new Dictionary<
+                        int,
+                        IReadOnlyList<BattleUnit>>();
+                }
+                else if (!TryBuildTargets(
+                             session,
+                             aiUnit,
+                             skill,
+                             out targetsByModeIndex))
+                {
+                    continue;
+                }
 
                 var score = CalculateSkillScore(aiUnit, skill, targetsByModeIndex);
 
@@ -113,11 +148,58 @@ namespace Godmist.Systems.Combat
                     {
                         Skill = skill,
                         TargetsByModeIndex = targetsByModeIndex,
+                        SummonPlacementDestination = summonPlacementDestination,
                         Score = score
                     };
                 }
             }
             return bestSelection;
+        }
+
+        private bool TryFindSummonPlacement(
+            CombatSession session,
+            BattleUnit caster,
+            SkillEffectData effect,
+            bool requiresLineOfSight,
+            out GridPosition position)
+        {
+            position = default;
+
+            if (session?.Grid == null || caster == null || effect == null)
+            {
+                return false;
+            }
+
+            foreach (var candidate in targetingService.GetPositionsInRange(
+                session,
+                caster.Position,
+                effect.SummonPlacementRange))
+            {
+                if (!session.Grid.IsWalkable(candidate)
+                    || session.Grid.IsBlocked(candidate)
+                    || session.IsPositionOccupied(candidate)
+                    || session.IsPositionOccupiedByMapObject(candidate)
+                    || (requiresLineOfSight && !lineOfSightService.HasLineOfSight(
+                        session, caster.Position, candidate)))
+                {
+                    continue;
+                }
+
+                position = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsSummonOnlySkill(SkillData skill)
+        {
+            if (skill?.Effects == null || skill.Effects.Count != 1)
+            {
+                return false;
+            }
+
+            return skill.Effects[0]?.EffectType == EffectType.Summon;
         }
 
         private bool CanAffordSkill(BattleUnit unit, SkillData skill)
@@ -272,6 +354,12 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in skill.Effects)
             {
+                if (effect?.EffectType == EffectType.Summon)
+                {
+                    score += 75f;
+                    continue;
+                }
+
                 if (effect == null || !targetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets))
                     continue;
 
@@ -497,6 +585,7 @@ namespace Godmist.Systems.Combat
         {
             public SkillData Skill;
             public Dictionary<int, IReadOnlyList<BattleUnit>> TargetsByModeIndex;
+            public GridPosition? SummonPlacementDestination;
             public float Score;
         }
     }

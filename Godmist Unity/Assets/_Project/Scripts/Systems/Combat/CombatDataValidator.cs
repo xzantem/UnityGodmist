@@ -230,6 +230,8 @@ namespace Godmist.Systems.Combat
         {
             var createObjectEffectCount = skill.Effects.Count(
                 effect => effect?.EffectType == EffectType.CreateObject);
+            var summonEffectCount = skill.Effects.Count(
+                effect => effect?.EffectType == EffectType.Summon);
 
             var isObjectPlacementOnlySkill =
                 IsObjectPlacementOnlySkill(skill);
@@ -245,6 +247,18 @@ namespace Godmist.Systems.Combat
             {
                 report.AddError(
                     "A skill can define at most one CreateObject effect in v1.");
+            }
+
+            if (summonEffectCount > 1)
+            {
+                report.AddError(
+                    "A skill can define at most one Summon effect in v1.");
+            }
+
+            if (createObjectEffectCount > 0 && summonEffectCount > 0)
+            {
+                report.AddError(
+                    "CreateObject and Summon cannot be mixed in one skill in v1.");
             }
 
             var teleportEffectCount = skill.Effects.Count(
@@ -293,6 +307,25 @@ namespace Godmist.Systems.Combat
                             $"{prefix}: CreateObject conditions are not supported in v1.");
                     }
 
+                    continue;
+                }
+
+                if (effect.EffectType == EffectType.Summon)
+                {
+                    if (effect.SummonedCharacterDefinition == null)
+                        report.AddError($"{prefix}: Summoned Character Definition is required.");
+                    if (effect.SummonedClassData == null)
+                        report.AddError($"{prefix}: Summoned Class Data is required.");
+                    ValidateRange(effect.SummonPlacementRange,
+                        $"{prefix}: Summon Placement Range", report);
+                    if (effect.SummonDurationTurns < 1)
+                        report.AddError($"{prefix}: Summon Duration Turns must be at least 1.");
+                    if (effect.MaxActiveSummons < 1)
+                        report.AddError($"{prefix}: Max Active Summons must be at least 1.");
+                    if (effect.SummonPercentMaxHealth <= 0f)
+                        report.AddError($"{prefix}: Summon Percent Max Health must be greater than zero.");
+                    if (effect.Conditions != null && effect.Conditions.Count > 0)
+                        report.AddError($"{prefix}: Summon conditions are not supported in v1.");
                     continue;
                 }
 
@@ -472,7 +505,8 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType != EffectType.CreateObject)
+                if (effect?.EffectType != EffectType.CreateObject
+                    && effect?.EffectType != EffectType.Summon)
                 {
                     return false;
                 }

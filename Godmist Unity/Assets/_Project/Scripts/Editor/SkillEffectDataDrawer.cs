@@ -62,7 +62,18 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("objectPlacementRange");
             var maxActiveObjects =
                 property.FindPropertyRelative("maxActiveObjects");
-
+            var summonedCharacterDefinition =
+                property.FindPropertyRelative("summonedCharacterDefinition");
+            var summonedClassData =
+                property.FindPropertyRelative("summonedClassData");
+            var summonPlacementRange =
+                property.FindPropertyRelative("summonPlacementRange");
+            var summonDurationTurns =
+                property.FindPropertyRelative("summonDurationTurns");
+            var maxActiveSummons =
+                property.FindPropertyRelative("maxActiveSummons");
+            var summonPercentMaxHealth =
+                property.FindPropertyRelative("summonPercentMaxHealth");
             var y = position.y;
             var selectedEffect =
                 (EffectType)effectType.enumValueIndex;
@@ -88,6 +99,18 @@ namespace Godmist.Editor
                     ref y,
                     maxActiveObjects);
 
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            if (selectedEffect == EffectType.Summon)
+            {
+                DrawField(position, ref y, summonedCharacterDefinition, true);
+                DrawField(position, ref y, summonedClassData, true);
+                DrawField(position, ref y, summonPlacementRange, true);
+                DrawField(position, ref y, summonDurationTurns);
+                DrawField(position, ref y, maxActiveSummons);
+                DrawField(position, ref y, summonPercentMaxHealth);
                 EditorGUI.EndProperty();
                 return;
             }
@@ -240,6 +263,18 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("objectPlacementRange");
             var maxActiveObjects =
                 property.FindPropertyRelative("maxActiveObjects");
+            var summonedCharacterDefinition =
+                property.FindPropertyRelative("summonedCharacterDefinition");
+            var summonedClassData =
+                property.FindPropertyRelative("summonedClassData");
+            var summonPlacementRange =
+                property.FindPropertyRelative("summonPlacementRange");
+            var summonDurationTurns =
+                property.FindPropertyRelative("summonDurationTurns");
+            var maxActiveSummons =
+                property.FindPropertyRelative("maxActiveSummons");
+            var summonPercentMaxHealth =
+                property.FindPropertyRelative("summonPercentMaxHealth");
 
             var height = 0f;
             var selectedEffect =
@@ -261,6 +296,17 @@ namespace Godmist.Editor
 
                 AddHeight(ref height, maxActiveObjects);
 
+                return height;
+            }
+
+            if (selectedEffect == EffectType.Summon)
+            {
+                AddHeight(ref height, summonedCharacterDefinition, true);
+                AddHeight(ref height, summonedClassData, true);
+                AddHeight(ref height, summonPlacementRange, true);
+                AddHeight(ref height, summonDurationTurns);
+                AddHeight(ref height, maxActiveSummons);
+                AddHeight(ref height, summonPercentMaxHealth);
                 return height;
             }
 

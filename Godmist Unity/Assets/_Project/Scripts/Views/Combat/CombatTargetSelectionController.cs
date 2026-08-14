@@ -507,12 +507,21 @@ namespace Godmist.Views.Combat
 
             foreach (var effect in selectedSkill.Effects)
             {
-                if (effect?.EffectType != EffectType.CreateObject)
+                if (effect?.EffectType != EffectType.CreateObject
+                    && effect?.EffectType != EffectType.Summon)
                 {
                     continue;
                 }
 
-                if (effect.SummonedObjectDefinition == null)
+                if (effect.EffectType == EffectType.CreateObject
+                    && effect.SummonedObjectDefinition == null)
+                {
+                    return false;
+                }
+
+                if (effect.EffectType == EffectType.Summon
+                    && (effect.SummonedCharacterDefinition == null
+                        || effect.SummonedClassData == null))
                 {
                     return false;
                 }
@@ -633,7 +642,8 @@ namespace Godmist.Views.Combat
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType != EffectType.CreateObject)
+                if (effect?.EffectType != EffectType.CreateObject
+                    && effect?.EffectType != EffectType.Summon)
                 {
                     return false;
                 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Data.Characters;
 using Godmist.Data.Skills;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -35,6 +36,15 @@ namespace Godmist.Data.Effects
             new SkillRangeData(RangeShape.Square, 0, 2);
 
         [SerializeField, Min(1)] private int maxActiveObjects = 1;
+
+        [Header("Summon")]
+        [SerializeField] private CharacterDefinition summonedCharacterDefinition;
+        [SerializeField] private CharacterClassData summonedClassData;
+        [SerializeField] private SkillRangeData summonPlacementRange =
+            new SkillRangeData(RangeShape.Square, 1, 2);
+        [SerializeField, Min(1)] private int summonDurationTurns = 1;
+        [SerializeField, Min(1)] private int maxActiveSummons = 1;
+        [SerializeField, Range(0.01f, 1f)] private float summonPercentMaxHealth = 1f;
 
         [SerializeField, Range(0f, 1f)] private float baseChance = 1f;
         [SerializeField] private string statusId = string.Empty;
@@ -76,6 +86,13 @@ namespace Godmist.Data.Effects
             objectPlacementRange;
 
         public int MaxActiveObjects => Mathf.Max(1, maxActiveObjects);
+        public CharacterDefinition SummonedCharacterDefinition => summonedCharacterDefinition;
+        public CharacterClassData SummonedClassData => summonedClassData;
+        public SkillRangeData SummonPlacementRange => summonPlacementRange;
+        public int SummonDurationTurns => Mathf.Max(1, summonDurationTurns);
+        public int MaxActiveSummons => Mathf.Max(1, maxActiveSummons);
+        public float SummonPercentMaxHealth =>
+            Mathf.Clamp(summonPercentMaxHealth, 0.01f, 1f);
 
         public float BaseChance => baseChance;
         public string StatusId => statusId;

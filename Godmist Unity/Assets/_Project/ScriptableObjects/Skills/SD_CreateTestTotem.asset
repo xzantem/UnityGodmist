@@ -52,6 +52,15 @@ MonoBehaviour:
       minRange: 1
       maxRange: 4
     maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
     baseChance: 0
     statusId: 
     durationTurns: 0

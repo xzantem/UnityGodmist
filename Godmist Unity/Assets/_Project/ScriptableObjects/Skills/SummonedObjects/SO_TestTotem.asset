@@ -21,15 +21,15 @@ MonoBehaviour:
   turnSpeed: 50
   blocksMovement: 1
   blocksLineOfSight: 0
-  effectTargetingType: 0
+  effectTargetingType: 1
   effectRange:
     shape: 1
     minRange: 1
     maxRange: 4
   effectAccuracy: 100
   effects:
-  - effectType: 6
-    baseValue: 0
+  - effectType: 2
+    baseValue: 20
     damageValueSource: 3
     damageMultiplier: 1
     damageType: 1

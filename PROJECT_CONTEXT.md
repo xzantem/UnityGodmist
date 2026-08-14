@@ -578,6 +578,21 @@ Current goal:
   - `caster` for `effect[1]`
 - `create_object` should create map objects such as traps, vines, or totems.
 - `summon` should create a unit.
+- `CreateObject` / `Summon` v1 rules:
+  - Initial examples are a shaman totem and a necromancer skeleton.
+  - A created object may be placed on a unit's tile. In that case it must not block movement or line of sight.
+  - Object placement uses only an absolute range around the caster; it does not use a separate destination target mode.
+  - Objects have a duration, can be destroyed, and may disappear when their creator dies.
+  - Object HP is normally expressed as a number of received `DealDamage` hits, but one skill may later apply multiple hits.
+  - Summons are full `BattleUnit` instances created from an existing `CharacterDefinition`.
+  - A summon inherits its caster's side and team relations, enters the turn order with full AV, and acts like a normal unit.
+  - A summon lasts for a skill-defined duration counted at the end of the summon's turns, and disappears when its caster reaches `Dead`.
+  - A skill-defined summon limit is supported. Reaching it removes the oldest summon of that caster before adding the new one.
+  - A summon never grants XP, gold, loot, or persistent encounter progress; expiry removes it and all attached runtime state.
+  - The initial implementation is limited to object and summon creation; totem behavior such as healing, buffing, or dealing damage belongs to later cards.
+  - Each received `DealDamage` hit decreases an object's hit-based HP by that effect's hit count, rather than by raw damage.
+  - Created objects have a skill-defined active-object limit. Reaching it removes the oldest object created by that caster before adding the new one.
+  - `percentMaxHealth` is interpreted against the summoned character definition's maximum health. Other summon stats remain at their normal definition-derived values.
 - Shield is an absorb-before-health resource.
 - Shield should be stored as a list of shield layers/sources.
 - UI may display the sum of shield values.

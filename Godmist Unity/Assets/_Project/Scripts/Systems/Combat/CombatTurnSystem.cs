@@ -15,19 +15,22 @@ namespace Godmist.Systems.Combat
         private readonly Action<BattleUnit> onUnitTurnEnded;
         private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnBegan;
         private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnEnded;
+        private readonly Action<BattleUnit> onUnitDied;
 
         public CombatTurnSystem(
             Action<string> battleLog = null,
             Action<BattleUnit> onUnitTurnBegan = null,
             Action<BattleUnit> onUnitTurnEnded = null,
             Action<SummonedCombatMapObject> onSummonedObjectTurnBegan = null,
-            Action<SummonedCombatMapObject> onSummonedObjectTurnEnded = null)
+            Action<SummonedCombatMapObject> onSummonedObjectTurnEnded = null,
+            Action<BattleUnit> onUnitDied = null)
         {
             this.battleLog = battleLog;
             this.onUnitTurnBegan = onUnitTurnBegan;
             this.onUnitTurnEnded = onUnitTurnEnded;
             this.onSummonedObjectTurnBegan = onSummonedObjectTurnBegan;
             this.onSummonedObjectTurnEnded = onSummonedObjectTurnEnded;
+            this.onUnitDied = onUnitDied;
         }
 
         public void InitializeTurnOrder(CombatSession session)
@@ -394,6 +397,8 @@ namespace Godmist.Systems.Combat
 
             unit.Character.CurrentHealth = 0;
             unit.Character.LifeState = CharacterLifeState.Dead;
+
+            onUnitDied?.Invoke(unit);
 
             battleLog?.Invoke(
                 $"{unit.Character.Definition.DisplayName} " +

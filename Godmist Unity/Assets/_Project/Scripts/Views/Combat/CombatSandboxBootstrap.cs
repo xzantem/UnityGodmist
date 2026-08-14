@@ -63,6 +63,7 @@ namespace Godmist.Views.Combat
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
         private SummonedObjectSystem summonedObjectSystem;
+        private SummonSystem summonSystem;
         private CharacterStatPipelineSystem statPipeline;
         private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
         private ModifyStatSystem modifyStatSystem;
@@ -84,7 +85,8 @@ namespace Godmist.Views.Combat
                 HandleUnitTurnBegan,
                 HandleUnitTurnEnded,
                 HandleSummonedObjectTurnBegan,
-                HandleSummonedObjectTurnEnded);
+                HandleSummonedObjectTurnEnded,
+                HandleUnitDied);
             Session = CreateInitialSession();
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
@@ -132,6 +134,7 @@ namespace Godmist.Views.Combat
                     statusEffectSystem,
                     modifyStatSystem,
                     modifyVarSystem));
+            summonSystem = new SummonSystem(AddBattleLog);
             skillExecutionSystem = new SkillExecutionSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
@@ -142,7 +145,8 @@ namespace Godmist.Views.Combat
                 lineOfSightService: lineOfSightService,
                 modifyStatSystem: modifyStatSystem,
                 modifyVarSystem: modifyVarSystem,
-                summonedObjectSystem: summonedObjectSystem);
+                summonedObjectSystem: summonedObjectSystem,
+                summonSystem: summonSystem);
             movementSystem = movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem, statusEffectSystem);
             interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
             interactionSystem.InitializeMapObjects(Session);
@@ -371,6 +375,13 @@ namespace Godmist.Views.Combat
 
             var removedWasActive = Session.ActiveUnit == removedUnit;
 
+            if (removedUnit.Character?.LifeState == CharacterLifeState.Dead)
+            {
+                summonSystem?.RemoveSummonsCreatedBy(
+                    Session,
+                    removedUnit.Character.CharacterId);
+            }
+
             Session.Units.Remove(removedUnit);
             Session.TurnParticipants ??= new();
             Session.TurnParticipants?.RemoveAll(
@@ -473,7 +484,20 @@ namespace Godmist.Views.Combat
         private void HandleUnitTurnEnded(BattleUnit unit)
         {
             statusEffectSystem?.ProcessTurnEnd(unit);
+            summonSystem?.AdvanceDurationAtTurnEnd(Session, unit);
             CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
+        }
+
+        private void HandleUnitDied(BattleUnit unit)
+        {
+            if (Session == null || unit?.Character == null)
+            {
+                return;
+            }
+
+            summonSystem?.RemoveSummonsCreatedBy(
+                Session,
+                unit.Character.CharacterId);
         }
 
         private void HandleSummonedObjectTurnBegan(
@@ -965,7 +989,11 @@ namespace Godmist.Views.Combat
         {
             if (Session == null || Session.ActiveUnit == null
                 || skill == null || createObjectEffect == null
-                || createObjectEffect.SummonedObjectDefinition == null
+                || (createObjectEffect.EffectType == EffectType.CreateObject
+                    && createObjectEffect.SummonedObjectDefinition == null)
+                || (createObjectEffect.EffectType == EffectType.Summon
+                    && (createObjectEffect.SummonedCharacterDefinition == null
+                        || createObjectEffect.SummonedClassData == null))
                 || targetingService == null)
             {
                 return Array.Empty<GridPosition>();
@@ -974,7 +1002,9 @@ namespace Godmist.Views.Combat
             var positions = targetingService.GetPositionsInRange(
                 Session,
                 Session.ActiveUnit.Position,
-                createObjectEffect.ObjectPlacementRange);
+                createObjectEffect.EffectType == EffectType.Summon
+                    ? createObjectEffect.SummonPlacementRange
+                    : createObjectEffect.ObjectPlacementRange);
 
             var validPositions = new List<GridPosition>();
 
@@ -982,6 +1012,8 @@ namespace Godmist.Views.Combat
             {
                 if (!Session.Grid.IsWalkable(position)
                     || Session.Grid.IsBlocked(position)
+                    || (createObjectEffect.EffectType == EffectType.Summon
+                        && Session.IsPositionOccupied(position))
                     || Session.IsPositionOccupiedByMapObject(position))
                 {
                     continue;
@@ -1011,7 +1043,8 @@ namespace Godmist.Views.Combat
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType != EffectType.CreateObject)
+                if (effect?.EffectType != EffectType.CreateObject
+                    && effect?.EffectType != EffectType.Summon)
                 {
                     return false;
                 }

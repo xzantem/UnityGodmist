@@ -41,7 +41,7 @@ namespace Godmist.Editor
 
             DrawIdentitySection();
             DrawCostSection();
-            if (!UsesOnlyCreateObjectEffects())
+            if (!UsesOnlyPlacementEffects())
             {
                 DrawTargetingSection();
             }
@@ -120,7 +120,8 @@ namespace Godmist.Editor
                     .FindPropertyRelative("effectType")
                     .enumValueIndex;
 
-                if (effectType == EffectType.CreateObject)
+                if (effectType == EffectType.CreateObject
+                    || effectType == EffectType.Summon)
                 {
                     continue;
                 }
@@ -181,7 +182,7 @@ namespace Godmist.Editor
             return false;
         }
 
-        private bool UsesOnlyCreateObjectEffects()
+        private bool UsesOnlyPlacementEffects()
         {
             if (effects == null || effects.arraySize == 0)
             {
@@ -195,7 +196,8 @@ namespace Godmist.Editor
                     .FindPropertyRelative("effectType")
                     .enumValueIndex;
 
-                if (effectType != EffectType.CreateObject)
+                if (effectType != EffectType.CreateObject
+                    && effectType != EffectType.Summon)
                 {
                     return false;
                 }
@@ -215,7 +217,8 @@ namespace Godmist.Editor
                         .FindPropertyRelative("effectType")
                         .enumValueIndex;
 
-                    if (effectType == EffectType.CreateObject)
+                    if (effectType == EffectType.CreateObject
+                        || effectType == EffectType.Summon)
                     {
                         return true;
                     }

@@ -24,6 +24,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatChargeSystem chargeSystem;
         private readonly CombatTeleportSystem teleportSystem;
         private readonly SummonedObjectSystem summonedObjectSystem;
+        private readonly SummonSystem summonSystem;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -38,7 +39,8 @@ namespace Godmist.Systems.Combat
             ModifyVarSystem modifyVarSystem = null,
             CombatChargeSystem chargeSystem = null,
             CombatTeleportSystem teleportSystem = null,
-            SummonedObjectSystem summonedObjectSystem = null)
+            SummonedObjectSystem summonedObjectSystem = null,
+            SummonSystem summonSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -78,6 +80,7 @@ namespace Godmist.Systems.Combat
 
             this.summonedObjectSystem = summonedObjectSystem
                 ?? new SummonedObjectSystem(battleLog);
+            this.summonSystem = summonSystem ?? new SummonSystem(battleLog);
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -189,6 +192,21 @@ namespace Godmist.Systems.Combat
                             Succeeded = created
                         };
 
+                    resultsByEffectIndex[effectIndex] = resultsForEffect;
+                    continue;
+                }
+
+                if (effect.EffectType == EffectType.Summon)
+                {
+                    var resultsForEffect =
+                        new Dictionary<BattleUnit, EffectExecutionResult>();
+                    var summoned = objectPlacementDestination.HasValue
+                        && summonSystem.TrySummon(session, caster, skill, effect,
+                            effectIndex, objectPlacementDestination.Value, out _);
+                    resultsForEffect[caster] = new EffectExecutionResult
+                    {
+                        Succeeded = summoned
+                    };
                     resultsByEffectIndex[effectIndex] = resultsForEffect;
                     continue;
                 }
@@ -736,6 +754,15 @@ namespace Godmist.Systems.Combat
 
             var isObjectPlacementOnlySkill = IsObjectPlacementOnlySkill(skill);
 
+            if (ContainsEffectType(skill, EffectType.CreateObject)
+                && ContainsEffectType(skill, EffectType.Summon))
+            {
+                Debug.LogWarning(
+                    $"Skill '{skill.SkillId}' mixes CreateObject and Summon. " +
+                    "This is not supported in v1.");
+                return false;
+            }
+
             if (!isObjectPlacementOnlySkill
                 && (skill.TargetModes == null || skill.TargetModes.Count == 0))
             {
@@ -938,6 +965,27 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (effect.EffectType == EffectType.Summon)
+                {
+                    if (!isObjectPlacementOnlySkill
+                        || effect.SummonedCharacterDefinition == null
+                        || effect.SummonedClassData == null
+                        || !objectPlacementDestination.HasValue
+                        || !IsValidSummonPlacement(
+                            session,
+                            caster,
+                            skill,
+                            effect,
+                            objectPlacementDestination.Value)
+                        || (effect.Conditions != null
+                            && effect.Conditions.Count > 0))
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
                 if (skill.TargetModes == null
                     || effect.TargetModeIndex < 0
                     || effect.TargetModeIndex >= skill.TargetModes.Count)
@@ -1088,6 +1136,44 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        private bool IsValidSummonPlacement(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            SkillEffectData effect,
+            GridPosition position)
+        {
+            if (session?.Grid == null
+                || caster == null
+                || effect?.SummonedCharacterDefinition == null
+                || effect.SummonedClassData == null)
+            {
+                return false;
+            }
+
+            if (!session.Grid.IsWalkable(position)
+                || session.Grid.IsBlocked(position)
+                || session.IsPositionOccupied(position)
+                || session.IsPositionOccupiedByMapObject(position))
+            {
+                return false;
+            }
+
+            if (!CombatTargetingService.IsPositionWithinRange(
+                    caster.Position,
+                    position,
+                    effect.SummonPlacementRange))
+            {
+                return false;
+            }
+
+            return !skill.RequiresLineOfSight
+                || lineOfSightService.HasLineOfSight(
+                    session,
+                    caster.Position,
+                    position);
+        }
+
         private static bool IsObjectPlacementOnlySkill(SkillData skill)
         {
             if (skill?.Effects == null || skill.Effects.Count == 0)
@@ -1097,13 +1183,34 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in skill.Effects)
             {
-                if (effect?.EffectType != EffectType.CreateObject)
+                if (effect?.EffectType != EffectType.CreateObject
+                    && effect?.EffectType != EffectType.Summon)
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private static bool ContainsEffectType(
+            SkillData skill,
+            EffectType effectType)
+        {
+            if (skill?.Effects == null)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect?.EffectType == effectType)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         
         private static bool CanTargetModeIncludeDownedTargets(
