@@ -44,6 +44,18 @@ namespace Godmist.Views.Combat
             }
         }
 
+        public bool TryGetWorldPosition(BattleUnit unit, out Vector3 position)
+        {
+            if (unit != null && views.TryGetValue(unit, out var view) && view != null)
+            {
+                position = view.transform.position;
+                return true;
+            }
+
+            position = default;
+            return false;
+        }
+
         private void Awake()
         {
             if (sandboxBootstrap == null)

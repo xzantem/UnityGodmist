@@ -36,6 +36,7 @@ namespace Godmist.Views.Combat
 
         [Header("Debug References")]
         [SerializeField] private CombatBattleLog battleLog;
+        [SerializeField] private CombatFloatingFeedbackController floatingFeedback;
 
         [Header("Debug Obstacles")]
         [SerializeField] private List<GridPosition> blockedPositions = new();
@@ -55,6 +56,8 @@ namespace Godmist.Views.Combat
         private StatusEffectSystem statusEffectSystem;
         private CombatMovementSystem movementSystem;
         private CombatDamageSystem damageSystem;
+        private CombatShieldSystem shieldSystem;
+        private CombatFeedbackBus feedbackBus;
         private CombatReviveSystem reviveSystem;
         private CombatTargetingService targetingService;
         private ResourceRuleSystem resourceRuleSystem;
@@ -91,13 +94,16 @@ namespace Godmist.Views.Combat
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
-            resourceRuleSystem = new ResourceRuleSystem(AddBattleLog);
+            feedbackBus = new CombatFeedbackBus();
+            floatingFeedback?.Bind(feedbackBus);
+            resourceRuleSystem = new ResourceRuleSystem(AddBattleLog, feedbackBus);
             combatVariableSystem = new CombatVariableSystem();
             damageSystem = new CombatDamageSystem(
                 AddBattleLog,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                RemoveUnitFromCombat, resourceRuleSystem, combatVariableSystem);
-            recoverySystem = new CombatRecoverySystem(AddBattleLog);
+                RemoveUnitFromCombat, resourceRuleSystem, combatVariableSystem, feedbackBus);
+            recoverySystem = new CombatRecoverySystem(AddBattleLog, feedbackBus);
+            shieldSystem = new CombatShieldSystem(AddBattleLog, feedbackBus);
             reviveSystem = new CombatReviveSystem(AddBattleLog);
             statPipeline = new CharacterStatPipelineSystem();
 
@@ -130,7 +136,7 @@ namespace Godmist.Views.Combat
                     AddBattleLog,
                     damageSystem,
                     recoverySystem,
-                    new CombatShieldSystem(AddBattleLog),
+                    shieldSystem,
                     statusEffectSystem,
                     modifyStatSystem,
                     modifyVarSystem));
@@ -142,13 +148,17 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 damageSystem,
                 recoverySystem,
+                shieldSystem,
                 lineOfSightService: lineOfSightService,
                 modifyStatSystem: modifyStatSystem,
                 modifyVarSystem: modifyVarSystem,
                 summonedObjectSystem: summonedObjectSystem,
-                summonSystem: summonSystem);
-            movementSystem = movementSystem = new CombatMovementSystem(AddBattleLog, resourceRuleSystem, statusEffectSystem);
-            interactionSystem = new CombatInteractionSystem(AddBattleLog, HandleCombatMapObjectChanged);
+                summonSystem: summonSystem,
+                feedbackBus: feedbackBus);
+            movementSystem = movementSystem = new CombatMovementSystem(
+                AddBattleLog, resourceRuleSystem, statusEffectSystem, feedbackBus);
+            interactionSystem = new CombatInteractionSystem(
+                AddBattleLog, HandleCombatMapObjectChanged, feedbackBus);
             interactionSystem.InitializeMapObjects(Session);
             targetingService = new CombatTargetingService();
             aiSystem = new SimpleCombatAiSystem(

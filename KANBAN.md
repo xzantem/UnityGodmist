@@ -55,6 +55,7 @@ Priorytety:
 
 ## Done
 
+- `[P1] Rozszerzyc Floating Combat Feedback v2` - `UI / UX`, `Combat`
 - `[P1] Przebudowac istniejacy CombatHUD do ukladu docelowego` - `UI / UX`, `Combat`
 - `[P2] Dodac personality AI v1` - `Combat`, `Content / Data`
 - `[P2] Dodac role AI v1` - `Combat`, `Content / Data`
@@ -230,7 +231,6 @@ Zamkniety: zobacz sekcje `Done`.
 
 
 ### Combat Core v2
-- `[P1] Rozszerzyc Floating Combat Feedback v2` - `UI / UX`, `Combat`
 - `[P1] Dodac status indicators i tooltipy v1` - `UI / UX`, `Combat`
 - `[P2] Dodac wizualne stany obiektow i jednostek v1` - `UI / UX`, `Combat`, `World / Dungeon / Exploration`
 - `[P1] Combat Core v2 - acceptance pass` - `Combat`, `Tools / Editor / Debug`, `UI / UX`

@@ -22,15 +22,18 @@ namespace Godmist.Systems.Combat
         private readonly Action<string> battleLog;
         private readonly ResourceRuleSystem resourceRuleSystem;
         private readonly StatusEffectSystem statusEffectSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public CombatMovementSystem(
             Action<string> battleLog = null,
             ResourceRuleSystem resourceRuleSystem = null,
-            StatusEffectSystem statusEffectSystem = null)
+            StatusEffectSystem statusEffectSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.resourceRuleSystem = resourceRuleSystem;
             this.statusEffectSystem = statusEffectSystem;
+            this.feedbackBus = feedbackBus;
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
@@ -201,6 +204,11 @@ namespace Godmist.Systems.Combat
 
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;
+            if (movementCost > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    unit, CombatFeedbackType.ActionPointSpend, movementCost));
+            }
             unit.MovementStepsThisTurn++;
 
             resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);

@@ -8,10 +8,14 @@ namespace Godmist.Systems.Combat
     public class CombatShieldSystem
     {
         private readonly Action<string> battleLog;
+        private readonly CombatFeedbackBus feedbackBus;
 
-        public CombatShieldSystem(Action<string> battleLog = null)
+        public CombatShieldSystem(
+            Action<string> battleLog = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
+            this.feedbackBus = feedbackBus;
         }
 
         public int GrantShield(
@@ -26,6 +30,8 @@ namespace Godmist.Systems.Combat
             target.Character.ShieldPool.AddLayer(requestedAmount, sourceId);
 
             battleLog?.Invoke($"{target.Character.Definition.DisplayName} otrzymuje {requestedAmount} tarczy.");
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                target, CombatFeedbackType.ShieldGain, requestedAmount));
 
             return requestedAmount;
         }

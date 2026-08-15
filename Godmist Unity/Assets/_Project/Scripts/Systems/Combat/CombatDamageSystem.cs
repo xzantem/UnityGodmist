@@ -12,18 +12,21 @@ namespace Godmist.Systems.Combat
         private readonly Action<BattleUnit> removeUnitFromCombat;
         private readonly ResourceRuleSystem resourceRuleSystem;
         private readonly CombatVariableSystem combatVariableSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public CombatDamageSystem(Action<string> battleLog = null,
             Action<CombatSession> evaluateOutcome = null,
             Action<BattleUnit> removeUnitFromCombat = null,
             ResourceRuleSystem resourceRuleSystem = null,
-            CombatVariableSystem combatVariableSystem = null)
+            CombatVariableSystem combatVariableSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.evaluateOutcome = evaluateOutcome;
             this.removeUnitFromCombat = removeUnitFromCombat;
             this.resourceRuleSystem = resourceRuleSystem;
             this.combatVariableSystem = combatVariableSystem ?? new CombatVariableSystem();
+            this.feedbackBus = feedbackBus;
         }
         public CombatDamageResult ResolveAndApplyDamage(
             CombatSession session,
@@ -46,6 +49,7 @@ namespace Godmist.Systems.Combat
             if (!IsGuaranteedHitDamageType(damageType) && !RollHit(source, target, skillAccuracy))
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss));
 
                 return new CombatDamageResult(false, false, 0);
             }
@@ -62,6 +66,7 @@ namespace Godmist.Systems.Combat
             if (isCritical)
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} trafia krytycznie.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
             var healthDamage = ApplyDamage(
@@ -103,6 +108,7 @@ namespace Godmist.Systems.Combat
             if (isCritical)
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} trafia krytycznie.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
             var healthDamage = ApplyDamage(
@@ -156,7 +162,11 @@ namespace Godmist.Systems.Combat
 
             var shieldDamage = damageBeforeShield - remainingDamage;
             if (shieldDamage > 0) 
-                { battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");}
+            {
+                battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target, CombatFeedbackType.ShieldLoss, shieldDamage));
+            }
             var healthDamage = Mathf.Min(target.Character.CurrentHealth, remainingDamage);
             target.Character.CurrentHealth -= healthDamage;
 
@@ -165,6 +175,8 @@ namespace Godmist.Systems.Combat
                 var damageText = GetDamageText(damageType);
 
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} otrzymuje {healthDamage} {damageText}");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target, CombatFeedbackType.Damage, healthDamage, damageType));
             }
             if (target.Character.CurrentHealth <= 0)
             {

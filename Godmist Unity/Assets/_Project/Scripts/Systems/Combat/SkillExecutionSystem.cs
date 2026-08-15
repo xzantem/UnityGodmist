@@ -26,6 +26,7 @@ namespace Godmist.Systems.Combat
         private readonly SummonedObjectSystem summonedObjectSystem;
         private readonly SummonSystem summonSystem;
         private readonly CombatReactionSystem reactionSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -42,7 +43,8 @@ namespace Godmist.Systems.Combat
             CombatTeleportSystem teleportSystem = null,
             SummonedObjectSystem summonedObjectSystem = null,
             SummonSystem summonSystem = null,
-            CombatReactionSystem reactionSystem = null)
+            CombatReactionSystem reactionSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -84,6 +86,7 @@ namespace Godmist.Systems.Combat
                 ?? new SummonedObjectSystem(battleLog);
             this.summonSystem = summonSystem ?? new SummonSystem(battleLog);
             this.reactionSystem = reactionSystem ?? new CombatReactionSystem(battleLog);
+            this.feedbackBus = feedbackBus;
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -173,7 +176,21 @@ namespace Godmist.Systems.Combat
                 CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
             caster.CurrentActionPoints -= actionCost;
-            caster.Character.ResourcePool?.Drain(skill.ResourceCost);
+            if (actionCost > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    caster, CombatFeedbackType.ActionPointSpend, actionCost));
+            }
+
+            var spentResource = caster.Character.ResourcePool?.Drain(skill.ResourceCost) ?? 0;
+            if (spentResource > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    caster,
+                    CombatFeedbackType.ResourceSpend,
+                    spentResource,
+                    resourceType: caster.Character.ResourcePool.ResourceType));
+            }
 
             battleLog?.Invoke(
                 $"{caster.Character.Definition.DisplayName} uses {skill.DisplayName}.");

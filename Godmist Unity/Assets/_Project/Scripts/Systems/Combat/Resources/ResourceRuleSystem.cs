@@ -8,11 +8,14 @@ namespace Godmist.Systems.Combat
     {
         private readonly Action<string> battleLog;
         private readonly ResourceRuleRegistry registry = new();
+        private readonly CombatFeedbackBus feedbackBus;
 
         public ResourceRuleSystem(
-            Action<string> battleLog = null)
+            Action<string> battleLog = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
+            this.feedbackBus = feedbackBus;
         }
 
         public void ProcessTurnStart(BattleUnit unit)
@@ -100,6 +103,14 @@ namespace Godmist.Systems.Combat
                 $"{displayName} {action} " +
                 $"{Math.Abs(change)} " +
                 $"{unit.Character.ResourcePool.ResourceType}.");
+
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                unit,
+                change > 0
+                    ? CombatFeedbackType.ResourceGain
+                    : CombatFeedbackType.ResourceSpend,
+                Math.Abs(change),
+                resourceType: unit.Character.ResourcePool.ResourceType));
         }
     }
 }
