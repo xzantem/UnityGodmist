@@ -11,6 +11,8 @@ namespace Godmist.Views.Combat
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private CharacterView battleUnitPrefab;
         [SerializeField] private Transform unitsRoot;
+        [SerializeField] private CombatTargetSelectionController targetSelectionController;
+        [SerializeField] private CombatUnitInspectController inspectController;
 
         [Header("Summoned Object Visuals")]
         [SerializeField] private Transform summonedObjectsRoot;
@@ -72,6 +74,13 @@ namespace Godmist.Views.Combat
             {
                 summonedObjectsRoot = unitsRoot;
             }
+
+            if (targetSelectionController == null)
+            {
+                targetSelectionController = Object.FindAnyObjectByType<CombatTargetSelectionController>();
+            }
+            if (inspectController == null)
+                inspectController = Object.FindAnyObjectByType<CombatUnitInspectController>();
         }
 
         private void LateUpdate()
@@ -120,6 +129,8 @@ namespace Godmist.Views.Combat
 
                 var view = Instantiate(battleUnitPrefab, unitsRoot);
                 view.Bind(unit);
+                if (view.GetComponent<CombatUnitVisualStateView>() == null)
+                    view.gameObject.AddComponent<CombatUnitVisualStateView>();
                 view.SetWorldPosition(GridToWorldPosition(unit.Position), true);
                 views.Add(unit, view);
             }
@@ -136,6 +147,12 @@ namespace Godmist.Views.Combat
 
                 view.SetWorldPosition(GridToWorldPosition(unit.Position));
                 view.Refresh();
+                view.GetComponent<CombatUnitVisualStateView>()?.Refresh(
+                    unit,
+                    session.ActiveUnit == unit,
+                    (targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
+                    || (inspectController != null && inspectController.HoveredUnit == unit),
+                    targetSelectionController != null && targetSelectionController.IsSelectingTarget);
             }
         }
 

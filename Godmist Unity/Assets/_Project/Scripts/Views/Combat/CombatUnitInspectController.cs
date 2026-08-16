@@ -20,6 +20,7 @@ namespace Godmist.Views.Combat
         [SerializeField] private float cellSize = 1f;
 
         private BattleUnit selectedUnit;
+        public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()
         {
@@ -40,6 +41,7 @@ namespace Godmist.Views.Combat
         {
             if (DevConsoleView.IsOpen)
             {
+                HoveredUnit = null;
                 return;
             }
 
@@ -60,6 +62,7 @@ namespace Godmist.Views.Combat
                 && targetSelectionController.IsSelectingTarget)
             {
                 var hoveredUnit = targetSelectionController.HoveredUnit;
+                HoveredUnit = hoveredUnit;
                 if (hoveredUnit != null)
                 {
                     inspectPanel.Show(hoveredUnit);
@@ -74,6 +77,7 @@ namespace Godmist.Views.Combat
             }
 
             var hoveredUnitOutsideTargeting = GetUnitUnderMouse();
+            HoveredUnit = hoveredUnitOutsideTargeting;
             RefreshNameLabels(hoveredUnitOutsideTargeting);
 
             if (!Input.GetMouseButtonDown(0)
