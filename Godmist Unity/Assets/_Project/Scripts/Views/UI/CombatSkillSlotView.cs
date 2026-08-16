@@ -60,7 +60,7 @@ namespace Godmist.Views.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltipView?.Hide();
+            tooltipView?.NotifySourceExit();
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Button endTurnButton;
         [SerializeField] private Button escapeButton;
+        [SerializeField] private CombatTooltipView tooltipView;
 
         private void Start()
         {
@@ -21,6 +22,8 @@ namespace Godmist.Views.UI
             {
                 escapeButton.onClick.AddListener(OnEscapeClicked);
             }
+            AddTooltip(endTurnButton, "Zakończ turę", "Kończy turę aktywnej jednostki. Niewydane Punkty Akcji przepadają.");
+            AddTooltip(escapeButton, "Ucieczka", "Próbuje uciec z walki. Nieudana próba zwiększa szansę powodzenia następnej.");
         }
 
         private void Update()
@@ -58,6 +61,14 @@ namespace Godmist.Views.UI
         private void OnEscapeClicked()
         {
             sandboxBootstrap?.RequestEscape();
+        }
+
+        private void AddTooltip(Button button, string title, string description)
+        {
+            if (button == null) return;
+            var trigger = button.GetComponent<CombatSimpleTooltipTrigger>();
+            if (trigger == null) trigger = button.gameObject.AddComponent<CombatSimpleTooltipTrigger>();
+            trigger.Initialize(tooltipView, title, description);
         }
     }
 }

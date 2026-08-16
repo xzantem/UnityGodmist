@@ -13,9 +13,11 @@ namespace Godmist.Views.UI
         [SerializeField] private Slider shieldSlider;
         [SerializeField] private Slider resourceSlider;
         [SerializeField] private TextMeshProUGUI healthValueText;
+        [SerializeField] private TextMeshProUGUI resourceValueText;
         [SerializeField] private Image sideFrame;
         [SerializeField] private Transform actionPointPipRoot;
         [SerializeField] private GameObject actionPointPipTemplate;
+        [SerializeField] private CombatStatusCollectionView statusCollection;
         [SerializeField] private Color playerAccentColor = new(0.88f, 0.67f, 0.24f, 1f);
         [SerializeField] private Color enemyAccentColor = new(0.78f, 0.20f, 0.18f, 1f);
         [SerializeField] private Color inactivePipColor = new(0.12f, 0.15f, 0.19f, 0.95f);
@@ -61,10 +63,20 @@ namespace Godmist.Views.UI
 
             if (healthValueText != null)
             {
-                healthValueText.text = $"{character.CurrentHealth}/{maxHealth:0}";
+                healthValueText.text = FormatHealthValue(
+                    character.CurrentHealth,
+                    maxHealth,
+                    shield);
+            }
+
+            SetValueTextVisible(resourceValueText, resource != null && resource.MaxValue > 0);
+            if (resourceValueText != null && resource != null)
+            {
+                resourceValueText.text = $"{resource.CurrentValue}/{resource.MaxValue}";
             }
 
             RefreshActionPointPips(unit, accentColor);
+            statusCollection?.Bind(unit);
         }
 
         private void RefreshActionPointPips(BattleUnit unit, Color activePipColor)
@@ -140,6 +152,20 @@ namespace Godmist.Views.UI
             slider.minValue = 0f;
             slider.maxValue = Mathf.Max(1f, maxValue);
             slider.SetValueWithoutNotify(Mathf.Clamp(currentValue, 0f, slider.maxValue));
+        }
+
+        private static void SetValueTextVisible(TextMeshProUGUI text, bool visible)
+        {
+            if (text != null)
+            {
+                text.gameObject.SetActive(visible);
+            }
+        }
+
+        private static string FormatHealthValue(float health, float maximumHealth, int shield)
+        {
+            var value = $"{health:0}/{maximumHealth:0}";
+            return shield > 0 ? $"{value} (+{shield})" : value;
         }
     }
 }

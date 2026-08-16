@@ -83,7 +83,7 @@ namespace Godmist.Systems.Debugging
                     $"Ogień {character.Resistances.FireResistance:P0}");
 
                 output.AppendLine(
-                    $"Osłabienia {character.Resistances.WeakeningResistance:P0} | " +
+                    $"Efekty {character.Resistances.WeakeningResistance:P0} | " +
                     $"Ograniczenia {character.Resistances.SuppressionResistance:P0} | " +
                     $"Przesunięcia {character.Resistances.MoveResistance:P0}");
             }

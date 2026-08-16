@@ -613,7 +613,6 @@ namespace Godmist.Systems.Combat
                 StatusEffectIds.Bleed => resistances.BleedResistance,
                 StatusEffectIds.Poison => resistances.PoisonResistance,
                 StatusEffectIds.Burn => resistances.FireResistance,
-                StatusEffectIds.Weakening => resistances.WeakeningResistance,
                 StunId => resistances.SuppressionResistance,
                 ImmobilizeId => resistances.SuppressionResistance,
                 StatusEffectIds.Taunt => resistances.SuppressionResistance,

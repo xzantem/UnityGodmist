@@ -11,6 +11,7 @@ namespace Godmist.Views.UI
         [SerializeField] private Slider healthSlider;
         [SerializeField] private Slider resourceSlider;
         [SerializeField] private Image lifeStateMarker;
+        [SerializeField] private CombatStatusCollectionView statusCollection;
         [SerializeField] private Color aliveColor = new(0.88f, 0.67f, 0.24f, 1f);
         [SerializeField] private Color downedColor = new(0.78f, 0.20f, 0.18f, 1f);
         [SerializeField] private Color deadColor = new(0.20f, 0.22f, 0.25f, 1f);
@@ -50,6 +51,8 @@ namespace Godmist.Views.UI
                     _ => aliveColor
                 };
             }
+
+            statusCollection?.Bind(unit);
         }
 
         private static void SetSliderVisible(Slider slider, bool visible)

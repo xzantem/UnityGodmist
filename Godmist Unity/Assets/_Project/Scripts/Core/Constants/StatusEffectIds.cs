@@ -9,8 +9,6 @@ namespace Godmist.Core.Constants
         public const string Poison = "poison";
         public const string Burn = "burn";
 
-        public const string Weakening = "weakening";
-
         public const string Stun = "stun";
         public const string Freeze = "freeze";
         public const string Sleep = "sleep";
