@@ -17,6 +17,7 @@ namespace Godmist.Core.Serialization
 
         public List<string> ClearedEncounterIds = new();
         public List<DungeonFloorDeltaSaveData> FloorDeltas = new();
+        public List<DungeonEncounterDeltaSaveData> EncounterDeltas = new();
     }
 
     [Serializable]
@@ -34,5 +35,12 @@ namespace Godmist.Core.Serialization
         public bool IsActive;
         public bool IsDoor;
         public bool IsOpen;
+    }
+    
+    [Serializable]
+    public class DungeonEncounterDeltaSaveData
+    {
+        public string EncounterInstanceId = string.Empty;
+        public List<string> DefeatedEnemyInstanceIds = new();
     }
 }

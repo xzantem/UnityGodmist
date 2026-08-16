@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Combat;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
@@ -10,6 +12,22 @@ namespace Godmist.Tests.EditMode
 {
     public class DungeonCombatOutcomeSystemTests
     {
+        private readonly List<Object> createdObjects = new();
+
+        [TearDown]
+        public void TearDown()
+        {
+            foreach (var createdObject in createdObjects)
+            {
+                if (createdObject != null)
+                {
+                    Object.DestroyImmediate(createdObject);
+                }
+            }
+
+            createdObjects.Clear();
+        }
+
         [Test]
         public void TryApplyOutcome_Victory_MarksEncounterAsCleared()
         {
@@ -76,16 +94,36 @@ namespace Godmist.Tests.EditMode
             Assert.That(result, Is.False);
         }
 
-        private static GameSession CreateGameSessionWithDungeon(
+        private GameSession CreateGameSessionWithDungeon(
             out DungeonInstance dungeon)
         {
+            var encounterDefinition =
+                ScriptableObject.CreateInstance<EncounterDefinition>();
+
+            createdObjects.Add(encounterDefinition);
+
             var floorMap = new DungeonFloorMap();
+
             floorMap.TryAddFloorCell(
                 new Vector2Int(0, 0),
                 "room.test");
 
             var floor = new DungeonFloorInstance(0);
+
+            var room = new DungeonRoomInstance(
+                "room.test",
+                DungeonRoomType.Normal);
+
+            floor.TryAddRoom(room);
             floor.TrySetMap(floorMap);
+
+            var encounter = new DungeonEncounterInstance(
+                "encounter.test",
+                encounterDefinition,
+                room.RoomId,
+                new RectInt(0, 0, 1, 1));
+
+            floor.TryAddEncounter(encounter);
 
             dungeon = new DungeonInstance(
                 "dungeon.test",
@@ -94,6 +132,7 @@ namespace Godmist.Tests.EditMode
             dungeon.TryAddFloor(floor);
 
             var gameSession = new GameSession();
+
             gameSession.TrySetActiveDungeon(dungeon);
 
             var context = new DungeonCombatContext(

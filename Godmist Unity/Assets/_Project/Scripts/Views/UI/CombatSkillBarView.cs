@@ -3,9 +3,7 @@ using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using Godmist.Views.Combat;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Godmist.Views.UI
 {
@@ -13,28 +11,19 @@ namespace Godmist.Views.UI
     {
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private RectTransform skillBarRoot;
-        [SerializeField] private GameObject skillSlotTemplate;
+        [SerializeField] private CombatSkillSlotView skillSlotTemplate;
         [SerializeField] private CombatTargetSelectionController targetSelectionController;
+        [SerializeField] private CombatTooltipView tooltipView;
 
-        private readonly List<GameObject> spawnedSlots = new();
-
+        private readonly List<CombatSkillSlotView> spawnedSlots = new();
         private CombatSession cachedSession;
         private BattleUnit cachedActiveUnit;
         private int cachedSkillCount = -1;
-        private bool slotsInitialized;
 
         private void Update()
         {
-            if (sandboxBootstrap == null
-                || skillBarRoot == null
-                || skillSlotTemplate == null)
-            {
-                return;
-            }
-
-            var session = sandboxBootstrap.Session;
-
-            if (session == null || session.ActiveUnit == null)
+            var session = sandboxBootstrap?.Session;
+            if (session?.ActiveUnit == null)
             {
                 targetSelectionController?.CancelTargetSelection();
                 ClearSlots();
@@ -43,17 +32,11 @@ namespace Godmist.Views.UI
             }
 
             var activeUnit = session.ActiveUnit;
-            var skillCount = activeUnit.Character.Skills?.Count ?? 0;
-
-            var needsRebuild =
-                !slotsInitialized
-                || cachedSession != session
-                || cachedActiveUnit != activeUnit
-                || cachedSkillCount != skillCount;
-
-            if (needsRebuild)
+            var skillCount = activeUnit.Character?.Skills?.Count ?? 0;
+            if (cachedSession != session || cachedActiveUnit != activeUnit
+                || cachedSkillCount != skillCount)
             {
-                RefreshSkillBar(activeUnit);
+                RebuildSlots(activeUnit);
             }
             else
             {
@@ -61,144 +44,61 @@ namespace Godmist.Views.UI
             }
         }
 
-        private void RefreshSkillBar(BattleUnit activeUnit)
+        private void RebuildSlots(BattleUnit activeUnit)
         {
             targetSelectionController?.CancelTargetSelection();
+            tooltipView?.Hide();
             ClearSlots();
 
-            var skills = activeUnit.Character.Skills;
-
-            if (skills != null)
+            if (skillBarRoot == null || skillSlotTemplate == null)
             {
-                for (var i = 0; i < skills.Count; i++)
-                {
-                    var skill = skills[i];
-
-                    if (skill == null)
-                    {
-                        continue;
-                    }
-
-                    var slotObject =
-                        Instantiate(skillSlotTemplate, skillBarRoot);
-
-                    slotObject.SetActive(true);
-                    spawnedSlots.Add(slotObject);
-
-                    BindSlotVisuals(
-                        slotObject,
-                        skill,
-                        i,
-                        activeUnit);
-
-                    var button =
-                        slotObject.GetComponent<Button>();
-
-                    if (button != null)
-                    {
-                        var selectedSkill = skill;
-
-                        button.onClick.AddListener(() =>
-                            targetSelectionController
-                                ?.BeginTargetSelection(selectedSkill));
-                    }
-                }
+                return;
             }
 
-            cachedSession = sandboxBootstrap.Session;
+            foreach (var skill in activeUnit.Character.Skills)
+            {
+                if (skill == null)
+                {
+                    continue;
+                }
+
+                var slot = Instantiate(skillSlotTemplate, skillBarRoot);
+                slot.gameObject.SetActive(true);
+                slot.Initialize(
+                    skill,
+                    tooltipView,
+                    () => targetSelectionController?.BeginTargetSelection(skill));
+                spawnedSlots.Add(slot);
+            }
+
+            cachedSession = sandboxBootstrap?.Session;
             cachedActiveUnit = activeUnit;
-            cachedSkillCount = skills?.Count ?? 0;
-            slotsInitialized = true;
+            cachedSkillCount = activeUnit.Character.Skills.Count;
+            RefreshSlotVisuals(activeUnit);
         }
 
         private void RefreshSlotVisuals(BattleUnit activeUnit)
         {
-            var skills = activeUnit.Character.Skills;
-
+            var skills = activeUnit.Character?.Skills;
             if (skills == null)
             {
                 return;
             }
 
-            for (var i = 0;
-                i < spawnedSlots.Count && i < skills.Count;
-                i++)
+            var slotIndex = 0;
+            foreach (var skill in skills)
             {
-                BindSlotVisuals(
-                    spawnedSlots[i],
-                    skills[i],
-                    i,
-                    activeUnit);
-            }
-        }
-
-        private void BindSlotVisuals(
-            GameObject slotObject,
-            SkillData skill,
-            int index,
-            BattleUnit activeUnit)
-        {
-            var texts =
-                slotObject.GetComponentsInChildren
-                    <TextMeshProUGUI>(true);
-
-            var background =
-                slotObject.GetComponent<Image>();
-
-            TextMeshProUGUI slotIndexText = null;
-            TextMeshProUGUI skillNameText = null;
-            TextMeshProUGUI costText = null;
-
-            foreach (var text in texts)
-            {
-                if (text.name == "SlotIndexText")
+                if (skill == null || slotIndex >= spawnedSlots.Count)
                 {
-                    slotIndexText = text;
+                    continue;
                 }
-                else if (text.name == "SkillNameText")
-                {
-                    skillNameText = text;
-                }
-                else if (text.name == "CostText")
-                {
-                    costText = text;
-                }
-            }
 
-            if (slotIndexText != null)
-            {
-                slotIndexText.text = (index + 1).ToString();
-            }
-
-            if (skillNameText != null)
-            {
-                skillNameText.text = skill.DisplayName;
-            }
-
-            var actionCost =
-                CombatActionCostCalculator
-                    .CalculateSkillCost(activeUnit, skill);
-
-            if (costText != null)
-            {
-                costText.text =
-                    $"AP {actionCost} ({skill.ActionCost}%) " +
-                    $"| RES {skill.ResourceCost}";
-            }
-
-            if (background != null)
-            {
-                var enoughAp =
-                    activeUnit.CurrentActionPoints >= actionCost;
-
-                var enoughResource =
-                    activeUnit.Character.ResourcePool.CurrentValue
-                    >= skill.ResourceCost;
-
-                background.color =
-                    enoughAp && enoughResource
-                        ? new Color(0.72f, 0.96f, 1f, 0.9f)
-                        : new Color(0.80f, 0.48f, 0.48f, 0.9f);
+                var actionCost = CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill);
+                var resource = activeUnit.Character.ResourcePool;
+                var canUse = activeUnit.CurrentActionPoints >= actionCost
+                    && (resource == null || resource.CurrentValue >= skill.ResourceCost);
+                spawnedSlots[slotIndex].RefreshAvailability(canUse, actionCost);
+                slotIndex++;
             }
         }
 
@@ -208,7 +108,7 @@ namespace Godmist.Views.UI
             {
                 if (slot != null)
                 {
-                    Destroy(slot);
+                    Destroy(slot.gameObject);
                 }
             }
 
@@ -220,7 +120,6 @@ namespace Godmist.Views.UI
             cachedSession = null;
             cachedActiveUnit = null;
             cachedSkillCount = -1;
-            slotsInitialized = false;
         }
     }
 }

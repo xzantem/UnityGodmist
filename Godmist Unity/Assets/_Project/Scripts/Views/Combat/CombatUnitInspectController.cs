@@ -13,10 +13,14 @@ namespace Godmist.Views.Combat
         [SerializeField] private CombatTargetSelectionController
             targetSelectionController;
         [SerializeField] private CombatUnitInspectPanel inspectPanel;
+        [SerializeField] private CombatUnitViewSpawner unitViewSpawner;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
+
+        private BattleUnit selectedUnit;
+        public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()
         {
@@ -24,10 +28,23 @@ namespace Godmist.Views.Combat
             {
                 worldCamera = Camera.main;
             }
+
+            if (unitViewSpawner == null)
+            {
+                unitViewSpawner = sandboxBootstrap != null
+                    ? sandboxBootstrap.GetComponent<CombatUnitViewSpawner>()
+                    : GetComponent<CombatUnitViewSpawner>();
+            }
         }
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen)
+            {
+                HoveredUnit = null;
+                return;
+            }
+
             if (inspectPanel == null)
             {
                 return;
@@ -35,16 +52,33 @@ namespace Godmist.Views.Combat
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
+                selectedUnit = null;
                 inspectPanel.Hide();
+                RefreshNameLabels(null);
                 return;
             }
 
             if (targetSelectionController != null
                 && targetSelectionController.IsSelectingTarget)
             {
-                inspectPanel.Hide();
+                var hoveredUnit = targetSelectionController.HoveredUnit;
+                HoveredUnit = hoveredUnit;
+                if (hoveredUnit != null)
+                {
+                    inspectPanel.Show(hoveredUnit);
+                }
+                else
+                {
+                    inspectPanel.Hide();
+                }
+
+                RefreshNameLabels(hoveredUnit);
                 return;
             }
+
+            var hoveredUnitOutsideTargeting = GetUnitUnderMouse();
+            HoveredUnit = hoveredUnitOutsideTargeting;
+            RefreshNameLabels(hoveredUnitOutsideTargeting);
 
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
@@ -71,11 +105,15 @@ namespace Godmist.Views.Combat
 
             if (unit == null)
             {
+                selectedUnit = null;
                 inspectPanel.Hide();
+                RefreshNameLabels(null);
                 return;
             }
 
+            selectedUnit = unit;
             inspectPanel.Show(unit);
+            RefreshNameLabels(hoveredUnitOutsideTargeting);
         }
 
         private BattleUnit FindUnitAtPosition(
@@ -91,6 +129,26 @@ namespace Godmist.Views.Combat
             }
 
             return null;
+        }
+
+        private BattleUnit GetUnitUnderMouse()
+        {
+            if (worldCamera == null
+                || (EventSystem.current != null
+                    && EventSystem.current.IsPointerOverGameObject()))
+            {
+                return null;
+            }
+
+            var session = sandboxBootstrap?.Session;
+            return session == null
+                ? null
+                : FindUnitAtPosition(session, GetGridPositionUnderMouse());
+        }
+
+        private void RefreshNameLabels(BattleUnit hoveredUnit)
+        {
+            unitViewSpawner?.ShowNameLabelsFor(hoveredUnit, selectedUnit);
         }
 
         private GridPosition GetGridPositionUnderMouse()

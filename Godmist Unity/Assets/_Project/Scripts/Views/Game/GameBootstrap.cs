@@ -1,11 +1,13 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Combat;
 using Godmist.Data.Dungeons;
 using Godmist.Data.World;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
+using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.NPC;
 using Godmist.Systems.Quests;
@@ -32,6 +34,7 @@ namespace Godmist.Views.Game
         public QuestService QuestService { get; private set; }
         public TradeService TradeService { get; private set; }
         public SaveManager SaveManager { get; private set; }
+        public GameContentCatalog ContentCatalog => contentCatalog;
 
         public event Action<DungeonInstance> DungeonExited;
 
@@ -50,6 +53,7 @@ namespace Godmist.Views.Game
 
         private readonly DungeonObjectPlacementSystem
             objectPlacementSystem = new();
+        private readonly CombatSessionFactory debugCombatSessionFactory = new();
 
         private void Awake()
         {
@@ -104,15 +108,80 @@ namespace Godmist.Views.Game
             }
         }
 
-        public void StartCombat()
+        public bool StartCombat()
         {
             if (sceneLoader == null)
             {
                 Debug.LogError("GameBootstrap: brak SceneLoader.");
-                return;
+                return false;
             }
 
-            sceneLoader.TryLoadScene(combatSceneName, GameModeState.Combat);
+            return sceneLoader.TryLoadScene(
+                combatSceneName,
+                GameModeState.Combat);
+        }
+
+        public bool TryStartDebugCombat(
+            string encounterId,
+            out string message)
+        {
+            message = string.Empty;
+
+            if (Session == null)
+            {
+                message = "Brak aktywnej GameSession.";
+                return false;
+            }
+
+            if (Session.ActiveCombat != null)
+            {
+                message = "Walczysz juz w aktywnej sesji.";
+                return false;
+            }
+
+            if (contentCatalog == null)
+            {
+                message = "Brak GameContentCatalog.";
+                return false;
+            }
+
+            if (!contentCatalog.TryGetEncounter(
+                    encounterId,
+                    out var encounter))
+            {
+                message = $"Nie znaleziono encountera: {encounterId}";
+                return false;
+            }
+
+            if (!debugCombatSessionFactory.TryCreate(
+                    Session,
+                    encounter,
+                    out var combatSession))
+            {
+                message =
+                    "Nie udalo sie utworzyc walki. Sprawdz aktywna druzyne i EncounterDefinition.";
+
+                return false;
+            }
+
+            combatSession.IsDebugSession = true;
+
+            if (!Session.TrySetActiveCombat(combatSession))
+            {
+                message = "Nie udalo sie ustawic aktywnej walki.";
+                return false;
+            }
+
+            if (!StartCombat())
+            {
+                Session.TryClearActiveCombat();
+
+                message = "Nie udalo sie zaladowac sceny walki.";
+                return false;
+            }
+
+            message = $"Uruchomiono debugowa walke: {encounter.DisplayName}.";
+            return true;
         }
 
         public void StartExploration()

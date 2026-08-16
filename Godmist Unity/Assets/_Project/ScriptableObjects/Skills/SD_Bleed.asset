@@ -14,34 +14,352 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.bleed
   <DisplayName>k__BackingField: "Krwawi\u0105cy Sztylet"
-  <SkillAccuracy>k__BackingField: 100
-  <ActionCost>k__BackingField: 60
-  <ResourceCost>k__BackingField: 10
+  <Icon>k__BackingField: {fileID: -2070468402880673519, guid: e44fd3e2ccb2ffd4f93421e875295001, type: 3}
+  <TooltipDescription>k__BackingField: 
+  <SkillAccuracy>k__BackingField: 75
+  <ActionCost>k__BackingField: 65
+  <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
-  - targetType: 0
-    targetingType: 0
+  - targetType: 1
+    targetingType: 2
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
-    useRelativeRange: 0
     relativeRange:
       shape: 1
       minRange: 0
       maxRange: 1
   effects:
   - effectType: 2
+    polarity: 1
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 1
+    damageHitCount: 1
     damageType: 0
-    pushDistance: 0
-    baseChance: 0.7
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
     statusId: bleed
-    durationTurns: 3
+    durationTurns: 4
     stacks: 1
-    statusDamageMultiplier: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: poison
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: burn
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: stun
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: freeze
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: sleep
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    conditions: []
+  - effectType: 2
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    damageHitCount: 1
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 1
+    statusId: paralysis
+    durationTurns: 4
+    stacks: 1
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

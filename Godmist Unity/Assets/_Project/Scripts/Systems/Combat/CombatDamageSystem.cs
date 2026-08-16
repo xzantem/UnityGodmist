@@ -11,44 +11,112 @@ namespace Godmist.Systems.Combat
         private readonly Action<CombatSession> evaluateOutcome;
         private readonly Action<BattleUnit> removeUnitFromCombat;
         private readonly ResourceRuleSystem resourceRuleSystem;
+        private readonly CombatVariableSystem combatVariableSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public CombatDamageSystem(Action<string> battleLog = null,
             Action<CombatSession> evaluateOutcome = null,
             Action<BattleUnit> removeUnitFromCombat = null,
-            ResourceRuleSystem resourceRuleSystem = null)
+            ResourceRuleSystem resourceRuleSystem = null,
+            CombatVariableSystem combatVariableSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.evaluateOutcome = evaluateOutcome;
             this.removeUnitFromCombat = removeUnitFromCombat;
             this.resourceRuleSystem = resourceRuleSystem;
+            this.combatVariableSystem = combatVariableSystem ?? new CombatVariableSystem();
+            this.feedbackBus = feedbackBus;
         }
-        public CombatDamageResult ResolveAndApplyDamage(CombatSession session, BattleUnit source, 
-            BattleUnit target, int attackValue, DamageType damageType, float skillAccuracy)
+        public CombatDamageResult ResolveAndApplyDamage(
+            CombatSession session,
+            BattleUnit source,
+            BattleUnit target,
+            int attackValue,
+            DamageType damageType,
+            float skillAccuracy)
         {
             if (source?.Character == null || target?.Character == null || attackValue <= 0)
             {
                 return new CombatDamageResult(false, false, 0);
             }
 
-            if (!RollHit(source, target, damageType, skillAccuracy))
+            if (StatusEffectSystem.IsParalyzed(target))
+            {
+                return new CombatDamageResult(false, false, 0);
+            }
+
+            if (!IsGuaranteedHitDamageType(damageType) && !RollHit(source, target, skillAccuracy))
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss));
 
                 return new CombatDamageResult(false, false, 0);
             }
 
+            var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(source, damageType);
+            var damageAfterCrit = ApplyCriticalDamage(
+                source,
+                damageAfterFreeze,
+                isCritical);
 
-            var damageAfterCrit = ApplyCriticalDamage(source, attackValue, isCritical);
-
-            var finalDamage = ApplyDefense( target, damageAfterCrit, damageType);
+            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
 
             if (isCritical)
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} trafia krytycznie.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
-            var healthDamage = ApplyDamage(session, source, target, finalDamage, damageType);
+            var healthDamage = ApplyDamage(
+                session,
+                source,
+                target,
+                finalDamage,
+                damageType);
+
+            return new CombatDamageResult(true, isCritical, healthDamage);
+        }
+
+        public CombatDamageResult ResolveAndApplyDamage(
+            CombatSession session,
+            BattleUnit source,
+            BattleUnit target,
+            int attackValue,
+            DamageType damageType,
+            bool wasHit)
+        {
+            if (source?.Character == null
+                || target?.Character == null
+                || attackValue <= 0
+                || !wasHit
+                || StatusEffectSystem.IsParalyzed(target))
+            {
+                return new CombatDamageResult(false, false, 0);
+            }
+
+            var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
+            var isCritical = RollCritical(source, damageType);
+            var damageAfterCrit = ApplyCriticalDamage(
+                source,
+                damageAfterFreeze,
+                isCritical);
+
+            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
+
+            if (isCritical)
+            {
+                battleLog?.Invoke($"{GetDisplayName(source)} trafia krytycznie.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
+            }
+
+            var healthDamage = ApplyDamage(
+                session,
+                source,
+                target,
+                finalDamage,
+                damageType);
 
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
@@ -64,14 +132,25 @@ namespace Godmist.Systems.Combat
             {
                 return 0;
             }
-            var incomingDamage = Mathf.Max(0, requestedDamage);
+            if (StatusEffectSystem.IsParalyzed(target))
+            {
+                return 0;
+            }
+            if (target.Character.DebugIsInvulnerable)
+            {
+                battleLog?.Invoke(
+                    $"{target.Character.Definition.DisplayName} ignoruje obrażenia (godmode).");
+
+                return 0;
+            }
+            var incomingDamage = combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage);
             if (incomingDamage <= 0)
             {
                 return 0;
             }
             if (target.Character.LifeState == CharacterLifeState.Downed)
             {
-                AccelerateDownedDeath(target);
+                AccelerateDownedDeath(session, target);
                 evaluateOutcome?.Invoke(session);
                 return 0;
             }
@@ -83,15 +162,21 @@ namespace Godmist.Systems.Combat
 
             var shieldDamage = damageBeforeShield - remainingDamage;
             if (shieldDamage > 0) 
-                { battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");}
+            {
+                battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target, CombatFeedbackType.ShieldLoss, shieldDamage));
+            }
             var healthDamage = Mathf.Min(target.Character.CurrentHealth, remainingDamage);
             target.Character.CurrentHealth -= healthDamage;
 
             if (healthDamage > 0)
             {
-                var damageText = damageType == DamageType.Bleed ? "obrażeń od krwawienia" : "obrażeń";
+                var damageText = GetDamageText(damageType);
 
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} otrzymuje {healthDamage} {damageText}");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target, CombatFeedbackType.Damage, healthDamage, damageType));
             }
             if (target.Character.CurrentHealth <= 0)
             {
@@ -107,15 +192,39 @@ namespace Godmist.Systems.Combat
                 }
                 else
                 {
-                    MarkDead(target);
+                    MarkDead(session, target);
                 }
             }
-            if (source != null && damageType != DamageType.Bleed && (shieldDamage > 0 || healthDamage > 0))
+            if (source != null && !IsDamageOverTime(damageType) && (shieldDamage > 0 || healthDamage > 0))
             {
                 resourceRuleSystem?.ProcessDamageDealt(source);
             }
             evaluateOutcome?.Invoke(session);
             return healthDamage;
+        }
+
+        public int ApplySummonedObjectDamage(
+            CombatSession session,
+            BattleUnit target,
+            int requestedDamage,
+            DamageType damageType)
+        {
+            if (target?.Character == null || requestedDamage <= 0)
+            {
+                return 0;
+            }
+
+            var finalDamage = ApplyDefense(
+                target,
+                requestedDamage,
+                damageType);
+
+            return ApplyDamage(
+                session,
+                null,
+                target,
+                finalDamage,
+                damageType);
         }
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
@@ -131,16 +240,31 @@ namespace Godmist.Systems.Combat
             return Mathf.Clamp01(chancePercent / 100f);
         }
 
-        private static bool RollHit(BattleUnit source, BattleUnit target, DamageType damageType, float skillAccuracy)
+        public static bool RollHit(
+            BattleUnit source,
+            BattleUnit target,
+            float skillAccuracy)
         {
-            if (damageType != DamageType.Physical)
-                return true;
+            if (source?.Character == null || target?.Character == null)
+            {
+                return false;
+            }
 
-            var dodge = target.Character.Stats == null ? 0f : target.Character.Stats.Dodge.GetValue();
+            var dodge = target.Character.Stats == null
+                ? 0f
+                : target.Character.Stats.Dodge.GetValue();
 
-            var chance = CalculateHitChance(source.Character.WeaponAccuracy, skillAccuracy, dodge);
+            var chance = CalculateHitChance(
+                source.Character.WeaponAccuracy,
+                skillAccuracy,
+                dodge);
 
             return UnityEngine.Random.value <= chance;
+        }
+
+        public static bool IsGuaranteedHitDamageType(DamageType damageType)
+        {
+            return damageType != DamageType.Physical;
         }
 
         private static bool RollCritical(BattleUnit source, DamageType damageType)
@@ -184,6 +308,24 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt(damage * damage / (damage + defense));
         }
 
+        private static bool IsDamageOverTime(DamageType damageType)
+        {
+            return damageType == DamageType.Bleed
+                || damageType == DamageType.Poison
+                || damageType == DamageType.Burn;
+        }
+
+        private static string GetDamageText(DamageType damageType)
+        {
+            return damageType switch
+            {
+                DamageType.Bleed => "obrażeń od krwawienia",
+                DamageType.Poison => "obrażeń od zatrucia",
+                DamageType.Burn => "obrażeń od podpalenia",
+                _ => "obrażeń"
+            };
+        }
+
         private static string GetDisplayName(BattleUnit unit)
         {
             if (unit?.Character?.Definition == null)
@@ -198,7 +340,7 @@ namespace Godmist.Systems.Combat
 
             return target.Character.ShieldPool.AbsorbDamage(damage);
         }
-        private void AccelerateDownedDeath(BattleUnit target)
+        private void AccelerateDownedDeath(CombatSession session, BattleUnit target)
         {
             target.DownedTurnsRemaining = Math.Max(
                 0,
@@ -211,14 +353,17 @@ namespace Godmist.Systems.Combat
 
             if (target.DownedTurnsRemaining <= 0)
             {
-                MarkDead(target);
+                MarkDead(session, target);
             }
         }
 
-        private void MarkDead(BattleUnit target)
+        private void MarkDead(CombatSession session, BattleUnit target)
         {
             target.Character.CurrentHealth = 0;
             target.Character.LifeState = CharacterLifeState.Dead;
+            StatusEffectSystem.RemoveTauntsAppliedBy(
+                session,
+                target.Character.CharacterId);
             target.DownedTurnsRemaining = 0;
 
             battleLog?.Invoke(
@@ -226,8 +371,28 @@ namespace Godmist.Systems.Combat
 
             if (!target.IsPlayerSide)
             {
+                session?.TryMarkEnemyDefeated(target.Character.CharacterId);
                 removeUnitFromCombat?.Invoke(target);
             }
+        }
+
+        private int ApplyFreezeDamageBonus(BattleUnit target, int damage)
+        {
+            if (!StatusEffectSystem.TryBreakFreeze(
+                    target,
+                    out var remainingTurns))
+            {
+                return damage;
+            }
+
+            var multiplier = 1f + remainingTurns * 0.5f;
+            var boostedDamage = Mathf.CeilToInt(damage * multiplier);
+
+            battleLog?.Invoke(
+                $"{target.Character.Definition.DisplayName} traci Freeze. " +
+                $"Uderzenie zadaje {boostedDamage} obrażeń.");
+
+            return boostedDamage;
         }
     }
 }

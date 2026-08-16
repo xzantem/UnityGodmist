@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
@@ -13,6 +14,7 @@ using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
+using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.Items;
 using Godmist.Systems.NPC;
@@ -497,24 +499,81 @@ namespace Godmist.Systems.SaveLoad
                     || effectSaveData.TotalDamage < 0
                     || !TryCreateStatModifiers(
                         effectSaveData.StatModifiers,
-                        out var statModifiers))
+                        out var statModifiers)
+                    || !TryCreateVariableModifiers(
+                        effectSaveData.VariableModifiers,
+                        out var variableModifiers))
                 {
                     return false;
+                }
+
+                List<PassiveEffectSourceRuntime> sources;
+                PassiveEffectLifetime lifetime;
+
+                if (effectSaveData.HasLifetime)
+                {
+                    if (!Enum.IsDefined(
+                            typeof(PassiveEffectLifetime),
+                            effectSaveData.Lifetime)
+                        || !TryCreatePassiveEffectSources(
+                            effectSaveData.Sources,
+                            out sources))
+                    {
+                        return false;
+                    }
+
+                    lifetime = effectSaveData.Lifetime;
+                }
+                else
+                {
+                    lifetime = effectSaveData.IsTimed
+                        || effectSaveData.RemainingDuration > 0
+                            ? PassiveEffectLifetime.Timed
+                            : PassiveEffectLifetime.Persistent;
+
+                    sources = CreateLegacyPassiveEffectSources(
+                        effectSaveData.SourceEntityIds);
+                }
+
+                var tickPhase = lifetime == PassiveEffectLifetime.Timed
+                    ? effectSaveData.TickPhase
+                    : PassiveEffectTickPhase.None;
+
+                if (lifetime == PassiveEffectLifetime.Timed
+                    && tickPhase == PassiveEffectTickPhase.None)
+                {
+                    tickPhase = IsDamageOverTimeStatus(
+                        effectSaveData.EffectId)
+                        ? PassiveEffectTickPhase.TurnStart
+                        : PassiveEffectTickPhase.TurnEnd;
                 }
 
                 character.PassiveEffects.Add(
                     new PassiveEffectRuntime(
                         effectSaveData.EffectId,
-                        effectSaveData.SourceEntityIds,
+                        sources,
                         effectSaveData.Stacks,
                         effectSaveData.RemainingDuration,
-                        effectSaveData.TotalDamage)
+                        effectSaveData.TotalDamage,
+                        lifetime,
+                        tickPhase)
                     {
-                        StatModifiers = statModifiers
+                        StatModifiers = statModifiers,
+                        VariableModifiers = variableModifiers
                     });
             }
 
             return true;
+        }
+
+        private static bool IsDamageOverTimeStatus(string effectId)
+        {
+            return string.Equals(effectId, StatusEffectIds.Bleed,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(effectId, StatusEffectIds.Poison,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(effectId, StatusEffectIds.Burn,
+                       StringComparison.OrdinalIgnoreCase);
         }
 
         private bool TryRestoreInventory(
@@ -927,7 +986,8 @@ namespace Godmist.Systems.SaveLoad
                     saveData.ClearedEncounterIds)
                 || !TryRestoreDungeonFloorDeltas(
                     dungeon,
-                    saveData.FloorDeltas)
+                    saveData.FloorDeltas,
+                    saveData.EncounterDeltas)
                 || !session.TrySetActiveDungeon(dungeon))
             {
                 return false;
@@ -938,58 +998,197 @@ namespace Godmist.Systems.SaveLoad
 
         private static bool TryRestoreDungeonFloorDeltas(
             DungeonInstance dungeon,
-            List<DungeonFloorDeltaSaveData> floorDeltas)
+            List<DungeonFloorDeltaSaveData> floorDeltas,
+            List<DungeonEncounterDeltaSaveData> encounterDeltas)
         {
-            if (floorDeltas == null)
+            if (dungeon == null)
             {
-                return true;
+                return false;
             }
 
-            var restoredFloorIndices = new HashSet<int>();
-
-            foreach (var floorDelta in floorDeltas)
+            if (floorDeltas != null)
             {
-                if (floorDelta == null
-                    || !restoredFloorIndices.Add(
-                        floorDelta.FloorIndex)
-                    || !dungeon.TryGetFloor(
-                        floorDelta.FloorIndex,
-                        out var floor))
-                {
-                    return false;
-                }
+                var restoredFloorIndices = new HashSet<int>();
 
-                if (floorDelta.VisitedRoomIds != null)
+                foreach (var floorDelta in floorDeltas)
                 {
-                    foreach (var roomId in floorDelta.VisitedRoomIds)
+                    if (floorDelta == null
+                        || !restoredFloorIndices.Add(floorDelta.FloorIndex)
+                        || !dungeon.TryGetFloor(
+                            floorDelta.FloorIndex,
+                            out var floor))
                     {
-                        if (!floor.TryRestoreRoomVisited(
-                                roomId,
-                                true))
+                        return false;
+                    }
+
+                    if (floorDelta.VisitedRoomIds != null)
+                    {
+                        foreach (var roomId in floorDelta.VisitedRoomIds)
+                        {
+                            if (!floor.TryRestoreRoomVisited(roomId, true))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
+                    if (floorDelta.ObjectDeltas == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var objectDelta in floorDelta.ObjectDeltas)
+                    {
+                        if (objectDelta == null
+                            || !floor.TryRestoreObjectState(
+                                objectDelta.ObjectInstanceId,
+                                objectDelta.IsActive,
+                                objectDelta.IsDoor,
+                                objectDelta.IsOpen))
                         {
                             return false;
                         }
                     }
                 }
+            }
 
-                if (floorDelta.ObjectDeltas == null)
+            if (encounterDeltas == null)
+            {
+                return true;
+            }
+
+            foreach (var encounterDelta in encounterDeltas)
+            {
+                if (encounterDelta == null
+                    || string.IsNullOrWhiteSpace(
+                        encounterDelta.EncounterInstanceId))
+                {
+                    return false;
+                }
+
+                var restored = false;
+
+                foreach (var floor in dungeon.Floors)
+                {
+                    if (!floor.TryGetEncounter(
+                            encounterDelta.EncounterInstanceId,
+                            out _))
+                    {
+                        continue;
+                    }
+
+                    if (!floor.TryRestoreEncounterDefeatedEnemyInstanceIds(
+                            encounterDelta.EncounterInstanceId,
+                            encounterDelta.DefeatedEnemyInstanceIds))
+                    {
+                        return false;
+                    }
+
+                    restored = true;
+                    break;
+                }
+
+                if (!restored)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TryCreatePassiveEffectSources(
+            List<PassiveEffectSourceSaveData> saveDataList,
+            out List<PassiveEffectSourceRuntime> sources)
+        {
+            sources = new List<PassiveEffectSourceRuntime>();
+
+            if (saveDataList == null)
+            {
+                return true;
+            }
+
+            foreach (var saveData in saveDataList)
+            {
+                if (saveData == null
+                    || !Enum.IsDefined(
+                        typeof(PassiveEffectSourceType),
+                        saveData.SourceType))
+                {
+                    return false;
+                }
+
+                sources.Add(new PassiveEffectSourceRuntime
+                {
+                    SourceType = saveData.SourceType,
+                    SourceId = saveData.SourceId ?? string.Empty,
+                    SourceCharacterId =
+                        saveData.SourceCharacterId ?? string.Empty
+                });
+            }
+
+            return true;
+        }
+
+        private static List<PassiveEffectSourceRuntime>
+            CreateLegacyPassiveEffectSources(
+                List<string> legacySourceEntityIds)
+        {
+            var sources = new List<PassiveEffectSourceRuntime>();
+
+            if (legacySourceEntityIds == null)
+            {
+                return sources;
+            }
+
+            foreach (var sourceCharacterId in legacySourceEntityIds)
+            {
+                if (string.IsNullOrWhiteSpace(sourceCharacterId))
                 {
                     continue;
                 }
 
-                foreach (var objectDelta
-                    in floorDelta.ObjectDeltas)
+                sources.Add(new PassiveEffectSourceRuntime
                 {
-                    if (objectDelta == null
-                        || !floor.TryRestoreObjectState(
-                            objectDelta.ObjectInstanceId,
-                            objectDelta.IsActive,
-                            objectDelta.IsDoor,
-                            objectDelta.IsOpen))
-                    {
-                        return false;
-                    }
+                    SourceType = PassiveEffectSourceType.RuntimeSystem,
+                    SourceId = "legacy",
+                    SourceCharacterId = sourceCharacterId
+                });
+            }
+
+            return sources;
+        }
+
+        private static bool TryCreateVariableModifiers(
+            List<GameplayVariableModifierSaveData> saveDataList,
+            out List<GameplayVariableModifier> modifiers)
+        {
+            modifiers = new List<GameplayVariableModifier>();
+
+            if (saveDataList == null)
+            {
+                return true;
+            }
+
+            foreach (var saveData in saveDataList)
+            {
+                if (saveData == null
+                    || !Enum.IsDefined(
+                        typeof(GameplayVariableType),
+                        saveData.VariableType)
+                    || !Enum.IsDefined(
+                        typeof(StatModifierStacking),
+                        saveData.Stacking))
+                {
+                    return false;
                 }
+
+                modifiers.Add(new GameplayVariableModifier
+                {
+                    VariableType = saveData.VariableType,
+                    Stacking = saveData.Stacking,
+                    Value = saveData.Value
+                });
             }
 
             return true;

@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
 using Godmist.Data.Effects;
+using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -42,11 +44,15 @@ namespace Godmist.Tests.EditMode
                 duration: 3,
                 damagePerTurn: 10);
 
+            var skill = CreateSkill("skill.test.bleed");
+
             var statusSystem = new StatusEffectSystem();
 
             var applied = statusSystem.ApplyStatus(player,
                 enemy,
-                effect);
+                skill,
+                effect,
+                effectIndex: 0);
 
             Assert.That(applied, Is.True);
             Assert.That(
@@ -64,6 +70,11 @@ namespace Godmist.Tests.EditMode
                 runtimeEffect.TotalDamage,
                 Is.EqualTo(30));
             Assert.That(runtimeEffect.Stacks, Is.EqualTo(1));
+            Assert.That(runtimeEffect.Lifetime, Is.EqualTo(PassiveEffectLifetime.Timed));
+            Assert.That(runtimeEffect.Sources[0].SourceType, Is.EqualTo(PassiveEffectSourceType.Skill));
+            Assert.That(runtimeEffect.Sources[0].SourceId, Is.EqualTo("skill.test.bleed.effect.0"));
+
+            Object.DestroyImmediate(skill);
         }
 
         [Test]
@@ -81,20 +92,26 @@ namespace Godmist.Tests.EditMode
                 duration: 5,
                 damagePerTurn: 26);
 
+            var skill = CreateSkill("skill.test.bleed");
+
             var statusSystem = new StatusEffectSystem();
 
             Assert.That(
                 statusSystem.ApplyStatus(
                     player,
                     enemy,
-                    firstEffect),
+                    skill,
+                    firstEffect,
+                    effectIndex: 0),
                 Is.True);
 
             Assert.That(
                 statusSystem.ApplyStatus(
                     player,
                     enemy,
-                    secondEffect),
+                    skill,
+                    secondEffect,
+                    effectIndex: 0),
                 Is.True);
 
             Assert.That(
@@ -113,6 +130,8 @@ namespace Godmist.Tests.EditMode
                 Is.EqualTo(198));
 
             Assert.That(runtimeEffect.Stacks, Is.EqualTo(1));
+
+            Object.DestroyImmediate(skill);
         }
 
         [Test]
@@ -133,17 +152,23 @@ namespace Godmist.Tests.EditMode
                 duration: 5,
                 damagePerTurn: 26);
 
+            var skill = CreateSkill("skill.test.bleed");
+
             var statusSystem = new StatusEffectSystem();
 
             statusSystem.ApplyStatus(
                 enemy,
                 player,
-                firstEffect);
+                skill,
+                firstEffect,
+                effectIndex: 0);
 
             statusSystem.ApplyStatus(
                 enemy,
                 player,
-                secondEffect);
+                skill,
+                secondEffect,
+                effectIndex: 0);
 
             for (var turn = 0; turn < 5; turn++)
             {
@@ -159,6 +184,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 player.Character.PassiveEffects,
                 Has.Count.EqualTo(0));
+
+            Object.DestroyImmediate(skill);
         }
 
         [Test]
@@ -174,10 +201,12 @@ namespace Godmist.Tests.EditMode
             player.Character.PassiveEffects.Add(
                 new PassiveEffectRuntime(
                     "bleed",
-                    new List<string>(),
+                    new List<PassiveEffectSourceRuntime>(),
                     1,
                     4,
-                    120));
+                    120,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -208,10 +237,12 @@ namespace Godmist.Tests.EditMode
             player.Character.PassiveEffects.Add(
                 new PassiveEffectRuntime(
                     "bleed",
-                    new List<string>(),
+                    new List<PassiveEffectSourceRuntime>(),
                     1,
                     1,
-                    10));
+                    10,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -241,10 +272,12 @@ namespace Godmist.Tests.EditMode
             enemy.Character.PassiveEffects.Add(
                 new PassiveEffectRuntime(
                     "bleed",
-                    new List<string>(),
+                    new List<PassiveEffectSourceRuntime>(),
                     1,
                     1,
-                    10));
+                    10,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnStart));
 
             var statusSystem = new StatusEffectSystem();
 
@@ -259,6 +292,143 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 enemy.Character.LifeState,
                 Is.EqualTo(CharacterLifeState.Dead));
+        }
+
+        [Test]
+        public void ProcessTurnStart_PoisonUsesPoisonResistance()
+        {
+            var session = CreateSession(out var player, out var enemy);
+
+            player.Character.Resistances.PoisonResistance = 0.5f;
+
+            var effect = CreateDamageOverTimeEffect(
+                StatusEffectIds.Poison,
+                duration: 1,
+                damagePerTurn: 20);
+
+            var skill = CreateSkill("skill.test.poison");
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyStatus(enemy, player, skill, effect, 0),
+                Is.True);
+
+            statusSystem.ProcessTurnStart(session, player);
+
+            Assert.That(player.Character.CurrentHealth, Is.EqualTo(80));
+            Assert.That(player.Character.PassiveEffects, Is.Empty);
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void ProcessTurnStart_BurnUsesFireResistance()
+        {
+            var session = CreateSession(out var player, out var enemy);
+
+            var effect = CreateDamageOverTimeEffect(
+                StatusEffectIds.Burn,
+                duration: 1,
+                damagePerTurn: 20);
+
+            var skill = CreateSkill("skill.test.burn");
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyStatus(enemy, player, skill, effect, 0),
+                Is.True);
+
+            player.Character.Resistances.FireResistance = 1f;
+
+            statusSystem.ProcessTurnStart(session, player);
+
+            Assert.That(player.Character.CurrentHealth, Is.EqualTo(90));
+            Assert.That(player.Character.PassiveEffects, Is.Empty);
+
+            Object.DestroyImmediate(skill);
+        }
+
+                [Test]
+        public void ProcessTurnEnd_StunExpiresAfterAffectedUnitTurn()
+        {
+            var session = CreateSession(
+                out _,
+                out var enemy);
+
+            enemy.Character.PassiveEffects.Add(
+                new PassiveEffectRuntime(
+                    StatusEffectSystem.StunId,
+                    new List<PassiveEffectSourceRuntime>(),
+                    1,
+                    1,
+                    0,
+                    PassiveEffectLifetime.Timed,
+                    PassiveEffectTickPhase.TurnEnd));
+
+            var statusSystem = new StatusEffectSystem();
+
+            statusSystem.ProcessTurnStart(session, enemy);
+
+            Assert.That(
+                StatusEffectSystem.IsStunned(enemy),
+                Is.True);
+
+            statusSystem.ProcessTurnEnd(enemy);
+
+            Assert.That(
+                StatusEffectSystem.IsStunned(enemy),
+                Is.False);
+        }
+
+        [Test]
+        public void RemoveStatus_RemovesAppliedStatus()
+        {
+            CreateSession(out var player, out var enemy);
+            
+            var effect = CreateBleedEffect(
+                duration: 3,
+                damagePerTurn: 10);
+
+            var skill = CreateSkill("skill.test.bleed");
+
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyStatus(
+                    player,
+                    enemy,
+                    skill,
+                    effect,
+                    effectIndex: 0),
+                Is.True);
+
+            var removed = statusSystem.RemoveStatus(enemy, "bleed");
+
+            Assert.That(removed, Is.True);
+            Assert.That(
+                StatusEffectSystem.HasStatus(enemy, "bleed"),
+                Is.False);
+            Assert.That(enemy.Character.PassiveEffects, Is.Empty);
+
+            Object.DestroyImmediate(skill);
+        }
+
+        private SkillEffectData CreateDamageOverTimeEffect(
+            string statusId,
+            int duration,
+            int damagePerTurn)
+        {
+            var effect = new SkillEffectData();
+
+            SetPrivateField(effect, "statusId", statusId);
+            SetPrivateField(effect, "durationTurns", duration);
+            SetPrivateField(
+                effect,
+                "statusDamageMultiplier",
+                damagePerTurn / 10f);
+            SetPrivateField(effect, "baseChance", 1f);
+
+            return effect;
         }
 
         private SkillEffectData CreateBleedEffect(
@@ -290,6 +460,15 @@ namespace Godmist.Tests.EditMode
             return effect;
         }
 
+        private static SkillData CreateSkill(string skillId)
+        {
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+
+            SetAutoProperty(skill, "SkillId", skillId);
+
+            return skill;
+        }
+
         private static void SetPrivateField(
             object target,
             string fieldName,
@@ -304,6 +483,23 @@ namespace Godmist.Tests.EditMode
                 field,
                 Is.Not.Null,
                 $"Nie znaleziono pola {fieldName}.");
+
+            field.SetValue(target, value);
+        }
+
+        private static void SetAutoProperty(
+            object target,
+            string propertyName,
+            object value)
+        {
+            var field = target.GetType().GetField(
+                $"<{propertyName}>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            Assert.That(
+                field,
+                Is.Not.Null,
+                $"Nie znaleziono pola backing field dla {propertyName}.");
 
             field.SetValue(target, value);
         }
@@ -363,35 +559,6 @@ namespace Godmist.Tests.EditMode
                 Character = character,
                 IsPlayerSide = isPlayerSide
             };
-        }
-        [Test]
-        public void ProcessTurnEnd_StunExpiresAfterAffectedUnitTurn()
-        {
-            var session = CreateSession(
-                out _,
-                out var enemy);
-
-            enemy.Character.PassiveEffects.Add(
-                new PassiveEffectRuntime(
-                    StatusEffectSystem.StunId,
-                    new List<string>(),
-                    1,
-                    1,
-                    0));
-
-            var statusSystem = new StatusEffectSystem();
-
-            statusSystem.ProcessTurnStart(session, enemy);
-
-            Assert.That(
-                StatusEffectSystem.IsStunned(enemy),
-                Is.True);
-
-            statusSystem.ProcessTurnEnd(enemy);
-
-            Assert.That(
-                StatusEffectSystem.IsStunned(enemy),
-                Is.False);
         }
     }
 }

@@ -111,6 +111,7 @@ Resources are used for skills. Characters also have resource regeneration as a s
 - A character may gain multiple levels at once.
 - Stats grow automatically based on class.
 - Level up does not include manual stat point allocation.
+- Automatic stat growth is incremental. Each class/enemy archetype defines a base growth amount per stat, multiplied by the level-band coefficient `k`: levels `2-10` use `k = 1`, `11-20` use `k = 2`, `21-30` use `k = 3`, `31-40` use `k = 5`, and `41-50` use `k = 9`. For example, warrior `MaxHealth` growth of `12.5` gains `12.5` per level in levels `2-10`, then `25` per level in levels `11-20`.
 - Known experience formula from the previous conversation:
 
 `round(12 * (L^1.5) + 12)`
@@ -158,6 +159,7 @@ where:
 - Accuracy is the average of weapon accuracy and skill accuracy.
 - Dodge is compared against accuracy.
 - `Accuracy` is not really a persistent stat; it is a calculated value from `weaponAccuracy` and `skillAccuracy`.
+- `SkillAccuracy` is used only by `DealDamage` effects. Other effects do not use hit chance; their application is governed by their own resistance/effect-chance rules where applicable.
 - Critical chance and critical damage primarily affect only damage types that can crit.
 - Exceptions exist through passives and active abilities, for example magical/direct attacks that can crit or skills that always crit.
 - `CritDamage` is a multiplier. For example, `1.5` means a critical hit deals `50%` more damage than a normal hit.
@@ -289,6 +291,7 @@ Resistances are better modeled as a dedicated resistance set rather than ordinar
 - Enemies can also become downed, not only player units.
 - Neutral characters and allies can also be revived.
 - Automatic post-combat revival applies to allies after combat.
+- Outside combat, Downed characters are revived immediately.
 - A character may be alive but still unavailable for story reasons.
 - Recovered companions return ready to use.
 - Character state should be modeled with two dimensions:
@@ -370,6 +373,7 @@ Current goal:
 - Basic attack is just a normal skill.
 - Equipment passives work the same way as other passive effects, including conditional behavior.
 - Skills can apply multiple effects at once.
+- Future effect execution must support a shared resolved value for multiple effects of one skill. For example, a heal that targets both caster and selected ally should roll its random healing amount once and reuse that result for both effects, rather than rolling independently per target mode. The planned data-level link is an optional shared resolution/value ID on the relevant effects; this is not implemented in the current combat runtime.
 - Modifiers are mainly associated with skill trees and equipment.
 - Potion effects and active skill effects should generally be modeled as status effects.
 - Skills should include:
@@ -402,7 +406,7 @@ Current goal:
 - Skills may also use both absolute and relative range, where relative means relative to the target.
 - Range shapes may vary, for example square, radial, or ring.
 - `relativeRange` exists only when a skill selects an additional reference point beyond the caster, such as a unit, tile, or future obstacle/object.
-- In the current targeting `v1`, this applies to `Single` (the selected unit) and `AreaAroundTile` (the selected tile). A later obstacle/object target type should follow the same rule.
+- In the current targeting `v1`, this applies only to `AreaAroundTile` (the selected tile). `Single` resolves only the selected unit. Future target types such as `Chain` or an area around a chosen object/unit may introduce their own relative range rules once their runtime targeting exists.
 - `Caster` is a `TargetType`, not a `TargetingType`. It resolves the caster automatically, has no `TargetingType`, no absolute range, and no relative range.
 - `TargetingType` filters eligible units only for target types that can select or affect a relation group: `Enemies`, `Allies`, or `All`.
 - For `AreaAroundCaster`, `absoluteRange` directly describes the effect area around the caster; no separate target point or relative range is involved.
@@ -410,8 +414,7 @@ Current goal:
 - Do not add an `includeCaster` exception to targeting. A skill that affects both the caster and allies should use separate target modes (for example index `0` for allies and index `1` for caster), with equivalent effects assigned to each target-mode index.
 - Skill targeting UI should distinguish the absolute casting range from eligible targets: the general absolute range is visible after selecting a skill, while the relative area of an area-on-tile skill is previewed only while hovering a concrete selectable tile.
 - Units eligible under a skill's `TargetingType` are highlighted individually; selectable tile centers must not be rendered as if they were targets.
-- For `Single`, a relative area is previewed only while hovering an eligible selected unit. For `AreaAroundTile`, it is previewed around the currently hovered absolute-range tile, and units currently affected by that preview use a distinct highlight color.
-- For `Single`, the selected eligible unit always remains the reference point. Relative range may expand the effect around that unit but must never allow selecting an empty tile merely because an eligible unit falls inside the relative area.
+- For `AreaAroundTile`, relative range is previewed around the currently hovered absolute-range tile, and units currently affected by that preview use a distinct highlight color.
 - A relative `Square` uses side length `maxRange - minRange + 1`. An odd side length is centered on the selected reference point; an even side length is directional and extends away from the caster. For example, caster `(0,0)` and reference `(5,5)` with `0..1` produce `(5,5)` through `(6,6)`; caster `(7,7)` produces `(4,4)` through `(5,5)`.
 - If an axis has no caster-to-reference direction for an even relative square, the current temporary deterministic fallback is the positive axis.
 - Targeting patterns may include:
@@ -496,6 +499,17 @@ Current goal:
 - Timed passive effects/statuses may carry extra payload kwargs such as `damage: 34`.
 - Timed passive effects do not always need stacks.
 - Timed passive effects do not always need payload data.
+- `ModifyStat` used by an active skill uses `durationTurns` as follows:
+  - `durationTurns > 0` creates a timed runtime passive effect.
+  - `durationTurns = 0` creates a combat-scoped non-timed passive effect; it remains active until that combat ends.
+- A reapplication of the same runtime `ModifyStat` effect refreshes its duration/scope and replaces its modifier values; values never accumulate from repeated application.
+- Combat-scoped runtime passive effects need an explicit end-of-combat marker so that future persistent passives from equipment or skill trees are not removed with them.
+- Runtime `PassiveEffect` lifetime is explicit:
+  - `Timed` -- status or timed effect; it expires after its remaining duration.
+  - `CombatScoped` -- active-skill effect with no duration; it expires when the combat ends.
+  - `Persistent` -- future equipment or skill-tree passive; it survives combat.
+- Runtime effects retain structured sources instead of only character IDs. A source records its type, source ID and originating character ID.
+- Reapplying an effect merges distinct sources. Effects created by a skill use a source ID in the form `<skillId>.effect.<effectIndex>`.
 
 ### Statuses
 
@@ -564,6 +578,21 @@ Current goal:
   - `caster` for `effect[1]`
 - `create_object` should create map objects such as traps, vines, or totems.
 - `summon` should create a unit.
+- `CreateObject` / `Summon` v1 rules:
+  - Initial examples are a shaman totem and a necromancer skeleton.
+  - A created object may be placed on a unit's tile. In that case it must not block movement or line of sight.
+  - Object placement uses only an absolute range around the caster; it does not use a separate destination target mode.
+  - Objects have a duration, can be destroyed, and may disappear when their creator dies.
+  - Object HP is normally expressed as a number of received `DealDamage` hits, but one skill may later apply multiple hits.
+  - Summons are full `BattleUnit` instances created from an existing `CharacterDefinition`.
+  - A summon inherits its caster's side and team relations, enters the turn order with full AV, and acts like a normal unit.
+  - A summon lasts for a skill-defined duration counted at the end of the summon's turns, and disappears when its caster reaches `Dead`.
+  - A skill-defined summon limit is supported. Reaching it removes the oldest summon of that caster before adding the new one.
+  - A summon never grants XP, gold, loot, or persistent encounter progress; expiry removes it and all attached runtime state.
+  - The initial implementation is limited to object and summon creation; totem behavior such as healing, buffing, or dealing damage belongs to later cards.
+  - Each received `DealDamage` hit decreases an object's hit-based HP by that effect's hit count, rather than by raw damage.
+  - Created objects have a skill-defined active-object limit. Reaching it removes the oldest object created by that caster before adding the new one.
+  - `percentMaxHealth` is interpreted against the summoned character definition's maximum health. Other summon stats remain at their normal definition-derived values.
 - Shield is an absorb-before-health resource.
 - Shield should be stored as a list of shield layers/sources.
 - UI may display the sum of shield values.
@@ -627,9 +656,44 @@ Current goal:
   - `(0.25, 0.3333)`
   - `(0.50, 0.40)`
   - `(1.00, 0)`
-- The approved Bleed damage multiplier is piecewise linear:
-  - for `r <= 0.5`: `2 - 2r`
-  - for `r > 0.5`: `1.5 - r`
+  - The approved Bleed damage multiplier is piecewise linear:
+    - for `r <= 0.5`: `2 - 2r`
+    - for `r > 0.5`: `1.5 - r`
+
+### Confirmed Crowd-Control Status Rules
+
+- `Stun` is a hard CC: the affected unit loses its entire turn and cannot move,
+  use skills or items, interact, revive, or attempt escape.
+- `Freeze` is a hard CC. The first damaging hit received by the frozen unit ends
+  Freeze and increases that hit's damage by `50%` for every remaining Freeze turn.
+  Only a direct `DealDamage` effect can trigger this. The bonus applies to every
+  damage type and can combine with a critical hit.
+- `Sleep` is a hard CC and regenerates a percentage of MaxHP on every affected
+  turn; this percentage depends on the applying skill. The sleeping unit can
+  voluntarily end Sleep by choosing movement instead of ending its turn; that
+  movement is then performed normally. Sleep regeneration occurs at the end of
+  the affected unit's turn, not at turn start, and rounds healing up. Reapplying
+  Sleep replaces duration and updates the regeneration percentage to the latest
+  applying skill's value.
+- `Paralysis` is a hard CC that turns the target effectively to stone: it loses
+  its turn and cannot be targeted by any ability, including area effects. It is
+  completely immune while the status lasts. Paralysis also pauses every other
+  status effect, including DoTs: they neither tick nor lose duration until
+  Paralysis ends. This pause applies only to timed status effects, never to
+  persistent or combat-scoped passive effects from equipment or skill trees.
+- `Immobilize` blocks self-initiated movement: normal movement, Charge, Dash,
+  Teleport, and Fallback. It does not prevent Push or Pull because those are
+  initiated by another unit.
+- `Chill` (`Zmrożenie`) is a separate status that limits Speed to a maximum of
+  `20`; it must not increase a naturally lower Speed. The value is represented
+  in code by the named `StatusEffectSystem.ChillMaximumSpeed` constant. It uses Suppression
+  Resistance and reapplication uses `MaxDurationAndValues`.
+- Stun, Freeze, Sleep, and Paralysis are hard CC, use the suppression resistance
+  group, and reapply with `ReplaceDuration`.
+- `Regeneration` ticks at the end of the affected unit's turn. Its value can be either flat HP or a percentage of MaxHP, depending on the applying skill. Its reapplication follows the DoT rule: replace remaining duration and add total healing, then distribute the combined total over the new duration.
+- `Taunt` restricts offensive skills so that they may target only the character that most recently applied Taunt. Reapplying Taunt uses `ReplaceDuration` and the latest source replaces the previous taunter. Defensive and utility skills remain legal. AI under Taunt should prefer legal offensive skills against the current taunter over defensive or utility skills.
+- `Invisibility` uses `ReplaceDuration`. It ends immediately after its owner successfully executes an offensive skill against an enemy, regardless of whether the damage effect hits.
+- `Invisibility` removes the unit from `All` targeting and from direct target selection. It can still be hit by tile/pattern-based effects such as line, X-shape, area around tile, selected tile, and similar shapes; opponents must guess its position for these effects. Its expiry/break rules remain to be specified.
 
 ## Save Rules
 
@@ -1150,6 +1214,12 @@ Current goal:
 - Defend does not exist as a separate action.
 - Item use costs `20%` of MaxAP.
 - Interact costs `20%` of MaxAP.
+- Loot becomes available after an encounter is resolved. The player may collect it
+  from defeated enemies; collecting each individual item from a body costs `20%`
+  of the collector's MaxAP.
+- The current post-combat `Odbierz loot` / pending-loot flow is temporary. The
+  intended gameplay model is physical item collection from defeated enemies'
+  bodies during exploration after the encounter has ended.
 - Revive costs no AP but automatically ends the turn.
 - Escape costs no AP but automatically ends the turn.
 - Escape base chance is `60%`.
@@ -1164,6 +1234,7 @@ Current goal:
 - Projectile attacks can be blocked by an ally standing on the line.
 - Whether friendly fire exists depends on the skill.
 - Some skills affect everyone in range.
+- `TargetingType.All` includes enemies, allies, and neutral units. Neutral units are valid targets for all skills; the selected skill's targeting/type rules determine whether they are included.
 - Some skills affect only enemies, only allies, or also the caster.
 - Some target types allow targeting empty tiles, for example area, semi-area, or custom-shape targeting.
 - Melee/ranged tags make sense for skills, but are not directly tied to numeric range.
@@ -1181,6 +1252,7 @@ Current goal:
 - Downed enemies do not count as resolved for combat-end purposes.
 - Combat should end only when enemy-side relevant units are dead or escaped rather than merely downed.
 - If the player escapes, the rest of the combat is also simulated.
+- Experience rewards are granted to all active-party characters that are alive or downed when combat ends; dead characters receive no experience. On escape, the party keeps experience already earned, but uncollected gold and loot from the encounter are lost.
 
 ### AI
 

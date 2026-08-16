@@ -68,6 +68,8 @@ namespace Godmist.Views.UI
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (!IsOpen || !Input.GetKeyDown(KeyCode.Escape)) return;
 
             Close();

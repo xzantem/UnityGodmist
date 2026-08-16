@@ -75,6 +75,42 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Escape_DefeatedEnemy_PersistsEnemyStateWithoutClearingEncounter()
+        {
+            var gameSession = CreateGameSession(
+                out var dungeon,
+                out var encounter,
+                out var context,
+                out var firstWorldCell,
+                out var secondWorldCell);
+
+            var combatSession = CreateCombatSessionWithOpenDoor(
+                context,
+                encounter.InstanceId,
+                firstWorldCell,
+                secondWorldCell,
+                CombatOutcomeState.Escaped);
+
+            combatSession.TryMarkEnemyDefeated("encounter.enemy.01");
+
+            var outcomeSystem = new DungeonCombatOutcomeSystem();
+
+            var applied = outcomeSystem.TryApplyOutcome(
+                gameSession,
+                combatSession);
+
+            Assert.That(applied, Is.True);
+
+            Assert.That(
+                dungeon.IsEncounterCleared(encounter.InstanceId),
+                Is.False);
+
+            Assert.That(
+                encounter.IsEnemyDefeated("encounter.enemy.01"),
+                Is.True);
+        }
+
+        [Test]
         public void Escape_OpenDoorInCombat_PersistsDoorWithoutClearingEncounter()
         {
             var gameSession = CreateGameSession(

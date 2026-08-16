@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using UnityEngine;
@@ -20,11 +21,19 @@ namespace Godmist.Systems.Combat
 
         private readonly Action<string> battleLog;
         private readonly ResourceRuleSystem resourceRuleSystem;
+        private readonly StatusEffectSystem statusEffectSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
-        public CombatMovementSystem(Action<string> battleLog = null, ResourceRuleSystem resourceRuleSystem = null)
+        public CombatMovementSystem(
+            Action<string> battleLog = null,
+            ResourceRuleSystem resourceRuleSystem = null,
+            StatusEffectSystem statusEffectSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.resourceRuleSystem = resourceRuleSystem;
+            this.statusEffectSystem = statusEffectSystem;
+            this.feedbackBus = feedbackBus;
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
@@ -38,8 +47,12 @@ namespace Godmist.Systems.Combat
             if (session?.Grid == null || unit?.Character == null 
                 || unit.Character.LifeState != CharacterLifeState.Alive) return reachablePaths;
 
-            if (StatusEffectSystem.IsStunned(unit) 
-                || StatusEffectSystem.IsImmobilized(unit)) return reachablePaths;
+            if ((StatusEffectSystem.IsHardCrowdControlled(unit)
+                    && !StatusEffectSystem.IsSleeping(unit))
+                || StatusEffectSystem.IsImmobilized(unit))
+            {
+                return reachablePaths;
+            }
 
             var queue = new Queue<GridPosition>();
             var paths = new Dictionary<GridPosition, List<GridPosition>>();
@@ -63,7 +76,9 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
                     if (!session.Grid.CanMoveBetween(current, candidate)
-                        || session.IsPositionOccupied(candidate, unit))
+                        || session.IsPositionOccupied(candidate, unit)
+                        || session.DoesObjectBlockMovement(
+                            session.GetMapObjectAt(candidate)))
                     {
                         continue;
                     }
@@ -120,9 +135,9 @@ namespace Godmist.Systems.Combat
         }
 
         public bool TryMoveOneStep(
-            CombatSession session, 
-            BattleUnit unit, 
-            int deltaX, 
+            CombatSession session,
+            BattleUnit unit,
+            int deltaX,
             int deltaY)
         {
             if (session?.Grid == null
@@ -131,30 +146,71 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
-            if (StatusEffectSystem.IsStunned(unit) || StatusEffectSystem.IsImmobilized(unit))
+
+            if ((StatusEffectSystem.IsHardCrowdControlled(unit)
+                    && !StatusEffectSystem.IsSleeping(unit))
+                || StatusEffectSystem.IsImmobilized(unit))
             {
-                battleLog?.Invoke($"{unit.Character.Definition.DisplayName} " +
-                    "nie może się ruszyć przez unieruchomienie.");
+                battleLog?.Invoke(
+                    $"{unit.Character.Definition.DisplayName} " +
+                    "nie może się ruszyć przez status kontroli.");
+
                 return false;
             }
 
-            if (Math.Abs(deltaX) + Mathf.Abs(deltaY) != 1) return false;
+            if (Math.Abs(deltaX) + Mathf.Abs(deltaY) != 1)
+            {
+                return false;
+            }
 
-            var movementCost = CombatActionCostCalculator.CalculateMovementCost(unit);
+            var movementCost =
+                CombatActionCostCalculator.CalculateMovementCost(unit);
 
-            if (unit.CurrentActionPoints < movementCost) return false;
-            
+            if (unit.CurrentActionPoints < movementCost)
+            {
+                return false;
+            }
+
             if (!session.Grid.TryMove(
-                unit.Position, 
-                deltaX, 
-                deltaY, 
-                out var targetPosition)) return false;
+                    unit.Position,
+                    deltaX,
+                    deltaY,
+                    out var targetPosition))
+            {
+                return false;
+            }
 
-            if (session.IsPositionOccupied(targetPosition, unit)) return false;
+            if (session.IsPositionOccupied(targetPosition, unit))
+            {
+                return false;
+            }
+
+            var mapObject = session.GetMapObjectAt(targetPosition);
+
+            if (session.DoesObjectBlockMovement(mapObject))
+            {
+                return false;
+            }
+
+            if (StatusEffectSystem.IsSleeping(unit))
+            {
+                if (statusEffectSystem == null)
+                {
+                    return false;
+                }
+
+                statusEffectSystem.RemoveStatus(unit, StatusEffectIds.Sleep);
+            }
 
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;
+            if (movementCost > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    unit, CombatFeedbackType.ActionPointSpend, movementCost));
+            }
             unit.MovementStepsThisTurn++;
+
             resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
 
             battleLog?.Invoke(
@@ -164,7 +220,8 @@ namespace Godmist.Systems.Combat
 
             return true;
         }
-        private static int CalculatePathCost(
+
+        public static int CalculatePathCost(
             BattleUnit unit, 
             int pathLength)
         {

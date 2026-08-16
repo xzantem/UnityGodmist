@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8e066c6a4a4462baef033bbd349c9ce, type: 3}
+  m_Name: CombatTooltipGlossary
+  m_EditorClassIdentifier: Views:Godmist.Views.UI:CombatTooltipGlossary
+  entries:
+  - Id: bleed
+    Icon: {fileID: -8977030866347272107, guid: cc446a5296d6e834ba4a2ebd9e754059, type: 3}
+    Title: Krwawienie
+    Aliases: []
+    Description: Krwawienie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+  - Id: poison
+    Icon: {fileID: -1962003045453014807, guid: 8febb3fcc11f718498e6a79a1fadfaec, type: 3}
+    Title: Zatrucie
+    Aliases: []
+    Description: Zatrucie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+  - Id: burn
+    Icon: {fileID: 9206062532604854254, guid: 9838a85236ad74e4d86db72a9ace7f6c, type: 3}
+    Title: Płonięcie
+    Aliases: []
+    Description: Płonięcie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+  - Id: stun
+    Icon: {fileID: -1841844980337568747, guid: 53d61e6c06482264989a77a73a2b3fac, type: 3}
+    Title: Ogłuszenie
+    Aliases: []
+    Description: Ogłuszona jednostka nie może wykonywać akcji ani ruchu podczas swojej tury.
+  - Id: immobilize
+    Icon: {fileID: 8035106746801144967, guid: 33835a7c4fca6ed45912ef422d5652f8, type: 3}
+    Title: Unieruchomienie
+    Aliases: []
+    Description: Unieruchomiona jednostka nie może się poruszać ani teleportować, ale nadal może wykonywać inne akcje.
+  - Id: sleep
+    Icon: {fileID: -7687043325529549478, guid: 1fab65309337c674ebea421dd7638472, type: 3}
+    Title: Sen
+    Aliases: []
+    Description: Śpiąca jednostka nie używa akcji. Poruszenie jej budzi ją ze snu.
+  - Id: freeze
+    Icon: {fileID: 3924247579675412406, guid: b2a30de09579cff4296cf6ee8b07c9f3, type: 3}
+    Title: Zamrożenie
+    Aliases: []
+    Description: Zamrożona jednostka nie wykonuje akcji. Pierwsze trafienie zdejmuje Zamrożenie i zadaje większe obrażenia.
+  - Id: paralysis
+    Icon: {fileID: -5169877425815873276, guid: 787b26a5a1df78b45ba9a33bfe0a9d2c, type: 3}
+    Title: Paraliż
+    Aliases: []
+    Description: Sparaliżowana jednostka nie może działać ani się poruszać. Nie otrzymuje również obrażeń.
+  - Id: chill
+    Icon: {fileID: 8878405948326257296, guid: 8cd14814c75b4d04ba4326c557962c40, type: 3}
+    Title: Oziębienie
+    Aliases: []
+    Description: Oziębienie ogranicza szybkość jednostki. Wolniejsze jednostki później dochodzą do swojej tury.
+  - Id: taunt
+    Icon: {fileID: 9221536177141706121, guid: 8309f9247a66f9446beb99da21065710, type: 3}
+    Title: Prowokacja
+    Aliases: []
+    Description: Sprowokowana jednostka musi wybierać prowokującego przeciwnika jako cel, jeśli umiejętność na to pozwala.
+  - Id: regeneration
+    Icon: {fileID: 3811811448232223554, guid: 5a1017da506026c42a88947b9fe1e6b7, type: 3}
+    Title: Regeneracja
+    Aliases: []
+    Description: Regeneracja przywraca jednostce zdrowie, jeśli efekt ma przypisaną wartość leczenia.
+  - Id: invisibility
+    Icon: {fileID: -1149020217273240737, guid: 6826eed0b64508847a92332e21376d49, type: 3}
+    Title: Niewidzialność
+    Aliases: []
+    Description: Niewidzialna jednostka nie może być wybrana jako cel przez wrogie umiejętności.
+  - Id: counterattack
+    Icon: {fileID: 7794683972811129947, guid: 00a085e03d4f462488322d5ff202e226, type: 3}
+    Title: Kontratak
+    Aliases: []
+    Description: Gdy przeciwnik zaatakuje jednostkę będącą w zasięgu, odpowiada ona własną akcją przeciw temu celowi.
+  - Id: status-effect
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Efekt statusu
+    Aliases: [efekt statusu, efektu statusu, efekty statusu, efektów statusu]
+    Description: Tymczasowy stan jednostki. Może być korzystnym wzmocnieniem albo szkodliwym osłabieniem. Ikona pokazuje pozostałe tury, a czasem także stosy.
+  - Id: turn
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Tura
+    Aliases: [tura, tury, turze, turę, tur]
+    Description: Kolej jednostki na działanie. W turze można wykonywać akcje; na jej początku i końcu mogą uruchomić się efekty statusu.
+  - Id: damage
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Obrażenia
+    Aliases: [obrażenia, obrażeń, obrażeniami]
+    Description: Zmniejszają zdrowie celu. Najpierw są pochłaniane przez tarczę, jeśli cel ją ma.
+  - Id: action
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Akcja
+    Aliases: [akcja, akcji, akcje, akcję, akcją]
+    Description: Działanie wykonywane przez jednostkę podczas tury, na przykład ruch albo użycie umiejętności. Zwykle kosztuje Punkty Akcji.
+  - Id: movement
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Ruch
+    Aliases: [ruch, ruchu]
+    Description: Zmiana pola zajmowanego przez jednostkę. Ruch jest akcją i zwykle kosztuje Punkty Akcji.
+  - Id: shield
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Tarcza
+    Aliases: [tarcza, tarczy, tarczę, tarczą]
+    Description: Dodatkowa ochrona jednostki. Pochłania obrażenia, zanim zmniejszą one zdrowie.
+  - Id: ap
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Punkty Akcji
+    Aliases: [Punkty Akcji, Punktów Akcji]
+    Description: Punkty wydawane przez jednostkę na akcje. Nie są tym samym co Energia.
+  - Id: energy
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Energia
+    Aliases: [energia, energii, energię, energią]
+    Description: Klasowy zasób zużywany przez niektóre umiejętności. Energia i Punkty Akcji są niezależne.
+  - Id: duration
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Czas trwania
+    Aliases: [czas trwania, czasu trwania]
+    Description: Liczba tur, przez które efekt statusu pozostanie aktywny.
+  - Id: stacks
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Stosy
+    Aliases: [stosy, stosów]
+    Description: Liczba nałożeń tego samego efektu statusu. Zależnie od efektu stosy zwiększają jego siłę albo łączną wartość.
+  - Id: buff
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Wzmocnienie
+    Aliases: [wzmocnienie, wzmocnieniem, wzmocnienia]
+    Description: Korzystny efekt statusu działający na jednostkę.
+  - Id: debuff
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Osłabienie
+    Aliases: [osłabienie, osłabieniem, osłabienia]
+    Description: Szkodliwy efekt statusu działający na jednostkę.
+  - Id: target
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Cel
+    Aliases: [cel, celu, celem]
+    Description: Jednostka lub obiekt wybrany przez akcję.
+  - Id: unit
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Jednostka
+    Aliases: [jednostka, jednostki, jednostce, jednostkę, jednostką, jednostek]
+    Description: Każda postać albo przeciwnik na polu walki. Jednostka ma zdrowie, wykonuje tury i może otrzymywać efekty statusu.
+  - Id: health
+    Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
+    Title: Zdrowie
+    Aliases: [zdrowie, zdrowia, zdrowiu, zdrowiem]
+    Description: Gdy zdrowie jednostki spadnie do zera, zostaje ona pokonana. Tarcza pochłania obrażenia przed zdrowiem.

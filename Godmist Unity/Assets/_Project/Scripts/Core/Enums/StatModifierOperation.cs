@@ -4,6 +4,7 @@ namespace Godmist.Core.Enums
     {
         FlatBase = 0,
         Percent = 1,
-        FlatAbsolute = 2
+        FlatAbsolute = 2,
+        Maximum = 3
     }
 }

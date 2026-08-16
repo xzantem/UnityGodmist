@@ -7,6 +7,14 @@ namespace Godmist.Core.Enums
         ApplyStatus = 2,
         Heal = 3,
         RestoreResource = 4,
-        Shield = 5
+        Shield = 5,
+        ModifyStat = 6,
+        ModifyVar = 7,
+        Pull = 8,
+        Fallback = 9,
+        Charge = 10,
+        Teleport = 11,
+        CreateObject = 12,
+        Summon = 13
     }
 }

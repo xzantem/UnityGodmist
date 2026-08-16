@@ -12,6 +12,8 @@ namespace Godmist.Data.Skills
     {
         [field: SerializeField] public string SkillId { get; private set; }
         [field: SerializeField] public string DisplayName { get; private set; }
+        [field: SerializeField] public Sprite Icon { get; private set; }
+        [field: SerializeField, TextArea(2, 5)] public string TooltipDescription { get; private set; }
         [field: SerializeField, Min(0f)] public float SkillAccuracy { get; private set; } = 100f;
         [field: SerializeField] public int ActionCost { get; private set; }
         [field: SerializeField] public int ResourceCost { get; private set; }

@@ -79,5 +79,54 @@ namespace Godmist.Systems.Combat
 
             return false;
         }
+
+        public bool TrySyncDefeatedEnemyStates(
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (gameSession == null
+                || combatSession == null
+                || gameSession.ActiveDungeon == null
+                || gameSession.ActiveDungeonCombatContext == null)
+            {
+                return false;
+            }
+
+            var context = gameSession.ActiveDungeonCombatContext;
+
+            if (!string.Equals(
+                    combatSession.CombatId,
+                    context.EncounterInstanceId,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!gameSession.ActiveDungeon.TryGetFloor(
+                    context.FloorIndex,
+                    out var floor)
+                || !floor.TryGetEncounter(
+                    context.EncounterInstanceId,
+                    out var encounter))
+            {
+                return false;
+            }
+
+            foreach (var enemyInstanceId
+                in combatSession.DefeatedEnemyInstanceIds)
+            {
+                if (encounter.IsEnemyDefeated(enemyInstanceId))
+                {
+                    continue;
+                }
+
+                if (!encounter.TryMarkEnemyDefeated(enemyInstanceId))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

@@ -101,7 +101,9 @@ namespace Godmist.Views.Dungeons
 
             foreach (var enemyData in enemies)
             {
-                if (enemyData?.CharacterDefinition != null)
+                if (enemyData?.CharacterDefinition != null
+                    && !encounterInstance.IsEnemyDefeated(
+                        enemyData.InstanceId))
                 {
                     validEnemyCount++;
                 }
@@ -119,7 +121,9 @@ namespace Godmist.Views.Dungeons
 
             foreach (var enemyData in enemies)
             {
-                if (enemyData?.CharacterDefinition == null)
+                if (enemyData?.CharacterDefinition == null
+                    || encounterInstance.IsEnemyDefeated(
+                        enemyData.InstanceId))
                 {
                     continue;
                 }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Combat;
 using Godmist.Data.Dungeons;
 using Godmist.Data.Items;
 using Godmist.Data.Quests;
@@ -80,10 +81,20 @@ namespace Godmist.Tests.EditMode
             jerzy.Equipment.Weapon = weapon;
             jerzy.PassiveEffects.Add(new PassiveEffectRuntime(
                 "status.bleed",
-                new() { "enemy.test" },
+                new()
+                {
+                    new PassiveEffectSourceRuntime
+                    {
+                        SourceType = PassiveEffectSourceType.Skill,
+                        SourceId = "skill.enemy.bleed.effect.0",
+                        SourceCharacterId = "enemy.test"
+                    }
+                },
                 stacks: 2,
                 remainingDuration: 3,
-                totalDamage: 30));
+                totalDamage: 30,
+                lifetime: PassiveEffectLifetime.Timed,
+                tickPhase: PassiveEffectTickPhase.TurnStart));
 
             var pendingLoot = new ItemInstance(
                 materialDefinition,
@@ -120,6 +131,14 @@ namespace Godmist.Tests.EditMode
             Assert.That(characterSaveData.Resistances.BleedResistance, Is.EqualTo(0.25f));
             Assert.That(characterSaveData.ShieldLayers[0].CurrentValue, Is.EqualTo(12));
             Assert.That(characterSaveData.PassiveEffects[0].EffectId, Is.EqualTo("status.bleed"));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].Lifetime,
+                Is.EqualTo(PassiveEffectLifetime.Timed));
+            Assert.That(characterSaveData.PassiveEffects[0].HasLifetime, Is.True);
+            Assert.That(
+                characterSaveData.PassiveEffects[0].Sources[0].SourceId,
+                Is.EqualTo("skill.enemy.bleed.effect.0"));
+            Assert.That(characterSaveData.PassiveEffects[0].TickPhase, Is.EqualTo(PassiveEffectTickPhase.TurnStart));
 
             Assert.That(
                 characterSaveData.InventoryItemInstanceIds,
@@ -294,6 +313,85 @@ namespace Godmist.Tests.EditMode
                 Is.EquivalentTo(new[] { "floor.0.start" }));
 
             Object.DestroyImmediate(dungeonDefinition);
+        }
+
+        [Test]
+        public void CreateSnapshot_CapturesAndRestoresDefeatedEncounterEnemies()
+        {
+            var dungeonDefinition = ScriptableObject.CreateInstance<DungeonDefinition>();
+            var encounterDefinition = ScriptableObject.CreateInstance<EncounterDefinition>();
+
+            SetAutoProperty(dungeonDefinition, "Id", "dungeon.test");
+
+            var dungeon = new DungeonInstance(dungeonDefinition, seed: 12345);
+            var floor = new DungeonFloorInstance(0);
+
+            var room = new DungeonRoomInstance(
+                "floor.0.normal",
+                DungeonRoomType.Normal);
+
+            var encounter = new DungeonEncounterInstance(
+                "encounter.floor.0.normal.01",
+                encounterDefinition,
+                room.RoomId,
+                new RectInt(0, 0, 4, 4));
+
+            Assert.That(floor.TryAddRoom(room), Is.True);
+            Assert.That(floor.TryAddEncounter(encounter), Is.True);
+            Assert.That(
+                encounter.TryMarkEnemyDefeated("enemy.floor.0.normal.01"),
+                Is.True);
+            Assert.That(dungeon.TryAddFloor(floor), Is.True);
+
+            var session = new GameSession();
+
+            Assert.That(session.TrySetActiveDungeon(dungeon), Is.True);
+
+            var snapshotFactory = new GameSessionSaveSnapshotFactory();
+
+            var saveData = snapshotFactory.CreateSnapshot(
+                session,
+                "Kampania testowa");
+
+            Assert.That(saveData.ActiveDungeon.EncounterDeltas, Has.Count.EqualTo(1));
+
+            var encounterDelta = saveData.ActiveDungeon.EncounterDeltas[0];
+
+            Assert.That(
+                encounterDelta.EncounterInstanceId,
+                Is.EqualTo("encounter.floor.0.normal.01"));
+
+            Assert.That(
+                encounterDelta.DefeatedEnemyInstanceIds,
+                Is.EquivalentTo(new[] { "enemy.floor.0.normal.01" }));
+
+            var restoredFloor = new DungeonFloorInstance(0);
+
+            var restoredRoom = new DungeonRoomInstance(
+                "floor.0.normal",
+                DungeonRoomType.Normal);
+
+            var restoredEncounter = new DungeonEncounterInstance(
+                "encounter.floor.0.normal.01",
+                encounterDefinition,
+                restoredRoom.RoomId,
+                new RectInt(0, 0, 4, 4));
+
+            Assert.That(restoredFloor.TryAddRoom(restoredRoom), Is.True);
+            Assert.That(restoredFloor.TryAddEncounter(restoredEncounter), Is.True);
+
+            Assert.That(
+                restoredFloor.TryRestoreEncounterDefeatedEnemyInstanceIds(
+                    encounterDelta.EncounterInstanceId,
+                    encounterDelta.DefeatedEnemyInstanceIds),
+                Is.True);
+
+            Assert.That(
+                restoredEncounter.IsEnemyDefeated("enemy.floor.0.normal.01"),
+                Is.True);
+
+            Object.DestroyImmediate(dungeonDefinition);
+            Object.DestroyImmediate(encounterDefinition);
         }
 
         [Test]

@@ -9,12 +9,15 @@ namespace Godmist.Systems.Combat
 
         private readonly Action<string> battleLog;
         private readonly Action<CombatMapObject> onObjectChanged;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public CombatInteractionSystem(Action<string> battleLog = null, 
-            Action<CombatMapObject> onObjectChanged = null)
+            Action<CombatMapObject> onObjectChanged = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.onObjectChanged = onObjectChanged;
+            this.feedbackBus = feedbackBus;
         }
 
         public void InitializeMapObjects(CombatSession session)
@@ -79,6 +82,11 @@ namespace Godmist.Systems.Combat
             if (!ExecuteInteraction(session, mapObject)) return false;
 
             actor.CurrentActionPoints -= actionCost;
+            if (actionCost > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    actor, CombatFeedbackType.ActionPointSpend, actionCost));
+            }
 
             battleLog?.Invoke($"{actor.Character.Definition.DisplayName} wykonuje interakcje z " +
                 $"{mapObject.ObjectId} za {actionCost} AP.");

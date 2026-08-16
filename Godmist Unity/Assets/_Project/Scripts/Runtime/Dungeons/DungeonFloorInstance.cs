@@ -120,6 +120,15 @@ namespace Godmist.Runtime.Dungeons
             return false;
         }
 
+        public bool TryRestoreEncounterDefeatedEnemyInstanceIds(
+            string encounterInstanceId,
+            IEnumerable<string> defeatedEnemyInstanceIds)
+        {
+            return TryGetEncounter(encounterInstanceId, out var encounter)
+                && encounter.TryRestoreDefeatedEnemyInstanceIds(
+                    defeatedEnemyInstanceIds);
+        }
+
         public bool TryGetObject(
             string objectInstanceId,
             out DungeonObjectInstance dungeonObject)

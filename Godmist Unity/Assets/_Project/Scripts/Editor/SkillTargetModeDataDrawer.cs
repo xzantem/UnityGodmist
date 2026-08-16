@@ -32,9 +32,6 @@ namespace Godmist.Editor
             var absoluteRange = property.FindPropertyRelative(
                 "absoluteRange");
 
-            var useRelativeRange = property.FindPropertyRelative(
-                "useRelativeRange");
-
             var relativeRange = property.FindPropertyRelative(
                 "relativeRange");
 
@@ -71,23 +68,9 @@ namespace Godmist.Editor
                 DrawField(
                     position,
                     ref y,
-                    useRelativeRange,
-                    false,
-                    "Use Relative Range");
-
-                if (useRelativeRange.boolValue)
-                {
-                    DrawField(
-                        position,
-                        ref y,
-                        relativeRange,
-                        true,
-                        "Relative Range");
-                }
-            }
-            else
-            {
-                useRelativeRange.boolValue = false;
+                    relativeRange,
+                    true,
+                    "Relative Range");
             }
 
             EditorGUI.EndProperty();
@@ -99,9 +82,6 @@ namespace Godmist.Editor
         {
             var targetType = property.FindPropertyRelative(
                 "targetType");
-
-            var useRelativeRange = property.FindPropertyRelative(
-                "useRelativeRange");
 
             var selectedType =
                 (TargetType)targetType.enumValueIndex;
@@ -137,16 +117,11 @@ namespace Godmist.Editor
 
             if (supportsRelativeRange)
             {
-                AddHeight(ref height, useRelativeRange);
-
-                if (useRelativeRange.boolValue)
-                {
-                    AddHeight(
-                        ref height,
-                        property.FindPropertyRelative(
-                            "relativeRange"),
-                        true);
-                }
+                AddHeight(
+                    ref height,
+                    property.FindPropertyRelative(
+                        "relativeRange"),
+                    true);
             }
 
             return height;

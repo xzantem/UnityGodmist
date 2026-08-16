@@ -1,3 +1,4 @@
+using Godmist.Views.UI;
 using UnityEngine;
 
 namespace Godmist.Views.Game
@@ -22,6 +23,8 @@ namespace Godmist.Views.Game
 
         private void Update()
         {
+            if (DevConsoleView.IsOpen) return;
+            
             if (gameBootstrap == null)
             {
                 return;

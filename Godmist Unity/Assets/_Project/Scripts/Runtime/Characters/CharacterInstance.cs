@@ -31,6 +31,7 @@ namespace Godmist.Runtime.Characters
         public int CurrentHealth;
         public int Honor;
         public float WeaponAccuracy = 100f; // Temporary effective value, equipment will calculate it later
+        [NonSerialized] public bool DebugIsInvulnerable;
 
         public CharacterLifeState LifeState;
         public CharacterAvailabilityState AvailabilityState;

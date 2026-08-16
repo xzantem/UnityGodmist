@@ -13,7 +13,8 @@ namespace Godmist.Systems.Combat
             BattleUnit caster,
             SkillTargetModeData mode,
             GridPosition? selectedPosition,
-            bool includeDownedTargets = false)
+            bool includeDownedTargets = false,
+            BattleUnit requiredEnemyTarget = null)
         {
             var targets = new List<BattleUnit>();
 
@@ -78,6 +79,10 @@ namespace Godmist.Systems.Combat
                 case TargetType.All:
                     foreach (var unit in session.Units)
                     {
+                        if (StatusEffectSystem.IsInvisible(unit))
+                        {
+                            continue;
+                        }
                         if (IsEligibleTarget(caster, unit, mode.TargetingType, includeDownedTargets))
                         {
                             targets.Add(unit);
@@ -85,6 +90,13 @@ namespace Godmist.Systems.Combat
                     }
 
                     break;
+            }
+
+            if (requiredEnemyTarget != null
+                && mode.TargetingType == TargetingType.Enemies
+                && !targets.Contains(requiredEnemyTarget))
+            {
+                targets.Clear();
             }
 
             return targets;
@@ -95,7 +107,8 @@ namespace Godmist.Systems.Combat
                 CombatSession session,
                 BattleUnit caster,
                 SkillTargetModeData mode,
-                bool includeDownedTargets = false)
+                bool includeDownedTargets = false,
+                BattleUnit requiredEnemyTarget = null)
         {
             var positions = new List<GridPosition>();
 
@@ -118,7 +131,13 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    if (GetTargets(session, caster, mode, position, includeDownedTargets).Count > 0)
+                    var targets =
+                        GetTargets(session, caster, mode, position, includeDownedTargets, requiredEnemyTarget);
+
+                    var canTargetEmptyTile = mode.TargetType == TargetType.AreaAroundTile
+                        && requiredEnemyTarget == null;
+
+                    if (canTargetEmptyTile || targets.Count > 0)
                     {
                         positions.Add(position);
                     }
@@ -193,11 +212,27 @@ namespace Godmist.Systems.Combat
             SkillTargetModeData mode,
             GridPosition center)
         {
+            if (mode == null || !mode.UseRelativeRange)
+            {
+                return new List<GridPosition>();
+            }
+
+            return GetRelativeRangePositions(
+                session,
+                caster,
+                mode.RelativeRange,
+                center);
+        }
+
+        public IReadOnlyList<GridPosition> GetRelativeRangePositions(
+            CombatSession session,
+            BattleUnit caster,
+            SkillRangeData range,
+            GridPosition center)
+        {
             var positions = new List<GridPosition>();
 
-            if (session?.Grid == null
-                || mode == null
-                || !mode.UseRelativeRange)
+            if (session?.Grid == null || caster?.Character == null || range == null)
             {
                 return positions;
             }
@@ -212,7 +247,35 @@ namespace Godmist.Systems.Combat
                             caster.Position,
                             center,
                             position,
-                            mode.RelativeRange))
+                            range))
+                    {
+                        positions.Add(position);
+                    }
+                }
+            }
+
+            return positions;
+        }
+
+        public IReadOnlyList<GridPosition> GetPositionsInRange(
+            CombatSession session,
+            GridPosition center,
+            SkillRangeData range)
+        {
+            var positions = new List<GridPosition>();
+
+            if (session?.Grid == null || range == null)
+            {
+                return positions;
+            }
+
+            for (var x = 0; x < session.Grid.Width; x++)
+            {
+                for (var y = 0; y < session.Grid.Height; y++)
+                {
+                    var position = new GridPosition(x, y);
+
+                    if (IsPositionWithinRange(center, position, range))
                     {
                         positions.Add(position);
                     }
@@ -345,7 +408,8 @@ namespace Godmist.Systems.Combat
         {
             foreach (var unit in session.Units)
             {
-                if (unit != null && unit.Position == position && IsEligibleTarget(caster, unit, targetingType, includeDownedTargets))
+                if (unit != null && unit.Position == position &&
+                    IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, false))
                 {
                     targets.Add(unit);
                     return;
@@ -361,7 +425,7 @@ namespace Godmist.Systems.Combat
             foreach (var unit in session.Units)
             {
                 if (unit != null && unit.Position == position
-                    && IsEligibleTarget(caster, unit, targetingType, includeDownedTargets))
+                    && IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, false))
                 {
                     return unit;
                 }
@@ -381,7 +445,7 @@ namespace Godmist.Systems.Combat
         {
             foreach (var unit in session.Units)
             {
-                if (!IsEligibleTarget(caster, unit, targetingType, includeDownedTargets))
+                if (!IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, true))
                     continue;
 
                 var isInRange = isRelativeRange ? IsPositionWithinRelativeRange(caster.Position, center,unit.Position, range)
@@ -395,12 +459,18 @@ namespace Godmist.Systems.Combat
         private static bool IsEligibleTarget(
             BattleUnit caster,
             BattleUnit target,
-            TargetingType targetingType, bool includeDownedTargets)
+            TargetingType targetingType,
+            bool includeDownedTargets,
+            bool allowInvisibleEnemyTarget = false)
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return false;
 
             if (target.Character.LifeState != CharacterLifeState.Alive && 
                 (!includeDownedTargets || target.Character.LifeState != CharacterLifeState.Downed)) return false;
+
+            if (StatusEffectSystem.IsParalyzed(target)) return false;
+
+            if (!allowInvisibleEnemyTarget && IsInvisibleToEnemy(caster, target)) return false;
 
             return targetingType switch
             {
@@ -427,7 +497,8 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit caster,
             SkillTargetModeData mode,
-            bool includeDownedTargets = false)
+            bool includeDownedTargets = false,
+            BattleUnit requiredEnemyTarget = null)
         {
             var positions = new HashSet<GridPosition>();
 
@@ -445,8 +516,15 @@ namespace Godmist.Systems.Combat
                             session,
                             caster,
                             mode,
-                            null, includeDownedTargets))
+                            null,
+                            includeDownedTargets,
+                            requiredEnemyTarget))
                 {
+                    if (IsInvisibleToEnemy(caster, target))
+                    {
+                        continue;
+                    }
+
                     positions.Add(target.Position);
                 }
 
@@ -466,7 +544,8 @@ namespace Godmist.Systems.Combat
                         || !IsEligibleTarget(
                             caster,
                             unit,
-                            mode.TargetingType, includeDownedTargets)
+                            mode.TargetingType,
+                            includeDownedTargets)
                         || !IsValidTargetPosition(
                             session,
                             caster,
@@ -482,15 +561,41 @@ namespace Godmist.Systems.Combat
                 return new List<GridPosition>(positions);
             }
 
-            foreach (var center in GetSelectablePositions(session, caster, mode, includeDownedTargets))
+            foreach (var center in GetSelectablePositions(
+                         session,
+                         caster,
+                         mode,
+                         includeDownedTargets,
+                         requiredEnemyTarget))
             {
-                foreach (var target in GetTargets(session, caster, mode, center, includeDownedTargets))
+                foreach (var target in GetTargets(
+                             session,
+                             caster,
+                             mode,
+                             center,
+                             includeDownedTargets,
+                             requiredEnemyTarget))
                 {
+                    if (IsInvisibleToEnemy(caster, target))
+                    {
+                        continue;
+                    }
+
                     positions.Add(target.Position);
                 }
             }
 
             return new List<GridPosition>(positions);
+        }
+
+        private static bool IsInvisibleToEnemy(
+            BattleUnit observer,
+            BattleUnit target)
+        {
+            return StatusEffectSystem.IsInvisible(target)
+                && observer != null
+                && target != null
+                && observer.IsPlayerSide != target.IsPlayerSide;
         }
     }
 }

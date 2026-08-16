@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godmist.Data.Combat;
 using UnityEngine;
 
@@ -16,6 +17,10 @@ namespace Godmist.Runtime.Dungeons
 
         public bool HasRetreatPosition { get; private set; }
         public Vector2Int RetreatPosition { get; private set; }
+        private readonly HashSet<string> defeatedEnemyInstanceIds = new();
+
+        public IReadOnlyCollection<string> DefeatedEnemyInstanceIds =>
+            defeatedEnemyInstanceIds;
 
         public DungeonEncounterInstance(
             string instanceId,
@@ -75,8 +80,6 @@ namespace Godmist.Runtime.Dungeons
             return true;
         }
 
-        
-
         public bool TrySetExplorationPosition(Vector2Int position)
         {
             if (ExplorationPosition == position) return false;
@@ -91,6 +94,47 @@ namespace Godmist.Runtime.Dungeons
 
             RetreatPosition = position;
             HasRetreatPosition = true;
+            return true;
+        }
+
+        public bool IsEnemyDefeated(string enemyInstanceId)
+        {
+            return !string.IsNullOrWhiteSpace(enemyInstanceId)
+                && defeatedEnemyInstanceIds.Contains(enemyInstanceId);
+        }
+
+        public bool TryMarkEnemyDefeated(string enemyInstanceId)
+        {
+            if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
+
+            return defeatedEnemyInstanceIds.Add(enemyInstanceId);
+        }
+
+        public bool TryRestoreDefeatedEnemyInstanceIds(
+            IEnumerable<string> restoredEnemyInstanceIds)
+        {
+            var restoredIds = new HashSet<string>();
+
+            if (restoredEnemyInstanceIds != null)
+            {
+                foreach (var enemyInstanceId in restoredEnemyInstanceIds)
+                {
+                    if (string.IsNullOrWhiteSpace(enemyInstanceId))
+                    {
+                        return false;
+                    }
+
+                    restoredIds.Add(enemyInstanceId);
+                }
+            }
+
+            defeatedEnemyInstanceIds.Clear();
+
+            foreach (var enemyInstanceId in restoredIds)
+            {
+                defeatedEnemyInstanceIds.Add(enemyInstanceId);
+            }
+
             return true;
         }
     }

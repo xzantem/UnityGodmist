@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Runtime.Characters;
@@ -34,9 +35,10 @@ namespace Godmist.Systems.Combat
             return TryCreate(
                 gameSession,
                 encounter,
-                combatId,
+                combatId, null,
                 out combatSession);
         }
+
 
         public bool TryCreate(
             GameSession gameSession,
@@ -51,6 +53,7 @@ namespace Godmist.Systems.Combat
                 gameSession,
                 encounterInstance.Definition,
                 encounterInstance.InstanceId,
+                encounterInstance.DefeatedEnemyInstanceIds,
                 out combatSession);
         }
 
@@ -58,6 +61,7 @@ namespace Godmist.Systems.Combat
             GameSession gameSession,
             EncounterDefinition encounter,
             string combatId,
+            IReadOnlyCollection<string> defeatedEnemyInstanceIds,
             out CombatSession combatSession)
         {
             combatSession = null;
@@ -94,6 +98,7 @@ namespace Godmist.Systems.Combat
             {
                 CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
+                ActionPointsPerSpeed = actionPointsPerSpeed,
                 Grid = battleGrid,
                 Units = new List<BattleUnit>(),
                 Rewards = ResolveRewards(
@@ -121,6 +126,7 @@ namespace Godmist.Systems.Combat
             if (!TryAddEnemyUnits(
                     encounter,
                     session,
+                    defeatedEnemyInstanceIds,
                     dungeonContext,
                     occupiedPositions))
             {
@@ -247,6 +253,7 @@ namespace Godmist.Systems.Combat
         private bool TryAddEnemyUnits(
             EncounterDefinition encounter,
             CombatSession session,
+            IReadOnlyCollection<string> defeatedEnemyInstanceIds,
             DungeonCombatContext dungeonContext,
             HashSet<GridPosition> occupiedPositions)
         {
@@ -254,8 +261,18 @@ namespace Godmist.Systems.Combat
 
             foreach (var enemyData in encounter.Enemies)
             {
-                if (enemyData == null
-                    || enemyData.CharacterDefinition == null
+                if (enemyData == null)
+                {
+                    return false;
+                }
+
+                if (defeatedEnemyInstanceIds != null
+                    && defeatedEnemyInstanceIds.Contains(enemyData.InstanceId))
+                {
+                    continue;
+                }
+
+                if (enemyData.CharacterDefinition == null
                     || enemyData.ClassData == null
                     || string.IsNullOrWhiteSpace(enemyData.InstanceId))
                 {

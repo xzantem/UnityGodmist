@@ -8,10 +8,14 @@ namespace Godmist.Systems.Combat
     public class CombatRecoverySystem
     {
         private readonly Action<string> battleLog;
+        private readonly CombatFeedbackBus feedbackBus;
 
-        public CombatRecoverySystem(Action<string> battleLog = null)
+        public CombatRecoverySystem(
+            Action<string> battleLog = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
+            this.feedbackBus = feedbackBus;
         }
 
         public int Heal(BattleUnit target, int requestedAmount)
@@ -40,11 +44,13 @@ namespace Godmist.Systems.Combat
                 target.DownedTurnsRemaining = 0;
 
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} zostaje podniesiony i odzyskuje {restoredHealth} HP.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Heal, restoredHealth));
 
                 return restoredHealth;
             }
 
             battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredHealth} HP.");
+            feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Heal, restoredHealth));
 
             return restoredHealth;
         }
@@ -56,7 +62,15 @@ namespace Godmist.Systems.Combat
 
             var restoredAmount =target.Character.ResourcePool.Restore(requestedAmount);
 
-            if (restoredAmount > 0) battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredAmount} zasobu.");
+            if (restoredAmount > 0)
+            {
+                battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredAmount} zasobu.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target,
+                    CombatFeedbackType.ResourceGain,
+                    restoredAmount,
+                    resourceType: target.Character.ResourcePool.ResourceType));
+            }
 
             return restoredAmount;
         }

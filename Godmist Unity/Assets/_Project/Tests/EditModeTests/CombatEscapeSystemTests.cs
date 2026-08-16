@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
 using NUnit.Framework;
 
@@ -40,7 +41,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void TryEscape_WhenReadyActorEscapes_KillsUnpreparedAllies()
+        public void TryEscape_WhenReadyActorEscapes_KillsUnpreparedAlliesAndKeepsUnitsForCleanup()
         {
             var escapingActor = CreatePlayerUnit(isReadyToEscape: true);
             var abandonedAlly = CreatePlayerUnit();
@@ -52,6 +53,16 @@ namespace Godmist.Tests.EditMode
                 enemy);
 
             var system = new CombatEscapeSystem();
+            var lifecycleSystem = new PassiveEffectLifecycleSystem();
+
+            escapingActor.Character.PassiveEffects.Add(
+                new PassiveEffectRuntime(
+                    "effect.combat_scoped",
+                    new List<PassiveEffectSourceRuntime>(),
+                    stacks: 1,
+                    remainingDuration: 0,
+                    totalDamage: 0,
+                    lifetime: PassiveEffectLifetime.CombatScoped));
 
             var result = system.TryEscape(session, escapingActor);
 
@@ -59,9 +70,14 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.Outcome, Is.EqualTo(CombatOutcomeState.Escaped));
             Assert.That(abandonedAlly.Character.LifeState,
                 Is.EqualTo(CharacterLifeState.Dead));
-            CollectionAssert.DoesNotContain(session.Units, escapingActor);
-            CollectionAssert.DoesNotContain(session.Units, abandonedAlly);
+            CollectionAssert.Contains(session.Units, escapingActor);
+            CollectionAssert.Contains(session.Units, abandonedAlly);
             CollectionAssert.Contains(session.Units, enemy);
+
+            var removedCount = lifecycleSystem.RemoveCombatScopedEffects(session);
+
+            Assert.That(removedCount, Is.EqualTo(1));
+            Assert.That(escapingActor.Character.PassiveEffects, Is.Empty);
         }
 
         private static CombatSession CreateSession(params BattleUnit[] units)

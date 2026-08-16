@@ -46,10 +46,14 @@ namespace Godmist.Systems.Characters
             float baseValue,
             StatModifierAccumulator accumulator)
         {
-            return (baseValue + accumulator.FlatBaseBonus)
+            var effectiveValue = (baseValue + accumulator.FlatBaseBonus)
                 * (1f + accumulator.AdditivePercentBonus)
                 * accumulator.MultiplicativePercentMultiplier
                 + accumulator.FlatAbsoluteBonus;
+
+            return accumulator.HasMaximum
+                ? Mathf.Min(effectiveValue, accumulator.MaximumValue)
+                : effectiveValue;
         }
 
         private static void ApplyEquipmentModifiers(
@@ -120,6 +124,8 @@ namespace Godmist.Systems.Characters
             public float AdditivePercentBonus;
             public float MultiplicativePercentMultiplier;
             public float FlatAbsoluteBonus;
+            public bool HasMaximum;
+            public float MaximumValue;
 
             public static StatModifierAccumulator Create()
             {
@@ -151,6 +157,17 @@ namespace Godmist.Systems.Characters
                         MultiplicativePercentMultiplier *= Mathf.Max(
                             0f,
                             1f + modifier.Value);
+                        return;
+
+                    case StatModifierOperation.Maximum:
+                        if (!HasMaximum)
+                        {
+                            HasMaximum = true;
+                            MaximumValue = modifier.Value;
+                            return;
+                        }
+
+                        MaximumValue = Mathf.Min(MaximumValue, modifier.Value);
                         return;
                 }
             }

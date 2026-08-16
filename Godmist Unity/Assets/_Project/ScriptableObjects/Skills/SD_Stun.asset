@@ -14,34 +14,70 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.stun
   <DisplayName>k__BackingField: "Og\u0142uszenie"
-  <SkillAccuracy>k__BackingField: 100
+  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <TooltipDescription>k__BackingField: 
+  <SkillAccuracy>k__BackingField: 85
   <ActionCost>k__BackingField: 60
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
   <IsToggle>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 0
   targetModes:
   - targetType: 0
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
-      maxRange: 1
-    useRelativeRange: 0
+      maxRange: 2
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
   effects:
   - effectType: 2
+    polarity: 0
+    alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
     damageMultiplier: 0
+    damageHitCount: 1
     damageType: 0
-    pushDistance: 0
-    baseChance: 1
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 1
+      minRange: 0
+      maxRange: 2
+    maxActiveObjects: 1
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 1
+      minRange: 1
+      maxRange: 2
+    summonDurationTurns: 1
+    maxActiveSummons: 1
+    summonPercentMaxHealth: 1
+    baseChance: 0.805
     statusId: stun
-    durationTurns: 1
+    durationTurns: 2
     stacks: 0
     statusDamageMultiplier: 0
+    statusHealPercent: 0.2
+    counterattackRange:
+      shape: 1
+      minRange: 1
+      maxRange: 1
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
     conditions: []

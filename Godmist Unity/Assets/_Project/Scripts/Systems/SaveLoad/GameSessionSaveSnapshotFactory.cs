@@ -341,6 +341,22 @@ namespace Godmist.Systems.SaveLoad
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 
+                foreach (var encounter in floor.Encounters)
+                {
+                    if (encounter == null)
+                    {
+                        return false;
+                    }
+
+                    dungeonSaveData.EncounterDeltas.Add(
+                        new DungeonEncounterDeltaSaveData
+                        {
+                            EncounterInstanceId = encounter.InstanceId,
+                            DefeatedEnemyInstanceIds = new List<string>(
+                                encounter.DefeatedEnemyInstanceIds)
+                        });
+                }
+
                 dungeonSaveData.FloorDeltas.Add(floorDelta);
             }
 
@@ -511,10 +527,12 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Add(new PassiveEffectSaveData
                 {
                     EffectId = effect.EffectId,
-                    SourceEntityIds = effect.SourceEntityIds != null
-                        ? new List<string>(effect.SourceEntityIds)
-                        : new List<string>(),
+                    Sources = CopyPassiveEffectSources(effect.Sources),
                     Stacks = effect.Stacks,
+                    Lifetime = effect.Lifetime,
+                    HasLifetime = true,
+                    VariableModifiers = CopyVariableModifiers(effect.VariableModifiers),
+                    TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,
                     TotalDamage = effect.TotalDamage,
                     StatModifiers = CopyStatModifiers(effect.StatModifiers)
@@ -650,6 +668,62 @@ namespace Godmist.Systems.SaveLoad
 
             saveData.ItemInstances.Add(itemSaveData);
             return true;
+        }
+
+        private static List<PassiveEffectSourceSaveData> CopyPassiveEffectSources(
+            List<PassiveEffectSourceRuntime> sources)
+        {
+            var saveData = new List<PassiveEffectSourceSaveData>();
+
+            if (sources == null)
+            {
+                return saveData;
+            }
+
+            foreach (var source in sources)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                saveData.Add(new PassiveEffectSourceSaveData
+                {
+                    SourceType = source.SourceType,
+                    SourceId = source.SourceId,
+                    SourceCharacterId = source.SourceCharacterId
+                });
+            }
+
+            return saveData;
+        }
+
+        private static List<GameplayVariableModifierSaveData> CopyVariableModifiers(
+                List<GameplayVariableModifier> modifiers)
+        {
+            var saveData = new List<GameplayVariableModifierSaveData>();
+
+            if (modifiers == null)
+            {
+                return saveData;
+            }
+
+            foreach (var modifier in modifiers)
+            {
+                if (modifier == null)
+                {
+                    continue;
+                }
+
+                saveData.Add(new GameplayVariableModifierSaveData
+                {
+                    VariableType = modifier.VariableType,
+                    Stacking = modifier.Stacking,
+                    Value = modifier.Value
+                });
+            }
+
+            return saveData;
         }
 
         private static List<StatModifierSaveData> CopyStatModifiers(

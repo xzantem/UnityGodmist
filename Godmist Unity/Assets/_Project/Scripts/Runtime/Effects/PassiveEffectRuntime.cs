@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Effects;
+using Godmist.Data.Skills;
 
 namespace Godmist.Runtime.Effects
 {
@@ -8,11 +11,23 @@ namespace Godmist.Runtime.Effects
     public class PassiveEffectRuntime
     {
         public string EffectId = string.Empty;
-        public List<string> SourceEntityIds = new();
+        public List<PassiveEffectSourceRuntime> Sources = new();
         public int Stacks = 1;
+
+        public PassiveEffectLifetime Lifetime =
+            PassiveEffectLifetime.Persistent;
+
         public int RemainingDuration;
+        public PassiveEffectTickPhase TickPhase =
+            PassiveEffectTickPhase.None;
+
         public int TotalDamage;
+        public float StatusHealPercent;
+        public SkillData CounterattackSkill;
+        public SkillRangeData CounterattackRange;
+        public List<SkillEffectData> CounterattackEffects = new();
         public List<StatModifier> StatModifiers = new();
+        public List<GameplayVariableModifier> VariableModifiers = new();
 
         public PassiveEffectRuntime()
         {
@@ -20,19 +35,32 @@ namespace Godmist.Runtime.Effects
 
         public PassiveEffectRuntime(
             string effectId,
-            List<string> sourceEntityIds,
+            List<PassiveEffectSourceRuntime> sources,
             int stacks,
             int remainingDuration,
-            int totalDamage)
+            int totalDamage,
+            PassiveEffectLifetime lifetime,
+            PassiveEffectTickPhase tickPhase =
+                PassiveEffectTickPhase.None,
+                float statusHealPercent = 0f)
         {
             EffectId = effectId ?? string.Empty;
-            SourceEntityIds = sourceEntityIds != null
-                ? new List<string>(sourceEntityIds)
-                : new List<string>();
+            Sources = sources != null
+                ? new List<PassiveEffectSourceRuntime>(sources)
+                : new List<PassiveEffectSourceRuntime>();
 
             Stacks = stacks;
-            RemainingDuration = remainingDuration;
+            Lifetime = lifetime;
+            RemainingDuration = lifetime == PassiveEffectLifetime.Timed
+                ? remainingDuration
+                : 0;
+
+            TickPhase = lifetime == PassiveEffectLifetime.Timed
+                ? tickPhase
+                : PassiveEffectTickPhase.None;
+
             TotalDamage = totalDamage;
+            StatusHealPercent = statusHealPercent;
         }
     }
 }

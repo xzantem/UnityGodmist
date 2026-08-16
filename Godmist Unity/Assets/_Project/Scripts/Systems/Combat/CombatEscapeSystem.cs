@@ -82,8 +82,6 @@ namespace Godmist.Systems.Combat
                     battleLog?.Invoke($"{GetUnitName(unit)} zostaje porzucony i ginie.");
                 }
 
-                session.Units.Remove(unit);
-                session.TurnOrder.Remove(unit);
             }
 
             session.ActiveUnit = null;
