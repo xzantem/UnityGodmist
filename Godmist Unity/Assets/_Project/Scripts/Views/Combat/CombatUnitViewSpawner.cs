@@ -29,7 +29,9 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<SummonedCombatMapObject, SpriteRenderer>
             summonedObjectViews = new();
 
-        private CombatSession boundSession;
+        // A CombatSession is runtime state and may contain nested counterattack payloads.
+        // It must never enter Unity's scene/prefab serialization graph.
+        [System.NonSerialized] private CombatSession boundSession;
         private Sprite missingSprite;
 
         public void ShowNameLabelsFor(

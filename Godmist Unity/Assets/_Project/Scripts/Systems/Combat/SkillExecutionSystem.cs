@@ -797,6 +797,9 @@ namespace Godmist.Systems.Combat
                 battleLog?.Invoke(
                     $"{caster.Character.Definition.DisplayName} chybia "
                     + $"{target.Character.Definition.DisplayName}.");
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    target,
+                    CombatFeedbackType.Miss));
             }
 
             return wasHit;

@@ -489,7 +489,7 @@ namespace Godmist.Views.UI
             GameSession gameSession)
         {
             var sandboxBootstrap =
-                FindFirstObjectByType<CombatSandboxBootstrap>();
+                FindAnyObjectByType<CombatSandboxBootstrap>();
 
             if (sandboxBootstrap != null
                 && sandboxBootstrap.Session != null)

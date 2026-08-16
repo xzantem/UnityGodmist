@@ -45,11 +45,6 @@ namespace Godmist.Views.Combat
             Refresh();
         }
 
-        private void Update()
-        {
-            Refresh();
-        }
-
         private void OnDisable()
         {
             if (sandboxBootstrap != null)
@@ -93,8 +88,17 @@ namespace Godmist.Views.Combat
             ApplyInspectTint();
         }
 
-        private void OnMouseEnter() => isHovered = true;
-        private void OnMouseExit() => isHovered = false;
+        private void OnMouseEnter()
+        {
+            isHovered = true;
+            Refresh();
+        }
+
+        private void OnMouseExit()
+        {
+            isHovered = false;
+            Refresh();
+        }
 
         private void ApplyInspectTint()
         {

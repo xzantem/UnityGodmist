@@ -32,7 +32,7 @@ namespace Godmist.Views.UI
         {
             worldCamera ??= Camera.main;
             feedbackRoot ??= transform as RectTransform;
-            unitViewSpawner ??= FindFirstObjectByType<CombatUnitViewSpawner>();
+            unitViewSpawner ??= FindAnyObjectByType<CombatUnitViewSpawner>();
         }
 
         private void OnDestroy()

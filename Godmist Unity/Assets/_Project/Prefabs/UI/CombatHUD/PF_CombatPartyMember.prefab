@@ -125,7 +125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c888d5bfd8bcf4e91c5d2b88640e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.CombatStatusCollectionView
-  visualCatalog: {fileID: 11400000, guid: a4c0f13e3e456cc438429f19c26d4797, type: 2}
   tooltipView: {fileID: 0}
   iconRoot: {fileID: 764099632211120364}
   iconTemplate: {fileID: 619840863648374749, guid: f8bb85ce52d4964468493c2cb70f9a61, type: 3}
