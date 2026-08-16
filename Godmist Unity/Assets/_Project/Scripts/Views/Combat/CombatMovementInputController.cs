@@ -11,17 +11,13 @@ namespace Godmist.Views.Combat
         [Header("References")]
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;
-        [SerializeField] private SpriteRenderer highlightPrefab;
-        [SerializeField] private Transform highlightRoot;
+        [SerializeField] private CombatGridFeedbackRenderer feedbackRenderer;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private float highlightZ = 0.1f;
-
-        private readonly Dictionary<
-            GridPosition,
-            SpriteRenderer> activeHighlights = new();
+        [SerializeField] private Color movementRangeColor = new(1f, .72f, .2f, .85f);
+        [SerializeField] private Color movementPreviewColor = new(1f, .84f, .38f, 1f);
 
         private Dictionary<
             GridPosition,
@@ -33,6 +29,8 @@ namespace Godmist.Views.Combat
         private int cachedActionPoints;
         private int cachedMovementSteps;
         private bool cacheValid;
+        private GridPosition? previewedDestination;
+        private int previewedPathCost;
 
         private void Awake()
         {
@@ -59,6 +57,7 @@ namespace Godmist.Views.Combat
             }
 
             RefreshIfNeeded();
+            RefreshMovementPreview();
 
             if (!Input.GetMouseButtonDown(0))
             {
@@ -151,42 +150,53 @@ namespace Godmist.Views.Combat
         private void RebuildHighlights()
         {
             ClearHighlights();
-
-            if (highlightPrefab == null
-                || highlightRoot == null)
-            {
-                return;
-            }
-
-            foreach (var pair in reachablePaths)
-            {
-                var highlight = Instantiate(
-                    highlightPrefab,
-                    highlightRoot);
-
-                highlight.transform.localPosition =
-                    new Vector3(
-                        gridOrigin.x
-                            + pair.Key.X * cellSize,
-                        gridOrigin.y
-                            + pair.Key.Y * cellSize,
-                        highlightZ);
-
-                activeHighlights[pair.Key] = highlight;
-            }
+            feedbackRenderer?.ShowOutline(
+                CombatGridFeedbackLayer.MovementRange,
+                reachablePaths.Keys,
+                movementRangeColor);
+            feedbackRenderer?.ShowFill(
+                CombatGridFeedbackLayer.MovementRange,
+                reachablePaths.Keys,
+                WithAlpha(movementRangeColor, .24f));
         }
 
         private void ClearHighlights()
         {
-            foreach (var highlight in activeHighlights.Values)
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.MovementRange);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.MovementRange);
+            feedbackRenderer?.ClearMovementPreview();
+            previewedDestination = null;
+            previewedPathCost = 0;
+        }
+
+        private void RefreshMovementPreview()
+        {
+            if (feedbackRenderer == null
+                || EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                if (highlight != null)
-                {
-                    Destroy(highlight.gameObject);
-                }
+                feedbackRenderer?.ClearMovementPreview();
+                previewedDestination = null;
+                return;
             }
 
-            activeHighlights.Clear();
+            var hoveredPosition = GetGridPositionUnderMouse();
+            if (!reachablePaths.TryGetValue(hoveredPosition, out var path))
+            {
+                feedbackRenderer.ClearMovementPreview();
+                previewedDestination = null;
+                return;
+            }
+
+            var pathCost = sandboxBootstrap.GetActiveUnitMovementPathCost(path);
+            if (previewedDestination == hoveredPosition && previewedPathCost == pathCost) return;
+
+            feedbackRenderer.ShowMovementPreview(
+                path,
+                cachedActiveUnit.Position,
+                pathCost,
+                movementPreviewColor);
+            previewedDestination = hoveredPosition;
+            previewedPathCost = pathCost;
         }
 
         private GridPosition GetGridPositionUnderMouse()
@@ -207,6 +217,12 @@ namespace Godmist.Views.Combat
                 / cellSize);
 
             return new GridPosition(gridX, gridY);
+        }
+
+        private static Color WithAlpha(Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
         }
 
         private void OnDisable()

@@ -15,14 +15,12 @@ namespace Godmist.Views.Combat
         [Header("References")]
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;
-        [SerializeField] private SpriteRenderer targetHighlightPrefab;
-        [SerializeField] private Transform targetHighlightRoot;
+        [SerializeField] private CombatGridFeedbackRenderer feedbackRenderer;
         [SerializeField] private CombatMovementInputController movementInputController;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private float highlightZ = -0.2f;
         [SerializeField] private Color targetHighlightColor = new(1f, 0.72f, 0.2f, 0.65f);
         [SerializeField] private Color absoluteRangeHighlightColor = new(0.25f, 0.55f, 1f, 0.25f);
 
@@ -30,15 +28,7 @@ namespace Godmist.Views.Combat
 
         [SerializeField] private Color affectedTargetHighlightColor = new(1f, 0.45f, 0.15f, 0.8f);
 
-        private readonly List<SpriteRenderer> affectedTargetHighlights = new();
-
         private readonly HashSet<GridPosition> absoluteRangePositions = new();
-
-        private readonly List<SpriteRenderer> absoluteRangeHighlights = new();
-
-        private readonly List<SpriteRenderer> selectableTargetHighlights = new();
-
-        private readonly List<SpriteRenderer> relativeRangeHighlights = new();
 
         private readonly HashSet<GridPosition> selectablePositions = new();
 
@@ -332,8 +322,7 @@ namespace Godmist.Views.Combat
         {
             ClearAllHighlights();
 
-            if (targetHighlightPrefab == null
-                || targetHighlightRoot == null
+            if (feedbackRenderer == null
                 || selectedSkill == null)
             {
                 return;
@@ -352,7 +341,11 @@ namespace Godmist.Views.Combat
             SpawnHighlights(
                 absolutePositions,
                 absoluteRangeHighlightColor,
-                absoluteRangeHighlights);
+                CombatGridFeedbackLayer.SkillRange);
+            feedbackRenderer.ShowFill(
+                CombatGridFeedbackLayer.SkillRange,
+                absolutePositions,
+                WithAlpha(absoluteRangeHighlightColor, .24f));
 
             var selectable =
                 sandboxBootstrap.GetSelectableSkillPositions(
@@ -377,9 +370,13 @@ namespace Godmist.Views.Combat
             }
 
             SpawnHighlights(
-                eligibleTargets,
+                selectable,
                 targetHighlightColor,
-                selectableTargetHighlights);
+                CombatGridFeedbackLayer.SkillTarget);
+            feedbackRenderer.ShowFill(
+                CombatGridFeedbackLayer.SkillTarget,
+                selectable,
+                WithAlpha(targetHighlightColor, .28f));
         }
 
         private void UpdateRelativeRangePreview()
@@ -408,7 +405,11 @@ namespace Godmist.Views.Combat
             var relativePositions = sandboxBootstrap.GetRelativeSkillRangePositions(selectedSkill, 
                 CurrentTargetMode, hoveredPosition);
 
-            SpawnHighlights(relativePositions, relativeRangeHighlightColor, relativeRangeHighlights);
+            SpawnHighlights(relativePositions, relativeRangeHighlightColor, CombatGridFeedbackLayer.RelativeRange);
+            feedbackRenderer.ShowFill(
+                CombatGridFeedbackLayer.RelativeRange,
+                relativePositions,
+                WithAlpha(relativeRangeHighlightColor, .24f));
 
             var affectedPositions = new List<GridPosition>();
 
@@ -418,7 +419,11 @@ namespace Godmist.Views.Combat
                 currentTargetModeIndex,
                 hoveredPosition)) affectedPositions.Add(target.Position);
 
-            SpawnHighlights(affectedPositions, affectedTargetHighlightColor, affectedTargetHighlights);
+            SpawnHighlights(affectedPositions, affectedTargetHighlightColor, CombatGridFeedbackLayer.AffectedArea);
+            feedbackRenderer.ShowFill(
+                CombatGridFeedbackLayer.AffectedArea,
+                affectedPositions,
+                WithAlpha(affectedTargetHighlightColor, .28f));
         }
 
         private bool HasRelativeRangePreview()
@@ -495,7 +500,11 @@ namespace Godmist.Views.Combat
                 SpawnHighlights(
                     destinations,
                     relativeRangeHighlightColor,
-                    relativeRangeHighlights);
+                    CombatGridFeedbackLayer.RelativeRange);
+                feedbackRenderer.ShowFill(
+                    CombatGridFeedbackLayer.RelativeRange,
+                    destinations,
+                    WithAlpha(relativeRangeHighlightColor, .24f));
 
                 return true;
             }
@@ -551,7 +560,11 @@ namespace Godmist.Views.Combat
                 SpawnHighlights(
                     placements,
                     relativeRangeHighlightColor,
-                    relativeRangeHighlights);
+                    CombatGridFeedbackLayer.RelativeRange);
+                feedbackRenderer.ShowFill(
+                    CombatGridFeedbackLayer.RelativeRange,
+                    placements,
+                    WithAlpha(relativeRangeHighlightColor, .24f));
 
                 return true;
             }
@@ -562,23 +575,9 @@ namespace Godmist.Views.Combat
         private void SpawnHighlights(
             IReadOnlyList<GridPosition> positions,
             Color color,
-            List<SpriteRenderer> destination)
+            CombatGridFeedbackLayer layer)
         {
-            foreach (var position in positions)
-            {
-                var highlight = Instantiate(
-                    targetHighlightPrefab,
-                    targetHighlightRoot);
-
-                highlight.transform.localPosition =
-                    new Vector3(
-                        gridOrigin.x + position.X * cellSize,
-                        gridOrigin.y + position.Y * cellSize,
-                        highlightZ);
-
-                highlight.color = color;
-                destination.Add(highlight);
-            }
+            feedbackRenderer?.ShowOutline(layer, positions, color);
         }
         private GridPosition GetGridPositionUnderMouse()
         {
@@ -620,8 +619,10 @@ namespace Godmist.Views.Combat
 
         private void ClearAllHighlights()
         {
-            ClearHighlightList(absoluteRangeHighlights);
-            ClearHighlightList(selectableTargetHighlights);
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillRange);
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillTarget);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.SkillRange);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.SkillTarget);
             ClearRelativeRangeHighlights();
             selectablePositions.Clear();
             absoluteRangePositions.Clear();
@@ -630,23 +631,17 @@ namespace Godmist.Views.Combat
 
         private void ClearRelativeRangeHighlights()
         {
-            ClearHighlightList(relativeRangeHighlights);
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.RelativeRange);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.RelativeRange);
             previewedRelativeCenter = null;
-            ClearHighlightList(affectedTargetHighlights);
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.AffectedArea);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.AffectedArea);
         }
 
-        private void ClearHighlightList(
-            List<SpriteRenderer> highlights)
+        private static Color WithAlpha(Color color, float alpha)
         {
-            foreach (var highlight in highlights)
-            {
-                if (highlight != null)
-                {
-                    Destroy(highlight.gameObject);
-                }
-            }
-
-            highlights.Clear();
+            color.a = alpha;
+            return color;
         }
 
         private void OnDisable()

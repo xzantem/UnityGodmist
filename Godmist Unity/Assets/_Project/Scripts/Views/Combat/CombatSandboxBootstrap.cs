@@ -625,6 +625,12 @@ namespace Godmist.Views.Combat
                 Session.ActiveUnit);
         }
 
+        public int GetActiveUnitMovementPathCost(IReadOnlyList<GridPosition> path)
+        {
+            if (path == null || Session?.ActiveUnit == null) return 0;
+            return CombatMovementSystem.CalculatePathCost(Session.ActiveUnit, path.Count);
+        }
+
         public bool TryMoveActiveUnitAlongPath(
             IReadOnlyList<GridPosition> path)
         {

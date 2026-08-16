@@ -6025,11 +6025,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatMovementInputController
   sandboxBootstrap: {fileID: 235486238}
   worldCamera: {fileID: 814189693}
-  highlightPrefab: {fileID: 2283250626943503161, guid: 74ebf46c1c08a264f99c8e470bebc3af, type: 3}
-  highlightRoot: {fileID: 1252716622}
+  feedbackRenderer: {fileID: 1252716623}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
-  highlightZ: -0.2
+  movementRangeColor: {r: 1, g: 0.72, b: 0.2, a: 0.85}
+  movementPreviewColor: {r: 1, g: 0.84, b: 0.38, a: 1}
 --- !u!114 &1046552047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6044,12 +6044,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatTargetSelectionController
   sandboxBootstrap: {fileID: 235486238}
   worldCamera: {fileID: 814189693}
-  targetHighlightPrefab: {fileID: 2283250626943503161, guid: 74ebf46c1c08a264f99c8e470bebc3af, type: 3}
-  targetHighlightRoot: {fileID: 1252716622}
+  feedbackRenderer: {fileID: 1252716623}
   movementInputController: {fileID: 1046552046}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
-  highlightZ: -0.2
   targetHighlightColor: {r: 0.19999999, g: 1, b: 0.24321392, a: 0.65}
   absoluteRangeHighlightColor: {r: 0.25, g: 0.55, b: 1, a: 0.25}
   relativeRangeHighlightColor: {r: 1, g: 0.3, b: 0.12, a: 0.42}
@@ -6536,6 +6534,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1252716622}
+  - component: {fileID: 1252716623}
   m_Layer: 0
   m_Name: CellHighlights
   m_TagString: Untagged
@@ -6558,6 +6557,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1801542684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1252716623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252716621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13ec38d711863d842a0469f9efe0ecf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatGridFeedbackRenderer
+  feedbackSprite: {fileID: 7482667652216324306, guid: 822eb4712e57aab41b59374a4cad903f, type: 3}
+  pathCostFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  feedbackRoot: {fileID: 1252716622}
+  feedbackSortingLayer: Default
+  feedbackSortingOrder: -1
+  gridOrigin: {x: 0, y: 0}
+  cellSize: 1
+  edgeThickness: 0.045
+  pathSegmentLength: 1
+  pathSegmentThickness: 0.065
+  feedbackZ: -0.2
+  costLabelOffset: {x: 0, y: 0.22}
+  pathCostWorldScale: 0.12
 --- !u!1 &1255738723
 GameObject:
   m_ObjectHideFlags: 0

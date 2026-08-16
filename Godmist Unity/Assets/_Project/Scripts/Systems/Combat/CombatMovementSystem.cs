@@ -221,7 +221,7 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private static int CalculatePathCost(
+        public static int CalculatePathCost(
             BattleUnit unit, 
             int pathLength)
         {
