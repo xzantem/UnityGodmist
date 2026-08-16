@@ -408,6 +408,7 @@ namespace Godmist.Systems.SaveLoad
                 Resistances = CopyResistances(character.Resistances),
                 ShieldLayers = CopyShieldLayers(character.ShieldPool),
                 SkillIds = CopySkillIds(character),
+                SkillTreeProgress = CopySkillTreeProgress(character),
                 PassiveEffects = CopyPassiveEffects(character.PassiveEffects)
             };
 
@@ -505,6 +506,23 @@ namespace Godmist.Systems.SaveLoad
             }
 
             return skillIds;
+        }
+
+        private static List<SkillTreeProgressSaveData> CopySkillTreeProgress(CharacterInstance character)
+        {
+            var result = new List<SkillTreeProgressSaveData>();
+            foreach (var tree in character.SkillTreeProgress ?? new())
+            {
+                if (tree == null || string.IsNullOrWhiteSpace(tree.TreeId)) continue;
+                var copy = new SkillTreeProgressSaveData { TreeId = tree.TreeId };
+                foreach (var node in tree.NodeInvestments ?? new())
+                {
+                    if (!string.IsNullOrWhiteSpace(node.NodeId) && node.Ranks > 0)
+                        copy.NodeInvestments.Add(new SkillTreeNodeInvestmentSaveData { NodeId = node.NodeId, Ranks = node.Ranks });
+                }
+                result.Add(copy);
+            }
+            return result;
         }
 
         private static List<PassiveEffectSaveData> CopyPassiveEffects(

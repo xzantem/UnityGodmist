@@ -81,6 +81,8 @@ namespace Godmist.Systems.Characters
                 Skills = definition.StartingSkills != null ? new List<SkillData>(definition.StartingSkills)
                     : new List<SkillData>(),
 
+                SkillTreeProgress = new List<SkillTreeProgress>(),
+
                 PassiveEffects = new List<Runtime.Effects.PassiveEffectRuntime>()
             };
 

@@ -24,10 +24,25 @@ namespace Godmist.Core.Serialization
         public ResistanceSetSaveData Resistances = new();
         public List<ShieldLayerSaveData> ShieldLayers = new();
         public List<string> SkillIds = new();
+        public List<SkillTreeProgressSaveData> SkillTreeProgress = new();
         public List<PassiveEffectSaveData> PassiveEffects = new();
 
         public List<string> InventoryItemInstanceIds = new();
         public EquipmentSetSaveData Equipment = new();
+    }
+
+    [Serializable]
+    public class SkillTreeProgressSaveData
+    {
+        public string TreeId = string.Empty;
+        public List<SkillTreeNodeInvestmentSaveData> NodeInvestments = new();
+    }
+
+    [Serializable]
+    public class SkillTreeNodeInvestmentSaveData
+    {
+        public string NodeId = string.Empty;
+        public int Ranks;
     }
 
     [Serializable]

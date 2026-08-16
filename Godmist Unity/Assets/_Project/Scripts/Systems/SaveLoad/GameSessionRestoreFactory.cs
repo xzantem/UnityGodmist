@@ -336,6 +336,7 @@ namespace Godmist.Systems.SaveLoad
             character.Level = saveData.Level;
             character.CurrentExperience = saveData.CurrentExperience;
             character.AvailableSkillPoints = saveData.AvailableSkillPoints;
+            character.SkillTreeProgress = RestoreSkillTreeProgress(saveData.SkillTreeProgress);
             character.CurrentHealth = saveData.CurrentHealth;
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
@@ -566,6 +567,22 @@ namespace Godmist.Systems.SaveLoad
             }
 
             return true;
+        }
+
+        private static List<SkillTreeProgress> RestoreSkillTreeProgress(
+            List<SkillTreeProgressSaveData> saveData)
+        {
+            var result = new List<SkillTreeProgress>();
+            foreach (var tree in saveData ?? new())
+            {
+                if (tree == null || string.IsNullOrWhiteSpace(tree.TreeId)) continue;
+                var copy = new SkillTreeProgress { TreeId = tree.TreeId };
+                foreach (var node in tree.NodeInvestments ?? new())
+                    if (!string.IsNullOrWhiteSpace(node.NodeId) && node.Ranks > 0)
+                        copy.NodeInvestments.Add(new SkillTreeNodeInvestment { NodeId = node.NodeId, Ranks = node.Ranks });
+                result.Add(copy);
+            }
+            return result;
         }
 
         private static bool IsDamageOverTimeStatus(string effectId)

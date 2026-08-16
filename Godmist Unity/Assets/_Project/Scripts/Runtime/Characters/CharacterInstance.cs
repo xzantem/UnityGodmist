@@ -37,6 +37,7 @@ namespace Godmist.Runtime.Characters
         public CharacterAvailabilityState AvailabilityState;
 
         public List<SkillData> Skills = new();
+        public List<SkillTreeProgress> SkillTreeProgress = new();
 
         public List<PassiveEffectRuntime> PassiveEffects = new();
 
