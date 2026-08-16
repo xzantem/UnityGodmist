@@ -375,7 +375,9 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            statPipeline.Refresh(character);
+            new CharacterLevelGrowthSystem(statPipeline).Apply(
+                character,
+                grantCurrentHealthGrowth: false);
             return true;
         }
 

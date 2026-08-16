@@ -9,6 +9,13 @@ namespace Godmist.Systems.Characters
         public const int MinimumLevel = 1;
         public const int MaximumLevel = 50;
 
+        private readonly CharacterLevelGrowthSystem growthSystem;
+
+        public CharacterProgressionSystem(CharacterLevelGrowthSystem growthSystem = null)
+        {
+            this.growthSystem = growthSystem ?? new CharacterLevelGrowthSystem();
+        }
+
         public int GetExperienceRequiredForNextLevel(int currentLevel)
         {
             if (currentLevel < MinimumLevel || currentLevel > MaximumLevel)
@@ -47,6 +54,7 @@ namespace Godmist.Systems.Characters
             }
 
             if (character.Level == MaximumLevel) character.CurrentExperience = 0;
+            if (levelsGained > 0) growthSystem.Apply(character, grantCurrentHealthGrowth: true);
 
             return levelsGained;
         }

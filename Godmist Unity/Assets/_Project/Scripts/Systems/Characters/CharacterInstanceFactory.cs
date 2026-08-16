@@ -16,12 +16,14 @@ namespace Godmist.Systems.Characters
 
         public CharacterInstance Create(
             CharacterDefinition definition,
-            CharacterClassData classData)
+            CharacterClassData classData = null)
         {
             if (definition == null)
             {
                 throw new ArgumentNullException(nameof(definition));
             }
+
+            classData ??= definition.ClassData;
 
             if (classData == null)
             {
