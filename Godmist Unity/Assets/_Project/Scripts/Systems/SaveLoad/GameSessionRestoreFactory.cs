@@ -4,7 +4,9 @@ using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
+using Godmist.Data.Characters;
 using Godmist.Data.Items;
+using Godmist.Data.Skills;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Dungeons;
@@ -336,7 +338,9 @@ namespace Godmist.Systems.SaveLoad
             character.Level = saveData.Level;
             character.CurrentExperience = saveData.CurrentExperience;
             character.AvailableSkillPoints = saveData.AvailableSkillPoints;
-            character.SkillTreeProgress = RestoreSkillTreeProgress(saveData.SkillTreeProgress);
+            character.SkillTreeProgress = RestoreSkillTreeProgress(
+                saveData.SkillTreeProgress,
+                classData);
             character.CurrentHealth = saveData.CurrentHealth;
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
@@ -358,6 +362,9 @@ namespace Godmist.Systems.SaveLoad
                     character,
                     saveData.SkillIds,
                     contentCatalog)
+                || !TryRestoreSkillLoadout(
+                    character,
+                    saveData)
                 || !TryRestorePassiveEffects(
                     character,
                     saveData.PassiveEffects)
@@ -380,6 +387,69 @@ namespace Godmist.Systems.SaveLoad
                 character,
                 grantCurrentHealthGrowth: false);
             return true;
+        }
+
+        private static bool TryRestoreSkillLoadout(
+            CharacterInstance character,
+            CharacterSaveData saveData)
+        {
+            var basicAttackSkillId = character.ClassData?.BasicAttackSkill?.SkillId;
+            var knownSkillIds = GetSkillIds(character.Skills);
+
+            if (string.IsNullOrWhiteSpace(basicAttackSkillId)
+                || !knownSkillIds.Contains(basicAttackSkillId))
+            {
+                return !saveData.HasActiveSkillLoadout;
+            }
+
+            if (!saveData.HasActiveSkillLoadout)
+            {
+                return character.ActiveSkillLoadout.TryInitialize(
+                    knownSkillIds,
+                    basicAttackSkillId);
+            }
+
+            var modifiers = new List<SkillLoadoutCapacityModifier>();
+            foreach (var saveDataModifier in saveData.ActiveSkillCapacityModifiers
+                         ?? new List<SkillLoadoutCapacityModifierSaveData>())
+            {
+                if (saveDataModifier == null
+                    || string.IsNullOrWhiteSpace(saveDataModifier.SourceId))
+                {
+                    return false;
+                }
+
+                modifiers.Add(new SkillLoadoutCapacityModifier
+                {
+                    SourceId = saveDataModifier.SourceId,
+                    Amount = saveDataModifier.Amount
+                });
+            }
+
+            return character.ActiveSkillLoadout.TryInitialize(
+                knownSkillIds,
+                basicAttackSkillId,
+                saveData.ActiveSkillIds,
+                modifiers);
+        }
+
+        private static List<string> GetSkillIds(
+            List<SkillData> skills)
+        {
+            var result = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var skill in skills ?? new List<SkillData>())
+            {
+                if (skill != null
+                    && !string.IsNullOrWhiteSpace(skill.SkillId)
+                    && seen.Add(skill.SkillId))
+                {
+                    result.Add(skill.SkillId);
+                }
+            }
+
+            return result;
         }
 
         private static void RestoreResourcePool(
@@ -457,15 +527,10 @@ namespace Godmist.Systems.SaveLoad
         {
             character.Skills.Clear();
 
-            if (skillIds == null)
-            {
-                return true;
-            }
-
             var restoredSkillIds = new HashSet<string>(
                 StringComparer.Ordinal);
 
-            foreach (var skillId in skillIds)
+            foreach (var skillId in skillIds ?? new List<string>())
             {
                 if (string.IsNullOrWhiteSpace(skillId)
                     || !restoredSkillIds.Add(skillId)
@@ -477,6 +542,30 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 character.Skills.Add(skill);
+            }
+
+            var classBasicAttackSkill = character.ClassData?.BasicAttackSkill;
+            if (classBasicAttackSkill == null
+                || string.IsNullOrWhiteSpace(classBasicAttackSkill.SkillId)
+                || character.Skills.Exists(skill => string.Equals(
+                    skill?.SkillId,
+                    classBasicAttackSkill.SkillId,
+                    StringComparison.Ordinal)))
+            {
+                return true;
+            }
+
+            if (contentCatalog.TryGetSkill(
+                    classBasicAttackSkill.SkillId,
+                    out var catalogBasicAttackSkill))
+            {
+                character.Skills.Add(catalogBasicAttackSkill);
+            }
+            else
+            {
+                // The class reference is itself an authoritative runtime
+                // definition; legacy saves did not need to list class skills.
+                character.Skills.Add(classBasicAttackSkill);
             }
 
             return true;
@@ -570,18 +659,158 @@ namespace Godmist.Systems.SaveLoad
         }
 
         private static List<SkillTreeProgress> RestoreSkillTreeProgress(
-            List<SkillTreeProgressSaveData> saveData)
+            List<SkillTreeProgressSaveData> saveData,
+            CharacterClassData classData)
         {
-            var result = new List<SkillTreeProgress>();
+            var definitions = GetCanonicalSkillTreeDefinitions(classData);
+            var definitionsById = new Dictionary<string, SkillTreeDefinition>(
+                StringComparer.Ordinal);
+            var nodeDefinitionsByTreeId = new Dictionary<
+                string,
+                Dictionary<string, SkillTreeNodeDefinition>>(
+                StringComparer.Ordinal);
+
+            foreach (var definition in definitions)
+            {
+                definitionsById.Add(definition.Id, definition);
+
+                var nodeDefinitions = new Dictionary<string, SkillTreeNodeDefinition>(
+                    StringComparer.Ordinal);
+                foreach (var node in GetCanonicalSkillTreeNodes(definition))
+                {
+                    nodeDefinitions.Add(node.Id, node);
+                }
+
+                nodeDefinitionsByTreeId.Add(definition.Id, nodeDefinitions);
+            }
+
+            var aggregatedRanksByTreeId = new Dictionary<
+                string,
+                Dictionary<string, int>>(
+                StringComparer.Ordinal);
             foreach (var tree in saveData ?? new())
             {
-                if (tree == null || string.IsNullOrWhiteSpace(tree.TreeId)) continue;
-                var copy = new SkillTreeProgress { TreeId = tree.TreeId };
+                if (tree == null
+                    || string.IsNullOrWhiteSpace(tree.TreeId)
+                    || !definitionsById.ContainsKey(tree.TreeId))
+                {
+                    continue;
+                }
+
+                if (!aggregatedRanksByTreeId.TryGetValue(
+                        tree.TreeId,
+                        out var aggregatedRanks))
+                {
+                    aggregatedRanks = new Dictionary<string, int>(
+                        StringComparer.Ordinal);
+                    aggregatedRanksByTreeId.Add(tree.TreeId, aggregatedRanks);
+                }
+
                 foreach (var node in tree.NodeInvestments ?? new())
-                    if (!string.IsNullOrWhiteSpace(node.NodeId) && node.Ranks > 0)
-                        copy.NodeInvestments.Add(new SkillTreeNodeInvestment { NodeId = node.NodeId, Ranks = node.Ranks });
-                result.Add(copy);
+                {
+                    if (node == null
+                        || string.IsNullOrWhiteSpace(node.NodeId)
+                        || node.Ranks <= 0
+                        || !nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(
+                            node.NodeId,
+                            out var nodeDefinition))
+                    {
+                        continue;
+                    }
+
+                    var ranks = Math.Min(node.Ranks, nodeDefinition.MaxRanks);
+                    if (!aggregatedRanks.TryGetValue(
+                            node.NodeId,
+                            out var existingRanks)
+                        || ranks > existingRanks)
+                    {
+                        aggregatedRanks[node.NodeId] = ranks;
+                    }
+                }
             }
+
+            var result = new List<SkillTreeProgress>();
+            foreach (var definition in definitions)
+            {
+                if (!aggregatedRanksByTreeId.TryGetValue(
+                        definition.Id,
+                        out var aggregatedRanks))
+                {
+                    continue;
+                }
+
+                var progress = new SkillTreeProgress { TreeId = definition.Id };
+                var remaining = SkillTreeProgressionSystem.MaximumPointsPerTree;
+                foreach (var node in GetCanonicalSkillTreeNodes(definition))
+                {
+                    if (remaining <= 0)
+                    {
+                        break;
+                    }
+
+                    if (!aggregatedRanks.TryGetValue(node.Id, out var ranks))
+                    {
+                        continue;
+                    }
+
+                    ranks = Math.Min(ranks, remaining);
+                    if (ranks <= 0)
+                    {
+                        continue;
+                    }
+
+                    progress.NodeInvestments.Add(
+                        new SkillTreeNodeInvestment
+                        {
+                            NodeId = node.Id,
+                            Ranks = ranks
+                        });
+                    remaining -= ranks;
+                }
+
+                if (progress.NodeInvestments.Count > 0)
+                {
+                    result.Add(progress);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<SkillTreeDefinition> GetCanonicalSkillTreeDefinitions(
+            CharacterClassData classData)
+        {
+            var result = new List<SkillTreeDefinition>();
+            var seenTreeIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var tree in classData?.SkillTrees ?? new())
+            {
+                if (tree != null
+                    && !string.IsNullOrWhiteSpace(tree.Id)
+                    && seenTreeIds.Add(tree.Id))
+                {
+                    result.Add(tree);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<SkillTreeNodeDefinition> GetCanonicalSkillTreeNodes(
+            SkillTreeDefinition tree)
+        {
+            var result = new List<SkillTreeNodeDefinition>();
+            var seenNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var node in tree?.Nodes ?? new())
+            {
+                if (node != null
+                    && !string.IsNullOrWhiteSpace(node.Id)
+                    && node.MaxRanks > 0
+                    && seenNodeIds.Add(node.Id))
+                {
+                    result.Add(node);
+                }
+            }
+
             return result;
         }
 

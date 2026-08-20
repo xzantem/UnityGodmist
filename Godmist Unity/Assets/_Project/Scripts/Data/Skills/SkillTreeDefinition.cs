@@ -17,6 +17,9 @@ namespace Godmist.Data.Skills
     public class SkillTreeNodeDefinition
     {
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
+        [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
+        [field: SerializeField, TextArea(2, 5)] public string Description { get; private set; } = string.Empty;
+        [field: SerializeField] public Sprite Icon { get; private set; }
         [field: SerializeField, Range(1, 7)] public int Tier { get; private set; } = 1;
         [field: SerializeField, Range(1, 5)] public int Column { get; private set; } = 1;
         [field: SerializeField, Range(1, 3)] public int MaxRanks { get; private set; } = 1;

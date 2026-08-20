@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
+
+[assembly: InternalsVisibleTo("Systems")]
+[assembly: InternalsVisibleTo("EditModeTests")]
 
 namespace Godmist.Runtime.Characters
 {
@@ -37,9 +41,23 @@ namespace Godmist.Runtime.Characters
         public CharacterAvailabilityState AvailabilityState;
 
         public List<SkillData> Skills = new();
+        public ActiveSkillLoadout ActiveSkillLoadout { get; } = new();
         public List<SkillTreeProgress> SkillTreeProgress = new();
 
         public List<PassiveEffectRuntime> PassiveEffects = new();
+
+        public IReadOnlyList<SkillData> GetActiveSkills()
+        {
+            // Classes without the new explicit basic-attack reference are still
+            // valid legacy content. Keep their known skills usable until the
+            // serialized class configuration is completed in the Editor.
+            if (ActiveSkillLoadout == null || !ActiveSkillLoadout.IsInitialized)
+            {
+                return Skills ?? new List<SkillData>();
+            }
+
+            return ActiveSkillLoadout.ResolveSkills(Skills);
+        }
 
     }
 }

@@ -32,7 +32,7 @@ namespace Godmist.Views.UI
             }
 
             var activeUnit = session.ActiveUnit;
-            var skillCount = activeUnit.Character?.Skills?.Count ?? 0;
+            var skillCount = activeUnit.Character?.GetActiveSkills()?.Count ?? 0;
             if (cachedSession != session || cachedActiveUnit != activeUnit
                 || cachedSkillCount != skillCount)
             {
@@ -55,7 +55,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            foreach (var skill in activeUnit.Character.Skills)
+            foreach (var skill in activeUnit.Character.GetActiveSkills())
             {
                 if (skill == null)
                 {
@@ -73,13 +73,13 @@ namespace Godmist.Views.UI
 
             cachedSession = sandboxBootstrap?.Session;
             cachedActiveUnit = activeUnit;
-            cachedSkillCount = activeUnit.Character.Skills.Count;
+            cachedSkillCount = activeUnit.Character.GetActiveSkills().Count;
             RefreshSlotVisuals(activeUnit);
         }
 
         private void RefreshSlotVisuals(BattleUnit activeUnit)
         {
-            var skills = activeUnit.Character?.Skills;
+            var skills = activeUnit.Character?.GetActiveSkills();
             if (skills == null)
             {
                 return;

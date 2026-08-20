@@ -15,3 +15,5 @@ MonoBehaviour:
   <Id>k__BackingField: class.warrior
   <ClassName>k__BackingField: Warrior
   <ResourceType>k__BackingField: 1
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  <SkillTrees>k__BackingField: []

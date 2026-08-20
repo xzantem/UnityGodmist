@@ -24,11 +24,21 @@ namespace Godmist.Core.Serialization
         public ResistanceSetSaveData Resistances = new();
         public List<ShieldLayerSaveData> ShieldLayers = new();
         public List<string> SkillIds = new();
+        public bool HasActiveSkillLoadout;
+        public List<string> ActiveSkillIds = new();
+        public List<SkillLoadoutCapacityModifierSaveData> ActiveSkillCapacityModifiers = new();
         public List<SkillTreeProgressSaveData> SkillTreeProgress = new();
         public List<PassiveEffectSaveData> PassiveEffects = new();
 
         public List<string> InventoryItemInstanceIds = new();
         public EquipmentSetSaveData Equipment = new();
+    }
+
+    [Serializable]
+    public class SkillLoadoutCapacityModifierSaveData
+    {
+        public string SourceId = string.Empty;
+        public int Amount;
     }
 
     [Serializable]

@@ -127,11 +127,12 @@ namespace Godmist.Systems.Combat
             BattleUnit aiUnit,
             ISet<SkillData> excludedZeroActionSkills)
         {
-            if (aiUnit?.Character?.Skills == null) return null;
+            var activeSkills = aiUnit?.Character?.GetActiveSkills();
+            if (activeSkills == null) return null;
 
             AiSkillSelection bestSelection = null;
 
-            foreach (var skill in aiUnit.Character.Skills)
+            foreach (var skill in activeSkills)
             {
                 if (!CanAffordSkill(aiUnit, skill)) continue;
 
@@ -515,7 +516,8 @@ namespace Godmist.Systems.Combat
         private static int GetPreferredCombatRange(BattleUnit unit)
         {
             var maxRange = 1;
-            foreach (var skill in unit?.Character?.Skills ?? new List<SkillData>())
+            foreach (var skill in unit?.Character?.GetActiveSkills()
+                         ?? Array.Empty<SkillData>())
             {
                 if (skill?.TargetModes == null || skill.Effects == null) continue;
                 foreach (var effect in skill.Effects)

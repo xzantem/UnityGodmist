@@ -408,6 +408,9 @@ namespace Godmist.Systems.SaveLoad
                 Resistances = CopyResistances(character.Resistances),
                 ShieldLayers = CopyShieldLayers(character.ShieldPool),
                 SkillIds = CopySkillIds(character),
+                HasActiveSkillLoadout = character.ActiveSkillLoadout?.IsInitialized == true,
+                ActiveSkillIds = CopyActiveSkillIds(character),
+                ActiveSkillCapacityModifiers = CopyActiveSkillCapacityModifiers(character),
                 SkillTreeProgress = CopySkillTreeProgress(character),
                 PassiveEffects = CopyPassiveEffects(character.PassiveEffects)
             };
@@ -491,6 +494,7 @@ namespace Godmist.Systems.SaveLoad
         private static List<string> CopySkillIds(CharacterInstance character)
         {
             var skillIds = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
 
             if (character.Skills == null)
             {
@@ -499,13 +503,46 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var skill in character.Skills)
             {
-                if (skill != null && !string.IsNullOrWhiteSpace(skill.SkillId))
+                if (skill != null
+                    && !string.IsNullOrWhiteSpace(skill.SkillId)
+                    && seen.Add(skill.SkillId))
                 {
                     skillIds.Add(skill.SkillId);
                 }
             }
 
             return skillIds;
+        }
+
+        private static List<string> CopyActiveSkillIds(
+            CharacterInstance character)
+        {
+            return character.ActiveSkillLoadout?.CopyActiveSkillIds()
+                ?? new List<string>();
+        }
+
+        private static List<SkillLoadoutCapacityModifierSaveData>
+            CopyActiveSkillCapacityModifiers(CharacterInstance character)
+        {
+            var result = new List<SkillLoadoutCapacityModifierSaveData>();
+
+            foreach (var modifier in character.ActiveSkillLoadout?
+                         .CopyCapacityModifiers()
+                     ?? new List<SkillLoadoutCapacityModifier>())
+            {
+                if (modifier == null)
+                {
+                    continue;
+                }
+
+                result.Add(new SkillLoadoutCapacityModifierSaveData
+                {
+                    SourceId = modifier.SourceId,
+                    Amount = modifier.Amount
+                });
+            }
+
+            return result;
         }
 
         private static List<SkillTreeProgressSaveData> CopySkillTreeProgress(CharacterInstance character)

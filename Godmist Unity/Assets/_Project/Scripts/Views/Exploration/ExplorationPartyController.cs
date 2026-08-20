@@ -12,6 +12,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private float followerDistance = 1f;
         [SerializeField] private ExplorationCameraFollow cameraController;
         [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
+        [SerializeField] private SkillTreeProgressionPanelView skillTreeProgressionPanel;
 
         private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
 
@@ -63,8 +64,20 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
+            if (gameSession.ActiveCombat != null)
+            {
+                skillTreeProgressionPanel?.Close();
+                return;
+            }
+
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
+                return;
+            }
+
+            if (skillTreeProgressionPanel != null && skillTreeProgressionPanel.IsOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.P)) skillTreeProgressionPanel.Close();
                 return;
             }
 
@@ -86,6 +99,21 @@ namespace Godmist.Views.Exploration
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 TryCycleLeader();
+            }
+
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                skillTreeProgressionPanel ??= FindFirstObjectByType<SkillTreeProgressionPanelView>(
+                    FindObjectsInactive.Include);
+
+                if (skillTreeProgressionPanel == null)
+                {
+                    Debug.LogWarning("Nie znaleziono SkillTreeProgressionPanelView w scenie.", this);
+                    return;
+                }
+
+                skillTreeProgressionPanel.Open(gameSession, gameSession.PlayerParty.ActiveLeaderId);
+                return;
             }
 
             if (!Input.GetMouseButtonDown(0) || worldCamera == null)

@@ -78,8 +78,9 @@ namespace Godmist.Systems.Characters
                 Resistances = new ResistanceSet(),
                 ShieldPool = new ShieldPool(),
                 Inventory = new Inventory(),
-                Skills = definition.StartingSkills != null ? new List<SkillData>(definition.StartingSkills)
-                    : new List<SkillData>(),
+                Skills = CopyDistinctSkills(
+                    definition.StartingSkills,
+                    classData.BasicAttackSkill),
 
                 SkillTreeProgress = new List<SkillTreeProgress>(),
 
@@ -87,7 +88,37 @@ namespace Godmist.Systems.Characters
             };
 
             statPipeline.Refresh(character);
+            new SkillLoadoutSystem().TryInitialize(character);
             return character;
+        }
+
+        private static List<SkillData> CopyDistinctSkills(
+            IReadOnlyList<SkillData> source,
+            SkillData classBasicAttackSkill)
+        {
+            var result = new List<SkillData>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var skill in source ?? new List<SkillData>())
+            {
+                if (skill == null
+                    || string.IsNullOrWhiteSpace(skill.SkillId)
+                    || !seen.Add(skill.SkillId))
+                {
+                    continue;
+                }
+
+                result.Add(skill);
+            }
+
+            if (classBasicAttackSkill != null
+                && !string.IsNullOrWhiteSpace(classBasicAttackSkill.SkillId)
+                && seen.Add(classBasicAttackSkill.SkillId))
+            {
+                result.Add(classBasicAttackSkill);
+            }
+
+            return result;
         }
     }
 }
