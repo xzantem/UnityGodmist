@@ -71,6 +71,27 @@ namespace Godmist.Systems.Characters
                 && character.ActiveSkillLoadout.TryRemoveSkill(skillId);
         }
 
+        public bool TryReplaceSkill(
+            GameSession session,
+            string characterId,
+            string targetSkillId,
+            string replacementSkillId)
+        {
+            if (!TryGetCharacterOutsideCombat(
+                    session,
+                    characterId,
+                    out var character))
+            {
+                return false;
+            }
+
+            return character.ActiveSkillLoadout != null
+                && character.ActiveSkillLoadout.TryReplaceSkill(
+                    targetSkillId,
+                    replacementSkillId,
+                    GetKnownSkillIds(character));
+        }
+
         public bool TryMoveSkill(
             GameSession session,
             string characterId,

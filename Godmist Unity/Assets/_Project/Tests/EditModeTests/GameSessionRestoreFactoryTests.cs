@@ -655,13 +655,13 @@ namespace Godmist.Tests.EditMode
                 Is.True);
             Assert.That(
                 loadout.ActiveSkillIds,
-                Is.EqualTo(new[] { "skill.two", "skill.basic", "skill.one" }));
+                Is.EqualTo(new[] { "skill.basic", "skill.two", "skill.one" }));
             Assert.That(
                 loadout.TryMoveSkill("skill.one", 0),
-                Is.True);
+                Is.False);
             Assert.That(
                 loadout.ActiveSkillIds,
-                Is.EqualTo(new[] { "skill.one", "skill.two", "skill.basic" }));
+                Is.EqualTo(new[] { "skill.basic", "skill.two", "skill.one" }));
             Assert.That(
                 loadout.TryInitialize(
                     new[] { "skill.basic", "skill.one" },
@@ -674,6 +674,97 @@ namespace Godmist.Tests.EditMode
                     "skill.basic",
                     new[] { "skill.one" }),
                 Is.False);
+        }
+
+        [Test]
+        public void ActiveSkillLoadout_ReplacesKnownInactiveSkillAtTargetIndexAtomically()
+        {
+            var loadout = new ActiveSkillLoadout();
+            var knownSkillIds = new[]
+            {
+                "skill.basic",
+                "skill.target",
+                "skill.other",
+                "skill.replacement"
+            };
+
+            Assert.That(
+                loadout.TryInitialize(
+                    knownSkillIds,
+                    "skill.basic",
+                    new[] { "skill.basic", "skill.target", "skill.other" }),
+                Is.True);
+            var capacityBeforeReplace = loadout.Capacity;
+
+            Assert.That(
+                loadout.TryReplaceSkill(
+                    "skill.target",
+                    "skill.replacement",
+                    knownSkillIds),
+                Is.True);
+            Assert.That(
+                loadout.ActiveSkillIds,
+                Is.EqualTo(new[]
+                {
+                    "skill.basic",
+                    "skill.replacement",
+                    "skill.other"
+                }));
+            Assert.That(loadout.Capacity, Is.EqualTo(capacityBeforeReplace));
+
+            var stateAfterSuccess = loadout.ActiveSkillIds;
+            Assert.That(
+                loadout.TryReplaceSkill(
+                    "skill.basic",
+                    "skill.target",
+                    knownSkillIds),
+                Is.False);
+            Assert.That(
+                loadout.TryReplaceSkill(
+                    "skill.other",
+                    "skill.replacement",
+                    knownSkillIds),
+                Is.False);
+            Assert.That(
+                loadout.TryReplaceSkill(
+                    "skill.missing",
+                    "skill.target",
+                    knownSkillIds),
+                Is.False);
+            Assert.That(
+                loadout.TryReplaceSkill(
+                    "skill.other",
+                    "skill.unknown",
+                    knownSkillIds),
+                Is.False);
+            Assert.That(loadout.ActiveSkillIds, Is.EqualTo(stateAfterSuccess));
+        }
+
+        [Test]
+        public void ActiveSkillLoadout_PinsBasicAttackAtIndexZeroAcrossInitializeAndMove()
+        {
+            var loadout = new ActiveSkillLoadout();
+            var knownSkillIds = new[]
+            {
+                "skill.basic",
+                "skill.one",
+                "skill.two"
+            };
+
+            Assert.That(
+                loadout.TryInitialize(
+                    knownSkillIds,
+                    "skill.basic",
+                    new[] { "skill.two", "skill.basic", "skill.one" }),
+                Is.True);
+            Assert.That(
+                loadout.ActiveSkillIds,
+                Is.EqualTo(new[] { "skill.basic", "skill.two", "skill.one" }));
+            Assert.That(loadout.TryMoveSkill("skill.basic", 1), Is.False);
+            Assert.That(loadout.TryMoveSkill("skill.two", 0), Is.False);
+            Assert.That(
+                loadout.ActiveSkillIds,
+                Is.EqualTo(new[] { "skill.basic", "skill.two", "skill.one" }));
         }
 
         [Test]
@@ -726,6 +817,128 @@ namespace Godmist.Tests.EditMode
             finally
             {
                 Object.DestroyImmediate(extraSkill);
+                Object.DestroyImmediate(basicSkill);
+                Object.DestroyImmediate(classData);
+                Object.DestroyImmediate(characterDefinition);
+            }
+        }
+
+        [Test]
+        public void SkillLoadoutSystem_ReplacesSkillAndGuardsBasicInvalidAndCombat()
+        {
+            var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var basicSkill = CreateSkill("skill.basic");
+            var targetSkill = CreateSkill("skill.target");
+            var replacementSkill = CreateSkill("skill.replacement");
+            var session = new GameSession(GameModeState.Exploration, "campaign.loadout-replace");
+
+            try
+            {
+                SetAutoProperty(characterDefinition, "Id", "character.loadout-replace");
+                SetAutoProperty(
+                    characterDefinition,
+                    "StartingSkills",
+                    new List<SkillData> { targetSkill, replacementSkill });
+                SetAutoProperty(classData, "Id", "class.loadout-replace");
+                SetAutoProperty(classData, "ResourceType", ResourceType.Momentum);
+                SetAutoProperty(classData, "BasicAttackSkill", basicSkill);
+
+                var character = new CharacterInstanceFactory().Create(
+                    characterDefinition,
+                    classData);
+                Assert.That(session.TryRegisterCharacter(character), Is.True);
+
+                var loadoutSystem = new SkillLoadoutSystem();
+                Assert.That(
+                    loadoutSystem.TrySetActiveSkills(
+                        session,
+                        character.CharacterId,
+                        new[] { "skill.basic", "skill.target" }),
+                    Is.True);
+                var capacityBeforeReplace = character.ActiveSkillLoadout.Capacity;
+
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.target",
+                        "skill.replacement"),
+                    Is.True);
+                Assert.That(
+                    character.ActiveSkillLoadout.ActiveSkillIds,
+                    Is.EqualTo(new[] { "skill.basic", "skill.replacement" }));
+                Assert.That(
+                    character.ActiveSkillLoadout.Capacity,
+                    Is.EqualTo(capacityBeforeReplace));
+
+                Assert.That(
+                    loadoutSystem.TryMoveSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.basic",
+                        1),
+                    Is.False);
+                Assert.That(
+                    loadoutSystem.TryMoveSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.replacement",
+                        0),
+                    Is.False);
+
+                var stateAfterSuccess = character.ActiveSkillLoadout.ActiveSkillIds;
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.basic",
+                        "skill.target"),
+                    Is.False);
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.replacement",
+                        "skill.basic"),
+                    Is.False);
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.missing",
+                        "skill.target"),
+                    Is.False);
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.replacement",
+                        "skill.unknown"),
+                    Is.False);
+                Assert.That(
+                    character.ActiveSkillLoadout.ActiveSkillIds,
+                    Is.EqualTo(stateAfterSuccess));
+
+                Assert.That(
+                    session.TrySetActiveCombat(
+                        new CombatSession { CombatId = "combat.loadout-replace" }),
+                    Is.True);
+                Assert.That(
+                    loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        "skill.replacement",
+                        "skill.target"),
+                    Is.False);
+                Assert.That(
+                    character.ActiveSkillLoadout.ActiveSkillIds,
+                    Is.EqualTo(stateAfterSuccess));
+            }
+            finally
+            {
+                Object.DestroyImmediate(replacementSkill);
+                Object.DestroyImmediate(targetSkill);
                 Object.DestroyImmediate(basicSkill);
                 Object.DestroyImmediate(classData);
                 Object.DestroyImmediate(characterDefinition);

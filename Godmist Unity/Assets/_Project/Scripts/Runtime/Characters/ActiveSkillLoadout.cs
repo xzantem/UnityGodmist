@@ -137,10 +137,45 @@ namespace Godmist.Runtime.Characters
             return activeSkillIds.Remove(skillId);
         }
 
+        internal bool TryReplaceSkill(
+            string targetSkillId,
+            string replacementSkillId,
+            IEnumerable<string> knownSkillIds)
+        {
+            var knownIds = CreateKnownSkillIdSet(knownSkillIds, out _);
+            if (!IsInitialized
+                || string.IsNullOrWhiteSpace(targetSkillId)
+                || string.IsNullOrWhiteSpace(replacementSkillId)
+                || knownIds == null
+                || !knownIds.Contains(replacementSkillId)
+                || activeSkillIds.Contains(replacementSkillId)
+                || string.Equals(
+                    targetSkillId,
+                    BasicAttackSkillId,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var targetIndex = activeSkillIds.IndexOf(targetSkillId);
+            if (targetIndex < 0)
+            {
+                return false;
+            }
+
+            activeSkillIds[targetIndex] = replacementSkillId;
+            return true;
+        }
+
         internal bool TryMoveSkill(string skillId, int targetIndex)
         {
             if (!IsInitialized
                 || string.IsNullOrWhiteSpace(skillId)
+                || string.Equals(
+                    skillId,
+                    BasicAttackSkillId,
+                    StringComparison.Ordinal)
+                || targetIndex == 0
                 || targetIndex < 0
                 || targetIndex >= activeSkillIds.Count)
             {
@@ -375,6 +410,14 @@ namespace Godmist.Runtime.Characters
                 || result.Count > capacity)
             {
                 valid = false;
+                return result;
+            }
+
+            var basicIndex = result.IndexOf(basicAttackSkillId);
+            if (basicIndex > 0)
+            {
+                result.RemoveAt(basicIndex);
+                result.Insert(0, basicAttackSkillId);
             }
 
             return result;

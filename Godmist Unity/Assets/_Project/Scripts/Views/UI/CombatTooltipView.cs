@@ -29,6 +29,8 @@ namespace Godmist.Views.UI
         [SerializeField, Min(0f)] private float statusLockDelay = 1f;
         [SerializeField, Min(0f)] private float entryGracePeriod = .4f;
         [SerializeField] private Color lockedAccentColor = new(0.22f, 0.18f, 0.10f, 0.97f);
+        [SerializeField] private bool pointerPassthrough;
+        [SerializeField] private Vector2 pointerOffset;
 
         private readonly List<CombatTooltipView> nested = new();
         private CanvasGroup canvasGroup;
@@ -45,10 +47,14 @@ namespace Godmist.Views.UI
         private Color defaultAccentColor;
         private bool hasDefaultAccentColor;
         private object sourceIdentity;
+        private bool suppressSkillTooltipsForDrag;
+
+        public bool IsSkillTooltipSuppressed => suppressSkillTooltipsForDrag;
 
         private void Awake()
         {
             EnsureCanvasGroup();
+            ApplyPointerInteraction();
             CacheDefaultAccentColor();
             if (!isNested) ActiveInstance = this;
             if (!isVisible) HideLocal();
@@ -61,6 +67,7 @@ namespace Godmist.Views.UI
 
         public void ShowSkill(SkillData skill, int actionCost, Vector2 position)
         {
+            if (suppressSkillTooltipsForDrag) return;
             if (skill == null) { Hide(); return; }
             QueueShow(skill, () =>
             {
@@ -109,6 +116,17 @@ namespace Godmist.Views.UI
             HideLocal();
         }
 
+        public void BeginDragSuppression()
+        {
+            suppressSkillTooltipsForDrag = true;
+            Hide();
+        }
+
+        public void EndDragSuppression()
+        {
+            suppressSkillTooltipsForDrag = false;
+        }
+
         private void Begin(Vector2 position, object source)
         {
             if (isVisible && ReferenceEquals(sourceIdentity, source))
@@ -126,10 +144,10 @@ namespace Godmist.Views.UI
             lockedAt = -1f;
             hoveredLinkId = null;
             gameObject.SetActive(true);
+            transform.SetAsLastSibling();
             var group = EnsureCanvasGroup();
             group.alpha = 1f;
-            group.blocksRaycasts = true;
-            group.interactable = true;
+            ApplyPointerInteraction();
             UpdateLockVisual();
             PlaceAt(position);
         }
@@ -155,10 +173,10 @@ namespace Godmist.Views.UI
             pendingShow = show;
             pendingShownAt = Time.unscaledTime;
             gameObject.SetActive(true);
+            transform.SetAsLastSibling();
             var group = EnsureCanvasGroup();
             group.alpha = 0f;
-            group.blocksRaycasts = false;
-            group.interactable = false;
+            ApplyPointerInteraction();
         }
 
         private void Update()
@@ -267,6 +285,7 @@ namespace Godmist.Views.UI
             view.shownAt = Time.unscaledTime;
             view.lockedAt = -1f;
             view.gameObject.SetActive(true);
+            view.ApplyPointerInteraction();
             view.UpdateLockVisual();
             view.SetContent(entry.Icon, entry.Title, entry.Description, string.Empty);
             view.PlaceAt(Input.mousePosition);
@@ -379,8 +398,7 @@ namespace Godmist.Views.UI
             pendingLinkOwner = null;
             if (canvasGroup != null)
             {
-                canvasGroup.blocksRaycasts = false;
-                canvasGroup.interactable = false;
+                ApplyPointerInteraction();
             }
             gameObject.SetActive(false);
         }
@@ -431,6 +449,18 @@ namespace Godmist.Views.UI
             return canvasGroup;
         }
 
+        private void ApplyPointerInteraction()
+        {
+            var group = EnsureCanvasGroup();
+            var canReceivePointer = !pointerPassthrough && isVisible;
+            group.blocksRaycasts = canReceivePointer;
+            group.interactable = canReceivePointer;
+            foreach (var graphic in GetComponentsInChildren<Graphic>(true))
+            {
+                graphic.raycastTarget = !pointerPassthrough;
+            }
+        }
+
         private void PlaceAt(Vector2 screenPosition)
         {
             if (tooltipRect == null || tooltipRect.parent is not RectTransform parent) return;
@@ -440,7 +470,7 @@ namespace Godmist.Views.UI
             Canvas.ForceUpdateCanvases();
             var size = tooltipRect.rect.size;
             var pivot = new Vector2(0f, 1f);
-            var offset = Vector2.zero;
+            var offset = pointerOffset;
             if (pointer.x + offset.x + size.x > parent.rect.xMax) { pivot.x = 1f; offset.x = -offset.x; }
             if (pointer.y + offset.y - size.y < parent.rect.yMin) { pivot.y = 0f; offset.y = -offset.y; }
             tooltipRect.pivot = pivot;

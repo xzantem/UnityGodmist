@@ -19,6 +19,7 @@ namespace Godmist.Views.UI
         private CombatSession cachedSession;
         private BattleUnit cachedActiveUnit;
         private int cachedSkillCount = -1;
+        private string cachedSkillOrder = string.Empty;
 
         private void Update()
         {
@@ -32,11 +33,14 @@ namespace Godmist.Views.UI
             }
 
             var activeUnit = session.ActiveUnit;
-            var skillCount = activeUnit.Character?.GetActiveSkills()?.Count ?? 0;
+            var activeSkills = activeUnit.Character?.GetActiveSkills();
+            var skillCount = activeSkills?.Count ?? 0;
+            var skillOrder = BuildSkillOrderSignature(activeSkills);
             if (cachedSession != session || cachedActiveUnit != activeUnit
-                || cachedSkillCount != skillCount)
+                || cachedSkillCount != skillCount
+                || cachedSkillOrder != skillOrder)
             {
-                RebuildSlots(activeUnit);
+                RebuildSlots(activeUnit, activeSkills, skillOrder);
             }
             else
             {
@@ -44,7 +48,10 @@ namespace Godmist.Views.UI
             }
         }
 
-        private void RebuildSlots(BattleUnit activeUnit)
+        private void RebuildSlots(
+            BattleUnit activeUnit,
+            IReadOnlyList<SkillData> activeSkills,
+            string skillOrder)
         {
             targetSelectionController?.CancelTargetSelection();
             tooltipView?.Hide();
@@ -55,7 +62,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            foreach (var skill in activeUnit.Character.GetActiveSkills())
+            foreach (var skill in activeSkills ?? new List<SkillData>())
             {
                 if (skill == null)
                 {
@@ -73,8 +80,25 @@ namespace Godmist.Views.UI
 
             cachedSession = sandboxBootstrap?.Session;
             cachedActiveUnit = activeUnit;
-            cachedSkillCount = activeUnit.Character.GetActiveSkills().Count;
+            cachedSkillCount = activeSkills?.Count ?? 0;
+            cachedSkillOrder = skillOrder ?? string.Empty;
             RefreshSlotVisuals(activeUnit);
+        }
+
+        private static string BuildSkillOrderSignature(IReadOnlyList<SkillData> skills)
+        {
+            if (skills == null || skills.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var signature = string.Empty;
+            foreach (var skill in skills)
+            {
+                signature += "|" + (skill?.SkillId ?? string.Empty);
+            }
+
+            return signature;
         }
 
         private void RefreshSlotVisuals(BattleUnit activeUnit)
@@ -120,6 +144,7 @@ namespace Godmist.Views.UI
             cachedSession = null;
             cachedActiveUnit = null;
             cachedSkillCount = -1;
+            cachedSkillOrder = string.Empty;
         }
     }
 }
