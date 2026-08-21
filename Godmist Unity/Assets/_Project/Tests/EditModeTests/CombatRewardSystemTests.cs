@@ -14,20 +14,26 @@ namespace Godmist.Tests.EditMode
     public class CombatRewardSystemTests
     {
         [Test]
-        public void TryGrantVictoryRewards_RewardsOnlyActivePartyAndOnlyOnce()
+        public void TryGrantVictoryRewards_RewardsOnlyLivingAndDownedActivePartyForDefeatedEnemies()
         {
             var gameSession = new GameSession();
 
             var firstActiveCharacter = CreateCharacter("character.active_1");
             var secondActiveCharacter = CreateCharacter("character.active_2");
+            secondActiveCharacter.LifeState = CharacterLifeState.Downed;
+            var deadActiveCharacter = CreateCharacter("character.dead");
+            deadActiveCharacter.LifeState = CharacterLifeState.Dead;
+            deadActiveCharacter.Honor = 7;
             var benchCharacter = CreateCharacter("character.bench");
 
             gameSession.TryRegisterCharacter(firstActiveCharacter);
             gameSession.TryRegisterCharacter(secondActiveCharacter);
+            gameSession.TryRegisterCharacter(deadActiveCharacter);
             gameSession.TryRegisterCharacter(benchCharacter);
 
             gameSession.TryAddCharacterToActiveParty(firstActiveCharacter.CharacterId);
             gameSession.TryAddCharacterToActiveParty(secondActiveCharacter.CharacterId);
+            gameSession.PlayerParty.TryAddActiveMember(deadActiveCharacter.CharacterId);
             gameSession.TryAddCharacterToBench(benchCharacter.CharacterId);
 
             var itemDefinition = CreateItemDefinition("item.reward_material");
@@ -40,11 +46,26 @@ namespace Godmist.Tests.EditMode
                 Outcome = CombatOutcomeState.Victory,
                 Rewards = new CombatRewardResult
                 {
-                    ExperiencePerActiveCharacter = 24,
-                    Gold = 15,
-                    Items = { droppedItem }
+                    EnemyRewards =
+                    {
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.defeated",
+                            ExperiencePerActiveCharacter = 24,
+                            Gold = 15,
+                            Items = { droppedItem }
+                        },
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.not_defeated",
+                            ExperiencePerActiveCharacter = 24,
+                            Gold = 15
+                        }
+                    }
                 }
             };
+
+            combatSession.TryMarkEnemyDefeated("enemy.defeated");
 
             var combatRewardSystem = new CombatRewardSystem();
 
@@ -65,13 +86,23 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(secondActiveCharacter.Level, Is.EqualTo(2));
             Assert.That(secondActiveCharacter.AvailableSkillPoints, Is.EqualTo(1));
+            Assert.That(firstActiveCharacter.Honor, Is.EqualTo(1));
+            Assert.That(secondActiveCharacter.Honor, Is.EqualTo(1));
+
+            Assert.That(deadActiveCharacter.Level, Is.EqualTo(1));
+            Assert.That(deadActiveCharacter.Honor, Is.EqualTo(7));
 
             Assert.That(benchCharacter.Level, Is.EqualTo(1));
             Assert.That(benchCharacter.AvailableSkillPoints, Is.EqualTo(0));
 
-            Assert.That(gameSession.Gold, Is.EqualTo(15));
-            Assert.That(gameSession.PendingLoot, Has.Count.EqualTo(1));
-            Assert.That(gameSession.PendingLoot[0], Is.SameAs(droppedItem));
+            Assert.That(gameSession.Gold, Is.EqualTo(0));
+            Assert.That(gameSession.PendingLoot, Is.Empty);
+            Assert.That(
+                combatSession.Rewards.EnemyRewards[0].Gold,
+                Is.EqualTo(15));
+            Assert.That(
+                combatSession.Rewards.EnemyRewards[0].Items,
+                Is.EquivalentTo(new[] { droppedItem }));
             Assert.That(gameSession.LastCombatRewards, Is.SameAs(combatSession.Rewards));
         }
 
@@ -104,6 +135,78 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.Level, Is.EqualTo(1));
             Assert.That(gameSession.Gold, Is.EqualTo(0));
             Assert.That(gameSession.PendingLoot, Is.Empty);
+        }
+
+        [Test]
+        public void TryApplyEscapePenalty_PenalizesOnlyLivingAndDownedActivePartyOnce()
+        {
+            var gameSession = new GameSession();
+            var aliveCharacter = CreateCharacter("character.alive");
+            aliveCharacter.Honor = 8;
+            var downedCharacter = CreateCharacter("character.downed");
+            downedCharacter.LifeState = CharacterLifeState.Downed;
+            downedCharacter.Honor = 3;
+            var deadCharacter = CreateCharacter("character.dead");
+            deadCharacter.LifeState = CharacterLifeState.Dead;
+            deadCharacter.Honor = 4;
+            var benchCharacter = CreateCharacter("character.bench");
+            benchCharacter.Honor = 9;
+
+            gameSession.TryRegisterCharacter(aliveCharacter);
+            gameSession.TryRegisterCharacter(downedCharacter);
+            gameSession.TryRegisterCharacter(deadCharacter);
+            gameSession.TryRegisterCharacter(benchCharacter);
+            gameSession.TryAddCharacterToActiveParty(aliveCharacter.CharacterId);
+            gameSession.TryAddCharacterToActiveParty(downedCharacter.CharacterId);
+            gameSession.PlayerParty.TryAddActiveMember(deadCharacter.CharacterId);
+            gameSession.TryAddCharacterToBench(benchCharacter.CharacterId);
+
+            var combatSession = new CombatSession
+            {
+                Outcome = CombatOutcomeState.Escaped
+            };
+
+            var combatRewardSystem = new CombatRewardSystem();
+
+            Assert.That(
+                combatRewardSystem.TryApplyEscapePenalty(gameSession, combatSession),
+                Is.True);
+            Assert.That(
+                combatRewardSystem.TryApplyEscapePenalty(gameSession, combatSession),
+                Is.False);
+            Assert.That(aliveCharacter.Honor, Is.EqualTo(3));
+            Assert.That(downedCharacter.Honor, Is.EqualTo(-2));
+            Assert.That(deadCharacter.Honor, Is.EqualTo(4));
+            Assert.That(benchCharacter.Honor, Is.EqualTo(9));
+        }
+
+        [Test]
+        public void TryApplyEscapePenalty_PenalizesCharacterCapturedBeforeBeingAbandoned()
+        {
+            var gameSession = new GameSession();
+            var abandonedCharacter = CreateCharacter("character.abandoned");
+            abandonedCharacter.LifeState = CharacterLifeState.Dead;
+            abandonedCharacter.Honor = 2;
+
+            gameSession.TryRegisterCharacter(abandonedCharacter);
+            gameSession.PlayerParty.TryAddActiveMember(
+                abandonedCharacter.CharacterId);
+
+            var combatSession = new CombatSession
+            {
+                Outcome = CombatOutcomeState.Escaped,
+                HasEscapePenaltyEligibleCharacters = true
+            };
+
+            combatSession.EscapePenaltyEligibleCharacterIds.Add(
+                abandonedCharacter.CharacterId);
+
+            var combatRewardSystem = new CombatRewardSystem();
+
+            Assert.That(
+                combatRewardSystem.TryApplyEscapePenalty(gameSession, combatSession),
+                Is.True);
+            Assert.That(abandonedCharacter.Honor, Is.EqualTo(-3));
         }
 
         private static CharacterInstance CreateCharacter(string characterId)

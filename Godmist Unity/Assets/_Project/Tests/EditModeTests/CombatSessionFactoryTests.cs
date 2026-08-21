@@ -49,6 +49,13 @@ namespace Godmist.Tests.EditMode
             Assert.That(succeeded, Is.True);
             Assert.That(combatSession, Is.Not.Null);
             Assert.That(combatSession.Units, Has.Count.EqualTo(4));
+            Assert.That(combatSession.Rewards.EnemyRewards, Has.Count.EqualTo(2));
+            Assert.That(
+                combatSession.Rewards.EnemyRewards[0].EnemyInstanceId,
+                Is.EqualTo("enemy.test.01"));
+            Assert.That(
+                combatSession.Rewards.EnemyRewards[1].EnemyInstanceId,
+                Is.EqualTo("enemy.test.02"));
 
             Assert.That(
                 combatSession.Units[0].Character,

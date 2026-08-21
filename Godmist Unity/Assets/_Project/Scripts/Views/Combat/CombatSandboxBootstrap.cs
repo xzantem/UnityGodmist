@@ -1314,6 +1314,7 @@ namespace Godmist.Views.Combat
 
             if (outcome == CombatOutcomeState.Escaped)
             {
+                rewardSystem.TryApplyEscapePenalty(gameSession, Session);
                 RestoreDungeonPositionAfterEscape(gameSession, Session);
             }
 

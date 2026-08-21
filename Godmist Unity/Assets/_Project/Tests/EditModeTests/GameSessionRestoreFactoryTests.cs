@@ -1099,8 +1099,8 @@ namespace Godmist.Tests.EditMode
                     restoredSaveData.Characters[0].ActiveSkillIds,
                     Is.EqualTo(new[]
                     {
-                        "skill.first",
                         "skill.basic",
+                        "skill.first",
                         "skill.second"
                     }));
 
@@ -1116,8 +1116,8 @@ namespace Godmist.Tests.EditMode
                     restoredCharacter.ActiveSkillLoadout.ActiveSkillIds,
                     Is.EqualTo(new[]
                     {
-                        "skill.first",
                         "skill.basic",
+                        "skill.first",
                         "skill.second"
                     }));
                 Assert.That(restoredCharacter.ActiveSkillLoadout.Capacity, Is.EqualTo(7));

@@ -59,6 +59,19 @@ namespace Godmist.Systems.Combat
             var playerUnits = session.Units.Where(unit => unit != null && unit.IsPlayerSide).ToList();
             var mainCharacterWasAbandoned = false;
 
+            session.EscapePenaltyEligibleCharacterIds.Clear();
+            session.HasEscapePenaltyEligibleCharacters = true;
+
+            foreach (var unit in playerUnits)
+            {
+                if (unit.Character != null
+                    && unit.Character.LifeState != CharacterLifeState.Dead)
+                {
+                    session.EscapePenaltyEligibleCharacterIds.Add(
+                        unit.Character.CharacterId);
+                }
+            }
+
             foreach (var unit in playerUnits)
             {
                 var escaped = unit.Character != null && unit.Character.LifeState == CharacterLifeState.Alive
