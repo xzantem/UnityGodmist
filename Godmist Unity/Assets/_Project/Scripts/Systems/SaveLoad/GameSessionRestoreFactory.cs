@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
+using Godmist.Data.Characters;
 using Godmist.Data.Items;
+using Godmist.Data.Skills;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Dungeons;
@@ -173,7 +176,9 @@ namespace Godmist.Systems.SaveLoad
                 || !TryRestoreActiveDungeon(
                     restoredSession,
                     saveData.ActiveDungeon,
-                    contentCatalog))
+                    contentCatalog,
+                    itemsById,
+                    assignedItemIds))
             {
                 return false;
             }
@@ -241,7 +246,13 @@ namespace Godmist.Systems.SaveLoad
 
                 if (item is EquipmentItemInstance equipmentItem)
                 {
+                    var partIds = itemSaveData.PartIds ?? new List<string>();
+
                     if (itemSaveData.RequiredLevel < 0
+                        || !Enum.IsDefined(
+                            typeof(EquipmentQuality),
+                            itemSaveData.Quality)
+                        || partIds.Any(string.IsNullOrWhiteSpace)
                         || !TryCreateStatModifiers(
                             itemSaveData.StatModifiers,
                             out var modifiers))
@@ -254,6 +265,10 @@ namespace Godmist.Systems.SaveLoad
 
                     equipmentItem.RequiredLevel =
                         itemSaveData.RequiredLevel;
+
+                    equipmentItem.Quality = itemSaveData.Quality;
+                    equipmentItem.PartIds = new List<string>(
+                        partIds);
 
                     equipmentItem.StatModifiers = modifiers;
                 }
@@ -336,6 +351,10 @@ namespace Godmist.Systems.SaveLoad
             character.Level = saveData.Level;
             character.CurrentExperience = saveData.CurrentExperience;
             character.AvailableSkillPoints = saveData.AvailableSkillPoints;
+            character.SkillTreeProgress = RestoreSkillTreeProgress(
+                saveData.SkillTreeProgress,
+                classData);
+            CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character);
             character.CurrentHealth = saveData.CurrentHealth;
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
@@ -346,9 +365,12 @@ namespace Godmist.Systems.SaveLoad
                 character.ResourcePool,
                 saveData.ResourcePool);
 
-            RestoreResistances(
-                character.Resistances,
-                saveData.Resistances);
+            if (saveData.HasPersistentResistances)
+            {
+                RestoreResistances(
+                    character.Resistances,
+                    saveData.Resistances);
+            }
 
             if (!TryRestoreShieldLayers(
                     character,
@@ -357,6 +379,9 @@ namespace Godmist.Systems.SaveLoad
                     character,
                     saveData.SkillIds,
                     contentCatalog)
+                || !TryRestoreSkillLoadout(
+                    character,
+                    saveData)
                 || !TryRestorePassiveEffects(
                     character,
                     saveData.PassiveEffects)
@@ -375,8 +400,134 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            statPipeline.Refresh(character);
+            new CharacterLevelGrowthSystem(statPipeline).Apply(
+                character,
+                grantCurrentHealthGrowth: false);
             return true;
+        }
+
+        private static bool TryRestoreSkillLoadout(
+            CharacterInstance character,
+            CharacterSaveData saveData)
+        {
+            var knownSkillIds = GetSkillIds(character.Skills);
+            var basicAttackSkillId = ResolveRestoredBasicAttackSkillId(
+                character,
+                saveData,
+                knownSkillIds);
+
+            if (string.IsNullOrWhiteSpace(basicAttackSkillId)
+                || !knownSkillIds.Contains(basicAttackSkillId))
+            {
+                return !saveData.HasActiveSkillLoadout;
+            }
+
+            if (!saveData.HasActiveSkillLoadout)
+            {
+                return character.ActiveSkillLoadout.TryInitialize(
+                    knownSkillIds,
+                    basicAttackSkillId);
+            }
+
+            var modifiers = new List<SkillLoadoutCapacityModifier>();
+            foreach (var saveDataModifier in saveData.ActiveSkillCapacityModifiers
+                         ?? new List<SkillLoadoutCapacityModifierSaveData>())
+            {
+                if (saveDataModifier == null
+                    || string.IsNullOrWhiteSpace(saveDataModifier.SourceId))
+                {
+                    return false;
+                }
+
+                modifiers.Add(new SkillLoadoutCapacityModifier
+                {
+                    SourceId = saveDataModifier.SourceId,
+                    Amount = saveDataModifier.Amount
+                });
+            }
+
+            return character.ActiveSkillLoadout.TryInitialize(
+                knownSkillIds,
+                basicAttackSkillId,
+                saveData.ActiveSkillIds,
+                modifiers);
+        }
+
+        private static string ResolveRestoredBasicAttackSkillId(
+            CharacterInstance character,
+            CharacterSaveData saveData,
+            IReadOnlyCollection<string> knownSkillIds)
+        {
+            var configuredBasicSkillId = character?.Definition?.BasicAttackSkill?.SkillId;
+            if (!string.IsNullOrWhiteSpace(configuredBasicSkillId)
+                && ContainsKnownSkillId(knownSkillIds, configuredBasicSkillId))
+            {
+                return configuredBasicSkillId;
+            }
+
+            // Active loadouts always store their pinned basic attack at index 0.
+            // This preserves both saves made before the ownership correction and
+            // saves made by legacy assets using the first starting skill.
+            if (saveData?.HasActiveSkillLoadout == true)
+            {
+                foreach (var skillId in saveData.ActiveSkillIds
+                             ?? new List<string>())
+                {
+                    if (!string.IsNullOrWhiteSpace(skillId)
+                        && ContainsKnownSkillId(knownSkillIds, skillId))
+                    {
+                        return skillId;
+                    }
+                }
+            }
+
+            var legacyClassBasicSkillId = character?.ClassData?.BasicAttackSkill?.SkillId;
+            if (!string.IsNullOrWhiteSpace(legacyClassBasicSkillId)
+                && ContainsKnownSkillId(knownSkillIds, legacyClassBasicSkillId))
+            {
+                return legacyClassBasicSkillId;
+            }
+
+            return character?.GetBasicAttackSkill()?.SkillId ?? string.Empty;
+        }
+
+        private static bool ContainsKnownSkillId(
+            IReadOnlyCollection<string> knownSkillIds,
+            string skillId)
+        {
+            if (knownSkillIds == null || string.IsNullOrWhiteSpace(skillId))
+            {
+                return false;
+            }
+
+            foreach (var knownSkillId in knownSkillIds)
+            {
+                if (string.Equals(knownSkillId, skillId, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static List<string> GetSkillIds(
+            List<SkillData> skills)
+        {
+            var result = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var skill in skills ?? new List<SkillData>())
+            {
+                if (skill != null
+                    && !string.IsNullOrWhiteSpace(skill.SkillId)
+                    && seen.Add(skill.SkillId))
+                {
+                    result.Add(skill.SkillId);
+                }
+            }
+
+            return result;
         }
 
         private static void RestoreResourcePool(
@@ -454,15 +605,10 @@ namespace Godmist.Systems.SaveLoad
         {
             character.Skills.Clear();
 
-            if (skillIds == null)
-            {
-                return true;
-            }
-
             var restoredSkillIds = new HashSet<string>(
                 StringComparer.Ordinal);
 
-            foreach (var skillId in skillIds)
+            foreach (var skillId in skillIds ?? new List<string>())
             {
                 if (string.IsNullOrWhiteSpace(skillId)
                     || !restoredSkillIds.Add(skillId)
@@ -474,6 +620,17 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 character.Skills.Add(skill);
+            }
+
+            var basicAttackSkill = character.Definition?.BasicAttackSkill;
+            if (basicAttackSkill != null
+                && !string.IsNullOrWhiteSpace(basicAttackSkill.SkillId)
+                && !character.Skills.Exists(skill => string.Equals(
+                    skill?.SkillId,
+                    basicAttackSkill.SkillId,
+                    StringComparison.Ordinal)))
+            {
+                character.Skills.Add(basicAttackSkill);
             }
 
             return true;
@@ -564,6 +721,162 @@ namespace Godmist.Systems.SaveLoad
             }
 
             return true;
+        }
+
+        private static List<SkillTreeProgress> RestoreSkillTreeProgress(
+            List<SkillTreeProgressSaveData> saveData,
+            CharacterClassData classData)
+        {
+            var definitions = GetCanonicalSkillTreeDefinitions(classData);
+            var definitionsById = new Dictionary<string, SkillTreeDefinition>(
+                StringComparer.Ordinal);
+            var nodeDefinitionsByTreeId = new Dictionary<
+                string,
+                Dictionary<string, SkillTreeNodeDefinition>>(
+                StringComparer.Ordinal);
+
+            foreach (var definition in definitions)
+            {
+                definitionsById.Add(definition.Id, definition);
+
+                var nodeDefinitions = new Dictionary<string, SkillTreeNodeDefinition>(
+                    StringComparer.Ordinal);
+                foreach (var node in GetCanonicalSkillTreeNodes(definition))
+                {
+                    nodeDefinitions.Add(node.Id, node);
+                }
+
+                nodeDefinitionsByTreeId.Add(definition.Id, nodeDefinitions);
+            }
+
+            var aggregatedRanksByTreeId = new Dictionary<
+                string,
+                Dictionary<string, int>>(
+                StringComparer.Ordinal);
+            foreach (var tree in saveData ?? new())
+            {
+                if (tree == null
+                    || string.IsNullOrWhiteSpace(tree.TreeId)
+                    || !definitionsById.ContainsKey(tree.TreeId))
+                {
+                    continue;
+                }
+
+                if (!aggregatedRanksByTreeId.TryGetValue(
+                        tree.TreeId,
+                        out var aggregatedRanks))
+                {
+                    aggregatedRanks = new Dictionary<string, int>(
+                        StringComparer.Ordinal);
+                    aggregatedRanksByTreeId.Add(tree.TreeId, aggregatedRanks);
+                }
+
+                foreach (var node in tree.NodeInvestments ?? new())
+                {
+                    if (node == null
+                        || string.IsNullOrWhiteSpace(node.NodeId)
+                        || node.Ranks <= 0
+                        || !nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(
+                            node.NodeId,
+                            out var nodeDefinition))
+                    {
+                        continue;
+                    }
+
+                    var ranks = Math.Min(node.Ranks, nodeDefinition.EffectiveMaxRanks);
+                    if (!aggregatedRanks.TryGetValue(
+                            node.NodeId,
+                            out var existingRanks)
+                        || ranks > existingRanks)
+                    {
+                        aggregatedRanks[node.NodeId] = ranks;
+                    }
+                }
+            }
+
+            var result = new List<SkillTreeProgress>();
+            foreach (var definition in definitions)
+            {
+                if (!aggregatedRanksByTreeId.TryGetValue(
+                        definition.Id,
+                        out var aggregatedRanks))
+                {
+                    continue;
+                }
+
+                var progress = new SkillTreeProgress { TreeId = definition.Id };
+                var remaining = SkillTreeProgressionSystem.MaximumPointsPerTree;
+                foreach (var node in GetCanonicalSkillTreeNodes(definition))
+                {
+                    if (remaining <= 0)
+                    {
+                        break;
+                    }
+
+                    if (!aggregatedRanks.TryGetValue(node.Id, out var ranks))
+                    {
+                        continue;
+                    }
+
+                    ranks = Math.Min(ranks, remaining);
+                    if (ranks <= 0)
+                    {
+                        continue;
+                    }
+
+                    progress.NodeInvestments.Add(
+                        new SkillTreeNodeInvestment
+                        {
+                            NodeId = node.Id,
+                            Ranks = ranks
+                        });
+                    remaining -= ranks;
+                }
+
+                if (progress.NodeInvestments.Count > 0)
+                {
+                    result.Add(progress);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<SkillTreeDefinition> GetCanonicalSkillTreeDefinitions(
+            CharacterClassData classData)
+        {
+            var result = new List<SkillTreeDefinition>();
+            var seenTreeIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var tree in classData?.SkillTrees ?? new())
+            {
+                if (tree != null
+                    && !string.IsNullOrWhiteSpace(tree.Id)
+                    && seenTreeIds.Add(tree.Id))
+                {
+                    result.Add(tree);
+                }
+            }
+
+            return result;
+        }
+
+        private static List<SkillTreeNodeDefinition> GetCanonicalSkillTreeNodes(
+            SkillTreeDefinition tree)
+        {
+            var result = new List<SkillTreeNodeDefinition>();
+            var seenNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var node in tree?.Nodes ?? new())
+            {
+                if (node != null
+                    && !string.IsNullOrWhiteSpace(node.Id)
+                    && node.EffectiveMaxRanks > 0
+                    && seenNodeIds.Add(node.Id))
+                {
+                    result.Add(node);
+                }
+            }
+
+            return result;
         }
 
         private static bool IsDamageOverTimeStatus(string effectId)
@@ -943,7 +1256,9 @@ namespace Godmist.Systems.SaveLoad
         private bool TryRestoreActiveDungeon(
             GameSession session,
             DungeonSaveData saveData,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
         {
             if (saveData == null
                 || string.IsNullOrWhiteSpace(saveData.DungeonId))
@@ -987,7 +1302,9 @@ namespace Godmist.Systems.SaveLoad
                 || !TryRestoreDungeonFloorDeltas(
                     dungeon,
                     saveData.FloorDeltas,
-                    saveData.EncounterDeltas)
+                    saveData.EncounterDeltas,
+                    itemsById,
+                    assignedItemIds)
                 || !session.TrySetActiveDungeon(dungeon))
             {
                 return false;
@@ -999,7 +1316,9 @@ namespace Godmist.Systems.SaveLoad
         private static bool TryRestoreDungeonFloorDeltas(
             DungeonInstance dungeon,
             List<DungeonFloorDeltaSaveData> floorDeltas,
-            List<DungeonEncounterDeltaSaveData> encounterDeltas)
+            List<DungeonEncounterDeltaSaveData> encounterDeltas,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
         {
             if (dungeon == null)
             {
@@ -1032,22 +1351,29 @@ namespace Godmist.Systems.SaveLoad
                         }
                     }
 
-                    if (floorDelta.ObjectDeltas == null)
+                    if (floorDelta.ObjectDeltas != null)
                     {
-                        continue;
+                        foreach (var objectDelta in floorDelta.ObjectDeltas)
+                        {
+                            if (objectDelta == null
+                                || !floor.TryRestoreObjectState(
+                                    objectDelta.ObjectInstanceId,
+                                    objectDelta.IsActive,
+                                    objectDelta.IsDoor,
+                                    objectDelta.IsOpen))
+                            {
+                                return false;
+                            }
+                        }
                     }
 
-                    foreach (var objectDelta in floorDelta.ObjectDeltas)
+                    if (!TryRestoreEnemyBodyDeltas(
+                            floor,
+                            floorDelta.EnemyBodyDeltas,
+                            itemsById,
+                            assignedItemIds))
                     {
-                        if (objectDelta == null
-                            || !floor.TryRestoreObjectState(
-                                objectDelta.ObjectInstanceId,
-                                objectDelta.IsActive,
-                                objectDelta.IsDoor,
-                                objectDelta.IsOpen))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
@@ -1079,7 +1405,14 @@ namespace Godmist.Systems.SaveLoad
 
                     if (!floor.TryRestoreEncounterDefeatedEnemyInstanceIds(
                             encounterDelta.EncounterInstanceId,
-                            encounterDelta.DefeatedEnemyInstanceIds))
+                            encounterDelta.DefeatedEnemyInstanceIds)
+                        || !floor.TryGetEncounter(
+                            encounterDelta.EncounterInstanceId,
+                            out var restoredEncounter)
+                        || !restoredEncounter
+                            .TryRestoreGeneratedEnemyBodyEnemyInstanceIds(
+                                encounterDelta
+                                    .GeneratedEnemyBodyEnemyInstanceIds))
                     {
                         return false;
                     }
@@ -1089,6 +1422,62 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 if (!restored)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TryRestoreEnemyBodyDeltas(
+            DungeonFloorInstance floor,
+            List<DungeonEnemyBodySaveData> bodyDeltas,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            if (bodyDeltas == null) return true;
+
+            var restoredBodyIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var bodyDelta in bodyDeltas)
+            {
+                if (bodyDelta == null
+                    || string.IsNullOrWhiteSpace(bodyDelta.BodyInstanceId)
+                    || string.IsNullOrWhiteSpace(bodyDelta.EnemyInstanceId)
+                    || bodyDelta.Gold < 0
+                    || !restoredBodyIds.Add(bodyDelta.BodyInstanceId)
+                    || bodyDelta.ItemInstanceIds == null)
+                {
+                    return false;
+                }
+
+                var restoredItems = new List<ItemInstance>();
+
+                foreach (var itemInstanceId in bodyDelta.ItemInstanceIds)
+                {
+                    if (!TryTakeItem(
+                            itemInstanceId,
+                            itemsById,
+                            assignedItemIds,
+                            out var item))
+                    {
+                        return false;
+                    }
+
+                    restoredItems.Add(item);
+                }
+
+                var body = new DungeonEnemyBodyInstance(
+                    bodyDelta.BodyInstanceId,
+                    bodyDelta.EnemyInstanceId,
+                    new Vector2Int(
+                        bodyDelta.PositionX,
+                        bodyDelta.PositionY),
+                    bodyDelta.Gold,
+                    restoredItems);
+
+                if (!floor.TryAddEnemyBody(body))
                 {
                     return false;
                 }

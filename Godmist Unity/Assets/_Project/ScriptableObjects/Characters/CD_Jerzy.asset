@@ -28,9 +28,12 @@ MonoBehaviour:
   - {fileID: 3882543322116250457, guid: 74ddec554570a3641a9c1ba69b8e294f, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
   <HitSprite>k__BackingField: {fileID: -29358234815864012, guid: 3e5a0df425b5c484a98fcfd4290e9e77, type: 3}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 1
   <AiRole>k__BackingField: 0
+  <AiPersonality>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: 
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 300
     <MinAttack>k__BackingField: 18
@@ -44,8 +47,28 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 85
     <MaxResource>k__BackingField: 200
     <ResourceRegeneration>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0.5
+    <PoisonResistance>k__BackingField: 0.7
+    <FireResistance>k__BackingField: 0.4
+    <WeakeningResistance>k__BackingField: 0.5
+    <SuppressionResistance>k__BackingField: 0.35
+    <MoveResistance>k__BackingField: 0.35
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 10
+    <MinAttack>k__BackingField: 0.8
+    <MaxAttack>k__BackingField: 1.1
+    <PhysicalDefense>k__BackingField: 0.33
+    <MagicalDefense>k__BackingField: 0.2
+    <Dodge>k__BackingField: 0.08
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
   <StartingSkills>k__BackingField:
-  - {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}
   - {fileID: 11400000, guid: c476edd4e4d5dee4a8587f8cfd761e58, type: 2}
   - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}

@@ -255,10 +255,9 @@ Resistances are better modeled as a dedicated resistance set rather than ordinar
 - Nodes may require one or many prerequisite nodes.
 - Every node belongs to a specific tree level.
 - Tree levels `1` and `2` are available from the beginning.
-- Every `10` points invested in a given tree unlock the next `2` tree levels.
-- Tree level `7` contains a single capstone skill.
-- The capstone requires `30` points invested in that tree.
-- Each tree level contains `1..5` nodes.
+- Skill tree layout has `7` levels: levels `1..5` each contain `5` nodes, level `6` contains `3` centered nodes, and level `7` contains one centered capstone.
+- Tree levels `1` and `2` are available from the beginning; levels `3` and `4` require `10` points invested in that tree, levels `5` and `6` require `20`, and the level `7` capstone requires `30`.
+- A whole skill tree allows at most `50` invested points. The total rank capacity of a level is authored per node and is expected to average roughly `8..10` points.
 - Nodes may hold `1..3` invested points.
 - Nodes that unlock active skills always allow exactly `1` invested point.
 - A node may:

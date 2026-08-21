@@ -11,6 +11,8 @@ namespace Godmist.Runtime.Items
     {
         public string RequiredClassId = string.Empty;
         public int RequiredLevel = 1;
+        public EquipmentQuality Quality = EquipmentQuality.Normal;
+        public List<string> PartIds = new();
         public List<StatModifier> StatModifiers = new();
 
         public EquipmentItemDefinition EquipmentDefinition =>
@@ -29,6 +31,7 @@ namespace Godmist.Runtime.Items
             string instanceId = null)
             : base(definition, instanceId)
         {
+            RequiredClassId = definition.RequiredClass?.Id ?? string.Empty;
             RequiredLevel = 1;
         }
     }

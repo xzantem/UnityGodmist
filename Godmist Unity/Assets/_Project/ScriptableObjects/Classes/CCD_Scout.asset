@@ -15,3 +15,8 @@ MonoBehaviour:
   <Id>k__BackingField: class.scout
   <ClassName>k__BackingField: Scout
   <ResourceType>k__BackingField: 2
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  <SkillTrees>k__BackingField:
+  - {fileID: 11400000, guid: 165610000538ae54a9fe65bd6f8e2e60, type: 2}
+  - {fileID: 11400000, guid: 3d896b3d60bbbee478375cef8e63925a, type: 2}
+  - {fileID: 11400000, guid: cbe42e95243928f4b89965baac833cdc, type: 2}

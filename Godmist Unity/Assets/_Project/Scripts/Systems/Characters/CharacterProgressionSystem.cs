@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godmist.Runtime.Characters;
 using UnityEngine;
 
@@ -8,6 +9,13 @@ namespace Godmist.Systems.Characters
     {
         public const int MinimumLevel = 1;
         public const int MaximumLevel = 50;
+
+        private readonly CharacterLevelGrowthSystem growthSystem;
+
+        public CharacterProgressionSystem(CharacterLevelGrowthSystem growthSystem = null)
+        {
+            this.growthSystem = growthSystem ?? new CharacterLevelGrowthSystem();
+        }
 
         public int GetExperienceRequiredForNextLevel(int currentLevel)
         {
@@ -42,13 +50,32 @@ namespace Godmist.Systems.Characters
 
                 character.CurrentExperience -= requiredExperience;
                 character.Level++;
-                character.AvailableSkillPoints++;
+                character.AvailableSkillPoints += GetSkillPointsGrantedOnLevelUp(character.Level);
                 levelsGained++;
             }
 
             if (character.Level == MaximumLevel) character.CurrentExperience = 0;
+            if (levelsGained > 0) growthSystem.Apply(character, grantCurrentHealthGrowth: true);
 
             return levelsGained;
+        }
+
+        public static int GetSkillPointsGrantedOnLevelUp(int newLevel)
+        {
+            return newLevel == 2 ? 2 : 1;
+        }
+
+        public static bool TryMigrateLegacySkillPointTotal(CharacterInstance character)
+        {
+            if (character == null || character.Level < 2) return false;
+
+            var investedRanks = character.SkillTreeProgress?.Sum(tree =>
+                tree?.NodeInvestments?.Sum(node => Math.Max(0, node?.Ranks ?? 0)) ?? 0) ?? 0;
+            var legacyTotal = character.Level - 1;
+            if (investedRanks + character.AvailableSkillPoints != legacyTotal) return false;
+
+            character.AvailableSkillPoints++;
+            return true;
         }
     } 
 }

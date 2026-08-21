@@ -36,7 +36,6 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "Id", "item.test_weapon");
             SetAutoProperty(definition, "ItemType", ItemType.Weapon);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
-            SetAutoProperty(definition, "EquipmentSlot", EquipmentSlot.Weapon);
 
             var factory = new ItemInstanceFactory();
 

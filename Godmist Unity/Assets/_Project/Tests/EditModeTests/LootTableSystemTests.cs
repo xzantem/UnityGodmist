@@ -75,7 +75,6 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "DisplayName", "Testowy miecz");
             SetAutoProperty(definition, "ItemType", ItemType.Weapon);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
-            SetAutoProperty(definition, "EquipmentSlot", EquipmentSlot.Weapon);
 
             var lootTable = CreateLootTable(
                 definition,

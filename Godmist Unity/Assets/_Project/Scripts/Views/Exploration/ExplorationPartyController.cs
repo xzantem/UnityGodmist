@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
+using Godmist.Views.Dungeons;
 using Godmist.Views.UI;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace Godmist.Views.Exploration
         [SerializeField] private float followerDistance = 1f;
         [SerializeField] private ExplorationCameraFollow cameraController;
         [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
+        [SerializeField] private SkillTreeProgressionPanelView skillTreeProgressionPanel;
+        [SerializeField] private SkillLoadoutModalView skillLoadoutModal;
 
         private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
 
@@ -63,8 +66,27 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
+            if (gameSession.ActiveCombat != null)
+            {
+                skillTreeProgressionPanel?.Close();
+                skillLoadoutModal?.Close();
+                return;
+            }
+
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
+                return;
+            }
+
+            if (skillTreeProgressionPanel != null && skillTreeProgressionPanel.IsOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.P)) skillTreeProgressionPanel.Close();
+                return;
+            }
+
+            if (skillLoadoutModal != null && skillLoadoutModal.IsOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.L)) skillLoadoutModal.Close();
                 return;
             }
 
@@ -88,6 +110,35 @@ namespace Godmist.Views.Exploration
                 TryCycleLeader();
             }
 
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                skillLoadoutModal?.Close();
+                if (skillTreeProgressionPanel == null)
+                {
+                    Debug.LogWarning("Nie przypisano SkillTreeProgressionPanelView.", this);
+                    return;
+                }
+
+                skillTreeProgressionPanel.Open(gameSession, gameSession.PlayerParty.ActiveLeaderId);
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                skillTreeProgressionPanel?.Close();
+
+                if (skillLoadoutModal == null)
+                {
+                    Debug.LogWarning(
+                        "Brakuje referencji SkillLoadoutModalView w ExplorationPartyController.",
+                        this);
+                    return;
+                }
+
+                skillLoadoutModal.Open(gameSession, gameSession.PlayerParty.ActiveLeaderId);
+                return;
+            }
+
             if (!Input.GetMouseButtonDown(0) || worldCamera == null)
             {
                 return;
@@ -100,6 +151,11 @@ namespace Godmist.Views.Exploration
         {
             var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
 
+            if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
+            {
+                return;
+            }
+
             movementDestination = new Vector2(
                 pointerWorldPosition.x,
                 pointerWorldPosition.y);
@@ -109,9 +165,18 @@ namespace Godmist.Views.Exploration
         {
             if (DevConsoleView.IsOpen) return;
 
-            if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration) return;
+            if (gameSession == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null)
+            {
+                return;
+            }
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;
+
+            if (skillTreeProgressionPanel != null && skillTreeProgressionPanel.IsOpen) return;
+
+            if (skillLoadoutModal != null && skillLoadoutModal.IsOpen) return;
 
             var leaderView = GetActiveLeaderView();
 

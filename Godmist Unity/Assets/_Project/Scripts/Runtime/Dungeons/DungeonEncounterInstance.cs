@@ -18,9 +18,12 @@ namespace Godmist.Runtime.Dungeons
         public bool HasRetreatPosition { get; private set; }
         public Vector2Int RetreatPosition { get; private set; }
         private readonly HashSet<string> defeatedEnemyInstanceIds = new();
+        private readonly HashSet<string> generatedEnemyBodyEnemyInstanceIds = new();
 
         public IReadOnlyCollection<string> DefeatedEnemyInstanceIds =>
             defeatedEnemyInstanceIds;
+        public IReadOnlyCollection<string> GeneratedEnemyBodyEnemyInstanceIds =>
+            generatedEnemyBodyEnemyInstanceIds;
 
         public DungeonEncounterInstance(
             string instanceId,
@@ -108,6 +111,47 @@ namespace Godmist.Runtime.Dungeons
             if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
 
             return defeatedEnemyInstanceIds.Add(enemyInstanceId);
+        }
+
+        public bool IsEnemyBodyGenerated(string enemyInstanceId)
+        {
+            return !string.IsNullOrWhiteSpace(enemyInstanceId)
+                && generatedEnemyBodyEnemyInstanceIds.Contains(enemyInstanceId);
+        }
+
+        public bool TryMarkEnemyBodyGenerated(string enemyInstanceId)
+        {
+            if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
+
+            return generatedEnemyBodyEnemyInstanceIds.Add(enemyInstanceId);
+        }
+
+        public bool TryRestoreGeneratedEnemyBodyEnemyInstanceIds(
+            IEnumerable<string> restoredEnemyInstanceIds)
+        {
+            var restoredIds = new HashSet<string>();
+
+            if (restoredEnemyInstanceIds != null)
+            {
+                foreach (var enemyInstanceId in restoredEnemyInstanceIds)
+                {
+                    if (string.IsNullOrWhiteSpace(enemyInstanceId))
+                    {
+                        return false;
+                    }
+
+                    restoredIds.Add(enemyInstanceId);
+                }
+            }
+
+            generatedEnemyBodyEnemyInstanceIds.Clear();
+
+            foreach (var enemyInstanceId in restoredIds)
+            {
+                generatedEnemyBodyEnemyInstanceIds.Add(enemyInstanceId);
+            }
+
+            return true;
         }
 
         public bool TryRestoreDefeatedEnemyInstanceIds(

@@ -85,6 +85,13 @@ namespace Godmist.Systems.Items
         {
             if (item?.EquipmentDefinition == null) return false;
 
+            if (item.Definition.ItemType != ItemType.Weapon
+                && item.Definition.ItemType != ItemType.Armor
+                && item.Definition.ItemType != ItemType.Jewelry)
+            {
+                return false;
+            }
+
             return item.EquipmentSlot switch
             {
                 EquipmentSlot.Weapon => item.Definition.ItemType == ItemType.Weapon,

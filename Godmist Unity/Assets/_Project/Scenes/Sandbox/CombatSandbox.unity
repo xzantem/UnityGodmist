@@ -1334,7 +1334,9 @@ MonoBehaviour:
   sandboxBootstrap: {fileID: 235486238}
   battleUnitPrefab: {fileID: 6002421464156108731, guid: 16aa6abb553aade4dbb59a322b65fd4c, type: 3}
   unitsRoot: {fileID: 1507998492}
-  summonedObjectsRoot: {fileID: 0}
+  targetSelectionController: {fileID: 1046552047}
+  inspectController: {fileID: 1046552048}
+  summonedObjectsRoot: {fileID: 1507998492}
   missingSpriteColor: {r: 0.78, g: 0.35, b: 0.95, a: 1}
   summonedObjectSortingOrder: 1
   summonedObjectScale: 0.7
@@ -1416,7 +1418,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c888d5bfd8bcf4e91c5d2b88640e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.CombatStatusCollectionView
-  visualCatalog: {fileID: 11400000, guid: a4c0f13e3e456cc438429f19c26d4797, type: 2}
   tooltipView: {fileID: 883632153}
   iconRoot: {fileID: 242573434}
   iconTemplate: {fileID: 619840863648374749, guid: 9c721b8b6238bae43a85a2938db59afb, type: 3}
@@ -5099,12 +5100,15 @@ MonoBehaviour:
   costText: {fileID: 1070890372}
   lockProgressFill: {fileID: 129994736}
   lockProgressWidth: 248
+  expandedTooltipHeight: 130
   lockAccentGraphic: {fileID: 883632154}
-  glossary: {fileID: 0}
-  screenOffset: {x: 0, y: 0}
+  glossary: {fileID: 11400000, guid: fa800bf2c77ce5142a505efb93cc77a4, type: 2}
+  hoverDelay: 0.25
   statusLockDelay: 0.5
   entryGracePeriod: 1
-  lockedAccentColor: {r: 0.22, g: 0.18, b: 0.1, a: 0.97}
+  lockedAccentColor: {r: 0.1321143, g: 0.19428572, b: 0.272, a: 0.97}
+  pointerPassthrough: 0
+  pointerOffset: {x: 8, y: -8}
 --- !u!114 &883632154
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5918,6 +5922,7 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
+  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!212 &1038029989
 SpriteRenderer:
   serializedVersion: 2
@@ -6068,7 +6073,7 @@ MonoBehaviour:
   worldCamera: {fileID: 814189693}
   targetSelectionController: {fileID: 1046552047}
   inspectPanel: {fileID: 659788793}
-  unitViewSpawner: {fileID: 0}
+  unitViewSpawner: {fileID: 235486239}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
 --- !u!1 &1070890370
@@ -7097,6 +7102,7 @@ MonoBehaviour:
   sandboxBootstrap: {fileID: 235486238}
   endTurnButton: {fileID: 898882913}
   escapeButton: {fileID: 1410363340}
+  tooltipView: {fileID: 0}
 --- !u!114 &1329120809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7308,7 +7314,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c888d5bfd8bcf4e91c5d2b88640e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.CombatStatusCollectionView
-  visualCatalog: {fileID: 11400000, guid: a4c0f13e3e456cc438429f19c26d4797, type: 2}
   tooltipView: {fileID: 883632153}
   iconRoot: {fileID: 1371607846}
   iconTemplate: {fileID: 619840863648374749, guid: 9c721b8b6238bae43a85a2938db59afb, type: 3}
@@ -9213,6 +9218,7 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
+  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!1 &1692990194
 GameObject:
   m_ObjectHideFlags: 0
@@ -9431,6 +9437,7 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
+  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!212 &1759156879
 SpriteRenderer:
   serializedVersion: 2
@@ -10477,6 +10484,7 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
+  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!1 &2062999578
 GameObject:
   m_ObjectHideFlags: 0

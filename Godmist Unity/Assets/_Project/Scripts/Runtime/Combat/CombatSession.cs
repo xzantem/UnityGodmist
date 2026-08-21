@@ -12,6 +12,9 @@ namespace Godmist.Runtime.Combat
         public int CurrentEscapeChancePercent = 60;
         public CombatRewardResult Rewards = new();
         public bool RewardsGranted;
+        public bool EscapePenaltyApplied;
+        public bool HasEscapePenaltyEligibleCharacters;
+        public HashSet<string> EscapePenaltyEligibleCharacterIds = new();
         public bool IsDebugSession;
         public float ActionPointsPerSpeed = 0.25f;
         public BattleGrid Grid;

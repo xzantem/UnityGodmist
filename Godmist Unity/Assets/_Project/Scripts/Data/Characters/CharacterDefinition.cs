@@ -20,13 +20,18 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public List<Sprite> RunAnimationFrames { get; private set; } = new();
         [field: SerializeField] public float RunAnimationFramesPerSecond { get; private set; } = 8f;
         [field: SerializeField] public Sprite HitSprite { get; private set; }
+        [field: SerializeField] public Sprite DeadSprite { get; private set; }
         [field: SerializeField] public bool IsMainCharacter { get; private set; }
         [field: SerializeField] public CombatAiRole AiRole { get; private set; } =
             CombatAiRole.Balanced;
         [field: SerializeField] public CombatAiPersonality AiPersonality { get; private set; } =
             CombatAiPersonality.Neutral;
         [field: SerializeField] public string RecruitmentQuestId { get; private set; } = string.Empty;
+        [field: SerializeField] public CharacterClassData ClassData { get; private set; }
         [field: SerializeField] public CharacterBaseStatsData BaseStats { get; private set; } = new();
+        [field: SerializeField] public CharacterResistanceData BaseResistances { get; private set; } = new();
+        [field: SerializeField] public CharacterGrowthData GrowthData { get; private set; } = new();
+        [field: SerializeField] public SkillData BasicAttackSkill { get; private set; }
         [field: SerializeField] public List<SkillData> StartingSkills { get; private set; } = new();
         [field: SerializeField] public int ExperienceReward { get; private set; }
         [field: SerializeField] public int GoldReward { get; private set; }

@@ -7,6 +7,18 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class CombatRewardResult
     {
+        // Legacy aggregate fields are kept so existing runtime state can still
+        // deserialize. New combat rewards are represented per defeated enemy.
+        public int ExperiencePerActiveCharacter;
+        public int Gold;
+        public List<ItemInstance> Items = new();
+        public List<CombatEnemyReward> EnemyRewards = new();
+    }
+
+    [Serializable]
+    public class CombatEnemyReward
+    {
+        public string EnemyInstanceId = string.Empty;
         public int ExperiencePerActiveCharacter;
         public int Gold;
         public List<ItemInstance> Items = new();

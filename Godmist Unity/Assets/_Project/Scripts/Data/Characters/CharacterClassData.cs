@@ -1,5 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Core.Interfaces;
+using Godmist.Data.Skills;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Godmist.Data.Characters
@@ -12,5 +14,7 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
         [field: SerializeField] public string ClassName { get; private set; } = string.Empty;
         [field: SerializeField] public ResourceType ResourceType { get; private set; } = ResourceType.None;
+        [field: SerializeField] public SkillData BasicAttackSkill { get; private set; }
+        [field: SerializeField] public List<SkillTreeDefinition> SkillTrees { get; private set; } = new();
     }
 }

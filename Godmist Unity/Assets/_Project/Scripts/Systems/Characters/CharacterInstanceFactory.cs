@@ -16,12 +16,14 @@ namespace Godmist.Systems.Characters
 
         public CharacterInstance Create(
             CharacterDefinition definition,
-            CharacterClassData classData)
+            CharacterClassData classData = null)
         {
             if (definition == null)
             {
                 throw new ArgumentNullException(nameof(definition));
             }
+
+            classData ??= definition.ClassData;
 
             if (classData == null)
             {
@@ -64,7 +66,9 @@ namespace Godmist.Systems.Characters
                     CritChance = new Stat(baseStats.CritChance),
                     CritDamage = new Stat(baseStats.CritDamage),
                     Speed = new Stat(baseStats.Speed),
-                    ResourceRegeneration = new Stat(baseStats.ResourceRegeneration)
+                    ResourceRegeneration = new Stat(baseStats.ResourceRegeneration),
+                    WeaponAccuracy = new Stat(baseStats.WeaponAccuracy),
+                    MaxResource = new Stat(maxResource)
                 },
 
                 ResourcePool = new ResourcePool(
@@ -73,17 +77,92 @@ namespace Godmist.Systems.Characters
                     maxResource,
                     baseStats.ResourceRegeneration),
 
-                Resistances = new ResistanceSet(),
+                Resistances = CreateResistances(definition.BaseResistances),
                 ShieldPool = new ShieldPool(),
                 Inventory = new Inventory(),
-                Skills = definition.StartingSkills != null ? new List<SkillData>(definition.StartingSkills)
-                    : new List<SkillData>(),
+                Skills = CopyDistinctSkills(
+                    definition.StartingSkills,
+                    ResolveBasicAttackSkill(definition, classData)),
+
+                SkillTreeProgress = new List<SkillTreeProgress>(),
 
                 PassiveEffects = new List<Runtime.Effects.PassiveEffectRuntime>()
             };
 
             statPipeline.Refresh(character);
+            new SkillLoadoutSystem().TryInitialize(character);
             return character;
+        }
+
+        private static SkillData ResolveBasicAttackSkill(
+            CharacterDefinition definition,
+            CharacterClassData classData)
+        {
+            if (definition?.BasicAttackSkill != null)
+            {
+                return definition.BasicAttackSkill;
+            }
+
+            foreach (var skill in definition?.StartingSkills
+                         ?? new List<SkillData>())
+            {
+                if (skill != null && !string.IsNullOrWhiteSpace(skill.SkillId))
+                {
+                    return skill;
+                }
+            }
+
+            // Compatibility only for old content without any per-character
+            // skill configuration. New content must use CharacterDefinition.
+            return classData?.BasicAttackSkill;
+        }
+
+        private static ResistanceSet CreateResistances(
+            CharacterResistanceData baseResistances)
+        {
+            if (baseResistances == null)
+            {
+                return new ResistanceSet();
+            }
+
+            return new ResistanceSet
+            {
+                BleedResistance = baseResistances.BleedResistance,
+                PoisonResistance = baseResistances.PoisonResistance,
+                FireResistance = baseResistances.FireResistance,
+                WeakeningResistance = baseResistances.WeakeningResistance,
+                SuppressionResistance = baseResistances.SuppressionResistance,
+                MoveResistance = baseResistances.MoveResistance
+            };
+        }
+
+        private static List<SkillData> CopyDistinctSkills(
+            IReadOnlyList<SkillData> source,
+            SkillData basicAttackSkill)
+        {
+            var result = new List<SkillData>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var skill in source ?? new List<SkillData>())
+            {
+                if (skill == null
+                    || string.IsNullOrWhiteSpace(skill.SkillId)
+                    || !seen.Add(skill.SkillId))
+                {
+                    continue;
+                }
+
+                result.Add(skill);
+            }
+
+            if (basicAttackSkill != null
+                && !string.IsNullOrWhiteSpace(basicAttackSkill.SkillId)
+                && seen.Add(basicAttackSkill.SkillId))
+            {
+                result.Add(basicAttackSkill);
+            }
+
+            return result;
         }
     }
 }

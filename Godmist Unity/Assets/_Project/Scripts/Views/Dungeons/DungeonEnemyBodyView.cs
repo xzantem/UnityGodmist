@@ -1,0 +1,403 @@
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Data.Characters;
+using Godmist.Runtime.Dungeons;
+using Godmist.Runtime.Game;
+using Godmist.Systems.Items;
+using Godmist.Views.Exploration;
+using Godmist.Views.Game;
+using Godmist.Views.UI;
+using TMPro;
+using UnityEngine;
+
+namespace Godmist.Views.Dungeons
+{
+    public class DungeonEnemyBodyView : MonoBehaviour
+    {
+        [SerializeField] private float interactionRadius = 1.25f;
+        [SerializeField] private SpriteRenderer bodyRenderer;
+
+        private readonly LootCollectionService lootCollectionService = new();
+        private readonly List<SpriteRenderer> outlineRenderers = new();
+
+        private ExplorationPartyController partyController;
+        private DungeonFloorInstance floor;
+        private DungeonEnemyBodyInstance body;
+        private Material outlineMaterial;
+        private bool isPointerHovered;
+
+        public void Initialize(
+            ExplorationPartyController nextPartyController,
+            DungeonFloorInstance nextFloor,
+            DungeonEnemyBodyInstance nextBody,
+            Vector3 worldPosition)
+        {
+            if (nextFloor == null
+                || nextBody == null
+                || !nextFloor.TryGetEnemyBody(
+                    nextBody.InstanceId,
+                    out var currentBody))
+            {
+                return;
+            }
+
+            partyController = nextPartyController;
+            floor = nextFloor;
+            body = currentBody;
+            transform.position = worldPosition;
+            ConfigureVisual();
+        }
+
+        private void Update()
+        {
+            RefreshHoverVisual();
+        }
+
+        private void OnMouseEnter()
+        {
+            isPointerHovered = true;
+            RefreshHoverVisual();
+        }
+
+        private void OnMouseExit()
+        {
+            isPointerHovered = false;
+            RefreshHoverVisual();
+        }
+
+        private void OnMouseDown()
+        {
+            if (DevConsoleView.IsOpen || !CanInteract())
+            {
+                return;
+            }
+
+            Interact();
+        }
+
+        public bool CanInteract()
+        {
+            var session = GameBootstrap.Instance?.Session;
+
+            if (body == null
+                || floor == null
+                || partyController?.ActiveLeaderTransform == null
+                || session == null
+                || session.CurrentMode != GameModeState.Exploration
+                || session.ActiveCombat != null
+                || !floor.TryGetEnemyBody(body.InstanceId, out var currentBody))
+            {
+                return false;
+            }
+
+            body = currentBody;
+
+            var offset = partyController.ActiveLeaderTransform.position
+                         - transform.position;
+
+            return offset.sqrMagnitude
+                   <= interactionRadius * interactionRadius;
+        }
+
+        public static bool IsPointerOverBody(Vector2 pointerWorldPosition)
+        {
+            foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
+            {
+                if (hit != null
+                    && hit.GetComponentInParent<DungeonEnemyBodyView>() != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void Interact()
+        {
+            if (!CanInteract()) return;
+
+            var session = GameBootstrap.Instance?.Session;
+            var itemName = body.Items.Count > 0
+                ? body.Items[0]?.Definition?.DisplayName
+                : null;
+
+            if (body.Items.Count > 0
+                && lootCollectionService.TryClaimNextDungeonBodyItem(
+                    session,
+                    body.InstanceId,
+                    out _))
+            {
+                ShowFloatingText($"+ {itemName ?? "Przedmiot"}");
+                RefreshOrDestroy();
+                return;
+            }
+
+            if (body.Gold > 0
+                && lootCollectionService.TryClaimDungeonBodyGold(
+                    session,
+                    body.InstanceId,
+                    out var claimedGold))
+            {
+                ShowFloatingText($"+ {claimedGold} zlota");
+                RefreshOrDestroy();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (outlineMaterial != null)
+            {
+                Destroy(outlineMaterial);
+            }
+        }
+
+        private void RefreshOrDestroy()
+        {
+            if (floor == null
+                || !floor.TryGetEnemyBody(body.InstanceId, out var currentBody))
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            body = currentBody;
+
+            if (body.IsEmpty)
+            {
+                floor.TryRemoveEnemyBody(body.InstanceId);
+                Destroy(gameObject);
+            }
+        }
+
+        private void ConfigureVisual()
+        {
+            bodyRenderer ??= GetComponentInChildren<SpriteRenderer>(true);
+
+            if (bodyRenderer == null)
+            {
+                Debug.LogError("DungeonEnemyBodyView: brak SpriteRenderer ciala.");
+                return;
+            }
+
+            bodyRenderer.sortingOrder = 9;
+            bodyRenderer.color = new Color(0.48f, 0.09f, 0.09f, 1f);
+
+            var definition = ResolveEnemyDefinition();
+            if (definition == null)
+            {
+                Debug.LogError(
+                    $"DungeonEnemyBodyView: nie znaleziono definicji przeciwnika "
+                    + $"dla ciala '{body?.InstanceId}'.");
+                return;
+            }
+
+            bodyRenderer.sprite = definition.DeadSprite != null
+                ? definition.DeadSprite
+                : definition.VisualSprite;
+            transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
+            RebuildOutline();
+            ConfigureInteractionCollider();
+            RefreshHoverVisual();
+        }
+
+        private void RebuildOutline()
+        {
+            foreach (var outlineRenderer in outlineRenderers)
+            {
+                if (outlineRenderer != null)
+                {
+                    Destroy(outlineRenderer.gameObject);
+                }
+            }
+
+            outlineRenderers.Clear();
+
+            if (bodyRenderer?.sprite == null)
+            {
+                return;
+            }
+
+            var shader = Shader.Find("Godmist/Combat/Solid Sprite Silhouette");
+            if (shader == null)
+            {
+                Debug.LogError("DungeonEnemyBodyView: nie znaleziono shadera obramowki.");
+                return;
+            }
+
+            if (outlineMaterial != null)
+            {
+                Destroy(outlineMaterial);
+            }
+
+            outlineMaterial = new Material(shader);
+            var offsets = new[]
+            {
+                Vector2.left, Vector2.right, Vector2.up, Vector2.down,
+                new Vector2(-1f, -1f), new Vector2(-1f, 1f),
+                new Vector2(1f, -1f), new Vector2(1f, 1f)
+            };
+
+            foreach (var offset in offsets)
+            {
+                var outlineObject = new GameObject(
+                    "Enemy Body Outline",
+                    typeof(SpriteRenderer));
+                outlineObject.transform.SetParent(bodyRenderer.transform, false);
+                outlineObject.transform.localPosition = offset * 0.045f;
+
+                var outlineRenderer = outlineObject.GetComponent<SpriteRenderer>();
+                outlineRenderer.sprite = bodyRenderer.sprite;
+                outlineRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
+                outlineRenderer.sortingOrder = bodyRenderer.sortingOrder - 1;
+                outlineRenderer.sharedMaterial = outlineMaterial;
+                outlineRenderers.Add(outlineRenderer);
+            }
+        }
+
+        private void ConfigureInteractionCollider()
+        {
+            if (bodyRenderer?.sprite == null)
+            {
+                return;
+            }
+
+            var collider = GetComponent<CircleCollider2D>();
+            if (collider == null)
+            {
+                collider = gameObject.AddComponent<CircleCollider2D>();
+            }
+
+            if (collider == null)
+            {
+                Debug.LogError(
+                    "DungeonEnemyBodyView: nie udalo sie dodac CircleCollider2D.");
+                return;
+            }
+
+            collider.isTrigger = true;
+
+            var extents = bodyRenderer.sprite.bounds.extents;
+            collider.radius = Mathf.Max(extents.x, extents.y);
+        }
+
+        private void RefreshHoverVisual()
+        {
+            var showOutline = isPointerHovered
+                && !DevConsoleView.IsOpen
+                && CanInteract();
+
+            foreach (var outlineRenderer in outlineRenderers)
+            {
+                if (outlineRenderer != null)
+                {
+                    outlineRenderer.enabled = showOutline;
+                }
+            }
+
+            if (outlineMaterial != null)
+            {
+                outlineMaterial.SetColor(
+                    "_OutlineColor",
+                    showOutline
+                        ? new Color(1f, 0.76f, 0.23f, 1f)
+                        : Color.clear);
+            }
+        }
+
+        private void ShowFloatingText(string text)
+        {
+            var feedbackObject = new GameObject(
+                "Dungeon Loot Feedback",
+                typeof(TextMeshPro),
+                typeof(DungeonLootFloatingText));
+            feedbackObject.transform.position = transform.position + Vector3.up * 0.6f;
+
+            var feedback = feedbackObject.GetComponent<DungeonLootFloatingText>();
+            feedback.Initialize(text);
+        }
+
+        private CharacterDefinition ResolveEnemyDefinition()
+        {
+            if (floor == null || body == null)
+            {
+                return null;
+            }
+
+            foreach (var encounter in floor.Encounters)
+            {
+                if (encounter?.Definition?.Enemies == null)
+                {
+                    continue;
+                }
+
+                foreach (var enemy in encounter.Definition.Enemies)
+                {
+                    if (enemy != null
+                        && enemy.InstanceId == body.EnemyInstanceId)
+                    {
+                        return enemy.CharacterDefinition;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public static DungeonEnemyBodyView CreateFallback(
+            Transform parent)
+        {
+            var gameObject = new GameObject("EnemyBody");
+            gameObject.transform.SetParent(parent, false);
+
+            var view = gameObject.AddComponent<DungeonEnemyBodyView>();
+            var renderer = gameObject.AddComponent<SpriteRenderer>();
+            renderer.sortingOrder = 9;
+            gameObject.transform.localScale = Vector3.one * 0.7f;
+
+            return view;
+        }
+    }
+
+    public class DungeonLootFloatingText : MonoBehaviour
+    {
+        private TextMeshPro label;
+        private float startedAt;
+
+        public void Initialize(string text)
+        {
+            label = GetComponent<TextMeshPro>();
+            label.font = TMP_Settings.defaultFontAsset;
+            label.text = text;
+            label.fontSize = 6f;
+            label.fontStyle = FontStyles.Bold;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = new Color(0.88f, 0.78f, 0.3f, 1f);
+            label.outlineColor = new Color(0.06f, 0.03f, 0.02f, 1f);
+            label.outlineWidth = 0.22f;
+            label.GetComponent<MeshRenderer>().sortingOrder = 12;
+            transform.localScale = Vector3.one * 0.32f;
+            startedAt = Time.unscaledTime;
+        }
+
+        private void Update()
+        {
+            var progress = Mathf.Clamp01((Time.unscaledTime - startedAt) / 1.1f);
+            transform.position += Vector3.up * (Time.unscaledDeltaTime * 0.55f);
+
+            if (label != null)
+            {
+                var color = label.color;
+                color.a = progress < 0.55f
+                    ? 1f
+                    : 1f - (progress - 0.55f) / 0.45f;
+                label.color = color;
+            }
+
+            if (progress >= 1f)
+            {
+                Destroy(gameObject);
+            }
+        }
+    }
+}

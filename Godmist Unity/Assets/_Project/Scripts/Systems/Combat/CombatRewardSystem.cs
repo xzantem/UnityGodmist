@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
@@ -32,9 +34,15 @@ namespace Godmist.Systems.Combat
 
                 if (definition == null) continue;
 
-                rewards.ExperiencePerActiveCharacter += definition.ExperienceReward;
-                rewards.Gold += definition.GoldReward;
-                rewards.Items.AddRange(lootTableSystem.RollLoot(definition.LootTable));
+                if (string.IsNullOrWhiteSpace(enemyData.InstanceId)) continue;
+
+                rewards.EnemyRewards.Add(new CombatEnemyReward
+                {
+                    EnemyInstanceId = enemyData.InstanceId,
+                    ExperiencePerActiveCharacter = definition.ExperienceReward,
+                    Gold = definition.GoldReward,
+                    Items = lootTableSystem.RollLoot(definition.LootTable)
+                });
             }
 
             return rewards;
@@ -49,6 +57,16 @@ namespace Godmist.Systems.Combat
             if (combatSession.RewardsGranted) return false;
 
             var rewards = combatSession.Rewards ?? new CombatRewardResult();
+            var defeatedEnemyRewards = GetDefeatedEnemyRewards(
+                rewards,
+                combatSession.DefeatedEnemyInstanceIds);
+
+            var experiencePerCharacter = 0;
+
+            foreach (var enemyReward in defeatedEnemyRewards)
+            {
+                experiencePerCharacter += enemyReward.ExperiencePerActiveCharacter;
+            }
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
@@ -59,17 +77,79 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (character.LifeState == CharacterLifeState.Dead)
+                {
+                    continue;
+                }
+
                 progressionSystem.AddExperience(
                     character,
-                    rewards.ExperiencePerActiveCharacter);
+                    experiencePerCharacter);
+
+                character.Honor += defeatedEnemyRewards.Count;
             }
 
-            gameSession.TryAddGold(rewards.Gold);
-            gameSession.AddPendingLoot(rewards.Items);
             gameSession.SetLastCombatRewards(rewards);
 
             combatSession.RewardsGranted = true;
             return true;
+        }
+
+        public bool TryApplyEscapePenalty(
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (gameSession == null || combatSession == null) return false;
+            if (combatSession.Outcome != CombatOutcomeState.Escaped) return false;
+            if (combatSession.EscapePenaltyApplied) return false;
+
+            IEnumerable<string> characterIds =
+                combatSession.HasEscapePenaltyEligibleCharacters
+                ? combatSession.EscapePenaltyEligibleCharacterIds
+                : gameSession.PlayerParty.ActiveMemberIds;
+
+            foreach (var characterId in characterIds)
+            {
+                if (!gameSession.CharactersById.TryGetValue(
+                        characterId,
+                        out var character)
+                    || (!combatSession.HasEscapePenaltyEligibleCharacters
+                        && character.LifeState == CharacterLifeState.Dead))
+                {
+                    continue;
+                }
+
+                character.Honor -= 5;
+            }
+
+            combatSession.EscapePenaltyApplied = true;
+            return true;
+        }
+
+        private static List<CombatEnemyReward> GetDefeatedEnemyRewards(
+            CombatRewardResult rewards,
+            IEnumerable<string> defeatedEnemyInstanceIds)
+        {
+            var result = new List<CombatEnemyReward>();
+
+            if (rewards?.EnemyRewards == null
+                || defeatedEnemyInstanceIds == null)
+            {
+                return result;
+            }
+
+            var defeatedIds = new HashSet<string>(defeatedEnemyInstanceIds);
+
+            foreach (var reward in rewards.EnemyRewards)
+            {
+                if (reward != null
+                    && defeatedIds.Contains(reward.EnemyInstanceId))
+                {
+                    result.Add(reward);
+                }
+            }
+
+            return result;
         }
     }
 }

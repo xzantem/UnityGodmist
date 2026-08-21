@@ -37,7 +37,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void AddExperience_AtThreshold_LevelsUpAndGrantsSkillPoint()
+        public void AddExperience_AtThreshold_LevelsUpAndGrantsTwoStartingSkillPoints()
         {
             var character = CreateLevelOneCharacter();
 
@@ -46,7 +46,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(levelsGained, Is.EqualTo(1));
             Assert.That(character.Level, Is.EqualTo(2));
             Assert.That(character.CurrentExperience, Is.EqualTo(0));
-            Assert.That(character.AvailableSkillPoints, Is.EqualTo(1));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(2));
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(levelsGained, Is.EqualTo(2));
             Assert.That(character.Level, Is.EqualTo(3));
             Assert.That(character.CurrentExperience, Is.EqualTo(5));
-            Assert.That(character.AvailableSkillPoints, Is.EqualTo(2));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(3));
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace Godmist.Tests.EditMode
             {
                 Level = CharacterProgressionSystem.MaximumLevel,
                 CurrentExperience = 0,
-                AvailableSkillPoints = 49
+                AvailableSkillPoints = 50
             };
 
             var levelsGained = progressionSystem.AddExperience(character, 1000);
@@ -77,7 +77,23 @@ namespace Godmist.Tests.EditMode
             Assert.That(levelsGained, Is.EqualTo(0));
             Assert.That(character.Level, Is.EqualTo(50));
             Assert.That(character.CurrentExperience, Is.EqualTo(0));
-            Assert.That(character.AvailableSkillPoints, Is.EqualTo(49));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void AddExperience_FromLevelOneToMaximum_GrantsFiftySkillPoints()
+        {
+            var character = CreateLevelOneCharacter();
+
+            while (character.Level < CharacterProgressionSystem.MaximumLevel)
+            {
+                progressionSystem.AddExperience(
+                    character,
+                    progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
+            }
+
+            Assert.That(character.Level, Is.EqualTo(50));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(50));
         }
 
         [Test]
@@ -91,6 +107,24 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.Level, Is.EqualTo(1));
             Assert.That(character.CurrentExperience, Is.EqualTo(0));
             Assert.That(character.AvailableSkillPoints, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TryMigrateLegacySkillPointTotal_AddsTheMissingStartingPointOnce()
+        {
+            var character = new CharacterInstance
+            {
+                Level = 50,
+                AvailableSkillPoints = 49
+            };
+
+            Assert.That(
+                CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character),
+                Is.True);
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(50));
+            Assert.That(
+                CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character),
+                Is.False);
         }
 
         private static CharacterInstance CreateLevelOneCharacter()

@@ -105,7 +105,10 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (!TryCaptureActiveDungeon(session, saveData))
+            if (!TryCaptureActiveDungeon(
+                    session,
+                    saveData,
+                    capturedItemIds))
             {
                 ClearRuntimePayload(saveData);
                 return false;
@@ -272,7 +275,8 @@ namespace Godmist.Systems.SaveLoad
 
         private static bool TryCaptureActiveDungeon(
             GameSession session,
-            GameSaveData saveData)
+            GameSaveData saveData,
+            HashSet<string> capturedItemIds)
         {
             if (session.ActiveDungeon == null)
             {
@@ -341,6 +345,43 @@ namespace Godmist.Systems.SaveLoad
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 
+                foreach (var body in floor.EnemyBodies)
+                {
+                    if (body == null
+                        || string.IsNullOrWhiteSpace(body.InstanceId)
+                        || string.IsNullOrWhiteSpace(body.EnemyInstanceId)
+                        || body.Gold < 0)
+                    {
+                        ClearRuntimePayload(saveData);
+                        return false;
+                    }
+
+                    var bodyDelta = new DungeonEnemyBodySaveData
+                    {
+                        BodyInstanceId = body.InstanceId,
+                        EnemyInstanceId = body.EnemyInstanceId,
+                        PositionX = body.Position.x,
+                        PositionY = body.Position.y,
+                        Gold = body.Gold
+                    };
+
+                    foreach (var item in body.Items)
+                    {
+                        if (!TryCaptureItem(
+                                item,
+                                saveData,
+                                capturedItemIds))
+                        {
+                            ClearRuntimePayload(saveData);
+                            return false;
+                        }
+
+                        bodyDelta.ItemInstanceIds.Add(item.InstanceId);
+                    }
+
+                    floorDelta.EnemyBodyDeltas.Add(bodyDelta);
+                }
+
                 foreach (var encounter in floor.Encounters)
                 {
                     if (encounter == null)
@@ -353,7 +394,10 @@ namespace Godmist.Systems.SaveLoad
                         {
                             EncounterInstanceId = encounter.InstanceId,
                             DefeatedEnemyInstanceIds = new List<string>(
-                                encounter.DefeatedEnemyInstanceIds)
+                                encounter.DefeatedEnemyInstanceIds),
+                            GeneratedEnemyBodyEnemyInstanceIds =
+                                new List<string>(
+                                    encounter.GeneratedEnemyBodyEnemyInstanceIds)
                         });
                 }
 
@@ -405,9 +449,14 @@ namespace Godmist.Systems.SaveLoad
                 LifeState = character.LifeState,
                 AvailabilityState = character.AvailabilityState,
                 ResourcePool = CopyResourcePool(character.ResourcePool),
+                HasPersistentResistances = true,
                 Resistances = CopyResistances(character.Resistances),
                 ShieldLayers = CopyShieldLayers(character.ShieldPool),
                 SkillIds = CopySkillIds(character),
+                HasActiveSkillLoadout = character.ActiveSkillLoadout?.IsInitialized == true,
+                ActiveSkillIds = CopyActiveSkillIds(character),
+                ActiveSkillCapacityModifiers = CopyActiveSkillCapacityModifiers(character),
+                SkillTreeProgress = CopySkillTreeProgress(character),
                 PassiveEffects = CopyPassiveEffects(character.PassiveEffects)
             };
 
@@ -490,6 +539,7 @@ namespace Godmist.Systems.SaveLoad
         private static List<string> CopySkillIds(CharacterInstance character)
         {
             var skillIds = new List<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
 
             if (character.Skills == null)
             {
@@ -498,13 +548,63 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var skill in character.Skills)
             {
-                if (skill != null && !string.IsNullOrWhiteSpace(skill.SkillId))
+                if (skill != null
+                    && !string.IsNullOrWhiteSpace(skill.SkillId)
+                    && seen.Add(skill.SkillId))
                 {
                     skillIds.Add(skill.SkillId);
                 }
             }
 
             return skillIds;
+        }
+
+        private static List<string> CopyActiveSkillIds(
+            CharacterInstance character)
+        {
+            return character.ActiveSkillLoadout?.CopyActiveSkillIds()
+                ?? new List<string>();
+        }
+
+        private static List<SkillLoadoutCapacityModifierSaveData>
+            CopyActiveSkillCapacityModifiers(CharacterInstance character)
+        {
+            var result = new List<SkillLoadoutCapacityModifierSaveData>();
+
+            foreach (var modifier in character.ActiveSkillLoadout?
+                         .CopyCapacityModifiers()
+                     ?? new List<SkillLoadoutCapacityModifier>())
+            {
+                if (modifier == null)
+                {
+                    continue;
+                }
+
+                result.Add(new SkillLoadoutCapacityModifierSaveData
+                {
+                    SourceId = modifier.SourceId,
+                    Amount = modifier.Amount
+                });
+            }
+
+            return result;
+        }
+
+        private static List<SkillTreeProgressSaveData> CopySkillTreeProgress(CharacterInstance character)
+        {
+            var result = new List<SkillTreeProgressSaveData>();
+            foreach (var tree in character.SkillTreeProgress ?? new())
+            {
+                if (tree == null || string.IsNullOrWhiteSpace(tree.TreeId)) continue;
+                var copy = new SkillTreeProgressSaveData { TreeId = tree.TreeId };
+                foreach (var node in tree.NodeInvestments ?? new())
+                {
+                    if (!string.IsNullOrWhiteSpace(node.NodeId) && node.Ranks > 0)
+                        copy.NodeInvestments.Add(new SkillTreeNodeInvestmentSaveData { NodeId = node.NodeId, Ranks = node.Ranks });
+                }
+                result.Add(copy);
+            }
+            return result;
         }
 
         private static List<PassiveEffectSaveData> CopyPassiveEffects(
@@ -662,6 +762,10 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.IsEquipment = true;
                 itemSaveData.RequiredClassId = equipmentItem.RequiredClassId;
                 itemSaveData.RequiredLevel = equipmentItem.RequiredLevel;
+                itemSaveData.Quality = equipmentItem.Quality;
+                itemSaveData.PartIds = equipmentItem.PartIds == null
+                    ? new List<string>()
+                    : new List<string>(equipmentItem.PartIds);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
             }
