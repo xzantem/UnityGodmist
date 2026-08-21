@@ -449,6 +449,7 @@ namespace Godmist.Systems.SaveLoad
                 LifeState = character.LifeState,
                 AvailabilityState = character.AvailabilityState,
                 ResourcePool = CopyResourcePool(character.ResourcePool),
+                HasPersistentResistances = true,
                 Resistances = CopyResistances(character.Resistances),
                 ShieldLayers = CopyShieldLayers(character.ShieldPool),
                 SkillIds = CopySkillIds(character),

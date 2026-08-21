@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godmist.Core.Types;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 
@@ -9,6 +10,13 @@ namespace Godmist.Systems.Characters
     public class SkillTreeProgressionSystem
     {
         public const int MaximumPointsPerTree = 50;
+
+        private readonly CharacterStatPipelineSystem statPipeline;
+
+        public SkillTreeProgressionSystem(CharacterStatPipelineSystem statPipeline = null)
+        {
+            this.statPipeline = statPipeline ?? new CharacterStatPipelineSystem();
+        }
 
         public bool TryInvest(CharacterInstance character, string treeId, string nodeId)
         {
@@ -22,7 +30,7 @@ namespace Godmist.Systems.Characters
             var progress = GetOrCreateProgress(character, treeId);
             var investment = progress.NodeInvestments.FirstOrDefault(value => value.NodeId == nodeId);
             var currentRanks = investment?.Ranks ?? 0;
-            if (currentRanks >= node.MaxRanks || GetInvestedRanks(progress) >= MaximumPointsPerTree
+            if (currentRanks >= node.EffectiveMaxRanks || GetInvestedRanks(progress) >= MaximumPointsPerTree
                 || !RequirementsMet(progress, node.Requirements)) return false;
 
             if (investment == null)
@@ -33,7 +41,42 @@ namespace Godmist.Systems.Characters
 
             investment.Ranks++;
             character.AvailableSkillPoints--;
+            statPipeline.Refresh(character);
             return true;
+        }
+
+        public static int GetInvestedRanks(CharacterInstance character, string treeId)
+        {
+            if (character == null || string.IsNullOrWhiteSpace(treeId)) return 0;
+
+            return GetInvestedRanks(character.SkillTreeProgress?.FirstOrDefault(
+                value => value?.TreeId == treeId));
+        }
+
+        public static List<StatModifier> GetGlobalPassiveModifiers(
+            SkillTreeDefinition tree,
+            int investedRanks)
+        {
+            var result = new List<StatModifier>();
+            if (tree?.GlobalPassive?.ModifiersPerPoint == null || investedRanks <= 0)
+            {
+                return result;
+            }
+
+            foreach (var modifier in tree.GlobalPassive.ModifiersPerPoint)
+            {
+                if (modifier == null) continue;
+
+                result.Add(new StatModifier
+                {
+                    StatType = modifier.StatType,
+                    Operation = modifier.Operation,
+                    Stacking = modifier.Stacking,
+                    Value = modifier.Value * investedRanks
+                });
+            }
+
+            return result;
         }
 
         public static int GetRequiredRanksForTier(int tier)
@@ -60,12 +103,7 @@ namespace Godmist.Systems.Characters
             return progress;
         }
 
-        private static int GetInvestedRanks(CharacterInstance character, string treeId)
-        {
-            return GetInvestedRanks(character.SkillTreeProgress?.FirstOrDefault(value => value?.TreeId == treeId));
-        }
-
-        private static int GetInvestedRanks(SkillTreeProgress progress)
+        public static int GetInvestedRanks(SkillTreeProgress progress)
         {
             return progress?.NodeInvestments?.Sum(value => Math.Max(0, value.Ranks)) ?? 0;
         }

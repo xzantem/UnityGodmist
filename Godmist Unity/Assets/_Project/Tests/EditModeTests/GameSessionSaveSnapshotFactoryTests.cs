@@ -128,6 +128,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(characterSaveData.Level, Is.EqualTo(3));
             Assert.That(characterSaveData.CurrentHealth, Is.EqualTo(67));
             Assert.That(characterSaveData.ResourcePool.CurrentValue, Is.EqualTo(18));
+            Assert.That(characterSaveData.HasPersistentResistances, Is.True);
             Assert.That(characterSaveData.Resistances.BleedResistance, Is.EqualTo(0.25f));
             Assert.That(characterSaveData.ShieldLayers[0].CurrentValue, Is.EqualTo(12));
             Assert.That(characterSaveData.PassiveEffects[0].EffectId, Is.EqualTo("status.bleed"));

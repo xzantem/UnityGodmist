@@ -19,6 +19,7 @@ namespace Godmist.Systems.Characters
 
             ApplyEquipmentModifiers(character.Equipment, accumulators);
             ApplyPassiveEffectModifiers(character.PassiveEffects, accumulators);
+            ApplySkillTreeGlobalPassiveModifiers(character, accumulators);
 
             foreach (CharacterStatType statType in Enum.GetValues(typeof(CharacterStatType)))
             {
@@ -79,6 +80,22 @@ namespace Godmist.Systems.Characters
                 if (passiveEffect == null) continue;
 
                 ApplyModifiers(passiveEffect.StatModifiers, accumulators);
+            }
+        }
+
+        private static void ApplySkillTreeGlobalPassiveModifiers(
+            CharacterInstance character,
+            Dictionary<CharacterStatType, StatModifierAccumulator> accumulators)
+        {
+            foreach (var tree in character?.ClassData?.SkillTrees ?? new())
+            {
+                if (tree == null || string.IsNullOrWhiteSpace(tree.Id)) continue;
+
+                ApplyModifiers(
+                    SkillTreeProgressionSystem.GetGlobalPassiveModifiers(
+                        tree,
+                        SkillTreeProgressionSystem.GetInvestedRanks(character, tree.Id)),
+                    accumulators);
             }
         }
 

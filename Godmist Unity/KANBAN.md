@@ -40,13 +40,23 @@ Priorytety:
 
 ## Backlog
 
+### Milestone: Combat v3
+- `[P1] Combat v3 - rozszerzyc execution pipeline skilli` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Efekty: modyfikator AP na jedna nastepna ture; przyspieszenie/spowolnienie ruchu przez zmiane AV o `x% * maxAV`; blokada regeneracji zasobu; OnHit `StatusEffect`; LifeSteal i ResourceDrain; `TimesDamage`; `BonusDamageMultiplierChance` z osobnym rzutem dla kazdego hitu `TimesDamage`.
+  - Dodac `UniqueBuffTypes`: gwarantowany crit nastepnego damage, gwarantowany unik nastepnej obrony, zawsze maksymalny damage oraz rozszerzalny model kolejnych unikalnych buffow.
+  - Obsluga przejmowania czesci obrazen przeciwnika, opcjonalnie z mitygacja po przejeciu; kosztu zdrowia z przeliczeniem na odzysk zasobu; tarczy od procentu average attack; `ModifyResistance` (jezeli brak); AuraBuff/AuraStatus.
+  - Warunkowe buffy: zalezne od sasiednich sojusznikow, progu wydanego zasobu, pozostajacej tarczy i innych warunkow runtime. Charge ma zatrzymywac sie na koncu ruchu, a dlugosc stuna musi uwzgledniac ten moment.
+- `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
+- `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
+- `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
+  - Dodac ksztalty m.in. line, diagonal line i X.
+- `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Oddzielna penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`.
+
 ### Milestone: Rewards and Progression v2
-- `[P1] Dodac trwale ciala i interakcje z lootem w lochu v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Core / Architecture`
-  - Ciala zachowuja nieodebrany loot po walce i save/load; aktualnie sterowana postac domyslnie podnosi znalezione itemy, a gold trafia do puli kampanii.
-- `[P1] Dodac generowanie broni i pancerzy z czesci v1` - `Items / Inventory / Economy`, `Content / Data`, `Design / Systems`
-  - Zbudowac generator z trzech czesci, quality, rarity, levelu itemu i ograniczen klasowych; bez craftingu, upgrade'ow i galdurytow.
-- `[P1] Rewards and Progression v2 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Combat`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami XP/Honor/escape, growth, drzewka i loadout, persistencje cial i lootow oraz deterministyczne generowanie equipmentu.
+
+- `[P1] Dopracowac UX drzewek umiejetnosci v2` - `UI / UX`, `Design / Systems`
+  - Dodac tooltip node'a, czytelne requirementy i powody blokady, stan nieinteraktywny dla niedostepnych inwestycji oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
 
 ### Milestone: UI Workspace v1
 - `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
@@ -72,14 +82,20 @@ Priorytety:
 
 ## In Progress
 
-
 ## Playable / Test
 
-- `[P1] Dodac runtime oraz zapis inwestycji w skill tree v1` - `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Zdefiniowac trzy drzewka, node'y, prerequisite'y, limity punktow i odblokowania poziomow drzewka; bez wykonywania efektow node'ow.
 
 ## Done
 
+- `[P1] Rewards and Progression v2 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Combat`, `Items / Inventory / Economy`, `UI / UX`
+  - Pokryc testami XP/Honor/escape, growth, drzewka i loadout, persistencje cial i lootow oraz deterministyczne generowanie equipmentu.
+
+- `[P1] Dodac generowanie broni i pancerzy z czesci v1` - `Items / Inventory / Economy`, `Content / Data`, `Design / Systems`
+  - Generator buduje bron albo pancerz z trzech czesci, zachowuje quality, rarity, level, wymagania i payload po save/load; bez craftingu, upgrade'ow i galdurytow.
+- `[P1] Dodac runtime oraz zapis inwestycji w skill tree v1` - `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Zdefiniowac trzy drzewka, node'y, prerequisite'y, limity punktow i odblokowania poziomow drzewka; bez wykonywania efektow node'ow.
+- `[P1] Dodac trwale ciala i interakcje z lootem w lochu v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Core / Architecture`
+  - Ciala zachowuja nieodebrany loot po walce i save/load; aktualnie sterowana postac podnosi znalezione itemy kliknieciem, a gold trafia do puli kampanii.
 - `[P1] Rozbic combat rewards na indywidualny loot przeciwnikow v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Core / Architecture`
   - XP i Honor naliczac automatycznie za victory (`+1 Honor` za pokonanego przeciwnika dla aktywnej postaci); gold i itemy przypisac do konkretnych cial. Escape nie daje nagrod i obniza Honor o `5`.
 - `[P1] Dodac modal loadoutu i zamiane aktywnych skilli v1` - `UI / UX`, `Combat`

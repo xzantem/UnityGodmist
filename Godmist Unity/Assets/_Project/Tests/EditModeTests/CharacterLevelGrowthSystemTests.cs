@@ -1,4 +1,5 @@
 using System.Reflection;
+using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Characters;
@@ -61,7 +62,34 @@ namespace Godmist.Tests.EditMode
             Assert.That(levelsGained, Is.EqualTo(1));
             Assert.That(character.Stats.MaxHealth.BaseValue, Is.EqualTo(110f));
             Assert.That(character.CurrentHealth, Is.EqualTo(80));
-            Assert.That(character.AvailableSkillPoints, Is.EqualTo(1));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void CharacterFactory_InitializesBaseResistancesFromDefinition()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var baseResistances = new CharacterResistanceData();
+            SetAutoProperty(definition, "Id", "character.resistance.test");
+            SetAutoProperty(classData, "Id", "class.resistance.test");
+            SetAutoProperty(classData, "ResourceType", ResourceType.None);
+            SetAutoProperty(baseResistances, "BleedResistance", .5f);
+            SetAutoProperty(baseResistances, "PoisonResistance", .7f);
+            SetAutoProperty(baseResistances, "FireResistance", .4f);
+            SetAutoProperty(baseResistances, "WeakeningResistance", .5f);
+            SetAutoProperty(baseResistances, "SuppressionResistance", .35f);
+            SetAutoProperty(baseResistances, "MoveResistance", .35f);
+            SetAutoProperty(definition, "BaseResistances", baseResistances);
+
+            var character = new CharacterInstanceFactory().Create(definition, classData);
+
+            Assert.That(character.Resistances.BleedResistance, Is.EqualTo(.5f));
+            Assert.That(character.Resistances.PoisonResistance, Is.EqualTo(.7f));
+            Assert.That(character.Resistances.FireResistance, Is.EqualTo(.4f));
+            Assert.That(character.Resistances.WeakeningResistance, Is.EqualTo(.5f));
+            Assert.That(character.Resistances.SuppressionResistance, Is.EqualTo(.35f));
+            Assert.That(character.Resistances.MoveResistance, Is.EqualTo(.35f));
         }
 
         private static CharacterInstance CreateCharacter(

@@ -21,6 +21,7 @@ namespace Godmist.Core.Serialization
         public CharacterAvailabilityState AvailabilityState;
 
         public ResourcePoolSaveData ResourcePool = new();
+        public bool HasPersistentResistances;
         public ResistanceSetSaveData Resistances = new();
         public List<ShieldLayerSaveData> ShieldLayers = new();
         public List<string> SkillIds = new();

@@ -1,11 +1,15 @@
 using System.Collections.Generic;
+using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Characters;
+using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Characters;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
@@ -162,6 +166,47 @@ namespace Godmist.Tests.EditMode
                 Is.EqualTo(20f).Within(0.001f));
         }
 
+        [Test]
+        public void Refresh_AppliesGlobalSkillTreePassivePerInvestedPoint()
+        {
+            var character = CreateCharacter();
+            var tree = ScriptableObject.CreateInstance<SkillTreeDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+
+            try
+            {
+                SetAutoProperty(tree, "Id", "tree.test");
+                SetAutoProperty(
+                    tree,
+                    "GlobalPassive",
+                    CreateGlobalPassive(
+                        CharacterStatType.CritChance,
+                        StatModifierOperation.FlatAbsolute,
+                        0.002f));
+                SetAutoProperty(classData, "SkillTrees", new List<SkillTreeDefinition> { tree });
+                character.ClassData = classData;
+                character.SkillTreeProgress.Add(new SkillTreeProgress
+                {
+                    TreeId = tree.Id,
+                    NodeInvestments = new List<SkillTreeNodeInvestment>
+                    {
+                        new() { NodeId = "node.first", Ranks = 3 }
+                    }
+                });
+
+                statPipeline.Refresh(character);
+
+                Assert.That(
+                    character.Stats.CritChance.GetValue(),
+                    Is.EqualTo(0.106f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(classData);
+                Object.DestroyImmediate(tree);
+            }
+        }
+
         private static CharacterInstance CreateCharacter()
         {
             return new CharacterInstance
@@ -188,6 +233,34 @@ namespace Godmist.Tests.EditMode
                 Equipment = new EquipmentSet(),
                 PassiveEffects = new List<PassiveEffectRuntime>()
             };
+        }
+
+        private static SkillTreeGlobalPassiveDefinition CreateGlobalPassive(
+            CharacterStatType statType,
+            StatModifierOperation operation,
+            float value)
+        {
+            var passive = new SkillTreeGlobalPassiveDefinition();
+            SetAutoProperty(
+                passive,
+                "ModifiersPerPoint",
+                new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = statType,
+                        Operation = operation,
+                        Value = value
+                    }
+                });
+            return passive;
+        }
+
+        private static void SetAutoProperty(object target, string propertyName, object value)
+        {
+            target.GetType().GetField(
+                $"<{propertyName}>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
         }
     }
 }

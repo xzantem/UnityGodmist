@@ -113,12 +113,9 @@ namespace Godmist.Views.Exploration
             if (Input.GetKeyDown(KeyCode.P))
             {
                 skillLoadoutModal?.Close();
-                skillTreeProgressionPanel ??= FindFirstObjectByType<SkillTreeProgressionPanelView>(
-                    FindObjectsInactive.Include);
-
                 if (skillTreeProgressionPanel == null)
                 {
-                    Debug.LogWarning("Nie znaleziono SkillTreeProgressionPanelView w scenie.", this);
+                    Debug.LogWarning("Nie przypisano SkillTreeProgressionPanelView.", this);
                     return;
                 }
 

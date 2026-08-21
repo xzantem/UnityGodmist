@@ -21,4 +21,15 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public int MaxResource { get; private set; } = 100;
         [field: SerializeField] public int ResourceRegeneration { get; private set; }
     }
+
+    [Serializable]
+    public class CharacterResistanceData
+    {
+        [field: SerializeField, Range(0f, 1f)] public float BleedResistance { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float PoisonResistance { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float FireResistance { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float WeakeningResistance { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float SuppressionResistance { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float MoveResistance { get; private set; }
+    }
 }

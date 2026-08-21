@@ -14,6 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
   <Id>k__BackingField: tree.scout.guardian
   <DisplayName>k__BackingField: "Stra\u017Cnik"
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Czujny Straznik
+    <Description>k__BackingField: "+0.5% obrony fizycznej za kazdy wydany punkt."
+    <ModifiersPerPoint>k__BackingField:
+    - StatType: 3
+      Operation: 1
+      Stacking: 0
+      Value: 0.005
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.scout.assassin.test2
     <DisplayName>k__BackingField: test2
@@ -95,7 +103,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 3
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.throw_power
       <MinimumRanks>k__BackingField: 1
@@ -149,7 +157,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.rapid_strikes
     <DisplayName>k__BackingField: "Gwa\u0142towne Uderzenia"
@@ -234,7 +242,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 5
     <Column>k__BackingField: 1
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.forward_roll
       <MinimumRanks>k__BackingField: 1
@@ -245,7 +253,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 5
     <Column>k__BackingField: 2
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.foresight
     <DisplayName>k__BackingField: Przewidywanie
@@ -262,7 +270,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 5
     <Column>k__BackingField: 4
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.dishonorable_cut
     <DisplayName>k__BackingField: "Ci\u0119cie bez Honoru"
@@ -271,7 +279,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 5
     <Column>k__BackingField: 5
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.pommel_strike
       <MinimumRanks>k__BackingField: 1
@@ -282,7 +290,7 @@ MonoBehaviour:
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 6
     <Column>k__BackingField: 2
-    <MaxRanks>k__BackingField: 0
+    <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.forward_roll
       <MinimumRanks>k__BackingField: 1

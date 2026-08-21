@@ -354,6 +354,7 @@ namespace Godmist.Systems.SaveLoad
             character.SkillTreeProgress = RestoreSkillTreeProgress(
                 saveData.SkillTreeProgress,
                 classData);
+            CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character);
             character.CurrentHealth = saveData.CurrentHealth;
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
@@ -364,9 +365,12 @@ namespace Godmist.Systems.SaveLoad
                 character.ResourcePool,
                 saveData.ResourcePool);
 
-            RestoreResistances(
-                character.Resistances,
-                saveData.Resistances);
+            if (saveData.HasPersistentResistances)
+            {
+                RestoreResistances(
+                    character.Resistances,
+                    saveData.Resistances);
+            }
 
             if (!TryRestoreShieldLayers(
                     character,
@@ -779,7 +783,7 @@ namespace Godmist.Systems.SaveLoad
                         continue;
                     }
 
-                    var ranks = Math.Min(node.Ranks, nodeDefinition.MaxRanks);
+                    var ranks = Math.Min(node.Ranks, nodeDefinition.EffectiveMaxRanks);
                     if (!aggregatedRanks.TryGetValue(
                             node.NodeId,
                             out var existingRanks)
@@ -865,7 +869,7 @@ namespace Godmist.Systems.SaveLoad
             {
                 if (node != null
                     && !string.IsNullOrWhiteSpace(node.Id)
-                    && node.MaxRanks > 0
+                    && node.EffectiveMaxRanks > 0
                     && seenNodeIds.Add(node.Id))
                 {
                     result.Add(node);

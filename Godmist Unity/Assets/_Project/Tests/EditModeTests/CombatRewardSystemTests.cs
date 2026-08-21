@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Items;
@@ -82,10 +83,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(combatSession.RewardsGranted, Is.True);
 
             Assert.That(firstActiveCharacter.Level, Is.EqualTo(2));
-            Assert.That(firstActiveCharacter.AvailableSkillPoints, Is.EqualTo(1));
+            Assert.That(firstActiveCharacter.AvailableSkillPoints, Is.EqualTo(2));
 
             Assert.That(secondActiveCharacter.Level, Is.EqualTo(2));
-            Assert.That(secondActiveCharacter.AvailableSkillPoints, Is.EqualTo(1));
+            Assert.That(secondActiveCharacter.AvailableSkillPoints, Is.EqualTo(2));
             Assert.That(firstActiveCharacter.Honor, Is.EqualTo(1));
             Assert.That(secondActiveCharacter.Honor, Is.EqualTo(1));
 
@@ -207,6 +208,55 @@ namespace Godmist.Tests.EditMode
                 combatRewardSystem.TryApplyEscapePenalty(gameSession, combatSession),
                 Is.True);
             Assert.That(abandonedCharacter.Honor, Is.EqualTo(-3));
+        }
+
+        [Test]
+        public void TryApplyEscapePenalty_AfterEscapePenalizesAliveAndDownedCombatants()
+        {
+            var gameSession = new GameSession();
+            var escapingCharacter = CreateCharacter("character.escaping");
+            escapingCharacter.Honor = 10;
+            var downedCharacter = CreateCharacter("character.downed");
+            downedCharacter.LifeState = CharacterLifeState.Downed;
+            downedCharacter.Honor = 4;
+
+            gameSession.TryRegisterCharacter(escapingCharacter);
+            gameSession.TryRegisterCharacter(downedCharacter);
+            gameSession.TryAddCharacterToActiveParty(escapingCharacter.CharacterId);
+            gameSession.TryAddCharacterToActiveParty(downedCharacter.CharacterId);
+
+            var escapingUnit = new BattleUnit
+            {
+                IsPlayerSide = true,
+                IsReadyToEscape = true,
+                Character = escapingCharacter
+            };
+            var downedUnit = new BattleUnit
+            {
+                IsPlayerSide = true,
+                Character = downedCharacter
+            };
+            var combatSession = new CombatSession
+            {
+                ActiveUnit = escapingUnit,
+                Units = new List<BattleUnit> { escapingUnit, downedUnit },
+                Outcome = CombatOutcomeState.Ongoing,
+                CurrentEscapeChancePercent = CombatEscapeSystem.BaseEscapeChancePercent
+            };
+
+            Assert.That(
+                new CombatEscapeSystem().TryEscape(combatSession, escapingUnit),
+                Is.True);
+            Assert.That(combatSession.Outcome, Is.EqualTo(CombatOutcomeState.Escaped));
+            Assert.That(downedCharacter.LifeState, Is.EqualTo(CharacterLifeState.Dead));
+
+            Assert.That(
+                new CombatRewardSystem().TryApplyEscapePenalty(
+                    gameSession,
+                    combatSession),
+                Is.True);
+            Assert.That(escapingCharacter.Honor, Is.EqualTo(5));
+            Assert.That(downedCharacter.Honor, Is.EqualTo(-1));
         }
 
         private static CharacterInstance CreateCharacter(string characterId)

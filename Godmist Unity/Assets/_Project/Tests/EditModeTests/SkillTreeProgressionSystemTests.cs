@@ -45,6 +45,23 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TryInvest_NormalizesLegacyZeroMaxRanksToOne()
+        {
+            var character = Character(Tree(Node("node.legacy", 1, 0)), points: 2);
+            var system = new SkillTreeProgressionSystem();
+
+            Assert.That(
+                system.TryInvest(character, "tree.test", "node.legacy"),
+                Is.True);
+            Assert.That(
+                system.TryInvest(character, "tree.test", "node.legacy"),
+                Is.False);
+            Assert.That(
+                character.SkillTreeProgress[0].NodeInvestments[0].Ranks,
+                Is.EqualTo(1));
+        }
+
+        [Test]
         public void TryInvest_StopsAtFiftyPointsPerTree()
         {
             var nodes = new SkillTreeNodeDefinition[51];

@@ -29,6 +29,7 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public string RecruitmentQuestId { get; private set; } = string.Empty;
         [field: SerializeField] public CharacterClassData ClassData { get; private set; }
         [field: SerializeField] public CharacterBaseStatsData BaseStats { get; private set; } = new();
+        [field: SerializeField] public CharacterResistanceData BaseResistances { get; private set; } = new();
         [field: SerializeField] public CharacterGrowthData GrowthData { get; private set; } = new();
         [field: SerializeField] public SkillData BasicAttackSkill { get; private set; }
         [field: SerializeField] public List<SkillData> StartingSkills { get; private set; } = new();

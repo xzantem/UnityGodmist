@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Core.Serialization;
 using Godmist.Data.Characters;
 using Godmist.Data.Skills;
@@ -98,6 +99,13 @@ namespace Godmist.Tests.EditMode
                 SetAutoProperty(characterDefinition, "Id", "character.save");
                 SetAutoProperty(classData, "Id", "class.save");
                 SetAutoProperty(classData, "ResourceType", ResourceType.Momentum);
+                SetAutoProperty(
+                    skillTree,
+                    "GlobalPassive",
+                    CreateGlobalPassive(
+                        CharacterStatType.CritChance,
+                        StatModifierOperation.FlatAbsolute,
+                        0.002f));
                 classData.SkillTrees.Add(skillTree);
 
                 catalog.CharacterDefinitions.Add(characterDefinition);
@@ -180,6 +188,11 @@ namespace Godmist.Tests.EditMode
                 Assert.That(
                     restoredCharacter.SkillTreeProgress[0].NodeInvestments[0].Ranks,
                     Is.EqualTo(2));
+                Assert.That(
+                    restoredCharacter.Stats.CritChance.GetValue(),
+                    Is.EqualTo(
+                        restoredCharacter.Stats.CritChance.BaseValue + 0.004f)
+                        .Within(0.001f));
             }
             finally
             {
@@ -1332,6 +1345,27 @@ namespace Godmist.Tests.EditMode
                 new List<SkillTreeNodeRequirement>());
 
             return tree;
+        }
+
+        private static SkillTreeGlobalPassiveDefinition CreateGlobalPassive(
+            CharacterStatType statType,
+            StatModifierOperation operation,
+            float value)
+        {
+            var passive = new SkillTreeGlobalPassiveDefinition();
+            SetAutoProperty(
+                passive,
+                "ModifiersPerPoint",
+                new List<StatModifier>
+                {
+                    new()
+                    {
+                        StatType = statType,
+                        Operation = operation,
+                        Value = value
+                    }
+                });
+            return passive;
         }
 
         private static SkillTreeDefinition CreateSkillTreeWithNodes(

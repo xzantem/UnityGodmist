@@ -77,7 +77,7 @@ namespace Godmist.Systems.Characters
                     maxResource,
                     baseStats.ResourceRegeneration),
 
-                Resistances = new ResistanceSet(),
+                Resistances = CreateResistances(definition.BaseResistances),
                 ShieldPool = new ShieldPool(),
                 Inventory = new Inventory(),
                 Skills = CopyDistinctSkills(
@@ -115,6 +115,25 @@ namespace Godmist.Systems.Characters
             // Compatibility only for old content without any per-character
             // skill configuration. New content must use CharacterDefinition.
             return classData?.BasicAttackSkill;
+        }
+
+        private static ResistanceSet CreateResistances(
+            CharacterResistanceData baseResistances)
+        {
+            if (baseResistances == null)
+            {
+                return new ResistanceSet();
+            }
+
+            return new ResistanceSet
+            {
+                BleedResistance = baseResistances.BleedResistance,
+                PoisonResistance = baseResistances.PoisonResistance,
+                FireResistance = baseResistances.FireResistance,
+                WeakeningResistance = baseResistances.WeakeningResistance,
+                SuppressionResistance = baseResistances.SuppressionResistance,
+                MoveResistance = baseResistances.MoveResistance
+            };
         }
 
         private static List<SkillData> CopyDistinctSkills(
