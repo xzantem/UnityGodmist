@@ -10,11 +10,13 @@ namespace Godmist.Views.Dungeons
     {
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private DungeonChestView chestPrefab;
+        [SerializeField] private DungeonEnemyBodyView enemyBodyPrefab;
         [SerializeField] private DungeonObstacleView obstaclePrefab;
         [SerializeField] private DungeonDoorView doorPrefab;
         [SerializeField] private Transform objectsRoot;
 
         private readonly List<DungeonObjectView> spawnedObjects = new();
+        private readonly List<GameObject> spawnedEnemyBodies = new();
 
         public bool Rebuild(
             DungeonFloorInstance floor,
@@ -111,6 +113,34 @@ namespace Godmist.Views.Dungeons
                 }
             }
 
+            foreach (var body in floor.EnemyBodies)
+            {
+                if (body == null || body.IsEmpty)
+                {
+                    continue;
+                }
+
+                var worldPosition = floorTilemap.GetCellCenterWorld(
+                    new Vector3Int(
+                        body.Position.x,
+                        body.Position.y,
+                        0));
+
+                var parent = objectsRoot != null ? objectsRoot : transform;
+                var bodyView = enemyBodyPrefab != null
+                    ? Instantiate(enemyBodyPrefab, parent)
+                    : DungeonEnemyBodyView.CreateFallback(parent);
+
+                bodyView.name = $"EnemyBody_{body.InstanceId}";
+                bodyView.Initialize(
+                    partyController,
+                    floor,
+                    body,
+                    worldPosition);
+
+                spawnedEnemyBodies.Add(bodyView.gameObject);
+            }
+
             return true;
         }
 
@@ -130,6 +160,16 @@ namespace Godmist.Views.Dungeons
             }
 
             spawnedObjects.Clear();
+
+            foreach (var bodyObject in spawnedEnemyBodies)
+            {
+                if (bodyObject != null)
+                {
+                    Destroy(bodyObject);
+                }
+            }
+
+            spawnedEnemyBodies.Clear();
         }
     }
 }

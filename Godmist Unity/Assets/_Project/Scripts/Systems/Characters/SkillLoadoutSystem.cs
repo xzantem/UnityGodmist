@@ -16,7 +16,7 @@ namespace Godmist.Systems.Characters
 
             return character.ActiveSkillLoadout.TryInitialize(
                 GetKnownSkillIds(character),
-                character.ClassData?.BasicAttackSkill?.SkillId);
+                character.GetBasicAttackSkill()?.SkillId);
         }
 
         public bool TrySetActiveSkills(
@@ -143,7 +143,7 @@ namespace Godmist.Systems.Characters
 
             return character.ActiveSkillLoadout.TryInitialize(
                 GetKnownSkillIds(character),
-                character.ClassData?.BasicAttackSkill?.SkillId,
+                character.GetBasicAttackSkill()?.SkillId,
                 activeSkillIds,
                 character.ActiveSkillLoadout.CopyCapacityModifiers());
         }

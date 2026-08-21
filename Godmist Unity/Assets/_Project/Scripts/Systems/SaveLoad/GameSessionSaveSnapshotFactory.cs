@@ -105,7 +105,10 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (!TryCaptureActiveDungeon(session, saveData))
+            if (!TryCaptureActiveDungeon(
+                    session,
+                    saveData,
+                    capturedItemIds))
             {
                 ClearRuntimePayload(saveData);
                 return false;
@@ -272,7 +275,8 @@ namespace Godmist.Systems.SaveLoad
 
         private static bool TryCaptureActiveDungeon(
             GameSession session,
-            GameSaveData saveData)
+            GameSaveData saveData,
+            HashSet<string> capturedItemIds)
         {
             if (session.ActiveDungeon == null)
             {
@@ -341,6 +345,43 @@ namespace Godmist.Systems.SaveLoad
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 
+                foreach (var body in floor.EnemyBodies)
+                {
+                    if (body == null
+                        || string.IsNullOrWhiteSpace(body.InstanceId)
+                        || string.IsNullOrWhiteSpace(body.EnemyInstanceId)
+                        || body.Gold < 0)
+                    {
+                        ClearRuntimePayload(saveData);
+                        return false;
+                    }
+
+                    var bodyDelta = new DungeonEnemyBodySaveData
+                    {
+                        BodyInstanceId = body.InstanceId,
+                        EnemyInstanceId = body.EnemyInstanceId,
+                        PositionX = body.Position.x,
+                        PositionY = body.Position.y,
+                        Gold = body.Gold
+                    };
+
+                    foreach (var item in body.Items)
+                    {
+                        if (!TryCaptureItem(
+                                item,
+                                saveData,
+                                capturedItemIds))
+                        {
+                            ClearRuntimePayload(saveData);
+                            return false;
+                        }
+
+                        bodyDelta.ItemInstanceIds.Add(item.InstanceId);
+                    }
+
+                    floorDelta.EnemyBodyDeltas.Add(bodyDelta);
+                }
+
                 foreach (var encounter in floor.Encounters)
                 {
                     if (encounter == null)
@@ -353,7 +394,10 @@ namespace Godmist.Systems.SaveLoad
                         {
                             EncounterInstanceId = encounter.InstanceId,
                             DefeatedEnemyInstanceIds = new List<string>(
-                                encounter.DefeatedEnemyInstanceIds)
+                                encounter.DefeatedEnemyInstanceIds),
+                            GeneratedEnemyBodyEnemyInstanceIds =
+                                new List<string>(
+                                    encounter.GeneratedEnemyBodyEnemyInstanceIds)
                         });
                 }
 

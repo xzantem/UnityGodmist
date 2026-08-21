@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
+using Godmist.Views.Dungeons;
 using Godmist.Views.UI;
 using UnityEngine;
 
@@ -152,6 +153,11 @@ namespace Godmist.Views.Exploration
         private void TryMoveLeaderToPointerPosition()
         {
             var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
+
+            if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
+            {
+                return;
+            }
 
             movementDestination = new Vector2(
                 pointerWorldPosition.x,

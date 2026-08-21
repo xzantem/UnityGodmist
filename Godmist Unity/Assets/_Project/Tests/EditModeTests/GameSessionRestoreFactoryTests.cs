@@ -836,6 +836,7 @@ namespace Godmist.Tests.EditMode
             try
             {
                 SetAutoProperty(characterDefinition, "Id", "character.loadout-replace");
+                SetAutoProperty(characterDefinition, "BasicAttackSkill", basicSkill);
                 SetAutoProperty(
                     characterDefinition,
                     "StartingSkills",
@@ -958,6 +959,7 @@ namespace Godmist.Tests.EditMode
             try
             {
                 SetAutoProperty(characterDefinition, "Id", "character.factory");
+                SetAutoProperty(characterDefinition, "BasicAttackSkill", basicSkill);
                 SetAutoProperty(
                     characterDefinition,
                     "StartingSkills",
@@ -1010,6 +1012,54 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void CharacterInstanceFactory_UsesCharacterBasicAttackInsteadOfClassBasicAttack()
+        {
+            var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var characterBasicSkill = CreateSkill("skill.character_basic");
+            var classBasicSkill = CreateSkill("skill.class_basic");
+            var extraSkill = CreateSkill("skill.extra");
+
+            try
+            {
+                SetAutoProperty(characterDefinition, "Id", "character.unique-basic");
+                SetAutoProperty(
+                    characterDefinition,
+                    "BasicAttackSkill",
+                    characterBasicSkill);
+                SetAutoProperty(
+                    characterDefinition,
+                    "StartingSkills",
+                    new List<SkillData> { extraSkill });
+                SetAutoProperty(classData, "Id", "class.unrelated-basic");
+                SetAutoProperty(classData, "ResourceType", ResourceType.Momentum);
+                SetAutoProperty(classData, "BasicAttackSkill", classBasicSkill);
+
+                var character = new CharacterInstanceFactory().Create(
+                    characterDefinition,
+                    classData);
+
+                Assert.That(
+                    character.Skills.ConvertAll(skill => skill.SkillId),
+                    Is.EqualTo(new[] { "skill.extra", "skill.character_basic" }));
+                Assert.That(
+                    character.ActiveSkillLoadout.BasicAttackSkillId,
+                    Is.EqualTo("skill.character_basic"));
+                Assert.That(
+                    character.Skills.Exists(skill => skill == classBasicSkill),
+                    Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(extraSkill);
+                Object.DestroyImmediate(classBasicSkill);
+                Object.DestroyImmediate(characterBasicSkill);
+                Object.DestroyImmediate(classData);
+                Object.DestroyImmediate(characterDefinition);
+            }
+        }
+
+        [Test]
         public void SaveRestore_RoundTripsActiveSkillLoadoutAndLegacySaveMigrates()
         {
             var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();
@@ -1023,6 +1073,7 @@ namespace Godmist.Tests.EditMode
             try
             {
                 SetAutoProperty(characterDefinition, "Id", "character.save-loadout");
+                SetAutoProperty(characterDefinition, "BasicAttackSkill", basicSkill);
                 SetAutoProperty(
                     characterDefinition,
                     "StartingSkills",
@@ -1241,7 +1292,10 @@ namespace Godmist.Tests.EditMode
                     Is.True);
                 var restoredCharacter = restoredSession.CharactersById[
                     "character.legacy-fallback"];
-                Assert.That(restoredCharacter.ActiveSkillLoadout.IsInitialized, Is.False);
+                Assert.That(restoredCharacter.ActiveSkillLoadout.IsInitialized, Is.True);
+                Assert.That(
+                    restoredCharacter.ActiveSkillLoadout.BasicAttackSkillId,
+                    Is.EqualTo("skill.first"));
                 Assert.That(
                     restoredCharacter.GetActiveSkills(),
                     Is.EqualTo(new[] { firstSkill, secondSkill }));

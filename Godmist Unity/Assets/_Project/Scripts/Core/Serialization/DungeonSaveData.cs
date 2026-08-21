@@ -26,6 +26,18 @@ namespace Godmist.Core.Serialization
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
+        public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonEnemyBodySaveData
+    {
+        public string BodyInstanceId = string.Empty;
+        public string EnemyInstanceId = string.Empty;
+        public int PositionX;
+        public int PositionY;
+        public int Gold;
+        public List<string> ItemInstanceIds = new();
     }
 
     [Serializable]
@@ -42,5 +54,6 @@ namespace Godmist.Core.Serialization
     {
         public string EncounterInstanceId = string.Empty;
         public List<string> DefeatedEnemyInstanceIds = new();
+        public List<string> GeneratedEnemyBodyEnemyInstanceIds = new();
     }
 }

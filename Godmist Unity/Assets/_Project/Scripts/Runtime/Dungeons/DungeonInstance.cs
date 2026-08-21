@@ -182,5 +182,25 @@ namespace Godmist.Runtime.Dungeons
         {
             return TryGetFloor(CurrentFloorIndex, out floor);
         }
+
+        public bool TryGetEnemyBody(
+            string bodyInstanceId,
+            out DungeonEnemyBodyInstance body)
+        {
+            body = null;
+
+            if (string.IsNullOrWhiteSpace(bodyInstanceId)) return false;
+
+            foreach (var floor in floors)
+            {
+                if (floor != null
+                    && floor.TryGetEnemyBody(bodyInstanceId, out body))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

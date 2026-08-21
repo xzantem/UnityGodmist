@@ -10,12 +10,14 @@ namespace Godmist.Runtime.Dungeons
         private readonly List<DungeonRoomConnection> connections = new();
         private readonly List<DungeonEncounterInstance> encounters = new();
         private readonly List<DungeonObjectInstance> objects = new();
+        private readonly List<DungeonEnemyBodyInstance> enemyBodies = new();
 
         public int FloorIndex { get; }
         public IReadOnlyList<DungeonRoomInstance> Rooms => rooms;
         public IReadOnlyList<DungeonRoomConnection> Connections => connections;
         public IReadOnlyList<DungeonEncounterInstance> Encounters => encounters;
         public IReadOnlyList<DungeonObjectInstance> Objects => objects;
+        public IReadOnlyList<DungeonEnemyBodyInstance> EnemyBodies => enemyBodies;
 
         public DungeonFloorMap Map { get; private set; }
 
@@ -118,6 +120,67 @@ namespace Godmist.Runtime.Dungeons
             }
 
             return false;
+        }
+
+        public bool TryAddEnemyBody(DungeonEnemyBodyInstance body)
+        {
+            if (body == null
+                || body.IsEmpty
+                || enemyBodies.Exists(existing =>
+                    existing != null
+                    && string.Equals(
+                        existing.InstanceId,
+                        body.InstanceId,
+                        StringComparison.Ordinal)))
+            {
+                return false;
+            }
+
+            enemyBodies.Add(body);
+            return true;
+        }
+
+        public bool TryGetEnemyBody(
+            string bodyInstanceId,
+            out DungeonEnemyBodyInstance body)
+        {
+            body = null;
+
+            if (string.IsNullOrWhiteSpace(bodyInstanceId)) return false;
+
+            foreach (var candidate in enemyBodies)
+            {
+                if (candidate == null
+                    || !string.Equals(
+                        candidate.InstanceId,
+                        bodyInstanceId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                body = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryRemoveEnemyBody(string bodyInstanceId)
+        {
+            if (string.IsNullOrWhiteSpace(bodyInstanceId)) return false;
+
+            var index = enemyBodies.FindIndex(candidate =>
+                candidate != null
+                && string.Equals(
+                    candidate.InstanceId,
+                    bodyInstanceId,
+                    StringComparison.Ordinal));
+
+            if (index < 0) return false;
+
+            enemyBodies.RemoveAt(index);
+            return true;
         }
 
         public bool TryRestoreEncounterDefeatedEnemyInstanceIds(

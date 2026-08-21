@@ -80,7 +80,7 @@ namespace Godmist.Systems.Characters
                 Inventory = new Inventory(),
                 Skills = CopyDistinctSkills(
                     definition.StartingSkills,
-                    classData.BasicAttackSkill),
+                    ResolveBasicAttackSkill(definition, classData)),
 
                 SkillTreeProgress = new List<SkillTreeProgress>(),
 
@@ -92,9 +92,32 @@ namespace Godmist.Systems.Characters
             return character;
         }
 
+        private static SkillData ResolveBasicAttackSkill(
+            CharacterDefinition definition,
+            CharacterClassData classData)
+        {
+            if (definition?.BasicAttackSkill != null)
+            {
+                return definition.BasicAttackSkill;
+            }
+
+            foreach (var skill in definition?.StartingSkills
+                         ?? new List<SkillData>())
+            {
+                if (skill != null && !string.IsNullOrWhiteSpace(skill.SkillId))
+                {
+                    return skill;
+                }
+            }
+
+            // Compatibility only for old content without any per-character
+            // skill configuration. New content must use CharacterDefinition.
+            return classData?.BasicAttackSkill;
+        }
+
         private static List<SkillData> CopyDistinctSkills(
             IReadOnlyList<SkillData> source,
-            SkillData classBasicAttackSkill)
+            SkillData basicAttackSkill)
         {
             var result = new List<SkillData>();
             var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -111,11 +134,11 @@ namespace Godmist.Systems.Characters
                 result.Add(skill);
             }
 
-            if (classBasicAttackSkill != null
-                && !string.IsNullOrWhiteSpace(classBasicAttackSkill.SkillId)
-                && seen.Add(classBasicAttackSkill.SkillId))
+            if (basicAttackSkill != null
+                && !string.IsNullOrWhiteSpace(basicAttackSkill.SkillId)
+                && seen.Add(basicAttackSkill.SkillId))
             {
-                result.Add(classBasicAttackSkill);
+                result.Add(basicAttackSkill);
             }
 
             return result;

@@ -28,8 +28,12 @@ MonoBehaviour:
   - {fileID: 5928817031311551676, guid: 870894bddc802a54f988b4c9965a8baa, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
   <HitSprite>k__BackingField: {fileID: 2380540920117777034, guid: adba2cf0ab753f44b97680b8b6f07933, type: 3}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
+  <AiRole>k__BackingField: 0
+  <AiPersonality>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
+  <ClassData>k__BackingField: {fileID: 0}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 100
     <MinAttack>k__BackingField: 8
@@ -43,8 +47,21 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 100
     <MaxResource>k__BackingField: 100
     <ResourceRegeneration>k__BackingField: 0
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 0
+    <MinAttack>k__BackingField: 0
+    <MaxAttack>k__BackingField: 0
+    <PhysicalDefense>k__BackingField: 0
+    <MagicalDefense>k__BackingField: 0
+    <Dodge>k__BackingField: 0
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
   <StartingSkills>k__BackingField:
-  - {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
   - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
   - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}

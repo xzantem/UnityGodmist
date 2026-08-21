@@ -46,6 +46,26 @@ namespace Godmist.Runtime.Characters
 
         public List<PassiveEffectRuntime> PassiveEffects = new();
 
+        public SkillData GetBasicAttackSkill()
+        {
+            if (Definition?.BasicAttackSkill != null)
+            {
+                return Definition.BasicAttackSkill;
+            }
+
+            // Serialized content created before the per-character basic-attack
+            // field uses the first known skill as its deterministic migration.
+            foreach (var skill in Skills ?? new List<SkillData>())
+            {
+                if (skill != null && !string.IsNullOrWhiteSpace(skill.SkillId))
+                {
+                    return skill;
+                }
+            }
+
+            return ClassData?.BasicAttackSkill;
+        }
+
         public IReadOnlyList<SkillData> GetActiveSkills()
         {
             // Classes without the new explicit basic-attack reference are still

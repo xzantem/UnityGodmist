@@ -175,7 +175,9 @@ namespace Godmist.Systems.SaveLoad
                 || !TryRestoreActiveDungeon(
                     restoredSession,
                     saveData.ActiveDungeon,
-                    contentCatalog))
+                    contentCatalog,
+                    itemsById,
+                    assignedItemIds))
             {
                 return false;
             }
@@ -393,8 +395,11 @@ namespace Godmist.Systems.SaveLoad
             CharacterInstance character,
             CharacterSaveData saveData)
         {
-            var basicAttackSkillId = character.ClassData?.BasicAttackSkill?.SkillId;
             var knownSkillIds = GetSkillIds(character.Skills);
+            var basicAttackSkillId = ResolveRestoredBasicAttackSkillId(
+                character,
+                saveData,
+                knownSkillIds);
 
             if (string.IsNullOrWhiteSpace(basicAttackSkillId)
                 || !knownSkillIds.Contains(basicAttackSkillId))
@@ -431,6 +436,64 @@ namespace Godmist.Systems.SaveLoad
                 basicAttackSkillId,
                 saveData.ActiveSkillIds,
                 modifiers);
+        }
+
+        private static string ResolveRestoredBasicAttackSkillId(
+            CharacterInstance character,
+            CharacterSaveData saveData,
+            IReadOnlyCollection<string> knownSkillIds)
+        {
+            var configuredBasicSkillId = character?.Definition?.BasicAttackSkill?.SkillId;
+            if (!string.IsNullOrWhiteSpace(configuredBasicSkillId)
+                && ContainsKnownSkillId(knownSkillIds, configuredBasicSkillId))
+            {
+                return configuredBasicSkillId;
+            }
+
+            // Active loadouts always store their pinned basic attack at index 0.
+            // This preserves both saves made before the ownership correction and
+            // saves made by legacy assets using the first starting skill.
+            if (saveData?.HasActiveSkillLoadout == true)
+            {
+                foreach (var skillId in saveData.ActiveSkillIds
+                             ?? new List<string>())
+                {
+                    if (!string.IsNullOrWhiteSpace(skillId)
+                        && ContainsKnownSkillId(knownSkillIds, skillId))
+                    {
+                        return skillId;
+                    }
+                }
+            }
+
+            var legacyClassBasicSkillId = character?.ClassData?.BasicAttackSkill?.SkillId;
+            if (!string.IsNullOrWhiteSpace(legacyClassBasicSkillId)
+                && ContainsKnownSkillId(knownSkillIds, legacyClassBasicSkillId))
+            {
+                return legacyClassBasicSkillId;
+            }
+
+            return character?.GetBasicAttackSkill()?.SkillId ?? string.Empty;
+        }
+
+        private static bool ContainsKnownSkillId(
+            IReadOnlyCollection<string> knownSkillIds,
+            string skillId)
+        {
+            if (knownSkillIds == null || string.IsNullOrWhiteSpace(skillId))
+            {
+                return false;
+            }
+
+            foreach (var knownSkillId in knownSkillIds)
+            {
+                if (string.Equals(knownSkillId, skillId, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static List<string> GetSkillIds(
@@ -544,28 +607,15 @@ namespace Godmist.Systems.SaveLoad
                 character.Skills.Add(skill);
             }
 
-            var classBasicAttackSkill = character.ClassData?.BasicAttackSkill;
-            if (classBasicAttackSkill == null
-                || string.IsNullOrWhiteSpace(classBasicAttackSkill.SkillId)
-                || character.Skills.Exists(skill => string.Equals(
+            var basicAttackSkill = character.Definition?.BasicAttackSkill;
+            if (basicAttackSkill != null
+                && !string.IsNullOrWhiteSpace(basicAttackSkill.SkillId)
+                && !character.Skills.Exists(skill => string.Equals(
                     skill?.SkillId,
-                    classBasicAttackSkill.SkillId,
+                    basicAttackSkill.SkillId,
                     StringComparison.Ordinal)))
             {
-                return true;
-            }
-
-            if (contentCatalog.TryGetSkill(
-                    classBasicAttackSkill.SkillId,
-                    out var catalogBasicAttackSkill))
-            {
-                character.Skills.Add(catalogBasicAttackSkill);
-            }
-            else
-            {
-                // The class reference is itself an authoritative runtime
-                // definition; legacy saves did not need to list class skills.
-                character.Skills.Add(classBasicAttackSkill);
+                character.Skills.Add(basicAttackSkill);
             }
 
             return true;
@@ -1191,7 +1241,9 @@ namespace Godmist.Systems.SaveLoad
         private bool TryRestoreActiveDungeon(
             GameSession session,
             DungeonSaveData saveData,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
         {
             if (saveData == null
                 || string.IsNullOrWhiteSpace(saveData.DungeonId))
@@ -1235,7 +1287,9 @@ namespace Godmist.Systems.SaveLoad
                 || !TryRestoreDungeonFloorDeltas(
                     dungeon,
                     saveData.FloorDeltas,
-                    saveData.EncounterDeltas)
+                    saveData.EncounterDeltas,
+                    itemsById,
+                    assignedItemIds)
                 || !session.TrySetActiveDungeon(dungeon))
             {
                 return false;
@@ -1247,7 +1301,9 @@ namespace Godmist.Systems.SaveLoad
         private static bool TryRestoreDungeonFloorDeltas(
             DungeonInstance dungeon,
             List<DungeonFloorDeltaSaveData> floorDeltas,
-            List<DungeonEncounterDeltaSaveData> encounterDeltas)
+            List<DungeonEncounterDeltaSaveData> encounterDeltas,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
         {
             if (dungeon == null)
             {
@@ -1280,22 +1336,29 @@ namespace Godmist.Systems.SaveLoad
                         }
                     }
 
-                    if (floorDelta.ObjectDeltas == null)
+                    if (floorDelta.ObjectDeltas != null)
                     {
-                        continue;
+                        foreach (var objectDelta in floorDelta.ObjectDeltas)
+                        {
+                            if (objectDelta == null
+                                || !floor.TryRestoreObjectState(
+                                    objectDelta.ObjectInstanceId,
+                                    objectDelta.IsActive,
+                                    objectDelta.IsDoor,
+                                    objectDelta.IsOpen))
+                            {
+                                return false;
+                            }
+                        }
                     }
 
-                    foreach (var objectDelta in floorDelta.ObjectDeltas)
+                    if (!TryRestoreEnemyBodyDeltas(
+                            floor,
+                            floorDelta.EnemyBodyDeltas,
+                            itemsById,
+                            assignedItemIds))
                     {
-                        if (objectDelta == null
-                            || !floor.TryRestoreObjectState(
-                                objectDelta.ObjectInstanceId,
-                                objectDelta.IsActive,
-                                objectDelta.IsDoor,
-                                objectDelta.IsOpen))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
@@ -1327,7 +1390,14 @@ namespace Godmist.Systems.SaveLoad
 
                     if (!floor.TryRestoreEncounterDefeatedEnemyInstanceIds(
                             encounterDelta.EncounterInstanceId,
-                            encounterDelta.DefeatedEnemyInstanceIds))
+                            encounterDelta.DefeatedEnemyInstanceIds)
+                        || !floor.TryGetEncounter(
+                            encounterDelta.EncounterInstanceId,
+                            out var restoredEncounter)
+                        || !restoredEncounter
+                            .TryRestoreGeneratedEnemyBodyEnemyInstanceIds(
+                                encounterDelta
+                                    .GeneratedEnemyBodyEnemyInstanceIds))
                     {
                         return false;
                     }
@@ -1337,6 +1407,62 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 if (!restored)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TryRestoreEnemyBodyDeltas(
+            DungeonFloorInstance floor,
+            List<DungeonEnemyBodySaveData> bodyDeltas,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            if (bodyDeltas == null) return true;
+
+            var restoredBodyIds = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var bodyDelta in bodyDeltas)
+            {
+                if (bodyDelta == null
+                    || string.IsNullOrWhiteSpace(bodyDelta.BodyInstanceId)
+                    || string.IsNullOrWhiteSpace(bodyDelta.EnemyInstanceId)
+                    || bodyDelta.Gold < 0
+                    || !restoredBodyIds.Add(bodyDelta.BodyInstanceId)
+                    || bodyDelta.ItemInstanceIds == null)
+                {
+                    return false;
+                }
+
+                var restoredItems = new List<ItemInstance>();
+
+                foreach (var itemInstanceId in bodyDelta.ItemInstanceIds)
+                {
+                    if (!TryTakeItem(
+                            itemInstanceId,
+                            itemsById,
+                            assignedItemIds,
+                            out var item))
+                    {
+                        return false;
+                    }
+
+                    restoredItems.Add(item);
+                }
+
+                var body = new DungeonEnemyBodyInstance(
+                    bodyDelta.BodyInstanceId,
+                    bodyDelta.EnemyInstanceId,
+                    new Vector2Int(
+                        bodyDelta.PositionX,
+                        bodyDelta.PositionY),
+                    bodyDelta.Gold,
+                    restoredItems);
+
+                if (!floor.TryAddEnemyBody(body))
                 {
                     return false;
                 }

@@ -28,10 +28,12 @@ MonoBehaviour:
   - {fileID: 91344271923446119, guid: c2e36cf20b59a1c45abf80b31a589e6b, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
   <HitSprite>k__BackingField: {fileID: 0}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 1
   <AiPersonality>k__BackingField: 1
   <RecruitmentQuestId>k__BackingField: 
+  <ClassData>k__BackingField: {fileID: 0}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 90
     <MinAttack>k__BackingField: 8
@@ -45,9 +47,21 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 100
     <MaxResource>k__BackingField: 50
     <ResourceRegeneration>k__BackingField: 0
-  <StartingSkills>k__BackingField:
-  - {fileID: 11400000, guid: f8550d086d504a140a7456d156c22d89, type: 2}
-  - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 0
+    <MinAttack>k__BackingField: 0
+    <MaxAttack>k__BackingField: 0
+    <PhysicalDefense>k__BackingField: 0
+    <MagicalDefense>k__BackingField: 0
+    <Dodge>k__BackingField: 0
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: f8550d086d504a140a7456d156c22d89, type: 2}
+  <StartingSkills>k__BackingField: []
   <ExperienceReward>k__BackingField: 24
   <GoldReward>k__BackingField: 10
   <LootTable>k__BackingField: {fileID: 11400000, guid: 6b648c85efa0c634eb4f43c19bd3a210, type: 2}
