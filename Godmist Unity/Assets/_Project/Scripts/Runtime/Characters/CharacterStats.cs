@@ -17,6 +17,8 @@ namespace Godmist.Runtime.Characters
         public Stat CritDamage;
         public Stat Speed;
         public Stat ResourceRegeneration;
+        public Stat WeaponAccuracy;
+        public Stat MaxResource;
 
         public ref Stat GetStat(CharacterStatType statType)
         {
@@ -42,6 +44,10 @@ namespace Godmist.Runtime.Characters
                     return ref Speed;
                 case CharacterStatType.ResourceRegeneration:
                     return ref ResourceRegeneration;
+                case CharacterStatType.WeaponAccuracy:
+                    return ref WeaponAccuracy;
+                case CharacterStatType.MaxResource:
+                    return ref MaxResource;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(statType), statType, null);
             }

@@ -19,6 +19,7 @@ namespace Godmist.Data.World
         [field: SerializeField] public List<CharacterDefinition> CharacterDefinitions { get; private set; } = new();
         [field: SerializeField] public List<CharacterClassData> CharacterClasses { get; private set; } = new();
         [field: SerializeField] public List<ItemDefinition> ItemDefinitions { get; private set; } = new();
+        [field: SerializeField] public List<EquipmentPartDefinition> EquipmentPartDefinitions { get; private set; } = new();
         [field: SerializeField] public List<SkillData> SkillDefinitions { get; private set; } = new();
         [field: SerializeField] public List<QuestDefinition> QuestDefinitions { get; private set; } = new();
         [field: SerializeField] public List<NpcDefinition> NpcDefinitions { get; private set; } = new();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
@@ -245,7 +246,13 @@ namespace Godmist.Systems.SaveLoad
 
                 if (item is EquipmentItemInstance equipmentItem)
                 {
+                    var partIds = itemSaveData.PartIds ?? new List<string>();
+
                     if (itemSaveData.RequiredLevel < 0
+                        || !Enum.IsDefined(
+                            typeof(EquipmentQuality),
+                            itemSaveData.Quality)
+                        || partIds.Any(string.IsNullOrWhiteSpace)
                         || !TryCreateStatModifiers(
                             itemSaveData.StatModifiers,
                             out var modifiers))
@@ -258,6 +265,10 @@ namespace Godmist.Systems.SaveLoad
 
                     equipmentItem.RequiredLevel =
                         itemSaveData.RequiredLevel;
+
+                    equipmentItem.Quality = itemSaveData.Quality;
+                    equipmentItem.PartIds = new List<string>(
+                        partIds);
 
                     equipmentItem.StatModifiers = modifiers;
                 }

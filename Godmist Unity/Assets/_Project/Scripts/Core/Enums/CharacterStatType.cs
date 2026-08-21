@@ -11,6 +11,8 @@ namespace Godmist.Core.Enums
         CritChance = 6,
         CritDamage = 7,
         Speed = 8,
-        ResourceRegeneration = 9
+        ResourceRegeneration = 9,
+        WeaponAccuracy = 10,
+        MaxResource = 11
     }
 }

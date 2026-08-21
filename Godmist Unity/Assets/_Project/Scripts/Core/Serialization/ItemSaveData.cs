@@ -15,6 +15,8 @@ namespace Godmist.Core.Serialization
         public bool IsEquipment;
         public string RequiredClassId = string.Empty;
         public int RequiredLevel;
+        public EquipmentQuality Quality = EquipmentQuality.Normal;
+        public List<string> PartIds = new();
         public List<StatModifierSaveData> StatModifiers = new();
     }
 }

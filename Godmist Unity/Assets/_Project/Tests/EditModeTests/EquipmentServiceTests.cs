@@ -196,8 +196,6 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "ItemType", itemType);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
             SetAutoProperty(definition, "Weight", 1f);
-            SetAutoProperty(definition, "EquipmentSlot", slot);
-
             return new EquipmentItemInstance(definition, instanceId);
         }
 

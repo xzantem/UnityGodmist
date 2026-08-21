@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using Godmist.Core.Enums;
 using Godmist.Data.World;
+using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Items;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 
@@ -30,6 +32,7 @@ namespace Godmist.Systems.Debugging
         private readonly CharacterProgressionSystem progressionSystem = new();
         private readonly InventoryService inventoryService = new();
         private readonly ItemInstanceFactory itemInstanceFactory = new();
+        private readonly EquipmentGenerationService equipmentGenerationService = new();
 
         public DevConsoleCommandResult Execute(
             string commandLine,
@@ -66,7 +69,9 @@ namespace Godmist.Systems.Debugging
                     gameSession,
                     combatSession,
                     contentCatalog),
+                "createitem" => CreateItem(tokens, gameSession, contentCatalog),
                 "items" => GetInventory(tokens, gameSession, combatSession),
+                "inspectitem" => InspectItem(tokens, gameSession),
                 "itemdefs" => GetItemDefinitions(contentCatalog),
                 "encounterdefs" => GetEncounterDefinitions(contentCatalog),
                 "combat" => StartCombat(tokens, combatSession, combatHandler),
@@ -96,7 +101,9 @@ namespace Godmist.Systems.Debugging
                 "itemdefs - lista itemId z katalogu contentu\n" +
                 "items <characterId> - zawartość inventory postaci\n" +
                 "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
+                "createitem <itemId> - dodaje item do inventory aktywnego lidera\n" +
                 "encounterdefs - lista encounterId z katalogu contentu\n" +
+                "inspectitem <instanceId> - pełny payload itemu aktywnego lidera\n" +
                 "combat <encounterId> - uruchamia debugową walkę z encounterem");
         }
 
@@ -589,6 +596,82 @@ namespace Godmist.Systems.Debugging
             return Success(
                 $"Dodano {addedCount}x {definition.DisplayName} do inventory " +
                 $"postaci {GetCharacterName(target)}.");
+        }
+
+        private DevConsoleCommandResult CreateItem(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count != 2) return Fail("Użycie: createitem <itemId>");
+            if (gameSession == null || contentCatalog == null)
+                return Fail("Brak GameSession albo GameContentCatalog.");
+            if (string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
+                || !gameSession.CharactersById.TryGetValue(
+                    gameSession.PlayerParty.ActiveLeaderId, out var leader))
+                return Fail("Brak aktywnego lidera drużyny.");
+            if (!contentCatalog.TryGetItem(tokens[1], out var definition))
+                return Fail($"Nie znaleziono itemu o ID: {tokens[1]}");
+
+            ItemInstance item;
+
+            if (definition is EquipmentItemDefinition equipmentDefinition)
+            {
+                item = equipmentGenerationService.Generate(
+                    equipmentDefinition,
+                    contentCatalog.EquipmentPartDefinitions);
+
+                if (item == null)
+                {
+                    return Fail(
+                        "Nie udało się wygenerować equipmentu. Sprawdź Required Class " +
+                        "EID oraz komplet trzech części tej klasy w GameContentCatalog.");
+                }
+            }
+            else
+            {
+                item = itemInstanceFactory.Create(definition);
+            }
+
+            if (!inventoryService.TryAddItem(leader.Inventory, item))
+                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
+
+            return Success($"Utworzono {definition.DisplayName} | instanceId: {item.InstanceId}");
+        }
+
+        private static DevConsoleCommandResult InspectItem(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 2) return Fail("Użycie: inspectitem <instanceId>");
+            if (gameSession == null
+                || string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
+                || !gameSession.CharactersById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leader))
+                return Fail("Brak aktywnego lidera drużyny.");
+
+            var item = leader.Inventory?.Items?.FirstOrDefault(candidate =>
+                candidate != null && string.Equals(candidate.InstanceId, tokens[1], StringComparison.OrdinalIgnoreCase));
+            if (item == null) return Fail($"Nie znaleziono itemu o instanceId: {tokens[1]}");
+
+            var output = new StringBuilder()
+                .AppendLine($"InstanceId: {item.InstanceId}")
+                .AppendLine($"DefinitionId: {item.Definition?.Id}")
+                .AppendLine($"Name: {item.Definition?.DisplayName}")
+                .AppendLine($"ItemType: {item.Definition?.ItemType}")
+                .AppendLine($"Rarity: {item.CurrentRarity}")
+                .AppendLine($"ItemLevel: {item.ItemLevel}");
+            if (item is EquipmentItemInstance equipment)
+            {
+                output.AppendLine($"EquipmentSlot: {equipment.EquipmentSlot}")
+                    .AppendLine($"RequiredClassId: {equipment.RequiredClassId}")
+                    .AppendLine($"RequiredLevel: {equipment.RequiredLevel}")
+                    .AppendLine($"Quality: {equipment.Quality}")
+                    .AppendLine($"PartIds: {string.Join(", ", equipment.PartIds ?? new List<string>())}")
+                    .AppendLine("StatModifiers:");
+                foreach (var modifier in equipment.StatModifiers ?? new List<Godmist.Core.Types.StatModifier>())
+                    output.AppendLine($"- {modifier.StatType} {modifier.Operation} {modifier.Stacking}: {modifier.Value}");
+            }
+            return Success(output.ToString().TrimEnd());
         }
 
         private static DevConsoleCommandResult GetInventory(

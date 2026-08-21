@@ -23,7 +23,9 @@ namespace Godmist.Systems.Debugging
             "sethp",
             "setresource",
             "giveitem",
+            "createitem",
             "items",
+            "inspectitem",
             "itemdefs",
             "encounterdefs",
             "combat"
@@ -75,6 +77,8 @@ namespace Godmist.Systems.Debugging
                 || command == "sethp"
                 || command == "setresource"
                 || command == "giveitem"
+                || command == "createitem"
+                || command == "inspectitem"
                 || command == "items"
                 || command == "combat";
         }
@@ -96,6 +100,24 @@ namespace Godmist.Systems.Debugging
                 return contentCatalog?.ItemDefinitions?
                     .Where(definition => definition != null)
                     .Select(definition => definition.Id)
+                    ?? Enumerable.Empty<string>();
+            }
+
+            if (command == "createitem" && tokenIndex == 1)
+            {
+                return contentCatalog?.ItemDefinitions?
+                    .Where(definition => definition != null)
+                    .Select(definition => definition.Id)
+                    ?? Enumerable.Empty<string>();
+            }
+
+            if (command == "inspectitem" && tokenIndex == 1
+                && gameSession?.PlayerParty?.ActiveLeaderId is { } leaderId
+                && gameSession.CharactersById.TryGetValue(leaderId, out var leader))
+            {
+                return leader.Inventory?.Items?
+                    .Where(item => item != null)
+                    .Select(item => item.InstanceId)
                     ?? Enumerable.Empty<string>();
             }
 

@@ -41,17 +41,19 @@ namespace Godmist.Systems.Characters
             character.Stats.Speed.BaseValue = baseStats.Speed + growth.Speed * multiplier;
             character.Stats.ResourceRegeneration.BaseValue = baseStats.ResourceRegeneration
                 + growth.ResourceRegeneration * multiplier;
-            character.WeaponAccuracy = baseStats.WeaponAccuracy + growth.WeaponAccuracy * multiplier;
+            character.Stats.WeaponAccuracy.BaseValue = baseStats.WeaponAccuracy
+                + growth.WeaponAccuracy * multiplier;
+            character.Stats.MaxResource.BaseValue = baseStats.MaxResource
+                + growth.MaxResource * multiplier;
 
             if (character.ResourcePool != null)
             {
-                var maxResource = Mathf.Max(0, Mathf.RoundToInt(
-                    baseStats.MaxResource + growth.MaxResource * multiplier));
-                character.ResourcePool.MaxValue = maxResource;
+                character.ResourcePool.MaxValue = Mathf.Max(0, Mathf.RoundToInt(
+                    character.Stats.MaxResource.GetValue()));
                 character.ResourcePool.CurrentValue = Mathf.Clamp(
                     character.ResourcePool.CurrentValue,
                     0,
-                    maxResource);
+                    character.ResourcePool.MaxValue);
             }
 
             statPipeline.Refresh(character);

@@ -24,6 +24,15 @@ MonoBehaviour:
   <ItemDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
   - {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
+  - {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
+  - {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
+  <EquipmentPartDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: df54ac5f9a171cb4283e79e34ccfe6be, type: 2}
+  - {fileID: 11400000, guid: f297aa7d3b1e5374fa967a556df05b0f, type: 2}
+  - {fileID: 11400000, guid: 706399a8e9efb1c408462bab8fe5a45c, type: 2}
+  - {fileID: 11400000, guid: 4d111080d15db2a4197186c18aa2185e, type: 2}
+  - {fileID: 11400000, guid: f2081c5a71fdf5644987a49ee7ab768e, type: 2}
+  - {fileID: 11400000, guid: 2b39430c5f1990243aac9e41a8545562, type: 2}
   <SkillDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}
   - {fileID: 11400000, guid: f25f02c088e5d35418e8cc5dcacf68b2, type: 2}

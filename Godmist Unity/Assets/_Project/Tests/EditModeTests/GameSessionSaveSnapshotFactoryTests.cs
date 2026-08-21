@@ -489,8 +489,6 @@ namespace Godmist.Tests.EditMode
 
             SetAutoProperty(definition, "Id", id);
             SetAutoProperty(definition, "ItemType", ItemType.Weapon);
-            SetAutoProperty(definition, "EquipmentSlot", slot);
-
             return definition;
         }
 

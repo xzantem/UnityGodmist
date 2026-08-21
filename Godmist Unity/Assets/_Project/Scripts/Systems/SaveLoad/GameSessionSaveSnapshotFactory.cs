@@ -761,6 +761,10 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.IsEquipment = true;
                 itemSaveData.RequiredClassId = equipmentItem.RequiredClassId;
                 itemSaveData.RequiredLevel = equipmentItem.RequiredLevel;
+                itemSaveData.Quality = equipmentItem.Quality;
+                itemSaveData.PartIds = equipmentItem.PartIds == null
+                    ? new List<string>()
+                    : new List<string>(equipmentItem.PartIds);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
             }

@@ -116,6 +116,16 @@ namespace Godmist.Systems.Characters
             character.ResourcePool.Regeneration = Mathf.Max(
                 0,
                 Mathf.RoundToInt(character.Stats.ResourceRegeneration.GetValue()));
+            character.WeaponAccuracy = Mathf.Max(
+                0f,
+                character.Stats.WeaponAccuracy.GetValue());
+            character.ResourcePool.MaxValue = Mathf.Max(
+                0,
+                Mathf.RoundToInt(character.Stats.MaxResource.GetValue()));
+            character.ResourcePool.CurrentValue = Mathf.Clamp(
+                character.ResourcePool.CurrentValue,
+                0,
+                character.ResourcePool.MaxValue);
         }
 
         private struct StatModifierAccumulator

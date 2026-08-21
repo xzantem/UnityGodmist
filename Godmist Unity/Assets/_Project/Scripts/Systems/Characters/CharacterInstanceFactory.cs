@@ -66,7 +66,9 @@ namespace Godmist.Systems.Characters
                     CritChance = new Stat(baseStats.CritChance),
                     CritDamage = new Stat(baseStats.CritDamage),
                     Speed = new Stat(baseStats.Speed),
-                    ResourceRegeneration = new Stat(baseStats.ResourceRegeneration)
+                    ResourceRegeneration = new Stat(baseStats.ResourceRegeneration),
+                    WeaponAccuracy = new Stat(baseStats.WeaponAccuracy),
+                    MaxResource = new Stat(maxResource)
                 },
 
                 ResourcePool = new ResourcePool(
