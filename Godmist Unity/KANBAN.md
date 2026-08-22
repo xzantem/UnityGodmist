@@ -56,22 +56,22 @@ Priorytety:
 ### Milestone: Rewards and Progression v2
 
 ### Milestone: UI Workspace v1
-- `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
-  - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
 - `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
-  - Niezalezne okno per postac pokazujace name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor, dostepnosc oraz podsumowanie equipmentu. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
-- `[P1] Dodac wielookienne inventory postaci i transfer drag-and-drop v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - Umozliwic jednoczesne otwarcie inventory kilku czlonkow druzyny oraz transfer itemow drag-and-drop z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
-- `[P1] Przeniesc inventory i equipment UI do UI Workspace v2` - `UI / UX`, `Items / Inventory / Economy`
-  - Zastapic obecne panelowe UI oknami floating; zachowac istniejace reguly equipmentu i inventory.
+  - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
+- `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
+- `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
+  - Tooltipy przy hoverze itemow, skilli i pojec systemowych maja uzywac wspolnego template'u, renderowac sie nad oknami i pokazywac statystyki/wymagania itemu zamiast osobnego inspect panelu.
 - `[P1] Przeniesc skill loadout do UI Workspace v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
+  - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem, otwieranym buttonem z Character Info; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
 - `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
-  - Zastapic panel drzewek floating window zgodnym z design systemem. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
-- `[P1] Podpiac generowany equipment do LootTable i UI inspect v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - LootTable ma generowac equipment, a UI Workspace ma pokazac statystyki, wymagania i porownanie z zalozonym itemem.
+  - Zastapic panel drzewek floating window zgodnym z design systemem, otwieranym buttonem z Character Info. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
+- `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Okno lootu ciala pokazuje itemy pozostawione w ciele. Umozliwia drag-and-drop do otwartego Character Info z walidacja wagi i zachowaniem `instanceId`; double-click odbiera item aktywna postacia. Ownerem mutacji pozostaje system lootu/inventory.
+- `[P1] Podpiac generowany equipment do LootTable i tooltipow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - LootTable ma generowac equipment, a tooltip itemu ma pokazac statystyki, wymagania i porownanie z zalozonym itemem.
 - `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami focus, z-order, drag, resize, clamp, transfer inventory, odswiezanie Character Info, migracje loadoutu i drzewek oraz zachowanie `instanceId` i walidacji wagi.
+  - Pokryc testami focus, z-order, drag, resize, clamp, transfer miedzy Character Info i loot window, odswiezanie Character Info, tooltipy, migracje loadoutu i drzewek oraz zachowanie `instanceId` i walidacji wagi.
 
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
@@ -89,6 +89,9 @@ Priorytety:
 
 
 ## Done
+
+- `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
+  - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
 
 - `[P1] Ustandaryzowac design system i template paneli v1` - `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
   - Zdefiniowac wspolne palette kolorow, typografie, spacing, obramowki, hover/disabled states, ikony i prefab/template UGUI dla paneli. Nowe okna maja korzystac z tych samych tokenow i komponentow zamiast tworzyc lokalne, niespojne style.

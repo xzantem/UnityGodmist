@@ -3,6 +3,7 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
 using Godmist.Views.Dungeons;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 
 namespace Godmist.Views.Exploration
@@ -139,7 +140,9 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            if (!Input.GetMouseButtonDown(0) || worldCamera == null)
+            if (!Input.GetMouseButtonDown(0)
+                || worldCamera == null
+                || UIWorkspaceInputRouter.IsPointerOverUi())
             {
                 return;
             }

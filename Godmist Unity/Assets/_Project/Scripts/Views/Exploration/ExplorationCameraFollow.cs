@@ -1,5 +1,6 @@
 using UnityEngine;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.Exploration
 {
@@ -117,7 +118,7 @@ namespace Godmist.Views.Exploration
                     transform.position + (Vector3)(keyboardDirection * keyboardPanSpeed * Time.deltaTime));
             }
 
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1) && !UIWorkspaceInputRouter.IsPointerOverUi())
             {
                 previousMouseWorldPosition = GetMouseWorldPosition();
                 isPanning = true;
@@ -128,7 +129,12 @@ namespace Godmist.Views.Exploration
                 isPanning = false;
             }
 
-            if (!isPanning || !Input.GetMouseButton(1)) return;
+            if (!isPanning
+                || !Input.GetMouseButton(1)
+                || UIWorkspaceInputRouter.IsPointerOverUi())
+            {
+                return;
+            }
 
             var currentMouseWorldPosition = GetMouseWorldPosition();
             var dragOffset = previousMouseWorldPosition - currentMouseWorldPosition;

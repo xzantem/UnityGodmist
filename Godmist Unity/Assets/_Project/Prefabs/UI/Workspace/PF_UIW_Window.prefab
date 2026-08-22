@@ -315,6 +315,7 @@ GameObject:
   - component: {fileID: 8120452343219555764}
   - component: {fileID: 6342840805062701614}
   - component: {fileID: 4751943504138437719}
+  - component: {fileID: 7987042011853490793}
   m_Layer: 5
   m_Name: PF_UIW_Window
   m_TagString: Untagged
@@ -337,6 +338,7 @@ RectTransform:
   - {fileID: 4776090667477628426}
   - {fileID: 8671339504931216464}
   - {fileID: 6518754718956140899}
+  - {fileID: 8097387742804640487}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -415,6 +417,22 @@ MonoBehaviour:
   borderImage: {fileID: 0}
   text: {fileID: 0}
   selectable: {fileID: 0}
+--- !u!114 &7987042011853490793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2013361182881401041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7dd8aabcad0d6d4e8972a998011483f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.UIWorkspaceWindow
+  manager: {fileID: 0}
+  closeButton: {fileID: 4391763209008438437}
+  minimumSize: {x: 320, y: 240}
+  maximumSize: {x: 1200, y: 900}
 --- !u!1 &3232791390287651064
 GameObject:
   m_ObjectHideFlags: 0
@@ -427,6 +445,7 @@ GameObject:
   - component: {fileID: 275056291895286815}
   - component: {fileID: 3852255828590011046}
   - component: {fileID: 2144763047586269795}
+  - component: {fileID: 8744613871426884551}
   m_Layer: 5
   m_Name: Header
   m_TagString: Untagged
@@ -514,6 +533,19 @@ MonoBehaviour:
   borderImage: {fileID: 0}
   text: {fileID: 0}
   selectable: {fileID: 0}
+--- !u!114 &8744613871426884551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3232791390287651064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f64f68c8db33f4795178ac65ab3804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.UIWorkspaceWindowDragHandle
+  window: {fileID: 7987042011853490793}
 --- !u!1 &4620271733723403806
 GameObject:
   m_ObjectHideFlags: 0
@@ -814,3 +846,92 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5313361290496147354}
   m_CullTransparentMesh: 1
+--- !u!1 &7150991786087466600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8097387742804640487}
+  - component: {fileID: 1883940338493281643}
+  - component: {fileID: 1162966803003471612}
+  - component: {fileID: 8668872374609627025}
+  m_Layer: 5
+  m_Name: ResizeHandle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8097387742804640487
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7150991786087466600}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4006046553815948391}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -4, y: 4}
+  m_SizeDelta: {x: 20, y: 20}
+  m_Pivot: {x: 1, y: 0}
+--- !u!222 &1883940338493281643
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7150991786087466600}
+  m_CullTransparentMesh: 1
+--- !u!114 &1162966803003471612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7150991786087466600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.2509804, g: 0.32156864, b: 0.4, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8668872374609627025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7150991786087466600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e01f1a04670761840a9eb6a2aa7e4003, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.UIWorkspaceWindowResizeHandle
+  window: {fileID: 7987042011853490793}

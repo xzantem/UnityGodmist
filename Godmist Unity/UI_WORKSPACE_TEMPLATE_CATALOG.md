@@ -30,10 +30,11 @@ PF_UIW_Window
 ├── Header
 │   ├── Title
 │   └── CloseButton
-└── Content
+├── Content
+└── ResizeHandle
 ```
 
-**Wymagane komponenty:** root `Image`, `CanvasGroup`, `UIWorkspaceStyleApplier`; `Header` `Image` + applier; `Title` `TextMeshProUGUI` + applier; `CloseButton` `Button` + `Image` + applier. Card floating-window v1 doda wspólną logikę drag/resize/focus do tego samego rootu.
+**Wymagane komponenty:** root `Image`, `CanvasGroup`, `UIWorkspaceStyleApplier`, `UIWorkspaceWindow`; `Header` `Image` + applier + `UIWorkspaceWindowDragHandle`; `Title` `TextMeshProUGUI` + applier; `CloseButton` `Button` + `Image` + applier; `ResizeHandle` `Image` + `UIWorkspaceWindowResizeHandle`. Root musi być childem `UIWorkspaceLayer`, który posiada `UIWorkspaceWindowManager`.
 
 **Użycie:** Character Info, Inventory, Skill Loadout i Skill Trees. Nie używać dla tooltipów, potwierdzeń ani pojedynczych kart listy.
 
