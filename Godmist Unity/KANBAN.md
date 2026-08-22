@@ -55,20 +55,23 @@ Priorytety:
 
 ### Milestone: Rewards and Progression v2
 
-- `[P1] Dopracowac UX drzewek umiejetnosci v2` - `UI / UX`, `Design / Systems`
-  - Dodac tooltip node'a, czytelne requirementy i powody blokady, stan nieinteraktywny dla niedostepnych inwestycji oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
-
 ### Milestone: UI Workspace v1
 - `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
-  - Wspolny window chrome: drag, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
+  - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
+- `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
+  - Niezalezne okno per postac pokazujace name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor, dostepnosc oraz podsumowanie equipmentu. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
 - `[P1] Dodac wielookienne inventory postaci i transfer drag-and-drop v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
   - Umozliwic jednoczesne otwarcie inventory kilku czlonkow druzyny oraz transfer itemow drag-and-drop z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
 - `[P1] Przeniesc inventory i equipment UI do UI Workspace v2` - `UI / UX`, `Items / Inventory / Economy`
   - Zastapic obecne panelowe UI oknami floating; zachowac istniejace reguly equipmentu i inventory.
+- `[P1] Przeniesc skill loadout do UI Workspace v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
+- `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
+  - Zastapic panel drzewek floating window zgodnym z design systemem. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
 - `[P1] Podpiac generowany equipment do LootTable i UI inspect v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - LootTable ma generowac equipment, a UI Workspace ma pokazac statystyki, wymagania i porownanie z zalozonym itemem.
 - `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami focus, z-order, drag, resize, clamp, transfer inventory oraz zachowanie `instanceId` i walidacji wagi.
+  - Pokryc testami focus, z-order, drag, resize, clamp, transfer inventory, odswiezanie Character Info, migracje loadoutu i drzewek oraz zachowanie `instanceId` i walidacji wagi.
 
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
@@ -86,6 +89,10 @@ Priorytety:
 
 
 ## Done
+
+- `[P1] Ustandaryzowac design system i template paneli v1` - `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
+  - Zdefiniowac wspolne palette kolorow, typografie, spacing, obramowki, hover/disabled states, ikony i prefab/template UGUI dla paneli. Nowe okna maja korzystac z tych samych tokenow i komponentow zamiast tworzyc lokalne, niespojne style.
+  - Utworzyc utrzymywany katalog template'ow: nazwa, przeznaczenie, warianty, hierarchia, wymagane komponenty, przyklady uzycia i ograniczenia. Katalog ma okreslac, kiedy reuse'owac istniejacy template, kiedy zlozyc panel z kilku template'ow, a kiedy uzasadnione jest dodanie nowego.
 
 - `[P1] Rewards and Progression v2 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Combat`, `Items / Inventory / Economy`, `UI / UX`
   - Pokryc testami XP/Honor/escape, growth, drzewka i loadout, persistencje cial i lootow oraz deterministyczne generowanie equipmentu.
