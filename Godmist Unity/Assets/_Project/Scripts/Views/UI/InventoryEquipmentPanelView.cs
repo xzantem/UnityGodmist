@@ -75,18 +75,6 @@ namespace Godmist.Views.UI
             panelRoot.SetActive(false);
         }
 
-        private void Update()
-        {
-            if (DevConsoleView.IsOpen) return;
-            
-            var session = GameBootstrap.Instance?.Session;
-
-            if (session?.CurrentMode != GameModeState.Exploration) return;
-            if (!Input.GetKeyDown(KeyCode.I)) return;
-
-            Toggle();
-        }
-
         public void Toggle()
         {
             if (IsOpen)

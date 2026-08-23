@@ -56,8 +56,6 @@ Priorytety:
 ### Milestone: Rewards and Progression v2
 
 ### Milestone: UI Workspace v1
-- `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
-  - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
 - `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
   - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
 - `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
@@ -87,8 +85,10 @@ Priorytety:
 
 ## Playable / Test
 
-
 ## Done
+
+- `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
+  - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
 
 - `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
   - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.

@@ -1,0 +1,56 @@
+using Godmist.Core.Enums;
+using Godmist.Runtime.Items;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace Godmist.Views.UI.Workspace
+{
+    public sealed class CharacterInfoEquipmentSlotView : MonoBehaviour,
+        IBeginDragHandler,
+        IDragHandler,
+        IEndDragHandler,
+        IDropHandler
+    {
+        [SerializeField] private EquipmentSlot slot;
+        [SerializeField] private Button button;
+        [SerializeField] private Image icon;
+        [SerializeField] private Image feedbackBorder;
+
+        private CharacterInfoWindowView owner;
+
+        public EquipmentSlot Slot => slot;
+        public EquipmentItemInstance Item { get; private set; }
+
+        public void Initialize(CharacterInfoWindowView nextOwner)
+        {
+            owner = nextOwner;
+            if (button != null) button.onClick.AddListener(() => owner?.TryUnequip(slot));
+        }
+
+        public void Bind(EquipmentItemInstance item)
+        {
+            Item = item;
+            if (icon != null)
+            {
+                icon.sprite = item?.Definition?.Icon;
+                icon.enabled = icon.sprite != null;
+            }
+
+            if (button != null) button.interactable = item != null;
+        }
+
+        public void SetDropHighlight(bool enabled)
+        {
+            if (feedbackBorder != null) feedbackBorder.enabled = enabled;
+        }
+
+        public void OnDrop(PointerEventData eventData) => owner?.TryHandleDrop(this);
+
+        public void OnBeginDrag(PointerEventData eventData) => owner?.BeginUnequipDrag(this, eventData);
+
+        public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
+
+        public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
+    }
+}

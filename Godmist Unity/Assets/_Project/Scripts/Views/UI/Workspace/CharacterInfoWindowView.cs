@@ -1,0 +1,229 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Game;
+using Godmist.Runtime.Items;
+using Godmist.Systems.Characters;
+using Godmist.Systems.Items;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace Godmist.Views.UI.Workspace
+{
+    public sealed class CharacterInfoWindowView : MonoBehaviour
+    {
+        [SerializeField] private UIWorkspaceWindow window;
+        [SerializeField] private TextMeshProUGUI headerTitleText;
+        [SerializeField] private Image portrait;
+        [SerializeField] private TextMeshProUGUI identityText;
+        [SerializeField] private TextMeshProUGUI progressionText;
+        [SerializeField] private TextMeshProUGUI healthResourceText;
+        [SerializeField] private TextMeshProUGUI statsText;
+        [SerializeField] private TextMeshProUGUI resistancesText;
+        [SerializeField] private TextMeshProUGUI honorAvailabilityText;
+        [SerializeField] private TMP_InputField inventorySearchInput;
+        [SerializeField] private TextMeshProUGUI inventoryFooterText;
+        [SerializeField] private Transform inventoryRoot;
+        [SerializeField] private CharacterInfoItemView inventoryItemTemplate;
+        [SerializeField] private CharacterInfoEquipmentSlotView[] equipmentSlots;
+        [SerializeField] private GameObject dragGhostTemplate;
+
+        private readonly InventoryService inventoryService = new();
+        private readonly EquipmentService equipmentService = new();
+        private readonly CharacterProgressionSystem progressionSystem = new();
+        private readonly List<CharacterInfoItemView> inventoryViews = new();
+
+        private GameSession session;
+        private CharacterInstance character;
+        private ItemInstance draggedItem;
+        private CharacterInfoEquipmentSlotView draggedEquipmentSlot;
+        private GameObject dragGhost;
+
+        public string CharacterId => character?.CharacterId;
+
+        private void Awake()
+        {
+            if (inventoryItemTemplate != null) inventoryItemTemplate.gameObject.SetActive(false);
+            if (inventorySearchInput != null) inventorySearchInput.onValueChanged.AddListener(_ => RefreshInventory());
+
+            foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
+            {
+                slot?.Initialize(this);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (inventorySearchInput != null) inventorySearchInput.onValueChanged.RemoveAllListeners();
+        }
+
+        public void Initialize(GameSession nextSession, string characterId)
+        {
+            session = nextSession;
+            session?.CharactersById.TryGetValue(characterId, out character);
+            Refresh();
+            window?.Focus();
+        }
+
+        public void Refresh()
+        {
+            if (character == null) return;
+
+            if (portrait != null)
+            {
+                portrait.sprite = character.Definition?.VisualSprite;
+                portrait.enabled = portrait.sprite != null;
+            }
+
+            var name = character.Definition?.DisplayName ?? character.CharacterId;
+            var className = character.ClassData?.ClassName ?? "-";
+            if (headerTitleText != null) headerTitleText.text = name;
+            identityText.text = $"Klasa: {className}";
+            progressionText.text = character.Level >= CharacterProgressionSystem.MaximumLevel
+                ? $"Poziom {character.Level} | XP: maks."
+                : $"Poziom {character.Level} | XP: {character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
+
+            var maxHealth = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+            var resource = character.ResourcePool;
+            healthResourceText.text = resource == null
+                ? $"HP: {character.CurrentHealth}/{maxHealth}"
+                : $"HP: {character.CurrentHealth}/{maxHealth}\n{resource.ResourceType}: {resource.CurrentValue}/{resource.MaxValue}";
+            statsText.text = BuildStats(character);
+            resistancesText.text = BuildResistances(character.Resistances);
+            honorAvailabilityText.text = $"Honor: {character.Honor}\nStan: {character.LifeState} | {character.AvailabilityState}";
+
+            RefreshInventory();
+            RefreshEquipment();
+        }
+
+        public void TryEquip(ItemInstance item)
+        {
+            if (item is not EquipmentItemInstance equipment || character == null) return;
+            if (equipmentService.TryEquip(character, equipment.InstanceId)) Refresh();
+        }
+
+        public void TryUnequip(EquipmentSlot slot)
+        {
+            if (character == null) return;
+            if (equipmentService.TryUnequip(character, slot)) Refresh();
+        }
+
+        public void BeginDrag(ItemInstance item, PointerEventData eventData)
+        {
+            if (item is not EquipmentItemInstance equipment || character == null) return;
+            draggedItem = equipment;
+            draggedEquipmentSlot = null;
+            foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
+                slot?.SetDropHighlight(slot.Slot == equipment.EquipmentSlot);
+
+            CreateDragGhost(item, eventData);
+        }
+
+        public void BeginUnequipDrag(CharacterInfoEquipmentSlotView sourceSlot, PointerEventData eventData)
+        {
+            if (sourceSlot?.Item == null || character == null) return;
+            draggedItem = sourceSlot.Item;
+            draggedEquipmentSlot = sourceSlot;
+            CreateDragGhost(sourceSlot.Item, eventData);
+        }
+
+        private void CreateDragGhost(ItemInstance item, PointerEventData eventData)
+        {
+            if (dragGhostTemplate == null) return;
+            dragGhost = Instantiate(dragGhostTemplate, window.Manager.WorkspaceRoot);
+            dragGhost.name = "CharacterInfoDragGhost";
+            var group = dragGhost.GetComponent<CanvasGroup>() ?? dragGhost.AddComponent<CanvasGroup>();
+            group.alpha = 0.9f;
+            group.blocksRaycasts = false;
+            var icon = dragGhost.transform.Find("Icon")?.GetComponent<Image>();
+            if (icon != null)
+            {
+                icon.sprite = item.Definition?.Icon;
+                icon.enabled = icon.sprite != null;
+            }
+            UpdateDrag(eventData);
+        }
+
+        public void UpdateDrag(PointerEventData eventData)
+        {
+            if (dragGhost == null || window?.Manager?.WorkspaceRoot == null) return;
+            var canvas = window.GetComponentInParent<Canvas>();
+            var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(window.Manager.WorkspaceRoot, eventData.position, camera, out var point))
+                dragGhost.GetComponent<RectTransform>().anchoredPosition = point;
+        }
+
+        public void EndDrag()
+        {
+            draggedItem = null;
+            draggedEquipmentSlot = null;
+            foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) slot?.SetDropHighlight(false);
+            if (dragGhost != null) Destroy(dragGhost);
+            dragGhost = null;
+        }
+
+        public void TryHandleDrop(CharacterInfoEquipmentSlotView target)
+        {
+            if (draggedEquipmentSlot == null
+                && draggedItem is EquipmentItemInstance equipment
+                && equipment.EquipmentSlot == target.Slot)
+            {
+                TryEquip(equipment);
+            }
+
+            EndDrag();
+        }
+
+        public void TryHandleInventoryDrop()
+        {
+            if (draggedEquipmentSlot != null)
+            {
+                TryUnequip(draggedEquipmentSlot.Slot);
+            }
+
+            EndDrag();
+        }
+
+        private void RefreshInventory()
+        {
+            foreach (var view in inventoryViews) if (view != null) Destroy(view.gameObject);
+            inventoryViews.Clear();
+            if (character?.Inventory?.Items == null || inventoryItemTemplate == null || inventoryRoot == null) return;
+
+            var filter = inventorySearchInput?.text?.Trim();
+            foreach (var item in character.Inventory.Items)
+            {
+                if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.Definition.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
+                var view = Instantiate(inventoryItemTemplate, inventoryRoot);
+                view.gameObject.SetActive(true);
+                view.Bind(item, this);
+                inventoryViews.Add(view);
+            }
+
+            var currentWeight = inventoryService.GetCurrentWeight(character.Inventory);
+            var maxWeight = character.Inventory.MaxWeight;
+            inventoryFooterText.text = $"Waga: {currentWeight:0.##}/{(maxWeight.HasValue ? maxWeight.Value.ToString("0.##") : "∞")} kg | Złoto: {session?.Gold ?? 0}";
+        }
+
+        private void RefreshEquipment()
+        {
+            foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
+                slot?.Bind(character?.Equipment?.GetItem(slot.Slot));
+        }
+
+        private static string BuildStats(CharacterInstance value)
+        {
+            var stats = value.Stats;
+            return $"Atak: {stats.MinAttack.GetValue():0}-{stats.MaxAttack.GetValue():0}\nObrona fiz.: {stats.PhysicalDefense.GetValue():0}\nObrona mag.: {stats.MagicalDefense.GetValue():0}\nUnik: {stats.Dodge.GetValue():0.#} | Kryt: {stats.CritChance.GetValue() * 100f:0.#}%\nObr. kryt.: {stats.CritDamage.GetValue():0.##} | Szybkość: {stats.Speed.GetValue():0}\nCelność: {stats.WeaponAccuracy.GetValue():0}";
+        }
+
+        private static string BuildResistances(ResistanceSet value)
+        {
+            if (value == null) return "Odporności: -";
+            return $"Krwawienie: {value.BleedResistance * 100f:0.#}% | Trucizna: {value.PoisonResistance * 100f:0.#}%\nOgień: {value.FireResistance * 100f:0.#}% | Osłabienie: {value.WeakeningResistance * 100f:0.#}%\nEOR: {value.SuppressionResistance * 100f:0.#}% | Ruch: {value.MoveResistance * 100f:0.#}%";
+        }
+    }
+}
