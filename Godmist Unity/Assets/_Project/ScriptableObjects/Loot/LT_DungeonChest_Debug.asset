@@ -18,8 +18,13 @@ MonoBehaviour:
     <Amount>k__BackingField:
       Min: 1
       Max: 3
-  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
-    <DropChance>k__BackingField: 0.35
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
+    <DropChance>k__BackingField: 1
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
+    <DropChance>k__BackingField: 1
     <Amount>k__BackingField:
       Min: 1
       Max: 1

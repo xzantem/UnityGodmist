@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
@@ -315,8 +316,11 @@ namespace Godmist.Views.UI.Workspace
                 if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId)) Append(result, $"Wymagana klasa: {equipment.RequiredClassId}");
                 if (owner != null && !Godmist.Systems.Items.EquipmentService.MeetsRequirements(owner, equipment))
                     Append(result, "<color=#E06C75>Postać nie spełnia wymagań.</color>");
-                foreach (var modifier in equipment.StatModifiers)
-                    Append(result, $"{modifier.StatType}: {modifier.Value:+0.##;-0.##;0}");
+                var equippedItem = owner?.Equipment?.GetItem(equipment.EquipmentSlot);
+                AppendEquipmentStats(
+                    result,
+                    equipment,
+                    ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
             }
             return result.ToString();
         }
@@ -325,6 +329,95 @@ namespace Godmist.Views.UI.Workspace
         {
             var quality = item is EquipmentItemInstance equipment ? $" • {equipment.Quality}" : string.Empty;
             return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}  •  Waga {item.Definition.Weight:0.##} kg";
+        }
+
+        private static void AppendEquipmentStats(
+            StringBuilder result,
+            EquipmentItemInstance item,
+            EquipmentItemInstance equippedItem)
+        {
+            var itemStats = GetEquipmentStats(item);
+            var equippedStats = GetEquipmentStats(equippedItem);
+            var hasAttack = itemStats.ContainsKey(CharacterStatType.MinAttack)
+                || itemStats.ContainsKey(CharacterStatType.MaxAttack)
+                || equippedStats.ContainsKey(CharacterStatType.MinAttack)
+                || equippedStats.ContainsKey(CharacterStatType.MaxAttack);
+
+            if (hasAttack)
+            {
+                var minAttack = GetStatValue(itemStats, CharacterStatType.MinAttack);
+                var maxAttack = GetStatValue(itemStats, CharacterStatType.MaxAttack);
+                var equippedAverage = (GetStatValue(equippedStats, CharacterStatType.MinAttack)
+                    + GetStatValue(equippedStats, CharacterStatType.MaxAttack)) * 0.5f;
+                var average = (minAttack + maxAttack) * 0.5f;
+                Append(
+                    result,
+                    $"Atak: {FormatValue(minAttack)}–{FormatValue(maxAttack)}"
+                    + FormatComparisonDelta(average - equippedAverage, equippedItem != null));
+            }
+
+            foreach (CharacterStatType stat in Enum.GetValues(typeof(CharacterStatType)))
+            {
+                if (stat is CharacterStatType.MinAttack or CharacterStatType.MaxAttack) continue;
+
+                var value = GetStatValue(itemStats, stat);
+                var equippedValue = GetStatValue(equippedStats, stat);
+                if (Mathf.Abs(value) < 0.0001f && Mathf.Abs(equippedValue) < 0.0001f) continue;
+
+                Append(
+                    result,
+                    $"{stat}: {FormatStatValue(stat, value)}"
+                    + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
+            }
+        }
+
+        private static Dictionary<CharacterStatType, float> GetEquipmentStats(
+            EquipmentItemInstance item)
+        {
+            var values = new Dictionary<CharacterStatType, float>();
+            if (item?.StatModifiers == null) return values;
+
+            foreach (var modifier in item.StatModifiers)
+            {
+                values.TryGetValue(modifier.StatType, out var currentValue);
+                values[modifier.StatType] = currentValue + modifier.Value;
+            }
+
+            return values;
+        }
+
+        private static float GetStatValue(
+            IReadOnlyDictionary<CharacterStatType, float> values,
+            CharacterStatType stat)
+        {
+            return values != null && values.TryGetValue(stat, out var value)
+                ? value
+                : 0f;
+        }
+
+        private static string FormatStatValue(CharacterStatType stat, float value)
+        {
+            return stat == CharacterStatType.CritChance
+                ? $"{value * 100f:0.##}%"
+                : FormatValue(value);
+        }
+
+        private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
+
+        private static string FormatComparisonDelta(
+            float delta,
+            bool hasComparison,
+            CharacterStatType? stat = null)
+        {
+            if (!hasComparison || Mathf.Abs(delta) < 0.0001f) return string.Empty;
+
+            var color = delta > 0f ? "#3D9E63" : "#C74A45";
+            var arrow = delta > 0f ? "↑" : "↓";
+            var sign = delta > 0f ? "+" : "-";
+            var value = stat == CharacterStatType.CritChance
+                ? $"{Mathf.Abs(delta) * 100f:0.##}%"
+                : FormatValue(Mathf.Abs(delta));
+            return $" <color={color}>{arrow} {sign}{value}</color>";
         }
 
         private static bool IsDamageOverTime(string effectId) =>

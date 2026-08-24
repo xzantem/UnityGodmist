@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Data.Items;
 using Godmist.Runtime.Items;
 using UnityEngine;
@@ -11,13 +12,31 @@ namespace Godmist.Systems.Items
         private readonly Func<float> randomValue;
 
         private readonly ItemInstanceFactory itemInstanceFactory;
+        private readonly EquipmentGenerationService equipmentGenerationService;
+        private readonly IReadOnlyList<EquipmentPartDefinition> equipmentParts;
 
         public LootTableSystem(
             Func<float> randomValue = null,
-            ItemInstanceFactory itemInstanceFactory = null)
+            ItemInstanceFactory itemInstanceFactory = null,
+            EquipmentGenerationService equipmentGenerationService = null,
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
         {
             this.randomValue = randomValue ?? (() => UnityEngine.Random.value);
             this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
+            this.equipmentGenerationService = equipmentGenerationService;
+            this.equipmentParts = equipmentParts;
+        }
+
+        public LootTableSystem(
+            System.Random random,
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts,
+            ItemInstanceFactory itemInstanceFactory = null)
+            : this(
+                () => (float)(random ?? throw new ArgumentNullException(nameof(random))).NextDouble(),
+                itemInstanceFactory,
+                new EquipmentGenerationService(random, itemInstanceFactory),
+                equipmentParts)
+        {
         }
 
         public List<ItemInstance> RollLoot(LootTableData lootTable)
@@ -40,7 +59,8 @@ namespace Godmist.Systems.Items
 
                 for (var index = 0; index < amount; index++)
                 {
-                    items.Add(itemInstanceFactory.Create(entry.ItemDefinition));
+                    var item = CreateItem(entry.ItemDefinition);
+                    if (item != null) items.Add(item);
                 }
             }
 
@@ -56,6 +76,21 @@ namespace Godmist.Systems.Items
                 Mathf.Clamp01(randomValue()) * rangeSize);
 
             return minAmount + Mathf.Min(randomIndex, rangeSize - 1);
+        }
+
+        private ItemInstance CreateItem(ItemDefinition definition)
+        {
+            if (definition is not EquipmentItemDefinition equipmentDefinition
+                || equipmentDefinition.ItemType is not (ItemType.Weapon or ItemType.Armor)
+                || equipmentParts == null
+                || equipmentGenerationService == null)
+            {
+                return itemInstanceFactory.Create(definition);
+            }
+
+            return equipmentGenerationService.Generate(
+                equipmentDefinition,
+                equipmentParts);
         }
     }
 }

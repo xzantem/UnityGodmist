@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
+using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Items;
 using UnityEngine;
@@ -21,7 +22,9 @@ namespace Godmist.Systems.Dungeons
             Vector2Int.left
         };
 
-        public void Place(DungeonInstance dungeon)
+        public void Place(
+            DungeonInstance dungeon,
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
         {
             if (dungeon == null || dungeon.Definition == null) return;
 
@@ -41,7 +44,8 @@ namespace Godmist.Systems.Dungeons
                 dungeon.Seed ^ ObjectPlacementSeedSalt);
 
             var lootTableSystem = new LootTableSystem(
-                () => (float)random.NextDouble());
+                random,
+                equipmentParts);
 
             foreach (var floor in dungeon.Floors)
             {

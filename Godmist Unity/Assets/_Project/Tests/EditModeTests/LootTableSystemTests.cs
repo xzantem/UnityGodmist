@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Characters;
 using Godmist.Data.Items;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Items;
@@ -93,6 +94,41 @@ namespace Godmist.Tests.EditMode
             Assert.That(equipmentItem.EquipmentSlot, Is.EqualTo(EquipmentSlot.Weapon));
         }
 
+        [Test]
+        public void RollLoot_EquipmentWithParts_GeneratesCompleteEquipmentPayload()
+        {
+            var scout = ScriptableObject.CreateInstance<CharacterClassData>();
+            SetAutoProperty(scout, "Id", "class.scout");
+
+            var definition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            SetAutoProperty(definition, "Id", "equipment.scout.test");
+            SetAutoProperty(definition, "DisplayName", "Broń testowa");
+            SetAutoProperty(definition, "ItemType", ItemType.Weapon);
+            SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+            SetAutoProperty(definition, "RequiredClass", scout);
+
+            var lootTable = CreateLootTable(
+                definition,
+                dropChance: 1f,
+                amount: new IntRange(1, 1));
+            var parts = new[]
+            {
+                CreatePart("head", scout, EquipmentPartKind.WeaponHead),
+                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder),
+                CreatePart("handle", scout, EquipmentPartKind.WeaponHandle)
+            };
+
+            var items = new LootTableSystem(new System.Random(7), parts)
+                .RollLoot(lootTable);
+
+            Assert.That(items, Has.Count.EqualTo(1));
+            var equipment = items[0] as EquipmentItemInstance;
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(equipment.RequiredClassId, Is.EqualTo("class.scout"));
+            Assert.That(equipment.PartIds, Is.EquivalentTo(new[] { "head", "binder", "handle" }));
+            Assert.That(equipment.StatModifiers, Is.Not.Empty);
+        }
+
         private static ItemDefinition CreateItemDefinition(string id)
         {
             var definition = ScriptableObject.CreateInstance<ItemDefinition>();
@@ -120,6 +156,35 @@ namespace Godmist.Tests.EditMode
             lootTable.Entries.Add(entry);
 
             return lootTable;
+        }
+
+        private static EquipmentPartDefinition CreatePart(
+            string id,
+            CharacterClassData characterClass,
+            EquipmentPartKind kind)
+        {
+            var part = ScriptableObject.CreateInstance<EquipmentPartDefinition>();
+            var stats = new EquipmentPartStats();
+            switch (kind)
+            {
+                case EquipmentPartKind.WeaponHead:
+                    stats.MinAttackBase = 10f;
+                    stats.MaxAttackBase = 20f;
+                    break;
+                case EquipmentPartKind.WeaponBinder:
+                    stats.CritChanceBase = .1f;
+                    break;
+                case EquipmentPartKind.WeaponHandle:
+                    stats.WeaponAccuracyBase = 5f;
+                    break;
+            }
+
+            SetAutoProperty(part, "Id", id);
+            SetAutoProperty(part, "RequiredClass", characterClass);
+            SetAutoProperty(part, "Kind", kind);
+            SetAutoProperty(part, "LevelBracket", EquipmentPartLevelBracket.Level5);
+            SetAutoProperty(part, "Stats", stats);
+            return part;
         }
 
         private static void SetAutoProperty(

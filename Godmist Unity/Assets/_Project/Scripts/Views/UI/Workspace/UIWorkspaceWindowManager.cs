@@ -50,7 +50,13 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            FocusedWindow?.Close();
+            if (FocusedWindow == null)
+            {
+                return;
+            }
+
+            UIWorkspaceTooltipView.ActiveInstance?.Hide();
+            FocusedWindow.Close();
         }
 
         public void Register(UIWorkspaceWindow window)

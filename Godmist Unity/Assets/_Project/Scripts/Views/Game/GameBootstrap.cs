@@ -9,6 +9,7 @@ using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
+using Godmist.Systems.Items;
 using Godmist.Systems.NPC;
 using Godmist.Systems.Quests;
 using Godmist.Systems.SaveLoad;
@@ -53,7 +54,7 @@ namespace Godmist.Views.Game
 
         private readonly DungeonObjectPlacementSystem
             objectPlacementSystem = new();
-        private readonly CombatSessionFactory debugCombatSessionFactory = new();
+        private CombatSessionFactory debugCombatSessionFactory;
 
         private void Awake()
         {
@@ -71,6 +72,11 @@ namespace Godmist.Views.Game
 
             sceneLoader = GetComponent<SceneLoader>();
             sceneLoader.Initialize(Session);
+            debugCombatSessionFactory = new CombatSessionFactory(
+                rewardSystem: new CombatRewardSystem(
+                    lootTableSystem: new LootTableSystem(
+                        new System.Random(),
+                        contentCatalog?.EquipmentPartDefinitions)));
 
             InitializeRuntimeServices();
         }
@@ -316,8 +322,12 @@ namespace Godmist.Views.Game
                 var dungeon = dungeonGenerator.Generate(definition, seed);
 
                 encounterPlacementSystem.Place(dungeon);
-                objectPlacementSystem.Place(dungeon);
-                rewardPreparationSystem.Prepare(dungeon);
+                objectPlacementSystem.Place(
+                    dungeon,
+                    contentCatalog?.EquipmentPartDefinitions);
+                rewardPreparationSystem.Prepare(
+                    dungeon,
+                    contentCatalog?.EquipmentPartDefinitions);
 
                 if (!Session.TrySetActiveDungeon(dungeon))
                 {

@@ -1290,8 +1290,12 @@ namespace Godmist.Systems.SaveLoad
                     saveData.Seed);
 
                 encounterPlacementSystem.Place(dungeon);
-                objectPlacementSystem.Place(dungeon);
-                rewardPreparationSystem.Prepare(dungeon);
+                objectPlacementSystem.Place(
+                    dungeon,
+                    contentCatalog.EquipmentPartDefinitions);
+                rewardPreparationSystem.Prepare(
+                    dungeon,
+                    contentCatalog.EquipmentPartDefinitions);
             }
             catch (Exception)
             {
