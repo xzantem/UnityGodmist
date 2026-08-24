@@ -315,12 +315,13 @@ namespace Godmist.Views.UI.Workspace
             if (character?.Inventory?.Items == null || inventoryItemTemplate == null || inventoryRoot == null) return;
 
             var filter = inventorySearchInput?.text?.Trim();
-            foreach (var item in character.Inventory.Items)
+            foreach (var stack in BuildItemStacks(character.Inventory.Items))
             {
+                var item = stack.Representative;
                 if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.Definition.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
                 var view = Instantiate(inventoryItemTemplate, inventoryRoot);
                 view.gameObject.SetActive(true);
-                view.Bind(item, this);
+                view.Bind(item, stack.Count, this);
                 inventoryViews.Add(view);
             }
 
@@ -333,6 +334,50 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
                 slot?.Bind(character?.Equipment?.GetItem(slot.Slot));
+        }
+
+        private static List<ItemStackEntry> BuildItemStacks(IEnumerable<ItemInstance> items)
+        {
+            var stacks = new List<ItemStackEntry>();
+            if (items == null) return stacks;
+
+            foreach (var item in items)
+            {
+                if (item?.Definition == null) continue;
+
+                ItemStackEntry matchingStack = null;
+                foreach (var stack in stacks)
+                {
+                    if (stack.Representative.CanStackWith(item))
+                    {
+                        matchingStack = stack;
+                        break;
+                    }
+                }
+
+                if (matchingStack == null)
+                {
+                    stacks.Add(new ItemStackEntry(item));
+                }
+                else
+                {
+                    matchingStack.Count++;
+                }
+            }
+
+            return stacks;
+        }
+
+        private sealed class ItemStackEntry
+        {
+            public ItemStackEntry(ItemInstance representative)
+            {
+                Representative = representative;
+                Count = 1;
+            }
+
+            public ItemInstance Representative { get; }
+            public int Count { get; set; }
         }
 
         private static string BuildStats(CharacterInstance value)

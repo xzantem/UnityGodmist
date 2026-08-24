@@ -14,7 +14,7 @@ namespace Godmist.Views.UI.Workspace
         IPointerExitHandler
     {
         [SerializeField] private Image icon;
-        [SerializeField] private TMPro.TextMeshProUGUI label;
+        [SerializeField] private TMPro.TextMeshProUGUI countText;
 
         private ItemInstance item;
         private DungeonLootWindowView owner;
@@ -22,12 +22,15 @@ namespace Godmist.Views.UI.Workspace
         public ItemInstance Item => item;
         public DungeonLootWindowView Owner => owner;
 
-        public void Bind(ItemInstance nextItem, DungeonLootWindowView nextOwner)
+        public void Bind(
+            ItemInstance nextItem,
+            int stackCount,
+            DungeonLootWindowView nextOwner)
         {
             item = nextItem;
             owner = nextOwner;
             icon ??= transform.Find("Icon")?.GetComponent<Image>();
-            label ??= transform.Find("Label")?.GetComponent<TMPro.TextMeshProUGUI>();
+            countText ??= transform.Find("CountLabel")?.GetComponent<TMPro.TextMeshProUGUI>();
 
             if (icon != null)
             {
@@ -36,9 +39,11 @@ namespace Godmist.Views.UI.Workspace
                 icon.enabled = icon.sprite != null;
             }
 
-            if (label != null)
+            if (countText != null)
             {
-                label.text = item?.Definition?.DisplayName ?? "Przedmiot";
+                var isStackable = item?.Definition?.IsStackable ?? false;
+                countText.gameObject.SetActive(isStackable);
+                if (isStackable) countText.text = Mathf.Max(1, stackCount).ToString();
             }
         }
 
@@ -52,7 +57,8 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData != null && eventData.clickCount >= 2)
+            if (eventData != null
+                && eventData.button == PointerEventData.InputButton.Left)
             {
                 owner?.TryClaimItem(item?.InstanceId);
             }

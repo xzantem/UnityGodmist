@@ -114,16 +114,16 @@ namespace Godmist.Views.UI.Workspace
 
             ClearItemViews();
 
-            foreach (var item in body.Items)
+            foreach (var stack in BuildItemStacks(body.Items))
             {
-                if (item == null) continue;
-                CreateItemView(item);
+                CreateItemView(stack.Representative, stack.Count);
             }
 
             if (goldSlot != null)
             {
                 goldSlot.Bind(body.Gold, this);
                 goldSlot.gameObject.SetActive(body.Gold > 0);
+                goldSlot.transform.SetAsFirstSibling();
             }
 
             if (emptyText != null)
@@ -272,7 +272,7 @@ namespace Godmist.Views.UI.Workspace
                 : null;
         }
 
-        private void CreateItemView(ItemInstance item)
+        private void CreateItemView(ItemInstance item, int stackCount)
         {
             DungeonLootItemView view;
             if (itemTemplate != null && itemRoot != null)
@@ -293,7 +293,7 @@ namespace Godmist.Views.UI.Workspace
                 BuildFallbackItemVisual(itemObject.transform);
             }
 
-            view.Bind(item, this);
+            view.Bind(item, stackCount, this);
             itemViews.Add(view);
         }
 
@@ -336,6 +336,50 @@ namespace Godmist.Views.UI.Workspace
             }
 
             itemViews.Clear();
+        }
+
+        private static List<ItemStackEntry> BuildItemStacks(IEnumerable<ItemInstance> items)
+        {
+            var stacks = new List<ItemStackEntry>();
+            if (items == null) return stacks;
+
+            foreach (var item in items)
+            {
+                if (item?.Definition == null) continue;
+
+                ItemStackEntry matchingStack = null;
+                foreach (var stack in stacks)
+                {
+                    if (stack.Representative.CanStackWith(item))
+                    {
+                        matchingStack = stack;
+                        break;
+                    }
+                }
+
+                if (matchingStack == null)
+                {
+                    stacks.Add(new ItemStackEntry(item));
+                }
+                else
+                {
+                    matchingStack.Count++;
+                }
+            }
+
+            return stacks;
+        }
+
+        private sealed class ItemStackEntry
+        {
+            public ItemStackEntry(ItemInstance representative)
+            {
+                Representative = representative;
+                Count = 1;
+            }
+
+            public ItemInstance Representative { get; }
+            public int Count { get; set; }
         }
 
         private bool TryGetBody(out DungeonEnemyBodyInstance body)
@@ -493,7 +537,7 @@ namespace Godmist.Views.UI.Workspace
                 TextAlignmentOptions.MidlineLeft,
                 14f);
             emptyText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            emptyText.rectTransform.anchorMax = new Vector2(0.48f, 1f);
+            emptyText.rectTransform.anchorMax = Vector2.one;
             emptyText.rectTransform.offsetMin = Vector2.zero;
             emptyText.rectTransform.offsetMax = Vector2.zero;
 
@@ -503,24 +547,24 @@ namespace Godmist.Views.UI.Workspace
                 typeof(CanvasRenderer),
                 typeof(Image),
                 typeof(Button));
-            goldObject.transform.SetParent(footer, false);
+            goldObject.transform.SetParent(itemRoot, false);
             var goldRect = goldObject.GetComponent<RectTransform>();
-            goldRect.anchorMin = new Vector2(0.52f, 0f);
-            goldRect.anchorMax = new Vector2(1f, 1f);
+            goldRect.sizeDelta = new Vector2(76f, 76f);
             goldRect.offsetMin = Vector2.zero;
             goldRect.offsetMax = Vector2.zero;
             goldSlot = goldObject.AddComponent<DungeonLootGoldSlotView>();
+            var goldIcon = goldObject.GetComponent<Image>();
             var goldLabel = CreateText(
                 goldObject.transform,
-                "Label",
-                "Złoto: 0",
-                TextAlignmentOptions.Center,
-                16f);
-            goldLabel.rectTransform.anchorMin = Vector2.zero;
+                "CountLabel",
+                "0",
+                TextAlignmentOptions.BottomRight,
+                14f);
+            goldLabel.rectTransform.anchorMin = new Vector2(0.45f, 0f);
             goldLabel.rectTransform.anchorMax = Vector2.one;
             goldLabel.rectTransform.offsetMin = Vector2.zero;
             goldLabel.rectTransform.offsetMax = Vector2.zero;
-            goldSlot.ConfigureRuntime(goldLabel);
+            goldSlot.ConfigureRuntime(goldIcon, goldLabel);
         }
 
         private static RectTransform CreateRect(

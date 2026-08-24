@@ -92,8 +92,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ### Milestone: Rewards and Progression v2
 
 ### Milestone: UI Workspace v1
-- `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - Rozszerzyc `PF_UIW_ItemSlot` o opcjonalny `CountLabel`, widoczny tylko dla itemow stackowalnych. Zastapic osobny `GoldSlot` w oknie lootu wpisem w glownym gridzie: ikona zlota + ten sam count label. Nie modelowac zlota jako `ItemInstance` ani nie zmieniac ekonomii; to wyłącznie wspolna prezentacja i interakcja UI.
 
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
@@ -112,6 +110,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Playable / Test
 
 ## Done
+
+- `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - `PF_UIW_ItemSlot` ma opcjonalny `CountLabel` dla stackowalnych itemow, a zloto z ciala jest pierwszym wpisem glownego gridu lootu. Odbior itemu dziala pojedynczym kliknieciem lub drag-and-drop; zloto pozostaje wartoscia runtime, nie `ItemInstance`. Ciala sa tworzone tylko na walkable cells pokoju encountera i zawsze otrzymuja collider interakcji.
 
 - `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
   - Zweryfikowano focus, z-order, drag, resize, clamp, transfery, tooltipy, loadout, drzewka oraz persistence; smoke test zaliczony.

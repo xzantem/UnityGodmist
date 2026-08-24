@@ -136,6 +136,62 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void VictoryPlacesBodiesOnWalkableEncounterCells()
+        {
+            var gameSession = CreateSessionWithDungeon(
+                out var dungeon,
+                out var context);
+            Assert.That(dungeon.TryGetCurrentFloor(out var floor), Is.True);
+            Assert.That(
+                floor.Map.TryAddFloorCell(new Vector2Int(2, 4), "room.body"),
+                Is.True);
+            Assert.That(
+                floor.Map.TryAddFloorCell(new Vector2Int(2, 5), "room.body"),
+                Is.True);
+
+            var combat = new CombatSession
+            {
+                CombatId = context.EncounterInstanceId,
+                Outcome = CombatOutcomeState.Victory,
+                Rewards = new CombatRewardResult
+                {
+                    EnemyRewards =
+                    {
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.first",
+                            Gold = 1
+                        },
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.second",
+                            Gold = 1
+                        }
+                    }
+                }
+            };
+
+            combat.TryMarkEnemyDefeated("enemy.first");
+            combat.TryMarkEnemyDefeated("enemy.second");
+
+            Assert.That(
+                new DungeonCombatOutcomeSystem().TryApplyOutcome(
+                    gameSession,
+                    combat),
+                Is.True);
+            Assert.That(floor.EnemyBodies, Has.Count.EqualTo(2));
+
+            foreach (var body in floor.EnemyBodies)
+            {
+                Assert.That(floor.Map.IsWalkable(body.Position), Is.True);
+                Assert.That(
+                    floor.Map.TryGetRoomId(body.Position, out var roomId),
+                    Is.True);
+                Assert.That(roomId, Is.EqualTo(context.EncounterRoomId));
+            }
+        }
+
+        [Test]
         public void BodyClaimsItemAndGoldExactlyOnce()
         {
             var session = new GameSession(GameModeState.Exploration);

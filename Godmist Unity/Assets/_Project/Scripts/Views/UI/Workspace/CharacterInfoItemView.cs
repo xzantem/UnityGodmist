@@ -1,4 +1,5 @@
 using Godmist.Runtime.Items;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
         [SerializeField] private Image unavailableOverlay;
+        [SerializeField] private TextMeshProUGUI countText;
         private ItemInstance item;
         private CharacterInfoWindowView owner;
 
@@ -19,7 +21,10 @@ namespace Godmist.Views.UI.Workspace
         public CharacterInfoWindowView Owner => owner;
 
         private void Awake() { if (button != null) button.onClick.AddListener(() => owner?.TryEquip(item)); }
-        public void Bind(ItemInstance nextItem, CharacterInfoWindowView nextOwner)
+        public void Bind(
+            ItemInstance nextItem,
+            int stackCount,
+            CharacterInfoWindowView nextOwner)
         {
             item = nextItem; owner = nextOwner;
             if (icon != null)
@@ -33,6 +38,14 @@ namespace Godmist.Views.UI.Workspace
             {
                 unavailableOverlay.color = UnavailableOverlayColor;
                 unavailableOverlay.enabled = unavailable;
+            }
+
+            countText ??= transform.Find("CountLabel")?.GetComponent<TextMeshProUGUI>();
+            if (countText != null)
+            {
+                var isStackable = item?.Definition?.IsStackable ?? false;
+                countText.gameObject.SetActive(isStackable);
+                if (isStackable) countText.text = Mathf.Max(1, stackCount).ToString();
             }
         }
         public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(item, eventData);

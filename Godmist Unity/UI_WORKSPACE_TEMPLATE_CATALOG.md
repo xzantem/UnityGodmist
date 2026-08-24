@@ -131,12 +131,13 @@ PF_UIW_ListRow
 PF_UIW_ItemSlot
 ├── Border
 ├── Icon
+├── CountLabel (opcjonalnie: tylko dla stackowalnych itemów)
 └── Overlay (opcjonalnie: lock, rank, feedback)
 ```
 
-**Wymagane komponenty:** root `Button` lub `Image` zależnie od interakcji, `CanvasGroup`, `Image`, applier; `Border` Image + applier; `Icon` Image z `preserveAspect`; `Overlay` ma wyłączony raycast, o ile konkretny child nie jest kontrolką.
+**Wymagane komponenty:** root `Button` lub `Image` zależnie od interakcji, `CanvasGroup`, `Image`, applier; `Border` Image + applier; `Icon` Image z `preserveAspect`; `CountLabel` to TMP w prawym dolnym rogu, domyślnie inactive i aktywowany wyłącznie dla stackowalnego itemu; `Overlay` ma wyłączony raycast, o ile konkretny child nie jest kontrolką.
 
-**Użycie:** aktywne skille, dostępne skille, equipment sloty i drag ghost. Drag ghost ma zachować tę samą hierarchię i wizualne tło, ale `CanvasGroup.blocksRaycasts = false`.
+**Użycie:** aktywne skille, dostępne skille, equipment sloty, inventory, loot i drag ghost. Drag ghost ma zachować tę samą hierarchię i wizualne tło, ale `CanvasGroup.blocksRaycasts = false`; nie pokazuje `CountLabel`.
 
 ### `PF_UIW_Tooltip`
 

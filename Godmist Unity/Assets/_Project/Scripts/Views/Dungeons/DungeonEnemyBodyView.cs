@@ -194,12 +194,14 @@ namespace Godmist.Views.Dungeons
                 Debug.LogError(
                     $"DungeonEnemyBodyView: nie znaleziono definicji przeciwnika "
                     + $"dla ciala '{body?.InstanceId}'.");
-                return;
+            }
+            else
+            {
+                bodyRenderer.sprite = definition.DeadSprite != null
+                    ? definition.DeadSprite
+                    : definition.VisualSprite;
             }
 
-            bodyRenderer.sprite = definition.DeadSprite != null
-                ? definition.DeadSprite
-                : definition.VisualSprite;
             transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
             RebuildOutline();
             ConfigureInteractionCollider();
@@ -262,11 +264,6 @@ namespace Godmist.Views.Dungeons
 
         private void ConfigureInteractionCollider()
         {
-            if (bodyRenderer?.sprite == null)
-            {
-                return;
-            }
-
             var collider = GetComponent<CircleCollider2D>();
             if (collider == null)
             {
@@ -282,8 +279,15 @@ namespace Godmist.Views.Dungeons
 
             collider.isTrigger = true;
 
-            var extents = bodyRenderer.sprite.bounds.extents;
-            collider.radius = Mathf.Max(extents.x, extents.y);
+            var radius = 0.35f;
+
+            if (bodyRenderer?.sprite != null)
+            {
+                var extents = bodyRenderer.sprite.bounds.extents;
+                radius = Mathf.Max(radius, extents.x, extents.y);
+            }
+
+            collider.radius = radius;
         }
 
         private void RefreshHoverVisual()
