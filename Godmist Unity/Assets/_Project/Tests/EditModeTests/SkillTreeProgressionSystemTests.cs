@@ -222,6 +222,40 @@ namespace Godmist.Tests.EditMode
             Assert.That(SkillTreeProgressionSystem.GetRequiredRanksForTier(7), Is.EqualTo(30));
         }
 
+        [Test]
+        public void GetInvestmentBlockReason_DescribesTierPrerequisiteRankAndPointLocks()
+        {
+            var prerequisite = Node("node.prerequisite", 1, 2);
+            var dependent = Node("node.dependent", 3, 1, new SkillTreeNodeRequirement());
+            Set(dependent.Requirements[0], "NodeId", "node.prerequisite");
+            Set(dependent.Requirements[0], "MinimumRanks", 2);
+            var character = Character(Tree(prerequisite, dependent), points: 1);
+            var system = new SkillTreeProgressionSystem();
+
+            Assert.That(
+                system.GetInvestmentBlockReason(character, "tree.test", "node.dependent"),
+                Does.Contain("10 pkt"));
+
+            for (var index = 0; index < 10; index++)
+            {
+                character.SkillTreeProgress ??= new List<SkillTreeProgress>();
+                var progress = character.SkillTreeProgress.Count == 0
+                    ? new SkillTreeProgress { TreeId = "tree.test" }
+                    : character.SkillTreeProgress[0];
+                if (character.SkillTreeProgress.Count == 0) character.SkillTreeProgress.Add(progress);
+                progress.NodeInvestments.Add(new SkillTreeNodeInvestment { NodeId = $"filler.{index}", Ranks = 1 });
+            }
+
+            Assert.That(
+                system.GetInvestmentBlockReason(character, "tree.test", "node.dependent"),
+                Does.Contain("node.prerequisite"));
+
+            character.AvailableSkillPoints = 0;
+            Assert.That(
+                system.GetInvestmentBlockReason(character, "tree.test", "node.prerequisite"),
+                Does.Contain("Brak dostępnych"));
+        }
+
         private static CharacterInstance Character(SkillTreeDefinition tree, int points)
         {
             var classData = ScriptableObject.CreateInstance<CharacterClassData>();

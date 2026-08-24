@@ -14,7 +14,6 @@ namespace Godmist.Views.Exploration
         [SerializeField] private float followerDistance = 1f;
         [SerializeField] private ExplorationCameraFollow cameraController;
         [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
-        [SerializeField] private SkillTreeProgressionPanelView skillTreeProgressionPanel;
 
         private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
 
@@ -68,7 +67,6 @@ namespace Godmist.Views.Exploration
 
             if (gameSession.ActiveCombat != null)
             {
-                skillTreeProgressionPanel?.Close();
                 return;
             }
 
@@ -76,13 +74,6 @@ namespace Godmist.Views.Exploration
             {
                 return;
             }
-
-            if (skillTreeProgressionPanel != null && skillTreeProgressionPanel.IsOpen)
-            {
-                if (Input.GetKeyDown(KeyCode.P)) skillTreeProgressionPanel.Close();
-                return;
-            }
-
 
             if (gameSession.CurrentMode == GameModeState.Dialogue)
             {
@@ -103,19 +94,6 @@ namespace Godmist.Views.Exploration
             {
                 TryCycleLeader();
             }
-
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                if (skillTreeProgressionPanel == null)
-                {
-                    Debug.LogWarning("Nie przypisano SkillTreeProgressionPanelView.", this);
-                    return;
-                }
-
-                skillTreeProgressionPanel.Open(gameSession, gameSession.PlayerParty.ActiveLeaderId);
-                return;
-            }
-
 
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null
@@ -153,9 +131,6 @@ namespace Godmist.Views.Exploration
             }
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen) return;
-
-            if (skillTreeProgressionPanel != null && skillTreeProgressionPanel.IsOpen) return;
-
 
             var leaderView = GetActiveLeaderView();
 

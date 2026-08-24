@@ -33,6 +33,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private GameObject dragGhostTemplate;
         [SerializeField] private Button skillLoadoutButton;
         [SerializeField] private SkillLoadoutModalView skillLoadoutWindowPrefab;
+        [SerializeField] private Button skillTreeButton;
+        [SerializeField] private SkillTreeProgressionPanelView skillTreeWindowPrefab;
 
         private readonly InventoryService inventoryService = new();
         private readonly EquipmentService equipmentService = new();
@@ -45,6 +47,7 @@ namespace Godmist.Views.UI.Workspace
         private CharacterInfoEquipmentSlotView draggedEquipmentSlot;
         private GameObject dragGhost;
         private SkillLoadoutModalView skillLoadoutWindow;
+        private SkillTreeProgressionPanelView skillTreeWindow;
 
         public string CharacterId => character?.CharacterId;
         public CharacterInstance Character => character;
@@ -57,6 +60,7 @@ namespace Godmist.Views.UI.Workspace
             if (inventoryItemTemplate != null) inventoryItemTemplate.gameObject.SetActive(false);
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.AddListener(_ => RefreshInventory());
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.AddListener(OpenSkillLoadout);
+            if (skillTreeButton != null) skillTreeButton.onClick.AddListener(OpenSkillTree);
 
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
             {
@@ -68,6 +72,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.RemoveAllListeners();
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.RemoveListener(OpenSkillLoadout);
+            if (skillTreeButton != null) skillTreeButton.onClick.RemoveListener(OpenSkillTree);
         }
 
         public void Initialize(GameSession nextSession, string characterId)
@@ -120,6 +125,19 @@ namespace Godmist.Views.UI.Workspace
             }
 
             skillLoadoutWindow.Open(session, character.CharacterId);
+        }
+
+        private void OpenSkillTree()
+        {
+            if (session == null || character == null || session.ActiveCombat != null) return;
+            if (skillTreeWindow == null)
+            {
+                var manager = window?.Manager;
+                if (skillTreeWindowPrefab == null || manager?.WorkspaceRoot == null) return;
+                skillTreeWindow = Instantiate(skillTreeWindowPrefab, manager.WorkspaceRoot);
+            }
+
+            skillTreeWindow.Open(session, character.CharacterId);
         }
 
         public void TryEquip(ItemInstance item)

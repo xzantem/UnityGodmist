@@ -29,6 +29,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI metaText;
         [SerializeField, Min(0f)] private float hoverDelay = .25f;
         [SerializeField, Min(64f)] private float minimumHeight = 68f;
+        [SerializeField, Min(0f)] private float contentHeightPadding = 16f;
         [SerializeField] private Vector2 pointerOffset = new(16f, -16f);
 
         private CanvasGroup canvasGroup;
@@ -211,7 +212,7 @@ namespace Godmist.Views.UI.Workspace
                 + (metaText != null && metaText.gameObject.activeSelf ? 1 : 0);
             tooltipRect.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                Mathf.Max(minimumHeight, 20f + headerHeight + bodyHeight + metaHeight + 4f * (sectionCount - 1)));
+                Mathf.Max(minimumHeight, 20f + contentHeightPadding + headerHeight + bodyHeight + metaHeight + 4f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
         }
 
