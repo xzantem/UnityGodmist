@@ -57,6 +57,28 @@ PF_UIW_Section
 
 **Użycie:** sekcje statystyk Character Info, equipment, lista inventory i lista skilli. Nie zakładać jednej uniwersalnej grupy layoutu na root.
 
+### `PF_UIW_ScrollView`
+
+**Przeznaczenie:** jednolity kontener przewijanej zawartości w UI Workspace. Odpowiada za maskowanie oraz wygląd tła, tracka i uchwytu scrollbara; nie narzuca układu danych w `Content`.
+
+**Warianty:** `List` (pionowy `VerticalLayoutGroup` na Content) oraz `Grid` (pionowy scroll z `GridLayoutGroup` na Content). Wariant zmienia tylko komponenty layoutu Content.
+
+**Hierarchia:**
+
+```text
+PF_UIW_ScrollView
+├── Border
+├── Viewport
+│   └── Content
+└── VerticalScrollbar
+    ├── SlidingArea
+    │   └── Handle
+```
+
+**Wymagane komponenty:** root `Image` + `ScrollRect` + applier; `Border` Image + applier; `Viewport` ma wyłącznie `RectMask2D` (bez Image); `Content` jest pustym `RectTransform` poza layoutem wybranym przez wariant; `VerticalScrollbar` ma `Scrollbar`, `Image` i applier, a `Handle` ma `Image` i osobny applier. `ScrollRect.content`, `viewport` i `verticalScrollbar` muszą wskazywać odpowiednio te trzy obiekty. Track i Handle nie używają domyślnego białego sprite'a ani ręcznych kolorów.
+
+**Użycie:** ekwipunek, dostępne skille, łup ciała i listy wymagające przewijania. Nie używać dla całego okna ani dla drzewka umiejętności, które ma być widoczne bez scrolla.
+
 ### `PF_UIW_Button`
 
 **Przeznaczenie:** jawna akcja użytkownika.

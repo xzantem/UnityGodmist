@@ -86,8 +86,27 @@ namespace Godmist.Systems.Items
             string bodyInstanceId,
             string itemInstanceId)
         {
-            if (!TryGetActiveLeaderInventory(
+            if (!TryGetActiveLeaderCharacterId(gameSession, out var characterId))
+            {
+                return false;
+            }
+
+            return TryClaimDungeonBodyItem(
+                gameSession,
+                bodyInstanceId,
+                characterId,
+                itemInstanceId);
+        }
+
+        public bool TryClaimDungeonBodyItem(
+            GameSession gameSession,
+            string bodyInstanceId,
+            string characterId,
+            string itemInstanceId)
+        {
+            if (!TryGetCharacterInventory(
                     gameSession,
+                    characterId,
                     out var characterInventory))
             {
                 return false;
@@ -130,6 +149,19 @@ namespace Godmist.Systems.Items
             return TryClaimDungeonBodyItem(
                 gameSession,
                 bodyInstanceId,
+                itemInstanceId);
+        }
+
+        public bool TryClaimBodyItem(
+            GameSession gameSession,
+            string bodyInstanceId,
+            string characterId,
+            string itemInstanceId)
+        {
+            return TryClaimDungeonBodyItem(
+                gameSession,
+                bodyInstanceId,
+                characterId,
                 itemInstanceId);
         }
 
@@ -226,11 +258,50 @@ namespace Godmist.Systems.Items
         {
             inventory = null;
 
+            if (!TryGetActiveLeaderCharacterId(gameSession, out var characterId))
+            {
+                return false;
+            }
+
+            return TryGetCharacterInventory(
+                gameSession,
+                characterId,
+                out inventory);
+        }
+
+        private static bool TryGetActiveLeaderCharacterId(
+            GameSession gameSession,
+            out string characterId)
+        {
+            characterId = string.Empty;
+
             if (gameSession == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null
                 || string.IsNullOrWhiteSpace(
-                    gameSession.PlayerParty.ActiveLeaderId)
+                    gameSession.PlayerParty.ActiveLeaderId))
+            {
+                return false;
+            }
+
+            characterId = gameSession.PlayerParty.ActiveLeaderId;
+            return true;
+        }
+
+        private static bool TryGetCharacterInventory(
+            GameSession gameSession,
+            string characterId,
+            out Inventory inventory)
+        {
+            inventory = null;
+
+            if (gameSession == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null
+                || string.IsNullOrWhiteSpace(characterId)
+                || !gameSession.PlayerParty.IsActiveMember(characterId)
                 || !gameSession.CharactersById.TryGetValue(
-                    gameSession.PlayerParty.ActiveLeaderId,
+                    characterId,
                     out var character)
                 || character == null
                 || character.LifeState == CharacterLifeState.Dead)
@@ -252,6 +323,8 @@ namespace Godmist.Systems.Items
             body = null;
 
             if (gameSession?.ActiveDungeon == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null
                 || !gameSession.ActiveDungeon.TryGetCurrentFloor(out floor)
                 || !floor.TryGetEnemyBody(bodyInstanceId, out body))
             {

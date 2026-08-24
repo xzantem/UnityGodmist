@@ -16,6 +16,8 @@ namespace Godmist.Views.UI.Workspace
 {
     public sealed class CharacterInfoWindowView : MonoBehaviour
     {
+        private static readonly HashSet<CharacterInfoWindowView> OpenWindows = new();
+
         [SerializeField] private UIWorkspaceWindow window;
         [SerializeField] private TextMeshProUGUI headerTitleText;
         [SerializeField] private Image portrait;
@@ -54,6 +56,16 @@ namespace Godmist.Views.UI.Workspace
 
         public bool MeetsEquipmentRequirements(EquipmentItemInstance item) =>
             character != null && EquipmentService.MeetsRequirements(character, item);
+
+        private void OnEnable()
+        {
+            OpenWindows.Add(this);
+        }
+
+        private void OnDisable()
+        {
+            OpenWindows.Remove(this);
+        }
 
         private void Awake()
         {
@@ -259,6 +271,41 @@ namespace Godmist.Views.UI.Workspace
             sourceWindow.EndDrag();
             sourceWindow.Refresh();
             Refresh();
+        }
+
+        public void TryReceiveLootItem(
+            DungeonLootWindowView sourceWindow,
+            ItemInstance item)
+        {
+            if (sourceWindow == null
+                || item == null
+                || session == null
+                || character == null)
+            {
+                sourceWindow?.EndDrag();
+                return;
+            }
+
+            if (sourceWindow.TryClaimItemForCharacter(
+                    character.CharacterId,
+                    item.InstanceId))
+            {
+                Refresh();
+            }
+            else
+            {
+                sourceWindow.EndDrag();
+            }
+        }
+
+        public static void RefreshOpenWindows(GameSession session)
+        {
+            if (session == null) return;
+
+            foreach (var window in new List<CharacterInfoWindowView>(OpenWindows))
+            {
+                if (window != null && window.session == session) window.Refresh();
+            }
         }
 
         private void RefreshInventory()

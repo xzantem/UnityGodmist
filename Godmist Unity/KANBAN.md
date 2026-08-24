@@ -92,8 +92,8 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ### Milestone: Rewards and Progression v2
 
 ### Milestone: UI Workspace v1
-- `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`
-  - Okno lootu ciala pokazuje itemy pozostawione w ciele. Umozliwia drag-and-drop do otwartego Character Info z walidacja wagi i zachowaniem `instanceId`; double-click odbiera item aktywna postacia. Ownerem mutacji pozostaje system lootu/inventory.
+- `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - Rozszerzyc `PF_UIW_ItemSlot` o opcjonalny `CountLabel`, widoczny tylko dla itemow stackowalnych. Zastapic osobny `GoldSlot` w oknie lootu wpisem w glownym gridzie: ikona zlota + ten sam count label. Nie modelowac zlota jako `ItemInstance` ani nie zmieniac ekonomii; to wyłącznie wspolna prezentacja i interakcja UI.
 - `[P1] Podpiac generowany equipment do LootTable i tooltipow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - LootTable ma generowac equipment, a tooltip itemu ma pokazac statystyki, wymagania i porownanie z zalozonym itemem.
 - `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
@@ -116,6 +116,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Playable / Test
 
 ## Done
+
+- `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Okno lootu ciala pokazuje itemy oraz gold w osobnym item slocie. Umozliwia drag-and-drop do otwartego Character Info z walidacja wagi i zachowaniem `instanceId`; double-click odbiera item aktywna postacia. Zakres obejmuje tylko eksploracje po walce: bez lootowania cial w combat i bez kosztu AP. Ownerem mutacji pozostaje system lootu/inventory.
 
 - `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
   - Zastapic panel drzewek floating window zgodnym z design systemem, otwieranym buttonem z Character Info. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz pelne drzewko widoczne jednoczesnie bez scrolla. Rysowac polaczenia prerequisite'ow; progi tierow pokazywac jako obramowania grup `3-4` (`0/10`), `5-6` (`0/20`) i `7` (`0/30`), znikajace po spelnieniu warunku.

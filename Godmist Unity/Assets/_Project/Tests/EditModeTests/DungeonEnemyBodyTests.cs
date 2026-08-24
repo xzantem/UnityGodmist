@@ -138,7 +138,7 @@ namespace Godmist.Tests.EditMode
         [Test]
         public void BodyClaimsItemAndGoldExactlyOnce()
         {
-            var session = new GameSession();
+            var session = new GameSession(GameModeState.Exploration);
             var character = new CharacterInstance
             {
                 CharacterId = "character.leader",
@@ -206,7 +206,7 @@ namespace Godmist.Tests.EditMode
         [Test]
         public void OverweightBodyItemDoesNotPreventClaimingItsGold()
         {
-            var session = new GameSession();
+            var session = new GameSession(GameModeState.Exploration);
             var character = new CharacterInstance
             {
                 CharacterId = "character.overweight",
@@ -240,6 +240,104 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.Gold, Is.EqualTo(11));
             Assert.That(floor.EnemyBodies, Has.Count.EqualTo(1));
             Assert.That(floor.EnemyBodies[0].Items[0], Is.SameAs(item));
+        }
+
+        [Test]
+        public void BodyItemClaimCanTargetAnotherActiveCharacterAndPreservesInstanceId()
+        {
+            var session = new GameSession(GameModeState.Exploration);
+            var leader = new CharacterInstance
+            {
+                CharacterId = "character.leader.target",
+                LifeState = CharacterLifeState.Alive,
+                AvailabilityState = CharacterAvailabilityState.Available,
+                Inventory = new Inventory()
+            };
+            var target = new CharacterInstance
+            {
+                CharacterId = "character.target",
+                LifeState = CharacterLifeState.Alive,
+                AvailabilityState = CharacterAvailabilityState.Available,
+                Inventory = new Inventory()
+            };
+
+            Assert.That(session.TryRegisterCharacter(leader), Is.True);
+            Assert.That(session.TryRegisterCharacter(target), Is.True);
+            Assert.That(session.TryAddCharacterToActiveParty(leader.CharacterId), Is.True);
+            Assert.That(session.TryAddCharacterToActiveParty(target.CharacterId), Is.True);
+
+            var dungeon = new DungeonInstance("dungeon.target", 1);
+            var floor = new DungeonFloorInstance(0);
+            Assert.That(dungeon.TryAddFloor(floor), Is.True);
+            Assert.That(session.TrySetActiveDungeon(dungeon), Is.True);
+
+            var item = new ItemInstance(
+                CreateItemDefinition("item.target"),
+                "item.target.instance");
+            var body = new DungeonEnemyBodyInstance(
+                "body.target",
+                "enemy.target",
+                Vector2Int.zero,
+                0,
+                new[] { item });
+            Assert.That(floor.TryAddEnemyBody(body), Is.True);
+
+            Assert.That(new LootCollectionService().TryClaimDungeonBodyItem(
+                session,
+                body.InstanceId,
+                target.CharacterId,
+                item.InstanceId), Is.True);
+            Assert.That(target.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(target.Inventory.Items[0], Is.SameAs(item));
+            Assert.That(target.Inventory.Items[0].InstanceId,
+                Is.EqualTo("item.target.instance"));
+            Assert.That(leader.Inventory.Items, Is.Empty);
+        }
+
+        [Test]
+        public void BodyClaimsAreRejectedDuringCombat()
+        {
+            var session = new GameSession(GameModeState.Exploration);
+            var character = new CharacterInstance
+            {
+                CharacterId = "character.combat",
+                LifeState = CharacterLifeState.Alive,
+                AvailabilityState = CharacterAvailabilityState.Available,
+                Inventory = new Inventory()
+            };
+            Assert.That(session.TryRegisterCharacter(character), Is.True);
+            Assert.That(session.TryAddCharacterToActiveParty(character.CharacterId), Is.True);
+
+            var dungeon = new DungeonInstance("dungeon.combat", 1);
+            var floor = new DungeonFloorInstance(0);
+            Assert.That(dungeon.TryAddFloor(floor), Is.True);
+            Assert.That(session.TrySetActiveDungeon(dungeon), Is.True);
+            var item = new ItemInstance(
+                CreateItemDefinition("item.combat"),
+                "item.combat.instance");
+            var body = new DungeonEnemyBodyInstance(
+                "body.combat",
+                "enemy.combat",
+                Vector2Int.zero,
+                7,
+                new[] { item });
+            Assert.That(floor.TryAddEnemyBody(body), Is.True);
+            Assert.That(session.TrySetActiveCombat(new CombatSession
+            {
+                CombatId = "combat.active"
+            }), Is.True);
+
+            var service = new LootCollectionService();
+            Assert.That(service.TryClaimDungeonBodyItem(
+                session,
+                body.InstanceId,
+                item.InstanceId), Is.False);
+            Assert.That(service.TryClaimDungeonBodyGold(
+                session,
+                body.InstanceId,
+                out _), Is.False);
+            Assert.That(character.Inventory.Items, Is.Empty);
+            Assert.That(session.Gold, Is.EqualTo(0));
         }
 
         [Test]

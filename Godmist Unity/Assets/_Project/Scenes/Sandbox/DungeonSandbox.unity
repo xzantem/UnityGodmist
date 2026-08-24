@@ -3673,6 +3673,7 @@ MonoBehaviour:
   floorTilemap: {fileID: 1441778419}
   chestPrefab: {fileID: 6450316471294715145, guid: 8ec342ea5d7e3b04cbe59ad3be42443c, type: 3}
   enemyBodyPrefab: {fileID: 0}
+  dungeonLootWindowPrefab: {fileID: 3831248262839696342, guid: 6b46fa1e01280ff4ab29530d0f42d3e9, type: 3}
   obstaclePrefab: {fileID: 6899838912411245855, guid: d090491c19006d84bbe84d77cbc24912, type: 3}
   doorPrefab: {fileID: 337228898627737318, guid: 2292e3aee2720074ea482e70d0a1dc6f, type: 3}
   objectsRoot: {fileID: 487655857}
@@ -6391,10 +6392,10 @@ RectTransform:
   - {fileID: 954479505}
   m_Father: {fileID: 1500954577}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &809967957
 GameObject:

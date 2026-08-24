@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Godmist.Views.Dungeons;
 
 namespace Godmist.Views.UI.Workspace
 {
@@ -18,6 +19,13 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnDrop(PointerEventData eventData)
         {
+            var lootItemView = eventData.pointerDrag?.GetComponent<DungeonLootItemView>();
+            if (lootItemView?.Owner != null && lootItemView.Item != null)
+            {
+                owner?.TryReceiveLootItem(lootItemView.Owner, lootItemView.Item);
+                return;
+            }
+
             var sourceItemView = eventData.pointerDrag?.GetComponent<CharacterInfoItemView>();
             if (sourceItemView?.Owner != null && sourceItemView.Item != null)
             {
