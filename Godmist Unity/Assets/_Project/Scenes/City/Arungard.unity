@@ -6885,7 +6885,6 @@ MonoBehaviour:
   cameraController: {fileID: 732128115}
   inventoryEquipmentPanel: {fileID: 2047465471}
   skillTreeProgressionPanel: {fileID: 1529901705}
-  skillLoadoutModal: {fileID: 2140629386}
   arrivalDistance: 0.05
 --- !u!1 &385561837
 GameObject:
@@ -35472,12 +35471,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.SkillLoadoutModalView
   panelRoot: {fileID: 704179703}
+  workspaceWindow: {fileID: 0}
+  workspaceTitleText: {fileID: 0}
   closeButton: {fileID: 59444010}
   backdropCloseButton: {fileID: 547621306}
-  characterSelectorRoot: {fileID: 187507792}
-  characterSelectorTemplate: {fileID: 4464153785829286011, guid: 190c117038b256348a6bca33b3b54d42, type: 3}
-  inspectedNameText: {fileID: 2143562266}
-  inspectedClassLevelText: {fileID: 975534497}
   capacityText: {fileID: 1559396373}
   basicSlotCard: {fileID: 1887263565}
   activeSlotsRoot: {fileID: 775846243}
@@ -35974,6 +35971,26 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8178979024629031938, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8644888751614720254, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8644888751614720254, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8644888751614720254, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8644888751614720254, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8644888751614720254, guid: 1f02b7b540597844f9352f6fce3fb5c6, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}

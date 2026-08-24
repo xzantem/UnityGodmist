@@ -10,9 +10,14 @@ namespace Godmist.Runtime.Characters
         public const int DefaultBaseCapacity = 5;
 
         private readonly List<string> activeSkillIds = new();
+        // Slot zero is always the basic attack. Remaining positions stay stable so the
+        // UI can preserve intentional gaps in a character's loadout.
+        private readonly List<string> activeSkillSlotIds = new();
         private readonly List<SkillLoadoutCapacityModifier> capacityModifiers = new();
 
         public IReadOnlyList<string> ActiveSkillIds => new List<string>(activeSkillIds);
+        public IReadOnlyList<string> ActiveSkillSlotIds => new List<string>(activeSkillSlotIds);
+        public int ActiveSkillCount => activeSkillIds.Count;
         public IReadOnlyList<SkillLoadoutCapacityModifier> CapacityModifiers
             => CopyCapacityModifiers();
         public int BaseCapacity { get; private set; } = DefaultBaseCapacity;
@@ -99,6 +104,7 @@ namespace Godmist.Runtime.Characters
             BasicAttackSkillId = basicAttackSkillId;
             activeSkillIds.Clear();
             activeSkillIds.AddRange(nextActiveSkillIds);
+            RebuildSlotSkillIds(nextActiveSkillIds, nextCapacity);
             capacityModifiers.Clear();
             capacityModifiers.AddRange(nextCapacityModifiers);
             return true;
@@ -118,7 +124,14 @@ namespace Godmist.Runtime.Characters
                 return false;
             }
 
-            activeSkillIds.Add(skillId);
+            var targetIndex = FindFirstEmptyNonBasicSlot();
+            if (targetIndex < 0)
+            {
+                return false;
+            }
+
+            activeSkillSlotIds[targetIndex] = skillId;
+            RebuildActiveSkillIdsFromSlots();
             return true;
         }
 
@@ -134,7 +147,15 @@ namespace Godmist.Runtime.Characters
                 return false;
             }
 
-            return activeSkillIds.Remove(skillId);
+            var slotIndex = activeSkillSlotIds.IndexOf(skillId);
+            if (slotIndex <= 0)
+            {
+                return false;
+            }
+
+            activeSkillSlotIds[slotIndex] = string.Empty;
+            RebuildActiveSkillIdsFromSlots();
+            return true;
         }
 
         internal bool TryReplaceSkill(
@@ -157,13 +178,37 @@ namespace Godmist.Runtime.Characters
                 return false;
             }
 
-            var targetIndex = activeSkillIds.IndexOf(targetSkillId);
-            if (targetIndex < 0)
+            var targetIndex = activeSkillSlotIds.IndexOf(targetSkillId);
+            if (targetIndex <= 0)
             {
                 return false;
             }
 
-            activeSkillIds[targetIndex] = replacementSkillId;
+            activeSkillSlotIds[targetIndex] = replacementSkillId;
+            RebuildActiveSkillIdsFromSlots();
+            return true;
+        }
+
+        internal bool TryAddSkillAtSlot(
+            string skillId,
+            int targetIndex,
+            IEnumerable<string> knownSkillIds)
+        {
+            var knownIds = CreateKnownSkillIdSet(knownSkillIds, out _);
+            if (!IsInitialized
+                || string.IsNullOrWhiteSpace(skillId)
+                || knownIds == null
+                || !knownIds.Contains(skillId)
+                || activeSkillIds.Contains(skillId)
+                || targetIndex <= 0
+                || targetIndex >= Capacity
+                || !string.IsNullOrWhiteSpace(activeSkillSlotIds[targetIndex]))
+            {
+                return false;
+            }
+
+            activeSkillSlotIds[targetIndex] = skillId;
+            RebuildActiveSkillIdsFromSlots();
             return true;
         }
 
@@ -177,19 +222,21 @@ namespace Godmist.Runtime.Characters
                     StringComparison.Ordinal)
                 || targetIndex == 0
                 || targetIndex < 0
-                || targetIndex >= activeSkillIds.Count)
+                || targetIndex >= activeSkillSlotIds.Count)
             {
                 return false;
             }
 
-            var currentIndex = activeSkillIds.IndexOf(skillId);
+            var currentIndex = activeSkillSlotIds.IndexOf(skillId);
             if (currentIndex < 0 || currentIndex == targetIndex)
             {
                 return currentIndex == targetIndex;
             }
 
-            activeSkillIds.RemoveAt(currentIndex);
-            activeSkillIds.Insert(targetIndex, skillId);
+            var targetSkillId = activeSkillSlotIds[targetIndex];
+            activeSkillSlotIds[targetIndex] = skillId;
+            activeSkillSlotIds[currentIndex] = targetSkillId;
+            RebuildActiveSkillIdsFromSlots();
             return true;
         }
 
@@ -209,7 +256,23 @@ namespace Godmist.Runtime.Characters
 
             if (amount == 0)
             {
-                return existing == null || capacityModifiers.Remove(existing);
+                if (existing == null)
+                {
+                    return true;
+                }
+
+                var removedAmount = existing.Amount;
+                var existingIndex = capacityModifiers.IndexOf(existing);
+                capacityModifiers.RemoveAt(existingIndex);
+                if (activeSkillIds.Count > Capacity || HasAssignedSkillOutsideCapacity())
+                {
+                    existing.Amount = removedAmount;
+                    capacityModifiers.Insert(existingIndex, existing);
+                    return false;
+                }
+
+                ResizeSlotsToCapacity();
+                return true;
             }
 
             var previousAmount = existing?.Amount ?? 0;
@@ -228,7 +291,7 @@ namespace Godmist.Runtime.Characters
                 existing.Amount = amount;
             }
 
-            if (activeSkillIds.Count > Capacity)
+            if (activeSkillIds.Count > Capacity || HasAssignedSkillOutsideCapacity())
             {
                 if (added)
                 {
@@ -242,6 +305,7 @@ namespace Godmist.Runtime.Characters
                 return false;
             }
 
+            ResizeSlotsToCapacity();
             return true;
         }
 
@@ -276,6 +340,11 @@ namespace Godmist.Runtime.Characters
         public List<string> CopyActiveSkillIds()
         {
             return new List<string>(activeSkillIds);
+        }
+
+        public List<string> CopyActiveSkillSlotIds()
+        {
+            return new List<string>(activeSkillSlotIds);
         }
 
         public List<SkillLoadoutCapacityModifier> CopyCapacityModifiers()
@@ -421,6 +490,141 @@ namespace Godmist.Runtime.Characters
             }
 
             return result;
+        }
+
+        internal bool TryInitializeSlots(
+            IEnumerable<string> knownSkillIds,
+            string basicAttackSkillId,
+            IEnumerable<string> requestedActiveSkillSlotIds,
+            IEnumerable<SkillLoadoutCapacityModifier> requestedCapacityModifiers = null)
+        {
+            var knownIds = CreateKnownSkillIdSet(knownSkillIds, out _);
+            if (knownIds == null
+                || string.IsNullOrWhiteSpace(basicAttackSkillId)
+                || !knownIds.Contains(basicAttackSkillId))
+            {
+                return false;
+            }
+
+            var nextCapacityModifiers = CreateCapacityModifiers(requestedCapacityModifiers, out var validModifiers);
+            if (!validModifiers)
+            {
+                return false;
+            }
+
+            var nextCapacity = Math.Max(1, BaseCapacity + SumCapacityModifiers(nextCapacityModifiers));
+            var slots = new List<string>(requestedActiveSkillSlotIds ?? new List<string>());
+            if (slots.Count == 0 || slots.Count > nextCapacity || !string.Equals(slots[0], basicAttackSkillId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var slotSkillId in slots)
+            {
+                if (string.IsNullOrWhiteSpace(slotSkillId))
+                {
+                    continue;
+                }
+
+                if (!knownIds.Contains(slotSkillId) || !seen.Add(slotSkillId))
+                {
+                    return false;
+                }
+            }
+
+            while (slots.Count < nextCapacity)
+            {
+                slots.Add(string.Empty);
+            }
+
+            BasicAttackSkillId = basicAttackSkillId;
+            activeSkillSlotIds.Clear();
+            activeSkillSlotIds.AddRange(slots);
+            RebuildActiveSkillIdsFromSlots();
+            capacityModifiers.Clear();
+            capacityModifiers.AddRange(nextCapacityModifiers);
+            return true;
+        }
+
+        private static int SumCapacityModifiers(IEnumerable<SkillLoadoutCapacityModifier> modifiers)
+        {
+            var total = 0;
+            foreach (var modifier in modifiers)
+            {
+                if (modifier != null)
+                {
+                    total += modifier.Amount;
+                }
+            }
+
+            return total;
+        }
+
+        private int FindFirstEmptyNonBasicSlot()
+        {
+            for (var index = 1; index < activeSkillSlotIds.Count; index++)
+            {
+                if (string.IsNullOrWhiteSpace(activeSkillSlotIds[index]))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        private void RebuildSlotSkillIds(IReadOnlyList<string> skillIds, int capacity)
+        {
+            activeSkillSlotIds.Clear();
+            foreach (var skillId in skillIds)
+            {
+                activeSkillSlotIds.Add(skillId);
+            }
+
+            while (activeSkillSlotIds.Count < capacity)
+            {
+                activeSkillSlotIds.Add(string.Empty);
+            }
+        }
+
+        private void RebuildActiveSkillIdsFromSlots()
+        {
+            activeSkillIds.Clear();
+            foreach (var slotSkillId in activeSkillSlotIds)
+            {
+                if (!string.IsNullOrWhiteSpace(slotSkillId))
+                {
+                    activeSkillIds.Add(slotSkillId);
+                }
+            }
+        }
+
+        private void ResizeSlotsToCapacity()
+        {
+            var capacity = Capacity;
+            while (activeSkillSlotIds.Count > capacity)
+            {
+                activeSkillSlotIds.RemoveAt(activeSkillSlotIds.Count - 1);
+            }
+
+            while (activeSkillSlotIds.Count < capacity)
+            {
+                activeSkillSlotIds.Add(string.Empty);
+            }
+        }
+
+        private bool HasAssignedSkillOutsideCapacity()
+        {
+            for (var index = Capacity; index < activeSkillSlotIds.Count; index++)
+            {
+                if (!string.IsNullOrWhiteSpace(activeSkillSlotIds[index]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

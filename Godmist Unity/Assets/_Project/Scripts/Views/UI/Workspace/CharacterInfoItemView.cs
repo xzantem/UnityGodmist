@@ -7,6 +7,8 @@ namespace Godmist.Views.UI.Workspace
 {
     public sealed class CharacterInfoItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
     {
+        private static readonly Color UnavailableOverlayColor = new(0.45f, 0.06f, 0.06f, 0.48f);
+
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
         [SerializeField] private Image unavailableOverlay;
@@ -27,7 +29,11 @@ namespace Godmist.Views.UI.Workspace
             }
             var unavailable = item is EquipmentItemInstance equipment
                 && !owner.MeetsEquipmentRequirements(equipment);
-            if (unavailableOverlay != null) unavailableOverlay.enabled = unavailable;
+            if (unavailableOverlay != null)
+            {
+                unavailableOverlay.color = UnavailableOverlayColor;
+                unavailableOverlay.enabled = unavailable;
+            }
         }
         public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(item, eventData);
         public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);

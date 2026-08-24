@@ -6,6 +6,7 @@ using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
+using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -30,6 +31,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private CharacterInfoItemView inventoryItemTemplate;
         [SerializeField] private CharacterInfoEquipmentSlotView[] equipmentSlots;
         [SerializeField] private GameObject dragGhostTemplate;
+        [SerializeField] private Button skillLoadoutButton;
+        [SerializeField] private SkillLoadoutModalView skillLoadoutWindowPrefab;
 
         private readonly InventoryService inventoryService = new();
         private readonly EquipmentService equipmentService = new();
@@ -41,6 +44,7 @@ namespace Godmist.Views.UI.Workspace
         private ItemInstance draggedItem;
         private CharacterInfoEquipmentSlotView draggedEquipmentSlot;
         private GameObject dragGhost;
+        private SkillLoadoutModalView skillLoadoutWindow;
 
         public string CharacterId => character?.CharacterId;
         public CharacterInstance Character => character;
@@ -52,6 +56,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (inventoryItemTemplate != null) inventoryItemTemplate.gameObject.SetActive(false);
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.AddListener(_ => RefreshInventory());
+            if (skillLoadoutButton != null) skillLoadoutButton.onClick.AddListener(OpenSkillLoadout);
 
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
             {
@@ -62,6 +67,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDestroy()
         {
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.RemoveAllListeners();
+            if (skillLoadoutButton != null) skillLoadoutButton.onClick.RemoveListener(OpenSkillLoadout);
         }
 
         public void Initialize(GameSession nextSession, string characterId)
@@ -101,6 +107,19 @@ namespace Godmist.Views.UI.Workspace
 
             RefreshInventory();
             RefreshEquipment();
+        }
+
+        private void OpenSkillLoadout()
+        {
+            if (session == null || character == null || session.ActiveCombat != null) return;
+            if (skillLoadoutWindow == null)
+            {
+                var manager = window?.Manager;
+                if (skillLoadoutWindowPrefab == null || manager?.WorkspaceRoot == null) return;
+                skillLoadoutWindow = Instantiate(skillLoadoutWindowPrefab, manager.WorkspaceRoot);
+            }
+
+            skillLoadoutWindow.Open(session, character.CharacterId);
         }
 
         public void TryEquip(ItemInstance item)

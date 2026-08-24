@@ -14,6 +14,8 @@ namespace Godmist.Views.UI.Workspace
         IPointerEnterHandler,
         IPointerExitHandler
     {
+        private static readonly Color UnavailableOverlayColor = new(0.45f, 0.06f, 0.06f, 0.48f);
+
         [SerializeField] private EquipmentSlot slot;
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
@@ -42,7 +44,10 @@ namespace Godmist.Views.UI.Workspace
 
             if (button != null) button.interactable = item != null;
             if (unavailableOverlay != null)
+            {
+                unavailableOverlay.color = UnavailableOverlayColor;
                 unavailableOverlay.enabled = item != null && !owner.MeetsEquipmentRequirements(item);
+            }
         }
 
         public void SetDropHighlight(bool enabled)

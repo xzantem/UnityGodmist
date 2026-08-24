@@ -131,6 +131,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SmokeTestWindow
       objectReference: {fileID: 0}
+    - target: {fileID: 2013361182881401041, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4006046553815948391, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

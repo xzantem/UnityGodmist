@@ -446,11 +446,18 @@ namespace Godmist.Systems.SaveLoad
                 });
             }
 
-            return character.ActiveSkillLoadout.TryInitialize(
-                knownSkillIds,
-                basicAttackSkillId,
-                saveData.ActiveSkillIds,
-                modifiers);
+            return saveData.ActiveSkillSlotIds != null
+                   && saveData.ActiveSkillSlotIds.Count > 0
+                ? character.ActiveSkillLoadout.TryInitializeSlots(
+                    knownSkillIds,
+                    basicAttackSkillId,
+                    saveData.ActiveSkillSlotIds,
+                    modifiers)
+                : character.ActiveSkillLoadout.TryInitialize(
+                    knownSkillIds,
+                    basicAttackSkillId,
+                    saveData.ActiveSkillIds,
+                    modifiers);
         }
 
         private static string ResolveRestoredBasicAttackSkillId(
