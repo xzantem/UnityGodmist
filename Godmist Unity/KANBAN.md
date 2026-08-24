@@ -94,8 +94,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ### Milestone: UI Workspace v1
 - `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
   - Rozszerzyc `PF_UIW_ItemSlot` o opcjonalny `CountLabel`, widoczny tylko dla itemow stackowalnych. Zastapic osobny `GoldSlot` w oknie lootu wpisem w glownym gridzie: ikona zlota + ten sam count label. Nie modelowac zlota jako `ItemInstance` ani nie zmieniac ekonomii; to wyłącznie wspolna prezentacja i interakcja UI.
-- `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami focus, z-order, drag, resize, clamp, transfer miedzy Character Info i loot window, odswiezanie Character Info, tooltipy, migracje loadoutu i drzewek oraz zachowanie `instanceId` i walidacji wagi.
 
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
@@ -115,6 +113,8 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Done
 
+- `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
+  - Zweryfikowano focus, z-order, drag, resize, clamp, transfery, tooltipy, loadout, drzewka oraz persistence; smoke test zaliczony.
 - `[P1] Podpiac generowany equipment do LootTable i tooltipow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - LootTable generuje testowy equipment, a tooltip itemu pokazuje statystyki, wymagania i porownanie z zalozonym itemem.
 - `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`

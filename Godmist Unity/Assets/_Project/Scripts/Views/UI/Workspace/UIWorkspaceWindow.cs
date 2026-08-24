@@ -74,6 +74,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void Close()
         {
+            UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             gameObject.SetActive(false);
         }
 

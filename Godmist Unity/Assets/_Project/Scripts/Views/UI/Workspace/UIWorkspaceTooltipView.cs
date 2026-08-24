@@ -128,6 +128,17 @@ namespace Godmist.Views.UI.Workspace
             HideLocal();
         }
 
+        public void HideForSourceWithin(Transform root)
+        {
+            if (root == null
+                || (!IsWithin(root, sourceIdentity) && !IsWithin(root, pendingSource)))
+            {
+                return;
+            }
+
+            HideLocal();
+        }
+
         public void BeginDragSuppression()
         {
             suppressForDrag = true;
@@ -226,6 +237,18 @@ namespace Godmist.Views.UI.Workspace
             pendingShow = null;
             resizeAfterLayout = false;
             if (canvasGroup != null) canvasGroup.alpha = 0f;
+        }
+
+        private static bool IsWithin(Transform root, object source)
+        {
+            return source switch
+            {
+                Component component => component.transform == root
+                    || component.transform.IsChildOf(root),
+                GameObject gameObject => gameObject.transform == root
+                    || gameObject.transform.IsChildOf(root),
+                _ => false
+            };
         }
 
         private CanvasGroup EnsureCanvasGroup()
