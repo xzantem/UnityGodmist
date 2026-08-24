@@ -2665,6 +2665,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2331613054604411831}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8797412140315133978}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3826910616001528319}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
 --- !u!114 &640840934974339554 stripped
 MonoBehaviour:
@@ -2714,6 +2720,7 @@ MonoBehaviour:
   button: {fileID: 640840934974339554}
   icon: {fileID: 2164793009833346547}
   feedbackBorder: {fileID: 6521279045063855705}
+  unavailableOverlay: {fileID: 3826910616001528319}
 --- !u!114 &6521279045063855705 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5718639522037362896, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -2725,6 +2732,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &7365146781091863802 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 1575288885916810889}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &8797412140315133978
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7365146781091863802}
+  m_CullTransparentMesh: 1
+--- !u!114 &3826910616001528319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7365146781091863802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1001 &4210550885813852581
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2824,6 +2874,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5042098453398713819}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6423417902377593672}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 163581566974160686}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
 --- !u!224 &372206822318657876 stripped
 RectTransform:
@@ -2851,6 +2907,7 @@ MonoBehaviour:
   button: {fileID: 2834686328849407694}
   icon: {fileID: 3582770287148049119}
   feedbackBorder: {fileID: 8444902275334269301}
+  unavailableOverlay: {fileID: 163581566974160686}
 --- !u!114 &2834686328849407694 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2105491694246791019, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -2873,6 +2930,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &5297408146652969942 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 4210550885813852581}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &6423417902377593672
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5297408146652969942}
+  m_CullTransparentMesh: 1
+--- !u!114 &163581566974160686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5297408146652969942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &8444902275334269301 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5718639522037362896, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -2983,6 +3083,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8721437933977221895}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5602373370897951261}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7868544910784476810}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
 --- !u!224 &284111216297031635 stripped
 RectTransform:
@@ -3010,6 +3116,7 @@ MonoBehaviour:
   button: {fileID: 2417819154043697225}
   icon: {fileID: 3991186661552276568}
   feedbackBorder: {fileID: 8352299785352286194}
+  unavailableOverlay: {fileID: 7868544910784476810}
 --- !u!114 &2417819154043697225 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2105491694246791019, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3032,6 +3139,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &5719335282702277969 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 4374653575498137378}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &5602373370897951261
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5719335282702277969}
+  m_CullTransparentMesh: 1
+--- !u!114 &7868544910784476810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5719335282702277969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &8352299785352286194 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5718639522037362896, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3332,6 +3482,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3236160558474837112}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3702917852403161039}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7397702909341635771}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
 --- !u!114 &557106226831624176 stripped
 MonoBehaviour:
@@ -3344,6 +3500,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!1 &4255128061035959635 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 5253323010546267936}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &3702917852403161039
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4255128061035959635}
+  m_CullTransparentMesh: 1
+--- !u!114 &7397702909341635771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4255128061035959635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &4841899912877722714 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 852991366503644026, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3387,6 +3586,7 @@ MonoBehaviour:
   button: {fileID: 6187867804375674955}
   icon: {fileID: 4841899912877722714}
   feedbackBorder: {fileID: 557106226831624176}
+  unavailableOverlay: {fileID: 7397702909341635771}
 --- !u!224 &8620792296698101713 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4558972797688465649, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3491,7 +3691,56 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5889329377177660789}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 147493674750453993}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4768060406030193412}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+--- !u!1 &2056983678097468509 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 8025716752889417262}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &147493674750453993
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056983678097468509}
+  m_CullTransparentMesh: 1
+--- !u!114 &4768060406030193412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2056983678097468509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &2323191678773231358 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5718639522037362896, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3524,6 +3773,7 @@ MonoBehaviour:
   button: {fileID: 8239660248856365381}
   icon: {fileID: 7257407853316322644}
   feedbackBorder: {fileID: 2323191678773231358}
+  unavailableOverlay: {fileID: 4768060406030193412}
 --- !u!224 &5775210421707589343 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4558972797688465649, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3650,7 +3900,56 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5559550569597568795}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2473954547709553989}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6635620827168454968}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+--- !u!1 &141220151035010882 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 8223427673242156337}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &2473954547709553989
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 141220151035010882}
+  m_CullTransparentMesh: 1
+--- !u!114 &6635620827168454968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 141220151035010882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &4414596079043792353 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5718639522037362896, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3688,6 +3987,7 @@ MonoBehaviour:
   button: {fileID: 8009456689452071514}
   icon: {fileID: 8775568193157301835}
   feedbackBorder: {fileID: 4414596079043792353}
+  unavailableOverlay: {fileID: 6635620827168454968}
 --- !u!114 &8009456689452071514 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2105491694246791019, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3813,7 +4113,56 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6789192581434344683}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5380178417979691510}
+    - targetCorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 402523241619823509}
   m_SourcePrefab: {fileID: 100100000, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+--- !u!1 &1021551401885879493 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+  m_PrefabInstance: {fileID: 9063365104561778358}
+  m_PrefabAsset: {fileID: 0}
+--- !u!222 &5380178417979691510
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021551401885879493}
+  m_CullTransparentMesh: 1
+--- !u!114 &402523241619823509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1021551401885879493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!224 &4792730572632925767 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4558972797688465649, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -3838,6 +4187,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.CharacterInfoItemView
   button: {fileID: 6989515155940764125}
   icon: {fileID: 8507833689722312140}
+  unavailableOverlay: {fileID: 402523241619823509}
 --- !u!114 &6989515155940764125 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2105491694246791019, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}

@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using Godmist.Runtime.Combat;
 using TMPro;
 using UnityEngine;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
     public class CombatStatusCollectionView : MonoBehaviour
     {
-        [SerializeField] private CombatTooltipView tooltipView;
+        [SerializeField] private UIWorkspaceTooltipView tooltipView;
+        [SerializeField] private CombatTooltipGlossary statusGlossary;
         [SerializeField] private Transform iconRoot;
         [SerializeField] private CombatStatusIconView iconTemplate;
         [SerializeField] private TextMeshProUGUI overflowText;
@@ -24,9 +26,7 @@ namespace Godmist.Views.UI
 
         private void Refresh()
         {
-            tooltipView ??= CombatTooltipView.ActiveInstance
-                ?? Object.FindAnyObjectByType<CombatTooltipView>(
-                    FindObjectsInactive.Include);
+            tooltipView ??= UIWorkspaceTooltipView.ActiveInstance;
 
             var effects = boundUnit?.Character?.PassiveEffects;
             var statuses = CombatStatusPresentationFactory.Create(effects);
@@ -40,7 +40,12 @@ namespace Godmist.Views.UI
                 iconView.gameObject.SetActive(visible);
                 if (visible)
                 {
-                    iconView.Bind(statuses[index], tooltipView);
+                    var effectId = statuses[index].Effect?.EffectId;
+                    var statusIcon = statusGlossary != null
+                        && statusGlossary.TryGet(effectId, out var entry)
+                        ? entry.Icon
+                        : null;
+                    iconView.Bind(statuses[index], tooltipView, statusIcon);
                 }
             }
 

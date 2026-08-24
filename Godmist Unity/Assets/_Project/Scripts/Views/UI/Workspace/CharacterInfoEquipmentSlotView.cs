@@ -10,12 +10,15 @@ namespace Godmist.Views.UI.Workspace
         IBeginDragHandler,
         IDragHandler,
         IEndDragHandler,
-        IDropHandler
+        IDropHandler,
+        IPointerEnterHandler,
+        IPointerExitHandler
     {
         [SerializeField] private EquipmentSlot slot;
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
         [SerializeField] private Image feedbackBorder;
+        [SerializeField] private Image unavailableOverlay;
 
         private CharacterInfoWindowView owner;
 
@@ -38,6 +41,8 @@ namespace Godmist.Views.UI.Workspace
             }
 
             if (button != null) button.interactable = item != null;
+            if (unavailableOverlay != null)
+                unavailableOverlay.enabled = item != null && !owner.MeetsEquipmentRequirements(item);
         }
 
         public void SetDropHighlight(bool enabled)
@@ -52,5 +57,7 @@ namespace Godmist.Views.UI.Workspace
         public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
 
         public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
+        public void OnPointerEnter(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.ShowItem(Item, owner?.Character, this);
+        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit();
     }
 }

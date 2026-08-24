@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
@@ -13,7 +14,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI durationText;
 
         private CombatStatusPresentation presentation;
-        private CombatTooltipView tooltip;
+        private UIWorkspaceTooltipView tooltip;
 
         private void Awake()
         {
@@ -33,7 +34,8 @@ namespace Godmist.Views.UI
 
         public void Bind(
             CombatStatusPresentation source,
-            CombatTooltipView sourceTooltip)
+            UIWorkspaceTooltipView sourceTooltip,
+            Sprite sourceIcon)
         {
             presentation = source;
             tooltip = sourceTooltip;
@@ -41,11 +43,7 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
-                icon.sprite = tooltip != null
-                    && tooltip.Glossary != null
-                    && tooltip.Glossary.TryGet(effect.EffectId, out var entry)
-                    ? entry.Icon
-                    : null;
+                icon.sprite = sourceIcon;
                 icon.enabled = icon.sprite != null;
             }
 
@@ -55,15 +53,13 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltip ??= CombatTooltipView.ActiveInstance
-                ?? Object.FindAnyObjectByType<CombatTooltipView>(
-                    FindObjectsInactive.Include);
-            tooltip?.ShowStatus(presentation, Input.mousePosition);
+            tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
+            tooltip?.ShowStatus(presentation, this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltip?.NotifyStatusSourceExit();
+            tooltip?.NotifySourceExit();
         }
 
         private static void SetCounter(TextMeshProUGUI label, int value)

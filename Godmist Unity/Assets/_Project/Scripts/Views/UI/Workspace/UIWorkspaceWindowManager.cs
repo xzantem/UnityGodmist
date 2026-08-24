@@ -85,10 +85,14 @@ namespace Godmist.Views.UI.Workspace
 
         public void Focus(UIWorkspaceWindow window)
         {
-            if (window == null || !openWindows.Contains(window))
+            if (window == null)
             {
                 return;
             }
+
+            // Explicit focus may arrive before Unity invokes OnEnable in EditMode
+            // tests or immediately after a dynamically created window is parented.
+            if (!openWindows.Contains(window)) openWindows.Add(window);
 
             FocusedWindow = window;
             window.transform.SetAsLastSibling();

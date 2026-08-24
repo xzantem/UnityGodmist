@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
@@ -39,7 +40,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI availableCountText;
 
         [Header("Tooltip and drag")]
-        [SerializeField] private CombatTooltipView tooltipView;
+        [SerializeField] private UIWorkspaceTooltipView tooltipView;
         [SerializeField] private RectTransform dragLayerRect;
         [SerializeField] private GameObject dragGhostTemplate;
 
@@ -1135,7 +1136,7 @@ namespace Godmist.Views.UI
         private Image basicSeparator;
         private Color defaultBackgroundColor;
         private SkillData skill;
-        private CombatTooltipView tooltipView;
+        private UIWorkspaceTooltipView tooltipView;
         private Action clickAction;
         private Coroutine feedbackRoutine;
         private bool isActive;
@@ -1147,7 +1148,7 @@ namespace Godmist.Views.UI
             bool isActive,
             bool isBasic,
             bool isEmpty,
-            CombatTooltipView sourceTooltipView,
+            UIWorkspaceTooltipView sourceTooltipView,
             Action onClick)
         {
             CacheVisuals();
@@ -1211,14 +1212,13 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            tooltipView ??= CombatTooltipView.ActiveInstance
-                ?? FindAnyObjectByType<CombatTooltipView>(FindObjectsInactive.Include);
+            tooltipView ??= UIWorkspaceTooltipView.ActiveInstance;
             if (tooltipView == null || tooltipView.IsSkillTooltipSuppressed)
             {
                 return;
             }
 
-            tooltipView.ShowSkill(skill, skill.ActionCost, Input.mousePosition);
+            tooltipView.ShowSkill(skill, skill.ActionCost, this);
         }
 
         public void OnPointerExit(PointerEventData eventData)

@@ -70,9 +70,10 @@ namespace Godmist.Systems.Items
             return null;
         }
 
-        private static bool MeetsRequirements(CharacterInstance character, 
+        public static bool MeetsRequirements(CharacterInstance character,
             EquipmentItemInstance item)
         {
+            if (character == null || item == null) return false;
             if (item.RequiredLevel > character.Level) return false;
 
             if (string.IsNullOrWhiteSpace(item.RequiredClassId)) return true;

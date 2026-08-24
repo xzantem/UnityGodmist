@@ -1,15 +1,16 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
     public class CombatSimpleTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        private CombatTooltipView tooltip;
+        private UIWorkspaceTooltipView tooltip;
         private string title;
         private string description;
 
-        public void Initialize(CombatTooltipView sourceTooltip, string sourceTitle, string sourceDescription)
+        public void Initialize(UIWorkspaceTooltipView sourceTooltip, string sourceTitle, string sourceDescription)
         {
             tooltip = sourceTooltip;
             title = sourceTitle;
@@ -18,8 +19,7 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltip ??= CombatTooltipView.ActiveInstance
-                ?? Object.FindAnyObjectByType<CombatTooltipView>(FindObjectsInactive.Include);
+            tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
             tooltip?.ShowText(title, description, this);
         }
 

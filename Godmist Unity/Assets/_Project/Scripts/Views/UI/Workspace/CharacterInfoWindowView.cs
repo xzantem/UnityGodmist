@@ -43,6 +43,10 @@ namespace Godmist.Views.UI.Workspace
         private GameObject dragGhost;
 
         public string CharacterId => character?.CharacterId;
+        public CharacterInstance Character => character;
+
+        public bool MeetsEquipmentRequirements(EquipmentItemInstance item) =>
+            character != null && EquipmentService.MeetsRequirements(character, item);
 
         private void Awake()
         {
@@ -113,11 +117,15 @@ namespace Godmist.Views.UI.Workspace
 
         public void BeginDrag(ItemInstance item, PointerEventData eventData)
         {
-            if (item is not EquipmentItemInstance equipment || character == null) return;
-            draggedItem = equipment;
+            if (item == null || character == null) return;
+            draggedItem = item;
+            UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = null;
-            foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
-                slot?.SetDropHighlight(slot.Slot == equipment.EquipmentSlot);
+            if (item is EquipmentItemInstance equipment)
+            {
+                foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
+                    slot?.SetDropHighlight(slot.Slot == equipment.EquipmentSlot);
+            }
 
             CreateDragGhost(item, eventData);
         }
@@ -126,6 +134,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (sourceSlot?.Item == null || character == null) return;
             draggedItem = sourceSlot.Item;
+            UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = sourceSlot;
             CreateDragGhost(sourceSlot.Item, eventData);
         }
@@ -158,6 +167,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void EndDrag()
         {
+            UIWorkspaceTooltipView.ActiveInstance?.EndDragSuppression();
             draggedItem = null;
             draggedEquipmentSlot = null;
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) slot?.SetDropHighlight(false);
@@ -185,6 +195,33 @@ namespace Godmist.Views.UI.Workspace
             }
 
             EndDrag();
+        }
+
+        public void TryReceiveInventoryTransfer(
+            CharacterInfoWindowView sourceWindow,
+            ItemInstance item)
+        {
+            if (sourceWindow == null
+                || sourceWindow == this
+                || sourceWindow.session != session
+                || sourceWindow.character?.Inventory == null
+                || character?.Inventory == null
+                || item == null)
+            {
+                return;
+            }
+
+            if (!inventoryService.TryTransferItem(
+                    sourceWindow.character.Inventory,
+                    character.Inventory,
+                    item.InstanceId))
+            {
+                return;
+            }
+
+            sourceWindow.EndDrag();
+            sourceWindow.Refresh();
+            Refresh();
         }
 
         private void RefreshInventory()

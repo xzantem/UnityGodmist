@@ -128,11 +128,13 @@ PF_UIW_ItemSlot
 PF_UIW_Tooltip
 ├── Border
 └── Content
+    ├── Icon (opcjonalnie)
     ├── Title
-    └── Body
+    ├── Body
+    └── Meta (opcjonalnie)
 ```
 
-**Wymagane komponenty:** root `Image`, `CanvasGroup`, applier; border Image + applier; TMP teksty + applier. Root nie blokuje pointerów, chyba że kolejna karta jawnie wymaga przypiętego tooltipu.
+**Wymagane komponenty:** root `Image`, `CanvasGroup`, applier i `UIWorkspaceTooltipView`; border Image + applier; `Title`, `Body` i opcjonalne `Meta` to TMP + applier; `Icon` to Image z `preserveAspect = true`. Root nie blokuje pointerów, chyba że kolejna karta jawnie wymaga przypiętego tooltipu.
 
 **Użycie:** skille, item inspect i requirementy drzewek. Nie używać jako modal ani części zwykłego Content.
 

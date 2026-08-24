@@ -3,6 +3,7 @@ using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using Godmist.Views.Combat;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 
 namespace Godmist.Views.UI
@@ -13,7 +14,7 @@ namespace Godmist.Views.UI
         [SerializeField] private RectTransform skillBarRoot;
         [SerializeField] private CombatSkillSlotView skillSlotTemplate;
         [SerializeField] private CombatTargetSelectionController targetSelectionController;
-        [SerializeField] private CombatTooltipView tooltipView;
+        [SerializeField] private UIWorkspaceTooltipView tooltipView;
 
         private readonly List<CombatSkillSlotView> spawnedSlots = new();
         private CombatSession cachedSession;

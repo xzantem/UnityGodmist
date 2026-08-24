@@ -70,6 +70,55 @@ namespace Godmist.Systems.Items
             return false;
         }
 
+        public bool TryTransferItem(
+            Inventory sourceInventory,
+            Inventory destinationInventory,
+            string instanceId)
+        {
+            if (sourceInventory?.Items == null
+                || destinationInventory?.Items == null
+                || sourceInventory == destinationInventory
+                || string.IsNullOrWhiteSpace(instanceId))
+            {
+                return false;
+            }
+
+            ItemInstance item = null;
+            foreach (var candidate in sourceInventory.Items)
+            {
+                if (candidate?.InstanceId == instanceId)
+                {
+                    item = candidate;
+                    break;
+                }
+            }
+
+            if (item?.Definition == null || ContainsInstanceId(destinationInventory, instanceId))
+            {
+                return false;
+            }
+
+            var itemWeight = Mathf.Max(0f, item.Definition.Weight);
+            if (destinationInventory.MaxWeight.HasValue
+                && GetCurrentWeight(destinationInventory) + itemWeight > destinationInventory.MaxWeight.Value)
+            {
+                return false;
+            }
+
+            if (!TryRemoveItem(sourceInventory, instanceId, out var removedItem))
+            {
+                return false;
+            }
+
+            if (TryAddItem(destinationInventory, removedItem))
+            {
+                return true;
+            }
+
+            sourceInventory.Items.Add(removedItem);
+            return false;
+        }
+
         private static bool ContainsInstanceId(Inventory inventory, string instanceId)
         {
             foreach (var item in inventory.Items)

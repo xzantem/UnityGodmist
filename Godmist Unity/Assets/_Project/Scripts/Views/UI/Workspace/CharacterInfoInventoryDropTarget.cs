@@ -18,6 +18,13 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnDrop(PointerEventData eventData)
         {
+            var sourceItemView = eventData.pointerDrag?.GetComponent<CharacterInfoItemView>();
+            if (sourceItemView?.Owner != null && sourceItemView.Item != null)
+            {
+                owner?.TryReceiveInventoryTransfer(sourceItemView.Owner, sourceItemView.Item);
+                return;
+            }
+
             owner?.TryHandleInventoryDrop();
         }
     }

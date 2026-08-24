@@ -56,10 +56,6 @@ Priorytety:
 ### Milestone: Rewards and Progression v2
 
 ### Milestone: UI Workspace v1
-- `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
-- `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
-  - Tooltipy przy hoverze itemow, skilli i pojec systemowych maja uzywac wspolnego template'u, renderowac sie nad oknami i pokazywac statystyki/wymagania itemu zamiast osobnego inspect panelu.
 - `[P1] Przeniesc skill loadout do UI Workspace v1` - `UI / UX`, `Combat`, `Core / Architecture`
   - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem, otwieranym buttonem z Character Info; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
 - `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
@@ -78,6 +74,8 @@ Priorytety:
 
 ## Ready
 
+- `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Przeniesc wpisy z `CombatTooltipGlossary` do wspolnego `UIWorkspaceTooltipView`: nazwy i ikony statusow, linki do pojec w tresci oraz zagniezdzone tooltipy. Nie tworzyc osobnego systemu tooltipow obok Workspace.
 
 
 
@@ -86,6 +84,12 @@ Priorytety:
 ## Playable / Test
 
 ## Done
+
+- `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
+  - Tooltipy przy hoverze itemow, skilli i pojec systemowych maja uzywac wspolnego template'u, renderowac sie nad oknami i pokazywac statystyki/wymagania itemu zamiast osobnego inspect panelu.
+
+- `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
 
 - `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
   - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
