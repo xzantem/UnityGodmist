@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
@@ -5,7 +7,7 @@ using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
-using Godmist.Views.Game;
+using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,7 +17,8 @@ namespace Godmist.Views.UI
     public class SkillTreeProgressionPanelView : MonoBehaviour
     {
         [SerializeField] private GameObject panelRoot;
-        [SerializeField] private TextMeshProUGUI characterNameText;
+        [SerializeField] private UIWorkspaceWindow workspaceWindow;
+        [SerializeField] private TextMeshProUGUI windowTitleText;
         [SerializeField] private TextMeshProUGUI progressionText;
         [SerializeField] private Transform treeTabRoot;
         [SerializeField] private Button treeTabTemplate;
@@ -25,19 +28,50 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI selectedTreeNameText;
         [SerializeField] private RectTransform globalPassivePanel;
         [SerializeField] private TextMeshProUGUI globalPassiveText;
+        [SerializeField] private RectTransform prerequisiteConnectionRoot;
+        [SerializeField] private Image prerequisiteConnectionTemplate;
+        [SerializeField] private RectTransform[] tierGateRoots = new RectTransform[3];
+        [SerializeField] private TextMeshProUGUI[] tierGateTexts = new TextMeshProUGUI[3];
 
         private readonly SkillTreeProgressionSystem progressionSystem = new();
+        private readonly Dictionary<string, RectTransform> nodeRectsById = new();
         private GameSession session;
         private CharacterInstance character;
         private SkillTreeDefinition selectedTree;
+        private Coroutine treeVisualRefresh;
+        private Vector2 lastTreeAreaSize = new(-1f, -1f);
         public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
         private void Awake()
         {
-            CreateHeaderLayout();
             if (treeTabTemplate != null) treeTabTemplate.gameObject.SetActive(false);
             if (nodeTemplate != null) nodeTemplate.gameObject.SetActive(false);
+            if (prerequisiteConnectionTemplate != null) prerequisiteConnectionTemplate.gameObject.SetActive(false);
             if (panelRoot != null) panelRoot.SetActive(false);
+        }
+
+        private void OnDisable()
+        {
+            if (treeVisualRefresh != null) StopCoroutine(treeVisualRefresh);
+            session = null;
+            character = null;
+            selectedTree = null;
+            nodeRectsById.Clear();
+            treeVisualRefresh = null;
+            lastTreeAreaSize = new Vector2(-1f, -1f);
+        }
+
+        private void Update()
+        {
+            if (!IsOpen || selectedTree == null) return;
+
+            var treeArea = GetTreeArea();
+            if (treeArea == null) return;
+            var currentSize = treeArea.rect.size;
+            if ((currentSize - lastTreeAreaSize).sqrMagnitude <= 0.01f) return;
+
+            lastTreeAreaSize = currentSize;
+            ScheduleTreeVisualRefresh();
         }
 
         public void Open(GameSession gameSession, string characterId)
@@ -55,14 +89,8 @@ namespace Godmist.Views.UI
             selectedTree = character.ClassData?.SkillTrees?.FirstOrDefault(
                 value => value != null && !string.IsNullOrWhiteSpace(value.Id));
             if (panelRoot != null) panelRoot.SetActive(true);
+            workspaceWindow?.Focus();
             Refresh();
-        }
-
-        public void OpenActiveLeader()
-        {
-            var gameSession = GameBootstrap.Instance?.Session;
-            var leaderId = gameSession?.PlayerParty?.ActiveLeaderId;
-            if (!string.IsNullOrWhiteSpace(leaderId)) Open(gameSession, leaderId);
         }
 
         public void Close()
@@ -84,10 +112,17 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (characterNameText != null) characterNameText.text = character.Definition?.DisplayName ?? character.CharacterId;
+            if (windowTitleText != null) windowTitleText.text = $"Drzewka umiejętności — {character.Definition?.DisplayName ?? character.CharacterId}";
             if (progressionText != null) progressionText.text = $"Poziom {character.Level} | XP {character.CurrentExperience} | Punkty: {character.AvailableSkillPoints}";
             RefreshSelectedTreeHeader();
             RebuildTabs(); RebuildNodes();
+            ScheduleTreeVisualRefresh();
+        }
+
+        private void ScheduleTreeVisualRefresh()
+        {
+            if (treeVisualRefresh != null) StopCoroutine(treeVisualRefresh);
+            treeVisualRefresh = StartCoroutine(RefreshTreeVisualsAfterLayout());
         }
 
         private void RebuildTabs()
@@ -104,7 +139,21 @@ namespace Godmist.Views.UI
                 var button = Instantiate(treeTabTemplate, treeTabRoot);
                 button.gameObject.SetActive(true);
                 var label = button.GetComponentInChildren<TextMeshProUGUI>();
-                if (label != null) label.text = tree.DisplayName;
+                if (label != null)
+                {
+                    label.text = $"{tree.DisplayName}\n{SkillTreeProgressionSystem.GetInvestedRanks(character, tree.Id)}/{SkillTreeProgressionSystem.MaximumPointsPerTree}";
+                }
+                if (tree.Id == selectedTree?.Id)
+                {
+                    var palette = button.GetComponent<UIWorkspaceStyleApplier>()?.Palette;
+                    if (palette != null)
+                    {
+                        var colors = button.colors;
+                        colors.normalColor = palette.GetAccentColor(UIWorkspaceAccentStyle.Selected);
+                        colors.selectedColor = colors.normalColor;
+                        button.colors = colors;
+                    }
+                }
                 var treeForButton = tree;
                 button.onClick.AddListener(() => { selectedTree = treeForButton; Refresh(); });
             }
@@ -112,6 +161,7 @@ namespace Godmist.Views.UI
 
         private void RebuildNodes()
         {
+            nodeRectsById.Clear();
             if (tierRoots != null)
             {
                 foreach (var root in tierRoots) Clear(root, nodeTemplate?.transform);
@@ -130,24 +180,169 @@ namespace Godmist.Views.UI
                 for (var column = 1; column <= 5; column++)
                 {
                     var node = selectedTree?.Nodes?.FirstOrDefault(value => value?.Tier == tier && value.Column == column);
-                    if (node == null) { CreateSpacer(root); continue; }
+                    if (node == null) { CreateSpacer(root, nodeTemplate); continue; }
                     var button = Instantiate(nodeTemplate, root);
                     button.gameObject.SetActive(true);
+                    nodeRectsById[node.Id] = button.transform as RectTransform;
                     var ranks = character.SkillTreeProgress?
                         .FirstOrDefault(value => value?.TreeId == selectedTree.Id)?
                         .NodeInvestments?.FirstOrDefault(value => value?.NodeId == node.Id)?.Ranks ?? 0;
-                    var label = button.GetComponentInChildren<TextMeshProUGUI>();
-                    if (label != null)
-                    {
-                        label.text = $"{node.DisplayName}\n{ranks}/{node.EffectiveMaxRanks}";
-                    }
-
                     var treeForButton = selectedTree;
                     var nodeForButton = node;
-                    button.onClick.AddListener(
-                        () => TryInvest(treeForButton, nodeForButton));
+                    var blockReason = progressionSystem.GetInvestmentBlockReason(character, selectedTree.Id, node.Id);
+                    var isStructurallyUnlocked = progressionSystem.IsNodeStructurallyUnlocked(
+                        character,
+                        selectedTree.Id,
+                        node.Id);
+                    var nodeView = button.GetComponent<SkillTreeNodeView>();
+                    if (nodeView != null)
+                    {
+                        nodeView.Configure(
+                            node,
+                            ranks,
+                            isStructurallyUnlocked,
+                            string.IsNullOrWhiteSpace(blockReason),
+                            blockReason,
+                            () => TryInvest(treeForButton, nodeForButton));
+                    }
+                    else
+                    {
+                        var label = button.GetComponentInChildren<TextMeshProUGUI>();
+                        if (label != null) label.text = $"{node.DisplayName}\n{ranks}/{node.EffectiveMaxRanks}";
+                        button.interactable = string.IsNullOrWhiteSpace(blockReason);
+                        button.onClick.RemoveAllListeners();
+                        if (button.interactable) button.onClick.AddListener(() => TryInvest(treeForButton, nodeForButton));
+                    }
                 }
             }
+        }
+
+        private IEnumerator RefreshTreeVisualsAfterLayout()
+        {
+            yield return new WaitForEndOfFrame();
+            if (selectedTree == null || character == null) yield break;
+
+            Canvas.ForceUpdateCanvases();
+            RefreshTierGates();
+            ArrangeTreeVisualLayers();
+            RebuildPrerequisiteConnections();
+            var treeArea = GetTreeArea();
+            if (treeArea != null) lastTreeAreaSize = treeArea.rect.size;
+            treeVisualRefresh = null;
+        }
+
+        private RectTransform GetTreeArea() => prerequisiteConnectionRoot?.parent as RectTransform;
+
+        private void ArrangeTreeVisualLayers()
+        {
+            // Gates and lines are visual aids only. Keep them underneath the interactive
+            // node slots, otherwise a gate outline can steal pointer events from a node.
+            prerequisiteConnectionRoot?.SetAsFirstSibling();
+            if (tierGateRoots != null)
+            {
+                foreach (var gate in tierGateRoots)
+                {
+                    if (gate == null) continue;
+                    gate.SetAsFirstSibling();
+                    foreach (var graphic in gate.GetComponentsInChildren<Graphic>(true))
+                    {
+                        graphic.raycastTarget = false;
+                    }
+                }
+            }
+
+            if (tierRoots != null && tierRoots.Length > 0 && tierRoots[0] != null)
+            {
+                tierRoots[0].parent?.SetAsLastSibling();
+            }
+        }
+
+        private void RefreshTierGates()
+        {
+            RefreshTierGate(0, 2, 3, 10);
+            RefreshTierGate(1, 4, 5, 20);
+            RefreshTierGate(2, 6, 6, 30);
+        }
+
+        private void RefreshTierGate(int gateIndex, int firstTierIndex, int lastTierIndex, int threshold)
+        {
+            if (tierGateRoots == null || gateIndex >= tierGateRoots.Length) return;
+            var gate = tierGateRoots[gateIndex];
+            if (gate == null) return;
+
+            var invested = SkillTreeProgressionSystem.GetInvestedRanks(character, selectedTree.Id);
+            var locked = invested < threshold;
+            gate.gameObject.SetActive(locked);
+            if (!locked) return;
+
+            if (tierGateTexts != null && gateIndex < tierGateTexts.Length && tierGateTexts[gateIndex] != null)
+            {
+                tierGateTexts[gateIndex].text = $"{invested}/{threshold}";
+            }
+
+            if (tierRoots == null || firstTierIndex >= tierRoots.Length || lastTierIndex >= tierRoots.Length
+                || tierRoots[firstTierIndex] is not RectTransform first || tierRoots[lastTierIndex] is not RectTransform last
+                || gate.parent is not RectTransform gateParent)
+            {
+                return;
+            }
+
+            var firstCorners = new Vector3[4];
+            var lastCorners = new Vector3[4];
+            first.GetWorldCorners(firstCorners);
+            last.GetWorldCorners(lastCorners);
+            var topLeft = gateParent.InverseTransformPoint(firstCorners[1]);
+            var bottomRight = gateParent.InverseTransformPoint(lastCorners[3]);
+            const float padding = 8f;
+            gate.anchorMin = gate.anchorMax = new Vector2(0.5f, 0.5f);
+            gate.pivot = new Vector2(0.5f, 0.5f);
+            gate.anchoredPosition = (topLeft + bottomRight) * 0.5f;
+            gate.sizeDelta = new Vector2(
+                Mathf.Abs(bottomRight.x - topLeft.x) + padding * 2f,
+                Mathf.Abs(topLeft.y - bottomRight.y) + padding * 2f);
+        }
+
+        private void RebuildPrerequisiteConnections()
+        {
+            Clear(prerequisiteConnectionRoot, prerequisiteConnectionTemplate?.transform);
+            if (prerequisiteConnectionRoot == null || prerequisiteConnectionTemplate == null || selectedTree?.Nodes == null) return;
+
+            foreach (var node in selectedTree.Nodes)
+            {
+                if (node?.Requirements == null || !nodeRectsById.TryGetValue(node.Id, out var target)) continue;
+                foreach (var requirement in node.Requirements)
+                {
+                    if (requirement == null || !nodeRectsById.TryGetValue(requirement.NodeId, out var source)) continue;
+                    var line = Instantiate(prerequisiteConnectionTemplate, prerequisiteConnectionRoot);
+                    line.gameObject.SetActive(true);
+                    line.raycastTarget = false;
+                    ConfigureConnectionLine(line.rectTransform, source, target);
+                }
+            }
+        }
+
+        private void ConfigureConnectionLine(RectTransform line, RectTransform source, RectTransform target)
+        {
+            if (line == null || source == null || target == null || prerequisiteConnectionRoot == null) return;
+
+            var sourceCorners = new Vector3[4];
+            var targetCorners = new Vector3[4];
+            source.GetWorldCorners(sourceCorners);
+            target.GetWorldCorners(targetCorners);
+
+            // Corner indices are independent of each RectTransform's pivot: 0/3 are the
+            // bottom edge and 1/2 the top edge. This keeps a prerequisite line attached
+            // to the visible slot edge instead of the target's centre.
+            var sourceBottomCentre = (sourceCorners[0] + sourceCorners[3]) * 0.5f;
+            var targetTopCentre = (targetCorners[1] + targetCorners[2]) * 0.5f;
+            var sourcePoint = prerequisiteConnectionRoot.InverseTransformPoint(sourceBottomCentre);
+            var targetPoint = prerequisiteConnectionRoot.InverseTransformPoint(targetTopCentre);
+            var delta = targetPoint - sourcePoint;
+            line.anchorMin = line.anchorMax = new Vector2(0.5f, 0.5f);
+            line.pivot = new Vector2(0f, 0.5f);
+            line.anchoredPosition = sourcePoint;
+            line.sizeDelta = new Vector2(delta.magnitude, line.sizeDelta.y);
+            line.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
         }
 
         private void TryInvest(
@@ -169,7 +364,7 @@ namespace Godmist.Views.UI
             Refresh();
         }
 
-        private static void CreateSpacer(Transform root)
+        private static void CreateSpacer(Transform root, Button template)
         {
             if (root == null)
             {
@@ -178,7 +373,23 @@ namespace Godmist.Views.UI
 
             var spacer = new GameObject("Spacer", typeof(RectTransform), typeof(LayoutElement));
             spacer.transform.SetParent(root, false);
-            spacer.GetComponent<LayoutElement>().ignoreLayout = false;
+            var rect = spacer.GetComponent<RectTransform>();
+            var layout = spacer.GetComponent<LayoutElement>();
+            var templateLayout = template != null ? template.GetComponent<LayoutElement>() : null;
+            var width = templateLayout != null && templateLayout.preferredWidth >= 0f
+                ? templateLayout.preferredWidth
+                : 64f;
+
+            // A spacer reserves a grid column only. It must never increase the preferred
+            // height reported by its parent HorizontalLayoutGroup.
+            layout.minWidth = width;
+            layout.preferredWidth = width;
+            layout.flexibleWidth = 0f;
+            layout.minHeight = 0f;
+            layout.preferredHeight = 0f;
+            layout.flexibleHeight = 0f;
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 0f);
         }
 
         private void RefreshSelectedTreeHeader()
@@ -213,117 +424,6 @@ namespace Godmist.Views.UI
             if (string.IsNullOrWhiteSpace(summary)) summary = "brak efektu";
 
             globalPassiveText.text = $"{passive.DisplayName}\nAktualnie: {summary}";
-        }
-
-        private void CreateHeaderLayout()
-        {
-            if (selectedTreeHeader != null
-                && selectedTreeNameText != null
-                && globalPassivePanel != null
-                && globalPassiveText != null)
-            {
-                return;
-            }
-
-            if (panelRoot == null || characterNameText == null || progressionText == null)
-            {
-                return;
-            }
-
-            var panelTransform = panelRoot.transform as RectTransform;
-            if (panelTransform == null) return;
-
-            selectedTreeHeader = CreatePanel(
-                panelTransform,
-                "SelectedTreeHeader",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(16f, -174f),
-                new Vector2(800f, 46f));
-            selectedTreeNameText = CreateText(
-                selectedTreeHeader,
-                "SelectedTreeName",
-                26f,
-                TextAlignmentOptions.Left);
-
-            globalPassivePanel = CreatePanel(
-                panelTransform,
-                "GlobalPassivePanel",
-                new Vector2(1f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(-16f, -174f),
-                new Vector2(390f, 46f));
-            globalPassiveText = CreateText(
-                globalPassivePanel,
-                "GlobalPassiveText",
-                15f,
-                TextAlignmentOptions.Left);
-
-            if (treeTabRoot is not RectTransform treeTabs) return;
-
-            treeTabs.anchorMin = new Vector2(0f, 1f);
-            treeTabs.anchorMax = new Vector2(0f, 1f);
-            treeTabs.pivot = new Vector2(0f, 1f);
-            treeTabs.anchoredPosition = new Vector2(16f, -122f);
-            treeTabs.sizeDelta = new Vector2(800f, 36f);
-
-            if (treeTabTemplate != null
-                && treeTabTemplate.TryGetComponent<LayoutElement>(out var layoutElement))
-            {
-                layoutElement.preferredWidth = 180f;
-                layoutElement.preferredHeight = 36f;
-            }
-        }
-
-        private static RectTransform CreatePanel(
-            RectTransform parent,
-            string objectName,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
-            Vector2 pivot,
-            Vector2 anchoredPosition,
-            Vector2 size)
-        {
-            var panel = new GameObject(objectName, typeof(RectTransform), typeof(Image));
-            var rectTransform = panel.GetComponent<RectTransform>();
-            rectTransform.SetParent(parent, false);
-            rectTransform.anchorMin = anchorMin;
-            rectTransform.anchorMax = anchorMax;
-            rectTransform.pivot = pivot;
-            rectTransform.anchoredPosition = anchoredPosition;
-            rectTransform.sizeDelta = size;
-            panel.GetComponent<Image>().color = new Color(0.10f, 0.15f, 0.21f, 0.96f);
-            return rectTransform;
-        }
-
-        private TextMeshProUGUI CreateText(
-            RectTransform parent,
-            string objectName,
-            float fontSize,
-            TextAlignmentOptions alignment)
-        {
-            var textObject = new GameObject(
-                objectName,
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            var rectTransform = textObject.GetComponent<RectTransform>();
-            rectTransform.SetParent(parent, false);
-            rectTransform.anchorMin = Vector2.zero;
-            rectTransform.anchorMax = Vector2.one;
-            rectTransform.offsetMin = new Vector2(14f, 6f);
-            rectTransform.offsetMax = new Vector2(-14f, -6f);
-
-            var text = textObject.GetComponent<TextMeshProUGUI>();
-            text.font = characterNameText.font;
-            text.fontSharedMaterial = characterNameText.fontSharedMaterial;
-            text.fontSize = fontSize;
-            text.color = characterNameText.color;
-            text.alignment = alignment;
-            text.textWrappingMode = TextWrappingModes.Normal;
-            text.overflowMode = TextOverflowModes.Ellipsis;
-            return text;
         }
 
         private static string FormatModifier(StatModifier modifier)

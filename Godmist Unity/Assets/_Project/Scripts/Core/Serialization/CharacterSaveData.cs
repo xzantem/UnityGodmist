@@ -27,6 +27,9 @@ namespace Godmist.Core.Serialization
         public List<string> SkillIds = new();
         public bool HasActiveSkillLoadout;
         public List<string> ActiveSkillIds = new();
+        // Fixed-capacity positions, including empty entries, introduced by UI Workspace v1.
+        // ActiveSkillIds remains for backward compatibility with older saves.
+        public List<string> ActiveSkillSlotIds = new();
         public List<SkillLoadoutCapacityModifierSaveData> ActiveSkillCapacityModifiers = new();
         public List<SkillTreeProgressSaveData> SkillTreeProgress = new();
         public List<PassiveEffectSaveData> PassiveEffects = new();

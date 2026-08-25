@@ -107,6 +107,47 @@ namespace Godmist.Tests.EditMode
             Assert.That(inventory.Items, Is.Empty);
         }
 
+        [Test]
+        public void TryTransferItem_MovesSameInstanceWithoutChangingItsId()
+        {
+            var definition = CreateDefinition("material.iron_ore", 2f, RarityTier.Common);
+            var source = new Inventory();
+            var destination = new Inventory { MaxWeight = 3f };
+            var item = new ItemInstance(definition, "item.transfer");
+            inventoryService.TryAddItem(source, item);
+
+            var transferred = inventoryService.TryTransferItem(
+                source,
+                destination,
+                item.InstanceId);
+
+            Assert.That(transferred, Is.True);
+            Assert.That(source.Items, Is.Empty);
+            Assert.That(destination.Items, Has.Count.EqualTo(1));
+            Assert.That(destination.Items[0], Is.SameAs(item));
+            Assert.That(destination.Items[0].InstanceId, Is.EqualTo("item.transfer"));
+        }
+
+        [Test]
+        public void TryTransferItem_RejectsDestinationOverWeightLimitWithoutRemovingSourceItem()
+        {
+            var definition = CreateDefinition("weapon.heavy", 3f, RarityTier.Common);
+            var source = new Inventory();
+            var destination = new Inventory { MaxWeight = 2f };
+            var item = new ItemInstance(definition, "item.heavy_transfer");
+            inventoryService.TryAddItem(source, item);
+
+            var transferred = inventoryService.TryTransferItem(
+                source,
+                destination,
+                item.InstanceId);
+
+            Assert.That(transferred, Is.False);
+            Assert.That(source.Items, Has.Count.EqualTo(1));
+            Assert.That(source.Items[0], Is.SameAs(item));
+            Assert.That(destination.Items, Is.Empty);
+        }
+
         private static ItemDefinition CreateDefinition(
             string id,
             float weight,

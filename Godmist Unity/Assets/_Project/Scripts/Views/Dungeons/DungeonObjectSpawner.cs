@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -11,6 +12,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private DungeonChestView chestPrefab;
         [SerializeField] private DungeonEnemyBodyView enemyBodyPrefab;
+        [SerializeField] private DungeonLootWindowView dungeonLootWindowPrefab;
         [SerializeField] private DungeonObstacleView obstaclePrefab;
         [SerializeField] private DungeonDoorView doorPrefab;
         [SerializeField] private Transform objectsRoot;
@@ -136,7 +138,8 @@ namespace Godmist.Views.Dungeons
                     partyController,
                     floor,
                     body,
-                    worldPosition);
+                    worldPosition,
+                    dungeonLootWindowPrefab);
 
                 spawnedEnemyBodies.Add(bodyView.gameObject);
             }

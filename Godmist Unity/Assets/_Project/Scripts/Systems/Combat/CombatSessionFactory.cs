@@ -16,13 +16,16 @@ namespace Godmist.Systems.Combat
     {
         private readonly float actionPointsPerSpeed;
         private readonly CharacterInstanceFactory characterFactory = new();
-        private readonly CombatRewardSystem rewardSystem = new();
+        private readonly CombatRewardSystem rewardSystem;
         private readonly DungeonBattleGridFactory dungeonBattleGridFactory = new();
         private readonly DungeonCombatSpawnResolver dungeonCombatSpawnResolver = new();
 
-        public CombatSessionFactory(float actionPointsPerSpeed = 0.25f)
+        public CombatSessionFactory(
+            float actionPointsPerSpeed = 0.25f,
+            CombatRewardSystem rewardSystem = null)
         {
             this.actionPointsPerSpeed = actionPointsPerSpeed;
+            this.rewardSystem = rewardSystem ?? new CombatRewardSystem();
         }
 
         public bool TryCreate(

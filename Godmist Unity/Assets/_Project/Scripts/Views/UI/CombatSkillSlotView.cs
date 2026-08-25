@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
@@ -15,12 +16,12 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI hotkeyText;
 
         private SkillData skill;
-        private CombatTooltipView tooltipView;
+        private UIWorkspaceTooltipView tooltipView;
         private int actionCost;
 
         public void Initialize(
             SkillData sourceSkill,
-            CombatTooltipView sourceTooltipView,
+            UIWorkspaceTooltipView sourceTooltipView,
             Action onClick)
         {
             skill = sourceSkill;
@@ -55,12 +56,12 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipView?.ShowSkill(skill, actionCost, Input.mousePosition);
+            tooltipView?.ShowSkill(skill, actionCost, this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltipView?.NotifySourceExit();
+            tooltipView?.NotifySourceExit(this);
         }
     }
 }

@@ -455,6 +455,7 @@ namespace Godmist.Systems.SaveLoad
                 SkillIds = CopySkillIds(character),
                 HasActiveSkillLoadout = character.ActiveSkillLoadout?.IsInitialized == true,
                 ActiveSkillIds = CopyActiveSkillIds(character),
+                ActiveSkillSlotIds = CopyActiveSkillSlotIds(character),
                 ActiveSkillCapacityModifiers = CopyActiveSkillCapacityModifiers(character),
                 SkillTreeProgress = CopySkillTreeProgress(character),
                 PassiveEffects = CopyPassiveEffects(character.PassiveEffects)
@@ -563,6 +564,13 @@ namespace Godmist.Systems.SaveLoad
             CharacterInstance character)
         {
             return character.ActiveSkillLoadout?.CopyActiveSkillIds()
+                ?? new List<string>();
+        }
+
+        private static List<string> CopyActiveSkillSlotIds(
+            CharacterInstance character)
+        {
+            return character.ActiveSkillLoadout?.CopyActiveSkillSlotIds()
                 ?? new List<string>();
         }
 

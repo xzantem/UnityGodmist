@@ -53,22 +53,45 @@ Priorytety:
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
   - Oddzielna penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`.
 
+### Milestone: Dungeon Content and Layout v2
+
+Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
+
+- `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+  - Room template definiuje semantyczne kotwice dla encounterow, skrzyn, przeszkod, pulapek, dzwigni i nagrod zamiast losowego wyboru dowolnej poprawnej komorki.
+- `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
+  - Generator dopuszcza alternatywne trasy i petle, nie tylko jednokierunkowe optional branches. Obsluguje bramkowanie progresji, np. klucz albo dzwignia w wymaganej odnodze otwierajace droge do finalu.
+- `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
+  - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
+- `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
+  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
+- `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
+  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
+- `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
+- `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+  - Zweryfikowac deterministyczny layout z petlami i gate'ami, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
+
+### Milestone: Crafting, Upgrading and Consumables v1
+
+Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja juz fundamenty v1; ten milestone rozszerza konkretne uslugi miejskie zamiast budowac ogolne `NPC v2` od zera.
+
+- `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
+  - Kowal tworzy equipment z trzech wybranych czesci i kosztu materialow. Pokazac preview wyniku przed potwierdzeniem; zachowac istniejacy generator runtime jako ownera payloadu.
+- `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
+  - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
+- `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
+  - Trwaly magazyn kampanii do odkladania itemow poza inventory postaci.
+- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
+- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
+  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
+- `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
+  - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
+
 ### Milestone: Rewards and Progression v2
 
-- `[P1] Dopracowac UX drzewek umiejetnosci v2` - `UI / UX`, `Design / Systems`
-  - Dodac tooltip node'a, czytelne requirementy i powody blokady, stan nieinteraktywny dla niedostepnych inwestycji oraz wizualne separatory miedzy tierami 2/3, 4/5 i 6/7.
-
 ### Milestone: UI Workspace v1
-- `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
-  - Wspolny window chrome: drag, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
-- `[P1] Dodac wielookienne inventory postaci i transfer drag-and-drop v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - Umozliwic jednoczesne otwarcie inventory kilku czlonkow druzyny oraz transfer itemow drag-and-drop z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
-- `[P1] Przeniesc inventory i equipment UI do UI Workspace v2` - `UI / UX`, `Items / Inventory / Economy`
-  - Zastapic obecne panelowe UI oknami floating; zachowac istniejace reguly equipmentu i inventory.
-- `[P1] Podpiac generowany equipment do LootTable i UI inspect v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - LootTable ma generowac equipment, a UI Workspace ma pokazac statystyki, wymagania i porownanie z zalozonym itemem.
-- `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami focus, z-order, drag, resize, clamp, transfer inventory oraz zachowanie `instanceId` i walidacji wagi.
 
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
@@ -77,15 +100,46 @@ Priorytety:
 
 ## Ready
 
-
-
-
 ## In Progress
+
+- `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Przeniesc wpisy z `CombatTooltipGlossary` do wspolnego `UIWorkspaceTooltipView`: nazwy i ikony statusow, linki do pojec w tresci oraz zagniezdzone tooltipy. Nie tworzyc osobnego systemu tooltipow obok Workspace.
 
 ## Playable / Test
 
-
 ## Done
+
+- `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - `PF_UIW_ItemSlot` ma opcjonalny `CountLabel` dla stackowalnych itemow, a zloto z ciala jest pierwszym wpisem glownego gridu lootu. Odbior itemu dziala pojedynczym kliknieciem lub drag-and-drop; zloto pozostaje wartoscia runtime, nie `ItemInstance`. Ciala sa tworzone tylko na walkable cells pokoju encountera i zawsze otrzymuja collider interakcji.
+
+- `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
+  - Zweryfikowano focus, z-order, drag, resize, clamp, transfery, tooltipy, loadout, drzewka oraz persistence; smoke test zaliczony.
+- `[P1] Podpiac generowany equipment do LootTable i tooltipow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - LootTable generuje testowy equipment, a tooltip itemu pokazuje statystyki, wymagania i porownanie z zalozonym itemem.
+- `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Okno lootu ciala pokazuje itemy oraz gold w osobnym item slocie. Umozliwia drag-and-drop do otwartego Character Info z walidacja wagi i zachowaniem `instanceId`; double-click odbiera item aktywna postacia. Zakres obejmuje tylko eksploracje po walce: bez lootowania cial w combat i bez kosztu AP. Ownerem mutacji pozostaje system lootu/inventory.
+
+- `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
+  - Zastapic panel drzewek floating window zgodnym z design systemem, otwieranym buttonem z Character Info. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz pelne drzewko widoczne jednoczesnie bez scrolla. Rysowac polaczenia prerequisite'ow; progi tierow pokazywac jako obramowania grup `3-4` (`0/10`), `5-6` (`0/20`) i `7` (`0/30`), znikajace po spelnieniu warunku.
+
+- `[P1] Przeniesc skill loadout do UI Workspace v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem, otwieranym buttonem z Character Info; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
+
+- `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
+  - Tooltipy przy hoverze itemow, skilli i pojec systemowych maja uzywac wspolnego template'u, renderowac sie nad oknami i pokazywac statystyki/wymagania itemu zamiast osobnego inspect panelu.
+
+- `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
+  - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
+
+- `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
+  - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
+
+- `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
+  - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
+
+- `[P1] Ustandaryzowac design system i template paneli v1` - `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
+  - Zdefiniowac wspolne palette kolorow, typografie, spacing, obramowki, hover/disabled states, ikony i prefab/template UGUI dla paneli. Nowe okna maja korzystac z tych samych tokenow i komponentow zamiast tworzyc lokalne, niespojne style.
+  - Utworzyc utrzymywany katalog template'ow: nazwa, przeznaczenie, warianty, hierarchia, wymagane komponenty, przyklady uzycia i ograniczenia. Katalog ma okreslac, kiedy reuse'owac istniejacy template, kiedy zlozyc panel z kilku template'ow, a kiedy uzasadnione jest dodanie nowego.
 
 - `[P1] Rewards and Progression v2 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Combat`, `Items / Inventory / Economy`, `UI / UX`
   - Pokryc testami XP/Honor/escape, growth, drzewka i loadout, persistencje cial i lootow oraz deterministyczne generowanie equipmentu.

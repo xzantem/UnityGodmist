@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
@@ -16,14 +17,10 @@ namespace Godmist.Views.UI
     {
         [Header("Modal")]
         [SerializeField] private GameObject panelRoot;
+        [SerializeField] private UIWorkspaceWindow workspaceWindow;
+        [SerializeField] private TextMeshProUGUI workspaceTitleText;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button backdropCloseButton;
-
-        [Header("Party rail")]
-        [SerializeField] private Transform characterSelectorRoot;
-        [SerializeField] private PartyMemberButtonView characterSelectorTemplate;
-        [SerializeField] private TextMeshProUGUI inspectedNameText;
-        [SerializeField] private TextMeshProUGUI inspectedClassLevelText;
 
         [Header("Loadout workspace")]
         [SerializeField] private TextMeshProUGUI capacityText;
@@ -39,7 +36,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI availableCountText;
 
         [Header("Tooltip and drag")]
-        [SerializeField] private CombatTooltipView tooltipView;
+        [SerializeField] private UIWorkspaceTooltipView tooltipView;
         [SerializeField] private RectTransform dragLayerRect;
         [SerializeField] private GameObject dragGhostTemplate;
 
@@ -116,6 +113,14 @@ namespace Godmist.Views.UI
             backdropCloseButton?.onClick.RemoveListener(Close);
         }
 
+        private void OnDisable()
+        {
+            ResetDrag();
+            tooltipView?.Hide();
+            session = null;
+            character = null;
+        }
+
         public void Open(GameSession gameSession, string characterId)
         {
             if (gameSession == null
@@ -131,8 +136,10 @@ namespace Godmist.Views.UI
             }
 
             session = gameSession;
+            tooltipView = ResolveTooltipView();
             character = selectedCharacter;
             panelRoot?.SetActive(true);
+            workspaceWindow?.Focus();
             ResetScrollPositions();
             Refresh();
         }
@@ -159,17 +166,10 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (inspectedNameText != null)
+            if (workspaceTitleText != null)
             {
-                inspectedNameText.text = character.Definition?.DisplayName
-                    ?? character.CharacterId;
-            }
-
-            if (inspectedClassLevelText != null)
-            {
-                inspectedClassLevelText.text = character.ClassData != null
-                    ? $"{character.ClassData.ClassName} | poziom {character.Level}"
-                    : "-";
+                var name = character.Definition?.DisplayName ?? character.CharacterId;
+                workspaceTitleText.text = $"Umiejętności — {name}";
             }
 
             if (capacityText != null)
@@ -177,61 +177,12 @@ namespace Godmist.Views.UI
                 var loadout = character.ActiveSkillLoadout;
                 capacityText.text = loadout == null
                     ? "—"
-                    : $"{loadout.ActiveSkillIds.Count} / {loadout.Capacity}";
+                    : $"Aktywne {Mathf.Max(0, loadout.ActiveSkillCount - 1)} / {Mathf.Max(0, loadout.Capacity - 1)}";
             }
 
-            RebuildCharacterSelector();
             RebuildActiveSlots();
             RebuildAvailableSkills();
             ConfigureAvailableDropSurface();
-        }
-
-        private void RebuildCharacterSelector()
-        {
-            Clear(characterSelectorRoot, characterSelectorTemplate?.transform);
-            if (characterSelectorRoot == null
-                || characterSelectorTemplate == null
-                || session?.PlayerParty == null)
-            {
-                return;
-            }
-
-            foreach (var characterId in session.PlayerParty.ActiveMemberIds)
-            {
-                if (!session.CharactersById.TryGetValue(
-                        characterId,
-                        out var member)
-                    || member == null)
-                {
-                    continue;
-                }
-
-                var button = Instantiate(
-                    characterSelectorTemplate,
-                    characterSelectorRoot);
-                button.gameObject.SetActive(true);
-                button.Bind(
-                    member,
-                    string.Equals(
-                        member.CharacterId,
-                        character.CharacterId,
-                        StringComparison.Ordinal),
-                    SelectCharacter);
-            }
-        }
-
-        private void SelectCharacter(CharacterInstance selectedCharacter)
-        {
-            if (session == null
-                || selectedCharacter == null
-                || !IsActivePartyMember(session, selectedCharacter.CharacterId))
-            {
-                return;
-            }
-
-            character = selectedCharacter;
-            ResetScrollPositions();
-            Refresh();
         }
 
         private void RebuildActiveSlots()
@@ -244,8 +195,8 @@ namespace Godmist.Views.UI
             }
 
             var loadout = character.ActiveSkillLoadout;
-            var activeSkillIds = loadout.ActiveSkillIds;
-            ConfigureBasicSlot(loadout, activeSkillIds);
+            var activeSkillSlotIds = loadout.ActiveSkillSlotIds;
+            ConfigureBasicSlot(loadout, activeSkillSlotIds);
 
             if (activeSlotsRoot == null || activeSlotTemplate == null)
             {
@@ -257,8 +208,9 @@ namespace Godmist.Views.UI
                 var button = Instantiate(activeSlotTemplate, activeSlotsRoot);
                 button.gameObject.SetActive(true);
 
-                var hasSkill = slotIndex < activeSkillIds.Count;
-                var skillId = hasSkill ? activeSkillIds[slotIndex] : string.Empty;
+                var hasSkill = slotIndex < activeSkillSlotIds.Count
+                    && !string.IsNullOrWhiteSpace(activeSkillSlotIds[slotIndex]);
+                var skillId = hasSkill ? activeSkillSlotIds[slotIndex] : string.Empty;
                 var skill = hasSkill ? FindKnownSkill(skillId) : null;
                 var card = EnsureCard(button);
                 card.Configure(
@@ -283,15 +235,15 @@ namespace Godmist.Views.UI
 
         private void ConfigureBasicSlot(
             ActiveSkillLoadout loadout,
-            IReadOnlyList<string> activeSkillIds)
+            IReadOnlyList<string> activeSkillSlotIds)
         {
             if (basicSlotCard == null)
             {
                 return;
             }
 
-            var skillId = activeSkillIds != null && activeSkillIds.Count > 0
-                ? activeSkillIds[0]
+            var skillId = activeSkillSlotIds != null && activeSkillSlotIds.Count > 0
+                ? activeSkillSlotIds[0]
                 : loadout.BasicAttackSkillId;
             var skill = FindKnownSkill(skillId);
             var card = EnsureCard(basicSlotCard);
@@ -369,7 +321,7 @@ namespace Godmist.Views.UI
 
             if (availableCountText != null)
             {
-                availableCountText.text = knownCards.Count.ToString();
+                availableCountText.text = $"Dostępne {knownCards.Count}";
             }
         }
 
@@ -387,6 +339,16 @@ namespace Godmist.Views.UI
                     isAvailableArea: true);
             }
 
+            if (availableViewportDropSurface == null && availableScrollRect?.viewport != null)
+            {
+                availableViewportDropSurface = availableScrollRect.viewport.GetComponent<SkillLoadoutDragSurface>();
+                if (availableViewportDropSurface == null)
+                {
+                    availableViewportDropSurface = availableScrollRect.viewport.gameObject
+                        .AddComponent<SkillLoadoutDragSurface>();
+                }
+            }
+
             if (availableViewportDropSurface != null)
             {
                 availableViewportDropSurface.Configure(
@@ -396,8 +358,15 @@ namespace Godmist.Views.UI
                     nextSourceIsActive: false,
                     nextIsActiveSlot: false,
                     nextActiveIndex: -1,
-                    nextIsAvailableArea: true);
+                nextIsAvailableArea: true);
             }
+        }
+
+        private UIWorkspaceTooltipView ResolveTooltipView()
+        {
+            return tooltipView != null && tooltipView.isActiveAndEnabled
+                ? tooltipView
+                : UIWorkspaceTooltipView.ActiveInstance;
         }
 
         private void ConfigureSurface(
@@ -525,9 +494,10 @@ namespace Godmist.Views.UI
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
                 ? canvas.worldCamera
                 : null;
-            if (canvas == null
+            var dragParent = dragGhostRect.parent as RectTransform;
+            if (dragParent == null
                 || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    canvas.transform as RectTransform,
+                    dragParent,
                     screenPosition,
                     camera,
                     out var localPosition))
@@ -561,7 +531,10 @@ namespace Godmist.Views.UI
             {
                 dragGhostRect = dragGhost.AddComponent<RectTransform>();
             }
-            dragGhostRect.sizeDelta = new Vector2(96f, 96f);
+            var sourceRect = draggedCard?.GetComponent<RectTransform>();
+            dragGhostRect.sizeDelta = sourceRect != null
+                ? sourceRect.rect.size
+                : new Vector2(72f, 72f);
             dragGhostRect.anchorMin = new Vector2(0.5f, 0.5f);
             dragGhostRect.anchorMax = new Vector2(0.5f, 0.5f);
             dragGhostRect.pivot = new Vector2(0.5f, 0.5f);
@@ -585,19 +558,23 @@ namespace Godmist.Views.UI
             background.preserveAspect = false;
             background.raycastTarget = false;
 
-            var borderObject = new GameObject(
-                "Border",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image));
-            borderObject.transform.SetParent(dragGhost.transform, false);
-            var borderRect = borderObject.GetComponent<RectTransform>();
-            borderRect.anchorMin = Vector2.zero;
-            borderRect.anchorMax = Vector2.one;
-            borderRect.pivot = new Vector2(0.5f, 0.5f);
-            borderRect.offsetMin = Vector2.zero;
-            borderRect.offsetMax = Vector2.zero;
-            var border = borderObject.GetComponent<Image>();
+            var border = dragGhost.transform.Find("Border")?.GetComponent<Image>();
+            if (border == null)
+            {
+                var borderObject = new GameObject(
+                    "Border",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                borderObject.transform.SetParent(dragGhost.transform, false);
+                var borderRect = borderObject.GetComponent<RectTransform>();
+                borderRect.anchorMin = Vector2.zero;
+                borderRect.anchorMax = Vector2.one;
+                borderRect.pivot = new Vector2(0.5f, 0.5f);
+                borderRect.offsetMin = Vector2.zero;
+                borderRect.offsetMax = Vector2.zero;
+                border = borderObject.GetComponent<Image>();
+            }
             border.sprite = draggedCard?.BorderSprite;
             border.type = border.sprite != null
                 ? Image.Type.Sliced
@@ -606,18 +583,28 @@ namespace Godmist.Views.UI
             border.color = new Color32(0x40, 0x53, 0x68, 0xFF);
             border.raycastTarget = false;
 
-            var iconObject = new GameObject(
-                "Icon",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image));
-            iconObject.transform.SetParent(dragGhost.transform, false);
-            var iconRect = iconObject.GetComponent<RectTransform>();
-            iconRect.anchorMin = new Vector2(0.5f, 0.5f);
-            iconRect.anchorMax = new Vector2(0.5f, 0.5f);
-            iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.sizeDelta = new Vector2(76f, 76f);
-            dragGhostImage = iconObject.GetComponent<Image>();
+            var overlay = dragGhost.transform.Find("Overlay")?.GetComponent<Image>();
+            if (overlay != null)
+            {
+                overlay.enabled = false;
+            }
+
+            dragGhostImage = dragGhost.transform.Find("Icon")?.GetComponent<Image>();
+            if (dragGhostImage == null)
+            {
+                var iconObject = new GameObject(
+                    "Icon",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+                iconObject.transform.SetParent(dragGhost.transform, false);
+                var iconRect = iconObject.GetComponent<RectTransform>();
+                iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+                iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+                iconRect.pivot = new Vector2(0.5f, 0.5f);
+                iconRect.sizeDelta = new Vector2(76f, 76f);
+                dragGhostImage = iconObject.GetComponent<Image>();
+            }
             dragGhostFallback = dragGhost.GetComponentInChildren<TextMeshProUGUI>(true);
             if (dragGhostImage != null)
             {
@@ -664,39 +651,28 @@ namespace Godmist.Views.UI
             var success = false;
             if (draggedSkillIsActive)
             {
-                var activeSkillCount = character.ActiveSkillLoadout?.ActiveSkillIds.Count ?? 0;
-                var reorderIndex = Mathf.Min(targetIndex, activeSkillCount - 1);
-                success = reorderIndex >= 0
-                    && loadoutSystem.TryMoveSkill(
-                        session,
-                        character.CharacterId,
-                        draggedSkillId,
-                        reorderIndex);
-            }
-            else if (character.ActiveSkillLoadout != null
-                && targetIndex >= 0
-                && targetIndex < character.ActiveSkillLoadout.ActiveSkillIds.Count)
-            {
-                var activeSkillIds = character.ActiveSkillLoadout.ActiveSkillIds;
-                success = loadoutSystem.TryReplaceSkill(
-                    session,
-                    character.CharacterId,
-                    activeSkillIds[targetIndex],
-                    draggedSkillId);
-            }
-            else if (character.ActiveSkillLoadout != null
-                && targetIndex >= character.ActiveSkillLoadout.ActiveSkillIds.Count
-                && loadoutSystem.TryAddSkill(
-                    session,
-                    character.CharacterId,
-                    draggedSkillId))
-            {
-                var activeCount = character.ActiveSkillLoadout.ActiveSkillIds.Count;
                 success = loadoutSystem.TryMoveSkill(
                     session,
                     character.CharacterId,
                     draggedSkillId,
-                    Mathf.Min(targetIndex, activeCount - 1));
+                    targetIndex);
+            }
+            else if (character.ActiveSkillLoadout != null
+                && targetIndex > 0
+                && targetIndex < character.ActiveSkillLoadout.Capacity)
+            {
+                var targetSkillId = character.ActiveSkillLoadout.ActiveSkillSlotIds[targetIndex];
+                success = string.IsNullOrWhiteSpace(targetSkillId)
+                    ? loadoutSystem.TryAddSkillAtSlot(
+                        session,
+                        character.CharacterId,
+                        draggedSkillId,
+                        targetIndex)
+                    : loadoutSystem.TryReplaceSkill(
+                        session,
+                        character.CharacterId,
+                        targetSkillId,
+                        draggedSkillId);
             }
 
             if (success)
@@ -819,22 +795,12 @@ namespace Godmist.Views.UI
                         draggedSkillId,
                         loadout.BasicAttackSkillId,
                         StringComparison.Ordinal)
-                    && targetIndex < loadout.ActiveSkillIds.Count
-                    && !string.Equals(
-                        loadout.ActiveSkillIds[targetIndex],
-                        loadout.BasicAttackSkillId,
-                        StringComparison.Ordinal);
+                    && targetIndex > 0
+                    && targetIndex < loadout.Capacity;
             }
 
-            if (targetIndex >= loadout.ActiveSkillIds.Count)
-            {
-                return loadout.ActiveSkillIds.Count < loadout.Capacity;
-            }
-
-            return !string.Equals(
-                    loadout.ActiveSkillIds[targetIndex],
-                    loadout.BasicAttackSkillId,
-                    StringComparison.Ordinal)
+            return targetIndex > 0
+                && targetIndex < loadout.Capacity
                 && !ContainsSkillId(loadout.ActiveSkillIds, draggedSkillId);
         }
 
@@ -1115,12 +1081,12 @@ namespace Godmist.Views.UI
         }
     }
 
-    public sealed class SkillLoadoutCardView : MonoBehaviour,
+    public class SkillLoadoutCardView : MonoBehaviour,
         IPointerEnterHandler,
         IPointerExitHandler
     {
-        private static readonly Color ValidDropColor = new(0.24f, 0.62f, 0.39f, 1f);
-        private static readonly Color InvalidDropColor = new(0.78f, 0.29f, 0.27f, 1f);
+        private static readonly Color ValidDropColor = new(0.24f, 0.62f, 0.39f, 0.9f);
+        private static readonly Color InvalidDropColor = new(0.78f, 0.29f, 0.27f, 0.9f);
         private static readonly Color ActiveBorderColor = new(0.32f, 0.40f, 0.48f, 1f);
         private static readonly Color HoverBorderColor = new(0.49f, 0.65f, 0.78f, 1f);
 
@@ -1135,7 +1101,7 @@ namespace Godmist.Views.UI
         private Image basicSeparator;
         private Color defaultBackgroundColor;
         private SkillData skill;
-        private CombatTooltipView tooltipView;
+        private UIWorkspaceTooltipView tooltipView;
         private Action clickAction;
         private Coroutine feedbackRoutine;
         private bool isActive;
@@ -1147,7 +1113,7 @@ namespace Godmist.Views.UI
             bool isActive,
             bool isBasic,
             bool isEmpty,
-            CombatTooltipView sourceTooltipView,
+            UIWorkspaceTooltipView sourceTooltipView,
             Action onClick)
         {
             CacheVisuals();
@@ -1155,7 +1121,9 @@ namespace Godmist.Views.UI
             this.isActive = isActive;
             this.isBasic = isBasic;
             this.isEmpty = isEmpty;
-            tooltipView = sourceTooltipView;
+            tooltipView = sourceTooltipView != null && sourceTooltipView.isActiveAndEnabled
+                ? sourceTooltipView
+                : UIWorkspaceTooltipView.ActiveInstance;
             clickAction = onClick;
 
             if (button != null)
@@ -1211,19 +1179,21 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            tooltipView ??= CombatTooltipView.ActiveInstance
-                ?? FindAnyObjectByType<CombatTooltipView>(FindObjectsInactive.Include);
+            if (tooltipView == null || !tooltipView.isActiveAndEnabled)
+            {
+                tooltipView = UIWorkspaceTooltipView.ActiveInstance;
+            }
             if (tooltipView == null || tooltipView.IsSkillTooltipSuppressed)
             {
                 return;
             }
 
-            tooltipView.ShowSkill(skill, skill.ActionCost, Input.mousePosition);
+            tooltipView.ShowSkill(skill, skill.ActionCost, this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltipView?.NotifySourceExit();
+            tooltipView?.NotifySourceExit(this);
             if (!isEmpty)
             {
                 ApplyBaseVisual();
@@ -1277,6 +1247,8 @@ namespace Godmist.Views.UI
                     ? background.color
                     : Color.white;
             }
+
+            ConfigureFeedbackBorder();
         }
 
         private void ApplyBaseVisual()
@@ -1320,6 +1292,23 @@ namespace Godmist.Views.UI
                 feedbackBorder.enabled = enabled;
             }
 
+        }
+
+        private void ConfigureFeedbackBorder()
+        {
+            if (feedbackBorder == null)
+            {
+                return;
+            }
+
+            if (feedbackBorder.sprite == null && borderImage != null)
+            {
+                feedbackBorder.sprite = borderImage.sprite;
+            }
+
+            feedbackBorder.type = Image.Type.Sliced;
+            feedbackBorder.fillCenter = false;
+            feedbackBorder.raycastTarget = false;
         }
     }
 }

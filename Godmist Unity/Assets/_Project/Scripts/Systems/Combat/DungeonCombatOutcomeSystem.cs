@@ -153,8 +153,9 @@ namespace Godmist.Systems.Combat
                 var body = new DungeonEnemyBodyInstance(
                     bodyInstanceId,
                     enemyInstanceId,
-                    GetBodyPosition(
-                        context.EnemyAnchorWorldPosition,
+                    ResolveBodyPosition(
+                        floor,
+                        context,
                         bodyOffsetIndex++),
                     reward.Gold,
                     reward.Items);
@@ -170,7 +171,63 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private static UnityEngine.Vector2Int GetBodyPosition(
+        private static UnityEngine.Vector2Int ResolveBodyPosition(
+            DungeonFloorInstance floor,
+            DungeonCombatContext context,
+            int bodyOffsetIndex)
+        {
+            var anchorPosition = context.EnemyAnchorWorldPosition;
+            var map = floor?.Map;
+
+            if (map == null || map.FloorCells.Count == 0)
+            {
+                return GetFallbackBodyPosition(anchorPosition, bodyOffsetIndex);
+            }
+
+            var candidates = new List<UnityEngine.Vector2Int>();
+
+            foreach (var cell in map.FloorCells)
+            {
+                if (map.TryGetRoomId(cell, out var roomId)
+                    && string.Equals(
+                        roomId,
+                        context.EncounterRoomId,
+                        StringComparison.Ordinal))
+                {
+                    candidates.Add(cell);
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                candidates.AddRange(map.FloorCells);
+            }
+
+            candidates.Sort((first, second) =>
+            {
+                var firstDistance = GetManhattanDistance(first, anchorPosition);
+                var secondDistance = GetManhattanDistance(second, anchorPosition);
+
+                var distanceComparison = firstDistance.CompareTo(secondDistance);
+                if (distanceComparison != 0) return distanceComparison;
+
+                var yComparison = first.y.CompareTo(second.y);
+                return yComparison != 0
+                    ? yComparison
+                    : first.x.CompareTo(second.x);
+            });
+
+            return candidates[Math.Min(bodyOffsetIndex, candidates.Count - 1)];
+        }
+
+        private static int GetManhattanDistance(
+            UnityEngine.Vector2Int first,
+            UnityEngine.Vector2Int second)
+        {
+            return Math.Abs(first.x - second.x) + Math.Abs(first.y - second.y);
+        }
+
+        private static UnityEngine.Vector2Int GetFallbackBodyPosition(
             UnityEngine.Vector2Int anchorPosition,
             int bodyOffsetIndex)
         {

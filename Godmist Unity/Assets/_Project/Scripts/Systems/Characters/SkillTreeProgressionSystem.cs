@@ -20,18 +20,15 @@ namespace Godmist.Systems.Characters
 
         public bool TryInvest(CharacterInstance character, string treeId, string nodeId)
         {
-            if (character == null || character.AvailableSkillPoints <= 0
-                || string.IsNullOrWhiteSpace(treeId) || string.IsNullOrWhiteSpace(nodeId)) return false;
+            if (!string.IsNullOrWhiteSpace(GetInvestmentBlockReason(character, treeId, nodeId)))
+            {
+                return false;
+            }
 
             var tree = character.ClassData?.SkillTrees?.FirstOrDefault(value => value?.Id == treeId);
             var node = tree?.Nodes?.FirstOrDefault(value => value?.Id == nodeId);
-            if (node == null || !IsTierUnlocked(node.Tier, GetInvestedRanks(character, treeId))) return false;
-
             var progress = GetOrCreateProgress(character, treeId);
             var investment = progress.NodeInvestments.FirstOrDefault(value => value.NodeId == nodeId);
-            var currentRanks = investment?.Ranks ?? 0;
-            if (currentRanks >= node.EffectiveMaxRanks || GetInvestedRanks(progress) >= MaximumPointsPerTree
-                || !RequirementsMet(progress, node.Requirements)) return false;
 
             if (investment == null)
             {
@@ -43,6 +40,62 @@ namespace Godmist.Systems.Characters
             character.AvailableSkillPoints--;
             statPipeline.Refresh(character);
             return true;
+        }
+
+        public bool IsNodeStructurallyUnlocked(CharacterInstance character, string treeId, string nodeId)
+        {
+            if (character?.ClassData == null || string.IsNullOrWhiteSpace(treeId) || string.IsNullOrWhiteSpace(nodeId))
+            {
+                return false;
+            }
+
+            var tree = character.ClassData.SkillTrees?.FirstOrDefault(value => value?.Id == treeId);
+            var node = tree?.Nodes?.FirstOrDefault(value => value?.Id == nodeId);
+            if (node == null) return false;
+
+            var progress = character.SkillTreeProgress?.FirstOrDefault(value => value?.TreeId == treeId);
+            return GetInvestedRanks(progress) >= GetRequiredRanksForTier(node.Tier)
+                && RequirementsMet(progress, node.Requirements);
+        }
+
+        public string GetInvestmentBlockReason(
+            CharacterInstance character,
+            string treeId,
+            string nodeId)
+        {
+            if (character == null) return "Brak postaci.";
+            if (character.AvailableSkillPoints <= 0) return "Brak dostępnych punktów umiejętności.";
+            if (string.IsNullOrWhiteSpace(treeId) || string.IsNullOrWhiteSpace(nodeId)) return "Nieprawidłowy węzeł.";
+
+            var tree = character.ClassData?.SkillTrees?.FirstOrDefault(value => value?.Id == treeId);
+            var node = tree?.Nodes?.FirstOrDefault(value => value?.Id == nodeId);
+            if (node == null) return "Nie znaleziono węzła w tym drzewku.";
+
+            var progress = character.SkillTreeProgress?.FirstOrDefault(value => value?.TreeId == treeId);
+            var investedRanks = GetInvestedRanks(progress);
+            var requiredRanks = GetRequiredRanksForTier(node.Tier);
+            if (investedRanks < requiredRanks)
+            {
+                return $"Wymaga {requiredRanks} pkt wydanych w tym drzewku ({investedRanks}/{requiredRanks}).";
+            }
+
+            var investment = progress?.NodeInvestments?.FirstOrDefault(value => value?.NodeId == nodeId);
+            if ((investment?.Ranks ?? 0) >= node.EffectiveMaxRanks)
+            {
+                return "Osiągnięto maksymalną rangę.";
+            }
+
+            if (investedRanks >= MaximumPointsPerTree)
+            {
+                return $"Osiągnięto limit {MaximumPointsPerTree} pkt w drzewku.";
+            }
+
+            if (!RequirementsMet(progress, node.Requirements))
+            {
+                return BuildRequirementsText(tree, progress, node.Requirements);
+            }
+
+            return string.Empty;
         }
 
         public static int GetInvestedRanks(CharacterInstance character, string treeId)
@@ -110,10 +163,36 @@ namespace Godmist.Systems.Characters
 
         private static bool RequirementsMet(SkillTreeProgress progress, List<SkillTreeNodeRequirement> requirements)
         {
-            if (requirements == null) return true;
+            if (requirements == null || requirements.Count == 0) return true;
+            if (progress?.NodeInvestments == null) return false;
             return requirements.All(requirement => requirement != null
                 && progress.NodeInvestments.Any(investment => investment.NodeId == requirement.NodeId
                     && investment.Ranks >= requirement.MinimumRanks));
+        }
+
+        private static string BuildRequirementsText(
+            SkillTreeDefinition tree,
+            SkillTreeProgress progress,
+            List<SkillTreeNodeRequirement> requirements)
+        {
+            var missing = new List<string>();
+            foreach (var requirement in requirements ?? new List<SkillTreeNodeRequirement>())
+            {
+                if (requirement == null || string.IsNullOrWhiteSpace(requirement.NodeId)) continue;
+                var node = tree?.Nodes?.FirstOrDefault(value => value?.Id == requirement.NodeId);
+                var ranks = progress?.NodeInvestments?.FirstOrDefault(value => value?.NodeId == requirement.NodeId)?.Ranks ?? 0;
+                if (ranks < requirement.MinimumRanks)
+                {
+                    var nodeName = !string.IsNullOrWhiteSpace(node?.DisplayName)
+                        ? node.DisplayName
+                        : requirement.NodeId;
+                    missing.Add($"{nodeName} {ranks}/{requirement.MinimumRanks}");
+                }
+            }
+
+            return missing.Count == 0
+                ? "Nie spełniono wymagań węzła."
+                : $"Wymaga: {string.Join(", ", missing)}.";
         }
     }
 }

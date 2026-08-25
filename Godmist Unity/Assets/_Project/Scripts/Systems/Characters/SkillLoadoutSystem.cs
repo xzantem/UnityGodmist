@@ -54,6 +54,24 @@ namespace Godmist.Systems.Characters
                     GetKnownSkillIds(character));
         }
 
+        public bool TryAddSkillAtSlot(
+            GameSession session,
+            string characterId,
+            string skillId,
+            int targetIndex)
+        {
+            if (!TryGetCharacterOutsideCombat(session, characterId, out var character))
+            {
+                return false;
+            }
+
+            return character.ActiveSkillLoadout != null
+                && character.ActiveSkillLoadout.TryAddSkillAtSlot(
+                    skillId,
+                    targetIndex,
+                    GetKnownSkillIds(character));
+        }
+
         public bool TryRemoveSkill(
             GameSession session,
             string characterId,

@@ -781,6 +781,41 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ActiveSkillLoadout_PreservesEmptySlotPositionsAndMovesIntoTheRequestedSlot()
+        {
+            var loadout = new ActiveSkillLoadout();
+            var knownSkillIds = new[]
+            {
+                "skill.basic",
+                "skill.one",
+                "skill.two",
+                "skill.three"
+            };
+
+            Assert.That(
+                loadout.TryInitializeSlots(
+                    knownSkillIds,
+                    "skill.basic",
+                    new[] { "skill.basic", string.Empty, "skill.one", string.Empty, "skill.two" }),
+                Is.True);
+            Assert.That(
+                loadout.ActiveSkillSlotIds,
+                Is.EqualTo(new[] { "skill.basic", string.Empty, "skill.one", string.Empty, "skill.two" }));
+            Assert.That(
+                loadout.ActiveSkillIds,
+                Is.EqualTo(new[] { "skill.basic", "skill.one", "skill.two" }));
+
+            Assert.That(loadout.TryAddSkillAtSlot("skill.three", 1, knownSkillIds), Is.True);
+            Assert.That(
+                loadout.ActiveSkillSlotIds,
+                Is.EqualTo(new[] { "skill.basic", "skill.three", "skill.one", string.Empty, "skill.two" }));
+            Assert.That(loadout.TryMoveSkill("skill.two", 3), Is.True);
+            Assert.That(
+                loadout.ActiveSkillSlotIds,
+                Is.EqualTo(new[] { "skill.basic", "skill.three", "skill.one", "skill.two", string.Empty }));
+        }
+
+        [Test]
         public void SkillLoadoutSystem_RejectsChangesDuringCombat()
         {
             var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();
@@ -1167,6 +1202,18 @@ namespace Godmist.Tests.EditMode
                         "skill.first",
                         "skill.second"
                     }));
+                Assert.That(
+                    restoredSaveData.Characters[0].ActiveSkillSlotIds,
+                    Is.EqualTo(new[]
+                    {
+                        "skill.basic",
+                        "skill.first",
+                        "skill.second",
+                        string.Empty,
+                        string.Empty,
+                        string.Empty,
+                        string.Empty
+                    }));
 
                 Assert.That(
                     new GameSessionRestoreFactory().TryCreate(
@@ -1185,6 +1232,9 @@ namespace Godmist.Tests.EditMode
                         "skill.second"
                     }));
                 Assert.That(restoredCharacter.ActiveSkillLoadout.Capacity, Is.EqualTo(7));
+                Assert.That(
+                    restoredCharacter.ActiveSkillLoadout.ActiveSkillSlotIds,
+                    Is.EqualTo(restoredSaveData.Characters[0].ActiveSkillSlotIds));
 
                 var legacySave = GameSaveData.CreateNew("Legacy loadout");
                 legacySave.Party.MaxActiveMembers = Party.DefaultMaxActiveMembers;

@@ -2,6 +2,7 @@ using Godmist.Views.Combat;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
@@ -10,7 +11,7 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Button endTurnButton;
         [SerializeField] private Button escapeButton;
-        [SerializeField] private CombatTooltipView tooltipView;
+        [SerializeField] private UIWorkspaceTooltipView tooltipView;
 
         private void Start()
         {

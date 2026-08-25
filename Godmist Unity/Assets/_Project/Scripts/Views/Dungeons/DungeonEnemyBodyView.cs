@@ -3,10 +3,10 @@ using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
-using Godmist.Systems.Items;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
 
@@ -17,12 +17,12 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private float interactionRadius = 1.25f;
         [SerializeField] private SpriteRenderer bodyRenderer;
 
-        private readonly LootCollectionService lootCollectionService = new();
         private readonly List<SpriteRenderer> outlineRenderers = new();
 
         private ExplorationPartyController partyController;
         private DungeonFloorInstance floor;
         private DungeonEnemyBodyInstance body;
+        private DungeonLootWindowView lootWindowPrefab;
         private Material outlineMaterial;
         private bool isPointerHovered;
 
@@ -30,7 +30,8 @@ namespace Godmist.Views.Dungeons
             ExplorationPartyController nextPartyController,
             DungeonFloorInstance nextFloor,
             DungeonEnemyBodyInstance nextBody,
-            Vector3 worldPosition)
+            Vector3 worldPosition,
+            DungeonLootWindowView nextLootWindowPrefab = null)
         {
             if (nextFloor == null
                 || nextBody == null
@@ -44,13 +45,32 @@ namespace Godmist.Views.Dungeons
             partyController = nextPartyController;
             floor = nextFloor;
             body = currentBody;
+            lootWindowPrefab = nextLootWindowPrefab;
             transform.position = worldPosition;
             ConfigureVisual();
         }
 
         private void Update()
         {
+            if (body != null
+                && floor != null
+                && !floor.TryGetEnemyBody(body.InstanceId, out _))
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             RefreshHoverVisual();
+        }
+
+        private void OnEnable()
+        {
+            DungeonLootWindowView.LootClaimed += HandleLootClaimed;
+        }
+
+        private void OnDisable()
+        {
+            DungeonLootWindowView.LootClaimed -= HandleLootClaimed;
         }
 
         private void OnMouseEnter()
@@ -118,30 +138,7 @@ namespace Godmist.Views.Dungeons
             if (!CanInteract()) return;
 
             var session = GameBootstrap.Instance?.Session;
-            var itemName = body.Items.Count > 0
-                ? body.Items[0]?.Definition?.DisplayName
-                : null;
-
-            if (body.Items.Count > 0
-                && lootCollectionService.TryClaimNextDungeonBodyItem(
-                    session,
-                    body.InstanceId,
-                    out _))
-            {
-                ShowFloatingText($"+ {itemName ?? "Przedmiot"}");
-                RefreshOrDestroy();
-                return;
-            }
-
-            if (body.Gold > 0
-                && lootCollectionService.TryClaimDungeonBodyGold(
-                    session,
-                    body.InstanceId,
-                    out var claimedGold))
-            {
-                ShowFloatingText($"+ {claimedGold} zlota");
-                RefreshOrDestroy();
-            }
+            DungeonLootWindowView.OpenOrReuse(session, body.InstanceId, lootWindowPrefab);
         }
 
         private void OnDestroy()
@@ -150,6 +147,14 @@ namespace Godmist.Views.Dungeons
             {
                 Destroy(outlineMaterial);
             }
+        }
+
+        private void HandleLootClaimed(string sourceBodyInstanceId, string message)
+        {
+            if (body == null || body.InstanceId != sourceBodyInstanceId) return;
+
+            ShowFloatingText(message);
+            RefreshOrDestroy();
         }
 
         private void RefreshOrDestroy()
@@ -189,12 +194,14 @@ namespace Godmist.Views.Dungeons
                 Debug.LogError(
                     $"DungeonEnemyBodyView: nie znaleziono definicji przeciwnika "
                     + $"dla ciala '{body?.InstanceId}'.");
-                return;
+            }
+            else
+            {
+                bodyRenderer.sprite = definition.DeadSprite != null
+                    ? definition.DeadSprite
+                    : definition.VisualSprite;
             }
 
-            bodyRenderer.sprite = definition.DeadSprite != null
-                ? definition.DeadSprite
-                : definition.VisualSprite;
             transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
             RebuildOutline();
             ConfigureInteractionCollider();
@@ -257,11 +264,6 @@ namespace Godmist.Views.Dungeons
 
         private void ConfigureInteractionCollider()
         {
-            if (bodyRenderer?.sprite == null)
-            {
-                return;
-            }
-
             var collider = GetComponent<CircleCollider2D>();
             if (collider == null)
             {
@@ -277,8 +279,15 @@ namespace Godmist.Views.Dungeons
 
             collider.isTrigger = true;
 
-            var extents = bodyRenderer.sprite.bounds.extents;
-            collider.radius = Mathf.Max(extents.x, extents.y);
+            var radius = 0.35f;
+
+            if (bodyRenderer?.sprite != null)
+            {
+                var extents = bodyRenderer.sprite.bounds.extents;
+                radius = Mathf.Max(radius, extents.x, extents.y);
+            }
+
+            collider.radius = radius;
         }
 
         private void RefreshHoverVisual()

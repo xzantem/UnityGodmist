@@ -446,11 +446,18 @@ namespace Godmist.Systems.SaveLoad
                 });
             }
 
-            return character.ActiveSkillLoadout.TryInitialize(
-                knownSkillIds,
-                basicAttackSkillId,
-                saveData.ActiveSkillIds,
-                modifiers);
+            return saveData.ActiveSkillSlotIds != null
+                   && saveData.ActiveSkillSlotIds.Count > 0
+                ? character.ActiveSkillLoadout.TryInitializeSlots(
+                    knownSkillIds,
+                    basicAttackSkillId,
+                    saveData.ActiveSkillSlotIds,
+                    modifiers)
+                : character.ActiveSkillLoadout.TryInitialize(
+                    knownSkillIds,
+                    basicAttackSkillId,
+                    saveData.ActiveSkillIds,
+                    modifiers);
         }
 
         private static string ResolveRestoredBasicAttackSkillId(
@@ -1283,8 +1290,12 @@ namespace Godmist.Systems.SaveLoad
                     saveData.Seed);
 
                 encounterPlacementSystem.Place(dungeon);
-                objectPlacementSystem.Place(dungeon);
-                rewardPreparationSystem.Prepare(dungeon);
+                objectPlacementSystem.Place(
+                    dungeon,
+                    contentCatalog.EquipmentPartDefinitions);
+                rewardPreparationSystem.Prepare(
+                    dungeon,
+                    contentCatalog.EquipmentPartDefinitions);
             }
             catch (Exception)
             {
