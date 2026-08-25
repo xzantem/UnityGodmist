@@ -28,6 +28,7 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<BattleUnit, CharacterView> views = new();
         private readonly Dictionary<SummonedCombatMapObject, SpriteRenderer>
             summonedObjectViews = new();
+        private readonly Dictionary<KnifeCombatMapObject, SpriteRenderer> knifeViews = new();
 
         // A CombatSession is runtime state and may contain nested counterattack payloads.
         // It must never enter Unity's scene/prefab serialization graph.
@@ -106,6 +107,7 @@ namespace Godmist.Views.Combat
             EnsureSummonedObjectViews(session);
             SynchronizeSummonedObjectViews(session);
             RemoveMissingSummonedObjectViews(session);
+            SynchronizeKnifeViews(session);
         }
 
         private void EnsureViews(CombatSession session)
@@ -203,6 +205,12 @@ namespace Godmist.Views.Combat
             }
 
             summonedObjectViews.Clear();
+
+            foreach (var renderer in knifeViews.Values)
+            {
+                if (renderer != null) Destroy(renderer.gameObject);
+            }
+            knifeViews.Clear();
         }
 
         private void EnsureSummonedObjectViews(CombatSession session)
@@ -285,6 +293,36 @@ namespace Godmist.Views.Combat
             {
                 summonedObjectViews.Remove(summonedObject);
             }
+        }
+
+        private void SynchronizeKnifeViews(CombatSession session)
+        {
+            var activeKnives = new HashSet<KnifeCombatMapObject>();
+            foreach (var mapObject in session.MapObjects)
+            {
+                if (mapObject is not KnifeCombatMapObject knife) continue;
+                activeKnives.Add(knife);
+                if (!knifeViews.TryGetValue(knife, out var renderer) || renderer == null)
+                {
+                    var marker = new GameObject("Thrown Knife");
+                    marker.transform.SetParent(unitsRoot, false);
+                    marker.transform.localScale = Vector3.one * 0.28f;
+                    renderer = marker.AddComponent<SpriteRenderer>();
+                    renderer.sprite = GetMissingSprite();
+                    renderer.color = new Color(1f, 0.84f, 0.18f, 1f);
+                    renderer.sortingOrder = 2;
+                    knifeViews[knife] = renderer;
+                }
+                renderer.transform.position = GridToWorldPosition(knife.Position);
+            }
+            var removed = new List<KnifeCombatMapObject>();
+            foreach (var pair in knifeViews)
+            {
+                if (activeKnives.Contains(pair.Key)) continue;
+                if (pair.Value != null) Destroy(pair.Value.gameObject);
+                removed.Add(pair.Key);
+            }
+            foreach (var knife in removed) knifeViews.Remove(knife);
         }
 
         private Sprite GetMissingSprite()

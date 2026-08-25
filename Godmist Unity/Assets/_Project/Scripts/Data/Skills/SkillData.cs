@@ -18,6 +18,7 @@ namespace Godmist.Data.Skills
         [field: SerializeField] public int ActionCost { get; private set; }
         [field: SerializeField] public int ResourceCost { get; private set; }
         [field: SerializeField] public ResourceType ResourceType { get; private set; }
+        [field: SerializeField, Min(0)] public int KnifeCost { get; private set; }
         [field: SerializeField] public bool IsToggle { get; private set; }
         [field: SerializeField, Min(0)] public int ToggleUpkeepFlatResourceCost { get; private set; }
         [field: SerializeField, Range(0f, 1f)] public float ToggleUpkeepMaxResourcePercent { get; private set; }

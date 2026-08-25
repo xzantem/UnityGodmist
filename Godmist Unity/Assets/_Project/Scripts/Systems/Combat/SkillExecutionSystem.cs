@@ -186,6 +186,15 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
+            if (!ScoutKnifeSystem.TrySpendAndDrop(
+                    session,
+                    caster,
+                    skill,
+                    ResolveKnifeTargets(skill, targetsByModeIndex)))
+            {
+                return false;
+            }
+
             var actionCost =
                 CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
@@ -343,6 +352,19 @@ namespace Godmist.Systems.Combat
             }
             CombatTurnSystem.RefreshMaxActionPoints(session);
             return true;
+        }
+
+        private static IReadOnlyList<BattleUnit> ResolveKnifeTargets(
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+        {
+            if (skill?.Effects == null || targetsByModeIndex == null) return null;
+            foreach (var effect in skill.Effects)
+            {
+                if (effect != null && targetsByModeIndex.TryGetValue(
+                        effect.TargetModeIndex, out var targets)) return targets;
+            }
+            return null;
         }
 
         private void ScheduleEffect(
@@ -1087,6 +1109,12 @@ namespace Godmist.Systems.Combat
             {
                 Debug.LogWarning(
                     $"Toggle skill '{skill.SkillId}' contains an unsupported effect.");
+                return false;
+            }
+
+            if (!isToggleDeactivation && !ScoutKnifeSystem.CanPay(caster, skill))
+            {
+                battleLog?.Invoke("Brak dostępnych sztyletów.");
                 return false;
             }
 

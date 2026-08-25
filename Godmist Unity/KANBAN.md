@@ -41,8 +41,12 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
-- `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
+- `[P1] Combat v3 - czytelnosc feedbacku i sekwencjonowanie akcji v1` - `UI / UX`, `Combat`
+  - Floating combat feedback powinien byc powiazany z momentem rozstrzygniecia akcji i pozycja jednostki w tym momencie, a nie z poczatkiem kolejnego ruchu; komunikaty maja byc grupowane lub rozsuwane tak, aby pozostawaly czytelne.
+  - Tura przeciwnika ma byc prezentowana jako sekwencja pojedynczych decyzji i rezultatow z krotkimi przerwami, zamiast wykonywania calej petli AI w jednej klatce; gracz powinien widziec ruch, uzycie skilla i efekt przed kolejna akcja.
+- `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
+  - Ruch przeciwnika ma korzystac z wyznaczonej sciezki tile-by-tile i wizualnie przechodzic przez kolejne pola, z zachowaniem blokad i kosztu AP, zamiast przesuwania widoku bezposrednio z poczatku do konca.
+  - Preview ma pokazywac planowana sciezke oraz jej odleglosc/koszt dla nastepnej tury przeciwnika, wykorzystujac istniejacy renderer feedbacku planszy.
 - `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
   - Dodac ksztalty m.in. line, diagonal line i X.
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
@@ -98,6 +102,13 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Playable / Test
 
 ## Done
+
+### Milestone: Combat v3 — Closed
+
+- `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
+  - Toggle ma aktywacje ograniczona do raz na ture, darmowe wylaczenie, upkeep zasobu oraz natychmiastowe usuwanie efektow po wylaczeniu lub smierci wlasciciela.
+- `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
+  - Scout ma limit `5` sztyletow resetowany na poczatku walki; skille z `Knife Cost` zuzywaja sztylety, upuszczaja je obok celu, a wejscie na pole odzyskuje zasob; licznik jest widoczny na pasku skilli.
 
 - `[P1] Combat v3 - rozszerzyc execution pipeline skilli` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
   - Efekty: modyfikator AP na jedna nastepna ture; przyspieszenie/spowolnienie ruchu przez zmiane AV o `x% * maxAV`; blokada wszystkich dodatnich gainow zasobu; OnHit `StatusEffect`; LifeSteal i ResourceDrain; `TimesDamage`; `BonusDamageMultiplierChance` z osobnym rzutem dla kazdego hitu.

@@ -93,6 +93,11 @@ namespace Godmist.Systems.Combat
                 report.AddError("Only toggle skills can define toggle upkeep.");
             }
 
+            if (skill.KnifeCost < 0)
+            {
+                report.AddError("Knife Cost cannot be negative.");
+            }
+
             if (skill.Effects == null || skill.Effects.Count == 0)
             {
                 report.AddError("Skill must define at least one effect.");

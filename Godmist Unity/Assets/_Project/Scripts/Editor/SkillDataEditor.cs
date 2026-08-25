@@ -17,6 +17,7 @@ namespace Godmist.Editor
         private SerializedProperty actionCost;
         private SerializedProperty resourceCost;
         private SerializedProperty resourceType;
+        private SerializedProperty knifeCost;
         private SerializedProperty isToggle;
         private SerializedProperty toggleUpkeepFlatResourceCost;
         private SerializedProperty toggleUpkeepMaxResourcePercent;
@@ -35,6 +36,7 @@ namespace Godmist.Editor
             actionCost = serializedObject.FindProperty("<ActionCost>k__BackingField");
             resourceCost = serializedObject.FindProperty("<ResourceCost>k__BackingField");
             resourceType = serializedObject.FindProperty("<ResourceType>k__BackingField");
+            knifeCost = serializedObject.FindProperty("<KnifeCost>k__BackingField");
             isToggle = serializedObject.FindProperty("<IsToggle>k__BackingField");
             toggleUpkeepFlatResourceCost = serializedObject.FindProperty(
                 "<ToggleUpkeepFlatResourceCost>k__BackingField");
@@ -80,6 +82,7 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(actionCost, new GUIContent("AP Cost (%)"));
             EditorGUILayout.PropertyField(resourceCost, new GUIContent("Resource Cost"));
             EditorGUILayout.PropertyField(resourceType, new GUIContent("Resource Type"));
+            EditorGUILayout.PropertyField(knifeCost, new GUIContent("Knife Cost"));
 
             if (RequiresSkillAccuracy())
             {

@@ -91,6 +91,7 @@ namespace Godmist.Views.Combat
                 HandleSummonedObjectTurnEnded,
                 HandleUnitDied);
             Session = CreateInitialSession();
+            ScoutKnifeSystem.ResetForCombat(Session);
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
@@ -330,6 +331,7 @@ namespace Godmist.Views.Combat
             }
 
             Session = CreateInitialSession();
+            ScoutKnifeSystem.ResetForCombat(Session);
             hasClearedCombatScopedEffects = false;
 
             battleLog?.ClearLog();

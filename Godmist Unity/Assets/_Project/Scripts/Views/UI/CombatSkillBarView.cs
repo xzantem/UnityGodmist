@@ -131,12 +131,18 @@ namespace Godmist.Views.UI
                         || (resource != null
                             && resource.ResourceType == skill.ResourceType
                             && resource.CurrentValue >= skill.ResourceCost));
+                var canPayKnives = skill.KnifeCost <= 0
+                    || activeUnit.AvailableKnives >= skill.KnifeCost;
                 var canUse = isActiveToggle
-                    || (!wasChangedThisTurn && canPayActivationCost);
+                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives);
+                var knifeCount = skill.KnifeCost > 0
+                    ? $"{activeUnit.AvailableKnives}/{activeUnit.MaxKnives}"
+                    : string.Empty;
                 spawnedSlots[slotIndex].RefreshAvailability(
                     canUse,
                     isActiveToggle ? 0 : actionCost,
-                    isActiveToggle);
+                    isActiveToggle,
+                    knifeCount);
                 slotIndex++;
             }
         }

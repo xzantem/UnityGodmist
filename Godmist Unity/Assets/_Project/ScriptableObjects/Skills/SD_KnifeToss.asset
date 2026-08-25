@@ -20,7 +20,10 @@ MonoBehaviour:
   <ActionCost>k__BackingField: 55
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
+  <KnifeCost>k__BackingField: 1
   <IsToggle>k__BackingField: 0
+  <ToggleUpkeepFlatResourceCost>k__BackingField: 0
+  <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
   targetModes:
   - targetType: 0
@@ -33,7 +36,7 @@ MonoBehaviour:
       shape: 1
       minRange: 0
       maxRange: 2
-  - targetType: 1
+  - targetType: 9
     targetingType: 0
     absoluteRange:
       shape: 1
@@ -50,8 +53,15 @@ MonoBehaviour:
     targetModeIndex: 0
     baseValue: 0
     damageValueSource: 0
-    damageMultiplier: 10
+    damageMultiplier: 1
     damageHitCount: 1
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 1
+    onHitStatusId:
+    onHitStatusChance: 1
+    onHitStatusDurationTurns: 1
+    lifeStealPercent: 1
+    resourceDrainPercent: 0.498
     damageType: 0
     delayCasterTurns: 0
     displacementDistance: 1
@@ -90,4 +100,17 @@ MonoBehaviour:
     modifierOperation: 0
     modifierStacking: 0
     modifierValue: 0
+    uniqueBuffType: 0
+    uniqueBuffStacks: 1
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 1
+    shieldAverageAttackMultiplier: 0
     conditions: []

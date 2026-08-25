@@ -14,6 +14,8 @@ namespace Godmist.Runtime.Combat
         public int CurrentActionPoints;
         public int MaxActionPoints;
         public int MovementStepsThisTurn;
+        public int MaxKnives;
+        public int AvailableKnives;
         public float CurrentActionValue;
 
         // Combat-scoped state. It intentionally lives on the battle participant rather

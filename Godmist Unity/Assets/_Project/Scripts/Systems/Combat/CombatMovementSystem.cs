@@ -9,6 +9,78 @@ using UnityEngine;
 
 namespace Godmist.Systems.Combat
 {
+    public static class ScoutKnifeSystem
+    {
+        public const int DefaultMaxKnives = 5;
+
+        public static void ResetForCombat(CombatSession session)
+        {
+            foreach (var unit in session?.Units ?? new List<BattleUnit>())
+            {
+                if (unit?.Character?.ClassData?.Id != "class.scout") continue;
+                unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0 ? DefaultMaxKnives : unit.MaxKnives);
+                unit.AvailableKnives = unit.MaxKnives;
+            }
+        }
+
+        public static bool CanPay(BattleUnit caster, Godmist.Data.Skills.SkillData skill) =>
+            skill == null || skill.KnifeCost <= 0 || caster?.AvailableKnives >= skill.KnifeCost;
+
+        public static bool TrySpendAndDrop(CombatSession session, BattleUnit caster,
+            Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets)
+        {
+            if (skill?.KnifeCost <= 0) return true;
+            if (!CanPay(caster, skill)) return false;
+            caster.AvailableKnives -= skill.KnifeCost;
+            var target = targets != null && targets.Count > 0 ? targets[0] : null;
+            if (target == null) return true;
+            for (var index = 0; index < skill.KnifeCost; index++)
+            {
+                if (!TryFindRandomDropPosition(session, target, out var position)) continue;
+                session.MapObjects.Add(new KnifeCombatMapObject(
+                    $"knife.{caster.Character.CharacterId}.{Guid.NewGuid():N}", position,
+                    caster.Character.CharacterId, 1));
+            }
+            return true;
+        }
+
+        public static int RecoverAtPosition(CombatSession session, BattleUnit unit)
+        {
+            if (session?.MapObjects == null || unit?.Character == null) return 0;
+            var recovered = 0;
+            for (var index = session.MapObjects.Count - 1; index >= 0; index--)
+            {
+                if (session.MapObjects[index] is not KnifeCombatMapObject knife
+                    || knife.Position != unit.Position
+                    || !string.Equals(knife.OwnerCharacterId, unit.Character.CharacterId,
+                        StringComparison.OrdinalIgnoreCase)) continue;
+                var amount = Math.Min(Math.Max(0, unit.MaxKnives - unit.AvailableKnives), knife.KnifeCount);
+                if (amount <= 0) continue;
+                unit.AvailableKnives += amount;
+                recovered += amount;
+                session.MapObjects.RemoveAt(index);
+            }
+            return recovered;
+        }
+
+        private static bool TryFindRandomDropPosition(CombatSession session,
+            BattleUnit target, out GridPosition position)
+        {
+            var candidates = new List<GridPosition>();
+            for (var x = -1; x <= 1; x++) for (var y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0) continue;
+                var candidate = new GridPosition(target.Position.X + x, target.Position.Y + y);
+                if (!session.Grid.IsWalkable(candidate) || session.Grid.IsBlocked(candidate)
+                    || session.IsPositionOccupied(candidate) || session.IsPositionOccupiedByMapObject(candidate)) continue;
+                candidates.Add(candidate);
+            }
+            if (candidates.Count == 0) { position = default; return false; }
+            position = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+            return true;
+        }
+    }
+
     public class CombatMovementSystem
     {
         private static readonly Vector2Int[] MovementDirections =
@@ -212,6 +284,11 @@ namespace Godmist.Systems.Combat
             unit.MovementStepsThisTurn++;
 
             resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
+            var recoveredKnives = ScoutKnifeSystem.RecoverAtPosition(session, unit);
+            if (recoveredKnives > 0)
+            {
+                battleLog?.Invoke($"{unit.Character.Definition.DisplayName} odzyskuje {recoveredKnives} sztylet.");
+            }
             CombatAuraSystem.Refresh(session, statusEffectSystem);
 
             battleLog?.Invoke(
