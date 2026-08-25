@@ -23,6 +23,6 @@ namespace Godmist.Views.UI
             tooltip?.ShowText(title, description, this);
         }
 
-        public void OnPointerExit(PointerEventData eventData) => tooltip?.NotifySourceExit();
+        public void OnPointerExit(PointerEventData eventData) => tooltip?.NotifySourceExit(this);
     }
 }

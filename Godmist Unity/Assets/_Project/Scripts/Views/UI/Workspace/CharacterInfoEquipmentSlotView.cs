@@ -63,6 +63,6 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
         public void OnPointerEnter(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.ShowItem(Item, owner?.Character, this);
-        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit();
+        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
     }
 }

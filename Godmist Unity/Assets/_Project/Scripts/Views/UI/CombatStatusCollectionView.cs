@@ -9,7 +9,6 @@ namespace Godmist.Views.UI
     public class CombatStatusCollectionView : MonoBehaviour
     {
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
-        [SerializeField] private CombatTooltipGlossary statusGlossary;
         [SerializeField] private Transform iconRoot;
         [SerializeField] private CombatStatusIconView iconTemplate;
         [SerializeField] private TextMeshProUGUI overflowText;
@@ -41,10 +40,7 @@ namespace Godmist.Views.UI
                 if (visible)
                 {
                     var effectId = statuses[index].Effect?.EffectId;
-                    var statusIcon = statusGlossary != null
-                        && statusGlossary.TryGet(effectId, out var entry)
-                        ? entry.Icon
-                        : null;
+                    var statusIcon = tooltipView?.GetGlossaryIcon(effectId);
                     iconView.Bind(statuses[index], tooltipView, statusIcon);
                 }
             }

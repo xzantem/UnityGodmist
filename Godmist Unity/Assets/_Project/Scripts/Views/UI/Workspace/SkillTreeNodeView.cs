@@ -61,7 +61,7 @@ namespace Godmist.Views.UI.Workspace
             if (node != null) UIWorkspaceTooltipView.ActiveInstance?.ShowText(node.DisplayName, tooltipBody, this);
         }
 
-        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit();
+        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
 
         private void ApplyVisualState(SkillTreeNodeDefinition sourceNode, int ranks, bool isStructurallyUnlocked)
         {

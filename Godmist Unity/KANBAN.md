@@ -100,12 +100,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Ready
 
+## In Progress
+
 - `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
   - Przeniesc wpisy z `CombatTooltipGlossary` do wspolnego `UIWorkspaceTooltipView`: nazwy i ikony statusow, linki do pojec w tresci oraz zagniezdzone tooltipy. Nie tworzyc osobnego systemu tooltipow obok Workspace.
-
-
-
-## In Progress
 
 ## Playable / Test
 

@@ -50,6 +50,6 @@ namespace Godmist.Views.UI.Workspace
         }
 
         public void OnPointerExit(PointerEventData eventData) =>
-            UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit();
+            UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
     }
 }

@@ -24373,7 +24373,6 @@ GameObject:
   - component: {fileID: 1456922012}
   - component: {fileID: 1456922011}
   - component: {fileID: 1456922010}
-  - component: {fileID: 1456922009}
   m_Layer: 0
   m_Name: CombatSkillTooltip
   m_TagString: Untagged
@@ -24404,34 +24403,6 @@ RectTransform:
   m_AnchoredPosition: {x: -886, y: 466}
   m_SizeDelta: {x: 320, y: 180}
   m_Pivot: {x: 0, y: 1}
---- !u!114 &1456922009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1456922007}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de1e3e15e70440b7b533a152072f49fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Views::Godmist.Views.UI.CombatTooltipView
-  tooltipRect: {fileID: 1456922008}
-  icon: {fileID: 316824433}
-  titleText: {fileID: 7597451}
-  descriptionText: {fileID: 1211970749}
-  costText: {fileID: 1473410130}
-  lockProgressFill: {fileID: 0}
-  lockProgressWidth: 248
-  expandedTooltipHeight: 130
-  lockAccentGraphic: {fileID: 1456922011}
-  glossary: {fileID: 0}
-  hoverDelay: 0.25
-  statusLockDelay: 1
-  entryGracePeriod: 0.4
-  lockedAccentColor: {r: 0.22, g: 0.18, b: 0.1, a: 0.97}
-  pointerPassthrough: 1
-  pointerOffset: {x: 8, y: -8}
 --- !u!225 &1456922010
 CanvasGroup:
   m_ObjectHideFlags: 0

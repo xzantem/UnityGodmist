@@ -52,7 +52,7 @@ namespace Godmist.Views.UI.Workspace
         public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
         public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
         public void OnPointerEnter(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.ShowItem(item, owner?.Character, this);
-        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit();
+        public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
     }
 
 }

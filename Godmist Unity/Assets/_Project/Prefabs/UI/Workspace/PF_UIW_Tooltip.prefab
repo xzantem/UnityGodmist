@@ -715,8 +715,13 @@ MonoBehaviour:
   titleText: {fileID: 6913738326415123863}
   bodyText: {fileID: 9028609800525152873}
   metaText: {fileID: 4986338430052837712}
+  glossary: {fileID: 11400000, guid: fa800bf2c77ce5142a505efb93cc77a4, type: 2}
   hoverDelay: 0.25
+  lockDelay: 1
+  nestedLinkDelay: 0.25
+  exitGracePeriod: 0.4
   minimumHeight: 68
+  contentHeightPadding: 16
   pointerOffset: {x: 16, y: -16}
 --- !u!1 &8349446034630131224
 GameObject:

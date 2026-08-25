@@ -59,7 +59,7 @@ namespace Godmist.Views.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltip?.NotifySourceExit();
+            tooltip?.NotifySourceExit(this);
         }
 
         private static void SetCounter(TextMeshProUGUI label, int value)

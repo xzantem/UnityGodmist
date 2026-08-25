@@ -9,6 +9,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
+using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,8 +17,9 @@ using UnityEngine.UI;
 namespace Godmist.Views.UI.Workspace
 {
     /// <summary>
-    /// Scene-owned, shared hover tooltip for every UI Workspace surface.
-    /// It deliberately has no glossary/link behaviour; that is introduced by a later card.
+    /// Scene-owned, shared tooltip for every UI Workspace surface.
+    /// Glossary links stay inside this view so combat and workspace surfaces do not
+    /// maintain separate tooltip systems.
     /// </summary>
     public sealed class UIWorkspaceTooltipView : MonoBehaviour
     {
@@ -28,20 +30,41 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TextMeshProUGUI bodyText;
         [SerializeField] private TextMeshProUGUI metaText;
+        [SerializeField] private CombatTooltipGlossary glossary;
         [SerializeField, Min(0f)] private float hoverDelay = .25f;
+        [SerializeField, Min(0f)] private float lockDelay = 1f;
+        [SerializeField] private Image lockProgressFill;
+        [SerializeField, Min(1f)] private float lockProgressWidth = 336f;
+        [SerializeField] private Graphic lockAccentGraphic;
+        [SerializeField] private Color lockedAccentColor = new(.22f, .18f, .10f, .97f);
+        [SerializeField, Min(0f)] private float nestedLinkDelay = .25f;
+        [SerializeField, Min(0f)] private float exitGracePeriod = 1.3f;
         [SerializeField, Min(64f)] private float minimumHeight = 68f;
         [SerializeField, Min(0f)] private float contentHeightPadding = 16f;
-        [SerializeField] private Vector2 pointerOffset = new(16f, -16f);
+        [SerializeField] private Vector2 pointerOffset = new(4f, -4f);
 
         private CanvasGroup canvasGroup;
+        private readonly List<UIWorkspaceTooltipView> nested = new();
         private bool visible;
         private bool sourceHovered;
         private bool suppressForDrag;
+        private bool isLocked;
+        private bool isNested;
         private object sourceIdentity;
         private object pendingSource;
         private Action pendingShow;
         private float pendingShownAt;
         private bool resizeAfterLayout;
+        private float shownAt;
+        private float lockedAt = -1f;
+        private string hoveredLinkId;
+        private string pendingLinkId;
+        private UIWorkspaceTooltipView pendingLinkOwner;
+        private float pendingLinkShownAt;
+        private UIWorkspaceTooltipView pendingNestedExitOwner;
+        private float pendingNestedExitStartedAt;
+        private Color defaultAccentColor;
+        private bool hasDefaultAccentColor;
 
         public bool IsSkillTooltipSuppressed => suppressForDrag;
 
@@ -49,7 +72,8 @@ namespace Godmist.Views.UI.Workspace
         {
             ActiveInstance = this;
             EnsureCanvasGroup();
-            HideLocal();
+            CacheDefaultAccentColor();
+            Hide();
         }
 
         private void OnDestroy()
@@ -59,9 +83,25 @@ namespace Godmist.Views.UI.Workspace
 
         private void Update()
         {
-            if (pendingShow != null && sourceHovered
-                && Time.unscaledTime - pendingShownAt >= hoverDelay)
+            if (pendingShow != null)
             {
+                if (!sourceHovered)
+                {
+                    // Passing over a different interactive source while travelling to a
+                    // locked tooltip must not tear down the current tooltip immediately.
+                    // Keep it unless the new source was hovered for the whole delay.
+                    if (visible && isLocked)
+                    {
+                        pendingShow = null;
+                        pendingSource = null;
+                        return;
+                    }
+
+                    Hide();
+                    return;
+                }
+
+                if (Time.unscaledTime - pendingShownAt < hoverDelay) return;
                 var show = pendingShow;
                 pendingShow = null;
                 show();
@@ -69,8 +109,33 @@ namespace Godmist.Views.UI.Workspace
 
             if (visible)
             {
-                if (!sourceHovered) HideLocal();
-                else PlaceAt(Input.mousePosition);
+                if (!isLocked && Time.unscaledTime - shownAt >= lockDelay)
+                {
+                    isLocked = true;
+                    lockedAt = Time.unscaledTime;
+                    ApplyPointerInteraction();
+                }
+
+                UpdateLockProgressVisual();
+
+                if (isNested) return;
+
+                if (!isLocked)
+                {
+                    PlaceAt(Input.mousePosition);
+                    if (!sourceHovered && !IsPointerOverAnyTooltip()) Hide();
+                    return;
+                }
+
+                if (!sourceHovered && !IsPointerOverAnyTooltip()
+                    && Time.unscaledTime - lockedAt >= exitGracePeriod)
+                {
+                    Hide();
+                    return;
+                }
+
+                RefreshNestedTooltip();
+                ExpireNestedExitGracePeriod();
             }
         }
 
@@ -96,9 +161,10 @@ namespace Godmist.Views.UI.Workspace
         {
             var effect = presentation.Effect;
             if (effect == null) return;
+            TryGetGlossaryEntry(effect.EffectId, out var glossaryEntry);
             QueueShow(source ?? effect, () => SetContent(
-                null,
-                effect.EffectId,
+                glossaryEntry?.Icon,
+                FormatStatusTitle(effect.EffectId, glossaryEntry?.Title),
                 BuildStatusPayload(effect),
                 string.Empty));
         }
@@ -118,14 +184,31 @@ namespace Godmist.Views.UI.Workspace
                 BuildItemMeta(item)));
         }
 
-        public void NotifySourceExit()
+        public void NotifySourceExit(object source = null)
         {
+            if (source != null)
+            {
+                // Pointer enter for the next UI element can occur before pointer exit for
+                // the previous one. While a new tooltip is pending, only that new source
+                // may cancel the pending hover.
+                var expectedSource = pendingSource ?? sourceIdentity;
+                if (!ReferenceEquals(source, expectedSource)) return;
+            }
+
             sourceHovered = false;
         }
 
         public void Hide()
         {
+            ClearNested();
             HideLocal();
+        }
+
+        public Sprite GetGlossaryIcon(string id)
+        {
+            return TryGetGlossaryEntry(id, out var entry)
+                ? entry.Icon
+                : null;
         }
 
         public void HideForSourceWithin(Transform root)
@@ -136,13 +219,13 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            HideLocal();
+            Hide();
         }
 
         public void BeginDragSuppression()
         {
             suppressForDrag = true;
-            HideLocal();
+            Hide();
         }
 
         public void EndDragSuppression()
@@ -168,6 +251,18 @@ namespace Godmist.Views.UI.Workspace
             pendingShow = show;
             pendingShownAt = Time.unscaledTime;
             sourceHovered = true;
+
+            // A locked tooltip stays visible while a different source is only crossed
+            // briefly. If the pointer remains there for hoverDelay, SetContent replaces
+            // it normally below.
+            if (visible && isLocked) return;
+
+            isLocked = false;
+            ClearNested();
+            visible = false;
+            EnsureCanvasGroup().alpha = 0f;
+            ApplyPointerInteraction();
+            UpdateLockProgressVisual();
         }
 
         private void SetContent(Sprite sprite, string title, string body, string meta)
@@ -175,8 +270,14 @@ namespace Godmist.Views.UI.Workspace
             sourceIdentity = pendingSource;
             pendingSource = null;
             visible = true;
+            isLocked = false;
+            shownAt = Time.unscaledTime;
+            lockedAt = -1f;
+            hoveredLinkId = null;
             transform.SetAsLastSibling();
             EnsureCanvasGroup().alpha = 1f;
+            ApplyPointerInteraction();
+            UpdateLockProgressVisual();
 
             if (icon != null)
             {
@@ -185,7 +286,12 @@ namespace Godmist.Views.UI.Workspace
             }
 
             if (titleText != null) titleText.text = title ?? string.Empty;
-            if (bodyText != null) bodyText.text = body ?? string.Empty;
+            if (bodyText != null)
+            {
+                bodyText.text = glossary != null
+                    ? glossary.Linkify(body ?? string.Empty)
+                    : body ?? string.Empty;
+            }
             if (metaText != null)
             {
                 metaText.gameObject.SetActive(!string.IsNullOrWhiteSpace(meta));
@@ -232,11 +338,18 @@ namespace Godmist.Views.UI.Workspace
         {
             visible = false;
             sourceHovered = false;
+            isLocked = false;
             sourceIdentity = null;
             pendingSource = null;
             pendingShow = null;
             resizeAfterLayout = false;
+            hoveredLinkId = null;
+            pendingLinkId = null;
+            pendingLinkOwner = null;
+            pendingNestedExitOwner = null;
             if (canvasGroup != null) canvasGroup.alpha = 0f;
+            ApplyPointerInteraction();
+            UpdateLockProgressVisual();
         }
 
         private static bool IsWithin(Transform root, object source)
@@ -254,9 +367,309 @@ namespace Godmist.Views.UI.Workspace
         private CanvasGroup EnsureCanvasGroup()
         {
             if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.interactable = false;
+            ApplyPointerInteraction();
             return canvasGroup;
+        }
+
+        private void ApplyPointerInteraction()
+        {
+            if (canvasGroup == null) return;
+
+            var canReceivePointer = visible && isLocked;
+            canvasGroup.blocksRaycasts = canReceivePointer;
+            canvasGroup.interactable = canReceivePointer;
+
+            foreach (var graphic in GetComponentsInChildren<Graphic>(true))
+            {
+                if (graphic == lockProgressFill)
+                {
+                    graphic.raycastTarget = false;
+                    continue;
+                }
+
+                graphic.raycastTarget = canReceivePointer;
+            }
+        }
+
+        private void UpdateLockProgressVisual()
+        {
+            if (lockProgressFill == null) return;
+
+            var shouldShow = visible;
+            if (lockProgressFill.gameObject.activeSelf != shouldShow)
+            {
+                lockProgressFill.gameObject.SetActive(shouldShow);
+            }
+
+            if (!shouldShow) return;
+
+            var progressRect = lockProgressFill.rectTransform;
+            // This is the same lower-left origin used by the legacy combat tooltip.
+            // Do it at runtime as well, so a copied prefab cannot make the bar grow
+            // symmetrically around its centre.
+            progressRect.anchorMin = Vector2.zero;
+            progressRect.anchorMax = Vector2.zero;
+            progressRect.pivot = Vector2.zero;
+            progressRect.anchoredPosition = new Vector2(6f, 4f);
+            progressRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 2f);
+
+            var duration = Mathf.Max(.01f, lockDelay);
+            var progress = isLocked
+                ? 1f
+                : Mathf.Min(.96f, Mathf.Clamp01((Time.unscaledTime - shownAt) / duration));
+            progressRect.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                lockProgressWidth * progress);
+
+            if (lockAccentGraphic != null)
+            {
+                CacheDefaultAccentColor();
+                lockAccentGraphic.color = isLocked
+                    ? lockedAccentColor
+                    : defaultAccentColor;
+            }
+        }
+
+        private void RefreshNestedTooltip()
+        {
+            var owner = GetHoveredTooltip();
+            if (owner == null) return;
+
+            var id = owner.GetHoveredLinkId();
+            var wasReturningToPendingNested = pendingNestedExitOwner == owner;
+            if (owner != this) CancelNestedExitGracePeriod();
+
+            if (id == owner.hoveredLinkId)
+            {
+                TryShowPendingNested(owner, id);
+                return;
+            }
+
+            owner.hoveredLinkId = id;
+            pendingLinkId = null;
+            pendingLinkOwner = null;
+
+            if (string.IsNullOrWhiteSpace(id) && HasNestedAfter(owner))
+            {
+                BeginNestedExitGracePeriod(owner);
+                return;
+            }
+
+            CancelNestedExitGracePeriod();
+            if (wasReturningToPendingNested)
+            {
+                return;
+            }
+
+            ClearNestedAfter(owner);
+
+            if (!string.IsNullOrWhiteSpace(id)
+                && TryGetGlossaryEntry(id, out _))
+            {
+                pendingLinkId = id;
+                pendingLinkOwner = owner;
+                pendingLinkShownAt = Time.unscaledTime;
+            }
+        }
+
+        private void TryShowPendingNested(
+            UIWorkspaceTooltipView owner,
+            string id)
+        {
+            if (string.IsNullOrWhiteSpace(pendingLinkId)
+                || pendingLinkOwner != owner
+                || !string.Equals(pendingLinkId, id, StringComparison.Ordinal)
+                || Time.unscaledTime - pendingLinkShownAt < nestedLinkDelay)
+            {
+                return;
+            }
+
+            if (TryGetGlossaryEntry(pendingLinkId, out var entry))
+            {
+                CreateNestedTooltip(entry);
+            }
+
+            pendingLinkId = null;
+            pendingLinkOwner = null;
+        }
+
+        private UIWorkspaceTooltipView GetHoveredTooltip()
+        {
+            for (var index = nested.Count - 1; index >= 0; index--)
+            {
+                if (nested[index] != null && nested[index].IsPointerOverTooltip())
+                {
+                    return nested[index];
+                }
+            }
+
+            return IsPointerOverTooltip() ? this : null;
+        }
+
+        private string GetHoveredLinkId()
+        {
+            return GetHoveredLinkId(titleText)
+                ?? GetHoveredLinkId(bodyText);
+        }
+
+        private static string GetHoveredLinkId(TextMeshProUGUI text)
+        {
+            if (text == null || text.textInfo.linkCount == 0) return null;
+
+            var canvas = text.canvas;
+            var camera = canvas != null
+                && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? canvas.worldCamera
+                    : null;
+            var index = TMP_TextUtilities.FindIntersectingLink(
+                text,
+                Input.mousePosition,
+                camera);
+            return index < 0 ? null : text.textInfo.linkInfo[index].GetLinkID();
+        }
+
+        private void CreateNestedTooltip(CombatTooltipGlossary.Entry entry)
+        {
+            var clone = Instantiate(gameObject, transform.parent);
+            var view = clone.GetComponent<UIWorkspaceTooltipView>();
+            view.isNested = true;
+            view.visible = true;
+            view.isLocked = false;
+            view.sourceHovered = false;
+            view.shownAt = Time.unscaledTime;
+            view.lockedAt = -1f;
+            view.gameObject.SetActive(true);
+            view.EnsureCanvasGroup().alpha = 1f;
+            view.SetContent(entry.Icon, entry.Title, entry.Description, string.Empty);
+            view.ApplyPointerInteraction();
+            view.UpdateLockProgressVisual();
+            view.PlaceAt(Input.mousePosition);
+            nested.Add(view);
+            ActiveInstance = this;
+            RefreshNestedOpacity();
+        }
+
+        private bool TryGetGlossaryEntry(
+            string id,
+            out CombatTooltipGlossary.Entry result)
+        {
+            if (glossary != null && glossary.TryGet(id, out result)) return true;
+
+            result = null;
+            return false;
+        }
+
+        private void ClearNestedAfter(UIWorkspaceTooltipView owner)
+        {
+            if (pendingLinkOwner != null && pendingLinkOwner != owner)
+            {
+                pendingLinkId = null;
+                pendingLinkOwner = null;
+            }
+
+            var keepCount = owner == this ? 0 : nested.IndexOf(owner) + 1;
+            while (nested.Count > keepCount)
+            {
+                var view = nested[^1];
+                nested.RemoveAt(nested.Count - 1);
+                if (view != null) Destroy(view.gameObject);
+            }
+
+            RefreshNestedOpacity();
+        }
+
+        private void ClearNested() => ClearNestedAfter(this);
+
+        private bool HasNestedAfter(UIWorkspaceTooltipView owner)
+        {
+            var ownerIndex = owner == this ? -1 : nested.IndexOf(owner);
+            return ownerIndex >= -1 && ownerIndex < nested.Count - 1;
+        }
+
+        private void BeginNestedExitGracePeriod(UIWorkspaceTooltipView owner)
+        {
+            pendingNestedExitOwner = owner;
+            pendingNestedExitStartedAt = Time.unscaledTime;
+        }
+
+        private void CancelNestedExitGracePeriod()
+        {
+            pendingNestedExitOwner = null;
+            pendingNestedExitStartedAt = 0f;
+        }
+
+        private void ExpireNestedExitGracePeriod()
+        {
+            if (pendingNestedExitOwner == null
+                || Time.unscaledTime - pendingNestedExitStartedAt < exitGracePeriod)
+            {
+                return;
+            }
+
+            var owner = pendingNestedExitOwner;
+            CancelNestedExitGracePeriod();
+            ClearNestedAfter(owner);
+        }
+
+        private void CacheDefaultAccentColor()
+        {
+            if (hasDefaultAccentColor || lockAccentGraphic == null) return;
+
+            defaultAccentColor = lockAccentGraphic.color;
+            hasDefaultAccentColor = true;
+        }
+
+        private void RefreshNestedOpacity()
+        {
+            var views = new List<UIWorkspaceTooltipView> { this };
+            views.AddRange(nested);
+
+            for (var index = 0; index < views.Count; index++)
+            {
+                var distance = views.Count - 1 - index;
+                views[index].EnsureCanvasGroup().alpha = distance switch
+                {
+                    <= 1 => 1f,
+                    2 => .75f,
+                    3 => .5f,
+                    _ => .25f
+                };
+            }
+        }
+
+        private bool IsPointerOverAnyTooltip()
+        {
+            if (IsPointerOverTooltip()) return true;
+
+            foreach (var tooltip in nested)
+            {
+                if (tooltip != null && tooltip.IsPointerOverTooltip()) return true;
+            }
+
+            return false;
+        }
+
+        private bool IsPointerOverTooltip()
+        {
+            if (tooltipRect == null) return false;
+
+            var canvas = tooltipRect.GetComponentInParent<Canvas>()?.rootCanvas;
+            var camera = canvas != null
+                && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? canvas.worldCamera
+                    : null;
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                tooltipRect,
+                Input.mousePosition,
+                camera);
+        }
+
+        private static string FormatStatusTitle(string effectId, string title)
+        {
+            var displayedTitle = string.IsNullOrWhiteSpace(title)
+                ? effectId
+                : title;
+            return $"<link=\"{effectId}\"><color=#7EDBFF>{displayedTitle}</color></link>";
         }
 
         private void PlaceAt(Vector2 screenPosition)
