@@ -18,6 +18,8 @@ namespace Godmist.Views.UI
         private SkillData skill;
         private UIWorkspaceTooltipView tooltipView;
         private int actionCost;
+        private Color defaultIconColor = Color.white;
+        private static readonly Color ActiveToggleColor = new(0.35f, 1f, 0.65f, 1f);
 
         public void Initialize(
             SkillData sourceSkill,
@@ -29,6 +31,7 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
+                defaultIconColor = icon.color;
                 icon.sprite = skill?.Icon;
                 icon.enabled = skill?.Icon != null;
             }
@@ -40,7 +43,10 @@ namespace Godmist.Views.UI
             }
         }
 
-        public void RefreshAvailability(bool isAvailable, int calculatedActionCost)
+        public void RefreshAvailability(
+            bool isAvailable,
+            int calculatedActionCost,
+            bool isActiveToggle)
         {
             actionCost = calculatedActionCost;
             if (button != null)
@@ -51,6 +57,13 @@ namespace Godmist.Views.UI
             if (unavailableOverlay != null)
             {
                 unavailableOverlay.enabled = !isAvailable;
+            }
+
+            if (icon != null)
+            {
+                icon.color = isActiveToggle
+                    ? ActiveToggleColor
+                    : defaultIconColor;
             }
         }
 

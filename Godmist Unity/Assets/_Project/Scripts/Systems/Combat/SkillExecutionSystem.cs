@@ -162,15 +162,28 @@ namespace Godmist.Systems.Combat
             GridPosition? objectPlacementDestination,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
         {
+            var isToggleDeactivation = IsToggleActive(caster, skill);
             if (!CanExecute(
                     session,
                     caster,
                     skill,
                     targetsByModeIndex,
                     teleportDestination,
-                    objectPlacementDestination))
+                    objectPlacementDestination,
+                    isToggleDeactivation))
             {
                 return false;
+            }
+
+            if (isToggleDeactivation)
+            {
+                DeactivateToggle(
+                    session,
+                    caster,
+                    skill.SkillId,
+                    markUsedThisTurn: false,
+                    writeBattleLog: true);
+                return true;
             }
 
             var actionCost =
@@ -196,19 +209,6 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{caster.Character.Definition.DisplayName} uses {skill.DisplayName}.");
-
-            var isToggleDeactivation = skill.IsToggle
-                && caster.ActiveToggleSkillIds != null
-                && caster.ActiveToggleSkillIds.Contains(skill.SkillId);
-            if (isToggleDeactivation)
-            {
-                RemoveToggleEffects(session, caster, skill);
-                caster.ActiveToggleSkillIds.Remove(skill.SkillId);
-                caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
-                CombatAuraSystem.Refresh(session, statusEffectSystem);
-                CombatTurnSystem.RefreshMaxActionPoints(session);
-                return true;
-            }
 
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
@@ -1041,7 +1041,8 @@ namespace Godmist.Systems.Combat
             SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
             GridPosition? teleportDestination,
-            GridPosition? objectPlacementDestination)
+            GridPosition? objectPlacementDestination,
+            bool isToggleDeactivation)
         {
             if (session == null || caster?.Character == null
                 || skill == null || targetsByModeIndex == null
@@ -1080,6 +1081,15 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (!isToggleDeactivation
+                && skill.IsToggle
+                && !ToggleSkillRules.IsValid(skill))
+            {
+                Debug.LogWarning(
+                    $"Toggle skill '{skill.SkillId}' contains an unsupported effect.");
+                return false;
+            }
+
             var isObjectPlacementOnlySkill = IsObjectPlacementOnlySkill(skill);
 
             if (ContainsEffectType(skill, EffectType.CreateObject)
@@ -1091,13 +1101,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (skill.IsToggle
+            if (!isToggleDeactivation
+                && skill.IsToggle
                 && caster.ToggleSkillIdsUsedThisTurn != null
                 && caster.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId))
             {
-                battleLog?.Invoke("Toggle can be changed only once per turn.");
+                battleLog?.Invoke("Toggle can be activated only once per turn.");
                 return false;
             }
+
+            if (isToggleDeactivation) return true;
 
             if (!isObjectPlacementOnlySkill
                 && (skill.TargetModes == null || skill.TargetModes.Count == 0))
@@ -1516,32 +1529,163 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        private static void RemoveToggleEffects(
+        private void DeactivateToggle(
             CombatSession session,
             BattleUnit caster,
-            SkillData skill)
+            string skillId,
+            bool markUsedThisTurn,
+            bool writeBattleLog)
         {
-            if (session?.Units == null || caster?.Character == null || skill == null)
+            if (session?.Units == null || caster?.Character == null
+                || string.IsNullOrWhiteSpace(skillId))
             {
                 return;
             }
 
-            var sourcePrefix = $"{skill.SkillId}.effect.";
+            var sourcePrefix = $"{skillId}.effect.";
             foreach (var target in session.Units)
             {
                 if (target?.Character?.PassiveEffects == null) continue;
-                target.Character.PassiveEffects.RemoveAll(effect => effect?.Sources != null
-                    && effect.Sources.Exists(source => source != null
-                        && string.Equals(source.SourceCharacterId,
+                for (var effectIndex = target.Character.PassiveEffects.Count - 1;
+                    effectIndex >= 0;
+                    effectIndex--)
+                {
+                    var effect = target.Character.PassiveEffects[effectIndex];
+                    if (effect?.Sources == null) continue;
+
+                    effect.Sources.RemoveAll(source => source != null
+                        && string.Equals(
+                            source.SourceCharacterId,
                             caster.Character.CharacterId,
                             StringComparison.OrdinalIgnoreCase)
-                        && source.SourceId.StartsWith(sourcePrefix,
-                            StringComparison.OrdinalIgnoreCase)));
+                        && source.SourceId.StartsWith(
+                            sourcePrefix,
+                            StringComparison.OrdinalIgnoreCase));
+                    if (effect.Sources.Count == 0)
+                    {
+                        target.Character.PassiveEffects.RemoveAt(effectIndex);
+                    }
+                }
+
+                target.Character.ShieldPool?.RemoveLayersBySourceId(skillId);
             }
 
-            caster.ActiveAuras?.RemoveAll(aura => aura?.AuraId != null
-                && aura.AuraId.StartsWith($"{skill.SkillId}.aura.",
-                    StringComparison.OrdinalIgnoreCase));
+            CombatAuraSystem.Unregister(session, caster, skillId);
+
+            caster.ActiveToggleSkillIds?.Remove(skillId);
+            if (markUsedThisTurn)
+            {
+                caster.ToggleSkillIdsUsedThisTurn ??= new HashSet<string>();
+                caster.ToggleSkillIdsUsedThisTurn.Add(skillId);
+            }
+
+            CombatAuraSystem.Refresh(session, statusEffectSystem);
+            CombatTurnSystem.RefreshMaxActionPoints(session);
+
+            if (writeBattleLog)
+            {
+                battleLog?.Invoke(
+                    $"{caster.Character.Definition?.DisplayName ?? caster.Character.CharacterId} "
+                    + $"wyłącza {skillId}.");
+            }
+        }
+
+        public void ProcessToggleUpkeep(CombatSession session, BattleUnit caster)
+        {
+            if (session?.Units == null || caster?.Character == null
+                || caster.ActiveToggleSkillIds == null
+                || caster.ActiveToggleSkillIds.Count == 0)
+            {
+                return;
+            }
+
+            var activeSkills = caster.Character.GetActiveSkills();
+            var activeIds = new List<string>(caster.ActiveToggleSkillIds);
+            foreach (var skillId in activeIds)
+            {
+                var skill = FindSkill(activeSkills, skillId);
+                var resourcePool = caster.Character.ResourcePool;
+                var upkeepCost = ToggleSkillUpkeepCalculator.Calculate(
+                    skill,
+                    resourcePool);
+                var hasConfiguredUpkeep = skill != null
+                    && (skill.ToggleUpkeepFlatResourceCost > 0
+                        || skill.ToggleUpkeepMaxResourcePercent > 0f);
+
+                if (skill == null
+                    || (hasConfiguredUpkeep
+                        && (resourcePool == null
+                            || resourcePool.CurrentValue < upkeepCost)))
+                {
+                    DeactivateToggle(
+                        session,
+                        caster,
+                        skillId,
+                        markUsedThisTurn: false,
+                        writeBattleLog: false);
+                    battleLog?.Invoke(
+                        $"{caster.Character.Definition?.DisplayName ?? caster.Character.CharacterId} "
+                        + $"nie może opłacić podtrzymania {skill?.DisplayName ?? skillId}; "
+                        + "toggle zostaje wyłączony.");
+                    continue;
+                }
+
+                if (upkeepCost <= 0) continue;
+
+                var spentResource = resourcePool.Drain(upkeepCost);
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    caster,
+                    CombatFeedbackType.ResourceSpend,
+                    spentResource,
+                    resourceType: resourcePool.ResourceType));
+                battleLog?.Invoke(
+                    $"{caster.Character.Definition?.DisplayName ?? caster.Character.CharacterId} "
+                    + $"płaci {spentResource} {resourcePool.ResourceType} "
+                    + $"za podtrzymanie {skill.DisplayName}.");
+            }
+        }
+
+        public void DeactivateAllToggles(CombatSession session, BattleUnit caster)
+        {
+            if (caster?.ActiveToggleSkillIds == null) return;
+
+            var activeIds = new List<string>(caster.ActiveToggleSkillIds);
+            foreach (var skillId in activeIds)
+            {
+                DeactivateToggle(
+                    session,
+                    caster,
+                    skillId,
+                    markUsedThisTurn: false,
+                    writeBattleLog: false);
+            }
+        }
+
+        private static bool IsToggleActive(BattleUnit caster, SkillData skill)
+        {
+            return skill?.IsToggle == true
+                && caster?.ActiveToggleSkillIds != null
+                && caster.ActiveToggleSkillIds.Contains(skill.SkillId);
+        }
+
+        private static SkillData FindSkill(
+            IReadOnlyList<SkillData> skills,
+            string skillId)
+        {
+            if (skills == null || string.IsNullOrWhiteSpace(skillId)) return null;
+
+            foreach (var skill in skills)
+            {
+                if (skill != null && string.Equals(
+                        skill.SkillId,
+                        skillId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return skill;
+                }
+            }
+
+            return null;
         }
 
         public void ProcessScheduledEffects(
@@ -1881,6 +2025,38 @@ namespace Godmist.Systems.Combat
     /// </summary>
     public static class CombatAuraSystem
     {
+        public static int Unregister(
+            CombatSession session,
+            BattleUnit caster,
+            string skillId)
+        {
+            if (caster?.ActiveAuras == null || string.IsNullOrWhiteSpace(skillId))
+            {
+                return 0;
+            }
+
+            var auraPrefix = $"{skillId}.aura.";
+            var removedAuras = caster.ActiveAuras.FindAll(aura => aura?.AuraId != null
+                && aura.AuraId.StartsWith(auraPrefix,
+                    StringComparison.OrdinalIgnoreCase));
+
+            foreach (var aura in removedAuras)
+            {
+                foreach (var unit in session?.Units ?? new List<BattleUnit>())
+                {
+                    StatusEffectSystem.RemoveStatusAppliedBySource(
+                        unit,
+                        aura.StatusId,
+                        aura.AuraId);
+                }
+            }
+
+            caster.ActiveAuras.RemoveAll(aura => aura?.AuraId != null
+                && aura.AuraId.StartsWith(auraPrefix,
+                    StringComparison.OrdinalIgnoreCase));
+            return removedAuras.Count;
+        }
+
         public static bool Register(BattleUnit caster, SkillData skill,
             SkillEffectData effect, int effectIndex)
         {

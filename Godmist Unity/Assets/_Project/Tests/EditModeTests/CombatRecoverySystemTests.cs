@@ -205,6 +205,169 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TryExecute_Toggle_CanBeActivatedOncePerTurnAndDeactivationIsFree()
+        {
+            var session = CreateSession(out var caster, out _);
+            var skill = CreateToggleSkill(
+                activationActionCost: 50,
+                activationResourceCost: 5,
+                upkeepFlatCost: 0,
+                upkeepMaxResourcePercent: 0f);
+
+            var system = new SkillExecutionSystem();
+
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(15));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Contain(skill.SkillId));
+            Assert.That(caster.Character.PassiveEffects, Has.Count.EqualTo(1));
+
+            var actionPointsBeforeDeactivation = caster.CurrentActionPoints;
+            var resourceBeforeDeactivation = caster.Character.ResourcePool.CurrentValue;
+
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+            Assert.That(caster.CurrentActionPoints, Is.EqualTo(actionPointsBeforeDeactivation));
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(resourceBeforeDeactivation));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Not.Contain(skill.SkillId));
+            Assert.That(caster.Character.PassiveEffects, Is.Empty);
+
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.False);
+        }
+
+        [Test]
+        public void ProcessToggleUpkeep_UsesHigherOfFlatAndPercentageCost()
+        {
+            var session = CreateSession(out var caster, out _);
+            caster.Character.ResourcePool.MaxValue = 100;
+            caster.Character.ResourcePool.CurrentValue = 50;
+            var skill = CreateToggleSkill(
+                activationActionCost: 0,
+                activationResourceCost: 0,
+                upkeepFlatCost: 20,
+                upkeepMaxResourcePercent: 0.25f);
+            caster.Character.Skills.Add(skill);
+
+            var system = new SkillExecutionSystem();
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+
+            system.ProcessToggleUpkeep(session, caster);
+
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(25));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Contain(skill.SkillId));
+        }
+
+        [Test]
+        public void ProcessToggleUpkeep_UsesCasterPoolWhenSkillResourceTypeIsNone()
+        {
+            var session = CreateSession(out var caster, out _);
+            caster.Character.ResourcePool.MaxValue = 200;
+            caster.Character.ResourcePool.CurrentValue = 80;
+            var skill = CreateToggleSkill(
+                activationActionCost: 0,
+                activationResourceCost: 0,
+                upkeepFlatCost: 20,
+                upkeepMaxResourcePercent: 0.25f);
+            SetAutoProperty(skill, "ResourceType", ResourceType.None);
+            caster.Character.Skills.Add(skill);
+
+            var system = new SkillExecutionSystem();
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+
+            system.ProcessToggleUpkeep(session, caster);
+
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(30));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Contain(skill.SkillId));
+        }
+
+        [Test]
+        public void ProcessToggleUpkeep_InsufficientResource_DeactivatesAndRemovesEffects()
+        {
+            var session = CreateSession(out var caster, out _);
+            caster.Character.ResourcePool.MaxValue = 100;
+            caster.Character.ResourcePool.CurrentValue = 24;
+            var skill = CreateToggleSkill(
+                activationActionCost: 0,
+                activationResourceCost: 0,
+                upkeepFlatCost: 20,
+                upkeepMaxResourcePercent: 0.25f);
+            caster.Character.Skills.Add(skill);
+
+            var system = new SkillExecutionSystem();
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+            caster.ToggleSkillIdsUsedThisTurn.Clear();
+
+            system.ProcessToggleUpkeep(session, caster);
+
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(24));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Not.Contain(skill.SkillId));
+            Assert.That(caster.ToggleSkillIdsUsedThisTurn, Does.Not.Contain(skill.SkillId));
+            Assert.That(caster.Character.PassiveEffects, Is.Empty);
+        }
+
+        [Test]
+        public void ProcessToggleUpkeep_ZeroCost_KeepsToggleActive()
+        {
+            var session = CreateSession(out var caster, out _);
+            var skill = CreateToggleSkill(
+                activationActionCost: 0,
+                activationResourceCost: 0,
+                upkeepFlatCost: 0,
+                upkeepMaxResourcePercent: 0f);
+            caster.Character.Skills.Add(skill);
+
+            var system = new SkillExecutionSystem();
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+
+            system.ProcessToggleUpkeep(session, caster);
+
+            Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(20));
+            Assert.That(caster.ActiveToggleSkillIds, Does.Contain(skill.SkillId));
+        }
+
+        [Test]
+        public void ProcessToggleUpkeep_PercentageCostWithoutPool_DeactivatesToggle()
+        {
+            var session = CreateSession(out var caster, out _);
+            var skill = CreateToggleSkill(
+                activationActionCost: 0,
+                activationResourceCost: 0,
+                upkeepFlatCost: 0,
+                upkeepMaxResourcePercent: 0.25f);
+            caster.Character.Skills.Add(skill);
+
+            var system = new SkillExecutionSystem();
+            Assert.That(system.TryExecute(session, caster, skill, caster), Is.True);
+            caster.ToggleSkillIdsUsedThisTurn.Clear();
+            caster.Character.ResourcePool = null;
+
+            system.ProcessToggleUpkeep(session, caster);
+
+            Assert.That(caster.ActiveToggleSkillIds, Does.Not.Contain(skill.SkillId));
+            Assert.That(caster.ToggleSkillIdsUsedThisTurn, Does.Not.Contain(skill.SkillId));
+        }
+
+        [Test]
+        public void UnregisterAura_RemovesStatusesAppliedByThatAuraImmediately()
+        {
+            var session = CreateSession(out var caster, out var target);
+            const string auraId = "skill.test.aura.aura.0";
+            caster.ActiveAuras.Add(new CombatAuraRuntime
+            {
+                AuraId = auraId,
+                StatusId = "chill"
+            });
+
+            var statusSystem = new StatusEffectSystem();
+            Assert.That(statusSystem.ApplyStatus(
+                caster, target, "chill", 1f, 3, 1, 0f, 0f, auraId), Is.True);
+            Assert.That(target.Character.PassiveEffects, Has.Count.EqualTo(1));
+
+            CombatAuraSystem.Unregister(session, caster, "skill.test.aura");
+
+            Assert.That(caster.ActiveAuras, Is.Empty);
+            Assert.That(target.Character.PassiveEffects, Is.Empty);
+        }
+
+        [Test]
         public void GetTargets_IncludeDownedTargets_OnlyReturnsDownedWhenEnabled()
         {
             var session = CreateSession(
@@ -350,6 +513,62 @@ namespace Godmist.Tests.EditMode
                 });
 
             return skill;
+        }
+
+        private SkillData CreateToggleSkill(
+            int activationActionCost,
+            int activationResourceCost,
+            int upkeepFlatCost,
+            float upkeepMaxResourcePercent)
+        {
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            createdSkills.Add(skill);
+
+            SetAutoProperty(skill, "SkillId", "skill.test.toggle");
+            SetAutoProperty(skill, "DisplayName", "Test Toggle");
+            SetAutoProperty(skill, "ActionCost", activationActionCost);
+            SetAutoProperty(skill, "ResourceCost", activationResourceCost);
+            SetAutoProperty(skill, "ResourceType", ResourceType.Momentum);
+            SetAutoProperty(skill, "IsToggle", true);
+            SetAutoProperty(skill, "ToggleUpkeepFlatResourceCost", upkeepFlatCost);
+            SetAutoProperty(
+                skill,
+                "ToggleUpkeepMaxResourcePercent",
+                upkeepMaxResourcePercent);
+
+            var targetMode = new SkillTargetModeData();
+            SetPrivateField(targetMode, "targetType", TargetType.Caster);
+            SetPrivateField(targetMode, "targetingType", TargetingType.Allies);
+
+            var effect = new SkillEffectData();
+            SetPrivateField(effect, "effectType", EffectType.ModifyVar);
+            SetPrivateField(effect, "targetModeIndex", 0);
+            SetPrivateField(effect, "modifierValue", 0.3f);
+            SetPrivateField(effect, "durationTurns", 0);
+
+            SetPrivateField(
+                skill,
+                "targetModes",
+                new List<SkillTargetModeData> { targetMode });
+            SetPrivateField(
+                skill,
+                "effects",
+                new List<SkillEffectData> { effect });
+
+            return skill;
+        }
+
+        private static void SetAutoProperty(
+            object target,
+            string propertyName,
+            object value)
+        {
+            var field = target.GetType().GetField(
+                $"<{propertyName}>k__BackingField",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            Assert.That(field, Is.Not.Null, $"Nie znaleziono pola {propertyName}.");
+            field.SetValue(target, value);
         }
 
         private static void SetPrivateField(

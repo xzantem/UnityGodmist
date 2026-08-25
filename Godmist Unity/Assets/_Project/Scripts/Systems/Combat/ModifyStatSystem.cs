@@ -44,13 +44,13 @@ namespace Godmist.Systems.Combat
                 effect,
                 effectIndex);
 
-            var wasApplied = effect.DurationTurns > 0
-                ? passiveEffectLifecycleSystem.TryApplyTimedEffect(
+            var wasApplied = runtimeEffect.Lifetime == PassiveEffectLifetime.CombatScoped
+                ? passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
                     target.Character,
                     runtimeEffect,
                     PassiveEffectStackingMode.ReplaceDurationAndValues,
                     out _)
-                : passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
+                : passiveEffectLifecycleSystem.TryApplyTimedEffect(
                     target.Character,
                     runtimeEffect,
                     PassiveEffectStackingMode.ReplaceDurationAndValues,
@@ -145,7 +145,7 @@ namespace Godmist.Systems.Combat
                     effectIndex)
             };
 
-            var isTimed = effect.DurationTurns > 0;
+            var isTimed = !skill.IsToggle && effect.DurationTurns > 0;
 
             return new PassiveEffectRuntime(
                 BuildEffectId(skill.SkillId, effectIndex),

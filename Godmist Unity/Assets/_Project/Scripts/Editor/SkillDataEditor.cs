@@ -18,6 +18,8 @@ namespace Godmist.Editor
         private SerializedProperty resourceCost;
         private SerializedProperty resourceType;
         private SerializedProperty isToggle;
+        private SerializedProperty toggleUpkeepFlatResourceCost;
+        private SerializedProperty toggleUpkeepMaxResourcePercent;
         private SerializedProperty requiresLineOfSight;
         private SerializedProperty targetModes;
         private SerializedProperty effects;
@@ -34,6 +36,10 @@ namespace Godmist.Editor
             resourceCost = serializedObject.FindProperty("<ResourceCost>k__BackingField");
             resourceType = serializedObject.FindProperty("<ResourceType>k__BackingField");
             isToggle = serializedObject.FindProperty("<IsToggle>k__BackingField");
+            toggleUpkeepFlatResourceCost = serializedObject.FindProperty(
+                "<ToggleUpkeepFlatResourceCost>k__BackingField");
+            toggleUpkeepMaxResourcePercent = serializedObject.FindProperty(
+                "<ToggleUpkeepMaxResourcePercent>k__BackingField");
             requiresLineOfSight = serializedObject.FindProperty(
                 "<RequiresLineOfSight>k__BackingField");
             targetModes = serializedObject.FindProperty("targetModes");
@@ -80,9 +86,25 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(skillAccuracy, new GUIContent("Skill Accuracy"));
             }
 
-            if (SupportsToggle())
+            if (isToggle.boolValue || SupportsToggle())
             {
                 EditorGUILayout.PropertyField(isToggle, new GUIContent("Toggle"));
+                if (isToggle.boolValue)
+                {
+                    if (!SupportsToggle())
+                    {
+                        EditorGUILayout.HelpBox(
+                            "Toggle supports only persistent effects. Change every effect to a supported toggle effect or disable Toggle.",
+                            MessageType.Error);
+                    }
+
+                    EditorGUILayout.PropertyField(
+                        toggleUpkeepFlatResourceCost,
+                        new GUIContent("Upkeep Flat Resource Cost"));
+                    EditorGUILayout.PropertyField(
+                        toggleUpkeepMaxResourcePercent,
+                        new GUIContent("Upkeep Max Resource Percent"));
+                }
             }
 
             if (SupportsLineOfSight())
@@ -168,28 +190,26 @@ namespace Godmist.Editor
 
         private bool SupportsToggle()
         {
-            if (effects == null)
+            if (effects == null || effects.arraySize == 0)
             {
                 return false;
             }
 
             for (var index = 0; index < effects.arraySize; index++)
             {
-                var effectType = (EffectType)effects
-                    .GetArrayElementAtIndex(index)
+                var effect = effects.GetArrayElementAtIndex(index);
+                var effectType = (EffectType)effect
                     .FindPropertyRelative("effectType").enumValueIndex;
+                var uniqueBuffType = (UniqueBuffType)effect
+                    .FindPropertyRelative("uniqueBuffType").enumValueIndex;
 
-                if (effectType == EffectType.ApplyStatus
-                    || effectType == EffectType.ModifyStat
-                    || effectType == EffectType.ModifyVar
-                    || effectType == EffectType.Shield
-                    || effectType == EffectType.ApplyUniqueBuff)
+                if (!ToggleSkillRules.SupportsToggle(effectType, uniqueBuffType))
                 {
-                    return true;
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
 
         private bool UsesOnlyPlacementEffects()

@@ -80,6 +80,16 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (skill.IsToggle
+                && session.ActiveUnit.ActiveToggleSkillIds != null
+                && session.ActiveUnit.ActiveToggleSkillIds.Contains(skill.SkillId))
+            {
+                sandboxBootstrap.TryExecuteSkill(
+                    skill,
+                    new Dictionary<int, GridPosition?>());
+                return;
+            }
+
             var isObjectPlacementOnlySkill =
                 IsObjectPlacementOnlySkill(skill);
 

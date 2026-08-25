@@ -154,7 +154,7 @@ namespace Godmist.Views.UI.Workspace
                 skill.Icon,
                 skill.DisplayName,
                 BuildSkillDescription(skill),
-                $"AP {actionCost}  •  RES {skill.ResourceCost}"));
+                BuildSkillMeta(skill, actionCost)));
         }
 
         public void ShowStatus(CombatStatusPresentation presentation, object source)
@@ -709,6 +709,21 @@ namespace Godmist.Views.UI.Workspace
                 result.Append(DescribeEffect(effect));
             }
             return result.ToString();
+        }
+
+        private static string BuildSkillMeta(SkillData skill, int actionCost)
+        {
+            var result = $"AP {actionCost}  •  RES {skill.ResourceCost}";
+            if (!skill.IsToggle) return result;
+
+            var flatCost = Mathf.Max(0, skill.ToggleUpkeepFlatResourceCost);
+            var percent = Mathf.Clamp01(skill.ToggleUpkeepMaxResourcePercent);
+            if (flatCost <= 0 && percent <= 0f) return result + "  •  UTRZYMANIE 0";
+            if (flatCost <= 0) return result + $"  •  UTRZYMANIE {percent * 100f:0.#}% maks.";
+            if (percent <= 0f) return result + $"  •  UTRZYMANIE {flatCost}";
+
+            return result
+                + $"  •  UTRZYMANIE max({flatCost}, {percent * 100f:0.#}% maks.)";
         }
 
         private static string DescribeEffect(SkillEffectData effect) => effect.EffectType switch

@@ -84,6 +84,57 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ValidateSkill_ToggleWithDealDamage_ReturnsError()
+        {
+            var skill = CreateValidSkill();
+            SetAutoProperty(skill, "IsToggle", true);
+
+            var report = CombatDataValidator.ValidateSkill(skill);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("DealDamage cannot be used by a toggle skill"));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void ValidateSkill_ToggleWithPersistentModifyVar_IsValid()
+        {
+            var skill = CreateValidSkill();
+            var effect = skill.Effects[0];
+            SetAutoProperty(skill, "IsToggle", true);
+            SetPrivateField(effect, "effectType", EffectType.ModifyVar);
+            SetPrivateField(effect, "modifierValue", 0.25f);
+
+            var report = CombatDataValidator.ValidateSkill(skill);
+
+            Assert.That(report.IsValid, Is.True);
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void ValidateSkill_ToggleWithConsumedUniqueBuff_ReturnsError()
+        {
+            var skill = CreateValidSkill();
+            var effect = skill.Effects[0];
+            SetAutoProperty(skill, "IsToggle", true);
+            SetPrivateField(effect, "effectType", EffectType.ApplyUniqueBuff);
+            SetPrivateField(effect, "uniqueBuffType", UniqueBuffType.GuaranteedCriticalHit);
+
+            var report = CombatDataValidator.ValidateSkill(skill);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("ApplyUniqueBuff cannot be used by a toggle skill"));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
         public void ValidateEncounter_ValidEncounter_ReturnsValidReport()
         {
             var encounter = CreateValidEncounter();

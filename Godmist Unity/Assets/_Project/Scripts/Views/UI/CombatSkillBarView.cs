@@ -120,9 +120,23 @@ namespace Godmist.Views.UI
 
                 var actionCost = CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill);
                 var resource = activeUnit.Character.ResourcePool;
-                var canUse = activeUnit.CurrentActionPoints >= actionCost
-                    && (resource == null || resource.CurrentValue >= skill.ResourceCost);
-                spawnedSlots[slotIndex].RefreshAvailability(canUse, actionCost);
+                var isActiveToggle = skill.IsToggle
+                    && activeUnit.ActiveToggleSkillIds != null
+                    && activeUnit.ActiveToggleSkillIds.Contains(skill.SkillId);
+                var wasChangedThisTurn = skill.IsToggle
+                    && activeUnit.ToggleSkillIdsUsedThisTurn != null
+                    && activeUnit.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId);
+                var canPayActivationCost = activeUnit.CurrentActionPoints >= actionCost
+                    && (skill.ResourceCost <= 0
+                        || (resource != null
+                            && resource.ResourceType == skill.ResourceType
+                            && resource.CurrentValue >= skill.ResourceCost));
+                var canUse = isActiveToggle
+                    || (!wasChangedThisTurn && canPayActivationCost);
+                spawnedSlots[slotIndex].RefreshAvailability(
+                    canUse,
+                    isActiveToggle ? 0 : actionCost,
+                    isActiveToggle);
                 slotIndex++;
             }
         }

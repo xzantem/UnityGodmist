@@ -2,6 +2,7 @@ using System;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
+using Godmist.Data.Skills;
 using UnityEditor;
 using UnityEngine;
 
@@ -107,8 +108,11 @@ namespace Godmist.Editor
                 (EffectType)effectType.enumValueIndex;
             var isCounterattackEffect = property.propertyPath.Contains(
                 "counterattackEffects");
+            var isToggleSkill = !isCounterattackEffect
+                && property.serializedObject.FindProperty("<IsToggle>k__BackingField")
+                    ?.boolValue == true;
 
-            DrawEffectTypePopup(position, ref y, effectType);
+            DrawEffectTypePopup(position, ref y, effectType, isToggleSkill);
 
             if (selectedEffect == EffectType.CreateObject)
             {
@@ -224,20 +228,20 @@ namespace Godmist.Editor
                 }
 
                 DrawField(position, ref y, modifierValue);
-                DrawField(position, ref y, durationTurns);
+                if (!isToggleSkill) DrawField(position, ref y, durationTurns);
             }
             else if (selectedEffect == EffectType.ModifyVar)
             {
                 DrawField(position, ref y, modifierVariableType);
                 DrawField(position, ref y, modifierStacking);
                 DrawField(position, ref y, modifierValue);
-                DrawField(position, ref y, durationTurns);
+                if (!isToggleSkill) DrawField(position, ref y, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyStatus)
             {
                 DrawStatusIdPopup(position, ref y, statusId);
                 DrawField(position, ref y, baseChance);
-                DrawField(position, ref y, durationTurns);
+                if (!isToggleSkill) DrawField(position, ref y, durationTurns);
 
                 if (UsesStatusDamageMultiplier(statusId.stringValue))
                 {
@@ -263,7 +267,10 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.ModifyActionValue) DrawField(position, ref y, actionValuePercent);
             else if (selectedEffect == EffectType.DrainResource) DrawField(position, ref y, baseValue);
-            else if (selectedEffect == EffectType.BlockResourceRegeneration) DrawField(position, ref y, resourceRegenerationBlockTurns);
+            else if (selectedEffect == EffectType.BlockResourceRegeneration)
+            {
+                if (!isToggleSkill) DrawField(position, ref y, resourceRegenerationBlockTurns);
+            }
             else if (selectedEffect == EffectType.SacrificeHealthForResource)
             {
                 DrawField(position, ref y, healthSacrificePercent);
@@ -276,30 +283,30 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.ApplyUniqueBuff)
             {
-                DrawField(position, ref y, uniqueBuffType);
+                DrawUniqueBuffTypePopup(position, ref y, uniqueBuffType, isToggleSkill);
                 var buffType = (UniqueBuffType)uniqueBuffType.enumValueIndex;
                 if (buffType == UniqueBuffType.ActionPointsNextTurn)
                 {
                     DrawField(position, ref y, actionPointModifier);
-                    DrawField(position, ref y, durationTurns);
+                    if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.OnHitStatus)
                 {
                     DrawStatusIdPopup(position, ref y, onHitStatusId);
                     DrawField(position, ref y, onHitStatusChance);
                     DrawField(position, ref y, onHitStatusDurationTurns);
-                    DrawField(position, ref y, durationTurns);
+                    if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.DamageRedirect)
                 {
                     DrawField(position, ref y, redirectedDamagePercent);
-                    DrawField(position, ref y, durationTurns);
+                    if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.AuraStatus)
                 {
                     DrawStatusIdPopup(position, ref y, statusId);
                     DrawField(position, ref y, baseChance);
-                    DrawField(position, ref y, durationTurns);
+                    if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                     DrawField(position, ref y, auraRadius);
                     DrawField(position, ref y, auraIncludesCaster);
                     DrawField(position, ref y, auraTargetingType);
@@ -307,16 +314,16 @@ namespace Godmist.Editor
                 else
                 {
                     DrawField(position, ref y, uniqueBuffStacks);
-                    DrawField(position, ref y, durationTurns);
+                    if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                 }
             }
 
-            if (SupportsDelayedExecution(selectedEffect))
+            if (!isToggleSkill && SupportsDelayedExecution(selectedEffect))
             {
                 DrawField(position, ref y, delayCasterTurns);
             }
 
-            DrawField(position, ref y, conditions, true);
+            if (!isToggleSkill) DrawField(position, ref y, conditions, true);
             EditorGUI.EndProperty();
         }
 
@@ -407,6 +414,9 @@ namespace Godmist.Editor
                 (EffectType)effectType.enumValueIndex;
             var isCounterattackEffect = property.propertyPath.Contains(
                 "counterattackEffects");
+            var isToggleSkill = !isCounterattackEffect
+                && property.serializedObject.FindProperty("<IsToggle>k__BackingField")
+                    ?.boolValue == true;
 
             AddHeight(ref height, effectType);
 
@@ -512,20 +522,20 @@ namespace Godmist.Editor
                 }
 
                 AddHeight(ref height, modifierValue);
-                AddHeight(ref height, durationTurns);
+                if (!isToggleSkill) AddHeight(ref height, durationTurns);
             }
             else if (selectedEffect == EffectType.ModifyVar)
             {
                 AddHeight(ref height, modifierVariableType);
                 AddHeight(ref height, modifierStacking);
                 AddHeight(ref height, modifierValue);
-                AddHeight(ref height, durationTurns);
+                if (!isToggleSkill) AddHeight(ref height, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyStatus)
             {
                 AddHeight(ref height, statusId);
                 AddHeight(ref height, baseChance);
-                AddHeight(ref height, durationTurns);
+                if (!isToggleSkill) AddHeight(ref height, durationTurns);
 
                 if (UsesStatusDamageMultiplier(statusId.stringValue))
                 {
@@ -547,7 +557,10 @@ namespace Godmist.Editor
             }
             else if (selectedEffect == EffectType.ModifyActionValue) AddHeight(ref height, actionValuePercent);
             else if (selectedEffect == EffectType.DrainResource) AddHeight(ref height, baseValue);
-            else if (selectedEffect == EffectType.BlockResourceRegeneration) AddHeight(ref height, resourceRegenerationBlockTurns);
+            else if (selectedEffect == EffectType.BlockResourceRegeneration)
+            {
+                if (!isToggleSkill) AddHeight(ref height, resourceRegenerationBlockTurns);
+            }
             else if (selectedEffect == EffectType.SacrificeHealthForResource)
             {
                 AddHeight(ref height, healthSacrificePercent);
@@ -565,25 +578,25 @@ namespace Godmist.Editor
                 if (buffType == UniqueBuffType.ActionPointsNextTurn)
                 {
                     AddHeight(ref height, actionPointModifier);
-                    AddHeight(ref height, durationTurns);
+                    if (!isToggleSkill) AddHeight(ref height, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.OnHitStatus)
                 {
                     AddHeight(ref height, onHitStatusId);
                     AddHeight(ref height, onHitStatusChance);
                     AddHeight(ref height, onHitStatusDurationTurns);
-                    AddHeight(ref height, durationTurns);
+                    if (!isToggleSkill) AddHeight(ref height, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.DamageRedirect)
                 {
                     AddHeight(ref height, redirectedDamagePercent);
-                    AddHeight(ref height, durationTurns);
+                    if (!isToggleSkill) AddHeight(ref height, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.AuraStatus)
                 {
                     AddHeight(ref height, statusId);
                     AddHeight(ref height, baseChance);
-                    AddHeight(ref height, durationTurns);
+                    if (!isToggleSkill) AddHeight(ref height, durationTurns);
                     AddHeight(ref height, auraRadius);
                     AddHeight(ref height, auraIncludesCaster);
                     AddHeight(ref height, auraTargetingType);
@@ -591,16 +604,16 @@ namespace Godmist.Editor
                 else
                 {
                     AddHeight(ref height, uniqueBuffStacks);
-                    AddHeight(ref height, durationTurns);
+                    if (!isToggleSkill) AddHeight(ref height, durationTurns);
                 }
             }
 
-            if (SupportsDelayedExecution(selectedEffect))
+            if (!isToggleSkill && SupportsDelayedExecution(selectedEffect))
             {
                 AddHeight(ref height, delayCasterTurns);
             }
 
-            AddHeight(ref height, conditions, true);
+            if (!isToggleSkill) AddHeight(ref height, conditions, true);
             return height;
         }
 
@@ -731,9 +744,12 @@ namespace Godmist.Editor
         private static void DrawEffectTypePopup(
             Rect position,
             ref float y,
-            SerializedProperty effectType)
+            SerializedProperty effectType,
+            bool isToggleSkill)
         {
-            var allowedTypes = new[]
+            var allowedTypes = isToggleSkill
+                ? ToggleSkillRules.AllowedEffectTypes
+                : new[]
             {
                 EffectType.DealDamage, EffectType.Push, EffectType.ApplyStatus,
                 EffectType.Heal, EffectType.RestoreResource, EffectType.Shield,
@@ -753,7 +769,9 @@ namespace Godmist.Editor
             {
                 selectedIndex = 0;
                 EditorGUI.HelpBox(fieldRect,
-                    "Legacy effect — choose an ApplyUniqueBuff variant.",
+                    isToggleSkill
+                        ? "This effect is not supported by toggle skills. Choose a persistent effect."
+                        : "Legacy effect — choose an ApplyUniqueBuff variant.",
                     MessageType.Warning);
             }
             else
@@ -761,6 +779,41 @@ namespace Godmist.Editor
                 selectedIndex = EditorGUI.Popup(fieldRect, "Effect Type",
                     selectedIndex, labels);
                 effectType.enumValueIndex = (int)allowedTypes[selectedIndex];
+            }
+
+            y += EditorGUIUtility.singleLineHeight + Spacing;
+        }
+
+        private static void DrawUniqueBuffTypePopup(
+            Rect position,
+            ref float y,
+            SerializedProperty uniqueBuffType,
+            bool isToggleSkill)
+        {
+            if (!isToggleSkill)
+            {
+                DrawField(position, ref y, uniqueBuffType);
+                return;
+            }
+
+            var allowedTypes = ToggleSkillRules.AllowedUniqueBuffTypes;
+            var labels = Array.ConvertAll(allowedTypes, value => value.ToString());
+            var currentType = (UniqueBuffType)uniqueBuffType.enumValueIndex;
+            var selectedIndex = Array.IndexOf(allowedTypes, currentType);
+            var fieldRect = new Rect(position.x, y, position.width,
+                EditorGUIUtility.singleLineHeight);
+
+            if (selectedIndex < 0)
+            {
+                EditorGUI.HelpBox(fieldRect,
+                    "This buff is consumed or instantaneous and cannot be a toggle.",
+                    MessageType.Warning);
+            }
+            else
+            {
+                selectedIndex = EditorGUI.Popup(fieldRect, "Unique Buff Type",
+                    selectedIndex, labels);
+                uniqueBuffType.enumValueIndex = (int)allowedTypes[selectedIndex];
             }
 
             y += EditorGUIUtility.singleLineHeight + Spacing;

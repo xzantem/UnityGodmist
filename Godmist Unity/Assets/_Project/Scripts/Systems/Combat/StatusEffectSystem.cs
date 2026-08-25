@@ -5,6 +5,7 @@ using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using UnityEngine;
@@ -81,11 +82,10 @@ namespace Godmist.Systems.Combat
 
             var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
 
-            if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
+            if (!TryApplySkillRuntimeEffect(
                     target.Character,
                     runtimeEffect,
-                    ResolveStackingMode(effect.StatusId),
-                    out _))
+                    ResolveStackingMode(effect.StatusId)))
             {
                 return false;
             }
@@ -111,28 +111,20 @@ namespace Godmist.Systems.Combat
             }
 
             var effectId = $"{skill?.SkillId ?? "skill"}.on_hit_buff.{effectIndex}";
-            var runtimeEffect = new PassiveEffectRuntime(
+            var runtimeEffect = CreateTimedCombatBuff(
+                source,
+                skill,
+                effectIndex,
                 effectId,
-                new List<PassiveEffectSourceRuntime>
-                {
-                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
-                },
-                stacks: 1,
-                remainingDuration: Mathf.Max(1, effect.DurationTurns),
-                totalDamage: 0,
-                lifetime: PassiveEffectLifetime.Timed,
-                tickPhase: PassiveEffectTickPhase.TurnEnd)
-            {
-                OnHitStatusId = effect.OnHitStatusId,
-                OnHitStatusChance = effect.OnHitStatusChance,
-                OnHitStatusDurationTurns = effect.OnHitStatusDurationTurns
-            };
+                effect.DurationTurns);
+            runtimeEffect.OnHitStatusId = effect.OnHitStatusId;
+            runtimeEffect.OnHitStatusChance = effect.OnHitStatusChance;
+            runtimeEffect.OnHitStatusDurationTurns = effect.OnHitStatusDurationTurns;
 
-            return passiveEffectLifecycleSystem.TryApplyTimedEffect(
+            return TryApplySkillRuntimeEffect(
                 target.Character,
                 runtimeEffect,
-                PassiveEffectStackingMode.ReplaceDurationAndValues,
-                out _);
+                PassiveEffectStackingMode.ReplaceDurationAndValues);
         }
 
         public bool ApplyUniqueCombatBuff(
@@ -151,9 +143,8 @@ namespace Godmist.Systems.Combat
             runtimeEffect.IsUniqueCombatBuff = true;
             runtimeEffect.UniqueBuffType = effect.UniqueBuffType;
             runtimeEffect.Stacks = effect.UniqueBuffStacks;
-            return passiveEffectLifecycleSystem.TryApplyTimedEffect(target.Character,
-                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues,
-                out _);
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
         }
 
         public bool ApplyActionPointBuff(BattleUnit source, BattleUnit target,
@@ -166,24 +157,22 @@ namespace Godmist.Systems.Combat
                 $"{skill?.SkillId ?? "skill"}.action_points.{effectIndex}",
                 effect.DurationTurns);
             runtimeEffect.ActionPointModifier = effect.ActionPointModifier;
-            return passiveEffectLifecycleSystem.TryApplyTimedEffect(target.Character,
-                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues,
-                out _);
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
         }
 
         public bool ApplyResourceRegenerationBlock(BattleUnit source,
             BattleUnit target, SkillData skill, SkillEffectData effect, int effectIndex)
         {
             if (target?.Character == null || effect == null
-                || effect.ResourceRegenerationBlockTurns <= 0) return false;
+                || (!skill.IsToggle && effect.ResourceRegenerationBlockTurns <= 0)) return false;
 
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.resource_block.{effectIndex}",
                 effect.ResourceRegenerationBlockTurns);
             runtimeEffect.BlocksResourceRegeneration = true;
-            return passiveEffectLifecycleSystem.TryApplyTimedEffect(target.Character,
-                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues,
-                out _);
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
         }
 
         public bool ApplyDamageRedirectBuff(BattleUnit source, BattleUnit target,
@@ -199,9 +188,8 @@ namespace Godmist.Systems.Combat
                 $"{skill?.SkillId ?? "skill"}.damage_redirect.{effectIndex}",
                 effect.DurationTurns);
             runtimeEffect.DamageRedirectPercent = effect.RedirectedDamagePercent;
-            return passiveEffectLifecycleSystem.TryApplyTimedEffect(target.Character,
-                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues,
-                out _);
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
         }
 
         public int ApplyActiveOnHitStatuses(BattleUnit source, BattleUnit target)
@@ -236,6 +224,7 @@ namespace Godmist.Systems.Combat
             BattleUnit source, SkillData skill, int effectIndex,
             string effectId, int durationTurns)
         {
+            var isToggle = skill?.IsToggle == true;
             return new PassiveEffectRuntime(
                 effectId,
                 new List<PassiveEffectSourceRuntime>
@@ -243,10 +232,32 @@ namespace Godmist.Systems.Combat
                     PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
                 },
                 stacks: 1,
-                remainingDuration: Mathf.Max(1, durationTurns),
+                remainingDuration: isToggle ? 0 : Mathf.Max(1, durationTurns),
                 totalDamage: 0,
-                lifetime: PassiveEffectLifetime.Timed,
-                tickPhase: PassiveEffectTickPhase.TurnEnd);
+                lifetime: isToggle
+                    ? PassiveEffectLifetime.CombatScoped
+                    : PassiveEffectLifetime.Timed,
+                tickPhase: isToggle
+                    ? PassiveEffectTickPhase.None
+                    : PassiveEffectTickPhase.TurnEnd);
+        }
+
+        private bool TryApplySkillRuntimeEffect(
+            CharacterInstance target,
+            PassiveEffectRuntime runtimeEffect,
+            PassiveEffectStackingMode stackingMode)
+        {
+            return runtimeEffect.Lifetime == PassiveEffectLifetime.CombatScoped
+                ? passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
+                    target,
+                    runtimeEffect,
+                    stackingMode,
+                    out _)
+                : passiveEffectLifecycleSystem.TryApplyTimedEffect(
+                    target,
+                    runtimeEffect,
+                    stackingMode,
+                    out _);
         }
 
         public bool ApplyStatus(
@@ -635,7 +646,8 @@ namespace Godmist.Systems.Combat
             BattleUnit source, SkillData skill,
             SkillEffectData effect, int effectIndex)
         {
-            var duration = Mathf.Max(1, effect.DurationTurns);
+            var isToggle = skill?.IsToggle == true;
+            var duration = isToggle ? 0 : Mathf.Max(1, effect.DurationTurns);
             var damagePerTurn = CalculateStatusDamagePerTurn(source, effect);
             var totalDamage = CalculateTotalDamage(damagePerTurn, duration);
 
@@ -654,8 +666,12 @@ namespace Godmist.Systems.Combat
                 Mathf.Max(1, effect.Stacks),
                 duration,
                 totalDamage,
-                PassiveEffectLifetime.Timed,
-                ResolveTickPhase(effect.StatusId),
+                isToggle
+                    ? PassiveEffectLifetime.CombatScoped
+                    : PassiveEffectLifetime.Timed,
+                isToggle
+                    ? PassiveEffectTickPhase.None
+                    : ResolveTickPhase(effect.StatusId),
                 effect.StatusHealPercent);
 
             if (string.Equals(effect.StatusId, StatusEffectIds.Counterattack,

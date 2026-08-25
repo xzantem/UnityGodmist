@@ -458,6 +458,7 @@ namespace Godmist.Views.Combat
                 return;
             }
             resourceRuleSystem?.ProcessTurnStart(unit);
+            skillExecutionSystem?.ProcessToggleUpkeep(Session, unit);
             statusEffectSystem?.ProcessTurnStart(Session, unit);
             CombatTurnSystem.RefreshMaxActionPoints(
                 Session,
@@ -515,6 +516,7 @@ namespace Godmist.Views.Combat
             skillExecutionSystem?.CancelScheduledEffectsByCaster(
                 Session,
                 unit.Character.CharacterId);
+            skillExecutionSystem?.DeactivateAllToggles(Session, unit);
         }
 
         private void HandleSummonedObjectTurnBegan(
@@ -702,6 +704,20 @@ namespace Godmist.Views.Combat
                 || skillExecutionSystem == null || targetingService == null)
             {
                 return false;
+            }
+
+            if (skill?.IsToggle == true
+                && Session.ActiveUnit.ActiveToggleSkillIds != null
+                && Session.ActiveUnit.ActiveToggleSkillIds.Contains(skill.SkillId))
+            {
+                return skillExecutionSystem.TryExecute(
+                    Session,
+                    Session.ActiveUnit,
+                    skill,
+                    new Dictionary<int, IReadOnlyList<BattleUnit>>(),
+                    null,
+                    null,
+                    new Dictionary<int, GridPosition?>());
             }
 
             if (!TryBuildSkillTargetGroups(
