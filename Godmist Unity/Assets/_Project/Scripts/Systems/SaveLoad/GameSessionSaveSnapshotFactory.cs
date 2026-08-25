@@ -643,6 +643,14 @@ namespace Godmist.Systems.SaveLoad
                     TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,
                     TotalDamage = effect.TotalDamage,
+                    IsUniqueCombatBuff = effect.IsUniqueCombatBuff,
+                    UniqueBuffType = effect.UniqueBuffType,
+                    ActionPointModifier = effect.ActionPointModifier,
+                    BlocksResourceRegeneration = effect.BlocksResourceRegeneration,
+                    DamageRedirectPercent = effect.DamageRedirectPercent,
+                    OnHitStatusId = effect.OnHitStatusId,
+                    OnHitStatusChance = effect.OnHitStatusChance,
+                    OnHitStatusDurationTurns = effect.OnHitStatusDurationTurns,
                     StatModifiers = CopyStatModifiers(effect.StatModifiers)
                 });
             }

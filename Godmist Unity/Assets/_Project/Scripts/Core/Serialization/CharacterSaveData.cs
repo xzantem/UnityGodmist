@@ -99,6 +99,14 @@ namespace Godmist.Core.Serialization
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase;
         public int TotalDamage;
+        public bool IsUniqueCombatBuff;
+        public UniqueBuffType UniqueBuffType;
+        public int ActionPointModifier;
+        public bool BlocksResourceRegeneration;
+        public float DamageRedirectPercent;
+        public string OnHitStatusId = string.Empty;
+        public float OnHitStatusChance;
+        public int OnHitStatusDurationTurns;
         public List<StatModifierSaveData> StatModifiers = new();
         public List<GameplayVariableModifierSaveData> VariableModifiers = new();
 

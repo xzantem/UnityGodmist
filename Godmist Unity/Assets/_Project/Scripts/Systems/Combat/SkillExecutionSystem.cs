@@ -80,7 +80,8 @@ namespace Godmist.Systems.Combat
             this.teleportSystem = teleportSystem
                 ?? new CombatTeleportSystem(
                     battleLog,
-                    this.lineOfSightService);
+                    this.lineOfSightService,
+                    this.statusEffectSystem);
 
             this.summonedObjectSystem = summonedObjectSystem
                 ?? new SummonedObjectSystem(battleLog);
@@ -183,6 +184,7 @@ namespace Godmist.Systems.Combat
             }
 
             var spentResource = caster.Character.ResourcePool?.Drain(skill.ResourceCost) ?? 0;
+            caster.LastSkillResourceSpent = spentResource;
             if (spentResource > 0)
             {
                 feedbackBus?.Publish(new CombatFeedbackEvent(
@@ -194,6 +196,19 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{caster.Character.Definition.DisplayName} uses {skill.DisplayName}.");
+
+            var isToggleDeactivation = skill.IsToggle
+                && caster.ActiveToggleSkillIds != null
+                && caster.ActiveToggleSkillIds.Contains(skill.SkillId);
+            if (isToggleDeactivation)
+            {
+                RemoveToggleEffects(session, caster, skill);
+                caster.ActiveToggleSkillIds.Remove(skill.SkillId);
+                caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
+                CombatAuraSystem.Refresh(session, statusEffectSystem);
+                CombatTurnSystem.RefreshMaxActionPoints(session);
+                return true;
+            }
 
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
@@ -265,6 +280,7 @@ namespace Godmist.Systems.Combat
                     }
 
                     if (!ShouldExecuteEffect(
+                            session,
                             effect,
                             caster,
                             target,
@@ -276,7 +292,11 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    var wasHit = !RequiresHitRoll(effect)
+                    // Damage effects roll accuracy independently for every hit in a
+                    // multi-hit sequence. Other hit-gated effects retain the existing
+                    // per-target roll shared by their follow-up effects.
+                    var wasHit = effect.EffectType == EffectType.DealDamage
+                        || !RequiresHitRoll(effect)
                         || ResolveTargetHit(
                             caster,
                             target,
@@ -314,6 +334,13 @@ namespace Godmist.Systems.Combat
                     StatusEffectIds.Invisibility);
             }
 
+            CombatAuraSystem.Refresh(session, statusEffectSystem);
+            if (skill.IsToggle)
+            {
+                caster.ActiveToggleSkillIds ??= new HashSet<string>();
+                caster.ActiveToggleSkillIds.Add(skill.SkillId);
+                caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
+            }
             CombatTurnSystem.RefreshMaxActionPoints(session);
             return true;
         }
@@ -349,10 +376,11 @@ namespace Godmist.Systems.Combat
             {
                 if (target?.Character == null
                     || target.Character.LifeState == CharacterLifeState.Dead
-                    || !ShouldExecuteEffect(scheduled.Effect, caster, target, results))
+                    || !ShouldExecuteEffect(session, scheduled.Effect, caster, target, results))
                     continue;
 
-                var wasHit = !RequiresHitRoll(scheduled.Effect)
+                var wasHit = scheduled.Effect.EffectType == EffectType.DealDamage
+                    || !RequiresHitRoll(scheduled.Effect)
                     || ResolveTargetHit(caster, target, scheduled.Skill, hitByTarget);
                 if (wasHit)
                     ExecuteEffect(session, caster, target, scheduled.Skill,
@@ -460,21 +488,52 @@ namespace Godmist.Systems.Combat
             {
                 case EffectType.DealDamage:
                 {
-                    var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
-                        caster, effect.DamageValueSource, effect.DamageMultiplier);
-                    var damageResult = damageSystem.ResolveAndApplyDamage(session, caster, target, attackValue, 
-                        effect.DamageType, wasHit);
-
-                    if (damageResult.Hit && !isReactionExecution)
+                    var totalHealthDamage = 0;
+                    var hit = false;
+                    var critical = false;
+                    for (var hitIndex = 0; hitIndex < effect.DamageHitCount; hitIndex++)
                     {
-                        TryExecuteCounterattack(session, target, caster);
+                        var multiplier = effect.DamageMultiplier;
+                        if (UnityEngine.Random.value <= effect.BonusDamageMultiplierChance)
+                            multiplier *= effect.BonusDamageMultiplier;
+
+                        var forceMaximumDamage = CombatDamageSystem.HasUniqueBuff(
+                            caster, UniqueBuffType.MaximumDamage);
+                        var valueSource = forceMaximumDamage
+                            ? DamageValueSource.MaxAttack
+                            : effect.DamageValueSource;
+
+                        var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
+                            caster, valueSource, multiplier);
+                        var damageResult = effect.AlwaysHits
+                            ? damageSystem.ResolveAndApplyDamage(
+                                session, caster, target, attackValue, effect.DamageType,
+                                wasHit: true)
+                            : damageSystem.ResolveAndApplyDamage(
+                                session, caster, target, attackValue, effect.DamageType,
+                                skill.SkillAccuracy);
+                        hit |= damageResult.Hit;
+                        critical |= damageResult.IsCritical;
+                        totalHealthDamage += damageResult.HealthDamage;
+
+                        if (!damageResult.Hit) continue;
+                        if (forceMaximumDamage)
+                        {
+                            CombatDamageSystem.TryConsumeUniqueBuff(
+                                caster, UniqueBuffType.MaximumDamage);
+                        }
+                        ApplyDamageFollowUps(caster, target, skill, effect, effectIndex,
+                            damageResult.HealthDamage);
+                        statusEffectSystem?.ApplyActiveOnHitStatuses(caster, target);
+                        if (!isReactionExecution)
+                            TryExecuteCounterattack(session, target, caster);
                     }
 
                     return new EffectExecutionResult
                     {
-                        Succeeded = damageResult.Hit,
-                        HealthDamage = damageResult.HealthDamage,   
-                        WasCritical = damageResult.IsCritical
+                        Succeeded = hit,
+                        HealthDamage = totalHealthDamage,
+                        WasCritical = critical
                     };
                 }
                 case EffectType.Push:
@@ -577,7 +636,11 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Shield:
                 {
-                    var grantedShield = shieldSystem.GrantShield(target, effect.BaseValue, skill.SkillId);
+                    var shieldAmount = effect.BaseValue + Mathf.FloorToInt(
+                        CombatDamageValueCalculator.CalculateDamageValue(
+                            caster, DamageValueSource.AverageAttack, 1f)
+                        * effect.ShieldAverageAttackMultiplier);
+                    var grantedShield = shieldSystem.GrantShield(target, shieldAmount, skill.SkillId);
 
                     return new EffectExecutionResult
                         { Succeeded = grantedShield > 0, ShieldGranted = grantedShield };
@@ -594,6 +657,57 @@ namespace Godmist.Systems.Combat
 
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
+                case EffectType.ModifyActionValue:
+                {
+                    var maximumActionValue = CombatTurnSystem.CalculateBaseActionValue(target);
+                    var change = maximumActionValue * Mathf.Abs(effect.ActionValuePercent);
+                    target.CurrentActionValue = Mathf.Max(0f,
+                        target.CurrentActionValue + (effect.ActionValuePercent >= 0f
+                            ? -change : change));
+                    CombatTurnSystem.ReorderParticipants(session);
+                    return new EffectExecutionResult { Succeeded = !Mathf.Approximately(change, 0f) };
+                }
+                case EffectType.DrainResource:
+                {
+                    var drained = target.Character.ResourcePool?.Drain(effect.BaseValue) ?? 0;
+                    return new EffectExecutionResult { Succeeded = drained > 0, ResourceRestored = drained };
+                }
+                case EffectType.BlockResourceRegeneration:
+                {
+                    var wasApplied = statusEffectSystem != null
+                        && statusEffectSystem.ApplyResourceRegenerationBlock(
+                            caster, target, skill, effect, effectIndex);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
+                }
+                case EffectType.SacrificeHealthForResource:
+                {
+                    var maximumHealth = target.Character.Stats == null
+                        ? 0
+                        : Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue());
+                    var healthCost = Mathf.FloorToInt(maximumHealth * effect.HealthSacrificePercent);
+                    healthCost = Mathf.Clamp(healthCost, 0, Mathf.Max(0, target.Character.CurrentHealth - 1));
+                    if (healthCost <= 0 || effect.ResourceRestorePerSacrificedHealth <= 0f)
+                        return EffectExecutionResult.None;
+                    target.Character.CurrentHealth -= healthCost;
+                    var restored = recoverySystem.RestoreResource(target,
+                        Mathf.FloorToInt(healthCost * effect.ResourceRestorePerSacrificedHealth));
+                    return new EffectExecutionResult { Succeeded = restored > 0, ResourceRestored = restored };
+                }
+                case EffectType.ModifyResistance:
+                {
+                    target.ResistanceModifiers ??= new Dictionary<ResistanceType, float>();
+                    target.ResistanceModifiers.TryGetValue(effect.ResistanceType,
+                        out var currentModifier);
+                    target.ResistanceModifiers[effect.ResistanceType] =
+                        currentModifier + effect.ModifierValue;
+                    return new EffectExecutionResult { Succeeded = !Mathf.Approximately(effect.ModifierValue, 0f) };
+                }
+                case EffectType.ApplyUniqueBuff:
+                {
+                    var wasApplied = ApplyUniqueBuff(
+                        session, caster, target, skill, effect, effectIndex);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
+                }
                 default:
                     Debug.LogWarning($"Nieobslugiwany typ efektu w skillu '{effect.EffectType}'.");
                     return EffectExecutionResult.None;
@@ -601,6 +715,7 @@ namespace Godmist.Systems.Combat
         }
 
         private static bool ShouldExecuteEffect(
+            CombatSession session,
             SkillEffectData effect,
             BattleUnit caster,
             BattleUnit target,
@@ -615,6 +730,7 @@ namespace Godmist.Systems.Combat
             foreach (var condition in effect.Conditions)
             {
                 if (!EvaluateCondition(
+                        session,
                         condition,
                         caster,
                         target,
@@ -628,6 +744,7 @@ namespace Godmist.Systems.Combat
         }
 
         private static bool EvaluateCondition(
+            CombatSession session,
             SkillEffectConditionData condition,
             BattleUnit caster,
             BattleUnit target,
@@ -675,6 +792,17 @@ namespace Godmist.Systems.Combat
                     return IsHealthBelowPercent(
                         caster,
                         condition.HealthPercentThreshold);
+
+                case EffectConditionType.MinimumAdjacentAllies:
+                    return CountAdjacentAllies(session, caster)
+                        >= condition.IntegerThreshold;
+
+                case EffectConditionType.MinimumResourceSpent:
+                    return caster != null
+                        && caster.LastSkillResourceSpent >= condition.IntegerThreshold;
+
+                case EffectConditionType.TargetHasActiveShield:
+                    return target?.Character?.ShieldPool?.TotalShield > 0;
 
                 default:
                     return false;
@@ -740,6 +868,29 @@ namespace Godmist.Systems.Combat
             var currentPercent = unit.Character.CurrentHealth / maxHealth;
 
             return currentPercent < Mathf.Clamp01(threshold);
+        }
+
+        private static int CountAdjacentAllies(CombatSession session, BattleUnit unit)
+        {
+            if (session?.Units == null || unit == null) return 0;
+            var count = 0;
+            foreach (var candidate in session.Units)
+            {
+                if (candidate == null || candidate == unit
+                    || candidate.Character?.LifeState != CharacterLifeState.Alive
+                    || candidate.IsPlayerSide != unit.IsPlayerSide)
+                {
+                    continue;
+                }
+
+                if (Mathf.Max(Mathf.Abs(candidate.Position.X - unit.Position.X),
+                        Mathf.Abs(candidate.Position.Y - unit.Position.Y)) == 1)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         private static bool ConditionRequiresStatusId(
@@ -937,6 +1088,14 @@ namespace Godmist.Systems.Combat
                 Debug.LogWarning(
                     $"Skill '{skill.SkillId}' mixes CreateObject and Summon. " +
                     "This is not supported in v1.");
+                return false;
+            }
+
+            if (skill.IsToggle
+                && caster.ToggleSkillIdsUsedThisTurn != null
+                && caster.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId))
+            {
+                battleLog?.Invoke("Toggle can be changed only once per turn.");
                 return false;
             }
 
@@ -1313,6 +1472,78 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        private void ApplyDamageFollowUps(
+            BattleUnit caster, BattleUnit target, SkillData skill, SkillEffectData effect,
+            int effectIndex, int healthDamage)
+        {
+            if (healthDamage <= 0) return;
+            if (effect.LifeStealPercent > 0f)
+                recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
+            if (effect.ResourceDrainPercent > 0f)
+            {
+                var drained = target.Character.ResourcePool?.Drain(
+                    Mathf.FloorToInt(healthDamage * effect.ResourceDrainPercent)) ?? 0;
+                if (drained > 0) recoverySystem.RestoreResource(caster, drained);
+            }
+        }
+
+        private bool ApplyUniqueBuff(CombatSession session, BattleUnit caster,
+            BattleUnit target, SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            switch (effect.UniqueBuffType)
+            {
+                case UniqueBuffType.ActionPointsNextTurn:
+                    return statusEffectSystem != null
+                        && statusEffectSystem.ApplyActionPointBuff(caster, target,
+                            skill, effect, effectIndex);
+                case UniqueBuffType.OnHitStatus:
+                    return statusEffectSystem != null
+                        && statusEffectSystem.ApplyOnHitStatusBuff(caster, target,
+                            skill, effect, effectIndex);
+                case UniqueBuffType.DamageRedirect:
+                    return statusEffectSystem != null
+                        && statusEffectSystem.ApplyDamageRedirectBuff(caster, target,
+                            skill, effect, effectIndex);
+                case UniqueBuffType.AuraStatus:
+                    var wasRegistered = CombatAuraSystem.Register(caster, skill,
+                        effect, effectIndex);
+                    if (wasRegistered) CombatAuraSystem.Refresh(session, statusEffectSystem);
+                    return wasRegistered;
+                default:
+                    return statusEffectSystem != null
+                        && statusEffectSystem.ApplyUniqueCombatBuff(caster, target,
+                            skill, effect, effectIndex);
+            }
+        }
+
+        private static void RemoveToggleEffects(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill)
+        {
+            if (session?.Units == null || caster?.Character == null || skill == null)
+            {
+                return;
+            }
+
+            var sourcePrefix = $"{skill.SkillId}.effect.";
+            foreach (var target in session.Units)
+            {
+                if (target?.Character?.PassiveEffects == null) continue;
+                target.Character.PassiveEffects.RemoveAll(effect => effect?.Sources != null
+                    && effect.Sources.Exists(source => source != null
+                        && string.Equals(source.SourceCharacterId,
+                            caster.Character.CharacterId,
+                            StringComparison.OrdinalIgnoreCase)
+                        && source.SourceId.StartsWith(sourcePrefix,
+                            StringComparison.OrdinalIgnoreCase)));
+            }
+
+            caster.ActiveAuras?.RemoveAll(aura => aura?.AuraId != null
+                && aura.AuraId.StartsWith($"{skill.SkillId}.aura.",
+                    StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ProcessScheduledEffects(
             CombatSession session,
             BattleUnit caster)
@@ -1377,7 +1608,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (!ShouldExecuteEffect(effect, defender, attacker, resultsByEffectIndex))
+                if (!ShouldExecuteEffect(session, effect, defender, attacker, resultsByEffectIndex))
                 {
                     resultsByEffectIndex[effectIndex] =
                         new Dictionary<BattleUnit, EffectExecutionResult>
@@ -1387,7 +1618,8 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                var wasHit = !RequiresHitRoll(effect)
+                var wasHit = effect.EffectType == EffectType.DealDamage
+                    || !RequiresHitRoll(effect)
                     || ResolveTargetHit(defender, attacker, reactionSkill, hitByTarget);
                 var result = wasHit
                     ? ExecuteEffect(
@@ -1598,6 +1830,7 @@ namespace Godmist.Systems.Combat
                 }
 
                 movedUnit.Position = nextPosition;
+                CombatAuraSystem.Refresh(session, statusEffectSystem);
                 movedTiles++;
             }
 
@@ -1638,6 +1871,97 @@ namespace Godmist.Systems.Combat
                 && !session.Grid.IsBlocked(currentPosition)
                 && !session.Grid.IsBlocked(nextPosition)
                 && !session.IsPositionOccupied(nextPosition, movedUnit);
+        }
+    }
+
+    /// <summary>
+    /// Keeps auras combat-scoped and recomputable from positions. The aura owns only
+    /// its own status instances (identified by AuraId), so re-evaluation cannot remove
+    /// an identical status applied by another skill.
+    /// </summary>
+    public static class CombatAuraSystem
+    {
+        public static bool Register(BattleUnit caster, SkillData skill,
+            SkillEffectData effect, int effectIndex)
+        {
+            if (caster?.Character == null || effect == null
+                || string.IsNullOrWhiteSpace(effect.StatusId))
+            {
+                return false;
+            }
+
+            caster.ActiveAuras ??= new List<CombatAuraRuntime>();
+            var auraId = $"{skill?.SkillId ?? "aura"}.aura.{effectIndex}";
+            caster.ActiveAuras.RemoveAll(aura => string.Equals(aura?.AuraId,
+                auraId, StringComparison.OrdinalIgnoreCase));
+            caster.ActiveAuras.Add(new CombatAuraRuntime
+            {
+                AuraId = auraId,
+                StatusId = effect.StatusId,
+                Radius = effect.AuraRadius,
+                IncludesCaster = effect.AuraIncludesCaster,
+                TargetingType = effect.AuraTargetingType,
+                Chance = effect.BaseChance,
+                DurationTurns = Mathf.Max(1, effect.DurationTurns)
+            });
+            return true;
+        }
+
+        public static void Refresh(CombatSession session,
+            StatusEffectSystem statusEffectSystem)
+        {
+            if (session?.Units == null || statusEffectSystem == null) return;
+
+            foreach (var source in session.Units)
+            {
+                if (source?.Character == null || source.ActiveAuras == null) continue;
+
+                foreach (var aura in source.ActiveAuras)
+                {
+                    if (aura == null || string.IsNullOrWhiteSpace(aura.StatusId)) continue;
+
+                    foreach (var candidate in session.Units)
+                    {
+                        StatusEffectSystem.RemoveStatusAppliedBySource(
+                            candidate, aura.StatusId, aura.AuraId);
+                    }
+
+                    if (source.Character.LifeState != CharacterLifeState.Alive) continue;
+
+                    foreach (var target in session.Units)
+                    {
+                        if (target?.Character == null
+                            || target.Character.LifeState != CharacterLifeState.Alive
+                            || !MatchesTargeting(source, target, aura.TargetingType)
+                            || (!aura.IncludesCaster && target == source)
+                            || !IsInRange(source.Position, target.Position, aura.Radius))
+                        {
+                            continue;
+                        }
+
+                        statusEffectSystem.ApplyStatus(source, target, aura.StatusId,
+                            aura.Chance, aura.DurationTurns, 1, 0f, 0f, aura.AuraId);
+                    }
+                }
+            }
+        }
+
+        private static bool IsInRange(GridPosition source, GridPosition target, int radius)
+        {
+            return Mathf.Max(Mathf.Abs(source.X - target.X),
+                Mathf.Abs(source.Y - target.Y)) <= Mathf.Max(0, radius);
+        }
+
+        private static bool MatchesTargeting(BattleUnit source, BattleUnit target,
+            TargetingType targetingType)
+        {
+            return targetingType switch
+            {
+                TargetingType.Allies => source.IsPlayerSide == target.IsPlayerSide,
+                TargetingType.Enemies => source.IsPlayerSide != target.IsPlayerSide,
+                TargetingType.All => true,
+                _ => false
+            };
         }
     }
 }

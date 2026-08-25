@@ -1,3 +1,4 @@
+using System;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
@@ -34,6 +35,14 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("damageValueSource");
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
+            var damageHitCount = property.FindPropertyRelative("damageHitCount");
+            var bonusDamageMultiplierChance = property.FindPropertyRelative("bonusDamageMultiplierChance");
+            var bonusDamageMultiplier = property.FindPropertyRelative("bonusDamageMultiplier");
+            var onHitStatusId = property.FindPropertyRelative("onHitStatusId");
+            var onHitStatusChance = property.FindPropertyRelative("onHitStatusChance");
+            var onHitStatusDurationTurns = property.FindPropertyRelative("onHitStatusDurationTurns");
+            var lifeStealPercent = property.FindPropertyRelative("lifeStealPercent");
+            var resourceDrainPercent = property.FindPropertyRelative("resourceDrainPercent");
             var delayCasterTurns =
                 property.FindPropertyRelative("delayCasterTurns");
             var displacementDistance =
@@ -60,6 +69,19 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("modifierStacking");
             var modifierValue =
                 property.FindPropertyRelative("modifierValue");
+            var uniqueBuffType = property.FindPropertyRelative("uniqueBuffType");
+            var uniqueBuffStacks = property.FindPropertyRelative("uniqueBuffStacks");
+            var resistanceType = property.FindPropertyRelative("resistanceType");
+            var actionPointModifier = property.FindPropertyRelative("actionPointModifier");
+            var actionValuePercent = property.FindPropertyRelative("actionValuePercent");
+            var resourceRegenerationBlockTurns = property.FindPropertyRelative("resourceRegenerationBlockTurns");
+            var healthSacrificePercent = property.FindPropertyRelative("healthSacrificePercent");
+            var resourceRestorePerSacrificedHealth = property.FindPropertyRelative("resourceRestorePerSacrificedHealth");
+            var redirectedDamagePercent = property.FindPropertyRelative("redirectedDamagePercent");
+            var auraRadius = property.FindPropertyRelative("auraRadius");
+            var auraIncludesCaster = property.FindPropertyRelative("auraIncludesCaster");
+            var auraTargetingType = property.FindPropertyRelative("auraTargetingType");
+            var shieldAverageAttackMultiplier = property.FindPropertyRelative("shieldAverageAttackMultiplier");
             var teleportDestinationRange =
                 property.FindPropertyRelative("teleportDestinationRange");
             var summonedObjectDefinition =
@@ -86,7 +108,7 @@ namespace Godmist.Editor
             var isCounterattackEffect = property.propertyPath.Contains(
                 "counterattackEffects");
 
-            DrawField(position, ref y, effectType);
+            DrawEffectTypePopup(position, ref y, effectType);
 
             if (selectedEffect == EffectType.CreateObject)
             {
@@ -150,6 +172,11 @@ namespace Godmist.Editor
                 DrawField(position, ref y, damageType);
                 DrawField(position, ref y, damageValueSource);
                 DrawField(position, ref y, damageMultiplier);
+                DrawField(position, ref y, damageHitCount);
+                DrawField(position, ref y, bonusDamageMultiplierChance);
+                if (bonusDamageMultiplierChance.floatValue > 0f) DrawField(position, ref y, bonusDamageMultiplier);
+                DrawField(position, ref y, lifeStealPercent);
+                DrawField(position, ref y, resourceDrainPercent);
 
                 if ((DamageType)damageType.enumValueIndex
                     == DamageType.Physical)
@@ -183,6 +210,7 @@ namespace Godmist.Editor
                      || selectedEffect == EffectType.Shield)
             {
                 DrawField(position, ref y, baseValue);
+                if (selectedEffect == EffectType.Shield) DrawField(position, ref y, shieldAverageAttackMultiplier);
             }
             else if (selectedEffect == EffectType.ModifyStat)
             {
@@ -233,6 +261,55 @@ namespace Godmist.Editor
                     DrawField(position, ref y, counterattackEffects, true);
                 }
             }
+            else if (selectedEffect == EffectType.ModifyActionValue) DrawField(position, ref y, actionValuePercent);
+            else if (selectedEffect == EffectType.DrainResource) DrawField(position, ref y, baseValue);
+            else if (selectedEffect == EffectType.BlockResourceRegeneration) DrawField(position, ref y, resourceRegenerationBlockTurns);
+            else if (selectedEffect == EffectType.SacrificeHealthForResource)
+            {
+                DrawField(position, ref y, healthSacrificePercent);
+                DrawField(position, ref y, resourceRestorePerSacrificedHealth);
+            }
+            else if (selectedEffect == EffectType.ModifyResistance)
+            {
+                DrawField(position, ref y, resistanceType);
+                DrawField(position, ref y, modifierValue);
+            }
+            else if (selectedEffect == EffectType.ApplyUniqueBuff)
+            {
+                DrawField(position, ref y, uniqueBuffType);
+                var buffType = (UniqueBuffType)uniqueBuffType.enumValueIndex;
+                if (buffType == UniqueBuffType.ActionPointsNextTurn)
+                {
+                    DrawField(position, ref y, actionPointModifier);
+                    DrawField(position, ref y, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.OnHitStatus)
+                {
+                    DrawStatusIdPopup(position, ref y, onHitStatusId);
+                    DrawField(position, ref y, onHitStatusChance);
+                    DrawField(position, ref y, onHitStatusDurationTurns);
+                    DrawField(position, ref y, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.DamageRedirect)
+                {
+                    DrawField(position, ref y, redirectedDamagePercent);
+                    DrawField(position, ref y, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.AuraStatus)
+                {
+                    DrawStatusIdPopup(position, ref y, statusId);
+                    DrawField(position, ref y, baseChance);
+                    DrawField(position, ref y, durationTurns);
+                    DrawField(position, ref y, auraRadius);
+                    DrawField(position, ref y, auraIncludesCaster);
+                    DrawField(position, ref y, auraTargetingType);
+                }
+                else
+                {
+                    DrawField(position, ref y, uniqueBuffStacks);
+                    DrawField(position, ref y, durationTurns);
+                }
+            }
 
             if (SupportsDelayedExecution(selectedEffect))
             {
@@ -257,6 +334,14 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("damageValueSource");
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
+            var damageHitCount = property.FindPropertyRelative("damageHitCount");
+            var bonusDamageMultiplierChance = property.FindPropertyRelative("bonusDamageMultiplierChance");
+            var bonusDamageMultiplier = property.FindPropertyRelative("bonusDamageMultiplier");
+            var onHitStatusId = property.FindPropertyRelative("onHitStatusId");
+            var onHitStatusChance = property.FindPropertyRelative("onHitStatusChance");
+            var onHitStatusDurationTurns = property.FindPropertyRelative("onHitStatusDurationTurns");
+            var lifeStealPercent = property.FindPropertyRelative("lifeStealPercent");
+            var resourceDrainPercent = property.FindPropertyRelative("resourceDrainPercent");
             var delayCasterTurns =
                 property.FindPropertyRelative("delayCasterTurns");
             var displacementDistance =
@@ -283,6 +368,19 @@ namespace Godmist.Editor
                 property.FindPropertyRelative("modifierStacking");
             var modifierValue =
                 property.FindPropertyRelative("modifierValue");
+            var uniqueBuffType = property.FindPropertyRelative("uniqueBuffType");
+            var uniqueBuffStacks = property.FindPropertyRelative("uniqueBuffStacks");
+            var resistanceType = property.FindPropertyRelative("resistanceType");
+            var actionPointModifier = property.FindPropertyRelative("actionPointModifier");
+            var actionValuePercent = property.FindPropertyRelative("actionValuePercent");
+            var resourceRegenerationBlockTurns = property.FindPropertyRelative("resourceRegenerationBlockTurns");
+            var healthSacrificePercent = property.FindPropertyRelative("healthSacrificePercent");
+            var resourceRestorePerSacrificedHealth = property.FindPropertyRelative("resourceRestorePerSacrificedHealth");
+            var redirectedDamagePercent = property.FindPropertyRelative("redirectedDamagePercent");
+            var auraRadius = property.FindPropertyRelative("auraRadius");
+            var auraIncludesCaster = property.FindPropertyRelative("auraIncludesCaster");
+            var auraTargetingType = property.FindPropertyRelative("auraTargetingType");
+            var shieldAverageAttackMultiplier = property.FindPropertyRelative("shieldAverageAttackMultiplier");
             var teleportDestinationRange =
                 property.FindPropertyRelative("teleportDestinationRange");
             var summonedObjectDefinition =
@@ -363,6 +461,11 @@ namespace Godmist.Editor
                 AddHeight(ref height, damageType);
                 AddHeight(ref height, damageValueSource);
                 AddHeight(ref height, damageMultiplier);
+                AddHeight(ref height, damageHitCount);
+                AddHeight(ref height, bonusDamageMultiplierChance);
+                if (bonusDamageMultiplierChance.floatValue > 0f) AddHeight(ref height, bonusDamageMultiplier);
+                AddHeight(ref height, lifeStealPercent);
+                AddHeight(ref height, resourceDrainPercent);
 
                 if ((DamageType)damageType.enumValueIndex
                     == DamageType.Physical)
@@ -395,6 +498,7 @@ namespace Godmist.Editor
                      || selectedEffect == EffectType.Shield)
             {
                 AddHeight(ref height, baseValue);
+                if (selectedEffect == EffectType.Shield) AddHeight(ref height, shieldAverageAttackMultiplier);
             }
             else if (selectedEffect == EffectType.ModifyStat)
             {
@@ -439,6 +543,55 @@ namespace Godmist.Editor
                 {
                     AddHeight(ref height, counterattackRange, true);
                     AddHeight(ref height, counterattackEffects, true);
+                }
+            }
+            else if (selectedEffect == EffectType.ModifyActionValue) AddHeight(ref height, actionValuePercent);
+            else if (selectedEffect == EffectType.DrainResource) AddHeight(ref height, baseValue);
+            else if (selectedEffect == EffectType.BlockResourceRegeneration) AddHeight(ref height, resourceRegenerationBlockTurns);
+            else if (selectedEffect == EffectType.SacrificeHealthForResource)
+            {
+                AddHeight(ref height, healthSacrificePercent);
+                AddHeight(ref height, resourceRestorePerSacrificedHealth);
+            }
+            else if (selectedEffect == EffectType.ModifyResistance)
+            {
+                AddHeight(ref height, resistanceType);
+                AddHeight(ref height, modifierValue);
+            }
+            else if (selectedEffect == EffectType.ApplyUniqueBuff)
+            {
+                AddHeight(ref height, uniqueBuffType);
+                var buffType = (UniqueBuffType)uniqueBuffType.enumValueIndex;
+                if (buffType == UniqueBuffType.ActionPointsNextTurn)
+                {
+                    AddHeight(ref height, actionPointModifier);
+                    AddHeight(ref height, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.OnHitStatus)
+                {
+                    AddHeight(ref height, onHitStatusId);
+                    AddHeight(ref height, onHitStatusChance);
+                    AddHeight(ref height, onHitStatusDurationTurns);
+                    AddHeight(ref height, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.DamageRedirect)
+                {
+                    AddHeight(ref height, redirectedDamagePercent);
+                    AddHeight(ref height, durationTurns);
+                }
+                else if (buffType == UniqueBuffType.AuraStatus)
+                {
+                    AddHeight(ref height, statusId);
+                    AddHeight(ref height, baseChance);
+                    AddHeight(ref height, durationTurns);
+                    AddHeight(ref height, auraRadius);
+                    AddHeight(ref height, auraIncludesCaster);
+                    AddHeight(ref height, auraTargetingType);
+                }
+                else
+                {
+                    AddHeight(ref height, uniqueBuffStacks);
+                    AddHeight(ref height, durationTurns);
                 }
             }
 
@@ -573,6 +726,44 @@ namespace Godmist.Editor
                 "Status");
 
             y += height + Spacing;
+        }
+
+        private static void DrawEffectTypePopup(
+            Rect position,
+            ref float y,
+            SerializedProperty effectType)
+        {
+            var allowedTypes = new[]
+            {
+                EffectType.DealDamage, EffectType.Push, EffectType.ApplyStatus,
+                EffectType.Heal, EffectType.RestoreResource, EffectType.Shield,
+                EffectType.ModifyStat, EffectType.ModifyVar, EffectType.Pull,
+                EffectType.Fallback, EffectType.Charge, EffectType.Teleport,
+                EffectType.CreateObject, EffectType.Summon, EffectType.ModifyActionValue,
+                EffectType.DrainResource, EffectType.SacrificeHealthForResource,
+                EffectType.ModifyResistance, EffectType.ApplyUniqueBuff,
+                EffectType.BlockResourceRegeneration
+            };
+            var labels = Array.ConvertAll(allowedTypes, value => value.ToString());
+            var currentType = (EffectType)effectType.enumValueIndex;
+            var selectedIndex = Array.IndexOf(allowedTypes, currentType);
+            var fieldRect = new Rect(position.x, y, position.width,
+                EditorGUIUtility.singleLineHeight);
+            if (selectedIndex < 0)
+            {
+                selectedIndex = 0;
+                EditorGUI.HelpBox(fieldRect,
+                    "Legacy effect — choose an ApplyUniqueBuff variant.",
+                    MessageType.Warning);
+            }
+            else
+            {
+                selectedIndex = EditorGUI.Popup(fieldRect, "Effect Type",
+                    selectedIndex, labels);
+                effectType.enumValueIndex = (int)allowedTypes[selectedIndex];
+            }
+
+            y += EditorGUIUtility.singleLineHeight + Spacing;
         }
 
         private static void AddHeight(

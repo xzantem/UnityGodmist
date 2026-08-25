@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 
 namespace Godmist.Runtime.Combat
@@ -14,11 +16,36 @@ namespace Godmist.Runtime.Combat
         public int MovementStepsThisTurn;
         public float CurrentActionValue;
 
+        // Combat-scoped state. It intentionally lives on the battle participant rather
+        // than on CharacterInstance, so it cannot leak into exploration/save state.
+        public int NextTurnActionPointModifier;
+        public int LastSkillResourceSpent;
+        public int ResourceRegenerationBlockedTurns;
+        public string DamageRedirectProtectorCharacterId = string.Empty;
+        public float DamageRedirectPercent;
+        public List<UniqueBuffType> UniqueBuffs = new();
+        public Dictionary<ResistanceType, float> ResistanceModifiers = new();
+        public List<CombatAuraRuntime> ActiveAuras = new();
+        public HashSet<string> ActiveToggleSkillIds = new();
+        public HashSet<string> ToggleSkillIdsUsedThisTurn = new();
+
         public bool HasReacted;
         public bool IsReadyToEscape;
         public bool IsPlayerSide;
         public int DownedTurnsRemaining;
 
         public const int DownedTurnLimit = 5;
+    }
+
+    [Serializable]
+    public class CombatAuraRuntime
+    {
+        public string AuraId = string.Empty;
+        public string StatusId = string.Empty;
+        public int Radius;
+        public bool IncludesCaster;
+        public TargetingType TargetingType;
+        public float Chance = 1f;
+        public int DurationTurns = 1;
     }
 }

@@ -182,7 +182,8 @@ namespace Godmist.Editor
                 if (effectType == EffectType.ApplyStatus
                     || effectType == EffectType.ModifyStat
                     || effectType == EffectType.ModifyVar
-                    || effectType == EffectType.Shield)
+                    || effectType == EffectType.Shield
+                    || effectType == EffectType.ApplyUniqueBuff)
                 {
                     return true;
                 }

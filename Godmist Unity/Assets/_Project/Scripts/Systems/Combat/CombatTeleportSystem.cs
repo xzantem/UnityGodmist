@@ -8,14 +8,17 @@ namespace Godmist.Systems.Combat
     {
         private readonly Action<string> battleLog;
         private readonly CombatLineOfSightService lineOfSightService;
+        private readonly StatusEffectSystem statusEffectSystem;
 
         public CombatTeleportSystem(
             Action<string> battleLog = null,
-            CombatLineOfSightService lineOfSightService = null)
+            CombatLineOfSightService lineOfSightService = null,
+            StatusEffectSystem statusEffectSystem = null)
         {
             this.battleLog = battleLog;
             this.lineOfSightService =
                 lineOfSightService ?? new CombatLineOfSightService();
+            this.statusEffectSystem = statusEffectSystem;
         }
 
         public bool CanTeleport(
@@ -79,6 +82,8 @@ namespace Godmist.Systems.Combat
             }
 
             target.Position = destination;
+
+            CombatAuraSystem.Refresh(session, statusEffectSystem);
 
             battleLog?.Invoke(
                 $"{GetDisplayName(target)} is teleported.");

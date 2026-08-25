@@ -38,6 +38,8 @@ namespace Godmist.Systems.Combat
             BattleUnit unit,
             int spentActionPoints)
         {
+            if (IsResourceGainBlocked(unit)) return;
+
             var change = Execute(
                 unit,
                 (rule, pool) => rule.ProcessMovement(
@@ -52,6 +54,8 @@ namespace Godmist.Systems.Combat
 
         public void ProcessDamageDealt(BattleUnit unit)
         {
+            if (IsResourceGainBlocked(unit)) return;
+
             var change = Execute(
                 unit,
                 (rule, pool) => rule.ProcessDamageDealt(pool));
@@ -82,7 +86,35 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            return action(rule, pool);
+            var previousValue = pool.CurrentValue;
+            var previousHasStartedTurn = pool.HasStartedTurn;
+            var previousHasGainedResourceSinceLastTurn =
+                pool.HasGainedResourceSinceLastTurn;
+            var previousFractionalGainRemainder = pool.FractionalGainRemainder;
+            var change = action(rule, pool);
+
+            if (change <= 0 || !IsResourceGainBlocked(unit))
+            {
+                return change;
+            }
+
+            // Rules may mutate auxiliary state even when the pool is already full
+            // (Rage is the important case). Restore the entire relevant pool state,
+            // so a blocked action never counts as a gain either.
+            pool.CurrentValue = previousValue;
+            pool.HasStartedTurn = previousHasStartedTurn;
+            pool.HasGainedResourceSinceLastTurn =
+                previousHasGainedResourceSinceLastTurn;
+            pool.FractionalGainRemainder = previousFractionalGainRemainder;
+            return 0;
+        }
+
+        private static bool IsResourceGainBlocked(BattleUnit unit)
+        {
+            return unit?.Character?.PassiveEffects != null
+                && unit.Character.PassiveEffects.Exists(effect =>
+                    PassiveEffectLifecycleSystem.IsActive(effect)
+                    && effect.BlocksResourceRegeneration);
         }
 
         private void LogChange(

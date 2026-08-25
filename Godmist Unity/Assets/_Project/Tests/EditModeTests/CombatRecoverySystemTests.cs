@@ -7,6 +7,7 @@ using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
 using NUnit.Framework;
 using UnityEngine;
@@ -150,6 +151,28 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 unit.Character.ResourcePool.CurrentValue,
                 Is.EqualTo(10));
+        }
+
+        [Test]
+        public void RestoreResource_ResourceBlock_PreventsAnyPositiveRestore()
+        {
+            var unit = CreateUnit(
+                health: 100,
+                maxHealth: 100,
+                resourceCurrent: 10,
+                resourceMax: 50,
+                isPlayerSide: true);
+            unit.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                BlocksResourceRegeneration = true
+            });
+
+            var restoredResource = new CombatRecoverySystem().RestoreResource(
+                unit,
+                requestedAmount: 25);
+
+            Assert.That(restoredResource, Is.EqualTo(0));
+            Assert.That(unit.Character.ResourcePool.CurrentValue, Is.EqualTo(10));
         }
 
         [Test]

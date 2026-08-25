@@ -23,6 +23,14 @@ namespace Godmist.Runtime.Effects
 
         public int TotalDamage;
         public float StatusHealPercent;
+        public bool IsUniqueCombatBuff;
+        public UniqueBuffType UniqueBuffType;
+        public int ActionPointModifier;
+        public bool BlocksResourceRegeneration;
+        public float DamageRedirectPercent;
+        public string OnHitStatusId = string.Empty;
+        public float OnHitStatusChance;
+        public int OnHitStatusDurationTurns;
         public SkillData CounterattackSkill;
         public SkillRangeData CounterattackRange;
         public List<SkillEffectData> CounterattackEffects = new();

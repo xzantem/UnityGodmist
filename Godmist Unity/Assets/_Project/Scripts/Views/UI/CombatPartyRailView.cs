@@ -63,6 +63,7 @@ namespace Godmist.Views.UI
             ResizeDrawerToVisibleEntries(playerUnits.Count);
         }
 
+
         private void SetEntriesVisible(bool visible)
         {
             foreach (var entry in entries)

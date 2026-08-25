@@ -212,6 +212,7 @@ namespace Godmist.Systems.Combat
             unit.MovementStepsThisTurn++;
 
             resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
+            CombatAuraSystem.Refresh(session, statusEffectSystem);
 
             battleLog?.Invoke(
                 $"{unit.Character.Definition.DisplayName} " +

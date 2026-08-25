@@ -661,6 +661,12 @@ namespace Godmist.Systems.SaveLoad
                     || effectSaveData.Stacks < 0
                     || effectSaveData.RemainingDuration < 0
                     || effectSaveData.TotalDamage < 0
+                    || effectSaveData.OnHitStatusChance < 0f
+                    || effectSaveData.OnHitStatusChance > 1f
+                    || effectSaveData.OnHitStatusDurationTurns < 0
+                    || effectSaveData.DamageRedirectPercent < 0f
+                    || effectSaveData.DamageRedirectPercent > 1f
+                    || !Enum.IsDefined(typeof(UniqueBuffType), effectSaveData.UniqueBuffType)
                     || !TryCreateStatModifiers(
                         effectSaveData.StatModifiers,
                         out var statModifiers)
@@ -723,7 +729,15 @@ namespace Godmist.Systems.SaveLoad
                         tickPhase)
                     {
                         StatModifiers = statModifiers,
-                        VariableModifiers = variableModifiers
+                        VariableModifiers = variableModifiers,
+                        IsUniqueCombatBuff = effectSaveData.IsUniqueCombatBuff,
+                        UniqueBuffType = effectSaveData.UniqueBuffType,
+                        ActionPointModifier = effectSaveData.ActionPointModifier,
+                        BlocksResourceRegeneration = effectSaveData.BlocksResourceRegeneration,
+                        DamageRedirectPercent = effectSaveData.DamageRedirectPercent,
+                        OnHitStatusId = effectSaveData.OnHitStatusId ?? string.Empty,
+                        OnHitStatusChance = effectSaveData.OnHitStatusChance,
+                        OnHitStatusDurationTurns = effectSaveData.OnHitStatusDurationTurns
                     });
             }
 
