@@ -10,6 +10,29 @@ using System.Linq;
 
 namespace Godmist.Systems.Combat
 {
+    public enum SimpleCombatAiActionType
+    {
+        Movement,
+        Skill
+    }
+
+    public readonly struct SimpleCombatAiAction
+    {
+        public SimpleCombatAiAction(SimpleCombatAiActionType type, SkillData skill = null)
+        {
+            Type = type;
+            Skill = skill;
+        }
+
+        public SimpleCombatAiActionType Type { get; }
+        public SkillData Skill { get; }
+    }
+
+    public sealed class SimpleCombatAiTurnState
+    {
+        internal readonly HashSet<SkillData> UsedZeroActionSkills = new();
+    }
+
     public class SimpleCombatAiSystem
     {
         private readonly Action<string> battleLog;
@@ -51,45 +74,70 @@ namespace Godmist.Systems.Combat
             if (session == null || session.Outcome != CombatOutcomeState.Ongoing || aiUnit?.Character == null
                 || aiUnit.Character.LifeState != CharacterLifeState.Alive) return;
 
-            var usedZeroActionSkills = new HashSet<SkillData>();
-
-            while (session.Outcome == CombatOutcomeState.Ongoing
-                && aiUnit.Character.LifeState == CharacterLifeState.Alive
-                && aiUnit.CurrentActionPoints > 0)
+            var turnState = CreateTurnState();
+            while (TryExecuteNextAction(session, aiUnit, turnState, out _))
             {
-                if (TryExecuteBestSkill(
-                        session,
-                        aiUnit,
-                        usedZeroActionSkills,
-                        out var executedSkill))
-                {
-                    if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, executedSkill) == 0)
-                    {
-                        usedZeroActionSkills.Add(executedSkill);
-                    }
+            }
 
-                    continue;
-                }
+            if (session.Outcome == CombatOutcomeState.Ongoing) endTurn?.Invoke(session);
+        }
 
-                var hasTaunter = StatusEffectSystem.TryGetTaunter(
+        public SimpleCombatAiTurnState CreateTurnState()
+        {
+            return new SimpleCombatAiTurnState();
+        }
+
+        public bool TryExecuteNextAction(
+            CombatSession session,
+            BattleUnit aiUnit,
+            SimpleCombatAiTurnState turnState,
+            out SimpleCombatAiAction action)
+        {
+            action = default;
+            if (session == null || session.Outcome != CombatOutcomeState.Ongoing
+                || aiUnit?.Character == null
+                || aiUnit.Character.LifeState != CharacterLifeState.Alive
+                || aiUnit.CurrentActionPoints <= 0)
+            {
+                return false;
+            }
+
+            turnState ??= CreateTurnState();
+            if (TryExecuteBestSkill(
                     session,
                     aiUnit,
-                    out var taunter);
-
-                var target = hasTaunter ? taunter : FindClosestPlayerUnit(session, aiUnit);
-
-                if (target == null)
+                    turnState.UsedZeroActionSkills,
+                    out var executedSkill))
+            {
+                if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, executedSkill) == 0)
                 {
-                    evaluateOutcome?.Invoke(session);
-                    break;
+                    turnState.UsedZeroActionSkills.Add(executedSkill);
                 }
 
-                if (!TryMoveAiForRole(session, aiUnit, target))
-                {
-                    break;
-                }
+                action = new SimpleCombatAiAction(
+                    SimpleCombatAiActionType.Skill,
+                    executedSkill);
+                return true;
             }
-            if (session.Outcome == CombatOutcomeState.Ongoing) endTurn?.Invoke(session);
+
+            var hasTaunter = StatusEffectSystem.TryGetTaunter(
+                session,
+                aiUnit,
+                out var taunter);
+            var target = hasTaunter ? taunter : FindClosestPlayerUnit(session, aiUnit);
+            if (target == null)
+            {
+                evaluateOutcome?.Invoke(session);
+                return false;
+            }
+
+            if (!TryMoveAiForRole(session, aiUnit, target))
+            {
+                return false;
+            }
+
+            action = new SimpleCombatAiAction(SimpleCombatAiActionType.Movement);
+            return true;
         }
 
         private bool TryExecuteBestSkill(
@@ -720,35 +768,40 @@ namespace Godmist.Systems.Combat
             BattleUnit aiUnit,
             BattleUnit target)
         {
-            if (!TryFindNextStep(
-                    session,
-                    aiUnit,
-                    target,
-                    out var nextStep))
+            if (session?.Grid == null
+                || aiUnit?.Character == null
+                || target?.Character == null)
             {
-                Debug.LogWarning(
-                    $"{aiUnit.Character.Definition.DisplayName} " +
-                    "nie znalazł ścieżki do celu.");
-
                 return false;
             }
 
-            var deltaX = nextStep.X - aiUnit.Position.X;
-            var deltaY = nextStep.Y - aiUnit.Position.Y;
+            if (GetManhattanDistance(aiUnit.Position, target.Position) <= 1)
+            {
+                return false;
+            }
 
-            return movementSystem.TryMoveOneStep(
+            if (!TryFindPathToTarget(
+                    session,
+                    aiUnit,
+                    target,
+                    out var path))
+            {
+                return false;
+            }
+
+            return movementSystem.TryMoveAlongPath(
                 session,
                 aiUnit,
-                deltaX,
-                deltaY);
+                path);
         }
-        private bool TryFindNextStep(
+
+        private bool TryFindPathToTarget(
             CombatSession session,
             BattleUnit aiUnit,
             BattleUnit target,
-            out GridPosition nextStep)
+            out List<GridPosition> path)
         {
-            nextStep = default;
+            path = null;
 
             if (session?.Grid == null
                 || aiUnit?.Character == null
@@ -770,6 +823,10 @@ namespace Godmist.Systems.Combat
 
             GridPosition goal = default;
             var foundGoal = false;
+            var bestReachablePosition = start;
+            var bestReachableDistance = GetManhattanDistance(
+                start,
+                target.Position);
 
             while (queue.Count > 0)
             {
@@ -781,6 +838,19 @@ namespace Godmist.Systems.Combat
                     foundGoal = true;
                     break;
                 }
+
+                if (current != start)
+                {
+                    var currentDistance = GetManhattanDistance(
+                        current,
+                        target.Position);
+                    if (currentDistance < bestReachableDistance)
+                    {
+                        bestReachablePosition = current;
+                        bestReachableDistance = currentDistance;
+                    }
+                }
+
                 foreach (var direction in MovementDirections)
                 {
                     var candidate = new GridPosition(
@@ -804,6 +874,15 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
+                    var nextPathLength = BuildPath(previous, start, current).Count + 1;
+                    if (CombatMovementSystem.CalculatePathCost(
+                            aiUnit,
+                            nextPathLength)
+                        > aiUnit.CurrentActionPoints)
+                    {
+                        continue;
+                    }
+
                     visited.Add(candidate);
                     previous[candidate] = current;
                     queue.Enqueue(candidate);
@@ -811,19 +890,34 @@ namespace Godmist.Systems.Combat
             }
             if (!foundGoal)
             {
-                return false;
+                goal = bestReachablePosition;
+                if (goal == start)
+                {
+                    return false;
+                }
             }
 
-            while (previous.TryGetValue(
-                goal,
-                out var parent)
-                && parent != start)
-            {
-                goal = parent;
-            }
-
-            nextStep = goal;
+            path = BuildPath(previous, start, goal);
             return true;
+        }
+
+        private static List<GridPosition> BuildPath(
+            IReadOnlyDictionary<GridPosition, GridPosition> previous,
+            GridPosition start,
+            GridPosition destination)
+        {
+            var path = new List<GridPosition>();
+            var current = destination;
+            while (current != start)
+            {
+                path.Insert(0, current);
+                if (!previous.TryGetValue(current, out current))
+                {
+                    return new List<GridPosition>();
+                }
+            }
+
+            return path;
         }
 
         public int GetManhattanDistance(GridPosition a, GridPosition b)

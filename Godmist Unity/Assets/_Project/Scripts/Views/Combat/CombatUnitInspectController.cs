@@ -54,7 +54,6 @@ namespace Godmist.Views.Combat
             {
                 selectedUnit = null;
                 inspectPanel.Hide();
-                RefreshNameLabels(null);
                 return;
             }
 
@@ -72,13 +71,11 @@ namespace Godmist.Views.Combat
                     inspectPanel.Hide();
                 }
 
-                RefreshNameLabels(hoveredUnit);
                 return;
             }
 
             var hoveredUnitOutsideTargeting = GetUnitUnderMouse();
             HoveredUnit = hoveredUnitOutsideTargeting;
-            RefreshNameLabels(hoveredUnitOutsideTargeting);
 
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
@@ -107,13 +104,11 @@ namespace Godmist.Views.Combat
             {
                 selectedUnit = null;
                 inspectPanel.Hide();
-                RefreshNameLabels(null);
                 return;
             }
 
             selectedUnit = unit;
             inspectPanel.Show(unit);
-            RefreshNameLabels(hoveredUnitOutsideTargeting);
         }
 
         private BattleUnit FindUnitAtPosition(
@@ -144,11 +139,6 @@ namespace Godmist.Views.Combat
             return session == null
                 ? null
                 : FindUnitAtPosition(session, GetGridPositionUnderMouse());
-        }
-
-        private void RefreshNameLabels(BattleUnit hoveredUnit)
-        {
-            unitViewSpawner?.ShowNameLabelsFor(hoveredUnit, selectedUnit);
         }
 
         private GridPosition GetGridPositionUnderMouse()

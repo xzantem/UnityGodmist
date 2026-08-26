@@ -35,20 +35,6 @@ namespace Godmist.Views.Combat
         [System.NonSerialized] private CombatSession boundSession;
         private Sprite missingSprite;
 
-        public void ShowNameLabelsFor(
-            BattleUnit primaryUnit,
-            BattleUnit secondaryUnit = null)
-        {
-            foreach (var pair in views)
-            {
-                if (pair.Value != null)
-                {
-                    pair.Value.SetNameLabelVisible(
-                        pair.Key == primaryUnit || pair.Key == secondaryUnit);
-                }
-            }
-        }
-
         public bool TryGetWorldPosition(BattleUnit unit, out Vector3 position)
         {
             if (unit != null && views.TryGetValue(unit, out var view) && view != null)
@@ -59,6 +45,12 @@ namespace Godmist.Views.Combat
 
             position = default;
             return false;
+        }
+
+        public bool TryGetWorldPosition(GridPosition gridPosition, out Vector3 position)
+        {
+            position = GridToWorldPosition(gridPosition);
+            return true;
         }
 
         private void Awake()
@@ -151,6 +143,7 @@ namespace Godmist.Views.Combat
 
                 view.SetWorldPosition(GridToWorldPosition(unit.Position));
                 view.Refresh();
+                view.SetNameLabelVisible(false);
                 view.GetComponent<CombatUnitVisualStateView>()?.Refresh(
                     unit,
                     session.ActiveUnit == unit,

@@ -22,13 +22,15 @@ namespace Godmist.Runtime.Combat
             CombatFeedbackType type,
             int amount = 0,
             DamageType? damageType = null,
-            ResourceType? resourceType = null)
+            ResourceType? resourceType = null,
+            GridPosition? position = null)
         {
             Target = target;
             Type = type;
             Amount = amount;
             DamageType = damageType;
             ResourceType = resourceType;
+            Position = position ?? target?.Position ?? default;
         }
 
         public BattleUnit Target { get; }
@@ -36,5 +38,6 @@ namespace Godmist.Runtime.Combat
         public int Amount { get; }
         public DamageType? DamageType { get; }
         public ResourceType? ResourceType { get; }
+        public GridPosition Position { get; }
     }
 }

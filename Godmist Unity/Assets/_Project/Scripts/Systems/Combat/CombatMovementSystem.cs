@@ -183,27 +183,51 @@ namespace Godmist.Systems.Combat
             BattleUnit unit, 
             IReadOnlyList<GridPosition> path)
         {
-            if (path == null || path.Count == 0)
+            if (session?.Grid == null
+                || unit?.Character == null
+                || path == null
+                || path.Count == 0)
             {
                 return false;
             }
-            
+
+            var totalMovementCost = 0;
+            var completed = true;
             foreach (var targetPosition in path)
             {
                 var deltaX = targetPosition.X - unit.Position.X;
                 var deltaY = targetPosition.Y - unit.Position.Y;
 
-                if (!TryMoveOneStep(
+                if (!TryMoveOneStepInternal(
                         session, 
                         unit, 
                         deltaX, 
-                        deltaY))
+                        deltaY,
+                        publishFeedback: false,
+                        processResource: false,
+                        writeBattleLog: false,
+                        out var movementCost))
                 {
-                    return false;
+                    completed = false;
+                    break;
                 }
+
+                totalMovementCost += movementCost;
             }
 
-            return true;
+            if (totalMovementCost > 0)
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    unit,
+                    CombatFeedbackType.ActionPointSpend,
+                    totalMovementCost));
+                resourceRuleSystem?.ProcessUnitMoved(unit, totalMovementCost);
+                battleLog?.Invoke(
+                    $"{unit.Character.Definition.DisplayName} " +
+                    $"moves along a path for {totalMovementCost} AP.");
+            }
+
+            return completed;
         }
 
         public bool TryMoveOneStep(
@@ -212,6 +236,28 @@ namespace Godmist.Systems.Combat
             int deltaX,
             int deltaY)
         {
+            return TryMoveOneStepInternal(
+                session,
+                unit,
+                deltaX,
+                deltaY,
+                publishFeedback: true,
+                processResource: true,
+                writeBattleLog: true,
+                out _);
+        }
+
+        private bool TryMoveOneStepInternal(
+            CombatSession session,
+            BattleUnit unit,
+            int deltaX,
+            int deltaY,
+            bool publishFeedback,
+            bool processResource,
+            bool writeBattleLog,
+            out int movementCost)
+        {
+            movementCost = 0;
             if (session?.Grid == null
                 || unit?.Character == null
                 || unit.Character.LifeState != CharacterLifeState.Alive)
@@ -235,7 +281,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var movementCost =
+            movementCost =
                 CombatActionCostCalculator.CalculateMovementCost(unit);
 
             if (unit.CurrentActionPoints < movementCost)
@@ -276,14 +322,17 @@ namespace Godmist.Systems.Combat
 
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;
-            if (movementCost > 0)
+            if (publishFeedback && movementCost > 0)
             {
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     unit, CombatFeedbackType.ActionPointSpend, movementCost));
             }
             unit.MovementStepsThisTurn++;
 
-            resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
+            if (processResource)
+            {
+                resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
+            }
             var recoveredKnives = ScoutKnifeSystem.RecoverAtPosition(session, unit);
             if (recoveredKnives > 0)
             {
@@ -291,10 +340,13 @@ namespace Godmist.Systems.Combat
             }
             CombatAuraSystem.Refresh(session, statusEffectSystem);
 
-            battleLog?.Invoke(
-                $"{unit.Character.Definition.DisplayName} " +
-                $"moves to [{unit.Position.X}, {unit.Position.Y}] " +
-                $"for {movementCost} AP.");
+            if (writeBattleLog)
+            {
+                battleLog?.Invoke(
+                    $"{unit.Character.Definition.DisplayName} " +
+                    $"moves to [{unit.Position.X}, {unit.Position.Y}] " +
+                    $"for {movementCost} AP.");
+            }
 
             return true;
         }

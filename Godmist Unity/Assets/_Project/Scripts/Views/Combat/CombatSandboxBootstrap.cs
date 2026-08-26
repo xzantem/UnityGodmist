@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
@@ -33,6 +34,11 @@ namespace Godmist.Views.Combat
 
         [Header("AP Config")]
         [SerializeField] private float actionPointsPerSpeed = 0.25f;
+
+        [Header("AI Presentation")]
+        [SerializeField, Min(0f)] private float aiDecisionDelay = 0.65f;
+        [SerializeField, Min(0f)] private float aiMovementResultDelay = 0.9f;
+        [SerializeField, Min(0f)] private float aiSkillResultDelay = 1.2f;
 
         [Header("Debug References")]
         [SerializeField] private CombatBattleLog battleLog;
@@ -77,6 +83,7 @@ namespace Godmist.Views.Combat
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
         private bool usesGameSessionCombat;
         private bool hasRequestedExplorationReturn;
+        private Coroutine activeAiTurnCoroutine;
         public event Action<CombatMapObject> CombatMapObjectChanged;
 
         private readonly CharacterInstanceFactory characterInstanceFactory = new();
@@ -172,6 +179,15 @@ namespace Godmist.Views.Combat
             AddBattleLog("Walka rozpoczęta.");
 
             turnSystem.InitializeTurnOrder(Session);
+        }
+
+        private void OnDestroy()
+        {
+            if (activeAiTurnCoroutine != null)
+            {
+                StopCoroutine(activeAiTurnCoroutine);
+                activeAiTurnCoroutine = null;
+            }
         }
         private void Update()
         {
@@ -493,7 +509,62 @@ namespace Godmist.Views.Combat
 
             if (!unit.IsPlayerSide)
             {
-                aiSystem.ExecuteSimpleAiTurn(Session, unit);
+                activeAiTurnCoroutine = StartCoroutine(ExecuteAiTurnVisually(unit));
+            }
+        }
+
+        private IEnumerator ExecuteAiTurnVisually(BattleUnit unit)
+        {
+            var turnState = aiSystem?.CreateTurnState();
+            while (Session != null
+                && Session.Outcome == CombatOutcomeState.Ongoing
+                && Session.ActiveUnit == unit
+                && unit?.Character?.LifeState == CharacterLifeState.Alive
+                && unit.CurrentActionPoints > 0
+                && turnState != null)
+            {
+                yield return WaitForAiPresentation(aiDecisionDelay);
+
+                if (Session.Outcome != CombatOutcomeState.Ongoing
+                    || Session.ActiveUnit != unit
+                    || unit.Character.LifeState != CharacterLifeState.Alive)
+                {
+                    break;
+                }
+
+                if (!aiSystem.TryExecuteNextAction(
+                        Session,
+                        unit,
+                        turnState,
+                        out var action))
+                {
+                    break;
+                }
+
+                var resultDelay = action.Type == SimpleCombatAiActionType.Skill
+                    ? aiSkillResultDelay
+                    : aiMovementResultDelay;
+                yield return WaitForAiPresentation(resultDelay);
+            }
+
+            activeAiTurnCoroutine = null;
+            if (Session != null
+                && Session.Outcome == CombatOutcomeState.Ongoing
+                && Session.ActiveUnit == unit)
+            {
+                turnSystem.EndActiveTurn(Session);
+            }
+        }
+
+        private static IEnumerator WaitForAiPresentation(float duration)
+        {
+            if (duration > 0f)
+            {
+                yield return new WaitForSecondsRealtime(duration);
+            }
+            else
+            {
+                yield return null;
             }
         }
 
