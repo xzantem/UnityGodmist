@@ -8,6 +8,7 @@ namespace Godmist.Views.Combat
     public enum CombatGridFeedbackLayer
     {
         MovementRange,
+        InspectedMovementRange,
         SkillRange,
         SkillTarget,
         RelativeRange,

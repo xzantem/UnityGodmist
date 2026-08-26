@@ -112,6 +112,31 @@ namespace Godmist.Systems.Combat
             CombatSession session, 
             BattleUnit unit)
         {
+            return CalculateReachablePaths(
+                session,
+                unit,
+                unit?.CurrentActionPoints ?? 0,
+                unit?.MovementStepsThisTurn ?? 0);
+        }
+
+        public Dictionary<GridPosition, List<GridPosition>>
+            CalculateReachablePathsForNextTurn(
+                CombatSession session,
+                BattleUnit unit)
+        {
+            return CalculateReachablePaths(
+                session,
+                unit,
+                unit?.MaxActionPoints ?? 0,
+                movementStepsAlreadyTaken: 0);
+        }
+
+        private Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
+            CombatSession session,
+            BattleUnit unit,
+            int availableActionPoints,
+            int movementStepsAlreadyTaken)
+        {
             var reachablePaths = new Dictionary<
                 GridPosition, 
                 List<GridPosition>>();
@@ -161,10 +186,10 @@ namespace Godmist.Systems.Combat
                     };
 
                     var pathCost = CalculatePathCost(
-                        unit, 
+                        movementStepsAlreadyTaken,
                         nextPath.Count);
 
-                    if (pathCost > unit.CurrentActionPoints)
+                    if (pathCost > availableActionPoints)
                     {
                         continue;
                     }
@@ -355,7 +380,14 @@ namespace Godmist.Systems.Combat
             BattleUnit unit, 
             int pathLength)
         {
-            var firstStepCost = unit.MovementStepsThisTurn + 1;
+            return CalculatePathCost(unit?.MovementStepsThisTurn ?? 0, pathLength);
+        }
+
+        public static int CalculatePathCost(
+            int movementStepsAlreadyTaken,
+            int pathLength)
+        {
+            var firstStepCost = movementStepsAlreadyTaken + 1;
 
             return pathLength
                 * (2 * firstStepCost + pathLength - 1) 

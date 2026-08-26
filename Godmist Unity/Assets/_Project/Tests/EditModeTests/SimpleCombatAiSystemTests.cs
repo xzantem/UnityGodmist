@@ -243,6 +243,32 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void CalculateReachablePathsForNextTurn_UsesFreshActionPointsAndMovementCost()
+        {
+            var unit = CreateAiCombatUnit(
+                "preview-unit",
+                isPlayerSide: false,
+                position: new GridPosition(0, 0));
+            unit.CurrentActionPoints = 0;
+            unit.MaxActionPoints = 3;
+            unit.MovementStepsThisTurn = 4;
+            var session = new CombatSession
+            {
+                CombatId = "test.next-turn-movement-preview",
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(4, 1),
+                Units = new List<BattleUnit> { unit }
+            };
+
+            var paths = new CombatMovementSystem()
+                .CalculateReachablePathsForNextTurn(session, unit);
+
+            Assert.That(paths.ContainsKey(new GridPosition(1, 0)), Is.True);
+            Assert.That(paths.ContainsKey(new GridPosition(2, 0)), Is.True);
+            Assert.That(paths.ContainsKey(new GridPosition(3, 0)), Is.False);
+        }
+
+        [Test]
         public void TryExecuteNextAction_MovesReachablePathPrefixWhenTargetIsFartherThanAp()
         {
             var aiUnit = CreateAiCombatUnit(
@@ -273,6 +299,11 @@ namespace Godmist.Tests.EditMode
                     out var action),
                 Is.True);
             Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Movement));
+            Assert.That(action.MovementPath, Is.EqualTo(new[]
+            {
+                new GridPosition(1, 0),
+                new GridPosition(2, 0)
+            }));
             Assert.That(aiUnit.Position, Is.EqualTo(new GridPosition(2, 0)));
             Assert.That(aiUnit.CurrentActionPoints, Is.EqualTo(0));
         }

@@ -12,12 +12,15 @@ namespace Godmist.Views.Combat
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;
         [SerializeField] private CombatGridFeedbackRenderer feedbackRenderer;
+        [SerializeField] private CombatUnitInspectController inspectController;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
         [SerializeField] private Color movementRangeColor = new(1f, .72f, .2f, .85f);
         [SerializeField] private Color movementPreviewColor = new(1f, .84f, .38f, 1f);
+        [SerializeField] private Color inspectedMovementRangeColor =
+            new(.85f, .3f, 1f, .85f);
 
         private Dictionary<
             GridPosition,
@@ -31,12 +34,21 @@ namespace Godmist.Views.Combat
         private bool cacheValid;
         private GridPosition? previewedDestination;
         private int previewedPathCost;
+        private BattleUnit cachedInspectedUnit;
+        private GridPosition cachedInspectedPosition;
+        private int cachedInspectedMaxActionPoints;
+        private bool inspectedRangeVisible;
 
         private void Awake()
         {
             if (worldCamera == null)
             {
                 worldCamera = Camera.main;
+            }
+
+            if (inspectController == null)
+            {
+                inspectController = Object.FindAnyObjectByType<CombatUnitInspectController>();
             }
         }
 
@@ -47,6 +59,23 @@ namespace Godmist.Views.Combat
                 ClearHighlights();
                 cacheValid = false;
                 return;
+            }
+
+            if (sandboxBootstrap?.IsPlayerMovementPresentationInProgress == true)
+            {
+                ClearHighlights();
+                cacheValid = false;
+                return;
+            }
+
+            if (TryShowInspectedUnitMovementRange())
+            {
+                return;
+            }
+
+            if (ClearInspectedMovementRange())
+            {
+                cacheValid = false;
             }
 
             if (!HasControllableUnit())
@@ -164,9 +193,65 @@ namespace Godmist.Views.Combat
         {
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.MovementRange);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.MovementRange);
+            ClearInspectedMovementRange();
             feedbackRenderer?.ClearMovementPreview();
             previewedDestination = null;
             previewedPathCost = 0;
+        }
+
+        private bool TryShowInspectedUnitMovementRange()
+        {
+            var isInspectingMovement = Input.GetKey(KeyCode.LeftControl)
+                || Input.GetKey(KeyCode.RightControl);
+            var inspectedUnit = inspectController?.HoveredUnit;
+            if (!isInspectingMovement
+                || inspectedUnit == null
+                || sandboxBootstrap?.Session == null)
+            {
+                return false;
+            }
+
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.MovementRange);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.MovementRange);
+            feedbackRenderer?.ClearMovementPreview();
+            previewedDestination = null;
+            previewedPathCost = 0;
+            cacheValid = false;
+
+            if (inspectedRangeVisible
+                && cachedInspectedUnit == inspectedUnit
+                && cachedInspectedPosition == inspectedUnit.Position
+                && cachedInspectedMaxActionPoints == inspectedUnit.MaxActionPoints)
+            {
+                return true;
+            }
+
+            var inspectedPaths = sandboxBootstrap
+                .GetUnitNextTurnMovementPaths(inspectedUnit);
+            feedbackRenderer?.ShowOutline(
+                CombatGridFeedbackLayer.InspectedMovementRange,
+                inspectedPaths.Keys,
+                inspectedMovementRangeColor);
+            feedbackRenderer?.ShowFill(
+                CombatGridFeedbackLayer.InspectedMovementRange,
+                inspectedPaths.Keys,
+                WithAlpha(inspectedMovementRangeColor, .2f));
+
+            cachedInspectedUnit = inspectedUnit;
+            cachedInspectedPosition = inspectedUnit.Position;
+            cachedInspectedMaxActionPoints = inspectedUnit.MaxActionPoints;
+            inspectedRangeVisible = true;
+            return true;
+        }
+
+        private bool ClearInspectedMovementRange()
+        {
+            if (!inspectedRangeVisible) return false;
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.InspectedMovementRange);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.InspectedMovementRange);
+            cachedInspectedUnit = null;
+            inspectedRangeVisible = false;
+            return true;
         }
 
         private void RefreshMovementPreview()

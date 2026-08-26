@@ -18,14 +18,19 @@ namespace Godmist.Systems.Combat
 
     public readonly struct SimpleCombatAiAction
     {
-        public SimpleCombatAiAction(SimpleCombatAiActionType type, SkillData skill = null)
+        public SimpleCombatAiAction(
+            SimpleCombatAiActionType type,
+            SkillData skill = null,
+            IReadOnlyList<GridPosition> movementPath = null)
         {
             Type = type;
             Skill = skill;
+            MovementPath = movementPath;
         }
 
         public SimpleCombatAiActionType Type { get; }
         public SkillData Skill { get; }
+        public IReadOnlyList<GridPosition> MovementPath { get; }
     }
 
     public sealed class SimpleCombatAiTurnState
@@ -131,12 +136,14 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!TryMoveAiForRole(session, aiUnit, target))
+            if (!TryMoveAiForRole(session, aiUnit, target, out var movementPath))
             {
                 return false;
             }
 
-            action = new SimpleCombatAiAction(SimpleCombatAiActionType.Movement);
+            action = new SimpleCombatAiAction(
+                SimpleCombatAiActionType.Movement,
+                movementPath: movementPath);
             return true;
         }
 
@@ -536,8 +543,10 @@ namespace Godmist.Systems.Combat
         private bool TryMoveAiForRole(
             CombatSession session,
             BattleUnit aiUnit,
-            BattleUnit target)
+            BattleUnit target,
+            out List<GridPosition> movementPath)
         {
+            movementPath = null;
             var role = aiUnit?.Character?.Definition?.AiRole ?? CombatAiRole.Balanced;
             var personality = aiUnit?.Character?.Definition?.AiPersonality
                 ?? CombatAiPersonality.Neutral;
@@ -555,10 +564,11 @@ namespace Godmist.Systems.Combat
                         session,
                         aiUnit,
                         target,
-                        desiredRange);
+                        desiredRange,
+                        out movementPath);
             }
 
-            return TryMoveAiTowardsTarget(session, aiUnit, target);
+            return TryMoveAiTowardsTarget(session, aiUnit, target, out movementPath);
         }
 
         private static int GetPreferredCombatRange(BattleUnit unit)
@@ -596,8 +606,10 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit aiUnit,
             BattleUnit target,
-            int desiredRange)
+            int desiredRange,
+            out List<GridPosition> movementPath)
         {
+            movementPath = null;
             GridPosition? bestPosition = null;
             var bestDistance = GetManhattanDistance(aiUnit.Position, target.Position);
 
@@ -619,11 +631,13 @@ namespace Godmist.Systems.Combat
                 bestDistance = candidateDistance;
             }
 
-            return bestPosition.HasValue && movementSystem.TryMoveOneStep(
-                session,
-                aiUnit,
-                bestPosition.Value.X - aiUnit.Position.X,
-                bestPosition.Value.Y - aiUnit.Position.Y);
+            if (!bestPosition.HasValue)
+            {
+                return false;
+            }
+
+            movementPath = new List<GridPosition> { bestPosition.Value };
+            return movementSystem.TryMoveAlongPath(session, aiUnit, movementPath);
         }
 
         private static float CalculateEffectsScore(
@@ -768,6 +782,16 @@ namespace Godmist.Systems.Combat
             BattleUnit aiUnit,
             BattleUnit target)
         {
+            return TryMoveAiTowardsTarget(session, aiUnit, target, out _);
+        }
+
+        private bool TryMoveAiTowardsTarget(
+            CombatSession session,
+            BattleUnit aiUnit,
+            BattleUnit target,
+            out List<GridPosition> movementPath)
+        {
+            movementPath = null;
             if (session?.Grid == null
                 || aiUnit?.Character == null
                 || target?.Character == null)
@@ -789,10 +813,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            return movementSystem.TryMoveAlongPath(
+            if (!movementSystem.TryMoveAlongPath(
                 session,
                 aiUnit,
-                path);
+                path))
+            {
+                return false;
+            }
+
+            movementPath = path;
+            return true;
         }
 
         private bool TryFindPathToTarget(

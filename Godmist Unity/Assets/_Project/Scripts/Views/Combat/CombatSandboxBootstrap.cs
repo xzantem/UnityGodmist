@@ -84,12 +84,22 @@ namespace Godmist.Views.Combat
         private bool usesGameSessionCombat;
         private bool hasRequestedExplorationReturn;
         private Coroutine activeAiTurnCoroutine;
+        private Coroutine activePlayerMovementPresentationCoroutine;
+        private CombatUnitViewSpawner unitViewSpawner;
         public event Action<CombatMapObject> CombatMapObjectChanged;
+        public bool IsPlayerMovementPresentationInProgress =>
+            activePlayerMovementPresentationCoroutine != null;
 
         private readonly CharacterInstanceFactory characterInstanceFactory = new();
 
         private void Start()
         {
+            unitViewSpawner = GetComponent<CombatUnitViewSpawner>();
+            if (unitViewSpawner == null)
+            {
+                unitViewSpawner = UnityEngine.Object
+                    .FindAnyObjectByType<CombatUnitViewSpawner>();
+            }
             turnSystem = new CombatTurnSystem(
                 AddBattleLog,
                 HandleUnitTurnBegan,
@@ -187,6 +197,12 @@ namespace Godmist.Views.Combat
             {
                 StopCoroutine(activeAiTurnCoroutine);
                 activeAiTurnCoroutine = null;
+            }
+
+            if (activePlayerMovementPresentationCoroutine != null)
+            {
+                StopCoroutine(activePlayerMovementPresentationCoroutine);
+                activePlayerMovementPresentationCoroutine = null;
             }
         }
         private void Update()
@@ -541,6 +557,11 @@ namespace Godmist.Views.Combat
                     break;
                 }
 
+                if (action.Type == SimpleCombatAiActionType.Movement)
+                {
+                    yield return PlayMovementPath(unit, action.MovementPath);
+                }
+
                 var resultDelay = action.Type == SimpleCombatAiActionType.Skill
                     ? aiSkillResultDelay
                     : aiMovementResultDelay;
@@ -566,6 +587,44 @@ namespace Godmist.Views.Combat
             {
                 yield return null;
             }
+        }
+
+        private IEnumerator PlayMovementPath(
+            BattleUnit unit,
+            IReadOnlyList<GridPosition> path)
+        {
+            if (unitViewSpawner == null
+                || path == null
+                || path.Count == 0
+                || !unitViewSpawner.TryBeginPresentationMovement(unit))
+            {
+                yield break;
+            }
+
+            foreach (var position in path)
+            {
+                if (Session == null
+                    || Session.Outcome != CombatOutcomeState.Ongoing
+                    || !unitViewSpawner.TryMovePresentationStep(unit, position))
+                {
+                    break;
+                }
+
+                while (unitViewSpawner.IsPresentationMovementInProgress(unit))
+                {
+                    yield return null;
+                }
+            }
+
+            unitViewSpawner.EndPresentationMovement(unit);
+        }
+
+        private IEnumerator PlayPlayerMovementPath(
+            BattleUnit unit,
+            IReadOnlyList<GridPosition> path)
+        {
+            yield return PlayMovementPath(unit, path);
+            activePlayerMovementPresentationCoroutine = null;
         }
 
         private void HandleUnitTurnEnded(BattleUnit unit)
@@ -638,7 +697,8 @@ namespace Godmist.Views.Combat
             return Session != null
                 && Session.ActiveUnit != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
-                && Session.ActiveUnit.IsPlayerSide;
+                && Session.ActiveUnit.IsPlayerSide
+                && !IsPlayerMovementPresentationInProgress;
         }
 
         public bool CanEscape()
@@ -646,7 +706,8 @@ namespace Godmist.Views.Combat
             return Session != null && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerSide 
                 && Session.ActiveUnit.Character != null 
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
-                && Session.Outcome == CombatOutcomeState.Ongoing;
+                && Session.Outcome == CombatOutcomeState.Ongoing
+                && !IsPlayerMovementPresentationInProgress;
         }
 
         public void RequestEscape()
@@ -700,6 +761,20 @@ namespace Godmist.Views.Combat
                 Session.ActiveUnit);
         }
 
+        public Dictionary<GridPosition, List<GridPosition>>
+            GetUnitNextTurnMovementPaths(BattleUnit unit)
+        {
+            if (Session == null
+                || unit == null
+                || !Session.Units.Contains(unit)
+                || Session.Outcome != CombatOutcomeState.Ongoing)
+            {
+                return new Dictionary<GridPosition, List<GridPosition>>();
+            }
+
+            return movementSystem.CalculateReachablePathsForNextTurn(Session, unit);
+        }
+
         public int GetActiveUnitMovementPathCost(IReadOnlyList<GridPosition> path)
         {
             if (path == null || Session?.ActiveUnit == null) return 0;
@@ -712,15 +787,24 @@ namespace Godmist.Views.Combat
             if (Session == null
                 || Session.ActiveUnit == null
                 || !Session.ActiveUnit.IsPlayerSide
-                || Session.Outcome != CombatOutcomeState.Ongoing)
+                || Session.Outcome != CombatOutcomeState.Ongoing
+                || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }
 
-            return movementSystem.TryMoveAlongPath(
+            var unit = Session.ActiveUnit;
+            if (!movementSystem.TryMoveAlongPath(
                 Session,
-                Session.ActiveUnit,
-                path);
+                unit,
+                path))
+            {
+                return false;
+            }
+
+            activePlayerMovementPresentationCoroutine = StartCoroutine(
+                PlayPlayerMovementPath(unit, path));
+            return true;
         }
         public bool TryExecuteSkill(
             SkillData skill,
@@ -774,7 +858,8 @@ namespace Godmist.Views.Combat
             GridPosition? objectPlacementDestination)
         {
             if (Session == null || Session.ActiveUnit == null
-                || skillExecutionSystem == null || targetingService == null)
+                || skillExecutionSystem == null || targetingService == null
+                || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }

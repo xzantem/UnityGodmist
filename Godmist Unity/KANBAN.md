@@ -41,9 +41,6 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
-  - Ruch przeciwnika ma korzystac z wyznaczonej sciezki tile-by-tile i wizualnie przechodzic przez kolejne pola, z zachowaniem blokad i kosztu AP, zamiast przesuwania widoku bezposrednio z poczatku do konca.
-  - Preview ma pokazywac planowana sciezke oraz jej odleglosc/koszt dla nastepnej tury przeciwnika, wykorzystujac istniejacy renderer feedbacku planszy.
 - `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
   - Dodac ksztalty m.in. line, diagonal line i X.
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
@@ -101,6 +98,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Combat v3 — Closed
+
+- `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
+  - Ruch AI i gracza korzysta z wyznaczonej sciezki tile-by-tile i wizualnie przechodzi przez kolejne pola, z zachowaniem blokad i kosztu AP.
+  - `Ctrl` + hover nad dowolna jednostka pokazuje jej zasieg ruchu na nastepna ture; bez przewidywania akcji, skilli ani kosztu sciezki.
 
 - `[P1] Combat v3 - czytelnosc feedbacku i sekwencjonowanie akcji v1` - `UI / UX`, `Combat`
   - Feedback jest powiazany z momentem rozstrzygniecia akcji i aktualna pozycja jednostki; komunikaty sa kolejkowane, rozsuwane i prezentowane z czytelnym opoznieniem.
