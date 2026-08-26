@@ -12,6 +12,8 @@ namespace Godmist.Runtime.Characters
         public Stat MaxAttack;
         public Stat PhysicalDefense;
         public Stat MagicalDefense;
+        public Stat PhysicalDefensePenetration;
+        public Stat MagicalDefensePenetration;
         public Stat Dodge;
         public Stat CritChance;
         public Stat CritDamage;
@@ -34,6 +36,10 @@ namespace Godmist.Runtime.Characters
                     return ref PhysicalDefense;
                 case CharacterStatType.MagicalDefense:
                     return ref MagicalDefense;
+                case CharacterStatType.PhysicalDefensePenetration:
+                    return ref PhysicalDefensePenetration;
+                case CharacterStatType.MagicalDefensePenetration:
+                    return ref MagicalDefensePenetration;
                 case CharacterStatType.Dodge:
                     return ref Dodge;
                 case CharacterStatType.CritChance:

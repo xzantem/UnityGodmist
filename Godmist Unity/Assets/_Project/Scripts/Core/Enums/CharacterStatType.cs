@@ -13,6 +13,8 @@ namespace Godmist.Core.Enums
         Speed = 8,
         ResourceRegeneration = 9,
         WeaponAccuracy = 10,
-        MaxResource = 11
+        MaxResource = 11,
+        PhysicalDefensePenetration = 12,
+        MagicalDefensePenetration = 13
     }
 }

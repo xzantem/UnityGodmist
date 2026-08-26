@@ -21,6 +21,7 @@ namespace Godmist.Data.Effects
             DamageValueSource.AttackRange;
         [SerializeField, Min(0f)] private float damageMultiplier = 1f;
         [SerializeField, Min(1)] private int damageHitCount = 1;
+        [SerializeField, Range(0f, 1f)] private float bonusPenetration;
         [SerializeField, Range(0f, 1f)] private float bonusDamageMultiplierChance;
         [SerializeField, Min(1f)] private float bonusDamageMultiplier = 1f;
         [SerializeField] private string onHitStatusId = string.Empty;
@@ -105,6 +106,7 @@ namespace Godmist.Data.Effects
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
         public int DamageHitCount => Mathf.Max(1, damageHitCount);
+        public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
         public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
         public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);
         public string OnHitStatusId => onHitStatusId;

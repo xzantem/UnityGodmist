@@ -35,7 +35,8 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             int attackValue,
             DamageType damageType,
-            float skillAccuracy)
+            float skillAccuracy,
+            float bonusDefensePenetration = 0f)
         {
             if (source?.Character == null || target?.Character == null || attackValue <= 0)
             {
@@ -69,7 +70,12 @@ namespace Godmist.Systems.Combat
                 damageAfterFreeze,
                 isCritical);
 
-            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
+            var finalDamage = ApplyDefense(
+                source,
+                target,
+                damageAfterCrit,
+                damageType,
+                bonusDefensePenetration);
 
             if (isCritical)
             {
@@ -93,7 +99,8 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             int attackValue,
             DamageType damageType,
-            bool wasHit)
+            bool wasHit,
+            float bonusDefensePenetration = 0f)
         {
             if (source?.Character == null
                 || target?.Character == null
@@ -112,7 +119,12 @@ namespace Godmist.Systems.Combat
                 damageAfterFreeze,
                 isCritical);
 
-            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
+            var finalDamage = ApplyDefense(
+                source,
+                target,
+                damageAfterCrit,
+                damageType,
+                bonusDefensePenetration);
 
             if (isCritical)
             {
@@ -167,7 +179,7 @@ namespace Godmist.Systems.Combat
 
             var redirectedHealthDamage = 0;
             if (allowDamageRedirect
-                && TryResolveDamageRedirect(session, target, incomingDamage,
+                && TryResolveDamageRedirect(session, source, target, incomingDamage,
                     damageType, out var redirectedDamage, out redirectedHealthDamage))
             {
                 remainingDamage = Mathf.Max(0, incomingDamage - redirectedDamage);
@@ -308,9 +320,14 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt(damage * Mathf.Max(1f, multiplier));
         }
 
-        public static int ApplyDefense(BattleUnit target, int damage, DamageType damageType)
+        public static int ApplyDefense(
+            BattleUnit source,
+            BattleUnit target,
+            int damage,
+            DamageType damageType,
+            float bonusDefensePenetration = 0f)
         {
-            if (damage <= 0) return 0;
+            if (damage <= 0 || target?.Character == null) return 0;
             var stats = target.Character.Stats;
             var defense = 0f;
             if (stats != null)
@@ -323,11 +340,42 @@ namespace Godmist.Systems.Combat
                 };
             }
 
-            defense = Mathf.Max(0f, defense);
+            var penetration = Mathf.Clamp01(
+                GetDefensePenetration(source, damageType)
+                + Mathf.Clamp01(bonusDefensePenetration));
+            defense = Mathf.Max(0f, defense * (1f - penetration));
 
             if (defense <= 0f) return damage;
 
             return Mathf.CeilToInt(damage * damage / (damage + defense));
+        }
+
+        public static int ApplyDefense(
+            BattleUnit target,
+            int damage,
+            DamageType damageType)
+        {
+            return ApplyDefense(null, target, damage, damageType);
+        }
+
+        private static float GetDefensePenetration(
+            BattleUnit source,
+            DamageType damageType)
+        {
+            var stats = source?.Character?.Stats;
+            if (stats == null)
+            {
+                return 0f;
+            }
+
+            return damageType switch
+            {
+                DamageType.Physical => Mathf.Clamp01(
+                    stats.PhysicalDefensePenetration.GetValue()),
+                DamageType.Magical => Mathf.Clamp01(
+                    stats.MagicalDefensePenetration.GetValue()),
+                _ => 0f
+            };
         }
 
         private static bool IsDamageOverTime(DamageType damageType)
@@ -401,6 +449,7 @@ namespace Godmist.Systems.Combat
 
         private bool TryResolveDamageRedirect(
             CombatSession session,
+            BattleUnit source,
             BattleUnit protectedUnit,
             int incomingDamage,
             DamageType damageType,
@@ -446,7 +495,11 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var mitigatedRedirect = ApplyDefense(protector, requestedRedirect, damageType);
+            var mitigatedRedirect = ApplyDefense(
+                source,
+                protector,
+                requestedRedirect,
+                damageType);
             redirectedHealthDamage = ApplyDamage(session, null, protector,
                 mitigatedRedirect, damageType, allowDamageRedirect: false);
             redirectedDamage = requestedRedirect;

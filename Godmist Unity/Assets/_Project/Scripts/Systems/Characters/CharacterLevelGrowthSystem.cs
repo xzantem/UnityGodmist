@@ -33,6 +33,10 @@ namespace Godmist.Systems.Characters
                 + growth.PhysicalDefense * multiplier;
             character.Stats.MagicalDefense.BaseValue = baseStats.MagicalDefense
                 + growth.MagicalDefense * multiplier;
+            character.Stats.PhysicalDefensePenetration.BaseValue =
+                baseStats.PhysicalDefensePenetration;
+            character.Stats.MagicalDefensePenetration.BaseValue =
+                baseStats.MagicalDefensePenetration;
             character.Stats.Dodge.BaseValue = baseStats.Dodge + growth.Dodge * multiplier;
             character.Stats.CritChance.BaseValue = baseStats.CritChance
                 + growth.CritChance * multiplier;

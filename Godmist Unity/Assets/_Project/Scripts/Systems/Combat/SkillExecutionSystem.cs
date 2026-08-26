@@ -530,10 +530,12 @@ namespace Godmist.Systems.Combat
                         var damageResult = effect.AlwaysHits
                             ? damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
-                                wasHit: true)
+                                wasHit: true,
+                                bonusDefensePenetration: effect.BonusPenetration)
                             : damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
-                                skill.SkillAccuracy);
+                                skill.SkillAccuracy,
+                                effect.BonusPenetration);
                         hit |= damageResult.Hit;
                         critical |= damageResult.IsCritical;
                         totalHealthDamage += damageResult.HealthDamage;

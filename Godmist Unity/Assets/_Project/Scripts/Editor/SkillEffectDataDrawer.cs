@@ -37,6 +37,7 @@ namespace Godmist.Editor
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
             var damageHitCount = property.FindPropertyRelative("damageHitCount");
+            var bonusPenetration = property.FindPropertyRelative("bonusPenetration");
             var bonusDamageMultiplierChance = property.FindPropertyRelative("bonusDamageMultiplierChance");
             var bonusDamageMultiplier = property.FindPropertyRelative("bonusDamageMultiplier");
             var onHitStatusId = property.FindPropertyRelative("onHitStatusId");
@@ -177,6 +178,7 @@ namespace Godmist.Editor
                 DrawField(position, ref y, damageValueSource);
                 DrawField(position, ref y, damageMultiplier);
                 DrawField(position, ref y, damageHitCount);
+                DrawField(position, ref y, bonusPenetration);
                 DrawField(position, ref y, bonusDamageMultiplierChance);
                 if (bonusDamageMultiplierChance.floatValue > 0f) DrawField(position, ref y, bonusDamageMultiplier);
                 DrawField(position, ref y, lifeStealPercent);
@@ -342,6 +344,7 @@ namespace Godmist.Editor
             var damageMultiplier =
                 property.FindPropertyRelative("damageMultiplier");
             var damageHitCount = property.FindPropertyRelative("damageHitCount");
+            var bonusPenetration = property.FindPropertyRelative("bonusPenetration");
             var bonusDamageMultiplierChance = property.FindPropertyRelative("bonusDamageMultiplierChance");
             var bonusDamageMultiplier = property.FindPropertyRelative("bonusDamageMultiplier");
             var onHitStatusId = property.FindPropertyRelative("onHitStatusId");
@@ -472,6 +475,7 @@ namespace Godmist.Editor
                 AddHeight(ref height, damageValueSource);
                 AddHeight(ref height, damageMultiplier);
                 AddHeight(ref height, damageHitCount);
+                AddHeight(ref height, bonusPenetration);
                 AddHeight(ref height, bonusDamageMultiplierChance);
                 if (bonusDamageMultiplierChance.floatValue > 0f) AddHeight(ref height, bonusDamageMultiplier);
                 AddHeight(ref height, lifeStealPercent);
