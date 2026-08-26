@@ -91,14 +91,12 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Playable / Test
 
-### Milestone: Combat v3
-
-- `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Oddzielna procentowa penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`; efekt ma dodatkowo konfigurowalny `Bonus Penetration`.
-
 ## Done
 
 ### Milestone: Combat v3 — Closed
+
+- `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Oddzielna procentowa penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`; efekt ma dodatkowo konfigurowalny `Bonus Penetration`.
 
 - `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
   - Dodano ksztalty `Line`, `Diagonal`, `TwoSidedLine`, `XShape` i `Rectangle`, wraz z obrotem `R` oraz obsluga parzystych rozmiarow.
