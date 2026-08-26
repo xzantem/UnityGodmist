@@ -41,8 +41,6 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
-  - Dodac ksztalty m.in. line, diagonal line i X.
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
   - Oddzielna penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`.
 - `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
@@ -98,6 +96,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Combat v3 — Closed
+
+- `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
+  - Dodano ksztalty `Line`, `Diagonal`, `TwoSidedLine`, `XShape` i `Rectangle`, wraz z obrotem `R` oraz obsluga parzystych rozmiarow.
+  - Preview, podswietlenie trafionych celow i wykonanie skilla korzystaja z tej samej geometrii; `AreaAroundCaster` moze wykonac skill bez trafionych jednostek.
 
 - `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
   - Ruch AI i gracza korzysta z wyznaczonej sciezki tile-by-tile i wizualnie przechodzi przez kolejne pola, z zachowaniem blokad i kosztu AP.

@@ -1054,7 +1054,8 @@ namespace Godmist.Systems.Combat
         private static bool CanResolveWithoutUnitTargets(
             SkillTargetModeData targetMode)
         {
-            return targetMode?.TargetType == TargetType.AreaAroundTile;
+            return targetMode?.TargetType == TargetType.AreaAroundTile
+                || targetMode?.TargetType == TargetType.AreaAroundCaster;
         }
 
         private bool CanExecute(

@@ -210,11 +210,6 @@ namespace Godmist.Views.Combat
             ClearCombatScopedEffectsIfNeeded();
             if (usesGameSessionCombat && TryReturnToExploration()) return;
             if (DevConsoleView.IsOpen) return;
-            if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.R))
-            {
-                RestartCombatForDebug();
-                return;
-            }
             if (Session == null || Session.ActiveUnit == null || Session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return;
@@ -855,7 +850,8 @@ namespace Godmist.Views.Combat
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             GridPosition? teleportDestination,
-            GridPosition? objectPlacementDestination)
+            GridPosition? objectPlacementDestination,
+            IReadOnlyDictionary<int, int> rotationsByModeIndex = null)
         {
             if (Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null
@@ -881,6 +877,7 @@ namespace Godmist.Views.Combat
             if (!TryBuildSkillTargetGroups(
                     skill,
                     selectedPositionsByModeIndex,
+                    rotationsByModeIndex,
                     out var targetsByModeIndex))
             {
                 return false;
@@ -899,6 +896,7 @@ namespace Godmist.Views.Combat
         private bool TryBuildSkillTargetGroups(
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
+            IReadOnlyDictionary<int, int> rotationsByModeIndex,
             out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
             targetsByModeIndex =
@@ -946,10 +944,15 @@ namespace Godmist.Views.Combat
                     skill,
                     targetMode,
                     targetModeIndex,
-                    selectedPosition);
+                    selectedPosition,
+                    rotationsByModeIndex != null
+                        && rotationsByModeIndex.TryGetValue(targetModeIndex, out var rotation)
+                        ? rotation
+                        : 0);
 
                 if (targets.Count == 0
-                    && targetMode.TargetType != TargetType.AreaAroundTile)
+                    && targetMode.TargetType != TargetType.AreaAroundTile
+                    && targetMode.TargetType != TargetType.AreaAroundCaster)
                 {
                     return false;
                 }
@@ -1058,7 +1061,8 @@ namespace Godmist.Views.Combat
             SkillData skill,
             SkillTargetModeData targetMode,
             int targetModeIndex,
-            GridPosition? selectedPosition)
+            GridPosition? selectedPosition,
+            int rotationQuarterTurns = 0)
         {
             if (Session == null || Session.ActiveUnit == null
                 || skill == null || targetMode == null
@@ -1081,7 +1085,8 @@ namespace Godmist.Views.Combat
                 targetMode,
                 selectedPosition,
                 includeDownedTargets,
-                requiredEnemyTarget);
+                requiredEnemyTarget,
+                rotationQuarterTurns);
 
             return FilterTargetsByLineOfSight(skill, targets);
         }
@@ -1112,6 +1117,13 @@ namespace Godmist.Views.Combat
                 includeDownedTargets,
                 requiredEnemyTarget);
 
+            if (targetMode.TargetType == TargetType.AreaAroundCaster
+                && CombatTargetingService.IsDirectionalShape(
+                    targetMode.AbsoluteRange?.Shape ?? RangeShape.None))
+            {
+                return positions;
+            }
+
             return FilterPositionsByLineOfSight(skill, positions);
         }
         public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill, 
@@ -1126,14 +1138,36 @@ namespace Godmist.Views.Combat
         }
 
         public IReadOnlyList<GridPosition> GetRelativeSkillRangePositions(SkillData skill, 
-            SkillTargetModeData targetMode, GridPosition center)
+            SkillTargetModeData targetMode, GridPosition center, int rotationQuarterTurns = 0)
         {
             if (Session == null || Session.ActiveUnit == null || skill == null
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
             var positions = targetingService.GetRelativeRangePositions(Session, Session.ActiveUnit, 
-                targetMode, center);
+                targetMode, center, rotationQuarterTurns);
 
+            return FilterPositionsByLineOfSight(skill, positions);
+        }
+
+        public IReadOnlyList<GridPosition> GetDirectionalSkillRangePositions(
+            SkillData skill,
+            SkillTargetModeData targetMode,
+            GridPosition directionReference,
+            int rotationQuarterTurns = 0)
+        {
+            if (Session == null || Session.ActiveUnit == null || skill == null
+                || targetMode == null || targetingService == null)
+            {
+                return Array.Empty<GridPosition>();
+            }
+
+            var positions = targetingService.GetDirectionalRangePositions(
+                Session,
+                Session.ActiveUnit,
+                targetMode.AbsoluteRange,
+                directionReference,
+                null,
+                rotationQuarterTurns);
             return FilterPositionsByLineOfSight(skill, positions);
         }
 

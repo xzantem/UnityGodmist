@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
+using Godmist.Systems.Combat;
 using Godmist.Views.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -35,9 +36,11 @@ namespace Godmist.Views.Combat
         private readonly HashSet<GridPosition> eligibleTargetPositions = new();
 
         private GridPosition? previewedRelativeCenter;
+        private int directionalRotationQuarterTurns;
 
         private SkillData selectedSkill;
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
+        private readonly Dictionary<int, int> rotationsByModeIndex = new();
         private int currentTargetModeIndex;
         private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
@@ -123,6 +126,8 @@ namespace Godmist.Views.Combat
             selectedSkill = skill;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            rotationsByModeIndex.Clear();
+            directionalRotationQuarterTurns = 0;
 
             if (movementInputController != null)
             {
@@ -184,7 +189,8 @@ namespace Godmist.Views.Combat
                     selectedSkill,
                     selectedPositionsByModeIndex,
                     null,
-                    null))
+                    null,
+                    rotationsByModeIndex))
             {
                 CancelTargetSelection();
                 return;
@@ -198,6 +204,8 @@ namespace Godmist.Views.Combat
             selectedSkill = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            rotationsByModeIndex.Clear();
+            directionalRotationQuarterTurns = 0;
 
             selectedTeleportEffect = null;
             selectedTeleportSourcePosition = default;
@@ -235,6 +243,17 @@ namespace Godmist.Views.Combat
             if (!isSelectingTeleportDestination
                 && !isSelectingObjectPlacement)
             {
+                if (Input.GetKeyDown(KeyCode.R)
+                    && (IsDirectionalCasterArea(CurrentTargetMode)
+                        || (CurrentTargetMode.UseRelativeRange
+                            && CombatTargetingService.IsRotatableRelativeShape(
+                                CurrentTargetMode.RelativeRange?.Shape
+                                ?? RangeShape.None))))
+                {
+                    directionalRotationQuarterTurns =
+                        (directionalRotationQuarterTurns + 1) % 4;
+                    previewedRelativeCenter = null;
+                }
                 UpdateRelativeRangePreview();
                 UpdateHoveredUnit(session);
             }
@@ -323,7 +342,14 @@ namespace Godmist.Views.Combat
             }
 
             selectedPositionsByModeIndex[currentTargetModeIndex] =
-                targetPosition;
+                IsCursorDirectedCasterArea(targetMode)
+                    ? RotateDirectionReference(targetPosition)
+                    : targetPosition;
+            if (IsRotatableShape(targetMode))
+            {
+                rotationsByModeIndex[currentTargetModeIndex] =
+                    directionalRotationQuarterTurns;
+            }
 
             AdvanceTargetMode();
         }
@@ -348,14 +374,19 @@ namespace Godmist.Views.Combat
                 absoluteRangePositions.Add(position);
             }
 
-            SpawnHighlights(
-                absolutePositions,
-                absoluteRangeHighlightColor,
-                CombatGridFeedbackLayer.SkillRange);
-            feedbackRenderer.ShowFill(
-                CombatGridFeedbackLayer.SkillRange,
-                absolutePositions,
-                WithAlpha(absoluteRangeHighlightColor, .24f));
+            var usesRedDirectionalFootprintOnly =
+                IsCursorDirectedCasterArea(CurrentTargetMode);
+            if (!usesRedDirectionalFootprintOnly)
+            {
+                SpawnHighlights(
+                    absolutePositions,
+                    absoluteRangeHighlightColor,
+                    CombatGridFeedbackLayer.SkillRange);
+                feedbackRenderer.ShowFill(
+                    CombatGridFeedbackLayer.SkillRange,
+                    absolutePositions,
+                    WithAlpha(absoluteRangeHighlightColor, .24f));
+            }
 
             var selectable =
                 sandboxBootstrap.GetSelectableSkillPositions(
@@ -379,14 +410,17 @@ namespace Godmist.Views.Combat
                 eligibleTargetPositions.Add(position);
             }
 
-            SpawnHighlights(
-                selectable,
-                targetHighlightColor,
-                CombatGridFeedbackLayer.SkillTarget);
-            feedbackRenderer.ShowFill(
-                CombatGridFeedbackLayer.SkillTarget,
-                selectable,
-                WithAlpha(targetHighlightColor, .28f));
+            if (!usesRedDirectionalFootprintOnly)
+            {
+                SpawnHighlights(
+                    selectable,
+                    targetHighlightColor,
+                    CombatGridFeedbackLayer.SkillTarget);
+                feedbackRenderer.ShowFill(
+                    CombatGridFeedbackLayer.SkillTarget,
+                    selectable,
+                    WithAlpha(targetHighlightColor, .28f));
+            }
         }
 
         private void UpdateRelativeRangePreview()
@@ -412,8 +446,20 @@ namespace Godmist.Views.Combat
 
             if (!IsRelativePreviewCenter(hoveredPosition)) return;
 
-            var relativePositions = sandboxBootstrap.GetRelativeSkillRangePositions(selectedSkill, 
-                CurrentTargetMode, hoveredPosition);
+            var directionReference = IsDirectionalCasterArea(CurrentTargetMode)
+                ? RotateDirectionReference(hoveredPosition)
+                : hoveredPosition;
+            var relativePositions = IsDirectionalCasterArea(CurrentTargetMode)
+                ? sandboxBootstrap.GetDirectionalSkillRangePositions(
+                    selectedSkill,
+                    CurrentTargetMode,
+                    directionReference,
+                    directionalRotationQuarterTurns)
+                : sandboxBootstrap.GetRelativeSkillRangePositions(
+                    selectedSkill,
+                    CurrentTargetMode,
+                    directionReference,
+                    directionalRotationQuarterTurns);
 
             SpawnHighlights(relativePositions, relativeRangeHighlightColor, CombatGridFeedbackLayer.RelativeRange);
             feedbackRenderer.ShowFill(
@@ -427,7 +473,10 @@ namespace Godmist.Views.Combat
                 selectedSkill,
                 CurrentTargetMode,
                 currentTargetModeIndex,
-                hoveredPosition)) affectedPositions.Add(target.Position);
+                directionReference,
+                IsRotatableShape(CurrentTargetMode)
+                    ? directionalRotationQuarterTurns
+                    : 0)) affectedPositions.Add(target.Position);
 
             SpawnHighlights(affectedPositions, affectedTargetHighlightColor, CombatGridFeedbackLayer.AffectedArea);
             feedbackRenderer.ShowFill(
@@ -450,7 +499,8 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
-            return CurrentTargetMode.UseRelativeRange;
+            return CurrentTargetMode.UseRelativeRange
+                || IsDirectionalCasterArea(CurrentTargetMode);
         }
 
         private bool TryBeginTeleportDestinationSelection()
@@ -662,6 +712,7 @@ namespace Godmist.Views.Combat
         private static bool UsesGridClickOnlyAsConfirmation(SkillTargetModeData targetMode)
         {
             return targetMode.TargetType == TargetType.AreaAroundCaster
+                    && !IsDirectionalCasterArea(targetMode)
                 || targetMode.TargetType == TargetType.All;
         }
 
@@ -701,7 +752,57 @@ namespace Godmist.Views.Combat
 
             if (mode.TargetType == TargetType.AreaAroundTile) return absoluteRangePositions.Contains(position);
 
+            if (IsDirectionalCasterArea(mode)) return selectablePositions.Contains(position);
+
             return false;
+        }
+
+        private static bool IsDirectionalCasterArea(SkillTargetModeData mode)
+        {
+            if (mode?.TargetType != TargetType.AreaAroundCaster)
+            {
+                return false;
+            }
+
+            return CombatTargetingService.IsDirectionalShape(
+                mode.AbsoluteRange?.Shape ?? RangeShape.None);
+        }
+
+        private static bool IsCursorDirectedCasterArea(SkillTargetModeData mode)
+        {
+            if (mode?.TargetType != TargetType.AreaAroundCaster)
+            {
+                return false;
+            }
+
+            var shape = mode.AbsoluteRange?.Shape ?? RangeShape.None;
+            return shape == RangeShape.Line
+                || shape == RangeShape.Diagonal
+                || shape == RangeShape.TwoSidedLine;
+        }
+
+        private static bool IsRotatableShape(SkillTargetModeData mode)
+        {
+            var range = mode?.UseRelativeRange == true
+                ? mode.RelativeRange
+                : mode?.AbsoluteRange;
+            return CombatTargetingService.IsRotatableRelativeShape(
+                range?.Shape ?? RangeShape.None);
+        }
+
+        private GridPosition RotateDirectionReference(GridPosition reference)
+        {
+            var casterPosition = sandboxBootstrap?.Session?.ActiveUnit?.Position ?? reference;
+            var directionX = Mathf.Clamp(reference.X - casterPosition.X, -1, 1);
+            var directionY = Mathf.Clamp(reference.Y - casterPosition.Y, -1, 1);
+            for (var index = 0; index < directionalRotationQuarterTurns; index++)
+            {
+                (directionX, directionY) = (-directionY, directionX);
+            }
+
+            return new GridPosition(
+                casterPosition.X + directionX,
+                casterPosition.Y + directionY);
         }
     }
 }

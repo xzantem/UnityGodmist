@@ -269,6 +269,157 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void DirectionalArea_TargetsConfiguredDiagonalRays()
+        {
+            var caster = CreateAiCombatUnit("caster", false, new GridPosition(3, 3));
+            var first = CreateAiCombatUnit("first", true, new GridPosition(4, 2));
+            var second = CreateAiCombatUnit("second", true, new GridPosition(5, 5));
+            var excluded = CreateAiCombatUnit("excluded", true, new GridPosition(4, 3));
+            var mode = new SkillTargetModeData();
+            SetField(mode, "targetType", TargetType.AreaAroundCaster);
+            SetField(mode, "targetingType", TargetingType.Enemies);
+            SetField(mode, "absoluteRange", new SkillRangeData(RangeShape.Diagonal, 1, 2));
+            var session = new CombatSession
+            {
+                CombatId = "test.directional-diagonal",
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(8, 8),
+                Units = new List<BattleUnit> { caster, first, second, excluded }
+            };
+
+            var targets = new CombatTargetingService().GetTargets(
+                session, caster, mode, new GridPosition(4, 3));
+
+            Assert.That(targets, Is.EquivalentTo(new[] { first, second }));
+        }
+
+        [Test]
+        public void RelativeSquare_RotationChangesEvenSideAnchor()
+        {
+            var caster = CreateAiCombatUnit(
+                "caster",
+                false,
+                new GridPosition(2, 2));
+            var session = new CombatSession
+            {
+                CombatId = "test.relative-square-rotation",
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(9, 9),
+                Units = new List<BattleUnit> { caster }
+            };
+            var range = new SkillRangeData(RangeShape.Square, 0, 1);
+            var service = new CombatTargetingService();
+
+            var unrotated = service.GetRelativeRangePositions(
+                session,
+                caster,
+                range,
+                new GridPosition(5, 5));
+            var rotated = service.GetRelativeRangePositions(
+                session,
+                caster,
+                range,
+                new GridPosition(5, 5),
+                rotationQuarterTurns: 1);
+
+            Assert.That(unrotated, Is.EquivalentTo(new[]
+            {
+                new GridPosition(5, 5),
+                new GridPosition(6, 5),
+                new GridPosition(5, 6),
+                new GridPosition(6, 6)
+            }));
+            Assert.That(rotated, Is.EquivalentTo(new[]
+            {
+                new GridPosition(4, 5),
+                new GridPosition(5, 5),
+                new GridPosition(4, 6),
+                new GridPosition(5, 6)
+            }));
+        }
+
+        [Test]
+        public void Rectangle_RotationDoesNotDependOnDirectionReference()
+        {
+            var caster = CreateAiCombatUnit(
+                "caster",
+                false,
+                new GridPosition(4, 4));
+            var session = new CombatSession
+            {
+                CombatId = "test.rectangle-rotation",
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(9, 9),
+                Units = new List<BattleUnit> { caster }
+            };
+            var range = new SkillRangeData(RangeShape.Rectangle, 1, 2, 2);
+            var service = new CombatTargetingService();
+
+            var fromEast = service.GetDirectionalRangePositions(
+                session, caster, range, new GridPosition(5, 4));
+            var fromNorth = service.GetDirectionalRangePositions(
+                session, caster, range, new GridPosition(4, 5));
+            var rotated = service.GetDirectionalRangePositions(
+                session, caster, range, new GridPosition(5, 4),
+                rotationQuarterTurns: 1);
+
+            Assert.That(fromNorth, Is.EquivalentTo(fromEast));
+            Assert.That(rotated, Is.Not.EquivalentTo(fromEast));
+        }
+
+        [Test]
+        public void AreaAroundTile_RelativeSquareTargetsFollowRotation()
+        {
+            var caster = CreateAiCombatUnit(
+                "caster",
+                false,
+                new GridPosition(2, 2));
+            var unrotatedTarget = CreateAiCombatUnit(
+                "unrotated-target",
+                true,
+                new GridPosition(6, 6));
+            var rotatedTarget = CreateAiCombatUnit(
+                "rotated-target",
+                true,
+                new GridPosition(4, 6));
+            var mode = new SkillTargetModeData();
+            SetField(mode, "targetType", TargetType.AreaAroundTile);
+            SetField(mode, "targetingType", TargetingType.Enemies);
+            SetField(mode, "absoluteRange", new SkillRangeData(RangeShape.Square, 0, 8));
+            SetField(mode, "relativeRange", new SkillRangeData(RangeShape.Square, 0, 1));
+            var session = new CombatSession
+            {
+                CombatId = "test.area-around-tile-square-rotation",
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(9, 9),
+                Units = new List<BattleUnit>
+                {
+                    caster,
+                    unrotatedTarget,
+                    rotatedTarget
+                }
+            };
+            var service = new CombatTargetingService();
+            var selectedTile = new GridPosition(5, 5);
+
+            var unrotatedTargets = service.GetTargets(
+                session,
+                caster,
+                mode,
+                selectedTile,
+                rotationQuarterTurns: 0);
+            var rotatedTargets = service.GetTargets(
+                session,
+                caster,
+                mode,
+                selectedTile,
+                rotationQuarterTurns: 1);
+
+            Assert.That(unrotatedTargets, Is.EquivalentTo(new[] { unrotatedTarget }));
+            Assert.That(rotatedTargets, Is.EquivalentTo(new[] { rotatedTarget }));
+        }
+
+        [Test]
         public void TryExecuteNextAction_MovesReachablePathPrefixWhenTargetIsFartherThanAp()
         {
             var aiUnit = CreateAiCombatUnit(
