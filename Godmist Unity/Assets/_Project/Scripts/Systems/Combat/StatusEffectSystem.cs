@@ -122,9 +122,12 @@ namespace Godmist.Systems.Combat
                 effectIndex,
                 effectId,
                 effect.DurationTurns);
-            runtimeEffect.OnHitStatusId = effect.OnHitStatusId;
-            runtimeEffect.OnHitStatusChance = effect.OnHitStatusChance;
-            runtimeEffect.OnHitStatusDurationTurns = effect.OnHitStatusDurationTurns;
+            runtimeEffect.SetPayload(new OnHitStatusPayload
+            {
+                StatusId = effect.OnHitStatusId,
+                Chance = effect.OnHitStatusChance,
+                DurationTurns = effect.OnHitStatusDurationTurns
+            });
 
             return TryApplySkillRuntimeEffect(
                 target.Character,
@@ -149,8 +152,10 @@ namespace Godmist.Systems.Combat
                 source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.unique_buff.{effectIndex}",
                 effect.DurationTurns);
-            runtimeEffect.IsUniqueCombatBuff = true;
-            runtimeEffect.UniqueBuffType = effect.UniqueBuffType;
+            runtimeEffect.SetPayload(new UniqueCombatBuffPayload
+            {
+                BuffType = effect.UniqueBuffType
+            });
             runtimeEffect.Stacks = effect.UniqueBuffStacks;
             return TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
@@ -169,7 +174,11 @@ namespace Godmist.Systems.Combat
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.action_points.{effectIndex}",
                 effect.DurationTurns);
-            runtimeEffect.ActionPointModifier = effect.ActionPointModifier;
+            runtimeEffect.SetPayload(new UniqueCombatBuffPayload
+            {
+                BuffType = UniqueBuffType.ActionPointsNextTurn,
+                ActionPointModifier = effect.ActionPointModifier
+            });
             return TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
                 && PublishEffectFeedback(
@@ -188,7 +197,7 @@ namespace Godmist.Systems.Combat
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.resource_block.{effectIndex}",
                 effect.ResourceRegenerationBlockTurns);
-            runtimeEffect.BlocksResourceRegeneration = true;
+            runtimeEffect.SetPayload(new ResourceRegenerationBlockPayload());
             var applied = TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
             if (applied)
@@ -214,7 +223,10 @@ namespace Godmist.Systems.Combat
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.damage_redirect.{effectIndex}",
                 effect.DurationTurns);
-            runtimeEffect.DamageRedirectPercent = effect.RedirectedDamagePercent;
+            runtimeEffect.SetPayload(new DamageRedirectPayload
+            {
+                RedirectPercent = effect.RedirectedDamagePercent
+            });
             return TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
                 && PublishEffectFeedback(
@@ -233,18 +245,20 @@ namespace Godmist.Systems.Combat
             var appliedCount = 0;
             foreach (var effect in source.Character.PassiveEffects)
             {
+                var payload = effect.GetPayload<OnHitStatusPayload>();
                 if (!PassiveEffectLifecycleSystem.IsActive(effect)
-                    || string.IsNullOrWhiteSpace(effect.OnHitStatusId))
+                    || payload == null
+                    || string.IsNullOrWhiteSpace(payload.StatusId))
                 {
                     continue;
                 }
 
-                if (ApplyStatus(source, target, effect.OnHitStatusId,
-                        effect.OnHitStatusChance,
-                        Mathf.Max(1, effect.OnHitStatusDurationTurns),
+                if (ApplyStatus(source, target, payload.StatusId,
+                        payload.Chance,
+                        Mathf.Max(1, payload.DurationTurns),
                         1, 0f, 0f, effect.EffectId,
                         CombatFeedbackType.ProcTriggered,
-                        effect.OnHitStatusId))
+                        payload.StatusId))
                 {
                     appliedCount++;
                 }
@@ -770,12 +784,14 @@ namespace Godmist.Systems.Combat
             if (string.Equals(effect.StatusId, StatusEffectIds.Counterattack,
                     StringComparison.OrdinalIgnoreCase))
             {
-                runtimeEffect.CounterattackSkill = skill;
-                runtimeEffect.CounterattackRange = effect.CounterattackRange;
-                runtimeEffect.CounterattackEffects =
-                    effect.CounterattackEffects != null
+                runtimeEffect.SetPayload(new CounterattackPayload
+                {
+                    Skill = skill,
+                    Range = effect.CounterattackRange,
+                    Effects = effect.CounterattackEffects != null
                         ? new List<SkillEffectData>(effect.CounterattackEffects)
-                        : new List<SkillEffectData>();
+                        : new List<SkillEffectData>()
+                });
             }
 
             if (string.Equals(
@@ -783,13 +799,16 @@ namespace Godmist.Systems.Combat
                     StatusEffectIds.Chill,
                     StringComparison.OrdinalIgnoreCase))
             {
-                runtimeEffect.StatModifiers.Add(new StatModifier
+                runtimeEffect.StatModifiers = new List<StatModifier>
                 {
-                    StatType = CharacterStatType.Speed,
-                    Operation = StatModifierOperation.Maximum,
-                    Stacking = StatModifierStacking.Additive,
-                Value = ChillMaximumSpeed
-            });
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Maximum,
+                        Stacking = StatModifierStacking.Additive,
+                        Value = ChillMaximumSpeed
+                    }
+                };
             }
 
             return runtimeEffect;

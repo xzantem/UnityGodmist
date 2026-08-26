@@ -67,7 +67,7 @@ namespace Godmist.Systems.Combat
             if (target.Character.PassiveEffects != null
                 && target.Character.PassiveEffects.Exists(effect =>
                     PassiveEffectLifecycleSystem.IsActive(effect)
-                    && effect.BlocksResourceRegeneration))
+                    && effect.GetPayload<ResourceRegenerationBlockPayload>() != null))
             {
                 return 0;
             }

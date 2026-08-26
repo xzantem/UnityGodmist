@@ -1495,12 +1495,17 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildStatusPayload(PassiveEffectRuntime effect)
         {
             var result = new StringBuilder();
-            if (IsDamageOverTime(effect.EffectId) && effect.TotalDamage > 0) Append(result, $"Obrażenia: {effect.TotalDamage}");
-            if (effect.StatusHealPercent > 0f) Append(result, $"Leczenie: {effect.StatusHealPercent * 100f:0.#}% maks. zdrowia");
+            var damageOverTime = effect.GetPayload<DamageOverTimePayload>();
+            if (IsDamageOverTime(effect.EffectId)
+                && damageOverTime?.RemainingTotalDamage > 0)
+                Append(result, $"Obrażenia: {damageOverTime.RemainingTotalDamage}");
+            var sleepHealing = effect.GetPayload<SleepHealingPayload>();
+            if (sleepHealing?.MaxHealthPercent > 0f)
+                Append(result, $"Leczenie: {sleepHealing.MaxHealthPercent * 100f:0.#}% maks. zdrowia");
             if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
             foreach (var modifier in effect.StatModifiers) Append(result, $"{modifier.StatType} {modifier.Value:+#;-#;0}");
             foreach (var modifier in effect.VariableModifiers) Append(result, $"{modifier.VariableType} {modifier.Value:+#;-#;0}");
-            if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
+            if (effect.GetPayload<CounterattackPayload>() != null) Append(result, "Reakcja: kontratak");
             return result.ToString();
         }
 

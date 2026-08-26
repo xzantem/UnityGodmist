@@ -81,7 +81,11 @@ namespace Godmist.Systems.Characters
             {
                 if (passiveEffect == null) continue;
 
-                ApplyModifiers(passiveEffect.StatModifiers, accumulators);
+                ApplyModifiers(
+                    passiveEffect
+                        .GetPayload<StatModifiersPayload>()
+                        ?.Modifiers,
+                    accumulators);
             }
         }
 

@@ -436,9 +436,9 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in unit.Character.PassiveEffects)
             {
+                var payload = effect?.GetPayload<UniqueCombatBuffPayload>();
                 if (PassiveEffectLifecycleSystem.IsActive(effect)
-                    && effect.IsUniqueCombatBuff
-                    && effect.UniqueBuffType == buffType
+                    && payload?.BuffType == buffType
                     && effect.Stacks > 0)
                 {
                     return effect;
@@ -469,10 +469,12 @@ namespace Godmist.Systems.Combat
             {
                 var runtimeBuff = protectedUnit.Character?.PassiveEffects?.Find(effect =>
                     PassiveEffectLifecycleSystem.IsActive(effect)
-                    && effect.DamageRedirectPercent > 0f
+                    && effect.GetPayload<DamageRedirectPayload>()?.RedirectPercent > 0f
                     && effect.Sources != null && effect.Sources.Count > 0);
                 if (runtimeBuff == null) return false;
-                redirectPercent = runtimeBuff.DamageRedirectPercent;
+                redirectPercent = runtimeBuff
+                    .GetPayload<DamageRedirectPayload>()
+                    .RedirectPercent;
                 protectorCharacterId = runtimeBuff.Sources[0]?.SourceCharacterId;
             }
 

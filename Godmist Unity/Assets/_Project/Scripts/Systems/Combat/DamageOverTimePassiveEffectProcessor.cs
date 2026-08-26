@@ -21,6 +21,7 @@ namespace Godmist.Systems.Combat
         {
             return effect != null
                 && tickPhase == PassiveEffectTickPhase.TurnStart
+                && effect.GetPayload<DamageOverTimePayload>() != null
                 && IsDamageOverTimeStatus(effect.EffectId);
         }
 
@@ -38,10 +39,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var remainingTurns = Mathf.Max(1, effect.RemainingDuration);
-            var rawDamage = Mathf.CeilToInt(effect.TotalDamage / (float)remainingTurns);
+            var payload = effect.GetPayload<DamageOverTimePayload>();
+            if (payload == null) return true;
 
-            effect.TotalDamage = Mathf.Max(0, effect.TotalDamage - rawDamage);
+            var remainingTurns = Mathf.Max(1, effect.RemainingDuration);
+            var rawDamage = Mathf.CeilToInt(
+                payload.RemainingTotalDamage / (float)remainingTurns);
+
+            payload.RemainingTotalDamage = Mathf.Max(
+                0,
+                payload.RemainingTotalDamage - rawDamage);
 
             var resistance = GetResistance(unit, effect.EffectId);
             var finalDamage = Mathf.Max(
@@ -55,7 +62,7 @@ namespace Godmist.Systems.Combat
                 requestedDamage: finalDamage,
                 damageType: GetDamageType(effect.EffectId));
 
-            shouldExpire = effect.TotalDamage <= 0;
+            shouldExpire = payload.RemainingTotalDamage <= 0;
 
             return unit.Character.LifeState == CharacterLifeState.Alive;
         }

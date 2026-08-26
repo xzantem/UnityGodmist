@@ -1,5 +1,18 @@
 namespace Godmist.Core.Enums
 {
+    public enum PassiveEffectPayloadType
+    {
+        DamageOverTime,
+        SleepHealing,
+        UniqueCombatBuff,
+        ResourceRegenerationBlock,
+        DamageRedirect,
+        OnHitStatus,
+        Counterattack,
+        StatModifiers,
+        VariableModifiers
+    }
+
     public enum PassiveEffectStackingMode
     {
         MaxDurationAndValues = 0,

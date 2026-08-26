@@ -1,6 +1,7 @@
 using System;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 
 namespace Godmist.Systems.Combat
 {
@@ -114,7 +115,7 @@ namespace Godmist.Systems.Combat
             return unit?.Character?.PassiveEffects != null
                 && unit.Character.PassiveEffects.Exists(effect =>
                     PassiveEffectLifecycleSystem.IsActive(effect)
-                    && effect.BlocksResourceRegeneration);
+                    && effect.GetPayload<ResourceRegenerationBlockPayload>() != null);
         }
 
         private void LogChange(

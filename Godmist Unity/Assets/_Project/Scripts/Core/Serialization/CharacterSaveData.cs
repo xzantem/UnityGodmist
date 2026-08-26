@@ -99,22 +99,24 @@ namespace Godmist.Core.Serialization
         public int Stacks;
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase;
-        public int TotalDamage;
-        public bool IsUniqueCombatBuff;
+        public List<PassiveEffectPayloadSaveData> Payloads = new();
+
+    }
+
+    [Serializable]
+    public class PassiveEffectPayloadSaveData
+    {
+        public PassiveEffectPayloadType Type;
+        public int RemainingTotalDamage;
+        public float MaxHealthPercent;
         public UniqueBuffType UniqueBuffType;
         public int ActionPointModifier;
-        public bool BlocksResourceRegeneration;
         public float DamageRedirectPercent;
         public string OnHitStatusId = string.Empty;
         public float OnHitStatusChance;
         public int OnHitStatusDurationTurns;
         public List<StatModifierSaveData> StatModifiers = new();
         public List<GameplayVariableModifierSaveData> VariableModifiers = new();
-
-        // Migracja zapisów utworzonych przed wprowadzeniem Lifetime i Sources.
-        public bool HasLifetime;
-        public List<string> SourceEntityIds = new();
-        public bool IsTimed;
     }
 
     [Serializable]

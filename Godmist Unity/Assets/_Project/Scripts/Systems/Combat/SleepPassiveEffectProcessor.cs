@@ -42,14 +42,15 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
-            if (effect.StatusHealPercent <= 0f)
+            var payload = effect.GetPayload<SleepHealingPayload>();
+            if (payload == null || payload.MaxHealthPercent <= 0f)
             {
                 return true;
             }
 
             var maxHealth = unit.Character.Stats.MaxHealth.GetValue();
             var healing = Mathf.CeilToInt(
-                Mathf.Max(0f, maxHealth) * effect.StatusHealPercent);
+                Mathf.Max(0f, maxHealth) * payload.MaxHealthPercent);
 
             recoverySystem?.Heal(unit, healing);
 

@@ -639,21 +639,86 @@ namespace Godmist.Systems.SaveLoad
                     Sources = CopyPassiveEffectSources(effect.Sources),
                     Stacks = effect.Stacks,
                     Lifetime = effect.Lifetime,
-                    HasLifetime = true,
-                    VariableModifiers = CopyVariableModifiers(effect.VariableModifiers),
                     TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,
-                    TotalDamage = effect.TotalDamage,
-                    IsUniqueCombatBuff = effect.IsUniqueCombatBuff,
-                    UniqueBuffType = effect.UniqueBuffType,
-                    ActionPointModifier = effect.ActionPointModifier,
-                    BlocksResourceRegeneration = effect.BlocksResourceRegeneration,
-                    DamageRedirectPercent = effect.DamageRedirectPercent,
-                    OnHitStatusId = effect.OnHitStatusId,
-                    OnHitStatusChance = effect.OnHitStatusChance,
-                    OnHitStatusDurationTurns = effect.OnHitStatusDurationTurns,
-                    StatModifiers = CopyStatModifiers(effect.StatModifiers)
+                    Payloads = CopyPassiveEffectPayloads(effect.Payloads)
                 });
+            }
+
+            return saveData;
+        }
+
+        private static List<PassiveEffectPayloadSaveData>
+            CopyPassiveEffectPayloads(
+                List<PassiveEffectPayloadRuntime> payloads)
+        {
+            var saveData = new List<PassiveEffectPayloadSaveData>();
+            if (payloads == null) return saveData;
+
+            foreach (var payload in payloads)
+            {
+                switch (payload)
+                {
+                    case DamageOverTimePayload damageOverTime:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            RemainingTotalDamage = damageOverTime.RemainingTotalDamage
+                        });
+                        break;
+                    case SleepHealingPayload sleepHealing:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            MaxHealthPercent = sleepHealing.MaxHealthPercent
+                        });
+                        break;
+                    case UniqueCombatBuffPayload uniqueBuff:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            UniqueBuffType = uniqueBuff.BuffType,
+                            ActionPointModifier = uniqueBuff.ActionPointModifier
+                        });
+                        break;
+                    case ResourceRegenerationBlockPayload:
+                        saveData.Add(new PassiveEffectPayloadSaveData { Type = payload.Type });
+                        break;
+                    case DamageRedirectPayload redirect:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            DamageRedirectPercent = redirect.RedirectPercent
+                        });
+                        break;
+                    case OnHitStatusPayload onHit:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            OnHitStatusId = onHit.StatusId,
+                            OnHitStatusChance = onHit.Chance,
+                            OnHitStatusDurationTurns = onHit.DurationTurns
+                        });
+                        break;
+                    case CounterattackPayload:
+                        // Combat state is intentionally not saveable. Counterattacks
+                        // are combat-scoped and the session rejects saves in combat.
+                        break;
+                    case StatModifiersPayload statModifiers:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            StatModifiers = CopyStatModifiers(statModifiers.Modifiers)
+                        });
+                        break;
+                    case VariableModifiersPayload variableModifiers:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            VariableModifiers = CopyVariableModifiers(variableModifiers.Modifiers)
+                        });
+                        break;
+                }
             }
 
             return saveData;

@@ -4,6 +4,7 @@ using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 
 namespace Godmist.Systems.Combat
 {
@@ -385,7 +386,9 @@ namespace Godmist.Systems.Combat
             {
                 if (PassiveEffectLifecycleSystem.IsActive(effect))
                 {
-                    total += effect.ActionPointModifier;
+                    total += effect
+                        .GetPayload<UniqueCombatBuffPayload>()
+                        ?.ActionPointModifier ?? 0;
                 }
             }
             return total;
