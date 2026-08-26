@@ -4680,10 +4680,10 @@ RectTransform:
   - {fileID: 1474455913}
   m_Father: {fileID: 1030051804}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.05, y: 1}
+  m_AnchorMax: {x: 0.95, y: 1}
   m_AnchoredPosition: {x: 0, y: -2}
-  m_SizeDelta: {x: 133, y: 6}
+  m_SizeDelta: {x: 0, y: 6}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &759461713
 MonoBehaviour:
@@ -6236,10 +6236,12 @@ MonoBehaviour:
   sandboxBootstrap: {fileID: 235486238}
   worldCamera: {fileID: 814189693}
   feedbackRenderer: {fileID: 1252716623}
+  inspectController: {fileID: 0}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
   movementRangeColor: {r: 1, g: 0.72, b: 0.2, a: 0.85}
   movementPreviewColor: {r: 1, g: 0.84, b: 0.38, a: 1}
+  inspectedMovementRangeColor: {r: 0.85, g: 0.3, b: 1, a: 0.85}
 --- !u!114 &1046552047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6276,9 +6278,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitInspectController
   sandboxBootstrap: {fileID: 235486238}
   worldCamera: {fileID: 814189693}
-  targetSelectionController: {fileID: 1046552047}
   inspectPanel: {fileID: 659788793}
   unitViewSpawner: {fileID: 235486239}
+  inspectWindowPrefab: {fileID: 5547169297441679547, guid: e29343529f8c4f64b8a82cf8c84f6778, type: 3}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
 --- !u!1 &1070890370
@@ -6679,10 +6681,10 @@ RectTransform:
   - {fileID: 728260680}
   m_Father: {fileID: 1146072348}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 0.05, y: 1}
+  m_AnchorMax: {x: 0.95, y: 1}
   m_AnchoredPosition: {x: 0, y: -2}
-  m_SizeDelta: {x: 180, y: 6}
+  m_SizeDelta: {x: 0, y: 6}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1239077650
 MonoBehaviour:

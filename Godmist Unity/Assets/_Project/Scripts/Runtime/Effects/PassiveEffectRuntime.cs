@@ -11,6 +11,9 @@ namespace Godmist.Runtime.Effects
     public class PassiveEffectRuntime
     {
         public string EffectId = string.Empty;
+        // Human-readable source/effect label for inspect and combat feedback. Empty
+        // values intentionally fall back to the effect id and glossary.
+        public string DisplayName = string.Empty;
         public List<PassiveEffectSourceRuntime> Sources = new();
         public int Stacks = 1;
 

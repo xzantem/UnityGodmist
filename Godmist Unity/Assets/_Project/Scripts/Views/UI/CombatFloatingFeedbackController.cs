@@ -3,6 +3,7 @@ using System.Collections;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using Godmist.Views.Combat;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 
 namespace Godmist.Views.UI
@@ -270,6 +271,17 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ActionPointSpend => $"-{feedbackEvent.Amount} AP",
             CombatFeedbackType.Critical => "CRIT",
             CombatFeedbackType.Miss => "MISS",
+            CombatFeedbackType.StatusApplied
+                or CombatFeedbackType.BuffApplied
+                or CombatFeedbackType.DebuffApplied
+                or CombatFeedbackType.ProcTriggered
+                or CombatFeedbackType.AuraApplied
+                or CombatFeedbackType.ResourceRegenerationBlocked
+                => ResolveEffectName(feedbackEvent.EffectName),
+            CombatFeedbackType.DamageRedirected =>
+                string.IsNullOrWhiteSpace(feedbackEvent.EffectName)
+                    ? "REDIRECT"
+                    : feedbackEvent.EffectName,
             _ => string.Empty
         };
 
@@ -282,8 +294,39 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ActionPointSpend => new Color(0.86f, 0.88f, 0.92f),
             CombatFeedbackType.Critical => new Color(1f, 0.76f, 0.23f),
             CombatFeedbackType.Miss => new Color(0.78f, 0.69f, 0.54f),
+            CombatFeedbackType.StatusApplied => new Color(0.86f, 0.86f, 0.96f),
+            CombatFeedbackType.BuffApplied or CombatFeedbackType.AuraApplied
+                => new Color(0.32f, 0.93f, 0.62f),
+            CombatFeedbackType.DebuffApplied or CombatFeedbackType.ResourceRegenerationBlocked
+                => new Color(1f, 0.48f, 0.39f),
+            CombatFeedbackType.ProcTriggered => new Color(1f, 0.82f, 0.31f),
+            CombatFeedbackType.DamageRedirected => new Color(0.78f, 0.62f, 1f),
             _ => Color.white
         };
+
+        private static string ResolveEffectName(string effectName)
+        {
+            if (string.IsNullOrWhiteSpace(effectName)) return string.Empty;
+
+            var glossaryTitle = UIWorkspaceTooltipView.ActiveInstance
+                ?.GetGlossaryTitle(effectName);
+            return string.IsNullOrWhiteSpace(glossaryTitle)
+                ? FormatEffectId(effectName)
+                : glossaryTitle;
+        }
+
+        private static string FormatEffectId(string effectId)
+        {
+            var words = effectId.Replace('_', ' ').Replace('-', ' ').Split(' ');
+            for (var index = 0; index < words.Length; index++)
+            {
+                if (string.IsNullOrWhiteSpace(words[index])) continue;
+                words[index] = char.ToUpperInvariant(words[index][0])
+                    + words[index].Substring(1);
+            }
+
+            return string.Join(" ", words);
+        }
 
         private static Color GetDamageColor(DamageType? damageType) => damageType switch
         {

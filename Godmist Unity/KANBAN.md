@@ -41,9 +41,6 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Tooltip skilla pokazuje wyliczony z aktualnych statystyk zakres obrazen, szanse trafienia, przewidywane obrazenia po obronie celu oraz komplet efektow i czasow trwania.
-  - Dodac widoczne buffy, nie tylko statusy; full inspect wybranej jednostki; preview zasiegu ruchu przeciwnika w jego nastepnej turze; feedback dla nowych efektow Combat v3 (buff, proc, aura, redirect, blokada regeneracji).
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
   - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
   - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
@@ -94,6 +91,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Combat v3 — Closed
+
+- `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Tooltip skilla pokazuje wyliczony z aktualnych statystyk zakres obrazen, szanse trafienia, przewidywane obrazenia po obronie celu oraz komplet efektow i czasow trwania.
+  - Dodac widoczne buffy, nie tylko statusy; full inspect wybranej jednostki; preview zasiegu ruchu przeciwnika w jego nastepnej turze; feedback dla nowych efektow Combat v3 (buff, proc, aura, redirect, blokada regeneracji).
 
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
   - Oddzielna procentowa penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`; efekt ma dodatkowo konfigurowalny `Bonus Penetration`.

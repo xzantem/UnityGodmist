@@ -730,6 +730,7 @@ namespace Godmist.Systems.SaveLoad
                     {
                         StatModifiers = statModifiers,
                         VariableModifiers = variableModifiers,
+                        DisplayName = effectSaveData.DisplayName ?? string.Empty,
                         IsUniqueCombatBuff = effectSaveData.IsUniqueCombatBuff,
                         UniqueBuffType = effectSaveData.UniqueBuffType,
                         ActionPointModifier = effectSaveData.ActionPointModifier,

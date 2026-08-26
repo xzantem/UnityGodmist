@@ -43,6 +43,7 @@ namespace Godmist.Runtime.Combat
     public class CombatAuraRuntime
     {
         public string AuraId = string.Empty;
+        public string DisplayName = string.Empty;
         public string StatusId = string.Empty;
         public int Radius;
         public bool IncludesCaster;

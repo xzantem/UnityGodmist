@@ -40,6 +40,8 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 12
     <PhysicalDefense>k__BackingField: 10
     <MagicalDefense>k__BackingField: 10
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 15
     <CritChance>k__BackingField: 0.25
     <CritDamage>k__BackingField: 1.5
@@ -47,6 +49,13 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 100
     <MaxResource>k__BackingField: 50
     <ResourceRegeneration>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0
+    <PoisonResistance>k__BackingField: 0
+    <FireResistance>k__BackingField: 0
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0
+    <MoveResistance>k__BackingField: 0
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 0
     <MinAttack>k__BackingField: 0

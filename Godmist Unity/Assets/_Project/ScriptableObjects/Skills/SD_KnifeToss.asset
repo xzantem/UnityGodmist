@@ -32,20 +32,24 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 4
+      rectangleWidth: 1
     relativeRange:
       shape: 1
       minRange: 0
-      maxRange: 2
+      maxRange: 1
+      rectangleWidth: 3
   - targetType: 9
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
+      rectangleWidth: 1
     relativeRange:
       shape: 1
       minRange: 0
-      maxRange: 2
+      maxRange: 1
+      rectangleWidth: 3
   effects:
   - effectType: 0
     polarity: 0
@@ -55,13 +59,14 @@ MonoBehaviour:
     damageValueSource: 0
     damageMultiplier: 1
     damageHitCount: 1
+    bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
     onHitStatusId:
     onHitStatusChance: 1
     onHitStatusDurationTurns: 1
-    lifeStealPercent: 1
-    resourceDrainPercent: 0.498
+    lifeStealPercent: 0
+    resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
     displacementDistance: 1
@@ -69,11 +74,13 @@ MonoBehaviour:
       shape: 1
       minRange: 0
       maxRange: 2
+      rectangleWidth: 1
     summonedObjectDefinition: {fileID: 0}
     objectPlacementRange:
       shape: 1
       minRange: 0
       maxRange: 2
+      rectangleWidth: 1
     maxActiveObjects: 1
     summonedCharacterDefinition: {fileID: 0}
     summonedClassData: {fileID: 0}
@@ -81,6 +88,7 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 2
+      rectangleWidth: 1
     summonDurationTurns: 1
     maxActiveSummons: 1
     summonPercentMaxHealth: 1
@@ -94,6 +102,7 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 1
+      rectangleWidth: 1
     counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0

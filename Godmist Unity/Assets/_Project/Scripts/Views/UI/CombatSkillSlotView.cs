@@ -1,5 +1,6 @@
 using System;
 using Godmist.Data.Skills;
+using Godmist.Runtime.Combat;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,6 +19,7 @@ namespace Godmist.Views.UI
         private TextMeshProUGUI runtimeKnifeCountText;
         private SkillData skill;
         private UIWorkspaceTooltipView tooltipView;
+        private Func<BattleUnit> casterProvider;
         private int actionCost;
         private Color defaultIconColor = Color.white;
         private static readonly Color ActiveToggleColor = new(0.35f, 1f, 0.65f, 1f);
@@ -25,10 +27,12 @@ namespace Godmist.Views.UI
         public void Initialize(
             SkillData sourceSkill,
             UIWorkspaceTooltipView sourceTooltipView,
-            Action onClick)
+            Action onClick,
+            Func<BattleUnit> sourceCasterProvider = null)
         {
             skill = sourceSkill;
             tooltipView = sourceTooltipView;
+            casterProvider = sourceCasterProvider;
 
             if (icon != null)
             {
@@ -93,6 +97,17 @@ namespace Godmist.Views.UI
             }
         }
 
+        public bool TryActivate()
+        {
+            if (button == null || !button.interactable)
+            {
+                return false;
+            }
+
+            button.onClick.Invoke();
+            return true;
+        }
+
         private TextMeshProUGUI GetKnifeCountText()
         {
             if (hotkeyText != null)
@@ -130,7 +145,7 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipView?.ShowSkill(skill, actionCost, this);
+            tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke());
         }
 
         public void OnPointerExit(PointerEventData eventData)

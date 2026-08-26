@@ -145,7 +145,8 @@ namespace Godmist.Views.Combat
                 RemoveUnitFromCombat,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
                 damageSystem,
-                passiveEffectLifecycleSystem);
+                passiveEffectLifecycleSystem,
+                feedbackBus);
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -214,7 +215,7 @@ namespace Godmist.Views.Combat
             {
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 RequestEndTurn();
                 return;
@@ -235,7 +236,7 @@ namespace Godmist.Views.Combat
                 DownFirstAllyForDebug();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.E))
+            if (Input.GetKeyDown(KeyCode.X))
             {
                 RequestEscape();
                 return;
@@ -275,7 +276,7 @@ namespace Godmist.Views.Combat
             var enemyA = CreateUnit(enemyDefinition, warriorClass, new GridPosition(6, 4),
                 90, 0, 50, ResourceType.Rage, 48f, false);
             var enemyB = CreateUnit(enemyDefinition, warriorClass, new GridPosition(6, 2),
-                90, 0, 50, ResourceType.Rage, 68f, false);
+                90, 0, 50, ResourceType.Rage, 48f, false);
                 
             session.Units.Add(jerzy);
             session.Units.Add(ally);

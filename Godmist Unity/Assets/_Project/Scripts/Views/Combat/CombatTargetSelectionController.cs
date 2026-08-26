@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -47,10 +49,14 @@ namespace Godmist.Views.Combat
         private bool isSelectingTeleportDestination;
         private SkillEffectData selectedCreateObjectEffect;
         private bool isSelectingObjectPlacement;
+        private CombatTargetPreviewView targetPreview;
         private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
 
         public bool IsSelectingTarget => selectedSkill != null;
+        public bool ConsumedPrimaryClickThisFrame { get; private set; }
         public BattleUnit HoveredUnit { get; private set; }
+        public SkillData SelectedSkill => selectedSkill;
+        public int CurrentTargetModeIndex => currentTargetModeIndex;
 
         private void Awake()
         {
@@ -225,6 +231,8 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            ConsumedPrimaryClickThisFrame = false;
+
             if (DevConsoleView.IsOpen || !IsSelectingTarget)
             {
                 return;
@@ -256,10 +264,12 @@ namespace Godmist.Views.Combat
                 }
                 UpdateRelativeRangePreview();
                 UpdateHoveredUnit(session);
+                UpdateCombatTargetPreview(session);
             }
             else
             {
                 HoveredUnit = null;
+                targetPreview?.Hide();
             }
 
             if (Input.GetKeyDown(KeyCode.Escape)
@@ -281,6 +291,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            ConsumedPrimaryClickThisFrame = true;
             var targetPosition = GetGridPositionUnderMouse();
 
             if (isSelectingTeleportDestination)
@@ -677,8 +688,90 @@ namespace Godmist.Views.Combat
             }
         }
 
+        private void UpdateCombatTargetPreview(CombatSession session)
+        {
+            if (selectedSkill == null
+                || worldCamera == null
+                || HoveredUnit == null
+                || currentTargetModeIndex < 0
+                || currentTargetModeIndex >= selectedSkill.TargetModes.Count)
+            {
+                targetPreview?.Hide();
+                return;
+            }
+
+            var mode = CurrentTargetMode;
+            var selectedPosition = GetPreviewSelectedPosition(mode, HoveredUnit);
+            var rotation = IsRotatableShape(mode)
+                ? directionalRotationQuarterTurns
+                : 0;
+            var targets = sandboxBootstrap.GetSkillTargets(
+                selectedSkill,
+                mode,
+                currentTargetModeIndex,
+                selectedPosition,
+                rotation);
+            if (targets == null || !targets.Contains(HoveredUnit))
+            {
+                targetPreview?.Hide();
+                return;
+            }
+
+            var preview = CombatSkillPreviewCalculator.CalculateTargetPreview(
+                session.ActiveUnit,
+                HoveredUnit,
+                selectedSkill,
+                currentTargetModeIndex);
+            if (!preview.IsValid)
+            {
+                targetPreview?.Hide();
+                return;
+            }
+
+            targetPreview ??= CombatTargetPreviewView.Create(
+                UIWorkspaceTooltipView.ActiveInstance?.transform.parent);
+            if (targetPreview == null)
+            {
+                return;
+            }
+
+            var worldPosition = new Vector3(
+                gridOrigin.x + HoveredUnit.Position.X * cellSize,
+                gridOrigin.y + HoveredUnit.Position.Y * cellSize,
+                0f);
+            var screenPosition = worldCamera.WorldToScreenPoint(worldPosition);
+            var hitText = preview.HasHitChance
+                ? $"Trafienie: {preview.HitChance * 100f:0.#}%\n"
+                : string.Empty;
+            targetPreview.Show(
+                screenPosition,
+                $"{hitText}Obrażenia: {preview.Damage.Minimum}–{preview.Damage.Maximum}",
+                new Color(1f, 0.86f, 0.45f));
+        }
+
+        private GridPosition? GetPreviewSelectedPosition(
+            SkillTargetModeData mode,
+            BattleUnit target)
+        {
+            if (mode == null || target == null)
+            {
+                return null;
+            }
+
+            if (IsDirectionalCasterArea(mode))
+            {
+                return RotateDirectionReference(target.Position);
+            }
+
+            return mode.TargetType == TargetType.Single
+                || mode.TargetType == TargetType.AreaAroundTile
+                ? target.Position
+                : null;
+        }
+
         private void ClearAllHighlights()
         {
+            targetPreview?.Hide();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillRange);
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillTarget);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.SkillRange);

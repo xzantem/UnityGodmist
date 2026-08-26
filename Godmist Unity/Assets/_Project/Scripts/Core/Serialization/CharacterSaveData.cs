@@ -93,6 +93,7 @@ namespace Godmist.Core.Serialization
     public class PassiveEffectSaveData
     {
         public string EffectId = string.Empty;
+        public string DisplayName = string.Empty;
         public List<PassiveEffectSourceSaveData> Sources = new();
         public PassiveEffectLifetime Lifetime;
         public int Stacks;

@@ -131,6 +131,10 @@ namespace Godmist.Systems.Combat
 
             existingEffect.Lifetime = incomingEffect.Lifetime;
             existingEffect.TickPhase = incomingEffect.TickPhase;
+            if (!string.IsNullOrWhiteSpace(incomingEffect.DisplayName))
+            {
+                existingEffect.DisplayName = incomingEffect.DisplayName;
+            }
             var existingEffectHadStatModifiers = HasStatModifiers(existingEffect);
 
             switch (stackingMode)

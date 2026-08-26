@@ -635,6 +635,7 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Add(new PassiveEffectSaveData
                 {
                     EffectId = effect.EffectId,
+                    DisplayName = effect.DisplayName,
                     Sources = CopyPassiveEffectSources(effect.Sources),
                     Stacks = effect.Stacks,
                     Lifetime = effect.Lifetime,

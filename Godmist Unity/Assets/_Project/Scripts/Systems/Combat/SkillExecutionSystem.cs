@@ -672,12 +672,15 @@ namespace Godmist.Systems.Combat
                 case EffectType.ModifyStat:
                 {
                     var wasApplied = modifyStatSystem != null && modifyStatSystem.Apply(caster, target, skill, effect, effectIndex);
+                    if (wasApplied) PublishModifierFeedback(target, skill, effect);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ModifyVar:
                 {
                     var wasApplied = modifyVarSystem != null 
                         && modifyVarSystem.Apply(caster, target, skill, effect, effectIndex);
+
+                    if (wasApplied) PublishModifierFeedback(target, skill, effect);
 
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
@@ -689,6 +692,10 @@ namespace Godmist.Systems.Combat
                         target.CurrentActionValue + (effect.ActionValuePercent >= 0f
                             ? -change : change));
                     CombatTurnSystem.ReorderParticipants(session);
+                    if (!Mathf.Approximately(change, 0f))
+                    {
+                        PublishModifierFeedback(target, skill, effect);
+                    }
                     return new EffectExecutionResult { Succeeded = !Mathf.Approximately(change, 0f) };
                 }
                 case EffectType.DrainResource:
@@ -719,12 +726,18 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyResistance:
                 {
+                    if (Mathf.Approximately(effect.ModifierValue, 0f))
+                    {
+                        return EffectExecutionResult.None;
+                    }
+
                     target.ResistanceModifiers ??= new Dictionary<ResistanceType, float>();
                     target.ResistanceModifiers.TryGetValue(effect.ResistanceType,
                         out var currentModifier);
                     target.ResistanceModifiers[effect.ResistanceType] =
                         currentModifier + effect.ModifierValue;
-                    return new EffectExecutionResult { Succeeded = !Mathf.Approximately(effect.ModifierValue, 0f) };
+                    PublishModifierFeedback(target, skill, effect);
+                    return new EffectExecutionResult { Succeeded = true };
                 }
                 case EffectType.ApplyUniqueBuff:
                 {
@@ -978,6 +991,27 @@ namespace Godmist.Systems.Combat
             }
 
             return wasHit;
+        }
+
+        private void PublishModifierFeedback(
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            if (feedbackBus == null || target == null || effect == null)
+            {
+                return;
+            }
+
+            var effectName = !string.IsNullOrWhiteSpace(skill?.DisplayName)
+                ? skill.DisplayName
+                : effect.EffectType.ToString();
+            feedbackBus.Publish(new CombatFeedbackEvent(
+                target,
+                effect.Polarity == EffectPolarity.Positive
+                    ? CombatFeedbackType.BuffApplied
+                    : CombatFeedbackType.DebuffApplied,
+                effectName: effectName));
         }
 
         private struct EffectExecutionResult
@@ -2109,7 +2143,10 @@ namespace Godmist.Systems.Combat
                 IncludesCaster = effect.AuraIncludesCaster,
                 TargetingType = effect.AuraTargetingType,
                 Chance = effect.BaseChance,
-                DurationTurns = Mathf.Max(1, effect.DurationTurns)
+                DurationTurns = Mathf.Max(1, effect.DurationTurns),
+                DisplayName = !string.IsNullOrWhiteSpace(skill?.DisplayName)
+                    ? skill.DisplayName
+                    : auraId
             });
             return true;
         }
@@ -2127,8 +2164,15 @@ namespace Godmist.Systems.Combat
                 {
                     if (aura == null || string.IsNullOrWhiteSpace(aura.StatusId)) continue;
 
+                    var hadAuraTargets = new HashSet<BattleUnit>();
                     foreach (var candidate in session.Units)
                     {
+                        if (StatusEffectSystem.HasStatusAppliedBySource(
+                                candidate, aura.StatusId, aura.AuraId))
+                        {
+                            hadAuraTargets.Add(candidate);
+                        }
+
                         StatusEffectSystem.RemoveStatusAppliedBySource(
                             candidate, aura.StatusId, aura.AuraId);
                     }
@@ -2146,8 +2190,12 @@ namespace Godmist.Systems.Combat
                             continue;
                         }
 
+                        var hadAuraStatus = hadAuraTargets.Contains(target);
                         statusEffectSystem.ApplyStatus(source, target, aura.StatusId,
-                            aura.Chance, aura.DurationTurns, 1, 0f, 0f, aura.AuraId);
+                            aura.Chance, aura.DurationTurns, 1, 0f, 0f, aura.AuraId,
+                            CombatFeedbackType.AuraApplied,
+                            aura.DisplayName,
+                            publishFeedback: !hadAuraStatus);
                     }
                 }
             }

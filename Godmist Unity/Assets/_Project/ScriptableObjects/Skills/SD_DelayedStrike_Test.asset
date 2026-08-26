@@ -20,19 +20,24 @@ MonoBehaviour:
   <ActionCost>k__BackingField: 20
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
+  <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
+  <ToggleUpkeepFlatResourceCost>k__BackingField: 0
+  <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
   targetModes:
-  - targetType: 0
+  - targetType: 3
     targetingType: 0
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
+      rectangleWidth: 1
     relativeRange:
-      shape: 0
+      shape: 2
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
   effects:
   - effectType: 0
     polarity: 0
@@ -42,6 +47,13 @@ MonoBehaviour:
     damageValueSource: 3
     damageMultiplier: 0.5
     damageHitCount: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 1
+    onHitStatusId:
+    onHitStatusChance: 1
+    onHitStatusDurationTurns: 1
+    lifeStealPercent: 0
+    resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
     displacementDistance: 0
@@ -49,11 +61,13 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonedObjectDefinition: {fileID: 0}
     objectPlacementRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
     summonedClassData: {fileID: 0}
@@ -61,6 +75,7 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonDurationTurns: 0
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
@@ -74,12 +89,26 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 1
+      rectangleWidth: 1
     counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0
     modifierStacking: 0
     modifierValue: 0
+    uniqueBuffType: 0
+    uniqueBuffStacks: 1
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 1
+    shieldAverageAttackMultiplier: 0
     conditions: []
   - effectType: 0
     polarity: 0
@@ -89,6 +118,13 @@ MonoBehaviour:
     damageValueSource: 3
     damageMultiplier: 1
     damageHitCount: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 1
+    onHitStatusId:
+    onHitStatusChance: 1
+    onHitStatusDurationTurns: 1
+    lifeStealPercent: 0
+    resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 1
     displacementDistance: 0
@@ -96,11 +132,13 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonedObjectDefinition: {fileID: 0}
     objectPlacementRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
     summonedClassData: {fileID: 0}
@@ -108,6 +146,7 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonDurationTurns: 0
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
@@ -121,10 +160,24 @@ MonoBehaviour:
       shape: 1
       minRange: 1
       maxRange: 1
+      rectangleWidth: 1
     counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0
     modifierStacking: 0
     modifierValue: 0
+    uniqueBuffType: 0
+    uniqueBuffStacks: 1
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 1
+    shieldAverageAttackMultiplier: 0
     conditions: []

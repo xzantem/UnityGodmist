@@ -47,6 +47,8 @@ namespace Godmist.Views.UI
             {
                 RefreshSlotVisuals(activeUnit);
             }
+
+            TryActivateSkillHotkey(activeUnit);
         }
 
         private void RebuildSlots(
@@ -75,7 +77,8 @@ namespace Godmist.Views.UI
                 slot.Initialize(
                     skill,
                     tooltipView,
-                    () => targetSelectionController?.BeginTargetSelection(skill));
+                    () => targetSelectionController?.BeginTargetSelection(skill),
+                    () => sandboxBootstrap?.Session?.ActiveUnit);
                 spawnedSlots.Add(slot);
             }
 
@@ -158,6 +161,32 @@ namespace Godmist.Views.UI
             }
 
             spawnedSlots.Clear();
+        }
+
+        private void TryActivateSkillHotkey(BattleUnit activeUnit)
+        {
+            if (DevConsoleView.IsOpen
+                || UIWorkspaceInputRouter.HasFocusedTextInput()
+                || activeUnit == null
+                || !activeUnit.IsPlayerSide)
+            {
+                return;
+            }
+
+            var slotCount = Mathf.Min(9, spawnedSlots.Count);
+            for (var index = 0; index < slotCount; index++)
+            {
+                var keyboardKey = (KeyCode)((int)KeyCode.Alpha1 + index);
+                var keypadKey = (KeyCode)((int)KeyCode.Keypad1 + index);
+                if (!Input.GetKeyDown(keyboardKey)
+                    && !Input.GetKeyDown(keypadKey))
+                {
+                    continue;
+                }
+
+                spawnedSlots[index]?.TryActivate();
+                return;
+            }
         }
 
         private void ResetCache()

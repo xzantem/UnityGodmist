@@ -503,6 +503,18 @@ namespace Godmist.Systems.Combat
             redirectedHealthDamage = ApplyDamage(session, null, protector,
                 mitigatedRedirect, damageType, allowDamageRedirect: false);
             redirectedDamage = requestedRedirect;
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                protectedUnit,
+                CombatFeedbackType.DamageRedirected,
+                redirectedDamage,
+                damageType,
+                effectName: "Redirect"));
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                protector,
+                CombatFeedbackType.DamageRedirected,
+                redirectedHealthDamage,
+                damageType,
+                effectName: "Redirect"));
             return true;
         }
         private void AccelerateDownedDeath(CombatSession session, BattleUnit target)
