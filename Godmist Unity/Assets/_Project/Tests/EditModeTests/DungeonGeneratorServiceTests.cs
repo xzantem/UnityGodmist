@@ -198,6 +198,46 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Generate_IrregularFootprints_CreateReachablePassages()
+        {
+            var definition = CreateDefinition(6, 9);
+
+            foreach (var template in definition.RoomTemplateCatalog.Templates)
+            {
+                SetAutoProperty(
+                    template,
+                    "Footprint",
+                    CreatePerimeterFootprint(template.SizeInCells));
+            }
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                foreach (var connection in floor.Connections)
+                {
+                    Assert.That(
+                        floor.Map.CanMoveBetween(
+                            connection.FirstDoorCell,
+                            connection.SecondDoorCell),
+                        Is.True,
+                        $"Seed {seed}: footprint nie utworzyl przechodnich drzwi.");
+                }
+
+                Assert.That(
+                    floor.Map.FloorCells.Count,
+                    Is.LessThan(
+                        GetTotalBoundingBoxCellCount(
+                            floor,
+                            definition.RoomTemplateCatalog)),
+                    $"Seed {seed}: generator nie uzyl footprintu.");
+            }
+        }
+
+        [Test]
         public void Generate_Connections_CreateAdjacentDoorways()
         {
             var definition = CreateDefinition(6, 9);
@@ -573,6 +613,58 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(template, "SizeInCells", sizeInCells);
 
             return template;
+        }
+
+        private static DungeonRoomFootprint CreatePerimeterFootprint(
+            Vector2Int sizeInCells)
+        {
+            var offsets = new List<Vector2Int>();
+
+            for (var x = 0; x < sizeInCells.x; x++)
+            {
+                for (var y = 0; y < sizeInCells.y; y++)
+                {
+                    var isInterior = x > 0
+                                     && y > 0
+                                     && x < sizeInCells.x - 1
+                                     && y < sizeInCells.y - 1;
+
+                    if (!isInterior)
+                    {
+                        offsets.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            var footprint = new DungeonRoomFootprint();
+
+            SetAutoProperty(
+                footprint,
+                "FloorCellOffsets",
+                offsets);
+
+            return footprint;
+        }
+
+        private static int GetTotalBoundingBoxCellCount(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            var total = 0;
+
+            foreach (var room in floor.Rooms)
+            {
+                foreach (var template in catalog.Templates)
+                {
+                    if (template != null && template.Id == room.TemplateId)
+                    {
+                        total += template.SizeInCells.x * template.SizeInCells.y;
+                        break;
+                    }
+                }
+            }
+
+            return total;
         }
 
         private static RectInt GetRoomBounds(

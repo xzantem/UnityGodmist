@@ -46,8 +46,8 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-  - Room template definiuje semantyczne kotwice dla encounterow, skrzyn, przeszkod, pulapek, dzwigni i nagrod zamiast losowego wyboru dowolnej poprawnej komorki.
+- `[P1] Dopracowac persistence cial przeciwnikow: pozycja smierci v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
+  - Kazde cialo powstaje na konkretnej komorce, na ktorej dany przeciwnik zginal w walce; istniejacy loot, interakcja i persistence ciala zostaja zachowane.
 - `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
   - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
@@ -63,7 +63,7 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 - `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
 - `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
-  - Zweryfikowac deterministyczny layout z petlami i gate'ami, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
+  - Zweryfikowac deterministyczny layout z petlami i gate'ami, nieregularne footprinty pokoi, ciala w miejscach smierci, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 
 ### Milestone: Crafting, Upgrading and Consumables v1
@@ -89,12 +89,34 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Playable / Test
 
+### Karty do decyzji o przypisaniu do milestone'u
+
+- `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
+  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wejscie gracza w FOV przeciwnika uruchamia poscig, a walka zaczyna sie po jego dogonieniu. Bez jednego wspolnego anchoru dla calej grupy.
+  - Przypisanie do milestone'u oraz priorytet do ustalenia.
+- `[Do decyzji] Dodac pathfinding ruchu sterowanego myszka w eksploracji lochu v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+  - Klikniecie walkable celu wyznacza sciezke po mapie lochu i prowadzi druzyne po kolejnych komorkach z uwzglednieniem przeszkod, scian i zamknietych przejsc.
+  - Przypisanie do milestone'u oraz priorytet do ustalenia; istnieje starsza karta o klikanym ruchu po gridzie, ktora nalezy traktowac jako jej poprzednia wersje.
+- `[Do decyzji] Rozszerzyc blokowanie layoutu pokoi z bounding boxa na rzeczywisty footprint v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
+  - Generator ma dopuszczac lepsze upakowanie nieregularnych pokoi, blokujac rzeczywiste zajete komorki zamiast calego prostokatnego bounding boxa; uwzglednic dziury, sasiedztwo pokoi i kompatybilne przejscia.
+  - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
+
 ### Milestone: Combat v3
 
 - `[P1] Combat v3 - acceptance pass` - `Combat`, `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
   - Zweryfikowac pelny przeplyw: targetowanie i shape'y, toggle, noze Scouta, sekwencjonowanie AI, feedback, tooltipy, inspect, preview oraz payloady PassiveEffectRuntime. Usunac znane regresje i pokryc brakujace krytyczne scenariusze testami.
 
 ## Done
+
+### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+  - Room template definiuje autorskie punkty lub obszary dla skrzyn, przeszkod, pulapek, dzwigni i nagrod, z opcjonalnym spawnem, kotwami wymaganymi i zaleznosciami miedzy kotwami; przy skonfigurowanych kotwach nie ma fallbacku do losowej komorki.
+  - Zaleznosci pozwalaja budowac warunkowe grupy contentu, np. kolejne pulapki aktywuja sie tylko wtedy, gdy poprzednia pulapka zostala wylosowana.
+
+- `[P1] Dodac nieregularne ksztalty pokoi lochu v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+  - Room template i generator obsluguja footprinty pokoi o dowolnym ksztalcie innym niz prostokat, z zachowaniem poprawnych przejsc, scian, kolizji i pathfindingu.
+  - Pierwszy pass blokuje layout przez bounding box; generator buduje podloge i przejscia na rzeczywistych komorkach footprintu oraz odrzuca uklad, w ktorym dowolna komorka nie jest fizycznie osiagalna z pokoju Start.
 
 ### Milestone: Combat v3 — Closed
 
@@ -341,9 +363,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 Zamkniety: zobacz sekcje `Done`.
 
 ### Pozniej: rozbudowa danych lochow
-- `[P2] Dodac semantyczne content anchors do DungeonRoomTemplate` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-  - Szablon pokoju definiuje dozwolone punkty/obszary dla skrzyn, przeszkod, pulapek i encounterow.
-  - Pozwala tworzyc recznie zaprojektowane sytuacje, np. nagrode na koncu waskiego przejscia za przeszkodami lub walka.
 
 ### Milestone: Save and Load v1
 

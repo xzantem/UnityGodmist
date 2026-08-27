@@ -98,8 +98,76 @@ namespace Godmist.Systems.Dungeons
                     room.RoomId,
                     triggerArea);
 
+                if (TryGetPreferredRoomCell(
+                        floor,
+                        room,
+                        template,
+                        out var explorationCell))
+                {
+                    encounter.TrySetExplorationPosition(explorationCell);
+                }
+
                 floor.TryAddEncounter(encounter);
             }
+        }
+
+        private static bool TryGetPreferredRoomCell(
+            DungeonFloorInstance floor,
+            DungeonRoomInstance room,
+            DungeonRoomTemplateDefinition template,
+            out Vector2Int selectedCell)
+        {
+            selectedCell = default;
+
+            if (floor?.Map == null || room == null || template == null)
+            {
+                return false;
+            }
+
+            var preferredCell = room.LayoutPosition
+                                + new Vector2Int(
+                                    template.SizeInCells.x / 2,
+                                    template.SizeInCells.y / 2);
+
+            var hasCandidate = false;
+            var selectedDistance = int.MaxValue;
+
+            foreach (var cell in floor.Map.FloorCells)
+            {
+                if (!floor.Map.TryGetRoomId(cell, out var roomId)
+                    || roomId != room.RoomId)
+                {
+                    continue;
+                }
+
+                var offset = cell - preferredCell;
+                var distance = offset.sqrMagnitude;
+
+                if (hasCandidate
+                    && (distance > selectedDistance
+                        || (distance == selectedDistance
+                            && CompareCells(cell, selectedCell) >= 0)))
+                {
+                    continue;
+                }
+
+                selectedCell = cell;
+                selectedDistance = distance;
+                hasCandidate = true;
+            }
+
+            return hasCandidate;
+        }
+
+        private static int CompareCells(
+            Vector2Int first,
+            Vector2Int second)
+        {
+            var xComparison = first.x.CompareTo(second.x);
+
+            return xComparison != 0
+                ? xComparison
+                : first.y.CompareTo(second.y);
         }
 
         private static List<DungeonRoomInstance> GetCandidateRooms(

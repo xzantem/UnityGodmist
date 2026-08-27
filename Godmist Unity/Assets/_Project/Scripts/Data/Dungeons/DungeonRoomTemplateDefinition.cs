@@ -16,15 +16,34 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField]
         public Vector2Int SizeInCells { get; private set; } = new(8, 8);
+
+        [field: Header("Room footprint")]
+        [field: Tooltip("Puste = pelny prostokat. Wpisz lokalne komorki podlogi, aby zdefiniowac dowolny ksztalt pokoju.")]
+        [field: SerializeField]
+        public DungeonRoomFootprint Footprint { get; private set; } = new();
+
         [field: Header("Structural anchors")]
         [field: SerializeField]
         public List<DungeonStructuralAnchorData> StructuralAnchors { get; private set; } = new();
+
+        [field: Header("Semantic content anchors")]
+        [field: SerializeField]
+        public List<DungeonSemanticAnchorData> SemanticAnchors { get; private set; } = new();
 
         private void OnValidate()
         {
             SizeInCells = new Vector2Int(
                 Mathf.Max(1, SizeInCells.x),
                 Mathf.Max(1, SizeInCells.y));
+
+            Footprint ??= new DungeonRoomFootprint();
+
+            if (SemanticAnchors == null) return;
+
+            foreach (var anchor in SemanticAnchors)
+            {
+                anchor?.Normalize();
+            }
         }
     }
 }

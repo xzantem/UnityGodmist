@@ -13,6 +13,13 @@ namespace Godmist.Systems.Dungeons
         private const double CorridorRoomChance = 0.4;
         private const int CorridorRoutingPadding = 6;
         private const int MaxFloorGenerationAttempts = 32;
+        private static readonly Vector2Int[] CardinalDirections =
+        {
+            Vector2Int.up,
+            Vector2Int.right,
+            Vector2Int.down,
+            Vector2Int.left
+        };
 
         private enum LayoutDirection
         {
@@ -149,7 +156,7 @@ namespace Godmist.Systems.Dungeons
             var loopCandidateRooms = new List<DungeonRoomInstance>();
             var optionalAnchorRooms = new List<PlacedRoom>();
             var occupiedAreas = new List<RectInt>();
-            var roomSizesById = new Dictionary<string, Vector2Int>();
+            var roomTemplatesById = new Dictionary<string, DungeonRoomTemplateDefinition>();
 
             DungeonRoomInstance previousRoom = null;
             var previousRoomSize = Vector2Int.zero;
@@ -197,7 +204,7 @@ namespace Godmist.Systems.Dungeons
                     roomPosition);
 
                 AddRoomOrThrow(floor, room);
-                roomSizesById.Add(room.RoomId, template.SizeInCells);
+                roomTemplatesById.Add(room.RoomId, template);
                 occupiedAreas.Add(
                     new RectInt(roomPosition, template.SizeInCells));
 
@@ -250,7 +257,7 @@ namespace Godmist.Systems.Dungeons
                     roomPosition);
 
                 AddRoomOrThrow(floor, room);
-                roomSizesById.Add(room.RoomId, template.SizeInCells);
+                roomTemplatesById.Add(room.RoomId, template);
                 occupiedAreas.Add(
                     new RectInt(roomPosition, template.SizeInCells));
 
@@ -270,7 +277,7 @@ namespace Godmist.Systems.Dungeons
 
             BuildConnectionGeometry(
                 floor,
-                roomSizesById,
+                roomTemplatesById,
                 definition.LayoutProfile,
                 random);
 
@@ -285,12 +292,14 @@ namespace Godmist.Systems.Dungeons
                     "Nie udalo sie przypisac mapy do pietra lochu.");
             }
 
+            ValidateFloorReachability(floor);
+
             return floor;
         }
 
         private static void BuildConnectionGeometry(
             DungeonFloorInstance floor,
-            Dictionary<string, Vector2Int> roomSizesById,
+            Dictionary<string, DungeonRoomTemplateDefinition> roomTemplatesById,
             DungeonLayoutProfile layoutProfile,
             System.Random random)
         {
@@ -305,25 +314,27 @@ namespace Godmist.Systems.Dungeons
                         "Polaczenie odwoluje sie do brakujacego pokoju.");
                 }
 
-                if (!roomSizesById.TryGetValue(firstRoom.RoomId, out var firstRoomSize)
-                    || !roomSizesById.TryGetValue(secondRoom.RoomId, out var secondRoomSize))
+                if (!roomTemplatesById.TryGetValue(firstRoom.RoomId, out var firstTemplate)
+                    || !roomTemplatesById.TryGetValue(secondRoom.RoomId, out var secondTemplate))
                 {
                     throw new InvalidOperationException(
-                        "Brakuje rozmiaru pokoju podczas generowania polaczenia.");
+                        "Brakuje szablonu pokoju podczas generowania polaczenia.");
                 }
 
                 var firstRoomArea = new RectInt(
                     firstRoom.LayoutPosition,
-                    firstRoomSize);
+                    firstTemplate.SizeInCells);
 
                 var secondRoomArea = new RectInt(
                     secondRoom.LayoutPosition,
-                    secondRoomSize);
+                    secondTemplate.SizeInCells);
 
                 if (TrySetDirectPassageGeometry(
                         connection,
                         firstRoom.RoomId,
                         secondRoom.RoomId,
+                        firstTemplate,
+                        secondTemplate,
                         firstRoomArea,
                         secondRoomArea,
                         layoutProfile,
@@ -333,9 +344,87 @@ namespace Godmist.Systems.Dungeons
                     continue;
                 }
 
-                throw new InvalidOperationException(
+                throw new LayoutAttemptFailedException(
                     $"Pokoje '{firstRoom.RoomId}' i '{secondRoom.RoomId}' "
-                    + "nie stykaja sie scianami.");
+                    + "nie maja kompatybilnych zewnetrznych krawedzi przejscia.");
+            }
+        }
+
+        private static void ValidateFloorReachability(
+            DungeonFloorInstance floor)
+        {
+            if (floor == null || floor.Map == null)
+            {
+                throw new LayoutAttemptFailedException(
+                    "Nie mozna zweryfikowac osiagalnosci pietra bez mapy.");
+            }
+
+            var startRoomId = string.Empty;
+
+            foreach (var room in floor.Rooms)
+            {
+                if (room.RoomType != DungeonRoomType.Start)
+                {
+                    continue;
+                }
+
+                startRoomId = room.RoomId;
+                break;
+            }
+
+            if (string.IsNullOrWhiteSpace(startRoomId))
+            {
+                throw new LayoutAttemptFailedException(
+                    "Nie znaleziono pokoju Start podczas walidacji osiagalnosci.");
+            }
+
+            var visited = new HashSet<Vector2Int>();
+            var queue = new Queue<Vector2Int>();
+            var hasStartCell = false;
+
+            foreach (var cell in floor.Map.FloorCells)
+            {
+                if (!floor.Map.TryGetRoomId(cell, out var roomId)
+                    || roomId != startRoomId)
+                {
+                    continue;
+                }
+
+                visited.Add(cell);
+                queue.Enqueue(cell);
+                hasStartCell = true;
+                break;
+            }
+
+            if (!hasStartCell)
+            {
+                throw new LayoutAttemptFailedException(
+                    "Pokoj Start nie ma zadnej komorki footprintu.");
+            }
+
+            while (queue.Count > 0)
+            {
+                var cell = queue.Dequeue();
+
+                foreach (var direction in CardinalDirections)
+                {
+                    var neighbour = cell + direction;
+
+                    if (!floor.Map.CanMoveBetween(cell, neighbour)
+                        || !visited.Add(neighbour))
+                    {
+                        continue;
+                    }
+
+                    queue.Enqueue(neighbour);
+                }
+            }
+
+            if (visited.Count != floor.Map.FloorCells.Count)
+            {
+                throw new LayoutAttemptFailedException(
+                    "Nie wszystkie komorki footprintow sa osiagalne "
+                    + "z pokoju Start.");
             }
         }
 
@@ -343,6 +432,8 @@ namespace Godmist.Systems.Dungeons
             DungeonRoomConnection connection,
             string firstRoomId,
             string secondRoomId,
+            DungeonRoomTemplateDefinition firstTemplate,
+            DungeonRoomTemplateDefinition secondTemplate,
             RectInt firstRoomArea,
             RectInt secondRoomArea,
             DungeonLayoutProfile layoutProfile,
@@ -355,6 +446,8 @@ namespace Godmist.Systems.Dungeons
                     connection,
                     firstRoomId,
                     secondRoomId,
+                    firstTemplate,
+                    secondTemplate,
                     firstRoomArea,
                     secondRoomArea,
                     true,
@@ -369,6 +462,8 @@ namespace Godmist.Systems.Dungeons
                     connection,
                     firstRoomId,
                     secondRoomId,
+                    firstTemplate,
+                    secondTemplate,
                     firstRoomArea,
                     secondRoomArea,
                     false,
@@ -383,6 +478,8 @@ namespace Godmist.Systems.Dungeons
                     connection,
                     firstRoomId,
                     secondRoomId,
+                    firstTemplate,
+                    secondTemplate,
                     firstRoomArea,
                     secondRoomArea,
                     true,
@@ -397,6 +494,8 @@ namespace Godmist.Systems.Dungeons
                     connection,
                     firstRoomId,
                     secondRoomId,
+                    firstTemplate,
+                    secondTemplate,
                     firstRoomArea,
                     secondRoomArea,
                     false,
@@ -412,6 +511,8 @@ namespace Godmist.Systems.Dungeons
             DungeonRoomConnection connection,
             string firstRoomId,
             string secondRoomId,
+            DungeonRoomTemplateDefinition firstTemplate,
+            DungeonRoomTemplateDefinition secondTemplate,
             RectInt firstRoomArea,
             RectInt secondRoomArea,
             bool firstRoomIsLeft,
@@ -451,6 +552,27 @@ namespace Godmist.Systems.Dungeons
                         layoutProfile,
                         random))
             {
+                var firstDoorCell = firstRoomIsLeft
+                    ? new Vector2Int(firstRoomArea.xMax - 1, doorwayStart)
+                    : new Vector2Int(firstRoomArea.xMin, doorwayStart);
+
+                var secondDoorCell = firstRoomIsLeft
+                    ? new Vector2Int(secondRoomArea.xMin, doorwayStart)
+                    : new Vector2Int(secondRoomArea.xMax - 1, doorwayStart);
+
+                if (!AreDoorwayCellsInFootprints(
+                        firstTemplate,
+                        secondTemplate,
+                        firstRoomArea,
+                        secondRoomArea,
+                        firstDoorCell,
+                        secondDoorCell,
+                        doorwayWidth,
+                        true))
+                {
+                    continue;
+                }
+
                 if (!TryReserveDoorways(
                         reservationsByRoomId,
                         firstRoomId,
@@ -463,14 +585,6 @@ namespace Godmist.Systems.Dungeons
                 {
                     continue;
                 }
-
-                var firstDoorCell = firstRoomIsLeft
-                    ? new Vector2Int(firstRoomArea.xMax - 1, doorwayStart)
-                    : new Vector2Int(firstRoomArea.xMin, doorwayStart);
-
-                var secondDoorCell = firstRoomIsLeft
-                    ? new Vector2Int(secondRoomArea.xMin, doorwayStart)
-                    : new Vector2Int(secondRoomArea.xMax - 1, doorwayStart);
 
                 return connection.TrySetDirectPassage(
                     firstDoorCell,
@@ -485,6 +599,8 @@ namespace Godmist.Systems.Dungeons
             DungeonRoomConnection connection,
             string firstRoomId,
             string secondRoomId,
+            DungeonRoomTemplateDefinition firstTemplate,
+            DungeonRoomTemplateDefinition secondTemplate,
             RectInt firstRoomArea,
             RectInt secondRoomArea,
             bool firstRoomIsBelow,
@@ -524,6 +640,27 @@ namespace Godmist.Systems.Dungeons
                         layoutProfile,
                         random))
             {
+                var firstDoorCell = firstRoomIsBelow
+                    ? new Vector2Int(doorwayStart, firstRoomArea.yMax - 1)
+                    : new Vector2Int(doorwayStart, firstRoomArea.yMin);
+
+                var secondDoorCell = firstRoomIsBelow
+                    ? new Vector2Int(doorwayStart, secondRoomArea.yMin)
+                    : new Vector2Int(doorwayStart, secondRoomArea.yMax - 1);
+
+                if (!AreDoorwayCellsInFootprints(
+                        firstTemplate,
+                        secondTemplate,
+                        firstRoomArea,
+                        secondRoomArea,
+                        firstDoorCell,
+                        secondDoorCell,
+                        doorwayWidth,
+                        false))
+                {
+                    continue;
+                }
+
                 if (!TryReserveDoorways(
                         reservationsByRoomId,
                         firstRoomId,
@@ -537,14 +674,6 @@ namespace Godmist.Systems.Dungeons
                     continue;
                 }
 
-                var firstDoorCell = firstRoomIsBelow
-                    ? new Vector2Int(doorwayStart, firstRoomArea.yMax - 1)
-                    : new Vector2Int(doorwayStart, firstRoomArea.yMin);
-
-                var secondDoorCell = firstRoomIsBelow
-                    ? new Vector2Int(doorwayStart, secondRoomArea.yMin)
-                    : new Vector2Int(doorwayStart, secondRoomArea.yMax - 1);
-
                 return connection.TrySetDirectPassage(
                     firstDoorCell,
                     secondDoorCell,
@@ -552,6 +681,51 @@ namespace Godmist.Systems.Dungeons
             }
 
             return false;
+        }
+
+        private static bool AreDoorwayCellsInFootprints(
+            DungeonRoomTemplateDefinition firstTemplate,
+            DungeonRoomTemplateDefinition secondTemplate,
+            RectInt firstRoomArea,
+            RectInt secondRoomArea,
+            Vector2Int firstDoorCell,
+            Vector2Int secondDoorCell,
+            int doorwayWidth,
+            bool isVertical)
+        {
+            var firstFootprint = firstTemplate.Footprint
+                                 ?? new DungeonRoomFootprint();
+            var secondFootprint = secondTemplate.Footprint
+                                  ?? new DungeonRoomFootprint();
+
+            firstFootprint.Validate(
+                firstTemplate.SizeInCells,
+                firstTemplate.Id);
+            secondFootprint.Validate(
+                secondTemplate.SizeInCells,
+                secondTemplate.Id);
+
+            var lateral = isVertical
+                ? Vector2Int.up
+                : Vector2Int.right;
+
+            for (var offset = 0; offset < doorwayWidth; offset++)
+            {
+                var firstCell = firstDoorCell + lateral * offset;
+                var secondCell = secondDoorCell + lateral * offset;
+
+                if (!firstFootprint.Contains(
+                        firstCell - firstRoomArea.position,
+                        firstTemplate.SizeInCells)
+                    || !secondFootprint.Contains(
+                        secondCell - secondRoomArea.position,
+                        secondTemplate.SizeInCells))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static List<int> GetDoorwayStarts(

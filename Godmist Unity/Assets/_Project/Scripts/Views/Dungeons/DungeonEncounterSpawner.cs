@@ -55,7 +55,9 @@ namespace Godmist.Views.Dungeons
                     continue;
                 }
 
-                var enemyViews = SpawnEnemyViews(encounterInstance);
+                var enemyViews = SpawnEnemyViews(
+                    encounterInstance,
+                    floor.Map);
 
                 if (enemyViews.Count == 0)
                 {
@@ -87,7 +89,8 @@ namespace Godmist.Views.Dungeons
         }
 
         private List<ExplorationCharacterView> SpawnEnemyViews(
-            DungeonEncounterInstance encounterInstance)
+            DungeonEncounterInstance encounterInstance,
+            DungeonFloorMap floorMap)
         {
             var result = new List<ExplorationCharacterView>();
             var enemies = encounterInstance.Definition?.Enemies;
@@ -138,11 +141,18 @@ namespace Godmist.Views.Dungeons
                 enemyView.SetTint(enemyTint);
 
                 var cell = enemyIndex == 0
+                    && IsRoomFloorCell(
+                        floorMap,
+                        encounterInstance.RoomId,
+                        encounterInstance.ExplorationPosition)
                     ? encounterInstance.ExplorationPosition
                     : GetFormationCell(
+                        floorMap,
+                        encounterInstance.RoomId,
                         encounterInstance.TriggerArea,
                         enemyIndex,
-                        validEnemyCount);
+                        validEnemyCount,
+                        encounterInstance.ExplorationPosition);
 
                 enemyView.SetPosition(
                     floorMapView.CellToWorldCenter(cell));
@@ -157,20 +167,45 @@ namespace Godmist.Views.Dungeons
         }
 
         private static Vector2Int GetFormationCell(
+            DungeonFloorMap floorMap,
+            string roomId,
             RectInt area,
             int index,
-            int memberCount)
+            int memberCount,
+            Vector2Int fallbackCell)
         {
-            var width = Mathf.Max(1, area.width);
-            var height = Mathf.Max(1, area.height);
-            var columns = Mathf.Min(memberCount, width);
+            var candidates = new List<Vector2Int>();
 
-            var column = index % columns;
-            var row = index / columns;
+            for (var x = area.xMin; x < area.xMax; x++)
+            {
+                for (var y = area.yMin; y < area.yMax; y++)
+                {
+                    var cell = new Vector2Int(x, y);
 
-            return new Vector2Int(
-                area.xMin + Mathf.Min(column, width - 1),
-                area.yMin + Mathf.Min(row, height - 1));
+                    if (IsRoomFloorCell(floorMap, roomId, cell))
+                    {
+                        candidates.Add(cell);
+                    }
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                return fallbackCell;
+            }
+
+            return candidates[index % candidates.Count];
+        }
+
+        private static bool IsRoomFloorCell(
+            DungeonFloorMap floorMap,
+            string roomId,
+            Vector2Int cell)
+        {
+            return floorMap != null
+                && floorMap.IsWalkable(cell)
+                && floorMap.TryGetRoomId(cell, out var cellRoomId)
+                && cellRoomId == roomId;
         }
 
         private static bool IsEncounterCleared(

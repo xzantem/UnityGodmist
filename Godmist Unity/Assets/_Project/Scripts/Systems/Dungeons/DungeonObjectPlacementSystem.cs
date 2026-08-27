@@ -199,6 +199,113 @@ namespace Godmist.Systems.Dungeons
         {
             if (definitions.Count == 0) return;
 
+            var semanticResolver = new DungeonSemanticAnchorResolver();
+            var semanticCandidates = semanticResolver.GetCandidates(
+                floor,
+                dungeon.Definition.RoomTemplateCatalog,
+                new[]
+                {
+                    DungeonSemanticAnchorType.Chest,
+                    DungeonSemanticAnchorType.Obstacle
+                },
+                IsEligibleRoomType);
+
+            if (semanticCandidates.Count > 0)
+            {
+                semanticCandidates = semanticCandidates.FindAll(candidate =>
+                    GetDefinitionsForAnchorType(
+                        definitions,
+                        candidate.Anchor.Type).Count > 0);
+
+                PlaceAnchoredObjects(
+                    dungeon,
+                    floor,
+                    definitions,
+                    lootTableSystem,
+                    random,
+                    semanticResolver,
+                    semanticCandidates);
+                return;
+            }
+
+            PlaceLegacyObjects(
+                dungeon,
+                floor,
+                definitions,
+                lootTableSystem,
+                random);
+        }
+
+        private static void PlaceAnchoredObjects(
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            List<DungeonObjectDefinition> definitions,
+            LootTableSystem lootTableSystem,
+            System.Random random,
+            DungeonSemanticAnchorResolver semanticResolver,
+            List<DungeonSemanticAnchorPlacement> candidates)
+        {
+            var maximumCount = Mathf.Min(
+                dungeon.Definition.MaxObjectCountPerFloor,
+                candidates.Count);
+
+            if (maximumCount <= 0) return;
+
+            var minimumCount = Mathf.Min(
+                dungeon.Definition.MinObjectCountPerFloor,
+                maximumCount);
+
+            var selectedAnchors = semanticResolver.Select(
+                candidates,
+                minimumCount,
+                maximumCount,
+                random);
+
+            for (var index = 0; index < selectedAnchors.Count; index++)
+            {
+                var selectedAnchor = selectedAnchors[index];
+                var matchingDefinitions = GetDefinitionsForAnchorType(
+                    definitions,
+                    selectedAnchor.Anchor.Type);
+
+                if (matchingDefinitions.Count == 0) continue;
+
+                var position = GetAvailableAnchorPosition(
+                    floor,
+                    selectedAnchor.Cells,
+                    random);
+
+                if (!position.HasValue) continue;
+
+                var definition = SelectDefinition(matchingDefinitions, random);
+
+                if (definition == null) continue;
+
+                var instanceId =
+                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}."
+                    + $"object_{index:00}";
+
+                var dungeonObject = CreateObjectInstance(
+                    instanceId,
+                    definition,
+                    position.Value,
+                    lootTableSystem);
+
+                if (dungeonObject != null)
+                {
+                    floor.TryAddObject(dungeonObject);
+                }
+            }
+        }
+
+        private static void PlaceLegacyObjects(
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            List<DungeonObjectDefinition> definitions,
+            LootTableSystem lootTableSystem,
+            System.Random random)
+        {
+
             var candidatePositions = GetCandidatePositions(floor);
 
             if (candidatePositions.Count == 0) return;
@@ -239,6 +346,46 @@ namespace Godmist.Systems.Dungeons
 
                 floor.TryAddObject(dungeonObject);
             }
+        }
+
+        private static List<DungeonObjectDefinition> GetDefinitionsForAnchorType(
+            List<DungeonObjectDefinition> definitions,
+            DungeonSemanticAnchorType anchorType)
+        {
+            var result = new List<DungeonObjectDefinition>();
+
+            foreach (var definition in definitions)
+            {
+                if ((anchorType == DungeonSemanticAnchorType.Chest
+                     && definition is ChestDungeonObjectDefinition)
+                    || (anchorType == DungeonSemanticAnchorType.Obstacle
+                        && definition is ObstacleDungeonObjectDefinition))
+                {
+                    result.Add(definition);
+                }
+            }
+
+            return result;
+        }
+
+        private static Vector2Int? GetAvailableAnchorPosition(
+            DungeonFloorInstance floor,
+            IReadOnlyList<Vector2Int> cells,
+            System.Random random)
+        {
+            var candidates = new List<Vector2Int>(cells);
+            candidates.Sort(ComparePositions);
+            Shuffle(candidates, random);
+
+            foreach (var candidate in candidates)
+            {
+                if (!IsOccupiedByDungeonObject(floor, candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
 
         private static List<DungeonObjectDefinition> GetValidObjectDefinitions(

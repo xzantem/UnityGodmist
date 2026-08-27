@@ -62,7 +62,10 @@ namespace Godmist.Views.Dungeons
 
                 floorMapView.Rebuild(floor.Map);
 
-                if (!TryGetDungeonSpawnPosition(dungeon, out var spawnPosition))
+                if (!TryGetDungeonSpawnPosition(
+                        dungeon,
+                        floorMapView,
+                        out var spawnPosition))
                 {
                     Debug.LogError("DungeonSandboxBootstrap: nie znaleziono pozycji spawnu druzyny.");
 
@@ -75,7 +78,11 @@ namespace Godmist.Views.Dungeons
 
                 if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 
-                if (!TryGetRoomCenter(dungeon, DungeonRoomType.Final, out var exitPosition))
+                if (!TryGetRoomCenter(
+                        dungeon,
+                        DungeonRoomType.Final,
+                        floorMapView,
+                        out var exitPosition))
                 {
                     Debug.LogError("DungeonSandboxBootstrap: nie znaleziono pokoju Final.");
 
@@ -107,7 +114,10 @@ namespace Godmist.Views.Dungeons
             }
         }
 
-        private static bool TryGetDungeonSpawnPosition(DungeonInstance dungeon, out Vector2 position)
+        private static bool TryGetDungeonSpawnPosition(
+            DungeonInstance dungeon,
+            DungeonFloorMapView floorMapView,
+            out Vector2 position)
         {
             position = default;
 
@@ -119,17 +129,24 @@ namespace Godmist.Views.Dungeons
                 return true;
             }
 
-            return TryGetRoomCenter(dungeon, DungeonRoomType.Start, out position);
+            return TryGetRoomCenter(
+                dungeon,
+                DungeonRoomType.Start,
+                floorMapView,
+                out position);
         }
 
         private static bool TryGetRoomCenter(
             DungeonInstance dungeon,
             DungeonRoomType roomType,
+            DungeonFloorMapView floorMapView,
             out Vector2 center)
         {
             center = default;
 
-            if (!dungeon.TryGetCurrentFloor(out var floor))
+            if (floorMapView == null
+                || !dungeon.TryGetCurrentFloor(out var floor)
+                || floor.Map == null)
             {
                 return false;
             }
@@ -145,15 +162,62 @@ namespace Godmist.Views.Dungeons
                 {
                     if (template == null || template.Id != room.TemplateId) continue;
 
-                    center = new Vector2(
-                        room.LayoutPosition.x + template.SizeInCells.x * 0.5f,
-                        room.LayoutPosition.y + template.SizeInCells.y * 0.5f);
+                    var preferredCell = room.LayoutPosition
+                                        + new Vector2Int(
+                                            template.SizeInCells.x / 2,
+                                            template.SizeInCells.y / 2);
+
+                    var hasCandidate = false;
+                    var selectedCell = default(Vector2Int);
+                    var selectedDistance = int.MaxValue;
+
+                    foreach (var cell in floor.Map.FloorCells)
+                    {
+                        if (!floor.Map.TryGetRoomId(cell, out var roomId)
+                            || roomId != room.RoomId)
+                        {
+                            continue;
+                        }
+
+                        var offset = cell - preferredCell;
+                        var distance = offset.sqrMagnitude;
+
+                        if (hasCandidate
+                            && (distance > selectedDistance
+                                || (distance == selectedDistance
+                                    && CompareCells(cell, selectedCell) >= 0)))
+                        {
+                            continue;
+                        }
+
+                        selectedCell = cell;
+                        selectedDistance = distance;
+                        hasCandidate = true;
+                    }
+
+                    if (!hasCandidate)
+                    {
+                        return false;
+                    }
+
+                    center = floorMapView.CellToWorldCenter(selectedCell);
 
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static int CompareCells(
+            Vector2Int first,
+            Vector2Int second)
+        {
+            var xComparison = first.x.CompareTo(second.x);
+
+            return xComparison != 0
+                ? xComparison
+                : first.y.CompareTo(second.y);
         }
     }
 }
