@@ -1453,6 +1453,25 @@ namespace Godmist.Systems.SaveLoad
                         }
                     }
 
+                    if (floorDelta.ProgressionGateDeltas != null)
+                    {
+                        var restoredGateIds = new HashSet<string>(
+                            StringComparer.Ordinal);
+
+                        foreach (var gateDelta in floorDelta.ProgressionGateDeltas)
+                        {
+                            if (gateDelta == null
+                                || string.IsNullOrWhiteSpace(gateDelta.GateId)
+                                || !restoredGateIds.Add(gateDelta.GateId)
+                                || !floor.TryRestoreProgressionGateState(
+                                    gateDelta.GateId,
+                                    gateDelta.IsUnlocked))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
                     if (!TryRestoreEnemyBodyDeltas(
                             floor,
                             floorDelta.EnemyBodyDeltas,

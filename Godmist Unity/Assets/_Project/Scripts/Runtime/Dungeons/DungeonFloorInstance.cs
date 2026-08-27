@@ -83,7 +83,74 @@ namespace Godmist.Runtime.Dungeons
             if (map == null || Map != null) return false;
 
             Map = map;
+
+            foreach (var connection in connections)
+            {
+                if (!connection.HasProgressionGate
+                    || TryApplyProgressionGateState(connection))
+                {
+                    continue;
+                }
+
+                Map = null;
+                return false;
+            }
+
             return true;
+        }
+
+        public bool TrySatisfyProgressionCondition(string conditionId)
+        {
+            if (string.IsNullOrWhiteSpace(conditionId) || Map == null)
+            {
+                return false;
+            }
+
+            var changed = false;
+
+            foreach (var connection in connections)
+            {
+                if (!connection.TrySatisfyProgressionCondition(conditionId))
+                {
+                    continue;
+                }
+
+                if (!TryApplyProgressionGateState(connection))
+                {
+                    return false;
+                }
+
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        public bool TryRestoreProgressionGateState(
+            string gateId,
+            bool isUnlocked)
+        {
+            if (string.IsNullOrWhiteSpace(gateId) || Map == null)
+            {
+                return false;
+            }
+
+            foreach (var connection in connections)
+            {
+                if (!connection.HasProgressionGate
+                    || !string.Equals(
+                        connection.ProgressionGateId,
+                        gateId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                return connection.TryRestoreProgressionGateUnlocked(isUnlocked)
+                    && TryApplyProgressionGateState(connection);
+            }
+
+            return false;
         }
 
         public bool TryAddEncounter(DungeonEncounterInstance encounter) 
@@ -345,6 +412,41 @@ namespace Godmist.Runtime.Dungeons
             dungeonObject = objects.Find(existing => existing.IsActive && existing.Position == position);
 
             return dungeonObject != null;
+        }
+
+        private bool TryApplyProgressionGateState(
+            DungeonRoomConnection connection)
+        {
+            if (Map == null
+                || connection == null
+                || !connection.HasGeometry)
+            {
+                return false;
+            }
+
+            var normal = connection.SecondDoorCell
+                         - connection.FirstDoorCell;
+            var lateral = normal.x != 0
+                ? Vector2Int.up
+                : Vector2Int.right;
+
+            for (var offset = 0;
+                offset < connection.DoorwayWidth;
+                offset++)
+            {
+                var edge = new DungeonCellEdge(
+                    connection.FirstDoorCell + lateral * offset,
+                    connection.SecondDoorCell + lateral * offset);
+
+                if (!Map.TrySetProgressionGateState(
+                        edge,
+                        connection.IsProgressionGateUnlocked))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

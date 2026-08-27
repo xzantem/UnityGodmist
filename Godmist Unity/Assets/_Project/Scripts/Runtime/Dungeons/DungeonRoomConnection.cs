@@ -13,6 +13,12 @@ namespace Godmist.Runtime.Dungeons
         public Vector2Int SecondDoorCell { get; private set; }
         public int DoorwayWidth { get; private set; }
 
+        public bool HasProgressionGate { get; private set; }
+        public string ProgressionGateId { get; private set; } = string.Empty;
+        public string ProgressionConditionId { get; private set; } = string.Empty;
+        public string RequiredBranchRoomId { get; private set; } = string.Empty;
+        public bool IsProgressionGateUnlocked { get; private set; }
+
         public DungeonRoomConnection(
             string firstRoomId,
             string secondRoomId)
@@ -59,6 +65,55 @@ namespace Godmist.Runtime.Dungeons
             DoorwayWidth = doorwayWidth;
             HasGeometry = true;
 
+            return true;
+        }
+
+        public bool TrySetProgressionGate(
+            string gateId,
+            string conditionId,
+            string requiredBranchRoomId)
+        {
+            if (HasProgressionGate
+                || string.IsNullOrWhiteSpace(gateId)
+                || string.IsNullOrWhiteSpace(conditionId)
+                || string.IsNullOrWhiteSpace(requiredBranchRoomId))
+            {
+                return false;
+            }
+
+            ProgressionGateId = gateId;
+            ProgressionConditionId = conditionId;
+            RequiredBranchRoomId = requiredBranchRoomId;
+            HasProgressionGate = true;
+            IsProgressionGateUnlocked = false;
+
+            return true;
+        }
+
+        public bool TrySatisfyProgressionCondition(string conditionId)
+        {
+            if (!HasProgressionGate
+                || IsProgressionGateUnlocked
+                || !string.Equals(
+                    ProgressionConditionId,
+                    conditionId,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            IsProgressionGateUnlocked = true;
+            return true;
+        }
+
+        public bool TryRestoreProgressionGateUnlocked(bool isUnlocked)
+        {
+            if (!HasProgressionGate)
+            {
+                return false;
+            }
+
+            IsProgressionGateUnlocked = isUnlocked;
             return true;
         }
 

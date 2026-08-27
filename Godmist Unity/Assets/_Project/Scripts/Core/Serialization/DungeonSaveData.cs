@@ -26,7 +26,15 @@ namespace Godmist.Core.Serialization
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
+        public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonProgressionGateDeltaSaveData
+    {
+        public string GateId = string.Empty;
+        public bool IsUnlocked;
     }
 
     [Serializable]

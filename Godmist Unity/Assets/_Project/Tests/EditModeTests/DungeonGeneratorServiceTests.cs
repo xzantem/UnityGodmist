@@ -337,9 +337,9 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void Generate_RejectsLoopConnectionsUntilLayoutPassV2()
+        public void Generate_LoopConnectionConfiguration_IsAccepted()
         {
-            var definition = CreateDefinition(6, 6);
+            var definition = CreateDefinition(9, 9);
 
             SetAutoProperty(
                 definition,
@@ -355,7 +355,124 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(
                 () => generator.Generate(definition, 12345),
-                Throws.TypeOf<System.InvalidOperationException>());
+                Throws.Nothing);
+        }
+
+        [Test]
+        public void Generate_SeveralSeeds_CreatesAtLeastOneAdditionalLoopConnection()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MinLoopConnections",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxLoopConnections",
+                1);
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var floor = generator.Generate(definition, seed).Floors[0];
+
+                if (floor.Connections.Count >= floor.Rooms.Count)
+                {
+                    Assert.Pass($"Seed {seed} utworzyl petle w grafie lochu.");
+                }
+            }
+
+            Assert.Fail(
+                "Zaden z testowanych seedow nie utworzyl dodatkowego polaczenia petli.");
+        }
+
+        [Test]
+        public void Generate_ProgressionGate_BlocksFinalUntilConditionIsSatisfied()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MinProgressionGateCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxProgressionGateCount",
+                1);
+
+            var generator = new DungeonGeneratorService();
+            var floor = generator.Generate(definition, 12345).Floors[0];
+            var finalRoom = FindRoom(floor, DungeonRoomType.Final);
+            DungeonRoomConnection gate = null;
+
+            foreach (var connection in floor.Connections)
+            {
+                if (connection.HasProgressionGate)
+                {
+                    gate = connection;
+                    break;
+                }
+            }
+
+            Assert.That(gate, Is.Not.Null);
+            Assert.That(
+                floor.Map.CanMoveBetween(
+                    gate.FirstDoorCell,
+                    gate.SecondDoorCell),
+                Is.False);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    finalRoom.RoomId),
+                Is.False);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    gate.RequiredBranchRoomId),
+                Is.True);
+
+            Assert.That(
+                floor.TrySatisfyProgressionCondition(
+                    gate.ProgressionConditionId),
+                Is.True);
+            Assert.That(gate.IsProgressionGateUnlocked, Is.True);
+            Assert.That(
+                floor.Map.CanMoveBetween(
+                    gate.FirstDoorCell,
+                    gate.SecondDoorCell),
+                Is.True);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    finalRoom.RoomId),
+                Is.True);
         }
 
         [Test]
@@ -589,6 +706,16 @@ namespace Godmist.Tests.EditMode
 
             SetAutoProperty(
                 definition,
+                "MinProgressionGateCount",
+                0);
+
+            SetAutoProperty(
+                definition,
+                "MaxProgressionGateCount",
+                0);
+
+            SetAutoProperty(
+                definition,
                 "RoomTemplateCatalog",
                 catalog);
 
@@ -735,6 +862,45 @@ namespace Godmist.Tests.EditMode
             return false;
         }
 
+        private static bool CanReachWithClosedProgressionGates(
+            DungeonFloorInstance floor,
+            string startRoomId,
+            string targetRoomId)
+        {
+            var visited = new HashSet<string> { startRoomId };
+            var queue = new Queue<string>();
+
+            queue.Enqueue(startRoomId);
+
+            while (queue.Count > 0)
+            {
+                var roomId = queue.Dequeue();
+
+                if (roomId == targetRoomId) return true;
+
+                foreach (var connection in floor.Connections)
+                {
+                    if (connection.HasProgressionGate
+                        && !connection.IsProgressionGateUnlocked)
+                    {
+                        continue;
+                    }
+
+                    var connectedRoomId = GetConnectedRoomId(
+                        connection,
+                        roomId);
+
+                    if (connectedRoomId != null
+                        && visited.Add(connectedRoomId))
+                    {
+                        queue.Enqueue(connectedRoomId);
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static string GetConnectedRoomId(
             DungeonRoomConnection connection,
             string roomId)
@@ -771,7 +937,9 @@ namespace Godmist.Tests.EditMode
                 {
                     builder.Append(
                         $"{connection.FirstRoomId}>"
-                        + $"{connection.SecondRoomId}|");
+                        + $"{connection.SecondRoomId}:"
+                        + $"{connection.ProgressionGateId}:"
+                        + $"{connection.RequiredBranchRoomId}|");
                 }
             }
 

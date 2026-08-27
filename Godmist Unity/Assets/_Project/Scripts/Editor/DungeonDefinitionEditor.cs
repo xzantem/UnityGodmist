@@ -20,6 +20,8 @@ namespace Godmist.Editor
         private SerializedProperty maxOptionalRoomCountProperty;
         private SerializedProperty minLoopConnectionsProperty;
         private SerializedProperty maxLoopConnectionsProperty;
+        private SerializedProperty minProgressionGateCountProperty;
+        private SerializedProperty maxProgressionGateCountProperty;
         private SerializedProperty roomTemplateCatalogProperty;
         private SerializedProperty encounterDefinitionsProperty;
         private SerializedProperty minEncounterCountPerFloor;
@@ -45,6 +47,8 @@ namespace Godmist.Editor
             maxOptionalRoomCountProperty = serializedObject.FindProperty("<MaxOptionalRoomCount>k__BackingField");
             minLoopConnectionsProperty = serializedObject.FindProperty("<MinLoopConnections>k__BackingField");
             maxLoopConnectionsProperty = serializedObject.FindProperty("<MaxLoopConnections>k__BackingField");
+            minProgressionGateCountProperty = serializedObject.FindProperty("<MinProgressionGateCount>k__BackingField");
+            maxProgressionGateCountProperty = serializedObject.FindProperty("<MaxProgressionGateCount>k__BackingField");
             roomTemplateCatalogProperty = serializedObject.FindProperty("<RoomTemplateCatalog>k__BackingField");
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
             minEncounterCountPerFloor = serializedObject.FindProperty("<MinEncounterCountPerFloor>k__BackingField");
@@ -83,6 +87,8 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(maxOptionalRoomCountProperty);
                 EditorGUILayout.PropertyField(minLoopConnectionsProperty);
                 EditorGUILayout.PropertyField(maxLoopConnectionsProperty);
+                EditorGUILayout.PropertyField(minProgressionGateCountProperty);
+                EditorGUILayout.PropertyField(maxProgressionGateCountProperty);
 
                 EditorGUILayout.PropertyField(minEncounterCountPerFloor);
                 EditorGUILayout.PropertyField(maxEncounterCountPerFloor);

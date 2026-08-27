@@ -345,6 +345,21 @@ namespace Godmist.Systems.SaveLoad
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 
+                foreach (var connection in floor.Connections)
+                {
+                    if (!connection.HasProgressionGate)
+                    {
+                        continue;
+                    }
+
+                    floorDelta.ProgressionGateDeltas.Add(
+                        new DungeonProgressionGateDeltaSaveData
+                        {
+                            GateId = connection.ProgressionGateId,
+                            IsUnlocked = connection.IsProgressionGateUnlocked
+                        });
+                }
+
                 foreach (var body in floor.EnemyBodies)
                 {
                     if (body == null

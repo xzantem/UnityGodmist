@@ -46,8 +46,6 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
-  - Generator dopuszcza alternatywne trasy i petle, nie tylko jednokierunkowe optional branches. Obsluguje bramkowanie progresji, np. klucz albo dzwignia w wymaganej odnodze otwierajace droge do finalu.
 - `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
   - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
@@ -105,6 +103,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
+  - `MinLoopConnections` i `MaxLoopConnections` losuja dodatkowe polaczenia miedzy juz ustawionymi, sasiadujacymi pokojami; generator nie tworzy bezposredniej petli `Start -> Final` i po wyczerpaniu prob zwraca najlepszy poprawny layout z mniejsza liczba petli.
+  - `MinProgressionGateCount` i `MaxProgressionGateCount` (0..3) tworza bramki na polaczeniach glownej trasy. Kazda wymaga osiagalnej odnogi przed bramka, nie moze zostac ominieta przez petle i ma generyczny condition id do obslugi przez przyszle klucze, dzwignie albo zagadki.
 
 - `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
   - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.

@@ -35,6 +35,13 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField, Min(0)] public int MaxLoopConnections { get; private set; } = 0;
 
+        [field: Header("Progression gates")]
+        [field: SerializeField, Range(0, 3)]
+        public int MinProgressionGateCount { get; private set; } = 0;
+
+        [field: SerializeField, Range(0, 3)]
+        public int MaxProgressionGateCount { get; private set; } = 0;
+
         [field: Header("Room templates")]
         [field: SerializeField]
         public DungeonRoomTemplateCatalog RoomTemplateCatalog { get; private set; }
@@ -78,6 +85,15 @@ namespace Godmist.Data.Dungeons
             MaxLoopConnections = Mathf.Max(
                 MinLoopConnections,
                 MaxLoopConnections);
+
+            MinProgressionGateCount = Mathf.Clamp(
+                MinProgressionGateCount,
+                0,
+                3);
+            MaxProgressionGateCount = Mathf.Clamp(
+                MaxProgressionGateCount,
+                MinProgressionGateCount,
+                3);
 
             MinEncounterCountPerFloor = Mathf.Max(0, MinEncounterCountPerFloor);
             MaxEncounterCountPerFloor = Mathf.Max(

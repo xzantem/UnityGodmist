@@ -14,11 +14,29 @@ namespace Godmist.Views.Dungeons
 
         private readonly List<GameObject> spawnedWalls = new();
 
+        private DungeonFloorMap boundMap;
         private Bounds worldBounds;
         private bool hasWorldBounds;
 
         public void Rebuild(DungeonFloorMap map)
         {
+            if (!ReferenceEquals(boundMap, map))
+            {
+                if (boundMap != null)
+                {
+                    boundMap.ProgressionGateStateChanged
+                        -= HandleProgressionGateStateChanged;
+                }
+
+                boundMap = map;
+
+                if (boundMap != null)
+                {
+                    boundMap.ProgressionGateStateChanged
+                        += HandleProgressionGateStateChanged;
+                }
+            }
+
             Clear();
 
             if (map == null
@@ -41,17 +59,24 @@ namespace Godmist.Views.Dungeons
 
             foreach (var wallEdge in map.WallEdges)
             {
-                var parent = wallsRoot != null ? wallsRoot : transform;
+                SpawnWallSegment(wallEdge);
+            }
 
-                var wallSegment = Instantiate(
-                    wallSegmentPrefab,
-                    parent);
-
-                wallSegment.Bind(wallEdge, floorTilemap);
-                spawnedWalls.Add(wallSegment.gameObject);
+            foreach (var gateEdge in map.ClosedProgressionGateEdges)
+            {
+                SpawnWallSegment(gateEdge);
             }
 
             RebuildWorldBounds(map);
+        }
+
+        private void OnDestroy()
+        {
+            if (boundMap != null)
+            {
+                boundMap.ProgressionGateStateChanged
+                    -= HandleProgressionGateStateChanged;
+            }
         }
 
         public bool TryGetWorldBounds(out Bounds bounds)
@@ -100,6 +125,26 @@ namespace Godmist.Views.Dungeons
 
             spawnedWalls.Clear();
             hasWorldBounds = false;
+        }
+
+        private void SpawnWallSegment(DungeonCellEdge edge)
+        {
+            var parent = wallsRoot != null ? wallsRoot : transform;
+
+            var wallSegment = Instantiate(
+                wallSegmentPrefab,
+                parent);
+
+            wallSegment.Bind(edge, floorTilemap);
+            spawnedWalls.Add(wallSegment.gameObject);
+        }
+
+        private void HandleProgressionGateStateChanged()
+        {
+            if (boundMap != null)
+            {
+                Rebuild(boundMap);
+            }
         }
 
         private void RebuildWorldBounds(DungeonFloorMap map)
