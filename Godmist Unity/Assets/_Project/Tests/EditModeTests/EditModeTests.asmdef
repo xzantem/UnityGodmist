@@ -8,7 +8,8 @@
         "Data",
         "Runtime",
         "Systems",
-        "Views"
+        "Views",
+        "Editor"
     ],
     "includePlatforms": [
         "Editor"

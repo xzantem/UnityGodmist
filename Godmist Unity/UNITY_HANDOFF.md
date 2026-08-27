@@ -1,223 +1,208 @@
 # Unity handoff
 
-## Zakres
+Karta: `Dodac DungeonRoomEditor v1`
 
-Ten handoff służy do przetestowania dwóch kart milestone'u `Dungeon Content and Layout v2`:
+Edytor sluzy do projektowania i walidacji `DungeonRoomTemplateDefinition`. Nie wymaga zmiany sceny, prefabow ani serialized references w scenie.
 
-1. `Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2`.
-2. `Dodac nieregularne ksztalty pokoi lochu v2`.
+## Inne kroki Editor
 
-Test wykonujemy w dwóch przebiegach: najpierw semantic anchory na zwykłym prostokątnym template, a potem te same anchory na template z nieregularnym footprintem. Dzięki temu łatwo rozróżnić regresję anchorów od problemu generatora kształtu.
+### Otworzenie istniejacego template'u
 
-Nie zmieniaj sceny, prefabów ani skryptów ręcznie. Konfiguracja dotyczy wyłącznie wskazanych assetów ScriptableObject.
+1. W oknie Project otworz:
 
-## Assety używane w teście
+   `Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates/DRT_Catacombs_Normal_Small.asset`
 
-Scena:
+2. W Inspectorze kliknij `Open Dungeon Room Editor`.
 
-`Assets/_Project/Scenes/Sandbox/ExplorationSandbox.unity`
+Alternatywnie wybierz asset i otworz menu:
 
-Na obiekcie `DungeonEntranceView` scena ma już przypisany:
+`Godmist -> Dungeons -> Dungeon Room Editor`
 
-`Assets/_Project/ScriptableObjects/Dungeons/DD_Catacombs_Procedural.asset`
+W oknie edytora mozna wskazac asset w polu obok przycisku `New`.
 
-Seed sceny to `15`.
+### Utworzenie nowego template'u
 
-Katalog template'ów:
+1. W oknie `Dungeon Room Editor` kliknij `New`.
+2. Wybierz folder:
 
-`Assets/_Project/ScriptableObjects/Dungeons/DTC_Catacombs_V1.asset`
+   `Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates`
 
-Template używany w instrukcji:
+3. Podaj nazwe assetu i zatwierdz.
 
-`Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates/DRT_Catacombs_Normal_Small.asset`
+Nowy asset jest tworzony z poprawnymi wartosciami poczatkowymi:
 
-Jego aktualny `Size In Cells` to `12 x 12`. Asset zawiera już zapisany semantic anchor o starym Id `encounter.arena`; w tej wersji jego typ enumu oznacza `Chest`. W przebiegu testowym zmień jego Id na `chest.reward` i ustaw wartości opisane poniżej.
+- `Id` na podstawie nazwy assetu;
+- `Display Name` na podstawie nazwy assetu;
+- `Room Type = Normal`;
+- `Size In Cells = 8 x 8`;
+- pusty `Floor Cell Offsets`, czyli pelny prostokat.
 
-Definicje obiektów debugowych są już dostępne w projekcie:
+### Edycja footprintu
 
-- `Assets/_Project/ScriptableObjects/Dungeons/Objects/DO_Chest_Debug.asset`
-- `Assets/_Project/ScriptableObjects/Dungeons/Objects/DO_Obstacle_Debug.asset`
+1. Wybierz tryb `Footprint`.
+2. Kliknij komorke, aby przelaczyc ja miedzy podloga i pustka.
+3. Przeciagaj lewym przyciskiem myszy, aby malowac kolejne komorki tym samym stanem.
 
-## Przebieg A — test semantic content anchors bez footprintu
+Pusty `Floor Cell Offsets` oznacza pelny prostokat. Po pierwszej zmianie lista jest zapisywana jawnie. Gdy wszystkie komorki znowu sa podloga, edytor kompresuje footprint z powrotem do pustej listy.
 
-Ten przebieg izoluje poprzednią kartę. Pokój pozostaje pełnym prostokątem.
+### Dodawanie structural anchoru
 
-### 1. Przywróć prostokątny template
+1. Wybierz tryb `Structural anchors`.
+2. W sekcji `Preview visibility` wlacz albo wylacz `Structural` zgodnie z potrzeba.
+3. Ustaw `New type` na `Wall` albo `Door`.
+4. Ustaw `Direction`.
+5. Kliknij pierwsza z dwoch sasiednich komorek podlogi.
 
-Otwórz `DRT_Catacombs_Normal_Small.asset`.
+Edytor doda anchor laczacy kliknieta komorke z komorka wskazana przez kierunek. Klikniecie istniejacego anchoru wybiera go do edycji w panelu po prawej.
 
-Rozwiń:
+PPM na structural anchorze usuwa go. Usuwanie dziala zgodnie z aktywnym trybem edycji.
 
-`Room Footprint -> Floor Cell Offsets`
+`Door` anchor jest wewnetrzna krawedzia pokoju. Nie sluzy do recznego definiowania przejsc na zewnetrznej granicy pokoju.
 
-Lista `Floor Cell Offsets` musi być pusta. Pusta lista oznacza pełny prostokąt `12 x 12`.
+### Dodawanie semantic anchoru
 
-### 2. Skonfiguruj skrzynię
+1. Wybierz tryb `Semantic anchors`.
+2. W sekcji `Preview visibility` wlacz albo wylacz `Semantic` zgodnie z potrzeba.
+3. Ustaw `New type`.
+4. Kliknij komorke podlogi.
+5. W panelu po prawej ustaw:
 
-W tym samym assetcie rozwiń:
+   - `Id`;
+   - `Type`;
+   - `Local Cell`;
+   - `Area Size`;
+   - `Spawn Chance`;
+   - `Is Required`;
+   - `Requires Anchor Id`.
 
-`Semantic Content Anchors`
+Nowy anchor zaczyna z obszarem `1 x 1`, szansa `1` i bez zaleznosci.
 
-Na istniejącym anchorze ustaw:
+PPM na semantic anchorze usuwa go. Przelaczanie widocznosci zmienia tylko podglad i nie usuwa ani nie modyfikuje danych anchorow.
 
-- `Id`: `chest.reward`
-- `Type`: `Chest`
-- `Local Cell`: `(4,4)`
-- `Area Size`: `(1,1)`
-- `Spawn Chance`: `1`
-- `Is Required`: włączone
-- `Requires Anchor Id`: puste
+## Smoke test
 
-`Local Cell` jest liczony od lewego-dolnego rogu template'u, a nie od pozycji pokoju w całym lochu.
+### A. Otwarcie i podglad
 
-### 3. Dodaj przeszkodę
+1. Otworz `DRT_Catacombs_Normal_Small.asset` przez Inspector.
+2. Kliknij `Open Dungeon Room Editor`.
+3. Sprawdz, ze widoczna jest siatka odpowiadajaca rozmiarowi `12 x 12`.
+4. Sprawdz, ze pelny prostokat jest pokazany jako podloga.
+5. Sprawdz, ze istnieja wizualne markery aktualnych structural i semantic anchorow.
+6. W sekcji `Preview visibility` wylacz `Structural`, a potem `Semantic`.
 
-Kliknij `+` na liście `Semantic Content Anchors` i ustaw:
+Oczekiwany rezultat:
 
-- `Id`: `obstacle.choke`
-- `Type`: `Obstacle`
-- `Local Cell`: `(1,6)`
-- `Area Size`: `(2,1)`
-- `Spawn Chance`: `1`
-- `Is Required`: włączone
-- `Requires Anchor Id`: puste
+- otwiera sie osobne okno `Dungeon Room Editor`;
+- footprint jest pokazany jako statyczna siatka 2D;
+- anchory sa widoczne na tej samej siatce;
+- mozna niezaleznie ukryc structural i semantic anchory, gdy ich markery nachodza na siebie;
+- nie jest potrzebny `DungeonRoomView`, scena ani prefab.
 
-Oba anchory wskazują walkable komórki prostokątnego template'u.
+### B. Edycja footprintu
 
-### 4. Ustaw liczbę obiektów na czas testu
+1. Przejdz do trybu `Footprint`.
+2. Kliknij jedna komorke pelnego prostokata, aby zmienic ja w pustke.
+3. Przeciagaj po kilku kolejnych komorkach, aby utworzyc wieksza pustke.
 
-Otwórz:
+Oczekiwany rezultat:
 
-`Assets/_Project/ScriptableObjects/Dungeons/DD_Catacombs_Procedural.asset`
+- komorki zmieniaja kolor miedzy podloga i pustka;
+- pustka jest natychmiast widoczna w podgladzie;
+- `Floor Cell Offsets` przestaje byc puste i zawiera jawna liste pozostalych komorek;
+- kolejnosc zapisanych komorek jest stabilna.
 
-Tymczasowo ustaw:
+### C. Structural anchor
 
-- `Min Object Count Per Floor`: `0`
-- `Max Object Count Per Floor`: `100`
+1. Wroc do trybu `Footprint` i przywroc podloge na komorce `(2,2)` oraz `(3,2)`, jesli zostaly usuniete.
+2. Przejdz do `Structural anchors`.
+3. Ustaw `New type = Wall` oraz `Direction = Right`.
+4. Kliknij komorke `(2,2)`.
+5. Kliknij dodany marker i sprawdz panel po prawej.
+6. Zmien typ na `Door`, zapisz i ponownie zaznacz anchor.
+7. Kliknij ten anchor PPM.
 
-Dzięki temu wszystkie wymagane anchory skrzyni i przeszkody z wylosowanych instancji tego template'u mogą zostać wybrane i nie zostaną ucięte przez niski limit. Po całym teście przywróć wartości `4` i `6`.
+Oczekiwany rezultat:
 
-Upewnij się, że `Object Definitions` zawiera definicje `DO_Chest_Debug` i `DO_Obstacle_Debug`.
+- powstaje jeden anchor na krawedzi `(2,2)` - `(3,2)`;
+- marker pokazuje typ i krawedz;
+- typ oraz kierunek mozna zmieniac z panelu;
+- klikniecie tej samej krawedzi nie tworzy duplikatu;
+- `Remove selected anchor` usuwa wybrany anchor.
+- PPM usuwa anchor bez potrzeby otwierania panelu po prawej.
 
-### 5. Uruchom scenę
+### D. Semantic anchor
 
-1. Zapisz assety i zaczekaj, aż Unity zakończy import/kompilację.
-2. Otwórz `ExplorationSandbox.unity`.
-3. Uruchom Play Mode.
-4. Podejdź drużyną do wejścia i naciśnij `E`.
+1. Przejdz do `Semantic anchors`.
+2. Ustaw `New type = Chest`.
+3. Kliknij komorke `(4,4)`.
+4. Ustaw w panelu:
 
-### Oczekiwany rezultat przebiegu A
+   - `Id = chest.editor.test`;
+   - `Area Size = (1,1)`;
+   - `Spawn Chance = 1`;
+   - `Is Required = wlaczone`;
+   - `Requires Anchor Id = puste`.
 
-- W wygenerowanym pokoju używającym `DRT_Catacombs_Normal_Small` pojawia się skrzynia dokładnie na lokalnej komórce `(4,4)`.
-- Przeszkoda pojawia się na jednej z komórek `(1,6)` albo `(2,6)`.
-- Nie są wybierane losowe pozycje poza skonfigurowanymi anchorami.
-- Ponowne wejście do dungeonu z tym samym seedem daje te same pozycje.
-- Nie testujemy tutaj `Encounter` anchorów. Encountery nadal działają według obecnej logiki wejścia do pokoju, pościgu i rozpoczęcia walki po dogonieniu gracza.
+5. Zmien `Area Size` na `(2,1)` i sprawdz podglad obszaru.
+6. Uzyj `Remove selected anchor` i sprawdz, ze marker znika.
+7. Dodaj ponownie anchor i usun go PPM.
 
-Jeżeli seed `15` nie wylosuje pokoju `Normal Small`, tymczasowo zmień `seed` na obiekcie `DungeonEntranceView` na inny, np. `16`, i powtórz test. Po teście możesz przywrócić `15`.
+Oczekiwany rezultat:
 
-## Przebieg B — ten sam test z nieregularnym footprintem
+- semantic anchor ma unikalne domyslne Id po dodaniu;
+- mozna edytowac wszystkie obecne pola danych;
+- obszar anchoru jest widoczny jako jeden zaznaczony obszar na siatce.
+- PPM usuwa semantic anchor.
 
-Ten przebieg testuje obie karty jednocześnie.
+### E. Walidacja blokujaca zapis
 
-### 1. Pozostaw anchory z przebiegu A
+1. Dodaj semantic anchor na komorce `(4,4)`.
+2. Ustaw mu `Area Size = (2,2)`.
+3. Usun z footprintu co najmniej jedna komorke objeta tym obszarem.
+4. Sprawdz sekcje `Validation`.
+5. Kliknij `Save` albo uzyj `Ctrl+S`.
 
-Nie zmieniaj anchorów `chest.reward` i `obstacle.choke`. Ich komórki muszą pozostać częścią footprintu.
+Oczekiwany rezultat:
 
-### 2. Wpisz footprint
+- sekcja `Validation` pokazuje blad o obszarze poza footprintem;
+- przycisk `Save` nie zapisuje assetu;
+- `Ctrl+S` rowniez nie zapisuje niepoprawnego room template;
+- w Console pojawia sie blad wskazujacy, ze zapis zostal zablokowany.
 
-W `DRT_Catacombs_Normal_Small.asset` rozwiń:
+Nastepnie napraw footprint albo obszar anchoru. Gdy lista bledow jest pusta, zapis powinien zadzialac.
 
-`Room Footprint -> Floor Cell Offsets`
+### F. Walidacja spojnosci footprintu i zaleznosci
 
-Dodaj dokładnie komórki opisane poniżej. Każdy wpis to osobny element listy. Kolejność wpisów nie ma znaczenia.
+Sprawdz dodatkowo dwa przypadki:
 
-To jest połączony, nieregularny kształt typu `L` z dwoma odnogami. Zawiera oba structural anchory istniejące w tym template oraz oba semantic anchory z przebiegu A.
+1. Utworz footprint z dwoch oddzielonych grup komorek.
+2. Ustaw `Requires Anchor Id` na nieistniejace Id albo utworz cykl zaleznosci A -> B -> A.
 
-Wpisy według wierszy lokalnego `y`:
+Oczekiwany rezultat:
 
-- `y = 0`: `x = 0..11`
-- `y = 1`: `x = 0, 6`
-- `y = 2`: `x = 0, 6`
-- `y = 3`: `x = 0..3, 6`
-- `y = 4`: `x = 0..6`
-- `y = 5`: `x = 0..6`
-- `y = 6`: `x = 0..7`
-- `y = 7`: `x = 0`
-- `y = 8`: `x = 0`
-- `y = 9`: `x = 0`
-- `y = 10`: `x = 0`
-- `y = 11`: `x = 0`
+- edytor zglasza blad o niepolaczonym footprintcie;
+- edytor zglasza blad o nieistniejacej zaleznosci albo cyklu;
+- asset nie moze zostac zapisany, dopoki wszystkie bledy nie zostana usuniete.
 
-Przykład: zapis `y = 3: x = 0..3, 6` oznacza pięć osobnych elementów: `(0,3)`, `(1,3)`, `(2,3)`, `(3,3)`, `(6,3)`.
+### G. Ponowne otwarcie assetu
 
-Nie dodawaj żadnych innych wpisów. W szczególności pominięte komórki mają pozostać pustką.
+1. Napraw wszystkie bledy.
+2. Kliknij `Save`.
+3. Zamknij okno edytora.
+4. Otworz ten sam asset ponownie.
 
-### 3. Sprawdź zgodność anchorów
+Oczekiwany rezultat:
 
-Po wpisaniu footprintu te komórki muszą istnieć:
-
-- skrzynia: `(4,4)`;
-- przeszkoda: `(1,6)` i `(2,6)`;
-- istniejący structural wall anchor: `(2,3)` oraz `(3,3)`;
-- istniejący structural door anchor: `(6,6)` oraz `(7,6)`.
-
-Nie przesuwaj structural anchorów. Jeśli którykolwiek z powyższych punktów nie jest wpisany do footprintu, generator lub resolver słusznie zgłosi błędną konfigurację.
-
-### Oczekiwany rezultat przebiegu B
-
-- Pokój nie jest już prostokątną pełną powierzchnią.
-- Wpisane komórki mają podłogę.
-- Pominięte komórki są pustką.
-- Wokół pustek powstają segmenty ścian.
-- Skrzynia nadal pojawia się dokładnie na `(4,4)`.
-- Przeszkoda nadal pojawia się na `(1,6)` albo `(2,6)`.
-- Żaden semantic anchor nie zostaje przeniesiony do losowej komórki.
-- Start, wyjście, encounter i formacja przeciwników nie pojawiają się w pustce footprintu.
-- Przejścia między pokojami wykorzystują wyłącznie rzeczywiste komórki podłogi na zewnętrznych krawędziach.
-- Gracz może fizycznie dotrzeć do każdej komórki footprintu.
-- Kliknięcie w pustkę nie powinno prowadzić drużyny przez pokój. Obecny mouse movement nadal jest ruchem bez pełnego pathfindingu; karta pathfindingu pozostaje osobnym zadaniem.
-
-### Powtórzenie deterministyczne
-
-Uruchom dungeon ponownie z tym samym seedem i sprawdź:
-
-- ten sam układ pokoi;
-- ten sam kształt footprintu;
-- te same przejścia;
-- te same pozycje skrzyni i przeszkody.
-
-## Diagnostyka typowych błędów
-
-### `Kotwa semantyczna ... wskazuje pole poza pokojem`
-
-Anchor wskazuje komórkę pominiętą w footprintcie, wychodzi poza `Size In Cells` albo jego `Area Size` obejmuje pustkę. Sprawdź wszystkie komórki obszaru anchoru.
-
-### `Kotwica drzwi ... wskazuje pole poza pokojem`
-
-Footprint nie zawiera jednej z dwóch komórek istniejącego wewnętrznego structural door anchoru. Przywróć `(6,6)` i `(7,6)`.
-
-### Nie udało się wygenerować poprawnego układu piętra
-
-Wybrany footprint nie ma wystarczająco szerokiej rzeczywistej krawędzi w kierunku, w którym generator próbuje połączyć pokój. Nie dodawaj przejścia ręcznie. Spróbuj innego seeda albo użyj footprintu, który ma podłogę na wymaganych zewnętrznych krawędziach.
-
-### Brak skrzyni lub przeszkody
-
-Sprawdź `Object Definitions`, `Min/Max Object Count Per Floor`, typ anchoru oraz to, czy template z anchorami został wybrany przez generator. W razie potrzeby zmień seed zgodnie z przebiegiem A.
-
-## Przywrócenie assetów po teście
-
-Po zakończeniu testu:
-
-1. Przywróć `Min Object Count Per Floor = 4`.
-2. Przywróć `Max Object Count Per Floor = 6`.
-3. Jeśli nie chcesz zostawiać testowego kształtu, wyczyść listę `Floor Cell Offsets`, aby template wrócił do pełnego prostokąta.
-4. Jeśli zmieniłeś seed sceny, przywróć `15`.
+- footprint, structural anchory i semantic anchory zachowuja zapisane wartosci;
+- podglad po ponownym otwarciu odpowiada zapisanym danym.
 
 ## Testy automatyczne
 
-Nie uruchamiałem test runnera Unity ani nie tworzyłem test mirroru. Po imporcie nowych skryptów możesz ręcznie uruchomić EditMode Tests, szczególnie:
+Dodano testy EditMode dla walidatora:
 
-- `DungeonSemanticAnchorTests`;
-- `DungeonRoomFootprintTests`;
-- `DungeonGeneratorServiceTests`.
+- poprawnego pelnego prostokata;
+- rozlaczonego footprintu;
+- semantic anchoru wychodzacego poza footprint;
+- cyklu zaleznosci semantic anchorow.
+
+Uruchom je recznie w Unity Test Runnerze jako `DungeonRoomTemplateEditorValidatorTests`. Nie uruchamialem test runnera ani nie tworzylem test mirroru.

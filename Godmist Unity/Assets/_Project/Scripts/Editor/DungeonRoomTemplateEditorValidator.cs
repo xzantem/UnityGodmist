@@ -1,0 +1,417 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Data.Dungeons;
+using UnityEditor;
+using UnityEngine;
+
+namespace Godmist.Editor
+{
+    public sealed class DungeonRoomTemplateValidationReport
+    {
+        private readonly List<string> errors = new();
+
+        public IReadOnlyList<string> Errors => errors;
+        public bool IsValid => errors.Count == 0;
+
+        public void AddError(string message)
+        {
+            errors.Add(message);
+        }
+    }
+
+    public static class DungeonRoomTemplateEditorValidator
+    {
+        private static readonly Vector2Int[] cardinalDirections =
+        {
+            Vector2Int.up,
+            Vector2Int.right,
+            Vector2Int.down,
+            Vector2Int.left
+        };
+
+        public static DungeonRoomTemplateValidationReport Validate(
+            DungeonRoomTemplateDefinition template)
+        {
+            var report = new DungeonRoomTemplateValidationReport();
+
+            if (template == null)
+            {
+                report.AddError("Room template nie moze byc nullem.");
+                return report;
+            }
+
+            if (string.IsNullOrWhiteSpace(template.Id))
+            {
+                report.AddError("Id room template jest wymagane.");
+            }
+
+            if (string.IsNullOrWhiteSpace(template.DisplayName))
+            {
+                report.AddError("Display Name room template jest wymagane.");
+            }
+
+            if (!Enum.IsDefined(typeof(DungeonRoomType), template.RoomType))
+            {
+                report.AddError("Room Type ma nieprawidlowa wartosc.");
+            }
+
+            var size = template.SizeInCells;
+
+            if (size.x <= 0 || size.y <= 0)
+            {
+                report.AddError("Rozmiar room template musi byc wiekszy od zera.");
+                return report;
+            }
+
+            var floorCells = ValidateFootprint(template, size, report);
+            ValidateStructuralAnchors(template, floorCells, report);
+            ValidateSemanticAnchors(template, floorCells, report);
+
+            return report;
+        }
+
+        private static HashSet<Vector2Int> ValidateFootprint(
+            DungeonRoomTemplateDefinition template,
+            Vector2Int size,
+            DungeonRoomTemplateValidationReport report)
+        {
+            var footprint = template.Footprint;
+            var floorCells = new HashSet<Vector2Int>();
+
+            if (footprint == null || footprint.UsesFullBoundingBox)
+            {
+                for (var x = 0; x < size.x; x++)
+                {
+                    for (var y = 0; y < size.y; y++)
+                    {
+                        floorCells.Add(new Vector2Int(x, y));
+                    }
+                }
+
+                return floorCells;
+            }
+
+            foreach (var offset in footprint.FloorCellOffsets)
+            {
+                if (offset.x < 0
+                    || offset.y < 0
+                    || offset.x >= size.x
+                    || offset.y >= size.y)
+                {
+                    report.AddError(
+                        $"Footprint zawiera komorke ({offset.x}, {offset.y}) "
+                        + "poza rozmiarem room template.");
+                    continue;
+                }
+
+                if (!floorCells.Add(offset))
+                {
+                    report.AddError(
+                        $"Footprint zawiera zduplikowana komorke "
+                        + $"({offset.x}, {offset.y}).");
+                }
+            }
+
+            if (floorCells.Count == 0)
+            {
+                report.AddError("Jawny footprint musi zawierac co najmniej jedna komorke.");
+                return floorCells;
+            }
+
+            ValidateFootprintConnectivity(floorCells, report);
+            return floorCells;
+        }
+
+        private static void ValidateFootprintConnectivity(
+            HashSet<Vector2Int> floorCells,
+            DungeonRoomTemplateValidationReport report)
+        {
+            var visited = new HashSet<Vector2Int>();
+            var pending = new Queue<Vector2Int>();
+            var first = default(Vector2Int);
+
+            foreach (var cell in floorCells)
+            {
+                first = cell;
+                break;
+            }
+
+            pending.Enqueue(first);
+            visited.Add(first);
+
+            while (pending.Count > 0)
+            {
+                var current = pending.Dequeue();
+
+                foreach (var direction in cardinalDirections)
+                {
+                    var neighbour = current + direction;
+
+                    if (floorCells.Contains(neighbour) && visited.Add(neighbour))
+                    {
+                        pending.Enqueue(neighbour);
+                    }
+                }
+            }
+
+            if (visited.Count != floorCells.Count)
+            {
+                report.AddError(
+                    "Wszystkie komorki footprintu musza tworzyc jeden "
+                    + "fizycznie spojny obszar.");
+            }
+        }
+
+        private static void ValidateStructuralAnchors(
+            DungeonRoomTemplateDefinition template,
+            HashSet<Vector2Int> floorCells,
+            DungeonRoomTemplateValidationReport report)
+        {
+            var usedEdges = new HashSet<StructuralEdgeKey>();
+
+            foreach (var anchor in template.StructuralAnchors
+                         ?? new List<DungeonStructuralAnchorData>())
+            {
+                if (anchor == null)
+                {
+                    report.AddError("Lista structural anchors zawiera null.");
+                    continue;
+                }
+
+                if (!Enum.IsDefined(
+                        typeof(DungeonStructuralAnchorType),
+                        anchor.Type))
+                {
+                    report.AddError("Structural anchor ma nieprawidlowy typ.");
+                }
+
+                if (!Enum.IsDefined(
+                        typeof(DungeonEdgeDirection),
+                        anchor.Direction))
+                {
+                    report.AddError("Structural anchor ma nieprawidlowy kierunek.");
+                    continue;
+                }
+
+                var firstCell = anchor.LocalCell;
+                var secondCell = firstCell + anchor.GetDirectionOffset();
+
+                if (!floorCells.Contains(firstCell)
+                    || !floorCells.Contains(secondCell))
+                {
+                    report.AddError(
+                        $"Structural anchor ({firstCell.x}, {firstCell.y}) "
+                        + "musi wskazywac dwie komorki podlogi wewnatrz pokoju.");
+                    continue;
+                }
+
+                var edge = new StructuralEdgeKey(firstCell, secondCell);
+
+                if (!usedEdges.Add(edge))
+                {
+                    report.AddError(
+                        $"Structural anchor na krawedzi ({firstCell.x}, {firstCell.y}) "
+                        + $"- ({secondCell.x}, {secondCell.y}) jest zduplikowany.");
+                }
+            }
+        }
+
+        private static void ValidateSemanticAnchors(
+            DungeonRoomTemplateDefinition template,
+            HashSet<Vector2Int> floorCells,
+            DungeonRoomTemplateValidationReport report)
+        {
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            var dependencies = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (var anchor in template.SemanticAnchors
+                         ?? new List<DungeonSemanticAnchorData>())
+            {
+                if (anchor == null)
+                {
+                    report.AddError("Lista semantic anchors zawiera null.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(anchor.Id))
+                {
+                    report.AddError("Kazdy semantic anchor musi miec Id.");
+                }
+                else if (!ids.Add(anchor.Id))
+                {
+                    report.AddError(
+                        $"Semantic anchor Id '{anchor.Id}' jest zduplikowane.");
+                }
+
+                if (!Enum.IsDefined(
+                        typeof(DungeonSemanticAnchorType),
+                        anchor.Type))
+                {
+                    report.AddError("Semantic anchor ma nieprawidlowy typ.");
+                }
+
+                if (anchor.AreaSize.x <= 0 || anchor.AreaSize.y <= 0)
+                {
+                    report.AddError(
+                        $"Semantic anchor '{anchor.Id}' musi miec dodatni rozmiar obszaru.");
+                }
+                else
+                {
+                    for (var x = anchor.LocalCell.x;
+                        x < anchor.LocalCell.x + anchor.AreaSize.x;
+                        x++)
+                    {
+                        for (var y = anchor.LocalCell.y;
+                            y < anchor.LocalCell.y + anchor.AreaSize.y;
+                            y++)
+                        {
+                            if (!floorCells.Contains(new Vector2Int(x, y)))
+                            {
+                                report.AddError(
+                                    $"Semantic anchor '{anchor.Id}' wskazuje "
+                                    + "obszar poza footprintem.");
+                                x = anchor.LocalCell.x + anchor.AreaSize.x;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (anchor.SpawnChance < 0f || anchor.SpawnChance > 1f)
+                {
+                    report.AddError(
+                        $"Semantic anchor '{anchor.Id}' ma Spawn Chance poza zakresem 0-1.");
+                }
+
+                if (!string.IsNullOrWhiteSpace(anchor.Id)
+                    && !string.IsNullOrWhiteSpace(anchor.RequiresAnchorId))
+                {
+                    dependencies[anchor.Id] = anchor.RequiresAnchorId;
+                }
+            }
+
+            foreach (var dependency in dependencies)
+            {
+                if (!ids.Contains(dependency.Value))
+                {
+                    report.AddError(
+                        $"Semantic anchor '{dependency.Key}' wymaga nieistniejacej "
+                        + $"kotwy '{dependency.Value}'.");
+                }
+            }
+
+            ValidateDependencyCycles(dependencies, report);
+        }
+
+        private static void ValidateDependencyCycles(
+            Dictionary<string, string> dependencies,
+            DungeonRoomTemplateValidationReport report)
+        {
+            var states = new Dictionary<string, int>(StringComparer.Ordinal);
+
+            foreach (var id in dependencies.Keys)
+            {
+                if (VisitDependency(id, dependencies, states))
+                {
+                    report.AddError(
+                        $"Semantic anchors zawieraja cykl zaleznosci od '{id}'.");
+                }
+            }
+        }
+
+        private static bool VisitDependency(
+            string id,
+            Dictionary<string, string> dependencies,
+            Dictionary<string, int> states)
+        {
+            if (states.TryGetValue(id, out var state))
+            {
+                return state == 1;
+            }
+
+            states[id] = 1;
+
+            if (dependencies.TryGetValue(id, out var dependency)
+                && dependencies.ContainsKey(dependency)
+                && VisitDependency(dependency, dependencies, states))
+            {
+                return true;
+            }
+
+            states[id] = 2;
+            return false;
+        }
+
+        private readonly struct StructuralEdgeKey : IEquatable<StructuralEdgeKey>
+        {
+            private readonly Vector2Int first;
+            private readonly Vector2Int second;
+
+            public StructuralEdgeKey(Vector2Int firstCell, Vector2Int secondCell)
+            {
+                if (firstCell.x < secondCell.x
+                    || firstCell.x == secondCell.x && firstCell.y <= secondCell.y)
+                {
+                    first = firstCell;
+                    second = secondCell;
+                }
+                else
+                {
+                    first = secondCell;
+                    second = firstCell;
+                }
+            }
+
+            public bool Equals(StructuralEdgeKey other)
+            {
+                return first == other.first && second == other.second;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is StructuralEdgeKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(first, second);
+            }
+        }
+    }
+
+    public sealed class DungeonRoomTemplateAssetSaveGuard : AssetModificationProcessor
+    {
+        public static string[] OnWillSaveAssets(string[] paths)
+        {
+            var allowedPaths = new List<string>(paths.Length);
+
+            foreach (var path in paths)
+            {
+                var template = AssetDatabase.LoadAssetAtPath<
+                    DungeonRoomTemplateDefinition>(path);
+
+                if (template == null)
+                {
+                    allowedPaths.Add(path);
+                    continue;
+                }
+
+                var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+                if (report.IsValid)
+                {
+                    allowedPaths.Add(path);
+                    continue;
+                }
+
+                Debug.LogError(
+                    $"Nie zapisano room template '{path}', poniewaz "
+                    + "walidacja nadal zawiera bledy:\n- "
+                    + string.Join("\n- ", report.Errors));
+            }
+
+            return allowedPaths.ToArray();
+        }
+    }
+}
