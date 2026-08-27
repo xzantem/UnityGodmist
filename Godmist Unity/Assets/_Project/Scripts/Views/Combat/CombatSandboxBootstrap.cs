@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Effects;
@@ -78,6 +79,7 @@ namespace Godmist.Views.Combat
         private ModifyStatSystem modifyStatSystem;
         private CombatVariableSystem combatVariableSystem;
         private ModifyVarSystem modifyVarSystem;
+        private ModifyResistanceSystem modifyResistanceSystem;
         private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
@@ -140,6 +142,9 @@ namespace Godmist.Views.Combat
             modifyVarSystem = new ModifyVarSystem(
                 AddBattleLog,
                 passiveEffectLifecycleSystem);
+            modifyResistanceSystem = new ModifyResistanceSystem(
+                AddBattleLog,
+                passiveEffectLifecycleSystem);
             statusEffectSystem = new StatusEffectSystem(
                 AddBattleLog,
                 RemoveUnitFromCombat,
@@ -173,7 +178,8 @@ namespace Godmist.Views.Combat
                 modifyVarSystem: modifyVarSystem,
                 summonedObjectSystem: summonedObjectSystem,
                 summonSystem: summonSystem,
-                feedbackBus: feedbackBus);
+                feedbackBus: feedbackBus,
+                modifyResistanceSystem: modifyResistanceSystem);
             movementSystem = movementSystem = new CombatMovementSystem(
                 AddBattleLog, resourceRuleSystem, statusEffectSystem, feedbackBus);
             interactionSystem = new CombatInteractionSystem(
@@ -507,10 +513,12 @@ namespace Godmist.Views.Combat
                 turnSystem.AdvanceTurn(Session);
                 return;
             }
-            if (StatusEffectSystem.IsStunned(unit)
-                || StatusEffectSystem.IsFrozen(unit)
-                || StatusEffectSystem.IsParalyzed(unit))
+            if (TryGetTurnBlockingStatus(unit, out var blockingStatusLabel))
             {
+                feedbackBus?.Publish(new CombatFeedbackEvent(
+                    unit,
+                    CombatFeedbackType.TurnSkipped,
+                    effectName: blockingStatusLabel));
                 AddBattleLog(
                     $"{unit.Character.Definition.DisplayName} " +
                     "jest pod wpływem twardej kontroli i traci turę.");
@@ -523,6 +531,38 @@ namespace Godmist.Views.Combat
             {
                 activeAiTurnCoroutine = StartCoroutine(ExecuteAiTurnVisually(unit));
             }
+        }
+
+        private static bool TryGetTurnBlockingStatus(
+            BattleUnit unit,
+            out string statusLabel)
+        {
+            if (StatusEffectSystem.IsStunned(unit))
+            {
+                statusLabel = "Ogłuszony";
+                return true;
+            }
+
+            if (StatusEffectSystem.IsFrozen(unit))
+            {
+                statusLabel = "Zamrożony";
+                return true;
+            }
+
+            if (StatusEffectSystem.IsParalyzed(unit))
+            {
+                statusLabel = "Sparaliżowany";
+                return true;
+            }
+
+            if (StatusEffectSystem.IsSleeping(unit))
+            {
+                statusLabel = "Śpiący";
+                return true;
+            }
+
+            statusLabel = string.Empty;
+            return false;
         }
 
         private IEnumerator ExecuteAiTurnVisually(BattleUnit unit)

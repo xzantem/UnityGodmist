@@ -282,6 +282,7 @@ namespace Godmist.Editor
             {
                 DrawField(position, ref y, resistanceType);
                 DrawField(position, ref y, modifierValue);
+                if (!isToggleSkill) DrawField(position, ref y, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyUniqueBuff)
             {
@@ -297,6 +298,10 @@ namespace Godmist.Editor
                     DrawStatusIdPopup(position, ref y, onHitStatusId);
                     DrawField(position, ref y, onHitStatusChance);
                     DrawField(position, ref y, onHitStatusDurationTurns);
+                    if (UsesStatusDamageMultiplier(onHitStatusId.stringValue))
+                    {
+                        DrawField(position, ref y, statusDamageMultiplier);
+                    }
                     if (!isToggleSkill) DrawField(position, ref y, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.DamageRedirect)
@@ -309,6 +314,10 @@ namespace Godmist.Editor
                     DrawStatusIdPopup(position, ref y, statusId);
                     DrawField(position, ref y, baseChance);
                     if (!isToggleSkill) DrawField(position, ref y, durationTurns);
+                    if (UsesStatusDamageMultiplier(statusId.stringValue))
+                    {
+                        DrawField(position, ref y, statusDamageMultiplier);
+                    }
                     DrawField(position, ref y, auraRadius);
                     DrawField(position, ref y, auraIncludesCaster);
                     DrawField(position, ref y, auraTargetingType);
@@ -574,6 +583,7 @@ namespace Godmist.Editor
             {
                 AddHeight(ref height, resistanceType);
                 AddHeight(ref height, modifierValue);
+                if (!isToggleSkill) AddHeight(ref height, durationTurns);
             }
             else if (selectedEffect == EffectType.ApplyUniqueBuff)
             {
@@ -589,6 +599,10 @@ namespace Godmist.Editor
                     AddHeight(ref height, onHitStatusId);
                     AddHeight(ref height, onHitStatusChance);
                     AddHeight(ref height, onHitStatusDurationTurns);
+                    if (UsesStatusDamageMultiplier(onHitStatusId.stringValue))
+                    {
+                        AddHeight(ref height, statusDamageMultiplier);
+                    }
                     if (!isToggleSkill) AddHeight(ref height, durationTurns);
                 }
                 else if (buffType == UniqueBuffType.DamageRedirect)
@@ -601,6 +615,10 @@ namespace Godmist.Editor
                     AddHeight(ref height, statusId);
                     AddHeight(ref height, baseChance);
                     if (!isToggleSkill) AddHeight(ref height, durationTurns);
+                    if (UsesStatusDamageMultiplier(statusId.stringValue))
+                    {
+                        AddHeight(ref height, statusDamageMultiplier);
+                    }
                     AddHeight(ref height, auraRadius);
                     AddHeight(ref height, auraIncludesCaster);
                     AddHeight(ref height, auraTargetingType);

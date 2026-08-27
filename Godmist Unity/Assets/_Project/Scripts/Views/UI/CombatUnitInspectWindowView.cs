@@ -198,11 +198,18 @@ namespace Godmist.Views.UI
             if (statsLeftText != null) statsLeftText.text = statsLeft;
             if (statsRightText != null) statsRightText.text = statsRight;
             tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
-            var nextStatusSignature = BuildStatusSignature(character.PassiveEffects);
+            var nextStatusSignature = BuildStatusSignature(
+                character.PassiveEffects,
+                boundUnit.ActiveAuras,
+                boundUnit.OutgoingDamageRedirects);
             if (!string.Equals(statusSignature, nextStatusSignature, StringComparison.Ordinal))
             {
                 statusSignature = nextStatusSignature;
-                RebuildStatusRows(character.PassiveEffects);
+                RebuildStatusRows(
+                    character.PassiveEffects,
+                    boundUnit.ActiveAuras,
+                    boundUnit.OutgoingDamageRedirects,
+                    boundUnit);
             }
 
             var nextSkillSignature = BuildSkillSignature(character);
@@ -674,13 +681,21 @@ namespace Godmist.Views.UI
             return text;
         }
 
-        private void RebuildStatusRows(IEnumerable<PassiveEffectRuntime> effects)
+        private void RebuildStatusRows(
+            IEnumerable<PassiveEffectRuntime> effects,
+            IEnumerable<CombatAuraRuntime> activeAuras,
+            IEnumerable<CombatDamageRedirectRuntime> outgoingRedirects,
+            BattleUnit owner)
         {
             DestroyRows(statusRows);
             if (statusRoot == null) return;
 
             var hasEffects = false;
-            foreach (var presentation in CombatStatusPresentationFactory.Create(effects))
+            foreach (var presentation in CombatStatusPresentationFactory.Create(
+                         effects,
+                         activeAuras,
+                         outgoingRedirects,
+                         owner))
             {
                 hasEffects = true;
                 var effect = presentation.Effect;
@@ -761,17 +776,35 @@ namespace Godmist.Views.UI
             }
         }
 
-        private static string BuildStatusSignature(IEnumerable<PassiveEffectRuntime> effects)
+        private static string BuildStatusSignature(
+            IEnumerable<PassiveEffectRuntime> effects,
+            IEnumerable<CombatAuraRuntime> activeAuras,
+            IEnumerable<CombatDamageRedirectRuntime> outgoingRedirects)
         {
             var result = new StringBuilder();
-            foreach (var effect in CombatStatusPresentationFactory.Create(effects))
+            foreach (var effect in CombatStatusPresentationFactory.Create(
+                         effects,
+                         activeAuras,
+                         outgoingRedirects))
             {
                 result.Append('|')
                     .Append(effect.Effect?.EffectId)
                     .Append(':')
                     .Append(effect.Effect?.DisplayName)
                     .Append(':')
-                    .Append(effect.Effect?.RemainingDuration);
+                    .Append(effect.Effect?.RemainingDuration)
+                    .Append(':')
+                    .Append(effect.Aura?.AuraId)
+                    .Append(':')
+                    .Append(effect.Aura?.StatusDamagePerTurn)
+                    .Append(':')
+                    .Append(effect.Aura?.StatusDamageMultiplier)
+                    .Append(':')
+                    .Append(effect.OutgoingRedirect?.SourceEffectId)
+                    .Append(':')
+                    .Append(effect.OutgoingRedirect?.TargetCharacterId)
+                    .Append(':')
+                    .Append(effect.OutgoingRedirect?.RedirectPercent);
             }
 
             return result.ToString();

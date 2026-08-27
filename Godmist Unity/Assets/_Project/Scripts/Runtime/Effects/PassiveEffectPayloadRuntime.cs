@@ -17,6 +17,10 @@ namespace Godmist.Runtime.Effects
     public sealed class DamageOverTimePayload : PassiveEffectPayloadRuntime
     {
         public int RemainingTotalDamage;
+        // Preserve the value calculated when the status was applied. The total
+        // damage is still authoritative for ticking, but this keeps UI previews
+        // exact after an OnHit proc instead of having to infer it from duration.
+        public int DamagePerTurn;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.DamageOverTime;
     }
 
@@ -45,6 +49,10 @@ namespace Godmist.Runtime.Effects
     public sealed class DamageRedirectPayload : PassiveEffectPayloadRuntime
     {
         public float RedirectPercent;
+        public string ProtectorCharacterId = string.Empty;
+        public string ProtectorDisplayName = string.Empty;
+        public string ProtectedCharacterId = string.Empty;
+        public string ProtectedCharacterDisplayName = string.Empty;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.DamageRedirect;
     }
 
@@ -54,6 +62,8 @@ namespace Godmist.Runtime.Effects
         public string StatusId = string.Empty;
         public float Chance;
         public int DurationTurns;
+        public float StatusDamageMultiplier;
+        public int StatusDamagePerTurn;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.OnHitStatus;
     }
 
@@ -78,5 +88,13 @@ namespace Godmist.Runtime.Effects
     {
         public List<GameplayVariableModifier> Modifiers = new();
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.VariableModifiers;
+    }
+
+    [Serializable]
+    public sealed class ResistanceModifierPayload : PassiveEffectPayloadRuntime
+    {
+        public ResistanceType ResistanceType;
+        public float Value;
+        public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.ResistanceModifier;
     }
 }

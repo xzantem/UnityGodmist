@@ -18,6 +18,16 @@ namespace Godmist.Systems.Combat
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
         public const float ChillMaximumSpeed = 20f;
 
+        public static bool IsDamageOverTimeStatus(string statusId)
+        {
+            return string.Equals(statusId, StatusEffectIds.Bleed,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Poison,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Burn,
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
         private readonly Action<string> battleLog;
         private readonly CombatDamageSystem damageSystem;
         private readonly PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
@@ -126,7 +136,12 @@ namespace Godmist.Systems.Combat
             {
                 StatusId = effect.OnHitStatusId,
                 Chance = effect.OnHitStatusChance,
-                DurationTurns = effect.OnHitStatusDurationTurns
+                DurationTurns = effect.OnHitStatusDurationTurns,
+                StatusDamageMultiplier = effect.StatusDamageMultiplier,
+                StatusDamagePerTurn = CalculateStatusDamagePerTurn(
+                    source,
+                    effect.OnHitStatusId,
+                    effect.StatusDamageMultiplier)
             });
 
             return TryApplySkillRuntimeEffect(
@@ -225,14 +240,38 @@ namespace Godmist.Systems.Combat
                 effect.DurationTurns);
             runtimeEffect.SetPayload(new DamageRedirectPayload
             {
-                RedirectPercent = effect.RedirectedDamagePercent
+                RedirectPercent = effect.RedirectedDamagePercent,
+                ProtectorCharacterId = source.Character.CharacterId,
+                ProtectorDisplayName = source.Character.Definition?.DisplayName
+                    ?? source.Character.CharacterId,
+                ProtectedCharacterId = target.Character.CharacterId,
+                ProtectedCharacterDisplayName = target.Character.Definition?.DisplayName
+                    ?? target.Character.CharacterId
             });
-            return TryApplySkillRuntimeEffect(target.Character,
+            var applied = TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
                 && PublishEffectFeedback(
                     target,
                     CombatFeedbackType.BuffApplied,
                     ResolveSkillName(skill, runtimeEffect.EffectId));
+            if (!applied) return false;
+
+            source.OutgoingDamageRedirects ??= new List<CombatDamageRedirectRuntime>();
+            source.OutgoingDamageRedirects.RemoveAll(link =>
+                link == null
+                || (link.Target == target
+                    && string.Equals(link.SourceEffectId, runtimeEffect.EffectId,
+                        StringComparison.OrdinalIgnoreCase)));
+            source.OutgoingDamageRedirects.Add(new CombatDamageRedirectRuntime
+            {
+                Target = target,
+                SourceEffectId = runtimeEffect.EffectId,
+                TargetCharacterId = target.Character.CharacterId,
+                TargetDisplayName = target.Character.Definition?.DisplayName
+                    ?? target.Character.CharacterId,
+                RedirectPercent = effect.RedirectedDamagePercent
+            });
+            return true;
         }
 
         public int ApplyActiveOnHitStatuses(BattleUnit source, BattleUnit target)
@@ -253,12 +292,27 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                // Older runtime effects may have persisted the multiplier but not
+                // the already calculated per-turn value. Recalculate it at proc
+                // time while the source unit is available, and retain it for the
+                // recipient's inspect tooltip.
+                if (payload.StatusDamagePerTurn <= 0
+                    && payload.StatusDamageMultiplier > 0f)
+                {
+                    payload.StatusDamagePerTurn = CalculateStatusDamagePerTurn(
+                        source,
+                        payload.StatusId,
+                        payload.StatusDamageMultiplier);
+                }
+
                 if (ApplyStatus(source, target, payload.StatusId,
                         payload.Chance,
                         Mathf.Max(1, payload.DurationTurns),
-                        1, 0f, 0f, effect.EffectId,
+                        1, payload.StatusDamageMultiplier, 0f, effect.EffectId,
                         CombatFeedbackType.ProcTriggered,
-                        payload.StatusId))
+                        payload.StatusId,
+                        publishFeedback: true,
+                        statusDamagePerTurnOverride: payload.StatusDamagePerTurn))
                 {
                     appliedCount++;
                 }
@@ -322,7 +376,8 @@ namespace Godmist.Systems.Combat
             string sourceId,
             CombatFeedbackType feedbackType = CombatFeedbackType.StatusApplied,
             string feedbackLabel = null,
-            bool publishFeedback = true)
+            bool publishFeedback = true,
+            int statusDamagePerTurnOverride = 0)
         {
             if (target?.Character == null
                 || target.Character.LifeState != CharacterLifeState.Alive
@@ -341,12 +396,16 @@ namespace Godmist.Systems.Combat
             }
 
             var duration = Mathf.Max(1, durationTurns);
-            var damagePerTurn = statusDamageMultiplier <= 0f
+            var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
-                : CombatDamageValueCalculator.CalculateDamageValue(
-                    source,
-                    DamageValueSource.AverageAttack,
-                    statusDamageMultiplier);
+                : statusDamagePerTurnOverride > 0
+                    ? statusDamagePerTurnOverride
+                    : statusDamageMultiplier <= 0f
+                        ? 0
+                        : CombatDamageValueCalculator.CalculateDamageValue(
+                            source,
+                            DamageValueSource.AverageAttack,
+                            statusDamageMultiplier);
 
             var runtimeEffect = new PassiveEffectRuntime(
                 statusId,
@@ -826,9 +885,9 @@ namespace Godmist.Systems.Combat
             }
 
             var baseResistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
-            var modifier = target?.ResistanceModifiers != null
-                && target.ResistanceModifiers.TryGetValue(ResistanceType.Move, out var value)
-                ? value : 0f;
+            var modifier = ModifyResistanceSystem.GetModifier(
+                target,
+                ResistanceType.Move);
             var resistance = Mathf.Clamp01(baseResistance + modifier);
             var finalChance = CalculateEffectChance(clampedChance, resistance);
 
@@ -919,7 +978,7 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             string statusId)
         {
-            if (target?.Character?.Resistances == null)
+            if (target?.Character == null)
             {
                 return 0f;
             }
@@ -944,17 +1003,17 @@ namespace Godmist.Systems.Combat
 
             var baseResistance = resistanceType.Value switch
             {
-                ResistanceType.Bleed => resistances.BleedResistance,
-                ResistanceType.Poison => resistances.PoisonResistance,
-                ResistanceType.Fire => resistances.FireResistance,
-                ResistanceType.Weakening => resistances.WeakeningResistance,
-                ResistanceType.Suppression => resistances.SuppressionResistance,
-                ResistanceType.Move => resistances.MoveResistance,
+                ResistanceType.Bleed => resistances?.BleedResistance ?? 0f,
+                ResistanceType.Poison => resistances?.PoisonResistance ?? 0f,
+                ResistanceType.Fire => resistances?.FireResistance ?? 0f,
+                ResistanceType.Weakening => resistances?.WeakeningResistance ?? 0f,
+                ResistanceType.Suppression => resistances?.SuppressionResistance ?? 0f,
+                ResistanceType.Move => resistances?.MoveResistance ?? 0f,
                 _ => 0f
             };
-            var modifier = target.ResistanceModifiers != null
-                && target.ResistanceModifiers.TryGetValue(resistanceType.Value, out var value)
-                ? value : 0f;
+            var modifier = ModifyResistanceSystem.GetModifier(
+                target,
+                resistanceType.Value);
             return Mathf.Clamp01(baseResistance + modifier);
         }
 
@@ -970,16 +1029,6 @@ namespace Godmist.Systems.Combat
             }
 
             return PassiveEffectTickPhase.TurnEnd;
-        }
-
-        private static bool IsDamageOverTimeStatus(string statusId)
-        {
-            return string.Equals(statusId, StatusEffectIds.Bleed,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(statusId, StatusEffectIds.Poison,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(statusId, StatusEffectIds.Burn,
-                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static PassiveEffectStackingMode ResolveStackingMode(
@@ -1034,7 +1083,21 @@ namespace Godmist.Systems.Combat
             BattleUnit source,
             SkillEffectData effect)
         {
-            if (effect == null || effect.StatusDamageMultiplier <= 0f)
+            return effect == null
+                ? 0
+                : CalculateStatusDamagePerTurn(
+                    source,
+                    effect.StatusId,
+                    effect.StatusDamageMultiplier);
+        }
+
+        private static int CalculateStatusDamagePerTurn(
+            BattleUnit source,
+            string statusId,
+            float statusDamageMultiplier)
+        {
+            if (!IsDamageOverTimeStatus(statusId)
+                || statusDamageMultiplier <= 0f)
             {
                 return 0;
             }
@@ -1042,7 +1105,7 @@ namespace Godmist.Systems.Combat
             return CombatDamageValueCalculator.CalculateDamageValue(
                 source,
                 DamageValueSource.AverageAttack,
-                effect.StatusDamageMultiplier);
+                statusDamageMultiplier);
         }
     }
 }

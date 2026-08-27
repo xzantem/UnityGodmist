@@ -20,21 +20,26 @@ MonoBehaviour:
   <ActionCost>k__BackingField: 0
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 0
+  <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
+  <ToggleUpkeepFlatResourceCost>k__BackingField: 0
+  <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
   targetModes:
-  - targetType: 0
+  - targetType: 9
     targetingType: 1
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 4
+      rectangleWidth: 1
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
   effects:
-  - effectType: 20
+  - effectType: 19
     polarity: 1
     alwaysHits: 0
     targetModeIndex: 0
@@ -42,11 +47,12 @@ MonoBehaviour:
     damageValueSource: 0
     damageMultiplier: 0
     damageHitCount: 0
+    bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 0
-    onHitStatusId: 
-    onHitStatusChance: 0
-    onHitStatusDurationTurns: 0
+    onHitStatusId: bleed
+    onHitStatusChance: 0.8
+    onHitStatusDurationTurns: 2
     lifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
@@ -56,11 +62,13 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 0
     summonedObjectDefinition: {fileID: 0}
     objectPlacementRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
     summonedClassData: {fileID: 0}
@@ -68,12 +76,13 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 0
     summonDurationTurns: 0
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 0
     statusId: 
-    durationTurns: 0
+    durationTurns: 4
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
@@ -81,13 +90,15 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 0
     counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
     modifierOperation: 0
     modifierStacking: 0
     modifierValue: 0
-    uniqueBuffType: 0
+    uniqueBuffType: 3
+    uniqueBuffStacks: 0
     resistanceType: 0
     actionPointModifier: 0
     actionValuePercent: 0
@@ -97,5 +108,6 @@ MonoBehaviour:
     redirectedDamagePercent: 0.5
     auraRadius: 0
     auraIncludesCaster: 0
+    auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []

@@ -40,6 +40,7 @@ namespace Godmist.Data.Skills
         {
             EffectType.ModifyStat,
             EffectType.ModifyVar,
+            EffectType.ModifyResistance,
             EffectType.ApplyUniqueBuff,
             EffectType.BlockResourceRegeneration
         };
@@ -56,6 +57,7 @@ namespace Godmist.Data.Skills
         {
             return effectType == EffectType.ModifyStat
                 || effectType == EffectType.ModifyVar
+                || effectType == EffectType.ModifyResistance
                 || effectType == EffectType.ApplyUniqueBuff
                 || effectType == EffectType.BlockResourceRegeneration;
         }

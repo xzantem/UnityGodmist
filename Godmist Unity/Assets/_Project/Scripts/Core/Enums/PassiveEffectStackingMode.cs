@@ -10,7 +10,8 @@ namespace Godmist.Core.Enums
         OnHitStatus,
         Counterattack,
         StatModifiers,
-        VariableModifiers
+        VariableModifiers,
+        ResistanceModifier
     }
 
     public enum PassiveEffectStackingMode

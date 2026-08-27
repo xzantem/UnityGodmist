@@ -501,6 +501,21 @@ namespace Godmist.Systems.Combat
                     }
                 }
 
+                if (effect.EffectType == EffectType.ModifyResistance)
+                {
+                    if (Mathf.Approximately(effect.ModifierValue, 0f))
+                    {
+                        report.AddError(
+                            $"{prefix}: Modifier Value cannot be zero.");
+                    }
+
+                    if (effect.DurationTurns < 0)
+                    {
+                        report.AddError(
+                            $"{prefix}: Duration Turns cannot be negative.");
+                    }
+                }
+
                 if (effect.EffectType == EffectType.ApplyStatus)
                 {
                     if (string.IsNullOrWhiteSpace(effect.StatusId))

@@ -9,6 +9,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
+using Godmist.Systems.Combat;
 using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
@@ -172,8 +173,15 @@ namespace Godmist.Views.UI.Workspace
                     effect.EffectId,
                     glossaryEntry?.Title,
                     effect.DisplayName),
-                BuildStatusPayload(effect),
-                string.Empty));
+                BuildStatusPayload(
+                    effect,
+                    presentation.Aura,
+                    presentation.OutgoingRedirect,
+                    presentation.Owner),
+                BuildStatusMeta(
+                    effect,
+                    presentation.Aura,
+                    presentation.OutgoingRedirect)));
         }
 
         public void ShowText(string title, string body, object source)
@@ -940,7 +948,8 @@ namespace Godmist.Views.UI.Workspace
                 ? $"Nakłada {statusName}"
                 : $"{FormatPercent(effect.BaseChance)} szansy na nałożenie {statusName}";
 
-            if (effect.StatusDamageMultiplier > 0f)
+            if (effect.StatusDamageMultiplier > 0f
+                && IsDamageOverTime(effect.StatusId))
             {
                 var damage = caster?.Character?.Stats == null
                     ? 0
@@ -1105,33 +1114,52 @@ namespace Godmist.Views.UI.Workspace
                     $"Następne obrażenia będą maksymalne{duration}.",
                 UniqueBuffType.ActionPointsNextTurn =>
                     $"Zapewnia {effect.ActionPointModifier} dodatkowych AP w następnej turze{duration}.",
-                UniqueBuffType.OnHitStatus => DescribeOnHitBuff(skill, effect, duration),
+                UniqueBuffType.OnHitStatus => DescribeOnHitBuff(
+                    skill,
+                    caster,
+                    effect,
+                    duration),
                 UniqueBuffType.DamageRedirect =>
                     $"Przekierowuje {FormatPercent(effect.RedirectedDamagePercent)} " +
                     $"obrażeń otrzymanych przez cel do rzucającego{duration}.",
-                UniqueBuffType.AuraStatus => DescribeAura(skill, effect, duration),
+                UniqueBuffType.AuraStatus => DescribeAura(skill, caster, effect, duration),
                 _ => "Nakłada unikalne wzmocnienie."
             };
         }
 
         private string DescribeOnHitBuff(
             SkillData skill,
+            BattleUnit caster,
             SkillEffectData effect,
             string duration)
         {
             var chance = effect.OnHitStatusChance < 0.9999f;
-            var action = chance
-                ? $"ma {FormatPercent(effect.OnHitStatusChance)} szansy na nałożenie " +
-                  GetStatusGenitiveName(effect.OnHitStatusId)
-                : $"nakłada {GetStatusDisplayName(effect.OnHitStatusId)}";
             var statusDuration = effect.OnHitStatusDurationTurns > 0
-                ? $" przez {FormatTurns(effect.OnHitStatusDurationTurns)}"
+                ? $" na {FormatTurns(effect.OnHitStatusDurationTurns)}"
                 : string.Empty;
-            return $"Każde trafienie {action}{statusDuration}{duration}.";
+            var statusName = GetStatusDisplayName(effect.OnHitStatusId);
+            var statusObjectName = chance
+                ? GetStatusGenitiveName(effect.OnHitStatusId)
+                : statusName;
+            var description = chance
+                ? $"Każde trafienie ma {FormatPercent(effect.OnHitStatusChance)} " +
+                  $"szansy na nałożenie {statusObjectName}{statusDuration}."
+                : $"Każde trafienie nakłada {statusName}{statusDuration}.";
+            var buffDuration = string.IsNullOrWhiteSpace(duration)
+                ? string.Empty
+                : $" Wzmocnienie działa{duration}.";
+            return description
+                + DescribePeriodicStatusDamage(
+                    caster,
+                    effect.OnHitStatusId,
+                    statusName,
+                    effect.StatusDamageMultiplier)
+                + buffDuration;
         }
 
         private string DescribeAura(
             SkillData skill,
+            BattleUnit caster,
             SkillEffectData effect,
             string duration)
         {
@@ -1142,9 +1170,38 @@ namespace Godmist.Views.UI.Workspace
             var includesCaster = effect.AuraIncludesCaster
                 ? ", w tym rzucającego"
                 : string.Empty;
-            return $"Tworzy aurę, która {action} " +
+            var description = $"Tworzy aurę, która {action} " +
                 $"na {GetTargetingDisplayName(effect.AuraTargetingType)} " +
                 $"w promieniu {FormatDistance(effect.AuraRadius)}{includesCaster}{duration}.";
+            return description + DescribePeriodicStatusDamage(
+                caster,
+                effect.StatusId,
+                GetStatusDisplayName(effect.StatusId),
+                effect.StatusDamageMultiplier);
+        }
+
+        private string DescribePeriodicStatusDamage(
+            BattleUnit caster,
+            string statusId,
+            string statusName,
+            float damageMultiplier)
+        {
+            if (damageMultiplier <= 0f || !IsDamageOverTime(statusId))
+            {
+                return string.Empty;
+            }
+            var damage = caster?.Character?.Stats == null
+                ? 0
+                : Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateDamageValue(
+                    caster,
+                    DamageValueSource.AverageAttack,
+                    damageMultiplier);
+            return damage > 0
+                ? $" Nałożony status ({statusName}) zadaje {damage} obrażeń " +
+                  "na początku każdej tury."
+                : $" Nałożony status ({statusName}) zadaje " +
+                  $"{FormatPercent(damageMultiplier)} średniego ataku " +
+                  "na początku każdej tury.";
         }
 
         private string AddEffectContext(
@@ -1492,21 +1549,257 @@ namespace Godmist.Views.UI.Workspace
                 : "addytywnie";
         }
 
-        private static string BuildStatusPayload(PassiveEffectRuntime effect)
+        private string BuildStatusPayload(
+            PassiveEffectRuntime effect,
+            CombatAuraRuntime aura = null,
+            CombatDamageRedirectRuntime outgoingRedirect = null,
+            BattleUnit owner = null)
         {
             var result = new StringBuilder();
+            if (aura != null)
+            {
+                var chance = aura.Chance < .999f
+                    ? $" z {FormatPercent(aura.Chance)} szansy"
+                    : string.Empty;
+                var includesCaster = aura.IncludesCaster
+                    ? " Obejmuje również rzucającego."
+                    : " Nie obejmuje rzucającego.";
+                Append(
+                    result,
+                    $"Nakłada {GetStatusDisplayName(aura.StatusId)}{chance} na " +
+                    $"{GetAuraTargetingName(aura.TargetingType)} w promieniu " +
+                    $"{FormatDistance(aura.Radius)}.{includesCaster}");
+            }
+            AppendStatusRule(result, effect);
+
             var damageOverTime = effect.GetPayload<DamageOverTimePayload>();
-            if (IsDamageOverTime(effect.EffectId)
+            var auraDamagePerTurn = aura != null && IsDamageOverTime(effect.EffectId)
+                ? aura.StatusDamagePerTurn
+                : 0;
+            if (auraDamagePerTurn > 0)
+            {
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje " +
+                    $"{FormatEffectiveStatusDamage(owner, effect.EffectId, auraDamagePerTurn)} " +
+                    "obrażeń na początku każdej tury.");
+            }
+            else if (IsDamageOverTime(effect.EffectId)
                 && damageOverTime?.RemainingTotalDamage > 0)
-                Append(result, $"Obrażenia: {damageOverTime.RemainingTotalDamage}");
+            {
+                var damagePerTurn = damageOverTime.DamagePerTurn > 0
+                    ? damageOverTime.DamagePerTurn
+                    : Mathf.CeilToInt(
+                        damageOverTime.RemainingTotalDamage /
+                        (float)Mathf.Max(1, effect.RemainingDuration));
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje " +
+                    $"{FormatEffectiveStatusDamage(owner, effect.EffectId, damagePerTurn)} " +
+                    "obrażeń na początku każdej tury.");
+            }
+            else if (IsDamageOverTime(effect.EffectId)
+                && (damageOverTime == null
+                    || damageOverTime.RemainingTotalDamage <= 0))
+            {
+                // A status can have been restored from older combat data, or be a
+                // presentation-only aura, without a numeric DoT payload. Keep the
+                // status tooltip useful and avoid replacing its gameplay description
+                // with the glossary sentence when the value is not recoverable.
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje obrażenia " +
+                    "na początku każdej tury.");
+            }
+
             var sleepHealing = effect.GetPayload<SleepHealingPayload>();
             if (sleepHealing?.MaxHealthPercent > 0f)
-                Append(result, $"Leczenie: {sleepHealing.MaxHealthPercent * 100f:0.#}% maks. zdrowia");
-            if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
-            foreach (var modifier in effect.StatModifiers) Append(result, $"{modifier.StatType} {modifier.Value:+#;-#;0}");
-            foreach (var modifier in effect.VariableModifiers) Append(result, $"{modifier.VariableType} {modifier.Value:+#;-#;0}");
-            if (effect.GetPayload<CounterattackPayload>() != null) Append(result, "Reakcja: kontratak");
-            return result.ToString();
+            {
+                Append(
+                    result,
+                    $"Przywraca {FormatPercent(sleepHealing.MaxHealthPercent)} maksymalnego zdrowia na końcu tury.");
+            }
+
+            foreach (var modifier in effect.StatModifiers)
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                var value = IsPercentageStat(modifier.StatType)
+                    ? FormatSignedPercent(modifier.Value)
+                    : modifier.Value.ToString("+0.##;-0.##;0");
+                Append(
+                    result,
+                    $"Modyfikator {GetStatDisplayName(modifier.StatType)}: {value}.");
+            }
+
+            foreach (var modifier in effect.VariableModifiers)
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                var variableName = modifier.VariableType switch
+                {
+                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
+                    _ => modifier.VariableType.ToString()
+                };
+                Append(
+                    result,
+                    $"Modyfikator {variableName}: {FormatSignedPercent(modifier.Value)}.");
+            }
+
+            var uniqueBuff = effect.GetPayload<UniqueCombatBuffPayload>();
+            if (uniqueBuff != null)
+            {
+                var description = uniqueBuff.BuffType switch
+                {
+                    UniqueBuffType.GuaranteedCriticalHit =>
+                        "Następny atak zawsze trafia krytycznie.",
+                    UniqueBuffType.GuaranteedDodge =>
+                        "Następny atak przeciwko tej postaci zawsze chybia.",
+                    UniqueBuffType.MaximumDamage =>
+                        "Następny atak zada maksymalne obrażenia.",
+                    UniqueBuffType.ActionPointsNextTurn =>
+                        $"Zapewnia {uniqueBuff.ActionPointModifier:+#;-#;0} AP w następnej turze.",
+                    UniqueBuffType.AuraStatus =>
+                        "Utrzymuje aurę nakładającą status na jednostki w jej zasięgu.",
+                    _ => "Nadaje unikalny efekt bojowy."
+                };
+                Append(result, description);
+            }
+
+            var redirect = effect.GetPayload<DamageRedirectPayload>();
+            if (redirect?.RedirectPercent > 0f)
+            {
+                if (outgoingRedirect != null
+                    && !string.IsNullOrWhiteSpace(redirect.ProtectedCharacterDisplayName))
+                {
+                    Append(
+                        result,
+                        $"Przyjmuje {FormatPercent(redirect.RedirectPercent)} obrażeń " +
+                        $"przekierowanych z {redirect.ProtectedCharacterDisplayName}.");
+                }
+                else
+                {
+                    var protector = string.IsNullOrWhiteSpace(redirect.ProtectorDisplayName)
+                        ? "rzucającego"
+                        : redirect.ProtectorDisplayName;
+                    Append(
+                        result,
+                        $"Przekierowuje {FormatPercent(redirect.RedirectPercent)} " +
+                        $"obrażeń otrzymywanych przez tę postać do {protector}.");
+                }
+            }
+
+            var onHit = effect.GetPayload<OnHitStatusPayload>();
+            if (onHit != null && !string.IsNullOrWhiteSpace(onHit.StatusId))
+            {
+                var statusName = GetStatusDisplayName(onHit.StatusId);
+                var chance = onHit.Chance >= .999f
+                    ? "nakładają"
+                    : $"mają {FormatPercent(onHit.Chance)} szansy na nałożenie";
+                var statusObjectName = onHit.Chance >= .999f
+                    ? statusName
+                    : GetStatusGenitiveName(onHit.StatusId);
+                var duration = onHit.DurationTurns > 0
+                    ? $" na {FormatTurns(onHit.DurationTurns)}"
+                    : string.Empty;
+                Append(result, $"Trafienia {chance} {statusObjectName}{duration}.");
+                if (onHit.StatusDamageMultiplier > 0f
+                    || onHit.StatusDamagePerTurn > 0)
+                {
+                    var damage = onHit.StatusDamagePerTurn > 0
+                        ? $"zadaje {onHit.StatusDamagePerTurn} obrażeń"
+                        : $"zadaje {FormatPercent(onHit.StatusDamageMultiplier)} średniego ataku";
+                    Append(
+                        result,
+                        $"{statusName} {damage} " +
+                        "na początku każdej tury.");
+                }
+            }
+
+            var resistance = effect.GetPayload<ResistanceModifierPayload>();
+            if (resistance != null && !Mathf.Approximately(resistance.Value, 0f))
+            {
+                var verb = resistance.Value > 0f ? "Zwiększa" : "Zmniejsza";
+                Append(
+                    result,
+                    $"{verb} odporność na " +
+                    $"{GetResistanceDisplayName(resistance.ResistanceType)} o " +
+                    $"{FormatPercent(Mathf.Abs(resistance.Value))}.");
+            }
+
+            if (effect.GetPayload<ResourceRegenerationBlockPayload>() != null)
+                Append(result, "Blokuje regenerację zasobu.");
+
+            if (effect.GetPayload<CounterattackPayload>() != null)
+                Append(result, "Wykonuje kontratak po ataku przeciwnika.");
+
+            // The glossary is the source of truth for statuses whose gameplay rule
+            // is not represented by a runtime payload.
+            if (result.Length == 0
+                && TryGetGlossaryEntry(effect.EffectId, out var glossaryEntry)
+                && !string.IsNullOrWhiteSpace(glossaryEntry.Description))
+            {
+                Append(result, glossaryEntry.Description);
+            }
+
+            return result.Length > 0
+                ? result.ToString()
+                : "Brak dodatkowego działania.";
+        }
+
+        private static void AppendStatusRule(
+            StringBuilder result,
+            PassiveEffectRuntime effect)
+        {
+            var rule = effect.EffectId?.ToLowerInvariant() switch
+            {
+                StatusEffectIds.Stun =>
+                    "Nie może wykonywać akcji ani się poruszać.",
+                StatusEffectIds.Freeze =>
+                    "Nie może wykonywać akcji ani się poruszać. Pierwsze otrzymane obrażenia zrywają Zamrożenie i są wzmocnione.",
+                StatusEffectIds.Sleep =>
+                    "Nie może wykonywać akcji. Ruch budzi postać i kończy ten efekt.",
+                StatusEffectIds.Paralysis =>
+                    "Nie może wykonywać akcji ani się poruszać oraz nie może być celem umiejętności.",
+                StatusEffectIds.Immobilize =>
+                    "Nie może się poruszać ani używać umiejętności przemieszczających.",
+                StatusEffectIds.Chill =>
+                    "Ogranicza szybkość postaci.",
+                StatusEffectIds.Taunt =>
+                    "Umiejętności ofensywne mogą celować wyłącznie w postać, która nałożyła Prowokację.",
+                StatusEffectIds.Invisibility =>
+                    "Nie może być wybrana bezpośrednio przez wrogów ani objęta ich celowaniem All.",
+                StatusEffectIds.Regeneration =>
+                    "Przywraca zdrowie na końcu tury.",
+                _ => string.Empty
+            };
+
+            if (!string.IsNullOrWhiteSpace(rule)) Append(result, rule);
+        }
+
+        private static string BuildStatusMeta(
+            PassiveEffectRuntime effect,
+            CombatAuraRuntime aura = null,
+            CombatDamageRedirectRuntime outgoingRedirect = null)
+        {
+            var parts = new List<string>();
+            if (aura != null) parts.Add("Aktywna aura");
+            if (outgoingRedirect != null) parts.Add("Aktywne przekierowanie");
+            if (aura == null && effect.RemainingDuration > 0)
+                parts.Add($"Pozostało: {effect.RemainingDuration} t.");
+            if (effect.Stacks > 1)
+                parts.Add($"Stosy: {effect.Stacks}");
+            return string.Join("  •  ", parts);
+        }
+
+        private static string GetAuraTargetingName(TargetingType type)
+        {
+            return type switch
+            {
+                TargetingType.Enemies => "wrogów",
+                TargetingType.Allies => "sojuszników",
+                TargetingType.All => "wszystkie jednostki",
+                _ => "jednostki"
+            };
         }
 
         private static string BuildItemBody(ItemInstance item, CharacterInstance owner)
@@ -1627,6 +1920,17 @@ namespace Godmist.Views.UI.Workspace
             string.Equals(effectId, StatusEffectIds.Bleed, StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectId, StatusEffectIds.Poison, StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectId, StatusEffectIds.Burn, StringComparison.OrdinalIgnoreCase);
+
+        private static string FormatEffectiveStatusDamage(
+            BattleUnit owner,
+            string statusId,
+            int rawDamage)
+        {
+            return DamageOverTimePassiveEffectProcessor.CalculateEffectiveDamage(
+                owner,
+                statusId,
+                rawDamage).ToString();
+        }
 
         private static void Append(StringBuilder builder, string value)
         {

@@ -108,15 +108,24 @@ namespace Godmist.Core.Serialization
     {
         public PassiveEffectPayloadType Type;
         public int RemainingTotalDamage;
+        public int DamagePerTurn;
         public float MaxHealthPercent;
         public UniqueBuffType UniqueBuffType;
         public int ActionPointModifier;
         public float DamageRedirectPercent;
+        public string ProtectorCharacterId = string.Empty;
+        public string ProtectorDisplayName = string.Empty;
+        public string ProtectedCharacterId = string.Empty;
+        public string ProtectedCharacterDisplayName = string.Empty;
         public string OnHitStatusId = string.Empty;
         public float OnHitStatusChance;
         public int OnHitStatusDurationTurns;
+        public float OnHitStatusDamageMultiplier;
+        public int OnHitStatusDamagePerTurn;
         public List<StatModifierSaveData> StatModifiers = new();
         public List<GameplayVariableModifierSaveData> VariableModifiers = new();
+        public ResistanceType ResistanceType;
+        public float ResistanceModifierValue;
     }
 
     [Serializable]

@@ -663,7 +663,8 @@ namespace Godmist.Systems.SaveLoad
                         saveData.Add(new PassiveEffectPayloadSaveData
                         {
                             Type = payload.Type,
-                            RemainingTotalDamage = damageOverTime.RemainingTotalDamage
+                            RemainingTotalDamage = damageOverTime.RemainingTotalDamage,
+                            DamagePerTurn = damageOverTime.DamagePerTurn
                         });
                         break;
                     case SleepHealingPayload sleepHealing:
@@ -688,7 +689,11 @@ namespace Godmist.Systems.SaveLoad
                         saveData.Add(new PassiveEffectPayloadSaveData
                         {
                             Type = payload.Type,
-                            DamageRedirectPercent = redirect.RedirectPercent
+                            DamageRedirectPercent = redirect.RedirectPercent,
+                            ProtectorCharacterId = redirect.ProtectorCharacterId,
+                            ProtectorDisplayName = redirect.ProtectorDisplayName,
+                            ProtectedCharacterId = redirect.ProtectedCharacterId,
+                            ProtectedCharacterDisplayName = redirect.ProtectedCharacterDisplayName
                         });
                         break;
                     case OnHitStatusPayload onHit:
@@ -697,7 +702,9 @@ namespace Godmist.Systems.SaveLoad
                             Type = payload.Type,
                             OnHitStatusId = onHit.StatusId,
                             OnHitStatusChance = onHit.Chance,
-                            OnHitStatusDurationTurns = onHit.DurationTurns
+                            OnHitStatusDurationTurns = onHit.DurationTurns,
+                            OnHitStatusDamageMultiplier = onHit.StatusDamageMultiplier,
+                            OnHitStatusDamagePerTurn = onHit.StatusDamagePerTurn
                         });
                         break;
                     case CounterattackPayload:
@@ -716,6 +723,14 @@ namespace Godmist.Systems.SaveLoad
                         {
                             Type = payload.Type,
                             VariableModifiers = CopyVariableModifiers(variableModifiers.Modifiers)
+                        });
+                        break;
+                    case ResistanceModifierPayload resistanceModifier:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            ResistanceType = resistanceModifier.ResistanceType,
+                            ResistanceModifierValue = resistanceModifier.Value
                         });
                         break;
                 }

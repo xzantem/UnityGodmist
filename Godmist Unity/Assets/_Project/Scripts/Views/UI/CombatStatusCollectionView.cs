@@ -28,7 +28,11 @@ namespace Godmist.Views.UI
             tooltipView ??= UIWorkspaceTooltipView.ActiveInstance;
 
             var effects = boundUnit?.Character?.PassiveEffects;
-            var statuses = CombatStatusPresentationFactory.Create(effects);
+            var statuses = CombatStatusPresentationFactory.Create(
+                effects,
+                boundUnit?.ActiveAuras,
+                boundUnit?.OutgoingDamageRedirects,
+                boundUnit);
             var visibleCount = Mathf.Min(statuses.Count, maximumVisibleIcons);
             EnsureIconCount(visibleCount);
 

@@ -213,7 +213,10 @@ namespace Godmist.Runtime.Effects
             {
                 SetPayload(new DamageOverTimePayload
                 {
-                    RemainingTotalDamage = totalDamage
+                    RemainingTotalDamage = totalDamage,
+                    DamagePerTurn = totalDamage > 0 && remainingDuration > 0
+                        ? (int)Math.Ceiling(totalDamage / (double)remainingDuration)
+                        : 0
                 });
             }
 

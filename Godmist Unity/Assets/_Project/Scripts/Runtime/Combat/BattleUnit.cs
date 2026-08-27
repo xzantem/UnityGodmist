@@ -28,6 +28,7 @@ namespace Godmist.Runtime.Combat
         public List<UniqueBuffType> UniqueBuffs = new();
         public Dictionary<ResistanceType, float> ResistanceModifiers = new();
         public List<CombatAuraRuntime> ActiveAuras = new();
+        public List<CombatDamageRedirectRuntime> OutgoingDamageRedirects = new();
         public HashSet<string> ActiveToggleSkillIds = new();
         public HashSet<string> ToggleSkillIdsUsedThisTurn = new();
 
@@ -50,5 +51,17 @@ namespace Godmist.Runtime.Combat
         public TargetingType TargetingType;
         public float Chance = 1f;
         public int DurationTurns = 1;
+        public float StatusDamageMultiplier;
+        public int StatusDamagePerTurn;
+    }
+
+    [Serializable]
+    public class CombatDamageRedirectRuntime
+    {
+        [NonSerialized] public BattleUnit Target;
+        public string SourceEffectId = string.Empty;
+        public string TargetCharacterId = string.Empty;
+        public string TargetDisplayName = string.Empty;
+        public float RedirectPercent;
     }
 }

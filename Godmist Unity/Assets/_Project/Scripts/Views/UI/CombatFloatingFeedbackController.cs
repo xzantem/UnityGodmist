@@ -277,6 +277,7 @@ namespace Godmist.Views.UI
                 or CombatFeedbackType.ProcTriggered
                 or CombatFeedbackType.AuraApplied
                 or CombatFeedbackType.ResourceRegenerationBlocked
+                or CombatFeedbackType.TurnSkipped
                 => ResolveEffectName(feedbackEvent.EffectName),
             CombatFeedbackType.DamageRedirected =>
                 string.IsNullOrWhiteSpace(feedbackEvent.EffectName)
@@ -299,6 +300,7 @@ namespace Godmist.Views.UI
                 => new Color(0.32f, 0.93f, 0.62f),
             CombatFeedbackType.DebuffApplied or CombatFeedbackType.ResourceRegenerationBlocked
                 => new Color(1f, 0.48f, 0.39f),
+            CombatFeedbackType.TurnSkipped => new Color(0.85f, 0.78f, 0.62f),
             CombatFeedbackType.ProcTriggered => new Color(1f, 0.82f, 0.31f),
             CombatFeedbackType.DamageRedirected => new Color(0.78f, 0.62f, 1f),
             _ => Color.white

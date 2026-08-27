@@ -41,9 +41,6 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
-  - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
-  - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
 
 ### Milestone: Dungeon Content and Layout v2
 
@@ -51,10 +48,14 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 
 - `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
   - Room template definiuje semantyczne kotwice dla encounterow, skrzyn, przeszkod, pulapek, dzwigni i nagrod zamiast losowego wyboru dowolnej poprawnej komorki.
+- `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
+  - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
   - Generator dopuszcza alternatywne trasy i petle, nie tylko jednokierunkowe optional branches. Obsluguje bramkowanie progresji, np. klucz albo dzwignia w wymaganej odnodze otwierajace droge do finalu.
 - `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
   - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
+- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
+  - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
   - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
 - `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
@@ -88,9 +89,18 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Playable / Test
 
+### Milestone: Combat v3
+
+- `[P1] Combat v3 - acceptance pass` - `Combat`, `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
+  - Zweryfikowac pelny przeplyw: targetowanie i shape'y, toggle, noze Scouta, sekwencjonowanie AI, feedback, tooltipy, inspect, preview oraz payloady PassiveEffectRuntime. Usunac znane regresje i pokryc brakujace krytyczne scenariusze testami.
+
 ## Done
 
 ### Milestone: Combat v3 — Closed
+
+- `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
+  - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
+  - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
 
 - `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
   - Tooltip skilla pokazuje wyliczony z aktualnych statystyk zakres obrazen, szanse trafienia, przewidywane obrazenia po obronie celu oraz komplet efektow i czasow trwania.

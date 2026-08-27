@@ -21,6 +21,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly ModifyStatSystem modifyStatSystem;
         private readonly ModifyVarSystem modifyVarSystem;
+        private readonly ModifyResistanceSystem modifyResistanceSystem;
         private readonly CombatChargeSystem chargeSystem;
         private readonly CombatTeleportSystem teleportSystem;
         private readonly SummonedObjectSystem summonedObjectSystem;
@@ -44,7 +45,8 @@ namespace Godmist.Systems.Combat
             SummonedObjectSystem summonedObjectSystem = null,
             SummonSystem summonSystem = null,
             CombatReactionSystem reactionSystem = null,
-            CombatFeedbackBus feedbackBus = null)
+            CombatFeedbackBus feedbackBus = null,
+            ModifyResistanceSystem modifyResistanceSystem = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -71,6 +73,9 @@ namespace Godmist.Systems.Combat
 
             this.modifyVarSystem = modifyVarSystem
                 ?? new ModifyVarSystem();
+
+            this.modifyResistanceSystem = modifyResistanceSystem
+                ?? new ModifyResistanceSystem();
 
             this.chargeSystem = chargeSystem
                 ?? new CombatChargeSystem(
@@ -726,18 +731,15 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyResistance:
                 {
-                    if (Mathf.Approximately(effect.ModifierValue, 0f))
-                    {
-                        return EffectExecutionResult.None;
-                    }
-
-                    target.ResistanceModifiers ??= new Dictionary<ResistanceType, float>();
-                    target.ResistanceModifiers.TryGetValue(effect.ResistanceType,
-                        out var currentModifier);
-                    target.ResistanceModifiers[effect.ResistanceType] =
-                        currentModifier + effect.ModifierValue;
-                    PublishModifierFeedback(target, skill, effect);
-                    return new EffectExecutionResult { Succeeded = true };
+                    var wasApplied = modifyResistanceSystem != null
+                        && modifyResistanceSystem.Apply(
+                            caster,
+                            target,
+                            skill,
+                            effect,
+                            effectIndex);
+                    if (wasApplied) PublishModifierFeedback(target, skill, effect);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ApplyUniqueBuff:
                 {
@@ -1428,6 +1430,15 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                if (effect.EffectType == EffectType.ModifyResistance
+                    && Mathf.Approximately(effect.ModifierValue, 0f))
+                {
+                    Debug.LogWarning(
+                        $"Skill '{skill.SkillId}' has ModifyResistance with value 0.");
+
+                    return false;
+                }
+
                 if (effect.EffectType == EffectType.ApplyStatus
                     && string.IsNullOrWhiteSpace(effect.StatusId))
                 {
@@ -1636,6 +1647,11 @@ namespace Godmist.Systems.Combat
             }
 
             CombatAuraSystem.Unregister(session, caster, skillId);
+            caster.OutgoingDamageRedirects?.RemoveAll(link =>
+                link == null
+                || link.SourceEffectId.StartsWith(
+                    $"{skillId}.damage_redirect.",
+                    StringComparison.OrdinalIgnoreCase));
 
             caster.ActiveToggleSkillIds?.Remove(skillId);
             if (markUsedThisTurn)
@@ -2135,6 +2151,10 @@ namespace Godmist.Systems.Combat
             var auraId = $"{skill?.SkillId ?? "aura"}.aura.{effectIndex}";
             caster.ActiveAuras.RemoveAll(aura => string.Equals(aura?.AuraId,
                 auraId, StringComparison.OrdinalIgnoreCase));
+            var statusDamageMultiplier = StatusEffectSystem.IsDamageOverTimeStatus(
+                effect.StatusId)
+                ? effect.StatusDamageMultiplier
+                : 0f;
             caster.ActiveAuras.Add(new CombatAuraRuntime
             {
                 AuraId = auraId,
@@ -2144,6 +2164,13 @@ namespace Godmist.Systems.Combat
                 TargetingType = effect.AuraTargetingType,
                 Chance = effect.BaseChance,
                 DurationTurns = Mathf.Max(1, effect.DurationTurns),
+                StatusDamageMultiplier = statusDamageMultiplier,
+                StatusDamagePerTurn = statusDamageMultiplier > 0f
+                    ? CombatDamageValueCalculator.CalculateDamageValue(
+                        caster,
+                        DamageValueSource.AverageAttack,
+                        statusDamageMultiplier)
+                    : 0,
                 DisplayName = !string.IsNullOrWhiteSpace(skill?.DisplayName)
                     ? skill.DisplayName
                     : auraId
@@ -2163,6 +2190,16 @@ namespace Godmist.Systems.Combat
                 foreach (var aura in source.ActiveAuras)
                 {
                     if (aura == null || string.IsNullOrWhiteSpace(aura.StatusId)) continue;
+
+                    // The status value is based on the caster's current attack.
+                    // Refreshing it here keeps the owner tooltip and newly applied
+                    // aura statuses in sync after temporary stat changes.
+                    aura.StatusDamagePerTurn = aura.StatusDamageMultiplier > 0f
+                        ? CombatDamageValueCalculator.CalculateDamageValue(
+                            source,
+                            DamageValueSource.AverageAttack,
+                            aura.StatusDamageMultiplier)
+                        : 0;
 
                     var hadAuraTargets = new HashSet<BattleUnit>();
                     foreach (var candidate in session.Units)
@@ -2192,7 +2229,12 @@ namespace Godmist.Systems.Combat
 
                         var hadAuraStatus = hadAuraTargets.Contains(target);
                         statusEffectSystem.ApplyStatus(source, target, aura.StatusId,
-                            aura.Chance, aura.DurationTurns, 1, 0f, 0f, aura.AuraId,
+                            aura.Chance,
+                            aura.DurationTurns,
+                            1,
+                            aura.StatusDamageMultiplier,
+                            0f,
+                            aura.AuraId,
                             CombatFeedbackType.AuraApplied,
                             aura.DisplayName,
                             publishFeedback: !hadAuraStatus);

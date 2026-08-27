@@ -727,7 +727,8 @@ namespace Godmist.Systems.SaveLoad
                         if (saveData.RemainingTotalDamage < 0) return false;
                         payloads.Add(new DamageOverTimePayload
                         {
-                            RemainingTotalDamage = saveData.RemainingTotalDamage
+                            RemainingTotalDamage = saveData.RemainingTotalDamage,
+                            DamagePerTurn = saveData.DamagePerTurn
                         });
                         break;
                     case PassiveEffectPayloadType.SleepHealing:
@@ -753,18 +754,26 @@ namespace Godmist.Systems.SaveLoad
                             || saveData.DamageRedirectPercent > 1f) return false;
                         payloads.Add(new DamageRedirectPayload
                         {
-                            RedirectPercent = saveData.DamageRedirectPercent
+                            RedirectPercent = saveData.DamageRedirectPercent,
+                            ProtectorCharacterId = saveData.ProtectorCharacterId ?? string.Empty,
+                            ProtectorDisplayName = saveData.ProtectorDisplayName ?? string.Empty,
+                            ProtectedCharacterId = saveData.ProtectedCharacterId ?? string.Empty,
+                            ProtectedCharacterDisplayName = saveData.ProtectedCharacterDisplayName ?? string.Empty
                         });
                         break;
                     case PassiveEffectPayloadType.OnHitStatus:
                         if (saveData.OnHitStatusChance < 0f
                             || saveData.OnHitStatusChance > 1f
-                            || saveData.OnHitStatusDurationTurns < 0) return false;
+                            || saveData.OnHitStatusDurationTurns < 0
+                            || saveData.OnHitStatusDamageMultiplier < 0f
+                            || saveData.OnHitStatusDamagePerTurn < 0) return false;
                         payloads.Add(new OnHitStatusPayload
                         {
                             StatusId = saveData.OnHitStatusId ?? string.Empty,
                             Chance = saveData.OnHitStatusChance,
-                            DurationTurns = saveData.OnHitStatusDurationTurns
+                            DurationTurns = saveData.OnHitStatusDurationTurns,
+                            StatusDamageMultiplier = saveData.OnHitStatusDamageMultiplier,
+                            StatusDamagePerTurn = saveData.OnHitStatusDamagePerTurn
                         });
                         break;
                     case PassiveEffectPayloadType.Counterattack:
@@ -776,6 +785,19 @@ namespace Godmist.Systems.SaveLoad
                     case PassiveEffectPayloadType.VariableModifiers:
                         if (!TryCreateVariableModifiers(saveData.VariableModifiers, out var variableModifiers)) return false;
                         payloads.Add(new VariableModifiersPayload { Modifiers = variableModifiers });
+                        break;
+                    case PassiveEffectPayloadType.ResistanceModifier:
+                        if (!Enum.IsDefined(typeof(ResistanceType), saveData.ResistanceType)
+                            || float.IsNaN(saveData.ResistanceModifierValue)
+                            || float.IsInfinity(saveData.ResistanceModifierValue))
+                        {
+                            return false;
+                        }
+                        payloads.Add(new ResistanceModifierPayload
+                        {
+                            ResistanceType = saveData.ResistanceType,
+                            Value = saveData.ResistanceModifierValue
+                        });
                         break;
                 }
             }

@@ -206,7 +206,8 @@ namespace Godmist.Systems.Combat
             {
                 existingEffect.SetPayload(new DamageOverTimePayload
                 {
-                    RemainingTotalDamage = incoming.RemainingTotalDamage
+                    RemainingTotalDamage = incoming.RemainingTotalDamage,
+                    DamagePerTurn = incoming.DamagePerTurn
                 });
                 return;
             }
@@ -218,6 +219,10 @@ namespace Godmist.Systems.Combat
                 : Math.Max(
                     existing.RemainingTotalDamage,
                     incoming.RemainingTotalDamage);
+            if (incoming.DamagePerTurn > 0)
+            {
+                existing.DamagePerTurn = incoming.DamagePerTurn;
+            }
         }
 
         private static void ReplaceSleepHealingPayload(
@@ -245,7 +250,10 @@ namespace Godmist.Systems.Combat
                 {
                     case DamageOverTimePayload value:
                         copied.Add(new DamageOverTimePayload
-                        { RemainingTotalDamage = value.RemainingTotalDamage });
+                        {
+                            RemainingTotalDamage = value.RemainingTotalDamage,
+                            DamagePerTurn = value.DamagePerTurn
+                        });
                         break;
                     case SleepHealingPayload value:
                         copied.Add(new SleepHealingPayload
@@ -263,14 +271,22 @@ namespace Godmist.Systems.Combat
                         break;
                     case DamageRedirectPayload value:
                         copied.Add(new DamageRedirectPayload
-                        { RedirectPercent = value.RedirectPercent });
+                        {
+                            RedirectPercent = value.RedirectPercent,
+                            ProtectorCharacterId = value.ProtectorCharacterId,
+                            ProtectorDisplayName = value.ProtectorDisplayName,
+                            ProtectedCharacterId = value.ProtectedCharacterId,
+                            ProtectedCharacterDisplayName = value.ProtectedCharacterDisplayName
+                        });
                         break;
                     case OnHitStatusPayload value:
                         copied.Add(new OnHitStatusPayload
                         {
                             StatusId = value.StatusId,
                             Chance = value.Chance,
-                            DurationTurns = value.DurationTurns
+                            DurationTurns = value.DurationTurns,
+                            StatusDamageMultiplier = value.StatusDamageMultiplier,
+                            StatusDamagePerTurn = value.StatusDamagePerTurn
                         });
                         break;
                     case CounterattackPayload value:
@@ -290,6 +306,13 @@ namespace Godmist.Systems.Combat
                     case VariableModifiersPayload value:
                         copied.Add(new VariableModifiersPayload
                         { Modifiers = CopyVariableModifiers(value.Modifiers) });
+                        break;
+                    case ResistanceModifierPayload value:
+                        copied.Add(new ResistanceModifierPayload
+                        {
+                            ResistanceType = value.ResistanceType,
+                            Value = value.Value
+                        });
                         break;
                 }
             }

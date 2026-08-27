@@ -78,6 +78,104 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ApplyOnHitStatusBuff_ProcsConfiguredDamageOverTime()
+        {
+            var session = CreateSession(out var source, out var target);
+            var effect = new SkillEffectData();
+            SetPrivateField(effect, "onHitStatusId", StatusEffectIds.Bleed);
+            SetPrivateField(effect, "onHitStatusChance", 1f);
+            SetPrivateField(effect, "onHitStatusDurationTurns", 2);
+            SetPrivateField(effect, "statusDamageMultiplier", .5f);
+            SetPrivateField(effect, "durationTurns", 3);
+            var skill = CreateSkill("skill.test.on_hit");
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyOnHitStatusBuff(source, source, skill, effect, 0),
+                Is.True);
+
+            var onHit = source.Character.PassiveEffects[0]
+                .GetPayload<OnHitStatusPayload>();
+            Assert.That(onHit, Is.Not.Null);
+            Assert.That(onHit.StatusDamagePerTurn, Is.EqualTo(5));
+
+            Assert.That(
+                statusSystem.ApplyActiveOnHitStatuses(source, target),
+                Is.EqualTo(1));
+            var bleed = target.Character.PassiveEffects.Find(
+                value => value.EffectId == StatusEffectIds.Bleed);
+            Assert.That(bleed, Is.Not.Null);
+            Assert.That(bleed.TotalDamage, Is.EqualTo(10));
+            Assert.That(bleed.GetPayload<DamageOverTimePayload>().DamagePerTurn, Is.EqualTo(5));
+            Assert.That(bleed.RemainingDuration, Is.EqualTo(2));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void ApplyActiveOnHitStatuses_UsesPersistedDamagePerTurnWhenMultiplierIsMissing()
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                EffectId = "skill.test.on_hit_buff.0",
+                Lifetime = PassiveEffectLifetime.CombatScoped,
+                Payloads = new List<PassiveEffectPayloadRuntime>
+                {
+                    new OnHitStatusPayload
+                    {
+                        StatusId = StatusEffectIds.Bleed,
+                        Chance = 1f,
+                        DurationTurns = 2,
+                        StatusDamageMultiplier = 0f,
+                        StatusDamagePerTurn = 7
+                    }
+                }
+            });
+
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                statusSystem.ApplyActiveOnHitStatuses(source, target),
+                Is.EqualTo(1));
+
+            var bleed = target.Character.PassiveEffects.Find(
+                value => value.EffectId == StatusEffectIds.Bleed);
+            Assert.That(bleed, Is.Not.Null);
+            Assert.That(bleed.TotalDamage, Is.EqualTo(14));
+            Assert.That(bleed.GetPayload<DamageOverTimePayload>().DamagePerTurn, Is.EqualTo(7));
+            Assert.That(bleed.RemainingDuration, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void AuraRefresh_AppliesConfiguredDamageOverTime()
+        {
+            var session = CreateSession(out var source, out var target);
+            var effect = new SkillEffectData();
+            SetPrivateField(effect, "statusId", StatusEffectIds.Burn);
+            SetPrivateField(effect, "baseChance", 1f);
+            SetPrivateField(effect, "durationTurns", 2);
+            SetPrivateField(effect, "statusDamageMultiplier", .5f);
+            SetPrivateField(effect, "auraRadius", 1);
+            SetPrivateField(effect, "auraTargetingType", TargetingType.Enemies);
+            var skill = CreateSkill("skill.test.burning_aura");
+            var statusSystem = new StatusEffectSystem();
+
+            Assert.That(
+                CombatAuraSystem.Register(source, skill, effect, 0),
+                Is.True);
+            CombatAuraSystem.Refresh(session, statusSystem);
+
+            var burn = target.Character.PassiveEffects.Find(
+                value => value.EffectId == StatusEffectIds.Burn);
+            Assert.That(burn, Is.Not.Null);
+            Assert.That(burn.TotalDamage, Is.EqualTo(10));
+            Assert.That(burn.RemainingDuration, Is.EqualTo(2));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
         public void ApplyBleed_RefreshesDurationAndAddsTotalDamage()
         {
             var session = CreateSession(
@@ -186,6 +284,28 @@ namespace Godmist.Tests.EditMode
                 Has.Count.EqualTo(0));
 
             Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void CalculateEffectiveDamage_UsesOwnersStatusResistance()
+        {
+            CreateSession(out _, out var target);
+
+            Assert.That(
+                DamageOverTimePassiveEffectProcessor.CalculateEffectiveDamage(
+                    target,
+                    StatusEffectIds.Bleed,
+                    25),
+                Is.EqualTo(50));
+
+            target.Character.Resistances.BleedResistance = 0.5f;
+
+            Assert.That(
+                DamageOverTimePassiveEffectProcessor.CalculateEffectiveDamage(
+                    target,
+                    StatusEffectIds.Bleed,
+                    25),
+                Is.EqualTo(25));
         }
 
         [Test]
