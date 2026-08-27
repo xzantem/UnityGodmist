@@ -168,11 +168,6 @@ namespace Godmist.Views.Dungeons
 
             body = currentBody;
 
-            if (body.IsEmpty)
-            {
-                floor.TryRemoveEnemyBody(body.InstanceId);
-                Destroy(gameObject);
-            }
         }
 
         private void ConfigureVisual()

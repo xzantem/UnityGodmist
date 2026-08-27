@@ -74,6 +74,14 @@ namespace Godmist.Views.Dungeons
 
                 if (!partySpawner.TrySpawn(session, spawnPosition)) return;
 
+                if (dungeon.HasPendingPlayerPartyPositions)
+                {
+                    partySpawner.PartyController.RestorePartyPositions(
+                        dungeon.PendingPlayerPartyPositions,
+                        dungeon.PlayerPosition);
+                    dungeon.ClearPendingPlayerPartyPositions();
+                }
+
                 if (!objectSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 
                 if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;

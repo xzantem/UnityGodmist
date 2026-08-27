@@ -125,7 +125,6 @@ namespace Godmist.Runtime.Dungeons
         public bool TryAddEnemyBody(DungeonEnemyBodyInstance body)
         {
             if (body == null
-                || body.IsEmpty
                 || enemyBodies.Exists(existing =>
                     existing != null
                     && string.Equals(

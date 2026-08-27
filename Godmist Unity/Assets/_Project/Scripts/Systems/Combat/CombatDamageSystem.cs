@@ -550,7 +550,9 @@ namespace Godmist.Systems.Combat
 
             if (!target.IsPlayerSide)
             {
-                session?.TryMarkEnemyDefeated(target.Character.CharacterId);
+                session?.TryMarkEnemyDefeated(
+                    target.Character.CharacterId,
+                    target.Position);
                 removeUnitFromCombat?.Invoke(target);
             }
         }

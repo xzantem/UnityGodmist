@@ -117,7 +117,7 @@ namespace Godmist.Views.Dungeons
 
             foreach (var body in floor.EnemyBodies)
             {
-                if (body == null || body.IsEmpty)
+                if (body == null)
                 {
                     continue;
                 }

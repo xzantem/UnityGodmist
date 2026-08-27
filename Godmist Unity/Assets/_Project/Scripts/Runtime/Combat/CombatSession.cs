@@ -22,6 +22,7 @@ namespace Godmist.Runtime.Combat
         public List<ScheduledCombatEffect> ScheduledEffects = new();
         public List<SummonedBattleUnit> Summons = new();
         public HashSet<string> DefeatedEnemyInstanceIds = new();
+        private readonly Dictionary<string, GridPosition> enemyDeathPositions = new();
         public List<CombatMapObject> MapObjects = new();
         public List<SummonedCombatMapObject> SummonedObjects = new();
         public List<SummonedCombatMapObject> SummonedObjectTurnOrder = new();
@@ -161,6 +162,31 @@ namespace Godmist.Runtime.Combat
             }
 
             return DefeatedEnemyInstanceIds.Add(enemyInstanceId);
+        }
+
+        public bool TryMarkEnemyDefeated(
+            string enemyInstanceId,
+            GridPosition deathPosition)
+        {
+            if (!TryMarkEnemyDefeated(enemyInstanceId))
+            {
+                return false;
+            }
+
+            enemyDeathPositions[enemyInstanceId] = deathPosition;
+            return true;
+        }
+
+        public bool TryGetEnemyDeathPosition(
+            string enemyInstanceId,
+            out GridPosition deathPosition)
+        {
+            deathPosition = default;
+
+            return !string.IsNullOrWhiteSpace(enemyInstanceId)
+                && enemyDeathPositions.TryGetValue(
+                    enemyInstanceId,
+                    out deathPosition);
         }
     }
 }

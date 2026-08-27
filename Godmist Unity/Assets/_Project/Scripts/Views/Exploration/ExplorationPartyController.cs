@@ -284,5 +284,47 @@ namespace Godmist.Views.Exploration
 
             Physics2D.SyncTransforms();
         }
+
+        public void RestorePartyPositions(
+            IReadOnlyDictionary<string, Vector2> positions,
+            Vector2 fallbackLeaderPosition)
+        {
+            var leaderView = GetActiveLeaderView();
+
+            if (leaderView == null) return;
+
+            var leaderPosition = fallbackLeaderPosition;
+            var leaderId = gameSession.PlayerParty.ActiveLeaderId;
+
+            if (!string.IsNullOrWhiteSpace(leaderId)
+                && positions != null
+                && positions.TryGetValue(
+                    leaderId,
+                    out var storedLeaderPosition))
+            {
+                leaderPosition = storedLeaderPosition;
+            }
+
+            leaderView.SetPosition(leaderPosition);
+
+            foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
+            {
+                if (characterId == leaderId
+                    || !viewsById.TryGetValue(
+                        characterId,
+                        out var characterView)
+                    || positions == null
+                    || !positions.TryGetValue(
+                        characterId,
+                        out var characterPosition))
+                {
+                    continue;
+                }
+
+                characterView.SetPosition(characterPosition);
+            }
+
+            Physics2D.SyncTransforms();
+        }
     }
 }

@@ -115,7 +115,7 @@ namespace Godmist.Systems.Items
             if (!TryGetActiveFloorBody(
                     gameSession,
                     bodyInstanceId,
-                    out var floor,
+                    out _,
                     out var body)
                 || !body.TryGetItem(itemInstanceId, out var item))
             {
@@ -137,7 +137,6 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            RemoveBodyIfEmpty(floor, body);
             return true;
         }
 
@@ -175,7 +174,7 @@ namespace Godmist.Systems.Items
             if (!TryGetActiveFloorBody(
                     gameSession,
                     bodyInstanceId,
-                    out var floor,
+                    out _,
                     out var body)
                 || body.Items.Count == 0)
             {
@@ -237,7 +236,6 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            RemoveBodyIfEmpty(floor, body);
             return true;
         }
 
@@ -336,13 +334,5 @@ namespace Godmist.Systems.Items
             return true;
         }
 
-        private static void RemoveBodyIfEmpty(
-            DungeonFloorInstance floor,
-            DungeonEnemyBodyInstance body)
-        {
-            if (floor == null || body == null || !body.IsEmpty) return;
-
-            floor.TryRemoveEnemyBody(body.InstanceId);
-        }
     }
 }

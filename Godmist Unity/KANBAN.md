@@ -46,8 +46,6 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Dopracowac persistence cial przeciwnikow: pozycja smierci v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
-  - Kazde cialo powstaje na konkretnej komorce, na ktorej dany przeciwnik zginal w walce; istniejacy loot, interakcja i persistence ciala zostaja zachowane.
 - `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
   - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
@@ -89,6 +87,8 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## Playable / Test
 
+### Milestone: Dungeon Content and Layout v2
+
 ### Karty do decyzji o przypisaniu do milestone'u
 
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
@@ -109,6 +109,12 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dopracowac persistence cial przeciwnikow: pozycja smierci v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
+  - Combat zapisuje ostatnia komorke bojowa kazdego zabitego przeciwnika; cialo korzysta z tej komorki po zwyciestwie albo ucieczce.
+  - Kazdy zabity przeciwnik zostawia cialo, rowniez bez lootu; puste ciala pozostaja w swiecie i sa zapisywane.
+  - Osobne ciala nie dziela finalnie jednej komorki; drugie korzysta z deterministycznej sasiedniej komorki, a przeszkoda wymusza wolna komorke w pokoju.
+  - Po zwyciestwie aktywne postacie gracza wracaja na swoje komorki z pola bitwy; po ucieczce nadal obowiazuje `RetreatPosition`.
 
 - `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
   - Room template definiuje autorskie punkty lub obszary dla skrzyn, przeszkod, pulapek, dzwigni i nagrod, z opcjonalnym spawnem, kotwami wymaganymi i zaleznosciami miedzy kotwami; przy skonfigurowanych kotwach nie ma fallbacku do losowej komorki.

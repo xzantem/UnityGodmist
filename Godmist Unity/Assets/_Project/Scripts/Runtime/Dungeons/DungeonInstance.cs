@@ -16,11 +16,16 @@ namespace Godmist.Runtime.Dungeons
 
         private readonly HashSet<string> clearedEncounterIds = new();
         private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();
+        private readonly Dictionary<string, Vector2> pendingPlayerPartyPositions = new();
         private readonly List<DungeonFloorInstance> floors = new();
 
         public Vector2 PlayerPosition { get; private set; }
         public bool HasPlayerPosition { get; private set; }
         public IReadOnlyCollection<string> ClearedEncounterIds => clearedEncounterIds;
+        public IReadOnlyDictionary<string, Vector2> PendingPlayerPartyPositions =>
+            pendingPlayerPartyPositions;
+        public bool HasPendingPlayerPartyPositions =>
+            pendingPlayerPartyPositions.Count > 0;
         public IReadOnlyList<DungeonFloorInstance> Floors => floors;
 
         public DungeonInstance(DungeonDefinition definition, int seed)
@@ -72,6 +77,42 @@ namespace Godmist.Runtime.Dungeons
         {
             PlayerPosition = position;
             HasPlayerPosition = true;
+        }
+
+        public bool TrySetPendingPlayerPartyPositions(
+            IReadOnlyDictionary<string, Vector2> positions)
+        {
+            if (positions == null) return false;
+
+            var validatedPositions = new Dictionary<string, Vector2>();
+
+            foreach (var pair in positions)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key)
+                    || float.IsNaN(pair.Value.x)
+                    || float.IsNaN(pair.Value.y)
+                    || float.IsInfinity(pair.Value.x)
+                    || float.IsInfinity(pair.Value.y))
+                {
+                    return false;
+                }
+
+                validatedPositions[pair.Key] = pair.Value;
+            }
+
+            pendingPlayerPartyPositions.Clear();
+
+            foreach (var pair in validatedPositions)
+            {
+                pendingPlayerPartyPositions.Add(pair.Key, pair.Value);
+            }
+
+            return true;
+        }
+
+        public void ClearPendingPlayerPartyPositions()
+        {
+            pendingPlayerPartyPositions.Clear();
         }
 
         public bool TryRestoreState(
