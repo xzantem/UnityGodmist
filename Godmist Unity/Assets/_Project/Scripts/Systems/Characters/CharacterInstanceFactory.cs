@@ -62,6 +62,8 @@ namespace Godmist.Systems.Characters
                     MaxAttack = new Stat(baseStats.MaxAttack),
                     PhysicalDefense = new Stat(baseStats.PhysicalDefense),
                     MagicalDefense = new Stat(baseStats.MagicalDefense),
+                    PhysicalDefensePenetration = new Stat(baseStats.PhysicalDefensePenetration),
+                    MagicalDefensePenetration = new Stat(baseStats.MagicalDefensePenetration),
                     Dodge = new Stat(baseStats.Dodge),
                     CritChance = new Stat(baseStats.CritChance),
                     CritDamage = new Stat(baseStats.CritDamage),

@@ -133,6 +133,82 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ResolveAndApplyDamage_PhysicalDamage_UsesPhysicalDefensePenetration()
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Character.Stats.PhysicalDefensePenetration = new Stat(0.25f);
+            target.Character.Stats.PhysicalDefense = new Stat(100f);
+
+            var result = new CombatDamageSystem().ResolveAndApplyDamage(
+                session,
+                source,
+                target,
+                attackValue: 100,
+                damageType: DamageType.Physical,
+                skillAccuracy: 100f);
+
+            Assert.That(result.Hit, Is.True);
+            Assert.That(result.HealthDamage, Is.EqualTo(58));
+        }
+
+        [Test]
+        public void ResolveAndApplyDamage_MagicalDamage_UsesOnlyMagicalDefensePenetration()
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Character.Stats.PhysicalDefensePenetration = new Stat(1f);
+            source.Character.Stats.MagicalDefensePenetration = new Stat(0.5f);
+            target.Character.Stats.PhysicalDefense = new Stat(999f);
+            target.Character.Stats.MagicalDefense = new Stat(100f);
+
+            var result = new CombatDamageSystem().ResolveAndApplyDamage(
+                session,
+                source,
+                target,
+                attackValue: 100,
+                damageType: DamageType.Magical,
+                skillAccuracy: 0f);
+
+            Assert.That(result.Hit, Is.True);
+            Assert.That(result.HealthDamage, Is.EqualTo(67));
+        }
+
+        [Test]
+        public void ResolveAndApplyDamage_BonusPenetrationIsAddedToCasterPenetration()
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Character.Stats.PhysicalDefensePenetration = new Stat(0.25f);
+            target.Character.Stats.PhysicalDefense = new Stat(100f);
+
+            var result = new CombatDamageSystem().ResolveAndApplyDamage(
+                session,
+                source,
+                target,
+                attackValue: 100,
+                damageType: DamageType.Physical,
+                skillAccuracy: 100f,
+                bonusDefensePenetration: 0.25f);
+
+            Assert.That(result.HealthDamage, Is.EqualTo(67));
+        }
+
+        [Test]
+        public void ApplyDefense_DefensePenetrationAboveOne_IsClampedToZeroEffectiveDefense()
+        {
+            var source = CreateUnit(isPlayerSide: true);
+            var target = CreateUnit(isPlayerSide: false);
+            source.Character.Stats.PhysicalDefensePenetration = new Stat(2f);
+            target.Character.Stats.PhysicalDefense = new Stat(100f);
+
+            var damage = CombatDamageSystem.ApplyDefense(
+                source,
+                target,
+                damage: 100,
+                damageType: DamageType.Physical);
+
+            Assert.That(damage, Is.EqualTo(100));
+        }
+
+        [Test]
         public void ResolveAndApplyDamage_InevitableDamage_CanCritAndIgnoresDefense()
         {
             var session = CreateSession(
@@ -230,6 +306,8 @@ namespace Godmist.Tests.EditMode
                     MaxAttack = new Stat(20f),
                     PhysicalDefense = new Stat(0f),
                     MagicalDefense = new Stat(0f),
+                    PhysicalDefensePenetration = new Stat(0f),
+                    MagicalDefensePenetration = new Stat(0f),
                     Dodge = new Stat(0f),
                     CritChance = new Stat(0f),
                     CritDamage = new Stat(1.5f)

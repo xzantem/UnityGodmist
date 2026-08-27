@@ -17,10 +17,25 @@ namespace Godmist.Systems.Combat
             this.damageSystem = damageSystem ?? new CombatDamageSystem();
         }
 
+        public static int CalculateEffectiveDamage(
+            BattleUnit unit,
+            string statusId,
+            int rawDamage)
+        {
+            if (rawDamage <= 0) return 0;
+            if (unit?.Character == null) return rawDamage;
+
+            var resistance = GetResistance(unit, statusId);
+            return Mathf.Max(
+                0,
+                Mathf.RoundToInt(rawDamage * CalculateDamageMultiplier(resistance)));
+        }
+
         public bool CanProcess(PassiveEffectRuntime effect, PassiveEffectTickPhase tickPhase)
         {
             return effect != null
                 && tickPhase == PassiveEffectTickPhase.TurnStart
+                && effect.GetPayload<DamageOverTimePayload>() != null
                 && IsDamageOverTimeStatus(effect.EffectId);
         }
 
@@ -38,15 +53,18 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            var payload = effect.GetPayload<DamageOverTimePayload>();
+            if (payload == null) return true;
+
             var remainingTurns = Mathf.Max(1, effect.RemainingDuration);
-            var rawDamage = Mathf.CeilToInt(effect.TotalDamage / (float)remainingTurns);
+            var rawDamage = Mathf.CeilToInt(
+                payload.RemainingTotalDamage / (float)remainingTurns);
 
-            effect.TotalDamage = Mathf.Max(0, effect.TotalDamage - rawDamage);
-
-            var resistance = GetResistance(unit.Character, effect.EffectId);
-            var finalDamage = Mathf.Max(
+            payload.RemainingTotalDamage = Mathf.Max(
                 0,
-                Mathf.RoundToInt(rawDamage * CalculateDamageMultiplier(resistance)));
+                payload.RemainingTotalDamage - rawDamage);
+
+            var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, rawDamage);
 
             damageSystem.ApplyDamage(
                 session,
@@ -55,7 +73,7 @@ namespace Godmist.Systems.Combat
                 requestedDamage: finalDamage,
                 damageType: GetDamageType(effect.EffectId));
 
-            shouldExpire = effect.TotalDamage <= 0;
+            shouldExpire = payload.RemainingTotalDamage <= 0;
 
             return unit.Character.LifeState == CharacterLifeState.Alive;
         }
@@ -88,29 +106,32 @@ namespace Godmist.Systems.Combat
         }
 
         private static float GetResistance(
-            CharacterInstance character,
+            BattleUnit unit,
             string statusId)
         {
-            var resistances = character?.Resistances;
-
-            if (resistances == null)
-            {
-                return 0f;
-            }
+            var resistances = unit?.Character?.Resistances;
 
             if (string.Equals(statusId, StatusEffectIds.Poison,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return resistances.PoisonResistance;
+                return Mathf.Clamp01((resistances?.PoisonResistance ?? 0f)
+                    + GetModifier(unit, ResistanceType.Poison));
             }
 
             if (string.Equals(statusId, StatusEffectIds.Burn,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return resistances.FireResistance;
+                return Mathf.Clamp01((resistances?.FireResistance ?? 0f)
+                    + GetModifier(unit, ResistanceType.Fire));
             }
 
-            return resistances.BleedResistance;
+            return Mathf.Clamp01((resistances?.BleedResistance ?? 0f)
+                + GetModifier(unit, ResistanceType.Bleed));
+        }
+
+        private static float GetModifier(BattleUnit unit, ResistanceType type)
+        {
+            return ModifyResistanceSystem.GetModifier(unit, type);
         }
 
         private static float CalculateDamageMultiplier(float resistance)

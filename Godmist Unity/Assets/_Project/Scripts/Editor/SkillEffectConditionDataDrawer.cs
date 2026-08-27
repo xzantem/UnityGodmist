@@ -27,6 +27,7 @@ namespace Godmist.Editor
             var statusId = property.FindPropertyRelative("statusId");
             var healthThreshold = property.FindPropertyRelative("healthPercentThreshold");
             var referencedEffectIndex = property.FindPropertyRelative("referencedEffectIndex");
+            var integerThreshold = property.FindPropertyRelative("integerThreshold");
             var selectedCondition = (EffectConditionType)conditionType.enumValueIndex;
             var y = position.y;
 
@@ -49,6 +50,12 @@ namespace Godmist.Editor
                 DrawField(position, ref y, healthThreshold, "Health Threshold (%)");
             }
 
+            if (selectedCondition == EffectConditionType.MinimumAdjacentAllies
+                || selectedCondition == EffectConditionType.MinimumResourceSpent)
+            {
+                DrawField(position, ref y, integerThreshold, "Minimum value");
+            }
+
             EditorGUI.EndProperty();
         }
 
@@ -67,6 +74,12 @@ namespace Godmist.Editor
                 || selectedCondition == EffectConditionType.CasterHasStatus
                 || selectedCondition == EffectConditionType.TargetHealthBelowPercent
                 || selectedCondition == EffectConditionType.CasterHealthBelowPercent)
+            {
+                height += Spacing + EditorGUIUtility.singleLineHeight;
+            }
+
+            if (selectedCondition == EffectConditionType.MinimumAdjacentAllies
+                || selectedCondition == EffectConditionType.MinimumResourceSpent)
             {
                 height += Spacing + EditorGUIUtility.singleLineHeight;
             }

@@ -41,17 +41,6 @@ Priorytety:
 ## Backlog
 
 ### Milestone: Combat v3
-- `[P1] Combat v3 - rozszerzyc execution pipeline skilli` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Efekty: modyfikator AP na jedna nastepna ture; przyspieszenie/spowolnienie ruchu przez zmiane AV o `x% * maxAV`; blokada regeneracji zasobu; OnHit `StatusEffect`; LifeSteal i ResourceDrain; `TimesDamage`; `BonusDamageMultiplierChance` z osobnym rzutem dla kazdego hitu `TimesDamage`.
-  - Dodac `UniqueBuffTypes`: gwarantowany crit nastepnego damage, gwarantowany unik nastepnej obrony, zawsze maksymalny damage oraz rozszerzalny model kolejnych unikalnych buffow.
-  - Obsluga przejmowania czesci obrazen przeciwnika, opcjonalnie z mitygacja po przejeciu; kosztu zdrowia z przeliczeniem na odzysk zasobu; tarczy od procentu average attack; `ModifyResistance` (jezeli brak); AuraBuff/AuraStatus.
-  - Warunkowe buffy: zalezne od sasiednich sojusznikow, progu wydanego zasobu, pozostajacej tarczy i innych warunkow runtime. Charge ma zatrzymywac sie na koncu ruchu, a dlugosc stuna musi uwzgledniac ten moment.
-- `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
-- `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
-- `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
-  - Dodac ksztalty m.in. line, diagonal line i X.
-- `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Oddzielna penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`.
 
 ### Milestone: Dungeon Content and Layout v2
 
@@ -59,10 +48,14 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 
 - `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
   - Room template definiuje semantyczne kotwice dla encounterow, skrzyn, przeszkod, pulapek, dzwigni i nagrod zamiast losowego wyboru dowolnej poprawnej komorki.
+- `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
+  - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
   - Generator dopuszcza alternatywne trasy i petle, nie tylko jednokierunkowe optional branches. Obsluguje bramkowanie progresji, np. klucz albo dzwignia w wymaganej odnodze otwierajace droge do finalu.
 - `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
   - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
+- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
+  - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
   - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
 - `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
@@ -71,6 +64,7 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
   - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
 - `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
   - Zweryfikowac deterministyczny layout z petlami i gate'ami, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
+- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 
 ### Milestone: Crafting, Upgrading and Consumables v1
 
@@ -89,25 +83,59 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
   - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
 
-### Milestone: Rewards and Progression v2
-
-### Milestone: UI Workspace v1
-
-- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
-- `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
-  - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
-  - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
-
 ## Ready
 
 ## In Progress
 
-- `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Przeniesc wpisy z `CombatTooltipGlossary` do wspolnego `UIWorkspaceTooltipView`: nazwy i ikony statusow, linki do pojec w tresci oraz zagniezdzone tooltipy. Nie tworzyc osobnego systemu tooltipow obok Workspace.
-
 ## Playable / Test
 
+### Milestone: Combat v3
+
+- `[P1] Combat v3 - acceptance pass` - `Combat`, `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
+  - Zweryfikowac pelny przeplyw: targetowanie i shape'y, toggle, noze Scouta, sekwencjonowanie AI, feedback, tooltipy, inspect, preview oraz payloady PassiveEffectRuntime. Usunac znane regresje i pokryc brakujace krytyczne scenariusze testami.
+
 ## Done
+
+### Milestone: Combat v3 — Closed
+
+- `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
+  - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
+  - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
+
+- `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Tooltip skilla pokazuje wyliczony z aktualnych statystyk zakres obrazen, szanse trafienia, przewidywane obrazenia po obronie celu oraz komplet efektow i czasow trwania.
+  - Dodac widoczne buffy, nie tylko statusy; full inspect wybranej jednostki; preview zasiegu ruchu przeciwnika w jego nastepnej turze; feedback dla nowych efektow Combat v3 (buff, proc, aura, redirect, blokada regeneracji).
+
+- `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Oddzielna procentowa penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`; efekt ma dodatkowo konfigurowalny `Bonus Penetration`.
+
+- `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
+  - Dodano ksztalty `Line`, `Diagonal`, `TwoSidedLine`, `XShape` i `Rectangle`, wraz z obrotem `R` oraz obsluga parzystych rozmiarow.
+  - Preview, podswietlenie trafionych celow i wykonanie skilla korzystaja z tej samej geometrii; `AreaAroundCaster` moze wykonac skill bez trafionych jednostek.
+
+- `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
+  - Ruch AI i gracza korzysta z wyznaczonej sciezki tile-by-tile i wizualnie przechodzi przez kolejne pola, z zachowaniem blokad i kosztu AP.
+  - `Ctrl` + hover nad dowolna jednostka pokazuje jej zasieg ruchu na nastepna ture; bez przewidywania akcji, skilli ani kosztu sciezki.
+
+- `[P1] Combat v3 - czytelnosc feedbacku i sekwencjonowanie akcji v1` - `UI / UX`, `Combat`
+  - Feedback jest powiazany z momentem rozstrzygniecia akcji i aktualna pozycja jednostki; komunikaty sa kolejkowane, rozsuwane i prezentowane z czytelnym opoznieniem.
+  - Tura przeciwnika jest prezentowana jako sekwencja pojedynczych decyzji i rezultatow z krotkimi przerwami.
+
+- `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
+  - Toggle ma aktywacje ograniczona do raz na ture, darmowe wylaczenie, upkeep zasobu oraz natychmiastowe usuwanie efektow po wylaczeniu lub smierci wlasciciela.
+- `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
+  - Scout ma limit `5` sztyletow resetowany na poczatku walki; skille z `Knife Cost` zuzywaja sztylety, upuszczaja je obok celu, a wejscie na pole odzyskuje zasob; licznik jest widoczny na pasku skilli.
+
+- `[P1] Combat v3 - rozszerzyc execution pipeline skilli` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
+  - Efekty: modyfikator AP na jedna nastepna ture; przyspieszenie/spowolnienie ruchu przez zmiane AV o `x% * maxAV`; blokada wszystkich dodatnich gainow zasobu; OnHit `StatusEffect`; LifeSteal i ResourceDrain; `TimesDamage`; `BonusDamageMultiplierChance` z osobnym rzutem dla kazdego hitu.
+  - Dodano `UniqueBuffTypes`: gwarantowany crit nastepnego damage, gwarantowany unik nastepnej obrony, zawsze maksymalny damage oraz rozszerzalny model kolejnych unikalnych buffow.
+  - Obsluga przejmowania czesci obrazen przeciwnika, opcjonalnie z mitygacja po przejeciu; kosztu zdrowia z przeliczeniem na odzysk zasobu; tarczy od procentu average attack; `ModifyResistance`; AuraBuff/AuraStatus.
+  - Warunkowe buffy: zalezne od sasiednich sojusznikow, progu wydanego zasobu, pozostajacej tarczy i innych warunkow runtime. Charge zatrzymuje sie na koncu ruchu.
+
+### Milestone: UI Workspace v1 — Closed
+
+- `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
+  - Wspolny `UIWorkspaceTooltipView` obsluguje nazwy i ikony statusow z glossary, linki w tresci oraz zagniezdzone tooltipy z timerem blokady i grace period.
 
 - `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
   - `PF_UIW_ItemSlot` ma opcjonalny `CountLabel` dla stackowalnych itemow, a zloto z ciala jest pierwszym wpisem glownego gridu lootu. Odbior itemu dziala pojedynczym kliknieciem lub drag-and-drop; zloto pozostaje wartoscia runtime, nie `ItemInstance`. Ciala sa tworzone tylko na walkable cells pokoju encountera i zawsze otrzymuja collider interakcji.

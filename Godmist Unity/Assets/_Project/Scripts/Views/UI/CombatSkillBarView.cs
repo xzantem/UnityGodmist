@@ -47,6 +47,8 @@ namespace Godmist.Views.UI
             {
                 RefreshSlotVisuals(activeUnit);
             }
+
+            TryActivateSkillHotkey(activeUnit);
         }
 
         private void RebuildSlots(
@@ -75,7 +77,8 @@ namespace Godmist.Views.UI
                 slot.Initialize(
                     skill,
                     tooltipView,
-                    () => targetSelectionController?.BeginTargetSelection(skill));
+                    () => targetSelectionController?.BeginTargetSelection(skill),
+                    () => sandboxBootstrap?.Session?.ActiveUnit);
                 spawnedSlots.Add(slot);
             }
 
@@ -120,9 +123,29 @@ namespace Godmist.Views.UI
 
                 var actionCost = CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill);
                 var resource = activeUnit.Character.ResourcePool;
-                var canUse = activeUnit.CurrentActionPoints >= actionCost
-                    && (resource == null || resource.CurrentValue >= skill.ResourceCost);
-                spawnedSlots[slotIndex].RefreshAvailability(canUse, actionCost);
+                var isActiveToggle = skill.IsToggle
+                    && activeUnit.ActiveToggleSkillIds != null
+                    && activeUnit.ActiveToggleSkillIds.Contains(skill.SkillId);
+                var wasChangedThisTurn = skill.IsToggle
+                    && activeUnit.ToggleSkillIdsUsedThisTurn != null
+                    && activeUnit.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId);
+                var canPayActivationCost = activeUnit.CurrentActionPoints >= actionCost
+                    && (skill.ResourceCost <= 0
+                        || (resource != null
+                            && resource.ResourceType == skill.ResourceType
+                            && resource.CurrentValue >= skill.ResourceCost));
+                var canPayKnives = skill.KnifeCost <= 0
+                    || activeUnit.AvailableKnives >= skill.KnifeCost;
+                var canUse = isActiveToggle
+                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives);
+                var knifeCount = skill.KnifeCost > 0
+                    ? $"{activeUnit.AvailableKnives}/{activeUnit.MaxKnives}"
+                    : string.Empty;
+                spawnedSlots[slotIndex].RefreshAvailability(
+                    canUse,
+                    isActiveToggle ? 0 : actionCost,
+                    isActiveToggle,
+                    knifeCount);
                 slotIndex++;
             }
         }
@@ -138,6 +161,32 @@ namespace Godmist.Views.UI
             }
 
             spawnedSlots.Clear();
+        }
+
+        private void TryActivateSkillHotkey(BattleUnit activeUnit)
+        {
+            if (DevConsoleView.IsOpen
+                || UIWorkspaceInputRouter.HasFocusedTextInput()
+                || activeUnit == null
+                || !activeUnit.IsPlayerSide)
+            {
+                return;
+            }
+
+            var slotCount = Mathf.Min(9, spawnedSlots.Count);
+            for (var index = 0; index < slotCount; index++)
+            {
+                var keyboardKey = (KeyCode)((int)KeyCode.Alpha1 + index);
+                var keypadKey = (KeyCode)((int)KeyCode.Keypad1 + index);
+                if (!Input.GetKeyDown(keyboardKey)
+                    && !Input.GetKeyDown(keypadKey))
+                {
+                    continue;
+                }
+
+                spawnedSlots[index]?.TryActivate();
+                return;
+            }
         }
 
         private void ResetCache()

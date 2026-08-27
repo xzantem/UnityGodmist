@@ -92,6 +92,7 @@ namespace Godmist.Systems.Combat
                 if (occupant == null)
                 {
                     caster.Position = nextPosition;
+                    CombatAuraSystem.Refresh(session, statusEffectSystem);
                     movedDistance++;
                     continue;
                 }

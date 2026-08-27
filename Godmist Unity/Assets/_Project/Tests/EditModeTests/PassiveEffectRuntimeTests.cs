@@ -25,6 +25,35 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(effect.Lifetime, Is.EqualTo(PassiveEffectLifetime.Timed));
             Assert.That(effect.RemainingDuration, Is.EqualTo(3));
+            Assert.That(
+                effect.GetPayload<DamageOverTimePayload>()?.RemainingTotalDamage,
+                Is.EqualTo(30));
+        }
+
+        [Test]
+        public void SetPayload_ReplacesOnlyTheMatchingPayloadType()
+        {
+            var effect = new PassiveEffectRuntime();
+            effect.SetPayload(new DamageOverTimePayload
+            {
+                RemainingTotalDamage = 20
+            });
+            effect.SetPayload(new SleepHealingPayload
+            {
+                MaxHealthPercent = 0.1f
+            });
+            effect.SetPayload(new DamageOverTimePayload
+            {
+                RemainingTotalDamage = 40
+            });
+
+            Assert.That(effect.Payloads, Has.Count.EqualTo(2));
+            Assert.That(
+                effect.GetPayload<DamageOverTimePayload>()?.RemainingTotalDamage,
+                Is.EqualTo(40));
+            Assert.That(
+                effect.GetPayload<SleepHealingPayload>()?.MaxHealthPercent,
+                Is.EqualTo(0.1f));
         }
 
         [Test]

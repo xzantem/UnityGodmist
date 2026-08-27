@@ -12,6 +12,8 @@ namespace Godmist.Data.Characters
 
         [field: SerializeField] public float PhysicalDefense { get; private set; } = 10f;
         [field: SerializeField] public float MagicalDefense { get; private set; } = 10f;
+        [field: SerializeField, Range(0f, 1f)] public float PhysicalDefensePenetration { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float MagicalDefensePenetration { get; private set; }
         [field: SerializeField] public float Dodge { get; private set; } = 15f;
         [field: SerializeField] public float CritChance { get; private set; } = 0.25f;
         [field: SerializeField] public float CritDamage { get; private set; } = 1.5f;

@@ -1,6 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
 using UnityEngine;
 
@@ -22,13 +23,14 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in character.PassiveEffects)
             {
+                var payload = effect.GetPayload<VariableModifiersPayload>();
                 if (!PassiveEffectLifecycleSystem.IsActive(effect)
-                    || effect.VariableModifiers == null)
+                    || payload == null)
                 {
                     continue;
                 }
 
-                foreach (var modifier in effect.VariableModifiers)
+                foreach (var modifier in payload.Modifiers)
                 {
                     if (modifier == null
                         || modifier.VariableType != variableType)

@@ -20,6 +20,9 @@ namespace Godmist.Data.Effects
         [SerializeField, Range(0f, 1f)]
         private float healthPercentThreshold = 0.5f;
 
+        [SerializeField, Min(0)]
+        private int integerThreshold;
+
 
         public EffectConditionType ConditionType =>
             conditionType;
@@ -30,6 +33,8 @@ namespace Godmist.Data.Effects
 
         public float HealthPercentThreshold =>
             healthPercentThreshold;
+
+        public int IntegerThreshold => integerThreshold;
 
     }
 }

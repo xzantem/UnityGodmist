@@ -14,7 +14,8 @@ namespace Godmist.Systems.Combat
             SkillTargetModeData mode,
             GridPosition? selectedPosition,
             bool includeDownedTargets = false,
-            BattleUnit requiredEnemyTarget = null)
+            BattleUnit requiredEnemyTarget = null,
+            int rotationQuarterTurns = 0)
         {
             var targets = new List<BattleUnit>();
 
@@ -46,13 +47,47 @@ namespace Godmist.Systems.Combat
                         break;
 
                     if (mode.UseRelativeRange) AddAreaTargets(session, caster, mode.TargetingType, 
-                        referenceTarget.Position, mode.RelativeRange, true, targets, includeDownedTargets);
+                        referenceTarget.Position, mode.RelativeRange, true, targets, includeDownedTargets,
+                        rotationQuarterTurns);
                     else targets.Add(referenceTarget);
 
                     break;
 
                 case TargetType.AreaAroundCaster:
-                    AddAreaTargets(session, caster, mode.TargetingType, caster.Position, mode.AbsoluteRange, false, targets, includeDownedTargets);
+                    if (IsDirectionalShape(
+                            mode.AbsoluteRange?.Shape ?? RangeShape.None))
+                    {
+                        if (selectedPosition.HasValue
+                            && IsValidDirectionSelection(
+                                session,
+                                caster,
+                                mode.AbsoluteRange,
+                                selectedPosition.Value))
+                        {
+                            AddDirectedAreaTargets(
+                                session,
+                                caster,
+                                mode.TargetingType,
+                                caster.Position,
+                                selectedPosition.Value,
+                                mode.AbsoluteRange,
+                                targets,
+                                includeDownedTargets,
+                                rotationQuarterTurns);
+                        }
+                    }
+                    else
+                    {
+                        AddAreaTargets(
+                            session,
+                            caster,
+                            mode.TargetingType,
+                            caster.Position,
+                            mode.AbsoluteRange,
+                            false,
+                            targets,
+                            includeDownedTargets);
+                    }
 
                     break;
 
@@ -67,7 +102,8 @@ namespace Godmist.Systems.Combat
                         if (mode.UseRelativeRange)
                         {
                             AddAreaTargets(session, caster, mode.TargetingType, selectedPosition.Value, 
-                                mode.RelativeRange, true, targets, includeDownedTargets);
+                                mode.RelativeRange, true, targets, includeDownedTargets,
+                                rotationQuarterTurns);
                         }
                         else
                         {
@@ -114,8 +150,25 @@ namespace Godmist.Systems.Combat
 
             if (session?.Grid == null
                 || caster?.Character == null
-                || mode == null
-                || !RequiresTileSelection(mode))
+                || mode == null)
+            {
+                return positions;
+            }
+
+            if (IsDirectionalCasterArea(mode))
+            {
+                foreach (var position in GetDirectionSelectionPositions(
+                             session,
+                             caster,
+                             mode.AbsoluteRange))
+                {
+                    positions.Add(position);
+                }
+
+                return positions;
+            }
+
+            if (!RequiresTileSelection(mode))
             {
                 return positions;
             }
@@ -163,6 +216,14 @@ namespace Godmist.Systems.Combat
 
             if (mode.TargetType == TargetType.AreaAroundCaster)
             {
+                if (IsDirectionalCasterArea(mode))
+                {
+                    return GetDirectionSelectionPositions(
+                        session,
+                        caster,
+                        mode.AbsoluteRange);
+                }
+
                 for (var x = 0; x < session.Grid.Width; x++)
                 {
                     for (var y = 0; y < session.Grid.Height; y++)
@@ -210,7 +271,8 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit caster,
             SkillTargetModeData mode,
-            GridPosition center)
+            GridPosition center,
+            int rotationQuarterTurns = 0)
         {
             if (mode == null || !mode.UseRelativeRange)
             {
@@ -221,20 +283,33 @@ namespace Godmist.Systems.Combat
                 session,
                 caster,
                 mode.RelativeRange,
-                center);
+                center,
+                rotationQuarterTurns);
         }
 
         public IReadOnlyList<GridPosition> GetRelativeRangePositions(
             CombatSession session,
             BattleUnit caster,
             SkillRangeData range,
-            GridPosition center)
+            GridPosition center,
+            int rotationQuarterTurns = 0)
         {
             var positions = new List<GridPosition>();
 
             if (session?.Grid == null || caster?.Character == null || range == null)
             {
                 return positions;
+            }
+
+            if (IsDirectionalShape(range.Shape))
+            {
+                return GetDirectionalRangePositions(
+                    session,
+                    caster,
+                    range,
+                    center,
+                    center,
+                    rotationQuarterTurns);
             }
 
             for (var x = 0; x < session.Grid.Width; x++)
@@ -247,7 +322,8 @@ namespace Godmist.Systems.Combat
                             caster.Position,
                             center,
                             position,
-                            range))
+                            range,
+                            rotationQuarterTurns))
                     {
                         positions.Add(position);
                     }
@@ -279,6 +355,92 @@ namespace Godmist.Systems.Combat
                     {
                         positions.Add(position);
                     }
+                }
+            }
+
+            return positions;
+        }
+
+        public IReadOnlyList<GridPosition> GetDirectionalRangePositions(
+            CombatSession session,
+            BattleUnit caster,
+            SkillRangeData range,
+            GridPosition directionReference,
+            GridPosition? originOverride = null,
+            int rotationQuarterTurns = 0)
+        {
+            var positions = new List<GridPosition>();
+            if (session?.Grid == null
+                || caster?.Character == null
+                || range == null
+                || !IsDirectionalShape(range.Shape)
+                || (range.Shape != RangeShape.Rectangle
+                    && !IsValidDirectionSelection(
+                        session,
+                        caster,
+                        range,
+                        directionReference)))
+            {
+                return positions;
+            }
+
+            var directionX = range.Shape == RangeShape.Rectangle
+                ? 1
+                : Math.Sign(directionReference.X - caster.Position.X);
+            var directionY = range.Shape == RangeShape.Rectangle
+                ? 0
+                : Math.Sign(directionReference.Y - caster.Position.Y);
+            if (directionX == 0 && directionY == 0)
+            {
+                return positions;
+            }
+
+            if (range.Shape == RangeShape.Diagonal
+                && directionX != 0
+                && directionY != 0)
+            {
+                var distanceX = Math.Abs(
+                    directionReference.X - caster.Position.X);
+                var distanceY = Math.Abs(
+                    directionReference.Y - caster.Position.Y);
+                if (distanceX >= distanceY)
+                {
+                    directionY = 0;
+                }
+                else
+                {
+                    directionX = 0;
+                }
+            }
+            RotateDirection(ref directionX, ref directionY, rotationQuarterTurns);
+            var origin = originOverride ?? caster.Position;
+            var candidates = new HashSet<GridPosition>();
+
+            switch (range.Shape)
+            {
+                case RangeShape.Line:
+                    AddRay(candidates, origin, directionX, directionY, range);
+                    break;
+
+                case RangeShape.TwoSidedLine:
+                    AddRay(candidates, origin, directionX, directionY, range);
+                    AddRay(candidates, origin, -directionX, -directionY, range);
+                    break;
+
+                case RangeShape.Diagonal:
+                    AddDiagonalRays(candidates, origin, directionX, directionY, range);
+                    break;
+
+                case RangeShape.Rectangle:
+                    AddRectangle(candidates, origin, directionX, directionY, range);
+                    break;
+            }
+
+            foreach (var position in candidates)
+            {
+                if (session.Grid.IsWithinBounds(position))
+                {
+                    positions.Add(position);
                 }
             }
 
@@ -323,6 +485,11 @@ namespace Godmist.Systems.Combat
                             <= range.MaxRange * range.MaxRange;
                 }
 
+                case RangeShape.XShape:
+                    return distanceX == distanceY
+                        && distanceX >= range.MinRange
+                        && distanceX <= range.MaxRange;
+
                 default:
                     return false;
             }
@@ -331,7 +498,8 @@ namespace Godmist.Systems.Combat
             GridPosition casterPosition,
             GridPosition referencePosition,
             GridPosition position,
-            SkillRangeData range)
+            SkillRangeData range,
+            int rotationQuarterTurns = 0)
         {
             if (range == null)
             {
@@ -366,14 +534,16 @@ namespace Godmist.Systems.Combat
                     && distanceY <= radius;
             }
 
-            var directionX = Math.Sign(
-                referencePosition.X - casterPosition.X);
+            // A square's orientation is controlled exclusively by the rotation
+            // state. It must not change merely because the selected tile is on a
+            // different side of the caster.
+            var directionX = 1;
+            var directionY = 1;
 
-            var directionY = Math.Sign(
-                referencePosition.Y - casterPosition.Y);
-
-            if (directionX == 0) directionX = 1;
-            if (directionY == 0) directionY = 1;
+            RotateDirection(
+                ref directionX,
+                ref directionY,
+                rotationQuarterTurns);
 
             var offsetX = (position.X - referencePosition.X)
                 * directionX;
@@ -397,6 +567,171 @@ namespace Godmist.Systems.Combat
                     caster.Position,
                     position,
                     mode.AbsoluteRange);
+        }
+
+        public static bool IsDirectionalShape(RangeShape shape)
+        {
+            return shape == RangeShape.Line
+                || shape == RangeShape.Diagonal
+                || shape == RangeShape.TwoSidedLine
+                || shape == RangeShape.Rectangle;
+        }
+
+        public static bool IsRotatableRelativeShape(RangeShape shape)
+        {
+            return shape == RangeShape.Square
+                || IsDirectionalShape(shape);
+        }
+
+        private static bool IsDirectionalCasterArea(SkillTargetModeData mode)
+        {
+            return mode?.TargetType == TargetType.AreaAroundCaster
+                && IsDirectionalShape(mode.AbsoluteRange?.Shape ?? RangeShape.None);
+        }
+
+        private static IReadOnlyList<GridPosition> GetDirectionSelectionPositions(
+            CombatSession session,
+            BattleUnit caster,
+            SkillRangeData range)
+        {
+            var positions = new List<GridPosition>();
+            if (session?.Grid == null || caster == null || range == null)
+            {
+                return positions;
+            }
+
+            for (var x = 0; x < session.Grid.Width; x++)
+            {
+                for (var y = 0; y < session.Grid.Height; y++)
+                {
+                    var position = new GridPosition(x, y);
+                    if (position == caster.Position)
+                    {
+                        continue;
+                    }
+
+                    positions.Add(position);
+                }
+            }
+
+            return positions;
+        }
+
+        private static bool IsValidDirectionSelection(
+            CombatSession session,
+            BattleUnit caster,
+            SkillRangeData range,
+            GridPosition position)
+        {
+            if (session?.Grid == null || caster == null || range == null
+                || !session.Grid.IsWithinBounds(position))
+            {
+                return false;
+            }
+
+            var deltaX = Math.Sign(position.X - caster.Position.X);
+            var deltaY = Math.Sign(position.Y - caster.Position.Y);
+            if (deltaX == 0 && deltaY == 0) return false;
+            return true;
+        }
+
+        private static void AddRay(
+            ISet<GridPosition> positions,
+            GridPosition origin,
+            int directionX,
+            int directionY,
+            SkillRangeData range)
+        {
+            for (var distance = range.MinRange; distance <= range.MaxRange; distance++)
+            {
+                positions.Add(new GridPosition(
+                    origin.X + directionX * distance,
+                    origin.Y + directionY * distance));
+            }
+        }
+
+        private static void AddDiagonalRays(
+            ISet<GridPosition> positions,
+            GridPosition origin,
+            int directionX,
+            int directionY,
+            SkillRangeData range)
+        {
+            if (directionX != 0)
+            {
+                AddRay(positions, origin, directionX, 1, range);
+                AddRay(positions, origin, directionX, -1, range);
+                return;
+            }
+
+            AddRay(positions, origin, 1, directionY, range);
+            AddRay(positions, origin, -1, directionY, range);
+        }
+
+        private static void AddRectangle(
+            ISet<GridPosition> positions,
+            GridPosition origin,
+            int directionX,
+            int directionY,
+            SkillRangeData range)
+        {
+            var perpendicularX = -directionY;
+            var perpendicularY = directionX;
+            var lateralMin = range.RectangleWidth % 2 == 0
+                ? 0
+                : -(range.RectangleWidth / 2);
+            var lateralMax = lateralMin + range.RectangleWidth - 1;
+
+            var finalDistance = range.MinRange + range.MaxRange - 1;
+            for (var distance = range.MinRange; distance <= finalDistance; distance++)
+            {
+                for (var lateral = lateralMin; lateral <= lateralMax; lateral++)
+                {
+                    positions.Add(new GridPosition(
+                        origin.X + directionX * distance + perpendicularX * lateral,
+                        origin.Y + directionY * distance + perpendicularY * lateral));
+                }
+            }
+        }
+
+        private static void RotateDirection(
+            ref int directionX,
+            ref int directionY,
+            int rotationQuarterTurns)
+        {
+            for (var index = 0; index < (rotationQuarterTurns % 4 + 4) % 4; index++)
+            {
+                (directionX, directionY) = (-directionY, directionX);
+            }
+        }
+
+        private void AddDirectedAreaTargets(
+            CombatSession session,
+            BattleUnit caster,
+            TargetingType targetingType,
+            GridPosition origin,
+            GridPosition directionReference,
+            SkillRangeData range,
+            List<BattleUnit> targets,
+            bool includeDownedTargets,
+            int rotationQuarterTurns = 0)
+        {
+            var affectedPositions = new HashSet<GridPosition>(
+                GetDirectionalRangePositions(
+                    session,
+                    caster,
+                    range,
+                    directionReference,
+                    origin,
+                    rotationQuarterTurns));
+            foreach (var unit in session.Units)
+            {
+                if (IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, true)
+                    && affectedPositions.Contains(unit.Position))
+                {
+                    targets.Add(unit);
+                }
+            }
         }
 
         private static void AddUnitAtPosition(
@@ -434,21 +769,43 @@ namespace Godmist.Systems.Combat
             return null;
         }
 
-        private static void AddAreaTargets(
+        private void AddAreaTargets(
             CombatSession session,
             BattleUnit caster,
             TargetingType targetingType,
             GridPosition center,
             SkillRangeData range,
             bool isRelativeRange,
-            List<BattleUnit> targets, bool includeDownedTargets)
+            List<BattleUnit> targets, bool includeDownedTargets,
+            int rotationQuarterTurns = 0)
         {
+            if (isRelativeRange && IsDirectionalShape(range?.Shape ?? RangeShape.None))
+            {
+                AddDirectedAreaTargets(
+                    session,
+                    caster,
+                    targetingType,
+                    center,
+                    center,
+                    range,
+                    targets,
+                    includeDownedTargets,
+                    rotationQuarterTurns);
+                return;
+            }
+
             foreach (var unit in session.Units)
             {
                 if (!IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, true))
                     continue;
 
-                var isInRange = isRelativeRange ? IsPositionWithinRelativeRange(caster.Position, center,unit.Position, range)
+                var isInRange = isRelativeRange
+                    ? IsPositionWithinRelativeRange(
+                        caster.Position,
+                        center,
+                        unit.Position,
+                        range,
+                        rotationQuarterTurns)
                     : IsPositionWithinRange(center, unit.Position, range);
 
                 if (isInRange)

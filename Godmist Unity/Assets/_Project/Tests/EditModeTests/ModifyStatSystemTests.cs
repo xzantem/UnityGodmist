@@ -158,6 +158,95 @@ namespace Godmist.Tests.EditMode
             Object.DestroyImmediate(skill);
         }
 
+        [Test]
+        public void Apply_TimedResistanceModifier_IsUsedAndExpires()
+        {
+            var target = CreateUnit();
+            target.Character.Resistances = new ResistanceSet
+            {
+                BleedResistance = .5f
+            };
+            var skill = CreateSkill("skill.resistance");
+            var effect = new SkillEffectData();
+            SetPrivateField(effect, "effectType", EffectType.ModifyResistance);
+            SetPrivateField(effect, "resistanceType", ResistanceType.Bleed);
+            SetPrivateField(effect, "modifierValue", -.25f);
+            SetPrivateField(effect, "durationTurns", 2);
+            var resistanceSystem = new ModifyResistanceSystem(
+                passiveEffectLifecycleSystem: lifecycleSystem);
+
+            Assert.That(
+                resistanceSystem.Apply(null, target, skill, effect, 0),
+                Is.True);
+            Assert.That(
+                ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                Is.EqualTo(-.25f));
+            Assert.That(target.Character.PassiveEffects, Has.Count.EqualTo(1));
+            Assert.That(
+                target.Character.PassiveEffects[0]
+                    .GetPayload<ResistanceModifierPayload>(),
+                Is.Not.Null);
+
+            lifecycleSystem.ProcessTurnEnd(target);
+            Assert.That(
+                ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                Is.EqualTo(-.25f));
+
+            lifecycleSystem.ProcessTurnEnd(target);
+            Assert.That(target.Character.PassiveEffects, Is.Empty);
+            Assert.That(
+                ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                Is.EqualTo(0f));
+
+            Object.DestroyImmediate(skill);
+        }
+
+        [Test]
+        public void SkillExecution_AppliesModifyResistanceToTarget()
+        {
+            var caster = CreateUnit();
+            var target = CreateUnit();
+            target.Character.Resistances.BleedResistance = .5f;
+            caster.Position = new GridPosition(0, 0);
+            target.Position = new GridPosition(1, 0);
+
+            var skill = CreateSkill("skill.execute_resistance");
+            var targetMode = new SkillTargetModeData();
+            SetPrivateField(targetMode, "targetType", TargetType.Single);
+            SetPrivateField(targetMode, "targetingType", TargetingType.Enemies);
+            SetPrivateField(targetMode, "absoluteRange", new SkillRangeData(RangeShape.Square, 1, 1));
+
+            var effect = new SkillEffectData();
+            SetPrivateField(effect, "effectType", EffectType.ModifyResistance);
+            SetPrivateField(effect, "targetModeIndex", 0);
+            SetPrivateField(effect, "resistanceType", ResistanceType.Bleed);
+            SetPrivateField(effect, "modifierValue", -.25f);
+            SetPrivateField(effect, "durationTurns", 2);
+
+            SetPrivateField(skill, "targetModes", new List<SkillTargetModeData> { targetMode });
+            SetPrivateField(skill, "effects", new List<SkillEffectData> { effect });
+
+            var session = new CombatSession
+            {
+                Grid = new BattleGrid(3, 3),
+                ActiveUnit = caster,
+                Units = new List<BattleUnit> { caster, target }
+            };
+
+            Assert.That(
+                new SkillExecutionSystem().TryExecute(session, caster, skill, target),
+                Is.True);
+            Assert.That(
+                ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                Is.EqualTo(-.25f));
+            Assert.That(
+                target.Character.Resistances.BleedResistance
+                    + ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                Is.EqualTo(.25f));
+
+            Object.DestroyImmediate(skill);
+        }
+
         private static BattleUnit CreateUnit()
         {
             var character = new CharacterInstance
@@ -178,6 +267,7 @@ namespace Godmist.Tests.EditMode
                     ResourceRegeneration = new Stat(0f)
                 },
                 Equipment = new EquipmentSet(),
+                Resistances = new ResistanceSet(),
                 PassiveEffects = new List<PassiveEffectRuntime>()
             };
 

@@ -5,6 +5,7 @@ using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using UnityEngine;
@@ -17,16 +18,28 @@ namespace Godmist.Systems.Combat
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
         public const float ChillMaximumSpeed = 20f;
 
+        public static bool IsDamageOverTimeStatus(string statusId)
+        {
+            return string.Equals(statusId, StatusEffectIds.Bleed,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Poison,
+                       StringComparison.OrdinalIgnoreCase)
+                || string.Equals(statusId, StatusEffectIds.Burn,
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
         private readonly Action<string> battleLog;
         private readonly CombatDamageSystem damageSystem;
         private readonly PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public StatusEffectSystem(
             Action<string> battleLog = null,
             Action<BattleUnit> removeUnitFromCombat = null,
             Action<CombatSession> evaluateOutcome = null,
             CombatDamageSystem damageSystem = null,
-            PassiveEffectLifecycleSystem passiveEffectLifecycleSystem = null)
+            PassiveEffectLifecycleSystem passiveEffectLifecycleSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
 
@@ -45,6 +58,7 @@ namespace Godmist.Systems.Combat
                         new DamageOverTimePassiveEffectProcessor(this.damageSystem),
                         new SleepPassiveEffectProcessor(recoverySystem)
                     });
+            this.feedbackBus = feedbackBus;
         }
 
         public bool ApplyStatus(
@@ -81,11 +95,10 @@ namespace Godmist.Systems.Combat
 
             var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
 
-            if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
+            if (!TryApplySkillRuntimeEffect(
                     target.Character,
                     runtimeEffect,
-                    ResolveStackingMode(effect.StatusId),
-                    out _))
+                    ResolveStackingMode(effect.StatusId)))
             {
                 return false;
             }
@@ -94,7 +107,261 @@ namespace Godmist.Systems.Combat
                 $"{target.Character.Definition.DisplayName} " +
                 $"otrzymuje status {effect.StatusId}.");
 
+            PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
+
             return true;
+        }
+
+        public bool ApplyOnHitStatusBuff(
+            BattleUnit source,
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex)
+        {
+            if (target?.Character == null || effect == null
+                || string.IsNullOrWhiteSpace(effect.OnHitStatusId))
+            {
+                return false;
+            }
+
+            var effectId = $"{skill?.SkillId ?? "skill"}.on_hit_buff.{effectIndex}";
+            var runtimeEffect = CreateTimedCombatBuff(
+                source,
+                skill,
+                effectIndex,
+                effectId,
+                effect.DurationTurns);
+            runtimeEffect.SetPayload(new OnHitStatusPayload
+            {
+                StatusId = effect.OnHitStatusId,
+                Chance = effect.OnHitStatusChance,
+                DurationTurns = effect.OnHitStatusDurationTurns,
+                StatusDamageMultiplier = effect.StatusDamageMultiplier,
+                StatusDamagePerTurn = CalculateStatusDamagePerTurn(
+                    source,
+                    effect.OnHitStatusId,
+                    effect.StatusDamageMultiplier)
+            });
+
+            return TryApplySkillRuntimeEffect(
+                target.Character,
+                runtimeEffect,
+                PassiveEffectStackingMode.ReplaceDurationAndValues)
+                && PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.BuffApplied,
+                    ResolveSkillName(skill, effectId));
+        }
+
+        public bool ApplyUniqueCombatBuff(
+            BattleUnit source,
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex)
+        {
+            if (target?.Character == null || effect == null) return false;
+
+            var runtimeEffect = CreateTimedCombatBuff(
+                source, skill, effectIndex,
+                $"{skill?.SkillId ?? "skill"}.unique_buff.{effectIndex}",
+                effect.DurationTurns);
+            runtimeEffect.SetPayload(new UniqueCombatBuffPayload
+            {
+                BuffType = effect.UniqueBuffType
+            });
+            runtimeEffect.Stacks = effect.UniqueBuffStacks;
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
+                && PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.BuffApplied,
+                    ResolveSkillName(skill, runtimeEffect.EffectId));
+        }
+
+        public bool ApplyActionPointBuff(BattleUnit source, BattleUnit target,
+            SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            if (target?.Character == null || effect == null
+                || effect.ActionPointModifier == 0) return false;
+
+            var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
+                $"{skill?.SkillId ?? "skill"}.action_points.{effectIndex}",
+                effect.DurationTurns);
+            runtimeEffect.SetPayload(new UniqueCombatBuffPayload
+            {
+                BuffType = UniqueBuffType.ActionPointsNextTurn,
+                ActionPointModifier = effect.ActionPointModifier
+            });
+            return TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
+                && PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.BuffApplied,
+                    ResolveSkillName(skill, runtimeEffect.EffectId));
+        }
+
+        public bool ApplyResourceRegenerationBlock(BattleUnit source,
+            BattleUnit target, SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            if (target?.Character == null || effect == null
+                || (skill?.IsToggle != true
+                    && effect.ResourceRegenerationBlockTurns <= 0)) return false;
+
+            var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
+                $"{skill?.SkillId ?? "skill"}.resource_block.{effectIndex}",
+                effect.ResourceRegenerationBlockTurns);
+            runtimeEffect.SetPayload(new ResourceRegenerationBlockPayload());
+            var applied = TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
+            if (applied)
+            {
+                PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.ResourceRegenerationBlocked,
+                    ResolveSkillName(skill, runtimeEffect.EffectId));
+            }
+
+            return applied;
+        }
+
+        public bool ApplyDamageRedirectBuff(BattleUnit source, BattleUnit target,
+            SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            if (source?.Character == null || target?.Character == null
+                || source == target || effect.RedirectedDamagePercent <= 0f)
+            {
+                return false;
+            }
+
+            var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
+                $"{skill?.SkillId ?? "skill"}.damage_redirect.{effectIndex}",
+                effect.DurationTurns);
+            runtimeEffect.SetPayload(new DamageRedirectPayload
+            {
+                RedirectPercent = effect.RedirectedDamagePercent,
+                ProtectorCharacterId = source.Character.CharacterId,
+                ProtectorDisplayName = source.Character.Definition?.DisplayName
+                    ?? source.Character.CharacterId,
+                ProtectedCharacterId = target.Character.CharacterId,
+                ProtectedCharacterDisplayName = target.Character.Definition?.DisplayName
+                    ?? target.Character.CharacterId
+            });
+            var applied = TryApplySkillRuntimeEffect(target.Character,
+                runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
+                && PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.BuffApplied,
+                    ResolveSkillName(skill, runtimeEffect.EffectId));
+            if (!applied) return false;
+
+            source.OutgoingDamageRedirects ??= new List<CombatDamageRedirectRuntime>();
+            source.OutgoingDamageRedirects.RemoveAll(link =>
+                link == null
+                || (link.Target == target
+                    && string.Equals(link.SourceEffectId, runtimeEffect.EffectId,
+                        StringComparison.OrdinalIgnoreCase)));
+            source.OutgoingDamageRedirects.Add(new CombatDamageRedirectRuntime
+            {
+                Target = target,
+                SourceEffectId = runtimeEffect.EffectId,
+                TargetCharacterId = target.Character.CharacterId,
+                TargetDisplayName = target.Character.Definition?.DisplayName
+                    ?? target.Character.CharacterId,
+                RedirectPercent = effect.RedirectedDamagePercent
+            });
+            return true;
+        }
+
+        public int ApplyActiveOnHitStatuses(BattleUnit source, BattleUnit target)
+        {
+            if (source?.Character?.PassiveEffects == null || target == null)
+            {
+                return 0;
+            }
+
+            var appliedCount = 0;
+            foreach (var effect in source.Character.PassiveEffects)
+            {
+                var payload = effect.GetPayload<OnHitStatusPayload>();
+                if (!PassiveEffectLifecycleSystem.IsActive(effect)
+                    || payload == null
+                    || string.IsNullOrWhiteSpace(payload.StatusId))
+                {
+                    continue;
+                }
+
+                // Older runtime effects may have persisted the multiplier but not
+                // the already calculated per-turn value. Recalculate it at proc
+                // time while the source unit is available, and retain it for the
+                // recipient's inspect tooltip.
+                if (payload.StatusDamagePerTurn <= 0
+                    && payload.StatusDamageMultiplier > 0f)
+                {
+                    payload.StatusDamagePerTurn = CalculateStatusDamagePerTurn(
+                        source,
+                        payload.StatusId,
+                        payload.StatusDamageMultiplier);
+                }
+
+                if (ApplyStatus(source, target, payload.StatusId,
+                        payload.Chance,
+                        Mathf.Max(1, payload.DurationTurns),
+                        1, payload.StatusDamageMultiplier, 0f, effect.EffectId,
+                        CombatFeedbackType.ProcTriggered,
+                        payload.StatusId,
+                        publishFeedback: true,
+                        statusDamagePerTurnOverride: payload.StatusDamagePerTurn))
+                {
+                    appliedCount++;
+                }
+            }
+
+            return appliedCount;
+        }
+
+        private static PassiveEffectRuntime CreateTimedCombatBuff(
+            BattleUnit source, SkillData skill, int effectIndex,
+            string effectId, int durationTurns)
+        {
+            var isToggle = skill?.IsToggle == true;
+            return new PassiveEffectRuntime(
+                effectId,
+                new List<PassiveEffectSourceRuntime>
+                {
+                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
+                },
+                stacks: 1,
+                remainingDuration: isToggle ? 0 : Mathf.Max(1, durationTurns),
+                totalDamage: 0,
+                lifetime: isToggle
+                    ? PassiveEffectLifetime.CombatScoped
+                    : PassiveEffectLifetime.Timed,
+                tickPhase: isToggle
+                    ? PassiveEffectTickPhase.None
+                    : PassiveEffectTickPhase.TurnEnd)
+            {
+                DisplayName = ResolveSkillName(skill, effectId)
+            };
+        }
+
+        private bool TryApplySkillRuntimeEffect(
+            CharacterInstance target,
+            PassiveEffectRuntime runtimeEffect,
+            PassiveEffectStackingMode stackingMode)
+        {
+            return runtimeEffect.Lifetime == PassiveEffectLifetime.CombatScoped
+                ? passiveEffectLifecycleSystem.TryApplyCombatScopedEffect(
+                    target,
+                    runtimeEffect,
+                    stackingMode,
+                    out _)
+                : passiveEffectLifecycleSystem.TryApplyTimedEffect(
+                    target,
+                    runtimeEffect,
+                    stackingMode,
+                    out _);
         }
 
         public bool ApplyStatus(
@@ -106,7 +373,11 @@ namespace Godmist.Systems.Combat
             int stacks,
             float statusDamageMultiplier,
             float statusHealPercent,
-            string sourceId)
+            string sourceId,
+            CombatFeedbackType feedbackType = CombatFeedbackType.StatusApplied,
+            string feedbackLabel = null,
+            bool publishFeedback = true,
+            int statusDamagePerTurnOverride = 0)
         {
             if (target?.Character == null
                 || target.Character.LifeState != CharacterLifeState.Alive
@@ -125,12 +396,16 @@ namespace Godmist.Systems.Combat
             }
 
             var duration = Mathf.Max(1, durationTurns);
-            var damagePerTurn = statusDamageMultiplier <= 0f
+            var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
-                : CombatDamageValueCalculator.CalculateDamageValue(
-                    source,
-                    DamageValueSource.AverageAttack,
-                    statusDamageMultiplier);
+                : statusDamagePerTurnOverride > 0
+                    ? statusDamagePerTurnOverride
+                    : statusDamageMultiplier <= 0f
+                        ? 0
+                        : CombatDamageValueCalculator.CalculateDamageValue(
+                            source,
+                            DamageValueSource.AverageAttack,
+                            statusDamageMultiplier);
 
             var runtimeEffect = new PassiveEffectRuntime(
                 statusId,
@@ -147,6 +422,12 @@ namespace Godmist.Systems.Combat
                 ResolveTickPhase(statusId),
                 statusHealPercent);
 
+            if (!string.IsNullOrWhiteSpace(feedbackLabel)
+                && feedbackType == CombatFeedbackType.AuraApplied)
+            {
+                runtimeEffect.DisplayName = feedbackLabel;
+            }
+
             if (!passiveEffectLifecycleSystem.TryApplyTimedEffect(
                     target.Character,
                     runtimeEffect,
@@ -159,7 +440,34 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
 
+            if (publishFeedback)
+            {
+                PublishEffectFeedback(
+                    target,
+                    feedbackType,
+                    feedbackLabel ?? statusId);
+            }
+
             return true;
+        }
+
+        private bool PublishEffectFeedback(
+            BattleUnit target,
+            CombatFeedbackType type,
+            string label)
+        {
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                target,
+                type,
+                effectName: label));
+            return true;
+        }
+
+        private static string ResolveSkillName(SkillData skill, string fallback)
+        {
+            return !string.IsNullOrWhiteSpace(skill?.DisplayName)
+                ? skill.DisplayName
+                : fallback ?? string.Empty;
         }
 
         public bool ApplyGuaranteedStun(
@@ -194,6 +502,11 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} otrzymuje ogłuszenie.");
 
+            PublishEffectFeedback(
+                target,
+                CombatFeedbackType.StatusApplied,
+                StatusEffectIds.Stun);
+
             return true;
         }
 
@@ -216,6 +529,56 @@ namespace Godmist.Systems.Combat
             }
 
             return wasRemoved;
+        }
+
+        public static int RemoveStatusAppliedBySource(
+            BattleUnit target,
+            string statusId,
+            string sourceId)
+        {
+            if (target?.Character?.PassiveEffects == null
+                || string.IsNullOrWhiteSpace(statusId)
+                || string.IsNullOrWhiteSpace(sourceId))
+            {
+                return 0;
+            }
+
+            var removed = 0;
+            for (var index = target.Character.PassiveEffects.Count - 1;
+                index >= 0; index--)
+            {
+                var effect = target.Character.PassiveEffects[index];
+                if (!string.Equals(effect?.EffectId, statusId,
+                        StringComparison.OrdinalIgnoreCase)
+                    || effect.Sources == null
+                    || !effect.Sources.Exists(source => string.Equals(
+                        source?.SourceId, sourceId,
+                        StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                target.Character.PassiveEffects.RemoveAt(index);
+                removed++;
+            }
+
+            return removed;
+        }
+
+        public static bool HasStatusAppliedBySource(
+            BattleUnit target,
+            string statusId,
+            string sourceId)
+        {
+            return target?.Character?.PassiveEffects != null
+                && target.Character.PassiveEffects.Exists(effect =>
+                    string.Equals(effect?.EffectId, statusId,
+                        StringComparison.OrdinalIgnoreCase)
+                    && effect.Sources != null
+                    && effect.Sources.Exists(source => string.Equals(
+                        source?.SourceId,
+                        sourceId,
+                        StringComparison.OrdinalIgnoreCase)));
         }
 
         public static bool IsStunned(BattleUnit unit)
@@ -449,7 +812,8 @@ namespace Godmist.Systems.Combat
             BattleUnit source, SkillData skill,
             SkillEffectData effect, int effectIndex)
         {
-            var duration = Mathf.Max(1, effect.DurationTurns);
+            var isToggle = skill?.IsToggle == true;
+            var duration = isToggle ? 0 : Mathf.Max(1, effect.DurationTurns);
             var damagePerTurn = CalculateStatusDamagePerTurn(source, effect);
             var totalDamage = CalculateTotalDamage(damagePerTurn, duration);
 
@@ -468,19 +832,25 @@ namespace Godmist.Systems.Combat
                 Mathf.Max(1, effect.Stacks),
                 duration,
                 totalDamage,
-                PassiveEffectLifetime.Timed,
-                ResolveTickPhase(effect.StatusId),
+                isToggle
+                    ? PassiveEffectLifetime.CombatScoped
+                    : PassiveEffectLifetime.Timed,
+                isToggle
+                    ? PassiveEffectTickPhase.None
+                    : ResolveTickPhase(effect.StatusId),
                 effect.StatusHealPercent);
 
             if (string.Equals(effect.StatusId, StatusEffectIds.Counterattack,
                     StringComparison.OrdinalIgnoreCase))
             {
-                runtimeEffect.CounterattackSkill = skill;
-                runtimeEffect.CounterattackRange = effect.CounterattackRange;
-                runtimeEffect.CounterattackEffects =
-                    effect.CounterattackEffects != null
+                runtimeEffect.SetPayload(new CounterattackPayload
+                {
+                    Skill = skill,
+                    Range = effect.CounterattackRange,
+                    Effects = effect.CounterattackEffects != null
                         ? new List<SkillEffectData>(effect.CounterattackEffects)
-                        : new List<SkillEffectData>();
+                        : new List<SkillEffectData>()
+                });
             }
 
             if (string.Equals(
@@ -488,13 +858,16 @@ namespace Godmist.Systems.Combat
                     StatusEffectIds.Chill,
                     StringComparison.OrdinalIgnoreCase))
             {
-                runtimeEffect.StatModifiers.Add(new StatModifier
+                runtimeEffect.StatModifiers = new List<StatModifier>
                 {
-                    StatType = CharacterStatType.Speed,
-                    Operation = StatModifierOperation.Maximum,
-                    Stacking = StatModifierStacking.Additive,
-                Value = ChillMaximumSpeed
-            });
+                    new()
+                    {
+                        StatType = CharacterStatType.Speed,
+                        Operation = StatModifierOperation.Maximum,
+                        Stacking = StatModifierStacking.Additive,
+                        Value = ChillMaximumSpeed
+                    }
+                };
             }
 
             return runtimeEffect;
@@ -511,7 +884,11 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var resistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
+            var baseResistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
+            var modifier = ModifyResistanceSystem.GetModifier(
+                target,
+                ResistanceType.Move);
+            var resistance = Mathf.Clamp01(baseResistance + modifier);
             var finalChance = CalculateEffectChance(clampedChance, resistance);
 
             return UnityEngine.Random.value <= finalChance;
@@ -601,27 +978,43 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             string statusId)
         {
-            if (target?.Character?.Resistances == null)
+            if (target?.Character == null)
             {
                 return 0f;
             }
 
             var resistances = target.Character.Resistances;
-
-            return statusId.ToLowerInvariant() switch
+            var resistanceType = statusId.ToLowerInvariant() switch
             {
-                StatusEffectIds.Bleed => resistances.BleedResistance,
-                StatusEffectIds.Poison => resistances.PoisonResistance,
-                StatusEffectIds.Burn => resistances.FireResistance,
-                StunId => resistances.SuppressionResistance,
-                ImmobilizeId => resistances.SuppressionResistance,
-                StatusEffectIds.Taunt => resistances.SuppressionResistance,
-                StatusEffectIds.Freeze => resistances.SuppressionResistance,
-                StatusEffectIds.Chill => resistances.SuppressionResistance,
-                StatusEffectIds.Sleep => resistances.SuppressionResistance,
-                StatusEffectIds.Paralysis => resistances.SuppressionResistance,
+                StatusEffectIds.Bleed => ResistanceType.Bleed,
+                StatusEffectIds.Poison => ResistanceType.Poison,
+                StatusEffectIds.Burn => ResistanceType.Fire,
+                StunId => ResistanceType.Suppression,
+                ImmobilizeId => ResistanceType.Suppression,
+                StatusEffectIds.Taunt => ResistanceType.Suppression,
+                StatusEffectIds.Freeze => ResistanceType.Suppression,
+                StatusEffectIds.Chill => ResistanceType.Suppression,
+                StatusEffectIds.Sleep => ResistanceType.Suppression,
+                StatusEffectIds.Paralysis => ResistanceType.Suppression,
+                _ => (ResistanceType?)null
+            };
+
+            if (!resistanceType.HasValue) return 0f;
+
+            var baseResistance = resistanceType.Value switch
+            {
+                ResistanceType.Bleed => resistances?.BleedResistance ?? 0f,
+                ResistanceType.Poison => resistances?.PoisonResistance ?? 0f,
+                ResistanceType.Fire => resistances?.FireResistance ?? 0f,
+                ResistanceType.Weakening => resistances?.WeakeningResistance ?? 0f,
+                ResistanceType.Suppression => resistances?.SuppressionResistance ?? 0f,
+                ResistanceType.Move => resistances?.MoveResistance ?? 0f,
                 _ => 0f
             };
+            var modifier = ModifyResistanceSystem.GetModifier(
+                target,
+                resistanceType.Value);
+            return Mathf.Clamp01(baseResistance + modifier);
         }
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)
@@ -636,16 +1029,6 @@ namespace Godmist.Systems.Combat
             }
 
             return PassiveEffectTickPhase.TurnEnd;
-        }
-
-        private static bool IsDamageOverTimeStatus(string statusId)
-        {
-            return string.Equals(statusId, StatusEffectIds.Bleed,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(statusId, StatusEffectIds.Poison,
-                    StringComparison.OrdinalIgnoreCase)
-                || string.Equals(statusId, StatusEffectIds.Burn,
-                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static PassiveEffectStackingMode ResolveStackingMode(
@@ -700,7 +1083,21 @@ namespace Godmist.Systems.Combat
             BattleUnit source,
             SkillEffectData effect)
         {
-            if (effect == null || effect.StatusDamageMultiplier <= 0f)
+            return effect == null
+                ? 0
+                : CalculateStatusDamagePerTurn(
+                    source,
+                    effect.StatusId,
+                    effect.StatusDamageMultiplier);
+        }
+
+        private static int CalculateStatusDamagePerTurn(
+            BattleUnit source,
+            string statusId,
+            float statusDamageMultiplier)
+        {
+            if (!IsDamageOverTimeStatus(statusId)
+                || statusDamageMultiplier <= 0f)
             {
                 return 0;
             }
@@ -708,7 +1105,7 @@ namespace Godmist.Systems.Combat
             return CombatDamageValueCalculator.CalculateDamageValue(
                 source,
                 DamageValueSource.AverageAttack,
-                effect.StatusDamageMultiplier);
+                statusDamageMultiplier);
         }
     }
 }

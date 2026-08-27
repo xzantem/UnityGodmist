@@ -4,6 +4,7 @@ using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 
 namespace Godmist.Systems.Combat
 {
@@ -278,6 +279,7 @@ namespace Godmist.Systems.Combat
 
                 unit.HasReacted = false;
                 unit.MovementStepsThisTurn = 0;
+                unit.ToggleSkillIdsUsedThisTurn?.Clear();
                 onUnitTurnBegan?.Invoke(unit);
                 return;
             }
@@ -311,6 +313,18 @@ namespace Godmist.Systems.Combat
                     speed * actionPointsPerSpeed));
         }
 
+        public static float CalculateBaseActionValue(BattleUnit unit)
+        {
+            if (unit?.Character?.Stats?.Speed == null)
+            {
+                return 0f;
+            }
+
+            var speed = UnityEngine.Mathf.Max(0.01f,
+                unit.Character.Stats.Speed.GetValue());
+            return BaseActionValue / speed;
+        }
+
         public static void RefreshMaxActionPoints(
             CombatSession session,
             BattleUnit unit,
@@ -328,11 +342,15 @@ namespace Godmist.Systems.Combat
                     speed * session.ActionPointsPerSpeed));
 
             unit.MaxActionPoints = maxActionPoints;
+            var nextTurnBonus = refillCurrentActionPoints
+                ? GetActiveActionPointModifier(unit)
+                : 0;
             unit.CurrentActionPoints = refillCurrentActionPoints
-                ? maxActionPoints
+                ? UnityEngine.Mathf.Max(0, maxActionPoints + nextTurnBonus)
                 : UnityEngine.Mathf.Min(
                     unit.CurrentActionPoints,
                     maxActionPoints);
+
         }
 
         public static void RefreshMaxActionPoints(
@@ -351,6 +369,29 @@ namespace Godmist.Systems.Combat
                     unit,
                     refillActiveUnit && unit == session.ActiveUnit);
             }
+        }
+
+        public static void ReorderParticipants(CombatSession session)
+        {
+            if (session?.TurnParticipants == null) return;
+            SortTurnParticipants(session);
+        }
+
+        private static int GetActiveActionPointModifier(BattleUnit unit)
+        {
+            if (unit?.Character?.PassiveEffects == null) return 0;
+
+            var total = 0;
+            foreach (var effect in unit.Character.PassiveEffects)
+            {
+                if (PassiveEffectLifecycleSystem.IsActive(effect))
+                {
+                    total += effect
+                        .GetPayload<UniqueCombatBuffPayload>()
+                        ?.ActionPointModifier ?? 0;
+                }
+            }
+            return total;
         }
 
         private static CombatTurnParticipant FindNextScheduledParticipant(
@@ -400,9 +441,12 @@ namespace Godmist.Systems.Combat
         private static float CalculateBaseActionValue(
             CombatTurnParticipant participant)
         {
-            var speed = participant.IsUnit
-                ? participant.Unit.Character.Stats.Speed.GetValue()
-                : participant.SummonedObject.Definition.TurnSpeed;
+            if (participant.IsUnit)
+            {
+                return CalculateBaseActionValue(participant.Unit);
+            }
+
+            var speed = participant.SummonedObject.Definition.TurnSpeed;
 
             speed = UnityEngine.Mathf.Max(0.01f, speed);
             return BaseActionValue / speed;

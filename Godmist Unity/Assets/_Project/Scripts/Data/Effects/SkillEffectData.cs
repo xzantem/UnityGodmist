@@ -21,6 +21,14 @@ namespace Godmist.Data.Effects
             DamageValueSource.AttackRange;
         [SerializeField, Min(0f)] private float damageMultiplier = 1f;
         [SerializeField, Min(1)] private int damageHitCount = 1;
+        [SerializeField, Range(0f, 1f)] private float bonusPenetration;
+        [SerializeField, Range(0f, 1f)] private float bonusDamageMultiplierChance;
+        [SerializeField, Min(1f)] private float bonusDamageMultiplier = 1f;
+        [SerializeField] private string onHitStatusId = string.Empty;
+        [SerializeField, Range(0f, 1f)] private float onHitStatusChance = 1f;
+        [SerializeField, Min(1)] private int onHitStatusDurationTurns = 1;
+        [SerializeField, Range(0f, 1f)] private float lifeStealPercent;
+        [SerializeField, Range(0f, 1f)] private float resourceDrainPercent;
         [SerializeField] private DamageType damageType = DamageType.Physical;
 
         [Header("Scheduled Effect")]
@@ -74,6 +82,19 @@ namespace Godmist.Data.Effects
             StatModifierStacking.Additive;
 
         [SerializeField] private float modifierValue;
+        [SerializeField] private UniqueBuffType uniqueBuffType;
+        [SerializeField, Min(1)] private int uniqueBuffStacks = 1;
+        [SerializeField] private ResistanceType resistanceType;
+        [SerializeField, Min(0)] private int actionPointModifier;
+        [SerializeField] private float actionValuePercent;
+        [SerializeField, Min(0)] private int resourceRegenerationBlockTurns;
+        [SerializeField, Range(0f, 1f)] private float healthSacrificePercent;
+        [SerializeField, Min(0f)] private float resourceRestorePerSacrificedHealth;
+        [SerializeField, Range(0f, 1f)] private float redirectedDamagePercent;
+        [SerializeField, Min(0)] private int auraRadius;
+        [SerializeField] private bool auraIncludesCaster;
+        [SerializeField] private TargetingType auraTargetingType = TargetingType.Allies;
+        [SerializeField, Range(0f, 10f)] private float shieldAverageAttackMultiplier;
         [SerializeField] private List<SkillEffectConditionData> conditions = new();
 
         public EffectType EffectType => effectType;
@@ -85,6 +106,14 @@ namespace Godmist.Data.Effects
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
         public int DamageHitCount => Mathf.Max(1, damageHitCount);
+        public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
+        public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
+        public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);
+        public string OnHitStatusId => onHitStatusId;
+        public float OnHitStatusChance => Mathf.Clamp01(onHitStatusChance);
+        public int OnHitStatusDurationTurns => Mathf.Max(1, onHitStatusDurationTurns);
+        public float LifeStealPercent => Mathf.Clamp01(lifeStealPercent);
+        public float ResourceDrainPercent => Mathf.Clamp01(resourceDrainPercent);
         public int DelayCasterTurns => Mathf.Max(0, delayCasterTurns);
         public int DisplacementDistance => displacementDistance;
         public SkillRangeData TeleportDestinationRange => teleportDestinationRange;
@@ -123,6 +152,19 @@ namespace Godmist.Data.Effects
             modifierStacking;
 
         public float ModifierValue => modifierValue;
+        public UniqueBuffType UniqueBuffType => uniqueBuffType;
+        public int UniqueBuffStacks => Mathf.Max(1, uniqueBuffStacks);
+        public ResistanceType ResistanceType => resistanceType;
+        public int ActionPointModifier => actionPointModifier;
+        public float ActionValuePercent => actionValuePercent;
+        public int ResourceRegenerationBlockTurns => Mathf.Max(0, resourceRegenerationBlockTurns);
+        public float HealthSacrificePercent => Mathf.Clamp01(healthSacrificePercent);
+        public float ResourceRestorePerSacrificedHealth => Mathf.Max(0f, resourceRestorePerSacrificedHealth);
+        public float RedirectedDamagePercent => Mathf.Clamp01(redirectedDamagePercent);
+        public int AuraRadius => Mathf.Max(0, auraRadius);
+        public bool AuraIncludesCaster => auraIncludesCaster;
+        public TargetingType AuraTargetingType => auraTargetingType;
+        public float ShieldAverageAttackMultiplier => Mathf.Max(0f, shieldAverageAttackMultiplier);
 
         public IReadOnlyList<SkillEffectConditionData>
             Conditions => conditions;

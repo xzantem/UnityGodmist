@@ -9,6 +9,8 @@ namespace Godmist.Core.Enums
         Line = 4,
         Diagonal = 5,
         XShape = 6,
-        Custom = 7
+        Custom = 7,
+        Rectangle = 8,
+        TwoSidedLine = 9
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
 using NUnit.Framework;
 
@@ -153,6 +154,30 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 unit.Character.ResourcePool.CurrentValue,
                 Is.EqualTo(50));
+        }
+
+        [Test]
+        public void ResourceBlock_PreventsManaMomentumAndRageGains()
+        {
+            var manaUnit = CreateUnit(ResourceType.Mana, 4, 20, regeneration: 5);
+            var momentumUnit = CreateUnit(ResourceType.Momentum, 0, 200);
+            var rageUnit = CreateUnit(ResourceType.Rage, 0, 50);
+            foreach (var unit in new[] { manaUnit, momentumUnit, rageUnit })
+            {
+                unit.Character.PassiveEffects.Add(new PassiveEffectRuntime
+                {
+                    BlocksResourceRegeneration = true
+                });
+            }
+
+            var system = new ResourceRuleSystem();
+            system.ProcessTurnStart(manaUnit);
+            system.ProcessUnitMoved(momentumUnit, spentActionPoints: 3);
+            system.ProcessDamageDealt(rageUnit);
+
+            Assert.That(manaUnit.Character.ResourcePool.CurrentValue, Is.EqualTo(4));
+            Assert.That(momentumUnit.Character.ResourcePool.CurrentValue, Is.EqualTo(0));
+            Assert.That(rageUnit.Character.ResourcePool.CurrentValue, Is.EqualTo(0));
         }
 
         private static BattleUnit CreateUnit(

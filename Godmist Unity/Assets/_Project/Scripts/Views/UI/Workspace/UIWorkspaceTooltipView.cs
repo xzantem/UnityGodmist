@@ -9,6 +9,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
+using Godmist.Systems.Combat;
 using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
@@ -147,14 +148,18 @@ namespace Godmist.Views.UI.Workspace
             PlaceAt(Input.mousePosition);
         }
 
-        public void ShowSkill(SkillData skill, int actionCost, object source)
+        public void ShowSkill(
+            SkillData skill,
+            int actionCost,
+            object source,
+            BattleUnit caster = null)
         {
             if (suppressForDrag || skill == null) return;
             QueueShow(source ?? skill, () => SetContent(
                 skill.Icon,
                 skill.DisplayName,
-                BuildSkillDescription(skill),
-                $"AP {actionCost}  •  RES {skill.ResourceCost}"));
+                BuildSkillDescription(skill, caster),
+                BuildSkillMeta(skill, actionCost)));
         }
 
         public void ShowStatus(CombatStatusPresentation presentation, object source)
@@ -164,9 +169,19 @@ namespace Godmist.Views.UI.Workspace
             TryGetGlossaryEntry(effect.EffectId, out var glossaryEntry);
             QueueShow(source ?? effect, () => SetContent(
                 glossaryEntry?.Icon,
-                FormatStatusTitle(effect.EffectId, glossaryEntry?.Title),
-                BuildStatusPayload(effect),
-                string.Empty));
+                FormatStatusTitle(
+                    effect.EffectId,
+                    glossaryEntry?.Title,
+                    effect.DisplayName),
+                BuildStatusPayload(
+                    effect,
+                    presentation.Aura,
+                    presentation.OutgoingRedirect,
+                    presentation.Owner),
+                BuildStatusMeta(
+                    effect,
+                    presentation.Aura,
+                    presentation.OutgoingRedirect)));
         }
 
         public void ShowText(string title, string body, object source)
@@ -209,6 +224,13 @@ namespace Godmist.Views.UI.Workspace
             return TryGetGlossaryEntry(id, out var entry)
                 ? entry.Icon
                 : null;
+        }
+
+        public string GetGlossaryTitle(string id)
+        {
+            return TryGetGlossaryEntry(id, out var entry)
+                ? entry.Title
+                : string.Empty;
         }
 
         public void HideForSourceWithin(Transform root)
@@ -664,11 +686,14 @@ namespace Godmist.Views.UI.Workspace
                 camera);
         }
 
-        private static string FormatStatusTitle(string effectId, string title)
+        private static string FormatStatusTitle(
+            string effectId,
+            string title,
+            string displayName = null)
         {
-            var displayedTitle = string.IsNullOrWhiteSpace(title)
-                ? effectId
-                : title;
+            var displayedTitle = string.IsNullOrWhiteSpace(displayName)
+                ? string.IsNullOrWhiteSpace(title) ? effectId : title
+                : displayName;
             return $"<link=\"{effectId}\"><color=#7EDBFF>{displayedTitle}</color></link>";
         }
 
@@ -697,49 +722,1084 @@ namespace Godmist.Views.UI.Workspace
                 Mathf.Clamp(requested.y, min.y, max.y)) - anchor;
         }
 
-        private static string BuildSkillDescription(SkillData skill)
+        private string BuildSkillDescription(SkillData skill, BattleUnit caster)
         {
-            if (!string.IsNullOrWhiteSpace(skill.TooltipDescription)) return skill.TooltipDescription;
-            if (skill.Effects == null || skill.Effects.Count == 0) return string.Empty;
             var result = new StringBuilder();
-            foreach (var effect in skill.Effects)
+
+            if (!string.IsNullOrWhiteSpace(skill.TooltipDescription))
+            {
+                result.Append(skill.TooltipDescription.Trim());
+            }
+
+            var generated = new StringBuilder();
+            AppendSkillTargetingSummary(generated, skill);
+
+            foreach (var effect in skill.Effects ?? Array.Empty<SkillEffectData>())
             {
                 if (effect == null) continue;
-                if (result.Length > 0) result.Append('\n');
-                result.Append(DescribeEffect(effect));
+                Append(generated, DescribeEffect(skill, caster, effect));
             }
+
+            if (generated.Length > 0)
+            {
+                // Keep the authored skill description visually separate from the
+                // calculated gameplay summary below it.
+                if (result.Length > 0) result.Append("\n\n");
+                result.Append(generated);
+            }
+
             return result.ToString();
         }
 
-        private static string DescribeEffect(SkillEffectData effect) => effect.EffectType switch
+        private static string BuildSkillMeta(SkillData skill, int actionCost)
         {
-            EffectType.DealDamage => effect.BaseValue > 0 ? $"Zadaje {effect.BaseValue} obrażeń." : "Zadaje obrażenia.",
-            EffectType.Heal => effect.BaseValue > 0 ? $"Przywraca {effect.BaseValue} zdrowia." : "Przywraca zdrowie.",
-            EffectType.RestoreResource => effect.BaseValue > 0 ? $"Przywraca {effect.BaseValue} Energii." : "Przywraca Energię.",
-            EffectType.Shield => effect.BaseValue > 0 ? $"Nadaje tarczę: {effect.BaseValue}." : "Nadaje tarczę.",
-            EffectType.ApplyStatus => $"Nakłada status: {effect.StatusId} na {effect.DurationTurns} t.",
-            EffectType.Push => $"Odpycha o {effect.DisplacementDistance} pól.",
-            EffectType.Pull => $"Przyciąga o {effect.DisplacementDistance} pól.",
-            EffectType.Charge => "Wykonuje szarżę.",
-            EffectType.Teleport => "Teleportuje na wybrane pole.",
-            EffectType.CreateObject => "Tworzy obiekt na polu.",
-            EffectType.Summon => "Przyzywa jednostkę.",
-            EffectType.ModifyStat => $"Modyfikuje: {effect.ModifierStatType} {effect.ModifierValue:+#;-#;0}.",
-            EffectType.ModifyVar => $"Modyfikuje: {effect.ModifierVariableType} {effect.ModifierValue:+#;-#;0}.",
-            _ => "Wywołuje dodatkowy efekt."
-        };
+            var result = $"AP {actionCost}  •  RES {skill.ResourceCost}";
+            if (skill.KnifeCost > 0) result += $"  •  SZTYLETY {skill.KnifeCost}";
+            if (!skill.IsToggle) return result;
 
-        private static string BuildStatusPayload(PassiveEffectRuntime effect)
+            var flatCost = Mathf.Max(0, skill.ToggleUpkeepFlatResourceCost);
+            var percent = Mathf.Clamp01(skill.ToggleUpkeepMaxResourcePercent);
+            if (flatCost <= 0 && percent <= 0f) return result + "  •  UTRZYMANIE 0";
+            if (flatCost <= 0) return result + $"  •  UTRZYMANIE {percent * 100f:0.#}% maks.";
+            if (percent <= 0f) return result + $"  •  UTRZYMANIE {flatCost}";
+
+            return result
+                + $"  •  UTRZYMANIE max({flatCost}, {percent * 100f:0.#}% maks.)";
+        }
+
+        private void AppendSkillTargetingSummary(
+            StringBuilder result,
+            SkillData skill)
+        {
+            if (skill?.TargetModes == null || skill.TargetModes.Count == 0)
+            {
+                return;
+            }
+
+            var minimumRange = int.MaxValue;
+            var maximumRange = 0;
+            var hasTarget = false;
+            var hasAreaTarget = false;
+
+            foreach (var mode in skill.TargetModes)
+            {
+                if (mode == null
+                    || mode.TargetType == TargetType.Caster
+                    || mode.TargetType == TargetType.All)
+                {
+                    continue;
+                }
+
+                hasTarget = true;
+                hasAreaTarget |= mode.TargetType == TargetType.AreaAroundCaster
+                    || mode.TargetType == TargetType.AreaAroundTile
+                    || mode.TargetType == TargetType.Line
+                    || mode.TargetType == TargetType.Chain
+                    || mode.TargetType == TargetType.MultipleChosen
+                    || mode.TargetType == TargetType.MultipleRandom;
+
+                if (mode.AbsoluteRange == null) continue;
+                minimumRange = Mathf.Min(minimumRange, mode.AbsoluteRange.MinRange);
+                maximumRange = Mathf.Max(maximumRange, mode.AbsoluteRange.MaxRange);
+            }
+
+            if (!hasTarget) return;
+
+            var deliveryType = hasAreaTarget
+                ? "obszarowy"
+                : maximumRange <= 1
+                    ? "wręcz"
+                    : "zasięgowy";
+            var rangeText = minimumRange == int.MaxValue
+                ? string.Empty
+                : $"Zasięg: {FormatRange(minimumRange, maximumRange)} ({deliveryType}).";
+            Append(result, rangeText);
+
+            if (skill.RequiresLineOfSight)
+            {
+                Append(result, "Wymaga linii wzroku.");
+            }
+        }
+
+        private string DescribeEffect(
+            SkillData skill,
+            BattleUnit caster,
+            SkillEffectData effect)
+        {
+            var description = effect.EffectType switch
+            {
+                EffectType.DealDamage => DescribeDamage(caster, effect),
+                EffectType.Heal => effect.BaseValue > 0
+                    ? $"Przywraca {effect.BaseValue} zdrowia."
+                    : "Przywraca zdrowie.",
+                EffectType.RestoreResource => effect.BaseValue > 0
+                    ? $"Przywraca {effect.BaseValue} " +
+                      $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}."
+                    : $"Przywraca " +
+                      $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}.",
+                EffectType.Shield => DescribeShield(caster, effect),
+                EffectType.ApplyStatus => DescribeStatus(caster, effect),
+                EffectType.Push => DescribeMovementEffect("Odpycha", effect),
+                EffectType.Pull => DescribeMovementEffect("Przyciąga", effect),
+                EffectType.Fallback =>
+                    $"Wycofuje rzucającego o {FormatDistance(effect.DisplacementDistance)}.",
+                EffectType.Charge => DescribeCharge(effect),
+                EffectType.Teleport =>
+                    $"Teleportuje cel na wybrane pole " +
+                    $"(zasięg: {FormatRange(effect.TeleportDestinationRange)}).",
+                EffectType.CreateObject => DescribeCreateObject(effect),
+                EffectType.Summon => DescribeSummon(effect),
+                EffectType.ModifyStat => DescribeModifyStat(skill, effect),
+                EffectType.ModifyVar => DescribeModifyVar(skill, effect),
+                EffectType.ModifyActionValue => DescribeActionValue(effect),
+                EffectType.DrainResource => effect.BaseValue > 0
+                    ? $"Odbiera celowi {effect.BaseValue} zasobu."
+                    : "Odbiera celowi zasób.",
+                EffectType.BlockResourceRegeneration =>
+                    DescribeResourceRegenerationBlock(skill, effect),
+                EffectType.SacrificeHealthForResource =>
+                    $"Poświęca {FormatPercent(effect.HealthSacrificePercent)} maks. zdrowia, " +
+                    $"aby odzyskać {FormatValue(effect.ResourceRestorePerSacrificedHealth)} zasobu za każdy punkt zdrowia.",
+                EffectType.ModifyResistance => DescribeResistance(skill, effect),
+                EffectType.ApplyUniqueBuff => DescribeUniqueBuff(skill, caster, effect),
+                _ => "Wywołuje dodatkowy efekt."
+            };
+
+            return AddEffectContext(description, skill, effect);
+        }
+
+        private string DescribeDamage(BattleUnit caster, SkillEffectData effect)
+        {
+            var range = Godmist.Systems.Combat.CombatSkillPreviewCalculator
+                .CalculateDamageRange(caster, effect);
+            var damageText = range.HasDamage
+                ? $"{range.Minimum}–{range.Maximum}"
+                : "";
+            var hitCountText = effect.DamageHitCount > 1
+                ? $" w {FormatHitCount(effect.DamageHitCount)}"
+                : string.Empty;
+            var description = string.IsNullOrEmpty(damageText)
+                ? $"Zadaje obrażenia {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}."
+                : $"Zadaje {damageText} obrażeń {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}.";
+
+            if (effect.BonusDamageMultiplierChance > 0f)
+            {
+                description += $" Każde trafienie ma {FormatPercent(effect.BonusDamageMultiplierChance)} " +
+                    $"szansy na obrażenia ×{FormatValue(effect.BonusDamageMultiplier)}.";
+            }
+
+            if (effect.BonusPenetration > 0f
+                && (effect.DamageType == DamageType.Physical
+                    || effect.DamageType == DamageType.Magical))
+            {
+                var resistance = effect.DamageType == DamageType.Magical
+                    ? "obrony magicznej"
+                    : "obrony fizycznej";
+                description += $" Ignoruje dodatkowe {FormatPercent(effect.BonusPenetration)} {resistance}.";
+            }
+
+            if (effect.LifeStealPercent > 0f)
+            {
+                description += $" Leczy rzucającego za {FormatPercent(effect.LifeStealPercent)} " +
+                    "zadanych obrażeń.";
+            }
+
+            if (effect.ResourceDrainPercent > 0f)
+            {
+                description += $" Odbiera celowi {FormatPercent(effect.ResourceDrainPercent)} " +
+                    "zadanych obrażeń jako zasób i przekazuje go rzucającemu.";
+            }
+
+            return description;
+        }
+
+        private static string DescribeShield(BattleUnit caster, SkillEffectData effect)
+        {
+            var baseValue = Mathf.Max(0, effect.BaseValue);
+            if (effect.ShieldAverageAttackMultiplier <= 0f)
+            {
+                return baseValue > 0
+                    ? $"Nadaje {baseValue} tarczy."
+                    : "Nadaje tarczę.";
+            }
+
+            if (caster?.Character?.Stats == null)
+            {
+                return baseValue > 0
+                    ? $"Nadaje {baseValue} tarczy oraz {FormatPercent(effect.ShieldAverageAttackMultiplier)} średniego ataku jako tarczę."
+                    : $"Nadaje tarczę równą {FormatPercent(effect.ShieldAverageAttackMultiplier)} średniego ataku.";
+            }
+
+            var averageAttack = Mathf.RoundToInt((
+                Mathf.Max(0f, caster.Character.Stats.MinAttack.GetValue())
+                + Mathf.Max(0f, caster.Character.Stats.MaxAttack.GetValue())) * 0.5f);
+            var amount = baseValue + Mathf.FloorToInt(
+                averageAttack * effect.ShieldAverageAttackMultiplier);
+            return $"Nadaje {amount} tarczy.";
+        }
+
+        private string DescribeStatus(BattleUnit caster, SkillEffectData effect)
+        {
+            var guaranteed = effect.BaseChance >= 0.9999f;
+            var statusName = guaranteed
+                ? GetStatusDisplayName(effect.StatusId)
+                : GetStatusGenitiveName(effect.StatusId);
+            var description = guaranteed
+                ? $"Nakłada {statusName}"
+                : $"{FormatPercent(effect.BaseChance)} szansy na nałożenie {statusName}";
+
+            if (effect.StatusDamageMultiplier > 0f
+                && IsDamageOverTime(effect.StatusId))
+            {
+                var damage = caster?.Character?.Stats == null
+                    ? 0
+                    : Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateDamageValue(
+                        caster,
+                        DamageValueSource.AverageAttack,
+                        effect.StatusDamageMultiplier);
+                description += damage > 0
+                    ? guaranteed
+                        ? $", zadając {damage} obrażeń co turę"
+                        : $" zadającego {damage} obrażeń co turę"
+                    : guaranteed
+                        ? $", zadając {FormatPercent(effect.StatusDamageMultiplier)} średniego ataku co turę"
+                        : $" zadającego {FormatPercent(effect.StatusDamageMultiplier)} średniego ataku co turę";
+            }
+
+            if (effect.StatusHealPercent > 0f)
+            {
+                description += guaranteed
+                    ? $", przywracając {FormatPercent(effect.StatusHealPercent)} maks. zdrowia na końcu każdej tury"
+                    : $" i przywracającego {FormatPercent(effect.StatusHealPercent)} maks. zdrowia na końcu każdej tury";
+            }
+
+            if (effect.DurationTurns > 0)
+            {
+                description += $" przez {FormatTurns(effect.DurationTurns)}";
+            }
+            return description + ".";
+        }
+
+        private static string DescribeMovementEffect(string verb, SkillEffectData effect)
+        {
+            var chance = effect.EffectType == EffectType.Push
+                ? 1f
+                : effect.BaseChance;
+            if (chance < 0.9999f)
+            {
+                var action = verb == "Odpycha" ? "odpychanie" : "przyciągnięcie";
+                return $"{FormatPercent(chance)} szansy na {action} " +
+                    $"o {FormatDistance(effect.DisplacementDistance)}.";
+            }
+
+            return $"{verb} o {FormatDistance(effect.DisplacementDistance)}.";
+        }
+
+        private static string DescribeCharge(SkillEffectData effect)
+        {
+            var prefix = effect.BaseChance < 0.9999f
+                ? $"{FormatPercent(effect.BaseChance)} szansy na "
+                : string.Empty;
+            return $"{prefix}szarżę o {FormatDistance(effect.DisplacementDistance)}.";
+        }
+
+        private static string DescribeCreateObject(SkillEffectData effect)
+        {
+            var name = effect.SummonedObjectDefinition?.DisplayName;
+            if (string.IsNullOrWhiteSpace(name)) name = "obiekt";
+            return $"Tworzy {name} na wybranym polu " +
+                $"(zasięg: {FormatRange(effect.ObjectPlacementRange)}, " +
+                $"maks. aktywnych: {effect.MaxActiveObjects}).";
+        }
+
+        private static string DescribeSummon(SkillEffectData effect)
+        {
+            var name = effect.SummonedCharacterDefinition?.DisplayName
+                ?? effect.SummonedClassData?.ClassName;
+            if (string.IsNullOrWhiteSpace(name)) name = "jednostkę";
+            var duration = effect.SummonDurationTurns > 0
+                ? $" przez {FormatTurns(effect.SummonDurationTurns)}"
+                : string.Empty;
+            return $"Przyzywa {name}{duration} " +
+                $"z {FormatPercent(effect.SummonPercentMaxHealth)} maks. zdrowia " +
+                $"(zasięg umieszczenia: {FormatRange(effect.SummonPlacementRange)}, " +
+                $"maks. aktywnych: {effect.MaxActiveSummons}).";
+        }
+
+        private static string DescribeResourceRegenerationBlock(
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            var duration = skill?.IsToggle == true
+                ? " dopóki skill jest aktywny"
+                : effect.ResourceRegenerationBlockTurns > 0
+                    ? $" przez {FormatTurns(effect.ResourceRegenerationBlockTurns)}"
+                    : string.Empty;
+            return $"Blokuje dodatnią regenerację zasobu{duration}.";
+        }
+
+        private static string DescribeModifyStat(
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            var statName = GetStatDisplayName(effect.ModifierStatType);
+            var value = IsPercentageStat(effect.ModifierStatType)
+                ? FormatSignedPercent(effect.ModifierValue)
+                : FormatSignedValue(effect.ModifierValue);
+            var maximumValue = IsPercentageStat(effect.ModifierStatType)
+                ? FormatPercent(effect.ModifierValue)
+                : FormatValue(effect.ModifierValue);
+
+            return effect.ModifierOperation switch
+            {
+                StatModifierOperation.FlatBase =>
+                    $"Zmienia bazową wartość statystyki {statName} o {value}{FormatEffectDuration(skill, effect)}.",
+                StatModifierOperation.FlatAbsolute =>
+                    $"Zmienia wartość statystyki {statName} o {value}{FormatEffectDuration(skill, effect)}.",
+                StatModifierOperation.Percent =>
+                    $"Zmienia statystykę {statName} o {value} " +
+                    $"({GetStackingDisplayName(effect.ModifierStacking)}){FormatEffectDuration(skill, effect)}.",
+                StatModifierOperation.Maximum =>
+                    $"Ustawia maksymalną wartość statystyki {statName} na " +
+                    $"{maximumValue}{FormatEffectDuration(skill, effect)}.",
+                _ => $"Modyfikuje statystykę {statName} o {value}{FormatEffectDuration(skill, effect)}."
+            };
+        }
+
+        private static string DescribeModifyVar(
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            var variableName = effect.ModifierVariableType switch
+            {
+                GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                GameplayVariableType.DamageReceivedPercent => "otrzymywane obrażenia",
+                _ => effect.ModifierVariableType.ToString()
+            };
+            return $"Zmienia {variableName} o {FormatSignedPercent(effect.ModifierValue)} " +
+                $"({GetStackingDisplayName(effect.ModifierStacking)}){FormatEffectDuration(skill, effect)}.";
+        }
+
+        private static string DescribeActionValue(SkillEffectData effect)
+        {
+            var percent = FormatPercent(Mathf.Abs(effect.ActionValuePercent));
+            return effect.ActionValuePercent >= 0f
+                ? $"Przyspiesza kolejkę działania celu o {percent}."
+                : $"Opóźnia kolejkę działania celu o {percent}.";
+        }
+
+        private static string DescribeResistance(
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            var verb = effect.ModifierValue >= 0f ? "Zwiększa" : "Zmniejsza";
+            return $"{verb} odporność na {GetResistanceDisplayName(effect.ResistanceType)} " +
+                $"o {FormatPercent(Mathf.Abs(effect.ModifierValue))}" +
+                $"{FormatEffectDuration(skill, effect)}.";
+        }
+
+        private string DescribeUniqueBuff(
+            SkillData skill,
+            BattleUnit caster,
+            SkillEffectData effect)
+        {
+            var duration = FormatEffectDuration(skill, effect);
+            return effect.UniqueBuffType switch
+            {
+                UniqueBuffType.GuaranteedCriticalHit =>
+                    $"Gwarantuje trafienie krytyczne przy następnym ataku{duration}.",
+                UniqueBuffType.GuaranteedDodge =>
+                    $"Gwarantuje unik przed następnym atakiem{duration}.",
+                UniqueBuffType.MaximumDamage =>
+                    $"Następne obrażenia będą maksymalne{duration}.",
+                UniqueBuffType.ActionPointsNextTurn =>
+                    $"Zapewnia {effect.ActionPointModifier} dodatkowych AP w następnej turze{duration}.",
+                UniqueBuffType.OnHitStatus => DescribeOnHitBuff(
+                    skill,
+                    caster,
+                    effect,
+                    duration),
+                UniqueBuffType.DamageRedirect =>
+                    $"Przekierowuje {FormatPercent(effect.RedirectedDamagePercent)} " +
+                    $"obrażeń otrzymanych przez cel do rzucającego{duration}.",
+                UniqueBuffType.AuraStatus => DescribeAura(skill, caster, effect, duration),
+                _ => "Nakłada unikalne wzmocnienie."
+            };
+        }
+
+        private string DescribeOnHitBuff(
+            SkillData skill,
+            BattleUnit caster,
+            SkillEffectData effect,
+            string duration)
+        {
+            var chance = effect.OnHitStatusChance < 0.9999f;
+            var statusDuration = effect.OnHitStatusDurationTurns > 0
+                ? $" na {FormatTurns(effect.OnHitStatusDurationTurns)}"
+                : string.Empty;
+            var statusName = GetStatusDisplayName(effect.OnHitStatusId);
+            var statusObjectName = chance
+                ? GetStatusGenitiveName(effect.OnHitStatusId)
+                : statusName;
+            var description = chance
+                ? $"Każde trafienie ma {FormatPercent(effect.OnHitStatusChance)} " +
+                  $"szansy na nałożenie {statusObjectName}{statusDuration}."
+                : $"Każde trafienie nakłada {statusName}{statusDuration}.";
+            var buffDuration = string.IsNullOrWhiteSpace(duration)
+                ? string.Empty
+                : $" Wzmocnienie działa{duration}.";
+            return description
+                + DescribePeriodicStatusDamage(
+                    caster,
+                    effect.OnHitStatusId,
+                    statusName,
+                    effect.StatusDamageMultiplier)
+                + buffDuration;
+        }
+
+        private string DescribeAura(
+            SkillData skill,
+            BattleUnit caster,
+            SkillEffectData effect,
+            string duration)
+        {
+            var action = effect.BaseChance < 0.9999f
+                ? $"ma {FormatPercent(effect.BaseChance)} szansy na nałożenie " +
+                  GetStatusGenitiveName(effect.StatusId)
+                : $"nakłada {GetStatusDisplayName(effect.StatusId)}";
+            var includesCaster = effect.AuraIncludesCaster
+                ? ", w tym rzucającego"
+                : string.Empty;
+            var description = $"Tworzy aurę, która {action} " +
+                $"na {GetTargetingDisplayName(effect.AuraTargetingType)} " +
+                $"w promieniu {FormatDistance(effect.AuraRadius)}{includesCaster}{duration}.";
+            return description + DescribePeriodicStatusDamage(
+                caster,
+                effect.StatusId,
+                GetStatusDisplayName(effect.StatusId),
+                effect.StatusDamageMultiplier);
+        }
+
+        private string DescribePeriodicStatusDamage(
+            BattleUnit caster,
+            string statusId,
+            string statusName,
+            float damageMultiplier)
+        {
+            if (damageMultiplier <= 0f || !IsDamageOverTime(statusId))
+            {
+                return string.Empty;
+            }
+            var damage = caster?.Character?.Stats == null
+                ? 0
+                : Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateDamageValue(
+                    caster,
+                    DamageValueSource.AverageAttack,
+                    damageMultiplier);
+            return damage > 0
+                ? $" Nałożony status ({statusName}) zadaje {damage} obrażeń " +
+                  "na początku każdej tury."
+                : $" Nałożony status ({statusName}) zadaje " +
+                  $"{FormatPercent(damageMultiplier)} średniego ataku " +
+                  "na początku każdej tury.";
+        }
+
+        private string AddEffectContext(
+            string description,
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            if (string.IsNullOrWhiteSpace(description)) return string.Empty;
+
+            var result = description.Trim();
+            if (!result.EndsWith(".", StringComparison.Ordinal)) result += ".";
+
+            var target = GetEffectTargetDescription(skill, effect.TargetModeIndex);
+            if (!string.IsNullOrWhiteSpace(target)) result += $" Cel: {target}.";
+
+            var conditions = DescribeConditions(effect);
+            if (!string.IsNullOrWhiteSpace(conditions)) result += $" Warunek: {conditions}.";
+
+            if (effect.DelayCasterTurns > 0)
+            {
+                result += $" Opóźnienie efektu: {FormatTurnCount(effect.DelayCasterTurns)}.";
+            }
+
+            return result;
+        }
+
+        private string GetEffectTargetDescription(
+            SkillData skill,
+            int targetModeIndex)
+        {
+            if (skill?.TargetModes == null
+                || targetModeIndex < 0
+                || targetModeIndex >= skill.TargetModes.Count)
+            {
+                return string.Empty;
+            }
+
+            var mode = skill.TargetModes[targetModeIndex];
+            if (mode == null) return string.Empty;
+
+            var group = GetTargetingDisplayName(mode.TargetingType);
+            return mode.TargetType switch
+            {
+                TargetType.Caster => "rzucający",
+                TargetType.Single => $"pojedynczy {GetTargetingSingularName(mode.TargetingType)}",
+                TargetType.All => GetTargetingPluralName(mode.TargetingType),
+                TargetType.AreaAroundCaster =>
+                    $"obszar wokół rzucającego, obejmujący {group}",
+                TargetType.AreaAroundTile =>
+                    $"obszar wokół wskazanego pola, obejmujący {group}",
+                TargetType.Line => $"linia obejmująca {group}",
+                TargetType.Chain => $"łańcuch obejmujący {group}",
+                TargetType.MultipleChosen => $"wybrane cele: {group}",
+                TargetType.MultipleRandom => $"losowe cele: {group}",
+                _ => "niestandardowy cel"
+            };
+        }
+
+        private string DescribeConditions(SkillEffectData effect)
+        {
+            if (effect?.Conditions == null || effect.Conditions.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var result = new StringBuilder();
+            foreach (var condition in effect.Conditions)
+            {
+                if (condition == null || condition.ConditionType == EffectConditionType.Always)
+                {
+                    continue;
+                }
+
+                var text = condition.ConditionType switch
+                {
+                    EffectConditionType.ReferencedEffectSucceeded => "poprzedni efekt zadziała",
+                    EffectConditionType.ReferencedEffectDealtHealthDamage => "poprzedni efekt zada obrażenia",
+                    EffectConditionType.TargetHasStatus =>
+                        $"cel ma {GetStatusGenitiveName(condition.StatusId)}",
+                    EffectConditionType.CasterHasStatus =>
+                        $"rzucający ma {GetStatusGenitiveName(condition.StatusId)}",
+                    EffectConditionType.TargetHealthBelowPercent =>
+                        $"cel ma mniej niż {FormatPercent(condition.HealthPercentThreshold)} zdrowia",
+                    EffectConditionType.CasterHealthBelowPercent =>
+                        $"rzucający ma mniej niż {FormatPercent(condition.HealthPercentThreshold)} zdrowia",
+                    EffectConditionType.MinimumAdjacentAllies =>
+                        $"w pobliżu jest co najmniej {condition.IntegerThreshold} sojuszników",
+                    EffectConditionType.MinimumResourceSpent =>
+                        $"wydano co najmniej {condition.IntegerThreshold} zasobu",
+                    EffectConditionType.TargetHasActiveShield => "cel ma aktywną tarczę",
+                    _ => condition.ConditionType.ToString()
+                };
+
+                if (result.Length > 0) result.Append(" i ");
+                result.Append(text);
+            }
+
+            return result.ToString();
+        }
+
+        private static string FormatEffectDuration(
+            SkillData skill,
+            SkillEffectData effect)
+        {
+            if (skill?.IsToggle == true) return " dopóki skill jest aktywny";
+            return effect?.DurationTurns > 0
+                ? $" przez {FormatTurns(effect.DurationTurns)}"
+                : string.Empty;
+        }
+
+        private static string FormatTurns(int turns)
+        {
+            turns = Mathf.Max(0, turns);
+            if (turns == 1) return "następną turę";
+            return $"następne {turns} {GetTurnWord(turns)}";
+        }
+
+        private static string FormatTurnCount(int turns)
+        {
+            turns = Mathf.Max(0, turns);
+            if (turns == 1) return "1 turę";
+            return $"{turns} {GetTurnCountWord(turns)}";
+        }
+
+        private static string GetTurnWord(int turns) =>
+            turns is >= 2 and <= 4 ? "tury" : "tur";
+
+        private static string GetTurnCountWord(int turns) =>
+            turns is >= 2 and <= 4 ? "tury" : "tur";
+
+        private static string FormatHitCount(int hits)
+        {
+            hits = Mathf.Max(1, hits);
+            if (hits == 1) return "1 trafieniu";
+            return $"{hits} trafieniach";
+        }
+
+        private static string FormatRange(SkillRangeData range)
+        {
+            return range == null
+                ? "nieznany"
+                : FormatRange(range.MinRange, range.MaxRange);
+        }
+
+        private static string FormatRange(int minimum, int maximum)
+        {
+            minimum = Mathf.Max(0, minimum);
+            maximum = Mathf.Max(minimum, maximum);
+            if (minimum == maximum) return $"{minimum} {GetFieldWord(minimum)}";
+            return $"{minimum}–{maximum} pól";
+        }
+
+        private static string GetFieldWord(int value)
+        {
+            return value == 1
+                ? "pole"
+                : value is >= 2 and <= 4
+                    ? "pola"
+                    : "pól";
+        }
+
+        private static string FormatDistance(int distance)
+        {
+            distance = Mathf.Max(0, distance);
+            return $"{distance} {GetFieldWord(distance)}";
+        }
+
+        private static string FormatSignedPercent(float value)
+        {
+            if (value > 0f) return $"+{FormatPercent(value)}";
+            if (value < 0f) return $"-{FormatPercent(value)}";
+            return "0%";
+        }
+
+        private static string FormatPercent(float value)
+        {
+            return $"{Mathf.Abs(value) * 100f:0.#}%";
+        }
+
+        private static string FormatSignedValue(float value)
+        {
+            return value > 0f
+                ? $"+{FormatValue(value)}"
+                : FormatValue(value);
+        }
+
+        private static string GetDamageTypeDisplayName(DamageType type)
+        {
+            return type switch
+            {
+                DamageType.Physical => "fizycznych",
+                DamageType.Magical => "magicznych",
+                DamageType.Inevitable => "nieuchronnych",
+                DamageType.Direct => "bezpośrednich",
+                DamageType.Bleed => "od krwawienia",
+                DamageType.Poison => "od trucizny",
+                DamageType.Burn => "od płonięcia",
+                _ => type.ToString().ToLowerInvariant()
+            };
+        }
+
+        private static string GetResourceAccusativeName(ResourceType type)
+        {
+            return type switch
+            {
+                ResourceType.Rage => "Furię",
+                ResourceType.Momentum => "Impet",
+                ResourceType.Mana => "Manę",
+                _ => "zasób"
+            };
+        }
+
+        private static string GetTargetingDisplayName(TargetingType type)
+        {
+            return type switch
+            {
+                TargetingType.Enemies => "wrogów",
+                TargetingType.Allies => "sojuszników",
+                _ => "jednostek"
+            };
+        }
+
+        private static string GetTargetingSingularName(TargetingType type)
+        {
+            return type switch
+            {
+                TargetingType.Enemies => "wróg",
+                TargetingType.Allies => "sojusznik",
+                _ => "jednostka"
+            };
+        }
+
+        private static string GetTargetingPluralName(TargetingType type)
+        {
+            return type switch
+            {
+                TargetingType.Enemies => "wszyscy wrogowie",
+                TargetingType.Allies => "wszyscy sojusznicy",
+                _ => "wszystkie jednostki"
+            };
+        }
+
+        private static string GetResistanceDisplayName(ResistanceType type)
+        {
+            return type switch
+            {
+                ResistanceType.Bleed => "krwawienie",
+                ResistanceType.Poison => "zatrucie",
+                ResistanceType.Fire => "ogień",
+                ResistanceType.Weakening => "osłabienie",
+                ResistanceType.Suppression => "supresję",
+                ResistanceType.Move => "ruch",
+                _ => type.ToString().ToLowerInvariant()
+            };
+        }
+
+        private string GetStatusDisplayName(string statusId)
+        {
+            if (string.IsNullOrWhiteSpace(statusId)) return "status";
+            var glossaryTitle = GetGlossaryTitle(statusId);
+            return string.IsNullOrWhiteSpace(glossaryTitle)
+                ? ToTitleCase(statusId)
+                : glossaryTitle;
+        }
+
+        private string GetStatusGenitiveName(string statusId)
+        {
+            return statusId?.ToLowerInvariant() switch
+            {
+                StatusEffectIds.Bleed => "krwawienia",
+                StatusEffectIds.Poison => "zatrucia",
+                StatusEffectIds.Burn => "płonięcia",
+                StatusEffectIds.Stun => "ogłuszenia",
+                StatusEffectIds.Freeze => "zamrożenia",
+                StatusEffectIds.Sleep => "snu",
+                StatusEffectIds.Paralysis => "paraliżu",
+                StatusEffectIds.Immobilize => "unieruchomienia",
+                StatusEffectIds.Chill => "oziębienia",
+                StatusEffectIds.Taunt => "prowokacji",
+                StatusEffectIds.Invisibility => "niewidzialności",
+                StatusEffectIds.Regeneration => "regeneracji",
+                StatusEffectIds.Counterattack => "kontrataku",
+                _ => GetStatusDisplayName(statusId).ToLowerInvariant()
+            };
+        }
+
+        private static string ToTitleCase(string value)
+        {
+            var normalized = value.Replace('_', ' ').Replace('-', ' ').Replace('.', ' ');
+            var result = new StringBuilder(normalized.Length);
+            var capitalize = true;
+            foreach (var character in normalized)
+            {
+                if (char.IsWhiteSpace(character))
+                {
+                    capitalize = true;
+                    result.Append(character);
+                    continue;
+                }
+
+                result.Append(capitalize
+                    ? char.ToUpperInvariant(character)
+                    : character);
+                capitalize = false;
+            }
+
+            return result.ToString();
+        }
+
+        private static bool IsPercentageStat(CharacterStatType statType)
+        {
+            return statType == CharacterStatType.CritChance
+                || statType == CharacterStatType.Dodge
+                || statType == CharacterStatType.WeaponAccuracy
+                || statType == CharacterStatType.PhysicalDefensePenetration
+                || statType == CharacterStatType.MagicalDefensePenetration;
+        }
+
+        private static string GetStatDisplayName(CharacterStatType statType)
+        {
+            return statType switch
+            {
+                CharacterStatType.MaxHealth => "zdrowia",
+                CharacterStatType.MinAttack => "minimalnego ataku",
+                CharacterStatType.MaxAttack => "maksymalnego ataku",
+                CharacterStatType.PhysicalDefense => "obrony fizycznej",
+                CharacterStatType.MagicalDefense => "obrony magicznej",
+                CharacterStatType.Dodge => "uniku",
+                CharacterStatType.CritChance => "szansy na trafienie krytyczne",
+                CharacterStatType.CritDamage => "obrażenia krytyczne",
+                CharacterStatType.Speed => "szybkości",
+                CharacterStatType.ResourceRegeneration => "regeneracji zasobu",
+                CharacterStatType.WeaponAccuracy => "celności broni",
+                CharacterStatType.MaxResource => "maksymalnego zasobu",
+                CharacterStatType.PhysicalDefensePenetration => "przebicia obrony fizycznej",
+                CharacterStatType.MagicalDefensePenetration => "przebicia obrony magicznej",
+                _ => statType.ToString()
+            };
+        }
+
+        private static string GetStackingDisplayName(StatModifierStacking stacking)
+        {
+            return stacking == StatModifierStacking.Multiplicative
+                ? "mnożnikowo"
+                : "addytywnie";
+        }
+
+        private string BuildStatusPayload(
+            PassiveEffectRuntime effect,
+            CombatAuraRuntime aura = null,
+            CombatDamageRedirectRuntime outgoingRedirect = null,
+            BattleUnit owner = null)
         {
             var result = new StringBuilder();
-            if (IsDamageOverTime(effect.EffectId) && effect.TotalDamage > 0) Append(result, $"Obrażenia: {effect.TotalDamage}");
-            if (effect.StatusHealPercent > 0f) Append(result, $"Leczenie: {effect.StatusHealPercent * 100f:0.#}% maks. zdrowia");
-            if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
-            if (effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
-            foreach (var modifier in effect.StatModifiers) Append(result, $"{modifier.StatType} {modifier.Value:+#;-#;0}");
-            foreach (var modifier in effect.VariableModifiers) Append(result, $"{modifier.VariableType} {modifier.Value:+#;-#;0}");
-            if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
-            return result.ToString();
+            if (aura != null)
+            {
+                var chance = aura.Chance < .999f
+                    ? $" z {FormatPercent(aura.Chance)} szansy"
+                    : string.Empty;
+                var includesCaster = aura.IncludesCaster
+                    ? " Obejmuje również rzucającego."
+                    : " Nie obejmuje rzucającego.";
+                Append(
+                    result,
+                    $"Nakłada {GetStatusDisplayName(aura.StatusId)}{chance} na " +
+                    $"{GetAuraTargetingName(aura.TargetingType)} w promieniu " +
+                    $"{FormatDistance(aura.Radius)}.{includesCaster}");
+            }
+            AppendStatusRule(result, effect);
+
+            var damageOverTime = effect.GetPayload<DamageOverTimePayload>();
+            var auraDamagePerTurn = aura != null && IsDamageOverTime(effect.EffectId)
+                ? aura.StatusDamagePerTurn
+                : 0;
+            if (auraDamagePerTurn > 0)
+            {
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje " +
+                    $"{FormatEffectiveStatusDamage(owner, effect.EffectId, auraDamagePerTurn)} " +
+                    "obrażeń na początku każdej tury.");
+            }
+            else if (IsDamageOverTime(effect.EffectId)
+                && damageOverTime?.RemainingTotalDamage > 0)
+            {
+                var damagePerTurn = damageOverTime.DamagePerTurn > 0
+                    ? damageOverTime.DamagePerTurn
+                    : Mathf.CeilToInt(
+                        damageOverTime.RemainingTotalDamage /
+                        (float)Mathf.Max(1, effect.RemainingDuration));
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje " +
+                    $"{FormatEffectiveStatusDamage(owner, effect.EffectId, damagePerTurn)} " +
+                    "obrażeń na początku każdej tury.");
+            }
+            else if (IsDamageOverTime(effect.EffectId)
+                && (damageOverTime == null
+                    || damageOverTime.RemainingTotalDamage <= 0))
+            {
+                // A status can have been restored from older combat data, or be a
+                // presentation-only aura, without a numeric DoT payload. Keep the
+                // status tooltip useful and avoid replacing its gameplay description
+                // with the glossary sentence when the value is not recoverable.
+                Append(
+                    result,
+                    $"{GetStatusDisplayName(effect.EffectId)} zadaje obrażenia " +
+                    "na początku każdej tury.");
+            }
+
+            var sleepHealing = effect.GetPayload<SleepHealingPayload>();
+            if (sleepHealing?.MaxHealthPercent > 0f)
+            {
+                Append(
+                    result,
+                    $"Przywraca {FormatPercent(sleepHealing.MaxHealthPercent)} maksymalnego zdrowia na końcu tury.");
+            }
+
+            foreach (var modifier in effect.StatModifiers)
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                var value = IsPercentageStat(modifier.StatType)
+                    ? FormatSignedPercent(modifier.Value)
+                    : modifier.Value.ToString("+0.##;-0.##;0");
+                Append(
+                    result,
+                    $"Modyfikator {GetStatDisplayName(modifier.StatType)}: {value}.");
+            }
+
+            foreach (var modifier in effect.VariableModifiers)
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                var variableName = modifier.VariableType switch
+                {
+                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
+                    _ => modifier.VariableType.ToString()
+                };
+                Append(
+                    result,
+                    $"Modyfikator {variableName}: {FormatSignedPercent(modifier.Value)}.");
+            }
+
+            var uniqueBuff = effect.GetPayload<UniqueCombatBuffPayload>();
+            if (uniqueBuff != null)
+            {
+                var description = uniqueBuff.BuffType switch
+                {
+                    UniqueBuffType.GuaranteedCriticalHit =>
+                        "Następny atak zawsze trafia krytycznie.",
+                    UniqueBuffType.GuaranteedDodge =>
+                        "Następny atak przeciwko tej postaci zawsze chybia.",
+                    UniqueBuffType.MaximumDamage =>
+                        "Następny atak zada maksymalne obrażenia.",
+                    UniqueBuffType.ActionPointsNextTurn =>
+                        $"Zapewnia {uniqueBuff.ActionPointModifier:+#;-#;0} AP w następnej turze.",
+                    UniqueBuffType.AuraStatus =>
+                        "Utrzymuje aurę nakładającą status na jednostki w jej zasięgu.",
+                    _ => "Nadaje unikalny efekt bojowy."
+                };
+                Append(result, description);
+            }
+
+            var redirect = effect.GetPayload<DamageRedirectPayload>();
+            if (redirect?.RedirectPercent > 0f)
+            {
+                if (outgoingRedirect != null
+                    && !string.IsNullOrWhiteSpace(redirect.ProtectedCharacterDisplayName))
+                {
+                    Append(
+                        result,
+                        $"Przyjmuje {FormatPercent(redirect.RedirectPercent)} obrażeń " +
+                        $"przekierowanych z {redirect.ProtectedCharacterDisplayName}.");
+                }
+                else
+                {
+                    var protector = string.IsNullOrWhiteSpace(redirect.ProtectorDisplayName)
+                        ? "rzucającego"
+                        : redirect.ProtectorDisplayName;
+                    Append(
+                        result,
+                        $"Przekierowuje {FormatPercent(redirect.RedirectPercent)} " +
+                        $"obrażeń otrzymywanych przez tę postać do {protector}.");
+                }
+            }
+
+            var onHit = effect.GetPayload<OnHitStatusPayload>();
+            if (onHit != null && !string.IsNullOrWhiteSpace(onHit.StatusId))
+            {
+                var statusName = GetStatusDisplayName(onHit.StatusId);
+                var chance = onHit.Chance >= .999f
+                    ? "nakładają"
+                    : $"mają {FormatPercent(onHit.Chance)} szansy na nałożenie";
+                var statusObjectName = onHit.Chance >= .999f
+                    ? statusName
+                    : GetStatusGenitiveName(onHit.StatusId);
+                var duration = onHit.DurationTurns > 0
+                    ? $" na {FormatTurns(onHit.DurationTurns)}"
+                    : string.Empty;
+                Append(result, $"Trafienia {chance} {statusObjectName}{duration}.");
+                if (onHit.StatusDamageMultiplier > 0f
+                    || onHit.StatusDamagePerTurn > 0)
+                {
+                    var damage = onHit.StatusDamagePerTurn > 0
+                        ? $"zadaje {onHit.StatusDamagePerTurn} obrażeń"
+                        : $"zadaje {FormatPercent(onHit.StatusDamageMultiplier)} średniego ataku";
+                    Append(
+                        result,
+                        $"{statusName} {damage} " +
+                        "na początku każdej tury.");
+                }
+            }
+
+            var resistance = effect.GetPayload<ResistanceModifierPayload>();
+            if (resistance != null && !Mathf.Approximately(resistance.Value, 0f))
+            {
+                var verb = resistance.Value > 0f ? "Zwiększa" : "Zmniejsza";
+                Append(
+                    result,
+                    $"{verb} odporność na " +
+                    $"{GetResistanceDisplayName(resistance.ResistanceType)} o " +
+                    $"{FormatPercent(Mathf.Abs(resistance.Value))}.");
+            }
+
+            if (effect.GetPayload<ResourceRegenerationBlockPayload>() != null)
+                Append(result, "Blokuje regenerację zasobu.");
+
+            if (effect.GetPayload<CounterattackPayload>() != null)
+                Append(result, "Wykonuje kontratak po ataku przeciwnika.");
+
+            // The glossary is the source of truth for statuses whose gameplay rule
+            // is not represented by a runtime payload.
+            if (result.Length == 0
+                && TryGetGlossaryEntry(effect.EffectId, out var glossaryEntry)
+                && !string.IsNullOrWhiteSpace(glossaryEntry.Description))
+            {
+                Append(result, glossaryEntry.Description);
+            }
+
+            return result.Length > 0
+                ? result.ToString()
+                : "Brak dodatkowego działania.";
+        }
+
+        private static void AppendStatusRule(
+            StringBuilder result,
+            PassiveEffectRuntime effect)
+        {
+            var rule = effect.EffectId?.ToLowerInvariant() switch
+            {
+                StatusEffectIds.Stun =>
+                    "Nie może wykonywać akcji ani się poruszać.",
+                StatusEffectIds.Freeze =>
+                    "Nie może wykonywać akcji ani się poruszać. Pierwsze otrzymane obrażenia zrywają Zamrożenie i są wzmocnione.",
+                StatusEffectIds.Sleep =>
+                    "Nie może wykonywać akcji. Ruch budzi postać i kończy ten efekt.",
+                StatusEffectIds.Paralysis =>
+                    "Nie może wykonywać akcji ani się poruszać oraz nie może być celem umiejętności.",
+                StatusEffectIds.Immobilize =>
+                    "Nie może się poruszać ani używać umiejętności przemieszczających.",
+                StatusEffectIds.Chill =>
+                    "Ogranicza szybkość postaci.",
+                StatusEffectIds.Taunt =>
+                    "Umiejętności ofensywne mogą celować wyłącznie w postać, która nałożyła Prowokację.",
+                StatusEffectIds.Invisibility =>
+                    "Nie może być wybrana bezpośrednio przez wrogów ani objęta ich celowaniem All.",
+                StatusEffectIds.Regeneration =>
+                    "Przywraca zdrowie na końcu tury.",
+                _ => string.Empty
+            };
+
+            if (!string.IsNullOrWhiteSpace(rule)) Append(result, rule);
+        }
+
+        private static string BuildStatusMeta(
+            PassiveEffectRuntime effect,
+            CombatAuraRuntime aura = null,
+            CombatDamageRedirectRuntime outgoingRedirect = null)
+        {
+            var parts = new List<string>();
+            if (aura != null) parts.Add("Aktywna aura");
+            if (outgoingRedirect != null) parts.Add("Aktywne przekierowanie");
+            if (aura == null && effect.RemainingDuration > 0)
+                parts.Add($"Pozostało: {effect.RemainingDuration} t.");
+            if (effect.Stacks > 1)
+                parts.Add($"Stosy: {effect.Stacks}");
+            return string.Join("  •  ", parts);
+        }
+
+        private static string GetAuraTargetingName(TargetingType type)
+        {
+            return type switch
+            {
+                TargetingType.Enemies => "wrogów",
+                TargetingType.Allies => "sojuszników",
+                TargetingType.All => "wszystkie jednostki",
+                _ => "jednostki"
+            };
         }
 
         private static string BuildItemBody(ItemInstance item, CharacterInstance owner)
@@ -860,6 +1920,17 @@ namespace Godmist.Views.UI.Workspace
             string.Equals(effectId, StatusEffectIds.Bleed, StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectId, StatusEffectIds.Poison, StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectId, StatusEffectIds.Burn, StringComparison.OrdinalIgnoreCase);
+
+        private static string FormatEffectiveStatusDamage(
+            BattleUnit owner,
+            string statusId,
+            int rawDamage)
+        {
+            return DamageOverTimePassiveEffectProcessor.CalculateEffectiveDamage(
+                owner,
+                statusId,
+                rawDamage).ToString();
+        }
 
         private static void Append(StringBuilder builder, string value)
         {

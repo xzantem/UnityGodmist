@@ -135,11 +135,16 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 characterSaveData.PassiveEffects[0].Lifetime,
                 Is.EqualTo(PassiveEffectLifetime.Timed));
-            Assert.That(characterSaveData.PassiveEffects[0].HasLifetime, Is.True);
             Assert.That(
                 characterSaveData.PassiveEffects[0].Sources[0].SourceId,
                 Is.EqualTo("skill.enemy.bleed.effect.0"));
             Assert.That(characterSaveData.PassiveEffects[0].TickPhase, Is.EqualTo(PassiveEffectTickPhase.TurnStart));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].Payloads[0].Type,
+                Is.EqualTo(PassiveEffectPayloadType.DamageOverTime));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].Payloads[0].RemainingTotalDamage,
+                Is.EqualTo(30));
 
             Assert.That(
                 characterSaveData.InventoryItemInstanceIds,

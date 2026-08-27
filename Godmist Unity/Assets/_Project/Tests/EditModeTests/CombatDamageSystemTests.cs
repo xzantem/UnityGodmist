@@ -178,6 +178,50 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ApplyDamage_RedirectsConfiguredPortionAndDamagesProtector()
+        {
+            var session = CreateSession(out var protectedUnit, out var protector);
+            protector.IsPlayerSide = protectedUnit.IsPlayerSide;
+            protector.Character.CharacterId = "protector";
+            protectedUnit.DamageRedirectProtectorCharacterId = "protector";
+            protectedUnit.DamageRedirectPercent = 0.4f;
+
+            var damage = new CombatDamageSystem().ApplyDamage(
+                session, null, protectedUnit, 50, DamageType.Physical);
+
+            Assert.That(protectedUnit.Character.CurrentHealth, Is.EqualTo(70));
+            Assert.That(protector.Character.CurrentHealth, Is.EqualTo(80));
+            Assert.That(damage, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void UniqueBuff_ConsumesOnlyRequestedBuff()
+        {
+            var unit = CreateUnit(health: 100, isPlayerSide: true);
+            unit.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                IsUniqueCombatBuff = true,
+                UniqueBuffType = UniqueBuffType.GuaranteedCriticalHit,
+                Stacks = 1
+            });
+            unit.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                IsUniqueCombatBuff = true,
+                UniqueBuffType = UniqueBuffType.MaximumDamage,
+                Stacks = 1
+            });
+
+            var consumed = CombatDamageSystem.TryConsumeUniqueBuff(
+                unit, UniqueBuffType.GuaranteedCriticalHit);
+
+            Assert.That(consumed, Is.True);
+            Assert.That(CombatDamageSystem.HasUniqueBuff(
+                unit, UniqueBuffType.GuaranteedCriticalHit), Is.False);
+            Assert.That(CombatDamageSystem.HasUniqueBuff(
+                unit, UniqueBuffType.MaximumDamage), Is.True);
+        }
+
+        [Test]
         public void ApplyDamage_EnemyDeath_InvokesRemovalCallback()
         {
             var session = CreateSession(

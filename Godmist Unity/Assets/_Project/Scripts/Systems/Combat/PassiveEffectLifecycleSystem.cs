@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Effects;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -131,6 +132,10 @@ namespace Godmist.Systems.Combat
 
             existingEffect.Lifetime = incomingEffect.Lifetime;
             existingEffect.TickPhase = incomingEffect.TickPhase;
+            if (!string.IsNullOrWhiteSpace(incomingEffect.DisplayName))
+            {
+                existingEffect.DisplayName = incomingEffect.DisplayName;
+            }
             var existingEffectHadStatModifiers = HasStatModifiers(existingEffect);
 
             switch (stackingMode)
@@ -138,17 +143,17 @@ namespace Godmist.Systems.Combat
                 case PassiveEffectStackingMode.ReplaceDurationAndAddTotalDamage:
                     existingEffect.RemainingDuration =
                         incomingEffect.RemainingDuration;
-                    existingEffect.TotalDamage = AddSafely(
-                        existingEffect.TotalDamage,
-                        incomingEffect.TotalDamage);
+                    MergeDamageOverTimePayload(
+                        existingEffect,
+                        incomingEffect,
+                        add: true);
                     existingEffect.Stacks = 1;
                     break;
 
                 case PassiveEffectStackingMode.ReplaceDuration:
                     existingEffect.RemainingDuration =
                         incomingEffect.RemainingDuration;
-                    existingEffect.StatusHealPercent =
-                        incomingEffect.StatusHealPercent;
+                    ReplaceSleepHealingPayload(existingEffect, incomingEffect);
                     break;
 
                 case PassiveEffectStackingMode.ReplaceDurationAndValues:
@@ -156,10 +161,8 @@ namespace Godmist.Systems.Combat
                         incomingEffect.RemainingDuration;
 
                     existingEffect.Stacks = incomingEffect.Stacks;
-                    existingEffect.TotalDamage = incomingEffect.TotalDamage;
                     existingEffect.Sources = CopySources(incomingEffect.Sources);
-                    existingEffect.StatModifiers = CopyStatModifiers(incomingEffect.StatModifiers);
-                    existingEffect.VariableModifiers = CopyVariableModifiers(incomingEffect.VariableModifiers);
+                    existingEffect.Payloads = CopyPayloads(incomingEffect.Payloads);
                     break;
 
                 default:
@@ -171,9 +174,10 @@ namespace Godmist.Systems.Combat
                         existingEffect.Stacks,
                         incomingEffect.Stacks);
 
-                    existingEffect.TotalDamage = Math.Max(
-                        existingEffect.TotalDamage,
-                        incomingEffect.TotalDamage);
+                    MergeDamageOverTimePayload(
+                        existingEffect,
+                        incomingEffect,
+                        add: false);
                     break;
             }
 
@@ -187,6 +191,133 @@ namespace Godmist.Systems.Combat
 
             appliedEffect = existingEffect;
             return true;
+        }
+
+        private static void MergeDamageOverTimePayload(
+            PassiveEffectRuntime existingEffect,
+            PassiveEffectRuntime incomingEffect,
+            bool add)
+        {
+            var incoming = incomingEffect.GetPayload<DamageOverTimePayload>();
+            if (incoming == null) return;
+
+            var existing = existingEffect.GetPayload<DamageOverTimePayload>();
+            if (existing == null)
+            {
+                existingEffect.SetPayload(new DamageOverTimePayload
+                {
+                    RemainingTotalDamage = incoming.RemainingTotalDamage,
+                    DamagePerTurn = incoming.DamagePerTurn
+                });
+                return;
+            }
+
+            existing.RemainingTotalDamage = add
+                ? AddSafely(
+                    existing.RemainingTotalDamage,
+                    incoming.RemainingTotalDamage)
+                : Math.Max(
+                    existing.RemainingTotalDamage,
+                    incoming.RemainingTotalDamage);
+            if (incoming.DamagePerTurn > 0)
+            {
+                existing.DamagePerTurn = incoming.DamagePerTurn;
+            }
+        }
+
+        private static void ReplaceSleepHealingPayload(
+            PassiveEffectRuntime existingEffect,
+            PassiveEffectRuntime incomingEffect)
+        {
+            var incoming = incomingEffect.GetPayload<SleepHealingPayload>();
+            if (incoming == null) return;
+
+            existingEffect.SetPayload(new SleepHealingPayload
+            {
+                MaxHealthPercent = incoming.MaxHealthPercent
+            });
+        }
+
+        private static List<PassiveEffectPayloadRuntime> CopyPayloads(
+            List<PassiveEffectPayloadRuntime> payloads)
+        {
+            var copied = new List<PassiveEffectPayloadRuntime>();
+            if (payloads == null) return copied;
+
+            foreach (var payload in payloads)
+            {
+                switch (payload)
+                {
+                    case DamageOverTimePayload value:
+                        copied.Add(new DamageOverTimePayload
+                        {
+                            RemainingTotalDamage = value.RemainingTotalDamage,
+                            DamagePerTurn = value.DamagePerTurn
+                        });
+                        break;
+                    case SleepHealingPayload value:
+                        copied.Add(new SleepHealingPayload
+                        { MaxHealthPercent = value.MaxHealthPercent });
+                        break;
+                    case UniqueCombatBuffPayload value:
+                        copied.Add(new UniqueCombatBuffPayload
+                        {
+                            BuffType = value.BuffType,
+                            ActionPointModifier = value.ActionPointModifier
+                        });
+                        break;
+                    case ResourceRegenerationBlockPayload:
+                        copied.Add(new ResourceRegenerationBlockPayload());
+                        break;
+                    case DamageRedirectPayload value:
+                        copied.Add(new DamageRedirectPayload
+                        {
+                            RedirectPercent = value.RedirectPercent,
+                            ProtectorCharacterId = value.ProtectorCharacterId,
+                            ProtectorDisplayName = value.ProtectorDisplayName,
+                            ProtectedCharacterId = value.ProtectedCharacterId,
+                            ProtectedCharacterDisplayName = value.ProtectedCharacterDisplayName
+                        });
+                        break;
+                    case OnHitStatusPayload value:
+                        copied.Add(new OnHitStatusPayload
+                        {
+                            StatusId = value.StatusId,
+                            Chance = value.Chance,
+                            DurationTurns = value.DurationTurns,
+                            StatusDamageMultiplier = value.StatusDamageMultiplier,
+                            StatusDamagePerTurn = value.StatusDamagePerTurn
+                        });
+                        break;
+                    case CounterattackPayload value:
+                        copied.Add(new CounterattackPayload
+                        {
+                            Skill = value.Skill,
+                            Range = value.Range,
+                            Effects = value.Effects != null
+                                ? new List<SkillEffectData>(value.Effects)
+                                : new List<SkillEffectData>()
+                        });
+                        break;
+                    case StatModifiersPayload value:
+                        copied.Add(new StatModifiersPayload
+                        { Modifiers = CopyStatModifiers(value.Modifiers) });
+                        break;
+                    case VariableModifiersPayload value:
+                        copied.Add(new VariableModifiersPayload
+                        { Modifiers = CopyVariableModifiers(value.Modifiers) });
+                        break;
+                    case ResistanceModifierPayload value:
+                        copied.Add(new ResistanceModifierPayload
+                        {
+                            ResistanceType = value.ResistanceType,
+                            Value = value.Value
+                        });
+                        break;
+                }
+            }
+
+            return copied;
         }
 
         public bool ProcessTurnStart(CombatSession session, BattleUnit unit)
@@ -683,8 +814,7 @@ namespace Godmist.Systems.Combat
 
         private static bool HasStatModifiers(PassiveEffectRuntime effect)
         {
-            return effect?.StatModifiers != null
-                && effect.StatModifiers.Count > 0;
+            return effect?.GetPayload<StatModifiersPayload>()?.Modifiers?.Count > 0;
         }
 
         private void RefreshStats(CharacterInstance character)

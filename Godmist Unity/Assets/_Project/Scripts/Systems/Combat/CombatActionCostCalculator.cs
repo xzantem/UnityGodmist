@@ -1,4 +1,5 @@
 using Godmist.Data.Skills;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 
@@ -46,6 +47,24 @@ namespace Godmist.Systems.Combat
             }
 
             return unit.MovementStepsThisTurn + 1;
+        }
+    }
+
+    public static class ToggleSkillUpkeepCalculator
+    {
+        public static int Calculate(SkillData skill, ResourcePool resourcePool)
+        {
+            if (skill == null || !skill.IsToggle) return 0;
+
+            var percentageCost = resourcePool == null
+                ? 0
+                : Mathf.CeilToInt(
+                    Mathf.Max(0, resourcePool.MaxValue)
+                    * Mathf.Clamp01(skill.ToggleUpkeepMaxResourcePercent));
+
+            return Mathf.Max(
+                Mathf.Max(0, skill.ToggleUpkeepFlatResourceCost),
+                percentageCost);
         }
     }
 }

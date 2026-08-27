@@ -1,5 +1,6 @@
 using Godmist.Runtime.Combat;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -14,12 +15,14 @@ namespace Godmist.Views.Combat
             targetSelectionController;
         [SerializeField] private CombatUnitInspectPanel inspectPanel;
         [SerializeField] private CombatUnitViewSpawner unitViewSpawner;
+        [SerializeField] private CombatUnitInspectWindowView inspectWindowPrefab;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
 
         private BattleUnit selectedUnit;
+        private CombatUnitInspectWindowView floatingInspectWindow;
         public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()
@@ -27,6 +30,12 @@ namespace Godmist.Views.Combat
             if (worldCamera == null)
             {
                 worldCamera = Camera.main;
+            }
+
+            if (targetSelectionController == null)
+            {
+                targetSelectionController =
+                    GetComponent<CombatTargetSelectionController>();
             }
 
             if (unitViewSpawner == null)
@@ -45,40 +54,22 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (inspectPanel == null)
-            {
-                return;
-            }
-
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 selectedUnit = null;
-                inspectPanel.Hide();
-                RefreshNameLabels(null);
-                return;
-            }
-
-            if (targetSelectionController != null
-                && targetSelectionController.IsSelectingTarget)
-            {
-                var hoveredUnit = targetSelectionController.HoveredUnit;
-                HoveredUnit = hoveredUnit;
-                if (hoveredUnit != null)
-                {
-                    inspectPanel.Show(hoveredUnit);
-                }
-                else
-                {
-                    inspectPanel.Hide();
-                }
-
-                RefreshNameLabels(hoveredUnit);
+                HideInspect();
                 return;
             }
 
             var hoveredUnitOutsideTargeting = GetUnitUnderMouse();
             HoveredUnit = hoveredUnitOutsideTargeting;
-            RefreshNameLabels(hoveredUnitOutsideTargeting);
+
+            if (targetSelectionController != null
+                && (targetSelectionController.IsSelectingTarget
+                    || targetSelectionController.ConsumedPrimaryClickThisFrame))
+            {
+                return;
+            }
 
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
@@ -96,7 +87,7 @@ namespace Godmist.Views.Combat
 
             if (session == null)
             {
-                inspectPanel.Hide();
+                HideInspect();
                 return;
             }
 
@@ -106,14 +97,51 @@ namespace Godmist.Views.Combat
             if (unit == null)
             {
                 selectedUnit = null;
-                inspectPanel.Hide();
-                RefreshNameLabels(null);
+                HideInspect();
                 return;
             }
 
             selectedUnit = unit;
-            inspectPanel.Show(unit);
-            RefreshNameLabels(hoveredUnitOutsideTargeting);
+            ShowUnit(unit);
+
+            if (floatingInspectWindow != null)
+            {
+                floatingInspectWindow.Refresh();
+            }
+        }
+
+        private void ShowUnit(BattleUnit unit)
+        {
+            var parent = UIWorkspaceTooltipView.ActiveInstance?.transform.parent
+                ?? UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
+            floatingInspectWindow ??= CombatUnitInspectWindowView.Create(
+                parent,
+                inspectWindowPrefab);
+            if (floatingInspectWindow != null)
+            {
+                if (floatingInspectWindow.BoundUnit != unit
+                    || !floatingInspectWindow.IsVisible)
+                {
+                    floatingInspectWindow.Show(
+                        unit,
+                        UIWorkspaceTooltipView.ActiveInstance);
+                }
+                else
+                {
+                    floatingInspectWindow.Refresh();
+                }
+
+                inspectPanel?.Hide();
+                return;
+            }
+
+            inspectPanel?.Show(unit);
+        }
+
+        private void HideInspect()
+        {
+            inspectPanel?.Hide();
+            floatingInspectWindow?.Hide();
         }
 
         private BattleUnit FindUnitAtPosition(
@@ -144,11 +172,6 @@ namespace Godmist.Views.Combat
             return session == null
                 ? null
                 : FindUnitAtPosition(session, GetGridPositionUnderMouse());
-        }
-
-        private void RefreshNameLabels(BattleUnit hoveredUnit)
-        {
-            unitViewSpawner?.ShowNameLabelsFor(hoveredUnit, selectedUnit);
         }
 
         private GridPosition GetGridPositionUnderMouse()

@@ -8,6 +8,7 @@ namespace Godmist.Views.Combat
     public enum CombatGridFeedbackLayer
     {
         MovementRange,
+        InspectedMovementRange,
         SkillRange,
         SkillTarget,
         RelativeRange,
@@ -129,7 +130,6 @@ namespace Godmist.Views.Combat
             }
 
             var destination = path[path.Count - 1];
-            var costAnchor = path[path.Count / 2];
             ShowOutline(
                 CombatGridFeedbackLayer.MovementPreview,
                 new[] { destination },
@@ -140,8 +140,12 @@ namespace Godmist.Views.Combat
                 pathCost = CreatePathCost();
                 pathCost.text = actionPointCost.ToString();
                 pathCost.color = color;
-                pathCost.transform.localPosition = GridToLocal(costAnchor)
-                    + (Vector3)costLabelOffset;
+                // GridToLocal returns the cell centre. Keep the label inside the
+                // destination cell, near its upper-right corner; the old vertical
+                // offset placed it above the cell instead.
+                pathCost.transform.localPosition = GridToLocal(destination)
+                    + new Vector3(cellSize * .30f, cellSize * .30f, 0f)
+                    + new Vector3(costLabelOffset.x, 0f, 0f);
                 pathCost.transform.localScale = Vector3.one * pathCostWorldScale;
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using UnityEngine;
 
 namespace Godmist.Systems.Combat
@@ -59,6 +60,17 @@ namespace Godmist.Systems.Combat
         {
             if (target?.Character == null || target.Character.LifeState != CharacterLifeState.Alive 
                 || target.Character.ResourcePool == null || requestedAmount <= 0) return 0;
+
+            // A resource-regeneration block means no positive resource gain from
+            // any combat source: rules, skills, drains and summoned objects.
+            // It deliberately does not affect spending or draining the resource.
+            if (target.Character.PassiveEffects != null
+                && target.Character.PassiveEffects.Exists(effect =>
+                    PassiveEffectLifecycleSystem.IsActive(effect)
+                    && effect.GetPayload<ResourceRegenerationBlockPayload>() != null))
+            {
+                return 0;
+            }
 
             var restoredAmount =target.Character.ResourcePool.Restore(requestedAmount);
 

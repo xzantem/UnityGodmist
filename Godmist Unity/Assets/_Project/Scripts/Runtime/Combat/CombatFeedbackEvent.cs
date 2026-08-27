@@ -12,7 +12,15 @@ namespace Godmist.Runtime.Combat
         ResourceSpend,
         ActionPointSpend,
         Critical,
-        Miss
+        Miss,
+        StatusApplied,
+        BuffApplied,
+        DebuffApplied,
+        ProcTriggered,
+        AuraApplied,
+        DamageRedirected,
+        ResourceRegenerationBlocked,
+        TurnSkipped
     }
 
     public readonly struct CombatFeedbackEvent
@@ -22,13 +30,17 @@ namespace Godmist.Runtime.Combat
             CombatFeedbackType type,
             int amount = 0,
             DamageType? damageType = null,
-            ResourceType? resourceType = null)
+            ResourceType? resourceType = null,
+            GridPosition? position = null,
+            string effectName = null)
         {
             Target = target;
             Type = type;
             Amount = amount;
             DamageType = damageType;
             ResourceType = resourceType;
+            Position = position ?? target?.Position ?? default;
+            EffectName = effectName ?? string.Empty;
         }
 
         public BattleUnit Target { get; }
@@ -36,5 +48,7 @@ namespace Godmist.Runtime.Combat
         public int Amount { get; }
         public DamageType? DamageType { get; }
         public ResourceType? ResourceType { get; }
+        public GridPosition Position { get; }
+        public string EffectName { get; }
     }
 }

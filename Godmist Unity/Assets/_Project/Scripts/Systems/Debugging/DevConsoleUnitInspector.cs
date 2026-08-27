@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Godmist.Core.Constants;
@@ -172,7 +173,7 @@ namespace Godmist.Systems.Debugging
                 output.AppendLine(
                     $"- {effect.EffectId} | stacki: {effect.Stacks} | " +
                     $"życie: {lifetime} | " +
-                    $"{GetEffectValueText(effect, character)} | " +
+                    $"{GetPayloadText(effect, character)} | " +
                     $"źródła: {sources} | " +
                     $"modyfikatory statystyk: " +
                     $"{effect.StatModifiers?.Count ?? 0} | " +
@@ -216,18 +217,58 @@ namespace Godmist.Systems.Debugging
                 : string.Join(", ", sourceTexts);
         }
 
-        private static string GetEffectValueText(
+        private static string GetPayloadText(
             PassiveEffectRuntime effect,
             CharacterInstance character)
+        {
+            var payloadTexts = new List<string>();
+            var damageOverTime = effect.GetPayload<DamageOverTimePayload>();
+            if (damageOverTime != null)
+            {
+                payloadTexts.Add(GetDamageOverTimeText(
+                    effect,
+                    character,
+                    damageOverTime));
+            }
+
+            var sleepHealing = effect.GetPayload<SleepHealingPayload>();
+            if (sleepHealing != null)
+                payloadTexts.Add($"leczenie: {sleepHealing.MaxHealthPercent:P0} max. HP");
+
+            var uniqueBuff = effect.GetPayload<UniqueCombatBuffPayload>();
+            if (uniqueBuff != null)
+                payloadTexts.Add($"unikalny buff: {uniqueBuff.BuffType}");
+
+            var redirect = effect.GetPayload<DamageRedirectPayload>();
+            if (redirect != null)
+                payloadTexts.Add($"redirect: {redirect.RedirectPercent:P0}");
+
+            var onHit = effect.GetPayload<OnHitStatusPayload>();
+            if (onHit != null)
+                payloadTexts.Add(
+                    $"on-hit: {onHit.StatusId} {onHit.Chance:P0}/{onHit.DurationTurns} t.");
+
+            if (effect.GetPayload<ResourceRegenerationBlockPayload>() != null)
+                payloadTexts.Add("blokada regeneracji zasobu");
+
+            return payloadTexts.Count > 0
+                ? string.Join(" | ", payloadTexts)
+                : "payload: brak";
+        }
+
+        private static string GetDamageOverTimeText(
+            PassiveEffectRuntime effect,
+            CharacterInstance character,
+            DamageOverTimePayload payload)
         {
             if (!IsDamageOverTimeStatus(effect.EffectId)
                 || effect.RemainingDuration <= 0)
             {
-                return $"pula obrażeń: {effect.TotalDamage}";
+                return $"pula obrażeń: {payload.RemainingTotalDamage}";
             }
 
             var rawDamage = Mathf.CeilToInt(
-                effect.TotalDamage / (float)effect.RemainingDuration);
+                payload.RemainingTotalDamage / (float)effect.RemainingDuration);
 
             var resistance = GetDamageOverTimeResistance(
                 character,
@@ -243,7 +284,7 @@ namespace Godmist.Systems.Debugging
                    $"surowe: {rawDamage} | " +
                    $"odporność: {resistance:P0} | " +
                    $"mnożnik: {multiplier:0.##}x | " +
-                   $"pula: {effect.TotalDamage}";
+                   $"pula: {payload.RemainingTotalDamage}";
         }
 
         private static bool IsDamageOverTimeStatus(string effectId)

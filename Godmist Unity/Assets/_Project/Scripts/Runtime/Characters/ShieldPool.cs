@@ -49,5 +49,27 @@ namespace Godmist.Runtime.Characters
 
             return remainingDamage;
         }
+
+        public int RemoveLayersBySourceId(string sourceId)
+        {
+            if (string.IsNullOrWhiteSpace(sourceId)) return 0;
+
+            var removedValue = 0;
+            for (var index = layers.Count - 1; index >= 0; index--)
+            {
+                if (!string.Equals(
+                        layers[index].SourceId,
+                        sourceId,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                removedValue += layers[index].CurrentValue;
+                layers.RemoveAt(index);
+            }
+
+            return removedValue;
+        }
     }
 }

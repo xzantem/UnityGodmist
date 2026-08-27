@@ -25,4 +25,24 @@ namespace Godmist.Runtime.Combat
         public abstract bool CanInteract();
         public abstract void Interact();
     }
+
+    [Serializable]
+    public sealed class KnifeCombatMapObject : CombatMapObject
+    {
+        public string OwnerCharacterId = string.Empty;
+        public int KnifeCount = 1;
+        public override CombatMapObjectType ObjectType => CombatMapObjectType.Knife;
+
+        public KnifeCombatMapObject() { }
+
+        public KnifeCombatMapObject(string objectId, GridPosition position,
+            string ownerCharacterId, int knifeCount) : base(objectId, position)
+        {
+            OwnerCharacterId = ownerCharacterId ?? string.Empty;
+            KnifeCount = Math.Max(1, knifeCount);
+        }
+
+        public override bool CanInteract() => false;
+        public override void Interact() { }
+    }
 }

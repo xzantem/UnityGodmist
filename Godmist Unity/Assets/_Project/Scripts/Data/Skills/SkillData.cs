@@ -18,12 +18,86 @@ namespace Godmist.Data.Skills
         [field: SerializeField] public int ActionCost { get; private set; }
         [field: SerializeField] public int ResourceCost { get; private set; }
         [field: SerializeField] public ResourceType ResourceType { get; private set; }
+        [field: SerializeField, Min(0)] public int KnifeCost { get; private set; }
         [field: SerializeField] public bool IsToggle { get; private set; }
+        [field: SerializeField, Min(0)] public int ToggleUpkeepFlatResourceCost { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float ToggleUpkeepMaxResourcePercent { get; private set; }
         [field: SerializeField] public bool RequiresLineOfSight { get; private set; }
         [SerializeField] private List<SkillTargetModeData> targetModes = new();
         [SerializeField] private List<SkillEffectData> effects = new();
 
         public IReadOnlyList<SkillTargetModeData> TargetModes => targetModes;
         public IReadOnlyList<SkillEffectData> Effects => effects;
+    }
+
+    /// <summary>
+    /// Defines effects whose runtime state can be kept and deterministically removed
+    /// when a toggle is disabled.
+    /// </summary>
+    public static class ToggleSkillRules
+    {
+        public static readonly EffectType[] AllowedEffectTypes =
+        {
+            EffectType.ModifyStat,
+            EffectType.ModifyVar,
+            EffectType.ModifyResistance,
+            EffectType.ApplyUniqueBuff,
+            EffectType.BlockResourceRegeneration
+        };
+
+        public static readonly UniqueBuffType[] AllowedUniqueBuffTypes =
+        {
+            UniqueBuffType.ActionPointsNextTurn,
+            UniqueBuffType.OnHitStatus,
+            UniqueBuffType.DamageRedirect,
+            UniqueBuffType.AuraStatus
+        };
+
+        public static bool SupportsToggle(EffectType effectType)
+        {
+            return effectType == EffectType.ModifyStat
+                || effectType == EffectType.ModifyVar
+                || effectType == EffectType.ModifyResistance
+                || effectType == EffectType.ApplyUniqueBuff
+                || effectType == EffectType.BlockResourceRegeneration;
+        }
+
+        public static bool SupportsToggle(
+            EffectType effectType,
+            UniqueBuffType uniqueBuffType)
+        {
+            if (effectType != EffectType.ApplyUniqueBuff)
+            {
+                return SupportsToggle(effectType);
+            }
+
+            return uniqueBuffType == UniqueBuffType.ActionPointsNextTurn
+                || uniqueBuffType == UniqueBuffType.OnHitStatus
+                || uniqueBuffType == UniqueBuffType.DamageRedirect
+                || uniqueBuffType == UniqueBuffType.AuraStatus;
+        }
+
+        public static bool IsValid(SkillData skill)
+        {
+            if (skill?.IsToggle != true
+                || skill.Effects == null
+                || skill.Effects.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var effect in skill.Effects)
+            {
+                if (effect == null
+                    || !SupportsToggle(effect.EffectType, effect.UniqueBuffType)
+                    || effect.DelayCasterTurns > 0
+                    || (effect.Conditions != null && effect.Conditions.Count > 0))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

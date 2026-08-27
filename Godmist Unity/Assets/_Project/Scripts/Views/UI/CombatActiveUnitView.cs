@@ -75,11 +75,11 @@ namespace Godmist.Views.UI
                 resourceValueText.text = $"{resource.CurrentValue}/{resource.MaxValue}";
             }
 
-            RefreshActionPointPips(unit, accentColor);
+            RefreshActionPointPips(unit);
             statusCollection?.Bind(unit);
         }
 
-        private void RefreshActionPointPips(BattleUnit unit, Color activePipColor)
+        private void RefreshActionPointPips(BattleUnit unit)
         {
             var maximum = Mathf.Max(0, unit.MaxActionPoints);
             EnsureActionPointPipCount(maximum);
@@ -102,7 +102,7 @@ namespace Godmist.Views.UI
                 if (isVisible)
                 {
                     pip.color = index < unit.CurrentActionPoints
-                        ? activePipColor
+                        ? Color.white
                         : inactivePipColor;
                 }
             }

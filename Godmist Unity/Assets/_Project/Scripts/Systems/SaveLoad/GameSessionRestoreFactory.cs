@@ -660,50 +660,24 @@ namespace Godmist.Systems.SaveLoad
                     || string.IsNullOrWhiteSpace(effectSaveData.EffectId)
                     || effectSaveData.Stacks < 0
                     || effectSaveData.RemainingDuration < 0
-                    || effectSaveData.TotalDamage < 0
-                    || !TryCreateStatModifiers(
-                        effectSaveData.StatModifiers,
-                        out var statModifiers)
-                    || !TryCreateVariableModifiers(
-                        effectSaveData.VariableModifiers,
-                        out var variableModifiers))
+                    || !Enum.IsDefined(
+                        typeof(PassiveEffectLifetime),
+                        effectSaveData.Lifetime)
+                    || !TryCreatePassiveEffectSources(
+                        effectSaveData.Sources,
+                        out var sources)
+                    || !TryCreatePassiveEffectPayloads(
+                        effectSaveData.Payloads,
+                        out var payloads))
                 {
                     return false;
                 }
 
-                List<PassiveEffectSourceRuntime> sources;
-                PassiveEffectLifetime lifetime;
-
-                if (effectSaveData.HasLifetime)
-                {
-                    if (!Enum.IsDefined(
-                            typeof(PassiveEffectLifetime),
-                            effectSaveData.Lifetime)
-                        || !TryCreatePassiveEffectSources(
-                            effectSaveData.Sources,
-                            out sources))
-                    {
-                        return false;
-                    }
-
-                    lifetime = effectSaveData.Lifetime;
-                }
-                else
-                {
-                    lifetime = effectSaveData.IsTimed
-                        || effectSaveData.RemainingDuration > 0
-                            ? PassiveEffectLifetime.Timed
-                            : PassiveEffectLifetime.Persistent;
-
-                    sources = CreateLegacyPassiveEffectSources(
-                        effectSaveData.SourceEntityIds);
-                }
-
-                var tickPhase = lifetime == PassiveEffectLifetime.Timed
+                var tickPhase = effectSaveData.Lifetime == PassiveEffectLifetime.Timed
                     ? effectSaveData.TickPhase
                     : PassiveEffectTickPhase.None;
 
-                if (lifetime == PassiveEffectLifetime.Timed
+                if (effectSaveData.Lifetime == PassiveEffectLifetime.Timed
                     && tickPhase == PassiveEffectTickPhase.None)
                 {
                     tickPhase = IsDamageOverTimeStatus(
@@ -718,13 +692,114 @@ namespace Godmist.Systems.SaveLoad
                         sources,
                         effectSaveData.Stacks,
                         effectSaveData.RemainingDuration,
-                        effectSaveData.TotalDamage,
-                        lifetime,
+                        totalDamage: 0,
+                        lifetime: effectSaveData.Lifetime,
                         tickPhase)
                     {
-                        StatModifiers = statModifiers,
-                        VariableModifiers = variableModifiers
+                        DisplayName = effectSaveData.DisplayName ?? string.Empty,
+                        Payloads = payloads
                     });
+            }
+
+            return true;
+        }
+
+        private static bool TryCreatePassiveEffectPayloads(
+            List<PassiveEffectPayloadSaveData> saveDataList,
+            out List<PassiveEffectPayloadRuntime> payloads)
+        {
+            payloads = new List<PassiveEffectPayloadRuntime>();
+            if (saveDataList == null) return true;
+
+            var types = new HashSet<PassiveEffectPayloadType>();
+            foreach (var saveData in saveDataList)
+            {
+                if (saveData == null
+                    || !Enum.IsDefined(typeof(PassiveEffectPayloadType), saveData.Type)
+                    || !types.Add(saveData.Type))
+                {
+                    return false;
+                }
+
+                switch (saveData.Type)
+                {
+                    case PassiveEffectPayloadType.DamageOverTime:
+                        if (saveData.RemainingTotalDamage < 0) return false;
+                        payloads.Add(new DamageOverTimePayload
+                        {
+                            RemainingTotalDamage = saveData.RemainingTotalDamage,
+                            DamagePerTurn = saveData.DamagePerTurn
+                        });
+                        break;
+                    case PassiveEffectPayloadType.SleepHealing:
+                        if (saveData.MaxHealthPercent < 0f) return false;
+                        payloads.Add(new SleepHealingPayload
+                        {
+                            MaxHealthPercent = saveData.MaxHealthPercent
+                        });
+                        break;
+                    case PassiveEffectPayloadType.UniqueCombatBuff:
+                        if (!Enum.IsDefined(typeof(UniqueBuffType), saveData.UniqueBuffType)) return false;
+                        payloads.Add(new UniqueCombatBuffPayload
+                        {
+                            BuffType = saveData.UniqueBuffType,
+                            ActionPointModifier = saveData.ActionPointModifier
+                        });
+                        break;
+                    case PassiveEffectPayloadType.ResourceRegenerationBlock:
+                        payloads.Add(new ResourceRegenerationBlockPayload());
+                        break;
+                    case PassiveEffectPayloadType.DamageRedirect:
+                        if (saveData.DamageRedirectPercent < 0f
+                            || saveData.DamageRedirectPercent > 1f) return false;
+                        payloads.Add(new DamageRedirectPayload
+                        {
+                            RedirectPercent = saveData.DamageRedirectPercent,
+                            ProtectorCharacterId = saveData.ProtectorCharacterId ?? string.Empty,
+                            ProtectorDisplayName = saveData.ProtectorDisplayName ?? string.Empty,
+                            ProtectedCharacterId = saveData.ProtectedCharacterId ?? string.Empty,
+                            ProtectedCharacterDisplayName = saveData.ProtectedCharacterDisplayName ?? string.Empty
+                        });
+                        break;
+                    case PassiveEffectPayloadType.OnHitStatus:
+                        if (saveData.OnHitStatusChance < 0f
+                            || saveData.OnHitStatusChance > 1f
+                            || saveData.OnHitStatusDurationTurns < 0
+                            || saveData.OnHitStatusDamageMultiplier < 0f
+                            || saveData.OnHitStatusDamagePerTurn < 0) return false;
+                        payloads.Add(new OnHitStatusPayload
+                        {
+                            StatusId = saveData.OnHitStatusId ?? string.Empty,
+                            Chance = saveData.OnHitStatusChance,
+                            DurationTurns = saveData.OnHitStatusDurationTurns,
+                            StatusDamageMultiplier = saveData.OnHitStatusDamageMultiplier,
+                            StatusDamagePerTurn = saveData.OnHitStatusDamagePerTurn
+                        });
+                        break;
+                    case PassiveEffectPayloadType.Counterattack:
+                        return false;
+                    case PassiveEffectPayloadType.StatModifiers:
+                        if (!TryCreateStatModifiers(saveData.StatModifiers, out var statModifiers)) return false;
+                        payloads.Add(new StatModifiersPayload { Modifiers = statModifiers });
+                        break;
+                    case PassiveEffectPayloadType.VariableModifiers:
+                        if (!TryCreateVariableModifiers(saveData.VariableModifiers, out var variableModifiers)) return false;
+                        payloads.Add(new VariableModifiersPayload { Modifiers = variableModifiers });
+                        break;
+                    case PassiveEffectPayloadType.ResistanceModifier:
+                        if (!Enum.IsDefined(typeof(ResistanceType), saveData.ResistanceType)
+                            || float.IsNaN(saveData.ResistanceModifierValue)
+                            || float.IsInfinity(saveData.ResistanceModifierValue))
+                        {
+                            return false;
+                        }
+                        payloads.Add(new ResistanceModifierPayload
+                        {
+                            ResistanceType = saveData.ResistanceType,
+                            Value = saveData.ResistanceModifierValue
+                        });
+                        break;
+                }
             }
 
             return true;

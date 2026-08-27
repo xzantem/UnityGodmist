@@ -74,6 +74,30 @@ namespace Godmist.Systems.Combat
                 report.AddError("Resource Cost cannot be negative.");
             }
 
+            if (skill.ToggleUpkeepFlatResourceCost < 0)
+            {
+                report.AddError("Toggle Upkeep Flat Resource Cost cannot be negative.");
+            }
+
+            if (skill.ToggleUpkeepMaxResourcePercent < 0f
+                || skill.ToggleUpkeepMaxResourcePercent > 1f)
+            {
+                report.AddError(
+                    "Toggle Upkeep Max Resource Percent must be between 0 and 1.");
+            }
+
+            if (!skill.IsToggle
+                && (skill.ToggleUpkeepFlatResourceCost > 0
+                    || skill.ToggleUpkeepMaxResourcePercent > 0f))
+            {
+                report.AddError("Only toggle skills can define toggle upkeep.");
+            }
+
+            if (skill.KnifeCost < 0)
+            {
+                report.AddError("Knife Cost cannot be negative.");
+            }
+
             if (skill.Effects == null || skill.Effects.Count == 0)
             {
                 report.AddError("Skill must define at least one effect.");
@@ -282,6 +306,29 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (skill.IsToggle
+                    && !ToggleSkillRules.SupportsToggle(
+                        effect.EffectType,
+                        effect.UniqueBuffType))
+                {
+                    report.AddError(
+                        $"{prefix}: {effect.EffectType} cannot be used by a toggle skill.");
+                }
+
+                if (skill.IsToggle && effect.DelayCasterTurns > 0)
+                {
+                    report.AddError(
+                        $"{prefix}: toggle effects cannot use delayed execution.");
+                }
+
+                if (skill.IsToggle
+                    && effect.Conditions != null
+                    && effect.Conditions.Count > 0)
+                {
+                    report.AddError(
+                        $"{prefix}: toggle effects cannot use conditions.");
+                }
+
                 if (effect.EffectType == EffectType.CreateObject)
                 {
                     if (effect.SummonedObjectDefinition == null)
@@ -445,6 +492,21 @@ namespace Godmist.Systems.Combat
                     {
                         report.AddError(
                             $"{prefix}: multiplicative Modifier Value cannot be lower than -1.");
+                    }
+
+                    if (effect.DurationTurns < 0)
+                    {
+                        report.AddError(
+                            $"{prefix}: Duration Turns cannot be negative.");
+                    }
+                }
+
+                if (effect.EffectType == EffectType.ModifyResistance)
+                {
+                    if (Mathf.Approximately(effect.ModifierValue, 0f))
+                    {
+                        report.AddError(
+                            $"{prefix}: Modifier Value cannot be zero.");
                     }
 
                     if (effect.DurationTurns < 0)

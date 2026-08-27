@@ -32,6 +32,7 @@ namespace Godmist.Views.Characters
         private bool hasTargetWorldPosition;
 
         public BattleUnit BoundUnit { get; private set; }
+        public bool IsMoving => hasTargetWorldPosition;
 
         public void Bind(BattleUnit unit)
         {

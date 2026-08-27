@@ -1,6 +1,7 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using UnityEngine;
 
 namespace Godmist.Systems.Combat
@@ -34,7 +35,8 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             int attackValue,
             DamageType damageType,
-            float skillAccuracy)
+            float skillAccuracy,
+            float bonusDefensePenetration = 0f)
         {
             if (source?.Character == null || target?.Character == null || attackValue <= 0)
             {
@@ -46,7 +48,14 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
-            if (!IsGuaranteedHitDamageType(damageType) && !RollHit(source, target, skillAccuracy))
+            var wasHit = IsGuaranteedHitDamageType(damageType)
+                || RollHit(source, target, skillAccuracy);
+            if (wasHit && TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
+            {
+                wasHit = false;
+            }
+
+            if (!wasHit)
             {
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss));
@@ -61,7 +70,12 @@ namespace Godmist.Systems.Combat
                 damageAfterFreeze,
                 isCritical);
 
-            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
+            var finalDamage = ApplyDefense(
+                source,
+                target,
+                damageAfterCrit,
+                damageType,
+                bonusDefensePenetration);
 
             if (isCritical)
             {
@@ -85,13 +99,15 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             int attackValue,
             DamageType damageType,
-            bool wasHit)
+            bool wasHit,
+            float bonusDefensePenetration = 0f)
         {
             if (source?.Character == null
                 || target?.Character == null
                 || attackValue <= 0
                 || !wasHit
-                || StatusEffectSystem.IsParalyzed(target))
+                || StatusEffectSystem.IsParalyzed(target)
+                || TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
                 return new CombatDamageResult(false, false, 0);
             }
@@ -103,7 +119,12 @@ namespace Godmist.Systems.Combat
                 damageAfterFreeze,
                 isCritical);
 
-            var finalDamage = ApplyDefense(target, damageAfterCrit, damageType);
+            var finalDamage = ApplyDefense(
+                source,
+                target,
+                damageAfterCrit,
+                damageType,
+                bonusDefensePenetration);
 
             if (isCritical)
             {
@@ -122,7 +143,7 @@ namespace Godmist.Systems.Combat
         }
 
         public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target, 
-            int requestedDamage, DamageType damageType)
+            int requestedDamage, DamageType damageType, bool allowDamageRedirect = true)
         {
             if (session == null || target?.Character == null)
             {
@@ -155,6 +176,14 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
             var remainingDamage = incomingDamage;
+
+            var redirectedHealthDamage = 0;
+            if (allowDamageRedirect
+                && TryResolveDamageRedirect(session, source, target, incomingDamage,
+                    damageType, out var redirectedDamage, out redirectedHealthDamage))
+            {
+                remainingDamage = Mathf.Max(0, incomingDamage - redirectedDamage);
+            }
 
             var damageBeforeShield = remainingDamage;
 
@@ -200,7 +229,7 @@ namespace Godmist.Systems.Combat
                 resourceRuleSystem?.ProcessDamageDealt(source);
             }
             evaluateOutcome?.Invoke(session);
-            return healthDamage;
+            return healthDamage + redirectedHealthDamage;
         }
 
         public int ApplySummonedObjectDamage(
@@ -272,6 +301,11 @@ namespace Godmist.Systems.Combat
             if (damageType != DamageType.Physical && damageType != DamageType.Inevitable)
                 return false;
 
+            if (TryConsumeUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit))
+            {
+                return true;
+            }
+
             var chance = source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue();
 
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
@@ -286,9 +320,14 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt(damage * Mathf.Max(1f, multiplier));
         }
 
-        private static int ApplyDefense(BattleUnit target, int damage, DamageType damageType)
+        public static int ApplyDefense(
+            BattleUnit source,
+            BattleUnit target,
+            int damage,
+            DamageType damageType,
+            float bonusDefensePenetration = 0f)
         {
-            if (damage <= 0) return 0;
+            if (damage <= 0 || target?.Character == null) return 0;
             var stats = target.Character.Stats;
             var defense = 0f;
             if (stats != null)
@@ -301,11 +340,42 @@ namespace Godmist.Systems.Combat
                 };
             }
 
-            defense = Mathf.Max(0f, defense);
+            var penetration = Mathf.Clamp01(
+                GetDefensePenetration(source, damageType)
+                + Mathf.Clamp01(bonusDefensePenetration));
+            defense = Mathf.Max(0f, defense * (1f - penetration));
 
             if (defense <= 0f) return damage;
 
             return Mathf.CeilToInt(damage * damage / (damage + defense));
+        }
+
+        public static int ApplyDefense(
+            BattleUnit target,
+            int damage,
+            DamageType damageType)
+        {
+            return ApplyDefense(null, target, damage, damageType);
+        }
+
+        private static float GetDefensePenetration(
+            BattleUnit source,
+            DamageType damageType)
+        {
+            var stats = source?.Character?.Stats;
+            if (stats == null)
+            {
+                return 0f;
+            }
+
+            return damageType switch
+            {
+                DamageType.Physical => Mathf.Clamp01(
+                    stats.PhysicalDefensePenetration.GetValue()),
+                DamageType.Magical => Mathf.Clamp01(
+                    stats.MagicalDefensePenetration.GetValue()),
+                _ => 0f
+            };
         }
 
         private static bool IsDamageOverTime(DamageType damageType)
@@ -339,6 +409,115 @@ namespace Godmist.Systems.Combat
             if (target?.Character?.ShieldPool == null || damage <= 0) return damage;
 
             return target.Character.ShieldPool.AbsorbDamage(damage);
+        }
+
+        public static bool HasUniqueBuff(BattleUnit unit, UniqueBuffType buffType)
+        {
+            return FindUniqueBuff(unit, buffType) != null;
+        }
+
+        public static bool TryConsumeUniqueBuff(BattleUnit unit, UniqueBuffType buffType)
+        {
+            var effect = FindUniqueBuff(unit, buffType);
+            if (effect == null) return false;
+
+            effect.Stacks--;
+            if (effect.Stacks <= 0)
+            {
+                unit.Character.PassiveEffects.Remove(effect);
+            }
+            return true;
+        }
+
+        private static PassiveEffectRuntime FindUniqueBuff(
+            BattleUnit unit, UniqueBuffType buffType)
+        {
+            if (unit?.Character?.PassiveEffects == null) return null;
+
+            foreach (var effect in unit.Character.PassiveEffects)
+            {
+                var payload = effect?.GetPayload<UniqueCombatBuffPayload>();
+                if (PassiveEffectLifecycleSystem.IsActive(effect)
+                    && payload?.BuffType == buffType
+                    && effect.Stacks > 0)
+                {
+                    return effect;
+                }
+            }
+            return null;
+        }
+
+        private bool TryResolveDamageRedirect(
+            CombatSession session,
+            BattleUnit source,
+            BattleUnit protectedUnit,
+            int incomingDamage,
+            DamageType damageType,
+            out int redirectedDamage,
+            out int redirectedHealthDamage)
+        {
+            redirectedDamage = 0;
+            redirectedHealthDamage = 0;
+            if (session?.Units == null || protectedUnit == null || incomingDamage <= 0)
+            {
+                return false;
+            }
+
+            var redirectPercent = protectedUnit.DamageRedirectPercent;
+            var protectorCharacterId = protectedUnit.DamageRedirectProtectorCharacterId;
+            if (redirectPercent <= 0f || string.IsNullOrWhiteSpace(protectorCharacterId))
+            {
+                var runtimeBuff = protectedUnit.Character?.PassiveEffects?.Find(effect =>
+                    PassiveEffectLifecycleSystem.IsActive(effect)
+                    && effect.GetPayload<DamageRedirectPayload>()?.RedirectPercent > 0f
+                    && effect.Sources != null && effect.Sources.Count > 0);
+                if (runtimeBuff == null) return false;
+                redirectPercent = runtimeBuff
+                    .GetPayload<DamageRedirectPayload>()
+                    .RedirectPercent;
+                protectorCharacterId = runtimeBuff.Sources[0]?.SourceCharacterId;
+            }
+
+            var protector = session.Units.Find(unit => unit?.Character != null
+                && unit.Character.LifeState == CharacterLifeState.Alive
+                && string.Equals(unit.Character.CharacterId,
+                    protectorCharacterId,
+                    StringComparison.OrdinalIgnoreCase));
+            if (protector == null || protector == protectedUnit)
+            {
+                protectedUnit.DamageRedirectProtectorCharacterId = string.Empty;
+                protectedUnit.DamageRedirectPercent = 0f;
+                return false;
+            }
+
+            var requestedRedirect = Mathf.FloorToInt(incomingDamage
+                * Mathf.Clamp01(redirectPercent));
+            if (requestedRedirect <= 0)
+            {
+                return false;
+            }
+
+            var mitigatedRedirect = ApplyDefense(
+                source,
+                protector,
+                requestedRedirect,
+                damageType);
+            redirectedHealthDamage = ApplyDamage(session, null, protector,
+                mitigatedRedirect, damageType, allowDamageRedirect: false);
+            redirectedDamage = requestedRedirect;
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                protectedUnit,
+                CombatFeedbackType.DamageRedirected,
+                redirectedDamage,
+                damageType,
+                effectName: "Redirect"));
+            feedbackBus?.Publish(new CombatFeedbackEvent(
+                protector,
+                CombatFeedbackType.DamageRedirected,
+                redirectedHealthDamage,
+                damageType,
+                effectName: "Redirect"));
+            return true;
         }
         private void AccelerateDownedDeath(CombatSession session, BattleUnit target)
         {

@@ -37,22 +37,23 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var counterattack = FindCounterattack(defender);
-            if (counterattack?.CounterattackSkill == null
-                || counterattack.CounterattackRange == null
-                || counterattack.CounterattackEffects == null
-                || counterattack.CounterattackEffects.Count == 0
+            var counterattack = FindCounterattack(defender)
+                ?.GetPayload<CounterattackPayload>();
+            if (counterattack?.Skill == null
+                || counterattack.Range == null
+                || counterattack.Effects == null
+                || counterattack.Effects.Count == 0
                 || !CombatTargetingService.IsPositionWithinRange(
                     defender.Position,
                     attacker.Position,
-                    counterattack.CounterattackRange))
+                    counterattack.Range))
             {
                 return false;
             }
 
             defender.HasReacted = true;
-            reactionSkill = counterattack.CounterattackSkill;
-            reactionEffects = counterattack.CounterattackEffects;
+            reactionSkill = counterattack.Skill;
+            reactionEffects = counterattack.Effects;
             battleLog?.Invoke($"{defender.Character.Definition.DisplayName} kontratakuje.");
             return true;
         }

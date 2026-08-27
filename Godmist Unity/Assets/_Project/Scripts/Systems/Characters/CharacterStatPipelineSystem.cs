@@ -35,7 +35,9 @@ namespace Godmist.Systems.Characters
 
                 effectiveValue = statType == CharacterStatType.MaxHealth
                     ? Mathf.Max(1f, effectiveValue)
-                    : Mathf.Max(0f, effectiveValue);
+                    : IsDefensePenetration(statType)
+                        ? Mathf.Clamp01(effectiveValue)
+                        : Mathf.Max(0f, effectiveValue);
 
                 stat.SetEffectiveValue(effectiveValue);
             }
@@ -79,7 +81,11 @@ namespace Godmist.Systems.Characters
             {
                 if (passiveEffect == null) continue;
 
-                ApplyModifiers(passiveEffect.StatModifiers, accumulators);
+                ApplyModifiers(
+                    passiveEffect
+                        .GetPayload<StatModifiersPayload>()
+                        ?.Modifiers,
+                    accumulators);
             }
         }
 
@@ -143,6 +149,12 @@ namespace Godmist.Systems.Characters
                 character.ResourcePool.CurrentValue,
                 0,
                 character.ResourcePool.MaxValue);
+        }
+
+        private static bool IsDefensePenetration(CharacterStatType statType)
+        {
+            return statType == CharacterStatType.PhysicalDefensePenetration
+                || statType == CharacterStatType.MagicalDefensePenetration;
         }
 
         private struct StatModifierAccumulator

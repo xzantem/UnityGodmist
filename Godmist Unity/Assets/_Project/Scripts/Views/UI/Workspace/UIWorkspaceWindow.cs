@@ -15,6 +15,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button closeButton;
         [SerializeField, Min(1f)] private Vector2 minimumSize = new(320f, 240f);
         [SerializeField, Min(1f)] private Vector2 maximumSize = new(1200f, 900f);
+        [SerializeField] private bool allowHorizontalResize = true;
+        [SerializeField] private bool allowVerticalResize = true;
 
         private RectTransform rectTransform;
 
@@ -23,6 +25,12 @@ namespace Godmist.Views.UI.Workspace
             : rectTransform = GetComponent<RectTransform>();
         public UIWorkspaceWindowManager Manager => manager;
         public bool IsOpen => gameObject.activeInHierarchy;
+
+        public void ConfigureResizeAxes(bool horizontal, bool vertical)
+        {
+            allowHorizontalResize = horizontal;
+            allowVerticalResize = vertical;
+        }
 
         private void Awake()
         {
@@ -94,9 +102,13 @@ namespace Godmist.Views.UI.Workspace
             var root = ResolveManager()?.WorkspaceRoot;
             var parentSize = root != null ? root.rect.size : maximumSize;
             var allowedMaximum = Vector2.Min(maximumSize, parentSize);
-            var sizeDelta = new Vector2(localDelta.x, -localDelta.y);
+            var sizeDelta = new Vector2(
+                allowHorizontalResize ? localDelta.x : 0f,
+                allowVerticalResize ? -localDelta.y : 0f);
             var nextSize = Vector2.Max(minimumSize, RectTransform.sizeDelta + sizeDelta);
             nextSize = Vector2.Min(nextSize, allowedMaximum);
+            if (!allowHorizontalResize) nextSize.x = RectTransform.sizeDelta.x;
+            if (!allowVerticalResize) nextSize.y = RectTransform.sizeDelta.y;
             var appliedDelta = nextSize - RectTransform.sizeDelta;
 
             RectTransform.sizeDelta = nextSize;
