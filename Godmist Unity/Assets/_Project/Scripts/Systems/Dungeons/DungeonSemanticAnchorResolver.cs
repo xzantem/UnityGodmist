@@ -87,9 +87,14 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
+                    var localArea = DungeonRoomTransformUtility.TransformArea(
+                        anchor.LocalCell,
+                        anchor.AreaSize,
+                        template.SizeInCells,
+                        room.RotationDegrees);
                     var area = new RectInt(
-                        room.LayoutPosition + anchor.LocalCell,
-                        anchor.AreaSize);
+                        room.LayoutPosition + localArea.position,
+                        localArea.size);
                     var cells = new List<Vector2Int>();
 
                     for (var x = area.xMin; x < area.xMax; x++)

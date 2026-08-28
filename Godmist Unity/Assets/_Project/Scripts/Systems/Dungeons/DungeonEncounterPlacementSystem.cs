@@ -90,7 +90,9 @@ namespace Godmist.Systems.Dungeons
 
                 var triggerArea = new RectInt(
                     room.LayoutPosition,
-                    template.SizeInCells);
+                    DungeonRoomTransformUtility.GetRotatedSize(
+                        template.SizeInCells,
+                        room.RotationDegrees));
 
                 var encounter = new DungeonEncounterInstance(
                     instanceId,
@@ -124,10 +126,13 @@ namespace Godmist.Systems.Dungeons
                 return false;
             }
 
+            var roomSize = DungeonRoomTransformUtility.GetRotatedSize(
+                template.SizeInCells,
+                room.RotationDegrees);
             var preferredCell = room.LayoutPosition
                                 + new Vector2Int(
-                                    template.SizeInCells.x / 2,
-                                    template.SizeInCells.y / 2);
+                                    roomSize.x / 2,
+                                    roomSize.y / 2);
 
             var hasCandidate = false;
             var selectedDistance = int.MaxValue;

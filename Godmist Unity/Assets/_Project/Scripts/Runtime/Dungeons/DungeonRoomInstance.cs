@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Dungeons;
 using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
@@ -10,6 +11,7 @@ namespace Godmist.Runtime.Dungeons
         public DungeonRoomType RoomType { get; }
         public string TemplateId { get; }
         public Vector2Int LayoutPosition { get; }
+        public int RotationDegrees { get; }
         public bool IsRequiredProgressionRoom { get; }
         public bool IsProgressionRoomCompleted { get; private set; }
         public bool IsVisited { get; private set; }
@@ -19,7 +21,8 @@ namespace Godmist.Runtime.Dungeons
             DungeonRoomType roomType,
             string templateId = null,
             Vector2Int layoutPosition = default,
-            bool isRequiredProgressionRoom = false)
+            bool isRequiredProgressionRoom = false,
+            int rotationDegrees = 0)
         {
             if (string.IsNullOrWhiteSpace(roomId))
             {
@@ -33,6 +36,8 @@ namespace Godmist.Runtime.Dungeons
             TemplateId = templateId ?? string.Empty;
             LayoutPosition = layoutPosition;
             IsRequiredProgressionRoom = isRequiredProgressionRoom;
+            RotationDegrees = DungeonRoomTransformUtility.NormalizeRotation(
+                rotationDegrees);
         }
 
         public bool TryMarkVisited()

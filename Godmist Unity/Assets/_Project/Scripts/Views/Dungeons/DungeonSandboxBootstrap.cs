@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Dungeons;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
@@ -170,10 +171,13 @@ namespace Godmist.Views.Dungeons
                 {
                     if (template == null || template.Id != room.TemplateId) continue;
 
+                    var roomSize = DungeonRoomTransformUtility.GetRotatedSize(
+                        template.SizeInCells,
+                        room.RotationDegrees);
                     var preferredCell = room.LayoutPosition
                                         + new Vector2Int(
-                                            template.SizeInCells.x / 2,
-                                            template.SizeInCells.y / 2);
+                                            roomSize.x / 2,
+                                            roomSize.y / 2);
 
                     var hasCandidate = false;
                     var selectedCell = default(Vector2Int);

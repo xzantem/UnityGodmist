@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using UnityEngine;
@@ -254,6 +255,241 @@ namespace Godmist.Data.Dungeons
             }
 
             return false;
+        }
+    }
+
+    public static class DungeonRoomTransformUtility
+    {
+        private static readonly int[] SupportedRotations =
+        {
+            0,
+            90,
+            180,
+            270
+        };
+
+        public static IReadOnlyList<int> AllRotations => SupportedRotations;
+
+        public static int NormalizeRotation(int rotationDegrees)
+        {
+            var normalized = rotationDegrees % 360;
+            if (normalized < 0) normalized += 360;
+
+            return normalized switch
+            {
+                0 or 90 or 180 or 270 => normalized,
+                _ => throw new ArgumentException(
+                    "Rotacja pokoju musi wynosic 0, 90, 180 albo 270 stopni.",
+                    nameof(rotationDegrees))
+            };
+        }
+
+        public static Vector2Int GetRotatedSize(
+            Vector2Int sizeInCells,
+            int rotationDegrees)
+        {
+            var rotation = NormalizeRotation(rotationDegrees);
+
+            return rotation == 90 || rotation == 270
+                ? new Vector2Int(sizeInCells.y, sizeInCells.x)
+                : sizeInCells;
+        }
+
+        public static Vector2Int TransformCell(
+            Vector2Int localCell,
+            Vector2Int sourceSize,
+            int rotationDegrees)
+        {
+            var rotation = NormalizeRotation(rotationDegrees);
+
+            return rotation switch
+            {
+                0 => localCell,
+                90 => new Vector2Int(
+                    sourceSize.y - 1 - localCell.y,
+                    localCell.x),
+                180 => new Vector2Int(
+                    sourceSize.x - 1 - localCell.x,
+                    sourceSize.y - 1 - localCell.y),
+                270 => new Vector2Int(
+                    localCell.y,
+                    sourceSize.x - 1 - localCell.x),
+                _ => localCell
+            };
+        }
+
+        public static Vector2Int InverseTransformCell(
+            Vector2Int transformedCell,
+            Vector2Int sourceSize,
+            int rotationDegrees)
+        {
+            var rotation = NormalizeRotation(rotationDegrees);
+            var transformedSize = GetRotatedSize(sourceSize, rotation);
+            var inverseRotation = (360 - rotation) % 360;
+
+            return TransformCell(
+                transformedCell,
+                transformedSize,
+                inverseRotation);
+        }
+
+        public static DungeonEdgeDirection TransformDirection(
+            DungeonEdgeDirection direction,
+            int rotationDegrees)
+        {
+            var rotation = NormalizeRotation(rotationDegrees);
+
+            for (var index = 0; index < rotation / 90; index++)
+            {
+                direction = direction switch
+                {
+                    DungeonEdgeDirection.Up => DungeonEdgeDirection.Left,
+                    DungeonEdgeDirection.Left => DungeonEdgeDirection.Down,
+                    DungeonEdgeDirection.Down => DungeonEdgeDirection.Right,
+                    DungeonEdgeDirection.Right => DungeonEdgeDirection.Up,
+                    _ => direction
+                };
+            }
+
+            return direction;
+        }
+
+        public static DungeonEdgeDirection InverseTransformDirection(
+            DungeonEdgeDirection direction,
+            int rotationDegrees)
+        {
+            var rotation = NormalizeRotation(rotationDegrees);
+
+            for (var index = 0; index < rotation / 90; index++)
+            {
+                direction = direction switch
+                {
+                    DungeonEdgeDirection.Up => DungeonEdgeDirection.Right,
+                    DungeonEdgeDirection.Right => DungeonEdgeDirection.Down,
+                    DungeonEdgeDirection.Down => DungeonEdgeDirection.Left,
+                    DungeonEdgeDirection.Left => DungeonEdgeDirection.Up,
+                    _ => direction
+                };
+            }
+
+            return direction;
+        }
+
+        public static Vector2Int GetDirectionOffset(
+            DungeonEdgeDirection direction)
+        {
+            return direction switch
+            {
+                DungeonEdgeDirection.Up => Vector2Int.up,
+                DungeonEdgeDirection.Right => Vector2Int.right,
+                DungeonEdgeDirection.Down => Vector2Int.down,
+                DungeonEdgeDirection.Left => Vector2Int.left,
+                _ => Vector2Int.zero
+            };
+        }
+
+        public static RectInt TransformArea(
+            Vector2Int localCell,
+            Vector2Int areaSize,
+            Vector2Int sourceSize,
+            int rotationDegrees)
+        {
+            var firstCorner = TransformCell(
+                localCell,
+                sourceSize,
+                rotationDegrees);
+            var secondCorner = TransformCell(
+                localCell + new Vector2Int(areaSize.x - 1, 0),
+                sourceSize,
+                rotationDegrees);
+            var thirdCorner = TransformCell(
+                localCell + new Vector2Int(0, areaSize.y - 1),
+                sourceSize,
+                rotationDegrees);
+            var fourthCorner = TransformCell(
+                localCell + areaSize - Vector2Int.one,
+                sourceSize,
+                rotationDegrees);
+
+            var minimum = new Vector2Int(
+                Mathf.Min(
+                    firstCorner.x,
+                    secondCorner.x,
+                    thirdCorner.x,
+                    fourthCorner.x),
+                Mathf.Min(
+                    firstCorner.y,
+                    secondCorner.y,
+                    thirdCorner.y,
+                    fourthCorner.y));
+
+            return new RectInt(
+                minimum,
+                GetRotatedSize(areaSize, rotationDegrees));
+        }
+
+        public static bool ContainsTransformedCell(
+            DungeonRoomFootprint footprint,
+            Vector2Int transformedCell,
+            Vector2Int sourceSize,
+            int rotationDegrees)
+        {
+            var authoredCell = InverseTransformCell(
+                transformedCell,
+                sourceSize,
+                rotationDegrees);
+
+            return footprint == null
+                || footprint.Contains(authoredCell, sourceSize);
+        }
+
+        public static bool AllowsTransformedBoundaryEdge(
+            DungeonRoomTemplateDefinition template,
+            Vector2Int transformedCell,
+            DungeonEdgeDirection transformedDirection,
+            int rotationDegrees)
+        {
+            if (template == null) return false;
+
+            var authoredCell = InverseTransformCell(
+                transformedCell,
+                template.SizeInCells,
+                rotationDegrees);
+            var authoredDirection = InverseTransformDirection(
+                transformedDirection,
+                rotationDegrees);
+
+            return template.AllowsBoundaryEdge(
+                authoredCell,
+                authoredDirection);
+        }
+
+        public static IEnumerable<Vector2Int> EnumerateTransformedFootprint(
+            DungeonRoomTemplateDefinition template,
+            int rotationDegrees)
+        {
+            if (template == null) yield break;
+
+            var footprint = template.Footprint ?? new DungeonRoomFootprint();
+
+            foreach (var localCell in footprint.Enumerate(template.SizeInCells))
+            {
+                yield return TransformCell(
+                    localCell,
+                    template.SizeInCells,
+                    rotationDegrees);
+            }
+        }
+
+        public static bool IsSupportedRotation(int rotationDegrees)
+        {
+            var normalized = rotationDegrees % 360;
+            if (normalized < 0) normalized += 360;
+
+            return normalized == 0
+                || normalized == 90
+                || normalized == 180
+                || normalized == 270;
         }
     }
 }

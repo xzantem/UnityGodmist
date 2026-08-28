@@ -22,6 +22,17 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public Vector2Int SizeInCells { get; private set; } = new(8, 8);
 
+        [field: Header("Allowed rotations")]
+        [field: Tooltip("Dopuszczalne obroty instancji szablonu w stopniach. Puste = wszystkie cztery obroty.")]
+        [field: SerializeField]
+        public List<int> AllowedRotationDegrees { get; private set; } = new()
+        {
+            0,
+            90,
+            180,
+            270
+        };
+
         [field: Header("Room footprint")]
         [field: Tooltip("Puste = pelny prostokat. Wpisz lokalne komorki podlogi, aby zdefiniowac dowolny ksztalt pokoju.")]
         [field: SerializeField]
@@ -51,6 +62,7 @@ namespace Godmist.Data.Dungeons
 
             Footprint ??= new DungeonRoomFootprint();
             AllowedBoundaryEdges ??= new List<DungeonRoomBoundaryEdgeData>();
+            NormalizeAllowedRotations();
 
             MigrateLegacyBoundaryEdges();
 
@@ -99,6 +111,45 @@ namespace Godmist.Data.Dungeons
             AllowedBoundaryEdges = new List<DungeonRoomBoundaryEdgeData>(
                 DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(this));
             BoundaryEdgesConfigured = true;
+        }
+
+        public IReadOnlyList<int> GetAllowedRotationDegrees()
+        {
+            if (AllowedRotationDegrees == null
+                || AllowedRotationDegrees.Count == 0)
+            {
+                return DungeonRoomTransformUtility.AllRotations;
+            }
+
+            return AllowedRotationDegrees;
+        }
+
+        private void NormalizeAllowedRotations()
+        {
+            var normalized = new List<int>();
+
+            foreach (var rotation in AllowedRotationDegrees
+                         ?? new List<int>())
+            {
+                if (!DungeonRoomTransformUtility.IsSupportedRotation(rotation))
+                {
+                    continue;
+                }
+
+                var normalizedRotation = rotation % 360;
+                if (normalizedRotation < 0) normalizedRotation += 360;
+
+                if (!normalized.Contains(normalizedRotation))
+                {
+                    normalized.Add(normalizedRotation);
+                }
+            }
+
+            normalized.Sort();
+
+            AllowedRotationDegrees = normalized.Count > 0
+                ? normalized
+                : new List<int>(DungeonRoomTransformUtility.AllRotations);
         }
     }
 }

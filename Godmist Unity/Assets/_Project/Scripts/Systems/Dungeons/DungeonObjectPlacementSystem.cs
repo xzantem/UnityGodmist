@@ -222,8 +222,16 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    var firstCell = room.LayoutPosition + anchor.LocalCell;
-                    var secondCell = firstCell + anchor.GetDirectionOffset();
+                    var firstCell = room.LayoutPosition
+                                    + DungeonRoomTransformUtility.TransformCell(
+                                        anchor.LocalCell,
+                                        template.SizeInCells,
+                                        room.RotationDegrees);
+                    var secondCell = firstCell
+                                     + DungeonRoomTransformUtility.GetDirectionOffset(
+                                         DungeonRoomTransformUtility.TransformDirection(
+                                             anchor.Direction,
+                                             room.RotationDegrees));
 
                     if (!floor.Map.IsWalkable(firstCell)
                         || !floor.Map.IsWalkable(secondCell))

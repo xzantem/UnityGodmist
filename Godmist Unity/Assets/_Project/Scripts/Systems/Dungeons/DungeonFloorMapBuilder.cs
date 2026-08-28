@@ -88,8 +88,10 @@ namespace Godmist.Systems.Dungeons
                     template.SizeInCells,
                     template.Id);
 
-                foreach (var localCell in footprint.Enumerate(
-                             template.SizeInCells))
+                foreach (var localCell in DungeonRoomTransformUtility
+                             .EnumerateTransformedFootprint(
+                                 template,
+                                 room.RotationDegrees))
                 {
                     var cell = room.LayoutPosition + localCell;
 
@@ -212,8 +214,16 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    var firstCell = room.LayoutPosition + anchor.LocalCell;
-                    var secondCell = firstCell + anchor.GetDirectionOffset();
+                    var firstCell = room.LayoutPosition
+                                    + DungeonRoomTransformUtility.TransformCell(
+                                        anchor.LocalCell,
+                                        template.SizeInCells,
+                                        room.RotationDegrees);
+                    var secondCell = firstCell
+                                     + DungeonRoomTransformUtility.GetDirectionOffset(
+                                         DungeonRoomTransformUtility.TransformDirection(
+                                             anchor.Direction,
+                                             room.RotationDegrees));
 
                     if (!map.IsWalkable(firstCell)
                         || !map.IsWalkable(secondCell))

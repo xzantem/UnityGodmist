@@ -101,6 +101,86 @@ namespace Godmist.Tests.EditMode
             Assert.That(map.IsWalkable(new Vector2Int(3, 1)), Is.True);
         }
 
+        [Test]
+        public void TransformCell_RotatesRectangularRoomAndSwapsSize()
+        {
+            var sourceSize = new Vector2Int(4, 2);
+
+            Assert.That(
+                DungeonRoomTransformUtility.GetRotatedSize(sourceSize, 90),
+                Is.EqualTo(new Vector2Int(2, 4)));
+            Assert.That(
+                DungeonRoomTransformUtility.TransformCell(
+                    new Vector2Int(0, 0),
+                    sourceSize,
+                    90),
+                Is.EqualTo(new Vector2Int(1, 0)));
+            Assert.That(
+                DungeonRoomTransformUtility.TransformCell(
+                    new Vector2Int(3, 1),
+                    sourceSize,
+                    90),
+                Is.EqualTo(new Vector2Int(0, 3)));
+        }
+
+        [Test]
+        public void InverseTransformCell_RestoresAuthoredCell()
+        {
+            var sourceSize = new Vector2Int(5, 3);
+            var authoredCell = new Vector2Int(2, 1);
+
+            for (var rotation = 0; rotation < 360; rotation += 90)
+            {
+                var transformedCell = DungeonRoomTransformUtility.TransformCell(
+                    authoredCell,
+                    sourceSize,
+                    rotation);
+
+                Assert.That(
+                    DungeonRoomTransformUtility.InverseTransformCell(
+                        transformedCell,
+                        sourceSize,
+                        rotation),
+                    Is.EqualTo(authoredCell));
+            }
+        }
+
+        [Test]
+        public void TransformDirection_RotatesCounterClockwiseInWorldCoordinates()
+        {
+            Assert.That(
+                DungeonRoomTransformUtility.TransformDirection(
+                    DungeonEdgeDirection.Up,
+                    90),
+                Is.EqualTo(DungeonEdgeDirection.Left));
+            Assert.That(
+                DungeonRoomTransformUtility.TransformDirection(
+                    DungeonEdgeDirection.Right,
+                    180),
+                Is.EqualTo(DungeonEdgeDirection.Left));
+            Assert.That(
+                DungeonRoomTransformUtility.InverseTransformDirection(
+                    DungeonEdgeDirection.Left,
+                    90),
+                Is.EqualTo(DungeonEdgeDirection.Up));
+        }
+
+        [Test]
+        public void TransformArea_RotatesAnchorAreaAndKeepsItsCellsInBounds()
+        {
+            var area = DungeonRoomTransformUtility.TransformArea(
+                new Vector2Int(1, 0),
+                new Vector2Int(2, 1),
+                new Vector2Int(4, 3),
+                90);
+
+            Assert.That(area.position, Is.EqualTo(new Vector2Int(2, 1)));
+            Assert.That(area.size, Is.EqualTo(new Vector2Int(1, 2)));
+            Assert.That(
+                new RectInt(Vector2Int.zero, new Vector2Int(3, 4)).Contains(area.position),
+                Is.True);
+        }
+
         private static DungeonRoomFootprint CreateFootprint(
             params Vector2Int[] offsets)
         {
