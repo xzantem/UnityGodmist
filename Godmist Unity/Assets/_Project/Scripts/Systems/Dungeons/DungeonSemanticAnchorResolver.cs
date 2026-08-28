@@ -160,7 +160,8 @@ namespace Godmist.Systems.Dungeons
 
             foreach (var candidate in shuffled)
             {
-                if (!candidate.Anchor.IsRequired)
+                if (!IsRequiredProgressionControl(candidate)
+                    && !candidate.Anchor.IsRequired)
                 {
                     continue;
                 }
@@ -249,16 +250,17 @@ namespace Godmist.Systems.Dungeons
 
             try
             {
-                if (!candidate.Anchor.IsRequired
+                var isRequired = candidate.Anchor.IsRequired
+                                 || IsRequiredProgressionControl(candidate);
+
+                if (!isRequired
                     && !force
                     && random.NextDouble() > candidate.Anchor.SpawnChance)
                 {
                     return false;
                 }
 
-                if (selected.Count >= maximumCount
-                    && !force
-                    && !candidate.Anchor.IsRequired)
+                if (selected.Count >= maximumCount && !force && !isRequired)
                 {
                     return false;
                 }
@@ -271,8 +273,8 @@ namespace Godmist.Systems.Dungeons
 
                     if (!byRoomAndId.TryGetValue(dependencyKey, out var dependency)
                         || !TrySelect(
-                            dependency,
-                            force || candidate.Anchor.IsRequired,
+                        dependency,
+                            force || isRequired,
                             maximumCount,
                             random,
                             byRoomAndId,
@@ -320,6 +322,18 @@ namespace Godmist.Systems.Dungeons
         private static string BuildKey(string roomId, string anchorId)
         {
             return $"{roomId}\u001F{anchorId}";
+        }
+
+        private static bool IsRequiredProgressionControl(
+            DungeonSemanticAnchorPlacement candidate)
+        {
+            if (candidate?.Room == null || !candidate.Room.IsRequiredProgressionRoom)
+            {
+                return false;
+            }
+
+            return candidate.Anchor.Type == DungeonSemanticAnchorType.Lever
+                || candidate.Anchor.Type == DungeonSemanticAnchorType.Condition;
         }
 
         private static int ComparePlacements(

@@ -14,6 +14,11 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public DungeonRoomType RoomType { get; private set; }
 
+        [field: Header("Progression branch")]
+        [field: Tooltip("Szablon moze zostac wybrany jako wymagany pokoj odblokowujacy dalsza trase lochu.")]
+        [field: SerializeField]
+        public bool CanBeRequiredProgressionBranch { get; private set; }
+
         [field: SerializeField]
         public Vector2Int SizeInCells { get; private set; } = new(8, 8);
 
@@ -21,6 +26,14 @@ namespace Godmist.Data.Dungeons
         [field: Tooltip("Puste = pelny prostokat. Wpisz lokalne komorki podlogi, aby zdefiniowac dowolny ksztalt pokoju.")]
         [field: SerializeField]
         public DungeonRoomFootprint Footprint { get; private set; } = new();
+
+        [field: Header("External passage edges")]
+        [field: Tooltip("Jawna lista zewnetrznych krawedzi, na ktorych generator moze utworzyc przejscie.")]
+        [field: SerializeField]
+        public List<DungeonRoomBoundaryEdgeData> AllowedBoundaryEdges { get; private set; } = new();
+
+        [field: SerializeField]
+        public bool BoundaryEdgesConfigured { get; private set; }
 
         [field: Header("Structural anchors")]
         [field: SerializeField]
@@ -37,6 +50,9 @@ namespace Godmist.Data.Dungeons
                 Mathf.Max(1, SizeInCells.y));
 
             Footprint ??= new DungeonRoomFootprint();
+            AllowedBoundaryEdges ??= new List<DungeonRoomBoundaryEdgeData>();
+
+            MigrateLegacyBoundaryEdges();
 
             if (SemanticAnchors == null) return;
 
@@ -44,6 +60,33 @@ namespace Godmist.Data.Dungeons
             {
                 anchor?.Normalize();
             }
+        }
+
+        public bool AllowsBoundaryEdge(
+            Vector2Int localCell,
+            DungeonEdgeDirection direction)
+        {
+            if (!BoundaryEdgesConfigured)
+            {
+                return true;
+            }
+
+            return DungeonRoomBoundaryUtility.ContainsEdge(
+                AllowedBoundaryEdges,
+                localCell,
+                direction);
+        }
+
+        public void MigrateLegacyBoundaryEdges()
+        {
+            if (BoundaryEdgesConfigured)
+            {
+                return;
+            }
+
+            AllowedBoundaryEdges = new List<DungeonRoomBoundaryEdgeData>(
+                DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(this));
+            BoundaryEdgesConfigured = true;
         }
     }
 }

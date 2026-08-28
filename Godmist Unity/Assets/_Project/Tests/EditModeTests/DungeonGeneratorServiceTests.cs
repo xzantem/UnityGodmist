@@ -440,6 +440,14 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(gate, Is.Not.Null);
             Assert.That(
+                floor.TryGetRoom(
+                    gate.RequiredBranchRoomId,
+                    out var requiredBranchRoom),
+                Is.True);
+            Assert.That(
+                requiredBranchRoom.IsRequiredProgressionRoom,
+                Is.True);
+            Assert.That(
                 floor.Map.CanMoveBetween(
                     gate.FirstDoorCell,
                     gate.SecondDoorCell),
@@ -508,6 +516,38 @@ namespace Godmist.Tests.EditMode
                 }
 
                 Assert.That(optionalRoomCount, Is.InRange(1, 2));
+            }
+        }
+
+        [Test]
+        public void Generate_WithoutProgressionGates_UsesOnlyOrdinaryOptionalTemplates()
+        {
+            var definition = CreateDefinition(6, 6);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                1);
+
+            var floor = new DungeonGeneratorService()
+                .Generate(definition, 12345)
+                .Floors[0];
+
+            foreach (var room in floor.Rooms)
+            {
+                if (room.RoomType != DungeonRoomType.Optional)
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    room.TemplateId,
+                    Is.EqualTo("room.optional"));
             }
         }
 
@@ -607,6 +647,11 @@ namespace Godmist.Tests.EditMode
                         "room.optional",
                         DungeonRoomType.Optional,
                         new Vector2Int(8, 8)),
+                    CreateTemplate(
+                        "room.optional.progression",
+                        DungeonRoomType.Optional,
+                        new Vector2Int(8, 8),
+                        true),
                     CreateTemplate(
                         "room.final",
                         DungeonRoomType.Final,
@@ -730,7 +775,8 @@ namespace Godmist.Tests.EditMode
         private static DungeonRoomTemplateDefinition CreateTemplate(
             string id,
             DungeonRoomType roomType,
-            Vector2Int sizeInCells)
+            Vector2Int sizeInCells,
+            bool canBeRequiredProgressionBranch = false)
         {
             var template = ScriptableObject.CreateInstance<
                 DungeonRoomTemplateDefinition>();
@@ -738,6 +784,26 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(template, "Id", id);
             SetAutoProperty(template, "RoomType", roomType);
             SetAutoProperty(template, "SizeInCells", sizeInCells);
+            SetAutoProperty(
+                template,
+                "CanBeRequiredProgressionBranch",
+                canBeRequiredProgressionBranch);
+
+            if (canBeRequiredProgressionBranch)
+            {
+                SetAutoProperty(
+                    template,
+                    "SemanticAnchors",
+                    new List<DungeonSemanticAnchorData>
+                    {
+                        new DungeonSemanticAnchorData(
+                            "progression.lever",
+                            DungeonSemanticAnchorType.Lever,
+                            new Vector2Int(2, 2),
+                            Vector2Int.one,
+                            isRequired: true)
+                    });
+            }
 
             return template;
         }

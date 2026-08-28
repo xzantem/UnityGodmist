@@ -1446,7 +1446,10 @@ namespace Godmist.Systems.SaveLoad
                                     objectDelta.ObjectInstanceId,
                                     objectDelta.IsActive,
                                     objectDelta.IsDoor,
-                                    objectDelta.IsOpen))
+                                    objectDelta.IsOpen,
+                                    objectDelta.IsTriggered,
+                                    objectDelta.IsActivated,
+                                    objectDelta.IsSatisfied))
                             {
                                 return false;
                             }

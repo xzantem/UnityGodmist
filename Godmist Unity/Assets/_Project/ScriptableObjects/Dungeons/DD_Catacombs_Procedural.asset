@@ -18,23 +18,28 @@ MonoBehaviour:
   <IsProcedural>k__BackingField: 1
   <IsStoryDungeon>k__BackingField: 0
   <LayoutProfile>k__BackingField: {fileID: 11400000, guid: 681f292da1385ca48a9bc4bf9656a075, type: 2}
-  <MinFloorCount>k__BackingField: 1
-  <MaxFloorCount>k__BackingField: 1
-  <MinRoomCountPerFloor>k__BackingField: 12
-  <MaxRoomCountPerFloor>k__BackingField: 18
-  <MinOptionalRoomCount>k__BackingField: 0
+  <MinFloorCount>k__BackingField: 2
+  <MaxFloorCount>k__BackingField: 2
+  <MinRoomCountPerFloor>k__BackingField: 9
+  <MaxRoomCountPerFloor>k__BackingField: 15
+  <MinOptionalRoomCount>k__BackingField: 3
   <MaxOptionalRoomCount>k__BackingField: 6
-  <MinLoopConnections>k__BackingField: 0
-  <MaxLoopConnections>k__BackingField: 0
+  <MinLoopConnections>k__BackingField: 1
+  <MaxLoopConnections>k__BackingField: 3
+  <MinProgressionGateCount>k__BackingField: 2
+  <MaxProgressionGateCount>k__BackingField: 3
   <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 3dd0625e5ba1be246a83e3aa80662cf7, type: 2}
   <EncounterDefinitions>k__BackingField:
   - {fileID: 11400000, guid: f70fadf3a76a46141837274e5f0228b1, type: 2}
-  <MinEncounterCountPerFloor>k__BackingField: 1
-  <MaxEncounterCountPerFloor>k__BackingField: 3
+  <MinEncounterCountPerFloor>k__BackingField: 3
+  <MaxEncounterCountPerFloor>k__BackingField: 6
   <AllowEncounterDefinitionRepeats>k__BackingField: 1
   <ObjectDefinitions>k__BackingField:
   - {fileID: 11400000, guid: d3bf5aa9a734ca9469f4667b9ecaa922, type: 2}
   - {fileID: 11400000, guid: 4757e2597fbf78f4d90f997789b5831e, type: 2}
   - {fileID: 11400000, guid: 646b43c553df3c5488892474afab66ce, type: 2}
-  <MinObjectCountPerFloor>k__BackingField: 4
-  <MaxObjectCountPerFloor>k__BackingField: 6
+  - {fileID: 11400000, guid: 1e97090c83c566d4aa377a29d4a43b97, type: 2}
+  - {fileID: 11400000, guid: e35f093698fd54e47a385a862e0f305a, type: 2}
+  - {fileID: 11400000, guid: d8d0f4cf9eecd654c9e3aefd97a2ed3a, type: 2}
+  <MinObjectCountPerFloor>k__BackingField: 0
+  <MaxObjectCountPerFloor>k__BackingField: 99

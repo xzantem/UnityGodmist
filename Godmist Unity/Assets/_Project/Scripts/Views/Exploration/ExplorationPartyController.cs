@@ -285,6 +285,9 @@ namespace Godmist.Views.Exploration
             Physics2D.SyncTransforms();
         }
 
+        public IReadOnlyCollection<ExplorationCharacterView> ActiveMemberViews =>
+            viewsById.Values;
+
         public void RestorePartyPositions(
             IReadOnlyDictionary<string, Vector2> positions,
             Vector2 fallbackLeaderPosition)

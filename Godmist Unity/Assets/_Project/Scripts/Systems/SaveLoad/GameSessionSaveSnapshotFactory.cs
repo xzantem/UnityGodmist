@@ -342,6 +342,21 @@ namespace Godmist.Systems.SaveLoad
                         objectDelta.IsOpen = door.IsOpen;
                     }
 
+                    if (dungeonObject is SpikeTrapDungeonObjectInstance spikeTrap)
+                    {
+                        objectDelta.IsTriggered = spikeTrap.IsTriggered;
+                    }
+
+                    if (dungeonObject is LeverDungeonObjectInstance lever)
+                    {
+                        objectDelta.IsActivated = lever.IsActivated;
+                    }
+
+                    if (dungeonObject is ConditionDungeonObjectInstance condition)
+                    {
+                        objectDelta.IsSatisfied = condition.IsSatisfied;
+                    }
+
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 

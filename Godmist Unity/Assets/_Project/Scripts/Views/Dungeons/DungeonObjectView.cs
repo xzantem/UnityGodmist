@@ -21,5 +21,39 @@ namespace Godmist.Views.Dungeons
 
             return true;
         }
+
+        public static T CreateFallback<T>(Transform parent, string objectName)
+            where T : DungeonObjectView
+        {
+            var gameObject = new GameObject(objectName);
+
+            if (parent != null)
+            {
+                gameObject.transform.SetParent(parent, false);
+            }
+
+            var renderer = gameObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = CreateFallbackSprite();
+            renderer.sortingOrder = 6;
+            renderer.color = Color.magenta;
+
+            return gameObject.AddComponent<T>();
+        }
+
+        private static Sprite CreateFallbackSprite()
+        {
+            var texture = new Texture2D(1, 1)
+            {
+                name = "DungeonObjectFallbackTexture"
+            };
+            texture.SetPixel(0, 0, Color.white);
+            texture.Apply();
+
+            return Sprite.Create(
+                texture,
+                new Rect(0f, 0f, 1f, 1f),
+                new Vector2(0.5f, 0.5f),
+                1f);
+        }
     }
 }

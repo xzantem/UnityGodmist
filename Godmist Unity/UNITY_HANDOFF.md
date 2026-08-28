@@ -1,208 +1,84 @@
 # Unity handoff
 
-Karta: `Dodac DungeonRoomEditor v1`
+Karta: `Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1`
 
-Edytor sluzy do projektowania i walidacji `DungeonRoomTemplateDefinition`. Nie wymaga zmiany sceny, prefabow ani serialized references w scenie.
+Smoke test gameplayu zostal potwierdzony recznie: pelny loch z jedna dzwignia i jednym warunkiem zostal ukonczony, a brama otworzyla sie dopiero po interakcji z oboma. Nie uruchamialem Unity Test Runnera ani test mirroru.
 
-## Inne kroki Editor
+## Konfiguracja contentu
 
-### Otworzenie istniejacego template'u
+1. Utworz w `Assets/_Project/ScriptableObjects/Dungeons/Objects/` assety:
 
-1. W oknie Project otworz:
+   - `SpikeTrapDungeonObjectDefinition` — ustaw `Id`, `Display Name`, `Spawn Weight` oraz `Damage`;
+   - `LeverDungeonObjectDefinition` — ustaw `Id`, `Display Name`, `Spawn Weight` oraz `Is Reversible`;
+   - `ConditionDungeonObjectDefinition` — ustaw `Id`, `Display Name` oraz `Spawn Weight`.
 
-   `Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates/DRT_Catacombs_Normal_Small.asset`
+2. Dodaj te definicje do listy `Object Definitions` w aktywnym `DungeonDefinition`.
 
-2. W Inspectorze kliknij `Open Dungeon Room Editor`.
+3. Otworz room template w `DungeonRoomEditorWindow`, wybierz narzedzie `Semantic Anchor` i dodaj:
 
-Alternatywnie wybierz asset i otworz menu:
+   - typ `Trap` w pokoju `Normal`, `Optional` albo `Corridor`;
+   - typ `Lever` albo `Condition` tylko w template oznaczonym `Can Be Required Progression Branch`;
+   - zwykle template-y `Normal` i `Optional` bez tej flagi nie powinny zawierac tych typow anchorow.
 
-`Godmist -> Dungeons -> Dungeon Room Editor`
+4. Dla pulapek, ktore maja aktywowac sie razem, wpisz identyczne `Activation group (traps)` na ich anchorach. Puste pole oznacza niezalezna pulapke.
 
-W oknie edytora mozna wskazac asset w polu obok przycisku `New`.
+5. Zapisz room template i upewnij sie, ze walidator nie raportuje bledow.
 
-### Utworzenie nowego template'u
+## Wymagane odnogi progresji
 
-1. W oknie `Dungeon Room Editor` kliknij `New`.
-2. Wybierz folder:
+1. W katalogu aktywnego dungeon definition otworz template typu `Optional`,
+   ktory ma sluzyc jako odnoga wymagajaca ukonczenia.
+2. W inspectorze template wlacz `Can Be Required Progression Branch`.
+3. W tym samym template dodaj co najmniej jeden anchor `Lever` albo `Condition`.
+   Jesli w wymaganej odnodze znajduje sie kilka takich anchorow, wszystkie
+   zostana wymuszone przez generator i wszystkie musza zostac aktywowane.
+4. Ustaw `Min/Max Progression Gate Count` na liczbe wymaganych pokoi, np. `2`.
+   Generator utworzy dokladnie dwa wymagane pokoje progresji, o ile katalog i
+   zakres pokoi opcjonalnych pozwalaja je rozstawic. Liczba dzwigni nie zwieksza
+   liczby odnóg.
 
-   `Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates`
+Klucz nie jest osobnym pickupem mapy. Jest zwyklym `ItemDefinition` z `Item Type = Key`. Aby byl gwarantowanym lootem, dodaj go jako wpis `LootEntryData` w loot table skrzyni albo encountera i ustaw `Drop Chance = 1` oraz ilosc `1..1`. Otwieranie zamkow i lockpicking pozostaja osobna karta UI skrzyn i zamkow.
 
-3. Podaj nazwe assetu i zatwierdz.
+## Prefaby widoku
 
-Nowy asset jest tworzony z poprawnymi wartosciami poczatkowymi:
+`DungeonObjectSpawner` ma trzy nowe referencje:
 
-- `Id` na podstawie nazwy assetu;
-- `Display Name` na podstawie nazwy assetu;
-- `Room Type = Normal`;
-- `Size In Cells = 8 x 8`;
-- pusty `Floor Cell Offsets`, czyli pelny prostokat.
+- `spikeTrapPrefab` typu `DungeonSpikeTrapView`;
+- `leverPrefab` typu `DungeonLeverView`;
+- `conditionPrefab` typu `DungeonConditionView`.
 
-### Edycja footprintu
+Mozesz utworzyc proste prefab-y z komponentem odpowiedniego typu oraz opcjonalnym `SpriteRenderer` i przypisac je w obiekcie `DungeonObjectSpawner` w scenie `Assets/_Project/Scenes/Sandbox/DungeonSandbox.unity`.
 
-1. Wybierz tryb `Footprint`.
-2. Kliknij komorke, aby przelaczyc ja miedzy podloga i pustka.
-3. Przeciagaj lewym przyciskiem myszy, aby malowac kolejne komorki tym samym stanem.
+Brak prefab-u nie blokuje uruchomienia: spawner utworzy widoczny, tymczasowy kwadrat debugowy. Prefab-y sa zalecane, jezeli chcesz sprawdzic docelowa grafike lub collider.
 
-Pusty `Floor Cell Offsets` oznacza pelny prostokat. Po pierwszej zmianie lista jest zapisywana jawnie. Gdy wszystkie komorki znowu sa podloga, edytor kompresuje footprint z powrotem do pustej listy.
+Collider gracza w `PF_ExplorationCharacter` ma ustawiony promien `0.28`, zeby lider mogl przejsc przez jednokratkowe korytarze przy obecnej grubosci scian.
 
-### Dodawanie structural anchoru
+## Oczekiwane zachowanie
 
-1. Wybierz tryb `Structural anchors`.
-2. W sekcji `Preview visibility` wlacz albo wylacz `Structural` zgodnie z potrzeba.
-3. Ustaw `New type` na `Wall` albo `Door`.
-4. Ustaw `Direction`.
-5. Kliknij pierwsza z dwoch sasiednich komorek podlogi.
-
-Edytor doda anchor laczacy kliknieta komorke z komorka wskazana przez kierunek. Klikniecie istniejacego anchoru wybiera go do edycji w panelu po prawej.
-
-PPM na structural anchorze usuwa go. Usuwanie dziala zgodnie z aktywnym trybem edycji.
-
-`Door` anchor jest wewnetrzna krawedzia pokoju. Nie sluzy do recznego definiowania przejsc na zewnetrznej granicy pokoju.
-
-### Dodawanie semantic anchoru
-
-1. Wybierz tryb `Semantic anchors`.
-2. W sekcji `Preview visibility` wlacz albo wylacz `Semantic` zgodnie z potrzeba.
-3. Ustaw `New type`.
-4. Kliknij komorke podlogi.
-5. W panelu po prawej ustaw:
-
-   - `Id`;
-   - `Type`;
-   - `Local Cell`;
-   - `Area Size`;
-   - `Spawn Chance`;
-   - `Is Required`;
-   - `Requires Anchor Id`.
-
-Nowy anchor zaczyna z obszarem `1 x 1`, szansa `1` i bez zaleznosci.
-
-PPM na semantic anchorze usuwa go. Przelaczanie widocznosci zmienia tylko podglad i nie usuwa ani nie modyfikuje danych anchorow.
+- przeszkoda pozostaje statyczna i blokuje ruch zgodnie z dotychczasowa definicja;
+- wejscie lidera albo innego aktywnego czlonka druzyny na komorke spike trapa aktywuje go tylko raz;
+- aktywacja zadaje staly damage liderowi i kazdemu aktywnemu czlonkowi stojacemu na komorce aktywowanego trapa;
+- pulapki w tej samej grupie aktywacji uruchamiaja sie w tym samym momencie, a pulapki z innej grupy pozostaja uzbrojone;
+- aktywowany trap zmienia kolor na nieaktywny i nie zadaje obrazen ponownie;
+- lever obok aktywnego gracza mozna przelaczac klawiszem `E`;
+- generator automatycznie przypisuje wszystkie lever-y i wymagane obiekty `Condition` z pokoju `RequiredBranchRoomId` do jednej bramki; brak takiego obiektu jest bledem konfiguracji zamiast losowego uzupelnienia;
+- aktywacja jednego z kilku wymaganych leverow nie otwiera bramki; dopiero aktywacja wszystkich zrodel progresji w pokoju spelnia generyczny `ProgressionConditionId`;
+- stan `IsTriggered`, `IsActivated` i `IsSatisfied` jest zapisywany w `DungeonObjectDeltaSaveData` i odtwarzany po loadzie;
+- po ponownym wygenerowaniu tego samego lochu obiekty, grupy pulapek i przypisania condition sa deterministyczne.
 
 ## Smoke test
 
-### A. Otwarcie i podglad
-
-1. Otworz `DRT_Catacombs_Normal_Small.asset` przez Inspector.
-2. Kliknij `Open Dungeon Room Editor`.
-3. Sprawdz, ze widoczna jest siatka odpowiadajaca rozmiarowi `12 x 12`.
-4. Sprawdz, ze pelny prostokat jest pokazany jako podloga.
-5. Sprawdz, ze istnieja wizualne markery aktualnych structural i semantic anchorow.
-6. W sekcji `Preview visibility` wylacz `Structural`, a potem `Semantic`.
-
-Oczekiwany rezultat:
-
-- otwiera sie osobne okno `Dungeon Room Editor`;
-- footprint jest pokazany jako statyczna siatka 2D;
-- anchory sa widoczne na tej samej siatce;
-- mozna niezaleznie ukryc structural i semantic anchory, gdy ich markery nachodza na siebie;
-- nie jest potrzebny `DungeonRoomView`, scena ani prefab.
-
-### B. Edycja footprintu
-
-1. Przejdz do trybu `Footprint`.
-2. Kliknij jedna komorke pelnego prostokata, aby zmienic ja w pustke.
-3. Przeciagaj po kilku kolejnych komorkach, aby utworzyc wieksza pustke.
-
-Oczekiwany rezultat:
-
-- komorki zmieniaja kolor miedzy podloga i pustka;
-- pustka jest natychmiast widoczna w podgladzie;
-- `Floor Cell Offsets` przestaje byc puste i zawiera jawna liste pozostalych komorek;
-- kolejnosc zapisanych komorek jest stabilna.
-
-### C. Structural anchor
-
-1. Wroc do trybu `Footprint` i przywroc podloge na komorce `(2,2)` oraz `(3,2)`, jesli zostaly usuniete.
-2. Przejdz do `Structural anchors`.
-3. Ustaw `New type = Wall` oraz `Direction = Right`.
-4. Kliknij komorke `(2,2)`.
-5. Kliknij dodany marker i sprawdz panel po prawej.
-6. Zmien typ na `Door`, zapisz i ponownie zaznacz anchor.
-7. Kliknij ten anchor PPM.
-
-Oczekiwany rezultat:
-
-- powstaje jeden anchor na krawedzi `(2,2)` - `(3,2)`;
-- marker pokazuje typ i krawedz;
-- typ oraz kierunek mozna zmieniac z panelu;
-- klikniecie tej samej krawedzi nie tworzy duplikatu;
-- `Remove selected anchor` usuwa wybrany anchor.
-- PPM usuwa anchor bez potrzeby otwierania panelu po prawej.
-
-### D. Semantic anchor
-
-1. Przejdz do `Semantic anchors`.
-2. Ustaw `New type = Chest`.
-3. Kliknij komorke `(4,4)`.
-4. Ustaw w panelu:
-
-   - `Id = chest.editor.test`;
-   - `Area Size = (1,1)`;
-   - `Spawn Chance = 1`;
-   - `Is Required = wlaczone`;
-   - `Requires Anchor Id = puste`.
-
-5. Zmien `Area Size` na `(2,1)` i sprawdz podglad obszaru.
-6. Uzyj `Remove selected anchor` i sprawdz, ze marker znika.
-7. Dodaj ponownie anchor i usun go PPM.
-
-Oczekiwany rezultat:
-
-- semantic anchor ma unikalne domyslne Id po dodaniu;
-- mozna edytowac wszystkie obecne pola danych;
-- obszar anchoru jest widoczny jako jeden zaznaczony obszar na siatce.
-- PPM usuwa semantic anchor.
-
-### E. Walidacja blokujaca zapis
-
-1. Dodaj semantic anchor na komorce `(4,4)`.
-2. Ustaw mu `Area Size = (2,2)`.
-3. Usun z footprintu co najmniej jedna komorke objeta tym obszarem.
-4. Sprawdz sekcje `Validation`.
-5. Kliknij `Save` albo uzyj `Ctrl+S`.
-
-Oczekiwany rezultat:
-
-- sekcja `Validation` pokazuje blad o obszarze poza footprintem;
-- przycisk `Save` nie zapisuje assetu;
-- `Ctrl+S` rowniez nie zapisuje niepoprawnego room template;
-- w Console pojawia sie blad wskazujacy, ze zapis zostal zablokowany.
-
-Nastepnie napraw footprint albo obszar anchoru. Gdy lista bledow jest pusta, zapis powinien zadzialac.
-
-### F. Walidacja spojnosci footprintu i zaleznosci
-
-Sprawdz dodatkowo dwa przypadki:
-
-1. Utworz footprint z dwoch oddzielonych grup komorek.
-2. Ustaw `Requires Anchor Id` na nieistniejace Id albo utworz cykl zaleznosci A -> B -> A.
-
-Oczekiwany rezultat:
-
-- edytor zglasza blad o niepolaczonym footprintcie;
-- edytor zglasza blad o nieistniejacej zaleznosci albo cyklu;
-- asset nie moze zostac zapisany, dopoki wszystkie bledy nie zostana usuniete.
-
-### G. Ponowne otwarcie assetu
-
-1. Napraw wszystkie bledy.
-2. Kliknij `Save`.
-3. Zamknij okno edytora.
-4. Otworz ten sam asset ponownie.
-
-Oczekiwany rezultat:
-
-- footprint, structural anchory i semantic anchory zachowuja zapisane wartosci;
-- podglad po ponownym otwarciu odpowiada zapisanym danym.
+1. Ustaw na `DD_Catacombs_Procedural.asset` co najmniej jedna pulapke, lever albo condition w `Object Definitions` oraz odpowiednie anchory w template.
+2. Uruchom wejscie do lochu przez istniejacy przeplyw `DungeonSandbox`.
+3. Przejdz liderem na anchor `Trap`; sprawdz obrazenia na liderze i czlonkach druzyny stojacych na komorce. Przy grupie pulapek sprawdz, ze wszystkie obiekty z ta sama grupa zmieniaja stan jednoczesnie.
+4. Oznacz template optional jako `Can Be Required Progression Branch`, dodaj do niego dwie kotwy `Lever`, ustaw `Min/Max Progression Gate Count = 1`, wygeneruj dungeon i sprawdz, ze oba lever-y sa obecne w wymaganej odnodze.
+5. Aktywuj tylko jeden lever i sprawdz, ze bramka nadal jest zamknieta. Aktywuj drugi i sprawdz, ze dopiero wtedy przejscie do finalnego pokoju staje sie otwarte.
+6. Wykonaj zapis po aktywacji tylko czesci leverow, przejdz do innej sceny i wczytaj gre. Sprawdz, ze postep czesciowy zostal zachowany, a bramka otwiera sie po aktywacji pozostalych zrodel.
+7. W `LootTableData` dodaj `ItemDefinition` typu `Key` z `Drop Chance = 1`; sprawdz, ze skrzynia albo encounter daje ten item jako gwarantowany loot.
 
 ## Testy automatyczne
 
-Dodano testy EditMode dla walidatora:
+Do recznego uruchomienia w Unity Test Runnerze:
 
-- poprawnego pelnego prostokata;
-- rozlaczonego footprintu;
-- semantic anchoru wychodzacego poza footprint;
-- cyklu zaleznosci semantic anchorow.
-
-Uruchom je recznie w Unity Test Runnerze jako `DungeonRoomTemplateEditorValidatorTests`. Nie uruchamialem test runnera ani nie tworzylem test mirroru.
+- `DungeonTrapAndConditionTests` — grupowanie i jednorazowa aktywacja trapow oraz restore stanow;
+- dotychczasowe testy `DungeonRuntimeRestoreTests`, `DungeonSemanticAnchorTests` i testy generatora.

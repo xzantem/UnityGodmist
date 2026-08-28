@@ -101,6 +101,13 @@ namespace Godmist.Runtime.Dungeons
 
         public bool TrySatisfyProgressionCondition(string conditionId)
         {
+            return TrySatisfyProgressionCondition(conditionId, null);
+        }
+
+        public bool TrySatisfyProgressionCondition(
+            string conditionId,
+            string sourceId)
+        {
             if (string.IsNullOrWhiteSpace(conditionId) || Map == null)
             {
                 return false;
@@ -110,7 +117,9 @@ namespace Godmist.Runtime.Dungeons
 
             foreach (var connection in connections)
             {
-                if (!connection.TrySatisfyProgressionCondition(conditionId))
+                if (!connection.TrySatisfyProgressionCondition(
+                        conditionId,
+                        sourceId))
                 {
                     continue;
                 }
@@ -120,10 +129,76 @@ namespace Godmist.Runtime.Dungeons
                     return false;
                 }
 
+                if (connection.IsProgressionGateUnlocked
+                    && TryGetRoom(
+                        connection.RequiredBranchRoomId,
+                        out var requiredRoom))
+                {
+                    requiredRoom.TryMarkProgressionRoomCompleted();
+                }
+
                 changed = true;
             }
 
             return changed;
+        }
+
+        public bool TryTriggerSpikeTrap(
+            string objectInstanceId,
+            out List<SpikeTrapDungeonObjectInstance> triggeredTraps)
+        {
+            triggeredTraps = new List<SpikeTrapDungeonObjectInstance>();
+
+            if (!TryGetObject(objectInstanceId, out var source)
+                || source is not SpikeTrapDungeonObjectInstance sourceTrap
+                || sourceTrap.IsTriggered)
+            {
+                return false;
+            }
+
+            // Activation groups are local to one instantiated room. Two rooms
+            // may come from the same template and therefore legitimately reuse
+            // the same serialized group id.
+            if (Map == null
+                || !Map.TryGetRoomId(sourceTrap.Position, out var sourceRoomId))
+            {
+                return false;
+            }
+
+            foreach (var dungeonObject in objects)
+            {
+                if (dungeonObject is not SpikeTrapDungeonObjectInstance trap
+                    || trap.IsTriggered)
+                {
+                    continue;
+                }
+
+                if (!Map.TryGetRoomId(trap.Position, out var trapRoomId)
+                    || !string.Equals(
+                        sourceRoomId,
+                        trapRoomId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(sourceTrap.ActivationGroupId)
+                    ? !ReferenceEquals(trap, sourceTrap)
+                    : !string.Equals(
+                        sourceTrap.ActivationGroupId,
+                        trap.ActivationGroupId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (trap.TryTrigger())
+                {
+                    triggeredTraps.Add(trap);
+                }
+            }
+
+            return triggeredTraps.Count > 0;
         }
 
         public bool TryRestoreProgressionGateState(
@@ -146,8 +221,51 @@ namespace Godmist.Runtime.Dungeons
                     continue;
                 }
 
-                return connection.TryRestoreProgressionGateUnlocked(isUnlocked)
-                    && TryApplyProgressionGateState(connection);
+                if (!connection.TryRestoreProgressionGateUnlocked(isUnlocked))
+                {
+                    return false;
+                }
+
+                if (!isUnlocked)
+                {
+                    foreach (var dungeonObject in objects)
+                    {
+                        var sourceId = dungeonObject?.InstanceId;
+                        var conditionId = dungeonObject switch
+                        {
+                            LeverDungeonObjectInstance lever
+                                when lever.IsActivated
+                                => lever.ProgressionConditionId,
+                            ConditionDungeonObjectInstance condition
+                                when condition.IsSatisfied
+                                => condition.ProgressionConditionId,
+                            _ => string.Empty
+                        };
+
+                        if (!string.Equals(
+                                conditionId,
+                                connection.ProgressionConditionId,
+                                StringComparison.Ordinal))
+                        {
+                            continue;
+                        }
+
+                        connection.TrySatisfyProgressionCondition(
+                            conditionId,
+                            sourceId);
+                    }
+                }
+
+                if (!TryApplyProgressionGateState(connection))
+                {
+                    return false;
+                }
+
+                return TryGetRoom(
+                        connection.RequiredBranchRoomId,
+                        out var requiredRoom)
+                    && requiredRoom.TryRestoreProgressionRoomCompleted(
+                        connection.IsProgressionGateUnlocked);
             }
 
             return false;
@@ -377,7 +495,10 @@ namespace Godmist.Runtime.Dungeons
             string objectInstanceId,
             bool isActive,
             bool isDoor,
-            bool isOpen)
+            bool isOpen,
+            bool isTriggered = false,
+            bool isActivated = false,
+            bool isSatisfied = false)
         {
             if (!TryGetObject(objectInstanceId, out var dungeonObject))
             {
@@ -404,7 +525,21 @@ namespace Godmist.Runtime.Dungeons
                 return false;
             }
 
-            return dungeonObject.TryRestoreIsActive(isActive);
+            if (!dungeonObject.TryRestoreIsActive(isActive))
+            {
+                return false;
+            }
+
+            return dungeonObject switch
+            {
+                SpikeTrapDungeonObjectInstance trap =>
+                    trap.TryRestoreTriggered(isTriggered),
+                LeverDungeonObjectInstance lever =>
+                    lever.TryRestoreActivated(isActivated),
+                ConditionDungeonObjectInstance condition =>
+                    condition.TryRestoreSatisfied(isSatisfied),
+                _ => true
+            };
         }
 
         public bool TryGetActiveObjectAt(Vector2Int position, out DungeonObjectInstance dungeonObject)

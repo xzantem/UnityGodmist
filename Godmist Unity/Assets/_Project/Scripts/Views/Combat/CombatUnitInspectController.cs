@@ -15,6 +15,8 @@ namespace Godmist.Views.Combat
             targetSelectionController;
         [SerializeField] private CombatUnitInspectPanel inspectPanel;
         [SerializeField] private CombatUnitViewSpawner unitViewSpawner;
+        [SerializeField] private CombatMovementInputController
+            movementInputController;
         [SerializeField] private CombatUnitInspectWindowView inspectWindowPrefab;
 
         [Header("Grid Mapping")]
@@ -44,6 +46,12 @@ namespace Godmist.Views.Combat
                     ? sandboxBootstrap.GetComponent<CombatUnitViewSpawner>()
                     : GetComponent<CombatUnitViewSpawner>();
             }
+
+            if (movementInputController == null)
+            {
+                movementInputController =
+                    Object.FindAnyObjectByType<CombatMovementInputController>();
+            }
         }
 
         private void Update()
@@ -71,6 +79,12 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (movementInputController != null
+                && movementInputController.ConsumedPrimaryClickThisFrame)
+            {
+                return;
+            }
+
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
             {
@@ -92,6 +106,16 @@ namespace Godmist.Views.Combat
             }
 
             var position = GetGridPositionUnderMouse();
+
+            // Movement and inspection read the same primary click. If the
+            // click targets a reachable destination, it is a movement command,
+            // not a request to inspect the unit after it arrives there.
+            if (movementInputController != null
+                && movementInputController.IsReachableDestination(position))
+            {
+                return;
+            }
+
             var unit = FindUnitAtPosition(session, position);
 
             if (unit == null)

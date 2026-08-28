@@ -15,6 +15,9 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonLootWindowView dungeonLootWindowPrefab;
         [SerializeField] private DungeonObstacleView obstaclePrefab;
         [SerializeField] private DungeonDoorView doorPrefab;
+        [SerializeField] private DungeonSpikeTrapView spikeTrapPrefab;
+        [SerializeField] private DungeonLeverView leverPrefab;
+        [SerializeField] private DungeonConditionView conditionPrefab;
         [SerializeField] private Transform objectsRoot;
 
         private readonly List<DungeonObjectView> spawnedObjects = new();
@@ -112,6 +115,64 @@ namespace Godmist.Views.Dungeons
                         worldPosition);
 
                     spawnedObjects.Add(obstacleView);
+                    continue;
+                }
+
+                if (dungeonObject is SpikeTrapDungeonObjectInstance spikeTrap)
+                {
+                    var spikeTrapView = spikeTrapPrefab != null
+                        ? Instantiate(spikeTrapPrefab, parent)
+                        : DungeonObjectView.CreateFallback<DungeonSpikeTrapView>(
+                            parent,
+                            $"SpikeTrap_{spikeTrap.InstanceId}");
+
+                    spikeTrapView.name = $"SpikeTrap_{spikeTrap.InstanceId}";
+                    spikeTrapView.Initialize(
+                        partyController,
+                        floor,
+                        spikeTrap,
+                        floorTilemap,
+                        worldPosition);
+
+                    spawnedObjects.Add(spikeTrapView);
+                    continue;
+                }
+
+                if (dungeonObject is LeverDungeonObjectInstance lever)
+                {
+                    var leverView = leverPrefab != null
+                        ? Instantiate(leverPrefab, parent)
+                        : DungeonObjectView.CreateFallback<DungeonLeverView>(
+                            parent,
+                            $"Lever_{lever.InstanceId}");
+
+                    leverView.name = $"Lever_{lever.InstanceId}";
+                    leverView.Initialize(
+                        partyController,
+                        floor,
+                        lever,
+                        worldPosition);
+
+                    spawnedObjects.Add(leverView);
+                    continue;
+                }
+
+                if (dungeonObject is ConditionDungeonObjectInstance condition)
+                {
+                    var conditionView = conditionPrefab != null
+                        ? Instantiate(conditionPrefab, parent)
+                        : DungeonObjectView.CreateFallback<DungeonConditionView>(
+                            parent,
+                            $"Condition_{condition.InstanceId}");
+
+                    conditionView.name = $"Condition_{condition.InstanceId}";
+                    conditionView.Initialize(
+                        partyController,
+                        floor,
+                        condition,
+                        worldPosition);
+
+                    spawnedObjects.Add(conditionView);
                 }
             }
 

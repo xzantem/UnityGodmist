@@ -55,6 +55,9 @@ namespace Godmist.Core.Serialization
         public bool IsActive;
         public bool IsDoor;
         public bool IsOpen;
+        public bool IsTriggered;
+        public bool IsActivated;
+        public bool IsSatisfied;
     }
     
     [Serializable]

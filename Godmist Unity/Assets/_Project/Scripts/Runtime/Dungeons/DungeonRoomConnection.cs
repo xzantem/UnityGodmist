@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
@@ -18,6 +19,14 @@ namespace Godmist.Runtime.Dungeons
         public string ProgressionConditionId { get; private set; } = string.Empty;
         public string RequiredBranchRoomId { get; private set; } = string.Empty;
         public bool IsProgressionGateUnlocked { get; private set; }
+
+        private readonly HashSet<string> requiredProgressionSourceIds = new(
+            StringComparer.Ordinal);
+        private readonly HashSet<string> satisfiedProgressionSourceIds = new(
+            StringComparer.Ordinal);
+
+        public IReadOnlyCollection<string> RequiredProgressionSourceIds =>
+            requiredProgressionSourceIds;
 
         public DungeonRoomConnection(
             string firstRoomId,
@@ -92,6 +101,13 @@ namespace Godmist.Runtime.Dungeons
 
         public bool TrySatisfyProgressionCondition(string conditionId)
         {
+            return TrySatisfyProgressionCondition(conditionId, null);
+        }
+
+        public bool TrySatisfyProgressionCondition(
+            string conditionId,
+            string sourceId)
+        {
             if (!HasProgressionGate
                 || IsProgressionGateUnlocked
                 || !string.Equals(
@@ -102,7 +118,60 @@ namespace Godmist.Runtime.Dungeons
                 return false;
             }
 
+            if (requiredProgressionSourceIds.Count > 0)
+            {
+                if (string.IsNullOrWhiteSpace(sourceId)
+                    || !requiredProgressionSourceIds.Contains(sourceId))
+                {
+                    return false;
+                }
+
+                satisfiedProgressionSourceIds.Add(sourceId);
+
+                if (satisfiedProgressionSourceIds.Count
+                    < requiredProgressionSourceIds.Count)
+                {
+                    return false;
+                }
+            }
+
             IsProgressionGateUnlocked = true;
+            return true;
+        }
+
+        public bool TrySetProgressionRequirementSources(
+            IEnumerable<string> sourceIds)
+        {
+            if (!HasProgressionGate || sourceIds == null)
+            {
+                return false;
+            }
+
+            var normalizedSourceIds = new HashSet<string>(
+                StringComparer.Ordinal);
+
+            foreach (var sourceId in sourceIds)
+            {
+                if (!string.IsNullOrWhiteSpace(sourceId))
+                {
+                    normalizedSourceIds.Add(sourceId);
+                }
+            }
+
+            if (normalizedSourceIds.Count == 0)
+            {
+                return false;
+            }
+
+            requiredProgressionSourceIds.Clear();
+            satisfiedProgressionSourceIds.Clear();
+
+            foreach (var sourceId in normalizedSourceIds)
+            {
+                requiredProgressionSourceIds.Add(sourceId);
+            }
+
+            IsProgressionGateUnlocked = false;
             return true;
         }
 
@@ -114,6 +183,16 @@ namespace Godmist.Runtime.Dungeons
             }
 
             IsProgressionGateUnlocked = isUnlocked;
+
+            satisfiedProgressionSourceIds.Clear();
+            if (isUnlocked)
+            {
+                foreach (var sourceId in requiredProgressionSourceIds)
+                {
+                    satisfiedProgressionSourceIds.Add(sourceId);
+                }
+            }
+
             return true;
         }
 

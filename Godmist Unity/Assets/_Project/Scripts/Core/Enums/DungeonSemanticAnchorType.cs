@@ -6,6 +6,7 @@ namespace Godmist.Core.Enums
         Obstacle,
         Trap,
         Lever,
-        Reward
+        Reward,
+        Condition
     }
 }

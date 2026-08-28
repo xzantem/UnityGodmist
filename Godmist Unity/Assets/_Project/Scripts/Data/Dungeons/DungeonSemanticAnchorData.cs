@@ -28,6 +28,9 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public string RequiresAnchorId { get; private set; } = string.Empty;
 
+        [field: SerializeField]
+        public string ActivationGroupId { get; private set; } = string.Empty;
+
         public DungeonSemanticAnchorData()
         {
         }
@@ -39,7 +42,8 @@ namespace Godmist.Data.Dungeons
             Vector2Int areaSize,
             float spawnChance = 1f,
             bool isRequired = false,
-            string requiresAnchorId = null)
+            string requiresAnchorId = null,
+            string activationGroupId = null)
         {
             Id = id ?? string.Empty;
             Type = type;
@@ -48,6 +52,7 @@ namespace Godmist.Data.Dungeons
             SpawnChance = spawnChance;
             IsRequired = isRequired;
             RequiresAnchorId = requiresAnchorId ?? string.Empty;
+            ActivationGroupId = activationGroupId ?? string.Empty;
         }
 
         public void Normalize()
@@ -56,6 +61,11 @@ namespace Godmist.Data.Dungeons
                 Mathf.Max(1, AreaSize.x),
                 Mathf.Max(1, AreaSize.y));
             SpawnChance = Mathf.Clamp01(SpawnChance);
+
+            if (Type != DungeonSemanticAnchorType.Trap)
+            {
+                ActivationGroupId = string.Empty;
+            }
         }
     }
 }

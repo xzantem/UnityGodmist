@@ -46,8 +46,6 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
-  - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
   - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
@@ -81,7 +79,11 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ## In Progress
 
-## Playable / Test
+### Milestone: Dungeon Content and Layout v2
+
+- `[P2] Rozszerzyc DungeonRoomEditor o legalne krawedzie przejsc i resize footprintu v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
+  - Developer recznie wlacza pojedyncze zewnetrzne krawedzie footprintu, a generator moze umiescic przejscie tylko na wlaczonych, ciaglych odcinkach.
+  - Edytor pozwala powiekszac i zmniejszac room template z kazdej strony, zachowujac pustki footprintu oraz polozenie anchorow wzgledem starego ksztaltu.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
@@ -124,6 +126,11 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Dodac nieregularne ksztalty pokoi lochu v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
   - Room template i generator obsluguja footprinty pokoi o dowolnym ksztalcie innym niz prostokat, z zachowaniem poprawnych przejsc, scian, kolizji i pathfindingu.
   - Pierwszy pass blokuje layout przez bounding box; generator buduje podloge i przejscia na rzeczywistych komorkach footprintu oraz odrzuca uklad, w ktorym dowolna komorka nie jest fizycznie osiagalna z pokoju Start.
+
+- `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
+  - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
+  - Generator moze oznaczyc dokladnie wymagana liczbe pokoi jako obowiazkowe odnogi progresji; wszystkie dzwignie/warunki w takim pokoju musza zostac spelnione, aby odblokowac powiazana brame.
+  - Smoke test przeszedl pelny loch z jedna dzwignia i jednym warunkiem; brama otworzyla sie dopiero po interakcji z oboma.
 
 ### Milestone: Combat v3 — Closed
 
