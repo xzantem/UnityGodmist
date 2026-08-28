@@ -11,6 +11,14 @@ namespace Godmist.Core.Enums
         Lootbag = 6,
         Key = 7,
         QuestItem = 8,
-        Valuable = 9
+        Valuable = 9,
+        Tool = 10
+    }
+
+    public enum ChestLockType
+    {
+        Unlocked = 0,
+        KeyRequired = 1,
+        KeyOrLockpick = 2
     }
 }

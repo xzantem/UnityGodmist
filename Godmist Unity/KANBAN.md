@@ -42,8 +42,6 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
-  - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
   - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
 - `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
@@ -90,6 +88,8 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
 
 - `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
 

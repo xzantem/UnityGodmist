@@ -250,6 +250,64 @@ namespace Godmist.Systems.Items
                 out claimedGold);
         }
 
+        public bool TryClaimDungeonChestItem(
+            GameSession gameSession,
+            string chestInstanceId,
+            string itemInstanceId)
+        {
+            if (!TryGetActiveLeaderCharacterId(gameSession, out var characterId))
+            {
+                return false;
+            }
+
+            return TryClaimDungeonChestItem(
+                gameSession,
+                chestInstanceId,
+                characterId,
+                itemInstanceId);
+        }
+
+        public bool TryClaimDungeonChestItem(
+            GameSession gameSession,
+            string chestInstanceId,
+            string characterId,
+            string itemInstanceId)
+        {
+            if (!TryGetCharacterInventory(
+                    gameSession,
+                    characterId,
+                    out var characterInventory))
+            {
+                return false;
+            }
+
+            if (!TryGetActiveFloorChest(
+                    gameSession,
+                    chestInstanceId,
+                    out var chest)
+                || !chest.TryGetItem(itemInstanceId, out var item))
+            {
+                return false;
+            }
+
+            if (!inventoryService.TryAddItem(characterInventory, item))
+            {
+                return false;
+            }
+
+            if (!chest.TryClaimItem(itemInstanceId, out _))
+            {
+                inventoryService.TryRemoveItem(
+                    characterInventory,
+                    itemInstanceId,
+                    out _);
+
+                return false;
+            }
+
+            return true;
+        }
+
         private static bool TryGetActiveLeaderInventory(
             GameSession gameSession,
             out Inventory inventory)
@@ -331,6 +389,28 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            return true;
+        }
+
+        private static bool TryGetActiveFloorChest(
+            GameSession gameSession,
+            string chestInstanceId,
+            out ChestDungeonObjectInstance chest)
+        {
+            chest = null;
+
+            if (gameSession?.ActiveDungeon == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null
+                || !gameSession.ActiveDungeon.TryGetCurrentFloor(out var floor)
+                || !floor.TryGetObject(chestInstanceId, out var dungeonObject)
+                || dungeonObject is not ChestDungeonObjectInstance currentChest
+                || !currentChest.IsUnlocked)
+            {
+                return false;
+            }
+
+            chest = currentChest;
             return true;
         }
 

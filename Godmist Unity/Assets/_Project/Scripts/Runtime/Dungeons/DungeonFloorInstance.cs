@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Runtime.Items;
 using UnityEngine;
 
 namespace Godmist.Runtime.Dungeons
@@ -498,7 +499,9 @@ namespace Godmist.Runtime.Dungeons
             bool isOpen,
             bool isTriggered = false,
             bool isActivated = false,
-            bool isSatisfied = false)
+            bool isSatisfied = false,
+            bool isChest = false,
+            bool isUnlocked = false)
         {
             if (!TryGetObject(objectInstanceId, out var dungeonObject))
             {
@@ -525,6 +528,21 @@ namespace Godmist.Runtime.Dungeons
                 return false;
             }
 
+            if (dungeonObject is ChestDungeonObjectInstance chest)
+            {
+                if (isChest && !chest.TryRestoreUnlocked(isUnlocked))
+                {
+                    return false;
+                }
+
+                return chest.TryRestoreIsActive(isActive);
+            }
+
+            if (isChest)
+            {
+                return false;
+            }
+
             if (!dungeonObject.TryRestoreIsActive(isActive))
             {
                 return false;
@@ -547,6 +565,15 @@ namespace Godmist.Runtime.Dungeons
             dungeonObject = objects.Find(existing => existing.IsActive && existing.Position == position);
 
             return dungeonObject != null;
+        }
+
+        public bool TryRestoreChestItems(
+            string objectInstanceId,
+            IEnumerable<ItemInstance> restoredItems)
+        {
+            return TryGetObject(objectInstanceId, out var dungeonObject)
+                   && dungeonObject is ChestDungeonObjectInstance chest
+                   && chest.TryRestoreItems(restoredItems);
         }
 
         private bool TryApplyProgressionGateState(

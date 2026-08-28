@@ -1,109 +1,148 @@
 # Unity handoff
 
-Karta: `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1`
+Karta: `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1`
 
 Implementacja jest gotowa do recznego smoke testu w Unity Editorze. Nie uruchamialem Unity Test Runnera ani `Godmist Unity Test Mirror`.
 
-## Cel karty
+## Co zostalo zaimplementowane
 
-Room template moze teraz definiowac pozycje pojedynczych przeciwnikow nalezacych do encounteru. Anchor nie wskazuje typu przeciwnika ani konkretnego assetu encounteru. Wskazuje indeks wpisu na liscie `EncounterDefinition.Enemies`.
+- Skrzynia korzysta z tego samego okna lootu co cialo przeciwnika.
+- Loot ze skrzyni jest odbierany pojedynczo bezposrednio do inventory aktywnej postaci.
+- Skrzynia pozostaje w lochu po otwarciu i po oproznieniu.
+- Puste okno pokazuje komunikat `Skrzynia jest pusta.`.
+- Skrzynia moze byc otwarta, wymagac konkretnego klucza albo wymagac klucza lub lockpicka.
+- Klucz jest dopasowywany po konkretnym `ItemDefinition.Id`, wiec nie otwiera wszystkich skrzyn.
+- Zuzywany jest jeden klucz albo jeden lockpick. Przedmioty moga znajdowac sie w inventory dowolnego aktywnego czlonka druzyny.
+- Lockpick w v1 zawsze dziala i nie ma statystyk, szansy ani minigry.
+- Dodano `ItemType.Tool` oraz testowe assety `ID_TestKey` i `ID_TestLockpick`.
+- Stan odblokowania i pozostaly loot skrzyni sa zapisywane i odtwarzane razem ze stanem lochu.
 
-Zakres obejmuje tylko poczatkowe rozmieszczenie przeciwnikow w eksploracji. Nie zmienia logiki FOV, poscigu, rozpoczecia walki ani pozniejszego ruchu przeciwnikow.
+## Przygotowanie testu
 
-## Przygotowanie danych
+### 1. Sprawdz referencje sceny
 
-1. Otworz `EncounterDefinition`, ktory jest uzywany przez aktywny `DungeonDefinition`.
-2. Sprawdz kolejnosc wpisow na jego liscie `Enemies`. Indeks zaczyna sie od zera: pierwszy wpis ma indeks `0`, drugi `1` itd.
-3. Otworz room template uzywany przez jeden z pokojow, w ktorym moze pojawic sie encounter.
-4. W sekcji semantic anchors dodaj anchor i ustaw:
-   - `Type` = `Enemy`;
-   - `Local Cell` = komorka, w ktorej ma stac konkretny przeciwnik;
-   - `Encounter enemy index` = indeks wpisu z `EncounterDefinition.Enemies`.
-5. Marker typu `Enemy` jest oznaczony na siatce litera `E`. Anchor zajmuje zawsze jedna komorke. Pola `Area Size`, `Spawn Chance`, `Is Required`, `Requires Anchor Id` i `Activation group` nie steruja anchorami przeciwnikow.
-6. Zapisz asset. Walidacja room template'u blokuje zapis, jezeli anchor ma pusty cel, nieprawidlowy rozmiar, zduplikowany cel, zduplikowana komorke albo kolizje z innym semantic anchorem.
+1. Otworz scene `Assets/_Project/Scenes/Sandbox/DungeonSandbox.unity`.
+2. Znajdz obiekt zawierajacy komponent `DungeonObjectSpawner`.
+3. Sprawdz, czy pole `Dungeon Loot Window Prefab` wskazuje na `PF_UIW_DungeonLootWindow`.
+4. Nie trzeba tworzyc nowego prefabu okna. Skrzynia otrzymuje ta sama referencje automatycznie podczas spawnowania.
 
-## Test 1: dwa konkretne cele
+### 2. Sprawdz assety testowe
 
-1. Przygotuj encounter z co najmniej dwoma wpisami o roznych `InstanceId`.
-2. W room template ustaw dwa anchory `Enemy` na dwoch roznych komorkach, przypisujac im odpowiednio indeks `0` i `1`.
-3. Upewnij sie, ze ten template jest w aktywnym `DungeonRoomTemplateCatalog`, a encounter w aktywnym `DungeonDefinition`.
-4. Uruchom dungeon z ustalonym seedem i wejdz do pokoju zawierajacego encounter.
+Assety znajduja sie tutaj:
 
-Oczekiwany rezultat:
+- `Assets/_Project/ScriptableObjects/Items/ID_TestKey.asset`
+- `Assets/_Project/ScriptableObjects/Items/ID_TestLockpick.asset`
+- `Assets/_Project/ScriptableObjects/Dungeons/Objects/DO_Chest_Debug.asset`
 
-- pierwszy przeciwnik z listy `Enemies` stoi dokladnie na komorce pierwszego anchora;
-- drugi przeciwnik z listy `Enemies` stoi dokladnie na komorce drugiego anchora;
-- pozycja nie jest wybierana na podstawie typu przeciwnika ani konkretnego `InstanceId`;
-- obie komorki pozostaja zarezerwowane dla przeciwnikow i nie pojawi sie na nich skrzynia, pulapka, obstacle, lever ani condition;
-- zachowanie FOV, poscigu i rozpoczecia walki pozostaje takie jak przed ta karta.
+Oba itemy sa dodane do `GC_MainContentCatalog`.
 
-## Test 2: wiecej przeciwnikow niz anchorow
+`DO_Chest_Debug` pozostaw domyslnie jako `Unlocked`, aby zwykly test lootu nie blokowal generowanego lochu.
 
-1. Zostaw w template tylko jeden albo dwa anchory `Enemy`.
-2. Uzyj encounteru z wieksza liczba poprawnych, zywych wpisow przeciwnikow.
-3. Uruchom dungeon.
+## Test 1: otwarta skrzynia i wspolne okno lootu
 
-Oczekiwany rezultat:
-
-- przeciwnicy z pasujacymi indeksami sa ustawieni na swoich anchorach;
-- pozostali przeciwnicy sa rozmieszczani przez dotychczasowy fallback w poprawnych komorkach pokoju;
-- fallback nie nadpisuje pozycji przypisanych anchorami i nie stawia przeciwnika poza podloga pokoju.
-
-## Test 3: brakujacy albo pokonany cel
-
-Sprawdz osobno:
-
-- anchor wskazujacy indeks wiekszy lub rowny liczbie wpisow w encounterze;
-- anchor wskazujacy wpis oznaczony jako pokonany;
-- encounter bez zadnego pasujacego anchora.
+1. Otworz `DO_Chest_Debug`.
+2. Ustaw `Lock Type` = `Unlocked`.
+3. Uruchom dungeon z obiektem skrzyni.
+4. Podejdz liderem do skrzyni i nacisnij `E`.
 
 Oczekiwany rezultat:
 
-- brakujacy cel jest ignorowany bez wyjatku;
-- pokonany przeciwnik nie jest respawnowany;
-- pozostali przeciwnicy nadal korzystaja z normalnego fallbacku.
+- otwiera sie `PF_UIW_DungeonLootWindow`;
+- tytul okna to `Łup ze skrzyni`;
+- loot widoczny jest w tym samym stylu co loot z ciala;
+- klikniecie itemu dodaje go do inventory lidera;
+- item znika z okna, ale skrzynia pozostaje na mapie;
+- po zabraniu wszystkich itemow okno pokazuje `Skrzynia jest pusta.`;
+- ponowne nacisniecie `E` otwiera puste okno, a sama skrzynia nadal jest widoczna.
 
-## Test 4: rotacja room template'u
+## Test 2: skrzynia wymagajaca konkretnego klucza
 
-1. Dla template'u dopusc 0, 90, 180 i 270 stopni.
-2. Uruchom dungeon kilka razy z seedem, ktory ustawia rozne rotacje tego pokoju.
+1. Otworz `DO_Chest_Debug`.
+2. Ustaw `Lock Type` = `KeyRequired`.
+3. Ustaw `Required Key` na `ID_TestKey`.
+4. Uruchom nowa generacje dungeonu.
+5. Podejdz do skrzyni i nacisnij `E` bez klucza.
+6. Dodaj klucz aktywnemu liderowi przez dev console:
+
+   `giveitem <characterId> item.key.test.01 1`
+
+   `<characterId>` to ID aktywnego lidera, np. `jerzy`, jezeli jest aktualnie liderem.
+7. Ponownie nacisnij `E` przy skrzyni.
 
 Oczekiwany rezultat:
 
-- anchor pozostaje w tej samej pozycji lokalnej template'u;
-- jego pozycja w swiecie obraca sie razem z pokojem;
-- przeciwnik nadal trafia do konkretnego `InstanceId`, a nie do konkretnej pozycji z poprzedniej rotacji.
+- bez klucza skrzynia nie otwiera lootu i pokazuje komunikat o braku odpowiedniego klucza;
+- po dodaniu klucza skrzynia otwiera sie;
+- jeden klucz zostaje usuniety z inventory;
+- po otwarciu dziala normalne odbieranie lootu;
+- inny item typu `Key` o innym `Id` nie otwiera skrzyni.
 
-## Test 5: walidacja blokujaca zapis
+## Test 3: skrzynia otwierana kluczem albo lockpickiem
 
-Sprawdz, ze zapis room template'u jest blokowany dla kazdego przypadku:
+1. Otworz `DO_Chest_Debug`.
+2. Ustaw `Lock Type` = `KeyOrLockpick`.
+3. Ustaw `Required Key` na `ID_TestKey`.
+4. Uruchom nowa generacje dungeonu.
+5. Najpierw przetestuj otwarcie z kluczem — powinien zostac zuzyty klucz.
+6. Wygeneruj dungeon ponownie albo uzyj kolejnej skrzyni.
+7. Dodaj aktywnemu liderowi lockpick przez dev console:
 
-- ujemny `Encounter enemy index`;
-- dwa anchory wskazujace ten sam indeks;
-- dwa anchory wskazujace te sama komorke;
-- `Area Size` inne niz `1 x 1`;
-- anchor `Enemy` nachodzacy na inny semantic anchor.
+   `giveitem <characterId> item.lockpick.test.01 1`
 
-Po poprawieniu danych asset powinien dac sie zapisac bez bledu walidacji.
+8. Podejdz do skrzyni i nacisnij `E`.
 
-## Test regresji
+Oczekiwany rezultat:
+
+- skrzynia otwiera sie bez klucza, jezeli aktywna druzyna ma lockpick;
+- jeden lockpick zostaje zuzyty;
+- otwiera sie wspolne okno lootu;
+- nie jest uruchamiana zadna minigra ani test statystyki.
+
+## Test 4: zamkniecie i ponowne otwarcie okna
+
+1. Otworz skrzynie.
+2. Zamknij okno przyciskiem `X`.
+3. Otworz skrzynie ponownie.
+4. Odbierz tylko czesc przedmiotow.
+5. Zamknij okno i otworz je jeszcze raz.
+
+Oczekiwany rezultat:
+
+- skrzynia nadal jest interaktywna;
+- zabrane itemy nie wracaja;
+- niezabrane itemy nadal sa dostepne;
+- pojemnosc inventory blokuje odebranie zbyt ciezkiego itemu bez usuwania go ze skrzyni.
+
+## Test 5: zapis stanu skrzyni
+
+1. Otworz zamknieta skrzynie kluczem albo lockpickiem.
+2. Zabierz jeden item, pozostawiajac co najmniej jeden item w skrzyni.
+3. Wykonaj zapis gry.
+4. Wczytaj zapis.
+5. Wroc do tej samej skrzyni.
+
+Oczekiwany rezultat:
+
+- skrzynia nadal jest odblokowana;
+- zabrany item nie pojawia sie ponownie;
+- pozostaly item nadal mozna odebrac;
+- po calkowitym oproznieniu skrzynia pozostaje widoczna i pokazuje puste okno.
+
+## Uwagi o danych
+
+- `Lock Type` i `Required Key` sa zapisane na `ChestDungeonObjectDefinition`. Wszystkie instancje korzystajace z tej samej definicji maja ten sam model zamka.
+- Jezeli potrzebne sa rozne rodzaje skrzyn w jednym katalogu, utworz osobne assety `ChestDungeonObjectDefinition` z roznymi ustawieniami i dodaj je do `DungeonDefinition.ObjectDefinitions`.
+- Skrzynia z `KeyRequired` albo `KeyOrLockpick` bez `Required Key` jest odrzucana przez placement system i nie zostanie wygenerowana.
+- Testowe assety nie maja ikon. Brak ikony nie blokuje dzialania, ale w oknie lootu item bedzie bez grafiki.
+
+## Regresja
 
 Sprawdz, ze:
 
-- encounter bez anchorow przeciwnikow nadal dziala jak dotychczas;
-- pojedynczy anchor nie zmienia liczby przeciwnikow w encounterze;
-- dwa pokoje uzywajace tego samego room template'u nie dziela pozycji ani rezerwacji;
-- semantic anchory skrzyn, pulapek, obstacle, leverow i conditionow nadal dzialaja;
-- kotwy przeciwnikow nie sa traktowane jako obiekty do placementu.
+- loot z cial przeciwnikow nadal otwiera sie i odbiera jak wczesniej;
+- skrzynie nadal sa rozmieszczane tylko na semantic anchorach `Chest`;
+- wejscie w interakcje przez sciane nadal jest blokowane przez `HasDirectAccess`;
+- otwarte okno lootu zamyka sie po wejsciu w combat albo po opuszczeniu exploration;
+- zwykla skrzynia `Unlocked` nie trafia do `PendingLoot`.
 
-## Testy automatyczne do recznego uruchomienia
-
-Po smoke tescie uruchom w Unity Test Runnerze:
-
-- `DungeonRoomTemplateEditorValidatorTests`;
-- `DungeonEncounterPlacementSystemTests`;
-- `DungeonSemanticAnchorTests`;
-- `DungeonObjectPlacementSystemTests`;
-- pozostale testy dungeon runtime.
-
-Jesli pojawi sie regresja, podaj seed, `EncounterDefinition.Id`, indeks przeciwnika, room template oraz screenshot z pozycjami anchorow i przeciwnikow.
+Po smoke tescie uruchom recznie odpowiednie testy Unity, jezeli chcesz potwierdzic regresje zapisu i lootu.

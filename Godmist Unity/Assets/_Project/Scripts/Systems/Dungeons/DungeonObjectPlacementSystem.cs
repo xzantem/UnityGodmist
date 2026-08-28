@@ -5,6 +5,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
+using Godmist.Runtime.Game;
 using Godmist.Systems.Items;
 using UnityEngine;
 
@@ -482,6 +483,14 @@ namespace Godmist.Systems.Dungeons
                     continue;
                 }
 
+                if (definition is ChestDungeonObjectDefinition lockedChest
+                    && lockedChest.LockType != ChestLockType.Unlocked
+                    && (lockedChest.RequiredKey == null
+                        || lockedChest.RequiredKey.ItemType != ItemType.Key))
+                {
+                    continue;
+                }
+
                 result.Add(definition);
             }
 
@@ -710,5 +719,119 @@ namespace Godmist.Systems.Dungeons
                 Edge = edge;
             }
         }
+
     }
+
+    public sealed class DungeonChestInteractionService
+        {
+            private readonly InventoryService inventoryService = new();
+
+            public bool TryUnlock(
+                GameSession session,
+                ChestDungeonObjectInstance chest,
+                out string failureReason)
+            {
+                failureReason = string.Empty;
+
+                if (session == null || chest == null)
+                {
+                    failureReason = "Nie można otworzyć skrzyni.";
+                    return false;
+                }
+
+                if (chest.IsUnlocked)
+                {
+                    return true;
+                }
+
+                if (chest.LockType == ChestLockType.KeyRequired
+                    || chest.LockType == ChestLockType.KeyOrLockpick)
+                {
+                    if (TryConsumeKey(session, chest))
+                    {
+                        return chest.TryUnlockWithKey(chest.RequiredKey);
+                    }
+                }
+
+                if (chest.LockType == ChestLockType.KeyOrLockpick
+                    && TryConsumeLockpick(session))
+                {
+                    return chest.TryUnlockWithLockpick();
+                }
+
+                failureReason = chest.LockType == ChestLockType.KeyRequired
+                    ? "Potrzebujesz odpowiedniego klucza."
+                    : "Potrzebujesz odpowiedniego klucza albo lockpicka.";
+                return false;
+            }
+
+            private bool TryConsumeKey(
+                GameSession session,
+                ChestDungeonObjectInstance chest)
+            {
+                if (chest.RequiredKey == null
+                    || chest.RequiredKey.ItemType != ItemType.Key)
+                {
+                    return false;
+                }
+
+                foreach (var characterId in session.PlayerParty.ActiveMemberIds)
+                {
+                    if (!session.CharactersById.TryGetValue(
+                            characterId,
+                            out var character)
+                        || character?.Inventory == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var item in character.Inventory.Items)
+                    {
+                        if (item?.Definition == null
+                            || item.Definition.ItemType != ItemType.Key
+                            || item.Definition.Id != chest.RequiredKey.Id)
+                        {
+                            continue;
+                        }
+
+                        return inventoryService.TryRemoveItem(
+                            character.Inventory,
+                            item.InstanceId,
+                            out _);
+                    }
+                }
+
+                return false;
+            }
+
+            private bool TryConsumeLockpick(GameSession session)
+            {
+                foreach (var characterId in session.PlayerParty.ActiveMemberIds)
+                {
+                    if (!session.CharactersById.TryGetValue(
+                            characterId,
+                            out var character)
+                        || character?.Inventory == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var item in character.Inventory.Items)
+                    {
+                        if (item?.Definition == null
+                            || item.Definition.ItemType != ItemType.Tool)
+                        {
+                            continue;
+                        }
+
+                        return inventoryService.TryRemoveItem(
+                            character.Inventory,
+                            item.InstanceId,
+                            out _);
+                    }
+                }
+
+                return false;
+            }
+        }
 }

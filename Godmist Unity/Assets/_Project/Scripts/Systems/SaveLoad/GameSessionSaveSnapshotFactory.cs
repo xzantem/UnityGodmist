@@ -336,6 +336,27 @@ namespace Godmist.Systems.SaveLoad
                         IsActive = dungeonObject.IsActive
                     };
 
+                    if (dungeonObject is ChestDungeonObjectInstance chest)
+                    {
+                        objectDelta.IsChest = true;
+                        objectDelta.IsUnlocked = chest.IsUnlocked;
+                        objectDelta.HasChestLootState = true;
+
+                        foreach (var item in chest.Items)
+                        {
+                            if (!TryCaptureItem(
+                                    item,
+                                    saveData,
+                                    capturedItemIds))
+                            {
+                                ClearRuntimePayload(saveData);
+                                return false;
+                            }
+
+                            objectDelta.ChestItemInstanceIds.Add(item.InstanceId);
+                        }
+                    }
+
                     if (dungeonObject is DoorDungeonObjectInstance door)
                     {
                         objectDelta.IsDoor = true;

@@ -53,6 +53,10 @@ namespace Godmist.Core.Serialization
     {
         public string ObjectInstanceId = string.Empty;
         public bool IsActive;
+        public bool IsChest;
+        public bool IsUnlocked;
+        public bool HasChestLootState;
+        public List<string> ChestItemInstanceIds = new();
         public bool IsDoor;
         public bool IsOpen;
         public bool IsTriggered;

@@ -93,7 +93,8 @@ namespace Godmist.Views.Dungeons
                         floor,
                         chest,
                         worldPosition,
-                        floorTilemap);
+                        floorTilemap,
+                        dungeonLootWindowPrefab);
 
                     spawnedObjects.Add(chestView);
                     continue;

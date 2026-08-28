@@ -12,6 +12,12 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public LootTableData LootTable { get; private set; }
 
+        [field: SerializeField]
+        public ChestLockType LockType { get; private set; }
+
+        [field: SerializeField]
+        public ItemDefinition RequiredKey { get; private set; }
+
         public override DungeonObjectType ObjectType => DungeonObjectType.Chest;
     }
 }
