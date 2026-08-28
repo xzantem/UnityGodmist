@@ -16,3 +16,43 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Katakumby - du\u017Cy pok\xF3j"
   <RoomType>k__BackingField: 1
   <SizeInCells>k__BackingField: {x: 16, y: 12}
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField: []
+  <StructuralAnchors>k__BackingField:
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 6, y: 4}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 8, y: 4}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 4}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 5, y: 5}
+    <Direction>k__BackingField: 1
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 5, y: 6}
+    <Direction>k__BackingField: 1
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 5, y: 7}
+    <Direction>k__BackingField: 1
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 9, y: 5}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 9, y: 6}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 9, y: 7}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 6, y: 8}
+    <Direction>k__BackingField: 2
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 8}
+    <Direction>k__BackingField: 2
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 8, y: 8}
+    <Direction>k__BackingField: 2
+  <SemanticAnchors>k__BackingField: []

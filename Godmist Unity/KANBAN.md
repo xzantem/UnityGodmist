@@ -46,6 +46,17 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
+- `[P1] Dodac rotacje instancji pokoi v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `Content / Data`
+  - Generator moze obrocic room template o `0`, `90`, `180` albo `270` stopni przed umieszczeniem go w layoucie.
+  - Rotacja musi obejmowac footprint, sciany, przejscia, anchory strukturalne i semantyczne oraz wszystkie pozycje contentu, zachowujac poprawna kolizje i deterministycznosc seeda.
+- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+  - Interakcja z obiektem lochu jest dozwolona tylko wtedy, gdy postac ma do niego prawidlowy dostep bez przechodzenia przez sciane lub inna przeszkode.
+  - Dotyczy wszystkich interaktywnych obiektow eksploracji, w tym skrzyn, leverow, conditionow i cial; wizualna bliskosc po drugiej stronie sciany nie moze wystarczyc do interakcji.
+- `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
+  - Room template moze definiowac anchory rozmieszczenia pojedynczych przeciwnikow, niezalezne od anchora calego encounteru.
+  - Podczas generowania encounteru system najpierw wykorzystuje pasujace anchory do przypisania pozycji przeciwnikom, a nadmiarowych przeciwnikow rozmieszcza losowo w pozostalych poprawnych komorkach pokoju.
+  - Rozmieszczenie pozostaje deterministyczne dla tego samego seeda, nie zajmuje scian ani przeszkod i nie zmienia docelowej logiki FOV/poscigu.
+
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
   - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
@@ -78,12 +89,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Ready
 
 ## In Progress
-
-### Milestone: Dungeon Content and Layout v2
-
-- `[P2] Rozszerzyc DungeonRoomEditor o legalne krawedzie przejsc i resize footprintu v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
-  - Developer recznie wlacza pojedyncze zewnetrzne krawedzie footprintu, a generator moze umiescic przejscie tylko na wlaczonych, ciaglych odcinkach.
-  - Edytor pozwala powiekszac i zmniejszac room template z kazdej strony, zachowujac pustki footprintu oraz polozenie anchorow wzgledem starego ksztaltu.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
@@ -131,6 +136,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
   - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
   - Generator moze oznaczyc dokladnie wymagana liczbe pokoi jako obowiazkowe odnogi progresji; wszystkie dzwignie/warunki w takim pokoju musza zostac spelnione, aby odblokowac powiazana brame.
   - Smoke test przeszedl pelny loch z jedna dzwignia i jednym warunkiem; brama otworzyla sie dopiero po interakcji z oboma.
+
+- `[P2] Rozszerzyc DungeonRoomEditor o legalne krawedzie przejsc i resize footprintu v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
+  - Developer recznie wlacza pojedyncze legalne krawedzie zewnetrzne footprintu, w tym wklesle fragmenty otwarte na zewnatrz; generator moze umiescic przejscie tylko na wlaczonych, ciaglych odcinkach.
+  - Edytor pozwala powiekszac i zmniejszac room template z kazdej strony, zachowujac pustki footprintu oraz polozenie anchorow wzgledem starego ksztaltu; zamkniete otwory nie sa traktowane jako zewnetrzne przejscia.
 
 ### Milestone: Combat v3 — Closed
 

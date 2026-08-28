@@ -13,7 +13,8 @@ namespace Godmist.Editor
         {
             Footprint,
             StructuralAnchor,
-            SemanticAnchor
+            SemanticAnchor,
+            BoundaryEdge
         }
 
         private DungeonRoomTemplateDefinition template;
@@ -24,6 +25,8 @@ namespace Godmist.Editor
         private SerializedProperty sizeProperty;
         private SerializedProperty footprintProperty;
         private SerializedProperty floorOffsetsProperty;
+        private SerializedProperty boundaryEdgesConfiguredProperty;
+        private SerializedProperty allowedBoundaryEdgesProperty;
         private SerializedProperty structuralAnchorsProperty;
         private SerializedProperty semanticAnchorsProperty;
 
@@ -40,6 +43,7 @@ namespace Godmist.Editor
         private Vector2 gridScrollPosition;
         private bool showStructuralAnchors = true;
         private bool showSemanticAnchors = true;
+        private bool showBoundaryEdges = true;
 
         [MenuItem("Godmist/Dungeons/Dungeon Room Editor")]
         private static void OpenFromMenu()
@@ -132,7 +136,9 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(roomTypeProperty);
 
             var sizeBefore = sizeProperty.vector2IntValue;
+            EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.PropertyField(sizeProperty);
+            EditorGUI.EndDisabledGroup();
             var sizeAfter = sizeProperty.vector2IntValue;
 
             if (sizeAfter.x < 1 || sizeAfter.y < 1)
@@ -146,6 +152,9 @@ namespace Godmist.Editor
             {
                 ClearSelectionIfOutsideRoom();
             }
+
+            EditorGUILayout.LabelField("Resize", EditorStyles.boldLabel);
+            DrawResizeButtons();
         }
 
         private void DrawGridPanel()
@@ -155,7 +164,13 @@ namespace Godmist.Editor
             EditorGUILayout.LabelField("Edit mode", EditorStyles.boldLabel);
             activeTool = (EditTool)GUILayout.Toolbar(
                 (int)activeTool,
-                new[] { "Footprint", "Structural anchors", "Semantic anchors" });
+                new[]
+                {
+                    "Footprint",
+                    "Structural anchors",
+                    "Semantic anchors",
+                    "Boundary edges"
+                });
 
             DrawToolOptions();
 
@@ -183,6 +198,252 @@ namespace Godmist.Editor
             EditorGUILayout.EndVertical();
         }
 
+        private void DrawResizeButtons()
+        {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Up +", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Up, true);
+            }
+            if (GUILayout.Button("Up -", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Up, false);
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Left +", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Left, true);
+            }
+            if (GUILayout.Button("Left -", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Left, false);
+            }
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Right -", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Right, false);
+            }
+            if (GUILayout.Button("Right +", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Right, true);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Down +", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Down, true);
+            }
+            if (GUILayout.Button("Down -", GUILayout.Width(58f)))
+            {
+                ResizeRoom(DungeonEdgeDirection.Down, false);
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void ResizeRoom(
+            DungeonEdgeDirection direction,
+            bool grow)
+        {
+            var oldSize = sizeProperty.vector2IntValue;
+            var newSize = oldSize;
+            var delta = Vector2Int.zero;
+
+            switch (direction)
+            {
+                case DungeonEdgeDirection.Left:
+                    newSize.x += grow ? 1 : -1;
+                    delta.x = grow ? 1 : -1;
+                    break;
+                case DungeonEdgeDirection.Right:
+                    newSize.x += grow ? 1 : -1;
+                    break;
+                case DungeonEdgeDirection.Up:
+                    newSize.y += grow ? 1 : -1;
+                    break;
+                case DungeonEdgeDirection.Down:
+                    newSize.y += grow ? 1 : -1;
+                    delta.y = grow ? 1 : -1;
+                    break;
+            }
+
+            if (newSize.x < 1 || newSize.y < 1)
+            {
+                ShowNotification(new GUIContent(
+                    "Rozmiar pokoju nie moze byc mniejszy niz 1x1."));
+                return;
+            }
+
+            var oldFloorCells = GetFloorCells(oldSize);
+
+            if (!grow && HasAnchorsInRemovedStrip(
+                    oldSize,
+                    direction))
+            {
+                ShowNotification(new GUIContent(
+                    "Nie mozna zmniejszyc pokoju: usuwany pas zawiera anchor."));
+                return;
+            }
+
+            var oldUsesFullBoundingBox = floorOffsetsProperty.arraySize == 0;
+            var resizedFloorCells = new HashSet<Vector2Int>();
+
+            if (oldUsesFullBoundingBox)
+            {
+                for (var x = 0; x < newSize.x; x++)
+                {
+                    for (var y = 0; y < newSize.y; y++)
+                    {
+                        resizedFloorCells.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+            else
+            {
+                foreach (var cell in oldFloorCells)
+                {
+                    if (!grow && IsInRemovedStrip(cell, oldSize, direction))
+                    {
+                        continue;
+                    }
+
+                    var resizedCell = cell + delta;
+
+                    if (IsInsideRoom(resizedCell, newSize))
+                    {
+                        resizedFloorCells.Add(resizedCell);
+                    }
+                }
+            }
+
+            SetFloorCells(resizedFloorCells, newSize);
+            ShiftAnchors(delta);
+            ResizeAllowedBoundaryEdges(newSize, delta, resizedFloorCells);
+            sizeProperty.vector2IntValue = newSize;
+
+            ClearSelectionIfOutsideRoom();
+            serializedTemplate.ApplyModifiedProperties();
+            Repaint();
+        }
+
+        private bool HasAnchorsInRemovedStrip(
+            Vector2Int size,
+            DungeonEdgeDirection direction)
+        {
+            for (var index = 0; index < structuralAnchorsProperty.arraySize; index++)
+            {
+                var property = structuralAnchorsProperty.GetArrayElementAtIndex(index);
+                var firstCell = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField").vector2IntValue;
+                var anchorDirection = (DungeonEdgeDirection)property.FindPropertyRelative(
+                    "<Direction>k__BackingField").enumValueIndex;
+                var secondCell = firstCell + GetDirectionOffset(anchorDirection);
+
+                if (IsInRemovedStrip(firstCell, size, direction)
+                    || IsInRemovedStrip(secondCell, size, direction))
+                {
+                    return true;
+                }
+            }
+
+            for (var index = 0; index < semanticAnchorsProperty.arraySize; index++)
+            {
+                var property = semanticAnchorsProperty.GetArrayElementAtIndex(index);
+                var localCell = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField").vector2IntValue;
+                var areaSize = property.FindPropertyRelative(
+                    "<AreaSize>k__BackingField").vector2IntValue;
+
+                for (var x = localCell.x; x < localCell.x + areaSize.x; x++)
+                {
+                    for (var y = localCell.y; y < localCell.y + areaSize.y; y++)
+                    {
+                        if (IsInRemovedStrip(new Vector2Int(x, y), size, direction))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsInRemovedStrip(
+            Vector2Int cell,
+            Vector2Int size,
+            DungeonEdgeDirection direction)
+        {
+            return direction switch
+            {
+                DungeonEdgeDirection.Left => cell.x == 0,
+                DungeonEdgeDirection.Right => cell.x == size.x - 1,
+                DungeonEdgeDirection.Up => cell.y == size.y - 1,
+                DungeonEdgeDirection.Down => cell.y == 0,
+                _ => false
+            };
+        }
+
+        private void ShiftAnchors(Vector2Int delta)
+        {
+            if (delta == Vector2Int.zero)
+            {
+                return;
+            }
+
+            for (var index = 0; index < structuralAnchorsProperty.arraySize; index++)
+            {
+                var property = structuralAnchorsProperty.GetArrayElementAtIndex(index);
+                var localCellProperty = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField");
+                localCellProperty.vector2IntValue += delta;
+            }
+
+            for (var index = 0; index < semanticAnchorsProperty.arraySize; index++)
+            {
+                var property = semanticAnchorsProperty.GetArrayElementAtIndex(index);
+                var localCellProperty = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField");
+                localCellProperty.vector2IntValue += delta;
+            }
+        }
+
+        private void ResizeAllowedBoundaryEdges(
+            Vector2Int newSize,
+            Vector2Int delta,
+            HashSet<Vector2Int> newFloorCells)
+        {
+            var transformedEdges = new List<DungeonRoomBoundaryEdgeData>();
+
+            for (var index = 0; index < allowedBoundaryEdgesProperty.arraySize; index++)
+            {
+                var property = allowedBoundaryEdgesProperty.GetArrayElementAtIndex(index);
+                var localCell = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField").vector2IntValue + delta;
+                var direction = (DungeonEdgeDirection)property.FindPropertyRelative(
+                    "<Direction>k__BackingField").enumValueIndex;
+
+                if (newFloorCells.Contains(localCell)
+                    && DungeonRoomBoundaryUtility.IsExternalBoundaryEdge(
+                        localCell,
+                        direction,
+                        newSize,
+                        newFloorCells))
+                {
+                    transformedEdges.Add(
+                        new DungeonRoomBoundaryEdgeData(localCell, direction));
+                }
+            }
+
+            SetAllowedBoundaryEdges(transformedEdges);
+        }
+
         private void DrawToolOptions()
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -196,6 +457,10 @@ namespace Godmist.Editor
             showSemanticAnchors = GUILayout.Toggle(
                 showSemanticAnchors,
                 "Semantic",
+                EditorStyles.toolbarButton);
+            showBoundaryEdges = GUILayout.Toggle(
+                showBoundaryEdges,
+                "Boundary",
                 EditorStyles.toolbarButton);
             EditorGUILayout.EndHorizontal();
 
@@ -223,6 +488,11 @@ namespace Godmist.Editor
                         newSemanticType);
                     EditorGUILayout.LabelField(
                         "Kliknij komorke, aby dodac semantic anchor.");
+                    break;
+
+                case EditTool.BoundaryEdge:
+                    EditorGUILayout.LabelField(
+                        "Kliknij zewnetrzna krawedz, aby wlaczyc albo wylaczyc przejscie.");
                     break;
             }
 
@@ -262,8 +532,38 @@ namespace Godmist.Editor
                 }
             }
 
+            DrawBoundaryEdges(gridRect, cellSize, size);
             DrawStructuralAnchors(gridRect, cellSize, size);
             DrawSemanticAnchors(gridRect, cellSize, size);
+        }
+
+        private void DrawBoundaryEdges(
+            Rect gridRect,
+            float cellSize,
+            Vector2Int size)
+        {
+            if (!showBoundaryEdges)
+            {
+                return;
+            }
+
+            foreach (var edge in GetExternalBoundaryEdges(size))
+            {
+                var cellRect = GetCellRect(
+                    gridRect,
+                    cellSize,
+                    size,
+                    edge.LocalCell);
+                var edgeRect = GetBoundaryEdgeRect(
+                    cellRect,
+                    edge.Direction,
+                    6f);
+                var color = IsBoundaryEdgeAllowed(edge)
+                    ? new Color(0.25f, 0.85f, 0.35f, 0.95f)
+                    : new Color(0.75f, 0.3f, 0.3f, 0.72f);
+
+                EditorGUI.DrawRect(edgeRect, color);
+            }
         }
 
         private void DrawStructuralAnchors(
@@ -353,6 +653,10 @@ namespace Godmist.Editor
                 case EditTool.SemanticAnchor:
                     DrawSemanticSelection();
                     break;
+
+                case EditTool.BoundaryEdge:
+                    DrawBoundarySelection();
+                    break;
             }
 
             EditorGUILayout.EndVertical();
@@ -408,8 +712,8 @@ namespace Godmist.Editor
                 selectedSemanticAnchor);
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<Id>k__BackingField"));
-            EditorGUILayout.PropertyField(
-                property.FindPropertyRelative("<Type>k__BackingField"));
+            var typeProperty = property.FindPropertyRelative("<Type>k__BackingField");
+            EditorGUILayout.PropertyField(typeProperty);
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<LocalCell>k__BackingField"));
             EditorGUILayout.PropertyField(
@@ -421,12 +725,52 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<RequiresAnchorId>k__BackingField"));
 
+            var activationGroupProperty = property.FindPropertyRelative(
+                "<ActivationGroupId>k__BackingField");
+            if (typeProperty.enumValueIndex == (int)DungeonSemanticAnchorType.Trap)
+            {
+                EditorGUILayout.PropertyField(
+                    activationGroupProperty,
+                    new GUIContent("Activation group (traps)"));
+            }
+            else
+            {
+                activationGroupProperty.stringValue = string.Empty;
+            }
+
             if (GUILayout.Button("Remove selected anchor"))
             {
                 semanticAnchorsProperty.DeleteArrayElementAtIndex(
                     selectedSemanticAnchor);
                 selectedSemanticAnchor = -1;
             }
+        }
+
+        private void DrawBoundarySelection()
+        {
+            EditorGUILayout.LabelField(
+                "External passage edges",
+                EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Zielone krawedzie sa dozwolone dla generatora. Czerwone sa zablokowane. "
+                + "Kliknij pojedynczy odcinek na siatce, aby zmienic stan.",
+                MessageType.Info);
+
+            if (GUILayout.Button("Enable all legal edges"))
+            {
+                SetAllBoundaryEdges(true);
+            }
+
+            if (GUILayout.Button("Disable all edges"))
+            {
+                SetAllBoundaryEdges(false);
+            }
+
+            var allowedCount = CountAllowedBoundaryEdges();
+            var totalCount = GetExternalBoundaryEdges(
+                sizeProperty.vector2IntValue).Count;
+            EditorGUILayout.LabelField(
+                $"Allowed edges: {allowedCount}/{totalCount}");
         }
 
         private void HandleGridInput(
@@ -467,6 +811,24 @@ namespace Godmist.Editor
 
             if (currentEvent.button != 0) return;
 
+            if (activeTool == EditTool.BoundaryEdge)
+            {
+                if (currentEvent.type == EventType.MouseDown
+                    && TryGetBoundaryEdgeAtPosition(
+                        gridRect,
+                        cellSize,
+                        size,
+                        currentEvent.mousePosition,
+                        out var boundaryEdge))
+                {
+                    ToggleBoundaryEdge(boundaryEdge);
+                    currentEvent.Use();
+                    Repaint();
+                }
+
+                return;
+            }
+
             var cell = GetCellFromPosition(
                 gridRect,
                 cellSize,
@@ -493,6 +855,9 @@ namespace Godmist.Editor
                     {
                         SelectOrAddSemanticAnchor(cell, size);
                     }
+                    break;
+
+                case EditTool.BoundaryEdge:
                     break;
             }
 
@@ -545,6 +910,9 @@ namespace Godmist.Editor
                     }
                     break;
                 }
+
+                case EditTool.BoundaryEdge:
+                    break;
             }
         }
 
@@ -730,6 +1098,8 @@ namespace Godmist.Editor
                 (int)DungeonRoomType.Normal;
             serialized.FindProperty("<SizeInCells>k__BackingField").vector2IntValue =
                 new Vector2Int(8, 8);
+            serialized.FindProperty("<BoundaryEdgesConfigured>k__BackingField").boolValue =
+                true;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             AssetDatabase.CreateAsset(created, path);
@@ -770,10 +1140,20 @@ namespace Godmist.Editor
                 "<Footprint>k__BackingField");
             floorOffsetsProperty = footprintProperty.FindPropertyRelative(
                 "<FloorCellOffsets>k__BackingField");
+            boundaryEdgesConfiguredProperty = serializedTemplate.FindProperty(
+                "<BoundaryEdgesConfigured>k__BackingField");
+            allowedBoundaryEdgesProperty = serializedTemplate.FindProperty(
+                "<AllowedBoundaryEdges>k__BackingField");
             structuralAnchorsProperty = serializedTemplate.FindProperty(
                 "<StructuralAnchors>k__BackingField");
             semanticAnchorsProperty = serializedTemplate.FindProperty(
                 "<SemanticAnchors>k__BackingField");
+
+            if (!boundaryEdgesConfiguredProperty.boolValue)
+            {
+                template.MigrateLegacyBoundaryEdges();
+                serializedTemplate.Update();
+            }
         }
 
         private HashSet<Vector2Int> GetFloorCells(Vector2Int size)
@@ -819,8 +1199,148 @@ namespace Godmist.Editor
             for (var index = 0; index < orderedCells.Count; index++)
             {
                 floorOffsetsProperty.GetArrayElementAtIndex(index).vector2IntValue =
-                    orderedCells[index];
+                orderedCells[index];
             }
+        }
+
+        private List<DungeonRoomBoundaryEdgeData> GetExternalBoundaryEdges(
+            Vector2Int size)
+        {
+            return new List<DungeonRoomBoundaryEdgeData>(
+                DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(
+                    size,
+                    GetFloorCells(size)));
+        }
+
+        private bool IsBoundaryEdgeAllowed(
+            DungeonRoomBoundaryEdgeData edge)
+        {
+            if (!boundaryEdgesConfiguredProperty.boolValue)
+            {
+                return true;
+            }
+
+            return ContainsBoundaryEdge(
+                edge.LocalCell,
+                edge.Direction);
+        }
+
+        private bool ContainsBoundaryEdge(
+            Vector2Int localCell,
+            DungeonEdgeDirection direction)
+        {
+            for (var index = 0; index < allowedBoundaryEdgesProperty.arraySize; index++)
+            {
+                var property = allowedBoundaryEdgesProperty.GetArrayElementAtIndex(index);
+                var candidateCell = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField").vector2IntValue;
+                var candidateDirection = (DungeonEdgeDirection)property.FindPropertyRelative(
+                    "<Direction>k__BackingField").enumValueIndex;
+
+                if (candidateCell == localCell && candidateDirection == direction)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void ToggleBoundaryEdge(
+            DungeonRoomBoundaryEdgeData edge)
+        {
+            boundaryEdgesConfiguredProperty.boolValue = true;
+
+            for (var index = 0; index < allowedBoundaryEdgesProperty.arraySize; index++)
+            {
+                var property = allowedBoundaryEdgesProperty.GetArrayElementAtIndex(index);
+                var localCell = property.FindPropertyRelative(
+                    "<LocalCell>k__BackingField").vector2IntValue;
+                var direction = (DungeonEdgeDirection)property.FindPropertyRelative(
+                    "<Direction>k__BackingField").enumValueIndex;
+
+                if (localCell != edge.LocalCell || direction != edge.Direction)
+                {
+                    continue;
+                }
+
+                allowedBoundaryEdgesProperty.DeleteArrayElementAtIndex(index);
+                return;
+            }
+
+            var newIndex = allowedBoundaryEdgesProperty.arraySize;
+            allowedBoundaryEdgesProperty.InsertArrayElementAtIndex(newIndex);
+            var newProperty = allowedBoundaryEdgesProperty.GetArrayElementAtIndex(newIndex);
+            newProperty.FindPropertyRelative("<LocalCell>k__BackingField").vector2IntValue =
+                edge.LocalCell;
+            newProperty.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
+                (int)edge.Direction;
+        }
+
+        private void SetAllBoundaryEdges(bool allowed)
+        {
+            boundaryEdgesConfiguredProperty.boolValue = true;
+
+            var edges = allowed
+                ? GetExternalBoundaryEdges(sizeProperty.vector2IntValue)
+                : new List<DungeonRoomBoundaryEdgeData>();
+
+            SetAllowedBoundaryEdges(edges);
+        }
+
+        private int CountAllowedBoundaryEdges()
+        {
+            if (!boundaryEdgesConfiguredProperty.boolValue)
+            {
+                return GetExternalBoundaryEdges(sizeProperty.vector2IntValue).Count;
+            }
+
+            return allowedBoundaryEdgesProperty.arraySize;
+        }
+
+        private void SetAllowedBoundaryEdges(
+            List<DungeonRoomBoundaryEdgeData> edges)
+        {
+            allowedBoundaryEdgesProperty.arraySize = edges.Count;
+
+            for (var index = 0; index < edges.Count; index++)
+            {
+                var property = allowedBoundaryEdgesProperty.GetArrayElementAtIndex(index);
+                property.FindPropertyRelative("<LocalCell>k__BackingField").vector2IntValue =
+                    edges[index].LocalCell;
+                property.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
+                    (int)edges[index].Direction;
+            }
+        }
+
+        private bool TryGetBoundaryEdgeAtPosition(
+            Rect gridRect,
+            float cellSize,
+            Vector2Int size,
+            Vector2 mousePosition,
+            out DungeonRoomBoundaryEdgeData result)
+        {
+            foreach (var edge in GetExternalBoundaryEdges(size))
+            {
+                var cellRect = GetCellRect(
+                    gridRect,
+                    cellSize,
+                    size,
+                    edge.LocalCell);
+                var edgeRect = GetBoundaryEdgeRect(
+                    cellRect,
+                    edge.Direction,
+                    10f);
+
+                if (edgeRect.Contains(mousePosition))
+                {
+                    result = edge;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         private int FindStructuralAnchorAt(Vector2Int cell, Vector2Int size)
@@ -942,6 +1462,39 @@ namespace Godmist.Editor
                 cellSize);
         }
 
+        private static Rect GetBoundaryEdgeRect(
+            Rect cellRect,
+            DungeonEdgeDirection direction,
+            float thickness)
+        {
+            var halfThickness = thickness * 0.5f;
+
+            return direction switch
+            {
+                DungeonEdgeDirection.Up => new Rect(
+                    cellRect.xMin,
+                    cellRect.yMin - halfThickness,
+                    cellRect.width,
+                    thickness),
+                DungeonEdgeDirection.Right => new Rect(
+                    cellRect.xMax - halfThickness,
+                    cellRect.yMin,
+                    thickness,
+                    cellRect.height),
+                DungeonEdgeDirection.Down => new Rect(
+                    cellRect.xMin,
+                    cellRect.yMax - halfThickness,
+                    cellRect.width,
+                    thickness),
+                DungeonEdgeDirection.Left => new Rect(
+                    cellRect.xMin - halfThickness,
+                    cellRect.yMin,
+                    thickness,
+                    cellRect.height),
+                _ => cellRect
+            };
+        }
+
         private static Rect GetAreaRect(
             Rect gridRect,
             float cellSize,
@@ -1014,6 +1567,7 @@ namespace Godmist.Editor
                 DungeonSemanticAnchorType.Trap => "T",
                 DungeonSemanticAnchorType.Lever => "L",
                 DungeonSemanticAnchorType.Reward => "R",
+                DungeonSemanticAnchorType.Condition => "P",
                 _ => "?"
             };
         }

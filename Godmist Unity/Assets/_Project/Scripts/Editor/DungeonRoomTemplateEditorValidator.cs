@@ -65,10 +65,75 @@ namespace Godmist.Editor
             }
 
             var floorCells = ValidateFootprint(template, size, report);
+            ValidateBoundaryEdges(template, floorCells, report);
             ValidateStructuralAnchors(template, floorCells, report);
             ValidateSemanticAnchors(template, floorCells, report);
+            ValidateProgressionBranchTemplate(template, report);
+            ValidateNonProgressionControls(template, report);
 
             return report;
+        }
+
+        private static void ValidateProgressionBranchTemplate(
+            DungeonRoomTemplateDefinition template,
+            DungeonRoomTemplateValidationReport report)
+        {
+            if (!template.CanBeRequiredProgressionBranch)
+            {
+                return;
+            }
+
+            if (template.RoomType != DungeonRoomType.Optional)
+            {
+                report.AddError(
+                    "Szablon wymaganej odnogi progresji musi byc typu Optional.");
+            }
+
+            var hasProgressionControl = false;
+
+            foreach (var anchor in template.SemanticAnchors
+                         ?? new List<DungeonSemanticAnchorData>())
+            {
+                if (anchor?.Type == DungeonSemanticAnchorType.Lever
+                    || anchor?.Type == DungeonSemanticAnchorType.Condition)
+                {
+                    hasProgressionControl = true;
+                    break;
+                }
+            }
+
+            if (!hasProgressionControl)
+            {
+                report.AddError(
+                    "Szablon wymaganej odnogi progresji musi zawierac "
+                    + "co najmniej jeden anchor Lever albo Condition.");
+            }
+
+            return;
+        }
+
+        private static void ValidateNonProgressionControls(
+            DungeonRoomTemplateDefinition template,
+            DungeonRoomTemplateValidationReport report)
+        {
+            if (template.CanBeRequiredProgressionBranch)
+            {
+                return;
+            }
+
+            foreach (var anchor in template.SemanticAnchors
+                         ?? new List<DungeonSemanticAnchorData>())
+            {
+                if (anchor?.Type != DungeonSemanticAnchorType.Lever
+                    && anchor?.Type != DungeonSemanticAnchorType.Condition)
+                {
+                    continue;
+                }
+
+                report.AddError(
+                    $"Anchor '{anchor.Id}' typu Lever albo Condition moze "
+                    + "znajdowac sie tylko w szablonie wymaganej odnogi progresji.");
+            }
         }
 
         private static HashSet<Vector2Int> ValidateFootprint(
@@ -121,6 +186,59 @@ namespace Godmist.Editor
 
             ValidateFootprintConnectivity(floorCells, report);
             return floorCells;
+        }
+
+        private static void ValidateBoundaryEdges(
+            DungeonRoomTemplateDefinition template,
+            HashSet<Vector2Int> floorCells,
+            DungeonRoomTemplateValidationReport report)
+        {
+            if (!template.BoundaryEdgesConfigured)
+            {
+                return;
+            }
+
+            var usedEdges = new HashSet<BoundaryEdgeKey>();
+
+            foreach (var edge in template.AllowedBoundaryEdges
+                         ?? new List<DungeonRoomBoundaryEdgeData>())
+            {
+                if (edge == null)
+                {
+                    report.AddError("Lista external passage edges zawiera null.");
+                    continue;
+                }
+
+                if (!Enum.IsDefined(
+                        typeof(DungeonEdgeDirection),
+                        edge.Direction))
+                {
+                    report.AddError("External passage edge ma nieprawidlowy kierunek.");
+                    continue;
+                }
+
+                if (!floorCells.Contains(edge.LocalCell)
+                    || !DungeonRoomBoundaryUtility.IsExternalBoundaryEdge(
+                        edge.LocalCell,
+                        edge.Direction,
+                        template.SizeInCells,
+                        floorCells))
+                {
+                    report.AddError(
+                        $"External passage edge ({edge.LocalCell.x}, {edge.LocalCell.y}) "
+                        + $"/{edge.Direction} nie lezy na zewnetrznej krawedzi footprintu.");
+                    continue;
+                }
+
+                if (!usedEdges.Add(new BoundaryEdgeKey(
+                        edge.LocalCell,
+                        edge.Direction)))
+                {
+                    report.AddError(
+                        $"External passage edge ({edge.LocalCell.x}, {edge.LocalCell.y}) "
+                        + $"/{edge.Direction} jest zduplikowany.");
+                }
+            }
         }
 
         private static void ValidateFootprintConnectivity(
@@ -376,6 +494,35 @@ namespace Godmist.Editor
             public override int GetHashCode()
             {
                 return HashCode.Combine(first, second);
+            }
+        }
+
+        private readonly struct BoundaryEdgeKey : IEquatable<BoundaryEdgeKey>
+        {
+            private readonly Vector2Int cell;
+            private readonly DungeonEdgeDirection direction;
+
+            public BoundaryEdgeKey(
+                Vector2Int localCell,
+                DungeonEdgeDirection edgeDirection)
+            {
+                cell = localCell;
+                direction = edgeDirection;
+            }
+
+            public bool Equals(BoundaryEdgeKey other)
+            {
+                return cell == other.cell && direction == other.direction;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is BoundaryEdgeKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(cell, direction);
             }
         }
     }

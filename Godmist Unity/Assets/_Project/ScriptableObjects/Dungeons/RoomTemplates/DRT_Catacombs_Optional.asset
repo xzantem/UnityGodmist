@@ -15,14 +15,153 @@ MonoBehaviour:
   <Id>k__BackingField: room.catacombs.optional.v1
   <DisplayName>k__BackingField: "Katakumby - opcjonalny pok\xF3j"
   <RoomType>k__BackingField: 2
-  <SizeInCells>k__BackingField: {x: 12, y: 12}
-  <StructuralAnchors>k__BackingField:
-  - <Type>k__BackingField: 1
-    <LocalCell>k__BackingField: {x: 4, y: 4}
+  <CanBeRequiredProgressionBranch>k__BackingField: 0
+  <SizeInCells>k__BackingField: {x: 12, y: 10}
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField: []
+  <AllowedBoundaryEdges>k__BackingField:
+  - <LocalCell>k__BackingField: {x: 0, y: 0}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 1}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 2}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 3}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 4}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 5}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 6}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 7}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 8}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 0, y: 9}
     <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 0, y: 9}
+    <Direction>k__BackingField: 3
+  - <LocalCell>k__BackingField: {x: 1, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 2, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 3, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 4, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 5, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 6, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 7, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 8, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 9, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 10, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 11, y: 0}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 1}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 2}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 3}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 4}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 5}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 6}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 7}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 8}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 9}
+    <Direction>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 11, y: 9}
+    <Direction>k__BackingField: 1
+  - <LocalCell>k__BackingField: {x: 11, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 9, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 10, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 8, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 7, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 6, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 5, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 3, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 2, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 1, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 0, y: 0}
+    <Direction>k__BackingField: 2
+  - <LocalCell>k__BackingField: {x: 4, y: 0}
+    <Direction>k__BackingField: 2
+  <BoundaryEdgesConfigured>k__BackingField: 1
+  <StructuralAnchors>k__BackingField:
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 9}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 8}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 7}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 6}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 5}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 4}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 3}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 2}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 0}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 1}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 2}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 3}
+    <Direction>k__BackingField: 3
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 3, y: 4}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 3, y: 5}
+    <Direction>k__BackingField: 3
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 11, y: 5}
     <Direction>k__BackingField: 0
   - <Type>k__BackingField: 0
-    <LocalCell>k__BackingField: {x: 5, y: 4}
+    <LocalCell>k__BackingField: {x: 10, y: 5}
     <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 9, y: 5}
+    <Direction>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 8, y: 5}
+    <Direction>k__BackingField: 0
+  <SemanticAnchors>k__BackingField: []

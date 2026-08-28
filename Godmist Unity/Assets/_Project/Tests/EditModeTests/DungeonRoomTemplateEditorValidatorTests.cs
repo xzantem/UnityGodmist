@@ -109,6 +109,157 @@ namespace Godmist.Tests.EditMode
                 Has.Some.Contains("cykl"));
         }
 
+        [Test]
+        public void Validate_BoundaryEdgeInsideFootprint_ReturnsError()
+        {
+            var template = CreateTemplate();
+            SetAutoProperty(template, "BoundaryEdgesConfigured", true);
+            template.AllowedBoundaryEdges.Add(
+                new DungeonRoomBoundaryEdgeData(
+                    new Vector2Int(1, 1),
+                    DungeonEdgeDirection.Up));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("zewnetrznej krawedzi"));
+        }
+
+        [Test]
+        public void Validate_BoundaryEdgeCanBeDisabledForSpecificSide()
+        {
+            var template = CreateTemplate();
+            SetAutoProperty(template, "BoundaryEdgesConfigured", true);
+            template.AllowedBoundaryEdges.Add(
+                new DungeonRoomBoundaryEdgeData(
+                    new Vector2Int(0, 0),
+                    DungeonEdgeDirection.Left));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
+            Assert.That(
+                template.AllowsBoundaryEdge(
+                    new Vector2Int(0, 0),
+                    DungeonEdgeDirection.Left),
+                Is.True);
+            Assert.That(
+                template.AllowsBoundaryEdge(
+                    new Vector2Int(0, 3),
+                    DungeonEdgeDirection.Left),
+                Is.False);
+        }
+
+        [Test]
+        public void Validate_ConcaveBoundaryEdge_IsValid()
+        {
+            var template = CreateTemplate();
+            SetAutoProperty(
+                template,
+                "Footprint",
+                CreateFootprint(
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(2, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2),
+                    new Vector2Int(1, 2),
+                    new Vector2Int(2, 2)));
+            SetAutoProperty(template, "BoundaryEdgesConfigured", true);
+            template.AllowedBoundaryEdges.Add(
+                new DungeonRoomBoundaryEdgeData(
+                    new Vector2Int(0, 1),
+                    DungeonEdgeDirection.Right));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
+            Assert.That(
+                template.AllowsBoundaryEdge(
+                    new Vector2Int(0, 1),
+                    DungeonEdgeDirection.Right),
+                Is.True);
+        }
+
+        [Test]
+        public void Validate_EnclosedHoleBoundaryEdge_ReturnsError()
+        {
+            var template = CreateTemplate();
+            SetAutoProperty(
+                template,
+                "SizeInCells",
+                new Vector2Int(3, 3));
+            SetAutoProperty(
+                template,
+                "Footprint",
+                CreateFootprint(
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(2, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(2, 1),
+                    new Vector2Int(0, 2),
+                    new Vector2Int(1, 2),
+                    new Vector2Int(2, 2)));
+            SetAutoProperty(template, "BoundaryEdgesConfigured", true);
+            template.AllowedBoundaryEdges.Add(
+                new DungeonRoomBoundaryEdgeData(
+                    new Vector2Int(0, 1),
+                    DungeonEdgeDirection.Right));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("zewnetrznej krawedzi"));
+        }
+
+        [Test]
+        public void Validate_ProgressionControlOutsideRequiredBranch_ReturnsError()
+        {
+            var template = CreateTemplate();
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "lever.test",
+                    DungeonSemanticAnchorType.Lever,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("typu Lever albo Condition"));
+        }
+
+        [Test]
+        public void Validate_RequiredProgressionBranchWithControls_IsValid()
+        {
+            var template = CreateTemplate();
+            SetAutoProperty(
+                template,
+                "RoomType",
+                DungeonRoomType.Optional);
+            SetAutoProperty(
+                template,
+                "CanBeRequiredProgressionBranch",
+                true);
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "lever.test",
+                    DungeonSemanticAnchorType.Lever,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
+        }
+
         private DungeonRoomTemplateDefinition CreateTemplate()
         {
             var template = ScriptableObject.CreateInstance<

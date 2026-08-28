@@ -66,6 +66,18 @@ namespace Godmist.Data.Dungeons
             Vector2Int localCell,
             DungeonEdgeDirection direction)
         {
+            var floorCells = new HashSet<Vector2Int>(
+                (Footprint ?? new DungeonRoomFootprint()).Enumerate(SizeInCells));
+
+            if (!DungeonRoomBoundaryUtility.IsExternalBoundaryEdge(
+                    localCell,
+                    direction,
+                    SizeInCells,
+                    floorCells))
+            {
+                return false;
+            }
+
             if (!BoundaryEdgesConfigured)
             {
                 return true;
