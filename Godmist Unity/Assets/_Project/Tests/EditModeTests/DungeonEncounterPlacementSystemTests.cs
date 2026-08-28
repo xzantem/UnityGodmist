@@ -126,6 +126,83 @@ namespace Godmist.Tests.EditMode
                 Has.Count.EqualTo(firstCount));
         }
 
+        [Test]
+        public void EnemyAnchorResolver_UsesEncounterEnemyIndicesAndSkipsDefeatedEnemies()
+        {
+            var catalog = ScriptableObject.CreateInstance<
+                DungeonRoomTemplateCatalog>();
+            var template = CreateRoomTemplate(
+                "room.normal",
+                DungeonRoomType.Normal);
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.01",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 0));
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.02",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(2, 2),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 1));
+            SetAutoProperty(
+                catalog,
+                "Templates",
+                new List<DungeonRoomTemplateDefinition> { template });
+
+            var floor = new DungeonFloorInstance(0);
+            floor.TryAddRoom(
+                new DungeonRoomInstance(
+                    "room.01",
+                    DungeonRoomType.Normal,
+                    "room.normal"));
+
+            var map = new DungeonFloorMap();
+            for (var x = 0; x < 8; x++)
+            {
+                for (var y = 0; y < 8; y++)
+                {
+                    map.TryAddFloorCell(
+                        new Vector2Int(x, y),
+                        "room.01");
+                }
+            }
+
+            Assert.That(floor.TrySetMap(map), Is.True);
+
+            var definition = ScriptableObject.CreateInstance<EncounterDefinition>();
+            SetAutoProperty(definition, "Id", "encounter.01");
+            SetAutoProperty(
+                definition,
+                "Enemies",
+                new List<EncounterEnemyData>
+                {
+                    CreateEncounterEnemy("enemy.alpha"),
+                    CreateEncounterEnemy("enemy.beta")
+                });
+
+            var encounter = new DungeonEncounterInstance(
+                "encounter.instance.01",
+                definition,
+                "room.01",
+                new RectInt(0, 0, 8, 8));
+            encounter.TryMarkEnemyDefeated("enemy.beta");
+
+            var positions = new DungeonEnemyAnchorResolver().Resolve(
+                floor,
+                catalog,
+                encounter);
+
+            Assert.That(positions, Has.Count.EqualTo(1));
+            Assert.That(
+                positions["enemy.alpha"],
+                Is.EqualTo(new Vector2Int(1, 1)));
+            Assert.That(positions.ContainsKey("enemy.beta"), Is.False);
+        }
+
         private static DungeonDefinition CreateDungeonDefinition(
             int minEncounterCount,
             int maxEncounterCount,
@@ -259,6 +336,13 @@ namespace Godmist.Tests.EditMode
                 new Vector2Int(8, 8));
 
             return template;
+        }
+
+        private static EncounterEnemyData CreateEncounterEnemy(string instanceId)
+        {
+            var enemy = new EncounterEnemyData();
+            SetAutoProperty(enemy, "InstanceId", instanceId);
+            return enemy;
         }
 
         private static string BuildEncounterSignature(

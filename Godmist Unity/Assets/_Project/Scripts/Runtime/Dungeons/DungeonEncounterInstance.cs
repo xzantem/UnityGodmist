@@ -19,11 +19,16 @@ namespace Godmist.Runtime.Dungeons
         public Vector2Int RetreatPosition { get; private set; }
         private readonly HashSet<string> defeatedEnemyInstanceIds = new();
         private readonly HashSet<string> generatedEnemyBodyEnemyInstanceIds = new();
+        private readonly Dictionary<string, Vector2Int>
+            enemyExplorationPositions = new(StringComparer.Ordinal);
 
         public IReadOnlyCollection<string> DefeatedEnemyInstanceIds =>
             defeatedEnemyInstanceIds;
         public IReadOnlyCollection<string> GeneratedEnemyBodyEnemyInstanceIds =>
             generatedEnemyBodyEnemyInstanceIds;
+
+        public IReadOnlyDictionary<string, Vector2Int> EnemyExplorationPositions =>
+            enemyExplorationPositions;
 
         public DungeonEncounterInstance(
             string instanceId,
@@ -111,6 +116,25 @@ namespace Godmist.Runtime.Dungeons
             if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
 
             return defeatedEnemyInstanceIds.Add(enemyInstanceId);
+        }
+
+        public bool TrySetEnemyExplorationPosition(
+            string enemyInstanceId,
+            Vector2Int position)
+        {
+            if (string.IsNullOrWhiteSpace(enemyInstanceId)) return false;
+
+            enemyExplorationPositions[enemyInstanceId] = position;
+            return true;
+        }
+
+        public bool TryGetEnemyExplorationPosition(
+            string enemyInstanceId,
+            out Vector2Int position)
+        {
+            return enemyExplorationPositions.TryGetValue(
+                enemyInstanceId,
+                out position);
         }
 
         public bool IsEnemyBodyGenerated(string enemyInstanceId)

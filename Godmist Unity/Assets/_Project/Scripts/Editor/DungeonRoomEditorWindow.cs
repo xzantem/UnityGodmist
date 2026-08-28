@@ -716,26 +716,55 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(typeProperty);
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<LocalCell>k__BackingField"));
-            EditorGUILayout.PropertyField(
-                property.FindPropertyRelative("<AreaSize>k__BackingField"));
-            EditorGUILayout.PropertyField(
-                property.FindPropertyRelative("<SpawnChance>k__BackingField"));
-            EditorGUILayout.PropertyField(
-                property.FindPropertyRelative("<IsRequired>k__BackingField"));
-            EditorGUILayout.PropertyField(
-                property.FindPropertyRelative("<RequiresAnchorId>k__BackingField"));
 
-            var activationGroupProperty = property.FindPropertyRelative(
-                "<ActivationGroupId>k__BackingField");
-            if (typeProperty.enumValueIndex == (int)DungeonSemanticAnchorType.Trap)
+            var enemyIndexProperty = property.FindPropertyRelative(
+                "<EncounterEnemyIndex>k__BackingField");
+            if (typeProperty.enumValueIndex == (int)DungeonSemanticAnchorType.Enemy)
             {
                 EditorGUILayout.PropertyField(
-                    activationGroupProperty,
-                    new GUIContent("Activation group (traps)"));
+                    enemyIndexProperty,
+                    new GUIContent("Encounter enemy index"));
+                EditorGUILayout.HelpBox(
+                    "Indeks wskazuje wpis na liscie Enemies w EncounterDefinition. "
+                    + "0 oznacza pierwszego przeciwnika.",
+                    MessageType.Info);
+
+                property.FindPropertyRelative(
+                    "<AreaSize>k__BackingField").vector2IntValue = Vector2Int.one;
+                property.FindPropertyRelative(
+                    "<SpawnChance>k__BackingField").floatValue = 1f;
+                property.FindPropertyRelative(
+                    "<IsRequired>k__BackingField").boolValue = false;
+                property.FindPropertyRelative(
+                    "<RequiresAnchorId>k__BackingField").stringValue = string.Empty;
+                property.FindPropertyRelative(
+                    "<ActivationGroupId>k__BackingField").stringValue = string.Empty;
             }
             else
             {
-                activationGroupProperty.stringValue = string.Empty;
+                EditorGUILayout.PropertyField(
+                    property.FindPropertyRelative("<AreaSize>k__BackingField"));
+                EditorGUILayout.PropertyField(
+                    property.FindPropertyRelative("<SpawnChance>k__BackingField"));
+                EditorGUILayout.PropertyField(
+                    property.FindPropertyRelative("<IsRequired>k__BackingField"));
+                EditorGUILayout.PropertyField(
+                    property.FindPropertyRelative("<RequiresAnchorId>k__BackingField"));
+
+                var activationGroupProperty = property.FindPropertyRelative(
+                    "<ActivationGroupId>k__BackingField");
+                if (typeProperty.enumValueIndex == (int)DungeonSemanticAnchorType.Trap)
+                {
+                    EditorGUILayout.PropertyField(
+                        activationGroupProperty,
+                        new GUIContent("Activation group (traps)"));
+                }
+                else
+                {
+                    activationGroupProperty.stringValue = string.Empty;
+                }
+
+                enemyIndexProperty.intValue = -1;
             }
 
             if (GUILayout.Button("Remove selected anchor"))
@@ -1028,6 +1057,10 @@ namespace Godmist.Editor
                 false;
             element.FindPropertyRelative("<RequiresAnchorId>k__BackingField").stringValue =
                 string.Empty;
+            element.FindPropertyRelative(
+                "<ActivationGroupId>k__BackingField").stringValue = string.Empty;
+            element.FindPropertyRelative(
+                "<EncounterEnemyIndex>k__BackingField").intValue = -1;
             selectedSemanticAnchor = newIndex;
         }
 
@@ -1568,6 +1601,7 @@ namespace Godmist.Editor
                 DungeonSemanticAnchorType.Lever => "L",
                 DungeonSemanticAnchorType.Reward => "R",
                 DungeonSemanticAnchorType.Condition => "P",
+                DungeonSemanticAnchorType.Enemy => "E",
                 _ => "?"
             };
         }

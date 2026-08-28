@@ -1,100 +1,109 @@
 # Unity handoff
 
-Karta: `Zablokowac interakcje z obiektami przez sciane v1`
+Karta: `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1`
 
 Implementacja jest gotowa do recznego smoke testu w Unity Editorze. Nie uruchamialem Unity Test Runnera ani `Godmist Unity Test Mirror`.
 
-## Model dzialania
+## Cel karty
 
-- Interakcja nadal wymaga dotychczasowego dystansu od aktywnego lidera.
-- Oprocz dystansu system sprawdza bezposrednia linie komorek od komorki lidera do obiektu.
-- Kazda krawedz na tej linii musi byc przechodnia w `DungeonFloorMap`.
-- Sciana, zamkniete drzwi albo przeszkoda po drodze blokuja interakcje.
-- Przeszkoda blokuje interakcje, gdy ma `BlocksMovement` albo `BlocksLineOfSight`.
-- Dotyczy skrzyn, leverow, conditionow, drzwi i cial przeciwnikow.
-- Zamkniete zwykle drzwi mozna otworzyc z obu sasiadujacych komorek; drzwi `LeverOnly` nadal nie maja bezposrednej interakcji.
+Room template moze teraz definiowac pozycje pojedynczych przeciwnikow nalezacych do encounteru. Anchor nie wskazuje typu przeciwnika ani konkretnego assetu encounteru. Wskazuje indeks wpisu na liscie `EncounterDefinition.Enemies`.
 
-## 1. Interakcja po prostej linii
+Zakres obejmuje tylko poczatkowe rozmieszczenie przeciwnikow w eksploracji. Nie zmienia logiki FOV, poscigu, rozpoczecia walki ani pozniejszego ruchu przeciwnikow.
 
-1. Uruchom dungeon z aktywnym `DungeonDefinition`.
-2. Podejdz aktywnym liderem do skrzyni, levera albo conditionu tak, aby obiekt byl w zasiegu interakcji i nic nie stalo pomiedzy w tej samej linii komorek.
-3. Nacisnij `E`.
-4. Powtorz test dla ciala przeciwnika, jesli w lochu istnieje juz cialo.
+## Przygotowanie danych
 
-Oczekiwany rezultat:
+1. Otworz `EncounterDefinition`, ktory jest uzywany przez aktywny `DungeonDefinition`.
+2. Sprawdz kolejnosc wpisow na jego liscie `Enemies`. Indeks zaczyna sie od zera: pierwszy wpis ma indeks `0`, drugi `1` itd.
+3. Otworz room template uzywany przez jeden z pokojow, w ktorym moze pojawic sie encounter.
+4. W sekcji semantic anchors dodaj anchor i ustaw:
+   - `Type` = `Enemy`;
+   - `Local Cell` = komorka, w ktorej ma stac konkretny przeciwnik;
+   - `Encounter enemy index` = indeks wpisu z `EncounterDefinition.Enemies`.
+5. Marker typu `Enemy` jest oznaczony na siatce litera `E`. Anchor zajmuje zawsze jedna komorke. Pola `Area Size`, `Spawn Chance`, `Is Required`, `Requires Anchor Id` i `Activation group` nie steruja anchorami przeciwnikow.
+6. Zapisz asset. Walidacja room template'u blokuje zapis, jezeli anchor ma pusty cel, nieprawidlowy rozmiar, zduplikowany cel, zduplikowana komorke albo kolizje z innym semantic anchorem.
 
-- interakcja dziala tak jak przed zmiana, gdy bezposrednia linia nie jest zablokowana;
-- skrzynia otwiera loot, lever zmienia stan, condition zostaje spelniony, a cialo otwiera loot;
-- aktywny lider pozostaje jedynym zrodlem interakcji.
+## Test 1: dwa konkretne cele
 
-## 2. Obiekt za sciana
-
-Najlatwiej znalezc dwie komorki po przeciwnych stronach sciany wewnetrznej albo granicznej, gdzie odleglosc nadal jest mniejsza od promienia interakcji.
-
-1. Ustaw lidera po jednej stronie sciany.
-2. Upewnij sie, ze skrzynia, lever, condition albo cialo jest po drugiej stronie i znajduje sie w zasiegu dystansu.
-3. Nacisnij `E`.
-4. Podejdz do obiektu od strony, z ktorej nie ma sciany pomiedzy komorkami i ponownie nacisnij `E`.
+1. Przygotuj encounter z co najmniej dwoma wpisami o roznych `InstanceId`.
+2. W room template ustaw dwa anchory `Enemy` na dwoch roznych komorkach, przypisujac im odpowiednio indeks `0` i `1`.
+3. Upewnij sie, ze ten template jest w aktywnym `DungeonRoomTemplateCatalog`, a encounter w aktywnym `DungeonDefinition`.
+4. Uruchom dungeon z ustalonym seedem i wejdz do pokoju zawierajacego encounter.
 
 Oczekiwany rezultat:
 
-- pierwsza proba nie wykonuje interakcji mimo odpowiedniego dystansu;
-- po obejściu sciany interakcja dziala;
-- obiekt nie moze byc aktywowany ani zlootowany przez sciane.
+- pierwszy przeciwnik z listy `Enemies` stoi dokladnie na komorce pierwszego anchora;
+- drugi przeciwnik z listy `Enemies` stoi dokladnie na komorce drugiego anchora;
+- pozycja nie jest wybierana na podstawie typu przeciwnika ani konkretnego `InstanceId`;
+- obie komorki pozostaja zarezerwowane dla przeciwnikow i nie pojawi sie na nich skrzynia, pulapka, obstacle, lever ani condition;
+- zachowanie FOV, poscigu i rozpoczecia walki pozostaje takie jak przed ta karta.
 
-## 3. Obiekt za przeszkoda
+## Test 2: wiecej przeciwnikow niz anchorow
 
-1. Uzyj template'u albo wygenerowanego pokoju z przeszkoda na drodze miedzy liderem i interaktywnym obiektem.
-2. Ustaw przeszkode tak, aby lider nadal byl w zasiegu dystansu od obiektu.
-3. Nacisnij `E` dla skrzyni, levera, conditionu albo ciala.
-4. Obejdz przeszkode i sprobuj ponownie.
-
-Oczekiwany rezultat:
-
-- przeszkoda z `BlocksMovement` albo `BlocksLineOfSight` blokuje interakcje;
-- po obejściu przeszkody interakcja dziala, o ile pozostaje zachowany dystans;
-- nie ma interakcji przez zajeta komorke przeszkody.
-
-## 4. Zamkniete drzwi
-
-1. Znajdz zamkniete zwykle drzwi, ktore nie sa `LeverOnly`.
-2. Podejdz liderem do jednej z komorek przylegajacych do krawedzi drzwi.
-3. Nacisnij `E` i sprawdz, ze drzwi sie otwieraja.
-4. Przejdz na druga strone, zamknij drzwi i ponownie nacisnij `E` z drugiej komorki.
-5. Jesli istnieja drzwi `LeverOnly`, sprawdz, ze `E` nie otwiera ich bez spelnienia wymaganego warunku.
+1. Zostaw w template tylko jeden albo dwa anchory `Enemy`.
+2. Uzyj encounteru z wieksza liczba poprawnych, zywych wpisow przeciwnikow.
+3. Uruchom dungeon.
 
 Oczekiwany rezultat:
 
-- zwykle drzwi mozna otworzyc z obu stron;
-- zamknieta krawedz drzwi nie pozwala interakcji przejsc na druga strone, ale nie blokuje interakcji z samego sasiadujacego pola;
-- po otwarciu drzwi ich przejscie i dalszy ruch dzialaja normalnie;
-- `LeverOnly` zachowuje dotychczasowa blokade bezposredniej interakcji.
+- przeciwnicy z pasujacymi indeksami sa ustawieni na swoich anchorach;
+- pozostali przeciwnicy sa rozmieszczani przez dotychczasowy fallback w poprawnych komorkach pokoju;
+- fallback nie nadpisuje pozycji przypisanych anchorami i nie stawia przeciwnika poza podloga pokoju.
 
-## 5. Wszystkie typy obiektow i regresja
+## Test 3: brakujacy albo pokonany cel
 
 Sprawdz osobno:
 
-- skrzynie;
-- levery;
-- conditiony;
-- zwykle drzwi;
-- ciala zabitych przeciwnikow.
+- anchor wskazujacy indeks wiekszy lub rowny liczbie wpisow w encounterze;
+- anchor wskazujacy wpis oznaczony jako pokonany;
+- encounter bez zadnego pasujacego anchora.
 
-Dodatkowo sprawdz, ze:
+Oczekiwany rezultat:
 
-- ruch postaci nadal respektuje sciany i przeszkody;
-- pulapki nadal aktywuja sie przez kolizje, a nie przez interakcje `E`;
-- otwieranie drzwi przez lever/condition nadal aktualizuje stan progresji;
-- interakcje w otwartej przestrzeni nie zostaly przypadkowo zablokowane.
+- brakujacy cel jest ignorowany bez wyjatku;
+- pokonany przeciwnik nie jest respawnowany;
+- pozostali przeciwnicy nadal korzystaja z normalnego fallbacku.
+
+## Test 4: rotacja room template'u
+
+1. Dla template'u dopusc 0, 90, 180 i 270 stopni.
+2. Uruchom dungeon kilka razy z seedem, ktory ustawia rozne rotacje tego pokoju.
+
+Oczekiwany rezultat:
+
+- anchor pozostaje w tej samej pozycji lokalnej template'u;
+- jego pozycja w swiecie obraca sie razem z pokojem;
+- przeciwnik nadal trafia do konkretnego `InstanceId`, a nie do konkretnej pozycji z poprzedniej rotacji.
+
+## Test 5: walidacja blokujaca zapis
+
+Sprawdz, ze zapis room template'u jest blokowany dla kazdego przypadku:
+
+- ujemny `Encounter enemy index`;
+- dwa anchory wskazujace ten sam indeks;
+- dwa anchory wskazujace te sama komorke;
+- `Area Size` inne niz `1 x 1`;
+- anchor `Enemy` nachodzacy na inny semantic anchor.
+
+Po poprawieniu danych asset powinien dac sie zapisac bez bledu walidacji.
+
+## Test regresji
+
+Sprawdz, ze:
+
+- encounter bez anchorow przeciwnikow nadal dziala jak dotychczas;
+- pojedynczy anchor nie zmienia liczby przeciwnikow w encounterze;
+- dwa pokoje uzywajace tego samego room template'u nie dziela pozycji ani rezerwacji;
+- semantic anchory skrzyn, pulapek, obstacle, leverow i conditionow nadal dzialaja;
+- kotwy przeciwnikow nie sa traktowane jako obiekty do placementu.
 
 ## Testy automatyczne do recznego uruchomienia
 
-W Unity Test Runnerze uruchom:
+Po smoke tescie uruchom w Unity Test Runnerze:
 
-- `DungeonCorridorPathfinderTests`, w tym testy `HasDirectAccess`;
-- `DungeonObjectPlacementSystemTests`;
+- `DungeonRoomTemplateEditorValidatorTests`;
+- `DungeonEncounterPlacementSystemTests`;
 - `DungeonSemanticAnchorTests`;
-- `DungeonEnemyBodyTests`;
+- `DungeonObjectPlacementSystemTests`;
 - pozostale testy dungeon runtime.
 
-Smoke test tej karty zostal zaakceptowany. Jesli pojawi sie regresja, podaj seed, typ obiektu i screenshot.
+Jesli pojawi sie regresja, podaj seed, `EncounterDefinition.Id`, indeks przeciwnika, room template oraz screenshot z pozycjami anchorow i przeciwnikow.

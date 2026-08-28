@@ -121,6 +121,8 @@ namespace Godmist.Views.Dungeons
             var parent = enemyViewsRoot != null
                 ? enemyViewsRoot
                 : transform;
+            var occupiedEnemyCells = new HashSet<Vector2Int>(
+                encounterInstance.EnemyExplorationPositions.Values);
 
             foreach (var enemyData in enemies)
             {
@@ -140,19 +142,32 @@ namespace Godmist.Views.Dungeons
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
 
-                var cell = enemyIndex == 0
-                    && IsRoomFloorCell(
-                        floorMap,
-                        encounterInstance.RoomId,
-                        encounterInstance.ExplorationPosition)
-                    ? encounterInstance.ExplorationPosition
-                    : GetFormationCell(
-                        floorMap,
-                        encounterInstance.RoomId,
-                        encounterInstance.TriggerArea,
-                        enemyIndex,
-                        validEnemyCount,
-                        encounterInstance.ExplorationPosition);
+                var cell = encounterInstance.TryGetEnemyExplorationPosition(
+                    enemyData.InstanceId,
+                    out var anchoredCell)
+                    ? anchoredCell
+                    : enemyIndex == 0
+                      && IsRoomFloorCell(
+                          floorMap,
+                          encounterInstance.RoomId,
+                          encounterInstance.ExplorationPosition)
+                      && !occupiedEnemyCells.Contains(
+                          encounterInstance.ExplorationPosition)
+                        ? encounterInstance.ExplorationPosition
+                        : GetFormationCell(
+                            floorMap,
+                            encounterInstance.RoomId,
+                            encounterInstance.TriggerArea,
+                            enemyIndex,
+                            validEnemyCount,
+                            encounterInstance.ExplorationPosition,
+                            occupiedEnemyCells);
+
+                if (!encounterInstance.EnemyExplorationPositions.ContainsKey(
+                        enemyData.InstanceId))
+                {
+                    occupiedEnemyCells.Add(cell);
+                }
 
                 enemyView.SetPosition(
                     floorMapView.CellToWorldCenter(cell));
@@ -172,7 +187,8 @@ namespace Godmist.Views.Dungeons
             RectInt area,
             int index,
             int memberCount,
-            Vector2Int fallbackCell)
+            Vector2Int fallbackCell,
+            ISet<Vector2Int> excludedCells)
         {
             var candidates = new List<Vector2Int>();
 
@@ -182,7 +198,8 @@ namespace Godmist.Views.Dungeons
                 {
                     var cell = new Vector2Int(x, y);
 
-                    if (IsRoomFloorCell(floorMap, roomId, cell))
+                    if (IsRoomFloorCell(floorMap, roomId, cell)
+                        && (excludedCells == null || !excludedCells.Contains(cell)))
                     {
                         candidates.Add(cell);
                     }

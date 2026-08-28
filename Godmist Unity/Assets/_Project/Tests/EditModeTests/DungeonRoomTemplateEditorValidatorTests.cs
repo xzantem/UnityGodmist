@@ -260,6 +260,94 @@ namespace Godmist.Tests.EditMode
             Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
         }
 
+        [Test]
+        public void Validate_EnemyAnchorWithEncounterInstanceId_IsValid()
+        {
+            var template = CreateTemplate();
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.01",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 0));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
+        }
+
+        [Test]
+        public void Validate_EnemyAnchorWithoutEncounterInstanceId_ReturnsError()
+        {
+            var template = CreateTemplate();
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.01",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(report.Errors, Has.Some.Contains("indeks"));
+        }
+
+        [Test]
+        public void Validate_EnemyAnchorsCannotReuseTargetOrCell()
+        {
+            var template = CreateTemplate();
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.01",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 0));
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.02",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 0));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("wiecej niz jednego anchora"));
+            Assert.That(
+                report.Errors,
+                Has.Some.Contains("dzielic komorki"));
+        }
+
+        [Test]
+        public void Validate_EnemyAnchorCannotOverlapOtherSemanticAnchor()
+        {
+            var template = CreateTemplate();
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "enemy.anchor.01",
+                    DungeonSemanticAnchorType.Enemy,
+                    new Vector2Int(1, 1),
+                    Vector2Int.one,
+                    encounterEnemyIndex: 0));
+            template.SemanticAnchors.Add(
+                new DungeonSemanticAnchorData(
+                    "obstacle.anchor.01",
+                    DungeonSemanticAnchorType.Obstacle,
+                    new Vector2Int(0, 1),
+                    new Vector2Int(2, 1)));
+
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+
+            Assert.That(report.IsValid, Is.False);
+            Assert.That(report.Errors, Has.Some.Contains("koliduje"));
+        }
+
         private DungeonRoomTemplateDefinition CreateTemplate()
         {
             var template = ScriptableObject.CreateInstance<

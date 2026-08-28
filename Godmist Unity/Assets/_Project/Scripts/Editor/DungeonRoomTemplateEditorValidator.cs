@@ -342,9 +342,13 @@ namespace Godmist.Editor
         {
             var ids = new HashSet<string>(StringComparer.Ordinal);
             var dependencies = new Dictionary<string, string>(StringComparer.Ordinal);
+            var enemyIndices = new HashSet<int>();
+            var enemyCells = new HashSet<Vector2Int>();
+            var enemyAnchors = new List<DungeonSemanticAnchorData>();
+            var semanticAnchors = template.SemanticAnchors
+                                  ?? new List<DungeonSemanticAnchorData>();
 
-            foreach (var anchor in template.SemanticAnchors
-                         ?? new List<DungeonSemanticAnchorData>())
+            foreach (var anchor in semanticAnchors)
             {
                 if (anchor == null)
                 {
@@ -396,6 +400,38 @@ namespace Godmist.Editor
                     }
                 }
 
+                if (anchor.Type == DungeonSemanticAnchorType.Enemy)
+                {
+                    enemyAnchors.Add(anchor);
+
+                    if (anchor.EncounterEnemyIndex < 0)
+                    {
+                        report.AddError(
+                            $"Enemy anchor '{anchor.Id}' musi wskazywac "
+                            + "nieujemny indeks przeciwnika z encounteru.");
+                    }
+                    else if (!enemyIndices.Add(anchor.EncounterEnemyIndex))
+                    {
+                        report.AddError(
+                            $"Enemy index '{anchor.EncounterEnemyIndex}' "
+                            + "jest przypisane do wiecej niz jednego anchora.");
+                    }
+
+                    if (anchor.AreaSize != Vector2Int.one)
+                    {
+                        report.AddError(
+                            $"Enemy anchor '{anchor.Id}' musi wskazywac "
+                            + "dokladnie jedna komorke.");
+                    }
+
+                    if (!enemyCells.Add(anchor.LocalCell))
+                    {
+                        report.AddError(
+                            $"Enemy anchory nie moga dzielic komorki "
+                            + $"({anchor.LocalCell.x}, {anchor.LocalCell.y}).");
+                    }
+                }
+
                 if (anchor.SpawnChance < 0f || anchor.SpawnChance > 1f)
                 {
                     report.AddError(
@@ -419,7 +455,46 @@ namespace Godmist.Editor
                 }
             }
 
+            for (var firstIndex = 0;
+                firstIndex < enemyAnchors.Count;
+                firstIndex++)
+            {
+                for (var secondIndex = 0;
+                    secondIndex < semanticAnchors.Count;
+                    secondIndex++)
+                {
+                    var other = semanticAnchors[secondIndex];
+
+                    if (other == null
+                        || other.Type == DungeonSemanticAnchorType.Enemy
+                        || !AreAreasOverlapping(
+                            enemyAnchors[firstIndex],
+                            other))
+                    {
+                        continue;
+                    }
+
+                    report.AddError(
+                        $"Enemy anchor '{enemyAnchors[firstIndex].Id}' "
+                        + $"koliduje z semantic anchorem '{other.Id}'.");
+                }
+            }
+
             ValidateDependencyCycles(dependencies, report);
+        }
+
+        private static bool AreAreasOverlapping(
+            DungeonSemanticAnchorData first,
+            DungeonSemanticAnchorData second)
+        {
+            var firstArea = new RectInt(
+                first.LocalCell,
+                first.AreaSize);
+            var secondArea = new RectInt(
+                second.LocalCell,
+                second.AreaSize);
+
+            return firstArea.Overlaps(secondArea);
         }
 
         private static void ValidateDependencyCycles(

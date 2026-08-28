@@ -19,6 +19,9 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public Vector2Int AreaSize { get; private set; } = Vector2Int.one;
 
+        [field: SerializeField]
+        public int EncounterEnemyIndex { get; private set; } = -1;
+
         [field: SerializeField, Range(0f, 1f)]
         public float SpawnChance { get; private set; } = 1f;
 
@@ -43,7 +46,8 @@ namespace Godmist.Data.Dungeons
             float spawnChance = 1f,
             bool isRequired = false,
             string requiresAnchorId = null,
-            string activationGroupId = null)
+            string activationGroupId = null,
+            int encounterEnemyIndex = -1)
         {
             Id = id ?? string.Empty;
             Type = type;
@@ -53,6 +57,7 @@ namespace Godmist.Data.Dungeons
             IsRequired = isRequired;
             RequiresAnchorId = requiresAnchorId ?? string.Empty;
             ActivationGroupId = activationGroupId ?? string.Empty;
+            EncounterEnemyIndex = encounterEnemyIndex;
         }
 
         public void Normalize()
@@ -61,6 +66,18 @@ namespace Godmist.Data.Dungeons
                 Mathf.Max(1, AreaSize.x),
                 Mathf.Max(1, AreaSize.y));
             SpawnChance = Mathf.Clamp01(SpawnChance);
+
+            if (Type == DungeonSemanticAnchorType.Enemy)
+            {
+                AreaSize = Vector2Int.one;
+                SpawnChance = 1f;
+                IsRequired = false;
+                RequiresAnchorId = string.Empty;
+                ActivationGroupId = string.Empty;
+                return;
+            }
+
+            EncounterEnemyIndex = -1;
 
             if (Type != DungeonSemanticAnchorType.Trap)
             {

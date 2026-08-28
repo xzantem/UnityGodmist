@@ -314,6 +314,14 @@ namespace Godmist.Systems.Dungeons
                     definitions,
                     candidate.Anchor.Type).Count > 0);
 
+            var reservedEnemyCells = new DungeonEnemyAnchorResolver()
+                .GetReservedCells(
+                    floor,
+                    dungeon.Definition.RoomTemplateCatalog);
+
+            semanticCandidates = semanticCandidates.FindAll(candidate =>
+                candidate.Cells.All(cell => !reservedEnemyCells.Contains(cell)));
+
             if (semanticCandidates.Count == 0)
             {
                 if (dungeon.Definition.MinObjectCountPerFloor > 0)

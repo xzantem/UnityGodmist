@@ -7,6 +7,125 @@ using UnityEngine;
 
 namespace Godmist.Systems.Dungeons
 {
+    public sealed class DungeonEnemyAnchorResolver
+    {
+        private readonly DungeonSemanticAnchorResolver semanticResolver = new();
+
+        public Dictionary<string, Vector2Int> Resolve(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog,
+            DungeonEncounterInstance encounter)
+        {
+            var result = new Dictionary<string, Vector2Int>(
+                StringComparer.Ordinal);
+
+            if (floor == null
+                || floor.Map == null
+                || catalog == null
+                || encounter == null
+                || encounter.Definition?.Enemies == null)
+            {
+                return result;
+            }
+
+            var liveEnemyIdsByIndex = new Dictionary<int, string>();
+
+            for (var enemyIndex = 0;
+                enemyIndex < encounter.Definition.Enemies.Count;
+                enemyIndex++)
+            {
+                var enemy = encounter.Definition.Enemies[enemyIndex];
+
+                if (enemy == null
+                    || string.IsNullOrWhiteSpace(enemy.InstanceId)
+                    || encounter.IsEnemyDefeated(enemy.InstanceId))
+                {
+                    continue;
+                }
+
+                liveEnemyIdsByIndex[enemyIndex] = enemy.InstanceId;
+            }
+
+            var candidates = semanticResolver.GetCandidates(
+                floor,
+                catalog,
+                new[] { DungeonSemanticAnchorType.Enemy },
+                _ => true);
+            var usedCells = new HashSet<Vector2Int>();
+
+            foreach (var candidate in candidates)
+            {
+                if (candidate.Room == null
+                    || !string.Equals(
+                        candidate.Room.RoomId,
+                        encounter.RoomId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!liveEnemyIdsByIndex.TryGetValue(
+                        candidate.Anchor.EncounterEnemyIndex,
+                        out var enemyId))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(enemyId))
+                {
+                    continue;
+                }
+
+                if (candidate.Cells.Count != 1)
+                {
+                    throw new InvalidOperationException(
+                        $"Enemy anchor '{candidate.Anchor.Id}' musi wskazywac "
+                        + "dokladnie jedna komorke.");
+                }
+
+                var cell = candidate.Cells[0];
+
+                if (!result.TryAdd(enemyId, cell))
+                {
+                    throw new InvalidOperationException(
+                        $"Enemy '{enemyId}' ma wiecej niz jeden anchor "
+                        + $"w pokoju '{candidate.Room.TemplateId}'.");
+                }
+
+                if (!usedCells.Add(cell))
+                {
+                    throw new InvalidOperationException(
+                        $"Enemy anchory w pokoju '{candidate.Room.TemplateId}' "
+                        + $"wskazuja te sama komorke ({cell.x}, {cell.y}).");
+                }
+            }
+
+            return result;
+        }
+
+        public HashSet<Vector2Int> GetReservedCells(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            var result = new HashSet<Vector2Int>();
+
+            if (floor == null || catalog == null)
+            {
+                return result;
+            }
+
+            foreach (var encounter in floor.Encounters)
+            {
+                foreach (var cell in Resolve(floor, catalog, encounter).Values)
+                {
+                    result.Add(cell);
+                }
+            }
+
+            return result;
+        }
+    }
+
     public sealed class DungeonSemanticAnchorPlacement
     {
         public DungeonRoomInstance Room { get; }

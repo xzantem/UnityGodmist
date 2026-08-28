@@ -851,7 +851,10 @@ namespace Godmist.Tests.EditMode
                 {
                     if (template != null && template.Id == room.TemplateId)
                     {
-                        total += template.SizeInCells.x * template.SizeInCells.y;
+                        var roomSize = DungeonRoomTransformUtility.GetRotatedSize(
+                            template.SizeInCells,
+                            room.RotationDegrees);
+                        total += roomSize.x * roomSize.y;
                         break;
                     }
                 }
@@ -870,7 +873,9 @@ namespace Godmist.Tests.EditMode
                 {
                     return new RectInt(
                         room.LayoutPosition,
-                        template.SizeInCells);
+                        DungeonRoomTransformUtility.GetRotatedSize(
+                            template.SizeInCells,
+                            room.RotationDegrees));
                 }
             }
 

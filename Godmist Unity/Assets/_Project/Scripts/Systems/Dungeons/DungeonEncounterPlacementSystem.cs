@@ -67,6 +67,7 @@ namespace Godmist.Systems.Dungeons
             var encounterCount = minimumCount == maximumCount
                 ? minimumCount
                 : random.Next(minimumCount, maximumCount + 1);
+            var enemyAnchorResolver = new DungeonEnemyAnchorResolver();
 
             for (var index = 0; index < encounterCount; index++)
             {
@@ -107,6 +108,16 @@ namespace Godmist.Systems.Dungeons
                         out var explorationCell))
                 {
                     encounter.TrySetExplorationPosition(explorationCell);
+                }
+
+                foreach (var anchoredEnemy in enemyAnchorResolver.Resolve(
+                             floor,
+                             dungeon.Definition.RoomTemplateCatalog,
+                             encounter))
+                {
+                    encounter.TrySetEnemyExplorationPosition(
+                        anchoredEnemy.Key,
+                        anchoredEnemy.Value);
                 }
 
                 floor.TryAddEncounter(encounter);
