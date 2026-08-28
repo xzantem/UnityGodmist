@@ -295,6 +295,7 @@ namespace Godmist.Systems.SaveLoad
             {
                 DungeonId = dungeon.DungeonId,
                 Seed = dungeon.Seed,
+                DungeonLevel = dungeon.DungeonLevel,
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
@@ -916,6 +917,26 @@ namespace Godmist.Systems.SaveLoad
                     : new List<string>(equipmentItem.PartIds);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
+            }
+
+            if (item is LootBagItemInstance lootBag)
+            {
+                itemSaveData.IsLootBag = true;
+
+                foreach (var content in lootBag.Contents
+                    ?? new List<ItemInstance>())
+                {
+                    if (!TryCaptureItem(
+                            content,
+                            saveData,
+                            capturedItemIds))
+                    {
+                        return false;
+                    }
+
+                    itemSaveData.LootBagContentItemInstanceIds.Add(
+                        content.InstanceId);
+                }
             }
 
             saveData.ItemInstances.Add(itemSaveData);

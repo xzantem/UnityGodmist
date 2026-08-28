@@ -16,7 +16,8 @@ namespace Godmist.Systems.Characters
 
         public CharacterInstance Create(
             CharacterDefinition definition,
-            CharacterClassData classData = null)
+            CharacterClassData classData = null,
+            int level = CharacterProgressionSystem.MinimumLevel)
         {
             if (definition == null)
             {
@@ -46,7 +47,10 @@ namespace Godmist.Systems.Characters
                 CharacterId = definition.Id,
                 Definition = definition,
                 ClassData = classData,
-                Level = 1,
+                Level = Mathf.Clamp(
+                    level,
+                    CharacterProgressionSystem.MinimumLevel,
+                    CharacterProgressionSystem.MaximumLevel),
                 CurrentExperience = 0,
                 AvailableSkillPoints = 0,
                 CurrentHealth = maxHealth,
@@ -92,6 +96,14 @@ namespace Godmist.Systems.Characters
             };
 
             statPipeline.Refresh(character);
+
+            if (character.Level > CharacterProgressionSystem.MinimumLevel)
+            {
+                new CharacterLevelGrowthSystem(statPipeline).Apply(
+                    character,
+                    grantCurrentHealthGrowth: true);
+            }
+
             new SkillLoadoutSystem().TryInitialize(character);
             return character;
         }

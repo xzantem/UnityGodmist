@@ -18,6 +18,13 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
+        [field: Header("Rewards")]
+        [field: SerializeField, Range(1, 50)]
+        public int DungeonLevel { get; private set; } = 1;
+
+        [field: SerializeField]
+        public DungeonLootTableCatalog LootTableCatalog { get; private set; }
+
         [field: Header("Procedural generation")]
         [field: SerializeField, Min(1)] public int MinFloorCount { get; private set; } = 1;
 
@@ -68,6 +75,8 @@ namespace Godmist.Data.Dungeons
 
         private void OnValidate()
         {
+            DungeonLevel = Mathf.Clamp(DungeonLevel, 1, 50);
+
             MinFloorCount = Mathf.Max(1, MinFloorCount);
             MaxFloorCount = Mathf.Max(MinFloorCount, MaxFloorCount);
 

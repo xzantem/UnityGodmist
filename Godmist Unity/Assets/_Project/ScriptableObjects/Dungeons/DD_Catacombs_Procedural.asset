@@ -18,6 +18,8 @@ MonoBehaviour:
   <IsProcedural>k__BackingField: 1
   <IsStoryDungeon>k__BackingField: 0
   <LayoutProfile>k__BackingField: {fileID: 11400000, guid: 681f292da1385ca48a9bc4bf9656a075, type: 2}
+  <DungeonLevel>k__BackingField: 1
+  <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: b3d7f5a9c2e46810a6c4e8f1d5b7a290, type: 2}
   <MinFloorCount>k__BackingField: 2
   <MaxFloorCount>k__BackingField: 2
   <MinRoomCountPerFloor>k__BackingField: 9

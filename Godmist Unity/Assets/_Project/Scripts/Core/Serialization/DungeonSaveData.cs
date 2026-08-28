@@ -8,6 +8,7 @@ namespace Godmist.Core.Serialization
     {
         public string DungeonId = string.Empty;
         public int Seed;
+        public int DungeonLevel = 1;
         public int CurrentFloorIndex;
         public bool IsCompleted;
 

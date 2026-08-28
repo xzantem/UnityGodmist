@@ -14,28 +14,33 @@ namespace Godmist.Systems.Items
         private readonly ItemInstanceFactory itemInstanceFactory;
         private readonly EquipmentGenerationService equipmentGenerationService;
         private readonly IReadOnlyList<EquipmentPartDefinition> equipmentParts;
+        private readonly int lootLevel;
 
         public LootTableSystem(
             Func<float> randomValue = null,
             ItemInstanceFactory itemInstanceFactory = null,
             EquipmentGenerationService equipmentGenerationService = null,
-            IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts = null,
+            int lootLevel = 1)
         {
             this.randomValue = randomValue ?? (() => UnityEngine.Random.value);
             this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
             this.equipmentGenerationService = equipmentGenerationService;
             this.equipmentParts = equipmentParts;
+            this.lootLevel = Mathf.Clamp(lootLevel, 1, 50);
         }
 
         public LootTableSystem(
             System.Random random,
             IReadOnlyList<EquipmentPartDefinition> equipmentParts,
-            ItemInstanceFactory itemInstanceFactory = null)
+            ItemInstanceFactory itemInstanceFactory = null,
+            int lootLevel = 1)
             : this(
                 () => (float)(random ?? throw new ArgumentNullException(nameof(random))).NextDouble(),
                 itemInstanceFactory,
                 new EquipmentGenerationService(random, itemInstanceFactory),
-                equipmentParts)
+                equipmentParts,
+                lootLevel)
         {
         }
 
@@ -80,6 +85,16 @@ namespace Godmist.Systems.Items
 
         private ItemInstance CreateItem(ItemDefinition definition)
         {
+            if (definition is LootBagItemDefinition lootBagDefinition)
+            {
+                var lootBag = (LootBagItemInstance)itemInstanceFactory.Create(
+                    lootBagDefinition);
+                lootBag.ItemLevel = lootLevel;
+                lootBag.TryRestoreContents(
+                    RollLootBagContents(lootBagDefinition));
+                return lootBag;
+            }
+
             if (definition is not EquipmentItemDefinition equipmentDefinition
                 || equipmentDefinition.ItemType is not (ItemType.Weapon or ItemType.Armor)
                 || equipmentParts == null
@@ -91,6 +106,60 @@ namespace Godmist.Systems.Items
             return equipmentGenerationService.Generate(
                 equipmentDefinition,
                 equipmentParts);
+        }
+
+        private List<ItemInstance> RollLootBagContents(
+            LootBagItemDefinition definition)
+        {
+            var contents = new List<ItemInstance>();
+            var bracket = LootLevelBracketResolver.Resolve(lootLevel);
+
+            if (!definition.TryGetBracket(bracket, out var bracketData)
+                || bracketData.Pools == null)
+            {
+                return contents;
+            }
+
+            foreach (var pool in bracketData.Pools)
+            {
+                if (pool == null
+                    || randomValue() > Mathf.Clamp01(pool.DropChance))
+                {
+                    continue;
+                }
+
+                var entries = new List<LootBagPoolEntryData>();
+
+                if (pool.Entries != null)
+                {
+                    foreach (var entry in pool.Entries)
+                    {
+                        if (entry?.ItemDefinition != null)
+                        {
+                            entries.Add(entry);
+                        }
+                    }
+                }
+
+                if (entries.Count == 0) continue;
+
+                var selectedIndex = Mathf.FloorToInt(
+                    Mathf.Clamp01(randomValue()) * entries.Count);
+                selectedIndex = Mathf.Min(selectedIndex, entries.Count - 1);
+
+                var selectedEntry = entries[selectedIndex];
+                var minAmount = Mathf.Max(0, selectedEntry.Amount.Min);
+                var maxAmount = Mathf.Max(minAmount, selectedEntry.Amount.Max);
+                var amount = RollAmount(minAmount, maxAmount);
+
+                for (var index = 0; index < amount; index++)
+                {
+                    var item = CreateItem(selectedEntry.ItemDefinition);
+                    if (item != null) contents.Add(item);
+                }
+            }
+
+            return contents;
         }
     }
 }

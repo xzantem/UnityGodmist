@@ -135,6 +135,15 @@ namespace Godmist.Systems.SaveLoad
             var assignedItemIds = new HashSet<string>(
                 StringComparer.Ordinal);
 
+            if (!TryRestoreLootBagContents(
+                    saveData.ItemInstances,
+                    itemsById,
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu zawartości lootbagów.");
+                return false;
+            }
+
             if (!TryRestoreCharacters(
                     restoredSession,
                     saveData.Characters,
@@ -233,6 +242,55 @@ namespace Godmist.Systems.SaveLoad
             return true;
         }
 
+        private static bool TryRestoreLootBagContents(
+            List<ItemSaveData> itemSaveDataList,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            if (itemSaveDataList == null) return true;
+
+            foreach (var itemSaveData in itemSaveDataList)
+            {
+                if (itemSaveData == null || !itemSaveData.IsLootBag)
+                {
+                    continue;
+                }
+
+                if (!itemsById.TryGetValue(
+                        itemSaveData.InstanceId,
+                        out var item)
+                    || item is not LootBagItemInstance lootBag)
+                {
+                    return false;
+                }
+
+                var restoredContents = new List<ItemInstance>();
+
+                foreach (var contentInstanceId in
+                         itemSaveData.LootBagContentItemInstanceIds
+                         ?? new List<string>())
+                {
+                    if (!TryTakeItem(
+                            contentInstanceId,
+                            itemsById,
+                            assignedItemIds,
+                            out var content))
+                    {
+                        return false;
+                    }
+
+                    restoredContents.Add(content);
+                }
+
+                if (!lootBag.TryRestoreContents(restoredContents))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private bool TryCreateItems(
             List<ItemSaveData> itemSaveDataList,
             GameContentCatalog contentCatalog,
@@ -266,7 +324,11 @@ namespace Godmist.Systems.SaveLoad
                 var isEquipmentDefinition =
                     definition is EquipmentItemDefinition;
 
-                if (itemSaveData.IsEquipment != isEquipmentDefinition)
+                var isLootBagDefinition = definition is LootBagItemDefinition;
+
+                if (itemSaveData.IsEquipment != isEquipmentDefinition
+                    || itemSaveData.IsLootBag != isLootBagDefinition
+                    || (itemSaveData.IsEquipment && itemSaveData.IsLootBag))
                 {
                     return false;
                 }
@@ -1396,7 +1458,10 @@ namespace Godmist.Systems.SaveLoad
             {
                 dungeon = dungeonGenerator.Generate(
                     definition,
-                    saveData.Seed);
+                    saveData.Seed,
+                    saveData.DungeonLevel > 0
+                        ? saveData.DungeonLevel
+                        : definition.DungeonLevel);
 
                 encounterPlacementSystem.Place(dungeon);
                 objectPlacementSystem.Place(

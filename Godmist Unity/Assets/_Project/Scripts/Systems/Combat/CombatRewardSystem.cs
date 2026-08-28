@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Characters;
 using Godmist.Data.Combat;
+using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
@@ -13,13 +16,16 @@ namespace Godmist.Systems.Combat
     {
         private readonly CharacterProgressionSystem progressionSystem;
         private readonly LootTableSystem lootTableSystem;
+        private readonly Func<CharacterDefinition, LootTableData> lootTableResolver;
 
         public CombatRewardSystem(
             CharacterProgressionSystem progressionSystem = null,
-            LootTableSystem lootTableSystem = null)
+            LootTableSystem lootTableSystem = null,
+            Func<CharacterDefinition, LootTableData> lootTableResolver = null)
         {
             this.progressionSystem = progressionSystem ?? new CharacterProgressionSystem();
             this.lootTableSystem = lootTableSystem ?? new LootTableSystem();
+            this.lootTableResolver = lootTableResolver;
         }
 
         public CombatRewardResult RollEncounterRewards(EncounterDefinition encounter)
@@ -41,7 +47,9 @@ namespace Godmist.Systems.Combat
                     EnemyInstanceId = enemyData.InstanceId,
                     ExperiencePerActiveCharacter = definition.ExperienceReward,
                     Gold = definition.GoldReward,
-                    Items = lootTableSystem.RollLoot(definition.LootTable)
+                    Items = lootTableSystem.RollLoot(
+                        lootTableResolver?.Invoke(definition)
+                        ?? definition.LootTable)
                 });
             }
 

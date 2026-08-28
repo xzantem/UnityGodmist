@@ -66,6 +66,25 @@ namespace Godmist.Views.Dungeons
             }
 
             RefreshHoverVisual();
+
+            var pointerOverBody = IsPointerOverThisBody();
+
+            if (pointerOverBody != isPointerHovered)
+            {
+                isPointerHovered = pointerOverBody;
+                RefreshHoverVisual();
+            }
+
+            if (!pointerOverBody
+                || !Input.GetMouseButtonDown(0)
+                || UIWorkspaceInputRouter.IsPointerOverUi()
+                || DevConsoleView.IsOpen
+                || !CanInteract())
+            {
+                return;
+            }
+
+            Interact();
         }
 
         private void OnEnable()
@@ -76,28 +95,6 @@ namespace Godmist.Views.Dungeons
         private void OnDisable()
         {
             DungeonLootWindowView.LootClaimed -= HandleLootClaimed;
-        }
-
-        private void OnMouseEnter()
-        {
-            isPointerHovered = true;
-            RefreshHoverVisual();
-        }
-
-        private void OnMouseExit()
-        {
-            isPointerHovered = false;
-            RefreshHoverVisual();
-        }
-
-        private void OnMouseDown()
-        {
-            if (DevConsoleView.IsOpen || !CanInteract())
-            {
-                return;
-            }
-
-            Interact();
         }
 
         public bool CanInteract()
@@ -142,6 +139,30 @@ namespace Godmist.Views.Dungeons
             {
                 if (hit != null
                     && hit.GetComponentInParent<DungeonEnemyBodyView>() != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsPointerOverThisBody()
+        {
+            var worldCamera = Camera.main;
+
+            if (worldCamera == null)
+            {
+                return false;
+            }
+
+            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(
+                Input.mousePosition);
+
+            foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
+            {
+                if (hit != null
+                    && hit.GetComponentInParent<DungeonEnemyBodyView>() == this)
                 {
                     return true;
                 }

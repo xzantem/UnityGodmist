@@ -41,11 +41,6 @@ Priorytety:
 ### Milestone: Dungeon Content and Layout v2
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
-
-- `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
-  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
-- `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
-  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
 - `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
 - `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
@@ -73,6 +68,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ### Milestone: Dungeon Content and Layout v2
 
+- `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
+  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
+
 ### Karty do decyzji o przypisaniu do milestone'u
 
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
@@ -90,6 +88,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ### Milestone: Dungeon Content and Layout v2
 
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
+
+- `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
+  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
 
 - `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
 

@@ -11,6 +11,7 @@ namespace Godmist.Runtime.Dungeons
         public DungeonDefinition Definition { get; }
         public string DungeonId { get; }
         public int Seed { get; }
+        public int DungeonLevel { get; }
         public int CurrentFloorIndex { get; private set; }
         public bool IsCompleted { get; private set; }
 
@@ -29,6 +30,14 @@ namespace Godmist.Runtime.Dungeons
         public IReadOnlyList<DungeonFloorInstance> Floors => floors;
 
         public DungeonInstance(DungeonDefinition definition, int seed)
+            : this(definition, seed, definition?.DungeonLevel ?? 1)
+        {
+        }
+
+        public DungeonInstance(
+            DungeonDefinition definition,
+            int seed,
+            int dungeonLevel)
         {
             if (definition == null)
             {
@@ -43,9 +52,13 @@ namespace Godmist.Runtime.Dungeons
             Definition = definition;
             DungeonId = definition.Id;
             Seed = seed;
+            DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
         }
 
-        public DungeonInstance(string dungeonId, int seed)
+        public DungeonInstance(
+            string dungeonId,
+            int seed,
+            int dungeonLevel = 1)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -54,6 +67,7 @@ namespace Godmist.Runtime.Dungeons
 
             DungeonId = dungeonId;
             Seed = seed;
+            DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
         }
 
         public bool TrySetCurrentFloorIndex(int floorIndex)

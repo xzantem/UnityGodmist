@@ -22,8 +22,17 @@ namespace Godmist.Systems.Dungeons
         {
             if (dungeon == null || dungeon.Definition == null) return;
 
+            LootTableData themedChestLootTable = null;
+            var hasThemedChestLootTable =
+                dungeon.Definition.LootTableCatalog != null
+                && dungeon.Definition.LootTableCatalog.TryGetChestLootTable(
+                    dungeon.Definition.Theme,
+                    dungeon.DungeonLevel,
+                    out themedChestLootTable);
+
             var objectDefinitions = GetValidObjectDefinitions(
-                dungeon.Definition.ObjectDefinitions);
+                dungeon.Definition.ObjectDefinitions,
+                hasThemedChestLootTable ? themedChestLootTable : null);
 
             var doorDefinitions = GetValidDoorDefinitions(
                 dungeon.Definition.ObjectDefinitions);
@@ -33,7 +42,8 @@ namespace Godmist.Systems.Dungeons
 
             var lootTableSystem = new LootTableSystem(
                 random,
-                equipmentParts);
+                equipmentParts,
+                lootLevel: dungeon.DungeonLevel);
 
             foreach (var floor in dungeon.Floors)
             {
@@ -60,7 +70,10 @@ namespace Godmist.Systems.Dungeons
                         floor,
                         objectDefinitions,
                         lootTableSystem,
-                        random);
+                        random,
+                        hasThemedChestLootTable
+                            ? themedChestLootTable
+                            : null);
                 }
 
                 if (!BindProgressionObjects(floor))
@@ -287,7 +300,8 @@ namespace Godmist.Systems.Dungeons
             DungeonFloorInstance floor,
             List<DungeonObjectDefinition> definitions,
             LootTableSystem lootTableSystem,
-            System.Random random)
+            System.Random random,
+            LootTableData themedChestLootTable)
         {
             if (definitions.Count == 0) return;
 
@@ -342,7 +356,8 @@ namespace Godmist.Systems.Dungeons
                 lootTableSystem,
                 random,
                 semanticResolver,
-                semanticCandidates);
+                semanticCandidates,
+                themedChestLootTable);
         }
 
         private static void PlaceAnchoredObjects(
@@ -352,7 +367,8 @@ namespace Godmist.Systems.Dungeons
             LootTableSystem lootTableSystem,
             System.Random random,
             DungeonSemanticAnchorResolver semanticResolver,
-            List<DungeonSemanticAnchorPlacement> candidates)
+            List<DungeonSemanticAnchorPlacement> candidates,
+            LootTableData themedChestLootTable)
         {
             var maximumCount = Mathf.Min(
                 dungeon.Definition.MaxObjectCountPerFloor,
@@ -399,6 +415,7 @@ namespace Godmist.Systems.Dungeons
                     definition,
                     position.Value,
                     lootTableSystem,
+                    themedChestLootTable,
                     selectedAnchor.Anchor.ActivationGroupId,
                     selectedAnchor.Room.IsRequiredProgressionRoom
                     && (selectedAnchor.Anchor.Type
@@ -461,7 +478,8 @@ namespace Godmist.Systems.Dungeons
         }
 
         private static List<DungeonObjectDefinition> GetValidObjectDefinitions(
-            List<DungeonObjectDefinition> objectDefinitions)
+            List<DungeonObjectDefinition> objectDefinitions,
+            LootTableData themedChestLootTable)
         {
             var result = new List<DungeonObjectDefinition>();
 
@@ -478,7 +496,8 @@ namespace Godmist.Systems.Dungeons
                 }
 
                 if (definition is ChestDungeonObjectDefinition chest
-                    && chest.LootTable == null)
+                    && chest.LootTable == null
+                    && themedChestLootTable == null)
                 {
                     continue;
                 }
@@ -620,12 +639,14 @@ namespace Godmist.Systems.Dungeons
             DungeonObjectDefinition definition,
             Vector2Int position,
             LootTableSystem lootTableSystem,
+            LootTableData themedChestLootTable,
             string activationGroupId,
             bool isProgressionRequirement = false)
         {
             if (definition is ChestDungeonObjectDefinition chest)
             {
-                var items = lootTableSystem.RollLoot(chest.LootTable);
+                var items = lootTableSystem.RollLoot(
+                    themedChestLootTable ?? chest.LootTable);
 
                 return new ChestDungeonObjectInstance(
                     instanceId,

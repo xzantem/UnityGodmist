@@ -19,10 +19,26 @@ namespace Godmist.Systems.Dungeons
 
             var lootTableSystem = new LootTableSystem(
                 random,
-                equipmentParts);
+                equipmentParts,
+                lootLevel: dungeon.DungeonLevel);
+
+            var lootCatalog = dungeon.Definition?.LootTableCatalog;
 
             var rewardSystem = new CombatRewardSystem(
-                lootTableSystem: lootTableSystem);
+                lootTableSystem: lootTableSystem,
+                lootTableResolver: characterDefinition =>
+                {
+                    if (lootCatalog != null
+                        && lootCatalog.TryGetEnemyLootTable(
+                            dungeon.Definition.Theme,
+                            dungeon.DungeonLevel,
+                            out var themedTable))
+                    {
+                        return themedTable;
+                    }
+
+                    return characterDefinition?.LootTable;
+                });
 
             foreach (var floor in dungeon.Floors)
             {

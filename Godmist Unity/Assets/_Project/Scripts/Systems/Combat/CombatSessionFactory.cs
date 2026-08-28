@@ -344,7 +344,8 @@ namespace Godmist.Systems.Combat
 
                 var enemy = characterFactory.Create(
                     enemyData.CharacterDefinition,
-                    enemyData.ClassData);
+                    enemyData.ClassData,
+                    dungeonContext?.DungeonLevel ?? 1);
 
                 enemy.CharacterId = enemyData.InstanceId;
 

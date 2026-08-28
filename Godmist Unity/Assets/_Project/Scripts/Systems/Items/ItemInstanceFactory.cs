@@ -27,6 +27,13 @@ namespace Godmist.Systems.Items
                     instanceId);
             }
 
+            if (definition is LootBagItemDefinition lootBagDefinition)
+            {
+                return new LootBagItemInstance(
+                    lootBagDefinition,
+                    instanceId);
+            }
+
             return new ItemInstance(definition, instanceId);
         }
     }

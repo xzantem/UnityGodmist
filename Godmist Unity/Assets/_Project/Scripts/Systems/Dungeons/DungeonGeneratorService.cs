@@ -128,10 +128,24 @@ namespace Godmist.Systems.Dungeons
             DungeonDefinition definition,
             int seed)
         {
+            return Generate(
+                definition,
+                seed,
+                definition?.DungeonLevel ?? 1);
+        }
+
+        public DungeonInstance Generate(
+            DungeonDefinition definition,
+            int seed,
+            int dungeonLevel)
+        {
             ValidateDefinition(definition);
 
             var random = new System.Random(seed);
-            var dungeon = new DungeonInstance(definition, seed);
+            var dungeon = new DungeonInstance(
+                definition,
+                seed,
+                dungeonLevel);
 
             var floorCount = random.Next(
                 definition.MinFloorCount,

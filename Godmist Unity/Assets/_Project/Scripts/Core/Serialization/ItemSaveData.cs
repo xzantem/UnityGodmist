@@ -13,6 +13,8 @@ namespace Godmist.Core.Serialization
         public int ItemLevel;
 
         public bool IsEquipment;
+        public bool IsLootBag;
+        public List<string> LootBagContentItemInstanceIds = new();
         public string RequiredClassId = string.Empty;
         public int RequiredLevel;
         public EquipmentQuality Quality = EquipmentQuality.Normal;
