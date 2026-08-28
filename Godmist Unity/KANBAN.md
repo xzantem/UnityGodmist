@@ -47,8 +47,6 @@ Priorytety:
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
 - `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
-  - Interakcja z obiektem lochu jest dozwolona tylko wtedy, gdy postac ma do niego prawidlowy dostep bez przechodzenia przez sciane lub inna przeszkode.
-  - Dotyczy wszystkich interaktywnych obiektow eksploracji, w tym skrzyn, leverow, conditionow i cial; wizualna bliskosc po drugiej stronie sciany nie moze wystarczyc do interakcji.
 - `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
   - Room template moze definiowac anchory rozmieszczenia pojedynczych przeciwnikow, niezalezne od anchora calego encounteru.
   - Podczas generowania encounteru system najpierw wykorzystuje pasujace anchory do przypisania pozycji przeciwnikom, a nadmiarowych przeciwnikow rozmieszcza losowo w pozostalych poprawnych komorkach pokoju.
@@ -89,9 +87,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ### Milestone: Dungeon Content and Layout v2
 
-- `[P1] Dodac rotacje instancji pokoi v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `Content / Data`
-  - Generator moze obrocic room template o `0`, `90`, `180` albo `270` stopni przed umieszczeniem go w layoucie.
-  - Rotacja musi obejmowac footprint, sciany, przejscia, anchory strukturalne i semantyczne oraz wszystkie pozycje contentu, zachowujac poprawna kolizje i deterministycznosc seeda.
+- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+  - Interakcja z obiektem lochu jest dozwolona tylko wtedy, gdy postac ma do niego prawidlowy dostep bez przechodzenia przez sciane lub inna przeszkode.
+  - Dotyczy wszystkich interaktywnych obiektow eksploracji, w tym skrzyn, leverow, conditionow i cial; wizualna bliskosc po drugiej stronie sciany nie moze wystarczyc do interakcji.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
