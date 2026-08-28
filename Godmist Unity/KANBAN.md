@@ -46,12 +46,6 @@ Priorytety:
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 
-- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
-- `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
-  - Room template moze definiowac anchory rozmieszczenia pojedynczych przeciwnikow, niezalezne od anchora calego encounteru.
-  - Podczas generowania encounteru system najpierw wykorzystuje pasujace anchory do przypisania pozycji przeciwnikom, a nadmiarowych przeciwnikow rozmieszcza losowo w pozostalych poprawnych komorkach pokoju.
-  - Rozmieszczenie pozostaje deterministyczne dla tego samego seeda, nie zajmuje scian ani przeszkod i nie zmienia docelowej logiki FOV/poscigu.
-
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
   - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
@@ -87,9 +81,10 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 ### Milestone: Dungeon Content and Layout v2
 
-- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
-  - Interakcja z obiektem lochu jest dozwolona tylko wtedy, gdy postac ma do niego prawidlowy dostep bez przechodzenia przez sciane lub inna przeszkode.
-  - Dotyczy wszystkich interaktywnych obiektow eksploracji, w tym skrzyn, leverow, conditionow i cial; wizualna bliskosc po drugiej stronie sciany nie moze wystarczyc do interakcji.
+- `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
+  - Room template moze definiowac anchory rozmieszczenia pojedynczych przeciwnikow, niezalezne od anchora calego encounteru.
+  - Podczas generowania encounteru system najpierw wykorzystuje pasujace anchory do przypisania pozycji przeciwnikom, a nadmiarowych przeciwnikow rozmieszcza losowo w pozostalych poprawnych komorkach pokoju.
+  - Rozmieszczenie pozostaje deterministyczne dla tego samego seeda, nie zajmuje scian ani przeszkod i nie zmienia docelowej logiki FOV/poscigu.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
@@ -111,6 +106,13 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+  - Interakcja z obiektem lochu jest dozwolona tylko wtedy, gdy postac ma do niego prawidlowy dostep bez przechodzenia przez sciane lub inna przeszkode.
+  - Dotyczy wszystkich interaktywnych obiektow eksploracji, w tym skrzyn, leverow, conditionow i cial; wizualna bliskosc po drugiej stronie sciany nie moze wystarczyc do interakcji.
+
+- `[P1] Dodac rotacje instancji pokoi v1` - `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
+  - Generator rozmieszcza room templates z obrotem 0, 90, 180 albo 270 stopni zgodnie z konfiguracja template'u; footprint, przejscia, anchory i encountery zachowuja poprawne pozycje po transformacji.
 
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
   - `MinLoopConnections` i `MaxLoopConnections` losuja dodatkowe polaczenia miedzy juz ustawionymi, sasiadujacymi pokojami; generator nie tworzy bezposredniej petli `Start -> Final` i po wyczerpaniu prob zwraca najlepszy poprawny layout z mniejsza liczba petli.

@@ -3,12 +3,14 @@ using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Godmist.Views.Dungeons
 {
@@ -23,6 +25,7 @@ namespace Godmist.Views.Dungeons
         private DungeonFloorInstance floor;
         private DungeonEnemyBodyInstance body;
         private DungeonLootWindowView lootWindowPrefab;
+        private Tilemap floorTilemap;
         private Material outlineMaterial;
         private bool isPointerHovered;
 
@@ -31,7 +34,8 @@ namespace Godmist.Views.Dungeons
             DungeonFloorInstance nextFloor,
             DungeonEnemyBodyInstance nextBody,
             Vector3 worldPosition,
-            DungeonLootWindowView nextLootWindowPrefab = null)
+            DungeonLootWindowView nextLootWindowPrefab = null,
+            Tilemap nextFloorTilemap = null)
         {
             if (nextFloor == null
                 || nextBody == null
@@ -46,6 +50,7 @@ namespace Godmist.Views.Dungeons
             floor = nextFloor;
             body = currentBody;
             lootWindowPrefab = nextLootWindowPrefab;
+            floorTilemap = nextFloorTilemap;
             transform.position = worldPosition;
             ConfigureVisual();
         }
@@ -116,7 +121,19 @@ namespace Godmist.Views.Dungeons
                          - transform.position;
 
             return offset.sqrMagnitude
-                   <= interactionRadius * interactionRadius;
+                   <= interactionRadius * interactionRadius
+                   && floorTilemap != null
+                   && DungeonExplorationInteractionUtility.HasDirectAccess(
+                       floor,
+                       ToDungeonCell(
+                           floorTilemap.WorldToCell(
+                               partyController.ActiveLeaderTransform.position)),
+                       body.Position);
+        }
+
+        private static Vector2Int ToDungeonCell(Vector3Int cell)
+        {
+            return new Vector2Int(cell.x, cell.y);
         }
 
         public static bool IsPointerOverBody(Vector2 pointerWorldPosition)

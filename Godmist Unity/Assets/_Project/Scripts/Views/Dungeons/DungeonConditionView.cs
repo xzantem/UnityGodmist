@@ -1,10 +1,12 @@
 using Godmist.Core.Enums;
 using Godmist.Core.Interfaces;
 using Godmist.Runtime.Dungeons;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Godmist.Views.Dungeons
 {
@@ -18,18 +20,21 @@ namespace Godmist.Views.Dungeons
 
         private ExplorationPartyController partyController;
         private DungeonFloorInstance floor;
+        private Tilemap floorTilemap;
         private ConditionDungeonObjectInstance condition;
 
         public void Initialize(
             ExplorationPartyController nextPartyController,
             DungeonFloorInstance nextFloor,
             ConditionDungeonObjectInstance nextCondition,
-            Vector3 worldPosition)
+            Vector3 worldPosition,
+            Tilemap nextFloorTilemap)
         {
             if (!TryBind(nextCondition, worldPosition)) return;
 
             partyController = nextPartyController;
             floor = nextFloor;
+            floorTilemap = nextFloorTilemap;
             condition = nextCondition;
             visualRenderer ??= GetComponent<SpriteRenderer>();
             if (visualRenderer != null)
@@ -53,6 +58,7 @@ namespace Godmist.Views.Dungeons
             if (condition == null
                 || condition.IsSatisfied
                 || floor == null
+                || floorTilemap == null
                 || partyController?.ActiveLeaderTransform == null
                 || session == null
                 || session.CurrentMode != GameModeState.Exploration)
@@ -61,7 +67,18 @@ namespace Godmist.Views.Dungeons
             }
 
             return (partyController.ActiveLeaderTransform.position - transform.position)
-                       .sqrMagnitude <= interactionRadius * interactionRadius;
+                       .sqrMagnitude <= interactionRadius * interactionRadius
+                   && DungeonExplorationInteractionUtility.HasDirectAccess(
+                       floor,
+                       ToDungeonCell(
+                           floorTilemap.WorldToCell(
+                               partyController.ActiveLeaderTransform.position)),
+                       condition.Position);
+        }
+
+        private static Vector2Int ToDungeonCell(Vector3Int cell)
+        {
+            return new Vector2Int(cell.x, cell.y);
         }
 
         public void Interact()

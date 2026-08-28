@@ -90,8 +90,10 @@ namespace Godmist.Views.Dungeons
                     chestView.name = $"Chest_{chest.InstanceId}";
                     chestView.Initialize(
                         partyController,
+                        floor,
                         chest,
-                        worldPosition);
+                        worldPosition,
+                        floorTilemap);
 
                     spawnedObjects.Add(chestView);
                     continue;
@@ -151,7 +153,8 @@ namespace Godmist.Views.Dungeons
                         partyController,
                         floor,
                         lever,
-                        worldPosition);
+                        worldPosition,
+                        floorTilemap);
 
                     spawnedObjects.Add(leverView);
                     continue;
@@ -170,7 +173,8 @@ namespace Godmist.Views.Dungeons
                         partyController,
                         floor,
                         condition,
-                        worldPosition);
+                        worldPosition,
+                        floorTilemap);
 
                     spawnedObjects.Add(conditionView);
                 }
@@ -200,7 +204,8 @@ namespace Godmist.Views.Dungeons
                     floor,
                     body,
                     worldPosition,
-                    dungeonLootWindowPrefab);
+                    dungeonLootWindowPrefab,
+                    floorTilemap);
 
                 spawnedEnemyBodies.Add(bodyView.gameObject);
             }
