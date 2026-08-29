@@ -20,6 +20,11 @@ namespace Godmist.Systems.Items
                 throw new ArgumentNullException(nameof(definition));
             }
 
+            if (definition is JewelryItemDefinition jewelryDefinition)
+            {
+                return new JewelryItemInstance(jewelryDefinition, instanceId);
+            }
+
             if (definition is EquipmentItemDefinition equipmentDefinition)
             {
                 return new EquipmentItemInstance(

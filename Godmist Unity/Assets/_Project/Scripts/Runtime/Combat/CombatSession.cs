@@ -16,6 +16,7 @@ namespace Godmist.Runtime.Combat
         public bool HasEscapePenaltyEligibleCharacters;
         public HashSet<string> EscapePenaltyEligibleCharacterIds = new();
         public bool IsDebugSession;
+        public DungeonTheme DungeonTheme = DungeonTheme.Story;
         public float ActionPointsPerSpeed = 0.25f;
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();

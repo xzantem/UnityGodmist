@@ -20,5 +20,15 @@ namespace Godmist.Core.Serialization
         public EquipmentQuality Quality = EquipmentQuality.Normal;
         public List<string> PartIds = new();
         public List<StatModifierSaveData> StatModifiers = new();
+        public string JewelryMetalId = string.Empty;
+        public string JewelryMetalDisplayName = string.Empty;
+        public string JewelryGemId = string.Empty;
+        public string JewelryGemDisplayName = string.Empty;
+        public string JewelryGemDescription = string.Empty;
+        public JewelryPassiveType JewelryPassiveType;
+        public float JewelryPassiveValue;
+        public DungeonTheme JewelryPassiveDungeonTheme;
+        public ResistanceType JewelryResistanceType;
+        public float JewelryResistanceValue;
     }
 }

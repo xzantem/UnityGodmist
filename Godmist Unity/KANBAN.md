@@ -64,12 +64,24 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
   - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
 
+### Milestone: Combat Passives and Affixes v1
+
+Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek drzewek skilli, klejnotow i unikatowego equipmentu; rozwija warunkowe efekty walki bez mieszania ich z systemem craftingu.
+
+- `[P1] Ujednolicic framework pasywek dla equipmentu i drzewek skilli v1` - `Combat`, `Items / Inventory / Economy`, `Core / Architecture`, `UI / UX`
+  - Wspolna definicja zrodla, warunkow i efektow pasywki dla drzewek skilli, klejnotow oraz unikatowego equipmentu. Obsluzyc stale modyfikatory statystyk i odpornosci, modyfikatory obrazen, XP oraz zlota, z pelnym persistence i tooltipem. Zachowac zgodnosc z istniejacymi globalnymi pasywkami drzewek; migracje wykonywac etapowo.
+- `[P1] Dodac tagi przeciwnikow i warunkowe modyfikatory v1` - `Combat`, `Content / Data`, `Core / Architecture`
+  - Dodac tagi `Human`, `Beast`, `Undead` i `Demon` na definicjach przeciwnikow oraz warunki pasywek dla typu celu i theme lochu. Uzyc ich m.in. dla obrazen przeciwko okreslonym przeciwnikom i bonusow terenowych klejnotow.
+- `[P1] Dodac unikatowe dropy bossow broni i pancerzy per klasa v1` - `Combat`, `Items / Inventory / Economy`, `Content / Data`
+  - Boss ma `30%` szansy na dowolny unikat broni albo pancerza: po `7,5%` na kazda z czterech klas. Unikat losuje normalne czesci equipmentu, ale otrzymuje specjalna pasywke przypisana bossowi zamiast pasywy generycznej.
+- `[P1] Dodac pierwszy pass wykonawczy pasywek node'ow drzewek skilli v1` - `Combat`, `Skills / Progression`, `Content / Data`
+  - Wykorzystac wspolny framework dla reprezentatywnych node'ow Scouta: warunki po ruchu, krytyku, uniku/chybieniu, statusie celu i aktywnym buffie oraz modyfikacje parametrow konkretnej umiejetnosci.
+- `[P2] Rozszerzyc content klejnotow i unikatow bossowych v1` - `Items / Inventory / Economy`, `Combat`, `Content / Data`
+  - Dodac pozostale standardowe klejnoty z arkusza, bossowe pasywy dla kolejnych theme'ow oraz ich zrodla/dropy. Zachowac model metal + klejnot dla zwyklej bizuterii i losowy metal + pasywa bossa dla unikatu.
+- `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug`
+  - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
+
 ## In Progress
-
-### Milestone: Dungeon Content and Layout v2
-
-- `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
@@ -86,6 +98,9 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - Zrealizowano model metal + kamien, cztery sloty, persistence oraz testowe dropy zwykle i cztery niezalezne 5% dropy bossa Katakumb. Generator trzech czesci pozostaje wylacznie dla broni i pancerzy.
 
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
 

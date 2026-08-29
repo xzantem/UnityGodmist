@@ -20,6 +20,7 @@ namespace Godmist.Systems.Characters
             ApplyEquipmentModifiers(character.Equipment, accumulators);
             ApplyPassiveEffectModifiers(character.PassiveEffects, accumulators);
             ApplySkillTreeGlobalPassiveModifiers(character, accumulators);
+            RefreshResistances(character);
 
             foreach (CharacterStatType statType in Enum.GetValues(typeof(CharacterStatType)))
             {
@@ -149,6 +150,38 @@ namespace Godmist.Systems.Characters
                 character.ResourcePool.CurrentValue,
                 0,
                 character.ResourcePool.MaxValue);
+        }
+
+        private static void RefreshResistances(CharacterInstance character)
+        {
+            character.Resistances ??= new ResistanceSet();
+            var baseValue = character.BaseResistances ?? new ResistanceSet();
+            character.Resistances.BleedResistance = baseValue.BleedResistance;
+            character.Resistances.PoisonResistance = baseValue.PoisonResistance;
+            character.Resistances.FireResistance = baseValue.FireResistance;
+            character.Resistances.WeakeningResistance = baseValue.WeakeningResistance;
+            character.Resistances.SuppressionResistance = baseValue.SuppressionResistance;
+            character.Resistances.MoveResistance = baseValue.MoveResistance;
+
+            foreach (var item in character.Equipment?.GetEquippedItems()
+                         ?? new List<EquipmentItemInstance>())
+            {
+                if (item is not JewelryItemInstance jewelry
+                    || jewelry.ResistanceValue <= 0f) continue;
+
+                switch (jewelry.ResistanceType)
+                {
+                    case ResistanceType.Bleed: character.Resistances.BleedResistance += jewelry.ResistanceValue; break;
+                    case ResistanceType.Poison: character.Resistances.PoisonResistance += jewelry.ResistanceValue; break;
+                    case ResistanceType.Fire: character.Resistances.FireResistance += jewelry.ResistanceValue; break;
+                    case ResistanceType.Suppression: character.Resistances.SuppressionResistance += jewelry.ResistanceValue; break;
+                }
+            }
+
+            character.Resistances.BleedResistance = Mathf.Clamp01(character.Resistances.BleedResistance);
+            character.Resistances.PoisonResistance = Mathf.Clamp01(character.Resistances.PoisonResistance);
+            character.Resistances.FireResistance = Mathf.Clamp01(character.Resistances.FireResistance);
+            character.Resistances.SuppressionResistance = Mathf.Clamp01(character.Resistances.SuppressionResistance);
         }
 
         private static bool IsDefensePenetration(CharacterStatType statType)

@@ -35,7 +35,7 @@ namespace Godmist.Views.UI
 
             if (itemNameText != null)
             {
-                var itemName = definition != null ? definition.DisplayName : "-";
+                var itemName = definition != null ? item.DisplayName : "-";
                 itemNameText.text = $"{itemName}{stackSuffix}";
             }
 

@@ -338,7 +338,7 @@ namespace Godmist.Views.UI.Workspace
             foreach (var stack in BuildItemStacks(character.Inventory.Items))
             {
                 var item = stack.Representative;
-                if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.Definition.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
+                if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
                 var view = Instantiate(inventoryItemTemplate, inventoryRoot);
                 view.gameObject.SetActive(true);
                 view.Bind(item, stack.Count, this);

@@ -15,6 +15,7 @@ namespace Godmist.Systems.Items
         private readonly EquipmentGenerationService equipmentGenerationService;
         private readonly IReadOnlyList<EquipmentPartDefinition> equipmentParts;
         private readonly int lootLevel;
+        private readonly JewelryGenerationService jewelryGenerationService;
 
         public LootTableSystem(
             Func<float> randomValue = null,
@@ -28,6 +29,7 @@ namespace Godmist.Systems.Items
             this.equipmentGenerationService = equipmentGenerationService;
             this.equipmentParts = equipmentParts;
             this.lootLevel = Mathf.Clamp(lootLevel, 1, 50);
+            jewelryGenerationService = new JewelryGenerationService(this.randomValue, this.itemInstanceFactory);
         }
 
         public LootTableSystem(
@@ -85,6 +87,11 @@ namespace Godmist.Systems.Items
 
         private ItemInstance CreateItem(ItemDefinition definition)
         {
+            if (definition is JewelryItemDefinition jewelryDefinition)
+            {
+                return jewelryGenerationService.Generate(jewelryDefinition, lootLevel);
+            }
+
             if (definition is LootBagItemDefinition lootBagDefinition)
             {
                 var lootBag = (LootBagItemInstance)itemInstanceFactory.Create(

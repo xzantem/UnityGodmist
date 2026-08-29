@@ -74,7 +74,8 @@ namespace Godmist.Systems.Characters
                     Speed = new Stat(baseStats.Speed),
                     ResourceRegeneration = new Stat(baseStats.ResourceRegeneration),
                     WeaponAccuracy = new Stat(baseStats.WeaponAccuracy),
-                    MaxResource = new Stat(maxResource)
+                    MaxResource = new Stat(maxResource),
+                    HealingPower = new Stat(baseStats.HealingPower)
                 },
 
                 ResourcePool = new ResourcePool(
@@ -84,6 +85,7 @@ namespace Godmist.Systems.Characters
                     baseStats.ResourceRegeneration),
 
                 Resistances = CreateResistances(definition.BaseResistances),
+                BaseResistances = CreateResistances(definition.BaseResistances),
                 ShieldPool = new ShieldPool(),
                 Inventory = new Inventory(),
                 Skills = CopyDistinctSkills(

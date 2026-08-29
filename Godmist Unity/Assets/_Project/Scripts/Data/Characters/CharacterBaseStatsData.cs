@@ -22,6 +22,7 @@ namespace Godmist.Data.Characters
 
         [field: SerializeField] public int MaxResource { get; private set; } = 100;
         [field: SerializeField] public int ResourceRegeneration { get; private set; }
+        [field: SerializeField] public int HealingPower { get; private set; }
     }
 
     [Serializable]

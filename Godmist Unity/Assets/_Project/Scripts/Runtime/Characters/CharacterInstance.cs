@@ -27,6 +27,7 @@ namespace Godmist.Runtime.Characters
         public CharacterStats Stats;
         public ResourcePool ResourcePool;
         public ResistanceSet Resistances;
+        public ResistanceSet BaseResistances;
         public ShieldPool ShieldPool;
         
         public Inventory Inventory = new();
