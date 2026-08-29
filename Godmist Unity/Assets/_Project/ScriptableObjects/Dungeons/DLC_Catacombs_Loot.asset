@@ -17,3 +17,4 @@ MonoBehaviour:
     <Bracket>k__BackingField: 0
     <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: f1b5d3a7c9e24680a4d8f2c6b1e7a590, type: 2}
     <ChestLootTable>k__BackingField: {fileID: 11400000, guid: a2c6e4f8b1d35790a5e9c3f7d2b6a180, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: b76e5e5e1dccf1d4da5f0352bbbd5789, type: 2}

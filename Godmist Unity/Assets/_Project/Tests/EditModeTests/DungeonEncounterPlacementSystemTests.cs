@@ -127,6 +127,51 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Place_AddsOneBossToFinalFloorAndFinalRoom()
+        {
+            var definition = CreateDungeonDefinition(
+                minEncounterCount: 0,
+                maxEncounterCount: 0,
+                allowRepeats: true);
+            var boss = ScriptableObject.CreateInstance<EncounterDefinition>();
+
+            SetAutoProperty(boss, "Id", "encounter.boss");
+            SetAutoProperty(
+                boss,
+                "Enemies",
+                new List<EncounterEnemyData> { new() });
+            SetAutoProperty(definition, "BossEncounterDefinition", boss);
+
+            var dungeon = new DungeonInstance(definition, 12345);
+            var firstFloor = new DungeonFloorInstance(0);
+            var finalFloor = new DungeonFloorInstance(1);
+
+            firstFloor.TryAddRoom(new DungeonRoomInstance(
+                "floor.0.final",
+                DungeonRoomType.Final,
+                "room.final",
+                new Vector2Int(0, 0)));
+            finalFloor.TryAddRoom(new DungeonRoomInstance(
+                "floor.1.final",
+                DungeonRoomType.Final,
+                "room.final",
+                new Vector2Int(0, 0)));
+            dungeon.TryAddFloor(firstFloor);
+            dungeon.TryAddFloor(finalFloor);
+
+            var placementSystem = new DungeonEncounterPlacementSystem();
+
+            placementSystem.Place(dungeon);
+            placementSystem.Place(dungeon);
+
+            Assert.That(firstFloor.Encounters, Is.Empty);
+            Assert.That(finalFloor.Encounters, Has.Count.EqualTo(1));
+            Assert.That(finalFloor.Encounters[0].Definition, Is.SameAs(boss));
+            Assert.That(finalFloor.Encounters[0].RoomId, Is.EqualTo("floor.1.final"));
+            Assert.That(finalFloor.Encounters[0].InstanceId, Does.EndWith(".boss"));
+        }
+
+        [Test]
         public void EnemyAnchorResolver_UsesEncounterEnemyIndicesAndSkipsDefeatedEnemies()
         {
             var catalog = ScriptableObject.CreateInstance<

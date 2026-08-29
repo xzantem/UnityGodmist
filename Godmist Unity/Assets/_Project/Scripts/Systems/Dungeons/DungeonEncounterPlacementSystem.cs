@@ -14,11 +14,6 @@ namespace Godmist.Systems.Dungeons
         {
             if (dungeon == null || dungeon.Definition == null) return;
             if (dungeon.Definition.RoomTemplateCatalog == null) return;
-            if (dungeon.Definition.EncounterDefinitions == null
-                || dungeon.Definition.EncounterDefinitions.Count == 0)
-            {
-                return;
-            }
 
             var random = new System.Random(dungeon.Seed);
 
@@ -26,6 +21,8 @@ namespace Godmist.Systems.Dungeons
             {
                 PlaceEncountersOnFloor(dungeon, floor, random);
             }
+
+            PlaceBossEncounter(dungeon);
         }
 
         private void PlaceEncountersOnFloor(
@@ -33,7 +30,13 @@ namespace Godmist.Systems.Dungeons
             DungeonFloorInstance floor,
             System.Random random)
         {
-            if (floor == null || floor.Encounters.Count > 0) return;
+            if (floor == null
+                || HasRegularEncounters(
+                    floor,
+                    dungeon.Definition.BossEncounterDefinition))
+            {
+                return;
+            }
 
             var candidateRooms = GetCandidateRooms(
                 dungeon.Definition.RoomTemplateCatalog,
@@ -95,33 +98,179 @@ namespace Godmist.Systems.Dungeons
                         template.SizeInCells,
                         room.RotationDegrees));
 
-                var encounter = new DungeonEncounterInstance(
-                    instanceId,
+                var encounter = CreateEncounter(
+                    dungeon,
+                    floor,
+                    room,
+                    template,
                     definition,
-                    room.RoomId,
-                    triggerArea);
+                    instanceId,
+                    enemyAnchorResolver);
 
-                if (TryGetPreferredRoomCell(
-                        floor,
-                        room,
-                        template,
-                        out var explorationCell))
+                if (encounter != null)
                 {
-                    encounter.TrySetExplorationPosition(explorationCell);
+                    floor.TryAddEncounter(encounter);
                 }
-
-                foreach (var anchoredEnemy in enemyAnchorResolver.Resolve(
-                             floor,
-                             dungeon.Definition.RoomTemplateCatalog,
-                             encounter))
-                {
-                    encounter.TrySetEnemyExplorationPosition(
-                        anchoredEnemy.Key,
-                        anchoredEnemy.Value);
-                }
-
-                floor.TryAddEncounter(encounter);
             }
+        }
+
+        private static void PlaceBossEncounter(DungeonInstance dungeon)
+        {
+            var bossDefinition = dungeon.Definition.BossEncounterDefinition;
+
+            if (bossDefinition == null) return;
+            if (HasBossEncounter(dungeon, bossDefinition)) return;
+
+            var finalFloor = GetFinalFloor(dungeon);
+
+            if (finalFloor == null)
+            {
+                throw new InvalidOperationException(
+                    "Nie mozna umiescic bossa bez pietra Final.");
+            }
+
+            DungeonRoomInstance finalRoom = null;
+
+            foreach (var room in finalFloor.Rooms)
+            {
+                if (room != null && room.RoomType == DungeonRoomType.Final)
+                {
+                    finalRoom = room;
+                    break;
+                }
+            }
+
+            if (finalRoom == null
+                || !TryGetTemplate(
+                    dungeon.Definition.RoomTemplateCatalog,
+                    finalRoom.TemplateId,
+                    out var finalTemplate))
+            {
+                throw new InvalidOperationException(
+                    "Nie mozna umiescic bossa bez poprawnego pokoju Final.");
+            }
+
+            var instanceId =
+                $"{dungeon.DungeonId}.floor_{finalFloor.FloorIndex}."
+                + $"{finalRoom.RoomId}.boss";
+            var enemyAnchorResolver = new DungeonEnemyAnchorResolver();
+            var bossEncounter = CreateEncounter(
+                dungeon,
+                finalFloor,
+                finalRoom,
+                finalTemplate,
+                bossDefinition,
+                instanceId,
+                enemyAnchorResolver);
+
+            if (bossEncounter == null
+                || !finalFloor.TryAddEncounter(bossEncounter))
+            {
+                throw new InvalidOperationException(
+                    "Nie mozna dodac gwarantowanego boss encountera.");
+            }
+        }
+
+        private static DungeonEncounterInstance CreateEncounter(
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            DungeonRoomInstance room,
+            DungeonRoomTemplateDefinition template,
+            EncounterDefinition definition,
+            string instanceId,
+            DungeonEnemyAnchorResolver enemyAnchorResolver)
+        {
+            if (dungeon == null
+                || floor == null
+                || room == null
+                || template == null
+                || definition == null
+                || enemyAnchorResolver == null)
+            {
+                return null;
+            }
+
+            var triggerArea = new RectInt(
+                room.LayoutPosition,
+                DungeonRoomTransformUtility.GetRotatedSize(
+                    template.SizeInCells,
+                    room.RotationDegrees));
+            var encounter = new DungeonEncounterInstance(
+                instanceId,
+                definition,
+                room.RoomId,
+                triggerArea);
+
+            if (TryGetPreferredRoomCell(
+                    floor,
+                    room,
+                    template,
+                    out var explorationCell))
+            {
+                encounter.TrySetExplorationPosition(explorationCell);
+            }
+
+            foreach (var anchoredEnemy in enemyAnchorResolver.Resolve(
+                         floor,
+                         dungeon.Definition.RoomTemplateCatalog,
+                         encounter))
+            {
+                encounter.TrySetEnemyExplorationPosition(
+                    anchoredEnemy.Key,
+                    anchoredEnemy.Value);
+            }
+
+            return encounter;
+        }
+
+        private static bool HasRegularEncounters(
+            DungeonFloorInstance floor,
+            EncounterDefinition bossDefinition)
+        {
+            foreach (var encounter in floor.Encounters)
+            {
+                if (encounter != null && encounter.Definition != bossDefinition)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasBossEncounter(
+            DungeonInstance dungeon,
+            EncounterDefinition bossDefinition)
+        {
+            foreach (var floor in dungeon.Floors)
+            {
+                foreach (var encounter in floor.Encounters)
+                {
+                    if (encounter != null && encounter.Definition == bossDefinition)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static DungeonFloorInstance GetFinalFloor(DungeonInstance dungeon)
+        {
+            DungeonFloorInstance finalFloor = null;
+
+            foreach (var floor in dungeon.Floors)
+            {
+                if (floor != null
+                    && (finalFloor == null
+                        || floor.FloorIndex > finalFloor.FloorIndex))
+                {
+                    finalFloor = floor;
+                }
+            }
+
+            return finalFloor;
         }
 
         private static bool TryGetPreferredRoomCell(

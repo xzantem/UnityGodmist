@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Data.Combat;
+using Godmist.Data.Dungeons;
 using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Combat;
@@ -23,6 +25,7 @@ namespace Godmist.Systems.Dungeons
                 lootLevel: dungeon.DungeonLevel);
 
             var lootCatalog = dungeon.Definition?.LootTableCatalog;
+            var bossDefinition = dungeon.Definition?.BossEncounterDefinition;
 
             var rewardSystem = new CombatRewardSystem(
                 lootTableSystem: lootTableSystem,
@@ -59,13 +62,54 @@ namespace Godmist.Systems.Dungeons
                     }
 
                     var rewards = rewardSystem.RollEncounterRewards(
-                        encounterInstance.Definition);
+                        encounterInstance.Definition,
+                        enemyData => ResolveLootTable(
+                            dungeon,
+                            lootCatalog,
+                            bossDefinition,
+                            encounterInstance,
+                            enemyData));
 
                     dungeon.TryStorePreRolledRewards(
                         encounterInstance.InstanceId,
                         rewards);
                 }
             }
+        }
+
+        private static LootTableData ResolveLootTable(
+            DungeonInstance dungeon,
+            DungeonLootTableCatalog lootCatalog,
+            EncounterDefinition bossDefinition,
+            DungeonEncounterInstance encounterInstance,
+            EncounterEnemyData enemyData)
+        {
+            if (lootCatalog != null
+                && encounterInstance?.Definition == bossDefinition
+                && bossDefinition.Enemies != null
+                && bossDefinition.BossEnemyIndex >= 0
+                && bossDefinition.BossEnemyIndex < bossDefinition.Enemies.Count
+                && ReferenceEquals(
+                    bossDefinition.Enemies[bossDefinition.BossEnemyIndex],
+                    enemyData)
+                && lootCatalog.TryGetBossLootTable(
+                    dungeon.Definition.Theme,
+                    dungeon.DungeonLevel,
+                    out var bossLootTable))
+            {
+                return bossLootTable;
+            }
+
+            if (lootCatalog != null
+                && lootCatalog.TryGetEnemyLootTable(
+                    dungeon.Definition.Theme,
+                    dungeon.DungeonLevel,
+                    out var enemyLootTable))
+            {
+                return enemyLootTable;
+            }
+
+            return null;
         }
     }
 }

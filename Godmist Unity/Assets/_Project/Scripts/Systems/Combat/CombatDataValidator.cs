@@ -154,6 +154,14 @@ namespace Godmist.Systems.Combat
                 return report;
             }
 
+            if (encounter.BossEnemyIndex < 0
+                || encounter.BossEnemyIndex >= encounter.Enemies.Count)
+            {
+                report.AddError(
+                    $"Boss Enemy Index ({encounter.BossEnemyIndex}) "
+                    + "must point to an enemy in the encounter.");
+            }
+
             var usedInstanceIds = new HashSet<string>(StringComparer.Ordinal);
             var usedSpawnPositions = new HashSet<(int x, int y)>();
 

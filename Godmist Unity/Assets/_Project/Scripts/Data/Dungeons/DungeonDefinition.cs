@@ -56,6 +56,9 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
 
+        [field: SerializeField]
+        public EncounterDefinition BossEncounterDefinition { get; private set; }
+
         [field: Header("Encounters")]
         [field: SerializeField, Min(0)] public int MinEncounterCountPerFloor { get; private set; } = 1;
 

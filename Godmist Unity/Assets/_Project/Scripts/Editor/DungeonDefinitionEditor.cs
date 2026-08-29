@@ -24,6 +24,7 @@ namespace Godmist.Editor
         private SerializedProperty maxProgressionGateCountProperty;
         private SerializedProperty roomTemplateCatalogProperty;
         private SerializedProperty encounterDefinitionsProperty;
+        private SerializedProperty bossEncounterDefinitionProperty;
         private SerializedProperty minEncounterCountPerFloor;
         private SerializedProperty maxEncounterCountPerFloor;
         private SerializedProperty allowEncounterDefinitionRepeats;
@@ -51,6 +52,7 @@ namespace Godmist.Editor
             maxProgressionGateCountProperty = serializedObject.FindProperty("<MaxProgressionGateCount>k__BackingField");
             roomTemplateCatalogProperty = serializedObject.FindProperty("<RoomTemplateCatalog>k__BackingField");
             encounterDefinitionsProperty = serializedObject.FindProperty("<EncounterDefinitions>k__BackingField");
+            bossEncounterDefinitionProperty = serializedObject.FindProperty("<BossEncounterDefinition>k__BackingField");
             minEncounterCountPerFloor = serializedObject.FindProperty("<MinEncounterCountPerFloor>k__BackingField");
             maxEncounterCountPerFloor = serializedObject.FindProperty("<MaxEncounterCountPerFloor>k__BackingField");
             objectDefinitionsProperty = serializedObject.FindProperty("<ObjectDefinitions>k__BackingField");
@@ -90,6 +92,7 @@ namespace Godmist.Editor
                 EditorGUILayout.PropertyField(minProgressionGateCountProperty);
                 EditorGUILayout.PropertyField(maxProgressionGateCountProperty);
 
+                EditorGUILayout.PropertyField(bossEncounterDefinitionProperty);
                 EditorGUILayout.PropertyField(minEncounterCountPerFloor);
                 EditorGUILayout.PropertyField(maxEncounterCountPerFloor);
                 EditorGUILayout.PropertyField(allowEncounterDefinitionRepeats);

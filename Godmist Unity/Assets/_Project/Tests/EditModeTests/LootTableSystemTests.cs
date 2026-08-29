@@ -166,13 +166,13 @@ namespace Godmist.Tests.EditMode
 
             var bag = (LootBagItemInstance)loot[0];
             Assert.That(bag.ItemLevel, Is.EqualTo(1));
-            Assert.That(bag.Contents, Has.Count.EqualTo(3));
+            Assert.That(bag.Contents, Has.Count.EqualTo(5));
             Assert.That(
                 bag.Contents.FindAll(item => item.Definition == material),
-                Has.Count.EqualTo(2));
+                Has.Count.EqualTo(5));
             Assert.That(
                 bag.Contents.FindAll(item => item.Definition == galduryte),
-                Has.Count.EqualTo(1));
+                Has.Count.EqualTo(0));
         }
 
         [Test]

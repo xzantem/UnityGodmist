@@ -30,6 +30,13 @@ namespace Godmist.Systems.Combat
 
         public CombatRewardResult RollEncounterRewards(EncounterDefinition encounter)
         {
+            return RollEncounterRewards(encounter, null);
+        }
+
+        public CombatRewardResult RollEncounterRewards(
+            EncounterDefinition encounter,
+            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver)
+        {
             var rewards = new CombatRewardResult();
 
             if (encounter?.Enemies == null) return rewards;
@@ -48,7 +55,8 @@ namespace Godmist.Systems.Combat
                     ExperiencePerActiveCharacter = definition.ExperienceReward,
                     Gold = definition.GoldReward,
                     Items = lootTableSystem.RollLoot(
-                        lootTableResolver?.Invoke(definition)
+                        encounterEnemyLootTableResolver?.Invoke(enemyData)
+                        ?? lootTableResolver?.Invoke(definition)
                         ?? definition.LootTable)
                 });
             }

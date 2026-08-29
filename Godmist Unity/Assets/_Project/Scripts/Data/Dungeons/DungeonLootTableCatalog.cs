@@ -64,5 +64,32 @@ namespace Godmist.Data.Dungeons
             TryGetTables(theme, dungeonLevel, out _, out lootTable);
             return lootTable != null;
         }
+
+        public bool TryGetBossLootTable(
+            DungeonTheme theme,
+            int dungeonLevel,
+            out LootTableData lootTable)
+        {
+            lootTable = null;
+
+            var bracket = LootLevelBracketResolver.Resolve(dungeonLevel);
+
+            if (Entries == null) return false;
+
+            foreach (var entry in Entries)
+            {
+                if (entry == null
+                    || entry.Theme != theme
+                    || entry.Bracket != bracket)
+                {
+                    continue;
+                }
+
+                lootTable = entry.BossLootTable;
+                return lootTable != null;
+            }
+
+            return false;
+        }
     }
 }

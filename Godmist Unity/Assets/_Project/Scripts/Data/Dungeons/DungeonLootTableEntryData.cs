@@ -19,5 +19,8 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField]
         public LootTableData ChestLootTable { get; private set; }
+
+        [field: SerializeField]
+        public LootTableData BossLootTable { get; private set; }
     }
 }

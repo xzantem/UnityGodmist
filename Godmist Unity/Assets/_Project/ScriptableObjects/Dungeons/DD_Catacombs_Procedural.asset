@@ -33,6 +33,7 @@ MonoBehaviour:
   <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 3dd0625e5ba1be246a83e3aa80662cf7, type: 2}
   <EncounterDefinitions>k__BackingField:
   - {fileID: 11400000, guid: f70fadf3a76a46141837274e5f0228b1, type: 2}
+  <BossEncounterDefinition>k__BackingField: {fileID: 11400000, guid: 8a58e4408557e7f4ebf463711f269fb9, type: 2}
   <MinEncounterCountPerFloor>k__BackingField: 3
   <MaxEncounterCountPerFloor>k__BackingField: 6
   <AllowEncounterDefinitionRepeats>k__BackingField: 1
