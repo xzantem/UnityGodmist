@@ -97,6 +97,51 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void RollLoot_Jewelry_GeneratesMetalStatsAndGemPassive()
+        {
+            var definition = ScriptableObject.CreateInstance<JewelryItemDefinition>();
+            SetAutoProperty(definition, "Id", "jewelry.test");
+            SetAutoProperty(definition, "DisplayName", "pierścień testowy");
+            SetAutoProperty(definition, "ItemType", ItemType.Jewelry);
+            SetAutoProperty(definition, "JewelrySlot", EquipmentSlot.Ring);
+
+            var metal = new JewelryMetalData();
+            SetAutoProperty(metal, "Id", "iron");
+            SetAutoProperty(metal, "DisplayName", "Żelazny");
+            SetAutoProperty(metal, "MinimumLevel", 1);
+            SetAutoProperty(metal, "StatModifiers", new List<StatModifier>
+            {
+                new()
+                {
+                    StatType = CharacterStatType.MinAttack,
+                    Operation = StatModifierOperation.FlatBase,
+                    Value = 2f
+                }
+            });
+
+            var gem = new JewelryGemData();
+            SetAutoProperty(gem, "Id", "topaz");
+            SetAutoProperty(gem, "DisplayName", "Topaz");
+            SetAutoProperty(gem, "PassiveType", JewelryPassiveType.ExperienceGainPercent);
+            SetAutoProperty(gem, "Value", .01f);
+            SetAutoProperty(definition, "Metals", new List<JewelryMetalData> { metal });
+            SetAutoProperty(definition, "Gems", new List<JewelryGemData> { gem });
+
+            var items = new LootTableSystem(() => 0f, lootLevel: 1)
+                .RollLoot(CreateLootTable(definition, 1f, new IntRange(1, 1)));
+
+            Assert.That(items, Has.Count.EqualTo(1));
+            Assert.That(items[0], Is.TypeOf<JewelryItemInstance>());
+
+            var jewelry = (JewelryItemInstance)items[0];
+            Assert.That(jewelry.EquipmentSlot, Is.EqualTo(EquipmentSlot.Ring));
+            Assert.That(jewelry.MetalId, Is.EqualTo("iron"));
+            Assert.That(jewelry.GemId, Is.EqualTo("topaz"));
+            Assert.That(jewelry.PassiveType, Is.EqualTo(JewelryPassiveType.ExperienceGainPercent));
+            Assert.That(jewelry.StatModifiers, Has.Count.EqualTo(1));
+        }
+
+        [Test]
         public void RollLoot_EquipmentWithParts_GeneratesCompleteEquipmentPayload()
         {
             var scout = ScriptableObject.CreateInstance<CharacterClassData>();

@@ -41,8 +41,6 @@ Priorytety:
 ### Milestone: Dungeon Content and Layout v2
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
-- `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
-  - Zweryfikowac deterministyczny layout z petlami i gate'ami, nieregularne footprinty pokoi, ciala w miejscach smierci, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
 
 ### Milestone: Crafting, Upgrading and Consumables v1
 
@@ -95,6 +93,9 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+  - Zaliczone: layout z petlami i gate'ami, nieregularne footprinty, ciala i persistence, lootbagi, boss, biżuteria oraz przejscia miedzy pietrami przeszly review kodu i reczna weryfikacje w Unity.
 
 - `[P1] Dodac przejscia miedzy pietrami lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
   - Zrealizowano dwukierunkowe przejscia miedzy pietrami, zachowanie formacji oraz stanu pieter. Tylko Final ostatniego pietra konczy loch i wymaga pokonania przypisanego bossa.

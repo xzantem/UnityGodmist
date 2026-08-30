@@ -31,6 +31,19 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TrySetCurrentFloorIndex_ChangesOnlyToGeneratedFloor()
+        {
+            var dungeon = new DungeonInstance("dungeon.test", 1);
+            Assert.That(dungeon.TryAddFloor(new DungeonFloorInstance(0)), Is.True);
+            Assert.That(dungeon.TryAddFloor(new DungeonFloorInstance(1)), Is.True);
+
+            Assert.That(dungeon.TrySetCurrentFloorIndex(1), Is.True);
+            Assert.That(dungeon.CurrentFloorIndex, Is.EqualTo(1));
+            Assert.That(dungeon.TrySetCurrentFloorIndex(2), Is.False);
+            Assert.That(dungeon.CurrentFloorIndex, Is.EqualTo(1));
+        }
+
+        [Test]
         public void TryMarkCompleted_CanOnlyCompleteOnce()
         {
             var dungeon = new DungeonInstance("dungeon.test", 1);
