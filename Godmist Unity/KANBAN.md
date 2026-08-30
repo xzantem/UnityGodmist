@@ -43,9 +43,6 @@ Priorytety:
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
 - `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
   - Zweryfikowac deterministyczny layout z petlami i gate'ami, nieregularne footprinty pokoi, ciala w miejscach smierci, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
-- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
-- `[P1] Dodac przejscia miedzy pietrami lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
-  - Na pietrach posrednich pokoj `Final` prowadzi na kolejne pietro, a dopiero `Final` na ostatnim pietrze konczy dungeon. Zachowac stan wszystkich wygenerowanych pieter i umozliwic powrot miedzy nimi zgodnie z docelowym modelem eksploracji.
 
 ### Milestone: Crafting, Upgrading and Consumables v1
 
@@ -98,6 +95,12 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 ## Done
 
 ### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dodac przejscia miedzy pietrami lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
+  - Zrealizowano dwukierunkowe przejscia miedzy pietrami, zachowanie formacji oraz stanu pieter. Tylko Final ostatniego pietra konczy loch i wymaga pokonania przypisanego bossa.
+
+- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Zrealizowane wczesniej: pokonani przeciwnicy, ich ciala oraz stan encountera sa zachowane po ucieczce i save/load.
 
 - `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
   - Zrealizowano model metal + kamien, cztery sloty, persistence oraz testowe dropy zwykle i cztery niezalezne 5% dropy bossa Katakumb. Generator trzech czesci pozostaje wylacznie dla broni i pancerzy.

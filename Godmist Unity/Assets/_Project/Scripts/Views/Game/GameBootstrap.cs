@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Dungeons;
@@ -381,6 +382,12 @@ namespace Godmist.Views.Game
 
             var dungeon = Session.ActiveDungeon;
 
+            if (!AreFinalBossEncountersCleared(dungeon))
+            {
+                Debug.Log("Nie można opuścić lochu przed pokonaniem bossa.");
+                return false;
+            }
+
             if (!sceneLoader.TryLoadScene(
                     explorationSceneName,
                     GameModeState.Exploration))
@@ -398,6 +405,62 @@ namespace Godmist.Views.Game
             Session.TryClearActiveDungeon();
             RequestAutosave("Wyjście z lochu");
             return true;
+        }
+
+        private static bool AreFinalBossEncountersCleared(
+            DungeonInstance dungeon)
+        {
+            var bossDefinition = dungeon?.Definition?.BossEncounterDefinition;
+
+            if (bossDefinition == null) return true;
+            if (!dungeon.TryGetCurrentFloor(out var floor)) return false;
+
+            foreach (var encounter in floor.Encounters)
+            {
+                if (encounter?.Definition == bossDefinition
+                    && !dungeon.IsEncounterCleared(encounter.InstanceId))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public bool TryChangeDungeonFloor(
+            int targetFloorIndex,
+            Vector2 targetLeaderPosition,
+            IReadOnlyDictionary<string, Vector2> targetPartyPositions)
+        {
+            if (Session?.ActiveDungeon == null
+                || targetPartyPositions == null
+                || sceneLoader == null)
+            {
+                return false;
+            }
+
+            var dungeon = Session.ActiveDungeon;
+            var previousFloorIndex = dungeon.CurrentFloorIndex;
+            var previousPosition = dungeon.PlayerPosition;
+
+            if (!dungeon.TrySetCurrentFloorIndex(targetFloorIndex)
+                || !dungeon.TrySetPendingPlayerPartyPositions(targetPartyPositions))
+            {
+                return false;
+            }
+
+            dungeon.SetPlayerPosition(targetLeaderPosition);
+
+            if (sceneLoader.TryLoadScene(dungeonSceneName, GameModeState.Exploration))
+            {
+                RequestAutosave("Zmiana piętra lochu");
+                return true;
+            }
+
+            dungeon.TrySetCurrentFloorIndex(previousFloorIndex);
+            dungeon.SetPlayerPosition(previousPosition);
+            dungeon.ClearPendingPlayerPartyPositions();
+            return false;
         }
 
         private bool TryReplaceSession(
