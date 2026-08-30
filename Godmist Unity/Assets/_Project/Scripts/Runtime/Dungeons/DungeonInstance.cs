@@ -11,19 +11,33 @@ namespace Godmist.Runtime.Dungeons
         public DungeonDefinition Definition { get; }
         public string DungeonId { get; }
         public int Seed { get; }
+        public int DungeonLevel { get; }
         public int CurrentFloorIndex { get; private set; }
         public bool IsCompleted { get; private set; }
 
         private readonly HashSet<string> clearedEncounterIds = new();
         private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();
+        private readonly Dictionary<string, Vector2> pendingPlayerPartyPositions = new();
         private readonly List<DungeonFloorInstance> floors = new();
 
         public Vector2 PlayerPosition { get; private set; }
         public bool HasPlayerPosition { get; private set; }
         public IReadOnlyCollection<string> ClearedEncounterIds => clearedEncounterIds;
+        public IReadOnlyDictionary<string, Vector2> PendingPlayerPartyPositions =>
+            pendingPlayerPartyPositions;
+        public bool HasPendingPlayerPartyPositions =>
+            pendingPlayerPartyPositions.Count > 0;
         public IReadOnlyList<DungeonFloorInstance> Floors => floors;
 
         public DungeonInstance(DungeonDefinition definition, int seed)
+            : this(definition, seed, definition?.DungeonLevel ?? 1)
+        {
+        }
+
+        public DungeonInstance(
+            DungeonDefinition definition,
+            int seed,
+            int dungeonLevel)
         {
             if (definition == null)
             {
@@ -38,9 +52,13 @@ namespace Godmist.Runtime.Dungeons
             Definition = definition;
             DungeonId = definition.Id;
             Seed = seed;
+            DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
         }
 
-        public DungeonInstance(string dungeonId, int seed)
+        public DungeonInstance(
+            string dungeonId,
+            int seed,
+            int dungeonLevel = 1)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -49,6 +67,7 @@ namespace Godmist.Runtime.Dungeons
 
             DungeonId = dungeonId;
             Seed = seed;
+            DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
         }
 
         public bool TrySetCurrentFloorIndex(int floorIndex)
@@ -72,6 +91,42 @@ namespace Godmist.Runtime.Dungeons
         {
             PlayerPosition = position;
             HasPlayerPosition = true;
+        }
+
+        public bool TrySetPendingPlayerPartyPositions(
+            IReadOnlyDictionary<string, Vector2> positions)
+        {
+            if (positions == null) return false;
+
+            var validatedPositions = new Dictionary<string, Vector2>();
+
+            foreach (var pair in positions)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key)
+                    || float.IsNaN(pair.Value.x)
+                    || float.IsNaN(pair.Value.y)
+                    || float.IsInfinity(pair.Value.x)
+                    || float.IsInfinity(pair.Value.y))
+                {
+                    return false;
+                }
+
+                validatedPositions[pair.Key] = pair.Value;
+            }
+
+            pendingPlayerPartyPositions.Clear();
+
+            foreach (var pair in validatedPositions)
+            {
+                pendingPlayerPartyPositions.Add(pair.Key, pair.Value);
+            }
+
+            return true;
+        }
+
+        public void ClearPendingPlayerPartyPositions()
+        {
+            pendingPlayerPartyPositions.Clear();
         }
 
         public bool TryRestoreState(

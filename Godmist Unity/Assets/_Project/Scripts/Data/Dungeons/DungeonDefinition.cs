@@ -18,6 +18,13 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
+        [field: Header("Rewards")]
+        [field: SerializeField, Range(1, 50)]
+        public int DungeonLevel { get; private set; } = 1;
+
+        [field: SerializeField]
+        public DungeonLootTableCatalog LootTableCatalog { get; private set; }
+
         [field: Header("Procedural generation")]
         [field: SerializeField, Min(1)] public int MinFloorCount { get; private set; } = 1;
 
@@ -35,12 +42,22 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField, Min(0)] public int MaxLoopConnections { get; private set; } = 0;
 
+        [field: Header("Progression gates")]
+        [field: SerializeField, Range(0, 3)]
+        public int MinProgressionGateCount { get; private set; } = 0;
+
+        [field: SerializeField, Range(0, 3)]
+        public int MaxProgressionGateCount { get; private set; } = 0;
+
         [field: Header("Room templates")]
         [field: SerializeField]
         public DungeonRoomTemplateCatalog RoomTemplateCatalog { get; private set; }
         
         [field: SerializeField]
         public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
+
+        [field: SerializeField]
+        public EncounterDefinition BossEncounterDefinition { get; private set; }
 
         [field: Header("Encounters")]
         [field: SerializeField, Min(0)] public int MinEncounterCountPerFloor { get; private set; } = 1;
@@ -61,6 +78,8 @@ namespace Godmist.Data.Dungeons
 
         private void OnValidate()
         {
+            DungeonLevel = Mathf.Clamp(DungeonLevel, 1, 50);
+
             MinFloorCount = Mathf.Max(1, MinFloorCount);
             MaxFloorCount = Mathf.Max(MinFloorCount, MaxFloorCount);
 
@@ -78,6 +97,15 @@ namespace Godmist.Data.Dungeons
             MaxLoopConnections = Mathf.Max(
                 MinLoopConnections,
                 MaxLoopConnections);
+
+            MinProgressionGateCount = Mathf.Clamp(
+                MinProgressionGateCount,
+                0,
+                3);
+            MaxProgressionGateCount = Mathf.Clamp(
+                MaxProgressionGateCount,
+                MinProgressionGateCount,
+                3);
 
             MinEncounterCountPerFloor = Mathf.Max(0, MinEncounterCountPerFloor);
             MaxEncounterCountPerFloor = Mathf.Max(

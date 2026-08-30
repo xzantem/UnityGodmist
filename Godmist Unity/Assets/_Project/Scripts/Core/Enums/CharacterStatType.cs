@@ -1,5 +1,13 @@
 namespace Godmist.Core.Enums
 {
+    public enum JewelryPassiveType
+    {
+        None,
+        ExperienceGainPercent,
+        GoldGainPercent,
+        DamageDealtPercentInDungeonTheme
+    }
+
     public enum CharacterStatType
     {
         MaxHealth = 0,
@@ -15,6 +23,7 @@ namespace Godmist.Core.Enums
         WeaponAccuracy = 10,
         MaxResource = 11,
         PhysicalDefensePenetration = 12,
-        MagicalDefensePenetration = 13
+        MagicalDefensePenetration = 13,
+        HealingPower = 14
     }
 }

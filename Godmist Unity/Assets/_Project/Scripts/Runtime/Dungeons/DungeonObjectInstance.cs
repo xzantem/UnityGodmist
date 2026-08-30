@@ -10,6 +10,7 @@ namespace Godmist.Runtime.Dungeons
         public string InstanceId { get; }
         public DungeonObjectDefinition Definition { get; }
         public Vector2Int Position { get; }
+        public bool IsProgressionRequirement { get; }
         public bool IsActive { get; protected set; } = true;
 
         public DungeonObjectType ObjectType => Definition.ObjectType;
@@ -17,7 +18,8 @@ namespace Godmist.Runtime.Dungeons
         protected DungeonObjectInstance(
             string instanceId,
             DungeonObjectDefinition definition,
-            Vector2Int position)
+            Vector2Int position,
+            bool isProgressionRequirement = false)
         {
             if (string.IsNullOrWhiteSpace(instanceId))
             {
@@ -34,6 +36,7 @@ namespace Godmist.Runtime.Dungeons
             InstanceId = instanceId;
             Definition = definition;
             Position = position;
+            IsProgressionRequirement = isProgressionRequirement;
         }
 
         public bool TryDeactivate()

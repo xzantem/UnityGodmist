@@ -14,7 +14,7 @@ namespace Godmist.Tests.EditMode
     public class DungeonObjectPlacementSystemTests
     {
         [Test]
-        public void Place_UsesOnlyEligibleCellsOutsideEncounterRooms()
+        public void Place_UsesSemanticAnchorsOutsideEncounterRooms()
         {
             var definition = CreateDungeonDefinition(
                 minObjectCount: 2,
@@ -43,7 +43,30 @@ namespace Godmist.Tests.EditMode
 
                 Assert.That(roomId, Is.EqualTo("optional"));
                 Assert.That(dungeonObject, Is.TypeOf<ObstacleDungeonObjectInstance>());
+                Assert.That(
+                    dungeonObject.Position == new Vector2Int(8, 0)
+                    || dungeonObject.Position == new Vector2Int(9, 0),
+                    Is.True);
             }
+        }
+
+        [Test]
+        public void Place_WithoutSemanticAnchors_DoesNotCreateRandomObjects()
+        {
+            var definition = CreateDungeonDefinition(
+                minObjectCount: 0,
+                maxObjectCount: 2);
+
+            definition.RoomTemplateCatalog.Templates[2].SemanticAnchors.Clear();
+
+            var dungeon = CreateDungeon(
+                definition,
+                seed: 12345,
+                includeEncounterInNormalRoom: false);
+
+            new DungeonObjectPlacementSystem().Place(dungeon);
+
+            Assert.That(dungeon.Floors[0].Objects, Is.Empty);
         }
 
         [Test]
@@ -188,6 +211,38 @@ namespace Godmist.Tests.EditMode
             var definition = ScriptableObject.CreateInstance<DungeonDefinition>();
 
             SetAutoProperty(definition, "Id", "dungeon.test");
+
+            var catalog = ScriptableObject.CreateInstance<
+                DungeonRoomTemplateCatalog>();
+
+            catalog.Templates.Add(
+                CreateRoomTemplate(
+                    "template.Start",
+                    DungeonRoomType.Start,
+                    new Vector2Int(2, 2)));
+            catalog.Templates.Add(
+                CreateRoomTemplate(
+                    "template.Normal",
+                    DungeonRoomType.Normal,
+                    new Vector2Int(2, 2)));
+            catalog.Templates.Add(
+                CreateRoomTemplate(
+                    "template.Optional",
+                    DungeonRoomType.Optional,
+                    new Vector2Int(3, 2),
+                    new[]
+                    {
+                        new Vector2Int(0, 0),
+                        new Vector2Int(1, 0)
+                    }));
+            catalog.Templates.Add(
+                CreateRoomTemplate(
+                    "template.Final",
+                    DungeonRoomType.Final,
+                    new Vector2Int(2, 2)));
+
+            SetAutoProperty(definition, "RoomTemplateCatalog", catalog);
+
             SetAutoProperty(
                 definition,
                 "MinObjectCountPerFloor",
@@ -206,6 +261,35 @@ namespace Godmist.Tests.EditMode
             definition.ObjectDefinitions.Add(obstacle);
 
             return definition;
+        }
+
+        private static DungeonRoomTemplateDefinition CreateRoomTemplate(
+            string id,
+            DungeonRoomType roomType,
+            Vector2Int sizeInCells,
+            IReadOnlyList<Vector2Int> semanticAnchorCells = null)
+        {
+            var template = ScriptableObject.CreateInstance<
+                DungeonRoomTemplateDefinition>();
+
+            SetAutoProperty(template, "Id", id);
+            SetAutoProperty(template, "RoomType", roomType);
+            SetAutoProperty(template, "SizeInCells", sizeInCells);
+
+            if (semanticAnchorCells != null)
+            {
+                for (var index = 0; index < semanticAnchorCells.Count; index++)
+                {
+                    template.SemanticAnchors.Add(
+                        new DungeonSemanticAnchorData(
+                            $"obstacle.anchor.{index:00}",
+                            DungeonSemanticAnchorType.Obstacle,
+                            semanticAnchorCells[index],
+                            Vector2Int.one));
+                }
+            }
+
+            return template;
         }
 
         private static DungeonInstance CreateDungeon(

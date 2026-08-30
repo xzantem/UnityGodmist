@@ -317,6 +317,7 @@ namespace Godmist.Tests.EditMode
                 out var enemy);
 
             enemy.Character.CharacterId = "encounter.enemy.01";
+            enemy.Position = new GridPosition(2, 3);
 
             BattleUnit removedUnit = null;
 
@@ -333,6 +334,13 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 session.DefeatedEnemyInstanceIds,
                 Does.Contain("encounter.enemy.01"));
+
+            Assert.That(
+                session.TryGetEnemyDeathPosition(
+                    "encounter.enemy.01",
+                    out var deathPosition),
+                Is.True);
+            Assert.That(deathPosition, Is.EqualTo(new GridPosition(2, 3)));
 
             Assert.That(removedUnit, Is.SameAs(enemy));
         }

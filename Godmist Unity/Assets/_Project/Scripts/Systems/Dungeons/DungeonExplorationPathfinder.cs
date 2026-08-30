@@ -4,6 +4,147 @@ using UnityEngine;
 
 namespace Godmist.Systems.Dungeons
 {
+    public static class DungeonExplorationInteractionUtility
+    {
+        public static bool HasDirectAccess(
+            DungeonFloorInstance floor,
+            Vector2Int startCell,
+            Vector2Int targetCell)
+        {
+            if (floor?.Map == null
+                || !floor.Map.IsWalkable(startCell)
+                || !floor.Map.IsWalkable(targetCell))
+            {
+                return false;
+            }
+
+            if (startCell == targetCell)
+            {
+                return true;
+            }
+
+            var line = BuildGridLine(startCell, targetCell);
+
+            for (var index = 1; index < line.Count; index++)
+            {
+                var currentCell = line[index];
+
+                if (!floor.Map.CanMoveBetween(
+                        line[index - 1],
+                        currentCell))
+                {
+                    return false;
+                }
+
+                if (index < line.Count - 1
+                    && IsBlockedByObstacle(floor, currentCell))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool HasDirectAccessToDoor(
+            DungeonFloorInstance floor,
+            Vector2Int startCell,
+            DungeonCellEdge doorEdge)
+        {
+            return HasDirectAccess(floor, startCell, doorEdge.FirstCell)
+                   || HasDirectAccess(floor, startCell, doorEdge.SecondCell);
+        }
+
+        private static bool IsBlockedByObstacle(
+            DungeonFloorInstance floor,
+            Vector2Int cell)
+        {
+            foreach (var dungeonObject in floor.Objects)
+            {
+                if (dungeonObject is not ObstacleDungeonObjectInstance obstacle
+                    || obstacle.Position != cell)
+                {
+                    continue;
+                }
+
+                if (obstacle.BlocksMovement || obstacle.BlocksLineOfSight)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static List<Vector2Int> BuildGridLine(
+            Vector2Int startCell,
+            Vector2Int targetCell)
+        {
+            var result = new List<Vector2Int> { startCell };
+            var delta = targetCell - startCell;
+            var absoluteDelta = new Vector2Int(
+                Mathf.Abs(delta.x),
+                Mathf.Abs(delta.y));
+            var step = new Vector2Int(
+                delta.x == 0 ? 0 : delta.x > 0 ? 1 : -1,
+                delta.y == 0 ? 0 : delta.y > 0 ? 1 : -1);
+            var current = startCell;
+
+            if (absoluteDelta.x >= absoluteDelta.y)
+            {
+                var error = absoluteDelta.x / 2;
+
+                while (current.x != targetCell.x)
+                {
+                    error -= absoluteDelta.y;
+
+                    if (error < 0)
+                    {
+                        current.y += step.y;
+                        result.Add(current);
+                        error += absoluteDelta.x;
+                    }
+
+                    current.x += step.x;
+                    result.Add(current);
+                }
+
+                while (current.y != targetCell.y)
+                {
+                    current.y += step.y;
+                    result.Add(current);
+                }
+
+                return result;
+            }
+
+            var verticalError = absoluteDelta.y / 2;
+
+            while (current.y != targetCell.y)
+            {
+                verticalError -= absoluteDelta.x;
+
+                if (verticalError < 0)
+                {
+                    current.x += step.x;
+                    result.Add(current);
+                    verticalError += absoluteDelta.y;
+                }
+
+                current.y += step.y;
+                result.Add(current);
+            }
+
+            while (current.x != targetCell.x)
+            {
+                current.x += step.x;
+                result.Add(current);
+            }
+
+            return result;
+        }
+    }
+
     public static class DungeonExplorationPathfinder
     {
         private static readonly Vector2Int[] directions =

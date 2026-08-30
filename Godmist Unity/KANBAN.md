@@ -14,9 +14,7 @@ Założenia:
 Aktualne kolumny:
 
 - `Backlog`
-- `Ready`
 - `In Progress`
-- `Playable / Test`
 - `Done`
 
 Priorytety:
@@ -40,31 +38,9 @@ Priorytety:
 
 ## Backlog
 
-### Milestone: Combat v3
-
 ### Milestone: Dungeon Content and Layout v2
 
 Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
-
-- `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-  - Room template definiuje semantyczne kotwice dla encounterow, skrzyn, przeszkod, pulapek, dzwigni i nagrod zamiast losowego wyboru dowolnej poprawnej komorki.
-- `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
-  - Narzedzie edytorowe do projektowania i walidacji pokojow lochu: siatka, tile'e, semantic content anchors i podglad wynikowego room template. Bez przebudowy runtime generatora poza formatem danych wymaganym przez editor.
-- `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
-  - Generator dopuszcza alternatywne trasy i petle, nie tylko jednokierunkowe optional branches. Obsluguje bramkowanie progresji, np. klucz albo dzwignia w wymaganej odnodze otwierajace droge do finalu.
-- `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
-  - Pierwszy pionowy pass interaktywnych obiektow lochu, wlacznie z ryzykiem/nagroda i czytelnym feedbackiem; bez osobnego frameworku zlozonych zagadek.
-- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
-  - Interakcja ze skrzynka otwiera okno lootu zgodne z obecnym UI lootowania. Skrzynki moga wymagac klucza albo proby lockpickingu; zasady powodzenia, kosztu i konsekwencji niepowodzenia zostana ustalone przed implementacja.
-- `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
-  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
-- `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
-  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
-- `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - Dodac gotowe definicje pierscieni, naszyjnikow, bransolet i kolczykow jako bezposrednie dropy z lootbagow, w tym 1-2 unikaty bossowe. Nie wprowadzac ich do generatora trzyczesciowego, ktory pozostaje dla broni i pancerzy.
-- `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
-  - Zweryfikowac deterministyczny layout z petlami i gate'ami, persistence obiektow/lootbagow/bossow oraz pelny przeplyw lootbag -> inventory -> equipment.
-- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
 
 ### Milestone: Crafting, Upgrading and Consumables v1
 
@@ -83,111 +59,156 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
   - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
 
-## Ready
+### Milestone: Combat Passives and Affixes v1
+
+Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek drzewek skilli, klejnotow i unikatowego equipmentu; rozwija warunkowe efekty walki bez mieszania ich z systemem craftingu.
+
+- `[P1] Ujednolicic framework pasywek dla equipmentu i drzewek skilli v1` - `Combat`, `Items / Inventory / Economy`, `Core / Architecture`, `UI / UX`
+  - Wspolna definicja zrodla, warunkow i efektow pasywki dla drzewek skilli, klejnotow oraz unikatowego equipmentu. Obsluzyc stale modyfikatory statystyk i odpornosci, modyfikatory obrazen, XP oraz zlota, z pelnym persistence i tooltipem. Zachowac zgodnosc z istniejacymi globalnymi pasywkami drzewek; migracje wykonywac etapowo.
+- `[P1] Dodac tagi przeciwnikow i warunkowe modyfikatory v1` - `Combat`, `Content / Data`, `Core / Architecture`
+  - Dodac tagi `Human`, `Beast`, `Undead` i `Demon` na definicjach przeciwnikow oraz warunki pasywek dla typu celu i theme lochu. Uzyc ich m.in. dla obrazen przeciwko okreslonym przeciwnikom i bonusow terenowych klejnotow.
+- `[P1] Dodac unikatowe dropy bossow broni i pancerzy per klasa v1` - `Combat`, `Items / Inventory / Economy`, `Content / Data`
+  - Boss ma `30%` szansy na dowolny unikat broni albo pancerza: po `7,5%` na kazda z czterech klas. Unikat losuje normalne czesci equipmentu, ale otrzymuje specjalna pasywke przypisana bossowi zamiast pasywy generycznej.
+- `[P1] Dodac pierwszy pass wykonawczy pasywek node'ow drzewek skilli v1` - `Combat`, `Skills / Progression`, `Content / Data`
+  - Wykorzystac wspolny framework dla reprezentatywnych node'ow Scouta: warunki po ruchu, krytyku, uniku/chybieniu, statusie celu i aktywnym buffie oraz modyfikacje parametrow konkretnej umiejetnosci.
+- `[P2] Rozszerzyc content klejnotow i unikatow bossowych v1` - `Items / Inventory / Economy`, `Combat`, `Content / Data`
+  - Dodac pozostale standardowe klejnoty z arkusza, bossowe pasywy dla kolejnych theme'ow oraz ich zrodla/dropy. Zachowac model metal + klejnot dla zwyklej bizuterii i losowy metal + pasywa bossa dla unikatu.
+- `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug`
+  - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
 
 ## In Progress
 
-## Playable / Test
+### Karty do decyzji o przypisaniu do milestone'u
 
-### Milestone: Combat v3
-
-- `[P1] Combat v3 - acceptance pass` - `Combat`, `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
-  - Zweryfikowac pelny przeplyw: targetowanie i shape'y, toggle, noze Scouta, sekwencjonowanie AI, feedback, tooltipy, inspect, preview oraz payloady PassiveEffectRuntime. Usunac znane regresje i pokryc brakujace krytyczne scenariusze testami.
+- `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
+  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wejscie gracza w FOV przeciwnika uruchamia poscig, a walka zaczyna sie po jego dogonieniu. Bez jednego wspolnego anchoru dla calej grupy.
+  - Przypisanie do milestone'u oraz priorytet do ustalenia.
+- `[Do decyzji] Dodac pathfinding ruchu sterowanego myszka w eksploracji lochu v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+  - Klikniecie walkable celu wyznacza sciezke po mapie lochu i prowadzi druzyne po kolejnych komorkach z uwzglednieniem przeszkod, scian i zamknietych przejsc.
+  - Przypisanie do milestone'u oraz priorytet do ustalenia; istnieje starsza karta o klikanym ruchu po gridzie, ktora nalezy traktowac jako jej poprzednia wersje.
+- `[Do decyzji] Rozszerzyc blokowanie layoutu pokoi z bounding boxa na rzeczywisty footprint v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
+  - Generator ma dopuszczac lepsze upakowanie nieregularnych pokoi, blokujac rzeczywiste zajete komorki zamiast calego prostokatnego bounding boxa; uwzglednic dziury, sasiedztwo pokoi i kompatybilne przejscia.
+  - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
 
 ## Done
 
+### Milestone: Dungeon Content and Layout v2
+
+- `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
+  - Zaliczone: layout z petlami i gate'ami, nieregularne footprinty, ciala i persistence, lootbagi, boss, biżuteria oraz przejscia miedzy pietrami przeszly review kodu i reczna weryfikacje w Unity.
+
+- `[P1] Dodac przejscia miedzy pietrami lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
+  - Zrealizowano dwukierunkowe przejscia miedzy pietrami, zachowanie formacji oraz stanu pieter. Tylko Final ostatniego pietra konczy loch i wymaga pokonania przypisanego bossa.
+
+- `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Zrealizowane wczesniej: pokonani przeciwnicy, ich ciala oraz stan encountera sa zachowane po ucieczce i save/load.
+
+- `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - Zrealizowano model metal + kamien, cztery sloty, persistence oraz testowe dropy zwykle i cztery niezalezne 5% dropy bossa Katakumb. Generator trzech czesci pozostaje wylacznie dla broni i pancerzy.
+
+- `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
+
+- `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
+  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
+
+- `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
+  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
+
+- `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
+
+- `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
+
+- `[P1] Dodac rotacje instancji pokoi v1` - `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
+
+- `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
+
+- `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
+
+- `[P1] Dopracowac persistence cial przeciwnikow: pozycja smierci v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
+
+- `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+
+- `[P1] Dodac nieregularne ksztalty pokoi lochu v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
+
+- `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
+
+- `[P2] Rozszerzyc DungeonRoomEditor o legalne krawedzie przejsc i resize footprintu v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
+
+### Milestone: Save and Load v1
+
+- `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture`
+- `[P1] Dodac snapshoty runtime dla postaci, inventory i itemow v1` - `Core / Architecture`, `Items / Inventory / Economy`
+- `[P1] Zapisywac questy, world flags oraz stan NPC v1` - `Core / Architecture`, `NPC / Quest / Dialogue`
+- `[P1] Dodac GameContentCatalog v1` - `Core / Architecture`, `Content / Data`
+- `[P1] Dodac API restore dla Quest i Dungeon runtime v1` - `Core / Architecture`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration`
+- `[P1] Dodac GameSession restore factory v1` - `Core / Architecture`, `Content / Data`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration`
+- `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX`
+- `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration`
+- `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture`
+- `[P1] Dodac CampaignId i strukture katalogow zapisow v1` - `Core / Architecture`
+- `[P1] Dodac liste oraz zarzadzanie zapisami kampanii v1` - `Core / Architecture`, `UI / UX`
+- `[P1] Dodac menu pauzy i UI zapisow v1` - `UI / UX`, `Core / Architecture`
+- `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`
+
+### Milestone: Combat Core v2 — Closed
+
+- `[P1] Combat Core v2 - acceptance pass` - `Combat`, `Tools / Editor / Debug`, `UI / UX`
+
 ### Milestone: Combat v3 — Closed
 
+- `[P1] Combat v3 - acceptance pass` - `Combat`, `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
+
 - `[P2] Zrefaktoryzowac payloady PassiveEffectRuntime v1` - `Core / Architecture`, `Combat`, `Design / Systems`
-  - Zastapic pola specyficzne dla wybranych efektow, np. `TotalDamage` i `StatusHealPercent`, typowanymi payloadami runtime.
-  - Zaplanowac migracje save/load, debug inspectora, lifecycle i testow przed dodaniem kolejnych niestandardowych statusow.
 
 - `[P1] Combat v3 - tooltipy, inspect i feedback bojowy v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Tooltip skilla pokazuje wyliczony z aktualnych statystyk zakres obrazen, szanse trafienia, przewidywane obrazenia po obronie celu oraz komplet efektow i czasow trwania.
-  - Dodac widoczne buffy, nie tylko statusy; full inspect wybranej jednostki; preview zasiegu ruchu przeciwnika w jego nastepnej turze; feedback dla nowych efektow Combat v3 (buff, proc, aura, redirect, blokada regeneracji).
 
 - `[P1] Combat v3 - penetracja oraz DealDamage z penetracja` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Oddzielna procentowa penetracja fizyczna i magiczna oraz jej zastosowanie w `DealDamage`; efekt ma dodatkowo konfigurowalny `Bonus Penetration`.
 
 - `[P1] Combat v3 - rozszerzyc targetowanie` - `Combat`, `Core / Architecture`, `Content / Data`
-  - Dodano ksztalty `Line`, `Diagonal`, `TwoSidedLine`, `XShape` i `Rectangle`, wraz z obrotem `R` oraz obsluga parzystych rozmiarow.
-  - Preview, podswietlenie trafionych celow i wykonanie skilla korzystaja z tej samej geometrii; `AreaAroundCaster` moze wykonac skill bez trafionych jednostek.
 
 - `[P1] Combat v3 - rzeczywista sciezka ruchu AI i preview kosztu v1` - `Combat`, `UI / UX`
-  - Ruch AI i gracza korzysta z wyznaczonej sciezki tile-by-tile i wizualnie przechodzi przez kolejne pola, z zachowaniem blokad i kosztu AP.
-  - `Ctrl` + hover nad dowolna jednostka pokazuje jej zasieg ruchu na nastepna ture; bez przewidywania akcji, skilli ani kosztu sciezki.
 
 - `[P1] Combat v3 - czytelnosc feedbacku i sekwencjonowanie akcji v1` - `UI / UX`, `Combat`
-  - Feedback jest powiazany z momentem rozstrzygniecia akcji i aktualna pozycja jednostki; komunikaty sa kolejkowane, rozsuwane i prezentowane z czytelnym opoznieniem.
-  - Tura przeciwnika jest prezentowana jako sekwencja pojedynczych decyzji i rezultatow z krotkimi przerwami.
 
 - `[P1] Combat v3 - dzialalnosc skilli toggle` - `Combat`, `Core / Architecture`, `UI / UX`, `Content / Data`
-  - Toggle ma aktywacje ograniczona do raz na ture, darmowe wylaczenie, upkeep zasobu oraz natychmiastowe usuwanie efektow po wylaczeniu lub smierci wlasciciela.
 - `[P1] Combat v3 - mechanika sztyletow Scouta` - `Combat`, `Content / Data`, `Design / Systems`
-  - Scout ma limit `5` sztyletow resetowany na poczatku walki; skille z `Knife Cost` zuzywaja sztylety, upuszczaja je obok celu, a wejscie na pole odzyskuje zasob; licznik jest widoczny na pasku skilli.
 
 - `[P1] Combat v3 - rozszerzyc execution pipeline skilli` - `Combat`, `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Efekty: modyfikator AP na jedna nastepna ture; przyspieszenie/spowolnienie ruchu przez zmiane AV o `x% * maxAV`; blokada wszystkich dodatnich gainow zasobu; OnHit `StatusEffect`; LifeSteal i ResourceDrain; `TimesDamage`; `BonusDamageMultiplierChance` z osobnym rzutem dla kazdego hitu.
-  - Dodano `UniqueBuffTypes`: gwarantowany crit nastepnego damage, gwarantowany unik nastepnej obrony, zawsze maksymalny damage oraz rozszerzalny model kolejnych unikalnych buffow.
-  - Obsluga przejmowania czesci obrazen przeciwnika, opcjonalnie z mitygacja po przejeciu; kosztu zdrowia z przeliczeniem na odzysk zasobu; tarczy od procentu average attack; `ModifyResistance`; AuraBuff/AuraStatus.
-  - Warunkowe buffy: zalezne od sasiednich sojusznikow, progu wydanego zasobu, pozostajacej tarczy i innych warunkow runtime. Charge zatrzymuje sie na koncu ruchu.
 
 ### Milestone: UI Workspace v1 — Closed
 
 - `[P2] Dodac glossary i linki do UI Workspace tooltip v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Wspolny `UIWorkspaceTooltipView` obsluguje nazwy i ikony statusow z glossary, linki w tresci oraz zagniezdzone tooltipy z timerem blokady i grace period.
 
 - `[P2] Ujednolicic stack count i zloto w slotach UI Workspace v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - `PF_UIW_ItemSlot` ma opcjonalny `CountLabel` dla stackowalnych itemow, a zloto z ciala jest pierwszym wpisem glownego gridu lootu. Odbior itemu dziala pojedynczym kliknieciem lub drag-and-drop; zloto pozostaje wartoscia runtime, nie `ItemInstance`. Ciala sa tworzone tylko na walkable cells pokoju encountera i zawsze otrzymuja collider interakcji.
 
 - `[P1] UI Workspace v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Items / Inventory / Economy`, `UI / UX`
-  - Zweryfikowano focus, z-order, drag, resize, clamp, transfery, tooltipy, loadout, drzewka oraz persistence; smoke test zaliczony.
 - `[P1] Podpiac generowany equipment do LootTable i tooltipow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - LootTable generuje testowy equipment, a tooltip itemu pokazuje statystyki, wymagania i porownanie z zalozonym itemem.
 - `[P1] Dodac floating loot window ciala v1` - `UI / UX`, `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Core / Architecture`
-  - Okno lootu ciala pokazuje itemy oraz gold w osobnym item slocie. Umozliwia drag-and-drop do otwartego Character Info z walidacja wagi i zachowaniem `instanceId`; double-click odbiera item aktywna postacia. Zakres obejmuje tylko eksploracje po walce: bez lootowania cial w combat i bez kosztu AP. Ownerem mutacji pozostaje system lootu/inventory.
 
 - `[P1] Przeniesc drzewka umiejetnosci do UI Workspace i dopracowac UX v2` - `UI / UX`, `Design / Systems`, `Core / Architecture`
-  - Zastapic panel drzewek floating window zgodnym z design systemem, otwieranym buttonem z Character Info. Dodac tooltip node'a, czytelne requirementy i powody blokady, disabled states oraz pelne drzewko widoczne jednoczesnie bez scrolla. Rysowac polaczenia prerequisite'ow; progi tierow pokazywac jako obramowania grup `3-4` (`0/10`), `5-6` (`0/20`) i `7` (`0/30`), znikajace po spelnieniu warunku.
 
 - `[P1] Przeniesc skill loadout do UI Workspace v1` - `UI / UX`, `Combat`, `Core / Architecture`
-  - Zastapic modal loadoutu niezaleznym floating window zgodnym z design systemem, otwieranym buttonem z Character Info; zachowac drag-and-drop, pinned basic attack, walidacje slotow i blokade zmian podczas walki.
 
 - `[P1] Dodac wspolne tooltipy UI Workspace v1` - `UI / UX`, `Core / Architecture`, `Items / Inventory / Economy`, `Combat`
-  - Tooltipy przy hoverze itemow, skilli i pojec systemowych maja uzywac wspolnego template'u, renderowac sie nad oknami i pokazywac statystyki/wymagania itemu zamiast osobnego inspect panelu.
 
 - `[P1] Dodac transfer drag-and-drop miedzy Character Info v1` - `UI / UX`, `Items / Inventory / Economy`, `Core / Architecture`
-  - Umozliwic jednoczesne otwarcie Character Info kilku czlonkow druzyny oraz transfer itemow drag-and-drop miedzy ich inventory z walidacja wagi i bez zmiany `instanceId`; widoki wysylaja intencje, a ownerem transferu pozostaje system inventory.
 
 - `[P1] Dodac Character Info floating window v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
-  - Niezalezne okno per postac otwierane kliknieciem portretu z party railu i innych UI. Centrum zajmuje portret; wokol niego sa kwadratowe sloty equipmentu z ikonami. Lewa kolumna pokazuje name/class, level/XP, HP i resource, runtime combat stats, resistances, Honor i dostepnosc. Prawa kolumna to inventory z wyszukiwarka, itemami oraz laczna waga i gold na dole. Ma odswiezac dane po zmianie inventory/equipment i wspolistniec z innymi oknami.
 
 - `[P1] Dodac fundament floating windows v1` - `UI / UX`, `Core / Architecture`
-  - Wspolny window chrome zgodny z design systemem: drag przez titlebar, resize, focus, z-order, clamp do ekranu, close i routing inputu; bez migracji istniejacych paneli w tej karcie.
 
 - `[P1] Ustandaryzowac design system i template paneli v1` - `UI / UX`, `Core / Architecture`, `Tools / Editor / Debug`
-  - Zdefiniowac wspolne palette kolorow, typografie, spacing, obramowki, hover/disabled states, ikony i prefab/template UGUI dla paneli. Nowe okna maja korzystac z tych samych tokenow i komponentow zamiast tworzyc lokalne, niespojne style.
-  - Utworzyc utrzymywany katalog template'ow: nazwa, przeznaczenie, warianty, hierarchia, wymagane komponenty, przyklady uzycia i ograniczenia. Katalog ma okreslac, kiedy reuse'owac istniejacy template, kiedy zlozyc panel z kilku template'ow, a kiedy uzasadnione jest dodanie nowego.
 
 - `[P1] Rewards and Progression v2 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture`, `Combat`, `Items / Inventory / Economy`, `UI / UX`
-  - Pokryc testami XP/Honor/escape, growth, drzewka i loadout, persistencje cial i lootow oraz deterministyczne generowanie equipmentu.
 
 - `[P1] Dodac generowanie broni i pancerzy z czesci v1` - `Items / Inventory / Economy`, `Content / Data`, `Design / Systems`
-  - Generator buduje bron albo pancerz z trzech czesci, zachowuje quality, rarity, level, wymagania i payload po save/load; bez craftingu, upgrade'ow i galdurytow.
 - `[P1] Dodac runtime oraz zapis inwestycji w skill tree v1` - `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Zdefiniowac trzy drzewka, node'y, prerequisite'y, limity punktow i odblokowania poziomow drzewka; bez wykonywania efektow node'ow.
 - `[P1] Dodac trwale ciala i interakcje z lootem w lochu v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Core / Architecture`
-  - Ciala zachowuja nieodebrany loot po walce i save/load; aktualnie sterowana postac podnosi znalezione itemy kliknieciem, a gold trafia do puli kampanii.
 - `[P1] Rozbic combat rewards na indywidualny loot przeciwnikow v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Core / Architecture`
-  - XP i Honor naliczac automatycznie za victory (`+1 Honor` za pokonanego przeciwnika dla aktywnej postaci); gold i itemy przypisac do konkretnych cial. Escape nie daje nagrod i obniza Honor o `5`.
 - `[P1] Dodac modal loadoutu i zamiane aktywnych skilli v1` - `UI / UX`, `Combat`
-  - Poza walka umozliwic drag-and-drop skillow miedzy slotami oraz natychmiast odswiezyc HUD kolejnej walki.
 - `[P1] Dodac skalowalny model loadoutu aktywnych skilli v1` - `Core / Architecture`, `Combat`, `Design / Systems`
-  - Walidowac limit `5 + modyfikatory`, nie dopuszczac duplikatow i zachowac obligatoryjny basic attack w loadoucie.
 - `[P1] Dodac UI progresji i wydawania punktow v1` - `UI / UX`, `Core / Architecture`, `Design / Systems`
-  - Poza walka pokazac XP, level, dostepne punkty i trzy drzewka; inwestycja zmienia tylko stan progresji do czasu implementacji efektow node'ow.
 - `[P1] Dodac GrowthData klas i automatyczny wzrost statystyk v1` - `Core / Architecture`, `Content / Data`, `Design / Systems`
-  - Oprzec wzrost o dane klas z `Statystyki Postaci.xlsx`, level bandy oraz przeliczanie po wielokrotnym level-upie i restore save.
 - `[P1] Dodac status indicators i tooltipy v1` - `UI / UX`, `Combat`
 - `[P2] Dodac wizualne stany obiektow i jednostek v1` - `UI / UX`, `Combat`, `World / Dungeon / Exploration`
 - `[P1] Przebudowac feedback ruchu i targetowania v1` - `UI / UX`, `Combat`
@@ -296,12 +317,12 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Dodać testy reguł obrażeń i odporności` — `Combat`
 - `[P1] Dodać wspólny CombatDamageSystem v1` — `Combat`
 - `[P2] Dodać ApplyStatus effect v1` — `Combat`
-- `[P2] DoprecyzowaÄ‡ uproszczone zasady statusu Bleed v1` â€” `Design / Systems`
-- `[P1] DodaÄ‡ debug button Start Combat` â€” `Tools / Editor / Debug`
-- `[P1] PrzygotowaÄ‡ bazowy bootstrap i game flow` â€” `Core / Architecture`
-- `[P1] UtworzyÄ‡ scenÄ™ Bootstrap` â€” `Core / Architecture`
-- `[P2] DodaÄ‡ inspect celu v1` â€” `UI / UX`
-- `[P2] DodaÄ‡ highlight celu umiejÄ™tnoÅ›ci` â€” `UI / UX`
+- `[P2] Doprecyzować uproszczone zasady statusu Bleed v1` — `Design / Systems`
+- `[P1] Dodać debug button Start Combat` — `Tools / Editor / Debug`
+- `[P1] Przygotować bazowy bootstrap i game flow` — `Core / Architecture`
+- `[P1] Utworzyć scenę Bootstrap` — `Core / Architecture`
+- `[P2] Dodać inspect celu v1` — `UI / UX`
+- `[P2] Dodać highlight celu umiejętności` — `UI / UX`
 - `[P1] Dodać CombatSession` — `Combat`
 - `[P1] Dodać BattleUnit` — `Combat`
 - `[P1] Dodać BattleGrid` — `Combat`
@@ -333,45 +354,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 - `[P1] Spisać konwencje ID, nazw i podziału Data / Runtime / View / System` — `Design / Systems`
 - `[P1] Dodać bazowe enumy i typy wspólne` — `Core / Architecture`
 - `[P2] Dodać klikany ruch po gridzie i highlight osiągalnych pól` — `UI / UX`
-
-## Backlog
-
-### Milestone: Playable Dungeon Loop v1
-
-Zamkniety: zobacz sekcje `Done`.
-
-### Pozniej: rozbudowa danych lochow
-- `[P2] Dodac semantyczne content anchors do DungeonRoomTemplate` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-  - Szablon pokoju definiuje dozwolone punkty/obszary dla skrzyn, przeszkod, pulapek i encounterow.
-  - Pozwala tworzyc recznie zaprojektowane sytuacje, np. nagrode na koncu waskiego przejscia za przeszkodami lub walka.
-
-### Milestone: Save and Load v1
-
-- `[P1] Dodac GameSaveData DTO i JSON serialization v1` - `Core / Architecture` - Done
-- `[P1] Dodac snapshoty runtime dla postaci, inventory i itemow v1` - `Core / Architecture`, `Items / Inventory / Economy` - Done
-- `[P1] Zapisywac questy, world flags oraz stan NPC v1` - `Core / Architecture`, `NPC / Quest / Dialogue` - Done
-- `[P1] Dodac GameContentCatalog v1` - `Core / Architecture`, `Content / Data` - Done
-- `[P1] Dodac API restore dla Quest i Dungeon runtime v1` - `Core / Architecture`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration` - Done
-- `[P1] Dodac GameSession restore factory v1` - `Core / Architecture`, `Content / Data`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `World / Dungeon / Exploration` - Done
-- `[P1] Dodac SaveManager oraz manual save/load v1` - `Core / Architecture`, `UI / UX` - Done
-- `[P1] Zapisywac party, inventory, quest/world flags i dungeon deltas v1` - `Core / Architecture`, `World / Dungeon / Exploration` - Done
-- `[P2] Dodac autosave po wejsciu/wyjsciu z lochu i po ukonczeniu questa v1` - `Core / Architecture` - Done
-- `[P1] Dodac CampaignId i strukture katalogow zapisow v1` - `Core / Architecture` - Done
-- `[P1] Dodac liste oraz zarzadzanie zapisami kampanii v1` - `Core / Architecture`, `UI / UX` - Done
-- `[P1] Dodac menu pauzy i UI zapisow v1` - `UI / UX`, `Core / Architecture` - Done
-- `[P1] Save and Load v1 - acceptance pass` - `Tools / Editor / Debug`, `Core / Architecture` - Done
-
-### Milestone: Dungeon Combat Integration v1
-
-Zamkniety: zobacz sekcje `Done`.
-
-
-### Combat Core v2
-- `[P1] Combat Core v2 - acceptance pass` - `Combat`, `Tools / Editor / Debug`, `UI / UX`
-
-## Sprint: Combat Sandbox - domkniecie vertical slice
-
-Zamkniety: zobacz sekcje `Done`.
 
 ## Git checkpoints
 

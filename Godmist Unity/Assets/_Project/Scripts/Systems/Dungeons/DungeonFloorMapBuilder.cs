@@ -83,18 +83,22 @@ namespace Godmist.Systems.Dungeons
                         $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
                 }
 
-                for (var x = 0; x < template.SizeInCells.x; x++)
-                {
-                    for (var y = 0; y < template.SizeInCells.y; y++)
-                    {
-                        var cell = room.LayoutPosition
-                                   + new Vector2Int(x, y);
+                var footprint = template.Footprint ?? new DungeonRoomFootprint();
+                footprint.Validate(
+                    template.SizeInCells,
+                    template.Id);
 
-                        if (!map.TryAddFloorCell(cell, room.RoomId))
-                        {
-                            throw new InvalidOperationException(
-                                $"Komorka {cell} nalezy do wiecej niz jednego pokoju.");
-                        }
+                foreach (var localCell in DungeonRoomTransformUtility
+                             .EnumerateTransformedFootprint(
+                                 template,
+                                 room.RotationDegrees))
+                {
+                    var cell = room.LayoutPosition + localCell;
+
+                    if (!map.TryAddFloorCell(cell, room.RoomId))
+                    {
+                        throw new InvalidOperationException(
+                            $"Komorka {cell} nalezy do wiecej niz jednego pokoju.");
                     }
                 }
             }
@@ -210,8 +214,16 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    var firstCell = room.LayoutPosition + anchor.LocalCell;
-                    var secondCell = firstCell + anchor.GetDirectionOffset();
+                    var firstCell = room.LayoutPosition
+                                    + DungeonRoomTransformUtility.TransformCell(
+                                        anchor.LocalCell,
+                                        template.SizeInCells,
+                                        room.RotationDegrees);
+                    var secondCell = firstCell
+                                     + DungeonRoomTransformUtility.GetDirectionOffset(
+                                         DungeonRoomTransformUtility.TransformDirection(
+                                             anchor.Direction,
+                                             room.RotationDegrees));
 
                     if (!map.IsWalkable(firstCell)
                         || !map.IsWalkable(secondCell))

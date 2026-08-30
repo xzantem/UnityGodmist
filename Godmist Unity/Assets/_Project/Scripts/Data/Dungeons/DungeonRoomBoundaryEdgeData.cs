@@ -1,0 +1,40 @@
+using System;
+using Godmist.Core.Enums;
+using UnityEngine;
+
+namespace Godmist.Data.Dungeons
+{
+    [Serializable]
+    public class DungeonRoomBoundaryEdgeData
+    {
+        [field: SerializeField]
+        public Vector2Int LocalCell { get; private set; }
+
+        [field: SerializeField]
+        public DungeonEdgeDirection Direction { get; private set; }
+
+        public DungeonRoomBoundaryEdgeData()
+        {
+        }
+
+        public DungeonRoomBoundaryEdgeData(
+            Vector2Int localCell,
+            DungeonEdgeDirection direction)
+        {
+            LocalCell = localCell;
+            Direction = direction;
+        }
+
+        public Vector2Int GetDirectionOffset()
+        {
+            return Direction switch
+            {
+                DungeonEdgeDirection.Up => Vector2Int.up,
+                DungeonEdgeDirection.Right => Vector2Int.right,
+                DungeonEdgeDirection.Down => Vector2Int.down,
+                DungeonEdgeDirection.Left => Vector2Int.left,
+                _ => Vector2Int.zero
+            };
+        }
+    }
+}

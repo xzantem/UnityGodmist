@@ -39,6 +39,8 @@ namespace Godmist.Views.Combat
         private int cachedInspectedMaxActionPoints;
         private bool inspectedRangeVisible;
 
+        public bool ConsumedPrimaryClickThisFrame { get; private set; }
+
         private void Awake()
         {
             if (worldCamera == null)
@@ -54,6 +56,8 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            ConsumedPrimaryClickThisFrame = false;
+
             if (DevConsoleView.IsOpen)
             {
                 ClearHighlights();
@@ -122,6 +126,7 @@ namespace Godmist.Views.Combat
                 if (sandboxBootstrap.TryMoveActiveUnitAlongPath(path))
                 {
                     cacheValid = false;
+                    ConsumedPrimaryClickThisFrame = true;
                 }
 
                 return;
@@ -130,7 +135,17 @@ namespace Godmist.Views.Combat
             if (sandboxBootstrap.TryInteractAt(destination))
             {
                 cacheValid = false;
+                ConsumedPrimaryClickThisFrame = true;
             }
+        }
+
+        public bool IsReachableDestination(GridPosition position)
+        {
+            if (!HasControllableUnit()) return false;
+
+            return sandboxBootstrap
+                .GetActiveUnitMovementPaths()
+                .ContainsKey(position);
         }
 
         private bool HasControllableUnit()

@@ -68,7 +68,15 @@ namespace Godmist.Views.Exploration
 
             partyController.Initialize(session, characterViews);
 
-            if (session.ActiveDungeon != null && session.ActiveDungeon.HasPlayerPosition)
+            if (session.ActiveDungeon != null
+                && session.ActiveDungeon.HasPendingPlayerPartyPositions)
+            {
+                partyController.RestorePartyPositions(
+                    session.ActiveDungeon.PendingPlayerPartyPositions,
+                    session.ActiveDungeon.PlayerPosition);
+                session.ActiveDungeon.ClearPendingPlayerPartyPositions();
+            }
+            else if (session.ActiveDungeon != null && session.ActiveDungeon.HasPlayerPosition)
             {
                 partyController.RestorePartyFormation(session.ActiveDungeon.PlayerPosition);
             }

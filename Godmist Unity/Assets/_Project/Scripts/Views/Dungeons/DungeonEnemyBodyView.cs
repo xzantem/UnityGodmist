@@ -3,12 +3,14 @@ using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 namespace Godmist.Views.Dungeons
 {
@@ -23,6 +25,7 @@ namespace Godmist.Views.Dungeons
         private DungeonFloorInstance floor;
         private DungeonEnemyBodyInstance body;
         private DungeonLootWindowView lootWindowPrefab;
+        private Tilemap floorTilemap;
         private Material outlineMaterial;
         private bool isPointerHovered;
 
@@ -31,7 +34,8 @@ namespace Godmist.Views.Dungeons
             DungeonFloorInstance nextFloor,
             DungeonEnemyBodyInstance nextBody,
             Vector3 worldPosition,
-            DungeonLootWindowView nextLootWindowPrefab = null)
+            DungeonLootWindowView nextLootWindowPrefab = null,
+            Tilemap nextFloorTilemap = null)
         {
             if (nextFloor == null
                 || nextBody == null
@@ -46,6 +50,7 @@ namespace Godmist.Views.Dungeons
             floor = nextFloor;
             body = currentBody;
             lootWindowPrefab = nextLootWindowPrefab;
+            floorTilemap = nextFloorTilemap;
             transform.position = worldPosition;
             ConfigureVisual();
         }
@@ -61,6 +66,25 @@ namespace Godmist.Views.Dungeons
             }
 
             RefreshHoverVisual();
+
+            var pointerOverBody = IsPointerOverThisBody();
+
+            if (pointerOverBody != isPointerHovered)
+            {
+                isPointerHovered = pointerOverBody;
+                RefreshHoverVisual();
+            }
+
+            if (!pointerOverBody
+                || !Input.GetMouseButtonDown(0)
+                || UIWorkspaceInputRouter.IsPointerOverUi()
+                || DevConsoleView.IsOpen
+                || !CanInteract())
+            {
+                return;
+            }
+
+            Interact();
         }
 
         private void OnEnable()
@@ -71,28 +95,6 @@ namespace Godmist.Views.Dungeons
         private void OnDisable()
         {
             DungeonLootWindowView.LootClaimed -= HandleLootClaimed;
-        }
-
-        private void OnMouseEnter()
-        {
-            isPointerHovered = true;
-            RefreshHoverVisual();
-        }
-
-        private void OnMouseExit()
-        {
-            isPointerHovered = false;
-            RefreshHoverVisual();
-        }
-
-        private void OnMouseDown()
-        {
-            if (DevConsoleView.IsOpen || !CanInteract())
-            {
-                return;
-            }
-
-            Interact();
         }
 
         public bool CanInteract()
@@ -116,7 +118,19 @@ namespace Godmist.Views.Dungeons
                          - transform.position;
 
             return offset.sqrMagnitude
-                   <= interactionRadius * interactionRadius;
+                   <= interactionRadius * interactionRadius
+                   && floorTilemap != null
+                   && DungeonExplorationInteractionUtility.HasDirectAccess(
+                       floor,
+                       ToDungeonCell(
+                           floorTilemap.WorldToCell(
+                               partyController.ActiveLeaderTransform.position)),
+                       body.Position);
+        }
+
+        private static Vector2Int ToDungeonCell(Vector3Int cell)
+        {
+            return new Vector2Int(cell.x, cell.y);
         }
 
         public static bool IsPointerOverBody(Vector2 pointerWorldPosition)
@@ -125,6 +139,30 @@ namespace Godmist.Views.Dungeons
             {
                 if (hit != null
                     && hit.GetComponentInParent<DungeonEnemyBodyView>() != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsPointerOverThisBody()
+        {
+            var worldCamera = Camera.main;
+
+            if (worldCamera == null)
+            {
+                return false;
+            }
+
+            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(
+                Input.mousePosition);
+
+            foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
+            {
+                if (hit != null
+                    && hit.GetComponentInParent<DungeonEnemyBodyView>() == this)
                 {
                     return true;
                 }
@@ -168,11 +206,6 @@ namespace Godmist.Views.Dungeons
 
             body = currentBody;
 
-            if (body.IsEmpty)
-            {
-                floor.TryRemoveEnemyBody(body.InstanceId);
-                Destroy(gameObject);
-            }
         }
 
         private void ConfigureVisual()

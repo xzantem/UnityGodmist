@@ -1,3 +1,4 @@
+using System;
 using Godmist.Core.Enums;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
@@ -12,6 +13,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private KeyCode interactionKey = KeyCode.E;
 
         private ExplorationPartyController partyController;
+        private Action interactionAction;
 
         public void Initialize(
             ExplorationPartyController nextPartyController,
@@ -19,6 +21,17 @@ namespace Godmist.Views.Dungeons
         {
             partyController = nextPartyController;
             transform.position = position;
+            interactionAction = null;
+        }
+
+        public void InitializeTransition(
+            ExplorationPartyController nextPartyController,
+            Vector2 position,
+            Action nextInteractionAction)
+        {
+            partyController = nextPartyController;
+            transform.position = position;
+            interactionAction = nextInteractionAction;
         }
 
         private void Update()
@@ -42,6 +55,12 @@ namespace Godmist.Views.Dungeons
 
             if (offset.sqrMagnitude > interactionRadius * interactionRadius)
             {
+                return;
+            }
+
+            if (interactionAction != null)
+            {
+                interactionAction.Invoke();
                 return;
             }
 

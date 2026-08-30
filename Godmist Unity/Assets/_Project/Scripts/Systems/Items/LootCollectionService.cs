@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
@@ -115,7 +117,7 @@ namespace Godmist.Systems.Items
             if (!TryGetActiveFloorBody(
                     gameSession,
                     bodyInstanceId,
-                    out var floor,
+                    out _,
                     out var body)
                 || !body.TryGetItem(itemInstanceId, out var item))
             {
@@ -137,7 +139,6 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            RemoveBodyIfEmpty(floor, body);
             return true;
         }
 
@@ -175,7 +176,7 @@ namespace Godmist.Systems.Items
             if (!TryGetActiveFloorBody(
                     gameSession,
                     bodyInstanceId,
-                    out var floor,
+                    out _,
                     out var body)
                 || body.Items.Count == 0)
             {
@@ -225,20 +226,49 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            if (!gameSession.TryAddGold(body.Gold))
+            var grantedGold = ApplyActiveLeaderJewelryGoldBonus(
+                gameSession,
+                body.Gold);
+
+            if (!gameSession.TryAddGold(grantedGold))
             {
                 return false;
             }
 
             if (!body.TryClaimGold(out claimedGold))
             {
-                gameSession.TrySpendGold(body.Gold);
+                gameSession.TrySpendGold(grantedGold);
                 claimedGold = 0;
                 return false;
             }
 
-            RemoveBodyIfEmpty(floor, body);
             return true;
+        }
+
+        private static int ApplyActiveLeaderJewelryGoldBonus(
+            GameSession gameSession,
+            int gold)
+        {
+            if (gold <= 0
+                || !gameSession.CharactersById.TryGetValue(
+                    gameSession.PlayerParty.ActiveLeaderId,
+                    out var leader))
+            {
+                return gold;
+            }
+
+            var bonus = 0f;
+            foreach (var item in leader.Equipment?.GetEquippedItems()
+                         ?? new List<EquipmentItemInstance>())
+            {
+                if (item is JewelryItemInstance jewelry
+                    && jewelry.PassiveType == JewelryPassiveType.GoldGainPercent)
+                {
+                    bonus += jewelry.PassiveValue;
+                }
+            }
+
+            return Math.Max(0, (int)Math.Round(gold * (1f + bonus)));
         }
 
         public bool TryClaimBodyGold(
@@ -250,6 +280,64 @@ namespace Godmist.Systems.Items
                 gameSession,
                 bodyInstanceId,
                 out claimedGold);
+        }
+
+        public bool TryClaimDungeonChestItem(
+            GameSession gameSession,
+            string chestInstanceId,
+            string itemInstanceId)
+        {
+            if (!TryGetActiveLeaderCharacterId(gameSession, out var characterId))
+            {
+                return false;
+            }
+
+            return TryClaimDungeonChestItem(
+                gameSession,
+                chestInstanceId,
+                characterId,
+                itemInstanceId);
+        }
+
+        public bool TryClaimDungeonChestItem(
+            GameSession gameSession,
+            string chestInstanceId,
+            string characterId,
+            string itemInstanceId)
+        {
+            if (!TryGetCharacterInventory(
+                    gameSession,
+                    characterId,
+                    out var characterInventory))
+            {
+                return false;
+            }
+
+            if (!TryGetActiveFloorChest(
+                    gameSession,
+                    chestInstanceId,
+                    out var chest)
+                || !chest.TryGetItem(itemInstanceId, out var item))
+            {
+                return false;
+            }
+
+            if (!inventoryService.TryAddItem(characterInventory, item))
+            {
+                return false;
+            }
+
+            if (!chest.TryClaimItem(itemInstanceId, out _))
+            {
+                inventoryService.TryRemoveItem(
+                    characterInventory,
+                    itemInstanceId,
+                    out _);
+
+                return false;
+            }
+
+            return true;
         }
 
         private static bool TryGetActiveLeaderInventory(
@@ -336,13 +424,27 @@ namespace Godmist.Systems.Items
             return true;
         }
 
-        private static void RemoveBodyIfEmpty(
-            DungeonFloorInstance floor,
-            DungeonEnemyBodyInstance body)
+        private static bool TryGetActiveFloorChest(
+            GameSession gameSession,
+            string chestInstanceId,
+            out ChestDungeonObjectInstance chest)
         {
-            if (floor == null || body == null || !body.IsEmpty) return;
+            chest = null;
 
-            floor.TryRemoveEnemyBody(body.InstanceId);
+            if (gameSession?.ActiveDungeon == null
+                || gameSession.CurrentMode != GameModeState.Exploration
+                || gameSession.ActiveCombat != null
+                || !gameSession.ActiveDungeon.TryGetCurrentFloor(out var floor)
+                || !floor.TryGetObject(chestInstanceId, out var dungeonObject)
+                || dungeonObject is not ChestDungeonObjectInstance currentChest
+                || !currentChest.IsUnlocked)
+            {
+                return false;
+            }
+
+            chest = currentChest;
+            return true;
         }
+
     }
 }

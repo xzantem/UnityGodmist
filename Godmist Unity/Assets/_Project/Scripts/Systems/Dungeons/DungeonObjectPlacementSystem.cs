@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
+using Godmist.Runtime.Game;
 using Godmist.Systems.Items;
 using UnityEngine;
 
@@ -14,38 +16,34 @@ namespace Godmist.Systems.Dungeons
         private const int ObjectPlacementSeedSalt =
             unchecked((int)0x5F3759DF);
 
-        private static readonly Vector2Int[] cardinalDirections =
-        {
-            Vector2Int.up,
-            Vector2Int.right,
-            Vector2Int.down,
-            Vector2Int.left
-        };
-
         public void Place(
             DungeonInstance dungeon,
             IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
         {
             if (dungeon == null || dungeon.Definition == null) return;
 
+            LootTableData themedChestLootTable = null;
+            var hasThemedChestLootTable =
+                dungeon.Definition.LootTableCatalog != null
+                && dungeon.Definition.LootTableCatalog.TryGetChestLootTable(
+                    dungeon.Definition.Theme,
+                    dungeon.DungeonLevel,
+                    out themedChestLootTable);
+
             var objectDefinitions = GetValidObjectDefinitions(
-                dungeon.Definition.ObjectDefinitions);
+                dungeon.Definition.ObjectDefinitions,
+                hasThemedChestLootTable ? themedChestLootTable : null);
 
             var doorDefinitions = GetValidDoorDefinitions(
                 dungeon.Definition.ObjectDefinitions);
-
-            if (objectDefinitions.Count == 0
-                && doorDefinitions.Count == 0)
-            {
-                return;
-            }
 
             var random = new System.Random(
                 dungeon.Seed ^ ObjectPlacementSeedSalt);
 
             var lootTableSystem = new LootTableSystem(
                 random,
-                equipmentParts);
+                equipmentParts,
+                lootLevel: dungeon.DungeonLevel);
 
             foreach (var floor in dungeon.Floors)
             {
@@ -56,19 +54,118 @@ namespace Godmist.Systems.Dungeons
                     continue;
                 }
 
-                PlaceDoorsOnFloor(
-                    dungeon,
-                    floor,
-                    doorDefinitions,
-                    random);
+                if (doorDefinitions.Count > 0)
+                {
+                    PlaceDoorsOnFloor(
+                        dungeon,
+                        floor,
+                        doorDefinitions,
+                        random);
+                }
 
-                PlaceObjectsOnFloor(
-                    dungeon,
-                    floor,
-                    objectDefinitions,
-                    lootTableSystem,
-                    random);
+                if (objectDefinitions.Count > 0)
+                {
+                    PlaceObjectsOnFloor(
+                        dungeon,
+                        floor,
+                        objectDefinitions,
+                        lootTableSystem,
+                        random,
+                        hasThemedChestLootTable
+                            ? themedChestLootTable
+                            : null);
+                }
+
+                if (!BindProgressionObjects(floor))
+                {
+                    throw new InvalidOperationException(
+                        $"Nie udalo sie przypisac wszystkich obiektow progresji "
+                        + $"na pietrze {floor.FloorIndex}.");
+                }
             }
+        }
+
+        private static bool BindProgressionObjects(DungeonFloorInstance floor)
+        {
+            if (floor == null) return false;
+
+            foreach (var connection in floor.Connections)
+            {
+                if (connection == null
+                    || !connection.HasProgressionGate
+                    || string.IsNullOrWhiteSpace(connection.RequiredBranchRoomId))
+                {
+                    continue;
+                }
+
+                var sourceIds = new List<string>();
+
+                foreach (var dungeonObject in floor.Objects)
+                {
+                    var isProgressionSource =
+                        dungeonObject is LeverDungeonObjectInstance
+                        || (dungeonObject is ConditionDungeonObjectInstance
+                            && dungeonObject.IsProgressionRequirement);
+
+                    if (!isProgressionSource
+                        || !floor.Map.TryGetRoomId(
+                            dungeonObject.Position,
+                            out var roomId)
+                        || !string.Equals(
+                            roomId,
+                            connection.RequiredBranchRoomId,
+                            StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var bound = dungeonObject switch
+                    {
+                        LeverDungeonObjectInstance lever =>
+                            lever.TryBindCondition(
+                                connection.ProgressionConditionId),
+                        ConditionDungeonObjectInstance condition =>
+                            condition.TryBindCondition(
+                                connection.ProgressionConditionId),
+                        _ => false
+                    };
+
+                    if (!bound)
+                    {
+                        return false;
+                    }
+
+                    sourceIds.Add(dungeonObject.InstanceId);
+                }
+
+                if (!connection.TrySetProgressionRequirementSources(sourceIds))
+                {
+                    return false;
+                }
+
+                foreach (var dungeonObject in floor.Objects)
+                {
+                    var isSatisfied = dungeonObject switch
+                    {
+                        LeverDungeonObjectInstance lever => lever.IsActivated,
+                        ConditionDungeonObjectInstance condition =>
+                            condition.IsSatisfied,
+                        _ => false
+                    };
+
+                    if (!isSatisfied
+                        || !sourceIds.Contains(dungeonObject.InstanceId))
+                    {
+                        continue;
+                    }
+
+                    floor.TrySatisfyProgressionCondition(
+                        connection.ProgressionConditionId,
+                        dungeonObject.InstanceId);
+                }
+            }
+
+            return true;
         }
 
         private static void PlaceDoorsOnFloor(
@@ -139,8 +236,16 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    var firstCell = room.LayoutPosition + anchor.LocalCell;
-                    var secondCell = firstCell + anchor.GetDirectionOffset();
+                    var firstCell = room.LayoutPosition
+                                    + DungeonRoomTransformUtility.TransformCell(
+                                        anchor.LocalCell,
+                                        template.SizeInCells,
+                                        room.RotationDegrees);
+                    var secondCell = firstCell
+                                     + DungeonRoomTransformUtility.GetDirectionOffset(
+                                         DungeonRoomTransformUtility.TransformDirection(
+                                             anchor.Direction,
+                                             room.RotationDegrees));
 
                     if (!floor.Map.IsWalkable(firstCell)
                         || !floor.Map.IsWalkable(secondCell))
@@ -195,20 +300,79 @@ namespace Godmist.Systems.Dungeons
             DungeonFloorInstance floor,
             List<DungeonObjectDefinition> definitions,
             LootTableSystem lootTableSystem,
-            System.Random random)
+            System.Random random,
+            LootTableData themedChestLootTable)
         {
             if (definitions.Count == 0) return;
 
-            var candidatePositions = GetCandidatePositions(floor);
+            var semanticResolver = new DungeonSemanticAnchorResolver();
+            var semanticCandidates = semanticResolver.GetCandidates(
+                floor,
+                dungeon.Definition.RoomTemplateCatalog,
+                new[]
+                {
+                    DungeonSemanticAnchorType.Chest,
+                    DungeonSemanticAnchorType.Obstacle,
+                    DungeonSemanticAnchorType.Trap,
+                    DungeonSemanticAnchorType.Lever,
+                    DungeonSemanticAnchorType.Condition,
+                    DungeonSemanticAnchorType.Reward
+                },
+                roomType => IsEligibleRoomType(roomType)
+                    || roomType == DungeonRoomType.Corridor);
 
-            if (candidatePositions.Count == 0) return;
+            semanticCandidates = semanticCandidates.FindAll(
+                IsEligibleSemanticCandidate);
 
-            candidatePositions.Sort(ComparePositions);
-            Shuffle(candidatePositions, random);
+            semanticCandidates = semanticCandidates.FindAll(candidate =>
+                GetDefinitionsForAnchorType(
+                    definitions,
+                    candidate.Anchor.Type).Count > 0);
 
+            var reservedEnemyCells = new DungeonEnemyAnchorResolver()
+                .GetReservedCells(
+                    floor,
+                    dungeon.Definition.RoomTemplateCatalog);
+
+            semanticCandidates = semanticCandidates.FindAll(candidate =>
+                candidate.Cells.All(cell => !reservedEnemyCells.Contains(cell)));
+
+            if (semanticCandidates.Count == 0)
+            {
+                if (dungeon.Definition.MinObjectCountPerFloor > 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Pietro {floor.FloorIndex} nie ma uzytecznych kotew "
+                        + "semantycznych dla skonfigurowanych obiektow.");
+                }
+
+                return;
+            }
+
+            PlaceAnchoredObjects(
+                dungeon,
+                floor,
+                definitions,
+                lootTableSystem,
+                random,
+                semanticResolver,
+                semanticCandidates,
+                themedChestLootTable);
+        }
+
+        private static void PlaceAnchoredObjects(
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            List<DungeonObjectDefinition> definitions,
+            LootTableSystem lootTableSystem,
+            System.Random random,
+            DungeonSemanticAnchorResolver semanticResolver,
+            List<DungeonSemanticAnchorPlacement> candidates,
+            LootTableData themedChestLootTable)
+        {
             var maximumCount = Mathf.Min(
                 dungeon.Definition.MaxObjectCountPerFloor,
-                candidatePositions.Count);
+                candidates.Count);
 
             if (maximumCount <= 0) return;
 
@@ -216,33 +380,106 @@ namespace Godmist.Systems.Dungeons
                 dungeon.Definition.MinObjectCountPerFloor,
                 maximumCount);
 
-            var objectCount = minimumCount == maximumCount
-                ? minimumCount
-                : random.Next(minimumCount, maximumCount + 1);
+            var selectedAnchors = semanticResolver.Select(
+                candidates,
+                minimumCount,
+                maximumCount,
+                random);
 
-            for (var index = 0; index < objectCount; index++)
+            for (var index = 0; index < selectedAnchors.Count; index++)
             {
-                var definition = SelectDefinition(definitions, random);
+                var selectedAnchor = selectedAnchors[index];
+                var matchingDefinitions = GetDefinitionsForAnchorType(
+                    definitions,
+                    selectedAnchor.Anchor.Type);
+
+                if (matchingDefinitions.Count == 0) continue;
+
+                var position = GetAvailableAnchorPosition(
+                    floor,
+                    selectedAnchor.Cells,
+                    random);
+
+                if (!position.HasValue) continue;
+
+                var definition = SelectDefinition(matchingDefinitions, random);
 
                 if (definition == null) continue;
 
                 var instanceId =
-                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.object_{index:00}";
+                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}."
+                    + $"object_{index:00}";
 
                 var dungeonObject = CreateObjectInstance(
                     instanceId,
                     definition,
-                    candidatePositions[index],
-                    lootTableSystem);
+                    position.Value,
+                    lootTableSystem,
+                    themedChestLootTable,
+                    selectedAnchor.Anchor.ActivationGroupId,
+                    selectedAnchor.Room.IsRequiredProgressionRoom
+                    && (selectedAnchor.Anchor.Type
+                        == DungeonSemanticAnchorType.Lever
+                        || selectedAnchor.Anchor.Type
+                           == DungeonSemanticAnchorType.Condition));
 
-                if (dungeonObject == null) continue;
-
-                floor.TryAddObject(dungeonObject);
+                if (dungeonObject != null)
+                {
+                    floor.TryAddObject(dungeonObject);
+                }
             }
         }
 
+        private static List<DungeonObjectDefinition> GetDefinitionsForAnchorType(
+            List<DungeonObjectDefinition> definitions,
+            DungeonSemanticAnchorType anchorType)
+        {
+            var result = new List<DungeonObjectDefinition>();
+
+            foreach (var definition in definitions)
+            {
+                if ((anchorType == DungeonSemanticAnchorType.Chest
+                     && definition is ChestDungeonObjectDefinition)
+                    || (anchorType == DungeonSemanticAnchorType.Obstacle
+                        && definition is ObstacleDungeonObjectDefinition)
+                    || (anchorType == DungeonSemanticAnchorType.Trap
+                        && definition is SpikeTrapDungeonObjectDefinition)
+                    || (anchorType == DungeonSemanticAnchorType.Lever
+                        && definition is LeverDungeonObjectDefinition)
+                    || ((anchorType == DungeonSemanticAnchorType.Condition
+                         || anchorType == DungeonSemanticAnchorType.Reward)
+                        && definition is ConditionDungeonObjectDefinition))
+                {
+                    result.Add(definition);
+                }
+            }
+
+            return result;
+        }
+
+        private static Vector2Int? GetAvailableAnchorPosition(
+            DungeonFloorInstance floor,
+            IReadOnlyList<Vector2Int> cells,
+            System.Random random)
+        {
+            var candidates = new List<Vector2Int>(cells);
+            candidates.Sort(ComparePositions);
+            Shuffle(candidates, random);
+
+            foreach (var candidate in candidates)
+            {
+                if (!IsOccupiedByDungeonObject(floor, candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
         private static List<DungeonObjectDefinition> GetValidObjectDefinitions(
-            List<DungeonObjectDefinition> objectDefinitions)
+            List<DungeonObjectDefinition> objectDefinitions,
+            LootTableData themedChestLootTable)
         {
             var result = new List<DungeonObjectDefinition>();
 
@@ -259,7 +496,16 @@ namespace Godmist.Systems.Dungeons
                 }
 
                 if (definition is ChestDungeonObjectDefinition chest
-                    && chest.LootTable == null)
+                    && chest.LootTable == null
+                    && themedChestLootTable == null)
+                {
+                    continue;
+                }
+
+                if (definition is ChestDungeonObjectDefinition lockedChest
+                    && lockedChest.LockType != ChestLockType.Unlocked
+                    && (lockedChest.RequiredKey == null
+                        || lockedChest.RequiredKey.ItemType != ItemType.Key))
                 {
                     continue;
                 }
@@ -316,39 +562,20 @@ namespace Godmist.Systems.Dungeons
             return result;
         }
 
-        private static List<Vector2Int> GetCandidatePositions(
-            DungeonFloorInstance floor)
-        {
-            var result = new List<Vector2Int>();
-            var encounterRoomIds = new HashSet<string>();
-
-            foreach (var encounter in floor.Encounters)
-            {
-                if (encounter != null)
-                {
-                    encounterRoomIds.Add(encounter.RoomId);
-                }
-            }
-
-            foreach (var cell in floor.Map.FloorCells)
-            {
-                if (!floor.Map.TryGetRoomId(cell, out var roomId)) continue;
-                if (encounterRoomIds.Contains(roomId)) continue;
-                if (!floor.TryGetRoom(roomId, out var room)) continue;
-                if (!IsEligibleRoomType(room.RoomType)) continue;
-                if (IsPassageCell(floor.Map, cell)) continue;
-                if (IsOccupiedByDungeonObject(floor, cell)) continue;
-
-                result.Add(cell);
-            }
-
-            return result;
-        }
-
         private static bool IsEligibleRoomType(DungeonRoomType roomType)
         {
             return roomType == DungeonRoomType.Normal
                 || roomType == DungeonRoomType.Optional;
+        }
+
+        private static bool IsEligibleSemanticCandidate(
+            DungeonSemanticAnchorPlacement candidate)
+        {
+            if (candidate?.Room == null) return false;
+
+            return IsEligibleRoomType(candidate.Room.RoomType)
+                || candidate.Anchor.Type == DungeonSemanticAnchorType.Trap
+                   && candidate.Room.RoomType == DungeonRoomType.Corridor;
         }
 
         private static bool IsOccupiedByDungeonObject(
@@ -373,32 +600,6 @@ namespace Godmist.Systems.Dungeons
                 {
                     return true;
                 }
-            }
-
-            return false;
-        }
-
-        private static bool IsPassageCell(
-            DungeonFloorMap map,
-            Vector2Int cell)
-        {
-            if (!map.TryGetRoomId(cell, out var roomId)) return false;
-
-            foreach (var direction in cardinalDirections)
-            {
-                var neighbour = cell + direction;
-
-                if (!map.TryGetRoomId(neighbour, out var neighbourRoomId)
-                    || string.Equals(
-                        roomId,
-                        neighbourRoomId,
-                        StringComparison.Ordinal)
-                    || map.HasWallBetween(cell, neighbour))
-                {
-                    continue;
-                }
-
-                return true;
             }
 
             return false;
@@ -437,11 +638,15 @@ namespace Godmist.Systems.Dungeons
             string instanceId,
             DungeonObjectDefinition definition,
             Vector2Int position,
-            LootTableSystem lootTableSystem)
+            LootTableSystem lootTableSystem,
+            LootTableData themedChestLootTable,
+            string activationGroupId,
+            bool isProgressionRequirement = false)
         {
             if (definition is ChestDungeonObjectDefinition chest)
             {
-                var items = lootTableSystem.RollLoot(chest.LootTable);
+                var items = lootTableSystem.RollLoot(
+                    themedChestLootTable ?? chest.LootTable);
 
                 return new ChestDungeonObjectInstance(
                     instanceId,
@@ -456,6 +661,33 @@ namespace Godmist.Systems.Dungeons
                     instanceId,
                     obstacle,
                     position);
+            }
+
+            if (definition is SpikeTrapDungeonObjectDefinition spikeTrap)
+            {
+                return new SpikeTrapDungeonObjectInstance(
+                    instanceId,
+                    spikeTrap,
+                    position,
+                    activationGroupId);
+            }
+
+            if (definition is LeverDungeonObjectDefinition lever)
+            {
+                return new LeverDungeonObjectInstance(
+                    instanceId,
+                    lever,
+                    position,
+                    isProgressionRequirement);
+            }
+
+            if (definition is ConditionDungeonObjectDefinition condition)
+            {
+                return new ConditionDungeonObjectInstance(
+                    instanceId,
+                    condition,
+                    position,
+                    isProgressionRequirement);
             }
 
             return null;
@@ -508,5 +740,119 @@ namespace Godmist.Systems.Dungeons
                 Edge = edge;
             }
         }
+
     }
+
+    public sealed class DungeonChestInteractionService
+        {
+            private readonly InventoryService inventoryService = new();
+
+            public bool TryUnlock(
+                GameSession session,
+                ChestDungeonObjectInstance chest,
+                out string failureReason)
+            {
+                failureReason = string.Empty;
+
+                if (session == null || chest == null)
+                {
+                    failureReason = "Nie można otworzyć skrzyni.";
+                    return false;
+                }
+
+                if (chest.IsUnlocked)
+                {
+                    return true;
+                }
+
+                if (chest.LockType == ChestLockType.KeyRequired
+                    || chest.LockType == ChestLockType.KeyOrLockpick)
+                {
+                    if (TryConsumeKey(session, chest))
+                    {
+                        return chest.TryUnlockWithKey(chest.RequiredKey);
+                    }
+                }
+
+                if (chest.LockType == ChestLockType.KeyOrLockpick
+                    && TryConsumeLockpick(session))
+                {
+                    return chest.TryUnlockWithLockpick();
+                }
+
+                failureReason = chest.LockType == ChestLockType.KeyRequired
+                    ? "Potrzebujesz odpowiedniego klucza."
+                    : "Potrzebujesz odpowiedniego klucza albo lockpicka.";
+                return false;
+            }
+
+            private bool TryConsumeKey(
+                GameSession session,
+                ChestDungeonObjectInstance chest)
+            {
+                if (chest.RequiredKey == null
+                    || chest.RequiredKey.ItemType != ItemType.Key)
+                {
+                    return false;
+                }
+
+                foreach (var characterId in session.PlayerParty.ActiveMemberIds)
+                {
+                    if (!session.CharactersById.TryGetValue(
+                            characterId,
+                            out var character)
+                        || character?.Inventory == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var item in character.Inventory.Items)
+                    {
+                        if (item?.Definition == null
+                            || item.Definition.ItemType != ItemType.Key
+                            || item.Definition.Id != chest.RequiredKey.Id)
+                        {
+                            continue;
+                        }
+
+                        return inventoryService.TryRemoveItem(
+                            character.Inventory,
+                            item.InstanceId,
+                            out _);
+                    }
+                }
+
+                return false;
+            }
+
+            private bool TryConsumeLockpick(GameSession session)
+            {
+                foreach (var characterId in session.PlayerParty.ActiveMemberIds)
+                {
+                    if (!session.CharactersById.TryGetValue(
+                            characterId,
+                            out var character)
+                        || character?.Inventory == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var item in character.Inventory.Items)
+                    {
+                        if (item?.Definition == null
+                            || item.Definition.ItemType != ItemType.Tool)
+                        {
+                            continue;
+                        }
+
+                        return inventoryService.TryRemoveItem(
+                            character.Inventory,
+                            item.InstanceId,
+                            out _);
+                    }
+                }
+
+                return false;
+            }
+        }
 }

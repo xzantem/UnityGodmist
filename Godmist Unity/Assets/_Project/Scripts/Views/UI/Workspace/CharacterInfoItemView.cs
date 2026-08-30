@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
-    public sealed class CharacterInfoItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+    public sealed class CharacterInfoItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         private static readonly Color UnavailableOverlayColor = new(0.45f, 0.06f, 0.06f, 0.48f);
 
@@ -51,6 +51,11 @@ namespace Godmist.Views.UI.Workspace
         public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(item, eventData);
         public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
         public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Right)
+                owner?.TryOpenLootBag(item);
+        }
         public void OnPointerEnter(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.ShowItem(item, owner?.Character, this);
         public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
     }

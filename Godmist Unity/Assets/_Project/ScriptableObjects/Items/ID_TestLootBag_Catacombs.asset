@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_TestLootBag_Catacombs
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.catacombs.test.01
+  <DisplayName>k__BackingField: Catacombs Test Lootbag
+  <Description>k__BackingField: Testowy lootbag zawierajacy wszystkie pule v1.
+  <Icon>k__BackingField: {fileID: 0}
+  <ItemType>k__BackingField: 6
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: b6d1f8a3c5e74920a4d7b2f9c6e1a580, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c7e2a9b4d6f85130a5c8e3f1b7d9a260, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+    - <DropChance>k__BackingField: 0.5
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8f3b1a6c9e24750a4d7e2f8b5c1a690, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 113f79a35da947e69b9a481f8b557001, type: 2}
+        <Amount>k__BackingField: { Min: 1, Max: 1 }
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 213f79a35da947e69b9a481f8b557002, type: 2}
+        <Amount>k__BackingField: { Min: 1, Max: 1 }
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 313f79a35da947e69b9a481f8b557003, type: 2}
+        <Amount>k__BackingField: { Min: 1, Max: 1 }
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 413f79a35da947e69b9a481f8b557004, type: 2}
+        <Amount>k__BackingField: { Min: 1, Max: 1 }

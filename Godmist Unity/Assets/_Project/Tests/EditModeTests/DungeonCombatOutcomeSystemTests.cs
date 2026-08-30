@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
@@ -59,6 +60,14 @@ namespace Godmist.Tests.EditMode
             var gameSession = CreateGameSessionWithDungeon(
                 out var dungeon);
 
+            Assert.That(
+                dungeon.TrySetPendingPlayerPartyPositions(
+                    new Dictionary<string, Vector2>
+                    {
+                        ["character.pending"] = Vector2.one
+                    }),
+                Is.True);
+
             var combatSession = new CombatSession
             {
                 CombatId = "encounter.test",
@@ -76,6 +85,66 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 dungeon.IsEncounterCleared("encounter.test"),
                 Is.False);
+            Assert.That(dungeon.HasPendingPlayerPartyPositions, Is.False);
+        }
+
+        [Test]
+        public void TryApplyOutcome_VictoryStoresPlayerBattlePositions()
+        {
+            var gameSession = CreateGameSessionWithDungeon(
+                out var dungeon);
+            var leader = new CharacterInstance
+            {
+                CharacterId = "character.leader"
+            };
+            var companion = new CharacterInstance
+            {
+                CharacterId = "character.companion"
+            };
+
+            Assert.That(gameSession.TryRegisterCharacter(leader), Is.True);
+            Assert.That(gameSession.TryRegisterCharacter(companion), Is.True);
+            Assert.That(
+                gameSession.TryAddCharacterToActiveParty(leader.CharacterId),
+                Is.True);
+            Assert.That(
+                gameSession.TryAddCharacterToActiveParty(companion.CharacterId),
+                Is.True);
+
+            var combatSession = new CombatSession
+            {
+                CombatId = "encounter.test",
+                Outcome = CombatOutcomeState.Victory,
+                Units = new List<BattleUnit>
+                {
+                    new BattleUnit
+                    {
+                        Character = leader,
+                        IsPlayerSide = true,
+                        Position = new GridPosition(2, 3)
+                    },
+                    new BattleUnit
+                    {
+                        Character = companion,
+                        IsPlayerSide = true,
+                        Position = new GridPosition(1, 3)
+                    }
+                }
+            };
+
+            Assert.That(
+                new DungeonCombatOutcomeSystem().TryApplyOutcome(
+                    gameSession,
+                    combatSession),
+                Is.True);
+
+            Assert.That(
+                dungeon.PendingPlayerPartyPositions[leader.CharacterId],
+                Is.EqualTo(new Vector2(2.5f, 3.5f)));
+            Assert.That(
+                dungeon.PendingPlayerPartyPositions[companion.CharacterId],
+                Is.EqualTo(new Vector2(1.5f, 3.5f)));
+            Assert.That(dungeon.PlayerPosition, Is.EqualTo(new Vector2(2.5f, 3.5f)));
         }
 
         [Test]

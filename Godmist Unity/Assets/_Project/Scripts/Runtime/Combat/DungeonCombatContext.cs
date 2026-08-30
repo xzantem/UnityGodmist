@@ -16,6 +16,7 @@ namespace Godmist.Runtime.Combat
         public int FloorIndex { get; }
         public string EncounterInstanceId { get; }
         public string EncounterRoomId { get; }
+        public int DungeonLevel { get; }
         public Vector2Int PartyAnchorWorldPosition { get; }
         public Vector2Int EnemyAnchorWorldPosition { get; }
         public RectInt WorldBounds { get; }
@@ -33,7 +34,8 @@ namespace Godmist.Runtime.Combat
             Vector2Int enemyAnchorWorldPosition,
             IEnumerable<Vector2Int> nextWorldCells,
             IEnumerable<DungeonCellEdge> nextWallEdges,
-            IEnumerable<DungeonCombatMapObjectSnapshot> nextMapObjects)
+            IEnumerable<DungeonCombatMapObjectSnapshot> nextMapObjects,
+            int dungeonLevel = 1)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -84,6 +86,7 @@ namespace Godmist.Runtime.Combat
             FloorIndex = floorIndex;
             EncounterInstanceId = encounterInstanceId;
             EncounterRoomId = encounterRoomId;
+            DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
             PartyAnchorWorldPosition = partyAnchorWorldPosition;
             EnemyAnchorWorldPosition = enemyAnchorWorldPosition;
             WorldBounds = CalculateBounds(worldCells);

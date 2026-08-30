@@ -102,6 +102,7 @@ namespace Godmist.Systems.Combat
                 CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
                 ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story,
                 Grid = battleGrid,
                 Units = new List<BattleUnit>(),
                 Rewards = ResolveRewards(
@@ -344,7 +345,8 @@ namespace Godmist.Systems.Combat
 
                 var enemy = characterFactory.Create(
                     enemyData.CharacterDefinition,
-                    enemyData.ClassData);
+                    enemyData.ClassData,
+                    dungeonContext?.DungeonLevel ?? 1);
 
                 enemy.CharacterId = enemyData.InstanceId;
 

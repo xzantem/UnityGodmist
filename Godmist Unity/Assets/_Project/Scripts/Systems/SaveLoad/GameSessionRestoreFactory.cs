@@ -106,6 +106,7 @@ namespace Godmist.Systems.SaveLoad
                     != Party.DefaultMaxActiveMembers
                 || saveData.Gold < 0)
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone na walidacji nagłówka zapisu.");
                 return false;
             }
 
@@ -114,6 +115,7 @@ namespace Godmist.Systems.SaveLoad
                     contentCatalog,
                     out var itemsById))
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy tworzeniu itemów.");
                 return false;
             }
 
@@ -126,11 +128,21 @@ namespace Godmist.Systems.SaveLoad
                         saveData.ExplorationPositionX,
                         saveData.ExplorationPositionY)))
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy pozycji eksploracji.");
                 return false;
             }
 
             var assignedItemIds = new HashSet<string>(
                 StringComparer.Ordinal);
+
+            if (!TryRestoreLootBagContents(
+                    saveData.ItemInstances,
+                    itemsById,
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu zawartości lootbagów.");
+                return false;
+            }
 
             if (!TryRestoreCharacters(
                     restoredSession,
@@ -139,6 +151,7 @@ namespace Godmist.Systems.SaveLoad
                     itemsById,
                     assignedItemIds))
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu postaci.");
                 return false;
             }
 
@@ -146,40 +159,66 @@ namespace Godmist.Systems.SaveLoad
                     restoredSession,
                     saveData.Party))
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu drużyny.");
                 return false;
             }
 
             if (saveData.Gold > 0
                 && !restoredSession.TryAddGold(saveData.Gold))
             {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu złota.");
                 return false;
             }
 
             if (!TryRestoreWorldFlags(
                     restoredSession,
-                    saveData.WorldFlags)
-                || !TryRestoreQuests(
+                    saveData.WorldFlags))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu flag świata.");
+                return false;
+            }
+
+            if (!TryRestoreQuests(
                     restoredSession,
                     saveData.Quests,
-                    contentCatalog)
-                || !TryRestoreNpcs(
+                    contentCatalog))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu questów.");
+                return false;
+            }
+
+            if (!TryRestoreNpcs(
                     restoredSession,
                     saveData.Npcs,
                     contentCatalog,
                     itemsById,
-                    assignedItemIds)
-                || !TryRestorePendingLoot(
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu NPC.");
+                return false;
+            }
+
+            if (!TryRestorePendingLoot(
                     restoredSession,
                     saveData.PendingLootItemInstanceIds,
                     itemsById,
-                    assignedItemIds)
-                || !TryRestoreActiveDungeon(
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu oczekującego lootu.");
+                return false;
+            }
+
+            if (!TryRestoreActiveDungeon(
                     restoredSession,
                     saveData.ActiveDungeon,
                     contentCatalog,
                     itemsById,
                     assignedItemIds))
             {
+                Debug.LogError(
+                    $"Nie udało się odtworzyć aktywnego lochu "
+                    + $"'{saveData.ActiveDungeon?.DungeonId}' "
+                    + $"(seed: {saveData.ActiveDungeon?.Seed}).");
                 return false;
             }
 
@@ -192,10 +231,63 @@ namespace Godmist.Systems.SaveLoad
 
             if (assignedItemIds.Count != itemsById.Count)
             {
+                Debug.LogError(
+                    "Nie udało się przypisać wszystkich itemów z zapisu. "
+                    + $"Przypisano: {assignedItemIds.Count}, "
+                    + $"oczekiwano: {itemsById.Count}.");
                 return false;
             }
 
             session = restoredSession;
+            return true;
+        }
+
+        private static bool TryRestoreLootBagContents(
+            List<ItemSaveData> itemSaveDataList,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            if (itemSaveDataList == null) return true;
+
+            foreach (var itemSaveData in itemSaveDataList)
+            {
+                if (itemSaveData == null || !itemSaveData.IsLootBag)
+                {
+                    continue;
+                }
+
+                if (!itemsById.TryGetValue(
+                        itemSaveData.InstanceId,
+                        out var item)
+                    || item is not LootBagItemInstance lootBag)
+                {
+                    return false;
+                }
+
+                var restoredContents = new List<ItemInstance>();
+
+                foreach (var contentInstanceId in
+                         itemSaveData.LootBagContentItemInstanceIds
+                         ?? new List<string>())
+                {
+                    if (!TryTakeItem(
+                            contentInstanceId,
+                            itemsById,
+                            assignedItemIds,
+                            out var content))
+                    {
+                        return false;
+                    }
+
+                    restoredContents.Add(content);
+                }
+
+                if (!lootBag.TryRestoreContents(restoredContents))
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -232,7 +324,11 @@ namespace Godmist.Systems.SaveLoad
                 var isEquipmentDefinition =
                     definition is EquipmentItemDefinition;
 
-                if (itemSaveData.IsEquipment != isEquipmentDefinition)
+                var isLootBagDefinition = definition is LootBagItemDefinition;
+
+                if (itemSaveData.IsEquipment != isEquipmentDefinition
+                    || itemSaveData.IsLootBag != isLootBagDefinition
+                    || (itemSaveData.IsEquipment && itemSaveData.IsLootBag))
                 {
                     return false;
                 }
@@ -271,6 +367,31 @@ namespace Godmist.Systems.SaveLoad
                         partIds);
 
                     equipmentItem.StatModifiers = modifiers;
+
+                    if (equipmentItem is JewelryItemInstance jewelryItem)
+                    {
+                        if (!Enum.IsDefined(typeof(JewelryPassiveType), itemSaveData.JewelryPassiveType)
+                            || !Enum.IsDefined(typeof(DungeonTheme), itemSaveData.JewelryPassiveDungeonTheme)
+                            || !Enum.IsDefined(typeof(ResistanceType), itemSaveData.JewelryResistanceType)
+                            || float.IsNaN(itemSaveData.JewelryPassiveValue)
+                            || float.IsInfinity(itemSaveData.JewelryPassiveValue)
+                            || float.IsNaN(itemSaveData.JewelryResistanceValue)
+                            || float.IsInfinity(itemSaveData.JewelryResistanceValue))
+                        {
+                            return false;
+                        }
+
+                        jewelryItem.MetalId = itemSaveData.JewelryMetalId ?? string.Empty;
+                        jewelryItem.MetalDisplayName = itemSaveData.JewelryMetalDisplayName ?? string.Empty;
+                        jewelryItem.GemId = itemSaveData.JewelryGemId ?? string.Empty;
+                        jewelryItem.GemDisplayName = itemSaveData.JewelryGemDisplayName ?? string.Empty;
+                        jewelryItem.GemDescription = itemSaveData.JewelryGemDescription ?? string.Empty;
+                        jewelryItem.PassiveType = itemSaveData.JewelryPassiveType;
+                        jewelryItem.PassiveValue = itemSaveData.JewelryPassiveValue;
+                        jewelryItem.PassiveDungeonTheme = itemSaveData.JewelryPassiveDungeonTheme;
+                        jewelryItem.ResistanceType = itemSaveData.JewelryResistanceType;
+                        jewelryItem.ResistanceValue = itemSaveData.JewelryResistanceValue;
+                    }
                 }
 
                 itemsById.Add(item.InstanceId, item);
@@ -1362,7 +1483,10 @@ namespace Godmist.Systems.SaveLoad
             {
                 dungeon = dungeonGenerator.Generate(
                     definition,
-                    saveData.Seed);
+                    saveData.Seed,
+                    saveData.DungeonLevel > 0
+                        ? saveData.DungeonLevel
+                        : definition.DungeonLevel);
 
                 encounterPlacementSystem.Place(dungeon);
                 objectPlacementSystem.Place(
@@ -1372,8 +1496,9 @@ namespace Godmist.Systems.SaveLoad
                     dungeon,
                     contentCatalog.EquipmentPartDefinitions);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
+                Debug.LogException(exception);
                 return false;
             }
 
@@ -1384,15 +1509,33 @@ namespace Godmist.Systems.SaveLoad
                     new Vector2(
                         saveData.PlayerPositionX,
                         saveData.PlayerPositionY),
-                    saveData.ClearedEncounterIds)
-                || !TryRestoreDungeonFloorDeltas(
+                    saveData.ClearedEncounterIds))
+            {
+                Debug.LogError(
+                    $"Nie udało się odtworzyć stanu lochu "
+                    + $"'{saveData.DungeonId}': nieprawidłowe piętro "
+                    + $"{saveData.CurrentFloorIndex}.");
+                return false;
+            }
+
+            if (!TryRestoreDungeonFloorDeltas(
                     dungeon,
                     saveData.FloorDeltas,
                     saveData.EncounterDeltas,
                     itemsById,
-                    assignedItemIds)
-                || !session.TrySetActiveDungeon(dungeon))
+                    assignedItemIds))
             {
+                Debug.LogError(
+                    $"Nie udało się odtworzyć zmian obiektów/encounterów "
+                    + $"w lochu '{saveData.DungeonId}'.");
+                return false;
+            }
+
+            if (!session.TrySetActiveDungeon(dungeon))
+            {
+                Debug.LogError(
+                    $"Nie udało się ustawić aktywnego lochu "
+                    + $"'{saveData.DungeonId}' w sesji.");
                 return false;
             }
 
@@ -1446,7 +1589,60 @@ namespace Godmist.Systems.SaveLoad
                                     objectDelta.ObjectInstanceId,
                                     objectDelta.IsActive,
                                     objectDelta.IsDoor,
-                                    objectDelta.IsOpen))
+                                    objectDelta.IsOpen,
+                                    objectDelta.IsTriggered,
+                                    objectDelta.IsActivated,
+                                    objectDelta.IsSatisfied,
+                                    objectDelta.IsChest,
+                                    objectDelta.IsUnlocked))
+                            {
+                                return false;
+                            }
+
+                            if (objectDelta.IsChest
+                                && objectDelta.HasChestLootState)
+                            {
+                                var restoredChestItems = new List<ItemInstance>();
+
+                                foreach (var itemInstanceId in
+                                         objectDelta.ChestItemInstanceIds
+                                         ?? new List<string>())
+                                {
+                                    if (!TryTakeItem(
+                                            itemInstanceId,
+                                            itemsById,
+                                            assignedItemIds,
+                                            out var item))
+                                    {
+                                        return false;
+                                    }
+
+                                    restoredChestItems.Add(item);
+                                }
+
+                                if (!floor.TryRestoreChestItems(
+                                        objectDelta.ObjectInstanceId,
+                                        restoredChestItems))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                    if (floorDelta.ProgressionGateDeltas != null)
+                    {
+                        var restoredGateIds = new HashSet<string>(
+                            StringComparer.Ordinal);
+
+                        foreach (var gateDelta in floorDelta.ProgressionGateDeltas)
+                        {
+                            if (gateDelta == null
+                                || string.IsNullOrWhiteSpace(gateDelta.GateId)
+                                || !restoredGateIds.Add(gateDelta.GateId)
+                                || !floor.TryRestoreProgressionGateState(
+                                    gateDelta.GateId,
+                                    gateDelta.IsUnlocked))
                             {
                                 return false;
                             }

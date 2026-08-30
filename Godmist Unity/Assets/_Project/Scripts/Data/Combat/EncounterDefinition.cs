@@ -13,6 +13,13 @@ namespace Godmist.Data.Combat
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public int GridWidth { get; private set; } = 8;
         [field: SerializeField] public int GridHeight { get; private set; } = 8;
+        [field: SerializeField, Min(0)]
+        public int BossEnemyIndex { get; private set; }
         [field: SerializeField] public List<EncounterEnemyData> Enemies { get; private set; } = new();
+
+        private void OnValidate()
+        {
+            BossEnemyIndex = Mathf.Max(0, BossEnemyIndex);
+        }
     }
 }

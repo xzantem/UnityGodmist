@@ -8,6 +8,7 @@ namespace Godmist.Core.Serialization
     {
         public string DungeonId = string.Empty;
         public int Seed;
+        public int DungeonLevel = 1;
         public int CurrentFloorIndex;
         public bool IsCompleted;
 
@@ -26,7 +27,15 @@ namespace Godmist.Core.Serialization
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
+        public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonProgressionGateDeltaSaveData
+    {
+        public string GateId = string.Empty;
+        public bool IsUnlocked;
     }
 
     [Serializable]
@@ -45,8 +54,15 @@ namespace Godmist.Core.Serialization
     {
         public string ObjectInstanceId = string.Empty;
         public bool IsActive;
+        public bool IsChest;
+        public bool IsUnlocked;
+        public bool HasChestLootState;
+        public List<string> ChestItemInstanceIds = new();
         public bool IsDoor;
         public bool IsOpen;
+        public bool IsTriggered;
+        public bool IsActivated;
+        public bool IsSatisfied;
     }
     
     [Serializable]

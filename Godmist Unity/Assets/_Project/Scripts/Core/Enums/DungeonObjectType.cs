@@ -4,6 +4,9 @@ namespace Godmist.Core.Enums
     {
         Chest,
         Obstacle,
-        Door
+        Door,
+        SpikeTrap,
+        Lever,
+        Condition
     }
 }

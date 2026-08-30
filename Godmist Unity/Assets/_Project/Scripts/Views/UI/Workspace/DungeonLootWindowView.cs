@@ -14,7 +14,7 @@ using UnityEngine.UI;
 namespace Godmist.Views.UI.Workspace
 {
     /// <summary>
-    /// Floating presentation of one defeated enemy body's remaining loot.
+    /// Floating presentation of remaining dungeon loot from a body or chest.
     /// The view only forwards collection intents to LootCollectionService.
     /// </summary>
     public sealed class DungeonLootWindowView : MonoBehaviour
@@ -31,6 +31,8 @@ namespace Godmist.Views.UI.Workspace
 
         private GameSession session;
         private string bodyInstanceId = string.Empty;
+        private string chestInstanceId = string.Empty;
+        private bool isChestSource;
         private GameObject dragGhost;
         private DungeonLootItemView draggedItemView;
 
@@ -86,12 +88,49 @@ namespace Godmist.Views.UI.Workspace
             return view;
         }
 
+        public static DungeonLootWindowView OpenChestOrReuse(
+            GameSession nextSession,
+            string nextChestInstanceId,
+            DungeonLootWindowView prefab = null)
+        {
+            if (!CanOpenChest(nextSession, nextChestInstanceId)) return null;
+
+            var manager = UIWorkspaceWindowManager.Instance;
+            if (manager?.WorkspaceRoot == null) return null;
+
+            var view = ActiveInstance;
+            if (view == null)
+            {
+                view = prefab != null
+                    ? Instantiate(prefab, manager.WorkspaceRoot)
+                    : CreateFallback(manager.WorkspaceRoot);
+            }
+
+            view.InitializeChest(nextSession, nextChestInstanceId);
+            return view;
+        }
+
         public void Initialize(
             GameSession nextSession,
             string nextBodyInstanceId)
         {
             session = nextSession;
             bodyInstanceId = nextBodyInstanceId ?? string.Empty;
+            chestInstanceId = string.Empty;
+            isChestSource = false;
+
+            if (window != null) window.Open();
+            Refresh();
+        }
+
+        public void InitializeChest(
+            GameSession nextSession,
+            string nextChestInstanceId)
+        {
+            session = nextSession;
+            bodyInstanceId = string.Empty;
+            chestInstanceId = nextChestInstanceId ?? string.Empty;
+            isChestSource = true;
 
             if (window != null) window.Open();
             Refresh();
@@ -99,6 +138,24 @@ namespace Godmist.Views.UI.Workspace
 
         public void Refresh()
         {
+            if (isChestSource)
+            {
+                if (!TryGetChest(out var chest))
+                {
+                    EndDrag();
+                    window?.Close();
+                    return;
+                }
+
+                RefreshItems(
+                    chest.Items,
+                    "Łup ze skrzyni",
+                    "Skrzynia jest pusta.",
+                    gold: 0,
+                    showGold: false);
+                return;
+            }
+
             if (!TryGetBody(out var body))
             {
                 EndDrag();
@@ -106,31 +163,43 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
+            RefreshItems(
+                body.Items,
+                "Łup z ciała",
+                "Ciało jest puste.",
+                body.Gold,
+                showGold: true);
+        }
+
+        private void RefreshItems(
+            IReadOnlyList<ItemInstance> items,
+            string title,
+            string emptyMessage,
+            int gold,
+            bool showGold)
+        {
             if (window != null && !window.IsOpen) window.Open();
-            if (titleText != null)
-            {
-                titleText.text = "Łup z ciała";
-            }
+            if (titleText != null) titleText.text = title;
 
             ClearItemViews();
 
-            foreach (var stack in BuildItemStacks(body.Items))
+            foreach (var stack in BuildItemStacks(items))
             {
                 CreateItemView(stack.Representative, stack.Count);
             }
 
             if (goldSlot != null)
             {
-                goldSlot.Bind(body.Gold, this);
-                goldSlot.gameObject.SetActive(body.Gold > 0);
+                goldSlot.Bind(gold, this);
+                goldSlot.gameObject.SetActive(showGold && gold > 0);
                 goldSlot.transform.SetAsFirstSibling();
             }
 
             if (emptyText != null)
             {
                 emptyText.gameObject.SetActive(
-                    body.Items.Count == 0 && body.Gold <= 0);
-                emptyText.text = "Ciało jest puste.";
+                    items.Count == 0 && (!showGold || gold <= 0));
+                emptyText.text = emptyMessage;
             }
 
             window?.Focus();
@@ -138,17 +207,42 @@ namespace Godmist.Views.UI.Workspace
 
         public bool TryClaimItem(string itemInstanceId)
         {
-            if (!TryGetBody(out var body) || !body.TryGetItem(itemInstanceId, out var item)) return false;
+            ItemInstance item;
+            bool claimed;
 
-            var claimed = lootCollectionService.TryClaimDungeonBodyItem(
-                session,
-                bodyInstanceId,
-                itemInstanceId);
+            if (isChestSource)
+            {
+                if (!TryGetChest(out var chest)
+                    || !chest.TryGetItem(itemInstanceId, out item))
+                {
+                    return false;
+                }
+
+                claimed = lootCollectionService.TryClaimDungeonChestItem(
+                    session,
+                    chestInstanceId,
+                    itemInstanceId);
+            }
+            else
+            {
+                if (!TryGetBody(out var body)
+                    || !body.TryGetItem(itemInstanceId, out item))
+                {
+                    return false;
+                }
+
+                claimed = lootCollectionService.TryClaimDungeonBodyItem(
+                    session,
+                    bodyInstanceId,
+                    itemInstanceId);
+            }
 
             if (!claimed) return false;
 
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            LootClaimed?.Invoke(bodyInstanceId, $"+ {item.Definition?.DisplayName ?? "Przedmiot"}");
+            LootClaimed?.Invoke(
+                isChestSource ? chestInstanceId : bodyInstanceId,
+                $"+ {item.Definition?.DisplayName ?? "Przedmiot"}");
             EndDrag();
             CharacterInfoWindowView.RefreshOpenWindows(session);
             Refresh();
@@ -159,18 +253,44 @@ namespace Godmist.Views.UI.Workspace
             string characterId,
             string itemInstanceId)
         {
-            if (!TryGetBody(out var body) || !body.TryGetItem(itemInstanceId, out var item)) return false;
+            ItemInstance item;
+            bool claimed;
 
-            var claimed = lootCollectionService.TryClaimDungeonBodyItem(
-                session,
-                bodyInstanceId,
-                characterId,
-                itemInstanceId);
+            if (isChestSource)
+            {
+                if (!TryGetChest(out var chest)
+                    || !chest.TryGetItem(itemInstanceId, out item))
+                {
+                    return false;
+                }
+
+                claimed = lootCollectionService.TryClaimDungeonChestItem(
+                    session,
+                    chestInstanceId,
+                    characterId,
+                    itemInstanceId);
+            }
+            else
+            {
+                if (!TryGetBody(out var body)
+                    || !body.TryGetItem(itemInstanceId, out item))
+                {
+                    return false;
+                }
+
+                claimed = lootCollectionService.TryClaimDungeonBodyItem(
+                    session,
+                    bodyInstanceId,
+                    characterId,
+                    itemInstanceId);
+            }
 
             if (!claimed) return false;
 
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            LootClaimed?.Invoke(bodyInstanceId, $"+ {item.Definition?.DisplayName ?? "Przedmiot"}");
+            LootClaimed?.Invoke(
+                isChestSource ? chestInstanceId : bodyInstanceId,
+                $"+ {item.Definition?.DisplayName ?? "Przedmiot"}");
             EndDrag();
             CharacterInfoWindowView.RefreshOpenWindows(session);
             Refresh();
@@ -179,7 +299,8 @@ namespace Godmist.Views.UI.Workspace
 
         public bool TryClaimGold()
         {
-            if (!CanCollect()
+            if (isChestSource
+                || !CanCollect()
                 || !lootCollectionService.TryClaimDungeonBodyGold(
                     session,
                     bodyInstanceId,
@@ -392,9 +513,24 @@ namespace Godmist.Views.UI.Workspace
                 && floor.TryGetEnemyBody(bodyInstanceId, out body);
         }
 
+        private bool TryGetChest(out ChestDungeonObjectInstance chest)
+        {
+            chest = null;
+
+            return CanCollect()
+                && session.ActiveDungeon != null
+                && session.ActiveDungeon.TryGetCurrentFloor(out var floor)
+                && floor.TryGetObject(chestInstanceId, out var dungeonObject)
+                && dungeonObject is ChestDungeonObjectInstance currentChest
+                && currentChest.IsUnlocked
+                && (chest = currentChest) != null;
+        }
+
         private bool CanCollect()
         {
-            return CanOpen(session, bodyInstanceId);
+            return isChestSource
+                ? CanOpenChest(session, chestInstanceId)
+                : CanOpen(session, bodyInstanceId);
         }
 
         private static bool CanOpen(
@@ -409,6 +545,21 @@ namespace Godmist.Views.UI.Workspace
                 && value.ActiveDungeon.TryGetCurrentFloor(out var floor)
                 && floor.TryGetEnemyBody(nextBodyInstanceId, out var body)
                 && body != null;
+        }
+
+        private static bool CanOpenChest(
+            GameSession value,
+            string nextChestInstanceId)
+        {
+            return value != null
+                && value.CurrentMode == GameModeState.Exploration
+                && value.ActiveCombat == null
+                && !string.IsNullOrWhiteSpace(nextChestInstanceId)
+                && value.ActiveDungeon != null
+                && value.ActiveDungeon.TryGetCurrentFloor(out var floor)
+                && floor.TryGetObject(nextChestInstanceId, out var dungeonObject)
+                && dungeonObject is ChestDungeonObjectInstance chest
+                && chest.IsUnlocked;
         }
 
         private static DungeonLootWindowView CreateFallback(

@@ -198,6 +198,46 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Generate_IrregularFootprints_CreateReachablePassages()
+        {
+            var definition = CreateDefinition(6, 9);
+
+            foreach (var template in definition.RoomTemplateCatalog.Templates)
+            {
+                SetAutoProperty(
+                    template,
+                    "Footprint",
+                    CreatePerimeterFootprint(template.SizeInCells));
+            }
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 50; seed++)
+            {
+                var dungeon = generator.Generate(definition, seed);
+                var floor = dungeon.Floors[0];
+
+                foreach (var connection in floor.Connections)
+                {
+                    Assert.That(
+                        floor.Map.CanMoveBetween(
+                            connection.FirstDoorCell,
+                            connection.SecondDoorCell),
+                        Is.True,
+                        $"Seed {seed}: footprint nie utworzyl przechodnich drzwi.");
+                }
+
+                Assert.That(
+                    floor.Map.FloorCells.Count,
+                    Is.LessThan(
+                        GetTotalBoundingBoxCellCount(
+                            floor,
+                            definition.RoomTemplateCatalog)),
+                    $"Seed {seed}: generator nie uzyl footprintu.");
+            }
+        }
+
+        [Test]
         public void Generate_Connections_CreateAdjacentDoorways()
         {
             var definition = CreateDefinition(6, 9);
@@ -297,9 +337,9 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void Generate_RejectsLoopConnectionsUntilLayoutPassV2()
+        public void Generate_LoopConnectionConfiguration_IsAccepted()
         {
-            var definition = CreateDefinition(6, 6);
+            var definition = CreateDefinition(9, 9);
 
             SetAutoProperty(
                 definition,
@@ -315,7 +355,132 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(
                 () => generator.Generate(definition, 12345),
-                Throws.TypeOf<System.InvalidOperationException>());
+                Throws.Nothing);
+        }
+
+        [Test]
+        public void Generate_SeveralSeeds_CreatesAtLeastOneAdditionalLoopConnection()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MinLoopConnections",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxLoopConnections",
+                1);
+
+            var generator = new DungeonGeneratorService();
+
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var floor = generator.Generate(definition, seed).Floors[0];
+
+                if (floor.Connections.Count >= floor.Rooms.Count)
+                {
+                    Assert.Pass($"Seed {seed} utworzyl petle w grafie lochu.");
+                }
+            }
+
+            Assert.Fail(
+                "Zaden z testowanych seedow nie utworzyl dodatkowego polaczenia petli.");
+        }
+
+        [Test]
+        public void Generate_ProgressionGate_BlocksFinalUntilConditionIsSatisfied()
+        {
+            var definition = CreateDefinition(9, 9);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                3);
+
+            SetAutoProperty(
+                definition,
+                "MinProgressionGateCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxProgressionGateCount",
+                1);
+
+            var generator = new DungeonGeneratorService();
+            var floor = generator.Generate(definition, 12345).Floors[0];
+            var finalRoom = FindRoom(floor, DungeonRoomType.Final);
+            DungeonRoomConnection gate = null;
+
+            foreach (var connection in floor.Connections)
+            {
+                if (connection.HasProgressionGate)
+                {
+                    gate = connection;
+                    break;
+                }
+            }
+
+            Assert.That(gate, Is.Not.Null);
+            Assert.That(
+                floor.TryGetRoom(
+                    gate.RequiredBranchRoomId,
+                    out var requiredBranchRoom),
+                Is.True);
+            Assert.That(
+                requiredBranchRoom.IsRequiredProgressionRoom,
+                Is.True);
+            Assert.That(
+                floor.Map.CanMoveBetween(
+                    gate.FirstDoorCell,
+                    gate.SecondDoorCell),
+                Is.False);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    finalRoom.RoomId),
+                Is.False);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    gate.RequiredBranchRoomId),
+                Is.True);
+
+            Assert.That(
+                floor.TrySatisfyProgressionCondition(
+                    gate.ProgressionConditionId),
+                Is.True);
+            Assert.That(gate.IsProgressionGateUnlocked, Is.True);
+            Assert.That(
+                floor.Map.CanMoveBetween(
+                    gate.FirstDoorCell,
+                    gate.SecondDoorCell),
+                Is.True);
+            Assert.That(
+                CanReachWithClosedProgressionGates(
+                    floor,
+                    FindRoom(floor, DungeonRoomType.Start).RoomId,
+                    finalRoom.RoomId),
+                Is.True);
         }
 
         [Test]
@@ -351,6 +516,38 @@ namespace Godmist.Tests.EditMode
                 }
 
                 Assert.That(optionalRoomCount, Is.InRange(1, 2));
+            }
+        }
+
+        [Test]
+        public void Generate_WithoutProgressionGates_UsesOnlyOrdinaryOptionalTemplates()
+        {
+            var definition = CreateDefinition(6, 6);
+
+            SetAutoProperty(
+                definition,
+                "MinOptionalRoomCount",
+                1);
+
+            SetAutoProperty(
+                definition,
+                "MaxOptionalRoomCount",
+                1);
+
+            var floor = new DungeonGeneratorService()
+                .Generate(definition, 12345)
+                .Floors[0];
+
+            foreach (var room in floor.Rooms)
+            {
+                if (room.RoomType != DungeonRoomType.Optional)
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    room.TemplateId,
+                    Is.EqualTo("room.optional"));
             }
         }
 
@@ -451,6 +648,11 @@ namespace Godmist.Tests.EditMode
                         DungeonRoomType.Optional,
                         new Vector2Int(8, 8)),
                     CreateTemplate(
+                        "room.optional.progression",
+                        DungeonRoomType.Optional,
+                        new Vector2Int(8, 8),
+                        true),
+                    CreateTemplate(
                         "room.final",
                         DungeonRoomType.Final,
                         new Vector2Int(10, 10))
@@ -549,6 +751,16 @@ namespace Godmist.Tests.EditMode
 
             SetAutoProperty(
                 definition,
+                "MinProgressionGateCount",
+                0);
+
+            SetAutoProperty(
+                definition,
+                "MaxProgressionGateCount",
+                0);
+
+            SetAutoProperty(
+                definition,
                 "RoomTemplateCatalog",
                 catalog);
 
@@ -563,7 +775,8 @@ namespace Godmist.Tests.EditMode
         private static DungeonRoomTemplateDefinition CreateTemplate(
             string id,
             DungeonRoomType roomType,
-            Vector2Int sizeInCells)
+            Vector2Int sizeInCells,
+            bool canBeRequiredProgressionBranch = false)
         {
             var template = ScriptableObject.CreateInstance<
                 DungeonRoomTemplateDefinition>();
@@ -571,8 +784,83 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(template, "Id", id);
             SetAutoProperty(template, "RoomType", roomType);
             SetAutoProperty(template, "SizeInCells", sizeInCells);
+            SetAutoProperty(
+                template,
+                "CanBeRequiredProgressionBranch",
+                canBeRequiredProgressionBranch);
+
+            if (canBeRequiredProgressionBranch)
+            {
+                SetAutoProperty(
+                    template,
+                    "SemanticAnchors",
+                    new List<DungeonSemanticAnchorData>
+                    {
+                        new DungeonSemanticAnchorData(
+                            "progression.lever",
+                            DungeonSemanticAnchorType.Lever,
+                            new Vector2Int(2, 2),
+                            Vector2Int.one,
+                            isRequired: true)
+                    });
+            }
 
             return template;
+        }
+
+        private static DungeonRoomFootprint CreatePerimeterFootprint(
+            Vector2Int sizeInCells)
+        {
+            var offsets = new List<Vector2Int>();
+
+            for (var x = 0; x < sizeInCells.x; x++)
+            {
+                for (var y = 0; y < sizeInCells.y; y++)
+                {
+                    var isInterior = x > 0
+                                     && y > 0
+                                     && x < sizeInCells.x - 1
+                                     && y < sizeInCells.y - 1;
+
+                    if (!isInterior)
+                    {
+                        offsets.Add(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            var footprint = new DungeonRoomFootprint();
+
+            SetAutoProperty(
+                footprint,
+                "FloorCellOffsets",
+                offsets);
+
+            return footprint;
+        }
+
+        private static int GetTotalBoundingBoxCellCount(
+            DungeonFloorInstance floor,
+            DungeonRoomTemplateCatalog catalog)
+        {
+            var total = 0;
+
+            foreach (var room in floor.Rooms)
+            {
+                foreach (var template in catalog.Templates)
+                {
+                    if (template != null && template.Id == room.TemplateId)
+                    {
+                        var roomSize = DungeonRoomTransformUtility.GetRotatedSize(
+                            template.SizeInCells,
+                            room.RotationDegrees);
+                        total += roomSize.x * roomSize.y;
+                        break;
+                    }
+                }
+            }
+
+            return total;
         }
 
         private static RectInt GetRoomBounds(
@@ -585,7 +873,9 @@ namespace Godmist.Tests.EditMode
                 {
                     return new RectInt(
                         room.LayoutPosition,
-                        template.SizeInCells);
+                        DungeonRoomTransformUtility.GetRotatedSize(
+                            template.SizeInCells,
+                            room.RotationDegrees));
                 }
             }
 
@@ -643,6 +933,45 @@ namespace Godmist.Tests.EditMode
             return false;
         }
 
+        private static bool CanReachWithClosedProgressionGates(
+            DungeonFloorInstance floor,
+            string startRoomId,
+            string targetRoomId)
+        {
+            var visited = new HashSet<string> { startRoomId };
+            var queue = new Queue<string>();
+
+            queue.Enqueue(startRoomId);
+
+            while (queue.Count > 0)
+            {
+                var roomId = queue.Dequeue();
+
+                if (roomId == targetRoomId) return true;
+
+                foreach (var connection in floor.Connections)
+                {
+                    if (connection.HasProgressionGate
+                        && !connection.IsProgressionGateUnlocked)
+                    {
+                        continue;
+                    }
+
+                    var connectedRoomId = GetConnectedRoomId(
+                        connection,
+                        roomId);
+
+                    if (connectedRoomId != null
+                        && visited.Add(connectedRoomId))
+                    {
+                        queue.Enqueue(connectedRoomId);
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private static string GetConnectedRoomId(
             DungeonRoomConnection connection,
             string roomId)
@@ -679,7 +1008,9 @@ namespace Godmist.Tests.EditMode
                 {
                     builder.Append(
                         $"{connection.FirstRoomId}>"
-                        + $"{connection.SecondRoomId}|");
+                        + $"{connection.SecondRoomId}:"
+                        + $"{connection.ProgressionGateId}:"
+                        + $"{connection.RequiredBranchRoomId}|");
                 }
             }
 

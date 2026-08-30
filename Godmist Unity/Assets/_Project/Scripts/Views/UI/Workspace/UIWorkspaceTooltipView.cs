@@ -194,7 +194,7 @@ namespace Godmist.Views.UI.Workspace
             if (item?.Definition == null) return;
             QueueShow(source ?? item, () => SetContent(
                 item.Definition.Icon,
-                item.Definition.DisplayName,
+                item.DisplayName,
                 BuildItemBody(item, owner),
                 BuildItemMeta(item)));
         }
@@ -1817,6 +1817,16 @@ namespace Godmist.Views.UI.Workspace
                     result,
                     equipment,
                     ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
+
+                if (equipment is JewelryItemInstance jewelry)
+                {
+                    if (!string.IsNullOrWhiteSpace(jewelry.GemDisplayName))
+                        Append(result, $"Kamień: {jewelry.GemDisplayName}");
+                    if (!string.IsNullOrWhiteSpace(jewelry.GemDescription))
+                        Append(result, jewelry.GemDescription);
+                    if (jewelry.ResistanceValue > 0f)
+                        Append(result, $"Odporność {jewelry.ResistanceType}: {jewelry.ResistanceValue * 100f:0.#}%");
+                }
             }
             return result.ToString();
         }

@@ -1,6 +1,7 @@
 using Godmist.Core.Enums;
 using Godmist.Core.Interfaces;
 using Godmist.Runtime.Dungeons;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
@@ -21,6 +22,7 @@ namespace Godmist.Views.Dungeons
 
         private ExplorationPartyController partyController;
         private DungeonFloorInstance floor;
+        private Tilemap interactionTilemap;
         private DoorDungeonObjectInstance door;
 
         public void Initialize(
@@ -36,6 +38,7 @@ namespace Godmist.Views.Dungeons
 
             partyController = nextPartyController;
             floor = nextFloor;
+            interactionTilemap = floorTilemap;
             door = nextDoor;
 
             var firstCenter = floorTilemap.GetCellCenterWorld(
@@ -86,6 +89,7 @@ namespace Godmist.Views.Dungeons
                 || floor == null
                 || partyController == null
                 || partyController.ActiveLeaderTransform == null
+                || interactionTilemap == null
                 || gameBootstrap == null
                 || gameBootstrap.Session == null
                 || gameBootstrap.Session.CurrentMode != GameModeState.Exploration)
@@ -100,7 +104,18 @@ namespace Godmist.Views.Dungeons
 
             var offset = partyController.ActiveLeaderTransform.position - transform.position;
 
-            return offset.sqrMagnitude <= interactionRadius * interactionRadius;
+            return offset.sqrMagnitude <= interactionRadius * interactionRadius
+                   && DungeonExplorationInteractionUtility.HasDirectAccessToDoor(
+                       floor,
+                       ToDungeonCell(
+                           interactionTilemap.WorldToCell(
+                               partyController.ActiveLeaderTransform.position)),
+                       door.Edge);
+        }
+
+        private static Vector2Int ToDungeonCell(Vector3Int cell)
+        {
+            return new Vector2Int(cell.x, cell.y);
         }
 
         public void Interact()

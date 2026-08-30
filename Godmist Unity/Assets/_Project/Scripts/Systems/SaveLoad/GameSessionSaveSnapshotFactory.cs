@@ -295,6 +295,7 @@ namespace Godmist.Systems.SaveLoad
             {
                 DungeonId = dungeon.DungeonId,
                 Seed = dungeon.Seed,
+                DungeonLevel = dungeon.DungeonLevel,
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
@@ -336,13 +337,64 @@ namespace Godmist.Systems.SaveLoad
                         IsActive = dungeonObject.IsActive
                     };
 
+                    if (dungeonObject is ChestDungeonObjectInstance chest)
+                    {
+                        objectDelta.IsChest = true;
+                        objectDelta.IsUnlocked = chest.IsUnlocked;
+                        objectDelta.HasChestLootState = true;
+
+                        foreach (var item in chest.Items)
+                        {
+                            if (!TryCaptureItem(
+                                    item,
+                                    saveData,
+                                    capturedItemIds))
+                            {
+                                ClearRuntimePayload(saveData);
+                                return false;
+                            }
+
+                            objectDelta.ChestItemInstanceIds.Add(item.InstanceId);
+                        }
+                    }
+
                     if (dungeonObject is DoorDungeonObjectInstance door)
                     {
                         objectDelta.IsDoor = true;
                         objectDelta.IsOpen = door.IsOpen;
                     }
 
+                    if (dungeonObject is SpikeTrapDungeonObjectInstance spikeTrap)
+                    {
+                        objectDelta.IsTriggered = spikeTrap.IsTriggered;
+                    }
+
+                    if (dungeonObject is LeverDungeonObjectInstance lever)
+                    {
+                        objectDelta.IsActivated = lever.IsActivated;
+                    }
+
+                    if (dungeonObject is ConditionDungeonObjectInstance condition)
+                    {
+                        objectDelta.IsSatisfied = condition.IsSatisfied;
+                    }
+
                     floorDelta.ObjectDeltas.Add(objectDelta);
+                }
+
+                foreach (var connection in floor.Connections)
+                {
+                    if (!connection.HasProgressionGate)
+                    {
+                        continue;
+                    }
+
+                    floorDelta.ProgressionGateDeltas.Add(
+                        new DungeonProgressionGateDeltaSaveData
+                        {
+                            GateId = connection.ProgressionGateId,
+                            IsUnlocked = connection.IsProgressionGateUnlocked
+                        });
                 }
 
                 foreach (var body in floor.EnemyBodies)
@@ -865,6 +917,40 @@ namespace Godmist.Systems.SaveLoad
                     : new List<string>(equipmentItem.PartIds);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
+
+                if (equipmentItem is JewelryItemInstance jewelryItem)
+                {
+                    itemSaveData.JewelryMetalId = jewelryItem.MetalId;
+                    itemSaveData.JewelryMetalDisplayName = jewelryItem.MetalDisplayName;
+                    itemSaveData.JewelryGemId = jewelryItem.GemId;
+                    itemSaveData.JewelryGemDisplayName = jewelryItem.GemDisplayName;
+                    itemSaveData.JewelryGemDescription = jewelryItem.GemDescription;
+                    itemSaveData.JewelryPassiveType = jewelryItem.PassiveType;
+                    itemSaveData.JewelryPassiveValue = jewelryItem.PassiveValue;
+                    itemSaveData.JewelryPassiveDungeonTheme = jewelryItem.PassiveDungeonTheme;
+                    itemSaveData.JewelryResistanceType = jewelryItem.ResistanceType;
+                    itemSaveData.JewelryResistanceValue = jewelryItem.ResistanceValue;
+                }
+            }
+
+            if (item is LootBagItemInstance lootBag)
+            {
+                itemSaveData.IsLootBag = true;
+
+                foreach (var content in lootBag.Contents
+                    ?? new List<ItemInstance>())
+                {
+                    if (!TryCaptureItem(
+                            content,
+                            saveData,
+                            capturedItemIds))
+                    {
+                        return false;
+                    }
+
+                    itemSaveData.LootBagContentItemInstanceIds.Add(
+                        content.InstanceId);
+                }
             }
 
             saveData.ItemInstances.Add(itemSaveData);

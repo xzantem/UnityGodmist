@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Characters;
 using Godmist.Data.Combat;
+using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
@@ -13,16 +16,26 @@ namespace Godmist.Systems.Combat
     {
         private readonly CharacterProgressionSystem progressionSystem;
         private readonly LootTableSystem lootTableSystem;
+        private readonly Func<CharacterDefinition, LootTableData> lootTableResolver;
 
         public CombatRewardSystem(
             CharacterProgressionSystem progressionSystem = null,
-            LootTableSystem lootTableSystem = null)
+            LootTableSystem lootTableSystem = null,
+            Func<CharacterDefinition, LootTableData> lootTableResolver = null)
         {
             this.progressionSystem = progressionSystem ?? new CharacterProgressionSystem();
             this.lootTableSystem = lootTableSystem ?? new LootTableSystem();
+            this.lootTableResolver = lootTableResolver;
         }
 
         public CombatRewardResult RollEncounterRewards(EncounterDefinition encounter)
+        {
+            return RollEncounterRewards(encounter, null);
+        }
+
+        public CombatRewardResult RollEncounterRewards(
+            EncounterDefinition encounter,
+            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver)
         {
             var rewards = new CombatRewardResult();
 
@@ -41,7 +54,10 @@ namespace Godmist.Systems.Combat
                     EnemyInstanceId = enemyData.InstanceId,
                     ExperiencePerActiveCharacter = definition.ExperienceReward,
                     Gold = definition.GoldReward,
-                    Items = lootTableSystem.RollLoot(definition.LootTable)
+                    Items = lootTableSystem.RollLoot(
+                        encounterEnemyLootTableResolver?.Invoke(enemyData)
+                        ?? lootTableResolver?.Invoke(definition)
+                        ?? definition.LootTable)
                 });
             }
 
@@ -84,7 +100,7 @@ namespace Godmist.Systems.Combat
 
                 progressionSystem.AddExperience(
                     character,
-                    experiencePerCharacter);
+                    ApplyJewelryExperiencePassive(character, experiencePerCharacter));
 
                 character.Honor += defeatedEnemyRewards.Count;
             }
@@ -150,6 +166,26 @@ namespace Godmist.Systems.Combat
             }
 
             return result;
+        }
+
+        private static int ApplyJewelryExperiencePassive(
+            CharacterInstance character,
+            int experience)
+        {
+            if (experience <= 0) return experience;
+
+            var bonus = 0f;
+            foreach (var item in character?.Equipment?.GetEquippedItems()
+                         ?? new List<Runtime.Items.EquipmentItemInstance>())
+            {
+                if (item is Runtime.Items.JewelryItemInstance jewelry
+                    && jewelry.PassiveType == JewelryPassiveType.ExperienceGainPercent)
+                {
+                    bonus += jewelry.PassiveValue;
+                }
+            }
+
+            return Math.Max(0, (int)Math.Round(experience * (1f + bonus)));
         }
     }
 }

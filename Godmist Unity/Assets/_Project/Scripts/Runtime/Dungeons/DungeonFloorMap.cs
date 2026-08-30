@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,9 +10,14 @@ namespace Godmist.Runtime.Dungeons
         private readonly Dictionary<Vector2Int, string> roomIdByCell = new();
         private readonly HashSet<DungeonCellEdge> wallEdges = new();
         private readonly HashSet<DungeonCellEdge> closedDoorEdges = new();
+        private readonly HashSet<DungeonCellEdge> closedProgressionGateEdges = new();
 
         public IReadOnlyCollection<Vector2Int> FloorCells => floorCells;
         public IReadOnlyCollection<DungeonCellEdge> WallEdges => wallEdges;
+        public IReadOnlyCollection<DungeonCellEdge> ClosedProgressionGateEdges =>
+            closedProgressionGateEdges;
+
+        public event Action ProgressionGateStateChanged;
 
         public bool TryAddFloorCell(
             Vector2Int cell,
@@ -93,9 +99,38 @@ namespace Godmist.Runtime.Dungeons
             return true;
         }
 
+        public bool TrySetProgressionGateState(
+            DungeonCellEdge edge,
+            bool isOpen)
+        {
+            if (!floorCells.Contains(edge.FirstCell)
+                || !floorCells.Contains(edge.SecondCell))
+            {
+                return false;
+            }
+
+            if (isOpen)
+            {
+                if (closedProgressionGateEdges.Remove(edge))
+                {
+                    ProgressionGateStateChanged?.Invoke();
+                }
+
+                return true;
+            }
+
+            if (closedProgressionGateEdges.Add(edge))
+            {
+                ProgressionGateStateChanged?.Invoke();
+            }
+
+            return true;
+        }
+
         public bool CanMoveBetween(
             Vector2Int firstCell,
-            Vector2Int secondCell)
+            Vector2Int secondCell,
+            bool ignoreClosedDoorEdges = false)
         {
             if (!IsWalkable(firstCell)
                 || !IsWalkable(secondCell))
@@ -113,7 +148,9 @@ namespace Godmist.Runtime.Dungeons
             var edge = new DungeonCellEdge(firstCell, secondCell);
 
             return !HasWallBetween(firstCell, secondCell)
-                && !closedDoorEdges.Contains(edge);
+                && (ignoreClosedDoorEdges
+                    || (!closedDoorEdges.Contains(edge)
+                        && !closedProgressionGateEdges.Contains(edge)));
         }
     }
 }

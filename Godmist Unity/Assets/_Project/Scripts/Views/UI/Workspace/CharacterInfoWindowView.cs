@@ -41,6 +41,7 @@ namespace Godmist.Views.UI.Workspace
         private readonly InventoryService inventoryService = new();
         private readonly EquipmentService equipmentService = new();
         private readonly CharacterProgressionSystem progressionSystem = new();
+        private readonly LootBagService lootBagService = new();
         private readonly List<CharacterInfoItemView> inventoryViews = new();
 
         private GameSession session;
@@ -156,6 +157,25 @@ namespace Godmist.Views.UI.Workspace
         {
             if (item is not EquipmentItemInstance equipment || character == null) return;
             if (equipmentService.TryEquip(character, equipment.InstanceId)) Refresh();
+        }
+
+        public void TryOpenLootBag(ItemInstance item)
+        {
+            if (item is not LootBagItemInstance lootBag
+                || session == null
+                || character == null)
+            {
+                return;
+            }
+
+            if (lootBagService.TryOpenLootBag(
+                    session,
+                    character.CharacterId,
+                    lootBag.InstanceId,
+                    out _))
+            {
+                Refresh();
+            }
         }
 
         public void TryUnequip(EquipmentSlot slot)
@@ -318,7 +338,7 @@ namespace Godmist.Views.UI.Workspace
             foreach (var stack in BuildItemStacks(character.Inventory.Items))
             {
                 var item = stack.Representative;
-                if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.Definition.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
+                if (item?.Definition == null || (!string.IsNullOrEmpty(filter) && item.DisplayName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) < 0)) continue;
                 var view = Instantiate(inventoryItemTemplate, inventoryRoot);
                 view.gameObject.SetActive(true);
                 view.Bind(item, stack.Count, this);

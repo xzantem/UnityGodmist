@@ -52,7 +52,8 @@ namespace Godmist.Systems.Combat
                 encounter.ExplorationPosition,
                 combatCells,
                 wallEdges,
-                mapObjects);
+                mapObjects,
+                dungeon.DungeonLevel);
 
             return true;
         }

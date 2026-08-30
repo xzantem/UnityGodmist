@@ -69,6 +69,7 @@ namespace Godmist.Systems.Combat
                 source,
                 damageAfterFreeze,
                 isCritical);
+            damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
             var finalDamage = ApplyDefense(
                 source,
@@ -118,6 +119,7 @@ namespace Godmist.Systems.Combat
                 source,
                 damageAfterFreeze,
                 isCritical);
+            damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
             var finalDamage = ApplyDefense(
                 source,
@@ -350,6 +352,27 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt(damage * damage / (damage + defense));
         }
 
+        private static int ApplyJewelryDamagePassive(
+            CombatSession session,
+            BattleUnit source,
+            int damage)
+        {
+            if (damage <= 0 || source?.Character?.Equipment == null) return damage;
+
+            var bonus = 0f;
+            foreach (var item in source.Character.Equipment.GetEquippedItems())
+            {
+                if (item is Runtime.Items.JewelryItemInstance jewelry
+                    && jewelry.PassiveType == JewelryPassiveType.DamageDealtPercentInDungeonTheme
+                    && jewelry.PassiveDungeonTheme == session?.DungeonTheme)
+                {
+                    bonus += jewelry.PassiveValue;
+                }
+            }
+
+            return Mathf.Max(0, Mathf.RoundToInt(damage * (1f + bonus)));
+        }
+
         public static int ApplyDefense(
             BattleUnit target,
             int damage,
@@ -550,7 +573,9 @@ namespace Godmist.Systems.Combat
 
             if (!target.IsPlayerSide)
             {
-                session?.TryMarkEnemyDefeated(target.Character.CharacterId);
+                session?.TryMarkEnemyDefeated(
+                    target.Character.CharacterId,
+                    target.Position);
                 removeUnitFromCombat?.Invoke(target);
             }
         }

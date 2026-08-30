@@ -100,7 +100,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void EscapeDoesNotCreateBodies()
+        public void EscapeCreatesBodiesForEnemiesThatDiedBeforeEscape()
         {
             var gameSession = CreateSessionWithDungeon(
                 out var dungeon,
@@ -123,7 +123,9 @@ namespace Godmist.Tests.EditMode
                 }
             };
 
-            combat.TryMarkEnemyDefeated("enemy.escaped");
+            combat.TryMarkEnemyDefeated(
+                "enemy.escaped",
+                new GridPosition(0, 0));
 
             Assert.That(
                 new DungeonCombatOutcomeSystem().TryApplyOutcome(
@@ -132,7 +134,8 @@ namespace Godmist.Tests.EditMode
                 Is.True);
 
             Assert.That(dungeon.TryGetCurrentFloor(out var floor), Is.True);
-            Assert.That(floor.EnemyBodies, Is.Empty);
+            Assert.That(floor.EnemyBodies, Has.Count.EqualTo(1));
+            Assert.That(floor.EnemyBodies[0].Position, Is.EqualTo(Vector2Int.zero));
         }
 
         [Test]
@@ -147,6 +150,9 @@ namespace Godmist.Tests.EditMode
                 Is.True);
             Assert.That(
                 floor.Map.TryAddFloorCell(new Vector2Int(2, 5), "room.body"),
+                Is.True);
+            Assert.That(
+                floor.Map.TryAddFloorCell(new Vector2Int(3, 4), "room.body"),
                 Is.True);
 
             var combat = new CombatSession
@@ -171,8 +177,12 @@ namespace Godmist.Tests.EditMode
                 }
             };
 
-            combat.TryMarkEnemyDefeated("enemy.first");
-            combat.TryMarkEnemyDefeated("enemy.second");
+            combat.TryMarkEnemyDefeated(
+                "enemy.first",
+                new GridPosition(2, 4));
+            combat.TryMarkEnemyDefeated(
+                "enemy.second",
+                new GridPosition(2, 4));
 
             Assert.That(
                 new DungeonCombatOutcomeSystem().TryApplyOutcome(
@@ -180,6 +190,9 @@ namespace Godmist.Tests.EditMode
                     combat),
                 Is.True);
             Assert.That(floor.EnemyBodies, Has.Count.EqualTo(2));
+
+            Assert.That(floor.EnemyBodies[0].Position, Is.EqualTo(new Vector2Int(2, 4)));
+            Assert.That(floor.EnemyBodies[1].Position, Is.EqualTo(new Vector2Int(3, 4)));
 
             foreach (var body in floor.EnemyBodies)
             {
@@ -189,6 +202,91 @@ namespace Godmist.Tests.EditMode
                     Is.True);
                 Assert.That(roomId, Is.EqualTo(context.EncounterRoomId));
             }
+        }
+
+        [Test]
+        public void EmptyBodyIsCreatedAndPersists()
+        {
+            var gameSession = CreateSessionWithDungeon(
+                out var dungeon,
+                out var context);
+            var combat = new CombatSession
+            {
+                CombatId = context.EncounterInstanceId,
+                Outcome = CombatOutcomeState.Victory,
+                Rewards = new CombatRewardResult
+                {
+                    EnemyRewards =
+                    {
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.empty"
+                        }
+                    }
+                }
+            };
+            combat.TryMarkEnemyDefeated(
+                "enemy.empty",
+                new GridPosition(0, 0));
+
+            Assert.That(
+                new DungeonCombatOutcomeSystem().TryApplyOutcome(
+                    gameSession,
+                    combat),
+                Is.True);
+            Assert.That(dungeon.TryGetCurrentFloor(out var floor), Is.True);
+            Assert.That(floor.EnemyBodies, Has.Count.EqualTo(1));
+            Assert.That(floor.EnemyBodies[0].IsEmpty, Is.True);
+        }
+
+        [Test]
+        public void BodyMovesToNearestFreeCellWhenDeathCellHasObstacle()
+        {
+            var gameSession = CreateSessionWithDungeon(
+                out var dungeon,
+                out var context);
+            Assert.That(dungeon.TryGetCurrentFloor(out var floor), Is.True);
+            Assert.That(
+                floor.Map.TryAddFloorCell(new Vector2Int(1, 0), "room.body"),
+                Is.True);
+
+            var obstacleDefinition =
+                ScriptableObject.CreateInstance<ObstacleDungeonObjectDefinition>();
+            createdObjects.Add(obstacleDefinition);
+
+            Assert.That(
+                floor.TryAddObject(new ObstacleDungeonObjectInstance(
+                    "obstacle.body.test",
+                    obstacleDefinition,
+                    Vector2Int.zero)),
+                Is.True);
+
+            var combat = new CombatSession
+            {
+                CombatId = context.EncounterInstanceId,
+                Outcome = CombatOutcomeState.Victory,
+                Rewards = new CombatRewardResult
+                {
+                    EnemyRewards =
+                    {
+                        new CombatEnemyReward
+                        {
+                            EnemyInstanceId = "enemy.obstacle",
+                            Gold = 1
+                        }
+                    }
+                }
+            };
+            combat.TryMarkEnemyDefeated(
+                "enemy.obstacle",
+                new GridPosition(0, 0));
+
+            Assert.That(
+                new DungeonCombatOutcomeSystem().TryApplyOutcome(
+                    gameSession,
+                    combat),
+                Is.True);
+            Assert.That(floor.EnemyBodies[0].Position, Is.EqualTo(new Vector2Int(1, 0)));
         }
 
         [Test]
@@ -250,7 +348,7 @@ namespace Godmist.Tests.EditMode
                 Is.True);
             Assert.That(claimedGold, Is.EqualTo(13));
             Assert.That(session.Gold, Is.EqualTo(13));
-            Assert.That(floor.EnemyBodies, Is.Empty);
+            Assert.That(floor.EnemyBodies, Has.Count.EqualTo(1));
             Assert.That(
                 service.TryClaimDungeonBodyGold(
                     session,
@@ -542,6 +640,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(floor.TryAddRoom(room), Is.True);
             Assert.That(
                 floor.TrySetMap(new DungeonFloorMap()),
+                Is.True);
+            Assert.That(
+                floor.Map.TryAddFloorCell(Vector2Int.zero, room.RoomId),
                 Is.True);
 
             var encounter = new DungeonEncounterInstance(
