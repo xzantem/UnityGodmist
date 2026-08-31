@@ -46,14 +46,14 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 
 Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja juz fundamenty v1; ten milestone rozszerza konkretne uslugi miejskie zamiast budowac ogolne `NPC v2` od zera.
 
-- `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
-  - Kowal tworzy equipment z trzech wybranych czesci i kosztu materialow. Pokazac preview wyniku przed potwierdzeniem; zachowac istniejacy generator runtime jako ownera payloadu.
 - `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
   - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
 - `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
   - Trwaly magazyn kampanii do odkladania itemow poza inventory postaci.
 - `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
   - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
+- `[P2] Dodac crafting półproduktów kowalskich v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
+  - Osobna usługa kowala do tworzenia artisan/crafting goods, takich jak metalowe łańcuchy. Nie rozszerza craftingu equipmentu z trzech części ani nie obejmuje materiałów alchemicznych lub runicznych.
 - `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
   - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
@@ -76,6 +76,33 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 - `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug`
   - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
 
+### Milestone: City Progression and Specialist Services v1
+
+Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji oraz rozwija specjalistyczne uslugi NPC bez mieszania ich z kolejnym passsem walki lub lochow.
+
+- Loyalty NPC, progi uslug, rabaty i trwały progress wydatkow.
+- Alchemik, rune-maker i pozostale planowane uslugi specjalistyczne.
+- Crafting półproduktów kowalskich oraz rozróżnienie zastosowań materiałów dla specjalistów.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
+### Milestone: Combat v4 — Arena, Obstacles and Transition v1
+
+Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację i taktykę areny walki oraz poprawia przejście eksploracja → walka, nie rozszerzając jeszcze zachowań przeciwników w lochu.
+
+- Pułapki bojowe, zewnętrzne ściany areny i inne przeszkody taktyczne.
+- Scrollowana kamera oraz czytelna prezentacja większych aren.
+- Lepsza integracja wejścia z eksploracji do walki, w tym ustalone przenoszenie pozycji i formacji.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
+### Milestone: Dungeon Exploration v3 — Threats and Traversal v1
+
+Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne zagrożenia i możliwości przemieszczania w lochu, wykorzystując ustalone zachowania walki i miasta.
+
+- Indywidualne rozmieszczenie przeciwników, FOV, pościg oraz zasadzki i niewidzialne encountery.
+- Pathfinding sterowany myszką, skakanie oraz nowe typy pułapek eksploracyjnych.
+- Prawdziwe zagadki logiczne i zręcznościowe z czytelnym stanem, persistence i konsekwencjami.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
 ## In Progress
 
 ### Karty do decyzji o przypisaniu do milestone'u
@@ -91,6 +118,11 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
   - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
 
 ## Done
+
+### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
+  - Zrealizowano craft u kowala z wyborem bazy i trzech czesci, materialami agregowanymi z aktywnej druzyny, preview, zakupem brakujacego materialu z oferty kowala oraz utrwaleniem wybranej jakosci i nazwy. Generator runtime pozostaje ownerem payloadu.
 
 ### Milestone: Dungeon Content and Layout v2
 

@@ -5,6 +5,7 @@ using Godmist.Runtime.NPC;
 using Godmist.Systems.NPC;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,9 +24,12 @@ namespace Godmist.Views.NPC
         [Header("NPC services")]
         [SerializeField] private Button tradeButton;
         [SerializeField] private TradePanelView tradePanel;
+        [SerializeField] private Button craftingButton;
+        [SerializeField] private BlacksmithCraftingWindowView craftingWindowPrefab;
 
         private DialogueService dialogueService;
         private GameSession gameSession;
+        private BlacksmithCraftingWindowView craftingWindow;
 
         private void Start()
         {
@@ -56,6 +60,12 @@ namespace Godmist.Views.NPC
                 tradeButton.gameObject.SetActive(false);
             }
 
+            if (craftingButton != null)
+            {
+                craftingButton.onClick.AddListener(TryOpenCrafting);
+                craftingButton.gameObject.SetActive(false);
+            }
+
             panelRoot.SetActive(false);
         }
 
@@ -77,6 +87,11 @@ namespace Godmist.Views.NPC
             if (tradeButton != null)
             {
                 tradeButton.onClick.RemoveListener(TryOpenTrade);
+            }
+
+            if (craftingButton != null)
+            {
+                craftingButton.onClick.RemoveListener(TryOpenCrafting);
             }
         }
 
@@ -111,6 +126,7 @@ namespace Godmist.Views.NPC
             ClearChoices();
             panelRoot.SetActive(false);
             SetTradeButtonVisible(false);
+            SetCraftingButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -134,6 +150,7 @@ namespace Godmist.Views.NPC
             {
                 panelRoot.SetActive(false);
                 SetTradeButtonVisible(false);
+                SetCraftingButtonVisible(false);
                 return;
             }
 
@@ -143,8 +160,10 @@ namespace Godmist.Views.NPC
             panelRoot.SetActive(shouldShowDialogue);
 
             var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
+            var isBlacksmith = dialogue.Npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
 
             SetTradeButtonVisible(shouldShowDialogue && isTrader);
+            SetCraftingButtonVisible(shouldShowDialogue && isBlacksmith);
 
             if (shouldShowDialogue)
             {
@@ -206,6 +225,29 @@ namespace Godmist.Views.NPC
             {
                 tradeButton.gameObject.SetActive(isVisible);
             }
+        }
+
+        private void TryOpenCrafting()
+        {
+            var dialogue = dialogueService.ActiveDialogue;
+            if (dialogue == null || !EnsureCraftingWindow()) return;
+            if (!craftingWindow.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
+            dialogueService.TryEndDialogue();
+        }
+
+        private bool EnsureCraftingWindow()
+        {
+            if (craftingWindow != null) return true;
+            var workspaceRoot = UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
+            if (craftingWindowPrefab == null || workspaceRoot == null) return false;
+
+            craftingWindow = Instantiate(craftingWindowPrefab, workspaceRoot);
+            return craftingWindow != null;
+        }
+
+        private void SetCraftingButtonVisible(bool isVisible)
+        {
+            if (craftingButton != null) craftingButton.gameObject.SetActive(isVisible);
         }
 
         private void ClearChoices()

@@ -14,6 +14,9 @@ namespace Godmist.Editor
             Draw("<RequiredClass>k__BackingField");
             Draw("<Kind>k__BackingField");
             Draw("<LevelBracket>k__BackingField");
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Materiały craftingu", EditorStyles.boldLabel);
+            Draw("<CraftingMaterials>k__BackingField");
 
             var part = (EquipmentPartDefinition)target;
             var stats = serializedObject.FindProperty("<Stats>k__BackingField");

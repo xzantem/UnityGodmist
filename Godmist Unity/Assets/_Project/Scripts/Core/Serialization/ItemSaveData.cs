@@ -11,6 +11,7 @@ namespace Godmist.Core.Serialization
         public string ItemDefinitionId = string.Empty;
         public RarityTier CurrentRarity;
         public int ItemLevel;
+        public string CustomName = string.Empty;
 
         public bool IsEquipment;
         public bool IsLootBag;

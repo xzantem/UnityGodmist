@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d797faead75a5b4487d9466c2be1f5c, type: 3}
+  m_Name: BRD_Arungard_Blacksmith
+  m_EditorClassIdentifier: Data::Godmist.Data.NPC.BlacksmithRoleData
+  <ClassOffers>k__BackingField:
+  - <WeaponBase>k__BackingField: {fileID: 11400000, guid: ea659bcfb2cf0b84f81cbe67e37a2e33, type: 2}
+    <ArmorBase>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
+  - <WeaponBase>k__BackingField: {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
+    <ArmorBase>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
+  - <WeaponBase>k__BackingField: {fileID: 11400000, guid: 5f10eb15a679a174892d50425ac86a79, type: 2}
+    <ArmorBase>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
+  - <WeaponBase>k__BackingField: {fileID: 11400000, guid: 89180bb0256616a42bc11777057d98cf, type: 2}
+    <ArmorBase>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}

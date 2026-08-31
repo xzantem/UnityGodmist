@@ -67,6 +67,52 @@ namespace Godmist.Systems.Items
                 selected.Add(candidates[random.Next(candidates.Count)]);
             }
 
+            return GenerateFromSelectedParts(definition, selected, quality, rarity);
+        }
+
+        /// <summary>
+        /// Creates equipment from an explicit, player-selected set of three parts.
+        /// The generator remains the sole owner of the resulting runtime payload.
+        /// </summary>
+        public EquipmentItemInstance GenerateFromSelectedParts(
+            EquipmentItemDefinition definition,
+            IReadOnlyList<EquipmentPartDefinition> selectedParts,
+            EquipmentQuality quality)
+        {
+            return GenerateFromSelectedParts(
+                definition,
+                selectedParts,
+                quality,
+                RollRarity());
+        }
+
+        public EquipmentItemInstance GenerateFromSelectedParts(
+            EquipmentItemDefinition definition,
+            IReadOnlyList<EquipmentPartDefinition> selectedParts,
+            EquipmentQuality quality,
+            RarityTier rarity)
+        {
+            if (definition == null || definition.RequiredClass == null
+                || selectedParts == null
+                || !Enum.IsDefined(typeof(EquipmentQuality), quality)
+                || !Enum.IsDefined(typeof(RarityTier), rarity)) return null;
+
+            var kinds = GetRequiredKinds(definition);
+            if (kinds == null || selectedParts.Count != kinds.Length) return null;
+
+            var selected = new List<EquipmentPartDefinition>(selectedParts);
+
+            foreach (var kind in kinds)
+            {
+                var count = selected.Count(part => part != null
+                    && part.Kind == kind
+                    && part.RequiredClass == definition.RequiredClass
+                    && !string.IsNullOrWhiteSpace(part.Id)
+                    && part.Stats != null);
+
+                if (count != 1) return null;
+            }
+
             var item = itemFactory.Create(definition) as EquipmentItemInstance;
             if (item == null) return null;
 
@@ -74,8 +120,8 @@ namespace Godmist.Systems.Items
             item.Quality = quality;
             item.PartIds = selected.Select(part => part.Id).ToList();
             var bracket = selected.Max(part => (int)part.LevelBracket);
-            item.RequiredLevel = bracket;
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
+            item.RequiredLevel = item.ItemLevel;
             item.StatModifiers = BuildFinalItemStats(selected, quality);
             return item;
         }

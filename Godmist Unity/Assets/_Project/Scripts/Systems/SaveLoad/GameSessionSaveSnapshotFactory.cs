@@ -903,7 +903,8 @@ namespace Godmist.Systems.SaveLoad
                 InstanceId = item.InstanceId,
                 ItemDefinitionId = item.Definition.Id,
                 CurrentRarity = item.CurrentRarity,
-                ItemLevel = item.ItemLevel
+                ItemLevel = item.ItemLevel,
+                CustomName = item.CustomName ?? string.Empty
             };
 
             if (item is EquipmentItemInstance equipmentItem)

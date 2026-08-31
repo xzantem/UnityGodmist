@@ -339,6 +339,7 @@ namespace Godmist.Systems.SaveLoad
 
                 item.CurrentRarity = itemSaveData.CurrentRarity;
                 item.ItemLevel = itemSaveData.ItemLevel;
+                item.CustomName = itemSaveData.CustomName ?? string.Empty;
 
                 if (item is EquipmentItemInstance equipmentItem)
                 {
