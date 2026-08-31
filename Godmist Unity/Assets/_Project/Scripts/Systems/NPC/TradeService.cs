@@ -1,3 +1,4 @@
+using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -16,7 +17,7 @@ namespace Godmist.Systems.NPC
         {
             if (item?.Definition == null) return 0;
 
-            return Mathf.Max(0, item.Definition.BaseValue);
+            return GetBaseValue(item.Definition);
         }
 
         public int GetPriceFromBuyback(BuybackEntry entry)
@@ -35,7 +36,7 @@ namespace Godmist.Systems.NPC
             var multiplier = IsRelevantForTrader(trader, item) ? 0.5f : 0.25f;
 
             return Mathf.FloorToInt(
-                Mathf.Max(0, item.Definition.BaseValue) * multiplier);
+                GetBaseValue(item.Definition) * multiplier);
         }
 
         public bool TryBuyFromTrader(
@@ -88,6 +89,13 @@ namespace Godmist.Systems.NPC
             trader.SpentGoldTotal += price;
             paidGold = price;
             return true;
+        }
+
+        private static int GetBaseValue(ItemDefinition definition)
+        {
+            return definition is CraftableItemDefinition craftable
+                ? craftable.CalculatedBaseValue
+                : Mathf.Max(0, definition?.BaseValue ?? 0);
         }
 
         public bool TryBuyFromBuyback(

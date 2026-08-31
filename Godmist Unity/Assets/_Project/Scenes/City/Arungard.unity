@@ -1595,7 +1595,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Wytwarzanie
+  m_text: "Us\u0142ugi"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -31207,7 +31207,7 @@ GameObject:
   - component: {fileID: 1826472177}
   - component: {fileID: 1826472176}
   m_Layer: 5
-  m_Name: CraftButton
+  m_Name: ServicesButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34821,8 +34821,8 @@ MonoBehaviour:
   choiceButtonPrefab: {fileID: 5445781122780515514, guid: b8d269e4df1c8fb43b476cba0dc411d9, type: 3}
   tradeButton: {fileID: 1399357379}
   tradePanel: {fileID: 934054409}
-  craftingButton: {fileID: 1826472176}
-  craftingWindowPrefab: {fileID: 5706601683833401342, guid: c52b9a36d81c42345ab3cfd3de702c24, type: 3}
+  servicesButton: {fileID: 1826472176}
+  servicesWindowPrefab: {fileID: 1200431678693326598, guid: 58a58e83af16e8b4d86bf17c96f64175, type: 3}
 --- !u!1 &2065272709
 GameObject:
   m_ObjectHideFlags: 0

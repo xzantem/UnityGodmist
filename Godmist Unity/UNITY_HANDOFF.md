@@ -1,148 +1,161 @@
 # Unity handoff
 
-Karta: `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1`
+Karta: `[P2] Crafting półproduktów materiałów v1`
 
-Implementacja jest gotowa do recznego smoke testu w Unity Editorze. Nie uruchamialem Unity Test Runnera ani `Godmist Unity Test Mirror`.
+Efekt końcowy: jedno okno `Usługi Kowala` z pionowymi ikonami po lewej. Pokazuje equipment crafting i półprodukty. Obecny sklep pozostaje osobnym `TradePanelView` w tej karcie.
 
-## Co zostalo zaimplementowane
+## 1. Utwórz dane CID
 
-- Skrzynia korzysta z tego samego okna lootu co cialo przeciwnika.
-- Loot ze skrzyni jest odbierany pojedynczo bezposrednio do inventory aktywnej postaci.
-- Skrzynia pozostaje w lochu po otwarciu i po oproznieniu.
-- Puste okno pokazuje komunikat `Skrzynia jest pusta.`.
-- Skrzynia moze byc otwarta, wymagac konkretnego klucza albo wymagac klucza lub lockpicka.
-- Klucz jest dopasowywany po konkretnym `ItemDefinition.Id`, wiec nie otwiera wszystkich skrzyn.
-- Zuzywany jest jeden klucz albo jeden lockpick. Przedmioty moga znajdowac sie w inventory dowolnego aktywnego czlonka druzyny.
-- Lockpick w v1 zawsze dziala i nie ma statystyk, szansy ani minigry.
-- Dodano `ItemType.Tool` oraz testowe assety `ID_TestKey` i `ID_TestLockpick`.
-- Stan odblokowania i pozostaly loot skrzyni sa zapisywane i odtwarzane razem ze stanem lochu.
+### Surowce bazowe
 
-## Przygotowanie testu
+Utwórz zwykłe `ItemDefinition` dla rudy żelaza, skóry kozy, drewna modrzewiowego i włókna bawełny. Dla każdego ustaw:
 
-### 1. Sprawdz referencje sceny
+- `Item Type`: `Material`
+- `Material Discipline`: `Smithing`
+- `Is Stackable`: włączone
+- `Base Value`: ręcznie ustalana źródłowa cena ekonomiczna.
 
-1. Otworz scene `Assets/_Project/Scenes/Sandbox/DungeonSandbox.unity`.
-2. Znajdz obiekt zawierajacy komponent `DungeonObjectSpawner`.
-3. Sprawdz, czy pole `Dungeon Loot Window Prefab` wskazuje na `PF_UIW_DungeonLootWindow`.
-4. Nie trzeba tworzyc nowego prefabu okna. Skrzynia otrzymuje ta sama referencje automatycznie podczas spawnowania.
+### Craftowane itemy
 
-### 2. Sprawdz assety testowe
+Utwórz `CraftableItemDefinition` z prefiksem `CID_`. CID sam jest wynikiem oraz receptą — nie wskazuje oddzielnego `ItemDefinition` jako result.
 
-Assety znajduja sie tutaj:
+Na każdym CID półproduktu ustaw:
 
-- `Assets/_Project/ScriptableObjects/Items/ID_TestKey.asset`
-- `Assets/_Project/ScriptableObjects/Items/ID_TestLockpick.asset`
-- `Assets/_Project/ScriptableObjects/Dungeons/Objects/DO_Chest_Debug.asset`
+- `Item Type`: `Material`
+- `Is Stackable`: włączone
+- `Crafting Discipline`: `Smithing`
+- `Output Amount` i `Ingredients` według recepty.
 
-Oba itemy sa dodane do `GC_MainContentCatalog`.
+Nie ustawiaj `Base Value`: CID pokazuje wyłącznie `Calculated Base Value`. Jest to suma cen składników podzielona przez `Output Amount`; półprodukty w składnikach wyceniają się rekurencyjnie.
 
-`DO_Chest_Debug` pozostaw domyslnie jako `Unlocked`, aby zwykly test lootu nie blokowal generowanego lochu.
+- `CID_IronIngot`: wynik ×1; ruda żelaza ×2.
+- `CID_LargeIronIngot`: wynik ×1; ruda żelaza ×6.
+- `CID_IronChain`: wynik ×1; `CID_IronIngot` ×1.
+- `CID_IronPlate`: wynik ×1; `CID_IronIngot` ×2.
+- `CID_TannedGoatLeather`: wynik ×1; skóra kozy ×1.
+- `CID_GoatLeatherStrips`: wynik ×2; `CID_TannedGoatLeather` ×1.
+- `CID_LarchPlank`: wynik ×2; drewno modrzewiowe ×1.
+- `CID_LarchStick`: wynik ×8; `CID_LarchPlank` ×3.
+- `CID_WeakNeedle`: wynik ×3; `CID_IronIngot` ×1.
+- `CID_CottonThread`: wynik ×2; włókno bawełny ×1.
+- `CID_CottonCloth`: wynik ×3; `CID_CottonThread` ×8 oraz `CID_WeakNeedle` ×1.
 
-## Test 1: otwarta skrzynia i wspolne okno lootu
+W `BRD_Arungard_Blacksmith > Material Recipes` dodaj te CID w podanej kolejności. W `TRD_Arungard_Trader > Initial Offer` dodaj tylko składniki, które kowal ma sprzedawać.
 
-1. Otworz `DO_Chest_Debug`.
-2. Ustaw `Lock Type` = `Unlocked`.
-3. Uruchom dungeon z obiektem skrzyni.
-4. Podejdz liderem do skrzyni i nacisnij `E`.
+## 2. Zbuduj root okna usług
 
-Oczekiwany rezultat:
+1. Zduplikuj `PF_UIW_BlacksmithCraftingWindow` jako `PF_UIW_NpcServicesWindow`.
+2. Otwórz nowy prefab w Prefab Mode.
+3. Zachowaj root, `UIWorkspaceWindow`, Header i przycisk X bez zmian.
+4. Na root dodaj `NpcServicesWindowView`.
+5. Znajdź najwyższy GameObject zawierający cały obecny crafting equipmentu: `1. Wybierz bazę`, `2. Złóż części`, `3. Nazwa i jakość`, `Wynik`, `Materiały`, `Wytwórz`. Nazwij go `EquipmentServiceRoot`.
+6. Na istniejącym `BlacksmithCraftingWindowView` ustaw `Service Root` → `EquipmentServiceRoot`. `Window` nadal wskazuje rootowy `UIWorkspaceWindow`.
 
-- otwiera sie `PF_UIW_DungeonLootWindow`;
-- tytul okna to `Łup ze skrzyni`;
-- loot widoczny jest w tym samym stylu co loot z ciala;
-- klikniecie itemu dodaje go do inventory lidera;
-- item znika z okna, ale skrzynia pozostaje na mapie;
-- po zabraniu wszystkich itemow okno pokazuje `Skrzynia jest pusta.`;
-- ponowne nacisniecie `E` otwiera puste okno, a sama skrzynia nadal jest widoczna.
+## 3. Dodaj zakładki
 
-## Test 2: skrzynia wymagajaca konkretnego klucza
+### `ServiceTabs`
 
-1. Otworz `DO_Chest_Debug`.
-2. Ustaw `Lock Type` = `KeyRequired`.
-3. Ustaw `Required Key` na `ID_TestKey`.
-4. Uruchom nowa generacje dungeonu.
-5. Podejdz do skrzyni i nacisnij `E` bez klucza.
-6. Dodaj klucz aktywnemu liderowi przez dev console:
+- Parent: `PF_UIW_NpcServicesWindow`
+- Typ: Empty
 
-   `giveitem <characterId> item.key.test.01 1`
+#### RectTransform
 
-   `<characterId>` to ID aktywnego lidera, np. `jerzy`, jezeli jest aktualnie liderem.
-7. Ponownie nacisnij `E` przy skrzyni.
+- Anchor Min: `(0, 0)`
+- Anchor Max: `(0, 1)`
+- Pivot: `(1, 0.5)`
+- Pos X: `-8`
+- Width: `56`
+- Top: `58`
+- Bottom: `12`
 
-Oczekiwany rezultat:
+#### Komponenty
 
-- bez klucza skrzynia nie otwiera lootu i pokazuje komunikat o braku odpowiedniego klucza;
-- po dodaniu klucza skrzynia otwiera sie;
-- jeden klucz zostaje usuniety z inventory;
-- po otwarciu dziala normalne odbieranie lootu;
-- inny item typu `Key` o innym `Id` nie otwiera skrzyni.
+- `Vertical Layout Group`: `Child Alignment = Upper Center`, `Spacing = 8`, `Control Child Size Width = true`, `Control Child Size Height = true`, `Child Force Expand Width = true`, `Child Force Expand Height = false`.
 
-## Test 3: skrzynia otwierana kluczem albo lockpickiem
+`ServiceTabs` celowo wystaje poza lewą krawędź rootowego okna. Nie umieszczaj go pod `Content` i nie dodawaj maski; ma zachowywać się jak zakładki huba z drzewka.
 
-1. Otworz `DO_Chest_Debug`.
-2. Ustaw `Lock Type` = `KeyOrLockpick`.
-3. Ustaw `Required Key` na `ID_TestKey`.
-4. Uruchom nowa generacje dungeonu.
-5. Najpierw przetestuj otwarcie z kluczem — powinien zostac zuzyty klucz.
-6. Wygeneruj dungeon ponownie albo uzyj kolejnej skrzyni.
-7. Dodaj aktywnemu liderowi lockpick przez dev console:
+### `TabTemplate`
 
-   `giveitem <characterId> item.lockpick.test.01 1`
+Pod `ServiceTabs` dodaj jeden prefab variant `PF_UIW_ItemSlot`, nazwij go `TabTemplate` i wyłącz GameObject w prefabie. Kod klonuje go dla każdej aktualnie dostępnej usługi.
 
-8. Podejdz do skrzyni i nacisnij `E`.
+Na `TabTemplate` dodaj `NpcServiceTabView` i ustaw:
 
-Oczekiwany rezultat:
+- `Button` → rootowy `Button` template’u.
+- `Icon` → `TabTemplate/Icon`.
+- `Selected Border` → `TabTemplate/Border`.
+- `Layout Element > Preferred Width`: `48`.
+- `Layout Element > Preferred Height`: `48`.
 
-- skrzynia otwiera sie bez klucza, jezeli aktywna druzyna ma lockpick;
-- jeden lockpick zostaje zuzyty;
-- otwiera sie wspolne okno lootu;
-- nie jest uruchamiana zadna minigra ani test statystyki.
+Przesuń `EquipmentServiceRoot` w prawo: jego lewy margines ma wynosić `80`. Dzieci sterowanych Layout Group nie przesuwaj ręcznie.
 
-## Test 4: zamkniecie i ponowne otwarcie okna
+## 4. Zbuduj panel półproduktów
 
-1. Otworz skrzynie.
-2. Zamknij okno przyciskiem `X`.
-3. Otworz skrzynie ponownie.
-4. Odbierz tylko czesc przedmiotow.
-5. Zamknij okno i otworz je jeszcze raz.
+Nie buduj prawej strony drugi raz. Będzie identyczną kopią obecnego equipment craftingu.
 
-Oczekiwany rezultat:
+1. Pod `Content` zduplikuj cały `EquipmentServiceRoot` jako sibling i nazwij kopię `MaterialCraftingServiceRoot`.
+2. Nie zmieniaj RectTransform kopii. Ma dokładnie zajmować ten sam obszar `Content`, co equipment crafting.
+3. Na `MaterialCraftingServiceRoot` usuń komponent `BlacksmithCraftingWindowView`; dodaj `MaterialCraftingWindowView`.
+4. W kopii zachowaj całą prawą kolumnę bez zmian: sekcję `Wynik`, sekcję `Materiały`, tekst statusu oraz przycisk `Wytwórz`. To jest gotowa `ActionColumn` dla CID.
+5. W lewej kolumnie usuń trzy sekcje specyficzne dla equipmentu: `1. Wybierz bazę`, `2. Złóż części` i `3. Nazwa i jakość`.
+6. Zduplikuj dawną sekcję `1. Wybierz bazę` **przed jej usunięciem** i użyj kopii jako jedynej lewej sekcji. Nazwij ją `RecipeSection`; tytuł ustaw na `Wybierz receptę`.
+7. `BaseSection` nie ma Scroll View. W `RecipeSection/Content` usuń odziedziczony `BaseGrid` oraz wszystkie jego sloty.
+8. Do `RecipeSection/Content` dodaj wariant `PF_UIW_ScrollView` nazwany `RecipeScroll`. Jego RectTransform wypełnia `RecipeSection/Content`; `RecipeScroll/Viewport/Content` nazwij `RecipeContent`.
+9. Na `RecipeContent` dodaj `Grid Layout Group` z dokładnie tymi ustawieniami:
+   - `Padding`: Left `0`, Right `0`, Top `0`, Bottom `0`.
+   - `Child Alignment`: `Upper Left`.
+   - `Start Corner`: `Upper Left`.
+   - `Start Axis`: `Horizontal`.
+   - `Cell Size`: X `100`, Y `100`.
+   - `Spacing`: X `8`, Y `8`.
+   - `Constraint`: `Fixed Column Count`.
+   - `Constraint Count`: `4`.
+10. Na `RecipeContent` dodaj `Content Size Fitter`: `Horizontal Fit = Unconstrained`, `Vertical Fit = Preferred Size`.
+11. Do `RecipeContent` dodaj jeden `BlacksmithCraftingSlotView`, nazwij go `RecipeSlotTemplate` i wyłącz GameObject. `RecipeScroll` zostaje, bo lista CID będzie rosnąć.
+9. W prawej sekcji `Materiały` zachowaj obecny `MaterialsContent` i jego `Grid Layout Group`; nie umieszczaj materiałów w Scroll View. Zostaw jeden ukryty `BlacksmithCraftingSlotView` jako `MaterialSlotTemplate`, wraz z przyciskiem zakupu pod slotem.
+10. Wyłącz cały `MaterialCraftingServiceRoot` w prefabie.
 
-- skrzynia nadal jest interaktywna;
-- zabrane itemy nie wracaja;
-- niezabrane itemy nadal sa dostepne;
-- pojemnosc inventory blokuje odebranie zbyt ciezkiego itemu bez usuwania go ze skrzyni.
+Na `MaterialCraftingWindowView` ustaw:
 
-## Test 5: zapis stanu skrzyni
+- `Service Root` → `MaterialCraftingServiceRoot`.
+- `Recipe Grid` → `RecipeContent` (dokładnie obiekt z `Grid Layout Group`, wewnątrz `RecipeScroll/Viewport/Content`).
+- `Materials Grid` → `MaterialsContent` (dokładnie obiekt z `Grid Layout Group` w sekcji `Materiały`, nie root sekcji ani Scroll View).
+- `Recipe Slot Template` → `RecipeSlotTemplate`.
+- `Material Slot Template` → `MaterialSlotTemplate`.
+- `Preview Tooltip Slot` → istniejący slot ikony w sekcji `Wynik`.
+- `Preview Name Text` → istniejący tekst nazwy wyniku.
+- `Preview Summary Text` → istniejący tekst pod nazwą wyniku.
+- `Status Text` → istniejący tekst statusu.
+- `Craft Button` → istniejący przycisk `Wytwórz`.
 
-1. Otworz zamknieta skrzynie kluczem albo lockpickiem.
-2. Zabierz jeden item, pozostawiajac co najmniej jeden item w skrzyni.
-3. Wykonaj zapis gry.
-4. Wczytaj zapis.
-5. Wroc do tej samej skrzyni.
+## 5. Podepnij rootowy komponent
 
-Oczekiwany rezultat:
+Na root `PF_UIW_NpcServicesWindow > NpcServicesWindowView` ustaw:
 
-- skrzynia nadal jest odblokowana;
-- zabrany item nie pojawia sie ponownie;
-- pozostaly item nadal mozna odebrac;
-- po calkowitym oproznieniu skrzynia pozostaje widoczna i pokazuje puste okno.
+- `Window` → rootowy `UIWorkspaceWindow`.
+- `Title Text` → tytuł Headera.
+- `Tabs Content` → `ServiceTabs`.
+- `Tab Template` → `ServiceTabs/TabTemplate`.
+- `Tab Definitions`, rozmiar `2`:
+  - element `0`: `Kind = Equipment Crafting`, ikona equipmentu;
+  - element `1`: `Kind = Material Crafting`, ikona materiałów.
+- `Equipment Crafting Service` → istniejący `BlacksmithCraftingWindowView`.
+- `Material Crafting Service` → `MaterialCraftingServiceRoot/MaterialCraftingWindowView`.
 
-## Uwagi o danych
+## 6. Podepnij dialog dopiero na końcu
 
-- `Lock Type` i `Required Key` sa zapisane na `ChestDungeonObjectDefinition`. Wszystkie instancje korzystajace z tej samej definicji maja ten sam model zamka.
-- Jezeli potrzebne sa rozne rodzaje skrzyn w jednym katalogu, utworz osobne assety `ChestDungeonObjectDefinition` z roznymi ustawieniami i dodaj je do `DungeonDefinition.ObjectDefinitions`.
-- Skrzynia z `KeyRequired` albo `KeyOrLockpick` bez `Required Key` jest odrzucana przez placement system i nie zostanie wygenerowana.
-- Testowe assety nie maja ikon. Brak ikony nie blokuje dzialania, ale w oknie lootu item bedzie bez grafiki.
+W `Arungard`, na `NpcDialogueController`:
 
-## Regresja
+1. Zachowaj istniejący przycisk handlu i jego referencje `Trade Button` oraz `Trade Panel`.
+2. Przygotuj osobny przycisk `Usługi kowala`.
+3. `Services Button` → przycisk `Usługi kowala`.
+4. `Services Window Prefab` → `PF_UIW_NpcServicesWindow`.
 
-Sprawdz, ze:
+## Smoke test
 
-- loot z cial przeciwnikow nadal otwiera sie i odbiera jak wczesniej;
-- skrzynie nadal sa rozmieszczane tylko na semantic anchorach `Chest`;
-- wejscie w interakcje przez sciane nadal jest blokowane przez `HasDirectAccess`;
-- otwarte okno lootu zamyka sie po wejsciu w combat albo po opuszczeniu exploration;
-- zwykla skrzynia `Unlocked` nie trafia do `PendingLoot`.
-
-Po smoke tescie uruchom recznie odpowiednie testy Unity, jezeli chcesz potwierdzic regresje zapisu i lootu.
+1. Poczekaj na kompilację Unity i wygenerowanie `.meta` nowych skryptów.
+2. Zwykły handlarz: istniejący przycisk handlu nadal otwiera obecny `TradePanel`.
+3. Kowal: `Usługi kowala` otwiera jedno okno z dwiema ikonami po lewej.
+4. Przełącz equipment → półprodukty bez zamykania okna.
+5. Craftuj CID ze składników rozdzielonych między aktywnych członków party.
+6. Sprawdź zakup brakującego składnika od kowala.
+7. Zamknij okno X: gra wraca do eksploracji.

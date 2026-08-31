@@ -52,12 +52,29 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
   - Trwaly magazyn kampanii do odkladania itemow poza inventory postaci.
 - `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
   - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
-- `[P2] Dodac crafting półproduktów kowalskich v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
-  - Osobna usługa kowala do tworzenia artisan/crafting goods, takich jak metalowe łańcuchy. Nie rozszerza craftingu equipmentu z trzech części ani nie obejmuje materiałów alchemicznych lub runicznych.
 - `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
   - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
   - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
+
+### Milestone: Developer Workflow and Content Authoring v1
+
+Planowany bezpośrednio po `Crafting, Upgrading and Consumables v1`. Skraca iterację contentową: rozwija konsolę developerską, tworzenie danych i walidację assetów. Nie dodaje gameplayu, ale pozwala szybciej budować późniejsze skille, itemy, przeciwników, loot table i crafting z arkuszy.
+
+- `[P1] Rozszerzyć nawigację rekomendacji konsoli v1` - `Tools / Editor / Debug`, `UI / UX`
+  - Konsola pokazuje nadal pięć pozycji naraz, ale scroll kółkiem lub klawiszami góra/dół porusza się po pełnej liście legalnych rekomendacji. Zmiana komendy lub argumentu resetuje zaznaczenie; Enter wybiera aktualną pozycję.
+- `[P1] Dodać schematy komend i opcjonalne argumenty konsoli v1` - `Tools / Editor / Debug`, `Core / Architecture`, `UI / UX`
+  - Każda komenda deklaruje wymagane i opcjonalne argumenty, walidację oraz kontekstowe sugestie. Przykład: `createitem <itemId> [amount] [characterId]`. `help` wyświetla jednoznaczną składnię i przykłady.
+- `[P1] Rozszerzyć zestaw komend content/debug v1` - `Tools / Editor / Debug`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`
+  - Ujednolicić istniejące komendy oraz dodać te potrzebne do testowania contentu: przekazanie itemów do wybranej postaci, złoto, XP, inspekcja inventory, stan questa/flag i wygodne uruchamianie testowego encountera. Każda zmiana runtime ma czytelny raport zwrotny.
+- `[P1] Dodać Content Authoring Window dla itemów i equipmentu v1` - `Tools / Editor / Debug`, `Content / Data`, `Items / Inventory / Economy`
+  - Jedno okno Editorowe z wyszukiwaniem, filtrowaniem i walidacją dla itemów, baz equipmentu, części oraz materiałów. Ułatwia tworzenie/duplikację assetów, ustawienie klasy, bracketu, statystyk, receptury i przypisanie do katalogu contentu.
+- `[P1] Dodać import-preview danych z arkuszy contentowych v1` - `Tools / Editor / Debug`, `Content / Data`
+  - Narzędzie czyta wybrany arkusz lub eksport CSV, pokazuje preview planowanych zmian i waliduje je przed zapisem. Nie nadpisuje assetów automatycznie: pokazuje tworzone, aktualizowane oraz błędne rekordy.
+- `[P1] Dodać walidator contentu i raport referencji v1` - `Tools / Editor / Debug`, `Content / Data`
+  - Jedno polecenie Editorowe sprawdza duplikaty ID, brakujące referencje katalogu, niezgodną klasę bazy/części, złe receptury oraz martwe assety. Błędy prowadzą bezpośrednio do assetu.
+- `[P1] Developer Workflow and Content Authoring v1 — acceptance pass` - `Tools / Editor / Debug`, `Content / Data`, `UI / UX`
+  - Ręczna weryfikacja pełnego flow: rekord w arkuszu → preview importu → asset → walidacja → `createitem` dla wybranej postaci → test w grze.
 
 ### Milestone: Combat Passives and Affixes v1
 
@@ -105,6 +122,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## In Progress
 
+### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
+  - Zastąpić legacy `TradePanelView` zakładką sklepu we wspólnym UI Workspace usług NPC. Karta osobna po craftingu półproduktów; obejmuje dopiero wtedy migrację istniejącego handlu, buybacku i jego smoke test.
+
 ### Karty do decyzji o przypisaniu do milestone'u
 
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
@@ -120,6 +142,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 ## Done
 
 ### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P2] Dodac crafting półproduktów materiałów v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`, `Core / Architecture`
+  - Zrealizowano ogólny `CraftableItemDefinition`, z recepturami na stackowalne półprodukty oraz `MaterialDiscipline` (`Smithing`, `Alchemy`, `Runic`), zachowując wspólny `ItemType.Material`. Kowal v1 korzysta wyłącznie z materiałów `Smithing`.
+  - Dodano startowy content kowalski: sztabki żelaza, łańcuchy, blachy, wyprawioną skórę i paski, deski i patyki modrzewiowe, igły, nitki oraz tkaninę bawełnianą — zgodnie z ustalonymi recepturami.
+  - Zrealizowano rozszerzalne UI Workspace `Usługi NPC` z zakładkami craftingu equipmentu i półproduktów. Koszty agregują inventory aktywnej drużyny, wynik trafia do lidera, a brakujące składniki można kupić z oferty kowala.
 
 - `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
   - Zrealizowano craft u kowala z wyborem bazy i trzech czesci, materialami agregowanymi z aktywnej druzyny, preview, zakupem brakujacego materialu z oferty kowala oraz utrwaleniem wybranej jakosci i nazwy. Generator runtime pozostaje ownerem payloadu.

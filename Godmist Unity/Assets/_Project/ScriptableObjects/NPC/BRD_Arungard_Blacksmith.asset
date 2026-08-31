@@ -21,3 +21,15 @@ MonoBehaviour:
     <ArmorBase>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
   - <WeaponBase>k__BackingField: {fileID: 11400000, guid: 89180bb0256616a42bc11777057d98cf, type: 2}
     <ArmorBase>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
+  <MaterialRecipes>k__BackingField:
+  - {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
+  - {fileID: 11400000, guid: 707e406a50f57e7418c9407918722610, type: 2}
+  - {fileID: 11400000, guid: 310c3cc8bb820f240a080021196d3d89, type: 2}
+  - {fileID: 11400000, guid: 07278e3d4e37b4b469179097a027b7ab, type: 2}
+  - {fileID: 11400000, guid: f481de87f6a079342b22be9dd0f7526b, type: 2}
+  - {fileID: 11400000, guid: 0261d60a5969e89498047fc2cdce66c6, type: 2}
+  - {fileID: 11400000, guid: 0a569b03954ad1d4bb8f554846df8931, type: 2}
+  - {fileID: 11400000, guid: 985f287d1c302b148a64d20ebbebba7b, type: 2}
+  - {fileID: 11400000, guid: d3d03af48edebd94bb80b2bfe908a941, type: 2}
+  - {fileID: 11400000, guid: 4d29cb9f13ad13740ab046fe92936114, type: 2}
+  - {fileID: 11400000, guid: e63ad623fcfdfc5458a00a2cc07d08df, type: 2}

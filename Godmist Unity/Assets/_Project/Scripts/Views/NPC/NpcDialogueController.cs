@@ -24,12 +24,12 @@ namespace Godmist.Views.NPC
         [Header("NPC services")]
         [SerializeField] private Button tradeButton;
         [SerializeField] private TradePanelView tradePanel;
-        [SerializeField] private Button craftingButton;
-        [SerializeField] private BlacksmithCraftingWindowView craftingWindowPrefab;
+        [SerializeField] private Button servicesButton;
+        [SerializeField] private NpcServicesWindowView servicesWindowPrefab;
 
         private DialogueService dialogueService;
         private GameSession gameSession;
-        private BlacksmithCraftingWindowView craftingWindow;
+        private NpcServicesWindowView servicesWindow;
 
         private void Start()
         {
@@ -54,16 +54,16 @@ namespace Godmist.Views.NPC
             dialogueService.DialogueNodeChanged += HandleDialogueNodeChanged;
             dialogueService.DialogueEnded += HandleDialogueEnded;
 
+            if (servicesButton != null)
+            {
+                servicesButton.onClick.AddListener(TryOpenServices);
+                servicesButton.gameObject.SetActive(false);
+            }
+
             if (tradeButton != null)
             {
                 tradeButton.onClick.AddListener(TryOpenTrade);
                 tradeButton.gameObject.SetActive(false);
-            }
-
-            if (craftingButton != null)
-            {
-                craftingButton.onClick.AddListener(TryOpenCrafting);
-                craftingButton.gameObject.SetActive(false);
             }
 
             panelRoot.SetActive(false);
@@ -84,14 +84,13 @@ namespace Godmist.Views.NPC
                 dialogueService.DialogueEnded -= HandleDialogueEnded;
             }
 
+            if (servicesButton != null)
+            {
+                servicesButton.onClick.RemoveListener(TryOpenServices);
+            }
             if (tradeButton != null)
             {
                 tradeButton.onClick.RemoveListener(TryOpenTrade);
-            }
-
-            if (craftingButton != null)
-            {
-                craftingButton.onClick.RemoveListener(TryOpenCrafting);
             }
         }
 
@@ -125,8 +124,8 @@ namespace Godmist.Views.NPC
         {
             ClearChoices();
             panelRoot.SetActive(false);
+            SetServicesButtonVisible(false);
             SetTradeButtonVisible(false);
-            SetCraftingButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -149,8 +148,8 @@ namespace Godmist.Views.NPC
             if (gameSession == null || dialogue == null)
             {
                 panelRoot.SetActive(false);
+                SetServicesButtonVisible(false);
                 SetTradeButtonVisible(false);
-                SetCraftingButtonVisible(false);
                 return;
             }
 
@@ -161,9 +160,8 @@ namespace Godmist.Views.NPC
 
             var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
             var isBlacksmith = dialogue.Npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
-
             SetTradeButtonVisible(shouldShowDialogue && isTrader);
-            SetCraftingButtonVisible(shouldShowDialogue && isBlacksmith);
+            SetServicesButtonVisible(shouldShowDialogue && isBlacksmith);
 
             if (shouldShowDialogue)
             {
@@ -205,49 +203,40 @@ namespace Godmist.Views.NPC
                 $"Nie znaleziono wyboru dialogowego o ID '{choiceId}'.");
         }
 
+        private void TryOpenServices()
+        {
+            var dialogue = dialogueService.ActiveDialogue;
+            if (dialogue == null || !EnsureServicesWindow()) return;
+            if (!servicesWindow.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
+            dialogueService.TryEndDialogue();
+        }
+
         private void TryOpenTrade()
         {
             var dialogue = dialogueService.ActiveDialogue;
-
             if (dialogue == null || tradePanel == null) return;
-
-            if (!tradePanel.Open(dialogue.Npc, dialogue.InitiatorCharacterId))
-            {
-                return;
-            }
-
+            if (!tradePanel.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
             dialogueService.TryEndDialogue();
         }
 
         private void SetTradeButtonVisible(bool isVisible)
         {
-            if (tradeButton != null)
-            {
-                tradeButton.gameObject.SetActive(isVisible);
-            }
+            if (tradeButton != null) tradeButton.gameObject.SetActive(isVisible);
         }
 
-        private void TryOpenCrafting()
+        private bool EnsureServicesWindow()
         {
-            var dialogue = dialogueService.ActiveDialogue;
-            if (dialogue == null || !EnsureCraftingWindow()) return;
-            if (!craftingWindow.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
-            dialogueService.TryEndDialogue();
-        }
-
-        private bool EnsureCraftingWindow()
-        {
-            if (craftingWindow != null) return true;
+            if (servicesWindow != null) return true;
             var workspaceRoot = UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
-            if (craftingWindowPrefab == null || workspaceRoot == null) return false;
+            if (servicesWindowPrefab == null || workspaceRoot == null) return false;
 
-            craftingWindow = Instantiate(craftingWindowPrefab, workspaceRoot);
-            return craftingWindow != null;
+            servicesWindow = Instantiate(servicesWindowPrefab, workspaceRoot);
+            return servicesWindow != null;
         }
 
-        private void SetCraftingButtonVisible(bool isVisible)
+        private void SetServicesButtonVisible(bool isVisible)
         {
-            if (craftingButton != null) craftingButton.gameObject.SetActive(isVisible);
+            if (servicesButton != null) servicesButton.gameObject.SetActive(isVisible);
         }
 
         private void ClearChoices()

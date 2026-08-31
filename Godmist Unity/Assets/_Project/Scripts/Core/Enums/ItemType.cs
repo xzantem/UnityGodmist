@@ -15,6 +15,18 @@ namespace Godmist.Core.Enums
         Tool = 10
     }
 
+    /// <summary>
+    /// Describes which specialist service may use a material. ItemType remains
+    /// Material so inventory, loot and trade do not need separate item families.
+    /// </summary>
+    public enum MaterialDiscipline
+    {
+        None = 0,
+        Smithing = 1,
+        Alchemy = 2,
+        Runic = 3
+    }
+
     public enum ChestLockType
     {
         Unlocked = 0,

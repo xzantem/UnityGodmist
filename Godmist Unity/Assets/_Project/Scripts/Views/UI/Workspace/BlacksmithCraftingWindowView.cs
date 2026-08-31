@@ -25,6 +25,7 @@ namespace Godmist.Views.UI.Workspace
 
     public sealed class BlacksmithCraftingWindowView : MonoBehaviour
     {
+        [SerializeField] private GameObject serviceRoot;
         [SerializeField] private UIWorkspaceWindow window;
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TMP_InputField customNameInput;
@@ -70,12 +71,20 @@ namespace Godmist.Views.UI.Workspace
 
         public bool Open(NpcInstance nextBlacksmith, string nextRecipientCharacterId)
         {
+            if (!Show(nextBlacksmith, nextRecipientCharacterId)) return false;
+            window?.Open();
+            return true;
+        }
+
+        public bool Show(NpcInstance nextBlacksmith, string nextRecipientCharacterId)
+        {
             session = GameBootstrap.Instance?.Session;
             if (session == null || nextBlacksmith == null
                 || string.IsNullOrWhiteSpace(nextRecipientCharacterId)) return false;
 
             blacksmith = nextBlacksmith;
             recipientCharacterId = nextRecipientCharacterId;
+            serviceRoot?.SetActive(true);
             selectedParts.Clear();
             PopulateQualityOptions();
             PopulateEquipmentChoices();
@@ -86,9 +95,13 @@ namespace Godmist.Views.UI.Workspace
                 return false;
             }
 
-            window?.Open();
             RefreshPreview();
             return true;
+        }
+
+        public void Hide()
+        {
+            serviceRoot?.SetActive(false);
         }
 
         private void PopulateQualityOptions()

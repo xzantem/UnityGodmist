@@ -18,5 +18,10 @@ namespace Godmist.Data.NPC
     public sealed class BlacksmithRoleData : NpcRoleData
     {
         [field: SerializeField] public List<BlacksmithClassCraftingOffer> ClassOffers { get; private set; } = new();
+        [field: SerializeField] public List<CraftableItemDefinition> MaterialRecipes
+        {
+            get;
+            private set;
+        } = new();
     }
 }

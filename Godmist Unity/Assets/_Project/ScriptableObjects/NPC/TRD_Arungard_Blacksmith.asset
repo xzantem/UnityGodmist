@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: TRD_Arungard_Blacksmith
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.TraderRoleData
   <InitialOffer>k__BackingField:
-  - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-  - {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
+  - {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+  - {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+  - {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+  - {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
   - {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
   - {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
   <RelevantItemTypes>k__BackingField: 00000000010000000200000003000000090000000a000000

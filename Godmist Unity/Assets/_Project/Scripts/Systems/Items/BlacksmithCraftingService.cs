@@ -340,6 +340,8 @@ namespace Godmist.Systems.Items
                 {
                     if (requirement?.Material == null
                         || requirement.Material.ItemType != ItemType.Material
+                        || GetMaterialDiscipline(requirement.Material)
+                            != MaterialDiscipline.Smithing
                         || requirement.Amount < 1)
                     {
                         return false;
@@ -390,6 +392,13 @@ namespace Godmist.Systems.Items
             EquipmentQuality.Excellent => 2f,
             _ => 1f
         };
+
+        private static MaterialDiscipline GetMaterialDiscipline(ItemDefinition item)
+        {
+            return item is CraftableItemDefinition craftable
+                ? craftable.CraftingDiscipline
+                : item?.MaterialDiscipline ?? MaterialDiscipline.None;
+        }
 
         private static bool IsCraftableQuality(EquipmentQuality quality) => quality is
             EquipmentQuality.Poor or EquipmentQuality.Normal or EquipmentQuality.Excellent;
