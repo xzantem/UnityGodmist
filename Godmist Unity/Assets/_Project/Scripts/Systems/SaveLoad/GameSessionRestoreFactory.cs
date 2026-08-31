@@ -155,6 +155,16 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            if (!TryRestoreInventory(
+                    restoredSession.Stash,
+                    saveData.StashItemInstanceIds,
+                    itemsById,
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu magazynu.");
+                return false;
+            }
+
             if (!TryRestoreParty(
                     restoredSession,
                     saveData.Party))

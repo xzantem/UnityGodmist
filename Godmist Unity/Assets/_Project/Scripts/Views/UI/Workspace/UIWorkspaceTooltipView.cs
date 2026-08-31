@@ -376,6 +376,14 @@ namespace Godmist.Views.UI.Workspace
 
         private static bool IsWithin(Transform root, object source)
         {
+            // Tooltip sources are often dynamically rebuilt inventory slots. Unity
+            // keeps their managed wrapper briefly after Destroy, but accessing its
+            // Transform throws MissingReferenceException.
+            if (source is UnityEngine.Object unityObject && unityObject == null)
+            {
+                return false;
+            }
+
             return source switch
             {
                 Component component => component.transform == root

@@ -21,6 +21,9 @@ namespace Godmist.Runtime.Game
         public GameModeState CurrentMode { get; private set; }
         public string CampaignId { get; }
         public Party PlayerParty { get; } = new();
+        // Campaign-wide, weightless storage. Ownership stays with the session rather
+        // than a scene object so it persists across locations and saves.
+        public Inventory Stash { get; } = new();
         public WorldState WorldState { get; } = new();
         public IReadOnlyDictionary<string, CharacterInstance> CharactersById => charactersById;
         public IReadOnlyDictionary<string, NpcInstance> NpcsById => npcsById;

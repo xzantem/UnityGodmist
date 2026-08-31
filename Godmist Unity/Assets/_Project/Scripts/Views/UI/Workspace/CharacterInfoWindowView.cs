@@ -222,6 +222,8 @@ namespace Godmist.Views.UI.Workspace
                 icon.sprite = item.Definition?.Icon;
                 icon.enabled = icon.sprite != null;
             }
+            var countLabel = dragGhost.transform.Find("CountLabel");
+            if (countLabel != null) countLabel.gameObject.SetActive(false);
             UpdateDrag(eventData);
         }
 
@@ -242,6 +244,15 @@ namespace Godmist.Views.UI.Workspace
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) slot?.SetDropHighlight(false);
             if (dragGhost != null) Destroy(dragGhost);
             dragGhost = null;
+        }
+
+        public void TryDropToCampaignStorage(ItemInstance item, PointerEventData eventData)
+        {
+            CampaignStorageWindowView.Active?.TryDepositAtScreenPoint(
+                this,
+                item,
+                eventData,
+                Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
         }
 
         public void TryHandleDrop(CharacterInfoEquipmentSlotView target)

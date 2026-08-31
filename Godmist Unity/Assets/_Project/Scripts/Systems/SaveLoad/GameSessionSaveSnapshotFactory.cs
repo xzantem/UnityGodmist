@@ -86,6 +86,16 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Characters.Add(characterSaveData);
             }
 
+            if (!TryCaptureInventory(
+                    session.Stash,
+                    saveData,
+                    capturedItemIds,
+                    saveData.StashItemInstanceIds))
+            {
+                ClearRuntimePayload(saveData);
+                return false;
+            }
+
             foreach (var item in session.PendingLoot)
             {
                 if (!TryCaptureItem(item, saveData, capturedItemIds))
@@ -127,6 +137,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.Party = new PartySaveData();
             saveData.Characters.Clear();
             saveData.ItemInstances.Clear();
+            saveData.StashItemInstanceIds.Clear();
             saveData.PendingLootItemInstanceIds.Clear();
             saveData.WorldFlags.Clear();
             saveData.Quests.Clear();

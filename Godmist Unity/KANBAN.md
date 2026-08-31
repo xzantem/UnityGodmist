@@ -48,8 +48,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 - `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
   - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
-- `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
-  - Trwaly magazyn kampanii do odkladania itemow poza inventory postaci.
 - `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
   - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
 - `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
@@ -73,6 +71,9 @@ Planowany bezpośrednio po `Crafting, Upgrading and Consumables v1`. Skraca iter
   - Narzędzie czyta wybrany arkusz lub eksport CSV, pokazuje preview planowanych zmian i waliduje je przed zapisem. Nie nadpisuje assetów automatycznie: pokazuje tworzone, aktualizowane oraz błędne rekordy.
 - `[P1] Dodać walidator contentu i raport referencji v1` - `Tools / Editor / Debug`, `Content / Data`
   - Jedno polecenie Editorowe sprawdza duplikaty ID, brakujące referencje katalogu, niezgodną klasę bazy/części, złe receptury oraz martwe assety. Błędy prowadzą bezpośrednio do assetu.
+- `[P1] Dodać Game Defines Window v1` - `Tools / Editor / Debug`, `Core / Architecture`, `Design / Systems`, `Content / Data`
+  - Jeden jawny katalog parametrów gameplayowych dostępny z Unity Editora: ekonomia, combat, itemy, crafting, upgrade/reforge, progresja oraz eksploracja. Każdy parametr ma nazwę, opis, jednostkę, zakres i wartość domyślną; przykłady: AP na punkt Speed, mnożnik ceny reforgingu i krzywe kosztu upgrade'u.
+  - Runtime odczytuje konfigurację przez jeden serwis/asset konfiguracji zamiast rozproszonych magic numbers. Narzędzie waliduje zakresy, brakujące definicje i nie pozwala zapisać nielegalnych wartości; aktualizacja parametrów nie miesza się z mutable save state.
 - `[P1] Developer Workflow and Content Authoring v1 — acceptance pass` - `Tools / Editor / Debug`, `Content / Data`, `UI / UX`
   - Ręczna weryfikacja pełnego flow: rekord w arkuszu → preview importu → asset → walidacja → `createitem` dla wybranej postaci → test w grze.
 
@@ -142,6 +143,9 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 ## Done
 
 ### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
+  - Zrealizowano trwały, bezlimitowy magazyn kampanii w Arungardzie wraz z persistence save/load. Skrzynia otwiera osobne okno UI Workspace; obsługuje drag-and-drop całych stosów, Ctrl+drag jednej sztuki, PPM do pobrania/odłożenia i bezpośrednie zakładanie equipmentu przez aktywnego lidera.
 
 - `[P2] Dodac crafting półproduktów materiałów v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`, `Core / Architecture`
   - Zrealizowano ogólny `CraftableItemDefinition`, z recepturami na stackowalne półprodukty oraz `MaterialDiscipline` (`Smithing`, `Alchemy`, `Runic`), zachowując wspólny `ItemType.Material`. Kowal v1 korzysta wyłącznie z materiałów `Smithing`.

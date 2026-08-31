@@ -1,46 +1,28 @@
-# Unity handoff — delta po ostatniej konfiguracji
+# Unity handoff — Campaign Storage v1
 
-Wykonaj tylko poniższe zmiany. Nie twórz ponownie `UpgradeServiceRoot`, `ReforgeServiceRoot`, `EquipmentSection`, `SettingsSection`, gridów, sekcji ani tabów.
+## Prefab okna
 
-## 1. Dwa interaktywne slidery — uchwyt i obsługa wartości 0
+Utwórz `PF_UIW_CampaignStorageWindow` jako wariant `PF_UIW_Window`. Root ma `UIWorkspaceWindow` i `CampaignStorageWindowView`.
 
-Nie zmieniaj wspólnego prefabu `PF_UIW_Slider`. Poniższe kroki wykonaj osobno na jego dwóch instancjach: `SettingsSection/Content/TargetProgressSetting/TargetProgressSlider` i `SettingsSection/Content/SuccessChanceSetting/SuccessChanceSlider`.
+W `Content` utwórz tylko jeden `PF_UIW_Section/Titled` o nazwie `StashPanel`; `SectionTitle` = `Magazyn Arungardu`. W jego `Content` dodaj `Scroll View`; na `Viewport/Content` ustaw `GridLayoutGroup`: Cell Size `64 x 64`, Spacing `8 x 8`, Constraint `Fixed Column Count`, Count `5`, Child Alignment `Upper Left`.
 
-Na każdej z tych dwóch instancji:
+W gridzie utwórz inactive `ItemTemplate` jako kopię `PF_UIW_ItemSlot`. Dodaj na nim `CampaignStorageItemView`: `Icon` = child `Icon`, `Count Text` = child `CountLabel`. `CampaignStorageDropTarget` dodaj na `Scroll View/Viewport`, nie na `Viewport/Content`: `Viewport` ma istniejący komponent `Image`, który odbiera raycast. Ustaw `Accepts Stash Items` on.
 
-1. Na root slidera, w komponencie `Slider`:
-   - `Interactable`: on.
-   - `Target Graphic`: istniejący child `Background` (`Image`).
-2. Na `Background/Image`: `Raycast Target`: on.
-3. Jako trzecie dziecko root slidera utwórz `UI > Empty Object` o nazwie `Handle Slide Area`.
-   - Ma tylko `RectTransform`.
-   - Anchors Min `(0,0)`, Max `(1,1)`; Pivot `(0.5,0.5)`.
-   - W widocznym w Inspectorze trybie stretch ustaw: `Left 8`, `Right 8`, `Top 0`, `Bottom 0`.
-4. Jako dziecko `Handle Slide Area` utwórz `UI > Image` o nazwie `Handle`.
-   - `RectTransform`: Anchors Min `(0,0.5)`, Max `(0,0.5)`; Pivot `(0.5,0.5)`.
-   - W widocznym w Inspectorze trybie bez stretch ustaw: `Pos X 0`, `Pos Y 0`, `Width 16`, `Height 16`.
-   - `Image > Raycast Target`: off.
-   - Dodaj `UIWorkspaceStyleApplier`: `Palette` = ta sama paleta, której używa `UIWorkspaceSliderStyleApplier`; `Surface Image` = Image z `Handle`; `Surface Style` = `Raised`.
-5. Na **root slidera** (tym samym GameObjectcie, który ma komponent `Slider`) przypisz pole `Handle Rect` do **RectTransform GameObjectu `Handle`**. Nie przypisuj `Handle Slide Area`, `Image` z `Background` ani komponentu `Image` z `Handle`.
-6. Na tym samym root `Slider` sprawdź `Direction`: `Left To Right`.
-7. Szybka weryfikacja przed wyjściem z prefabu: zmień w Inspectorze `Slider > Value` kolejno na `0` i `1`. `Handle` musi przejść od lewej do prawej krawędzi `Handle Slide Area`. Jeżeli stoi w miejscu, usuń przypisanie `Handle Rect` i przypisz ponownie dokładnie `Handle/RectTransform`.
+Na **rootcie `PF_UIW_CampaignStorageWindow`**, na tym samym GameObjectcie co komponent `UIWorkspaceWindow`, dodaj `CampaignStorageWindowView`. W jego Inspectorze przypisz dokładnie:
 
-Nie zmieniaj `Fill Rect`, `Direction`, Min/Max ani `Whole Numbers` żadnego slidera.
+- `Window`: przeciągnij komponent `UIWorkspaceWindow` z tego samego root GameObjectu.
+- `Stash Items Root`: przeciągnij `Viewport/Content` z `StashPanel/Content/Scroll View`. To jest Transform mający `GridLayoutGroup`; nie przypisuj `StashPanel`, `Scroll View` ani `Viewport`.
+- `Item Template`: przeciągnij `ItemTemplate/CampaignStorageItemView` z tego samego `Viewport/Content`. Template pozostaje inactive w prefabie.
+- `Status Text`: w `StashPanel/Content` najpierw dodaj `VerticalLayoutGroup`: Padding `Left 0, Right 0, Top 0, Bottom 0`; Spacing `6`; Child Alignment `Upper Left`; `Control Child Size Width` on, `Height` on; `Child Force Expand Width` on, `Height` off. `Scroll View` i `StatusText` są jedynymi bezpośrednimi dziećmi tego `Content`.
+  - Na `Scroll View` dodaj `LayoutElement`: `Flexible Height` `1`; pozostałe pola LayoutElement zostaw na `0`.
+  - Utwórz `StatusText` przez `UI > Text - TextMeshPro` jako drugie dziecko `StashPanel/Content`; ustaw pusty tekst, `Alignment` = `Middle Left`, dodaj `UIWorkspaceStyleApplier` ze stylem `Caption` oraz `LayoutElement` z `Preferred Height` `22`, `Flexible Height` `0`.
+  - Nie ustawiaj ręcznie anchory, pozycję ani Width/Height `StatusText`: `VerticalLayoutGroup` kontroluje jego RectTransform. Następnie przeciągnij komponent `TextMeshProUGUI` z `StatusText` do pola `Status Text`.
+- `Drag Ghost Template`: zostaw puste. Jest opcjonalne i nie jest potrzebne do transferu ani dropów.
 
-## 2. Koszt upgrade/reforge
+## Skrzynia Arungardu
 
-Na `CostText` w obu rootach (`UpgradeServiceRoot` i `ReforgeServiceRoot`), w istniejącym `UIWorkspaceStyleApplier`:
+W scenie dodaj `CampaignStorageChest` z widocznym sprite'em/colliderem używanym przez interakcje. Dodaj `CampaignStorageChestView`; przypisz istniejący `ExplorationPartyController` oraz prefab `PF_UIW_CampaignStorageWindow`. Pozostaw `Interaction Radius` `1.25`, klawisz `E`.
 
-- `Text Style`: `Heading`.
-- `Text Accent Style`: `Warning`.
+## Weryfikacja
 
-Na `CostText/TextMeshProUGUI` ustaw `Alignment` na `Middle Center`. Pozostałe ustawienia i RectTransform bez zmian.
-
-## 3. Nowa referencja previewu
-
-Po przeładowaniu skryptów `EquipmentUpgradeWindowView` ma nowe pole `Preview Name Text`.
-
-- Na `UpgradeServiceRoot/EquipmentUpgradeWindowView` przypisz istniejący `PreviewNameText` z `SummaryColumn/PreviewSection`.
-- Na `ReforgeServiceRoot/EquipmentUpgradeWindowView` przypisz jego własny `PreviewNameText`.
-
-To wszystko. Pozostałe poprawki — pięć socketów przy 100%, szanse w preview, docelowy rarity reforge i tooltip previewu — są już w kodzie i nie wymagają zmian w Unity.
+E przy skrzyni otwiera tylko stash. Otwórz okno postaci z party rail: drag między jego inventory a stashem przenosi cały stos, Ctrl+drag jedną sztukę. PPM w inventory postaci odkłada item do stashu; PPM w stashu pobiera go do aktywnego lidera. Sprawdź save/load i zachowanie `instanceId`.

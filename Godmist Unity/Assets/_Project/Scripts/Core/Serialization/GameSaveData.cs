@@ -20,6 +20,7 @@ namespace Godmist.Core.Serialization
         public PartySaveData Party = new();
         public List<CharacterSaveData> Characters = new();
         public List<ItemSaveData> ItemInstances = new();
+        public List<string> StashItemInstanceIds = new();
         public List<string> PendingLootItemInstanceIds = new();
         public List<KeyValueSaveData> WorldFlags = new();
         public List<QuestSaveData> Quests = new();
