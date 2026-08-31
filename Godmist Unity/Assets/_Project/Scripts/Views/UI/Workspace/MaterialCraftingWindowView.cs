@@ -42,7 +42,6 @@ namespace Godmist.Views.UI.Workspace
             if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
             if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
-            if (serviceRoot != null) serviceRoot.SetActive(false);
         }
 
         private void OnDestroy()

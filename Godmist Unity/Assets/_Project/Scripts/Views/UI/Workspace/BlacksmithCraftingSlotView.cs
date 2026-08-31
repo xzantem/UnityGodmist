@@ -1,4 +1,6 @@
 using System;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Items;
 using Godmist.Systems.Items;
 using TMPro;
 using UnityEngine;
@@ -20,6 +22,8 @@ namespace Godmist.Views.UI.Workspace
 
         private string tooltipTitle;
         private string tooltipBody;
+        private ItemInstance tooltipItem;
+        private CharacterInstance tooltipOwner;
 
         public void SetIcon(Sprite nextIcon)
         {
@@ -32,8 +36,16 @@ namespace Godmist.Views.UI.Workspace
 
         public void SetTooltip(string nextTooltipTitle, string nextTooltipBody)
         {
+            tooltipItem = null;
+            tooltipOwner = null;
             tooltipTitle = nextTooltipTitle ?? string.Empty;
             tooltipBody = nextTooltipBody ?? string.Empty;
+        }
+
+        public void SetItemTooltip(ItemInstance item, CharacterInstance owner)
+        {
+            tooltipItem = item;
+            tooltipOwner = owner;
         }
 
         public void Bind(
@@ -93,6 +105,12 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (tooltipItem != null)
+            {
+                UIWorkspaceTooltipView.ActiveInstance?.ShowItem(tooltipItem, tooltipOwner, this);
+                return;
+            }
+
             UIWorkspaceTooltipView.ActiveInstance?.ShowText(tooltipTitle, tooltipBody, this);
         }
 

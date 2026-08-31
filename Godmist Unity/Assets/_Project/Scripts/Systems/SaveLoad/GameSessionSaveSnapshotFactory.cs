@@ -916,8 +916,11 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.PartIds = equipmentItem.PartIds == null
                     ? new List<string>()
                     : new List<string>(equipmentItem.PartIds);
+                itemSaveData.BaseStatModifiers = CopyStatModifiers(
+                    equipmentItem.BaseStatModifiers);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
+                itemSaveData.UpgradeProgress = equipmentItem.UpgradeProgress;
 
                 if (equipmentItem is JewelryItemInstance jewelryItem)
                 {

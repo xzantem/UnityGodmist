@@ -15,6 +15,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private UIWorkspaceSurfaceStyle surfaceStyle;
         [SerializeField] private UIWorkspaceAccentStyle borderStyle = UIWorkspaceAccentStyle.Neutral;
         [SerializeField] private UIWorkspaceTextStyle textStyle = UIWorkspaceTextStyle.Body;
+        [SerializeField] private UIWorkspaceAccentStyle textAccentStyle = UIWorkspaceAccentStyle.None;
         [SerializeField] private UIWorkspaceAccentStyle interactionStyle = UIWorkspaceAccentStyle.Hover;
 
         [Header("Targets")]
@@ -61,7 +62,9 @@ namespace Godmist.Views.UI.Workspace
                 }
 
                 text.fontSize = palette.GetFontSize(textStyle);
-                text.color = palette.GetTextColor(textStyle);
+                text.color = textAccentStyle != UIWorkspaceAccentStyle.None
+                    ? palette.GetAccentColor(textAccentStyle)
+                    : palette.GetTextColor(textStyle);
             }
 
             if (selectable != null && interactionStyle != UIWorkspaceAccentStyle.None)

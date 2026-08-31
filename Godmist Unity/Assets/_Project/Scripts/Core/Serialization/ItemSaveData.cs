@@ -20,7 +20,9 @@ namespace Godmist.Core.Serialization
         public int RequiredLevel;
         public EquipmentQuality Quality = EquipmentQuality.Normal;
         public List<string> PartIds = new();
+        public List<StatModifierSaveData> BaseStatModifiers = new();
         public List<StatModifierSaveData> StatModifiers = new();
+        public float UpgradeProgress;
         public string JewelryMetalId = string.Empty;
         public string JewelryMetalDisplayName = string.Empty;
         public string JewelryGemId = string.Empty;

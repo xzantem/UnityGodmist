@@ -122,7 +122,14 @@ namespace Godmist.Systems.Items
             var bracket = selected.Max(part => (int)part.LevelBracket);
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
             item.RequiredLevel = bracket;
-            item.StatModifiers = BuildFinalItemStats(selected, quality);
+            item.BaseStatModifiers = BuildFinalItemStats(selected, quality);
+            item.StatModifiers = item.BaseStatModifiers.Select(modifier => new StatModifier
+            {
+                StatType = modifier.StatType,
+                Operation = modifier.Operation,
+                Stacking = modifier.Stacking,
+                Value = modifier.Value
+            }).ToList();
             return item;
         }
 

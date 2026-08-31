@@ -346,10 +346,17 @@ namespace Godmist.Systems.SaveLoad
                     var partIds = itemSaveData.PartIds ?? new List<string>();
 
                     if (itemSaveData.RequiredLevel < 0
+                        || float.IsNaN(itemSaveData.UpgradeProgress)
+                        || float.IsInfinity(itemSaveData.UpgradeProgress)
+                        || itemSaveData.UpgradeProgress < 0f
+                        || itemSaveData.UpgradeProgress > 1f
                         || !Enum.IsDefined(
                             typeof(EquipmentQuality),
                             itemSaveData.Quality)
                         || partIds.Any(string.IsNullOrWhiteSpace)
+                        || !TryCreateStatModifiers(
+                            itemSaveData.BaseStatModifiers,
+                            out var baseModifiers)
                         || !TryCreateStatModifiers(
                             itemSaveData.StatModifiers,
                             out var modifiers))
@@ -366,8 +373,11 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.Quality = itemSaveData.Quality;
                     equipmentItem.PartIds = new List<string>(
                         partIds);
-
+                    equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
+                        ? baseModifiers
+                        : new List<StatModifier>(modifiers);
                     equipmentItem.StatModifiers = modifiers;
+                    equipmentItem.UpgradeProgress = itemSaveData.UpgradeProgress;
 
                     if (equipmentItem is JewelryItemInstance jewelryItem)
                     {

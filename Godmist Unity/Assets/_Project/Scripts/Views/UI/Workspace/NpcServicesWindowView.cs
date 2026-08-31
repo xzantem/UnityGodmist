@@ -31,6 +31,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private NpcServiceTabDefinition[] tabDefinitions;
         [SerializeField] private BlacksmithCraftingWindowView equipmentCraftingService;
         [SerializeField] private MaterialCraftingWindowView materialCraftingService;
+        [SerializeField] private EquipmentUpgradeWindowView equipmentUpgradeService;
+        [SerializeField] private EquipmentUpgradeWindowView equipmentReforgeService;
 
         private readonly List<NpcServiceTabView> spawnedTabs = new();
         private GameSession session;
@@ -94,6 +96,8 @@ namespace Godmist.Views.UI.Workspace
             {
                 yield return NpcServiceKind.EquipmentCrafting;
                 yield return NpcServiceKind.MaterialCrafting;
+                yield return NpcServiceKind.EquipmentUpgrade;
+                yield return NpcServiceKind.EquipmentReforge;
             }
         }
 
@@ -114,6 +118,10 @@ namespace Godmist.Views.UI.Workspace
                     && equipmentCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.MaterialCrafting => materialCraftingService != null
                     && materialCraftingService.Show(npc, recipientCharacterId),
+                NpcServiceKind.EquipmentUpgrade => equipmentUpgradeService != null
+                    && equipmentUpgradeService.Show(npc, recipientCharacterId),
+                NpcServiceKind.EquipmentReforge => equipmentReforgeService != null
+                    && equipmentReforgeService.Show(npc, recipientCharacterId),
                 _ => false
             };
 
@@ -135,6 +143,12 @@ namespace Godmist.Views.UI.Workspace
                     break;
                 case NpcServiceKind.MaterialCrafting:
                     materialCraftingService?.Hide();
+                    break;
+                case NpcServiceKind.EquipmentUpgrade:
+                    equipmentUpgradeService?.Hide();
+                    break;
+                case NpcServiceKind.EquipmentReforge:
+                    equipmentReforgeService?.Hide();
                     break;
             }
         }

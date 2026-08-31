@@ -1834,7 +1834,10 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildItemMeta(ItemInstance item)
         {
             var quality = item is EquipmentItemInstance equipment ? $" • {equipment.Quality}" : string.Empty;
-            return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}  •  Waga {item.Definition.Weight:0.##} kg";
+            var upgrade = item is EquipmentItemInstance upgraded
+                ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
+                : string.Empty;
+            return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
         }
 
         private static void AppendEquipmentStats(
@@ -1858,7 +1861,7 @@ namespace Godmist.Views.UI.Workspace
                 var average = (minAttack + maxAttack) * 0.5f;
                 Append(
                     result,
-                    $"Atak: {FormatValue(minAttack)}–{FormatValue(maxAttack)}"
+                    $"Atak: {FormatEquipmentValue(minAttack)}–{FormatEquipmentValue(maxAttack)}"
                     + FormatComparisonDelta(average - equippedAverage, equippedItem != null));
             }
 
@@ -1872,7 +1875,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    $"{stat}: {FormatStatValue(stat, value)}"
+                    $"{stat}: {FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
         }
@@ -1901,12 +1904,16 @@ namespace Godmist.Views.UI.Workspace
                 : 0f;
         }
 
-        private static string FormatStatValue(CharacterStatType stat, float value)
+        private static string FormatEquipmentStatValue(CharacterStatType stat, float value)
         {
             return stat == CharacterStatType.CritChance
                 ? $"{value * 100f:0.##}%"
-                : FormatValue(value);
+                : FormatEquipmentValue(value);
         }
+
+        // Equipment resolves as whole combat values. Keep the float internally for
+        // calculations, but never expose binary-float fragments in item tooltips.
+        private static string FormatEquipmentValue(float value) => Mathf.RoundToInt(value).ToString("0;-0;0");
 
         private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
 
@@ -1922,7 +1929,7 @@ namespace Godmist.Views.UI.Workspace
             var sign = delta > 0f ? "+" : "-";
             var value = stat == CharacterStatType.CritChance
                 ? $"{Mathf.Abs(delta) * 100f:0.##}%"
-                : FormatValue(Mathf.Abs(delta));
+                : FormatEquipmentValue(Mathf.Abs(delta));
             return $" <color={color}>{arrow} {sign}{value}</color>";
         }
 
