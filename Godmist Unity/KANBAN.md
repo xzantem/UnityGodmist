@@ -46,12 +46,6 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 
 Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja juz fundamenty v1; ten milestone rozszerza konkretne uslugi miejskie zamiast budowac ogolne `NPC v2` od zera.
 
-- `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
-  - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
-- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
-  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
-- `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
-  - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
 
 ### Milestone: Developer Workflow and Content Authoring v1
 
@@ -99,6 +93,10 @@ Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji ora
 - Loyalty NPC, progi uslug, rabaty i trwały progress wydatkow.
 - Alchemik, rune-maker i pozostale planowane uslugi specjalistyczne.
 - Crafting półproduktów kowalskich oraz rozróżnienie zastosowań materiałów dla specjalistów.
+- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
+  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii. Karta obejmuje rowniez galduryty i runy jako uslugi/content ekonomii NPC.
+- `[P2] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Design / Systems`, `Core / Architecture`
+  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz jest blokowana przy braku srodkow, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1
@@ -122,14 +120,6 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## In Progress
 
-### Milestone: Crafting, Upgrading and Consumables v1
-
-- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-  - Pierwsze działające potiony i bomby z charges oraz jednorazowe utility consumables; użycie, ograniczenia tur, persistence i return scroll do miasta.
-
-- `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
-  - Zastąpić legacy `TradePanelView` zakładką sklepu we wspólnym UI Workspace usług NPC. Karta osobna po craftingu półproduktów; obejmuje dopiero wtedy migrację istniejącego handlu, buybacku i jego smoke test.
-
 ### Karty do decyzji o przypisaniu do milestone'u
 
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
@@ -145,6 +135,18 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 ## Done
 
 ### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
+  - Zaliczone: crafting, upgrade/reforge, storage, consumables, handel z buybackiem oraz snapshot/restore. Testy acceptance obejmują koszty i walidacje, zużycie materiałów i charges, łączenie efektów, sockety, transfery bez zmiany `instanceId` oraz pełne dane runtime w save/load.
+
+- `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
+  - Zrealizowano podgląd, koszt, szanse, zmianę jakości/rzadkości oraz wynik ulepszenia i reforgingu.
+
+- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Zrealizowano runtime effects, charges, ograniczenia użycia, utility consumables oraz powrót do miasta z poprawnym zużyciem jednorazowego przedmiotu.
+
+- `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
+  - Zrealizowano prefab-backed sklep/buyback w usługach NPC, transfery drag-and-drop i kliknięcia oraz persistence oferty, buybacku, golda i `instanceId`.
 
 - `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
   - Zrealizowano trwały, bezlimitowy magazyn kampanii w Arungardzie wraz z persistence save/load. Skrzynia otwiera osobne okno UI Workspace; obsługuje drag-and-drop całych stosów, Ctrl+drag jednej sztuki, PPM do pobrania/odłożenia i bezpośrednie zakładanie equipmentu przez aktywnego lidera.

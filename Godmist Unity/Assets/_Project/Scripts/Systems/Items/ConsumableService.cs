@@ -18,9 +18,29 @@ namespace Godmist.Systems.Items
         public bool TryUseInExploration(CharacterInstance character, ConsumableItemInstance item,
             out ExplorationConsumableEffect effect)
         {
+            return TryUseInExploration(
+                character,
+                item,
+                out effect,
+                returnTransition: null);
+        }
+
+        public bool TryUseInExploration(
+            CharacterInstance character,
+            ConsumableItemInstance item,
+            out ExplorationConsumableEffect effect,
+            System.Func<bool> returnTransition)
+        {
             effect = ExplorationConsumableEffect.None;
             var definition = item?.ConsumableDefinition;
-            if (character?.Inventory?.Items == null || definition == null || !item.HasCharges || definition.IsCombatOnly) return false;
+            if (character?.Inventory?.Items == null
+                || definition == null
+                || !character.Inventory.Items.Contains(item)
+                || !item.HasCharges
+                || definition.IsCombatOnly)
+            {
+                return false;
+            }
             var applied = false;
             var runtimeEffects = item.RuntimeEffects ?? new System.Collections.Generic.List<ConsumableEffectRuntime>();
             if (runtimeEffects.Count == 0
@@ -75,9 +95,26 @@ namespace Godmist.Systems.Items
                 applied = true;
             }
             if (!applied) { effect = ExplorationConsumableEffect.None; return false; }
-            if (effect == ExplorationConsumableEffect.ReturnToArungard) return true;
-            item.CurrentCharges--;
-            return item.CurrentCharges > 0 || inventoryService.TryRemoveItem(character.Inventory, item.InstanceId, out _);
+
+            // Returning to Arungard is a two-phase use: the scene transition must
+            // be accepted before the one-use scroll is consumed. Direct service
+            // callers can inspect the effect and confirm it themselves; the UI
+            // supplies the transition callback for the atomic flow.
+            if (effect == ExplorationConsumableEffect.ReturnToArungard)
+            {
+                if (returnTransition == null)
+                {
+                    return true;
+                }
+
+                if (!returnTransition())
+                {
+                    effect = ExplorationConsumableEffect.None;
+                    return false;
+                }
+            }
+
+            return ConsumeCharge(character, item);
         }
 
         public bool TrySpendCharge(CharacterInstance character, ConsumableItemInstance item)
@@ -85,6 +122,18 @@ namespace Godmist.Systems.Items
             if (character?.Inventory?.Items == null || item == null || !item.HasCharges || !character.Inventory.Items.Contains(item)) return false;
             item.CurrentCharges--;
             return item.CurrentCharges > 0 || inventoryService.TryRemoveItem(character.Inventory, item.InstanceId, out _);
+        }
+
+        private bool ConsumeCharge(CharacterInstance character, ConsumableItemInstance item)
+        {
+            if (character?.Inventory?.Items == null || item == null) return false;
+
+            item.CurrentCharges = Mathf.Max(0, item.CurrentCharges - 1);
+            return item.CurrentCharges > 0
+                || inventoryService.TryRemoveItem(
+                    character.Inventory,
+                    item.InstanceId,
+                    out _);
         }
 
         private bool TryApplyExplorationEffect(

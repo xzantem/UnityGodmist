@@ -182,12 +182,13 @@ namespace Godmist.Views.UI.Workspace
         public void TryUseConsumable(ItemInstance item)
         {
             if (item is not ConsumableItemInstance consumable || character == null || session == null || session.ActiveCombat != null) return;
-            if (!consumableService.TryUseInExploration(character, consumable, out var effect)) return;
-            if (effect == ExplorationConsumableEffect.ReturnToArungard)
-            {
-                if (!Godmist.Views.Game.GameBootstrap.Instance?.TryReturnToArungardFromDungeon() ?? true) return;
-                consumableService.TrySpendCharge(character, consumable);
-            }
+            if (!consumableService.TryUseInExploration(
+                    character,
+                    consumable,
+                    out _,
+                    returnTransition: () =>
+                        Godmist.Views.Game.GameBootstrap.Instance
+                            ?.TryReturnToArungardFromDungeon() ?? false)) return;
             Refresh();
         }
 
