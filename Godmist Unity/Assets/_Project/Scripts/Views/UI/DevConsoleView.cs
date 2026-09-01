@@ -1,9 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using Godmist.Data.Dungeons;
+using Godmist.Runtime.NPC;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Debugging;
 using Godmist.Views.Combat;
+using Godmist.Views.Dungeons;
+using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
@@ -235,7 +240,14 @@ namespace Godmist.Views.UI
                 gameSession,
                 combatSession,
                 GameBootstrap.Instance?.ContentCatalog,
-                StartDebugCombat);
+                StartDebugCombat,
+                HandleNoclip,
+                HandleTeleport,
+                HandleGoto,
+                HandleAdvance,
+                HandleTick,
+                HandleForceCombatResult,
+                HandleTriggerDialogue);
 
             var prefix = result.Success ? "OK" : "BLAD";
             AppendOutput($"{prefix}: {result.Message}");
@@ -248,6 +260,11 @@ namespace Godmist.Views.UI
             {
                 Close();
                 return;
+            }
+
+            if (result.Success && commandName == "spawnobject")
+            {
+                RebuildDungeonObjects();
             }
 
             FocusInput();
@@ -596,6 +613,175 @@ namespace Godmist.Views.UI
             }
 
             return gameSession?.ActiveCombat;
+        }
+
+        private static DevConsoleCommandResult HandleNoclip(bool? requestedState)
+        {
+            var controller = FindAnyObjectByType<ExplorationPartyController>();
+            if (controller == null) return new DevConsoleCommandResult(false, "Brak ExplorationPartyController.");
+            var enabled = requestedState ?? !controller.IsNoclipEnabled;
+            controller.SetNoclip(enabled);
+            return new DevConsoleCommandResult(true, $"Noclip: {(enabled ? "on" : "off")}");
+        }
+
+        private static DevConsoleCommandResult HandleTeleport(float x, float y)
+        {
+            var controller = FindAnyObjectByType<ExplorationPartyController>();
+            if (controller == null) return new DevConsoleCommandResult(false, "Brak ExplorationPartyController.");
+            return controller.TryTeleport(new Vector2(x, y))
+                ? new DevConsoleCommandResult(true, $"Przeniesiono drużynę na ({x:0.###}, {y:0.###}).")
+                : new DevConsoleCommandResult(false, "Nie można teleportować drużyny w bieżącym trybie.");
+        }
+
+        private static DevConsoleCommandResult HandleGoto(
+            IReadOnlyList<string> tokens,
+            int? debugSeed)
+        {
+            var bootstrap = GameBootstrap.Instance;
+            if (bootstrap == null || bootstrap.ContentCatalog == null) return new DevConsoleCommandResult(false, "Brak GameBootstrap albo GameContentCatalog.");
+            if (!bootstrap.ContentCatalog.TryGetDungeon(tokens[1], out var definition)) return new DevConsoleCommandResult(false, $"Nie znaleziono lochu: {tokens[1]}.");
+
+            var session = bootstrap.Session;
+            if (session?.ActiveDungeon == null
+                || !string.Equals(session.ActiveDungeon.DungeonId, definition.Id, StringComparison.OrdinalIgnoreCase))
+            {
+                var enteringFloor = 0;
+                var targetRoomId = string.Empty;
+                if (tokens.Count >= 3)
+                {
+                    if (int.TryParse(tokens[2], out var parsedFloor)) enteringFloor = parsedFloor;
+                    else targetRoomId = tokens[2];
+                }
+                if (tokens.Count >= 4) targetRoomId = tokens[3];
+                if (enteringFloor < 0) return new DevConsoleCommandResult(false, "floor musi być nieujemną liczbą całkowitą.");
+
+                return bootstrap.TryEnterDungeon(
+                        definition,
+                        debugSeed ?? UnityEngine.Random.Range(int.MinValue, int.MaxValue),
+                        enteringFloor,
+                        targetRoomId)
+                    ? new DevConsoleCommandResult(true, $"Przejście do lochu {definition.Id} rozpoczęte.")
+                    : new DevConsoleCommandResult(false, "Nie udało się wejść do lochu.");
+            }
+
+            if (!bootstrap.IsDungeonScene)
+            {
+                return bootstrap.TryEnterDungeon(
+                        definition,
+                        debugSeed ?? UnityEngine.Random.Range(int.MinValue, int.MaxValue))
+                    ? new DevConsoleCommandResult(true, $"Wznowienie lochu {definition.Id} rozpoczęte.")
+                    : new DevConsoleCommandResult(false, "Nie udało się wznowić lochu.");
+            }
+
+            var dungeon = session.ActiveDungeon;
+            var targetFloor = dungeon.CurrentFloorIndex;
+            if (tokens.Count >= 3
+                && !int.TryParse(tokens[2], out targetFloor))
+            {
+                if (tokens.Count == 3) targetFloor = dungeon.CurrentFloorIndex;
+                else return new DevConsoleCommandResult(false, "floor musi być nieujemną liczbą całkowitą.");
+            }
+            if (targetFloor < 0) return new DevConsoleCommandResult(false, "floor musi być nieujemną liczbą całkowitą.");
+            if (!dungeon.TryGetFloor(targetFloor, out var floor)) return new DevConsoleCommandResult(false, $"Nie znaleziono piętra: {targetFloor}.");
+
+            var targetPosition = dungeon.PlayerPosition;
+            if (tokens.Count >= 4)
+            {
+                if (!floor.TryGetRoom(tokens[3], out var room)) return new DevConsoleCommandResult(false, $"Nie znaleziono pokoju: {tokens[3]}.");
+                var roomCell = default(Vector2Int);
+                var foundRoomCell = false;
+                if (floor.Map != null)
+                {
+                    foreach (var cell in floor.Map.FloorCells)
+                    {
+                        if (!floor.Map.TryGetRoomId(cell, out var mapped)
+                            || mapped != room.RoomId) continue;
+                        roomCell = cell;
+                        foundRoomCell = true;
+                        break;
+                    }
+                }
+                if (!foundRoomCell) return new DevConsoleCommandResult(false, $"Pokój {room.RoomId} nie ma pozycji na mapie.");
+                targetPosition = new Vector2(roomCell.x, roomCell.y);
+            }
+            else if (tokens.Count == 3 && !int.TryParse(tokens[2], out _))
+            {
+                if (!floor.TryGetRoom(tokens[2], out var room)) return new DevConsoleCommandResult(false, $"Nie znaleziono pokoju: {tokens[2]}.");
+                var roomCell = default(Vector2Int);
+                var foundRoomCell = false;
+                if (floor.Map != null)
+                {
+                    foreach (var cell in floor.Map.FloorCells)
+                    {
+                        if (floor.Map.TryGetRoomId(cell, out var mapped) && mapped == room.RoomId)
+                        {
+                            roomCell = cell;
+                            foundRoomCell = true;
+                            break;
+                        }
+                    }
+                }
+                if (!foundRoomCell) return new DevConsoleCommandResult(false, $"Pokój {room.RoomId} nie ma pozycji na mapie.");
+                targetPosition = new Vector2(roomCell.x, roomCell.y);
+            }
+
+            var controller = FindAnyObjectByType<ExplorationPartyController>();
+            if (targetFloor == dungeon.CurrentFloorIndex)
+            {
+                if (controller == null || !controller.TryTeleport(targetPosition)) return new DevConsoleCommandResult(false, "Nie udało się przenieść drużyny.");
+                return new DevConsoleCommandResult(true, $"Przeniesiono drużynę na piętro {targetFloor}.");
+            }
+
+            if (controller == null) return new DevConsoleCommandResult(false, "Brak ExplorationPartyController.");
+            var positions = controller.ActiveMemberViews.ToDictionary(view => view.CharacterId, view => view.Position);
+            return bootstrap.TryChangeDungeonFloor(targetFloor, targetPosition, positions)
+                ? new DevConsoleCommandResult(true, $"Zmiana na piętro {targetFloor} rozpoczęta.")
+                : new DevConsoleCommandResult(false, "Nie udało się zmienić piętra.");
+        }
+
+        private static DevConsoleCommandResult HandleAdvance(int turns)
+        {
+            var sandbox = FindAnyObjectByType<CombatSandboxBootstrap>();
+            if (sandbox?.Session == null || sandbox.Session.Outcome != Godmist.Core.Enums.CombatOutcomeState.Ongoing)
+                return new DevConsoleCommandResult(false, "Brak aktywnej walki.");
+            for (var index = 0; index < turns; index++) sandbox.RequestEndTurn();
+            return new DevConsoleCommandResult(true, $"Przesunięto walkę o {turns} tur.");
+        }
+
+        private static DevConsoleCommandResult HandleTick(float seconds)
+        {
+            var turns = Math.Max(1, Mathf.RoundToInt(seconds));
+            return HandleAdvance(turns);
+        }
+
+        private static DevConsoleCommandResult HandleForceCombatResult(Godmist.Core.Enums.CombatOutcomeState outcome)
+        {
+            var sandbox = FindAnyObjectByType<CombatSandboxBootstrap>();
+            return sandbox != null && sandbox.TryForceOutcome(outcome)
+                ? new DevConsoleCommandResult(true, $"Wymuszono wynik walki: {outcome}.")
+                : new DevConsoleCommandResult(false, "Nie udało się wymusić wyniku walki.");
+        }
+
+        private static DevConsoleCommandResult HandleTriggerDialogue(string dialogueId)
+        {
+            var bootstrap = GameBootstrap.Instance;
+            var session = bootstrap?.Session;
+            var npc = session?.NpcsById?.Values.FirstOrDefault(candidate => candidate?.Definition?.BaseDialogue?.Id == dialogueId);
+            var leaderId = session?.PlayerParty?.ActiveLeaderId;
+            if (bootstrap?.DialogueService == null || npc == null || string.IsNullOrWhiteSpace(leaderId))
+                return new DevConsoleCommandResult(false, $"Nie znaleziono dialogu albo aktywnego lidera: {dialogueId}.");
+            return bootstrap.DialogueService.TryStartDialogue(npc, leaderId)
+                ? new DevConsoleCommandResult(true, $"Uruchomiono dialog {dialogueId}.")
+                : new DevConsoleCommandResult(false, $"Nie udało się uruchomić dialogu {dialogueId}.");
+        }
+
+        private static void RebuildDungeonObjects()
+        {
+            var bootstrap = GameBootstrap.Instance;
+            var controller = FindAnyObjectByType<ExplorationPartyController>();
+            var spawner = FindAnyObjectByType<DungeonObjectSpawner>();
+            if (bootstrap?.Session?.ActiveDungeon == null || controller == null || spawner == null) return;
+            if (bootstrap.Session.ActiveDungeon.TryGetCurrentFloor(out var floor)) spawner.Rebuild(floor, controller);
         }
 
         private void AppendOutput(string message)

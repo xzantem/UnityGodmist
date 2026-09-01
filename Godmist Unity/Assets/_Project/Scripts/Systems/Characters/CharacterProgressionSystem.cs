@@ -60,6 +60,64 @@ namespace Godmist.Systems.Characters
             return levelsGained;
         }
 
+        public bool TrySetLevel(
+            CharacterInstance character,
+            int targetLevel,
+            out int previousLevel)
+        {
+            previousLevel = character?.Level ?? 0;
+
+            if (character == null
+                || targetLevel < MinimumLevel
+                || targetLevel > MaximumLevel)
+            {
+                return false;
+            }
+
+            if (character.Level == targetLevel)
+            {
+                character.CurrentExperience = 0;
+                growthSystem.Apply(character, grantCurrentHealthGrowth: false);
+                return true;
+            }
+
+            var levelDifference = targetLevel - character.Level;
+            if (levelDifference > 0)
+            {
+                for (var level = character.Level + 1;
+                     level <= targetLevel;
+                     level++)
+                {
+                    character.AvailableSkillPoints +=
+                        GetSkillPointsGrantedOnLevelUp(level);
+                }
+            }
+            else
+            {
+                for (var level = targetLevel + 1;
+                     level <= character.Level;
+                     level++)
+                {
+                    character.AvailableSkillPoints = Math.Max(
+                        0,
+                        character.AvailableSkillPoints
+                            - GetSkillPointsGrantedOnLevelUp(level));
+                }
+            }
+
+            character.Level = targetLevel;
+            character.CurrentExperience = 0;
+            growthSystem.Apply(character, grantCurrentHealthGrowth: levelDifference > 0);
+            if (character.Stats != null)
+            {
+                character.CurrentHealth = Mathf.Clamp(
+                    character.CurrentHealth,
+                    0,
+                    Mathf.Max(1, Mathf.RoundToInt(character.Stats.MaxHealth.GetValue())));
+            }
+            return true;
+        }
+
         public static int GetSkillPointsGrantedOnLevelUp(int newLevel)
         {
             return newLevel == 2 ? 2 : 1;

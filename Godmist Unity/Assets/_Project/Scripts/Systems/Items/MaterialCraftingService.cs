@@ -59,9 +59,9 @@ namespace Godmist.Systems.Items
                 Materials = Array.Empty<CraftingMaterialCost>()
             };
 
-            if (!IsValidBlacksmith(blacksmith))
+            if (!IsValidSpecialist(blacksmith))
             {
-                preview.FailureReason = "Wybrany NPC nie oferuje usług kowalskich.";
+                preview.FailureReason = "Wybrany NPC nie oferuje material craftingu.";
                 return preview;
             }
 
@@ -71,9 +71,9 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
-            if (!IsValidSmithingRecipe(blacksmith, request?.Recipe))
+            if (!IsValidRecipe(blacksmith, request?.Recipe))
             {
-                preview.FailureReason = GetSmithingRecipeFailureReason(
+                preview.FailureReason = GetRecipeFailureReason(
                     blacksmith,
                     request?.Recipe);
                 return preview;
@@ -90,7 +90,7 @@ namespace Godmist.Systems.Items
 
             if (preview.Materials.Any(cost => cost.MissingAmount > 0))
             {
-                preview.FailureReason = "Brakuje materiałów. Kup brakujące pozycje z oferty kowala.";
+                preview.FailureReason = "Brakuje materiałów. Kup brakujące pozycje z oferty specjalisty.";
                 return preview;
             }
 
@@ -168,14 +168,14 @@ namespace Godmist.Systems.Items
             paidGold = 0;
             failureReason = string.Empty;
 
-            if (!IsValidBlacksmith(blacksmith)
+            if (!IsValidSpecialist(blacksmith)
                 || blacksmith.Definition.GetRole<TraderRoleData>() == null
                 || blacksmith.ShopInventory?.Items == null
                 || string.IsNullOrWhiteSpace(materialId)
-                || !IsValidSmithingRecipe(blacksmith, request?.Recipe)
+                || !IsValidRecipe(blacksmith, request?.Recipe)
                 || !TryGetRecipient(session, request.RecipientCharacterId, out var recipient))
             {
-                failureReason = "Nie można kupić tego materiału u wybranego kowala.";
+                failureReason = "Nie można kupić tego materiału u wybranego specjalisty.";
                 return false;
             }
 
@@ -237,15 +237,25 @@ namespace Godmist.Systems.Items
             return true;
         }
 
-        private static bool IsValidBlacksmith(NpcInstance npc) =>
-            npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
+        private static IMaterialCraftingSpecialist GetCraftingSpecialist(
+            NpcInstance npc)
+        {
+            return npc?.Definition?.Roles?
+                .OfType<IMaterialCraftingSpecialist>()
+                .FirstOrDefault();
+        }
 
-        private static bool IsValidSmithingRecipe(
-            NpcInstance blacksmith,
+        private static bool IsValidSpecialist(NpcInstance npc) =>
+            GetCraftingSpecialist(npc) != null;
+
+        private static bool IsValidRecipe(
+            NpcInstance specialist,
             CraftableItemDefinition recipe)
         {
+            var craftingRole = GetCraftingSpecialist(specialist);
             if (recipe == null
-                || recipe.CraftingDiscipline != MaterialDiscipline.Smithing
+                || craftingRole == null
+                || recipe.CraftingDiscipline != craftingRole.CraftingDiscipline
                 || recipe.OutputAmount < 1
                 || recipe.Ingredients == null
                 || recipe.Ingredients.Count == 0)
@@ -253,8 +263,10 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            if (!(blacksmith.Definition.GetRole<BlacksmithRoleData>()?.MaterialRecipes
-                    ?.Contains(recipe) ?? false))
+            if (!(craftingRole.MaterialRecipes?.Any(candidate =>
+                    candidate != null
+                    && string.Equals(candidate.Id, recipe.Id, StringComparison.Ordinal))
+                    ?? false))
             {
                 return false;
             }
@@ -263,23 +275,30 @@ namespace Godmist.Systems.Items
                 requirement?.Material != null
                 && requirement.Material.ItemType == ItemType.Material
                 && GetMaterialDiscipline(requirement.Material)
-                    == MaterialDiscipline.Smithing
+                    == craftingRole.CraftingDiscipline
                 && requirement.Amount > 0);
         }
 
-        private static string GetSmithingRecipeFailureReason(
-            NpcInstance blacksmith,
+        private static string GetRecipeFailureReason(
+            NpcInstance specialist,
             CraftableItemDefinition recipe)
         {
-            if (recipe == null) return "Wybierz receptę kowalską.";
-            if (!(blacksmith?.Definition?.GetRole<BlacksmithRoleData>()?.MaterialRecipes
-                    ?.Contains(recipe) ?? false))
+            var craftingRole = GetCraftingSpecialist(specialist);
+            if (craftingRole == null) return "Wybrany NPC nie oferuje material craftingu.";
+            if (!(craftingRole.MaterialRecipes?.Any(candidate =>
+                    candidate != null
+                    && string.Equals(candidate.Id, recipe?.Id, StringComparison.Ordinal))
+                    ?? false))
             {
-                return "Ta recepta nie jest przypisana do oferty kowala.";
+                return "Ta recepta nie jest przypisana do oferty wybranego specjalisty.";
             }
-            if (recipe.CraftingDiscipline != MaterialDiscipline.Smithing)
+            if (recipe == null)
             {
-                return "CID musi mieć Crafting Discipline = Smithing.";
+                return "Wybierz poprawną receptę.";
+            }
+            if (recipe.CraftingDiscipline != craftingRole.CraftingDiscipline)
+            {
+                return $"Recepta musi mieć Crafting Discipline = {craftingRole.CraftingDiscipline}.";
             }
             if (recipe.OutputAmount < 1)
             {
@@ -297,15 +316,15 @@ namespace Godmist.Systems.Items
                 if (ingredient.Material.ItemType != ItemType.Material)
                     return "Składnik CID musi mieć Item Type = Material.";
                 if (GetMaterialDiscipline(ingredient.Material)
-                    != MaterialDiscipline.Smithing)
+                    != craftingRole.CraftingDiscipline)
                 {
-                    return "Każdy składnik CID musi mieć kategorię Smithing.";
+                    return $"Każdy składnik CID musi mieć kategorię {craftingRole.CraftingDiscipline}.";
                 }
                 if (ingredient.Amount < 1)
                     return "Ilość każdego składnika CID musi być większa od zera.";
             }
 
-            return "Recepta kowalska jest niepoprawna.";
+                return "Recepta specjalisty jest niepoprawna.";
         }
 
         private static MaterialDiscipline GetMaterialDiscipline(ItemDefinition item)

@@ -3,9 +3,12 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Items;
+using Godmist.Data.NPC;
+using Godmist.Data.Quests;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.NPC;
 using Godmist.Systems.Debugging;
 using NUnit.Framework;
 using UnityEngine;
@@ -26,6 +29,30 @@ namespace Godmist.Tests.EditMode
             Assert.That(suggestions, Does.Contain("gold"));
             Assert.That(suggestions, Does.Contain("godmode"));
             Assert.That(suggestions, Does.Not.Contain("heal"));
+        }
+
+        [Test]
+        public void GetSuggestions_HelpArgument_ReturnsOnlyLegalCommandNames()
+        {
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "help cre",
+                null,
+                null,
+                null);
+
+            Assert.That(suggestions, Is.EqualTo(new[] { "createconsumable", "createitem" }));
+        }
+
+        [Test]
+        public void GetSuggestions_NoclipArgument_ReturnsOnlySupportedModes()
+        {
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "noclip o",
+                null,
+                null,
+                null);
+
+            Assert.That(suggestions, Is.EqualTo(new[] { "off", "on" }));
         }
 
         [Test]
@@ -250,6 +277,45 @@ namespace Godmist.Tests.EditMode
             Assert.That(suggestions, Is.Empty);
 
             Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_ContentDebugArguments_UsesRuntimeAndCatalogIds()
+        {
+            var session = new GameSession();
+            var npcDefinition = ScriptableObject.CreateInstance<NpcDefinition>();
+            var craftingRole = ScriptableObject.CreateInstance<BlacksmithRoleData>();
+            var questDefinition = ScriptableObject.CreateInstance<QuestDefinition>();
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+
+            SetAutoProperty(npcDefinition, "Id", "npc.blacksmith");
+            SetAutoProperty(npcDefinition, "Roles", new List<NpcRoleData> { craftingRole });
+            SetAutoProperty(questDefinition, "Id", "quest.debug");
+            SetAutoProperty(catalog, "QuestDefinitions", new List<QuestDefinition> { questDefinition });
+            session.TryRegisterNpc(new NpcInstance
+            {
+                NpcId = "npc.blacksmith",
+                Definition = npcDefinition
+            });
+            session.WorldState.TrySetFlag("tutorial.completed", "true");
+
+            Assert.That(
+                DevConsoleSuggestionService.GetSuggestions(
+                    "craftmaterial npc.", session, null, catalog),
+                Is.EqualTo(new[] { "npc.blacksmith" }));
+            Assert.That(
+                DevConsoleSuggestionService.GetSuggestions(
+                    "queststate quest.", session, null, catalog),
+                Is.EqualTo(new[] { "quest.debug" }));
+            Assert.That(
+                DevConsoleSuggestionService.GetSuggestions(
+                    "setworldflag tutorial.", session, null, catalog),
+                Is.EqualTo(new[] { "tutorial.completed" }));
+
+            Object.DestroyImmediate(npcDefinition);
+            Object.DestroyImmediate(craftingRole);
+            Object.DestroyImmediate(questDefinition);
             Object.DestroyImmediate(catalog);
         }
 

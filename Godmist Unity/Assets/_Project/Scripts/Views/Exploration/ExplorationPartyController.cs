@@ -25,6 +25,8 @@ namespace Godmist.Views.Exploration
         private Camera worldCamera;
         private Vector2? movementDestination;
 
+        public bool IsNoclipEnabled { get; private set; }
+
         public Transform ActiveLeaderTransform
         {
             get
@@ -141,7 +143,15 @@ namespace Godmist.Views.Exploration
 
             if (movement.sqrMagnitude > 0f)
             {
-                leaderView.Move(movement * movementSpeed * Time.fixedDeltaTime);
+                var offset = movement * movementSpeed * Time.fixedDeltaTime;
+                if (IsNoclipEnabled)
+                {
+                    leaderView.SetPosition(leaderView.Position + offset);
+                }
+                else
+                {
+                    leaderView.Move(offset);
+                }
             }
 
             MoveFollowers(leaderView);
@@ -281,6 +291,31 @@ namespace Godmist.Views.Exploration
 
         public IReadOnlyCollection<ExplorationCharacterView> ActiveMemberViews =>
             viewsById.Values;
+
+        public void SetNoclip(bool enabled)
+        {
+            IsNoclipEnabled = enabled;
+            movementDestination = null;
+
+            foreach (var characterView in viewsById.Values)
+            {
+                characterView.SetNoclip(enabled);
+            }
+
+            RefreshLeaderVisuals();
+        }
+
+        public bool TryTeleport(Vector2 position)
+        {
+            if (gameSession == null || gameSession.CurrentMode != GameModeState.Exploration)
+            {
+                return false;
+            }
+
+            RestorePartyFormation(position);
+            PersistCurrentPosition();
+            return true;
+        }
 
         public void PersistCurrentPosition()
         {

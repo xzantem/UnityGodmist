@@ -817,6 +817,19 @@ namespace Godmist.Views.Combat
             turnSystem.EndActiveTurn(Session);
         }
 
+        public bool TryForceOutcome(CombatOutcomeState outcome)
+        {
+            if (Session == null
+                || Session.Outcome != CombatOutcomeState.Ongoing
+                || outcome == CombatOutcomeState.Ongoing)
+            {
+                return false;
+            }
+
+            Session.Outcome = outcome;
+            return true;
+        }
+
         public Dictionary<GridPosition, List<GridPosition>>
             GetActiveUnitMovementPaths()
         {
