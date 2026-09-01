@@ -9,6 +9,7 @@ using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
 using Godmist.Views.Game;
@@ -132,7 +133,8 @@ namespace Godmist.Views.Combat
                 new IPassiveEffectTurnProcessor[]
                 {
                     new DamageOverTimePassiveEffectProcessor(damageSystem),
-                    new SleepPassiveEffectProcessor(recoverySystem)
+                    new SleepPassiveEffectProcessor(recoverySystem),
+                    new PeriodicRecoveryPassiveEffectProcessor(recoverySystem)
                 },
                 statPipeline);
 
@@ -277,6 +279,7 @@ namespace Godmist.Views.Combat
 
             var jerzy = CreateUnit(jerzyDefinition, scoutClass, new GridPosition(1, 1),
                 100, 0, 200, ResourceType.Momentum, 60f, true);
+            CopyDebugConsumablesFromGameSession(jerzy.Character);
             var ally = CreateUnit(allyDefinition, scoutClass, new GridPosition(1, 2),
                 100, 0, 200, ResourceType.Momentum, 55f, true);
             var enemyA = CreateUnit(enemyDefinition, warriorClass, new GridPosition(6, 4),
@@ -290,6 +293,41 @@ namespace Godmist.Views.Combat
             session.Units.Add(enemyB);
 
             return session;
+        }
+
+        private static void CopyDebugConsumablesFromGameSession(CharacterInstance target)
+        {
+            var gameSession = GameBootstrap.Instance?.Session;
+            var leaderId = gameSession?.PlayerParty?.ActiveLeaderId;
+            if (target?.Inventory?.Items == null
+                || string.IsNullOrWhiteSpace(leaderId)
+                || gameSession?.CharactersById == null
+                || !gameSession.CharactersById.TryGetValue(leaderId, out var source)
+                || source?.Inventory?.Items == null)
+            {
+                return;
+            }
+
+            // The standalone debug sandbox creates throwaway characters. Keep
+            // debug-created consumables usable there by copying the runtime
+            // item references from the active game-session leader at startup.
+            foreach (var item in source.Inventory.Items)
+            {
+                if (item is ConsumableItemInstance consumable
+                    && consumable.HasCharges
+                    && !target.Inventory.Items.Contains(consumable))
+                {
+                    target.Inventory.Items.Add(consumable);
+                }
+            }
+        }
+
+        public void SyncDebugConsumablesToActiveUnit()
+        {
+            if (Session?.ActiveUnit?.IsPlayerSide == true)
+            {
+                CopyDebugConsumablesFromGameSession(Session.ActiveUnit.Character);
+            }
         }
 
         private void RebuildDungeonCombatArea()
@@ -1393,6 +1431,7 @@ namespace Godmist.Views.Combat
                 }
 
                 if (effect.EffectType == EffectType.Heal
+                    || effect.EffectType == EffectType.HealPercent
                     || effect.EffectType == EffectType.Teleport)
                 {
                     return true;

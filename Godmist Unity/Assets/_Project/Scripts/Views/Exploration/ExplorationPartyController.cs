@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
 using Godmist.Views.Dungeons;
+using Godmist.Views.Game;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using UnityEngine;
@@ -145,14 +146,7 @@ namespace Godmist.Views.Exploration
 
             MoveFollowers(leaderView);
 
-            if (gameSession.ActiveDungeon != null)
-            {
-                gameSession.ActiveDungeon.SetPlayerPosition(leaderView.Position);
-            }
-            else
-            {
-                gameSession.TrySetExplorationPosition(leaderView.Position);
-            }
+            PersistCurrentPosition(leaderView);
         }
 
         private void OnDestroy()
@@ -287,6 +281,29 @@ namespace Godmist.Views.Exploration
 
         public IReadOnlyCollection<ExplorationCharacterView> ActiveMemberViews =>
             viewsById.Values;
+
+        public void PersistCurrentPosition()
+        {
+            PersistCurrentPosition(GetActiveLeaderView());
+        }
+
+        private void PersistCurrentPosition(ExplorationCharacterView leaderView)
+        {
+            if (gameSession == null || leaderView == null) return;
+
+            if (gameSession.ActiveDungeon != null
+                && GameBootstrap.Instance != null
+                && GameBootstrap.Instance.IsDungeonScene)
+            {
+                gameSession.ActiveDungeon.SetPlayerPosition(leaderView.Position);
+                return;
+            }
+
+            // The town has its own position. An active dungeon is deliberately
+            // kept in the session while the player is in Arungard, but town
+            // movement must never overwrite the dungeon resume position.
+            gameSession.TrySetExplorationPosition(leaderView.Position);
+        }
 
         public void RestorePartyPositions(
             IReadOnlyDictionary<string, Vector2> positions,

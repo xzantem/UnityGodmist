@@ -48,8 +48,6 @@ Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja
 
 - `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
   - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
-- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-  - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
 - `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
   - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
@@ -116,6 +114,7 @@ Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację
 
 Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne zagrożenia i możliwości przemieszczania w lochu, wykorzystując ustalone zachowania walki i miasta.
 
+- `Dungeon Selector v2`: przed wejściem gracz wybiera spośród kilku wylosowanych propozycji lochów. Każda propozycja ma niezależny seed i poziom losowany wokół średniego poziomu aktywnej drużyny; UI pokazuje theme oraz — gdy zostanie zaimplementowany — rozmiar, nigdy samego seedu.
 - Indywidualne rozmieszczenie przeciwników, FOV, pościg oraz zasadzki i niewidzialne encountery.
 - Pathfinding sterowany myszką, skakanie oraz nowe typy pułapek eksploracyjnych.
 - Prawdziwe zagadki logiczne i zręcznościowe z czytelnym stanem, persistence i konsekwencjami.
@@ -124,6 +123,9 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 ## In Progress
 
 ### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Pierwsze działające potiony i bomby z charges oraz jednorazowe utility consumables; użycie, ograniczenia tur, persistence i return scroll do miasta.
 
 - `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
   - Zastąpić legacy `TradePanelView` zakładką sklepu we wspólnym UI Workspace usług NPC. Karta osobna po craftingu półproduktów; obejmuje dopiero wtedy migrację istniejącego handlu, buybacku i jego smoke test.

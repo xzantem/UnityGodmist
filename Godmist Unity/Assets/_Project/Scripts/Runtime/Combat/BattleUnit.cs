@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Characters;
+using UnityEngine;
 
 namespace Godmist.Runtime.Combat
 {
@@ -31,11 +32,54 @@ namespace Godmist.Runtime.Combat
         public List<CombatDamageRedirectRuntime> OutgoingDamageRedirects = new();
         public HashSet<string> ActiveToggleSkillIds = new();
         public HashSet<string> ToggleSkillIdsUsedThisTurn = new();
+        public HashSet<ConsumableUseType> ConsumableUseTypesUsedThisTurn = new();
+        public Dictionary<string, StatusToleranceRuntime> StatusTolerances = new();
 
         public bool HasReacted;
         public bool IsReadyToEscape;
         public bool IsPlayerSide;
         public int DownedTurnsRemaining;
+
+        public void AddStatusTolerance(string statusId, int durationTurns = 2)
+        {
+            if (string.IsNullOrWhiteSpace(statusId)) return;
+            StatusTolerances ??= new Dictionary<string, StatusToleranceRuntime>();
+            if (!StatusTolerances.TryGetValue(statusId, out var tolerance))
+            {
+                tolerance = new StatusToleranceRuntime();
+                StatusTolerances[statusId] = tolerance;
+            }
+
+            tolerance.Stacks = Math.Max(1, tolerance.Stacks + 1);
+            tolerance.RemainingTurns = Math.Max(
+                tolerance.RemainingTurns,
+                Math.Max(1, durationTurns));
+        }
+
+        public float GetStatusTolerance(string statusId)
+        {
+            return string.IsNullOrWhiteSpace(statusId)
+                || StatusTolerances == null
+                || !StatusTolerances.TryGetValue(statusId, out var tolerance)
+                || tolerance == null
+                || tolerance.RemainingTurns <= 0
+                ? 0f
+                : Mathf.Clamp01(tolerance.Stacks * 0.25f);
+        }
+
+        public void AdvanceStatusTolerances()
+        {
+            if (StatusTolerances == null) return;
+            var expired = new List<string>();
+            foreach (var pair in StatusTolerances)
+            {
+                if (pair.Value == null || --pair.Value.RemainingTurns <= 0)
+                    expired.Add(pair.Key);
+            }
+
+            foreach (var statusId in expired)
+                StatusTolerances.Remove(statusId);
+        }
 
         public const int DownedTurnLimit = 5;
     }
@@ -53,6 +97,13 @@ namespace Godmist.Runtime.Combat
         public int DurationTurns = 1;
         public float StatusDamageMultiplier;
         public int StatusDamagePerTurn;
+    }
+
+    [Serializable]
+    public sealed class StatusToleranceRuntime
+    {
+        public int Stacks;
+        public int RemainingTurns;
     }
 
     [Serializable]

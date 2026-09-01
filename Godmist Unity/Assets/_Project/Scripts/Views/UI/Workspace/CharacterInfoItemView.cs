@@ -60,6 +60,7 @@ namespace Godmist.Views.UI.Workspace
             if (eventData.button == PointerEventData.InputButton.Right)
             {
                 if (item is LootBagItemInstance) owner?.TryOpenLootBag(item);
+                else if (item is ConsumableItemInstance) owner?.TryUseConsumable(item);
                 else CampaignStorageWindowView.Active?.TryDeposit(
                     owner,
                     item,

@@ -13,6 +13,11 @@ namespace Godmist.Data.Skills
         [SerializeField] private TargetingType targetingType =
             TargetingType.Enemies;
 
+        // Most ally-targeted skills intentionally exclude their caster. Runtime
+        // consumables are the exception: a potion must be usable on the active
+        // character as well as on another ally.
+        [SerializeField] private bool includesCaster;
+
         [Header("Absolute Range")]
         [SerializeField] private SkillRangeData absoluteRange =
             new();
@@ -23,6 +28,7 @@ namespace Godmist.Data.Skills
 
         public TargetType TargetType => targetType;
         public TargetingType TargetingType => targetingType;
+        public bool IncludesCaster => includesCaster;
         public SkillRangeData AbsoluteRange => absoluteRange;
         public bool UseRelativeRange => SupportsRelativeRange(TargetType);
         public SkillRangeData RelativeRange => relativeRange;

@@ -42,6 +42,7 @@ namespace Godmist.Views.UI.Workspace
         private readonly EquipmentService equipmentService = new();
         private readonly CharacterProgressionSystem progressionSystem = new();
         private readonly LootBagService lootBagService = new();
+        private readonly ConsumableService consumableService = new();
         private readonly List<CharacterInfoItemView> inventoryViews = new();
 
         private GameSession session;
@@ -176,6 +177,18 @@ namespace Godmist.Views.UI.Workspace
             {
                 Refresh();
             }
+        }
+
+        public void TryUseConsumable(ItemInstance item)
+        {
+            if (item is not ConsumableItemInstance consumable || character == null || session == null || session.ActiveCombat != null) return;
+            if (!consumableService.TryUseInExploration(character, consumable, out var effect)) return;
+            if (effect == ExplorationConsumableEffect.ReturnToArungard)
+            {
+                if (!Godmist.Views.Game.GameBootstrap.Instance?.TryReturnToArungardFromDungeon() ?? true) return;
+                consumableService.TrySpendCharge(character, consumable);
+            }
+            Refresh();
         }
 
         public void TryUnequip(EquipmentSlot slot)

@@ -314,6 +314,13 @@ namespace Godmist.Systems.Combat
                             Value = value.Value
                         });
                         break;
+                    case PeriodicRecoveryPayload value:
+                        copied.Add(new PeriodicRecoveryPayload
+                        {
+                            HealthPercent = value.HealthPercent,
+                            ResourcePercent = value.ResourcePercent
+                        });
+                        break;
                 }
             }
 

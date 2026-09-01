@@ -63,6 +63,7 @@ namespace Godmist.Data.Effects
         [SerializeField] private int stacks = 1;
         [SerializeField, Min(0f)] private float statusDamageMultiplier;
         [SerializeField, Range(0f, 1f)] private float statusHealPercent;
+        [SerializeField, Range(0f, 1f)] private float percentageValue;
 
         [Header("Counterattack")]
         [SerializeField] private SkillRangeData counterattackRange =
@@ -138,6 +139,7 @@ namespace Godmist.Data.Effects
         public int Stacks => stacks;
         public float StatusDamageMultiplier => statusDamageMultiplier;
         public float StatusHealPercent => statusHealPercent;
+        public float PercentageValue => Mathf.Clamp01(percentageValue);
         public SkillRangeData CounterattackRange => counterattackRange;
         public IReadOnlyList<SkillEffectData> CounterattackEffects =>
             counterattackEffects;

@@ -25,6 +25,8 @@ namespace Godmist.Views.UI.Workspace
             : rectTransform = GetComponent<RectTransform>();
         public UIWorkspaceWindowManager Manager => manager;
         public bool IsOpen => gameObject.activeInHierarchy;
+        public Vector2 MinimumSize => minimumSize;
+        public Vector2 MaximumSize => maximumSize;
 
         public void ConfigureResizeAxes(bool horizontal, bool vertical)
         {

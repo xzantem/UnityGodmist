@@ -796,6 +796,14 @@ namespace Godmist.Systems.SaveLoad
                             ResistanceModifierValue = resistanceModifier.Value
                         });
                         break;
+                    case PeriodicRecoveryPayload periodicRecovery:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            HealthPercent = periodicRecovery.HealthPercent,
+                            ResourcePercent = periodicRecovery.ResourcePercent
+                        });
+                        break;
                 }
             }
 
@@ -945,6 +953,33 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryPassiveDungeonTheme = jewelryItem.PassiveDungeonTheme;
                     itemSaveData.JewelryResistanceType = jewelryItem.ResistanceType;
                     itemSaveData.JewelryResistanceValue = jewelryItem.ResistanceValue;
+                }
+            }
+
+            if (item is ConsumableItemInstance consumableItem)
+            {
+                itemSaveData.IsConsumable = true;
+                itemSaveData.CurrentCharges = consumableItem.CurrentCharges;
+                itemSaveData.BlastRange = consumableItem.BlastRange;
+                itemSaveData.BlastAreaSize = consumableItem.BlastAreaSize;
+                itemSaveData.CatalystDurationModifier = consumableItem.CatalystDurationModifier;
+                itemSaveData.CatalystEffectMultiplier = consumableItem.CatalystEffectMultiplier;
+                itemSaveData.CatalystChargeBonus = consumableItem.CatalystChargeBonus;
+                foreach (var effect in consumableItem.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
+                {
+                    if (effect == null) continue;
+                    itemSaveData.ConsumableEffects.Add(new ConsumableEffectSaveData
+                    {
+                        EffectType = effect.EffectType,
+                        Value = effect.Value,
+                        DurationTurns = effect.DurationTurns,
+                        Chance = effect.Chance,
+                        TargetModeIndex = effect.TargetModeIndex,
+                        StatusId = effect.StatusId ?? string.Empty,
+                        ResistanceType = effect.ResistanceType,
+                        TargetType = effect.TargetType,
+                        TargetingType = effect.TargetingType
+                    });
                 }
             }
 

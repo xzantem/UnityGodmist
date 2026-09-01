@@ -97,4 +97,12 @@ namespace Godmist.Runtime.Effects
         public float Value;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.ResistanceModifier;
     }
+
+    [Serializable]
+    public sealed class PeriodicRecoveryPayload : PassiveEffectPayloadRuntime
+    {
+        public float HealthPercent;
+        public float ResourcePercent;
+        public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.PeriodicRecovery;
+    }
 }

@@ -15,6 +15,7 @@ using Godmist.Systems.NPC;
 using Godmist.Systems.Quests;
 using Godmist.Systems.SaveLoad;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Godmist.Views.Game
 {
@@ -37,6 +38,7 @@ namespace Godmist.Views.Game
         public TradeService TradeService { get; private set; }
         public SaveManager SaveManager { get; private set; }
         public GameContentCatalog ContentCatalog => contentCatalog;
+        public bool IsDungeonScene => SceneManager.GetActiveScene().name == dungeonSceneName;
 
         public event Action<DungeonInstance> DungeonExited;
 
@@ -313,9 +315,38 @@ namespace Godmist.Views.Game
                 return false;
             }
 
-            if (Session == null || Session.ActiveDungeon != null)
+            if (Session == null)
             {
                 return false;
+            }
+
+            // A return scroll leaves the generated dungeon in the session so
+            // its cleared encounters, loot and party position can be resumed.
+            // The entrance must therefore reopen that same instance instead of
+            // rejecting it as if the player were trying to create a second
+            // dungeon. A different entrance remains blocked until the current
+            // dungeon is completed or otherwise cleared.
+            if (Session.ActiveDungeon != null)
+            {
+                if (!string.Equals(
+                        Session.ActiveDungeon.DungeonId,
+                        definition.Id,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.Log(
+                        "Najpierw zakończ lub wznow istniejący loch przed wejściem do innego.");
+                    return false;
+                }
+
+                if (!sceneLoader.TryLoadScene(
+                        dungeonSceneName,
+                        GameModeState.Exploration))
+                {
+                    return false;
+                }
+
+                RequestAutosave("Wznowienie lochu");
+                return true;
             }
 
             try
@@ -404,6 +435,21 @@ namespace Godmist.Views.Game
 
             Session.TryClearActiveDungeon();
             RequestAutosave("Wyjście z lochu");
+            return true;
+        }
+
+        public bool TryReturnToArungardFromDungeon()
+        {
+            if (Session?.ActiveDungeon == null || Session.ActiveCombat != null) return false;
+
+            // Scene loading is asynchronous. Capture the live leader position
+            // before the dungeon scene is destroyed so resuming the same
+            // instance cannot fall back to a stale room position.
+            FindAnyObjectByType<Godmist.Views.Exploration.ExplorationPartyController>()
+                ?.PersistCurrentPosition();
+
+            if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
+            RequestAutosave("Return scroll");
             return true;
         }
 

@@ -152,7 +152,9 @@ namespace Godmist.Systems.Combat
                 tickPhase: isTimed ? PassiveEffectTickPhase.TurnEnd : PassiveEffectTickPhase.None,
                 lifetime: isTimed ? PassiveEffectLifetime.Timed : PassiveEffectLifetime.CombatScoped)
             {
-                DisplayName = skill.DisplayName,
+                DisplayName = string.IsNullOrWhiteSpace(skill.DisplayName)
+                    ? $"Modyfikator: {effect.ModifierVariableType}"
+                    : skill.DisplayName,
                 VariableModifiers = new List<GameplayVariableModifier>
                 {
                     new()

@@ -38,10 +38,18 @@ namespace Godmist.Systems.Combat
             switch (mode.TargetType)
             {
                 case TargetType.Single:
-                    if (!selectedPosition.HasValue || !IsValidTargetPosition(session, caster, mode, selectedPosition.Value))
+                    if (!selectedPosition.HasValue
+                        || (!IsValidTargetPosition(session, caster, mode, selectedPosition.Value)
+                            && !(mode.IncludesCaster && selectedPosition.Value == caster.Position)))
                         break;
 
-                    var referenceTarget = FindEligibleUnitAtPosition(session, caster, mode.TargetingType, selectedPosition.Value, includeDownedTargets);
+                    var referenceTarget = FindEligibleUnitAtPosition(
+                        session,
+                        caster,
+                        mode.TargetingType,
+                        selectedPosition.Value,
+                        includeDownedTargets,
+                        mode.IncludesCaster);
 
                     if (referenceTarget == null)
                         break;
@@ -179,7 +187,8 @@ namespace Godmist.Systems.Combat
                 {
                     var position = new GridPosition(x, y);
 
-                    if (!IsValidTargetPosition(session, caster, mode, position))
+                    if (!IsValidTargetPosition(session, caster, mode, position)
+                        && !(mode.IncludesCaster && position == caster.Position))
                     {
                         continue;
                     }
@@ -494,7 +503,7 @@ namespace Godmist.Systems.Combat
                     return false;
             }
         }
-        private static bool IsPositionWithinRelativeRange(
+        public static bool IsPositionWithinRelativeRange(
             GridPosition casterPosition,
             GridPosition referencePosition,
             GridPosition position,
@@ -562,7 +571,8 @@ namespace Godmist.Systems.Combat
             GridPosition position)
         {
             return session.Grid != null
-                && session.Grid.IsWalkable(position)
+                && session.Grid.IsWithinBounds(position)
+                && (session.Grid.IsWalkable(position) || position == caster.Position)
                 && IsPositionWithinRange(
                     caster.Position,
                     position,
@@ -755,12 +765,14 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit caster,
             TargetingType targetingType,
-            GridPosition position, bool includeDownedTargets)
+            GridPosition position,
+            bool includeDownedTargets,
+            bool includesCaster = false)
         {
             foreach (var unit in session.Units)
             {
                 if (unit != null && unit.Position == position
-                    && IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, false))
+                    && IsEligibleTarget(caster, unit, targetingType, includeDownedTargets, false, includesCaster))
                 {
                     return unit;
                 }
@@ -818,7 +830,8 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             TargetingType targetingType,
             bool includeDownedTargets,
-            bool allowInvisibleEnemyTarget = false)
+            bool allowInvisibleEnemyTarget = false,
+            bool includesCaster = false)
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return false;
 
@@ -836,7 +849,7 @@ namespace Godmist.Systems.Combat
 
                 TargetingType.Allies =>
                     target.IsPlayerSide == caster.IsPlayerSide
-                    && !ReferenceEquals(target, caster),
+                    && (includesCaster || !ReferenceEquals(target, caster)),
 
                 TargetingType.All => true,
 
@@ -902,12 +915,15 @@ namespace Godmist.Systems.Combat
                             caster,
                             unit,
                             mode.TargetingType,
-                            includeDownedTargets)
-                        || !IsValidTargetPosition(
+                            includeDownedTargets,
+                            false,
+                            mode.IncludesCaster)
+                        || (!IsValidTargetPosition(
                             session,
                             caster,
                             mode,
-                            unit.Position))
+                            unit.Position)
+                            && !(mode.IncludesCaster && unit == caster)))
                     {
                         continue;
                     }

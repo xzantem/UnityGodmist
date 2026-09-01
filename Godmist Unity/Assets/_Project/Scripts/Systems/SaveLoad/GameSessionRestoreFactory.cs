@@ -336,9 +336,13 @@ namespace Godmist.Systems.SaveLoad
 
                 var isLootBagDefinition = definition is LootBagItemDefinition;
 
+                var isConsumableDefinition = definition is ConsumableItemDefinition;
+
                 if (itemSaveData.IsEquipment != isEquipmentDefinition
                     || itemSaveData.IsLootBag != isLootBagDefinition
-                    || (itemSaveData.IsEquipment && itemSaveData.IsLootBag))
+                    || itemSaveData.IsConsumable != isConsumableDefinition
+                    || (itemSaveData.IsEquipment && itemSaveData.IsLootBag)
+                    || (itemSaveData.IsConsumable && (itemSaveData.IsEquipment || itemSaveData.IsLootBag)))
                 {
                     return false;
                 }
@@ -350,6 +354,63 @@ namespace Godmist.Systems.SaveLoad
                 item.CurrentRarity = itemSaveData.CurrentRarity;
                 item.ItemLevel = itemSaveData.ItemLevel;
                 item.CustomName = itemSaveData.CustomName ?? string.Empty;
+
+                if (item is ConsumableItemInstance consumableItem)
+                {
+                    if (itemSaveData.CatalystDurationModifier < -20
+                        || itemSaveData.CatalystDurationModifier > 20
+                        || float.IsNaN(itemSaveData.CatalystEffectMultiplier)
+                        || float.IsInfinity(itemSaveData.CatalystEffectMultiplier)
+                        || itemSaveData.CatalystEffectMultiplier < 0f
+                        || itemSaveData.CatalystChargeBonus < 0
+                        || itemSaveData.CatalystChargeBonus > 9)
+                    {
+                        return false;
+                    }
+
+                    consumableItem.CatalystDurationModifier = itemSaveData.CatalystDurationModifier;
+                    consumableItem.CatalystEffectMultiplier = itemSaveData.CatalystEffectMultiplier;
+                    consumableItem.CatalystChargeBonus = itemSaveData.CatalystChargeBonus;
+                    if (itemSaveData.CurrentCharges < 0 || itemSaveData.CurrentCharges > consumableItem.MaxCharges) return false;
+                    consumableItem.CurrentCharges = itemSaveData.CurrentCharges;
+                    if (consumableItem.IsBomb)
+                    {
+                        if (itemSaveData.BlastRange < ConsumableItemInstance.DefaultBombRange
+                            || itemSaveData.BlastRange > ConsumableItemInstance.MaxBombRange
+                            || itemSaveData.BlastAreaSize < ConsumableItemInstance.DefaultBombAreaSize
+                            || itemSaveData.BlastAreaSize > ConsumableItemInstance.MaxBombAreaSize)
+                        {
+                            return false;
+                        }
+
+                        consumableItem.ConfigureBombTargeting(
+                            itemSaveData.BlastRange,
+                            itemSaveData.BlastAreaSize);
+                    }
+                    consumableItem.RuntimeEffects = new List<ConsumableEffectRuntime>();
+                    foreach (var effect in itemSaveData.ConsumableEffects ?? new List<ConsumableEffectSaveData>())
+                    {
+                        if (effect == null || !Enum.IsDefined(typeof(ConsumableRuntimeEffectType), effect.EffectType)
+                            || float.IsNaN(effect.Value) || float.IsInfinity(effect.Value)
+                            || float.IsNaN(effect.Chance) || float.IsInfinity(effect.Chance)
+                            || effect.Chance < 0f || effect.Chance > 1f || effect.DurationTurns < 0)
+                        {
+                            return false;
+                        }
+                        consumableItem.RuntimeEffects.Add(new ConsumableEffectRuntime
+                        {
+                            EffectType = effect.EffectType,
+                            Value = effect.Value,
+                            DurationTurns = effect.DurationTurns,
+                            Chance = effect.Chance,
+                            TargetModeIndex = effect.TargetModeIndex,
+                            StatusId = effect.StatusId ?? string.Empty,
+                            ResistanceType = effect.ResistanceType,
+                            TargetType = effect.TargetType,
+                            TargetingType = effect.TargetingType
+                        });
+                    }
+                }
 
                 if (item is EquipmentItemInstance equipmentItem)
                 {
@@ -939,6 +1000,20 @@ namespace Godmist.Systems.SaveLoad
                         {
                             ResistanceType = saveData.ResistanceType,
                             Value = saveData.ResistanceModifierValue
+                        });
+                        break;
+                    case PassiveEffectPayloadType.PeriodicRecovery:
+                        if (saveData.HealthPercent < 0f
+                            || saveData.HealthPercent > 1f
+                            || saveData.ResourcePercent < 0f
+                            || saveData.ResourcePercent > 1f)
+                        {
+                            return false;
+                        }
+                        payloads.Add(new PeriodicRecoveryPayload
+                        {
+                            HealthPercent = saveData.HealthPercent,
+                            ResourcePercent = saveData.ResourcePercent
                         });
                         break;
                 }

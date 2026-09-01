@@ -68,19 +68,11 @@ namespace Godmist.Views.Exploration
 
             partyController.Initialize(session, characterViews);
 
-            if (session.ActiveDungeon != null
-                && session.ActiveDungeon.HasPendingPlayerPartyPositions)
-            {
-                partyController.RestorePartyPositions(
-                    session.ActiveDungeon.PendingPlayerPartyPositions,
-                    session.ActiveDungeon.PlayerPosition);
-                session.ActiveDungeon.ClearPendingPlayerPartyPositions();
-            }
-            else if (session.ActiveDungeon != null && session.ActiveDungeon.HasPlayerPosition)
-            {
-                partyController.RestorePartyFormation(session.ActiveDungeon.PlayerPosition);
-            }
-            else if (session.HasExplorationPosition)
+            // Arungard owns a separate town position. The active dungeon may
+            // remain in the session after a return scroll, but its saved
+            // coordinates belong to DungeonSandbox and must not be applied to
+            // this scene or overwritten by town movement.
+            if (session.HasExplorationPosition)
             {
                 partyController.RestorePartyFormation(session.ExplorationPosition);
             }
