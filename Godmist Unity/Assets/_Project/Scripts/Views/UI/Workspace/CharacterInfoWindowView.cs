@@ -42,6 +42,7 @@ namespace Godmist.Views.UI.Workspace
         private readonly EquipmentService equipmentService = new();
         private readonly CharacterProgressionSystem progressionSystem = new();
         private readonly LootBagService lootBagService = new();
+        private readonly ConsumableService consumableService = new();
         private readonly List<CharacterInfoItemView> inventoryViews = new();
 
         private GameSession session;
@@ -178,6 +179,19 @@ namespace Godmist.Views.UI.Workspace
             }
         }
 
+        public void TryUseConsumable(ItemInstance item)
+        {
+            if (item is not ConsumableItemInstance consumable || character == null || session == null || session.ActiveCombat != null) return;
+            if (!consumableService.TryUseInExploration(
+                    character,
+                    consumable,
+                    out _,
+                    returnTransition: () =>
+                        Godmist.Views.Game.GameBootstrap.Instance
+                            ?.TryReturnToArungardFromDungeon() ?? false)) return;
+            Refresh();
+        }
+
         public void TryUnequip(EquipmentSlot slot)
         {
             if (character == null) return;
@@ -222,6 +236,8 @@ namespace Godmist.Views.UI.Workspace
                 icon.sprite = item.Definition?.Icon;
                 icon.enabled = icon.sprite != null;
             }
+            var countLabel = dragGhost.transform.Find("CountLabel");
+            if (countLabel != null) countLabel.gameObject.SetActive(false);
             UpdateDrag(eventData);
         }
 
@@ -242,6 +258,15 @@ namespace Godmist.Views.UI.Workspace
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) slot?.SetDropHighlight(false);
             if (dragGhost != null) Destroy(dragGhost);
             dragGhost = null;
+        }
+
+        public void TryDropToCampaignStorage(ItemInstance item, PointerEventData eventData)
+        {
+            CampaignStorageWindowView.Active?.TryDepositAtScreenPoint(
+                this,
+                item,
+                eventData,
+                Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
         }
 
         public void TryHandleDrop(CharacterInfoEquipmentSlotView target)

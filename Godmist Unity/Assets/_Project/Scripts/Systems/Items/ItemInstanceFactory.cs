@@ -39,6 +39,11 @@ namespace Godmist.Systems.Items
                     instanceId);
             }
 
+            if (definition is ConsumableItemDefinition consumableDefinition)
+            {
+                return new ConsumableItemInstance(consumableDefinition, instanceId);
+            }
+
             return new ItemInstance(definition, instanceId);
         }
     }

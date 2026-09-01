@@ -110,6 +110,8 @@ namespace Godmist.Core.Serialization
         public int RemainingTotalDamage;
         public int DamagePerTurn;
         public float MaxHealthPercent;
+        public float HealthPercent;
+        public float ResourcePercent;
         public UniqueBuffType UniqueBuffType;
         public int ActionPointModifier;
         public float DamageRedirectPercent;

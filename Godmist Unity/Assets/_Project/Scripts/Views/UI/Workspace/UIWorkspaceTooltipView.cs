@@ -10,7 +10,9 @@ using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Items;
 using Godmist.Views.UI;
+using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -73,8 +75,19 @@ namespace Godmist.Views.UI.Workspace
         {
             ActiveInstance = this;
             EnsureCanvasGroup();
+            ConfigureTextLayout(titleText);
+            ConfigureTextLayout(bodyText);
+            ConfigureTextLayout(metaText);
             CacheDefaultAccentColor();
             Hide();
+        }
+
+        private static void ConfigureTextLayout(TextMeshProUGUI text)
+        {
+            if (text == null) return;
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.raycastTarget = false;
         }
 
         private void OnDestroy()
@@ -157,7 +170,9 @@ namespace Godmist.Views.UI.Workspace
             if (suppressForDrag || skill == null) return;
             QueueShow(source ?? skill, () => SetContent(
                 skill.Icon,
-                skill.DisplayName,
+                string.IsNullOrWhiteSpace(skill.DisplayName)
+                    ? "Przedmiot użytkowy"
+                    : skill.DisplayName,
                 BuildSkillDescription(skill, caster),
                 BuildSkillMeta(skill, actionCost)));
         }
@@ -196,6 +211,26 @@ namespace Godmist.Views.UI.Workspace
                 item.Definition.Icon,
                 item.DisplayName,
                 BuildItemBody(item, owner),
+                BuildItemMeta(item)));
+        }
+
+        /// <summary>
+        /// Shows the normal item tooltip with a short context-specific suffix.
+        /// Service views use this for transient information such as a buy or sell
+        /// price without duplicating the item-stat formatting here.
+        /// </summary>
+        public void ShowItemWithExtra(
+            ItemInstance item,
+            CharacterInstance owner,
+            object source,
+            string extraBody)
+        {
+            if (item?.Definition == null) return;
+
+            QueueShow(source ?? item, () => SetContent(
+                item.Definition.Icon,
+                item.DisplayName,
+                AppendTooltipExtra(BuildItemBody(item, owner), extraBody),
                 BuildItemMeta(item)));
         }
 
@@ -310,6 +345,7 @@ namespace Godmist.Views.UI.Workspace
             if (titleText != null) titleText.text = title ?? string.Empty;
             if (bodyText != null)
             {
+                bodyText.gameObject.SetActive(!string.IsNullOrWhiteSpace(body));
                 bodyText.text = glossary != null
                     ? glossary.Linkify(body ?? string.Empty)
                     : body ?? string.Empty;
@@ -329,30 +365,43 @@ namespace Godmist.Views.UI.Workspace
         {
             if (tooltipRect == null) return;
             Canvas.ForceUpdateCanvases();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipRect);
             var contentRect = bodyText?.rectTransform.parent as RectTransform;
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
             bodyText?.ForceMeshUpdate();
             metaText?.ForceMeshUpdate();
-            var contentWidth = bodyText != null && bodyText.rectTransform.rect.width > 0f
-                ? bodyText.rectTransform.rect.width
-                : contentRect != null
-                    ? Mathf.Max(1f, contentRect.rect.width)
-                    : 336f;
+            // Body can report a zero rect during the first frame after the
+            // tooltip is enabled. Derive the available width from the fixed
+            // tooltip width instead of letting GetPreferredValues wrap every
+            // character into a very tall column.
+            var tooltipWidth = Mathf.Max(1f, tooltipRect.rect.width);
+            var contentWidth = contentRect != null && contentRect.rect.width > 1f
+                ? contentRect.rect.width
+                : Mathf.Max(1f, tooltipWidth - 24f);
             var iconHeight = icon != null && icon.enabled ? 40f : 0f;
-            var titleHeight = titleText != null ? Mathf.Ceil(titleText.preferredHeight) : 0f;
+            var titleHeight = titleText != null
+                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, contentWidth, 0f).y)
+                : 0f;
             var headerHeight = Mathf.Max(iconHeight, titleHeight);
-            var bodyHeight = bodyText != null
+            var headerLayout = titleText?.transform.parent?.GetComponent<LayoutElement>();
+            if (headerLayout != null)
+            {
+                var compactHeaderHeight = Mathf.Max(24f, headerHeight);
+                headerLayout.minHeight = compactHeaderHeight;
+                headerLayout.preferredHeight = compactHeaderHeight;
+                headerHeight = compactHeaderHeight;
+            }
+
+            var bodyHeight = bodyText != null && bodyText.gameObject.activeSelf
                 ? Mathf.Ceil(bodyText.GetPreferredValues(bodyText.text, contentWidth, 0f).y)
                 : 0f;
             var metaHeight = metaText != null && metaText.gameObject.activeSelf
                 ? Mathf.Ceil(metaText.GetPreferredValues(metaText.text, contentWidth, 0f).y)
                 : 0f;
-            var sectionCount = 1 + (bodyText != null ? 1 : 0)
+            var sectionCount = 1 + (bodyText != null && bodyText.gameObject.activeSelf ? 1 : 0)
                 + (metaText != null && metaText.gameObject.activeSelf ? 1 : 0);
             tooltipRect.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                Mathf.Max(minimumHeight, 20f + contentHeightPadding + headerHeight + bodyHeight + metaHeight + 4f * (sectionCount - 1)));
+                Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
         }
 
@@ -376,6 +425,14 @@ namespace Godmist.Views.UI.Workspace
 
         private static bool IsWithin(Transform root, object source)
         {
+            // Tooltip sources are often dynamically rebuilt inventory slots. Unity
+            // keeps their managed wrapper briefly after Destroy, but accessing its
+            // Transform throws MissingReferenceException.
+            if (source is UnityEngine.Object unityObject && unityObject == null)
+            {
+                return false;
+            }
+
             return source switch
             {
                 Component component => component.transform == root
@@ -732,7 +789,13 @@ namespace Godmist.Views.UI.Workspace
             }
 
             var generated = new StringBuilder();
-            AppendSkillTargetingSummary(generated, skill);
+            // Consumables use the same transient SkillData pipeline as combat
+            // skills, but their range is an implementation detail of the target
+            // picker. Showing it in the item tooltip is noisy and misleading.
+            if (!IsRuntimeConsumable(skill))
+            {
+                AppendSkillTargetingSummary(generated, skill);
+            }
 
             foreach (var effect in skill.Effects ?? Array.Empty<SkillEffectData>())
             {
@@ -749,6 +812,15 @@ namespace Godmist.Views.UI.Workspace
             }
 
             return result.ToString();
+        }
+
+        private static bool IsRuntimeConsumable(SkillData skill)
+        {
+            return skill != null
+                && skill.SkillId != null
+                && skill.SkillId.StartsWith(
+                    "runtime.consumable.",
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static string BuildSkillMeta(SkillData skill, int actionCost)
@@ -837,8 +909,22 @@ namespace Godmist.Views.UI.Workspace
                       $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}."
                     : $"Przywraca " +
                       $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}.",
+                EffectType.HealPercent =>
+                    $"Przywraca {FormatPercent(effect.PercentageValue)} maksymalnego zdrowia.",
+                EffectType.RestoreResourcePercent =>
+                    $"Przywraca {FormatPercent(effect.PercentageValue)} maksymalnego " +
+                    $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}.",
+                EffectType.HealOverTimePercent =>
+                    $"Regeneruje {FormatPercent(effect.PercentageValue)} maksymalnego zdrowia " +
+                    $"co turę{FormatEffectDuration(skill, effect)}.",
+                EffectType.RestoreResourceOverTimePercent =>
+                    $"Regeneruje {FormatPercent(effect.PercentageValue)} maksymalnego " +
+                    $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)} " +
+                    $"co turę{FormatEffectDuration(skill, effect)}.",
                 EffectType.Shield => DescribeShield(caster, effect),
                 EffectType.ApplyStatus => DescribeStatus(caster, effect),
+                EffectType.RemoveStatus =>
+                    $"Usuwa status {GetStatusDisplayName(effect.StatusId)}.",
                 EffectType.Push => DescribeMovementEffect("Odpycha", effect),
                 EffectType.Pull => DescribeMovementEffect("Przyciąga", effect),
                 EffectType.Fallback =>
@@ -851,6 +937,9 @@ namespace Godmist.Views.UI.Workspace
                 EffectType.Summon => DescribeSummon(effect),
                 EffectType.ModifyStat => DescribeModifyStat(skill, effect),
                 EffectType.ModifyVar => DescribeModifyVar(skill, effect),
+                EffectType.ModifyActionPointsPercent =>
+                    $"Zwiększa punkty akcji o {FormatPercent(effect.PercentageValue)} " +
+                    $"w następnej turze{FormatEffectDuration(skill, effect)}.",
                 EffectType.ModifyActionValue => DescribeActionValue(effect),
                 EffectType.DrainResource => effect.BaseValue > 0
                     ? $"Odbiera celowi {effect.BaseValue} zasobu."
@@ -865,7 +954,9 @@ namespace Godmist.Views.UI.Workspace
                 _ => "Wywołuje dodatkowy efekt."
             };
 
-            return AddEffectContext(description, skill, effect);
+            return IsRuntimeConsumable(skill)
+                ? description
+                : AddEffectContext(description, skill, effect);
         }
 
         private string DescribeDamage(BattleUnit caster, SkillEffectData effect)
@@ -879,7 +970,10 @@ namespace Godmist.Views.UI.Workspace
                 ? $" w {FormatHitCount(effect.DamageHitCount)}"
                 : string.Empty;
             var description = string.IsNullOrEmpty(damageText)
-                ? $"Zadaje obrażenia {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}."
+                ? effect.DamageMultiplier > 0f
+                    ? $"Zadaje {FormatPercent(effect.DamageMultiplier)} średniego ataku "
+                      + $"obrażeń {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}."
+                    : $"Zadaje obrażenia {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}."
                 : $"Zadaje {damageText} obrażeń {GetDamageTypeDisplayName(effect.DamageType)}{hitCountText}.";
 
             if (effect.BonusDamageMultiplierChance > 0f)
@@ -1043,10 +1137,16 @@ namespace Godmist.Views.UI.Workspace
             SkillEffectData effect)
         {
             var statName = GetStatDisplayName(effect.ModifierStatType);
-            var value = IsPercentageStat(effect.ModifierStatType)
+            // Runtime consumables explicitly mark percentage modifiers. Dodge
+            // is the exception: its FlatAbsolute payload is a flat point value,
+            // even though the base stat is normally displayed as a percentage.
+            var isPercent = effect.ModifierOperation == StatModifierOperation.Percent
+                || (effect.ModifierOperation != StatModifierOperation.FlatAbsolute
+                    && IsPercentageStat(effect.ModifierStatType));
+            var value = isPercent
                 ? FormatSignedPercent(effect.ModifierValue)
                 : FormatSignedValue(effect.ModifierValue);
-            var maximumValue = IsPercentageStat(effect.ModifierStatType)
+            var maximumValue = isPercent
                 ? FormatPercent(effect.ModifierValue)
                 : FormatValue(effect.ModifierValue);
 
@@ -1251,13 +1351,27 @@ namespace Godmist.Views.UI.Workspace
                 TargetType.AreaAroundCaster =>
                     $"obszar wokół rzucającego, obejmujący {group}",
                 TargetType.AreaAroundTile =>
-                    $"obszar wokół wskazanego pola, obejmujący {group}",
+                    DescribeAreaTarget(mode, group),
                 TargetType.Line => $"linia obejmująca {group}",
                 TargetType.Chain => $"łańcuch obejmujący {group}",
                 TargetType.MultipleChosen => $"wybrane cele: {group}",
                 TargetType.MultipleRandom => $"losowe cele: {group}",
                 _ => "niestandardowy cel"
             };
+        }
+
+        private static string DescribeAreaTarget(
+            SkillTargetModeData mode,
+            string group)
+        {
+            var range = mode?.RelativeRange;
+            if (range == null || range.Shape != RangeShape.Square)
+            {
+                return $"obszar wokół wskazanego pola, obejmujący {group}";
+            }
+
+            var sideLength = Mathf.Max(1, range.MaxRange - range.MinRange + 1);
+            return $"obszar {sideLength}x{sideLength} wokół wskazanego pola, obejmujący {group}";
         }
 
         private string DescribeConditions(SkillEffectData effect)
@@ -1573,6 +1687,25 @@ namespace Godmist.Views.UI.Workspace
             AppendStatusRule(result, effect);
 
             var damageOverTime = effect.GetPayload<DamageOverTimePayload>();
+            var periodicRecovery = effect.GetPayload<PeriodicRecoveryPayload>();
+            if (periodicRecovery != null)
+            {
+                if (periodicRecovery.HealthPercent > 0f)
+                {
+                    Append(
+                        result,
+                        $"Regeneruje {FormatPercent(periodicRecovery.HealthPercent)} " +
+                        "maksymalnego zdrowia na końcu każdej tury.");
+                }
+
+                if (periodicRecovery.ResourcePercent > 0f)
+                {
+                    Append(
+                        result,
+                        $"Regeneruje {FormatPercent(periodicRecovery.ResourcePercent)} " +
+                        "maksymalnego zasobu na końcu każdej tury.");
+                }
+            }
             var auraDamagePerTurn = aura != null && IsDamageOverTime(effect.EffectId)
                 ? aura.StatusDamagePerTurn
                 : 0;
@@ -1623,7 +1756,10 @@ namespace Godmist.Views.UI.Workspace
             foreach (var modifier in effect.StatModifiers)
             {
                 if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
-                var value = IsPercentageStat(modifier.StatType)
+                var isPercent = modifier.Operation == StatModifierOperation.Percent
+                    || (modifier.Operation != StatModifierOperation.FlatAbsolute
+                        && IsPercentageStat(modifier.StatType));
+                var value = isPercent
                     ? FormatSignedPercent(modifier.Value)
                     : modifier.Value.ToString("+0.##;-0.##;0");
                 Append(
@@ -1802,9 +1938,15 @@ namespace Godmist.Views.UI.Workspace
             };
         }
 
-        private static string BuildItemBody(ItemInstance item, CharacterInstance owner)
+        private string BuildItemBody(ItemInstance item, CharacterInstance owner)
         {
-            var result = new StringBuilder(item.Definition.Description ?? string.Empty);
+            // Consumable definitions may still contain legacy text such as
+            // "restores 0 health". Their authoritative description is the
+            // runtime effect payload below, so do not prepend stale definition
+            // text for those instances.
+            var result = new StringBuilder(item is ConsumableItemInstance
+                ? string.Empty
+                : item.Definition.Description ?? string.Empty);
             if (item is EquipmentItemInstance equipment)
             {
                 Append(result, $"Slot: {equipment.EquipmentSlot}");
@@ -1828,13 +1970,97 @@ namespace Godmist.Views.UI.Workspace
                         Append(result, $"Odporność {jewelry.ResistanceType}: {jewelry.ResistanceValue * 100f:0.#}%");
                 }
             }
+            else if (item is ConsumableItemInstance consumable)
+            {
+                if (consumable.RuntimeEffects != null && consumable.RuntimeEffects.Count > 0)
+                {
+                    foreach (var runtimeEffect in consumable.RuntimeEffects)
+                    {
+                        if (runtimeEffect?.EffectType == ConsumableRuntimeEffectType.ReturnToArungard)
+                        {
+                            Append(result, "Wraca do Arungardu.");
+                        }
+                    }
+                }
+                else if (ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
+                    consumable.ConsumableDefinition,
+                    out var impliedUtilityEffect)
+                    && impliedUtilityEffect.EffectType == ConsumableRuntimeEffectType.ReturnToArungard)
+                {
+                    Append(result, "Wraca do Arungardu.");
+                }
+
+                // Consumable effects are runtime payload, not definition data.
+                // Build the same transient action used by combat so inventory,
+                // stash and shop tooltips describe the actual item instance.
+                var runtimeSkill = ConsumableRuntimeActionBuilder.Build(consumable);
+                if (runtimeSkill != null)
+                {
+                    // Item tooltips outside combat still know the owning
+                    // character in inventory views. Reuse those attack stats
+                    // to calculate a concrete damage range for bombs.
+                    var previewCharacter = owner ?? ResolvePreviewCharacter();
+                    var previewCaster = previewCharacter == null
+                        ? null
+                        : new BattleUnit { Character = previewCharacter };
+                    foreach (var effect in runtimeSkill.Effects ?? Array.Empty<SkillEffectData>())
+                    {
+                        if (effect != null)
+                        {
+                            Append(result, DescribeEffect(runtimeSkill, previewCaster, effect));
+                        }
+                    }
+
+                    UnityEngine.Object.Destroy(runtimeSkill);
+                }
+            }
             return result.ToString();
+        }
+
+        private static string AppendTooltipExtra(string body, string extraBody)
+        {
+            if (string.IsNullOrWhiteSpace(extraBody)) return body;
+            if (string.IsNullOrWhiteSpace(body)) return extraBody;
+            return $"{body}\n{extraBody}";
+        }
+
+        private static CharacterInstance ResolvePreviewCharacter()
+        {
+            // Storage, loot and shop views intentionally do not own an item
+            // character. Use the active campaign leader for a concrete bomb
+            // damage range instead of falling back to the vague "physical
+            // damage" text. This is preview-only; it never changes gameplay.
+            var session = GameBootstrap.Instance?.Session;
+            var leaderId = session?.PlayerParty?.ActiveLeaderId;
+            if (!string.IsNullOrWhiteSpace(leaderId)
+                && session?.CharactersById != null
+                && session.CharactersById.TryGetValue(leaderId, out var leader))
+            {
+                return leader;
+            }
+
+            // A freshly created debug/campaign party can have active members
+            // before its leader field is assigned. The first active member is a
+            // deterministic preview source for that short initialization window.
+            foreach (var memberId in session?.PlayerParty?.ActiveMemberIds
+                ?? Array.Empty<string>())
+            {
+                if (session.CharactersById.TryGetValue(memberId, out var member))
+                {
+                    return member;
+                }
+            }
+
+            return null;
         }
 
         private static string BuildItemMeta(ItemInstance item)
         {
             var quality = item is EquipmentItemInstance equipment ? $" • {equipment.Quality}" : string.Empty;
-            return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}  •  Waga {item.Definition.Weight:0.##} kg";
+            var upgrade = item is EquipmentItemInstance upgraded
+                ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
+                : string.Empty;
+            return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
         }
 
         private static void AppendEquipmentStats(
@@ -1858,7 +2084,7 @@ namespace Godmist.Views.UI.Workspace
                 var average = (minAttack + maxAttack) * 0.5f;
                 Append(
                     result,
-                    $"Atak: {FormatValue(minAttack)}–{FormatValue(maxAttack)}"
+                    $"Atak: {FormatEquipmentValue(minAttack)}–{FormatEquipmentValue(maxAttack)}"
                     + FormatComparisonDelta(average - equippedAverage, equippedItem != null));
             }
 
@@ -1872,7 +2098,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    $"{stat}: {FormatStatValue(stat, value)}"
+                    $"{stat}: {FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
         }
@@ -1901,12 +2127,16 @@ namespace Godmist.Views.UI.Workspace
                 : 0f;
         }
 
-        private static string FormatStatValue(CharacterStatType stat, float value)
+        private static string FormatEquipmentStatValue(CharacterStatType stat, float value)
         {
             return stat == CharacterStatType.CritChance
                 ? $"{value * 100f:0.##}%"
-                : FormatValue(value);
+                : FormatEquipmentValue(value);
         }
+
+        // Equipment resolves as whole combat values. Keep the float internally for
+        // calculations, but never expose binary-float fragments in item tooltips.
+        private static string FormatEquipmentValue(float value) => Mathf.RoundToInt(value).ToString("0;-0;0");
 
         private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
 
@@ -1922,7 +2152,7 @@ namespace Godmist.Views.UI.Workspace
             var sign = delta > 0f ? "+" : "-";
             var value = stat == CharacterStatType.CritChance
                 ? $"{Mathf.Abs(delta) * 100f:0.##}%"
-                : FormatValue(Mathf.Abs(delta));
+                : FormatEquipmentValue(Mathf.Abs(delta));
             return $" <color={color}>{arrow} {sign}{value}</color>";
         }
 

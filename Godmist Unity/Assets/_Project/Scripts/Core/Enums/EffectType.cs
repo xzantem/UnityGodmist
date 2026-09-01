@@ -29,7 +29,13 @@ namespace Godmist.Core.Enums
         LegacyApplyAura = 21,
         BlockResourceRegeneration = 22,
         [System.Obsolete("Use ApplyUniqueBuff + OnHitStatus.")]
-        LegacyApplyOnHitStatus = 23
+        LegacyApplyOnHitStatus = 23,
+        HealPercent = 24,
+        RestoreResourcePercent = 25,
+        HealOverTimePercent = 26,
+        RestoreResourceOverTimePercent = 27,
+        ModifyActionPointsPercent = 28,
+        RemoveStatus = 29
     }
 
     public enum UniqueBuffType

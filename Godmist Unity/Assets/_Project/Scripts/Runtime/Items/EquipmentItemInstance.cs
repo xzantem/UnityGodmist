@@ -13,7 +13,12 @@ namespace Godmist.Runtime.Items
         public int RequiredLevel = 1;
         public EquipmentQuality Quality = EquipmentQuality.Normal;
         public List<string> PartIds = new();
+        // Payload before the mutable upgrade modifier is applied.
+        public List<StatModifier> BaseStatModifiers = new();
         public List<StatModifier> StatModifiers = new();
+        public float UpgradeProgress;
+
+        public int SocketCapacity => Math.Clamp((int)Math.Floor(UpgradeProgress * 5f + .0001f), 0, 5);
 
         public EquipmentItemDefinition EquipmentDefinition =>
             Definition as EquipmentItemDefinition;

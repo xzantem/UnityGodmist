@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bed854cba69ff047a20780c3ff79586, type: 3}
+  m_Name: EPD_PaladinArmorBinder_GoatLeather
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
+  <Id>k__BackingField: part.paladin.armor.binder.common.goat_leather
+  <DisplayName>k__BackingField: 
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 0}
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+  <Kind>k__BackingField: 4
+  <LevelBracket>k__BackingField: 5
+  <Stats>k__BackingField:
+    MinAttackBase: 0
+    MaxAttackBase: 0
+    CritChanceBase: 0
+    CritDamageBase: 0
+    WeaponAccuracyBase: 0
+    MaxResourceBase: 0
+    ResourceRegenerationBase: 0
+    MaxHealthBase: 220
+    DodgeBase: 0
+    PhysicalDefenseBase: 12
+    MagicalDefenseBase: 4
+    MinAttackPercent: 0
+    MaxAttackPercent: 0
+    CritChancePercent: 0
+    CritDamagePercent: 0
+    WeaponAccuracyPercent: 0
+    MaxResourcePercent: 0
+    ResourceRegenerationPercent: 0
+    MaxHealthPercent: 0.2
+    DodgePercent: 0.2
+    PhysicalDefensePercent: 0.2
+    MagicalDefensePercent: -0.2
+  <CraftingMaterials>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+    <Amount>k__BackingField: 2

@@ -11,7 +11,10 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Button endTurnButton;
         [SerializeField] private Button escapeButton;
+        [SerializeField] private Button consumablesButton;
+        [SerializeField] private CombatConsumableSelectionView consumableSelectionPrefab;
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
+        private CombatConsumableSelectionView consumableSelection;
 
         private void Start()
         {
@@ -23,8 +26,10 @@ namespace Godmist.Views.UI
             {
                 escapeButton.onClick.AddListener(OnEscapeClicked);
             }
+            if (consumablesButton != null) consumablesButton.onClick.AddListener(OnConsumablesClicked);
             AddTooltip(endTurnButton, "Zakończ turę", "Kończy turę aktywnej jednostki. Niewydane Punkty Akcji przepadają.");
             AddTooltip(escapeButton, "Ucieczka", "Próbuje uciec z walki. Nieudana próba zwiększa szansę powodzenia następnej.");
+            AddTooltip(consumablesButton, "Consumables", "Otwiera potiony, bomby i przedmioty użytkowe dostępne dla aktywnej postaci.");
         }
 
         private void Update()
@@ -40,6 +45,8 @@ namespace Godmist.Views.UI
             {
                 escapeButton.interactable = sandboxBootstrap.CanEscape();
             }
+            if (consumablesButton != null)
+                consumablesButton.interactable = sandboxBootstrap.CanEndTurn();
         }
 
         private void OnDestroy()
@@ -52,6 +59,7 @@ namespace Godmist.Views.UI
             {
                 escapeButton.onClick.RemoveListener(OnEscapeClicked);
             }
+            if (consumablesButton != null) consumablesButton.onClick.RemoveListener(OnConsumablesClicked);
         }
 
         private void OnEndTurnClicked()
@@ -62,6 +70,33 @@ namespace Godmist.Views.UI
         private void OnEscapeClicked()
         {
             sandboxBootstrap?.RequestEscape();
+        }
+
+        private void OnConsumablesClicked()
+        {
+            if (sandboxBootstrap?.Session?.ActiveUnit?.IsPlayerSide != true) return;
+            // Debug-created items are stored on the game-session leader. The
+            // standalone sandbox uses a throwaway BattleUnit, so synchronize
+            // that payload before the selection window performs its first
+            // rebuild (and also when the command was entered mid-combat).
+            sandboxBootstrap.SyncDebugConsumablesToActiveUnit();
+            if (consumableSelectionPrefab == null)
+            {
+                Debug.LogWarning("CombatActionButtonsView nie ma przypisanego Consumable Selection Prefab.", this);
+                return;
+            }
+            if (consumableSelection == null)
+            {
+                var parent = UIWorkspaceTooltipView.ActiveInstance?.transform.parent
+                    ?? UIWorkspaceWindowManager.Instance?.WorkspaceRoot
+                    ?? GetComponentInParent<Canvas>()?.transform;
+                consumableSelection = CombatConsumableSelectionView.Create(parent, consumableSelectionPrefab);
+            }
+            consumableSelection?.Configure(
+                sandboxBootstrap,
+                FindAnyObjectByType<CombatTargetSelectionController>(),
+                tooltipView);
+            consumableSelection?.Open();
         }
 
         private void AddTooltip(Button button, string title, string description)

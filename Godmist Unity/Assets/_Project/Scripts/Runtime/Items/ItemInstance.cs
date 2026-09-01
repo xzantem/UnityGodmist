@@ -11,8 +11,11 @@ namespace Godmist.Runtime.Items
         public ItemDefinition Definition;
         public RarityTier CurrentRarity;
         public int ItemLevel;
+        public string CustomName = string.Empty;
 
-        public virtual string DisplayName => Definition?.DisplayName ?? "Przedmiot";
+        public virtual string DisplayName => !string.IsNullOrWhiteSpace(CustomName)
+            ? CustomName
+            : Definition?.DisplayName ?? "Przedmiot";
 
         public ItemInstance() {}
 

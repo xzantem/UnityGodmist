@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using Godmist.Core.Constants;
+using Godmist.Core.Enums;
+using Godmist.Data.Items;
 using Godmist.Data.World;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
@@ -24,6 +28,7 @@ namespace Godmist.Systems.Debugging
             "setresource",
             "giveitem",
             "createitem",
+            "createconsumable",
             "items",
             "inspectitem",
             "itemdefs",
@@ -51,6 +56,7 @@ namespace Godmist.Systems.Debugging
             var candidates = tokenIndex == 0
                 ? commandNames.AsEnumerable()
                 : GetArgumentCandidates(
+                    commandLine,
                     command,
                     tokenIndex,
                     gameSession,
@@ -78,18 +84,22 @@ namespace Godmist.Systems.Debugging
                 || command == "setresource"
                 || command == "giveitem"
                 || command == "createitem"
+                || command == "createconsumable"
                 || command == "inspectitem"
                 || command == "items"
                 || command == "combat";
         }
 
         private static IEnumerable<string> GetArgumentCandidates(
+            string commandLine,
             string command,
             int tokenIndex,
             GameSession gameSession,
             CombatSession combatSession,
             GameContentCatalog contentCatalog)
         {
+            var commandTokens = commandLine?.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                ?? Array.Empty<string>();
             if (IsCharacterIdArgument(command, tokenIndex))
             {
                 return GetCharacterIds(gameSession, combatSession);
@@ -111,6 +121,28 @@ namespace Godmist.Systems.Debugging
                     ?? Enumerable.Empty<string>();
             }
 
+            if (command == "createconsumable" && tokenIndex == 1)
+            {
+                return contentCatalog?.ItemDefinitions?
+                    .Where(definition => definition is ConsumableItemDefinition)
+                    .Select(definition => definition.Id)
+                    ?? Enumerable.Empty<string>();
+            }
+
+            if (command == "createconsumable"
+                && TryGetConsumableDefinition(commandTokens, contentCatalog, out var consumable))
+            {
+                if (consumable.UseType == ConsumableUseType.Utility)
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                return GetConsumableArgumentCandidates(
+                    commandTokens,
+                    tokenIndex,
+                    consumable.UseType);
+            }
+
             if (command == "inspectitem" && tokenIndex == 1
                 && gameSession?.PlayerParty?.ActiveLeaderId is { } leaderId
                 && gameSession.CharactersById.TryGetValue(leaderId, out var leader))
@@ -130,6 +162,125 @@ namespace Godmist.Systems.Debugging
             }
 
             return Enumerable.Empty<string>();
+        }
+
+        private static bool TryGetConsumableDefinition(
+            IReadOnlyList<string> commandTokens,
+            GameContentCatalog contentCatalog,
+            out ConsumableItemDefinition consumable)
+        {
+            consumable = null;
+
+            return commandTokens != null
+                && commandTokens.Count >= 2
+                && contentCatalog != null
+                && contentCatalog.TryGetItem(commandTokens[1], out var selectedDefinition)
+                && (consumable = selectedDefinition as ConsumableItemDefinition) != null;
+        }
+
+        private static IEnumerable<string> GetLegalEffectNames(ConsumableUseType useType)
+        {
+            return useType switch
+            {
+                ConsumableUseType.Potion => new[]
+                {
+                    "RestoreHealth",
+                    "RegenHealth",
+                    "RestoreResource",
+                    "RegenResource",
+                    "ModifyMaxResource",
+                    "ModifyDamage",
+                    "ModifyPhysicalDefense",
+                    "ModifyMagicalDefense",
+                    "ModifyResistance",
+                    "ModifySpeed",
+                    "ModifyCritChance",
+                    "ModifyDodge",
+                    "ModifyActionPoints"
+                },
+                ConsumableUseType.Bomb => new[]
+                {
+                    "DealPhysicalDamage",
+                    "DealMagicalDamage",
+                    "DealInevitableDamage",
+                    "ApplyBleed",
+                    "ApplyPoison",
+                    "ApplyBurn",
+                    "ApplyStun",
+                    "ApplyFreeze",
+                    "ModifyPhysicalDefense",
+                    "ModifyMagicalDefense",
+                    "ModifySpeed",
+                    "ModifyDodge",
+                    "ModifyCritChance",
+                    "Slow"
+                },
+                _ => Enumerable.Empty<string>()
+            };
+        }
+
+        private static IEnumerable<string> GetConsumableArgumentCandidates(
+            IReadOnlyList<string> commandTokens,
+            int tokenIndex,
+            ConsumableUseType useType)
+        {
+            var position = 2;
+
+            while (position < tokenIndex)
+            {
+                if (!Enum.TryParse(commandTokens[position], true, out ConsumableRuntimeEffectType effectType))
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                position++;
+
+                // The value is intentionally free-form numeric input, so do not
+                // suggest anything while the cursor is on this argument.
+                if (position == tokenIndex)
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                if (position >= commandTokens.Count
+                    || !float.TryParse(commandTokens[position], NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _))
+                {
+                    return Enumerable.Empty<string>();
+                }
+                position++;
+
+                if (effectType == ConsumableRuntimeEffectType.ModifyResistance)
+                {
+                    if (position == tokenIndex)
+                        return Enum.GetNames(typeof(ResistanceType));
+                    if (position >= commandTokens.Count
+                        || !Enum.TryParse(commandTokens[position], true, out ResistanceType _))
+                        return Enumerable.Empty<string>();
+                    position++;
+                }
+                else if (effectType is ConsumableRuntimeEffectType.ApplyStatus
+                    or ConsumableRuntimeEffectType.RemoveStatus)
+                {
+                    if (position == tokenIndex)
+                        return StatusEffectIds.KnownIds;
+                    if (position >= commandTokens.Count) return Enumerable.Empty<string>();
+                    position++;
+                    if (position < commandTokens.Count
+                        && int.TryParse(commandTokens[position], NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                        position++;
+                }
+            }
+
+            if (position != tokenIndex)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            // Repeated runtime effects are intentional: a potion may contain
+            // the same effect more than once, and bombs may stack the same
+            // damage/status component. Keep all legal names available after
+            // every completed value/duration pair.
+            return GetLegalEffectNames(useType);
         }
 
         private static bool IsCharacterIdArgument(

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
+using Godmist.Data.Items;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Items;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using UnityEngine;
@@ -41,6 +44,8 @@ namespace Godmist.Views.Combat
         private int directionalRotationQuarterTurns;
 
         private SkillData selectedSkill;
+        private ConsumableItemInstance selectedConsumable;
+        private readonly ConsumableService consumableService = new();
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
         private int currentTargetModeIndex;
@@ -198,6 +203,7 @@ namespace Godmist.Views.Combat
                     null,
                     rotationsByModeIndex))
             {
+                SpendSelectedConsumable();
                 CancelTargetSelection();
                 return;
             }
@@ -208,6 +214,7 @@ namespace Godmist.Views.Combat
         public void CancelTargetSelection()
         {
             selectedSkill = null;
+            selectedConsumable = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
             rotationsByModeIndex.Clear();
@@ -307,6 +314,7 @@ namespace Godmist.Views.Combat
                         targetPosition,
                         null))
                 {
+                    SpendSelectedConsumable();
                     CancelTargetSelection();
                 }
 
@@ -326,6 +334,7 @@ namespace Godmist.Views.Combat
                         null,
                         targetPosition))
                 {
+                    SpendSelectedConsumable();
                     CancelTargetSelection();
                 }
 
@@ -666,6 +675,32 @@ namespace Godmist.Views.Combat
                 (worldPosition.y - gridOrigin.y) / cellSize);
 
             return new GridPosition(gridX, gridY);
+        }
+
+        private void SpendSelectedConsumable()
+        {
+            var session = sandboxBootstrap?.Session;
+            var consumable = selectedConsumable;
+            var definition = consumable?.ConsumableDefinition;
+            if (session?.ActiveUnit?.Character == null || definition == null) return;
+            if (!consumableService.TrySpendCharge(session.ActiveUnit.Character, consumable)) return;
+            session.ActiveUnit.ConsumableUseTypesUsedThisTurn.Add(definition.UseType);
+        }
+
+        public void BeginConsumableTargetSelection(ConsumableItemInstance consumable)
+        {
+            var session = sandboxBootstrap?.Session;
+            var definition = consumable?.ConsumableDefinition;
+            var skill = ConsumableRuntimeActionBuilder.Build(consumable);
+            if (definition == null || skill == null || !consumable.HasCharges
+                || session?.ActiveUnit?.Character == null
+                || session.ActiveUnit.ConsumableUseTypesUsedThisTurn.Contains(definition.UseType))
+            {
+                return;
+            }
+
+            selectedConsumable = consumable;
+            BeginTargetSelection(skill);
         }
 
         private void UpdateHoveredUnit(CombatSession session)

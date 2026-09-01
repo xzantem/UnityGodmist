@@ -86,6 +86,16 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Characters.Add(characterSaveData);
             }
 
+            if (!TryCaptureInventory(
+                    session.Stash,
+                    saveData,
+                    capturedItemIds,
+                    saveData.StashItemInstanceIds))
+            {
+                ClearRuntimePayload(saveData);
+                return false;
+            }
+
             foreach (var item in session.PendingLoot)
             {
                 if (!TryCaptureItem(item, saveData, capturedItemIds))
@@ -127,6 +137,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.Party = new PartySaveData();
             saveData.Characters.Clear();
             saveData.ItemInstances.Clear();
+            saveData.StashItemInstanceIds.Clear();
             saveData.PendingLootItemInstanceIds.Clear();
             saveData.WorldFlags.Clear();
             saveData.Quests.Clear();
@@ -785,6 +796,14 @@ namespace Godmist.Systems.SaveLoad
                             ResistanceModifierValue = resistanceModifier.Value
                         });
                         break;
+                    case PeriodicRecoveryPayload periodicRecovery:
+                        saveData.Add(new PassiveEffectPayloadSaveData
+                        {
+                            Type = payload.Type,
+                            HealthPercent = periodicRecovery.HealthPercent,
+                            ResourcePercent = periodicRecovery.ResourcePercent
+                        });
+                        break;
                 }
             }
 
@@ -903,7 +922,8 @@ namespace Godmist.Systems.SaveLoad
                 InstanceId = item.InstanceId,
                 ItemDefinitionId = item.Definition.Id,
                 CurrentRarity = item.CurrentRarity,
-                ItemLevel = item.ItemLevel
+                ItemLevel = item.ItemLevel,
+                CustomName = item.CustomName ?? string.Empty
             };
 
             if (item is EquipmentItemInstance equipmentItem)
@@ -915,8 +935,11 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.PartIds = equipmentItem.PartIds == null
                     ? new List<string>()
                     : new List<string>(equipmentItem.PartIds);
+                itemSaveData.BaseStatModifiers = CopyStatModifiers(
+                    equipmentItem.BaseStatModifiers);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
+                itemSaveData.UpgradeProgress = equipmentItem.UpgradeProgress;
 
                 if (equipmentItem is JewelryItemInstance jewelryItem)
                 {
@@ -930,6 +953,33 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryPassiveDungeonTheme = jewelryItem.PassiveDungeonTheme;
                     itemSaveData.JewelryResistanceType = jewelryItem.ResistanceType;
                     itemSaveData.JewelryResistanceValue = jewelryItem.ResistanceValue;
+                }
+            }
+
+            if (item is ConsumableItemInstance consumableItem)
+            {
+                itemSaveData.IsConsumable = true;
+                itemSaveData.CurrentCharges = consumableItem.CurrentCharges;
+                itemSaveData.BlastRange = consumableItem.BlastRange;
+                itemSaveData.BlastAreaSize = consumableItem.BlastAreaSize;
+                itemSaveData.CatalystDurationModifier = consumableItem.CatalystDurationModifier;
+                itemSaveData.CatalystEffectMultiplier = consumableItem.CatalystEffectMultiplier;
+                itemSaveData.CatalystChargeBonus = consumableItem.CatalystChargeBonus;
+                foreach (var effect in consumableItem.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
+                {
+                    if (effect == null) continue;
+                    itemSaveData.ConsumableEffects.Add(new ConsumableEffectSaveData
+                    {
+                        EffectType = effect.EffectType,
+                        Value = effect.Value,
+                        DurationTurns = effect.DurationTurns,
+                        Chance = effect.Chance,
+                        TargetModeIndex = effect.TargetModeIndex,
+                        StatusId = effect.StatusId ?? string.Empty,
+                        ResistanceType = effect.ResistanceType,
+                        TargetType = effect.TargetType,
+                        TargetingType = effect.TargetingType
+                    });
                 }
             }
 

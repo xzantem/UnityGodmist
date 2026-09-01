@@ -5,6 +5,7 @@ using Godmist.Runtime.NPC;
 using Godmist.Systems.NPC;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,11 +22,16 @@ namespace Godmist.Views.NPC
         [SerializeField] private DialogueChoiceButtonView choiceButtonPrefab;
 
         [Header("NPC services")]
+        // Kept only to hide the legacy scene objects while old scene data is
+        // being migrated. No trade interaction is routed through these fields.
         [SerializeField] private Button tradeButton;
         [SerializeField] private TradePanelView tradePanel;
+        [SerializeField] private Button servicesButton;
+        [SerializeField] private NpcServicesWindowView servicesWindowPrefab;
 
         private DialogueService dialogueService;
         private GameSession gameSession;
+        private NpcServicesWindowView servicesWindow;
 
         private void Start()
         {
@@ -50,11 +56,14 @@ namespace Godmist.Views.NPC
             dialogueService.DialogueNodeChanged += HandleDialogueNodeChanged;
             dialogueService.DialogueEnded += HandleDialogueEnded;
 
-            if (tradeButton != null)
+            if (servicesButton != null)
             {
-                tradeButton.onClick.AddListener(TryOpenTrade);
-                tradeButton.gameObject.SetActive(false);
+                servicesButton.onClick.AddListener(TryOpenServices);
+                servicesButton.gameObject.SetActive(false);
             }
+
+            if (tradeButton != null) tradeButton.gameObject.SetActive(false);
+            if (tradePanel != null) tradePanel.gameObject.SetActive(false);
 
             panelRoot.SetActive(false);
         }
@@ -74,9 +83,9 @@ namespace Godmist.Views.NPC
                 dialogueService.DialogueEnded -= HandleDialogueEnded;
             }
 
-            if (tradeButton != null)
+            if (servicesButton != null)
             {
-                tradeButton.onClick.RemoveListener(TryOpenTrade);
+                servicesButton.onClick.RemoveListener(TryOpenServices);
             }
         }
 
@@ -110,7 +119,7 @@ namespace Godmist.Views.NPC
         {
             ClearChoices();
             panelRoot.SetActive(false);
-            SetTradeButtonVisible(false);
+            SetServicesButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -133,7 +142,7 @@ namespace Godmist.Views.NPC
             if (gameSession == null || dialogue == null)
             {
                 panelRoot.SetActive(false);
-                SetTradeButtonVisible(false);
+                SetServicesButtonVisible(false);
                 return;
             }
 
@@ -143,8 +152,8 @@ namespace Godmist.Views.NPC
             panelRoot.SetActive(shouldShowDialogue);
 
             var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
-
-            SetTradeButtonVisible(shouldShowDialogue && isTrader);
+            var isBlacksmith = dialogue.Npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
+            SetServicesButtonVisible(shouldShowDialogue && (isTrader || isBlacksmith));
 
             if (shouldShowDialogue)
             {
@@ -186,26 +195,27 @@ namespace Godmist.Views.NPC
                 $"Nie znaleziono wyboru dialogowego o ID '{choiceId}'.");
         }
 
-        private void TryOpenTrade()
+        private void TryOpenServices()
         {
             var dialogue = dialogueService.ActiveDialogue;
-
-            if (dialogue == null || tradePanel == null) return;
-
-            if (!tradePanel.Open(dialogue.Npc, dialogue.InitiatorCharacterId))
-            {
-                return;
-            }
-
+            if (dialogue == null || !EnsureServicesWindow()) return;
+            if (!servicesWindow.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
             dialogueService.TryEndDialogue();
         }
 
-        private void SetTradeButtonVisible(bool isVisible)
+        private bool EnsureServicesWindow()
         {
-            if (tradeButton != null)
-            {
-                tradeButton.gameObject.SetActive(isVisible);
-            }
+            if (servicesWindow != null) return true;
+            var workspaceRoot = UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
+            if (servicesWindowPrefab == null || workspaceRoot == null) return false;
+
+            servicesWindow = Instantiate(servicesWindowPrefab, workspaceRoot);
+            return servicesWindow != null;
+        }
+
+        private void SetServicesButtonVisible(bool isVisible)
+        {
+            if (servicesButton != null) servicesButton.gameObject.SetActive(isVisible);
         }
 
         private void ClearChoices()

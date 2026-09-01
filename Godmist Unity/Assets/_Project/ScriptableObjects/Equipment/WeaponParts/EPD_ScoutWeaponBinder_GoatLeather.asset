@@ -39,3 +39,6 @@ MonoBehaviour:
     DodgePercent: 0
     PhysicalDefensePercent: 0
     MagicalDefensePercent: 0
+  <CraftingMaterials>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+    <Amount>k__BackingField: 2

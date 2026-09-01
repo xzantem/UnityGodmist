@@ -25,6 +25,8 @@ namespace Godmist.Views.UI.Workspace
             : rectTransform = GetComponent<RectTransform>();
         public UIWorkspaceWindowManager Manager => manager;
         public bool IsOpen => gameObject.activeInHierarchy;
+        public Vector2 MinimumSize => minimumSize;
+        public Vector2 MaximumSize => maximumSize;
 
         public void ConfigureResizeAxes(bool horizontal, bool vertical)
         {
@@ -50,7 +52,6 @@ namespace Godmist.Views.UI.Workspace
         private void OnEnable()
         {
             ResolveManager()?.Register(this);
-            ClampToWorkspace();
         }
 
         private void OnDisable()
@@ -76,8 +77,10 @@ namespace Godmist.Views.UI.Workspace
 
         public void Open()
         {
+            var resolvedManager = ResolveManager();
+            var previousWindow = resolvedManager?.FocusedWindow;
             gameObject.SetActive(true);
-            Focus();
+            resolvedManager?.CascadeAndFocus(this, previousWindow);
         }
 
         public void Close()

@@ -50,11 +50,22 @@ namespace Godmist.Views.UI.Workspace
         }
         public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(item, eventData);
         public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
-        public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            owner?.TryDropToCampaignStorage(item, eventData);
+            owner?.EndDrag();
+        }
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Right)
-                owner?.TryOpenLootBag(item);
+            {
+                if (item is LootBagItemInstance) owner?.TryOpenLootBag(item);
+                else if (item is ConsumableItemInstance) owner?.TryUseConsumable(item);
+                else CampaignStorageWindowView.Active?.TryDeposit(
+                    owner,
+                    item,
+                    Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+            }
         }
         public void OnPointerEnter(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.ShowItem(item, owner?.Character, this);
         public void OnPointerExit(PointerEventData eventData) => UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e75613dca0fdce24fbdd229fc1763f87, type: 3}
+  m_Name: ND_Arungard_Blacksmith
+  m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
+  <Id>k__BackingField: npc.arungard.blacksmith_01
+  <DisplayName>k__BackingField: Kowal
+  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <BaseDialogue>k__BackingField: {fileID: 11400000, guid: ebdb8afc304932946a12e6d4136facbc, type: 2}
+  <Roles>k__BackingField:
+  - {fileID: 11400000, guid: bb07dbf577b3d514cb3c7719fa21fc58, type: 2}
+  - {fileID: 11400000, guid: 11f7d8f996f001a4d97ed3762c7c0dce, type: 2}

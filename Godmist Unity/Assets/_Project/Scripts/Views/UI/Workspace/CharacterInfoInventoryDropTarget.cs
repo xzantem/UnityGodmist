@@ -33,6 +33,17 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
+            var storageItemView = eventData.pointerDrag?.GetComponentInParent<CampaignStorageItemView>();
+            if (storageItemView?.Owner != null && storageItemView.Item != null)
+            {
+                storageItemView.Owner.TryWithdraw(
+                    owner.Character,
+                    storageItemView.Item,
+                    Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+                storageItemView.Owner.EndDrag();
+                return;
+            }
+
             owner?.TryHandleInventoryDrop();
         }
     }

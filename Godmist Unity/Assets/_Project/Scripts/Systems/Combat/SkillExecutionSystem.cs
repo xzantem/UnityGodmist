@@ -451,7 +451,8 @@ namespace Godmist.Systems.Combat
                         || unit.Character.LifeState != CharacterLifeState.Alive
                         || !IsScheduledTargetEligible(caster, unit,
                             mode.TargetingType)
-                        || !CombatTargetingService.IsPositionWithinRange(
+                        || !CombatTargetingService.IsPositionWithinRelativeRange(
+                            caster.Position,
                             scheduled.TargetPosition.Value,
                             unit.Position,
                             mode.RelativeRange))
@@ -651,6 +652,13 @@ namespace Godmist.Systems.Combat
                         statusEffectSystem.ApplyStatus(caster, target, skill, effect, effectIndex);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
+                case EffectType.RemoveStatus:
+                {
+                    var removed = statusEffectSystem != null
+                        && !string.IsNullOrWhiteSpace(effect.StatusId)
+                        && statusEffectSystem.RemoveStatus(target, effect.StatusId);
+                    return new EffectExecutionResult { Succeeded = removed };
+                }
                 case EffectType.Heal:
                 {
                     var restoredHealth = recoverySystem.Heal(target, effect.BaseValue);
@@ -662,6 +670,42 @@ namespace Godmist.Systems.Combat
                     var restoredResource = recoverySystem.RestoreResource(target, effect.BaseValue);
                     return new EffectExecutionResult 
                         { Succeeded = restoredResource > 0, ResourceRestored = restoredResource };
+                }
+                case EffectType.HealPercent:
+                {
+                    var maximumHealth = target.Character?.Stats == null
+                        ? 0
+                        : Mathf.Max(0, Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
+                    var restoredHealth = recoverySystem.Heal(
+                        target,
+                        Mathf.CeilToInt(maximumHealth * effect.PercentageValue));
+                    return new EffectExecutionResult
+                        { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
+                }
+                case EffectType.RestoreResourcePercent:
+                {
+                    var maximumResource = target.Character?.ResourcePool?.MaxValue ?? 0;
+                    var restoredResource = recoverySystem.RestoreResource(
+                        target,
+                        Mathf.CeilToInt(maximumResource * effect.PercentageValue));
+                    return new EffectExecutionResult
+                        { Succeeded = restoredResource > 0, ResourceRestored = restoredResource };
+                }
+                case EffectType.HealOverTimePercent:
+                {
+                    var applied = statusEffectSystem != null
+                        && statusEffectSystem.ApplyPeriodicRecovery(
+                            caster, target, skill, effect, effectIndex,
+                            resource: false);
+                    return new EffectExecutionResult { Succeeded = applied };
+                }
+                case EffectType.RestoreResourceOverTimePercent:
+                {
+                    var applied = statusEffectSystem != null
+                        && statusEffectSystem.ApplyPeriodicRecovery(
+                            caster, target, skill, effect, effectIndex,
+                            resource: true);
+                    return new EffectExecutionResult { Succeeded = applied };
                 }
                 case EffectType.Shield:
                 {
@@ -739,6 +783,13 @@ namespace Godmist.Systems.Combat
                             effect,
                             effectIndex);
                     if (wasApplied) PublishModifierFeedback(target, skill, effect);
+                    return new EffectExecutionResult { Succeeded = wasApplied };
+                }
+                case EffectType.ModifyActionPointsPercent:
+                {
+                    var wasApplied = statusEffectSystem != null
+                        && statusEffectSystem.ApplyActionPointPercentBuff(
+                            caster, target, skill, effect, effectIndex);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ApplyUniqueBuff:

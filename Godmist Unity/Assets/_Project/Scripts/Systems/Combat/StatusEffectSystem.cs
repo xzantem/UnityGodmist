@@ -56,7 +56,8 @@ namespace Godmist.Systems.Combat
                     new IPassiveEffectTurnProcessor[]
                     {
                         new DamageOverTimePassiveEffectProcessor(this.damageSystem),
-                        new SleepPassiveEffectProcessor(recoverySystem)
+                        new SleepPassiveEffectProcessor(recoverySystem),
+                        new PeriodicRecoveryPassiveEffectProcessor(recoverySystem)
                     });
             this.feedbackBus = feedbackBus;
         }
@@ -106,6 +107,8 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} " +
                 $"otrzymuje status {effect.StatusId}.");
+
+            target.AddStatusTolerance(effect.StatusId);
 
             PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
 
@@ -186,13 +189,38 @@ namespace Godmist.Systems.Combat
             if (target?.Character == null || effect == null
                 || effect.ActionPointModifier == 0) return false;
 
+            return ApplyActionPointBuffInternal(
+                source, target, skill, effect, effectIndex,
+                effect.ActionPointModifier);
+        }
+
+        public bool ApplyActionPointPercentBuff(BattleUnit source, BattleUnit target,
+            SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            if (target?.Character == null || effect == null
+                || effect.PercentageValue <= 0f || target.MaxActionPoints <= 0)
+            {
+                return false;
+            }
+
+            var modifier = Mathf.CeilToInt(target.MaxActionPoints * effect.PercentageValue);
+            return modifier > 0
+                && ApplyActionPointBuffInternal(
+                    source, target, skill, effect, effectIndex, modifier);
+        }
+
+        private bool ApplyActionPointBuffInternal(BattleUnit source, BattleUnit target,
+            SkillData skill, SkillEffectData effect, int effectIndex, int modifier)
+        {
+            if (target?.Character == null || effect == null || modifier == 0) return false;
+
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
                 $"{skill?.SkillId ?? "skill"}.action_points.{effectIndex}",
                 effect.DurationTurns);
             runtimeEffect.SetPayload(new UniqueCombatBuffPayload
             {
                 BuffType = UniqueBuffType.ActionPointsNextTurn,
-                ActionPointModifier = effect.ActionPointModifier
+                ActionPointModifier = modifier
             });
             return TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues)
@@ -439,6 +467,8 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
+
+            target.AddStatusTolerance(statusId);
 
             if (publishFeedback)
             {
@@ -806,6 +836,56 @@ namespace Godmist.Systems.Combat
         public void ProcessTurnEnd(BattleUnit unit)
         {
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
+            unit?.AdvanceStatusTolerances();
+        }
+
+        public bool ApplyPeriodicRecovery(
+            BattleUnit source,
+            BattleUnit target,
+            SkillData skill,
+            SkillEffectData effect,
+            int effectIndex,
+            bool resource)
+        {
+            if (target?.Character == null || effect == null || effect.PercentageValue <= 0f)
+            {
+                return false;
+            }
+
+            var runtimeEffect = new PassiveEffectRuntime(
+                $"{skill?.SkillId ?? "consumable"}.periodic_recovery.{effectIndex}",
+                new List<PassiveEffectSourceRuntime>
+                {
+                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
+                },
+                1,
+                Mathf.Max(1, effect.DurationTurns),
+                0,
+                PassiveEffectLifetime.Timed,
+                PassiveEffectTickPhase.TurnEnd)
+            {
+                DisplayName = skill?.DisplayName ?? "Regeneracja"
+            };
+            runtimeEffect.SetPayload(new PeriodicRecoveryPayload
+            {
+                HealthPercent = resource ? 0f : effect.PercentageValue,
+                ResourcePercent = resource ? effect.PercentageValue : 0f
+            });
+
+            var applied = passiveEffectLifecycleSystem.TryApplyTimedEffect(
+                target.Character,
+                runtimeEffect,
+                PassiveEffectStackingMode.ReplaceDurationAndValues,
+                out _);
+            if (applied)
+            {
+                PublishEffectFeedback(
+                    target,
+                    CombatFeedbackType.BuffApplied,
+                    runtimeEffect.DisplayName);
+            }
+
+            return applied;
         }
 
         private static PassiveEffectRuntime CreateRuntimeEffect(
@@ -1014,7 +1094,10 @@ namespace Godmist.Systems.Combat
             var modifier = ModifyResistanceSystem.GetModifier(
                 target,
                 resistanceType.Value);
-            return Mathf.Clamp01(baseResistance + modifier);
+            return Mathf.Clamp01(
+                baseResistance
+                + modifier
+                + target.GetStatusTolerance(statusId));
         }
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)

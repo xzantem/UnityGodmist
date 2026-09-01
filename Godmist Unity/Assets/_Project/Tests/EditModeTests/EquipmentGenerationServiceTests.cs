@@ -56,6 +56,30 @@ namespace Godmist.Tests.EditMode
                 definition, parts, EquipmentQuality.Normal, RarityTier.Common), Is.Null);
         }
 
+        [Test]
+        public void GenerateFromSelectedParts_PreservesThePlayerSelectedPartPayload()
+        {
+            var scout = CreateClass("class.scout");
+            var definition = CreateDefinition("equipment.scout.weapon", ItemType.Weapon, scout);
+            var head = CreatePart("head.selected", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level5, _ => { });
+            var binder = CreatePart("binder.selected", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5, _ => { });
+            var handle = CreatePart("handle.selected", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5, _ => { });
+
+            var item = new EquipmentGenerationService().GenerateFromSelectedParts(
+                definition,
+                new[] { head, binder, handle },
+                EquipmentQuality.Excellent,
+                RarityTier.Rare);
+
+            Assert.That(item, Is.Not.Null);
+            Assert.That(item.PartIds, Is.EqualTo(new[]
+            {
+                "head.selected", "binder.selected", "handle.selected"
+            }));
+            Assert.That(item.Quality, Is.EqualTo(EquipmentQuality.Excellent));
+            Assert.That(item.CurrentRarity, Is.EqualTo(RarityTier.Rare));
+        }
+
         [TestCase(EquipmentQuality.Poor, 12)]
         [TestCase(EquipmentQuality.Normal, 15)]
         [TestCase(EquipmentQuality.Excellent, 18)]
@@ -89,6 +113,7 @@ namespace Godmist.Tests.EditMode
                 CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5, s => s.MaxAttackPercent = .2f),
                 CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5, s => s.MaxAttackPercent = .2f)
             }, EquipmentQuality.Excellent, RarityTier.Rare);
+            item.CustomName = "Mój wykuty miecz";
             var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
             catalog.CharacterDefinitions.Add(characterDefinition);
             catalog.CharacterClasses.Add(scout);
@@ -110,6 +135,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredItem.ItemLevel, Is.EqualTo(item.ItemLevel));
             Assert.That(restoredItem.RequiredLevel, Is.EqualTo(item.RequiredLevel));
             Assert.That(restoredItem.RequiredClassId, Is.EqualTo("class.scout"));
+            Assert.That(restoredItem.CustomName, Is.EqualTo("Mój wykuty miecz"));
             Assert.That(restoredItem.PartIds, Is.EqualTo(item.PartIds));
             Assert.That(restoredItem.StatModifiers.Single().Value, Is.EqualTo(283f));
         }

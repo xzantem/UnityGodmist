@@ -70,6 +70,7 @@ namespace Godmist.Systems.Debugging
                     combatSession,
                     contentCatalog),
                 "createitem" => CreateItem(tokens, gameSession, contentCatalog),
+                "createconsumable" => CreateConsumable(tokens, gameSession, contentCatalog),
                 "items" => GetInventory(tokens, gameSession, combatSession),
                 "inspectitem" => InspectItem(tokens, gameSession),
                 "itemdefs" => GetItemDefinitions(contentCatalog),
@@ -102,6 +103,7 @@ namespace Godmist.Systems.Debugging
                 "items <characterId> - zawartość inventory postaci\n" +
                 "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
                 "createitem <itemId> - dodaje item do inventory aktywnego lidera\n" +
+                "createconsumable <itemId> [Effect value ...] - potion/bomb: dokładnie 3 efekty; statusy mają implied czas; ModifyResistance wymaga typu odporności; bomb bazowo zasięg 5 i obszar 3x3, katalizatory zmieniają payload; utility ma efekt domyślny z itemId\n" +
                 "encounterdefs - lista encounterId z katalogu contentu\n" +
                 "inspectitem <instanceId> - pełny payload itemu aktywnego lidera\n" +
                 "combat <encounterId> - uruchamia debugową walkę z encounterem");
@@ -639,6 +641,273 @@ namespace Godmist.Systems.Debugging
             return Success($"Utworzono {definition.DisplayName} | instanceId: {item.InstanceId}");
         }
 
+        private DevConsoleCommandResult CreateConsumable(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count < 2)
+                return Fail("Użycie: createconsumable <itemId> [Effect value ...]. Potion/bomb wymagają dokładnie 3 efektów; czasy statusów są implied. Bomby mają bazowo zasięg 5 i obszar 3x3; katalizator zwiększa te parametry.");
+            if (gameSession == null || contentCatalog == null
+                || string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
+                || !gameSession.CharactersById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leader))
+                return Fail("Brak aktywnego lidera albo GameContentCatalog.");
+            if (!contentCatalog.TryGetItem(tokens[1], out var definition)
+                || definition is not ConsumableItemDefinition consumableDefinition)
+                return Fail($"'{tokens[1]}' nie jest ConsumableItemDefinition.");
+            var item = itemInstanceFactory.Create(consumableDefinition) as ConsumableItemInstance;
+            if (item == null) return Fail("Nie udało się utworzyć instancji consumable.");
+            var targetType = consumableDefinition.UseType == ConsumableUseType.Bomb
+                ? TargetType.AreaAroundTile : TargetType.Single;
+            var targetingType = consumableDefinition.UseType == ConsumableUseType.Bomb
+                ? TargetingType.Enemies : TargetingType.Allies;
+
+            var effectTokens = tokens.ToList();
+
+            if (consumableDefinition.UseType == ConsumableUseType.Utility)
+            {
+                if (effectTokens.Count != 2)
+                    return Fail("Ten utility ma efekt domyślny. Nie podawaj efektów ani opcji po itemId.");
+
+                if (!TryGetImpliedUtilityEffect(consumableDefinition, out var utilityEffect))
+                    return Fail($"Nie rozpoznano domyślnego efektu dla utility '{definition.DisplayName}'.");
+
+                utilityEffect.TargetType = targetType;
+                utilityEffect.TargetingType = targetingType;
+                item.RuntimeEffects.Add(utilityEffect);
+            }
+            else if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
+            {
+                // Keep the old one-token syntax working for existing smoke-test commands.
+                foreach (var spec in effectTokens[2].Split(';', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (!TryParseLegacyEffect(spec, consumableDefinition.UseType, targetType, targetingType, out var runtimeEffect, out var error))
+                        return Fail(error);
+                    item.RuntimeEffects.Add(runtimeEffect);
+                }
+            }
+            else
+            {
+                if (!TryParseSequentialEffects(effectTokens, consumableDefinition.UseType, targetType, targetingType, item.RuntimeEffects, out var error))
+                    return Fail(error);
+            }
+            if (consumableDefinition.UseType == ConsumableUseType.Potion && item.RuntimeEffects.Count != 3)
+                return Fail("Potion musi mieć dokładnie 3 efekty.");
+            if (consumableDefinition.UseType == ConsumableUseType.Bomb && item.RuntimeEffects.Count != 3)
+                return Fail("Bomba musi mieć dokładnie 3 efekty.");
+            if (consumableDefinition.UseType == ConsumableUseType.Utility && item.RuntimeEffects.Count != 1)
+                return Fail("Utility musi mieć dokładnie 1 efekt.");
+            var illegalEffect = item.RuntimeEffects.FirstOrDefault(effect =>
+                effect == null || !IsEffectAllowed(consumableDefinition.UseType, effect.EffectType));
+            if (illegalEffect != null)
+                return Fail($"Efekt '{illegalEffect.EffectType}' nie jest dostępny dla typu '{consumableDefinition.UseType}'.");
+            var invalidValue = item.RuntimeEffects.FirstOrDefault(effect =>
+                effect.Value < 0f
+                || (effect.EffectType != ConsumableRuntimeEffectType.ModifyDodge
+                    && effect.Value > 1f));
+            if (invalidValue != null)
+            {
+                return Fail($"Nieprawidłowa wartość efektu '{invalidValue.EffectType}'.");
+            }
+            if (!inventoryService.TryAddItem(leader.Inventory, item))
+                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
+            return Success($"Utworzono {definition.DisplayName} z {item.RuntimeEffects.Count} runtime effectami | instanceId: {item.InstanceId}");
+        }
+
+        private static bool IsEffectAllowed(
+            ConsumableUseType useType,
+            ConsumableRuntimeEffectType effectType)
+        {
+            return useType switch
+            {
+                ConsumableUseType.Potion => effectType is
+                    ConsumableRuntimeEffectType.RestoreHealth
+                    or ConsumableRuntimeEffectType.RegenHealth
+                    or ConsumableRuntimeEffectType.RestoreResource
+                    or ConsumableRuntimeEffectType.RegenResource
+                    or ConsumableRuntimeEffectType.ModifyMaxResource
+                    or ConsumableRuntimeEffectType.ModifyDamage
+                    or ConsumableRuntimeEffectType.ModifyPhysicalDefense
+                    or ConsumableRuntimeEffectType.ModifyMagicalDefense
+                    or ConsumableRuntimeEffectType.ModifyResistance
+                    or ConsumableRuntimeEffectType.ModifySpeed
+                    or ConsumableRuntimeEffectType.ModifyCritChance
+                    or ConsumableRuntimeEffectType.ModifyDodge
+                    or ConsumableRuntimeEffectType.ModifyActionPoints,
+                ConsumableUseType.Bomb => effectType is
+                    ConsumableRuntimeEffectType.DealPhysicalDamage
+                    or ConsumableRuntimeEffectType.DealMagicalDamage
+                    or ConsumableRuntimeEffectType.DealInevitableDamage
+                    or ConsumableRuntimeEffectType.ApplyBleed
+                    or ConsumableRuntimeEffectType.ApplyPoison
+                    or ConsumableRuntimeEffectType.ApplyBurn
+                    or ConsumableRuntimeEffectType.ApplyStun
+                    or ConsumableRuntimeEffectType.ApplyFreeze
+                    or ConsumableRuntimeEffectType.ModifyPhysicalDefense
+                    or ConsumableRuntimeEffectType.ModifyMagicalDefense
+                    or ConsumableRuntimeEffectType.ModifySpeed
+                    or ConsumableRuntimeEffectType.ModifyCritChance
+                    or ConsumableRuntimeEffectType.ModifyDodge
+                    or ConsumableRuntimeEffectType.Slow,
+                ConsumableUseType.Utility => effectType is
+                    ConsumableRuntimeEffectType.RemoveStatus
+                    or ConsumableRuntimeEffectType.ReturnToArungard,
+                _ => false
+            };
+        }
+
+        private static bool TryParseSequentialEffects(
+            IReadOnlyList<string> tokens,
+            ConsumableUseType useType,
+            TargetType targetType,
+            TargetingType targetingType,
+            List<ConsumableEffectRuntime> effects,
+            out string error)
+        {
+            error = string.Empty;
+            if (tokens.Count < 4)
+            {
+                error = "Podaj pary: <EffectName> <value>. Potion musi mieć dokładnie 3 efekty.";
+                return false;
+            }
+
+            var index = 2;
+            while (index < tokens.Count)
+            {
+                if (!Enum.TryParse(tokens[index], true, out ConsumableRuntimeEffectType effectType))
+                {
+                    error = $"Nieznany efekt '{tokens[index]}'.";
+                    return false;
+                }
+
+                if (index + 1 >= tokens.Count
+                    || !float.TryParse(tokens[index + 1], NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+                {
+                    error = $"Efekt '{tokens[index]}' wymaga liczbowej wartości.";
+                    return false;
+                }
+
+                var runtimeEffect = new ConsumableEffectRuntime
+                {
+                    EffectType = effectType,
+                    Value = value,
+                    TargetType = targetType,
+                    TargetingType = targetingType
+                };
+                index += 2;
+
+                var impliedStatusId = ConsumableRuntimeRules.GetImpliedStatusId(effectType);
+                if (!string.IsNullOrWhiteSpace(impliedStatusId))
+                {
+                    runtimeEffect.StatusId = impliedStatusId;
+                    runtimeEffect.DurationTurns = ConsumableRuntimeRules.GetDuration(useType, effectType);
+                    if (index < tokens.Count
+                        && int.TryParse(tokens[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                    {
+                        error = $"Efekt '{effectType}' ma czas trwania implied — nie podawaj liczby tur po wartości.";
+                        return false;
+                    }
+                }
+                else if (effectType == ConsumableRuntimeEffectType.ApplyStatus
+                    || effectType == ConsumableRuntimeEffectType.RemoveStatus)
+                {
+                    if (index >= tokens.Count)
+                    {
+                        error = $"Efekt '{effectType}' wymaga identyfikatora statusu.";
+                        return false;
+                    }
+
+                    runtimeEffect.StatusId = tokens[index++];
+                    if (index < tokens.Count
+                        && int.TryParse(tokens[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out var duration))
+                    {
+                        runtimeEffect.DurationTurns = duration < 0 ? 0 : duration;
+                        index++;
+                    }
+                }
+
+                if (effectType == ConsumableRuntimeEffectType.ModifyResistance)
+                {
+                    if (index >= tokens.Count
+                        || !Enum.TryParse(tokens[index], true, out ResistanceType resistanceType))
+                    {
+                        error = "Efekt 'ModifyResistance' wymaga typu odporności (Bleed, Poison, Fire, Weakening, Suppression albo Move).";
+                        return false;
+                    }
+
+                    runtimeEffect.ResistanceType = resistanceType;
+                    index++;
+                }
+
+                if (runtimeEffect.DurationTurns <= 0)
+                {
+                    runtimeEffect.DurationTurns = ConsumableRuntimeRules.GetDuration(useType, effectType);
+                }
+
+                effects.Add(runtimeEffect);
+            }
+
+            return true;
+        }
+
+        private static bool TryParseLegacyEffect(
+            string spec,
+            ConsumableUseType useType,
+            TargetType targetType,
+            TargetingType targetingType,
+            out ConsumableEffectRuntime runtimeEffect,
+            out string error)
+        {
+            runtimeEffect = null;
+            error = string.Empty;
+            var parts = spec.Split(',');
+            var head = parts[0].Split('=', 2);
+            if (head.Length != 2 || !Enum.TryParse(head[0], true, out ConsumableRuntimeEffectType effectType)
+                || !float.TryParse(head[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+            {
+                error = $"Nieprawidłowy effect spec '{spec}'. Użyj <EffectName>=<value>,...";
+                return false;
+            }
+
+            var duration = 0;
+            if (parts.Length >= 3 && (!int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out duration) || duration < 0))
+            {
+                error = $"Nieprawidłowy duration w '{spec}'.";
+                return false;
+            }
+
+            runtimeEffect = new ConsumableEffectRuntime
+            {
+                EffectType = effectType,
+                Value = value,
+                DurationTurns = duration,
+                StatusId = parts.Length >= 2 ? parts[1] : string.Empty,
+                TargetType = targetType,
+                TargetingType = targetingType
+            };
+            if (string.IsNullOrWhiteSpace(runtimeEffect.StatusId))
+                    runtimeEffect.StatusId = ConsumableRuntimeRules.GetImpliedStatusId(effectType);
+            runtimeEffect.DurationTurns = ConsumableRuntimeRules.GetDuration(
+                useType, effectType, runtimeEffect.DurationTurns);
+            if (effectType == ConsumableRuntimeEffectType.ModifyResistance
+                && parts.Length >= 2
+                && !Enum.TryParse(parts[1], true, out runtimeEffect.ResistanceType))
+            {
+                error = $"Nieznany typ odporności '{parts[1]}'.";
+                return false;
+            }
+            return true;
+        }
+
+        private static bool TryGetImpliedUtilityEffect(
+            ConsumableItemDefinition definition,
+            out ConsumableEffectRuntime runtimeEffect)
+        {
+            return ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
+                definition,
+                out runtimeEffect);
+        }
+
         private static DevConsoleCommandResult InspectItem(
             IReadOnlyList<string> tokens,
             GameSession gameSession)
@@ -670,6 +939,20 @@ namespace Godmist.Systems.Debugging
                     .AppendLine("StatModifiers:");
                 foreach (var modifier in equipment.StatModifiers ?? new List<Godmist.Core.Types.StatModifier>())
                     output.AppendLine($"- {modifier.StatType} {modifier.Operation} {modifier.Stacking}: {modifier.Value}");
+            }
+            if (item is ConsumableItemInstance consumable)
+            {
+                output.AppendLine($"Charges: {consumable.CurrentCharges}/{consumable.MaxCharges}");
+                output.AppendLine($"Catalyst: duration {consumable.CatalystDurationModifier}, strength x{consumable.CatalystEffectMultiplier:0.##}, charge bonus {consumable.CatalystChargeBonus}");
+                if (consumable.IsBomb)
+                {
+                    output.AppendLine($"BombTargeting: range {consumable.BlastRange}, area {consumable.BlastAreaSize}x{consumable.BlastAreaSize}");
+                }
+                foreach (var effect in consumable.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
+                {
+                    if (effect == null) continue;
+                    output.AppendLine($"- Effect: {effect.EffectType}, value {effect.Value:0.###}, duration {effect.DurationTurns}, chance {effect.Chance:0.###}, status {effect.StatusId}, resistance {effect.ResistanceType}");
+                }
             }
             return Success(output.ToString().TrimEnd());
         }

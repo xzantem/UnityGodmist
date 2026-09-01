@@ -62,9 +62,11 @@ namespace Godmist.Views.UI.Workspace
 
             var manager = workspaceManager ?? UIWorkspaceWindowManager.Instance;
             if (manager?.WorkspaceRoot == null) return;
+            var previousWindow = manager.FocusedWindow;
             var view = Instantiate(characterInfoWindowPrefab, manager.WorkspaceRoot);
             windows[character.CharacterId] = view;
             view.Initialize(session, character.CharacterId);
+            manager.CascadeAndFocus(view.GetComponent<UIWorkspaceWindow>(), previousWindow);
         }
     }
 }

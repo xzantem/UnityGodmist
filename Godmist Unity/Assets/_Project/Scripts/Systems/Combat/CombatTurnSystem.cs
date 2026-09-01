@@ -280,6 +280,7 @@ namespace Godmist.Systems.Combat
                 unit.HasReacted = false;
                 unit.MovementStepsThisTurn = 0;
                 unit.ToggleSkillIdsUsedThisTurn?.Clear();
+                unit.ConsumableUseTypesUsedThisTurn?.Clear();
                 onUnitTurnBegan?.Invoke(unit);
                 return;
             }

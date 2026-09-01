@@ -240,7 +240,6 @@ namespace Godmist.Tests.EditMode
                 out var enemy);
 
             player.Character.CurrentHealth = 1000;
-            player.Character.Resistances.BleedResistance = 0.5f;
 
             var firstEffect = CreateBleedEffect(
                 duration: 2,
@@ -267,6 +266,11 @@ namespace Godmist.Tests.EditMode
                 skill,
                 secondEffect,
                 effectIndex: 0);
+
+            // Status tolerance is intentionally applied between status applications.
+            // Keep application deterministic here, then verify the configured bleed
+            // resistance during the damage-processing phase below.
+            player.Character.Resistances.BleedResistance = 0.5f;
 
             for (var turn = 0; turn < 5; turn++)
             {

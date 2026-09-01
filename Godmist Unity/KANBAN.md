@@ -46,18 +46,28 @@ Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -
 
 Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja juz fundamenty v1; ten milestone rozszerza konkretne uslugi miejskie zamiast budowac ogolne `NPC v2` od zera.
 
-- `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
-  - Kowal tworzy equipment z trzech wybranych czesci i kosztu materialow. Pokazac preview wyniku przed potwierdzeniem; zachowac istniejacy generator runtime jako ownera payloadu.
-- `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
-  - Uzywa ustalonych kosztow i szans zmiany unikalnosci; pokazuje koszt, ryzyko i wynik przed potwierdzeniem.
-- `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
-  - Trwaly magazyn kampanii do odkladania itemow poza inventory postaci.
-- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-  - Pierwsze dzialajace itemy zuzywalne, ich uzycie, ograniczenia i persistence. Return scroll realizuje ustalone wyjscie do miasta.
-- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
-  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii.
-- `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
-  - Pokryc crafting, upgrade, storage, consumables i save/load, wlacznie z zachowaniem instanceId oraz walidacja kosztow.
+
+### Milestone: Developer Workflow and Content Authoring v1
+
+Planowany bezpośrednio po `Crafting, Upgrading and Consumables v1`. Skraca iterację contentową: rozwija konsolę developerską, tworzenie danych i walidację assetów. Nie dodaje gameplayu, ale pozwala szybciej budować późniejsze skille, itemy, przeciwników, loot table i crafting z arkuszy.
+
+- `[P1] Rozszerzyć nawigację rekomendacji konsoli v1` - `Tools / Editor / Debug`, `UI / UX`
+  - Konsola pokazuje nadal pięć pozycji naraz, ale scroll kółkiem lub klawiszami góra/dół porusza się po pełnej liście legalnych rekomendacji. Zmiana komendy lub argumentu resetuje zaznaczenie; Enter wybiera aktualną pozycję.
+- `[P1] Dodać schematy komend i opcjonalne argumenty konsoli v1` - `Tools / Editor / Debug`, `Core / Architecture`, `UI / UX`
+  - Każda komenda deklaruje wymagane i opcjonalne argumenty, walidację oraz kontekstowe sugestie. Przykład: `createitem <itemId> [amount] [characterId]`. `help` wyświetla jednoznaczną składnię i przykłady.
+- `[P1] Rozszerzyć zestaw komend content/debug v1` - `Tools / Editor / Debug`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`
+  - Ujednolicić istniejące komendy oraz dodać te potrzebne do testowania contentu: przekazanie itemów do wybranej postaci, złoto, XP, inspekcja inventory, stan questa/flag i wygodne uruchamianie testowego encountera. Każda zmiana runtime ma czytelny raport zwrotny.
+- `[P1] Dodać Content Authoring Window dla itemów i equipmentu v1` - `Tools / Editor / Debug`, `Content / Data`, `Items / Inventory / Economy`
+  - Jedno okno Editorowe z wyszukiwaniem, filtrowaniem i walidacją dla itemów, baz equipmentu, części oraz materiałów. Ułatwia tworzenie/duplikację assetów, ustawienie klasy, bracketu, statystyk, receptury i przypisanie do katalogu contentu.
+- `[P1] Dodać import-preview danych z arkuszy contentowych v1` - `Tools / Editor / Debug`, `Content / Data`
+  - Narzędzie czyta wybrany arkusz lub eksport CSV, pokazuje preview planowanych zmian i waliduje je przed zapisem. Nie nadpisuje assetów automatycznie: pokazuje tworzone, aktualizowane oraz błędne rekordy.
+- `[P1] Dodać walidator contentu i raport referencji v1` - `Tools / Editor / Debug`, `Content / Data`
+  - Jedno polecenie Editorowe sprawdza duplikaty ID, brakujące referencje katalogu, niezgodną klasę bazy/części, złe receptury oraz martwe assety. Błędy prowadzą bezpośrednio do assetu.
+- `[P1] Dodać Game Defines Window v1` - `Tools / Editor / Debug`, `Core / Architecture`, `Design / Systems`, `Content / Data`
+  - Jeden jawny katalog parametrów gameplayowych dostępny z Unity Editora: ekonomia, combat, itemy, crafting, upgrade/reforge, progresja oraz eksploracja. Każdy parametr ma nazwę, opis, jednostkę, zakres i wartość domyślną; przykłady: AP na punkt Speed, mnożnik ceny reforgingu i krzywe kosztu upgrade'u.
+  - Runtime odczytuje konfigurację przez jeden serwis/asset konfiguracji zamiast rozproszonych magic numbers. Narzędzie waliduje zakresy, brakujące definicje i nie pozwala zapisać nielegalnych wartości; aktualizacja parametrów nie miesza się z mutable save state.
+- `[P1] Developer Workflow and Content Authoring v1 — acceptance pass` - `Tools / Editor / Debug`, `Content / Data`, `UI / UX`
+  - Ręczna weryfikacja pełnego flow: rekord w arkuszu → preview importu → asset → walidacja → `createitem` dla wybranej postaci → test w grze.
 
 ### Milestone: Combat Passives and Affixes v1
 
@@ -76,6 +86,38 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 - `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug`
   - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
 
+### Milestone: City Progression and Specialist Services v1
+
+Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji oraz rozwija specjalistyczne uslugi NPC bez mieszania ich z kolejnym passsem walki lub lochow.
+
+- Loyalty NPC, progi uslug, rabaty i trwały progress wydatkow.
+- Alchemik, rune-maker i pozostale planowane uslugi specjalistyczne.
+- Crafting półproduktów kowalskich oraz rozróżnienie zastosowań materiałów dla specjalistów.
+- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
+  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii. Karta obejmuje rowniez galduryty i runy jako uslugi/content ekonomii NPC.
+- `[P2] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Design / Systems`, `Core / Architecture`
+  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz jest blokowana przy braku srodkow, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
+### Milestone: Combat v4 — Arena, Obstacles and Transition v1
+
+Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację i taktykę areny walki oraz poprawia przejście eksploracja → walka, nie rozszerzając jeszcze zachowań przeciwników w lochu.
+
+- Pułapki bojowe, zewnętrzne ściany areny i inne przeszkody taktyczne.
+- Scrollowana kamera oraz czytelna prezentacja większych aren.
+- Lepsza integracja wejścia z eksploracji do walki, w tym ustalone przenoszenie pozycji i formacji.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
+### Milestone: Dungeon Exploration v3 — Threats and Traversal v1
+
+Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne zagrożenia i możliwości przemieszczania w lochu, wykorzystując ustalone zachowania walki i miasta.
+
+- `Dungeon Selector v2`: przed wejściem gracz wybiera spośród kilku wylosowanych propozycji lochów. Każda propozycja ma niezależny seed i poziom losowany wokół średniego poziomu aktywnej drużyny; UI pokazuje theme oraz — gdy zostanie zaimplementowany — rozmiar, nigdy samego seedu.
+- Indywidualne rozmieszczenie przeciwników, FOV, pościg oraz zasadzki i niewidzialne encountery.
+- Pathfinding sterowany myszką, skakanie oraz nowe typy pułapek eksploracyjnych.
+- Prawdziwe zagadki logiczne i zręcznościowe z czytelnym stanem, persistence i konsekwencjami.
+- Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
+
 ## In Progress
 
 ### Karty do decyzji o przypisaniu do milestone'u
@@ -91,6 +133,31 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
   - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
 
 ## Done
+
+### Milestone: Crafting, Upgrading and Consumables v1
+
+- `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
+  - Zaliczone: crafting, upgrade/reforge, storage, consumables, handel z buybackiem oraz snapshot/restore. Testy acceptance obejmują koszty i walidacje, zużycie materiałów i charges, łączenie efektów, sockety, transfery bez zmiany `instanceId` oraz pełne dane runtime w save/load.
+
+- `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
+  - Zrealizowano podgląd, koszt, szanse, zmianę jakości/rzadkości oraz wynik ulepszenia i reforgingu.
+
+- `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Zrealizowano runtime effects, charges, ograniczenia użycia, utility consumables oraz powrót do miasta z poprawnym zużyciem jednorazowego przedmiotu.
+
+- `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
+  - Zrealizowano prefab-backed sklep/buyback w usługach NPC, transfery drag-and-drop i kliknięcia oraz persistence oferty, buybacku, golda i `instanceId`.
+
+- `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
+  - Zrealizowano trwały, bezlimitowy magazyn kampanii w Arungardzie wraz z persistence save/load. Skrzynia otwiera osobne okno UI Workspace; obsługuje drag-and-drop całych stosów, Ctrl+drag jednej sztuki, PPM do pobrania/odłożenia i bezpośrednie zakładanie equipmentu przez aktywnego lidera.
+
+- `[P2] Dodac crafting półproduktów materiałów v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`, `Core / Architecture`
+  - Zrealizowano ogólny `CraftableItemDefinition`, z recepturami na stackowalne półprodukty oraz `MaterialDiscipline` (`Smithing`, `Alchemy`, `Runic`), zachowując wspólny `ItemType.Material`. Kowal v1 korzysta wyłącznie z materiałów `Smithing`.
+  - Dodano startowy content kowalski: sztabki żelaza, łańcuchy, blachy, wyprawioną skórę i paski, deski i patyki modrzewiowe, igły, nitki oraz tkaninę bawełnianą — zgodnie z ustalonymi recepturami.
+  - Zrealizowano rozszerzalne UI Workspace `Usługi NPC` z zakładkami craftingu equipmentu i półproduktów. Koszty agregują inventory aktywnej drużyny, wynik trafia do lidera, a brakujące składniki można kupić z oferty kowala.
+
+- `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
+  - Zrealizowano craft u kowala z wyborem bazy i trzech czesci, materialami agregowanymi z aktywnej druzyny, preview, zakupem brakujacego materialu z oferty kowala oraz utrwaleniem wybranej jakosci i nazwy. Generator runtime pozostaje ownerem payloadu.
 
 ### Milestone: Dungeon Content and Layout v2
 
