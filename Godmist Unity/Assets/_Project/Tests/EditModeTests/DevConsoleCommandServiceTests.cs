@@ -267,6 +267,69 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Execute_CreateItem_UsesNamedOptionalAmountAndCharacterId()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var leader = CreateCharacter("jerzy");
+            var target = CreateCharacter("wladimir");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var material = CreateItemDefinition(
+                "material.test",
+                "Materiał testowy");
+
+            session.TryRegisterCharacter(leader);
+            session.TryRegisterCharacter(target);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(material);
+
+            var result = service.Execute(
+                "createitem material.test characterId=wladimir amount=2",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(target.Inventory.Items, Has.Count.EqualTo(2));
+            Assert.That(leader.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CreateConsumable_UsesNamedOptionalCharacterId()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var leader = CreateCharacter("jerzy");
+            var target = CreateCharacter("wladimir");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion");
+
+            session.TryRegisterCharacter(leader);
+            session.TryRegisterCharacter(target);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(potion);
+
+            var result = service.Execute(
+                "createconsumable item.consumable.potion " +
+                "RestoreHealth 0.25 RestoreResource 0.1 ModifyDamage 0.2 " +
+                "characterId=wladimir",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(target.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(leader.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
         public void Execute_CreateConsumable_UtilityPointsToCreateItem()
         {
             var service = new DevConsoleCommandService();
@@ -506,14 +569,38 @@ namespace Godmist.Tests.EditMode
             return definition;
         }
 
+        private static ConsumableItemDefinition CreateConsumableDefinition(
+            string id)
+        {
+            var definition =
+                ScriptableObject.CreateInstance<ConsumableItemDefinition>();
+
+            SetAutoProperty(definition, "Id", id);
+            SetAutoProperty(definition, "DisplayName", id);
+            SetAutoProperty(definition, "ItemType", ItemType.Potion);
+            SetAutoProperty(definition, "UseType", ConsumableUseType.Potion);
+
+            return definition;
+        }
+
         private static void SetAutoProperty(
             object target,
             string propertyName,
             object value)
         {
-            var field = target.GetType().GetField(
-                $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var fieldName = $"<{propertyName}>k__BackingField";
+            var targetType = target.GetType();
+            FieldInfo field = null;
+
+            while (targetType != null && field == null)
+            {
+                field = targetType.GetField(
+                    fieldName,
+                    BindingFlags.Instance
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly);
+                targetType = targetType.BaseType;
+            }
 
             Assert.That(
                 field,

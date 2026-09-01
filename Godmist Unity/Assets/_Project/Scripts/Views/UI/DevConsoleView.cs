@@ -211,12 +211,6 @@ namespace Godmist.Views.UI
 
         private void ExecuteCommand(string commandLine)
         {
-            if (ShouldAcceptSelectedSuggestion(commandLine))
-            {
-                ApplySelectedSuggestion();
-                return;
-            }
-
             if (string.IsNullOrWhiteSpace(commandLine))
             {
                 FocusInput();
@@ -257,31 +251,6 @@ namespace Godmist.Views.UI
             }
 
             FocusInput();
-        }
-
-        private bool ShouldAcceptSelectedSuggestion(string commandLine)
-        {
-            if (selectedSuggestionIndex < 0
-                || selectedSuggestionIndex >= suggestions.Count)
-            {
-                return false;
-            }
-
-            var tokenStartIndex = FindCurrentTokenStartIndex(commandLine);
-            var activeToken = commandLine.Substring(tokenStartIndex);
-            var selectedSuggestion = suggestions[selectedSuggestionIndex];
-
-            if (!string.Equals(
-                    activeToken,
-                    selectedSuggestion,
-                    System.StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            return tokenStartIndex == 0
-                && DevConsoleSuggestionService.CommandRequiresArgument(
-                    selectedSuggestion);
         }
 
         private void TryAcceptSelectedSuggestion()

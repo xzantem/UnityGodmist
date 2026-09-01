@@ -13,29 +13,6 @@ namespace Godmist.Systems.Debugging
 {
     public static class DevConsoleSuggestionService
     {
-        private static readonly string[] commandNames =
-        {
-            "help",
-            "state",
-            "unit",
-            "characters",
-            "gold",
-            "xp",
-            "heal",
-            "resource",
-            "godmode",
-            "sethp",
-            "setresource",
-            "giveitem",
-            "createitem",
-            "createconsumable",
-            "items",
-            "inspectitem",
-            "itemdefs",
-            "encounterdefs",
-            "combat"
-        };
-
         public static IReadOnlyList<string> GetSuggestions(
             string commandLine,
             GameSession gameSession,
@@ -53,20 +30,36 @@ namespace Godmist.Systems.Debugging
                 return Array.Empty<string>();
             }
 
+            var namedArgument = GetNamedArgumentContext(
+                activePrefix,
+                command,
+                out var namedPrefix);
+            var suggestionPrefix = activePrefix;
+
+            if (namedArgument != null)
+            {
+                suggestionPrefix = $"{namedArgument.Name}={namedPrefix}";
+            }
+
             var candidates = tokenIndex == 0
-                ? commandNames.AsEnumerable()
+                ? DevConsoleCommandSchemaRegistry.All
+                    .Select(schema => schema.Name)
                 : GetArgumentCandidates(
                     commandLine,
                     command,
                     tokenIndex,
                     gameSession,
                     combatSession,
-                    contentCatalog);
+                    contentCatalog,
+                    namedArgument)
+                    .Select(candidate => namedArgument == null
+                        ? candidate
+                        : $"{namedArgument.Name}={candidate}");
 
             return candidates
                 .Where(candidate => !string.IsNullOrWhiteSpace(candidate))
                 .Where(candidate => candidate.StartsWith(
-                    activePrefix,
+                    suggestionPrefix,
                     StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(candidate => candidate)
@@ -75,19 +68,11 @@ namespace Godmist.Systems.Debugging
 
         public static bool CommandRequiresArgument(string command)
         {
-            return command == "gold"
-                || command == "xp"
-                || command == "heal"
-                || command == "resource"
-                || command == "godmode"
-                || command == "sethp"
-                || command == "setresource"
-                || command == "giveitem"
-                || command == "createitem"
-                || command == "createconsumable"
-                || command == "inspectitem"
-                || command == "items"
-                || command == "combat";
+            return DevConsoleCommandSchemaRegistry.TryGet(
+                    command,
+                    out var schema)
+                && schema.Signatures.Any(signature => signature.Arguments
+                    .Any(argument => argument.IsRequired));
         }
 
         private static IEnumerable<string> GetArgumentCandidates(
@@ -96,38 +81,26 @@ namespace Godmist.Systems.Debugging
             int tokenIndex,
             GameSession gameSession,
             CombatSession combatSession,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            DevConsoleArgumentDefinition namedArgument)
         {
             var commandTokens = commandLine?.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 ?? Array.Empty<string>();
-            if (IsCharacterIdArgument(command, tokenIndex))
-            {
-                return GetCharacterIds(gameSession, combatSession);
-            }
 
-            if (command == "giveitem" && tokenIndex == 2)
+            if (namedArgument != null)
             {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition != null)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
-            }
-
-            if (command == "createitem" && tokenIndex == 1)
-            {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition != null)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
+                return GetCandidatesForArgument(
+                    namedArgument,
+                    command,
+                    commandTokens,
+                    gameSession,
+                    combatSession,
+                    contentCatalog);
             }
 
             if (command == "createconsumable" && tokenIndex == 1)
             {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition is ConsumableItemDefinition consumable
-                        && consumable.UseType != ConsumableUseType.Utility)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
+                return GetConsumableItemIds(contentCatalog);
             }
 
             if (command == "createconsumable"
@@ -144,25 +117,89 @@ namespace Godmist.Systems.Debugging
                     consumable.UseType);
             }
 
-            if (command == "inspectitem" && tokenIndex == 1
-                && gameSession?.PlayerParty?.ActiveLeaderId is { } leaderId
-                && gameSession.CharactersById.TryGetValue(leaderId, out var leader))
+            return DevConsoleCommandSchemaRegistry.GetArgumentsAtPosition(
+                    command,
+                    tokenIndex)
+                .SelectMany(argument => GetCandidatesForArgument(
+                    argument,
+                    command,
+                    commandTokens,
+                    gameSession,
+                    combatSession,
+                    contentCatalog));
+        }
+
+        private static IEnumerable<string> GetCandidatesForArgument(
+            DevConsoleArgumentDefinition argument,
+            string command,
+            IReadOnlyList<string> commandTokens,
+            GameSession gameSession,
+            CombatSession combatSession,
+            GameContentCatalog contentCatalog)
+        {
+            return argument.Type switch
             {
-                return leader.Inventory?.Items?
-                    .Where(item => item != null)
-                    .Select(item => item.InstanceId)
-                    ?? Enumerable.Empty<string>();
+                DevConsoleArgumentType.CharacterId =>
+                    GetCharacterIds(gameSession, combatSession),
+                DevConsoleArgumentType.ItemId =>
+                    command == "createconsumable"
+                        ? GetConsumableItemIds(contentCatalog)
+                        : GetItemIds(contentCatalog),
+                DevConsoleArgumentType.EncounterId =>
+                    contentCatalog?.EncounterDefinitions?
+                        .Where(definition => definition != null)
+                        .Select(definition => definition.Id)
+                    ?? Enumerable.Empty<string>(),
+                DevConsoleArgumentType.InstanceId =>
+                    GetInventoryInstanceIds(gameSession),
+                DevConsoleArgumentType.ResistanceType =>
+                    Enum.GetNames(typeof(ResistanceType)),
+                DevConsoleArgumentType.StatusId => StatusEffectIds.KnownIds,
+                DevConsoleArgumentType.EffectName =>
+                    TryGetConsumableDefinition(
+                            commandTokens,
+                            contentCatalog,
+                            out var consumable)
+                        ? GetLegalEffectNames(consumable.UseType)
+                        : Enumerable.Empty<string>(),
+                _ => Enumerable.Empty<string>()
+            };
+        }
+
+        private static IEnumerable<string> GetItemIds(
+            GameContentCatalog contentCatalog)
+        {
+            return contentCatalog?.ItemDefinitions?
+                .Where(definition => definition != null)
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetConsumableItemIds(
+            GameContentCatalog contentCatalog)
+        {
+            return contentCatalog?.ItemDefinitions?
+                .Where(definition => definition is ConsumableItemDefinition consumable
+                    && consumable.UseType != ConsumableUseType.Utility)
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetInventoryInstanceIds(
+            GameSession gameSession)
+        {
+            if (gameSession?.PlayerParty?.ActiveLeaderId is not { } leaderId
+                || !gameSession.CharactersById.TryGetValue(
+                    leaderId,
+                    out var leader))
+            {
+                return Enumerable.Empty<string>();
             }
 
-            if (command == "combat" && tokenIndex == 1)
-            {
-                return contentCatalog?.EncounterDefinitions?
-                    .Where(definition => definition != null)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
-            }
-
-            return Enumerable.Empty<string>();
+            return leader.Inventory?.Items?
+                .Where(item => item != null)
+                .Select(item => item.InstanceId)
+                ?? Enumerable.Empty<string>();
         }
 
         private static bool TryGetConsumableDefinition(
@@ -172,11 +209,81 @@ namespace Godmist.Systems.Debugging
         {
             consumable = null;
 
-            return commandTokens != null
-                && commandTokens.Count >= 2
+            var itemId = commandTokens?.Count >= 2
+                ? commandTokens[1]
+                : string.Empty;
+
+            if (commandTokens != null)
+            {
+                foreach (var token in commandTokens.Skip(1))
+                {
+                    if (!TrySplitNamedArgument(
+                            token,
+                            out var name,
+                            out var value)
+                        || !string.Equals(
+                            name,
+                            "itemId",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    itemId = value;
+                    break;
+                }
+            }
+
+            return !string.IsNullOrWhiteSpace(itemId)
                 && contentCatalog != null
-                && contentCatalog.TryGetItem(commandTokens[1], out var selectedDefinition)
+                && contentCatalog.TryGetItem(itemId, out var selectedDefinition)
                 && (consumable = selectedDefinition as ConsumableItemDefinition) != null;
+        }
+
+        private static DevConsoleArgumentDefinition GetNamedArgumentContext(
+            string activePrefix,
+            string command,
+            out string namedPrefix)
+        {
+            namedPrefix = activePrefix;
+            var separatorIndex = activePrefix?.IndexOf('=') ?? -1;
+
+            if (separatorIndex <= 0)
+            {
+                return null;
+            }
+
+            var argumentName = activePrefix.Substring(0, separatorIndex);
+
+            if (!DevConsoleCommandSchemaRegistry.TryGetArgument(
+                    command,
+                    argumentName,
+                    out var argument))
+            {
+                return null;
+            }
+
+            namedPrefix = activePrefix.Substring(separatorIndex + 1);
+            return argument;
+        }
+
+        private static bool TrySplitNamedArgument(
+            string token,
+            out string name,
+            out string value)
+        {
+            name = string.Empty;
+            value = string.Empty;
+            var separatorIndex = token?.IndexOf('=') ?? -1;
+
+            if (separatorIndex <= 0 || separatorIndex >= token.Length - 1)
+            {
+                return false;
+            }
+
+            name = token.Substring(0, separatorIndex);
+            value = token.Substring(separatorIndex + 1);
+            return true;
         }
 
         private static IEnumerable<string> GetLegalEffectNames(ConsumableUseType useType)
@@ -297,26 +404,6 @@ namespace Godmist.Systems.Debugging
             // damage/status component. Keep all legal names available after
             // every completed value/duration pair.
             return GetLegalEffectNames(useType);
-        }
-
-        private static bool IsCharacterIdArgument(
-            string command,
-            int tokenIndex)
-        {
-            if (tokenIndex != 1)
-            {
-                return false;
-            }
-
-            return command == "xp"
-                || command == "heal"
-                || command == "unit"
-                || command == "resource"
-                || command == "godmode"
-                || command == "sethp"
-                || command == "setresource"
-                || command == "items"
-                || command == "giveitem";
         }
 
         private static IEnumerable<string> GetCharacterIds(

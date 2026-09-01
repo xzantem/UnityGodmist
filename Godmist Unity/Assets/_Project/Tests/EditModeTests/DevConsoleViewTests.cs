@@ -105,6 +105,7 @@ namespace Godmist.Tests.EditMode
         {
             var root = new GameObject("DevConsoleViewTest");
             var inputObject = new GameObject("CommandInput");
+            GameObject textObject = null;
 
             try
             {
@@ -114,6 +115,13 @@ namespace Godmist.Tests.EditMode
                 Assert.That(inputType, Is.Not.Null);
 
                 var input = inputObject.AddComponent(inputType);
+                textObject = new GameObject("CommandInputText");
+                var textType = Type.GetType(
+                    "TMPro.TextMeshProUGUI, Unity.TextMeshPro");
+                Assert.That(textType, Is.Not.Null);
+
+                var textComponent = textObject.AddComponent(textType);
+                SetPrivateProperty(input, "textComponent", textComponent);
                 SetPrivateField(view, "commandInput", input);
                 SetPrivateField(view, "maximumHistoryEntries", 3);
 
@@ -136,51 +144,8 @@ namespace Godmist.Tests.EditMode
             }
             finally
             {
+                UnityEngine.Object.DestroyImmediate(textObject);
                 UnityEngine.Object.DestroyImmediate(inputObject);
-                UnityEngine.Object.DestroyImmediate(root);
-            }
-        }
-
-        [Test]
-        public void Enter_ExecutesCompleteCommandInsteadOfReapplyingExactSuggestion()
-        {
-            var root = new GameObject("DevConsoleViewTest");
-
-            try
-            {
-                var view = root.AddComponent<DevConsoleView>();
-                SetPrivateField(
-                    view,
-                    "suggestions",
-                    new List<string> { "help" });
-
-                Assert.That(
-                    InvokePrivate<bool>(
-                        view,
-                        "ShouldAcceptSelectedSuggestion",
-                        "help"),
-                    Is.False);
-
-                SetPrivateField(
-                    view,
-                    "suggestions",
-                    new List<string> { "gold" });
-
-                Assert.That(
-                    InvokePrivate<bool>(
-                        view,
-                        "ShouldAcceptSelectedSuggestion",
-                        "go"),
-                    Is.True);
-                Assert.That(
-                    InvokePrivate<bool>(
-                        view,
-                        "ShouldAcceptSelectedSuggestion",
-                        "gold"),
-                    Is.True);
-            }
-            finally
-            {
                 UnityEngine.Object.DestroyImmediate(root);
             }
         }
@@ -196,19 +161,6 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(method, Is.Not.Null, $"Nie znaleziono metody {methodName}.");
             method.Invoke(target, arguments);
-        }
-
-        private static T InvokePrivate<T>(
-            object target,
-            string methodName,
-            params object[] arguments)
-        {
-            var method = target.GetType().GetMethod(
-                methodName,
-                BindingFlags.Instance | BindingFlags.NonPublic);
-
-            Assert.That(method, Is.Not.Null, $"Nie znaleziono metody {methodName}.");
-            return (T)method.Invoke(target, arguments);
         }
 
         private static T GetPrivateField<T>(object target, string fieldName)
@@ -232,6 +184,19 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(field, Is.Not.Null, $"Nie znaleziono pola {fieldName}.");
             field.SetValue(target, value);
+        }
+
+        private static void SetPrivateProperty(
+            object target,
+            string propertyName,
+            object value)
+        {
+            var property = target.GetType().GetProperty(
+                propertyName,
+                BindingFlags.Instance | BindingFlags.Public);
+
+            Assert.That(property, Is.Not.Null, $"Nie znaleziono właściwości {propertyName}.");
+            property.SetValue(target, value);
         }
 
         private static string GetInputText(Type inputType, object input)

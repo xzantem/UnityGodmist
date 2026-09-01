@@ -146,6 +146,51 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void GetSuggestions_CreateItem_OffersCharacterForOptionalArgument()
+        {
+            var session = new GameSession();
+            session.TryRegisterCharacter(
+                new CharacterInstance { CharacterId = "jerzy" });
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createitem item.test characterId=je",
+                session,
+                null,
+                null);
+
+            Assert.That(suggestions, Is.EqualTo(new[] { "characterId=jerzy" }));
+        }
+
+        [Test]
+        public void GetSuggestions_CreateItem_OffersCharacterAfterOptionalAmount()
+        {
+            var session = new GameSession();
+            session.TryRegisterCharacter(
+                new CharacterInstance { CharacterId = "jerzy" });
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createitem item.test 2 je",
+                session,
+                null,
+                null);
+
+            Assert.That(suggestions, Is.EqualTo(new[] { "jerzy" }));
+        }
+
+        [Test]
+        public void GetSuggestions_CreateItem_DoesNotOfferNamedArgumentLabels()
+        {
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createitem item.test a",
+                null,
+                null,
+                null);
+
+            Assert.That(suggestions, Does.Not.Contain("amount="));
+            Assert.That(suggestions, Does.Not.Contain("characterId="));
+        }
+
+        [Test]
         public void GetSuggestions_UtilityConsumable_ReturnsNoFurtherSuggestions()
         {
             var returnScroll = CreateConsumableDefinition(
@@ -233,9 +278,19 @@ namespace Godmist.Tests.EditMode
             string propertyName,
             object value)
         {
-            var field = target.GetType().GetField(
-                $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var fieldName = $"<{propertyName}>k__BackingField";
+            var targetType = target.GetType();
+            FieldInfo field = null;
+
+            while (targetType != null && field == null)
+            {
+                field = targetType.GetField(
+                    fieldName,
+                    BindingFlags.Instance
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly);
+                targetType = targetType.BaseType;
+            }
 
             Assert.That(
                 field,

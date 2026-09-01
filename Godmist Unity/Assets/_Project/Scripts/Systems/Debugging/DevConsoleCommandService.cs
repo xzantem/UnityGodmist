@@ -46,9 +46,13 @@ namespace Godmist.Systems.Debugging
                 return Fail("Wpisz komendę albo użyj: help");
             }
 
-            var tokens = commandLine.Split(
-                ' ',
-                StringSplitOptions.RemoveEmptyEntries);
+            if (!DevConsoleCommandSchemaParser.TryNormalize(
+                    commandLine,
+                    out var tokens,
+                    out var schemaError))
+            {
+                return Fail(schemaError);
+            }
 
             var command = tokens[0].ToLowerInvariant();
 
@@ -83,30 +87,7 @@ namespace Godmist.Systems.Debugging
 
         private static DevConsoleCommandResult GetHelp()
         {
-            return Success(
-                "Dostępne komendy:\n" +
-                "help - lista komend\n" +
-                "state - stan sesji i walki\n" +
-                "characters - lista postaci oraz ich ID\n" +
-                "unit [characterId] - szczegółowy stan runtime postaci\n" +
-                "gold <liczba> - dodaje złoto\n" +
-                "xp <liczba> - XP aktywnej drużyny\n" +
-                "xp <characterId> <liczba> - XP wskazanej postaci\n" +
-                "heal <liczba> - leczy aktywną jednostkę walki\n" +
-                "heal <characterId> <liczba> - leczy wskazaną postać\n" +
-                "resource <liczba> - odnawia zasób aktywnej jednostki\n" +
-                "resource <characterId> <liczba> - odnawia zasób postaci\n" +
-                "godmode <characterId> - przełącza nieśmiertelność\n" +
-                "sethp <characterId> <liczba> - ustawia HP żywej postaci\n" +
-                "setresource <characterId> <liczba> - ustawia zasób postaci\n" +
-                "itemdefs - lista itemId z katalogu contentu\n" +
-                "items <characterId> - zawartość inventory postaci\n" +
-                "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
-                "createitem <itemId> - dodaje item do inventory aktywnego lidera\n" +
-                "createconsumable <itemId> [Effect value ...] - potion/bomb: dokładnie 3 efekty; statusy mają implied czas; ModifyResistance wymaga typu odporności; bomb bazowo zasięg 5 i obszar 3x3, katalizatory zmieniają payload; utility twórz przez createitem\n" +
-                "encounterdefs - lista encounterId z katalogu contentu\n" +
-                "inspectitem <instanceId> - pełny payload itemu aktywnego lidera\n" +
-                "combat <encounterId> - uruchamia debugową walkę z encounterem");
+            return Success(DevConsoleCommandSchemaRegistry.BuildHelp());
         }
 
         private static DevConsoleCommandResult GetState(
@@ -605,40 +586,66 @@ namespace Godmist.Systems.Debugging
             GameSession gameSession,
             GameContentCatalog contentCatalog)
         {
-            if (tokens.Count != 2) return Fail("Użycie: createitem <itemId>");
             if (gameSession == null || contentCatalog == null)
                 return Fail("Brak GameSession albo GameContentCatalog.");
-            if (string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
-                || !gameSession.CharactersById.TryGetValue(
-                    gameSession.PlayerParty.ActiveLeaderId, out var leader))
-                return Fail("Brak aktywnego lidera drużyny.");
             if (!contentCatalog.TryGetItem(tokens[1], out var definition))
                 return Fail($"Nie znaleziono itemu o ID: {tokens[1]}");
 
-            ItemInstance item;
+            var amount = tokens.Count >= 3
+                ? int.Parse(tokens[2], CultureInfo.InvariantCulture)
+                : 1;
+            var target = ResolveDefaultCharacter(
+                gameSession,
+                tokens.Count >= 4 ? tokens[3] : string.Empty,
+                out var targetFailure);
 
-            if (definition is EquipmentItemDefinition equipmentDefinition)
+            if (target == null)
             {
-                item = equipmentGenerationService.Generate(
-                    equipmentDefinition,
-                    contentCatalog.EquipmentPartDefinitions);
+                return targetFailure;
+            }
 
-                if (item == null)
+            var createdCount = 0;
+
+            for (var index = 0; index < amount; index++)
+            {
+                ItemInstance item;
+
+                if (definition is EquipmentItemDefinition equipmentDefinition)
                 {
-                    return Fail(
-                        "Nie udało się wygenerować equipmentu. Sprawdź Required Class " +
-                        "EID oraz komplet trzech części tej klasy w GameContentCatalog.");
+                    item = equipmentGenerationService.Generate(
+                        equipmentDefinition,
+                        contentCatalog.EquipmentPartDefinitions);
+
+                    if (item == null)
+                    {
+                        return Fail(
+                            "Nie udało się wygenerować equipmentu. Sprawdź Required Class " +
+                            "EID oraz komplet trzech części tej klasy w GameContentCatalog.");
+                    }
                 }
+                else
+                {
+                    item = itemInstanceFactory.Create(definition);
+                }
+
+                if (!inventoryService.TryAddItem(target.Inventory, item))
+                {
+                    break;
+                }
+
+                createdCount++;
             }
-            else
+
+            if (createdCount == 0)
             {
-                item = itemInstanceFactory.Create(definition);
+                return Fail(
+                    $"Nie udało się dodać '{definition.DisplayName}' do inventory " +
+                    $"postaci {GetCharacterName(target)}.");
             }
 
-            if (!inventoryService.TryAddItem(leader.Inventory, item))
-                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
-
-            return Success($"Utworzono {definition.DisplayName} | instanceId: {item.InstanceId}");
+            return Success(
+                $"Utworzono {createdCount}x {definition.DisplayName} w inventory " +
+                $"postaci {GetCharacterName(target)}.");
         }
 
         private DevConsoleCommandResult CreateConsumable(
@@ -648,23 +655,61 @@ namespace Godmist.Systems.Debugging
         {
             if (tokens.Count < 2)
                 return Fail("Użycie: createconsumable <itemId> [Effect value ...]. Potion/bomb wymagają dokładnie 3 efektów; czasy statusów są implied. Bomby mają bazowo zasięg 5 i obszar 3x3; katalizator zwiększa te parametry.");
-            if (gameSession == null || contentCatalog == null
-                || string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
-                || !gameSession.CharactersById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leader))
-                return Fail("Brak aktywnego lidera albo GameContentCatalog.");
-            if (!contentCatalog.TryGetItem(tokens[1], out var definition)
+            if (gameSession == null || contentCatalog == null)
+                return Fail("Brak GameSession albo GameContentCatalog.");
+
+            var effectTokens = ExtractNamedConsumableArguments(
+                tokens,
+                out var namedItemId,
+                out var namedCharacterId);
+            var itemId = string.IsNullOrWhiteSpace(namedItemId)
+                ? effectTokens[1]
+                : namedItemId;
+
+            if (!contentCatalog.TryGetItem(itemId, out var definition)
                 || definition is not ConsumableItemDefinition consumableDefinition)
-                return Fail($"'{tokens[1]}' nie jest ConsumableItemDefinition.");
+                return Fail($"'{itemId}' nie jest ConsumableItemDefinition.");
             if (consumableDefinition.UseType == ConsumableUseType.Utility)
-                return Fail($"Utility '{tokens[1]}' nie przyjmuje efektów. Użyj: createitem {tokens[1]}");
+                return Fail($"Utility '{itemId}' nie przyjmuje efektów. Użyj: createitem {itemId}");
+
+            var positionalCharacterId = string.IsNullOrWhiteSpace(namedCharacterId)
+                && effectTokens.Count > 2
+                && TryResolveCharacter(
+                    effectTokens[^1],
+                    gameSession,
+                    null,
+                    out _)
+                && !Enum.TryParse<ConsumableRuntimeEffectType>(
+                    effectTokens[^1],
+                    true,
+                    out _)
+                ? effectTokens[^1]
+                : string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(positionalCharacterId))
+            {
+                effectTokens.RemoveAt(effectTokens.Count - 1);
+            }
+
+            var characterId = string.IsNullOrWhiteSpace(namedCharacterId)
+                ? positionalCharacterId
+                : namedCharacterId;
+            var target = ResolveDefaultCharacter(
+                gameSession,
+                characterId,
+                out var targetFailure);
+
+            if (target == null)
+            {
+                return targetFailure;
+            }
+
             var item = itemInstanceFactory.Create(consumableDefinition) as ConsumableItemInstance;
             if (item == null) return Fail("Nie udało się utworzyć instancji consumable.");
             var targetType = consumableDefinition.UseType == ConsumableUseType.Bomb
                 ? TargetType.AreaAroundTile : TargetType.Single;
             var targetingType = consumableDefinition.UseType == ConsumableUseType.Bomb
                 ? TargetingType.Enemies : TargetingType.Allies;
-
-            var effectTokens = tokens.ToList();
 
             if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
             {
@@ -697,9 +742,106 @@ namespace Godmist.Systems.Debugging
             {
                 return Fail($"Nieprawidłowa wartość efektu '{invalidValue.EffectType}'.");
             }
-            if (!inventoryService.TryAddItem(leader.Inventory, item))
-                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
-            return Success($"Utworzono {definition.DisplayName} z {item.RuntimeEffects.Count} runtime effectami | instanceId: {item.InstanceId}");
+            if (!inventoryService.TryAddItem(target.Inventory, item))
+                return Fail(
+                    $"Nie udało się dodać '{definition.DisplayName}' do inventory " +
+                    $"postaci {GetCharacterName(target)}.");
+            return Success(
+                $"Utworzono {definition.DisplayName} z {item.RuntimeEffects.Count} " +
+                $"runtime effectami dla {GetCharacterName(target)} | " +
+                $"instanceId: {item.InstanceId}");
+        }
+
+        private static CharacterInstance ResolveDefaultCharacter(
+            GameSession gameSession,
+            string characterId,
+            out DevConsoleCommandResult failure)
+        {
+            failure = default;
+
+            if (!string.IsNullOrWhiteSpace(characterId))
+            {
+                if (TryResolveCharacter(
+                        characterId,
+                        gameSession,
+                        null,
+                        out var target))
+                {
+                    return target;
+                }
+
+                failure = Fail($"Nie znaleziono postaci o ID: {characterId}");
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    gameSession?.PlayerParty?.ActiveLeaderId)
+                && gameSession.CharactersById.TryGetValue(
+                    gameSession.PlayerParty.ActiveLeaderId,
+                    out var leader))
+            {
+                return leader;
+            }
+
+            failure = Fail("Brak aktywnego lidera drużyny.");
+            return null;
+        }
+
+        private static List<string> ExtractNamedConsumableArguments(
+            IReadOnlyList<string> tokens,
+            out string itemId,
+            out string characterId)
+        {
+            itemId = string.Empty;
+            characterId = string.Empty;
+
+            var positionalTokens = new List<string> { tokens[0] };
+
+            for (var index = 1; index < tokens.Count; index++)
+            {
+                var token = tokens[index];
+                var separatorIndex = token.IndexOf('=');
+
+                if (separatorIndex <= 0 || separatorIndex >= token.Length - 1)
+                {
+                    positionalTokens.Add(token);
+                    continue;
+                }
+
+                var name = token.Substring(0, separatorIndex);
+                var value = token.Substring(separatorIndex + 1);
+
+                if (string.Equals(
+                        name,
+                        "itemId",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    itemId = value;
+                }
+                else if (string.Equals(
+                             name,
+                             "characterId",
+                             StringComparison.OrdinalIgnoreCase))
+                {
+                    characterId = value;
+                }
+                else
+                {
+                    positionalTokens.Add(token);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(itemId))
+            {
+                if (positionalTokens.Count > 1)
+                {
+                    positionalTokens.RemoveAt(1);
+                }
+
+                positionalTokens.Insert(1, itemId);
+            }
+
+            return positionalTokens;
         }
 
         private static bool IsEffectAllowed(
