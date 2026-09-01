@@ -85,7 +85,9 @@ namespace Godmist.Views.UI.Workspace
         private static void ConfigureTextLayout(TextMeshProUGUI text)
         {
             if (text == null) return;
+            text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
+            text.raycastTarget = false;
         }
 
         private void OnDestroy()
@@ -212,6 +214,26 @@ namespace Godmist.Views.UI.Workspace
                 BuildItemMeta(item)));
         }
 
+        /// <summary>
+        /// Shows the normal item tooltip with a short context-specific suffix.
+        /// Service views use this for transient information such as a buy or sell
+        /// price without duplicating the item-stat formatting here.
+        /// </summary>
+        public void ShowItemWithExtra(
+            ItemInstance item,
+            CharacterInstance owner,
+            object source,
+            string extraBody)
+        {
+            if (item?.Definition == null) return;
+
+            QueueShow(source ?? item, () => SetContent(
+                item.Definition.Icon,
+                item.DisplayName,
+                AppendTooltipExtra(BuildItemBody(item, owner), extraBody),
+                BuildItemMeta(item)));
+        }
+
         public void NotifySourceExit(object source = null)
         {
             if (source != null)
@@ -323,6 +345,7 @@ namespace Godmist.Views.UI.Workspace
             if (titleText != null) titleText.text = title ?? string.Empty;
             if (bodyText != null)
             {
+                bodyText.gameObject.SetActive(!string.IsNullOrWhiteSpace(body));
                 bodyText.text = glossary != null
                     ? glossary.Linkify(body ?? string.Empty)
                     : body ?? string.Empty;
@@ -342,30 +365,43 @@ namespace Godmist.Views.UI.Workspace
         {
             if (tooltipRect == null) return;
             Canvas.ForceUpdateCanvases();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipRect);
             var contentRect = bodyText?.rectTransform.parent as RectTransform;
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
             bodyText?.ForceMeshUpdate();
             metaText?.ForceMeshUpdate();
-            var contentWidth = bodyText != null && bodyText.rectTransform.rect.width > 0f
-                ? bodyText.rectTransform.rect.width
-                : contentRect != null
-                    ? Mathf.Max(1f, contentRect.rect.width)
-                    : 336f;
+            // Body can report a zero rect during the first frame after the
+            // tooltip is enabled. Derive the available width from the fixed
+            // tooltip width instead of letting GetPreferredValues wrap every
+            // character into a very tall column.
+            var tooltipWidth = Mathf.Max(1f, tooltipRect.rect.width);
+            var contentWidth = contentRect != null && contentRect.rect.width > 1f
+                ? contentRect.rect.width
+                : Mathf.Max(1f, tooltipWidth - 24f);
             var iconHeight = icon != null && icon.enabled ? 40f : 0f;
-            var titleHeight = titleText != null ? Mathf.Ceil(titleText.preferredHeight) : 0f;
+            var titleHeight = titleText != null
+                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, contentWidth, 0f).y)
+                : 0f;
             var headerHeight = Mathf.Max(iconHeight, titleHeight);
-            var bodyHeight = bodyText != null
+            var headerLayout = titleText?.transform.parent?.GetComponent<LayoutElement>();
+            if (headerLayout != null)
+            {
+                var compactHeaderHeight = Mathf.Max(24f, headerHeight);
+                headerLayout.minHeight = compactHeaderHeight;
+                headerLayout.preferredHeight = compactHeaderHeight;
+                headerHeight = compactHeaderHeight;
+            }
+
+            var bodyHeight = bodyText != null && bodyText.gameObject.activeSelf
                 ? Mathf.Ceil(bodyText.GetPreferredValues(bodyText.text, contentWidth, 0f).y)
                 : 0f;
             var metaHeight = metaText != null && metaText.gameObject.activeSelf
                 ? Mathf.Ceil(metaText.GetPreferredValues(metaText.text, contentWidth, 0f).y)
                 : 0f;
-            var sectionCount = 1 + (bodyText != null ? 1 : 0)
+            var sectionCount = 1 + (bodyText != null && bodyText.gameObject.activeSelf ? 1 : 0)
                 + (metaText != null && metaText.gameObject.activeSelf ? 1 : 0);
             tooltipRect.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                Mathf.Max(minimumHeight, 24f + contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
+                Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
         }
 
@@ -1979,6 +2015,13 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
             return result.ToString();
+        }
+
+        private static string AppendTooltipExtra(string body, string extraBody)
+        {
+            if (string.IsNullOrWhiteSpace(extraBody)) return body;
+            if (string.IsNullOrWhiteSpace(body)) return extraBody;
+            return $"{body}\n{extraBody}";
         }
 
         private static CharacterInstance ResolvePreviewCharacter()

@@ -29,6 +29,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Transform tabsContent;
         [SerializeField] private NpcServiceTabView tabTemplate;
         [SerializeField] private NpcServiceTabDefinition[] tabDefinitions;
+        [SerializeField] private TradeServiceWindowView tradeService;
         [SerializeField] private BlacksmithCraftingWindowView equipmentCraftingService;
         [SerializeField] private MaterialCraftingWindowView materialCraftingService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentUpgradeService;
@@ -44,6 +45,40 @@ namespace Godmist.Views.UI.Workspace
         private void Awake()
         {
             if (tabTemplate != null) tabTemplate.gameObject.SetActive(false);
+            HideInHierarchyTemplates();
+
+            // TradeServiceWindowView is a serialized child/content reference of
+            // PF_UIW_NpcServicesWindow. Never create a second one at runtime:
+            // doing so loses all prefab references and leaves a visible template
+            // or an empty, fallback-generated layout behind.
+            if (tradeService == null)
+            {
+                Debug.LogError(
+                    "NpcServicesWindowView has no serialized TradeServiceWindowView. "
+                    + "Assign the Trade tab component in PF_UIW_NpcServicesWindow.",
+                    this);
+            }
+        }
+
+        private void HideInHierarchyTemplates()
+        {
+            // The shared service prefab contains legacy slot/card templates for
+            // the other tabs. They are valid Instantiate sources, but must not
+            // render as ordinary children of the shell. External prefab assets
+            // assigned to serialized fields are not returned by this query and
+            // remain available as templates.
+            foreach (var child in GetComponentsInChildren<Transform>(true))
+            {
+                if (child == transform || child == tabTemplate?.transform)
+                    continue;
+
+                var name = child.name;
+                if (name.IndexOf("Template", StringComparison.OrdinalIgnoreCase) >= 0
+                    && !string.Equals(name, "Templates", StringComparison.OrdinalIgnoreCase))
+                {
+                    child.gameObject.SetActive(false);
+                }
+            }
         }
 
         private void OnDisable()
@@ -92,6 +127,11 @@ namespace Godmist.Views.UI.Workspace
 
         private IEnumerable<NpcServiceKind> GetAvailableServices()
         {
+            if (npc?.Definition?.GetRole<TraderRoleData>() != null)
+            {
+                yield return NpcServiceKind.Trade;
+            }
+
             if (npc?.Definition?.GetRole<BlacksmithRoleData>() != null)
             {
                 yield return NpcServiceKind.EquipmentCrafting;
@@ -114,6 +154,8 @@ namespace Godmist.Views.UI.Workspace
 
             var didShow = kind switch
             {
+                NpcServiceKind.Trade => tradeService != null
+                    && tradeService.Show(npc, recipientCharacterId),
                 NpcServiceKind.EquipmentCrafting => equipmentCraftingService != null
                     && equipmentCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.MaterialCrafting => materialCraftingService != null
@@ -138,6 +180,9 @@ namespace Godmist.Views.UI.Workspace
         {
             switch (selectedService)
             {
+                case NpcServiceKind.Trade:
+                    tradeService?.Hide();
+                    break;
                 case NpcServiceKind.EquipmentCrafting:
                     equipmentCraftingService?.Hide();
                     break;

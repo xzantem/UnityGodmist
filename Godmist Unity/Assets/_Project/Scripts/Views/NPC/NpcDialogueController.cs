@@ -22,6 +22,8 @@ namespace Godmist.Views.NPC
         [SerializeField] private DialogueChoiceButtonView choiceButtonPrefab;
 
         [Header("NPC services")]
+        // Kept only to hide the legacy scene objects while old scene data is
+        // being migrated. No trade interaction is routed through these fields.
         [SerializeField] private Button tradeButton;
         [SerializeField] private TradePanelView tradePanel;
         [SerializeField] private Button servicesButton;
@@ -60,11 +62,8 @@ namespace Godmist.Views.NPC
                 servicesButton.gameObject.SetActive(false);
             }
 
-            if (tradeButton != null)
-            {
-                tradeButton.onClick.AddListener(TryOpenTrade);
-                tradeButton.gameObject.SetActive(false);
-            }
+            if (tradeButton != null) tradeButton.gameObject.SetActive(false);
+            if (tradePanel != null) tradePanel.gameObject.SetActive(false);
 
             panelRoot.SetActive(false);
         }
@@ -87,10 +86,6 @@ namespace Godmist.Views.NPC
             if (servicesButton != null)
             {
                 servicesButton.onClick.RemoveListener(TryOpenServices);
-            }
-            if (tradeButton != null)
-            {
-                tradeButton.onClick.RemoveListener(TryOpenTrade);
             }
         }
 
@@ -125,7 +120,6 @@ namespace Godmist.Views.NPC
             ClearChoices();
             panelRoot.SetActive(false);
             SetServicesButtonVisible(false);
-            SetTradeButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -149,7 +143,6 @@ namespace Godmist.Views.NPC
             {
                 panelRoot.SetActive(false);
                 SetServicesButtonVisible(false);
-                SetTradeButtonVisible(false);
                 return;
             }
 
@@ -160,8 +153,7 @@ namespace Godmist.Views.NPC
 
             var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
             var isBlacksmith = dialogue.Npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
-            SetTradeButtonVisible(shouldShowDialogue && isTrader);
-            SetServicesButtonVisible(shouldShowDialogue && isBlacksmith);
+            SetServicesButtonVisible(shouldShowDialogue && (isTrader || isBlacksmith));
 
             if (shouldShowDialogue)
             {
@@ -209,19 +201,6 @@ namespace Godmist.Views.NPC
             if (dialogue == null || !EnsureServicesWindow()) return;
             if (!servicesWindow.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
             dialogueService.TryEndDialogue();
-        }
-
-        private void TryOpenTrade()
-        {
-            var dialogue = dialogueService.ActiveDialogue;
-            if (dialogue == null || tradePanel == null) return;
-            if (!tradePanel.Open(dialogue.Npc, dialogue.InitiatorCharacterId)) return;
-            dialogueService.TryEndDialogue();
-        }
-
-        private void SetTradeButtonVisible(bool isVisible)
-        {
-            if (tradeButton != null) tradeButton.gameObject.SetActive(isVisible);
         }
 
         private bool EnsureServicesWindow()
