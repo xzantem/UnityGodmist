@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Data.Items;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -83,6 +85,147 @@ namespace Godmist.Tests.EditMode
 
             Object.DestroyImmediate(encounter);
             Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_PotionEffectPrefix_ReturnsAllMatchingLegalEffects()
+        {
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion",
+                ConsumableUseType.Potion);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(potion);
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createconsumable item.consumable.potion R",
+                null,
+                null,
+                catalog);
+
+            Assert.That(
+                suggestions,
+                Is.EqualTo(new[]
+                {
+                    "RegenHealth",
+                    "RegenResource",
+                    "RestoreHealth",
+                    "RestoreResource"
+                }));
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_CreateConsumableItemPrefix_ExcludesUtilityDefinitions()
+        {
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion",
+                ConsumableUseType.Potion);
+            var returnScroll = CreateConsumableDefinition(
+                "item.consumable.return_scroll",
+                ConsumableUseType.Utility);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(potion);
+            catalog.ItemDefinitions.Add(returnScroll);
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createconsumable item.consumable.",
+                null,
+                null,
+                catalog);
+
+            Assert.That(suggestions, Does.Contain("item.consumable.potion"));
+            Assert.That(
+                suggestions,
+                Does.Not.Contain("item.consumable.return_scroll"));
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(returnScroll);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_UtilityConsumable_ReturnsNoFurtherSuggestions()
+        {
+            var returnScroll = CreateConsumableDefinition(
+                "item.consumable.return_scroll",
+                ConsumableUseType.Utility);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(returnScroll);
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createconsumable item.consumable.return_scroll ",
+                null,
+                null,
+                catalog);
+
+            Assert.That(suggestions, Is.Empty);
+
+            Object.DestroyImmediate(returnScroll);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_AfterThreePotionEffects_ReturnsNoFurtherEffects()
+        {
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion",
+                ConsumableUseType.Potion);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(potion);
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createconsumable item.consumable.potion RestoreHealth 0 RestoreResource 0 ModifyDamage 0 ",
+                null,
+                null,
+                catalog);
+
+            Assert.That(suggestions, Is.Empty);
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void GetSuggestions_IllegalEffect_DoesNotSuggestItsArguments()
+        {
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion",
+                ConsumableUseType.Potion);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(potion);
+
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createconsumable item.consumable.potion ApplyStatus 1 ",
+                null,
+                null,
+                catalog);
+
+            Assert.That(suggestions, Is.Empty);
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        private static ConsumableItemDefinition CreateConsumableDefinition(
+            string id,
+            ConsumableUseType useType)
+        {
+            var definition =
+                ScriptableObject.CreateInstance<ConsumableItemDefinition>();
+
+            SetAutoProperty(definition, "Id", id);
+            SetAutoProperty(definition, "DisplayName", id);
+            SetAutoProperty(definition, "UseType", useType);
+            SetAutoProperty(
+                definition,
+                "ItemType",
+                useType == ConsumableUseType.Potion
+                    ? ItemType.Potion
+                    : ItemType.Tool);
+
+            return definition;
         }
 
         private static void SetAutoProperty(

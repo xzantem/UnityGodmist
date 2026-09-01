@@ -267,6 +267,38 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Execute_CreateConsumable_UtilityPointsToCreateItem()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var returnScroll = ScriptableObject.CreateInstance<ConsumableItemDefinition>();
+
+            SetAutoProperty(returnScroll, "Id", "item.consumable.return_scroll");
+            SetAutoProperty(returnScroll, "DisplayName", "Return Scroll");
+            SetAutoProperty(returnScroll, "ItemType", ItemType.Tool);
+            SetAutoProperty(returnScroll, "UseType", ConsumableUseType.Utility);
+
+            session.TryRegisterCharacter(jerzy);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(returnScroll);
+
+            var result = service.Execute(
+                "createconsumable item.consumable.return_scroll",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Message, Does.Contain("createitem"));
+            Assert.That(jerzy.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(returnScroll);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
         public void Execute_Items_ListsInventoryContents()
         {
             var service = new DevConsoleCommandService();

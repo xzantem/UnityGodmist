@@ -103,7 +103,7 @@ namespace Godmist.Systems.Debugging
                 "items <characterId> - zawartość inventory postaci\n" +
                 "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
                 "createitem <itemId> - dodaje item do inventory aktywnego lidera\n" +
-                "createconsumable <itemId> [Effect value ...] - potion/bomb: dokładnie 3 efekty; statusy mają implied czas; ModifyResistance wymaga typu odporności; bomb bazowo zasięg 5 i obszar 3x3, katalizatory zmieniają payload; utility ma efekt domyślny z itemId\n" +
+                "createconsumable <itemId> [Effect value ...] - potion/bomb: dokładnie 3 efekty; statusy mają implied czas; ModifyResistance wymaga typu odporności; bomb bazowo zasięg 5 i obszar 3x3, katalizatory zmieniają payload; utility twórz przez createitem\n" +
                 "encounterdefs - lista encounterId z katalogu contentu\n" +
                 "inspectitem <instanceId> - pełny payload itemu aktywnego lidera\n" +
                 "combat <encounterId> - uruchamia debugową walkę z encounterem");
@@ -655,6 +655,8 @@ namespace Godmist.Systems.Debugging
             if (!contentCatalog.TryGetItem(tokens[1], out var definition)
                 || definition is not ConsumableItemDefinition consumableDefinition)
                 return Fail($"'{tokens[1]}' nie jest ConsumableItemDefinition.");
+            if (consumableDefinition.UseType == ConsumableUseType.Utility)
+                return Fail($"Utility '{tokens[1]}' nie przyjmuje efektów. Użyj: createitem {tokens[1]}");
             var item = itemInstanceFactory.Create(consumableDefinition) as ConsumableItemInstance;
             if (item == null) return Fail("Nie udało się utworzyć instancji consumable.");
             var targetType = consumableDefinition.UseType == ConsumableUseType.Bomb
@@ -664,19 +666,7 @@ namespace Godmist.Systems.Debugging
 
             var effectTokens = tokens.ToList();
 
-            if (consumableDefinition.UseType == ConsumableUseType.Utility)
-            {
-                if (effectTokens.Count != 2)
-                    return Fail("Ten utility ma efekt domyślny. Nie podawaj efektów ani opcji po itemId.");
-
-                if (!TryGetImpliedUtilityEffect(consumableDefinition, out var utilityEffect))
-                    return Fail($"Nie rozpoznano domyślnego efektu dla utility '{definition.DisplayName}'.");
-
-                utilityEffect.TargetType = targetType;
-                utilityEffect.TargetingType = targetingType;
-                item.RuntimeEffects.Add(utilityEffect);
-            }
-            else if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
+            if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
             {
                 // Keep the old one-token syntax working for existing smoke-test commands.
                 foreach (var spec in effectTokens[2].Split(';', StringSplitOptions.RemoveEmptyEntries))
@@ -695,8 +685,6 @@ namespace Godmist.Systems.Debugging
                 return Fail("Potion musi mieć dokładnie 3 efekty.");
             if (consumableDefinition.UseType == ConsumableUseType.Bomb && item.RuntimeEffects.Count != 3)
                 return Fail("Bomba musi mieć dokładnie 3 efekty.");
-            if (consumableDefinition.UseType == ConsumableUseType.Utility && item.RuntimeEffects.Count != 1)
-                return Fail("Utility musi mieć dokładnie 1 efekt.");
             var illegalEffect = item.RuntimeEffects.FirstOrDefault(effect =>
                 effect == null || !IsEffectAllowed(consumableDefinition.UseType, effect.EffectType));
             if (illegalEffect != null)
@@ -749,9 +737,6 @@ namespace Godmist.Systems.Debugging
                     or ConsumableRuntimeEffectType.ModifyCritChance
                     or ConsumableRuntimeEffectType.ModifyDodge
                     or ConsumableRuntimeEffectType.Slow,
-                ConsumableUseType.Utility => effectType is
-                    ConsumableRuntimeEffectType.RemoveStatus
-                    or ConsumableRuntimeEffectType.ReturnToArungard,
                 _ => false
             };
         }
@@ -897,15 +882,6 @@ namespace Godmist.Systems.Debugging
                 return false;
             }
             return true;
-        }
-
-        private static bool TryGetImpliedUtilityEffect(
-            ConsumableItemDefinition definition,
-            out ConsumableEffectRuntime runtimeEffect)
-        {
-            return ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                definition,
-                out runtimeEffect);
         }
 
         private static DevConsoleCommandResult InspectItem(

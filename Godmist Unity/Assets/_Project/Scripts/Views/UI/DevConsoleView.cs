@@ -35,7 +35,13 @@ namespace Godmist.Views.UI
 
         private List<string> suggestions = new();
         private int selectedSuggestionIndex = -1;
+        private int suggestionWindowStartIndex;
         private int commandHistoryIndex = -1;
+        private KeyCode navigationRepeatKey = KeyCode.None;
+        private float nextNavigationRepeatTime;
+
+        private const float NavigationRepeatDelaySeconds = 0.3f;
+        private const float NavigationRepeatIntervalSeconds = 0.075f;
 
         private void Awake()
         {
@@ -76,25 +82,56 @@ namespace Godmist.Views.UI
 
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
+                BeginNavigationRepeat(KeyCode.UpArrow);
                 HandleUpArrow();
                 return;
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
+                BeginNavigationRepeat(KeyCode.DownArrow);
                 HandleDownArrow();
                 return;
             }
 
+            if (Input.GetKeyUp(KeyCode.UpArrow)
+                && navigationRepeatKey == KeyCode.UpArrow)
+            {
+                navigationRepeatKey = KeyCode.None;
+            }
+
+            if (Input.GetKeyUp(KeyCode.DownArrow)
+                && navigationRepeatKey == KeyCode.DownArrow)
+            {
+                navigationRepeatKey = KeyCode.None;
+            }
+
+            HandleHeldNavigationKey();
+
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 TryAcceptSelectedSuggestion();
+                return;
+            }
+
+            var scrollDelta = Input.mouseScrollDelta.y;
+            if (Mathf.Abs(scrollDelta) > 0.01f && suggestions.Count > 0)
+            {
+                if (scrollDelta > 0f)
+                {
+                    SelectPreviousSuggestion();
+                }
+                else
+                {
+                    SelectNextSuggestion();
+                }
             }
         }
 
         private void OnDisable()
         {
             IsOpen = false;
+            navigationRepeatKey = KeyCode.None;
         }
 
         public void Toggle()
@@ -139,12 +176,14 @@ namespace Godmist.Views.UI
 
             ClearSuggestions();
             IsOpen = false;
+            navigationRepeatKey = KeyCode.None;
         }
 
         private void HandleCommandInputChanged(string commandLine)
         {
             commandHistoryIndex = -1;
             selectedSuggestionIndex = -1;
+            suggestionWindowStartIndex = 0;
             RefreshSuggestions();
         }
 
@@ -172,7 +211,7 @@ namespace Godmist.Views.UI
 
         private void ExecuteCommand(string commandLine)
         {
-            if (selectedSuggestionIndex >= 0)
+            if (ShouldAcceptSelectedSuggestion(commandLine))
             {
                 ApplySelectedSuggestion();
                 return;
@@ -220,6 +259,31 @@ namespace Godmist.Views.UI
             FocusInput();
         }
 
+        private bool ShouldAcceptSelectedSuggestion(string commandLine)
+        {
+            if (selectedSuggestionIndex < 0
+                || selectedSuggestionIndex >= suggestions.Count)
+            {
+                return false;
+            }
+
+            var tokenStartIndex = FindCurrentTokenStartIndex(commandLine);
+            var activeToken = commandLine.Substring(tokenStartIndex);
+            var selectedSuggestion = suggestions[selectedSuggestionIndex];
+
+            if (!string.Equals(
+                    activeToken,
+                    selectedSuggestion,
+                    System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return tokenStartIndex == 0
+                && DevConsoleSuggestionService.CommandRequiresArgument(
+                    selectedSuggestion);
+        }
+
         private void TryAcceptSelectedSuggestion()
         {
             if (suggestions.Count == 1)
@@ -244,18 +308,18 @@ namespace Godmist.Views.UI
 
             if (selectedSuggestionIndex < 0)
             {
-                selectedSuggestionIndex = suggestions.Count - 1;
+                selectedSuggestionIndex = 0;
             }
             else
             {
                 selectedSuggestionIndex--;
-
                 if (selectedSuggestionIndex < 0)
                 {
                     selectedSuggestionIndex = suggestions.Count - 1;
                 }
             }
 
+            EnsureSelectedSuggestionVisible();
             RefreshSuggestionText();
         }
 
@@ -267,12 +331,12 @@ namespace Godmist.Views.UI
             }
 
             selectedSuggestionIndex++;
-
             if (selectedSuggestionIndex >= suggestions.Count)
             {
                 selectedSuggestionIndex = 0;
             }
 
+            EnsureSelectedSuggestionVisible();
             RefreshSuggestionText();
         }
 
@@ -303,6 +367,7 @@ namespace Godmist.Views.UI
             commandInput.caretPosition = completedLine.Length;
 
             selectedSuggestionIndex = -1;
+            suggestionWindowStartIndex = 0;
             RefreshSuggestions();
             FocusInput();
         }
@@ -310,7 +375,8 @@ namespace Godmist.Views.UI
         private void BrowseCommandHistory(int direction)
         {
             if (commandInput == null
-                || !string.IsNullOrWhiteSpace(commandInput.text)
+                || (commandHistoryIndex < 0
+                    && !string.IsNullOrWhiteSpace(commandInput.text))
                 || commandHistory.Count == 0)
             {
                 return;
@@ -384,11 +450,40 @@ namespace Godmist.Views.UI
                     gameSession,
                     combatSession,
                     GameBootstrap.Instance?.ContentCatalog)
-                .Take(maximumSuggestions)
                 .ToList();
 
-            selectedSuggestionIndex = -1;
+            selectedSuggestionIndex = suggestions.Count > 0 ? 0 : -1;
+            suggestionWindowStartIndex = 0;
             RefreshSuggestionText();
+        }
+
+        private void BeginNavigationRepeat(KeyCode key)
+        {
+            navigationRepeatKey = key;
+            nextNavigationRepeatTime = Time.unscaledTime
+                + NavigationRepeatDelaySeconds;
+        }
+
+        private void HandleHeldNavigationKey()
+        {
+            if (navigationRepeatKey == KeyCode.None
+                || !Input.GetKey(navigationRepeatKey)
+                || Time.unscaledTime < nextNavigationRepeatTime)
+            {
+                return;
+            }
+
+            if (navigationRepeatKey == KeyCode.UpArrow)
+            {
+                HandleUpArrow();
+            }
+            else
+            {
+                HandleDownArrow();
+            }
+
+            nextNavigationRepeatTime = Time.unscaledTime
+                + NavigationRepeatIntervalSeconds;
         }
 
         private void RefreshSuggestionText()
@@ -405,8 +500,23 @@ namespace Godmist.Views.UI
             }
 
             var rows = new List<string>();
+            var visibleSuggestionCount = Mathf.Max(1, maximumSuggestions);
+            var maximumWindowStart = Mathf.Max(
+                0,
+                suggestions.Count - visibleSuggestionCount);
 
-            for (var index = 0; index < suggestions.Count; index++)
+            suggestionWindowStartIndex = Mathf.Clamp(
+                suggestionWindowStartIndex,
+                0,
+                maximumWindowStart);
+
+            var windowEndIndex = Mathf.Min(
+                suggestions.Count,
+                suggestionWindowStartIndex + visibleSuggestionCount);
+
+            for (var index = suggestionWindowStartIndex;
+                 index < windowEndIndex;
+                 index++)
             {
                 var suggestion = suggestions[index];
 
@@ -418,7 +528,8 @@ namespace Godmist.Views.UI
             suggestionText.text = string.Join("\n", rows);
 
             var panelHeight = suggestionVerticalPadding
-                + suggestions.Count * suggestionRowHeight;
+                + (windowEndIndex - suggestionWindowStartIndex)
+                    * suggestionRowHeight;
 
             suggestionPanel.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
@@ -427,10 +538,28 @@ namespace Godmist.Views.UI
             suggestionPanel.gameObject.SetActive(true);
         }
 
+        private void EnsureSelectedSuggestionVisible()
+        {
+            var visibleSuggestionCount = Mathf.Max(1, maximumSuggestions);
+
+            if (selectedSuggestionIndex < suggestionWindowStartIndex)
+            {
+                suggestionWindowStartIndex = selectedSuggestionIndex;
+            }
+            else if (selectedSuggestionIndex
+                >= suggestionWindowStartIndex + visibleSuggestionCount)
+            {
+                suggestionWindowStartIndex = selectedSuggestionIndex
+                    - visibleSuggestionCount
+                    + 1;
+            }
+        }
+
         private void ClearSuggestions()
         {
             suggestions.Clear();
             selectedSuggestionIndex = -1;
+            suggestionWindowStartIndex = 0;
 
             if (suggestionText != null)
             {

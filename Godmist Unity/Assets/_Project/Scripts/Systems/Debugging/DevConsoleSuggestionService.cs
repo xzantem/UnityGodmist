@@ -124,7 +124,8 @@ namespace Godmist.Systems.Debugging
             if (command == "createconsumable" && tokenIndex == 1)
             {
                 return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition is ConsumableItemDefinition)
+                    .Where(definition => definition is ConsumableItemDefinition consumable
+                        && consumable.UseType != ConsumableUseType.Utility)
                     .Select(definition => definition.Id)
                     ?? Enumerable.Empty<string>();
             }
@@ -225,6 +226,7 @@ namespace Godmist.Systems.Debugging
             ConsumableUseType useType)
         {
             var position = 2;
+            var effectCount = 0;
 
             while (position < tokenIndex)
             {
@@ -232,6 +234,15 @@ namespace Godmist.Systems.Debugging
                 {
                     return Enumerable.Empty<string>();
                 }
+
+                if (!GetLegalEffectNames(useType).Contains(
+                        effectType.ToString(),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                effectCount++;
 
                 position++;
 
@@ -272,6 +283,11 @@ namespace Godmist.Systems.Debugging
             }
 
             if (position != tokenIndex)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            if (effectCount >= 3)
             {
                 return Enumerable.Empty<string>();
             }
