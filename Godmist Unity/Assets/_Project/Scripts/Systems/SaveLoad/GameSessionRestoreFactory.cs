@@ -861,6 +861,7 @@ namespace Godmist.Systems.SaveLoad
             {
                 if (effectSaveData == null
                     || string.IsNullOrWhiteSpace(effectSaveData.EffectId)
+                    || !IsValidPassiveEffectDefinitionId(effectSaveData.DefinitionId)
                     || effectSaveData.Stacks < 0
                     || effectSaveData.RemainingDuration < 0
                     || !Enum.IsDefined(
@@ -889,6 +890,13 @@ namespace Godmist.Systems.SaveLoad
                         : PassiveEffectTickPhase.TurnEnd;
                 }
 
+                if (!TryCreatePassiveEffectStateValues(
+                        effectSaveData.StateValues,
+                        out var stateValues))
+                {
+                    return false;
+                }
+
                 character.PassiveEffects.Add(
                     new PassiveEffectRuntime(
                         effectSaveData.EffectId,
@@ -900,8 +908,52 @@ namespace Godmist.Systems.SaveLoad
                         tickPhase)
                     {
                         DisplayName = effectSaveData.DisplayName ?? string.Empty,
-                        Payloads = payloads
+                        DefinitionId = effectSaveData.DefinitionId ?? string.Empty,
+                        Payloads = payloads,
+                        StateValues = stateValues
                     });
+            }
+
+            return true;
+        }
+
+        private static bool IsValidPassiveEffectDefinitionId(string definitionId)
+        {
+            return string.IsNullOrWhiteSpace(definitionId)
+                || definitionId.Length <= 256;
+        }
+
+        private static bool TryCreatePassiveEffectStateValues(
+            List<PassiveEffectRuntimeStateValueSaveData> saveDataList,
+            out List<PassiveEffectRuntimeStateValue> stateValues)
+        {
+            stateValues = new List<PassiveEffectRuntimeStateValue>();
+            if (saveDataList == null) return true;
+
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var saveData in saveDataList)
+            {
+                if (saveData == null
+                    || string.IsNullOrWhiteSpace(saveData.Key)
+                    || saveData.Key.Length > 256
+                    || !Enum.IsDefined(typeof(PassiveEffectRuntimeValueType), saveData.Type)
+                    || !keys.Add(saveData.Key)
+                    || float.IsNaN(saveData.NumberValue)
+                    || float.IsInfinity(saveData.NumberValue))
+                {
+                    stateValues = null;
+                    return false;
+                }
+
+                stateValues.Add(new PassiveEffectRuntimeStateValue
+                {
+                    Key = saveData.Key,
+                    Type = saveData.Type,
+                    NumberValue = saveData.NumberValue,
+                    IntegerValue = saveData.IntegerValue,
+                    TextValue = saveData.TextValue ?? string.Empty,
+                    BooleanValue = saveData.BooleanValue
+                });
             }
 
             return true;

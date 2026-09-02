@@ -79,7 +79,7 @@ namespace Godmist.Tests.EditMode
             jerzy.ShieldPool.AddLayer(12, "skill.test.shield");
             jerzy.Inventory.Items.Add(material);
             jerzy.Equipment.Weapon = weapon;
-            jerzy.PassiveEffects.Add(new PassiveEffectRuntime(
+            var bleedEffect = new PassiveEffectRuntime(
                 "status.bleed",
                 new()
                 {
@@ -94,7 +94,13 @@ namespace Godmist.Tests.EditMode
                 remainingDuration: 3,
                 totalDamage: 30,
                 lifetime: PassiveEffectLifetime.Timed,
-                tickPhase: PassiveEffectTickPhase.TurnStart));
+                tickPhase: PassiveEffectTickPhase.TurnStart)
+            {
+                DefinitionId = "passive.status.bleed",
+            };
+            bleedEffect.SetStateValue(
+                PassiveEffectRuntimeStateValue.Integer("remainingApplications", 2));
+            jerzy.PassiveEffects.Add(bleedEffect);
 
             var pendingLoot = new ItemInstance(
                 materialDefinition,
@@ -132,6 +138,13 @@ namespace Godmist.Tests.EditMode
             Assert.That(characterSaveData.Resistances.BleedResistance, Is.EqualTo(0.25f));
             Assert.That(characterSaveData.ShieldLayers[0].CurrentValue, Is.EqualTo(12));
             Assert.That(characterSaveData.PassiveEffects[0].EffectId, Is.EqualTo("status.bleed"));
+            Assert.That(characterSaveData.PassiveEffects[0].DefinitionId, Is.EqualTo("passive.status.bleed"));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].StateValues[0].Key,
+                Is.EqualTo("remainingApplications"));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].StateValues[0].IntegerValue,
+                Is.EqualTo(2));
             Assert.That(
                 characterSaveData.PassiveEffects[0].Lifetime,
                 Is.EqualTo(PassiveEffectLifetime.Timed));

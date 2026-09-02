@@ -73,8 +73,10 @@ Planowany bezpośrednio po `Crafting, Upgrading and Consumables v1`. Skraca iter
 
 Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek drzewek skilli, klejnotow i unikatowego equipmentu; rozwija warunkowe efekty walki bez mieszania ich z systemem craftingu.
 
-- `[P1] Ujednolicic framework pasywek dla equipmentu i drzewek skilli v1` - `Combat`, `Items / Inventory / Economy`, `Core / Architecture`, `UI / UX`
-  - Wspolna definicja zrodla, warunkow i efektow pasywki dla drzewek skilli, klejnotow oraz unikatowego equipmentu. Obsluzyc stale modyfikatory statystyk i odpornosci, modyfikatory obrazen, XP oraz zlota, z pelnym persistence i tooltipem. Zachowac zgodnosc z istniejacymi globalnymi pasywkami drzewek; migracje wykonywac etapowo.
+- `[P1] Zmigrowac dzialajace pasywki do wspolnego frameworku v1` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Core / Architecture`
+  - Przeniesc do wspolnego modelu istniejace dzialajace globalne pasywki drzewek, modyfikatory statystyk i odpornosci equipmentu, pasywki bizuterii dotyczace XP, zlota i theme lochu oraz obecne runtime modifiers. Zachowac dotychczasowe zachowanie, kompatybilnosc runtime item instances i save/load; nie dodawac nowych pasywek contentowych.
+- `[P1] Dodac prymitywy ewaluacji combatowej dla pasywek v1` - `Combat`, `Core / Architecture`, `Skills / Progression`, `Items / Inventory / Economy`
+  - Dodac wspolne konteksty i punkty integracji dla przyszlych warunkow oraz modyfikatorow combatowych: typ ataku, pozycja, dystans, status celu, ruch, zasoby, unik, kolejnosc aplikacji, stacking i liczniki. Pokryc je testowymi definicjami i testami integracyjnymi, ale nie aktywowac nowych pasywek Scouta, unikatow bossowych ani innych nowych zachowan contentowych.
 - `[P1] Dodac tagi przeciwnikow i warunkowe modyfikatory v1` - `Combat`, `Content / Data`, `Core / Architecture`
   - Dodac tagi `Human`, `Beast`, `Undead` i `Demon` na definicjach przeciwnikow oraz warunki pasywek dla typu celu i theme lochu. Uzyc ich m.in. dla obrazen przeciwko okreslonym przeciwnikom i bonusow terenowych klejnotow.
 - `[P1] Dodac unikatowe dropy bossow broni i pancerzy per klasa v1` - `Combat`, `Items / Inventory / Economy`, `Content / Data`
@@ -134,8 +136,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
-### Milestone: Crafting, Upgrading and Consumables v1
+### Milestone: Combat Passives and Affixes v1
 
+- `[P1] Zbudowac rdzen wspolnego frameworku pasywek v1` - `Combat`, `Content / Data`, `Core / Architecture`, `UI / UX`
+  - Zdefiniowac wspolny model static definition i runtime state dla pasywek drzewek skilli, equipmentu oraz przyszlych klejnotow: zrodlo, warunek, trigger, target, efekt, stacking, lifetime, tooltip i persistence. Zapewnic rozszerzalne kontrakty dla zlozonych warunkow i efektow bez dodawania nowego contentu combatowego. Zaimplementowano; kompilacja i pelny EditMode suite przechodza.
+
+### Milestone: Crafting, Upgrading and Consumables v1
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
   - Zaliczone: crafting, upgrade/reforge, storage, consumables, handel z buybackiem oraz snapshot/restore. Testy acceptance obejmują koszty i walidacje, zużycie materiałów i charges, łączenie efektów, sockety, transfery bez zmiany `instanceId` oraz pełne dane runtime w save/load.
 

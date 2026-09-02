@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Effects;
 using UnityEngine;
 
 namespace Godmist.Data.Items
@@ -33,6 +34,7 @@ namespace Godmist.Data.Items
         [field: SerializeField] public float Value { get; private set; }
         [field: SerializeField] public DungeonTheme DungeonTheme { get; private set; }
         [field: SerializeField] public bool IsBossUnique { get; private set; }
+        [field: SerializeField] public List<PassiveEffectDefinition> PassiveEffects { get; private set; } = new();
     }
 
     [CreateAssetMenu(fileName = "JewelryItemDefinition", menuName = "Godmist/Items/Jewelry Item Definition")]

@@ -93,6 +93,7 @@ namespace Godmist.Core.Serialization
     public class PassiveEffectSaveData
     {
         public string EffectId = string.Empty;
+        public string DefinitionId = string.Empty;
         public string DisplayName = string.Empty;
         public List<PassiveEffectSourceSaveData> Sources = new();
         public PassiveEffectLifetime Lifetime;
@@ -100,7 +101,19 @@ namespace Godmist.Core.Serialization
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase;
         public List<PassiveEffectPayloadSaveData> Payloads = new();
+        public List<PassiveEffectRuntimeStateValueSaveData> StateValues = new();
 
+    }
+
+    [Serializable]
+    public class PassiveEffectRuntimeStateValueSaveData
+    {
+        public string Key = string.Empty;
+        public PassiveEffectRuntimeValueType Type;
+        public float NumberValue;
+        public int IntegerValue;
+        public string TextValue = string.Empty;
+        public bool BooleanValue;
     }
 
     [Serializable]
