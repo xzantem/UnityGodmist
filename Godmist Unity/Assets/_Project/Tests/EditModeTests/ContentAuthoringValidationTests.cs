@@ -65,6 +65,36 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Validate_JewelryWithoutRequiredClass_DoesNotReportClassWarning()
+        {
+            var jewelry = ScriptableObject.CreateInstance<JewelryItemDefinition>();
+            SetAutoProperty(jewelry, "Id", "item.jewelry.bracelet.test");
+            SetAutoProperty(jewelry, "DisplayName", "Test bracelet");
+            SetAutoProperty(jewelry, "ItemType", Core.Enums.ItemType.Jewelry);
+            SetAutoProperty(jewelry, "JewelrySlot", Core.Enums.EquipmentSlot.Bracelet);
+
+            var report = ContentAuthoringValidator.Validate(jewelry);
+
+            Assert.That(report.Warnings, Has.None.Contains("klasy postaci"));
+
+            Object.DestroyImmediate(jewelry);
+        }
+
+        [Test]
+        public void Validate_CharacterWithoutClass_DoesNotReportClassWarning()
+        {
+            var character = ScriptableObject.CreateInstance<CharacterDefinition>();
+            SetAutoProperty(character, "Id", "enemy.test");
+            SetAutoProperty(character, "DisplayName", "Test enemy");
+
+            var report = ContentAuthoringValidator.Validate(character);
+
+            Assert.That(report.Warnings, Has.None.Contains("przypisanej klasy"));
+
+            Object.DestroyImmediate(character);
+        }
+
+        [Test]
         public void Validate_Skill_UsesSkillIdAndReportsInvalidCosts()
         {
             var skill = ScriptableObject.CreateInstance<SkillData>();

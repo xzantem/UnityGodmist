@@ -26,7 +26,7 @@ namespace Godmist.Editor
         }
     }
 
-    public static class ContentAuthoringValidator
+    public static partial class ContentAuthoringValidator
     {
         public static ContentAuthoringValidationReport Validate(
             UnityEngine.Object asset,
@@ -83,6 +83,16 @@ namespace Godmist.Editor
             RequireText(item.Id, "Id", errors);
             RequireText(item.DisplayName, "DisplayName", errors);
 
+            if (!Enum.IsDefined(typeof(Core.Enums.ItemType), item.ItemType))
+            {
+                errors.Add("ItemType ma nieprawidłową wartość.");
+            }
+
+            if (!Enum.IsDefined(typeof(Core.Enums.RarityTier), item.BaseRarity))
+            {
+                errors.Add("BaseRarity ma nieprawidłową wartość.");
+            }
+
             if (item.BaseValue < 0)
             {
                 errors.Add("BaseValue nie może być ujemne.");
@@ -101,6 +111,11 @@ namespace Godmist.Editor
 
             if (item is ConsumableItemDefinition consumable)
             {
+                if (!Enum.IsDefined(typeof(Core.Enums.ConsumableUseType), consumable.UseType))
+                {
+                    errors.Add("UseType ma nieprawidłową wartość.");
+                }
+
                 if (consumable.MaxCharges < 1)
                 {
                     errors.Add("MaxCharges musi być większe od zera.");
@@ -109,7 +124,19 @@ namespace Godmist.Editor
                 if (consumable.UseType == Core.Enums.ConsumableUseType.Potion
                     && item.ItemType != Core.Enums.ItemType.Potion)
                 {
-                    warnings.Add("Potion zwykle powinien mieć ItemType = Potion.");
+                    errors.Add("Potion musi mieć ItemType = Potion.");
+                }
+
+                if (consumable.UseType == Core.Enums.ConsumableUseType.Bomb
+                    && item.ItemType != Core.Enums.ItemType.Tool)
+                {
+                    errors.Add("Bomba musi mieć ItemType = Tool.");
+                }
+
+                if (consumable.UseType == Core.Enums.ConsumableUseType.Utility
+                    && consumable.MaxCharges != 1)
+                {
+                    warnings.Add("Utility consumable powinien mieć dokładnie jedną charge.");
                 }
             }
 
@@ -160,6 +187,11 @@ namespace Godmist.Editor
                     errors.Add($"Ilość składnika {index + 1} musi być większa od zera.");
                 }
 
+                if (ingredient.Material.ItemType != Core.Enums.ItemType.Material)
+                {
+                    errors.Add($"Składnik {index + 1} musi być itemem typu Material.");
+                }
+
                 if (!materials.Add(ingredient.Material))
                 {
                     errors.Add($"Materiał '{ingredient.Material.Id}' występuje w recepturze więcej niż raz.");
@@ -198,7 +230,8 @@ namespace Godmist.Editor
                 errors.Add("JewelrySlot musi wskazywać slot biżuterii.");
             }
 
-            if (equipment.RequiredClass == null)
+            if (equipment.RequiredClass == null
+                && equipment.ItemType is Core.Enums.ItemType.Weapon or Core.Enums.ItemType.Armor)
             {
                 warnings.Add("Equipment nie ma przypisanej klasy postaci.");
             }
@@ -211,6 +244,16 @@ namespace Godmist.Editor
         {
             RequireText(part.Id, "Id", errors);
             RequireText(part.DisplayName, "DisplayName", errors);
+
+            if (!Enum.IsDefined(typeof(Core.Enums.EquipmentPartKind), part.Kind))
+            {
+                errors.Add("Kind ma nieprawidłową wartość.");
+            }
+
+            if (!Enum.IsDefined(typeof(Core.Enums.EquipmentPartLevelBracket), part.LevelBracket))
+            {
+                errors.Add("LevelBracket ma nieprawidłową wartość.");
+            }
 
             if (part.Stats == null)
             {
@@ -273,7 +316,8 @@ namespace Godmist.Editor
             {
                 errors.Add("ToggleUpkeepMaxResourcePercent musi być w zakresie 0-1.");
             }
-            if (skill.TargetModes == null || skill.TargetModes.Count == 0)
+            if (!IsObjectPlacementOnlySkill(skill)
+                && (skill.TargetModes == null || skill.TargetModes.Count == 0))
                 warnings.Add("Skill nie ma zdefiniowanych trybów celu.");
             if (skill.Effects == null || skill.Effects.Count == 0)
                 warnings.Add("Skill nie ma zdefiniowanych efektów.");
@@ -297,7 +341,13 @@ namespace Godmist.Editor
             if (character.BaseStats == null) errors.Add("CharacterDefinition musi mieć BaseStats.");
             if (character.BaseResistances == null) warnings.Add("Character nie ma BaseResistances.");
             if (character.GrowthData == null) warnings.Add("Character nie ma GrowthData.");
-            if (character.ClassData == null) warnings.Add("Character nie ma przypisanej klasy.");
+        }
+
+        private static bool IsObjectPlacementOnlySkill(SkillData skill)
+        {
+            return skill?.Effects != null
+                && skill.Effects.Count > 0
+                && skill.Effects.All(effect => effect?.EffectType == Core.Enums.EffectType.CreateObject);
         }
 
         private static void ValidateEncounter(
