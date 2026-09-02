@@ -1,4 +1,5 @@
 using Godmist.Data.Items;
+using Godmist.Data.Configuration;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -33,7 +34,9 @@ namespace Godmist.Systems.NPC
         {
             if (!CanTrade(trader) || item?.Definition == null) return 0;
 
-            var multiplier = IsRelevantForTrader(trader, item) ? 0.5f : 0.25f;
+            var multiplier = IsRelevantForTrader(trader, item)
+                ? GameDefinesRuntime.GetFloat(GameDefineIds.TraderRelevantSellMultiplier, .5f)
+                : GameDefinesRuntime.GetFloat(GameDefineIds.TraderIrrelevantSellMultiplier, .25f);
 
             return Mathf.FloorToInt(
                 GetBaseValue(item.Definition) * multiplier);

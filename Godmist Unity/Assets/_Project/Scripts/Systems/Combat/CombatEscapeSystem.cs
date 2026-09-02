@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 
@@ -8,8 +9,10 @@ namespace Godmist.Systems.Combat
 {
     public class CombatEscapeSystem
     {
-        public const int BaseEscapeChancePercent = 60;
-        public const int EscapeChanceIncreasePercent = 10;
+        public static int BaseEscapeChancePercent => GameDefinesRuntime.GetInt(
+            GameDefineIds.EscapeBaseChancePercent, 60);
+        public static int EscapeChanceIncreasePercent => GameDefinesRuntime.GetInt(
+            GameDefineIds.EscapeChanceIncreasePercent, 10);
 
         private readonly Action<string> battleLog;
         private readonly Func<int> rollPercent;

@@ -22,6 +22,7 @@ namespace Godmist.Views.Exploration
         private float secondsPerAnimationFrame;
         private int animationFrameIndex;
         private float lastMovementTime = float.NegativeInfinity;
+        private bool noclipEnabled;
 
         public string CharacterId { get; private set; } = string.Empty;
         public Vector2 Position => transform.position;
@@ -68,8 +69,22 @@ namespace Godmist.Views.Exploration
                 bodyRenderer.color = isActiveLeader ? leaderColor : followerColor;
             }
 
-            if (body != null) body.simulated = isActiveLeader;
-            if (movementCollider != null) movementCollider.enabled = isActiveLeader;
+            if (body != null) body.simulated = isActiveLeader && !noclipEnabled;
+            if (movementCollider != null) movementCollider.enabled = isActiveLeader && !noclipEnabled;
+        }
+
+        public void SetNoclip(bool enabled)
+        {
+            noclipEnabled = enabled;
+
+            if (enabled)
+            {
+                if (body != null) body.simulated = false;
+                if (movementCollider != null) movementCollider.enabled = false;
+                return;
+            }
+
+            if (body != null) body.simulated = movementCollider != null && movementCollider.enabled;
         }
 
         public void Move(Vector2 offset)

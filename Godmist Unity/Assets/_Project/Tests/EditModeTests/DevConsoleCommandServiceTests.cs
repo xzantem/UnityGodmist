@@ -4,9 +4,11 @@ using Godmist.Core.Types;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Quests;
 using Godmist.Systems.Debugging;
 using System.Reflection;
 using Godmist.Data.Items;
+using Godmist.Data.Quests;
 using Godmist.Data.World;
 using UnityEngine;
 using NUnit.Framework;
@@ -267,6 +269,101 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Execute_CreateItem_UsesNamedOptionalAmountAndCharacterId()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var leader = CreateCharacter("jerzy");
+            var target = CreateCharacter("wladimir");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var material = CreateItemDefinition(
+                "material.test",
+                "Materiał testowy");
+
+            session.TryRegisterCharacter(leader);
+            session.TryRegisterCharacter(target);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(material);
+
+            var result = service.Execute(
+                "createitem material.test characterId=wladimir amount=2",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(target.Inventory.Items, Has.Count.EqualTo(2));
+            Assert.That(leader.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CreateConsumable_UsesNamedOptionalCharacterId()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var leader = CreateCharacter("jerzy");
+            var target = CreateCharacter("wladimir");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var potion = CreateConsumableDefinition(
+                "item.consumable.potion");
+
+            session.TryRegisterCharacter(leader);
+            session.TryRegisterCharacter(target);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(potion);
+
+            var result = service.Execute(
+                "createconsumable item.consumable.potion " +
+                "RestoreHealth 0.25 RestoreResource 0.1 ModifyDamage 0.2 " +
+                "characterId=wladimir",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(target.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(leader.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(potion);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CreateConsumable_UtilityPointsToCreateItem()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var returnScroll = ScriptableObject.CreateInstance<ConsumableItemDefinition>();
+
+            SetAutoProperty(returnScroll, "Id", "item.consumable.return_scroll");
+            SetAutoProperty(returnScroll, "DisplayName", "Return Scroll");
+            SetAutoProperty(returnScroll, "ItemType", ItemType.Tool);
+            SetAutoProperty(returnScroll, "UseType", ConsumableUseType.Utility);
+
+            session.TryRegisterCharacter(jerzy);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(returnScroll);
+
+            var result = service.Execute(
+                "createconsumable item.consumable.return_scroll",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.False);
+            Assert.That(result.Message, Does.Contain("createitem"));
+            Assert.That(jerzy.Inventory.Items, Is.Empty);
+
+            Object.DestroyImmediate(returnScroll);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
         public void Execute_Items_ListsInventoryContents()
         {
             var service = new DevConsoleCommandService();
@@ -457,6 +554,139 @@ namespace Godmist.Tests.EditMode
             Assert.That(result.Message, Does.Contain("AP: 12/15"));
         }
 
+        [Test]
+        public void Execute_SetWorldFlag_StoresAndReportsValue()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+
+            var result = service.Execute(
+                "setworldflag tutorial.completed true",
+                session,
+                null);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(session.WorldState.TryGetFlag(
+                "tutorial.completed",
+                out var value), Is.True);
+            Assert.That(value, Is.EqualTo("true"));
+
+            result = service.Execute("worldflags", session, null);
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(result.Message, Does.Contain("tutorial.completed=true"));
+        }
+
+        [Test]
+        public void Execute_QuestState_ReportsRuntimeProgressAndFlags()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var definition = ScriptableObject.CreateInstance<QuestDefinition>();
+            var stage = new QuestStageDefinition();
+            var objective = new QuestObjectiveDefinition();
+
+            SetAutoProperty(definition, "Id", "quest.debug");
+            SetAutoProperty(definition, "DisplayName", "Debug Quest");
+            SetAutoProperty(definition, "StartStageId", "stage.one");
+            SetAutoProperty(definition, "Stages", new List<QuestStageDefinition> { stage });
+            SetAutoProperty(stage, "StageId", "stage.one");
+            SetAutoProperty(stage, "Description", "Debug stage");
+            SetAutoProperty(stage, "Objectives", new List<QuestObjectiveDefinition> { objective });
+            SetAutoProperty(objective, "ObjectiveId", "objective.one");
+            SetAutoProperty(objective, "RequiredAmount", 3);
+
+            var quest = new QuestInstance(definition, QuestStatus.Active);
+            quest.TryAddObjectiveProgress("objective.one", 2);
+            quest.TrySetQuestFlag("branch", "left");
+            session.TryRegisterQuest(quest);
+
+            var result = service.Execute("queststate quest.debug", session, null);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(result.Message, Does.Contain("Status: Active"));
+            Assert.That(result.Message, Does.Contain("objective.one: 2/3"));
+            Assert.That(result.Message, Does.Contain("branch=left"));
+
+            Object.DestroyImmediate(definition);
+        }
+
+        [Test]
+        public void Execute_RemoveItem_RemovesOnlyRequestedInventoryInstance()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var character = CreateCharacter("jerzy");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var material = CreateItemDefinition("material.debug", "Debug Material");
+
+            session.TryRegisterCharacter(character);
+            service.Execute("giveitem jerzy material.debug 2", session, null, CatalogWith(catalog, material));
+            var instanceId = character.Inventory.Items[0].InstanceId;
+
+            var result = service.Execute($"removeitem jerzy {instanceId}", session, null, catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(character.Inventory.Items[0].InstanceId, Is.Not.EqualTo(instanceId));
+
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_ClearInventoryAndSetLevel_UpdateRuntimeCharacterState()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var character = CreateCharacter("jerzy");
+            session.TryRegisterCharacter(character);
+
+            var levelResult = service.Execute("setlevel jerzy 10", session, null);
+            var clearResult = service.Execute("clearinventory jerzy", session, null);
+
+            Assert.That(levelResult.Success, Is.True, levelResult.Message);
+            Assert.That(character.Level, Is.EqualTo(10));
+            Assert.That(character.CurrentExperience, Is.EqualTo(0));
+            Assert.That(clearResult.Success, Is.True, clearResult.Message);
+            Assert.That(character.Inventory.Items, Is.Empty);
+        }
+
+        [Test]
+        public void Execute_HelpWithCommand_ReturnsOnlyThatCommandDetails()
+        {
+            var service = new DevConsoleCommandService();
+
+            var result = service.Execute("help createitem", new GameSession(), null);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(result.Message, Does.Contain("createitem -"));
+            Assert.That(result.Message, Does.Contain("Użycie: createitem <itemId> [amount] [characterId]"));
+            Assert.That(result.Message, Does.Contain("Przykład:"));
+            Assert.That(result.Message, Does.Not.Contain("Wytwarza"));
+        }
+
+        [Test]
+        public void Execute_NoclipWithoutArgument_ForwardsToggleRequest()
+        {
+            var service = new DevConsoleCommandService();
+            bool? requestedState = true;
+
+            var result = service.Execute(
+                "noclip",
+                new GameSession(),
+                null,
+                null,
+                null,
+                state =>
+                {
+                    requestedState = state;
+                    return new DevConsoleCommandResult(true, "toggle");
+                });
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(requestedState, Is.Null);
+        }
+
         private static ItemDefinition CreateItemDefinition(
             string id,
             string displayName)
@@ -474,14 +704,46 @@ namespace Godmist.Tests.EditMode
             return definition;
         }
 
+        private static ConsumableItemDefinition CreateConsumableDefinition(
+            string id)
+        {
+            var definition =
+                ScriptableObject.CreateInstance<ConsumableItemDefinition>();
+
+            SetAutoProperty(definition, "Id", id);
+            SetAutoProperty(definition, "DisplayName", id);
+            SetAutoProperty(definition, "ItemType", ItemType.Potion);
+            SetAutoProperty(definition, "UseType", ConsumableUseType.Potion);
+
+            return definition;
+        }
+
+        private static GameContentCatalog CatalogWith(
+            GameContentCatalog catalog,
+            ItemDefinition definition)
+        {
+            catalog.ItemDefinitions.Add(definition);
+            return catalog;
+        }
+
         private static void SetAutoProperty(
             object target,
             string propertyName,
             object value)
         {
-            var field = target.GetType().GetField(
-                $"<{propertyName}>k__BackingField",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var fieldName = $"<{propertyName}>k__BackingField";
+            var targetType = target.GetType();
+            FieldInfo field = null;
+
+            while (targetType != null && field == null)
+            {
+                field = targetType.GetField(
+                    fieldName,
+                    BindingFlags.Instance
+                    | BindingFlags.NonPublic
+                    | BindingFlags.DeclaredOnly);
+                targetType = targetType.BaseType;
+            }
 
             Assert.That(
                 field,

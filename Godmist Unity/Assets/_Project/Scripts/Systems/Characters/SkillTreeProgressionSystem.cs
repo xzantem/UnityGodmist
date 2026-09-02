@@ -4,12 +4,14 @@ using System.Linq;
 using Godmist.Core.Types;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Systems.Characters
 {
     public class SkillTreeProgressionSystem
     {
-        public const int MaximumPointsPerTree = 50;
+        public static int MaximumPointsPerTree => GameDefinesRuntime.GetInt(
+            GameDefineIds.MaximumPointsPerSkillTree, 50);
 
         private readonly CharacterStatPipelineSystem statPipeline;
 
@@ -135,9 +137,12 @@ namespace Godmist.Systems.Characters
         public static int GetRequiredRanksForTier(int tier)
         {
             if (tier is 1 or 2) return 0;
-            if (tier is 3 or 4) return 10;
-            if (tier is 5 or 6) return 20;
-            if (tier == 7) return 30;
+            if (tier is 3 or 4) return GameDefinesRuntime.GetInt(
+                GameDefineIds.SkillTreeTier34RequiredPoints, 10);
+            if (tier is 5 or 6) return GameDefinesRuntime.GetInt(
+                GameDefineIds.SkillTreeTier56RequiredPoints, 20);
+            if (tier == 7) return GameDefinesRuntime.GetInt(
+                GameDefineIds.SkillTreeTier7RequiredPoints, 30);
             throw new ArgumentOutOfRangeException(nameof(tier));
         }
 

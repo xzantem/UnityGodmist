@@ -1,13 +1,16 @@
 using System;
 using Godmist.Runtime.Characters;
+using Godmist.Data.Configuration;
 using UnityEngine;
 
 namespace Godmist.Systems.Combat
 {
     public class MomentumResourceRule : IResourceRule
     {
-        private const int HighMomentumThreshold = 100;
-        private const int MomentumPerSpentActionPoint = 2;
+        private static int HighMomentumThreshold => GameDefinesRuntime.GetInt(
+            GameDefineIds.MomentumHighThreshold, 100);
+        private static int MomentumPerSpentActionPoint => GameDefinesRuntime.GetInt(
+            GameDefineIds.MomentumPerSpentActionPoint, 2);
 
         public int ProcessTurnStart(ResourcePool pool)
         {
@@ -38,7 +41,8 @@ namespace Godmist.Systems.Combat
             }
 
             var effectiveGain = normalGain
-                + rawGain * 0.5f
+                + rawGain * GameDefinesRuntime.GetFloat(
+                    GameDefineIds.MomentumHighThresholdEfficiency, .5f)
                 + pool.FractionalGainRemainder;
 
             var wholeGain = Mathf.FloorToInt(effectiveGain);

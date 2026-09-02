@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
@@ -20,8 +21,15 @@ namespace Godmist.Systems.Combat
         private readonly DungeonBattleGridFactory dungeonBattleGridFactory = new();
         private readonly DungeonCombatSpawnResolver dungeonCombatSpawnResolver = new();
 
+        public CombatSessionFactory(CombatRewardSystem rewardSystem = null)
+            : this(
+                GameDefinesRuntime.GetFloat(GameDefineIds.ActionPointsPerSpeed, .25f),
+                rewardSystem)
+        {
+        }
+
         public CombatSessionFactory(
-            float actionPointsPerSpeed = 0.25f,
+            float actionPointsPerSpeed,
             CombatRewardSystem rewardSystem = null)
         {
             this.actionPointsPerSpeed = actionPointsPerSpeed;

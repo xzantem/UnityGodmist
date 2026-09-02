@@ -1,0 +1,1841 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f85d8cd2fbe485ba0c73d7f232d5e91, type: 3}
+  m_Name: GameDefines
+  m_EditorClassIdentifier: Data::Godmist.Data.Configuration.GameDefines
+  entries:
+  - Id: economy.trader.relevant_sell_multiplier
+    DisplayName: "Sprzeda\u017C w\u0142a\u015Bciwego typu"
+    Description: "Mno\u017Cnik ceny sprzeda\u017Cy itemu zgodnego z ofert\u0105 tradera."
+    Category: 0
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.trader.irrelevant_sell_multiplier
+    DisplayName: "Sprzeda\u017C innego typu"
+    Description: "Mno\u017Cnik ceny sprzeda\u017Cy itemu spoza oferty tradera."
+    Category: 0
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.action_points_per_speed
+    DisplayName: AP na punkt Speed
+    Description: "Ile maksymalnych punkt\xF3w akcji daje jeden punkt Speed."
+    Category: 1
+    Unit: AP/Speed
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.base_action_value
+    DisplayName: "Bazowa warto\u015B\u0107 AV"
+    Description: "Sta\u0142a u\u017Cywana do przeliczania Speed na kolejno\u015B\u0107
+      tur."
+    Category: 1
+    Unit: AV
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 10000
+    CurrentFloatValue: 10000
+    MinimumFloatValue: 1
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.escape.base_chance_percent
+    DisplayName: Bazowa szansa ucieczki
+    Description: "Szansa pierwszej pr\xF3by ucieczki."
+    Category: 1
+    Unit: '%'
+    ValueType: 0
+    DefaultIntegerValue: 60
+    CurrentIntegerValue: 60
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.escape.chance_increase_percent
+    DisplayName: Wzrost szansy ucieczki
+    Description: "Wzrost szansy po nieudanej pr\xF3bie ucieczki."
+    Category: 1
+    Unit: '%'
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.interaction.action_point_percent
+    DisplayName: Koszt interakcji
+    Description: "Procent maksymalnych AP zu\u017Cywany przez interakcj\u0119 bojow\u0105."
+    Category: 1
+    Unit: '% AP'
+    ValueType: 0
+    DefaultIntegerValue: 20
+    CurrentIntegerValue: 20
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.downed_turn_limit
+    DisplayName: Limit tur powalenia
+    Description: "Liczba tur, po kt\xF3rych powalona jednostka umiera."
+    Category: 1
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.chill.maximum_speed
+    DisplayName: Maksymalny Speed przy Chill
+    Description: "G\xF3rny limit Speed podczas dzia\u0142ania Chill."
+    Category: 1
+    Unit: Speed
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 20
+    CurrentFloatValue: 20
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.rage.per_hit
+    DisplayName: Rage za trafienie
+    Description: "Ilo\u015B\u0107 Rage otrzymywana za udane trafienie."
+    Category: 1
+    Unit: Rage
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.rage.decay_per_missed_turn
+    DisplayName: Utrata Rage
+    Description: "Ilo\u015B\u0107 Rage tracona po turze bez wygenerowania Rage."
+    Category: 1
+    Unit: Rage
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.momentum.high_threshold
+    DisplayName: "Pr\xF3g wysokiego Momentum"
+    Description: "Pr\xF3g, powy\u017Cej kt\xF3rego Momentum jest generowane z obni\u017Con\u0105
+      efektywno\u015Bci\u0105."
+    Category: 1
+    Unit: Momentum
+    ValueType: 0
+    DefaultIntegerValue: 100
+    CurrentIntegerValue: 100
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 10000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.momentum.per_spent_action_point
+    DisplayName: Momentum za AP ruchu
+    Description: "Ilo\u015B\u0107 Momentum generowana za wydany punkt akcji ruchu."
+    Category: 1
+    Unit: Momentum/AP
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.momentum.high_threshold_efficiency
+    DisplayName: "Efektywno\u015B\u0107 wysokiego Momentum"
+    Description: "Mno\u017Cnik generowania Momentum powy\u017Cej progu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.tolerance_per_stack
+    DisplayName: Tolerancja statusu za stack
+    Description: "Redukcja szansy aplikacji statusu za ka\u017Cdy stack tolerancji."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.revive.health
+    DisplayName: Zdrowie po wskrzeszeniu
+    Description: "Ilo\u015B\u0107 zdrowia przywracana przez bazowe wskrzeszenie."
+    Category: 1
+    Unit: HP
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.default_range
+    DisplayName: "Bazowy zasi\u0119g bomby"
+    Description: "Pocz\u0105tkowy zasi\u0119g wyboru celu bomby."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.default_area_size
+    DisplayName: Bazowy obszar bomby
+    Description: "Pocz\u0105tkowy bok obszaru dzia\u0142ania bomby."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.max_range
+    DisplayName: "Maksymalny zasi\u0119g bomby"
+    Description: "Maksymalny zasi\u0119g wyboru celu bomby."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 8
+    CurrentIntegerValue: 8
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.max_area_size
+    DisplayName: Maksymalny obszar bomby
+    Description: "Maksymalny bok obszaru dzia\u0142ania bomby."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.max_charges
+    DisplayName: Maksymalna liczba charges
+    Description: "Maksymalna liczba charges consumabla po uwzgl\u0119dnieniu catalyst\xF3w."
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.socket_capacity_at_full_upgrade
+    DisplayName: "Sockety przy pe\u0142nym upgrade"
+    Description: "Liczba socket\xF3w przy 100% ulepszenia wyposa\u017Cenia."
+    Category: 2
+    Unit: sockety
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.base_weapon_accuracy
+    DisplayName: "Bazowa celno\u015B\u0107 broni"
+    Description: "Tymczasowa bazowa celno\u015B\u0107 przed pe\u0142nym wyliczaniem
+      equipmentu."
+    Category: 2
+    Unit: '%'
+    ValueType: 0
+    DefaultIntegerValue: 100
+    CurrentIntegerValue: 100
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.party.default_max_active_members
+    DisplayName: "Limit aktywnej dru\u017Cyny"
+    Description: "Domy\u015Blna maksymalna liczba aktywnych cz\u0142onk\xF3w dru\u017Cyny."
+    Category: 5
+    Unit: postacie
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 20
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_loadout.default_capacity
+    DisplayName: Limit aktywnych skilli
+    Description: Bazowa liczba miejsc na aktywne skille.
+    Category: 5
+    Unit: skille
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.scout.default_max_knives
+    DisplayName: "Limit no\u017Cy zwiadowcy"
+    Description: "Domy\u015Blna liczba no\u017Cy dost\u0119pnych zwiadowcy w walce."
+    Category: 1
+    Unit: "no\u017Ce"
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.duration.tier_1
+    DisplayName: Catalyst duration tier 1
+    Description: Dodatkowa liczba tur dla catalystu Duration na tierze 1.
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.duration.tier_2
+    DisplayName: Catalyst duration tier 2
+    Description: Dodatkowa liczba tur dla catalystu Duration na tierze 2.
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.duration.tier_3
+    DisplayName: Catalyst duration tier 3
+    Description: Dodatkowa liczba tur dla catalystu Duration na tierze 3.
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.duration.tier_4
+    DisplayName: Catalyst duration tier 4
+    Description: Dodatkowa liczba tur dla catalystu Duration na tierze 4.
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.duration.tier_5
+    DisplayName: Catalyst duration tier 5
+    Description: Dodatkowa liczba tur dla catalystu Duration na tierze 5.
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.strength.tier_1
+    DisplayName: Catalyst strength tier 1
+    Description: "Premia si\u0142y catalystu Strength na tierze 1."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.strength.tier_2
+    DisplayName: Catalyst strength tier 2
+    Description: "Premia si\u0142y catalystu Strength na tierze 2."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.12
+    CurrentFloatValue: 0.12
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.strength.tier_3
+    DisplayName: Catalyst strength tier 3
+    Description: "Premia si\u0142y catalystu Strength na tierze 3."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.15
+    CurrentFloatValue: 0.15
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.strength.tier_4
+    DisplayName: Catalyst strength tier 4
+    Description: "Premia si\u0142y catalystu Strength na tierze 4."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.2
+    CurrentFloatValue: 0.2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.strength.tier_5
+    DisplayName: Catalyst strength tier 5
+    Description: "Premia si\u0142y catalystu Strength na tierze 5."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.3
+    CurrentFloatValue: 0.3
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.range.tier_1
+    DisplayName: Catalyst range tier 1
+    Description: "Premia zasi\u0119gu catalystu Range na tierze 1."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.range.tier_2
+    DisplayName: Catalyst range tier 2
+    Description: "Premia zasi\u0119gu catalystu Range na tierze 2."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.range.tier_3
+    DisplayName: Catalyst range tier 3
+    Description: "Premia zasi\u0119gu catalystu Range na tierze 3."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.range.tier_4
+    DisplayName: Catalyst range tier 4
+    Description: "Premia zasi\u0119gu catalystu Range na tierze 4."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.range.tier_5
+    DisplayName: Catalyst range tier 5
+    Description: "Premia zasi\u0119gu catalystu Range na tierze 5."
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.area.tier_1
+    DisplayName: Catalyst area tier 1
+    Description: Rozmiar obszaru catalystu Range na tierze 1.
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.area.tier_2
+    DisplayName: Catalyst area tier 2
+    Description: Rozmiar obszaru catalystu Range na tierze 2.
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.area.tier_3
+    DisplayName: Catalyst area tier 3
+    Description: Rozmiar obszaru catalystu Range na tierze 3.
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.area.tier_4
+    DisplayName: Catalyst area tier 4
+    Description: Rozmiar obszaru catalystu Range na tierze 4.
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.area.tier_5
+    DisplayName: Catalyst area tier 5
+    Description: Rozmiar obszaru catalystu Range na tierze 5.
+    Category: 2
+    Unit: pola
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.charges.tier_1
+    DisplayName: Catalyst charges tier 1
+    Description: Premia charges catalystu Charges na tierze 1.
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.charges.tier_2
+    DisplayName: Catalyst charges tier 2
+    Description: Premia charges catalystu Charges na tierze 2.
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.charges.tier_3
+    DisplayName: Catalyst charges tier 3
+    Description: Premia charges catalystu Charges na tierze 3.
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.charges.tier_4
+    DisplayName: Catalyst charges tier 4
+    Description: Premia charges catalystu Charges na tierze 4.
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.catalyst.charges.tier_5
+    DisplayName: Catalyst charges tier 5
+    Description: Premia charges catalystu Charges na tierze 5.
+    Category: 2
+    Unit: charges
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_progress_base
+    DisplayName: "Upgrade: baza post\u0119pu"
+    Description: "Wsp\xF3\u0142czynnik licznika formu\u0142y kosztu upgrade'u."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 3
+    CurrentFloatValue: 3
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_progress_slope
+    DisplayName: "Upgrade: nachylenie post\u0119pu"
+    Description: "Wsp\xF3\u0142czynnik wzrostu kosztu wraz z post\u0119pem."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 7
+    CurrentFloatValue: 7
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_progress_denominator_base
+    DisplayName: 'Upgrade: baza mianownika'
+    Description: "Bazowa warto\u015B\u0107 mianownika formu\u0142y post\u0119pu."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 12
+    CurrentFloatValue: 12
+    MinimumFloatValue: 0.01
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_progress_denominator_slope
+    DisplayName: 'Upgrade: nachylenie mianownika'
+    Description: "Wsp\xF3\u0142czynnik mianownika formu\u0142y post\u0119pu."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 11
+    CurrentFloatValue: 11
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_chance_base
+    DisplayName: 'Upgrade: baza szansy'
+    Description: "Bazowy wsp\xF3\u0142czynnik cz\u0119\u015Bci zale\u017Cnej od szansy."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 57
+    CurrentFloatValue: 57
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_chance_slope
+    DisplayName: 'Upgrade: nachylenie szansy'
+    Description: "Wsp\xF3\u0142czynnik cz\u0119\u015Bci zale\u017Cnej od szansy."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 37
+    CurrentFloatValue: 37
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_chance_denominator_base
+    DisplayName: 'Upgrade: baza mianownika szansy'
+    Description: "Bazowa warto\u015B\u0107 mianownika cz\u0119\u015Bci zale\u017Cnej
+      od szansy."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 76
+    CurrentFloatValue: 76
+    MinimumFloatValue: 0.01
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.cost_chance_denominator_slope
+    DisplayName: 'Upgrade: nachylenie mianownika szansy'
+    Description: "Wsp\xF3\u0142czynnik mianownika cz\u0119\u015Bci zale\u017Cnej
+      od szansy."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 75
+    CurrentFloatValue: 75
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.value_rarity_base
+    DisplayName: "Upgrade: baza warto\u015Bci rarity"
+    Description: "Bazowa warto\u015B\u0107 u\u017Cywana do wyceny rarity."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 3
+    CurrentFloatValue: 3
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.value_progress_multiplier
+    DisplayName: "Upgrade: mno\u017Cnik progressu"
+    Description: "Wp\u0142yw post\u0119pu na aktualn\u0105 warto\u015B\u0107 wyposa\u017Cenia."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4
+    CurrentFloatValue: 4
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.value_base_multiplier
+    DisplayName: "Upgrade: mno\u017Cnik warto\u015Bci"
+    Description: "Mno\u017Cnik bazowej warto\u015Bci wyposa\u017Cenia."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.failure_progress_loss_min
+    DisplayName: 'Upgrade: minimalna strata'
+    Description: "Minimalna strata post\u0119pu przy nieudanym upgrade'zie."
+    Category: 4
+    Unit: progress
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.failure_progress_loss_max
+    DisplayName: 'Upgrade: maksymalna strata'
+    Description: "Maksymalna strata post\u0119pu przy nieudanym upgrade'zie."
+    Category: 4
+    Unit: progress
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.2
+    CurrentFloatValue: 0.2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.cost_multiplier
+    DisplayName: Koszt reforgingu
+    Description: "Mno\u017Cnik aktualnej warto\u015Bci itemu u\u017Cywany do wyliczenia
+      ceny reforgingu."
+    Category: 4
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.upgrade.success_chance_max
+    DisplayName: Maksymalna szansa upgrade'u
+    Description: Maksymalna dozwolona szansa powodzenia upgrade'u.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.99
+    CurrentFloatValue: 0.99
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.trash.increase_chance
+    DisplayName: 'Reforge Trash: wzrost'
+    Description: Szansa podniesienia rarity z Trash.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.9
+    CurrentFloatValue: 0.9
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.trash.unchanged_chance
+    DisplayName: 'Reforge Trash: bez zmiany'
+    Description: Szansa pozostawienia rarity Trash.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.broken.increase_chance
+    DisplayName: 'Reforge Broken: wzrost'
+    Description: Szansa podniesienia rarity z Broken.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.8
+    CurrentFloatValue: 0.8
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.broken.unchanged_chance
+    DisplayName: 'Reforge Broken: bez zmiany'
+    Description: Szansa pozostawienia rarity Broken.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.15
+    CurrentFloatValue: 0.15
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.damaged.increase_chance
+    DisplayName: 'Reforge Damaged: wzrost'
+    Description: Szansa podniesienia rarity z Damaged.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.8
+    CurrentFloatValue: 0.8
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.damaged.unchanged_chance
+    DisplayName: 'Reforge Damaged: bez zmiany'
+    Description: Szansa pozostawienia rarity Damaged.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.15
+    CurrentFloatValue: 0.15
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.common.increase_chance
+    DisplayName: 'Reforge Common: wzrost'
+    Description: Szansa podniesienia rarity z Common.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.7
+    CurrentFloatValue: 0.7
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.common.unchanged_chance
+    DisplayName: 'Reforge Common: bez zmiany'
+    Description: Szansa pozostawienia rarity Common.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.2
+    CurrentFloatValue: 0.2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.uncommon.increase_chance
+    DisplayName: 'Reforge Uncommon: wzrost'
+    Description: Szansa podniesienia rarity z Uncommon.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.65
+    CurrentFloatValue: 0.65
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.uncommon.unchanged_chance
+    DisplayName: 'Reforge Uncommon: bez zmiany'
+    Description: Szansa pozostawienia rarity Uncommon.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.2
+    CurrentFloatValue: 0.2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.rare.increase_chance
+    DisplayName: 'Reforge Rare: wzrost'
+    Description: Szansa podniesienia rarity z Rare.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.6
+    CurrentFloatValue: 0.6
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.rare.unchanged_chance
+    DisplayName: 'Reforge Rare: bez zmiany'
+    Description: Szansa pozostawienia rarity Rare.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.ancient.increase_chance
+    DisplayName: 'Reforge Ancient: wzrost'
+    Description: Szansa podniesienia rarity z Ancient.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.55
+    CurrentFloatValue: 0.55
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.ancient.unchanged_chance
+    DisplayName: 'Reforge Ancient: bez zmiany'
+    Description: Szansa pozostawienia rarity Ancient.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.legendary.increase_chance
+    DisplayName: 'Reforge Legendary: wzrost'
+    Description: Szansa podniesienia rarity z Legendary.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.45
+    CurrentFloatValue: 0.45
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.legendary.unchanged_chance
+    DisplayName: 'Reforge Legendary: bez zmiany'
+    Description: Szansa pozostawienia rarity Legendary.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.3
+    CurrentFloatValue: 0.3
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.mythic.increase_chance
+    DisplayName: 'Reforge Mythic: wzrost'
+    Description: Szansa podniesienia rarity z Mythic.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.35
+    CurrentFloatValue: 0.35
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: upgrade_reforge.reforge.mythic.unchanged_chance
+    DisplayName: 'Reforge Mythic: bez zmiany'
+    Description: Szansa pozostawienia rarity Mythic.
+    Category: 4
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.4
+    CurrentFloatValue: 0.4
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.character.minimum_level
+    DisplayName: Minimalny poziom postaci
+    Description: "Najni\u017Cszy legalny poziom postaci."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.character.maximum_level
+    DisplayName: Maksymalny poziom postaci
+    Description: "Najwy\u017Cszy legalny poziom postaci."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 50
+    CurrentIntegerValue: 50
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 200
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.experience.formula_coefficient
+    DisplayName: "Wsp\xF3\u0142czynnik XP"
+    Description: "Wsp\xF3\u0142czynnik formu\u0142y XP: coefficient * level^exponent
+      + constant."
+    Category: 5
+    Unit: XP
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 12
+    CurrentFloatValue: 12
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.experience.formula_exponent
+    DisplayName: "Wyk\u0142adnik XP"
+    Description: "Wyk\u0142adnik formu\u0142y wymaganego do\u015Bwiadczenia."
+    Category: 5
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 1.5
+    CurrentFloatValue: 1.5
+    MinimumFloatValue: 0.01
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.experience.formula_constant
+    DisplayName: "Sta\u0142a XP"
+    Description: "Sta\u0142a formu\u0142y wymaganego do\u015Bwiadczenia."
+    Category: 5
+    Unit: XP
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 12
+    CurrentFloatValue: 12
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_points.level_two
+    DisplayName: Punkty skilli na poziomie 2
+    Description: "Liczba punkt\xF3w drzewka przyznawana na drugim poziomie."
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_points.other_levels
+    DisplayName: "Punkty skilli na pozosta\u0142ych poziomach"
+    Description: "Liczba punkt\xF3w drzewka przyznawana na pozosta\u0142ych poziomach."
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_tree.maximum_points
+    DisplayName: "Limit punkt\xF3w drzewka"
+    Description: "Maksymalna liczba punkt\xF3w mo\u017Cliwa do wydania w jednym drzewku."
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 50
+    CurrentIntegerValue: 50
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_tree.tier_3_4_required_points
+    DisplayName: "Pr\xF3g tieru 3-4"
+    Description: "Wymagane punkty do odblokowania tier\xF3w 3 i 4."
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_tree.tier_5_6_required_points
+    DisplayName: "Pr\xF3g tieru 5-6"
+    Description: "Wymagane punkty do odblokowania tier\xF3w 5 i 6."
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 20
+    CurrentIntegerValue: 20
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.skill_tree.tier_7_required_points
+    DisplayName: "Pr\xF3g tieru 7"
+    Description: Wymagane punkty do odblokowania tieru 7.
+    Category: 5
+    Unit: punkty
+    ValueType: 0
+    DefaultIntegerValue: 30
+    CurrentIntegerValue: 30
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.level_2_10
+    DisplayName: "Growth poziom\xF3w 2-10"
+    Description: "Wsp\xF3\u0142czynnik wzrostu statystyk dla poziom\xF3w 2-10."
+    Category: 5
+    Unit: x
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.level_11_20
+    DisplayName: "Growth poziom\xF3w 11-20"
+    Description: "Wsp\xF3\u0142czynnik wzrostu statystyk dla poziom\xF3w 11-20."
+    Category: 5
+    Unit: x
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.level_21_30
+    DisplayName: "Growth poziom\xF3w 21-30"
+    Description: "Wsp\xF3\u0142czynnik wzrostu statystyk dla poziom\xF3w 21-30."
+    Category: 5
+    Unit: x
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.level_31_40
+    DisplayName: "Growth poziom\xF3w 31-40"
+    Description: "Wsp\xF3\u0142czynnik wzrostu statystyk dla poziom\xF3w 31-40."
+    Category: 5
+    Unit: x
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.level_41_50
+    DisplayName: "Growth poziom\xF3w 41-50"
+    Description: "Wsp\xF3\u0142czynnik wzrostu statystyk dla poziom\xF3w 41-50."
+    Category: 5
+    Unit: x
+    ValueType: 0
+    DefaultIntegerValue: 9
+    CurrentIntegerValue: 9
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: exploration.encounter.combat_start_distance
+    DisplayName: "Odleg\u0142o\u015B\u0107 rozpocz\u0119cia walki"
+    Description: "Odleg\u0142o\u015B\u0107, przy kt\xF3rej encounter przechodzi do
+      walki."
+    Category: 6
+    Unit: unity units
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.85
+    CurrentFloatValue: 0.85
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 

@@ -5,37 +5,18 @@ using System.Linq;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Items;
+using Godmist.Data.NPC;
+using Godmist.Data.Dungeons;
 using Godmist.Data.World;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Items;
+using Godmist.Runtime.NPC;
 
 namespace Godmist.Systems.Debugging
 {
     public static class DevConsoleSuggestionService
     {
-        private static readonly string[] commandNames =
-        {
-            "help",
-            "state",
-            "unit",
-            "characters",
-            "gold",
-            "xp",
-            "heal",
-            "resource",
-            "godmode",
-            "sethp",
-            "setresource",
-            "giveitem",
-            "createitem",
-            "createconsumable",
-            "items",
-            "inspectitem",
-            "itemdefs",
-            "encounterdefs",
-            "combat"
-        };
-
         public static IReadOnlyList<string> GetSuggestions(
             string commandLine,
             GameSession gameSession,
@@ -53,20 +34,36 @@ namespace Godmist.Systems.Debugging
                 return Array.Empty<string>();
             }
 
+            var namedArgument = GetNamedArgumentContext(
+                activePrefix,
+                command,
+                out var namedPrefix);
+            var suggestionPrefix = activePrefix;
+
+            if (namedArgument != null)
+            {
+                suggestionPrefix = $"{namedArgument.Name}={namedPrefix}";
+            }
+
             var candidates = tokenIndex == 0
-                ? commandNames.AsEnumerable()
+                ? DevConsoleCommandSchemaRegistry.All
+                    .Select(schema => schema.Name)
                 : GetArgumentCandidates(
                     commandLine,
                     command,
                     tokenIndex,
                     gameSession,
                     combatSession,
-                    contentCatalog);
+                    contentCatalog,
+                    namedArgument)
+                    .Select(candidate => namedArgument == null
+                        ? candidate
+                        : $"{namedArgument.Name}={candidate}");
 
             return candidates
                 .Where(candidate => !string.IsNullOrWhiteSpace(candidate))
                 .Where(candidate => candidate.StartsWith(
-                    activePrefix,
+                    suggestionPrefix,
                     StringComparison.OrdinalIgnoreCase))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(candidate => candidate)
@@ -75,19 +72,11 @@ namespace Godmist.Systems.Debugging
 
         public static bool CommandRequiresArgument(string command)
         {
-            return command == "gold"
-                || command == "xp"
-                || command == "heal"
-                || command == "resource"
-                || command == "godmode"
-                || command == "sethp"
-                || command == "setresource"
-                || command == "giveitem"
-                || command == "createitem"
-                || command == "createconsumable"
-                || command == "inspectitem"
-                || command == "items"
-                || command == "combat";
+            return DevConsoleCommandSchemaRegistry.TryGet(
+                    command,
+                    out var schema)
+                && schema.Signatures.Any(signature => signature.Arguments
+                    .Any(argument => argument.IsRequired));
         }
 
         private static IEnumerable<string> GetArgumentCandidates(
@@ -96,37 +85,27 @@ namespace Godmist.Systems.Debugging
             int tokenIndex,
             GameSession gameSession,
             CombatSession combatSession,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            DevConsoleArgumentDefinition namedArgument)
         {
             var commandTokens = commandLine?.Split(' ', StringSplitOptions.RemoveEmptyEntries)
                 ?? Array.Empty<string>();
-            if (IsCharacterIdArgument(command, tokenIndex))
-            {
-                return GetCharacterIds(gameSession, combatSession);
-            }
 
-            if (command == "giveitem" && tokenIndex == 2)
+            if (namedArgument != null)
             {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition != null)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
-            }
-
-            if (command == "createitem" && tokenIndex == 1)
-            {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition != null)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
+                return GetCandidatesForArgument(
+                    namedArgument,
+                    command,
+                    tokenIndex,
+                    commandTokens,
+                    gameSession,
+                    combatSession,
+                    contentCatalog);
             }
 
             if (command == "createconsumable" && tokenIndex == 1)
             {
-                return contentCatalog?.ItemDefinitions?
-                    .Where(definition => definition is ConsumableItemDefinition)
-                    .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
+                return GetConsumableItemIds(contentCatalog);
             }
 
             if (command == "createconsumable"
@@ -143,25 +122,379 @@ namespace Godmist.Systems.Debugging
                     consumable.UseType);
             }
 
-            if (command == "inspectitem" && tokenIndex == 1
-                && gameSession?.PlayerParty?.ActiveLeaderId is { } leaderId
-                && gameSession.CharactersById.TryGetValue(leaderId, out var leader))
-            {
-                return leader.Inventory?.Items?
-                    .Where(item => item != null)
-                    .Select(item => item.InstanceId)
-                    ?? Enumerable.Empty<string>();
-            }
+            return DevConsoleCommandSchemaRegistry.GetArgumentsAtPosition(
+                    command,
+                    tokenIndex)
+                .SelectMany(argument => GetCandidatesForArgument(
+                    argument,
+                    command,
+                    tokenIndex,
+                    commandTokens,
+                    gameSession,
+                    combatSession,
+                    contentCatalog));
+        }
 
-            if (command == "combat" && tokenIndex == 1)
+        private static IEnumerable<string> GetCandidatesForArgument(
+            DevConsoleArgumentDefinition argument,
+            string command,
+            int tokenIndex,
+            IReadOnlyList<string> commandTokens,
+            GameSession gameSession,
+            CombatSession combatSession,
+            GameContentCatalog contentCatalog)
+        {
+            return argument.Type switch
             {
-                return contentCatalog?.EncounterDefinitions?
-                    .Where(definition => definition != null)
+                DevConsoleArgumentType.CharacterId =>
+                    GetCharacterIds(gameSession, combatSession),
+                DevConsoleArgumentType.ItemId =>
+                    command == "createconsumable"
+                            ? GetConsumableItemIds(contentCatalog)
+                            : command == "craftmaterial"
+                            ? GetCraftRecipeIds(contentCatalog, gameSession, commandTokens)
+                            : GetItemIds(contentCatalog, command, gameSession, commandTokens),
+                DevConsoleArgumentType.EncounterId =>
+                    contentCatalog?.EncounterDefinitions?
+                        .Where(definition => definition != null)
+                        .Select(definition => definition.Id)
+                    ?? Enumerable.Empty<string>(),
+                DevConsoleArgumentType.QuestId => GetQuestIds(
+                    gameSession,
+                    contentCatalog),
+                DevConsoleArgumentType.QuestObjectiveId => GetQuestObjectiveIds(
+                    gameSession,
+                    commandTokens),
+                DevConsoleArgumentType.NpcId => GetNpcIds(command, gameSession),
+                DevConsoleArgumentType.DungeonObjectId => GetDungeonObjectIds(
+                    gameSession,
+                    contentCatalog),
+                DevConsoleArgumentType.String when command == "goto" && tokenIndex == 1 =>
+                    contentCatalog?.DungeonDefinitions?
+                        .Where(definition => definition != null && definition.IsProcedural)
                     .Select(definition => definition.Id)
-                    ?? Enumerable.Empty<string>();
+                    ?? Enumerable.Empty<string>(),
+                DevConsoleArgumentType.String when command == "help" =>
+                    DevConsoleCommandSchemaRegistry.All.Select(schema => schema.Name),
+                DevConsoleArgumentType.String when command == "noclip" =>
+                    new[] { "off", "on" },
+                DevConsoleArgumentType.String when command == "forcecombatresult" =>
+                    new[] { "escape", "loss", "win" },
+                DevConsoleArgumentType.String when command == "triggerdialogue" =>
+                    GetDialogueIds(gameSession),
+                DevConsoleArgumentType.String when command == "inspectroom" =>
+                    GetRoomIds(gameSession),
+                DevConsoleArgumentType.WorldFlagId => gameSession?.WorldState?.FlagsById?
+                        .Where(pair => !string.IsNullOrWhiteSpace(pair.Key))
+                        .Select(pair => pair.Key)
+                    ?? Enumerable.Empty<string>(),
+                DevConsoleArgumentType.EquipmentPartId => GetEquipmentPartIds(
+                    contentCatalog,
+                    commandTokens,
+                    command,
+                    tokenIndex),
+                DevConsoleArgumentType.EquipmentQuality => new[]
+                {
+                    EquipmentQuality.Normal.ToString(),
+                    EquipmentQuality.Poor.ToString(),
+                    EquipmentQuality.Excellent.ToString()
+                },
+                DevConsoleArgumentType.InstanceId =>
+                    GetInventoryInstanceIds(gameSession, command, commandTokens),
+                DevConsoleArgumentType.ResistanceType =>
+                    Enum.GetNames(typeof(ResistanceType)),
+                DevConsoleArgumentType.StatusId => StatusEffectIds.KnownIds,
+                DevConsoleArgumentType.EffectName =>
+                    TryGetConsumableDefinition(
+                            commandTokens,
+                            contentCatalog,
+                            out var consumable)
+                        ? GetLegalEffectNames(consumable.UseType)
+                        : Enumerable.Empty<string>(),
+                _ => Enumerable.Empty<string>()
+            };
+        }
+
+        private static IEnumerable<string> GetQuestIds(
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            var ids = new List<string>();
+
+            if (gameSession?.QuestsById != null)
+            {
+                ids.AddRange(gameSession.QuestsById.Keys);
             }
 
+            if (contentCatalog?.QuestDefinitions != null)
+            {
+                ids.AddRange(contentCatalog.QuestDefinitions
+                    .Where(definition => definition != null)
+                    .Select(definition => definition.Id));
+            }
+
+            return ids;
+        }
+
+        private static IEnumerable<string> GetQuestObjectiveIds(
+            GameSession gameSession,
+            IReadOnlyList<string> commandTokens)
+        {
+            var questId = commandTokens?.Count > 1 ? commandTokens[1] : string.Empty;
+            if (TryGetNamedValue(commandTokens, "questId", out var namedQuestId)) questId = namedQuestId;
+            if (gameSession?.TryGetQuest(questId, out var quest) == true)
+            {
+                return quest.CurrentStage?.Objectives?
+                    .Where(objective => objective != null)
+                    .Select(objective => objective.ObjectiveId)
+                    ?? Enumerable.Empty<string>();
+            }
             return Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetDungeonObjectIds(
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            var activeDefinitions = gameSession?.ActiveDungeon?.Definition?.ObjectDefinitions;
+            if (activeDefinitions != null && activeDefinitions.Count > 0)
+            {
+                return activeDefinitions.Where(definition => definition != null).Select(definition => definition.Id);
+            }
+            return contentCatalog?.DungeonDefinitions?
+                .SelectMany(definition => definition?.ObjectDefinitions ?? new List<DungeonObjectDefinition>())
+                .Where(definition => definition != null)
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetDialogueIds(GameSession gameSession)
+        {
+            return gameSession?.NpcsById?.Values
+                .Where(npc => npc?.Definition?.BaseDialogue != null)
+                .Select(npc => npc.Definition.BaseDialogue.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetRoomIds(GameSession gameSession)
+        {
+            return gameSession?.ActiveDungeon?.Floors?
+                .FirstOrDefault(floor => floor.FloorIndex == gameSession.ActiveDungeon.CurrentFloorIndex)?
+                .Rooms
+                .Where(room => room != null)
+                .Select(room => room.RoomId)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetCraftRecipeIds(
+            GameContentCatalog contentCatalog,
+            GameSession gameSession,
+            IReadOnlyList<string> commandTokens)
+        {
+            var blacksmith = GetNpcFromTokens(gameSession, commandTokens);
+            var role = blacksmith?.Definition?.Roles?
+                .OfType<IMaterialCraftingSpecialist>()
+                .FirstOrDefault();
+            if (role?.MaterialRecipes != null && role.MaterialRecipes.Count > 0)
+            {
+                return role.MaterialRecipes
+                    .Where(recipe => recipe != null)
+                    .Where(recipe => contentCatalog != null
+                        && contentCatalog.TryGetItem(recipe.Id, out var catalogRecipe)
+                        && catalogRecipe is CraftableItemDefinition)
+                    .Select(recipe => recipe.Id);
+            }
+
+            return contentCatalog?.ItemDefinitions?
+                .OfType<CraftableItemDefinition>()
+                .Where(definition => definition.CraftingDiscipline != MaterialDiscipline.None)
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetNpcIds(
+            string command,
+            GameSession gameSession)
+        {
+            var npcs = gameSession?.NpcsById?.Values
+                .Where(npc => npc != null)
+                ?? Enumerable.Empty<NpcInstance>();
+
+            if (command == "craftmaterial")
+            {
+                npcs = npcs.Where(npc => npc.Definition?.Roles?
+                    .OfType<IMaterialCraftingSpecialist>()
+                    .Any() == true);
+            }
+            else if (command is "craftequipment" or "upgrade" or "reforge")
+            {
+                npcs = npcs.Where(npc => npc.Definition?.GetRole<BlacksmithRoleData>() != null);
+            }
+
+            return npcs.Select(npc => npc.NpcId);
+        }
+
+        private static IEnumerable<string> GetItemIds(
+            GameContentCatalog contentCatalog,
+            string command,
+            GameSession gameSession,
+            IReadOnlyList<string> commandTokens)
+        {
+            if (command == "craftequipment")
+            {
+                var role = GetNpcFromTokens(gameSession, commandTokens)?.Definition
+                    ?.GetRole<BlacksmithRoleData>();
+                if (role?.ClassOffers != null && role.ClassOffers.Count > 0)
+                {
+                    return role.ClassOffers
+                        .Where(offer => offer != null)
+                        .SelectMany(offer => new[] { offer.WeaponBase, offer.ArmorBase })
+                        .Where(definition => definition != null)
+                        .Where(definition => contentCatalog != null
+                            && contentCatalog.TryGetItem(definition.Id, out var catalogDefinition)
+                            && catalogDefinition is EquipmentItemDefinition)
+                        .Select(definition => definition.Id);
+                }
+            }
+
+            return contentCatalog?.ItemDefinitions?
+                .Where(definition => definition != null
+                    && (command != "craftequipment"
+                        || definition is EquipmentItemDefinition))
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetEquipmentPartIds(
+            GameContentCatalog contentCatalog,
+            IReadOnlyList<string> commandTokens,
+            string command,
+            int tokenIndex)
+        {
+            var definitions = contentCatalog?.EquipmentPartDefinitions?
+                .Where(definition => definition != null)
+                ?? Enumerable.Empty<EquipmentPartDefinition>();
+
+            if (command != "craftequipment"
+                || commandTokens == null
+                || commandTokens.Count < 3)
+            {
+                return definitions.Select(definition => definition.Id);
+            }
+
+            var itemId = commandTokens[2];
+            if (TryGetNamedValue(commandTokens, "itemId", out var namedItemId))
+            {
+                itemId = namedItemId;
+            }
+
+            if (!contentCatalog.TryGetItem(itemId, out var item)
+                || item is not EquipmentItemDefinition equipment
+                || equipment.RequiredClass == null)
+            {
+                return definitions.Select(definition => definition.Id);
+            }
+
+            var expectedKind = tokenIndex switch
+            {
+                4 => equipment.ItemType == ItemType.Weapon
+                    ? EquipmentPartKind.WeaponHead
+                    : EquipmentPartKind.ArmorPlate,
+                5 => equipment.ItemType == ItemType.Weapon
+                    ? EquipmentPartKind.WeaponBinder
+                    : EquipmentPartKind.ArmorBinder,
+                _ => equipment.ItemType == ItemType.Weapon
+                    ? EquipmentPartKind.WeaponHandle
+                    : EquipmentPartKind.ArmorBase
+            };
+
+            return definitions
+                .Where(definition => definition.RequiredClass == equipment.RequiredClass
+                    && definition.Kind == expectedKind
+                    && definition.Stats != null)
+                .Select(definition => definition.Id);
+        }
+
+        private static NpcInstance GetNpcFromTokens(
+            GameSession gameSession,
+            IReadOnlyList<string> commandTokens)
+        {
+            var npcId = commandTokens?.Count > 1 ? commandTokens[1] : string.Empty;
+            if (TryGetNamedValue(commandTokens, "npcId", out var namedNpcId))
+            {
+                npcId = namedNpcId;
+            }
+
+            return gameSession?.NpcsById?.Values.FirstOrDefault(npc =>
+                npc != null
+                && string.Equals(npc.NpcId, npcId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool TryGetNamedValue(
+            IReadOnlyList<string> tokens,
+            string argumentName,
+            out string value)
+        {
+            value = string.Empty;
+            if (tokens == null) return false;
+
+            foreach (var token in tokens)
+            {
+                var separator = token?.IndexOf('=') ?? -1;
+                if (separator <= 0
+                    || !string.Equals(token.Substring(0, separator), argumentName, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                value = token.Substring(separator + 1);
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<string> GetConsumableItemIds(
+            GameContentCatalog contentCatalog)
+        {
+            return contentCatalog?.ItemDefinitions?
+                .Where(definition => definition is ConsumableItemDefinition consumable
+                    && consumable.UseType != ConsumableUseType.Utility)
+                .Select(definition => definition.Id)
+                ?? Enumerable.Empty<string>();
+        }
+
+        private static IEnumerable<string> GetInventoryInstanceIds(
+            GameSession gameSession,
+            string command = null,
+            IReadOnlyList<string> commandTokens = null)
+        {
+            if (gameSession?.PlayerParty?.ActiveMemberIds == null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            var characterIds = gameSession.PlayerParty.ActiveMemberIds;
+            if (string.Equals(command, "removeitem", StringComparison.OrdinalIgnoreCase)
+                && commandTokens?.Count > 1)
+            {
+                characterIds = new[] { commandTokens[1] };
+            }
+
+            return characterIds
+                .Where(gameSession.CharactersById.ContainsKey)
+                .SelectMany(characterId =>
+                {
+                    var character = gameSession.CharactersById[characterId];
+                    var inventoryItems = character?.Inventory?.Items
+                        ?? Enumerable.Empty<ItemInstance>();
+                    var equippedItems = character?.Equipment?.GetEquippedItems()
+                        ?? Enumerable.Empty<EquipmentItemInstance>();
+                    return inventoryItems.Concat(equippedItems);
+                })
+                .Where(item => item != null)
+                .Select(item => item.InstanceId)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
         }
 
         private static bool TryGetConsumableDefinition(
@@ -171,11 +504,81 @@ namespace Godmist.Systems.Debugging
         {
             consumable = null;
 
-            return commandTokens != null
-                && commandTokens.Count >= 2
+            var itemId = commandTokens?.Count >= 2
+                ? commandTokens[1]
+                : string.Empty;
+
+            if (commandTokens != null)
+            {
+                foreach (var token in commandTokens.Skip(1))
+                {
+                    if (!TrySplitNamedArgument(
+                            token,
+                            out var name,
+                            out var value)
+                        || !string.Equals(
+                            name,
+                            "itemId",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    itemId = value;
+                    break;
+                }
+            }
+
+            return !string.IsNullOrWhiteSpace(itemId)
                 && contentCatalog != null
-                && contentCatalog.TryGetItem(commandTokens[1], out var selectedDefinition)
+                && contentCatalog.TryGetItem(itemId, out var selectedDefinition)
                 && (consumable = selectedDefinition as ConsumableItemDefinition) != null;
+        }
+
+        private static DevConsoleArgumentDefinition GetNamedArgumentContext(
+            string activePrefix,
+            string command,
+            out string namedPrefix)
+        {
+            namedPrefix = activePrefix;
+            var separatorIndex = activePrefix?.IndexOf('=') ?? -1;
+
+            if (separatorIndex <= 0)
+            {
+                return null;
+            }
+
+            var argumentName = activePrefix.Substring(0, separatorIndex);
+
+            if (!DevConsoleCommandSchemaRegistry.TryGetArgument(
+                    command,
+                    argumentName,
+                    out var argument))
+            {
+                return null;
+            }
+
+            namedPrefix = activePrefix.Substring(separatorIndex + 1);
+            return argument;
+        }
+
+        private static bool TrySplitNamedArgument(
+            string token,
+            out string name,
+            out string value)
+        {
+            name = string.Empty;
+            value = string.Empty;
+            var separatorIndex = token?.IndexOf('=') ?? -1;
+
+            if (separatorIndex <= 0 || separatorIndex >= token.Length - 1)
+            {
+                return false;
+            }
+
+            name = token.Substring(0, separatorIndex);
+            value = token.Substring(separatorIndex + 1);
+            return true;
         }
 
         private static IEnumerable<string> GetLegalEffectNames(ConsumableUseType useType)
@@ -225,6 +628,7 @@ namespace Godmist.Systems.Debugging
             ConsumableUseType useType)
         {
             var position = 2;
+            var effectCount = 0;
 
             while (position < tokenIndex)
             {
@@ -232,6 +636,15 @@ namespace Godmist.Systems.Debugging
                 {
                     return Enumerable.Empty<string>();
                 }
+
+                if (!GetLegalEffectNames(useType).Contains(
+                        effectType.ToString(),
+                        StringComparer.OrdinalIgnoreCase))
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                effectCount++;
 
                 position++;
 
@@ -276,31 +689,16 @@ namespace Godmist.Systems.Debugging
                 return Enumerable.Empty<string>();
             }
 
+            if (effectCount >= 3)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             // Repeated runtime effects are intentional: a potion may contain
             // the same effect more than once, and bombs may stack the same
             // damage/status component. Keep all legal names available after
             // every completed value/duration pair.
             return GetLegalEffectNames(useType);
-        }
-
-        private static bool IsCharacterIdArgument(
-            string command,
-            int tokenIndex)
-        {
-            if (tokenIndex != 1)
-            {
-                return false;
-            }
-
-            return command == "xp"
-                || command == "heal"
-                || command == "unit"
-                || command == "resource"
-                || command == "godmode"
-                || command == "sethp"
-                || command == "setresource"
-                || command == "items"
-                || command == "giveitem";
         }
 
         private static IEnumerable<string> GetCharacterIds(

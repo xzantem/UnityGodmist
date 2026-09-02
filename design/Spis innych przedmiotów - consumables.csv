@@ -1,0 +1,4 @@
+id,name,item_type,use_type,max_charges,price,rarity,stackable
+item.consumable.bandage,Bandaż,Tool,Utility,1,186,Uncommon,false
+item.consumable.antidote,Antidotum,Tool,Utility,1,262,Uncommon,false
+item.consumable.damp_towel,Sucha Szmatka,Tool,Utility,1,56,Uncommon,false

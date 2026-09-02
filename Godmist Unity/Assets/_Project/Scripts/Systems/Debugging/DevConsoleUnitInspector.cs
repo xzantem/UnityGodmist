@@ -325,12 +325,7 @@ namespace Godmist.Systems.Debugging
 
         private static float GetDamageOverTimeMultiplier(float resistance)
         {
-            if (resistance <= 0.5f)
-            {
-                return 2f - 2f * resistance;
-            }
-
-            return 1.5f - resistance;
+            return DamageOverTimePassiveEffectProcessor.CalculateDamageMultiplier(resistance);
         }
 
         private static void AppendInventory(

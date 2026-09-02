@@ -5,6 +5,7 @@ using System.Linq;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Configuration;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
@@ -33,9 +34,6 @@ namespace Godmist.Views.Combat
         [Header("Config")]
         [SerializeField] private int gridWidth = 8;
         [SerializeField] private int gridHeight = 8;
-
-        [Header("AP Config")]
-        [SerializeField] private float actionPointsPerSpeed = 0.25f;
 
         [Header("AI Presentation")]
         [SerializeField, Min(0f)] private float aiDecisionDelay = 0.65f;
@@ -256,7 +254,8 @@ namespace Godmist.Views.Combat
             {
                 CombatId = "sandbox.combat.01",
                 Outcome = CombatOutcomeState.Ongoing,
-                ActionPointsPerSpeed = actionPointsPerSpeed,
+                ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
+                    GameDefineIds.ActionPointsPerSpeed, .25f),
                 Grid = new BattleGrid(gridWidth, gridHeight),
                 Units = new List<BattleUnit>()
             };
@@ -379,7 +378,8 @@ namespace Godmist.Views.Combat
             instance.Stats.CritDamage = new Core.Types.Stat(1.5f);
             instance.Stats.ResourceRegeneration = new Core.Types.Stat(0);
             instance.ResourcePool = new ResourcePool(resourceType, resourceCurrent, resourceMax, 0);
-            var maxAp = turnSystem.CalculateMaxActionPoints(instance, actionPointsPerSpeed);
+            var maxAp = turnSystem.CalculateMaxActionPoints(instance, GameDefinesRuntime.GetFloat(
+                GameDefineIds.ActionPointsPerSpeed, .25f));
 
             return new BattleUnit
             {
@@ -815,6 +815,19 @@ namespace Godmist.Views.Combat
             }
 
             turnSystem.EndActiveTurn(Session);
+        }
+
+        public bool TryForceOutcome(CombatOutcomeState outcome)
+        {
+            if (Session == null
+                || Session.Outcome != CombatOutcomeState.Ongoing
+                || outcome == CombatOutcomeState.Ongoing)
+            {
+                return false;
+            }
+
+            Session.Outcome = outcome;
+            return true;
         }
 
         public Dictionary<GridPosition, List<GridPosition>>
@@ -1490,7 +1503,7 @@ namespace Godmist.Views.Combat
             if (scenarioRunner != null
                 && scenarioRunner.TryCreateSession(
                     gameSession,
-                    actionPointsPerSpeed,
+                    GameDefinesRuntime.GetFloat(GameDefineIds.ActionPointsPerSpeed, .25f),
                     out var encounterSession))
             {
                 return encounterSession;

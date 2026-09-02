@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Combat;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
@@ -135,7 +136,8 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                character.Honor -= 5;
+                character.Honor -= GameDefinesRuntime.GetInt(
+                    GameDefineIds.EscapeHonorPenalty, 5);
             }
 
             combatSession.EscapePenaltyApplied = true;

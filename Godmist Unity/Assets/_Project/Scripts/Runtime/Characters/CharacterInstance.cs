@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Configuration;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
@@ -35,7 +36,9 @@ namespace Godmist.Runtime.Characters
 
         public int CurrentHealth;
         public int Honor;
-        public float WeaponAccuracy = 100f; // Temporary effective value, equipment will calculate it later
+        // Temporary effective value, equipment will calculate it later.
+        public float WeaponAccuracy = GameDefinesRuntime.GetFloat(
+            GameDefineIds.BaseWeaponAccuracy, 100f);
         [NonSerialized] public bool DebugIsInvulnerable;
 
         public CharacterLifeState LifeState;

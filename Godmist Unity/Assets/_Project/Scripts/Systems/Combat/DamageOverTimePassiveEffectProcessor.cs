@@ -1,6 +1,7 @@
 using System;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -134,16 +135,26 @@ namespace Godmist.Systems.Combat
             return ModifyResistanceSystem.GetModifier(unit, type);
         }
 
-        private static float CalculateDamageMultiplier(float resistance)
+        public static float CalculateDamageMultiplier(float resistance)
         {
             resistance = Mathf.Clamp01(resistance);
+            var halfPoint = GameDefinesRuntime.GetFloat(
+                GameDefineIds.DotResistanceHalfPoint, .5f);
+            var lowMultiplier = GameDefinesRuntime.GetFloat(
+                GameDefineIds.DotResistanceLowMultiplier, 2f);
+            var lowSlope = GameDefinesRuntime.GetFloat(
+                GameDefineIds.DotResistanceLowSlope, 2f);
+            var highBase = GameDefinesRuntime.GetFloat(
+                GameDefineIds.DotResistanceHighBase, 1.5f);
+            var highSlope = GameDefinesRuntime.GetFloat(
+                GameDefineIds.DotResistanceHighSlope, 1f);
 
-            if (resistance <= 0.5f)
+            if (resistance <= halfPoint)
             {
-                return 2f - 2f * resistance;
+                return lowMultiplier - lowSlope * resistance;
             }
 
-            return 1.5f - resistance;
+            return highBase - highSlope * resistance;
         }
     }
 }

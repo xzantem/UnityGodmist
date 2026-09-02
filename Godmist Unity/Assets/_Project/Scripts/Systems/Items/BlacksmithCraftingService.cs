@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Characters;
@@ -388,8 +389,10 @@ namespace Godmist.Systems.Items
 
         private static float GetQualityCostMultiplier(EquipmentQuality quality) => quality switch
         {
-            EquipmentQuality.Poor => 0.5f,
-            EquipmentQuality.Excellent => 2f,
+            EquipmentQuality.Poor => GameDefinesRuntime.GetFloat(
+                GameDefineIds.EquipmentPoorQualityCostMultiplier, .5f),
+            EquipmentQuality.Excellent => GameDefinesRuntime.GetFloat(
+                GameDefineIds.EquipmentExcellentQualityCostMultiplier, 2f),
             _ => 1f
         };
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
@@ -16,7 +17,8 @@ namespace Godmist.Systems.Combat
     {
         public const string StunId = StatusEffectIds.Stun;
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
-        public const float ChillMaximumSpeed = 20f;
+        public static float ChillMaximumSpeed => GameDefinesRuntime.GetFloat(
+            GameDefineIds.ChillMaximumSpeed, 20f);
 
         public static bool IsDamageOverTimeStatus(string statusId)
         {
@@ -1003,55 +1005,80 @@ namespace Godmist.Systems.Combat
                 return 0f;
             }
 
-            if (r <= 0.5f)
+            var resistanceHalfPoint = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceResistanceHalfPoint, .5f);
+            var resistanceMultiplier = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceResistanceMultiplier, 2f);
+
+            if (r <= resistanceHalfPoint)
             {
                 var bonus = EvaluateChanceBonus(s);
 
                 return Mathf.Clamp01(
-                    s + (1f - 2f * r) * (1f - s) * bonus);
+                    s + (1f - r / Mathf.Max(.0001f, resistanceHalfPoint))
+                    * (1f - s) * bonus);
             }
 
-            return Mathf.Clamp01((2f - 2f * r) * s);
+            return Mathf.Clamp01(resistanceMultiplier * (1f - r) * s);
         }
 
         private static float EvaluateChanceBonus(float baseChance)
         {
-            if (baseChance <= 0.01f)
+            var input1 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveInput1, .01f);
+            var input2 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveInput2, .03f);
+            var input3 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveInput3, .25f);
+            var input4 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveInput4, .5f);
+            var output1 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveOutput1, .0404f);
+            var output2 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveOutput2, .0722f);
+            var output3 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveOutput3, .3333f);
+            var output4 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveOutput4, .4f);
+            var output5 = GameDefinesRuntime.GetFloat(
+                GameDefineIds.StatusChanceCurveOutput5, 0f);
+
+            if (baseChance <= input1)
             {
                 return Mathf.Lerp(
                     0f,
-                    0.0404f,
-                    baseChance / 0.01f);
+                    output1,
+                    baseChance / Mathf.Max(.0001f, input1));
             }
 
-            if (baseChance <= 0.03f)
+            if (baseChance <= input2)
             {
                 return Mathf.Lerp(
-                    0.0404f,
-                    0.0722f,
-                    (baseChance - 0.01f) / 0.02f);
+                    output1,
+                    output2,
+                    (baseChance - input1) / Mathf.Max(.0001f, input2 - input1));
             }
 
-            if (baseChance <= 0.25f)
+            if (baseChance <= input3)
             {
                 return Mathf.Lerp(
-                    0.0722f,
-                    0.3333f,
-                    (baseChance - 0.03f) / 0.22f);
+                    output2,
+                    output3,
+                    (baseChance - input2) / Mathf.Max(.0001f, input3 - input2));
             }
 
-            if (baseChance <= 0.5f)
+            if (baseChance <= input4)
             {
                 return Mathf.Lerp(
-                    0.3333f,
-                    0.4f,
-                    (baseChance - 0.25f) / 0.25f);
+                    output3,
+                    output4,
+                    (baseChance - input3) / Mathf.Max(.0001f, input4 - input3));
             }
 
             return Mathf.Lerp(
-                0.4f,
-                0f,
-                (baseChance - 0.5f) / 0.5f);
+                output4,
+                output5,
+                (baseChance - input4) / Mathf.Max(.0001f, 1f - input4));
         }
 
         private static float GetResistance(

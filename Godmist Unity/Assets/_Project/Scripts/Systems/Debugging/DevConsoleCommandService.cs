@@ -4,14 +4,22 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Godmist.Core.Enums;
+using Godmist.Data.NPC;
+using Godmist.Data.Quests;
 using Godmist.Data.World;
 using Godmist.Data.Items;
+using Godmist.Data.Dungeons;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
+using Godmist.Runtime.NPC;
+using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
+using Godmist.Systems.Combat;
+using UnityEngine;
 
 namespace Godmist.Systems.Debugging
 {
@@ -33,30 +41,52 @@ namespace Godmist.Systems.Debugging
         private readonly InventoryService inventoryService = new();
         private readonly ItemInstanceFactory itemInstanceFactory = new();
         private readonly EquipmentGenerationService equipmentGenerationService = new();
+        private readonly MaterialCraftingService materialCraftingService = new();
+        private readonly BlacksmithCraftingService blacksmithCraftingService = new();
+        private readonly EquipmentUpgradeService equipmentUpgradeService = new();
+        private readonly StatusEffectSystem statusEffectSystem = new();
+
+        private int? debugSeed;
+
+        public int? DebugSeed => debugSeed;
 
         public DevConsoleCommandResult Execute(
             string commandLine,
             GameSession gameSession,
             CombatSession combatSession,
             GameContentCatalog contentCatalog = null,
-            Func<string, DevConsoleCommandResult> combatHandler = null)
+            Func<string, DevConsoleCommandResult> combatHandler = null,
+            Func<bool?, DevConsoleCommandResult> noclipHandler = null,
+            Func<float, float, DevConsoleCommandResult> teleportHandler = null,
+            Func<IReadOnlyList<string>, int?, DevConsoleCommandResult> gotoHandler = null,
+            Func<int, DevConsoleCommandResult> advanceHandler = null,
+            Func<float, DevConsoleCommandResult> tickHandler = null,
+            Func<CombatOutcomeState, DevConsoleCommandResult> forceCombatResultHandler = null,
+            Func<string, DevConsoleCommandResult> dialogueHandler = null)
         {
             if (string.IsNullOrWhiteSpace(commandLine))
             {
                 return Fail("Wpisz komendę albo użyj: help");
             }
 
-            var tokens = commandLine.Split(
-                ' ',
-                StringSplitOptions.RemoveEmptyEntries);
+            if (!DevConsoleCommandSchemaParser.TryNormalize(
+                    commandLine,
+                    out var tokens,
+                    out var schemaError))
+            {
+                return Fail(schemaError);
+            }
 
             var command = tokens[0].ToLowerInvariant();
 
             return command switch
             {
-                "help" => GetHelp(),
+                "help" => GetHelp(tokens),
                 "state" => GetState(gameSession, combatSession),
                 "characters" => GetCharacters(gameSession, combatSession),
+                "queststate" => GetQuestState(tokens, gameSession),
+                "worldflags" => GetWorldFlags(gameSession),
+                "setworldflag" => SetWorldFlag(tokens, gameSession),
                 "gold" => AddGold(tokens, gameSession),
                 "xp" => AddExperience(tokens, gameSession, combatSession),
                 "heal" => Heal(tokens, gameSession, combatSession),
@@ -64,11 +94,7 @@ namespace Godmist.Systems.Debugging
                 "godmode" => ToggleGodMode(tokens, gameSession, combatSession),
                 "sethp" => SetHealth(tokens, gameSession, combatSession),
                 "setresource" => SetResource(tokens, gameSession, combatSession),
-                "giveitem" => GiveItem(
-                    tokens,
-                    gameSession,
-                    combatSession,
-                    contentCatalog),
+                "giveitem" => GiveItem(tokens, gameSession, combatSession, contentCatalog),
                 "createitem" => CreateItem(tokens, gameSession, contentCatalog),
                 "createconsumable" => CreateConsumable(tokens, gameSession, contentCatalog),
                 "items" => GetInventory(tokens, gameSession, combatSession),
@@ -76,37 +102,374 @@ namespace Godmist.Systems.Debugging
                 "itemdefs" => GetItemDefinitions(contentCatalog),
                 "encounterdefs" => GetEncounterDefinitions(contentCatalog),
                 "combat" => StartCombat(tokens, combatSession, combatHandler),
+                "craftmaterial" => CraftMaterial(tokens, gameSession, contentCatalog),
+                "craftequipment" => CraftEquipment(tokens, gameSession, contentCatalog),
+                "upgrade" => UpgradeEquipment(tokens, gameSession, contentCatalog),
+                "reforge" => ReforgeEquipment(tokens, gameSession, contentCatalog),
+                "markquestobjective" => MarkQuestObjective(tokens, gameSession),
+                "removeitem" => RemoveItem(tokens, gameSession),
+                "clearinventory" => ClearInventory(tokens, gameSession),
+                "setlevel" => SetLevel(tokens, gameSession),
+                "noclip" => SetNoclip(tokens, noclipHandler),
+                "revealmap" => SetMapVisibility(gameSession, true),
+                "clearmap" => SetMapVisibility(gameSession, false),
+                "goto" => Goto(tokens, gotoHandler, debugSeed),
+                "teleport" => Teleport(tokens, teleportHandler),
+                "advance" => Advance(tokens, advanceHandler),
+                "tick" => Tick(tokens, tickHandler),
+                "applystatus" => ApplyStatus(tokens, gameSession, combatSession),
+                "clearstatuses" => ClearStatuses(tokens, gameSession, combatSession),
+                "forcecombatresult" => ForceCombatResult(tokens, combatSession, forceCombatResultHandler),
+                "seed" => SetSeed(tokens),
+                "triggerdialogue" => TriggerDialogue(tokens, dialogueHandler),
+                "inspectdungeon" => InspectDungeon(gameSession),
+                "inspectroom" => InspectRoom(tokens, gameSession),
+                "spawnobject" => SpawnObject(tokens, gameSession),
                 "unit" => InspectUnit(tokens, gameSession, combatSession),
                 _ => Fail($"Nieznana komenda: {tokens[0]}. Użyj: help")
             };
         }
 
-        private static DevConsoleCommandResult GetHelp()
+        private static DevConsoleCommandResult GetHelp(IReadOnlyList<string> tokens)
         {
+            if (tokens.Count > 2)
+            {
+                return Fail("Użycie: help [command]");
+            }
+
+            if (tokens.Count == 2)
+            {
+                if (!DevConsoleCommandSchemaRegistry.TryGet(tokens[1], out var schema))
+                {
+                    return Fail($"Nieznana komenda: {tokens[1]}. Użyj: help");
+                }
+
+                var output = new StringBuilder()
+                    .AppendLine($"{schema.Name} - {schema.Description}");
+
+                foreach (var signature in schema.Signatures)
+                {
+                    output.AppendLine($"Użycie: {signature.Usage}");
+                }
+
+                foreach (var example in schema.Examples)
+                {
+                    output.AppendLine($"Przykład: {example}");
+                }
+
+                return Success(output.ToString().TrimEnd());
+            }
+
+            return Success(DevConsoleCommandSchemaRegistry.BuildHelp());
+        }
+
+        private DevConsoleCommandResult MarkQuestObjective(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count < 3 || tokens.Count > 4)
+            {
+                return Fail("Użycie: markquestobjective <questId> <objectiveId> [amount]");
+            }
+
+            if (gameSession == null || !gameSession.TryGetQuest(tokens[1], out var quest))
+            {
+                return Fail($"Nie znaleziono questa o ID: {tokens[1]}");
+            }
+
+            var amount = 1;
+            if (tokens.Count == 4
+                && (!int.TryParse(tokens[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out amount)
+                    || amount <= 0))
+            {
+                return Fail("amount musi być dodatnią liczbą całkowitą.");
+            }
+
+            if (!quest.TryAddObjectiveProgress(tokens[2], amount)
+                || !quest.TryGetObjectiveProgress(tokens[2], out var progress))
+            {
+                return Fail("Cel nie jest aktywny, nie należy do bieżącego etapu albo osiągnął już wymagany postęp.");
+            }
+
+            var requiredAmount = quest.CurrentStage?.FindObjective(tokens[2])?.RequiredAmount ?? progress.CurrentAmount;
             return Success(
-                "Dostępne komendy:\n" +
-                "help - lista komend\n" +
-                "state - stan sesji i walki\n" +
-                "characters - lista postaci oraz ich ID\n" +
-                "unit [characterId] - szczegółowy stan runtime postaci\n" +
-                "gold <liczba> - dodaje złoto\n" +
-                "xp <liczba> - XP aktywnej drużyny\n" +
-                "xp <characterId> <liczba> - XP wskazanej postaci\n" +
-                "heal <liczba> - leczy aktywną jednostkę walki\n" +
-                "heal <characterId> <liczba> - leczy wskazaną postać\n" +
-                "resource <liczba> - odnawia zasób aktywnej jednostki\n" +
-                "resource <characterId> <liczba> - odnawia zasób postaci\n" +
-                "godmode <characterId> - przełącza nieśmiertelność\n" +
-                "sethp <characterId> <liczba> - ustawia HP żywej postaci\n" +
-                "setresource <characterId> <liczba> - ustawia zasób postaci\n" +
-                "itemdefs - lista itemId z katalogu contentu\n" +
-                "items <characterId> - zawartość inventory postaci\n" +
-                "giveitem <characterId> <itemId> [ilość] - dodaje przedmiot\n" +
-                "createitem <itemId> - dodaje item do inventory aktywnego lidera\n" +
-                "createconsumable <itemId> [Effect value ...] - potion/bomb: dokładnie 3 efekty; statusy mają implied czas; ModifyResistance wymaga typu odporności; bomb bazowo zasięg 5 i obszar 3x3, katalizatory zmieniają payload; utility ma efekt domyślny z itemId\n" +
-                "encounterdefs - lista encounterId z katalogu contentu\n" +
-                "inspectitem <instanceId> - pełny payload itemu aktywnego lidera\n" +
-                "combat <encounterId> - uruchamia debugową walkę z encounterem");
+                $"Postęp celu {tokens[2]}: {progress.CurrentAmount}/{requiredAmount}.");
+        }
+
+        private DevConsoleCommandResult RemoveItem(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: removeitem <characterId> <instanceId>");
+            if (!TryResolveCharacter(tokens[1], gameSession, null, out var character))
+                return Fail($"Nie znaleziono postaci o ID: {tokens[1]}");
+
+            if (!inventoryService.TryRemoveItem(character.Inventory, tokens[2], out var removed))
+            {
+                return Fail($"Nie znaleziono itemu {tokens[2]} w inventory postaci.");
+            }
+
+            return Success($"Usunięto {removed.Definition?.Id ?? removed.InstanceId} z inventory {GetCharacterName(character)}.");
+        }
+
+        private DevConsoleCommandResult ClearInventory(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count > 2) return Fail("Użycie: clearinventory [characterId]");
+
+            var characterId = tokens.Count == 2 ? tokens[1] : gameSession?.PlayerParty?.ActiveLeaderId;
+            if (!TryResolveCharacter(characterId, gameSession, null, out var character))
+                return Fail("Nie znaleziono postaci docelowej.");
+
+            var count = character.Inventory?.Items?.Count ?? 0;
+            character.Inventory?.Items?.Clear();
+            return Success($"Wyczyszczono inventory {GetCharacterName(character)}. Usunięto itemów: {count}.");
+        }
+
+        private DevConsoleCommandResult SetLevel(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: setlevel <characterId> <level>");
+            if (!TryResolveCharacter(tokens[1], gameSession, null, out var character))
+                return Fail($"Nie znaleziono postaci o ID: {tokens[1]}");
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var level))
+                return Fail("level musi być liczbą całkowitą.");
+            if (!progressionSystem.TrySetLevel(character, level, out var previousLevel))
+                return Fail($"level musi mieścić się w zakresie {CharacterProgressionSystem.MinimumLevel}-{CharacterProgressionSystem.MaximumLevel}.");
+
+            return Success($"Ustawiono poziom {GetCharacterName(character)}: {previousLevel} -> {character.Level}.");
+        }
+
+        private static DevConsoleCommandResult SetNoclip(
+            IReadOnlyList<string> tokens,
+            Func<bool?, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count > 2) return Fail("Użycie: noclip [on|off]");
+            if (tokens.Count == 1)
+            {
+                return handler == null
+                    ? Fail("Noclip jest dostępny tylko w scenie eksploracji.")
+                    : handler(null);
+            }
+
+            var enabled = string.Equals(tokens[1], "on", StringComparison.OrdinalIgnoreCase);
+            if (!enabled && !string.Equals(tokens[1], "off", StringComparison.OrdinalIgnoreCase))
+                return Fail("Tryb noclip musi mieć wartość on albo off.");
+            return handler == null ? Fail("Noclip jest dostępny tylko w scenie eksploracji.") : handler(enabled);
+        }
+
+        private static DevConsoleCommandResult SetMapVisibility(GameSession gameSession, bool visible)
+        {
+            var dungeon = gameSession?.ActiveDungeon;
+            if (dungeon == null) return Fail("Brak aktywnego lochu.");
+
+            var changed = 0;
+            foreach (var floor in dungeon.Floors)
+            {
+                foreach (var room in floor.Rooms)
+                {
+                    if (room != null && room.IsVisited != visible)
+                    {
+                        floor.TryRestoreRoomVisited(room.RoomId, visible);
+                        changed++;
+                    }
+                }
+            }
+
+            return Success(visible
+                ? $"Odkryto pomieszczenia lochu. Zmieniono: {changed}."
+                : $"Ukryto pomieszczenia lochu. Zmieniono: {changed}.");
+        }
+
+        private static DevConsoleCommandResult Goto(
+            IReadOnlyList<string> tokens,
+            Func<IReadOnlyList<string>, int?, DevConsoleCommandResult> handler,
+            int? seed)
+        {
+            if (tokens.Count < 2 || tokens.Count > 4)
+                return Fail("Użycie: goto <dungeonId> [floor] [roomId]");
+            return handler == null ? Fail("goto jest dostępne tylko w scenie gry.") : handler(tokens, seed);
+        }
+
+        private static DevConsoleCommandResult Teleport(
+            IReadOnlyList<string> tokens,
+            Func<float, float, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: teleport <x> <y>");
+            if (!TryReadFloat(tokens[1], out var x) || !TryReadFloat(tokens[2], out var y))
+                return Fail("Współrzędne muszą być skończonymi liczbami.");
+            return handler == null ? Fail("teleport jest dostępne tylko w scenie eksploracji.") : handler(x, y);
+        }
+
+        private static DevConsoleCommandResult Advance(
+            IReadOnlyList<string> tokens,
+            Func<int, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count > 2) return Fail("Użycie: advance [turns]");
+            var turns = 1;
+            if (tokens.Count == 2 && (!int.TryParse(tokens[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out turns) || turns <= 0))
+                return Fail("turns musi być dodatnią liczbą całkowitą.");
+            return handler == null ? Fail("advance jest dostępne tylko podczas aktywnej walki.") : handler(turns);
+        }
+
+        private static DevConsoleCommandResult Tick(
+            IReadOnlyList<string> tokens,
+            Func<float, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count != 2 || !TryReadFloat(tokens[1], out var seconds) || seconds <= 0f)
+                return Fail("Użycie: tick <dodatnia liczba sekund>");
+            return handler == null ? Fail("tick nie jest dostępny w bieżącym kontekście gry.") : handler(seconds);
+        }
+
+        private DevConsoleCommandResult ApplyStatus(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (tokens.Count < 3 || tokens.Count > 5)
+                return Fail("Użycie: applystatus <characterId> <statusId> [duration] [stacks]");
+            if (!TryResolveCharacter(tokens[1], gameSession, combatSession, out var character))
+                return Fail($"Nie znaleziono postaci o ID: {tokens[1]}");
+            var duration = 1;
+            var stacks = 1;
+            if (tokens.Count >= 4 && (!int.TryParse(tokens[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out duration) || duration <= 0))
+                return Fail("duration musi być dodatnią liczbą całkowitą.");
+            if (tokens.Count == 5 && (!int.TryParse(tokens[4], NumberStyles.Integer, CultureInfo.InvariantCulture, out stacks) || stacks <= 0))
+                return Fail("stacks musi być dodatnią liczbą całkowitą.");
+            if (!Godmist.Core.Constants.StatusEffectIds.KnownIds.Any(id => string.Equals(id, tokens[2], StringComparison.OrdinalIgnoreCase)))
+                return Fail($"Nieznany status: {tokens[2]}.");
+
+            var unit = combatSession?.Units?.FirstOrDefault(candidate => candidate?.Character == character)
+                       ?? new BattleUnit { Character = character, IsPlayerSide = true };
+            var applied = statusEffectSystem.ApplyStatus(null, unit, tokens[2], 1f, duration, stacks, 0f, 0f, "devconsole", publishFeedback: false);
+            return applied
+                ? Success($"Nałożono status {tokens[2]} na {GetCharacterName(character)} na {duration} tur, stosy: {stacks}.")
+                : Fail($"Nie udało się nałożyć statusu {tokens[2]} (postać może być odporna albo nieaktywna).");
+        }
+
+        private static DevConsoleCommandResult ClearStatuses(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            CombatSession combatSession)
+        {
+            if (tokens.Count != 2) return Fail("Użycie: clearstatuses <characterId>");
+            if (!TryResolveCharacter(tokens[1], gameSession, combatSession, out var character))
+                return Fail($"Nie znaleziono postaci o ID: {tokens[1]}");
+
+            var lifecycle = new PassiveEffectLifecycleSystem();
+            var removed = 0;
+            foreach (var statusId in Godmist.Core.Constants.StatusEffectIds.KnownIds)
+            {
+                while (lifecycle.RemoveEffect(character, statusId)) removed++;
+            }
+            return Success($"Usunięto statusy z {GetCharacterName(character)}: {removed}.");
+        }
+
+        private static DevConsoleCommandResult ForceCombatResult(
+            IReadOnlyList<string> tokens,
+            CombatSession combatSession,
+            Func<CombatOutcomeState, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count != 2) return Fail("Użycie: forcecombatresult <win|loss|escape>");
+            var result = tokens[1].ToLowerInvariant() switch
+            {
+                "win" or "victory" => CombatOutcomeState.Victory,
+                "loss" or "defeat" => CombatOutcomeState.Defeat,
+                "escape" or "escaped" => CombatOutcomeState.Escaped,
+                _ => (CombatOutcomeState?)null
+            };
+            if (!result.HasValue) return Fail("Wynik musi mieć wartość win, loss albo escape.");
+            if (combatSession == null || combatSession.Outcome != CombatOutcomeState.Ongoing)
+                return Fail("Brak aktywnej walki.");
+            if (handler != null) return handler(result.Value);
+
+            combatSession.Outcome = result.Value;
+            return Success($"Wymuszono wynik walki: {result.Value}.");
+        }
+
+        private DevConsoleCommandResult SetSeed(IReadOnlyList<string> tokens)
+        {
+            if (tokens.Count != 2 || !int.TryParse(tokens[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var seed))
+                return Fail("Użycie: seed <liczba całkowita>");
+            debugSeed = seed;
+            UnityEngine.Random.InitState(seed);
+            return Success($"Ustawiono seed debugowy: {seed}. Nowe generowanie dungeonów użyje tego ziarna.");
+        }
+
+        private static DevConsoleCommandResult TriggerDialogue(
+            IReadOnlyList<string> tokens,
+            Func<string, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count != 2) return Fail("Użycie: triggerdialogue <dialogueId>");
+            return handler == null ? Fail("triggerdialogue jest dostępne tylko w scenie gry.") : handler(tokens[1]);
+        }
+
+        private static DevConsoleCommandResult InspectDungeon(GameSession gameSession)
+        {
+            var dungeon = gameSession?.ActiveDungeon;
+            if (dungeon == null) return Fail("Brak aktywnego lochu.");
+            var output = new StringBuilder()
+                .AppendLine($"Dungeon: {dungeon.DungeonId}")
+                .AppendLine($"Seed: {dungeon.Seed}")
+                .AppendLine($"Floor: {dungeon.CurrentFloorIndex}")
+                .AppendLine($"PlayerPosition: {dungeon.PlayerPosition}")
+                .AppendLine($"Cleared encounters: {dungeon.ClearedEncounterIds.Count}");
+            foreach (var floor in dungeon.Floors)
+                output.AppendLine($"- Floor {floor.FloorIndex}: rooms={floor.Rooms.Count}, encounters={floor.Encounters.Count}, objects={floor.Objects.Count}, visited={floor.Rooms.Count(room => room.IsVisited)}");
+            return Success(output.ToString().TrimEnd());
+        }
+
+        private static DevConsoleCommandResult InspectRoom(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count > 2) return Fail("Użycie: inspectroom [roomId]");
+            var dungeon = gameSession?.ActiveDungeon;
+            if (dungeon == null || !dungeon.TryGetCurrentFloor(out var floor)) return Fail("Brak aktywnego piętra lochu.");
+            var roomId = tokens.Count == 2 ? tokens[1] : floor.Rooms.FirstOrDefault(room => room.IsVisited)?.RoomId;
+            if (!floor.TryGetRoom(roomId, out var room)) return Fail("Nie znaleziono pomieszczenia.");
+            var output = new StringBuilder($"Room: {room.RoomId} ({room.RoomType}) visited={room.IsVisited}");
+            foreach (var encounter in floor.Encounters.Where(item => item != null && item.RoomId == room.RoomId)) output.Append($"\n- Encounter {encounter.InstanceId} ({encounter.Definition?.Id})");
+            foreach (var dungeonObject in floor.Objects.Where(item => item != null && item.Position == room.LayoutPosition || item != null && floor.Map != null && floor.Map.TryGetRoomId(item.Position, out var mappedRoomId) && mappedRoomId == room.RoomId)) output.Append($"\n- Object {dungeonObject.InstanceId} ({dungeonObject.Definition?.Id}) active={dungeonObject.IsActive} at {dungeonObject.Position}");
+            return Success(output.ToString());
+        }
+
+        private static DevConsoleCommandResult SpawnObject(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count < 4 || tokens.Count > 5) return Fail("Użycie: spawnobject <objectId> <x> <y> [instanceId]");
+            var dungeon = gameSession?.ActiveDungeon;
+            if (dungeon == null || !dungeon.TryGetCurrentFloor(out var floor) || dungeon.Definition?.ObjectDefinitions == null)
+                return Fail("Brak aktywnego piętra lochu albo definicji obiektów.");
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var x)
+                || !int.TryParse(tokens[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out var y))
+                return Fail("x i y muszą być liczbami całkowitymi.");
+            var definition = dungeon.Definition.ObjectDefinitions.FirstOrDefault(item => item != null && item.Id == tokens[1]);
+            if (definition == null) return Fail($"Nie znaleziono obiektu dungeonowego: {tokens[1]}.");
+            var position = new Vector2Int(x, y);
+            if (floor.Map == null) return Fail("Aktywne piętro nie ma mapy.");
+            if (definition is not DoorDungeonObjectDefinition
+                && !floor.Map.IsWalkable(position))
+                return Fail("Pozycja obiektu musi znajdować się na przechodniej komórce mapy.");
+            var instanceId = tokens.Count == 5 ? tokens[4] : $"dev.{definition.Id}.{Guid.NewGuid():N}";
+            DungeonObjectInstance instance = definition switch
+            {
+                DoorDungeonObjectDefinition door => new DoorDungeonObjectInstance(
+                    instanceId,
+                    door,
+                    new DungeonCellEdge(position, position + Vector2Int.right)),
+                ChestDungeonObjectDefinition chest => new ChestDungeonObjectInstance(instanceId, chest, new Vector2Int(x, y), Array.Empty<ItemInstance>()),
+                ObstacleDungeonObjectDefinition obstacle => new ObstacleDungeonObjectInstance(instanceId, obstacle, new Vector2Int(x, y)),
+                SpikeTrapDungeonObjectDefinition trap => new SpikeTrapDungeonObjectInstance(instanceId, trap, new Vector2Int(x, y)),
+                LeverDungeonObjectDefinition lever => new LeverDungeonObjectInstance(instanceId, lever, new Vector2Int(x, y)),
+                ConditionDungeonObjectDefinition condition => new ConditionDungeonObjectInstance(instanceId, condition, new Vector2Int(x, y)),
+                _ => null
+            };
+            if (instance == null || !floor.TryAddObject(instance)) return Fail("Nie udało się dodać obiektu; komórka może być zajęta albo nieprzechodnia.");
+            return Success($"Dodano obiekt {definition.Id} jako {instanceId} na ({x}, {y}).");
         }
 
         private static DevConsoleCommandResult GetState(
@@ -168,6 +531,142 @@ namespace Godmist.Systems.Debugging
             }
 
             return Success(output.ToString());
+        }
+
+        private static DevConsoleCommandResult GetQuestState(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (gameSession == null)
+            {
+                return Fail("Brak aktywnej GameSession.");
+            }
+
+            if (tokens.Count > 2)
+            {
+                return Fail("Użycie: queststate [questId]");
+            }
+
+            var quests = tokens.Count == 2
+                ? gameSession.QuestsById.TryGetValue(tokens[1], out var selectedQuest)
+                    ? new[] { selectedQuest }
+                    : Array.Empty<QuestInstance>()
+                : gameSession.QuestsById.Values
+                    .Where(quest => quest != null)
+                    .OrderBy(quest => quest.QuestId)
+                    .ToArray();
+
+            if (quests.Length == 0)
+            {
+                return Fail(tokens.Count == 2
+                    ? $"Nie znaleziono zarejestrowanego questa o ID: {tokens[1]}"
+                    : "Sesja nie zawiera zarejestrowanych questów.");
+            }
+
+            var reports = quests.Select(BuildQuestReport);
+            return Success(string.Join("\n\n---\n\n", reports));
+        }
+
+        private static string BuildQuestReport(QuestInstance quest)
+        {
+            var output = new StringBuilder()
+                .AppendLine($"Quest: {quest.QuestId}")
+                .AppendLine($"Nazwa: {quest.Definition?.DisplayName}")
+                .AppendLine($"Status: {quest.Status}")
+                .AppendLine($"Stage: {quest.CurrentStageId}")
+                .AppendLine($"Ukryty: {quest.IsHidden}");
+
+            var currentStage = quest.CurrentStage;
+            if (currentStage != null)
+            {
+                output.AppendLine($"Stage description: {currentStage.Description}");
+            }
+
+            if (quest.ProgressByObjectiveId.Count > 0)
+            {
+                output.AppendLine("Cele:");
+
+                foreach (var progress in quest.ProgressByObjectiveId.Values
+                    .Where(progress => progress != null)
+                    .OrderBy(progress => progress.ObjectiveId))
+                {
+                    var objective = quest.Definition?.Stages?
+                        .SelectMany(stage => stage?.Objectives ?? new List<QuestObjectiveDefinition>())
+                        .FirstOrDefault(candidate => candidate?.ObjectiveId == progress.ObjectiveId);
+                    var required = Math.Max(1, objective?.RequiredAmount ?? 1);
+                    output.AppendLine(
+                        $"- {progress.ObjectiveId}: {progress.CurrentAmount}/{required}" +
+                        (progress.IsCompleted ? " (completed)" : string.Empty));
+                }
+            }
+
+            if (quest.QuestFlags.Count > 0)
+            {
+                output.AppendLine("Quest flags: " + string.Join(
+                    ", ",
+                    quest.QuestFlags.OrderBy(pair => pair.Key)
+                        .Select(pair => $"{pair.Key}={pair.Value}")));
+            }
+
+            if (quest.ChosenBranchIds.Count > 0)
+            {
+                output.AppendLine("Branches: " + string.Join(
+                    ", ", quest.ChosenBranchIds.OrderBy(id => id)));
+            }
+
+            return output.ToString().TrimEnd();
+        }
+
+        private static DevConsoleCommandResult GetWorldFlags(GameSession gameSession)
+        {
+            if (gameSession == null)
+            {
+                return Fail("Brak aktywnej GameSession.");
+            }
+
+            if (gameSession.WorldState.FlagsById.Count == 0)
+            {
+                return Success("Brak ustawionych world flags.");
+            }
+
+            var output = new StringBuilder("World flags:");
+            foreach (var flag in gameSession.WorldState.FlagsById.OrderBy(pair => pair.Key))
+            {
+                output.Append($"\n- {flag.Key}={flag.Value}");
+            }
+
+            return Success(output.ToString());
+        }
+
+        private static DevConsoleCommandResult SetWorldFlag(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 3)
+            {
+                return Fail("Użycie: setworldflag <flagId> <value>");
+            }
+
+            if (gameSession == null)
+            {
+                return Fail("Brak aktywnej GameSession.");
+            }
+
+            var flagId = tokens[1];
+            var value = tokens[2];
+
+            if (gameSession.WorldState.TryGetFlag(flagId, out var currentValue)
+                && currentValue == value)
+            {
+                return Success($"World flag '{flagId}' już ma wartość '{value}'.");
+            }
+
+            if (!gameSession.WorldState.TrySetFlag(flagId, value))
+            {
+                return Fail($"Nie udało się ustawić world flaga '{flagId}'.");
+            }
+
+            return Success($"Ustawiono world flag '{flagId}' = '{value}'.");
         }
 
         private static DevConsoleCommandResult InspectUnit(
@@ -605,40 +1104,66 @@ namespace Godmist.Systems.Debugging
             GameSession gameSession,
             GameContentCatalog contentCatalog)
         {
-            if (tokens.Count != 2) return Fail("Użycie: createitem <itemId>");
             if (gameSession == null || contentCatalog == null)
                 return Fail("Brak GameSession albo GameContentCatalog.");
-            if (string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
-                || !gameSession.CharactersById.TryGetValue(
-                    gameSession.PlayerParty.ActiveLeaderId, out var leader))
-                return Fail("Brak aktywnego lidera drużyny.");
             if (!contentCatalog.TryGetItem(tokens[1], out var definition))
                 return Fail($"Nie znaleziono itemu o ID: {tokens[1]}");
 
-            ItemInstance item;
+            var amount = tokens.Count >= 3
+                ? int.Parse(tokens[2], CultureInfo.InvariantCulture)
+                : 1;
+            var target = ResolveDefaultCharacter(
+                gameSession,
+                tokens.Count >= 4 ? tokens[3] : string.Empty,
+                out var targetFailure);
 
-            if (definition is EquipmentItemDefinition equipmentDefinition)
+            if (target == null)
             {
-                item = equipmentGenerationService.Generate(
-                    equipmentDefinition,
-                    contentCatalog.EquipmentPartDefinitions);
+                return targetFailure;
+            }
 
-                if (item == null)
+            var createdCount = 0;
+
+            for (var index = 0; index < amount; index++)
+            {
+                ItemInstance item;
+
+                if (definition is EquipmentItemDefinition equipmentDefinition)
                 {
-                    return Fail(
-                        "Nie udało się wygenerować equipmentu. Sprawdź Required Class " +
-                        "EID oraz komplet trzech części tej klasy w GameContentCatalog.");
+                    item = equipmentGenerationService.Generate(
+                        equipmentDefinition,
+                        contentCatalog.EquipmentPartDefinitions);
+
+                    if (item == null)
+                    {
+                        return Fail(
+                            "Nie udało się wygenerować equipmentu. Sprawdź Required Class " +
+                            "EID oraz komplet trzech części tej klasy w GameContentCatalog.");
+                    }
                 }
+                else
+                {
+                    item = itemInstanceFactory.Create(definition);
+                }
+
+                if (!inventoryService.TryAddItem(target.Inventory, item))
+                {
+                    break;
+                }
+
+                createdCount++;
             }
-            else
+
+            if (createdCount == 0)
             {
-                item = itemInstanceFactory.Create(definition);
+                return Fail(
+                    $"Nie udało się dodać '{definition.DisplayName}' do inventory " +
+                    $"postaci {GetCharacterName(target)}.");
             }
 
-            if (!inventoryService.TryAddItem(leader.Inventory, item))
-                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
-
-            return Success($"Utworzono {definition.DisplayName} | instanceId: {item.InstanceId}");
+            return Success(
+                $"Utworzono {createdCount}x {definition.DisplayName} w inventory " +
+                $"postaci {GetCharacterName(target)}.");
         }
 
         private DevConsoleCommandResult CreateConsumable(
@@ -648,13 +1173,55 @@ namespace Godmist.Systems.Debugging
         {
             if (tokens.Count < 2)
                 return Fail("Użycie: createconsumable <itemId> [Effect value ...]. Potion/bomb wymagają dokładnie 3 efektów; czasy statusów są implied. Bomby mają bazowo zasięg 5 i obszar 3x3; katalizator zwiększa te parametry.");
-            if (gameSession == null || contentCatalog == null
-                || string.IsNullOrWhiteSpace(gameSession.PlayerParty.ActiveLeaderId)
-                || !gameSession.CharactersById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leader))
-                return Fail("Brak aktywnego lidera albo GameContentCatalog.");
-            if (!contentCatalog.TryGetItem(tokens[1], out var definition)
+            if (gameSession == null || contentCatalog == null)
+                return Fail("Brak GameSession albo GameContentCatalog.");
+
+            var effectTokens = ExtractNamedConsumableArguments(
+                tokens,
+                out var namedItemId,
+                out var namedCharacterId);
+            var itemId = string.IsNullOrWhiteSpace(namedItemId)
+                ? effectTokens[1]
+                : namedItemId;
+
+            if (!contentCatalog.TryGetItem(itemId, out var definition)
                 || definition is not ConsumableItemDefinition consumableDefinition)
-                return Fail($"'{tokens[1]}' nie jest ConsumableItemDefinition.");
+                return Fail($"'{itemId}' nie jest ConsumableItemDefinition.");
+            if (consumableDefinition.UseType == ConsumableUseType.Utility)
+                return Fail($"Utility '{itemId}' nie przyjmuje efektów. Użyj: createitem {itemId}");
+
+            var positionalCharacterId = string.IsNullOrWhiteSpace(namedCharacterId)
+                && effectTokens.Count > 2
+                && TryResolveCharacter(
+                    effectTokens[^1],
+                    gameSession,
+                    null,
+                    out _)
+                && !Enum.TryParse<ConsumableRuntimeEffectType>(
+                    effectTokens[^1],
+                    true,
+                    out _)
+                ? effectTokens[^1]
+                : string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(positionalCharacterId))
+            {
+                effectTokens.RemoveAt(effectTokens.Count - 1);
+            }
+
+            var characterId = string.IsNullOrWhiteSpace(namedCharacterId)
+                ? positionalCharacterId
+                : namedCharacterId;
+            var target = ResolveDefaultCharacter(
+                gameSession,
+                characterId,
+                out var targetFailure);
+
+            if (target == null)
+            {
+                return targetFailure;
+            }
+
             var item = itemInstanceFactory.Create(consumableDefinition) as ConsumableItemInstance;
             if (item == null) return Fail("Nie udało się utworzyć instancji consumable.");
             var targetType = consumableDefinition.UseType == ConsumableUseType.Bomb
@@ -662,21 +1229,7 @@ namespace Godmist.Systems.Debugging
             var targetingType = consumableDefinition.UseType == ConsumableUseType.Bomb
                 ? TargetingType.Enemies : TargetingType.Allies;
 
-            var effectTokens = tokens.ToList();
-
-            if (consumableDefinition.UseType == ConsumableUseType.Utility)
-            {
-                if (effectTokens.Count != 2)
-                    return Fail("Ten utility ma efekt domyślny. Nie podawaj efektów ani opcji po itemId.");
-
-                if (!TryGetImpliedUtilityEffect(consumableDefinition, out var utilityEffect))
-                    return Fail($"Nie rozpoznano domyślnego efektu dla utility '{definition.DisplayName}'.");
-
-                utilityEffect.TargetType = targetType;
-                utilityEffect.TargetingType = targetingType;
-                item.RuntimeEffects.Add(utilityEffect);
-            }
-            else if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
+            if (effectTokens.Count == 3 && (effectTokens[2].Contains('=') || effectTokens[2].Contains(';')))
             {
                 // Keep the old one-token syntax working for existing smoke-test commands.
                 foreach (var spec in effectTokens[2].Split(';', StringSplitOptions.RemoveEmptyEntries))
@@ -695,8 +1248,6 @@ namespace Godmist.Systems.Debugging
                 return Fail("Potion musi mieć dokładnie 3 efekty.");
             if (consumableDefinition.UseType == ConsumableUseType.Bomb && item.RuntimeEffects.Count != 3)
                 return Fail("Bomba musi mieć dokładnie 3 efekty.");
-            if (consumableDefinition.UseType == ConsumableUseType.Utility && item.RuntimeEffects.Count != 1)
-                return Fail("Utility musi mieć dokładnie 1 efekt.");
             var illegalEffect = item.RuntimeEffects.FirstOrDefault(effect =>
                 effect == null || !IsEffectAllowed(consumableDefinition.UseType, effect.EffectType));
             if (illegalEffect != null)
@@ -709,9 +1260,106 @@ namespace Godmist.Systems.Debugging
             {
                 return Fail($"Nieprawidłowa wartość efektu '{invalidValue.EffectType}'.");
             }
-            if (!inventoryService.TryAddItem(leader.Inventory, item))
-                return Fail($"Nie udało się dodać '{definition.DisplayName}' do inventory lidera.");
-            return Success($"Utworzono {definition.DisplayName} z {item.RuntimeEffects.Count} runtime effectami | instanceId: {item.InstanceId}");
+            if (!inventoryService.TryAddItem(target.Inventory, item))
+                return Fail(
+                    $"Nie udało się dodać '{definition.DisplayName}' do inventory " +
+                    $"postaci {GetCharacterName(target)}.");
+            return Success(
+                $"Utworzono {definition.DisplayName} z {item.RuntimeEffects.Count} " +
+                $"runtime effectami dla {GetCharacterName(target)} | " +
+                $"instanceId: {item.InstanceId}");
+        }
+
+        private static CharacterInstance ResolveDefaultCharacter(
+            GameSession gameSession,
+            string characterId,
+            out DevConsoleCommandResult failure)
+        {
+            failure = default;
+
+            if (!string.IsNullOrWhiteSpace(characterId))
+            {
+                if (TryResolveCharacter(
+                        characterId,
+                        gameSession,
+                        null,
+                        out var target))
+                {
+                    return target;
+                }
+
+                failure = Fail($"Nie znaleziono postaci o ID: {characterId}");
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    gameSession?.PlayerParty?.ActiveLeaderId)
+                && gameSession.CharactersById.TryGetValue(
+                    gameSession.PlayerParty.ActiveLeaderId,
+                    out var leader))
+            {
+                return leader;
+            }
+
+            failure = Fail("Brak aktywnego lidera drużyny.");
+            return null;
+        }
+
+        private static List<string> ExtractNamedConsumableArguments(
+            IReadOnlyList<string> tokens,
+            out string itemId,
+            out string characterId)
+        {
+            itemId = string.Empty;
+            characterId = string.Empty;
+
+            var positionalTokens = new List<string> { tokens[0] };
+
+            for (var index = 1; index < tokens.Count; index++)
+            {
+                var token = tokens[index];
+                var separatorIndex = token.IndexOf('=');
+
+                if (separatorIndex <= 0 || separatorIndex >= token.Length - 1)
+                {
+                    positionalTokens.Add(token);
+                    continue;
+                }
+
+                var name = token.Substring(0, separatorIndex);
+                var value = token.Substring(separatorIndex + 1);
+
+                if (string.Equals(
+                        name,
+                        "itemId",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    itemId = value;
+                }
+                else if (string.Equals(
+                             name,
+                             "characterId",
+                             StringComparison.OrdinalIgnoreCase))
+                {
+                    characterId = value;
+                }
+                else
+                {
+                    positionalTokens.Add(token);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(itemId))
+            {
+                if (positionalTokens.Count > 1)
+                {
+                    positionalTokens.RemoveAt(1);
+                }
+
+                positionalTokens.Insert(1, itemId);
+            }
+
+            return positionalTokens;
         }
 
         private static bool IsEffectAllowed(
@@ -749,9 +1397,6 @@ namespace Godmist.Systems.Debugging
                     or ConsumableRuntimeEffectType.ModifyCritChance
                     or ConsumableRuntimeEffectType.ModifyDodge
                     or ConsumableRuntimeEffectType.Slow,
-                ConsumableUseType.Utility => effectType is
-                    ConsumableRuntimeEffectType.RemoveStatus
-                    or ConsumableRuntimeEffectType.ReturnToArungard,
                 _ => false
             };
         }
@@ -899,13 +1544,255 @@ namespace Godmist.Systems.Debugging
             return true;
         }
 
-        private static bool TryGetImpliedUtilityEffect(
-            ConsumableItemDefinition definition,
-            out ConsumableEffectRuntime runtimeEffect)
+        private DevConsoleCommandResult CraftMaterial(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
         {
-            return ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                definition,
-                out runtimeEffect);
+            if (tokens.Count < 3 || tokens.Count > 4)
+            {
+                return Fail("Użycie: craftmaterial <npcId> <recipeId> [characterId]");
+            }
+
+            if (gameSession == null || contentCatalog == null)
+            {
+                return Fail("Brak GameSession albo GameContentCatalog.");
+            }
+
+            if (!TryResolveMaterialCraftingSpecialist(
+                    gameSession,
+                    tokens[1],
+                    out var specialist,
+                    out var npcFailure))
+            {
+                return npcFailure;
+            }
+
+            if (!contentCatalog.TryGetItem(tokens[2], out var itemDefinition)
+                || itemDefinition is not CraftableItemDefinition recipe)
+            {
+                return Fail($"'{tokens[2]}' nie jest CraftableItemDefinition.");
+            }
+
+            var characterId = tokens.Count == 4 ? tokens[3] : string.Empty;
+            var recipient = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
+            if (recipient == null)
+            {
+                return targetFailure;
+            }
+
+            var request = new MaterialCraftRequest
+            {
+                Recipe = recipe,
+                RecipientCharacterId = recipient.CharacterId
+            };
+
+            if (!materialCraftingService.TryCraft(
+                    gameSession,
+                    specialist,
+                    request,
+                    out var craftedItems,
+                    out var failureReason))
+            {
+                return Fail($"Crafting nieudany: {failureReason}");
+            }
+
+            return Success(
+                $"Crafting zakończony: {craftedItems.Count}x {recipe.DisplayName} " +
+                $"dla {GetCharacterName(recipient)}.");
+        }
+
+        private DevConsoleCommandResult CraftEquipment(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count < 7 || tokens.Count > 8)
+            {
+                return Fail("Użycie: craftequipment <npcId> <itemId> <quality> <partId> <partId> <partId> [characterId]");
+            }
+
+            if (gameSession == null || contentCatalog == null)
+            {
+                return Fail("Brak GameSession albo GameContentCatalog.");
+            }
+
+            if (!TryResolveBlacksmith(gameSession, tokens[1], out var blacksmith, out var npcFailure))
+            {
+                return npcFailure;
+            }
+
+            if (!contentCatalog.TryGetItem(tokens[2], out var itemDefinition)
+                || itemDefinition is not EquipmentItemDefinition equipmentDefinition)
+            {
+                return Fail($"'{tokens[2]}' nie jest EquipmentItemDefinition.");
+            }
+
+            if (!Enum.TryParse(tokens[3], true, out EquipmentQuality quality)
+                || quality == EquipmentQuality.Masterpiece)
+            {
+                return Fail("Jakość musi być jedną z wartości: Poor, Normal, Excellent.");
+            }
+
+            var parts = new List<EquipmentPartDefinition>(3);
+            for (var index = 4; index <= 6; index++)
+            {
+                var part = contentCatalog.EquipmentPartDefinitions?
+                    .FirstOrDefault(candidate => candidate != null
+                        && string.Equals(candidate.Id, tokens[index], StringComparison.OrdinalIgnoreCase));
+                if (part == null)
+                {
+                    return Fail($"Nie znaleziono EquipmentPartDefinition o ID: {tokens[index]}");
+                }
+
+                parts.Add(part);
+            }
+
+            var characterId = tokens.Count == 8 ? tokens[7] : string.Empty;
+            var recipient = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
+            if (recipient == null)
+            {
+                return targetFailure;
+            }
+
+            if (!IsEquipmentOfferedByBlacksmith(blacksmith, equipmentDefinition))
+            {
+                return Fail("Wybrany equipment nie jest oferowany przez tego kowala.");
+            }
+
+            var request = new EquipmentCraftRequest
+            {
+                Definition = equipmentDefinition,
+                Parts = parts,
+                Quality = quality,
+                RecipientCharacterId = recipient.CharacterId
+            };
+
+            if (!blacksmithCraftingService.TryCraft(
+                    gameSession,
+                    blacksmith,
+                    request,
+                    out var craftedItem,
+                    out var failureReason))
+            {
+                return Fail($"Crafting equipmentu nieudany: {failureReason}");
+            }
+
+            return Success(
+                $"Crafting zakończony: {craftedItem.Definition.DisplayName} " +
+                $"({quality}) dla {GetCharacterName(recipient)} | " +
+                $"instanceId: {craftedItem.InstanceId}");
+        }
+
+        private DevConsoleCommandResult UpgradeEquipment(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count < 5 || tokens.Count > 6)
+            {
+                return Fail("Użycie: upgrade <npcId> <instanceId> <targetProgress> [successChance] [characterId]");
+            }
+
+            if (gameSession == null || contentCatalog == null)
+            {
+                return Fail("Brak GameSession albo GameContentCatalog.");
+            }
+
+            if (!TryResolveBlacksmith(gameSession, tokens[1], out var blacksmith, out var npcFailure))
+            {
+                return npcFailure;
+            }
+
+            if (!TryReadFloat(tokens[3], out var targetProgress)
+                || !TryReadFloat(tokens[4], out var successChance))
+            {
+                return Fail("targetProgress i successChance muszą być skończonymi liczbami.");
+            }
+
+            var characterId = tokens.Count == 6 ? tokens[5] : string.Empty;
+            var owner = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
+            if (owner == null)
+            {
+                return targetFailure;
+            }
+
+            if (!TryFindEquipment(owner, tokens[2], out var item))
+            {
+                return Fail($"Nie znaleziono equipmentu o instanceId: {tokens[2]}");
+            }
+
+            if (!equipmentUpgradeService.TryUpgrade(
+                    gameSession,
+                    blacksmith,
+                    owner,
+                    item,
+                    targetProgress,
+                    successChance,
+                    contentCatalog,
+                    out var succeeded,
+                    out var paidGold,
+                    out var failureReason))
+            {
+                return Fail($"Upgrade nieudany: {failureReason}");
+            }
+
+            return Success(
+                succeeded
+                    ? $"Upgrade zakończony sukcesem dla {GetCharacterName(owner)}. " +
+                      $"Postęp: {item.UpgradeProgress:0.###}; zapłacono: {paidGold} złota."
+                    : $"Upgrade nie powiódł się dla {GetCharacterName(owner)}. " +
+                      $"Postęp po próbie: {item.UpgradeProgress:0.###}; zapłacono: {paidGold} złota.");
+        }
+
+        private DevConsoleCommandResult ReforgeEquipment(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count < 3 || tokens.Count > 4)
+            {
+                return Fail("Użycie: reforge <npcId> <instanceId> [characterId]");
+            }
+
+            if (gameSession == null || contentCatalog == null)
+            {
+                return Fail("Brak GameSession albo GameContentCatalog.");
+            }
+
+            if (!TryResolveBlacksmith(gameSession, tokens[1], out var blacksmith, out var npcFailure))
+            {
+                return npcFailure;
+            }
+
+            var characterId = tokens.Count == 4 ? tokens[3] : string.Empty;
+            var owner = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
+            if (owner == null)
+            {
+                return targetFailure;
+            }
+
+            if (!TryFindEquipment(owner, tokens[2], out var item))
+            {
+                return Fail($"Nie znaleziono equipmentu o instanceId: {tokens[2]}");
+            }
+
+            if (!equipmentUpgradeService.TryReforge(
+                    gameSession,
+                    blacksmith,
+                    owner,
+                    item,
+                    contentCatalog,
+                    out var resultRarity,
+                    out var paidGold,
+                    out var failureReason))
+            {
+                return Fail($"Reforge nieudany: {failureReason}");
+            }
+
+            return Success(
+                $"Reforge zakończony dla {GetCharacterName(owner)}. " +
+                $"Rzadkość: {resultRarity}; zapłacono: {paidGold} złota.");
         }
 
         private static DevConsoleCommandResult InspectItem(
@@ -1137,6 +2024,130 @@ namespace Godmist.Systems.Debugging
             }
 
             return true;
+        }
+
+        private static bool TryReadFloat(
+            string value,
+            out float result)
+        {
+            return float.TryParse(
+                       value,
+                       NumberStyles.Float,
+                       CultureInfo.InvariantCulture,
+                       out result)
+                && !float.IsNaN(result)
+                && !float.IsInfinity(result);
+        }
+
+        private static bool TryResolveBlacksmith(
+            GameSession gameSession,
+            string npcId,
+            out NpcInstance blacksmith,
+            out DevConsoleCommandResult failure)
+        {
+            blacksmith = null;
+            failure = default;
+
+            if (gameSession?.NpcsById == null)
+            {
+                failure = Fail("Sesja nie zawiera zarejestrowanych NPC-ów.");
+                return false;
+            }
+
+            blacksmith = gameSession.NpcsById.Values.FirstOrDefault(npc =>
+                npc != null
+                && string.Equals(npc.NpcId, npcId, StringComparison.OrdinalIgnoreCase));
+
+            if (blacksmith == null)
+            {
+                failure = Fail($"Nie znaleziono NPC o ID: {npcId}");
+                return false;
+            }
+
+            if (blacksmith.Definition?.GetRole<BlacksmithRoleData>() == null)
+            {
+                failure = Fail($"NPC '{npcId}' nie oferuje usług kowalskich.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryResolveMaterialCraftingSpecialist(
+            GameSession gameSession,
+            string npcId,
+            out NpcInstance specialist,
+            out DevConsoleCommandResult failure)
+        {
+            specialist = null;
+            failure = default;
+
+            if (gameSession?.NpcsById == null)
+            {
+                failure = Fail("Sesja nie zawiera zarejestrowanych NPC-ów.");
+                return false;
+            }
+
+            specialist = gameSession.NpcsById.Values.FirstOrDefault(npc =>
+                npc != null
+                && string.Equals(npc.NpcId, npcId, StringComparison.OrdinalIgnoreCase));
+
+            if (specialist == null)
+            {
+                failure = Fail($"Nie znaleziono NPC o ID: {npcId}");
+                return false;
+            }
+
+            if (specialist.Definition?.Roles?.OfType<IMaterialCraftingSpecialist>()
+                    .FirstOrDefault() == null)
+            {
+                failure = Fail($"NPC '{npcId}' nie oferuje material craftingu.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsEquipmentOfferedByBlacksmith(
+            NpcInstance blacksmith,
+            EquipmentItemDefinition equipmentDefinition)
+        {
+            var role = blacksmith?.Definition?.GetRole<BlacksmithRoleData>();
+            return role?.ClassOffers?.Any(offer =>
+                string.Equals(
+                    offer?.WeaponBase?.Id,
+                    equipmentDefinition?.Id,
+                    StringComparison.Ordinal)
+                || string.Equals(
+                    offer?.ArmorBase?.Id,
+                    equipmentDefinition?.Id,
+                    StringComparison.Ordinal)) == true;
+        }
+
+        private static bool TryFindEquipment(
+            CharacterInstance owner,
+            string instanceId,
+            out EquipmentItemInstance equipment)
+        {
+            equipment = owner?.Inventory?.Items?
+                .OfType<EquipmentItemInstance>()
+                .FirstOrDefault(item => string.Equals(
+                    item.InstanceId,
+                    instanceId,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (equipment != null)
+            {
+                return true;
+            }
+
+            equipment = owner?.Equipment?.GetEquippedItems()?
+                .FirstOrDefault(item => string.Equals(
+                    item?.InstanceId,
+                    instanceId,
+                    StringComparison.OrdinalIgnoreCase));
+
+            return equipment != null;
         }
 
         private static bool TryResolveCharacter(

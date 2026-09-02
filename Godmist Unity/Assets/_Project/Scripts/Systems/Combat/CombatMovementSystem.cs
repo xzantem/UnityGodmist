@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 
@@ -11,14 +12,14 @@ namespace Godmist.Systems.Combat
 {
     public static class ScoutKnifeSystem
     {
-        public const int DefaultMaxKnives = 5;
-
         public static void ResetForCombat(CombatSession session)
         {
             foreach (var unit in session?.Units ?? new List<BattleUnit>())
             {
                 if (unit?.Character?.ClassData?.Id != "class.scout") continue;
-                unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0 ? DefaultMaxKnives : unit.MaxKnives);
+                unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0
+                    ? GameDefinesRuntime.GetInt(GameDefineIds.DefaultMaxKnives, 5)
+                    : unit.MaxKnives);
                 unit.AvailableKnives = unit.MaxKnives;
             }
         }

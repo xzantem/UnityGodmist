@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 
 namespace Godmist.Runtime.Items
@@ -18,7 +19,11 @@ namespace Godmist.Runtime.Items
         public List<StatModifier> StatModifiers = new();
         public float UpgradeProgress;
 
-        public int SocketCapacity => Math.Clamp((int)Math.Floor(UpgradeProgress * 5f + .0001f), 0, 5);
+        public int SocketCapacity => Math.Clamp(
+            (int)Math.Floor(UpgradeProgress * GameDefinesRuntime.GetInt(
+                GameDefineIds.SocketCapacityAtFullUpgrade, 5) + .0001f),
+            0,
+            GameDefinesRuntime.GetInt(GameDefineIds.SocketCapacityAtFullUpgrade, 5));
 
         public EquipmentItemDefinition EquipmentDefinition =>
             Definition as EquipmentItemDefinition;

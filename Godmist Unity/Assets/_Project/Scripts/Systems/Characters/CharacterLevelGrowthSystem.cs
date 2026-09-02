@@ -2,6 +2,7 @@ using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Characters;
+using Godmist.Data.Configuration;
 using UnityEngine;
 
 namespace Godmist.Systems.Characters
@@ -100,11 +101,15 @@ namespace Godmist.Systems.Characters
                 throw new ArgumentOutOfRangeException(nameof(targetLevel));
             }
 
-            if (targetLevel <= 10) return 1;
-            if (targetLevel <= 20) return 2;
-            if (targetLevel <= 30) return 3;
-            if (targetLevel <= 40) return 5;
-            return 9;
+            if (targetLevel <= GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandEarlyEndLevel, 10))
+                return GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandEarly, 1);
+            if (targetLevel <= GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandMidEndLevel, 20))
+                return GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandMid, 2);
+            if (targetLevel <= GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandLateEndLevel, 30))
+                return GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandLate, 3);
+            if (targetLevel <= GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandEndgameEndLevel, 40))
+                return GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandEndgame, 5);
+            return GameDefinesRuntime.GetInt(GameDefineIds.GrowthBandFinal, 9);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Data.Configuration;
 using Godmist.Data.Dungeons;
 using Godmist.Data.World;
 using Godmist.Runtime.Dungeons;
@@ -30,6 +31,9 @@ namespace Godmist.Views.Game
         [Header("Content")]
         [SerializeField] private GameContentCatalog contentCatalog;
 
+        [Header("Configuration")]
+        [SerializeField] private GameDefines gameDefines;
+
         public static GameBootstrap Instance { get; private set; }
 
         public GameSession Session { get; private set; }
@@ -38,6 +42,7 @@ namespace Godmist.Views.Game
         public TradeService TradeService { get; private set; }
         public SaveManager SaveManager { get; private set; }
         public GameContentCatalog ContentCatalog => contentCatalog;
+        public GameDefines GameDefines => gameDefines;
         public bool IsDungeonScene => SceneManager.GetActiveScene().name == dungeonSceneName;
 
         public event Action<DungeonInstance> DungeonExited;
@@ -72,6 +77,11 @@ namespace Godmist.Views.Game
 
             Session = new GameSession(GameModeState.Menu);
             SaveManager = new SaveManager();
+
+            GameDefinesRuntime.Configure(
+                gameDefines != null
+                    ? gameDefines
+                    : Resources.Load<GameDefines>("GameDefines"));
 
             sceneLoader = GetComponent<SceneLoader>();
             sceneLoader.Initialize(Session);
@@ -305,7 +315,9 @@ namespace Godmist.Views.Game
 
         public bool TryEnterDungeon(
             DungeonDefinition definition,
-            int seed)
+            int seed,
+            int targetFloorIndex = 0,
+            string targetRoomId = null)
         {
             if (definition == null || !definition.IsProcedural)
             {
@@ -360,6 +372,18 @@ namespace Godmist.Views.Game
                 rewardPreparationSystem.Prepare(
                     dungeon,
                     contentCatalog?.EquipmentPartDefinitions);
+
+                if (targetFloorIndex != 0
+                    && !dungeon.TrySetCurrentFloorIndex(targetFloorIndex))
+                {
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(targetRoomId)
+                    && !TrySetDebugDungeonRoomPosition(dungeon, targetRoomId))
+                {
+                    return false;
+                }
 
                 if (!Session.TrySetActiveDungeon(dungeon))
                 {
@@ -436,6 +460,34 @@ namespace Godmist.Views.Game
             Session.TryClearActiveDungeon();
             RequestAutosave("Wyjście z lochu");
             return true;
+        }
+
+        private static bool TrySetDebugDungeonRoomPosition(
+            DungeonInstance dungeon,
+            string roomId)
+        {
+            if (dungeon == null
+                || string.IsNullOrWhiteSpace(roomId)
+                || !dungeon.TryGetCurrentFloor(out var floor)
+                || floor.Map == null
+                || !floor.TryGetRoom(roomId, out _))
+            {
+                return false;
+            }
+
+            foreach (var cell in floor.Map.FloorCells)
+            {
+                if (!floor.Map.TryGetRoomId(cell, out var mappedRoomId)
+                    || !string.Equals(mappedRoomId, roomId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                dungeon.SetPlayerPosition(cell);
+                return true;
+            }
+
+            return false;
         }
 
         public bool TryReturnToArungardFromDungeon()

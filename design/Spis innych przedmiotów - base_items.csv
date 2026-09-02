@@ -1,0 +1,263 @@
+id,name,item_type,material_discipline,price,rarity,stackable
+item.material.smithing.iron_ore,Ruda żelaza,Material,Smithing,7,Common,true
+item.material.smithing.nickel_ore,Ruda niklu,Material,Smithing,8,Common,true
+item.material.smithing.copper_ore,Ruda miedzi,Material,Smithing,9,Common,true
+item.material.smithing.tin_ore,Ruda cyny,Material,Smithing,10,Common,true
+item.material.smithing.annodyte_ore,Ruda annodytu,Material,Smithing,167,Rare,true
+item.material.smithing.silver_ore,Ruda srebra,Material,Smithing,156,Rare,true
+item.material.smithing.cobalt_ore,Ruda kobaltu,Material,Smithing,173,Rare,true
+item.material.smithing.gold_ore,Ruda złota,Material,Smithing,134,Rare,true
+item.material.smithing.nepholite_ore,Ruda nefolitu,Material,Smithing,1766,Legendary,true
+item.material.smithing.adamantium_ore,Ruda adamantium,Material,Smithing,1321,Legendary,true
+item.material.smithing.cifilm_ore,Ruda cifilmu,Material,Smithing,1521,Legendary,true
+item.material.smithing.orichalcum_ore,Ruda orichalcum,Material,Smithing,1828,Legendary,true
+item.material.smithing.coal,Węgiel,Material,Smithing,49,Uncommon,true
+item.material.smithing.chromium,Chrom,Material,Smithing,55,Uncommon,true
+item.material.smithing.meteorite_shard,Odłamek meteorytu,Material,Smithing,51,Uncommon,true
+item.material.smithing.zinc_piece,Kawałek cynku,Material,Smithing,36,Uncommon,true
+item.material.smithing.moon_dust,Księżycowy pył,Material,Smithing,708,Ancient,true
+item.material.smithing.sphalerite,Sfaleryt,Material,Smithing,1111,Ancient,true
+item.material.smithing.desert_gem,Klejnot pustyni,Material,Smithing,864,Ancient,true
+item.material.smithing.rutile,Rutyl,Material,Smithing,549,Ancient,true
+item.material.smithing.hide_goat,Skóra kozy,Material,Smithing,50,Common,true
+item.material.smithing.hide_wild_dog,Skóra dzikiego psa,Material,Smithing,29,Common,true
+item.material.smithing.hide_rabbit,Skóra królika,Material,Smithing,15,Common,true
+item.material.smithing.hide_fox,Skóra lisa,Material,Smithing,23,Common,true
+item.material.smithing.hide_tiger,Skóra tygrysa,Material,Smithing,645,Uncommon,true
+item.material.smithing.hide_deer,Skóra jelenia,Material,Smithing,680,Uncommon,true
+item.material.smithing.hide_boar,Skóra dzika,Material,Smithing,346,Uncommon,true
+item.material.smithing.hide_monitor_lizard,Skóra warana,Material,Smithing,228,Uncommon,true
+item.material.smithing.hide_bear,Skóra niedźwiedzia,Material,Smithing,3533,Rare,true
+item.material.smithing.hide_troll,Skóra trolla,Material,Smithing,1889,Rare,true
+item.material.smithing.hide_alligator,Skóra aligatora,Material,Smithing,2742,Rare,true
+item.material.smithing.hide_leopard,Skóra leoparda,Material,Smithing,3441,Rare,true
+item.material.smithing.hide_wolf,Skóra wilka,Material,Smithing,3072,Ancient,true
+item.material.smithing.hide_buffalo,Skóra bawoła,Material,Smithing,9769,Ancient,true
+item.material.smithing.hide_camel,Skóra wielbłąda,Material,Smithing,1306,Ancient,true
+item.material.smithing.hide_cheetah,Skóra geparda,Material,Smithing,8663,Ancient,true
+item.material.smithing.hide_hellhound,Skóra piekielnego ogara,Material,Smithing,10445,Legendary,true
+item.material.smithing.hide_dragon,Skóra smoka,Material,Smithing,76677,Legendary,true
+item.material.smithing.hide_wyvern,Skóra wiwerny,Material,Smithing,68813,Legendary,true
+item.material.smithing.hide_griffin,Skóra gryfa,Material,Smithing,50627,Legendary,true
+item.material.smithing.larch_wood,Drewno modrzewiowe,Material,Smithing,74,Common,true
+item.material.smithing.linden_wood,Drewno lipowe,Material,Smithing,68,Common,true
+item.material.smithing.poplar_wood,Drewno topolowe,Material,Smithing,58,Common,true
+item.material.smithing.alder_wood,Drewno olchowe,Material,Smithing,73,Common,true
+item.material.smithing.hawthorn_wood,Drewno głogowe,Material,Smithing,297,Uncommon,true
+item.material.smithing.birch_wood,Drewno brzozowe,Material,Smithing,305,Uncommon,true
+item.material.smithing.cypress_wood,Drewno cyprysowe,Material,Smithing,292,Uncommon,true
+item.material.smithing.cedar_wood,Drewno cedrowe,Material,Smithing,207,Uncommon,true
+item.material.smithing.hornbeam_wood,Drewno grabowe,Material,Smithing,492,Rare,true
+item.material.smithing.elm_wood,Drewno wiązowe,Material,Smithing,502,Rare,true
+item.material.smithing.spruce_wood,Drewno świerkowe,Material,Smithing,440,Rare,true
+item.material.smithing.lilac_wood,Drewno bzowe,Material,Smithing,553,Rare,true
+item.material.smithing.oak_wood,Drewno dębowe,Material,Smithing,1700,Ancient,true
+item.material.smithing.beech_wood,Drewno bukowe,Material,Smithing,2212,Ancient,true
+item.material.smithing.redwood,Drewno sekwojowe,Material,Smithing,2171,Ancient,true
+item.material.smithing.fir_wood,Drewno jodłowe,Material,Smithing,2437,Ancient,true
+item.material.smithing.black_oak_wood,Drewno czarnodębowe,Material,Smithing,6554,Legendary,true
+item.material.smithing.pine_wood,Drewno sosnowe,Material,Smithing,7782,Legendary,true
+item.material.smithing.ebony_wood,Drewno hebanowe,Material,Smithing,8765,Legendary,true
+item.material.smithing.hazel_wood,Drewno leszczynowe,Material,Smithing,9585,Legendary,true
+item.material.smithing.cotton_fiber,Włókno bawełny,Material,Smithing,13,Common,true
+item.material.smithing.bukomina_fiber,Włókno bukominy,Material,Smithing,12,Common,true
+item.material.smithing.goat_wool_fiber,Włókno koziej wełny,Material,Smithing,14,Common,true
+item.material.smithing.jute_fiber,Włókno juty,Material,Smithing,11,Common,true
+item.material.smithing.sheep_wool_fiber,Włókno owczej wełny,Material,Smithing,43,Uncommon,true
+item.material.smithing.palm_fiber,Włókno palmy,Material,Smithing,40,Uncommon,true
+item.material.smithing.llama_wool_fiber,Włókno lamiej wełny,Material,Smithing,49,Uncommon,true
+item.material.smithing.wasmin_fiber,Włókno wasminy,Material,Smithing,48,Uncommon,true
+item.material.smithing.flax_fiber,Włókno lnu,Material,Smithing,175,Rare,true
+item.material.smithing.silverspike_fiber,Włókno srebrnoszponu,Material,Smithing,169,Rare,true
+item.material.smithing.camel_wool_fiber,Włókno wielbłądziej wełny,Material,Smithing,165,Rare,true
+item.material.smithing.melena_fiber,Włókno meleny,Material,Smithing,159,Rare,true
+item.material.smithing.hemp_fiber,Włókno konopii,Material,Smithing,753,Ancient,true
+item.material.smithing.yucca_fiber,Włókno juki,Material,Smithing,691,Ancient,true
+item.material.smithing.utumen_fiber,Włókno utumeny,Material,Smithing,815,Ancient,true
+item.material.smithing.three_prong_fiber,Włókno trójprętu,Material,Smithing,707,Ancient,true
+item.material.smithing.silk_fiber,Włókno jedwabiu,Material,Smithing,3164,Legendary,true
+item.material.smithing.tagimina_fiber,Włókno tagiminy,Material,Smithing,2580,Legendary,true
+item.material.smithing.viscose_fiber,Włókno wiskozy,Material,Smithing,3441,Legendary,true
+item.material.smithing.obarys_fiber,Włókno obarysu,Material,Smithing,2888,Legendary,true
+item.material.smithing.purple_energy_dust,Fioletowy pył energetyczny,Material,Smithing,3768,Legendary,true
+item.material.smithing.meager_soul,Mizerna dusza,Material,Smithing,5,Common,true
+item.material.smithing.small_soul,Mała dusza,Material,Smithing,22,Uncommon,true
+item.material.smithing.common_soul,Zwykła dusza,Material,Smithing,100,Rare,true
+item.material.smithing.strong_soul,Silna dusza,Material,Smithing,389,Ancient,true
+item.material.smithing.powerful_soul,Potężna dusza,Material,Smithing,1720,Legendary,true
+item.material.alchemy.skeleton_bone,Kość szkieleta,Material,Alchemy,21,Common,true
+item.material.alchemy.drowned_one_brain,Mózg umarlaka,Material,Alchemy,17,Common,true
+item.material.alchemy.elf_ear,Ucho elfa,Material,Alchemy,17,Common,true
+item.material.alchemy.demon_horn,Róg demona,Material,Alchemy,21,Common,true
+item.material.alchemy.pirate_eye,Oko pirata,Material,Alchemy,17,Common,true
+item.material.alchemy.bird_feather,Pióro ptaka,Material,Alchemy,20,Common,true
+item.material.alchemy.cactus_fruit,Owoc kaktusa,Material,Alchemy,18,Common,true
+item.material.alchemy.tainted_heart,Spaczone serce,Material,Alchemy,17,Common,true
+item.material.alchemy.shattered_skull,Skruszona czaszka,Material,Alchemy,16,Common,true
+item.material.alchemy.troll_kidney,Nerka trolla,Material,Alchemy,19,Common,true
+item.material.alchemy.living_leaf,Żyjący liść,Material,Alchemy,15,Common,true
+item.material.alchemy.alligator_fang,Kieł aligatora,Material,Alchemy,16,Common,true
+item.material.alchemy.ectoplasm,Ektoplazma,Material,Alchemy,331,Uncommon,true
+item.material.alchemy.ghoul_claw,Pazur ghula,Material,Alchemy,237,Uncommon,true
+item.material.alchemy.wolf_fang,Kieł wilka,Material,Alchemy,273,Uncommon,true
+item.material.alchemy.extradimensional_tentacle,Pozawymiarowa macka,Material,Alchemy,344,Uncommon,true
+item.material.alchemy.shimmering_sand,Błyszczący piasek,Material,Alchemy,301,Uncommon,true
+item.material.alchemy.shark_fin,Płetwa rekina,Material,Alchemy,323,Uncommon,true
+item.material.alchemy.wind_essence,Żywioł wiatru,Material,Alchemy,232,Uncommon,true
+item.material.alchemy.ancient_hide,Starożytna skóra,Material,Alchemy,293,Uncommon,true
+item.material.alchemy.histyna,Histyna,Material,Alchemy,230,Uncommon,true
+item.material.alchemy.rukh_feather,Pióro ruka,Material,Alchemy,320,Uncommon,true
+item.material.alchemy.mosquito_proboscis,Ssawka komara,Material,Alchemy,300,Uncommon,true
+item.material.alchemy.drowned_one_lung,Płuco topielca,Material,Alchemy,307,Uncommon,true
+item.material.alchemy.slayer_bone,Kość zabójcy,Material,Alchemy,1185,Ancient,true
+item.material.alchemy.royal_ectoplasm,Królewska ektoplazma,Material,Alchemy,984,Ancient,true
+item.material.alchemy.forest_essence,Żywioł lasu,Material,Alchemy,1282,Ancient,true
+item.material.alchemy.royal_demon_ic_horn,Demoniczny róg królewski,Material,Alchemy,1081,Ancient,true
+item.material.alchemy.alpha_shark_fin,Płetwa alfa-rekina,Material,Alchemy,952,Ancient,true
+item.material.alchemy.artificial_tooth,Sztuczny ząb,Material,Alchemy,1010,Ancient,true
+item.material.alchemy.enchanted_hand,Zaczarowana dłoń,Material,Alchemy,1230,Ancient,true
+item.material.alchemy.malad_energy,Energia Malada,Material,Alchemy,1241,Ancient,true
+item.material.alchemy.berserker_blood,Krew berserka,Material,Alchemy,1308,Ancient,true
+item.material.alchemy.wyvern_scales,Łuski wiwerny,Material,Alchemy,991,Ancient,true
+item.material.alchemy.living_branch,Żyjąca gałąź,Material,Alchemy,1071,Ancient,true
+item.material.alchemy.living_flower,Żyjący kwiat,Material,Alchemy,1265,Ancient,true
+item.material.alchemy.puffball,Purchawka,Material,Alchemy,19,Common,true
+item.material.alchemy.common_harvestman,Kosarz pospolity,Material,Alchemy,18,Common,true
+item.material.alchemy.pinecone,Szyszka,Material,Alchemy,18,Common,true
+item.material.alchemy.strangler_grass,Trawa dusicielska,Material,Alchemy,15,Common,true
+item.material.alchemy.seaweed,Wodorosty,Material,Alchemy,14,Common,true
+item.material.alchemy.flowering_cherry,Kwitnąca wiśnia,Material,Alchemy,16,Common,true
+item.material.alchemy.aloe_meda,Aloe meda,Material,Alchemy,14,Common,true
+item.material.alchemy.alzif_vines,Pnącza alzif,Material,Alchemy,16,Common,true
+item.material.alchemy.perennial_flower,Kwiat byliny,Material,Alchemy,13,Common,true
+item.material.alchemy.tregandian_dandelion,Dmuchawiec tregandzki,Material,Alchemy,14,Common,true
+item.material.alchemy.rush,Sitowie,Material,Alchemy,17,Common,true
+item.material.alchemy.common_fly,Mucha zwyczajna,Material,Alchemy,15,Common,true
+item.material.alchemy.dwarven_moss,Krasnoludzki mech,Material,Alchemy,215,Rare,true
+item.material.alchemy.swordbush,Mieczokrzew,Material,Alchemy,250,Rare,true
+item.material.alchemy.tulip_flower,Kwiat tulipanu,Material,Alchemy,234,Rare,true
+item.material.alchemy.burning_vines,Płonące pnącza,Material,Alchemy,254,Rare,true
+item.material.alchemy.doragafury_stems,Prętki doragafury,Material,Alchemy,287,Rare,true
+item.material.alchemy.banana_leaf,Liść bananowca,Material,Alchemy,243,Rare,true
+item.material.alchemy.rissa_flower,Kwiat rissa,Material,Alchemy,219,Rare,true
+item.material.alchemy.desert_reaper,Żniwiarz pustynny,Material,Alchemy,281,Rare,true
+item.material.alchemy.ice_stems,Lodowe prętki,Material,Alchemy,269,Rare,true
+item.material.alchemy.royal_butterfly,Motyl królewski,Material,Alchemy,233,Rare,true
+item.material.alchemy.flat_calamus,Tatarak płaski,Material,Alchemy,208,Rare,true
+item.material.alchemy.viper_bugloss,Żmijowiec,Material,Alchemy,289,Rare,true
+item.material.alchemy.black_widow,Czarna wdowa,Material,Alchemy,3834,Legendary,true
+item.material.alchemy.kazraniec,Każraniec,Material,Alchemy,4104,Legendary,true
+item.material.alchemy.elven_casisa,Casisa elficka,Material,Alchemy,3444,Legendary,true
+item.material.alchemy.hellrose,Piekielna róża,Material,Alchemy,3461,Legendary,true
+item.material.alchemy.mizuki_fruit,Owoc mizuki,Material,Alchemy,3521,Legendary,true
+item.material.alchemy.moon_mushroom,Księżycowy grzyb,Material,Alchemy,4808,Legendary,true
+item.material.alchemy.jamali_flower,Kwiat jamali,Material,Alchemy,4608,Legendary,true
+item.material.alchemy.royal_scarab,Skarabeusz królewski,Material,Alchemy,4116,Legendary,true
+item.material.alchemy.blue_saffron,Szafran błękitny,Material,Alchemy,3322,Legendary,true
+item.material.alchemy.heart_of_the_mountains,Serce gór,Material,Alchemy,3902,Legendary,true
+item.material.alchemy.golden_clover,Złota koniczyna,Material,Alchemy,3469,Legendary,true
+item.material.alchemy.lion_crocuses,Lwie krokusy,Material,Alchemy,4040,Legendary,true
+item.material.alchemy.small_soul_slayer_skeleton,Mała dusza Szkieleta Zabójcy,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_slayer_skeleton,Zwykła dusza Szkieleta Zabójcy,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_slayer_skeleton,Silna dusza Szkieleta Zabójcy,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_slayer_skeleton,Potężna dusza Szkieleta Zabójcy,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_dead_king_ghost,Mała dusza Ducha Umarłego Króla,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_dead_king_ghost,Zwykła dusza Ducha Umarłego Króla,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_dead_king_ghost,Silna dusza Ducha Umarłego Króla,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_dead_king_ghost,Potężna dusza Ducha Umarłego Króla,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_infected_ent,Mała dusza Zarażonego Enta,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_infected_ent,Zwykła dusza Zarażonego Enta,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_infected_ent,Silna dusza Zarażonego Enta,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_infected_ent,Potężna dusza Zarażonego Enta,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_bandit_leader,Mała dusza Przywódcy Bandytów,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_bandit_leader,Zwykła dusza Przywódcy Bandytów,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_bandit_leader,Silna dusza Przywódcy Bandytów,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_bandit_leader,Potężna dusza Przywódcy Bandytów,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_demon_ic_jarl,Mała dusza Demonicznego Jarla,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_demon_ic_jarl,Zwykła dusza Demonicznego Jarla,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_demon_ic_jarl,Silna dusza Demonicznego Jarla,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_demon_ic_jarl,Potężna dusza Demonicznego Jarla,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_cerbera,Mała dusza Cerbera,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_cerbera,Zwykła dusza Cerbera,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_cerbera,Silna dusza Cerbera,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_cerbera,Potężna dusza Cerbera,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_alpha_shark,Mała dusza Alfa-Rekina,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_alpha_shark,Zwykła dusza Alfa-Rekina,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_alpha_shark,Silna dusza Alfa-Rekina,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_alpha_shark,Potężna dusza Alfa-Rekina,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_pirate_captain,Mała dusza Kapitana Piratów,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_pirate_captain,Zwykła dusza Kapitana Piratów,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_pirate_captain,Silna dusza Kapitana Piratów,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_pirate_captain,Potężna dusza Kapitana Piratów,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_awazar_leader,Mała dusza Przywódcy Awazarów,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_awazar_leader,Zwykła dusza Przywódcy Awazarów,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_awazar_leader,Silna dusza Przywódcy Awazarów,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_awazar_leader,Potężna dusza Przywódcy Awazarów,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_alpha_scorpion_rider,Mała dusza Jeźdźca Alfa-Skorpiona,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_alpha_scorpion_rider,Zwykła dusza Jeźdźca Alfa-Skorpiona,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_alpha_scorpion_rider,Silna dusza Jeźdźca Alfa-Skorpiona,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_alpha_scorpion_rider,Potężna dusza Jeźdźca Alfa-Skorpiona,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_hierophant,Mała dusza Hierofanta,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_hierophant,Zwykła dusza Hierofanta,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_hierophant,Silna dusza Hierofanta,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_hierophant,Potężna dusza Hierofanta,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_jawa,Mała dusza Jawy,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_jawa,Zwykła dusza Jawy,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_jawa,Silna dusza Jawy,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_jawa,Potężna dusza Jawy,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_shattered_skull_berserker,Mała dusza Berserka Skruszonej Czaszki,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_shattered_skull_berserker,Zwykła dusza Berserka Skruszonej Czaszki,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_shattered_skull_berserker,Silna dusza Berserka Skruszonej Czaszki,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_shattered_skull_berserker,Potężna dusza Berserka Skruszonej Czaszki,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_wyvern,Mała dusza Wiwerny,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_wyvern,Zwykła dusza Wiwerny,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_wyvern,Silna dusza Wiwerny,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_wyvern,Potężna dusza Wiwerny,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_swamp_ent,Mała dusza Bagnistego Enta,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_swamp_ent,Zwykła dusza Bagnistego Enta,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_swamp_ent,Silna dusza Bagnistego Enta,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_swamp_ent,Potężna dusza Bagnistego Enta,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.small_soul_carnivorous_plant,Mała dusza Ludożernej Rośliny,Material,Alchemy,980,Uncommon,true
+item.material.alchemy.common_soul_carnivorous_plant,Zwykła dusza Ludożernej Rośliny,Material,Alchemy,4276,Rare,true
+item.material.alchemy.strong_soul_carnivorous_plant,Silna dusza Ludożernej Rośliny,Material,Alchemy,15636,Ancient,true
+item.material.alchemy.powerful_soul_carnivorous_plant,Potężna dusza Ludożernej Rośliny,Material,Alchemy,61555,Legendary,true
+item.material.alchemy.weak_alcohol,Słaby alkohol,Material,Alchemy,46,Common,true
+item.material.alchemy.alcohol,Alkohol,Material,Alchemy,158,Uncommon,true
+item.material.alchemy.good_alcohol,Dobry alkohol,Material,Alchemy,707,Rare,true
+item.material.alchemy.strong_alcohol,Mocny alkohol,Material,Alchemy,2738,Ancient,true
+item.material.alchemy.perfect_alcohol,Perfekcyjny alkohol,Material,Alchemy,13660,Legendary,true
+item.material.alchemy.weak_gunpowder,Słaby proch strzelniczy,Material,Alchemy,62,Common,true
+item.material.alchemy.gunpowder,Proch strzelniczy,Material,Alchemy,212,Uncommon,true
+item.material.alchemy.good_gunpowder,Dobry proch strzelniczy,Material,Alchemy,843,Rare,true
+item.material.alchemy.strong_gunpowder,Mocny proch strzelniczy,Material,Alchemy,3120,Ancient,true
+item.material.alchemy.perfect_gunpowder,Perfekcyjny proch strzelniczy,Material,Alchemy,14783,Legendary,true
+item.material.runic.solid_limestone,Lity wapień,Material,Runic,271,Uncommon,true
+item.material.runic.solid_granite,Lity granit,Material,Runic,840,Rare,true
+item.material.runic.solid_marble,Lity marmur,Material,Runic,16056,Legendary,true
+item.material.runic.garnet,Granat,Material,Runic,577,Uncommon,true
+item.material.runic.sapphire,Szafir,Material,Runic,572,Uncommon,true
+item.material.runic.amethyst,Ametyst,Material,Runic,635,Uncommon,true
+item.material.runic.citrine,Cytryn,Material,Runic,704,Uncommon,true
+item.material.runic.emerald,Szmaragd,Material,Runic,766,Uncommon,true
+item.material.runic.onyx,Onyks,Material,Runic,833,Uncommon,true
+item.material.runic.ruby,Rubin,Material,Runic,960,Uncommon,true
+item.material.runic.diamond,Diament,Material,Runic,1050,Uncommon,true
+item.material.runic.topaz,Topaz,Material,Runic,1151,Uncommon,true
+item.material.runic.amber,Bursztyn,Material,Runic,1284,Uncommon,true
+item.material.runic.condensed_red_powder,Skondensowany czerwony proszek,Material,Runic,422,Rare,true
+item.material.runic.condensed_purple_powder,Skondensowany purpurowy proszek,Material,Runic,451,Rare,true
+item.material.runic.magical_purple_powder,Magiczny purpurowy proszek,Material,Runic,2298,Legendary,true
+item.material.runic.condensed_citrine_powder,Skondensowany cytrynowy proszek,Material,Runic,486,Rare,true
+item.material.runic.magical_citrine_powder,Magiczny cytrynowy proszek,Material,Runic,2333,Legendary,true
+item.material.runic.condensed_emerald_powder,Skondensowany szmaragdowy proszek,Material,Runic,517,Rare,true
+item.material.runic.magical_emerald_powder,Magiczny szmaragdowy proszek,Material,Runic,2364,Legendary,true
+item.material.runic.condensed_black_powder,Skondensowany czarny proszek,Material,Runic,550,Rare,true
+item.material.runic.magical_black_powder,Magiczny czarny proszek,Material,Runic,2397,Legendary,true
+item.material.runic.condensed_pink_powder,Skondensowany różowy proszek,Material,Runic,614,Rare,true
+item.material.runic.magical_pink_powder,Magiczny różowy proszek,Material,Runic,2461,Legendary,true
+item.material.runic.condensed_white_powder,Skondensowany biały proszek,Material,Runic,659,Rare,true
+item.material.runic.magical_white_powder,Magiczny biały proszek,Material,Runic,2506,Legendary,true
+item.material.runic.condensed_gold_powder,Skondensowany złoty proszek,Material,Runic,709,Rare,true
+item.material.runic.magical_gold_powder,Magiczny złoty proszek,Material,Runic,2556,Legendary,true
+item.material.runic.condensed_amber_powder,Skondensowany bursztynowy proszek,Material,Runic,776,Rare,true
+item.material.runic.magical_amber_powder,Magiczny bursztynowy proszek,Material,Runic,2623,Legendary,true

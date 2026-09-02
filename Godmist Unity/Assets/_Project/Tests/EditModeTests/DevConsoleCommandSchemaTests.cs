@@ -1,0 +1,180 @@
+using System.Linq;
+using Godmist.Systems.Debugging;
+using NUnit.Framework;
+
+namespace Godmist.Tests.EditMode
+{
+    public class DevConsoleCommandSchemaTests
+    {
+        [Test]
+        public void Registry_DeclaresEveryKnownConsoleCommand()
+        {
+            var help = DevConsoleCommandSchemaRegistry.BuildHelp();
+
+            Assert.That(help, Does.Contain("createitem <itemId> [amount] [characterId]"));
+            Assert.That(help, Does.Contain("createconsumable <itemId> [Effect value ...] [characterId]"));
+            Assert.That(help, Does.Contain("setworldflag <flagId> <value>"));
+            Assert.That(help, Does.Contain("craftequipment <npcId> <itemId> <quality>"));
+            Assert.That(help, Does.Contain("upgrade <npcId> <instanceId> <targetProgress>"));
+            Assert.That(help, Does.Contain("markquestobjective <questId> <objectiveId> [amount]"));
+            Assert.That(help, Does.Contain("removeitem <characterId> <instanceId>"));
+            Assert.That(help, Does.Contain("clearinventory [characterId]"));
+            Assert.That(help, Does.Contain("setlevel <characterId> <level>"));
+            Assert.That(help, Does.Contain("spawnobject <objectId> <x> <y> [instanceId]"));
+            Assert.That(help, Does.Contain("help [command]"));
+            Assert.That(help, Does.Contain("Przykład: createitem item.weapon.debug characterId=jerzy amount=3"));
+            Assert.That(
+                DevConsoleCommandSchemaRegistry.All.Select(schema => schema.Name),
+                Is.Unique);
+        }
+
+        [Test]
+        public void Parser_NormalizesNamedOptionalArgumentsInAnyOrder()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "createitem item.weapon.debug characterId=jerzy amount=3",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "createitem",
+                    "item.weapon.debug",
+                    "3",
+                    "jerzy"
+                }));
+        }
+
+        [Test]
+        public void Parser_UsesDefaultAmountWhenOnlyCharacterIsNamed()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "createitem item.weapon.debug characterId=jerzy",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "createitem",
+                    "item.weapon.debug",
+                    "1",
+                    "jerzy"
+                }));
+        }
+
+        [Test]
+        public void Parser_DistinguishesMissingAndInvalidRequiredArguments()
+        {
+            var missing = DevConsoleCommandSchemaParser.TryNormalize(
+                "gold",
+                out _,
+                out var missingError);
+            var invalid = DevConsoleCommandSchemaParser.TryNormalize(
+                "gold many",
+                out _,
+                out var invalidError);
+
+            Assert.That(missing, Is.False);
+            Assert.That(missingError, Does.Contain("Brak wymaganego argumentu"));
+            Assert.That(invalid, Is.False);
+            Assert.That(invalidError, Does.Contain("amount"));
+            Assert.That(invalidError, Does.Contain("nieprawidłową wartość"));
+        }
+
+        [Test]
+        public void Parser_PreservesExistingOverloadedCommandForms()
+        {
+            var oldForm = DevConsoleCommandSchemaParser.TryNormalize(
+                "xp jerzy 10",
+                out var oldTokens,
+                out var oldError);
+            var shortForm = DevConsoleCommandSchemaParser.TryNormalize(
+                "xp 10",
+                out var shortTokens,
+                out var shortError);
+            var namedForm = DevConsoleCommandSchemaParser.TryNormalize(
+                "xp amount=10 characterId=jerzy",
+                out var namedTokens,
+                out var namedError);
+
+            Assert.That(oldForm, Is.True, oldError);
+            Assert.That(shortForm, Is.True, shortError);
+            Assert.That(namedForm, Is.True, namedError);
+            Assert.That(oldTokens, Is.EqualTo(new[] { "xp", "jerzy", "10" }));
+            Assert.That(shortTokens, Is.EqualTo(new[] { "xp", "10" }));
+            Assert.That(namedTokens, Is.EqualTo(new[] { "xp", "jerzy", "10" }));
+        }
+
+        [Test]
+        public void Parser_NormalizesNamedCraftingAndUpgradeArguments()
+        {
+            var craftNormalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "craftmaterial recipe.material npcId=npc.blacksmith characterId=jerzy",
+                out var craftTokens,
+                out var craftError);
+            var upgradeNormalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "upgrade npc.blacksmith item.instance.001 0.5 characterId=jerzy",
+                out var upgradeTokens,
+                out var upgradeError);
+
+            Assert.That(craftNormalized, Is.True, craftError);
+            Assert.That(craftTokens, Is.EqualTo(new[]
+            {
+                "craftmaterial", "npc.blacksmith", "recipe.material", "jerzy"
+            }));
+            Assert.That(upgradeNormalized, Is.True, upgradeError);
+            Assert.That(upgradeTokens, Is.EqualTo(new[]
+            {
+                "upgrade", "npc.blacksmith", "item.instance.001", "0.5", "0.99", "jerzy"
+            }));
+        }
+
+        [Test]
+        public void Parser_AllowsZeroFloorsAndNegativeDungeonCoordinates()
+        {
+            var gotoResult = DevConsoleCommandSchemaParser.TryNormalize(
+                "goto dungeon.debug 0 room.start",
+                out var gotoTokens,
+                out var gotoError);
+            var spawnResult = DevConsoleCommandSchemaParser.TryNormalize(
+                "spawnobject object.debug -2 0",
+                out var spawnTokens,
+                out var spawnError);
+
+            Assert.That(gotoResult, Is.True, gotoError);
+            Assert.That(gotoTokens, Is.EqualTo(new[] { "goto", "dungeon.debug", "0", "room.start" }));
+            Assert.That(spawnResult, Is.True, spawnError);
+            Assert.That(spawnTokens, Is.EqualTo(new[] { "spawnobject", "object.debug", "-2", "0" }));
+        }
+
+        [Test]
+        public void Parser_NormalizesSpecificHelpCommand()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "help createitem",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(tokens, Is.EqualTo(new[] { "help", "createitem" }));
+        }
+
+        [Test]
+        public void Parser_PreservesBareNoclipForToggle()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "noclip",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(tokens, Is.EqualTo(new[] { "noclip" }));
+        }
+    }
+}

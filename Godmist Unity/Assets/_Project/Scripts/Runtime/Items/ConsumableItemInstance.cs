@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 using System.Collections.Generic;
 
@@ -7,10 +8,10 @@ namespace Godmist.Runtime.Items
 {
     public sealed class ConsumableItemInstance : ItemInstance
     {
-        public const int DefaultBombRange = 5;
-        public const int DefaultBombAreaSize = 3;
-        public const int MaxBombRange = 8;
-        public const int MaxBombAreaSize = 5;
+        public static int DefaultBombRange => GameDefinesRuntime.GetInt(GameDefineIds.DefaultBombRange, 5);
+        public static int DefaultBombAreaSize => GameDefinesRuntime.GetInt(GameDefineIds.DefaultBombAreaSize, 3);
+        public static int MaxBombRange => GameDefinesRuntime.GetInt(GameDefineIds.MaxBombRange, 8);
+        public static int MaxBombAreaSize => GameDefinesRuntime.GetInt(GameDefineIds.MaxBombAreaSize, 5);
 
         public int CurrentCharges;
         public List<ConsumableEffectRuntime> RuntimeEffects = new();
@@ -28,7 +29,9 @@ namespace Godmist.Runtime.Items
         public ConsumableItemDefinition ConsumableDefinition => Definition as ConsumableItemDefinition;
         public int MaxCharges => ConsumableDefinition == null
             ? 0
-            : Math.Max(1, Math.Min(10, ConsumableDefinition.MaxCharges + CatalystChargeBonus));
+            : Math.Max(1, Math.Min(
+                GameDefinesRuntime.GetInt(GameDefineIds.MaxConsumableCharges, 10),
+                ConsumableDefinition.MaxCharges + CatalystChargeBonus));
         public bool HasCharges => CurrentCharges > 0;
 
         public bool IsBomb => ConsumableDefinition?.UseType == ConsumableUseType.Bomb;
@@ -56,35 +59,101 @@ namespace Godmist.Runtime.Items
             switch (catalystType)
             {
                 case ConsumableCatalystType.Duration:
-                    CatalystDurationModifier = GetCatalystTierValue(tier, 0, 1, 1, 2, 2, 3);
+                    CatalystDurationModifier = GetCatalystDurationValue(tier);
                     break;
                 case ConsumableCatalystType.Strength:
-                    CatalystEffectMultiplier = 1f + GetCatalystTierValue(tier, 0f, .10f, .12f, .15f, .20f, .30f);
+                    CatalystEffectMultiplier = 1f + GetCatalystStrengthValue(tier);
                     break;
                 case ConsumableCatalystType.Condensation:
-                    CatalystDurationModifier = -GetCatalystTierValue(tier, 0, 1, 1, 2, 2, 3);
+                    CatalystDurationModifier = -GetCatalystDurationValue(tier);
                     break;
                 case ConsumableCatalystType.Range:
                     if (!IsBomb) break;
                     ConfigureBombTargeting(
-                        DefaultBombRange + GetCatalystTierValue(tier, 0, 1, 1, 2, 2, 3),
-                        GetCatalystTierValue(tier, DefaultBombAreaSize, 3, 4, 4, 5, 5));
+                        DefaultBombRange + GetCatalystRangeValue(tier),
+                        tier == 0 ? DefaultBombAreaSize : GetCatalystAreaValue(tier));
                     break;
                 case ConsumableCatalystType.Charges:
-                    CatalystChargeBonus = GetCatalystTierValue(tier, 0, 1, 2, 3, 4, 5);
+                    CatalystChargeBonus = GetCatalystChargesValue(tier);
                     CurrentCharges = Math.Min(CurrentCharges, MaxCharges);
                     break;
             }
         }
 
-        private static int GetCatalystTierValue(int tier, params int[] values)
+        private static int GetCatalystDurationValue(int tier)
         {
-            return values[Math.Max(0, Math.Min(values.Length - 1, tier))];
+            return GetIntegerCatalystTierValue(
+                tier,
+                GameDefineIds.CatalystDurationTier1, 1,
+                GameDefineIds.CatalystDurationTier2, 1,
+                GameDefineIds.CatalystDurationTier3, 2,
+                GameDefineIds.CatalystDurationTier4, 2,
+                GameDefineIds.CatalystDurationTier5, 3);
         }
 
-        private static float GetCatalystTierValue(int tier, params float[] values)
+        private static int GetCatalystRangeValue(int tier)
         {
-            return values[Math.Max(0, Math.Min(values.Length - 1, tier))];
+            return GetIntegerCatalystTierValue(
+                tier,
+                GameDefineIds.CatalystRangeTier1, 1,
+                GameDefineIds.CatalystRangeTier2, 1,
+                GameDefineIds.CatalystRangeTier3, 2,
+                GameDefineIds.CatalystRangeTier4, 2,
+                GameDefineIds.CatalystRangeTier5, 3);
+        }
+
+        private static int GetCatalystAreaValue(int tier)
+        {
+            return GetIntegerCatalystTierValue(
+                tier,
+                GameDefineIds.CatalystAreaTier1, 3,
+                GameDefineIds.CatalystAreaTier2, 4,
+                GameDefineIds.CatalystAreaTier3, 4,
+                GameDefineIds.CatalystAreaTier4, 5,
+                GameDefineIds.CatalystAreaTier5, 5);
+        }
+
+        private static int GetCatalystChargesValue(int tier)
+        {
+            return GetIntegerCatalystTierValue(
+                tier,
+                GameDefineIds.CatalystChargesTier1, 1,
+                GameDefineIds.CatalystChargesTier2, 2,
+                GameDefineIds.CatalystChargesTier3, 3,
+                GameDefineIds.CatalystChargesTier4, 4,
+                GameDefineIds.CatalystChargesTier5, 5);
+        }
+
+        private static float GetCatalystStrengthValue(int tier)
+        {
+            if (tier <= 0) return 0f;
+            return tier switch
+            {
+                1 => GameDefinesRuntime.GetFloat(GameDefineIds.CatalystStrengthTier1, .10f),
+                2 => GameDefinesRuntime.GetFloat(GameDefineIds.CatalystStrengthTier2, .12f),
+                3 => GameDefinesRuntime.GetFloat(GameDefineIds.CatalystStrengthTier3, .15f),
+                4 => GameDefinesRuntime.GetFloat(GameDefineIds.CatalystStrengthTier4, .20f),
+                _ => GameDefinesRuntime.GetFloat(GameDefineIds.CatalystStrengthTier5, .30f)
+            };
+        }
+
+        private static int GetIntegerCatalystTierValue(
+            int tier,
+            string tier1Id, int tier1Fallback,
+            string tier2Id, int tier2Fallback,
+            string tier3Id, int tier3Fallback,
+            string tier4Id, int tier4Fallback,
+            string tier5Id, int tier5Fallback)
+        {
+            if (tier <= 0) return 0;
+            return tier switch
+            {
+                1 => GameDefinesRuntime.GetInt(tier1Id, tier1Fallback),
+                2 => GameDefinesRuntime.GetInt(tier2Id, tier2Fallback),
+                3 => GameDefinesRuntime.GetInt(tier3Id, tier3Fallback),
+                4 => GameDefinesRuntime.GetInt(tier4Id, tier4Fallback),
+                _ => GameDefinesRuntime.GetInt(tier5Id, tier5Fallback)
+            };
         }
         public override bool CanStackWith(ItemInstance other)
         {
