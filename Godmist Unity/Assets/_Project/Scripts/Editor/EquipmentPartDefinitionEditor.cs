@@ -11,6 +11,9 @@ namespace Godmist.Editor
         {
             serializedObject.Update();
             Draw("<Id>k__BackingField");
+            Draw("<DisplayName>k__BackingField");
+            Draw("<Description>k__BackingField");
+            Draw("<Icon>k__BackingField");
             Draw("<RequiredClass>k__BackingField");
             Draw("<Kind>k__BackingField");
             Draw("<LevelBracket>k__BackingField");

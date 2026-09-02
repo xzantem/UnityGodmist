@@ -80,6 +80,7 @@ namespace Godmist.Editor
         private GameContentCatalog activeCatalog;
         private UnityEngine.Object selectedAsset;
         private SerializedObject serializedAsset;
+        private UnityEditor.Editor selectedAssetEditor;
         private string searchQuery = string.Empty;
         private string categoryFilter = AllCategory;
         private ContentDomain activeDomain;
@@ -108,6 +109,7 @@ namespace Godmist.Editor
         private void OnDisable()
         {
             Selection.selectionChanged -= HandleSelectionChanged;
+            DisposeSelectedAssetEditor();
         }
 
         private void OnGUI()
@@ -171,8 +173,7 @@ namespace Godmist.Editor
             activeDomain = (ContentDomain)nextDomain;
             categoryFilter = AllCategory;
             assetScroll = Vector2.zero;
-            selectedAsset = null;
-            serializedAsset = null;
+            ClearSelectedAsset();
         }
 
         private void DrawFilters()
@@ -258,30 +259,28 @@ namespace Godmist.Editor
                 EditorGUILayout.EndVertical();
                 return;
             }
-            if (serializedAsset == null || serializedAsset.targetObject != selectedAsset)
-                serializedAsset = new SerializedObject(selectedAsset);
-
-            serializedAsset.Update();
+            EnsureSelectedAssetEditor();
             EditorGUILayout.LabelField($"Edycja: {GetAssetLabel(selectedAsset)}", EditorStyles.boldLabel);
             EditorGUILayout.LabelField(AssetDatabase.GetAssetPath(selectedAsset), EditorStyles.miniLabel);
             inspectorScroll = EditorGUILayout.BeginScrollView(inspectorScroll);
-            DrawAllSerializedProperties();
+            selectedAssetEditor.OnInspectorGUI();
             EditorGUILayout.EndScrollView();
-            serializedAsset.ApplyModifiedProperties();
+            serializedAsset = selectedAssetEditor.serializedObject;
             DrawValidationAndActions();
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawAllSerializedProperties()
+        private void EnsureSelectedAssetEditor()
         {
-            var property = serializedAsset.GetIterator();
-            var enterChildren = true;
-            while (property.NextVisible(enterChildren))
+            if (selectedAssetEditor != null && selectedAssetEditor.target == selectedAsset)
             {
-                enterChildren = false;
-                if (property.propertyPath == "m_Script") continue;
-                EditorGUILayout.PropertyField(property, true);
+                serializedAsset = selectedAssetEditor.serializedObject;
+                return;
             }
+
+            DisposeSelectedAssetEditor();
+            selectedAssetEditor = UnityEditor.Editor.CreateEditor(selectedAsset);
+            serializedAsset = selectedAssetEditor?.serializedObject;
         }
 
         private void DrawValidationAndActions()
@@ -521,8 +520,7 @@ namespace Godmist.Editor
             allAssets = assets.Values.Where(IsSupportedAsset).OrderBy(GetAssetLabel, StringComparer.OrdinalIgnoreCase).ToList();
             if (selectedAsset != null && !allAssets.Contains(selectedAsset))
             {
-                selectedAsset = null;
-                serializedAsset = null;
+                ClearSelectedAsset();
             }
             Repaint();
         }
@@ -618,6 +616,13 @@ namespace Godmist.Editor
 
         private void SetSelectedAsset(UnityEngine.Object asset)
         {
+            if (ReferenceEquals(selectedAsset, asset))
+            {
+                Repaint();
+                return;
+            }
+
+            DisposeSelectedAssetEditor();
             selectedAsset = asset;
             serializedAsset = asset == null ? null : new SerializedObject(asset);
             if (asset != null)
@@ -631,10 +636,25 @@ namespace Godmist.Editor
         private void HandleSelectionChanged()
         {
             if (Selection.activeObject is not UnityEngine.Object asset || !IsSupportedAsset(asset)) return;
+            DisposeSelectedAssetEditor();
             selectedAsset = asset;
             activeDomain = GetDomain(asset);
             serializedAsset = new SerializedObject(asset);
             Repaint();
+        }
+
+        private void ClearSelectedAsset()
+        {
+            DisposeSelectedAssetEditor();
+            selectedAsset = null;
+            serializedAsset = null;
+        }
+
+        private void DisposeSelectedAssetEditor()
+        {
+            if (selectedAssetEditor == null) return;
+            DestroyImmediate(selectedAssetEditor);
+            selectedAssetEditor = null;
         }
 
         private void SetStatus(string message, MessageType type)
