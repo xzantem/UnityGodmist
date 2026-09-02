@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Runtime.Combat
 {
@@ -9,7 +10,8 @@ namespace Godmist.Runtime.Combat
     {
         public string CombatId = string.Empty;
         public CombatOutcomeState Outcome = CombatOutcomeState.Ongoing;
-        public int CurrentEscapeChancePercent = 60;
+        public int CurrentEscapeChancePercent = GameDefinesRuntime.GetInt(
+            GameDefineIds.EscapeBaseChancePercent, 60);
         public CombatRewardResult Rewards = new();
         public bool RewardsGranted;
         public bool EscapePenaltyApplied;
@@ -17,7 +19,8 @@ namespace Godmist.Runtime.Combat
         public HashSet<string> EscapePenaltyEligibleCharacterIds = new();
         public bool IsDebugSession;
         public DungeonTheme DungeonTheme = DungeonTheme.Story;
-        public float ActionPointsPerSpeed = 0.25f;
+        public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
+            GameDefineIds.ActionPointsPerSpeed, 0.25f);
         public BattleGrid Grid;
         public List<BattleUnit> Units = new();
         public List<ScheduledCombatEffect> ScheduledEffects = new();

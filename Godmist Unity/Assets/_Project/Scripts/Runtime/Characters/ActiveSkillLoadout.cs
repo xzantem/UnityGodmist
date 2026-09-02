@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Data.Skills;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Runtime.Characters
 {
     [Serializable]
     public sealed class ActiveSkillLoadout
     {
-        public const int DefaultBaseCapacity = 5;
+        public static int DefaultBaseCapacity => GameDefinesRuntime.GetInt(
+            GameDefineIds.DefaultActiveSkillCapacity, 5);
 
         private readonly List<string> activeSkillIds = new();
         // Slot zero is always the basic attack. Remaining positions stay stable so the

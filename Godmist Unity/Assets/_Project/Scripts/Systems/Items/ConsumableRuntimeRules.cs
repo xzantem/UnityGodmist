@@ -1,6 +1,7 @@
 using System;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 using Godmist.Runtime.Items;
 
@@ -88,8 +89,10 @@ namespace Godmist.Systems.Items
             return occurrenceCount <= 1
                 ? 1f
                 : occurrenceCount == 2
-                    ? 0.75f
-                    : 0.60f;
+                    ? GameDefinesRuntime.GetFloat(
+                        GameDefineIds.ConsumableDuplicateSecondMultiplier, .75f)
+                    : GameDefinesRuntime.GetFloat(
+                        GameDefineIds.ConsumableDuplicateThirdPlusMultiplier, .60f);
         }
 
         public static string GetImpliedStatusId(ConsumableRuntimeEffectType effectType)
@@ -133,7 +136,8 @@ namespace Godmist.Systems.Items
                 {
                     ConsumableRuntimeEffectType.RegenHealth
                         or ConsumableRuntimeEffectType.RegenResource
-                        or ConsumableRuntimeEffectType.ModifyMaxResource => 6,
+                        or ConsumableRuntimeEffectType.ModifyMaxResource => GameDefinesRuntime.GetInt(
+                            GameDefineIds.ConsumablePotionLongDuration, 6),
                     ConsumableRuntimeEffectType.ModifyDamage
                         or ConsumableRuntimeEffectType.ModifyDefense
                         or ConsumableRuntimeEffectType.ModifyPhysicalDefense
@@ -141,9 +145,12 @@ namespace Godmist.Systems.Items
                         or ConsumableRuntimeEffectType.ModifyResistance
                         or ConsumableRuntimeEffectType.ModifyCritChance
                         or ConsumableRuntimeEffectType.ModifyDodge
-                        or ConsumableRuntimeEffectType.ModifyAccuracy => 5,
-                    ConsumableRuntimeEffectType.ModifySpeed => 3,
-                    ConsumableRuntimeEffectType.ModifyActionPoints => 4,
+                        or ConsumableRuntimeEffectType.ModifyAccuracy => GameDefinesRuntime.GetInt(
+                            GameDefineIds.ConsumablePotionStatDuration, 5),
+                    ConsumableRuntimeEffectType.ModifySpeed => GameDefinesRuntime.GetInt(
+                        GameDefineIds.ConsumablePotionSpeedDuration, 3),
+                    ConsumableRuntimeEffectType.ModifyActionPoints => GameDefinesRuntime.GetInt(
+                        GameDefineIds.ConsumablePotionActionPointDuration, 4),
                     _ => 0
                 };
             }
@@ -153,10 +160,13 @@ namespace Godmist.Systems.Items
                 return effectType switch
                 {
                     ConsumableRuntimeEffectType.ApplyBleed
-                        or ConsumableRuntimeEffectType.ApplyPoison => 4,
-                    ConsumableRuntimeEffectType.ApplyBurn => 3,
+                        or ConsumableRuntimeEffectType.ApplyPoison => GameDefinesRuntime.GetInt(
+                            GameDefineIds.ConsumableBombDamageOverTimeDuration, 4),
+                    ConsumableRuntimeEffectType.ApplyBurn => GameDefinesRuntime.GetInt(
+                        GameDefineIds.ConsumableBombBurnDuration, 3),
                     ConsumableRuntimeEffectType.ApplyStun
-                        or ConsumableRuntimeEffectType.ApplyFreeze => 2,
+                        or ConsumableRuntimeEffectType.ApplyFreeze => GameDefinesRuntime.GetInt(
+                            GameDefineIds.ConsumableBombControlDuration, 2),
                     ConsumableRuntimeEffectType.ModifyPhysicalDefense
                         or ConsumableRuntimeEffectType.ModifyMagicalDefense
                         or ConsumableRuntimeEffectType.ModifyDefense
@@ -164,7 +174,8 @@ namespace Godmist.Systems.Items
                         or ConsumableRuntimeEffectType.ModifyCritChance
                         or ConsumableRuntimeEffectType.ModifyDodge
                         or ConsumableRuntimeEffectType.ModifyAccuracy
-                        or ConsumableRuntimeEffectType.Slow => 3,
+                        or ConsumableRuntimeEffectType.Slow => GameDefinesRuntime.GetInt(
+                            GameDefineIds.ConsumableBombStatDuration, 3),
                     _ => 0
                 };
             }

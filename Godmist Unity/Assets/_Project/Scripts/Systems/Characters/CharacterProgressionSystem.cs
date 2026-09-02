@@ -1,14 +1,17 @@
 using System;
 using System.Linq;
 using Godmist.Runtime.Characters;
+using Godmist.Data.Configuration;
 using UnityEngine;
 
 namespace Godmist.Systems.Characters
 {
     public class CharacterProgressionSystem
     {
-        public const int MinimumLevel = 1;
-        public const int MaximumLevel = 50;
+        public static int MinimumLevel => GameDefinesRuntime.GetInt(
+            GameDefineIds.MinimumCharacterLevel, 1);
+        public static int MaximumLevel => GameDefinesRuntime.GetInt(
+            GameDefineIds.MaximumCharacterLevel, 50);
 
         private readonly CharacterLevelGrowthSystem growthSystem;
 
@@ -26,7 +29,13 @@ namespace Godmist.Systems.Characters
 
             if (currentLevel == MaximumLevel) return 0;
 
-            return Mathf.RoundToInt(12f * Mathf.Pow(currentLevel, 1.5f) + 12f);
+            var coefficient = GameDefinesRuntime.GetFloat(
+                GameDefineIds.ExperienceFormulaCoefficient, 12f);
+            var exponent = GameDefinesRuntime.GetFloat(
+                GameDefineIds.ExperienceFormulaExponent, 1.5f);
+            var constant = GameDefinesRuntime.GetFloat(
+                GameDefineIds.ExperienceFormulaConstant, 12f);
+            return Mathf.RoundToInt(coefficient * Mathf.Pow(currentLevel, exponent) + constant);
         }
 
         public int AddExperience(CharacterInstance character, int experienceAmount)
@@ -118,10 +127,9 @@ namespace Godmist.Systems.Characters
             return true;
         }
 
-        public static int GetSkillPointsGrantedOnLevelUp(int newLevel)
-        {
-            return newLevel == 2 ? 2 : 1;
-        }
+        public static int GetSkillPointsGrantedOnLevelUp(int newLevel) => newLevel == 2
+            ? GameDefinesRuntime.GetInt(GameDefineIds.SkillPointsAtLevelTwo, 2)
+            : GameDefinesRuntime.GetInt(GameDefineIds.SkillPointsAtOtherLevels, 1);
 
         public static bool TryMigrateLegacySkillPointTotal(CharacterInstance character)
         {

@@ -6,6 +6,7 @@ using Godmist.Core.Constants;
 using UnityEngine;
 using Godmist.Data.Skills;
 using Godmist.Data.Effects;
+using Godmist.Data.Configuration;
 using System.Linq;
 
 namespace Godmist.Systems.Combat
@@ -440,7 +441,7 @@ namespace Godmist.Systems.Combat
             {
                 if (effect?.EffectType == EffectType.Summon)
                 {
-                    score += 75f;
+                    score += Ai(GameDefineIds.AiSummonScore, 75f);
                     continue;
                 }
 
@@ -451,7 +452,7 @@ namespace Godmist.Systems.Combat
 
                 if (effect.DelayCasterTurns > 0)
                 {
-                    score += 25f * targets.Count;
+                    score += Ai(GameDefineIds.AiDelayedEffectPerTarget, 25f) * targets.Count;
                 }
             }
 
@@ -459,7 +460,8 @@ namespace Godmist.Systems.Combat
 
             return score + CalculateRoleBonus(caster, skill, targetsByModeIndex)
                 + CalculatePersonalityBonus(caster, skill, targetsByModeIndex)
-                - actionCost * 0.35f - skill.ResourceCost * 0.1f;
+                - actionCost * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f)
+                - skill.ResourceCost * Ai(GameDefineIds.AiResourceCostPenaltyPerPoint, .1f);
         }
 
         private static float CalculatePersonalityBonus(
@@ -483,12 +485,15 @@ namespace Godmist.Systems.Combat
                 bonus += personality switch
                 {
                     CombatAiPersonality.Aggressive
-                        when effect.EffectType == EffectType.DealDamage => 30f * count,
+                        when effect.EffectType == EffectType.DealDamage =>
+                            Ai(GameDefineIds.AiAggressiveDamagePerTarget, 30f) * count,
                     CombatAiPersonality.Aggressive
-                        when effect.EffectType == EffectType.ApplyStatus => 15f * count,
+                        when effect.EffectType == EffectType.ApplyStatus =>
+                            Ai(GameDefineIds.AiAggressiveStatusPerTarget, 15f) * count,
                     CombatAiPersonality.Cautious
                         when effect.EffectType == EffectType.Heal
-                        || effect.EffectType == EffectType.Shield => 30f * count,
+                        || effect.EffectType == EffectType.Shield =>
+                            Ai(GameDefineIds.AiCautiousRecoveryPerTarget, 30f) * count,
                     _ => 0f
                 };
             }
@@ -516,23 +521,27 @@ namespace Godmist.Systems.Combat
                 bonus += role switch
                 {
                     CombatAiRole.Dps when effect.EffectType == EffectType.DealDamage
-                        => 60f * count,
+                        => Ai(GameDefineIds.AiDpsDamagePerTarget, 60f) * count,
                     CombatAiRole.Dps when effect.EffectType == EffectType.ApplyStatus
-                        => 20f * count,
+                        => Ai(GameDefineIds.AiDpsStatusPerTarget, 20f) * count,
                     CombatAiRole.Tank when effect.EffectType == EffectType.Shield
-                        => 35f * count,
+                        => Ai(GameDefineIds.AiTankShieldPerTarget, 35f) * count,
                     CombatAiRole.Tank when effect.EffectType == EffectType.ApplyStatus
                         && string.Equals(effect.StatusId, StatusEffectIds.Taunt,
-                            StringComparison.OrdinalIgnoreCase) => 90f * count,
+                            StringComparison.OrdinalIgnoreCase) =>
+                            Ai(GameDefineIds.AiTankTauntPerTarget, 90f) * count,
                     CombatAiRole.Tank when effect.EffectType == EffectType.Push
-                        || effect.EffectType == EffectType.Pull => 25f * count,
+                        || effect.EffectType == EffectType.Pull =>
+                            Ai(GameDefineIds.AiTankPushPullPerTarget, 25f) * count,
                     CombatAiRole.Healer when effect.EffectType == EffectType.Heal
-                        || effect.EffectType == EffectType.RestoreResource => 70f * count,
+                        || effect.EffectType == EffectType.RestoreResource =>
+                        Ai(GameDefineIds.AiHealerRecoveryPerTarget, 70f) * count,
                     CombatAiRole.Support when effect.EffectType == EffectType.Shield
                         || effect.EffectType == EffectType.ModifyStat
-                        || effect.EffectType == EffectType.ModifyVar => 55f * count,
+                        || effect.EffectType == EffectType.ModifyVar =>
+                        Ai(GameDefineIds.AiSupportUtilityPerTarget, 55f) * count,
                     CombatAiRole.Support when effect.EffectType == EffectType.ApplyStatus
-                        => 40f * count,
+                        => Ai(GameDefineIds.AiSupportStatusPerTarget, 40f) * count,
                     _ => 0f
                 };
             }
@@ -669,18 +678,20 @@ namespace Godmist.Systems.Combat
                             score += expectedDamage;
                             if (expectedDamage >= target.Character.CurrentHealth)
                             {
-                                score += 10000f;
+                                score += Ai(GameDefineIds.AiLethalDamageBonus, 10000f);
                             }
                             break;
                         }
                         case EffectType.ApplyStatus:
-                            score += IsHardControl(effect.StatusId) ? 300f : 100f;
+                            score += IsHardControl(effect.StatusId)
+                                ? Ai(GameDefineIds.AiHardControlBonus, 300f)
+                                : Ai(GameDefineIds.AiSoftControlBonus, 100f);
                             break;
                         case EffectType.Heal:
                             score += GetMissingHealth(target);
                             if (target.Character.LifeState == CharacterLifeState.Downed)
                             {
-                                score += 5000f;
+                                score += Ai(GameDefineIds.AiDownedRecoveryBonus, 5000f);
                             }
                             break;
                         case EffectType.RestoreResource:
@@ -692,18 +703,19 @@ namespace Godmist.Systems.Combat
                             }
                             break;
                         case EffectType.Shield:
-                            score += Mathf.Max(0, effect.BaseValue) * 0.5f;
+                            score += Mathf.Max(0, effect.BaseValue)
+                                * Ai(GameDefineIds.AiShieldValueMultiplier, .5f);
                             break;
                         case EffectType.ModifyStat:
                         case EffectType.ModifyVar:
-                            score += 40f;
+                            score += Ai(GameDefineIds.AiModifyBonus, 40f);
                             break;
                         case EffectType.Push:
                         case EffectType.Pull:
-                            score += 30f;
+                            score += Ai(GameDefineIds.AiPushPullBonus, 30f);
                             break;
                         case EffectType.Fallback:
-                            score += 10f;
+                            score += Ai(GameDefineIds.AiFallbackBonus, 10f);
                             break;
                     }
                 }
@@ -745,6 +757,11 @@ namespace Godmist.Systems.Combat
                 || string.Equals(statusId, StatusEffectIds.Freeze, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(statusId, StatusEffectIds.Sleep, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(statusId, StatusEffectIds.Paralysis, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static float Ai(string id, float fallback)
+        {
+            return GameDefinesRuntime.GetFloat(id, fallback);
         }
 
         public BattleUnit FindClosestPlayerUnit(CombatSession session, BattleUnit aiUnit)

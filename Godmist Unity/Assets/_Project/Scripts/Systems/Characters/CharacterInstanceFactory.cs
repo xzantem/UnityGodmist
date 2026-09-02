@@ -16,8 +16,15 @@ namespace Godmist.Systems.Characters
 
         public CharacterInstance Create(
             CharacterDefinition definition,
-            CharacterClassData classData = null,
-            int level = CharacterProgressionSystem.MinimumLevel)
+            CharacterClassData classData = null)
+        {
+            return Create(definition, classData, CharacterProgressionSystem.MinimumLevel);
+        }
+
+        public CharacterInstance Create(
+            CharacterDefinition definition,
+            CharacterClassData classData,
+            int level)
         {
             if (definition == null)
             {

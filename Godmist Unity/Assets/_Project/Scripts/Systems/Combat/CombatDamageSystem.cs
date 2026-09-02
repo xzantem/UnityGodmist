@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using UnityEngine;
@@ -589,7 +590,8 @@ namespace Godmist.Systems.Combat
                 return damage;
             }
 
-            var multiplier = 1f + remainingTurns * 0.5f;
+            var multiplier = 1f + remainingTurns * GameDefinesRuntime.GetFloat(
+                GameDefineIds.FreezeDamagePerRemainingTurn, .5f);
             var boostedDamage = Mathf.CeilToInt(damage * multiplier);
 
             battleLog?.Invoke(

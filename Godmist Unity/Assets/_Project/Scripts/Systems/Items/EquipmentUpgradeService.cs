@@ -4,6 +4,7 @@ using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Items;
+using Godmist.Data.Configuration;
 using Godmist.Data.NPC;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
@@ -52,14 +53,21 @@ namespace Godmist.Systems.Items
                 preview.FailureReason = "Wybierz docelowy postęp większy od obecnego i nie większy niż 100%.";
                 return preview;
             }
-            if (successChance < 0f || successChance > .99f)
+            var maximumSuccessChance = GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeSuccessChanceMax, .99f);
+            if (successChance < 0f || successChance > maximumSuccessChance)
             {
                 preview.FailureReason = "Szansa powodzenia musi mieścić się między 0% a 99%.";
                 return preview;
             }
             preview.GoldCost = Mathf.Max(1, Mathf.CeilToInt((float)(UpgradeCost(baseValue, targetProgress, successChance)
                 - UpgradeCost(baseValue, item.UpgradeProgress, successChance))));
-            preview.SocketCapacity = Mathf.Clamp(Mathf.FloorToInt(targetProgress * 5f + .0001f), 0, 5);
+            var maximumSocketCapacity = GameDefinesRuntime.GetInt(
+                GameDefineIds.SocketCapacityAtFullUpgrade, 5);
+            preview.SocketCapacity = Mathf.Clamp(
+                Mathf.FloorToInt(targetProgress * maximumSocketCapacity + .0001f),
+                0,
+                maximumSocketCapacity);
             preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
             preview.CanExecute = session.Gold >= preview.GoldCost;
             preview.FailureReason = preview.CanExecute ? string.Empty : "Brakuje złota.";
@@ -83,7 +91,14 @@ namespace Godmist.Systems.Items
             }
             else
             {
-                item.UpgradeProgress = Mathf.Max(0f, item.UpgradeProgress - (.1f + (float)random.NextDouble() * .1f));
+                var minimumLoss = GameDefinesRuntime.GetFloat(
+                    GameDefineIds.UpgradeFailureProgressLossMin, .1f);
+                var maximumLoss = GameDefinesRuntime.GetFloat(
+                    GameDefineIds.UpgradeFailureProgressLossMax, .2f);
+                item.UpgradeProgress = Mathf.Max(
+                    0f,
+                    item.UpgradeProgress - (minimumLoss
+                        + (float)random.NextDouble() * Mathf.Max(0f, maximumLoss - minimumLoss)));
                 failureReason = "Ulepszenie nie powiodło się; postęp spadł.";
             }
             ApplyUpgradeStats(item);
@@ -103,7 +118,8 @@ namespace Godmist.Systems.Items
             preview.UnchangedChance = (float)unchanged;
             preview.DecreaseChance = 1f - preview.IncreaseChance - preview.UnchangedChance;
             preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
-            preview.GoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * .25f));
+            preview.GoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * GameDefinesRuntime.GetFloat(
+                GameDefineIds.ReforgeCostMultiplier, .25f)));
             preview.CanExecute = session.Gold >= preview.GoldCost;
             preview.FailureReason = preview.CanExecute ? string.Empty : "Brakuje złota.";
             return preview;
@@ -127,22 +143,69 @@ namespace Godmist.Systems.Items
         }
 
         public static float GetCurrentValue(float baseValue, RarityTier rarity, float progress) =>
-            .25f * (3f + GetRarityValue(rarity)) * (1f + 4f * Mathf.Clamp01(progress)) * baseValue;
+            GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueBaseMultiplier, .25f)
+            * (GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueRarityBase, 3f)
+                + GetRarityValue(rarity))
+            * (1f + GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueProgressMultiplier, 4f)
+                * Mathf.Clamp01(progress)) * baseValue;
 
         public static double UpgradeCost(float baseValue, float progress, float chance)
         {
-            var m = Mathf.Clamp01(progress); var c = Mathf.Clamp(chance, 0f, .99f);
-            return ((1d + baseValue) / 2d) * ((7d * m + 3d) / (12d - 11d * m)) * ((57d - 37d * c) / (76d - 75d * c));
+            var m = Mathf.Clamp01(progress);
+            var c = Mathf.Clamp(chance, 0f, GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeSuccessChanceMax, .99f));
+            var progressBase = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostProgressBase, 3f);
+            var progressSlope = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostProgressSlope, 7f);
+            var progressDenominatorBase = GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeCostProgressDenominatorBase, 12f);
+            var progressDenominatorSlope = GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeCostProgressDenominatorSlope, 11f);
+            var chanceBase = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostChanceBase, 57f);
+            var chanceSlope = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostChanceSlope, 37f);
+            var chanceDenominatorBase = GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeCostChanceDenominatorBase, 76f);
+            var chanceDenominatorSlope = GameDefinesRuntime.GetFloat(
+                GameDefineIds.UpgradeCostChanceDenominatorSlope, 75f);
+            return ((1d + baseValue) / 2d)
+                * ((progressSlope * m + progressBase)
+                    / (progressDenominatorBase - progressDenominatorSlope * m))
+                * ((chanceBase - chanceSlope * c)
+                    / (chanceDenominatorBase - chanceDenominatorSlope * c));
         }
 
         public static int GetRarityValue(RarityTier rarity) => (int)rarity - 2;
 
         private static (double Up, double Unchanged) GetReforgeChances(RarityTier rarity) => rarity switch
         {
-            RarityTier.Trash => (.90, .10), RarityTier.Broken => (.80, .15), RarityTier.Damaged => (.80, .15),
-            RarityTier.Common => (.70, .20), RarityTier.Uncommon => (.65, .20), RarityTier.Rare => (.60, .25),
-            RarityTier.Ancient => (.55, .25), RarityTier.Legendary => (.45, .30), RarityTier.Mythic => (.35, .40), _ => (0, 0)
+            RarityTier.Trash => Chances(GameDefineIds.ReforgeTrashIncreaseChance, .90f,
+                GameDefineIds.ReforgeTrashUnchangedChance, .10f),
+            RarityTier.Broken => Chances(GameDefineIds.ReforgeBrokenIncreaseChance, .80f,
+                GameDefineIds.ReforgeBrokenUnchangedChance, .15f),
+            RarityTier.Damaged => Chances(GameDefineIds.ReforgeDamagedIncreaseChance, .80f,
+                GameDefineIds.ReforgeDamagedUnchangedChance, .15f),
+            RarityTier.Common => Chances(GameDefineIds.ReforgeCommonIncreaseChance, .70f,
+                GameDefineIds.ReforgeCommonUnchangedChance, .20f),
+            RarityTier.Uncommon => Chances(GameDefineIds.ReforgeUncommonIncreaseChance, .65f,
+                GameDefineIds.ReforgeUncommonUnchangedChance, .20f),
+            RarityTier.Rare => Chances(GameDefineIds.ReforgeRareIncreaseChance, .60f,
+                GameDefineIds.ReforgeRareUnchangedChance, .25f),
+            RarityTier.Ancient => Chances(GameDefineIds.ReforgeAncientIncreaseChance, .55f,
+                GameDefineIds.ReforgeAncientUnchangedChance, .25f),
+            RarityTier.Legendary => Chances(GameDefineIds.ReforgeLegendaryIncreaseChance, .45f,
+                GameDefineIds.ReforgeLegendaryUnchangedChance, .30f),
+            RarityTier.Mythic => Chances(GameDefineIds.ReforgeMythicIncreaseChance, .35f,
+                GameDefineIds.ReforgeMythicUnchangedChance, .40f),
+            _ => (0, 0)
         };
+
+        private static (double Up, double Unchanged) Chances(
+            string increaseId, float increaseFallback,
+            string unchangedId, float unchangedFallback)
+        {
+            return (
+                GameDefinesRuntime.GetFloat(increaseId, increaseFallback),
+                GameDefinesRuntime.GetFloat(unchangedId, unchangedFallback));
+        }
 
         private static bool TryValidate(GameSession session, NpcInstance blacksmith, EquipmentItemInstance item,
             GameContentCatalog catalog, out float baseValue, out string error)

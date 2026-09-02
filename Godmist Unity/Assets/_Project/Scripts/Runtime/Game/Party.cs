@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Runtime.Game
 {
     public class Party
     {
-        public const int DefaultMaxActiveMembers = 5;
+        public static int DefaultMaxActiveMembers => GameDefinesRuntime.GetInt(
+            GameDefineIds.DefaultMaxActivePartyMembers, 5);
 
         private readonly List<string> activeMemberIds = new();
         private readonly List<string> benchMemberIds = new();
@@ -17,8 +19,13 @@ namespace Godmist.Runtime.Game
 
         public event Action<string, string> ActiveLeaderChanged;
 
-        public Party(int maxActiveMembers = DefaultMaxActiveMembers)
+        public Party(int maxActiveMembers = -1)
         {
+            if (maxActiveMembers < 1)
+            {
+                maxActiveMembers = DefaultMaxActiveMembers;
+            }
+
             if (maxActiveMembers < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxActiveMembers));

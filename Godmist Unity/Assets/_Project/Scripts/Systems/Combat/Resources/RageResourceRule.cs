@@ -1,11 +1,14 @@
 using Godmist.Runtime.Characters;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Systems.Combat
 {
     public class RageResourceRule : IResourceRule
     {
-        private const int RagePerHit = 10;
-        private const int RageDecayPerMissedTurn = 10;
+        private static int RagePerHit => GameDefinesRuntime.GetInt(
+            GameDefineIds.RagePerHit, 10);
+        private static int RageDecayPerMissedTurn => GameDefinesRuntime.GetInt(
+            GameDefineIds.RageDecayPerMissedTurn, 10);
 
         public int ProcessTurnStart(ResourcePool pool)
         {

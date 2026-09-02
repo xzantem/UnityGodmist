@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
+using Godmist.Data.Configuration;
 using Godmist.Data.Dungeons;
 using Godmist.Data.World;
 using Godmist.Runtime.Dungeons;
@@ -30,6 +31,9 @@ namespace Godmist.Views.Game
         [Header("Content")]
         [SerializeField] private GameContentCatalog contentCatalog;
 
+        [Header("Configuration")]
+        [SerializeField] private GameDefines gameDefines;
+
         public static GameBootstrap Instance { get; private set; }
 
         public GameSession Session { get; private set; }
@@ -38,6 +42,7 @@ namespace Godmist.Views.Game
         public TradeService TradeService { get; private set; }
         public SaveManager SaveManager { get; private set; }
         public GameContentCatalog ContentCatalog => contentCatalog;
+        public GameDefines GameDefines => gameDefines;
         public bool IsDungeonScene => SceneManager.GetActiveScene().name == dungeonSceneName;
 
         public event Action<DungeonInstance> DungeonExited;
@@ -72,6 +77,11 @@ namespace Godmist.Views.Game
 
             Session = new GameSession(GameModeState.Menu);
             SaveManager = new SaveManager();
+
+            GameDefinesRuntime.Configure(
+                gameDefines != null
+                    ? gameDefines
+                    : Resources.Load<GameDefines>("GameDefines"));
 
             sceneLoader = GetComponent<SceneLoader>();
             sceneLoader.Initialize(Session);

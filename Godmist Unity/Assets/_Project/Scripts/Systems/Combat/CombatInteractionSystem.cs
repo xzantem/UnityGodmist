@@ -1,11 +1,13 @@
 using System;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
 
 namespace Godmist.Systems.Combat
 {
     public class CombatInteractionSystem
     {
-        private const int InteractionApPercent = 20;
+        private static int InteractionApPercent => GameDefinesRuntime.GetInt(
+            GameDefineIds.InteractionActionPointPercent, 20);
 
         private readonly Action<string> battleLog;
         private readonly Action<CombatMapObject> onObjectChanged;

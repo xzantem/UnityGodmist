@@ -1,12 +1,14 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
 
 namespace Godmist.Systems.Combat
 {
     public class CombatReviveSystem
     {
-        private const int ReviveHealth = 1;
+        private static int ReviveHealth => GameDefinesRuntime.GetInt(
+            GameDefineIds.ReviveHealth, 1);
 
         private readonly Action<string> battleLog;
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
@@ -18,11 +19,14 @@ namespace Godmist.Views.Exploration
         }
 
         [Header("Combat")]
-        [SerializeField] private float actionPointsPerSpeed = 0.25f;
-        [SerializeField] private float combatStartDistance = 0.85f;
+        private float ActionPointsPerSpeed => GameDefinesRuntime.GetFloat(
+            GameDefineIds.ActionPointsPerSpeed, .25f);
+        private float CombatStartDistance => GameDefinesRuntime.GetFloat(
+            GameDefineIds.EncounterCombatStartDistance, .85f);
 
         [Header("Exploration Chase")]
-        [SerializeField] private float chaseSpeed = 4.5f;
+        private float ChaseSpeed => GameDefinesRuntime.GetFloat(
+            GameDefineIds.EncounterChaseSpeed, 4.5f);
         [SerializeField] private float waypointArrivalDistance = 0.03f;
 
         private readonly Dictionary<ExplorationCharacterView, Vector2>
@@ -177,7 +181,7 @@ namespace Godmist.Views.Exploration
 
                 var chaseStopDistance = Mathf.Max(
                     0f,
-                    combatStartDistance - 0.1f);
+                    CombatStartDistance - 0.1f);
 
                 TryMoveEnemyAlongFloor(
                     enemyView,
@@ -224,7 +228,7 @@ namespace Godmist.Views.Exploration
             {
                 enemyView.MoveTowards(
                     targetPosition,
-                    chaseSpeed * Time.deltaTime,
+                    ChaseSpeed * Time.deltaTime,
                     stopDistance);
 
                 return true;
@@ -238,7 +242,7 @@ namespace Godmist.Views.Exploration
             {
                 enemyView.MoveTowards(
                     targetPosition,
-                    chaseSpeed * Time.deltaTime,
+                    ChaseSpeed * Time.deltaTime,
                     stopDistance);
 
                 return true;
@@ -246,7 +250,7 @@ namespace Godmist.Views.Exploration
 
             enemyView.MoveTowards(
                 floorMapView.CellToWorldCenter(nextCell),
-                chaseSpeed * Time.deltaTime,
+                ChaseSpeed * Time.deltaTime,
                 0f);
 
             return true;
@@ -332,7 +336,7 @@ namespace Godmist.Views.Exploration
                 }
 
                 if (Vector2.Distance(enemyView.Position, leaderPosition)
-                    <= combatStartDistance + 0.05f)
+                    <= CombatStartDistance + 0.05f)
                 {
                     return true;
                 }
@@ -427,7 +431,7 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            var factory = new CombatSessionFactory(actionPointsPerSpeed);
+            var factory = new CombatSessionFactory(ActionPointsPerSpeed);
 
             if (!factory.TryCreate(
                     gameSession,

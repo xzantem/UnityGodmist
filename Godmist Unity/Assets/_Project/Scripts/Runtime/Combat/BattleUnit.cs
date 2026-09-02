@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Characters;
 using UnityEngine;
 
@@ -81,7 +82,8 @@ namespace Godmist.Runtime.Combat
                 StatusTolerances.Remove(statusId);
         }
 
-        public const int DownedTurnLimit = 5;
+        public static int DownedTurnLimit => GameDefinesRuntime.GetInt(
+            GameDefineIds.DownedTurnLimit, 5);
     }
 
     [Serializable]

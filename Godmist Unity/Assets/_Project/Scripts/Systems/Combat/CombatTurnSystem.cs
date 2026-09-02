@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
+using Godmist.Data.Configuration;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -10,7 +11,8 @@ namespace Godmist.Systems.Combat
 {
     public class CombatTurnSystem
     {
-        public const float BaseActionValue = 10000f;
+        public static float BaseActionValue => GameDefinesRuntime.GetFloat(
+            GameDefineIds.BaseActionValue, 10000f);
 
         private readonly Action<string> battleLog;
         private readonly Action<BattleUnit> onUnitTurnBegan;

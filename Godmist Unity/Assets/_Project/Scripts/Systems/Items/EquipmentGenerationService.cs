@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Configuration;
 using Godmist.Data.Items;
 using Godmist.Runtime.Items;
 
@@ -10,20 +11,6 @@ namespace Godmist.Systems.Items
 {
     public class EquipmentGenerationService
     {
-        private static readonly (RarityTier Rarity, double Chance)[] RarityDistribution =
-        {
-            (RarityTier.Trash, 0.02),
-            (RarityTier.Broken, 0.03),
-            (RarityTier.Damaged, 0.04),
-            (RarityTier.Common, 0.50),
-            (RarityTier.Uncommon, 0.20),
-            (RarityTier.Rare, 0.10),
-            (RarityTier.Ancient, 0.05),
-            (RarityTier.Legendary, 0.03),
-            (RarityTier.Mythic, 0.02),
-            (RarityTier.Godly, 0.01)
-        };
-
         private readonly Random random;
         private readonly ItemInstanceFactory itemFactory;
 
@@ -135,20 +122,30 @@ namespace Godmist.Systems.Items
 
         public static int GetQualityLevelAdjustment(EquipmentQuality quality) => quality switch
         {
-            EquipmentQuality.Poor => -3,
-            EquipmentQuality.Excellent => 3,
-            EquipmentQuality.Masterpiece => 5,
+            EquipmentQuality.Poor => GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentPoorLevelAdjustment, -3),
+            EquipmentQuality.Excellent => GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentExcellentLevelAdjustment, 3),
+            EquipmentQuality.Masterpiece => GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentMasterpieceLevelAdjustment, 5),
             _ => 0
         };
 
         private EquipmentQuality RollQuality()
         {
-            return random.Next(3) switch
-            {
-                0 => EquipmentQuality.Poor,
-                1 => EquipmentQuality.Normal,
-                _ => EquipmentQuality.Excellent
-            };
+            var poor = Math.Max(0, GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentQualityPoorWeight, 1));
+            var normal = Math.Max(0, GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentQualityNormalWeight, 1));
+            var excellent = Math.Max(0, GameDefinesRuntime.GetInt(
+                GameDefineIds.EquipmentQualityExcellentWeight, 1));
+            var total = poor + normal + excellent;
+            if (total <= 0) return EquipmentQuality.Normal;
+
+            var roll = random.Next(total);
+            if (roll < poor) return EquipmentQuality.Poor;
+            if (roll < poor + normal) return EquipmentQuality.Normal;
+            return EquipmentQuality.Excellent;
         }
 
         private RarityTier RollRarity()
@@ -156,13 +153,40 @@ namespace Godmist.Systems.Items
             var roll = random.NextDouble();
             var cumulativeChance = 0d;
 
-            foreach (var entry in RarityDistribution)
+            foreach (var entry in GetRarityDistribution())
             {
                 cumulativeChance += entry.Chance;
                 if (roll < cumulativeChance) return entry.Rarity;
             }
 
-            return RarityDistribution[RarityDistribution.Length - 1].Rarity;
+            return RarityTier.Godly;
+        }
+
+        private static (RarityTier Rarity, double Chance)[] GetRarityDistribution()
+        {
+            return new[]
+            {
+                (RarityTier.Trash, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityTrashWeight, .02f))),
+                (RarityTier.Broken, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityBrokenWeight, .03f))),
+                (RarityTier.Damaged, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityDamagedWeight, .04f))),
+                (RarityTier.Common, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityCommonWeight, .5f))),
+                (RarityTier.Uncommon, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityUncommonWeight, .2f))),
+                (RarityTier.Rare, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityRareWeight, .1f))),
+                (RarityTier.Ancient, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityAncientWeight, .05f))),
+                (RarityTier.Legendary, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityLegendaryWeight, .03f))),
+                (RarityTier.Mythic, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityMythicWeight, .02f))),
+                (RarityTier.Godly, (double)Math.Max(0f, GameDefinesRuntime.GetFloat(
+                    GameDefineIds.EquipmentRarityGodlyWeight, .01f)))
+            };
         }
 
         private static EquipmentPartKind[] GetRequiredKinds(EquipmentItemDefinition definition)
