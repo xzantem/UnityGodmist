@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Data.Configuration;
@@ -108,32 +110,6 @@ namespace Godmist.Systems.Characters
                 value => value?.TreeId == treeId));
         }
 
-        public static List<StatModifier> GetGlobalPassiveModifiers(
-            SkillTreeDefinition tree,
-            int investedRanks)
-        {
-            var result = new List<StatModifier>();
-            if (tree?.GlobalPassive?.ModifiersPerPoint == null || investedRanks <= 0)
-            {
-                return result;
-            }
-
-            foreach (var modifier in tree.GlobalPassive.ModifiersPerPoint)
-            {
-                if (modifier == null) continue;
-
-                result.Add(new StatModifier
-                {
-                    StatType = modifier.StatType,
-                    Operation = modifier.Operation,
-                    Stacking = modifier.Stacking,
-                    Value = modifier.Value * investedRanks
-                });
-            }
-
-            return result;
-        }
-
         public static int GetRequiredRanksForTier(int tier)
         {
             if (tier is 1 or 2) return 0;
@@ -164,6 +140,42 @@ namespace Godmist.Systems.Characters
         public static int GetInvestedRanks(SkillTreeProgress progress)
         {
             return progress?.NodeInvestments?.Sum(value => Math.Max(0, value.Ranks)) ?? 0;
+        }
+
+        public static List<StatModifier> GetGlobalPassiveModifiers(
+            SkillTreeDefinition tree,
+            int investedRanks)
+        {
+            var result = new List<StatModifier>();
+            if (tree?.GlobalPassive?.PassivesPerPoint == null || investedRanks <= 0)
+            {
+                return result;
+            }
+
+            foreach (var definition in tree.GlobalPassive.PassivesPerPoint)
+            {
+                foreach (var operation in definition?.Operations ?? new List<PassiveEffectOperationDefinition>())
+                {
+                    if (operation == null
+                        || operation.Type != PassiveEffectOperationType.ModifyStat
+                        || operation.Target != PassiveEffectTargetType.Self
+                        || operation.Value == null
+                        || operation.Value.Source != PassiveEffectValueSourceType.Constant)
+                    {
+                        continue;
+                    }
+
+                    result.Add(new StatModifier
+                    {
+                        StatType = operation.StatType,
+                        Operation = operation.ModifierOperation,
+                        Stacking = operation.ModifierStacking,
+                        Value = operation.Value.NumberValue * investedRanks
+                    });
+                }
+            }
+
+            return result;
         }
 
         private static bool RequirementsMet(SkillTreeProgress progress, List<SkillTreeNodeRequirement> requirements)

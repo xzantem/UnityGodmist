@@ -4,6 +4,7 @@ using System.Text;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Effects;
+using Godmist.Data.Items;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
@@ -1170,12 +1171,7 @@ namespace Godmist.Views.UI.Workspace
             SkillData skill,
             SkillEffectData effect)
         {
-            var variableName = effect.ModifierVariableType switch
-            {
-                GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
-                GameplayVariableType.DamageReceivedPercent => "otrzymywane obrażenia",
-                _ => effect.ModifierVariableType.ToString()
-            };
+            var variableName = GetGameplayVariableDisplayName(effect.ModifierVariableType);
             return $"Zmienia {variableName} o {FormatSignedPercent(effect.ModifierValue)} " +
                 $"({GetStackingDisplayName(effect.ModifierStacking)}){FormatEffectDuration(skill, effect)}.";
         }
@@ -1572,6 +1568,24 @@ namespace Godmist.Views.UI.Workspace
             };
         }
 
+        private static string GetGameplayVariableDisplayName(
+            GameplayVariableType type,
+            string referenceId = null)
+        {
+            return type switch
+            {
+                GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
+                GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
+                GameplayVariableType.GoldGainPercent => "zdobywane złoto",
+                GameplayVariableType.DamageDealtPercentInDungeonTheme =>
+                    string.IsNullOrWhiteSpace(referenceId)
+                        ? "obrażenia zadawane w theme lochu"
+                        : $"obrażenia zadawane w theme lochu {referenceId}",
+                _ => type.ToString()
+            };
+        }
+
         private string GetStatusDisplayName(string statusId)
         {
             if (string.IsNullOrWhiteSpace(statusId)) return "status";
@@ -1770,12 +1784,9 @@ namespace Godmist.Views.UI.Workspace
             foreach (var modifier in effect.VariableModifiers)
             {
                 if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
-                var variableName = modifier.VariableType switch
-                {
-                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
-                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
-                    _ => modifier.VariableType.ToString()
-                };
+                var variableName = GetGameplayVariableDisplayName(
+                    modifier.VariableType,
+                    modifier.ReferenceId);
                 Append(
                     result,
                     $"Modyfikator {variableName}: {FormatSignedPercent(modifier.Value)}.");
@@ -1959,15 +1970,27 @@ namespace Godmist.Views.UI.Workspace
                     result,
                     equipment,
                     ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
+                AppendPassiveDescriptions(
+                    result,
+                    equipment.EquipmentDefinition?.PassiveEffects);
 
-                if (equipment is JewelryItemInstance jewelry)
+                if (equipment is JewelryItemInstance jewelry
+                    && equipment.EquipmentDefinition is JewelryItemDefinition jewelryDefinition)
                 {
                     if (!string.IsNullOrWhiteSpace(jewelry.GemDisplayName))
                         Append(result, $"Kamień: {jewelry.GemDisplayName}");
                     if (!string.IsNullOrWhiteSpace(jewelry.GemDescription))
                         Append(result, jewelry.GemDescription);
-                    if (jewelry.ResistanceValue > 0f)
-                        Append(result, $"Odporność {jewelry.ResistanceType}: {jewelry.ResistanceValue * 100f:0.#}%");
+
+                    var metals = jewelryDefinition.Metals != null && jewelryDefinition.Metals.Count > 0
+                        ? jewelryDefinition.Metals
+                        : jewelryDefinition.MetalSource?.Metals;
+                    foreach (var metal in metals ?? new List<JewelryMetalData>())
+                    {
+                        if (metal?.Id == jewelry.MetalId)
+                            AppendPassiveDescriptions(result, metal.PassiveEffects);
+                    }
+
                 }
             }
             else if (item is ConsumableItemInstance consumable)
@@ -2116,6 +2139,20 @@ namespace Godmist.Views.UI.Workspace
             }
 
             return values;
+        }
+
+        private static void AppendPassiveDescriptions(
+            StringBuilder result,
+            IEnumerable<PassiveEffectDefinition> definitions)
+        {
+            foreach (var definition in definitions ?? Array.Empty<PassiveEffectDefinition>())
+            {
+                var description = definition?.Tooltip?.DescriptionOverride;
+                if (string.IsNullOrWhiteSpace(description))
+                    description = definition?.Description;
+
+                Append(result, description);
+            }
         }
 
         private static float GetStatValue(

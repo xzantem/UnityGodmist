@@ -1,13 +1,5 @@
 namespace Godmist.Core.Enums
 {
-    public enum JewelryPassiveType
-    {
-        None,
-        ExperienceGainPercent,
-        GoldGainPercent,
-        DamageDealtPercentInDungeonTheme
-    }
-
     public enum CharacterStatType
     {
         MaxHealth = 0,

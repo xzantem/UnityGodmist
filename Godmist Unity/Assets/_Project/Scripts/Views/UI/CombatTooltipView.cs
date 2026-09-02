@@ -526,7 +526,21 @@ namespace Godmist.Views.UI
             if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
             if (effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
             foreach (var modifier in effect.StatModifiers) Append(result, $"{modifier.StatType} {modifier.Value:+#;-#;0}");
-            foreach (var modifier in effect.VariableModifiers) Append(result, $"{modifier.VariableType} {modifier.Value:+#;-#;0}");
+            foreach (var modifier in effect.VariableModifiers)
+            {
+                if (modifier == null) continue;
+                var variableName = modifier.VariableType switch
+                {
+                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
+                    GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
+                    GameplayVariableType.GoldGainPercent => "zdobywane złoto",
+                    GameplayVariableType.DamageDealtPercentInDungeonTheme =>
+                        $"obrażenia zadawane w theme lochu {modifier.ReferenceId}",
+                    _ => modifier.VariableType.ToString()
+                };
+                Append(result, $"{variableName}: {modifier.Value * 100f:+0.##;-0.##;0}%");
+            }
             if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
             return result.ToString();
         }

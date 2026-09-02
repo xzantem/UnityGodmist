@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Data.Characters;
 using Godmist.Data.Combat;
 using Godmist.Data.Dungeons;
@@ -100,6 +102,16 @@ namespace Godmist.Tests.EditMode
             };
             bleedEffect.SetStateValue(
                 PassiveEffectRuntimeStateValue.Integer("remainingApplications", 2));
+            bleedEffect.VariableModifiers = new List<GameplayVariableModifier>
+            {
+                new()
+                {
+                    VariableType = GameplayVariableType.DamageDealtPercentInDungeonTheme,
+                    ReferenceId = "Catacombs",
+                    Stacking = StatModifierStacking.Additive,
+                    Value = .25f
+                }
+            };
             jerzy.PassiveEffects.Add(bleedEffect);
 
             var pendingLoot = new ItemInstance(
@@ -158,6 +170,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 characterSaveData.PassiveEffects[0].Payloads[0].RemainingTotalDamage,
                 Is.EqualTo(30));
+            var variablePayload = characterSaveData.PassiveEffects[0].Payloads.Find(
+                payload => payload.Type == PassiveEffectPayloadType.VariableModifiers);
+            Assert.That(variablePayload, Is.Not.Null);
+            Assert.That(variablePayload.VariableModifiers[0].ReferenceId, Is.EqualTo("Catacombs"));
 
             Assert.That(
                 characterSaveData.InventoryItemInstanceIds,

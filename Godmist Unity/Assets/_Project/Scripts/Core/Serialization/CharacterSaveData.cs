@@ -155,6 +155,7 @@ namespace Godmist.Core.Serialization
     public class GameplayVariableModifierSaveData
     {
         public GameplayVariableType VariableType;
+        public string ReferenceId = string.Empty;
         public StatModifierStacking Stacking;
         public float Value;
     }

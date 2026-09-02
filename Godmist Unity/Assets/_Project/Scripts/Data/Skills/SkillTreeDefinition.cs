@@ -21,7 +21,6 @@ namespace Godmist.Data.Skills
     {
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField, TextArea(2, 5)] public string Description { get; private set; } = string.Empty;
-        [field: SerializeField] public List<StatModifier> ModifiersPerPoint { get; private set; } = new();
         [field: SerializeField] public List<PassiveEffectDefinition> PassivesPerPoint { get; private set; } = new();
     }
 

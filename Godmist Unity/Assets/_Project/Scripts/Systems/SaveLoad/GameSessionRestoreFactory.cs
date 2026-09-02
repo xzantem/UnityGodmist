@@ -452,27 +452,11 @@ namespace Godmist.Systems.SaveLoad
 
                     if (equipmentItem is JewelryItemInstance jewelryItem)
                     {
-                        if (!Enum.IsDefined(typeof(JewelryPassiveType), itemSaveData.JewelryPassiveType)
-                            || !Enum.IsDefined(typeof(DungeonTheme), itemSaveData.JewelryPassiveDungeonTheme)
-                            || !Enum.IsDefined(typeof(ResistanceType), itemSaveData.JewelryResistanceType)
-                            || float.IsNaN(itemSaveData.JewelryPassiveValue)
-                            || float.IsInfinity(itemSaveData.JewelryPassiveValue)
-                            || float.IsNaN(itemSaveData.JewelryResistanceValue)
-                            || float.IsInfinity(itemSaveData.JewelryResistanceValue))
-                        {
-                            return false;
-                        }
-
                         jewelryItem.MetalId = itemSaveData.JewelryMetalId ?? string.Empty;
                         jewelryItem.MetalDisplayName = itemSaveData.JewelryMetalDisplayName ?? string.Empty;
                         jewelryItem.GemId = itemSaveData.JewelryGemId ?? string.Empty;
                         jewelryItem.GemDisplayName = itemSaveData.JewelryGemDisplayName ?? string.Empty;
                         jewelryItem.GemDescription = itemSaveData.JewelryGemDescription ?? string.Empty;
-                        jewelryItem.PassiveType = itemSaveData.JewelryPassiveType;
-                        jewelryItem.PassiveValue = itemSaveData.JewelryPassiveValue;
-                        jewelryItem.PassiveDungeonTheme = itemSaveData.JewelryPassiveDungeonTheme;
-                        jewelryItem.ResistanceType = itemSaveData.JewelryResistanceType;
-                        jewelryItem.ResistanceValue = itemSaveData.JewelryResistanceValue;
                     }
                 }
 
@@ -2005,6 +1989,7 @@ namespace Godmist.Systems.SaveLoad
                 modifiers.Add(new GameplayVariableModifier
                 {
                     VariableType = saveData.VariableType,
+                    ReferenceId = saveData.ReferenceId ?? string.Empty,
                     Stacking = saveData.Stacking,
                     Value = saveData.Value
                 });

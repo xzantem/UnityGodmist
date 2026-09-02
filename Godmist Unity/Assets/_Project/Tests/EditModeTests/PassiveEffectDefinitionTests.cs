@@ -94,6 +94,26 @@ namespace Godmist.Tests.EditMode
             Assert.That(result.Errors, Has.Some.Contains("wymaga referencji"));
         }
 
+        [Test]
+        public void Validator_RequiresReferenceForDungeonThemeVariable()
+        {
+            var definition = new PassiveEffectDefinition();
+            Set(definition, nameof(PassiveEffectDefinition.Id), "passive.theme.invalid");
+            var operation = new PassiveEffectOperationDefinition();
+            Set(operation, nameof(PassiveEffectOperationDefinition.Id), "operation.theme-damage");
+            Set(operation, nameof(PassiveEffectOperationDefinition.Type), PassiveEffectOperationType.ModifyGameplayVariable);
+            Set(operation, nameof(PassiveEffectOperationDefinition.VariableType), GameplayVariableType.DamageDealtPercentInDungeonTheme);
+            Set(definition, nameof(PassiveEffectDefinition.Operations), new List<PassiveEffectOperationDefinition>
+            {
+                operation
+            });
+
+            var result = PassiveEffectDefinitionValidator.Validate(definition);
+
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.Errors, Has.Some.Contains("wymaga referencji"));
+        }
+
         private static void Set<T>(object target, string propertyName, T value)
         {
             var property = target.GetType().GetProperty(

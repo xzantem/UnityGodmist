@@ -118,7 +118,9 @@ namespace Godmist.Systems.Combat
                 PassiveEffectOperationType.ModifySkillParameter
                 or PassiveEffectOperationType.ApplyStatus
                 or PassiveEffectOperationType.ModifyStatus
-                or PassiveEffectOperationType.SetRuntimeFlag;
+                or PassiveEffectOperationType.SetRuntimeFlag
+                || operation.Type == PassiveEffectOperationType.ModifyGameplayVariable
+                    && operation.VariableType == GameplayVariableType.DamageDealtPercentInDungeonTheme;
 
             if (requiresReference && string.IsNullOrWhiteSpace(operation.ReferenceId))
             {

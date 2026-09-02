@@ -11,7 +11,8 @@ namespace Godmist.Systems.Combat
     {
         public float GetMultiplier(
             CharacterInstance character,
-            GameplayVariableType variableType)
+            GameplayVariableType variableType,
+            string referenceId = null)
         {
             if (character?.PassiveEffects == null)
             {
@@ -23,9 +24,13 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in character.PassiveEffects)
             {
+                if (!PassiveEffectLifecycleSystem.IsActive(effect))
+                {
+                    continue;
+                }
+
                 var payload = effect.GetPayload<VariableModifiersPayload>();
-                if (!PassiveEffectLifecycleSystem.IsActive(effect)
-                    || payload == null)
+                if (payload == null)
                 {
                     continue;
                 }
@@ -33,7 +38,12 @@ namespace Godmist.Systems.Combat
                 foreach (var modifier in payload.Modifiers)
                 {
                     if (modifier == null
-                        || modifier.VariableType != variableType)
+                        || modifier.VariableType != variableType
+                        || (variableType == GameplayVariableType.DamageDealtPercentInDungeonTheme
+                            && !string.Equals(
+                                modifier.ReferenceId,
+                                referenceId,
+                                System.StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }
@@ -51,6 +61,26 @@ namespace Godmist.Systems.Combat
             return Mathf.Max(
                 0f,
                 (1f + additivePercent) * multiplicativePercent);
+        }
+
+        public float GetExperienceMultiplier(CharacterInstance character)
+        {
+            return GetMultiplier(character, GameplayVariableType.ExperienceGainPercent);
+        }
+
+        public float GetGoldMultiplier(CharacterInstance character)
+        {
+            return GetMultiplier(character, GameplayVariableType.GoldGainPercent);
+        }
+
+        public float GetDungeonThemeDamageMultiplier(
+            CharacterInstance character,
+            DungeonTheme theme)
+        {
+            return GetMultiplier(
+                character,
+                GameplayVariableType.DamageDealtPercentInDungeonTheme,
+                theme.ToString());
         }
 
         public int ApplyDamageModifiers(

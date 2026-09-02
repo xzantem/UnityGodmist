@@ -36,11 +36,6 @@ namespace Godmist.Core.Serialization
         public string JewelryGemId = string.Empty;
         public string JewelryGemDisplayName = string.Empty;
         public string JewelryGemDescription = string.Empty;
-        public JewelryPassiveType JewelryPassiveType;
-        public float JewelryPassiveValue;
-        public DungeonTheme JewelryPassiveDungeonTheme;
-        public ResistanceType JewelryResistanceType;
-        public float JewelryResistanceValue;
     }
 
     [Serializable]

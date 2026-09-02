@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Runtime.Effects;
 
@@ -11,8 +13,40 @@ namespace Godmist.Systems.Combat
             PassiveEffectSourceRuntime source,
             out PassiveEffectRuntime runtime)
         {
+            return TryCreate(
+                definition,
+                source,
+                definition?.Id,
+                out runtime,
+                requireStaticDefinition: false);
+        }
+
+        public static bool TryCreate(
+            PassiveEffectDefinition definition,
+            PassiveEffectSourceRuntime source,
+            string runtimeEffectId,
+            out PassiveEffectRuntime runtime)
+        {
+            return TryCreate(
+                definition,
+                source,
+                runtimeEffectId,
+                out runtime,
+                requireStaticDefinition: true);
+        }
+
+        private static bool TryCreate(
+            PassiveEffectDefinition definition,
+            PassiveEffectSourceRuntime source,
+            string runtimeEffectId,
+            out PassiveEffectRuntime runtime,
+            bool requireStaticDefinition)
+        {
             runtime = null;
-            if (definition == null || string.IsNullOrWhiteSpace(definition.Id))
+            if (definition == null
+                || string.IsNullOrWhiteSpace(definition.Id)
+                || string.IsNullOrWhiteSpace(runtimeEffectId)
+                || requireStaticDefinition && !IsStaticDefinition(definition))
             {
                 return false;
             }
@@ -20,7 +54,7 @@ namespace Godmist.Systems.Combat
             var lifetime = definition.Lifetime;
             runtime = new PassiveEffectRuntime
             {
-                EffectId = definition.Id,
+                EffectId = runtimeEffectId,
                 DefinitionId = definition.Id,
                 DisplayName = definition.DisplayName ?? string.Empty,
                 Sources = source == null
@@ -36,7 +70,78 @@ namespace Godmist.Systems.Combat
                     : Core.Enums.PassiveEffectTickPhase.None
             };
 
+            var statModifiers = new List<StatModifier>();
+            var variableModifiers = new List<GameplayVariableModifier>();
+            ResistanceModifierPayload resistanceModifier = null;
+
+            foreach (var operation in definition.Operations ?? new List<PassiveEffectOperationDefinition>())
+            {
+                if (operation == null
+                    || operation.Target != PassiveEffectTargetType.Self
+                    || operation.Value == null
+                    || operation.Value.Source != PassiveEffectValueSourceType.Constant)
+                {
+                    return false;
+                }
+
+                if (operation.Type == PassiveEffectOperationType.ModifyGameplayVariable
+                    && operation.VariableType == GameplayVariableType.DamageDealtPercentInDungeonTheme
+                    && string.IsNullOrWhiteSpace(operation.ReferenceId))
+                {
+                    return false;
+                }
+
+                switch (operation.Type)
+                {
+                    case PassiveEffectOperationType.ModifyStat:
+                        statModifiers.Add(new StatModifier
+                        {
+                            StatType = operation.StatType,
+                            Operation = operation.ModifierOperation,
+                            Stacking = operation.ModifierStacking,
+                            Value = operation.Value.NumberValue
+                        });
+                        break;
+
+                    case PassiveEffectOperationType.ModifyResistance:
+                        if (resistanceModifier != null) return false;
+                        resistanceModifier = new ResistanceModifierPayload
+                        {
+                            ResistanceType = operation.ResistanceType,
+                            Value = operation.Value.NumberValue
+                        };
+                        break;
+
+                    case PassiveEffectOperationType.ModifyGameplayVariable:
+                        variableModifiers.Add(new GameplayVariableModifier
+                        {
+                            VariableType = operation.VariableType,
+                            ReferenceId = operation.ReferenceId ?? string.Empty,
+                            Stacking = operation.ModifierStacking,
+                            Value = operation.Value.NumberValue
+                        });
+                        break;
+
+                    default:
+                        return false;
+                }
+            }
+
+            if (statModifiers.Count > 0)
+                runtime.StatModifiers = statModifiers;
+            if (variableModifiers.Count > 0)
+                runtime.VariableModifiers = variableModifiers;
+            if (resistanceModifier != null)
+                runtime.SetPayload(resistanceModifier);
+
             return true;
+        }
+
+        private static bool IsStaticDefinition(PassiveEffectDefinition definition)
+        {
+            return definition.IsAlwaysActive
+                && !definition.IsTriggered
+                && definition.Lifetime == PassiveEffectLifetime.Persistent;
         }
 
         private static PassiveEffectSourceRuntime CopySource(PassiveEffectSourceRuntime source)

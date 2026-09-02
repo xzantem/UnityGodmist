@@ -5,6 +5,7 @@ using Godmist.Core.Types;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
+using Godmist.Systems.Combat;
 using UnityEngine;
 
 namespace Godmist.Systems.Characters
@@ -15,11 +16,10 @@ namespace Godmist.Systems.Characters
         {
             if (character?.Stats == null) return;
 
+            new PassiveEffectReconciliationSystem().Reconcile(character);
             var accumulators = new Dictionary<CharacterStatType, StatModifierAccumulator>();
 
-            ApplyEquipmentModifiers(character.Equipment, accumulators);
             ApplyPassiveEffectModifiers(character.PassiveEffects, accumulators);
-            ApplySkillTreeGlobalPassiveModifiers(character, accumulators);
             RefreshResistances(character);
 
             foreach (CharacterStatType statType in Enum.GetValues(typeof(CharacterStatType)))
@@ -60,18 +60,6 @@ namespace Godmist.Systems.Characters
                 : effectiveValue;
         }
 
-        private static void ApplyEquipmentModifiers(
-            EquipmentSet equipment,
-            Dictionary<CharacterStatType, StatModifierAccumulator> accumulators)
-        {
-            if (equipment == null) return;
-
-            foreach (var item in equipment.GetEquippedItems())
-            {
-                ApplyModifiers(item.StatModifiers, accumulators);
-            }
-        }
-
         private static void ApplyPassiveEffectModifiers(
             List<PassiveEffectRuntime> passiveEffects,
             Dictionary<CharacterStatType, StatModifierAccumulator> accumulators)
@@ -80,28 +68,12 @@ namespace Godmist.Systems.Characters
 
             foreach (var passiveEffect in passiveEffects)
             {
-                if (passiveEffect == null) continue;
+                if (!PassiveEffectLifecycleSystem.IsActive(passiveEffect)) continue;
 
                 ApplyModifiers(
                     passiveEffect
                         .GetPayload<StatModifiersPayload>()
                         ?.Modifiers,
-                    accumulators);
-            }
-        }
-
-        private static void ApplySkillTreeGlobalPassiveModifiers(
-            CharacterInstance character,
-            Dictionary<CharacterStatType, StatModifierAccumulator> accumulators)
-        {
-            foreach (var tree in character?.ClassData?.SkillTrees ?? new())
-            {
-                if (tree == null || string.IsNullOrWhiteSpace(tree.Id)) continue;
-
-                ApplyModifiers(
-                    SkillTreeProgressionSystem.GetGlobalPassiveModifiers(
-                        tree,
-                        SkillTreeProgressionSystem.GetInvestedRanks(character, tree.Id)),
                     accumulators);
             }
         }
@@ -163,25 +135,31 @@ namespace Godmist.Systems.Characters
             character.Resistances.SuppressionResistance = baseValue.SuppressionResistance;
             character.Resistances.MoveResistance = baseValue.MoveResistance;
 
-            foreach (var item in character.Equipment?.GetEquippedItems()
-                         ?? new List<EquipmentItemInstance>())
+            foreach (var passiveEffect in character.PassiveEffects
+                         ?? new List<PassiveEffectRuntime>())
             {
-                if (item is not JewelryItemInstance jewelry
-                    || jewelry.ResistanceValue <= 0f) continue;
+                if (!PassiveEffectLifecycleSystem.IsActive(passiveEffect)) continue;
 
-                switch (jewelry.ResistanceType)
+                var modifier = passiveEffect.GetPayload<ResistanceModifierPayload>();
+                if (modifier == null || modifier.Value == 0f) continue;
+
+                switch (modifier.ResistanceType)
                 {
-                    case ResistanceType.Bleed: character.Resistances.BleedResistance += jewelry.ResistanceValue; break;
-                    case ResistanceType.Poison: character.Resistances.PoisonResistance += jewelry.ResistanceValue; break;
-                    case ResistanceType.Fire: character.Resistances.FireResistance += jewelry.ResistanceValue; break;
-                    case ResistanceType.Suppression: character.Resistances.SuppressionResistance += jewelry.ResistanceValue; break;
+                    case ResistanceType.Bleed: character.Resistances.BleedResistance += modifier.Value; break;
+                    case ResistanceType.Poison: character.Resistances.PoisonResistance += modifier.Value; break;
+                    case ResistanceType.Fire: character.Resistances.FireResistance += modifier.Value; break;
+                    case ResistanceType.Weakening: character.Resistances.WeakeningResistance += modifier.Value; break;
+                    case ResistanceType.Suppression: character.Resistances.SuppressionResistance += modifier.Value; break;
+                    case ResistanceType.Move: character.Resistances.MoveResistance += modifier.Value; break;
                 }
             }
 
             character.Resistances.BleedResistance = Mathf.Clamp01(character.Resistances.BleedResistance);
             character.Resistances.PoisonResistance = Mathf.Clamp01(character.Resistances.PoisonResistance);
             character.Resistances.FireResistance = Mathf.Clamp01(character.Resistances.FireResistance);
+            character.Resistances.WeakeningResistance = Mathf.Clamp01(character.Resistances.WeakeningResistance);
             character.Resistances.SuppressionResistance = Mathf.Clamp01(character.Resistances.SuppressionResistance);
+            character.Resistances.MoveResistance = Mathf.Clamp01(character.Resistances.MoveResistance);
         }
 
         private static bool IsDefensePenetration(CharacterStatType statType)

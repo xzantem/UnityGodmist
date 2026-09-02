@@ -3,6 +3,7 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -122,8 +123,17 @@ namespace Godmist.Tests.EditMode
             var gem = new JewelryGemData();
             SetAutoProperty(gem, "Id", "topaz");
             SetAutoProperty(gem, "DisplayName", "Topaz");
-            SetAutoProperty(gem, "PassiveType", JewelryPassiveType.ExperienceGainPercent);
-            SetAutoProperty(gem, "Value", .01f);
+            var passive = new PassiveEffectDefinition();
+            var operation = new PassiveEffectOperationDefinition();
+            SetAutoProperty(passive, "Id", "jewelry.gem.topaz.experience");
+            SetAutoProperty(operation, "Id", "operation.experience");
+            SetAutoProperty(operation, "Type", PassiveEffectOperationType.ModifyGameplayVariable);
+            SetAutoProperty(operation, "VariableType", GameplayVariableType.ExperienceGainPercent);
+            var passiveValue = new PassiveEffectValueDefinition();
+            SetAutoProperty(passiveValue, "NumberValue", .01f);
+            SetAutoProperty(operation, "Value", passiveValue);
+            SetAutoProperty(passive, "Operations", new List<PassiveEffectOperationDefinition> { operation });
+            SetAutoProperty(gem, "PassiveEffects", new List<PassiveEffectDefinition> { passive });
             SetAutoProperty(definition, "Metals", new List<JewelryMetalData> { metal });
             SetAutoProperty(definition, "Gems", new List<JewelryGemData> { gem });
 
@@ -137,7 +147,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(jewelry.EquipmentSlot, Is.EqualTo(EquipmentSlot.Ring));
             Assert.That(jewelry.MetalId, Is.EqualTo("iron"));
             Assert.That(jewelry.GemId, Is.EqualTo("topaz"));
-            Assert.That(jewelry.PassiveType, Is.EqualTo(JewelryPassiveType.ExperienceGainPercent));
+            Assert.That(gem.PassiveEffects, Has.Count.EqualTo(1));
             Assert.That(jewelry.StatModifiers, Has.Count.EqualTo(1));
         }
 

@@ -729,6 +729,7 @@ namespace Godmist.Systems.Combat
                 copiedModifiers.Add(new GameplayVariableModifier
                 {
                     VariableType = modifier.VariableType,
+                    ReferenceId = modifier.ReferenceId,
                     Stacking = modifier.Stacking,
                     Value = modifier.Value
                 });

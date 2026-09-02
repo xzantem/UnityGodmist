@@ -358,20 +358,14 @@ namespace Godmist.Systems.Combat
             BattleUnit source,
             int damage)
         {
-            if (damage <= 0 || source?.Character?.Equipment == null) return damage;
+            if (damage <= 0 || source?.Character == null) return damage;
 
-            var bonus = 0f;
-            foreach (var item in source.Character.Equipment.GetEquippedItems())
-            {
-                if (item is Runtime.Items.JewelryItemInstance jewelry
-                    && jewelry.PassiveType == JewelryPassiveType.DamageDealtPercentInDungeonTheme
-                    && jewelry.PassiveDungeonTheme == session?.DungeonTheme)
-                {
-                    bonus += jewelry.PassiveValue;
-                }
-            }
-
-            return Mathf.Max(0, Mathf.RoundToInt(damage * (1f + bonus)));
+            return Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    damage * new CombatVariableSystem().GetDungeonThemeDamageMultiplier(
+                        source.Character,
+                        session?.DungeonTheme ?? DungeonTheme.Story)));
         }
 
         public static int ApplyDefense(

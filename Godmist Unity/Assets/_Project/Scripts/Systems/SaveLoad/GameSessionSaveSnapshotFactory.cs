@@ -976,11 +976,6 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryGemId = jewelryItem.GemId;
                     itemSaveData.JewelryGemDisplayName = jewelryItem.GemDisplayName;
                     itemSaveData.JewelryGemDescription = jewelryItem.GemDescription;
-                    itemSaveData.JewelryPassiveType = jewelryItem.PassiveType;
-                    itemSaveData.JewelryPassiveValue = jewelryItem.PassiveValue;
-                    itemSaveData.JewelryPassiveDungeonTheme = jewelryItem.PassiveDungeonTheme;
-                    itemSaveData.JewelryResistanceType = jewelryItem.ResistanceType;
-                    itemSaveData.JewelryResistanceValue = jewelryItem.ResistanceValue;
                 }
             }
 
@@ -1083,6 +1078,7 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Add(new GameplayVariableModifierSaveData
                 {
                     VariableType = modifier.VariableType,
+                    ReferenceId = modifier.ReferenceId,
                     Stacking = modifier.Stacking,
                     Value = modifier.Value
                 });
