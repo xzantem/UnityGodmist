@@ -108,7 +108,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (qualityDropdown == null) return;
             qualityDropdown.ClearOptions();
-            qualityDropdown.AddOptions(new List<string> { "Kiepska (-50%)", "Normalna", "Doskonała (+100%)" });
+            qualityDropdown.AddOptions(new List<string> { "Kiepska", "Normalna", "Doskonała" });
             selectedQuality = EquipmentQuality.Normal;
             qualityDropdown.value = 1;
         }

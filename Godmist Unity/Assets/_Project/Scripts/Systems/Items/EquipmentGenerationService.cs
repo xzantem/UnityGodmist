@@ -109,7 +109,12 @@ namespace Godmist.Systems.Items
             var bracket = selected.Max(part => (int)part.LevelBracket);
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
             item.RequiredLevel = bracket;
-            item.BaseStatModifiers = BuildFinalItemStats(selected, quality);
+            item.BaseStatModifiers = BuildFinalItemStats(
+                selected,
+                definition.ItemType,
+                definition.RequiredClass.Id,
+                quality,
+                bracket);
             item.StatModifiers = item.BaseStatModifiers.Select(modifier => new StatModifier
             {
                 StatType = modifier.StatType,
@@ -201,7 +206,10 @@ namespace Godmist.Systems.Items
 
         private static List<StatModifier> BuildFinalItemStats(
             IEnumerable<EquipmentPartDefinition> parts,
-            EquipmentQuality quality)
+            ItemType itemType,
+            string classId,
+            EquipmentQuality quality,
+            int requiredLevel)
         {
             var result = new List<StatModifier>();
             foreach (CharacterStatType stat in Enum.GetValues(typeof(CharacterStatType)))
@@ -210,8 +218,15 @@ namespace Godmist.Systems.Items
                 var percent = parts.Sum(part => GetPercent(part, stat));
                 if (Math.Abs(baseValue) < 0.0001f && Math.Abs(percent) < 0.0001f) continue;
 
-                var value = baseValue * (1f + percent)
-                    + GetQualityStatAdjustment(stat, quality);
+                // Quality scaling uses the item's required/base level. The displayed item level
+                // already includes the quality level offset and must not scale the stat bonus.
+                var qualityAdjustment = GetQualityStatAdjustment(
+                    stat,
+                    itemType,
+                    classId,
+                    quality,
+                    requiredLevel);
+                var value = (baseValue + qualityAdjustment) * (1f + percent);
                 result.Add(new StatModifier
                 {
                     StatType = stat,
@@ -223,12 +238,140 @@ namespace Godmist.Systems.Items
             return result;
         }
 
-        private static float GetQualityStatAdjustment(CharacterStatType stat, EquipmentQuality quality)
+        private static float GetQualityStatAdjustment(
+            CharacterStatType stat,
+            ItemType itemType,
+            string classId,
+            EquipmentQuality quality,
+            int requiredLevel)
         {
-            var adjustment = GetQualityLevelAdjustment(quality);
-            return stat is CharacterStatType.CritChance or CharacterStatType.CritDamage or CharacterStatType.Dodge
-                ? adjustment * 0.01f
-                : adjustment;
+            var profile = GetQualityProfile(itemType, classId);
+            var qualityMultiplier = quality switch
+            {
+                EquipmentQuality.Poor => -1f,
+                EquipmentQuality.Excellent => 1f,
+                EquipmentQuality.Masterpiece => 4f,
+                _ => 0f
+            };
+
+            var perLevel = stat switch
+            {
+                CharacterStatType.MinAttack => profile.MinAttackPerLevel,
+                CharacterStatType.MaxAttack => profile.MaxAttackPerLevel,
+                CharacterStatType.ResourceRegeneration => profile.ResourceRegenerationPerLevel,
+                CharacterStatType.MaxResource => profile.MaxResourcePerLevel,
+                CharacterStatType.MaxHealth => profile.MaxHealthPerLevel,
+                CharacterStatType.PhysicalDefense => profile.PhysicalDefensePerLevel,
+                CharacterStatType.MagicalDefense => profile.MagicalDefensePerLevel,
+                _ => 0f
+            };
+
+            if (Math.Abs(perLevel) > 0.0001f)
+                return perLevel * requiredLevel * qualityMultiplier;
+
+            var flat = stat switch
+            {
+                CharacterStatType.CritChance => profile.CritChanceFlat,
+                CharacterStatType.CritDamage => profile.CritDamageFlat,
+                CharacterStatType.WeaponAccuracy => profile.WeaponAccuracyFlat,
+                CharacterStatType.Dodge => profile.DodgeFlat,
+                _ => 0f
+            };
+            return flat * qualityMultiplier;
+        }
+
+        // Profile values are the positive Excellent adjustment. Poor negates one profile,
+        // Excellent applies one profile, and Masterpiece applies four profiles.
+        // Values named PerLevel are applied before part percentages are resolved.
+        private static QualityProfile GetQualityProfile(ItemType itemType, string classId)
+        {
+            if (itemType == ItemType.Weapon)
+            {
+                return classId switch
+                {
+                    "class.warrior" => new QualityProfile
+                    {
+                        MinAttackPerLevel = 1f,
+                        MaxAttackPerLevel = 2f,
+                        CritChanceFlat = 0.01f,
+                        CritDamageFlat = 0.02f,
+                        WeaponAccuracyFlat = 1f
+                    },
+                    "class.scout" => new QualityProfile
+                    {
+                        MinAttackPerLevel = 0.4f,
+                        MaxAttackPerLevel = 2f,
+                        CritChanceFlat = 0.01f,
+                        CritDamageFlat = 0.03f,
+                        WeaponAccuracyFlat = 1f
+                    },
+                    "class.mage" => new QualityProfile
+                    {
+                        MinAttackPerLevel = 0.8f,
+                        MaxAttackPerLevel = 2.4f,
+                        ResourceRegenerationPerLevel = 0.05f,
+                        CritDamageFlat = 0.02f,
+                        MaxResourcePerLevel = 0.3f
+                    },
+                    "class.paladin" => new QualityProfile
+                    {
+                        MinAttackPerLevel = 0.4f,
+                        MaxAttackPerLevel = 1.2f,
+                        CritChanceFlat = 0.01f,
+                        CritDamageFlat = 0.02f,
+                        WeaponAccuracyFlat = 2f
+                    },
+                    _ => default
+                };
+            }
+
+            return classId switch
+            {
+                "class.warrior" => new QualityProfile
+                {
+                    PhysicalDefensePerLevel = 1.2f,
+                    MagicalDefensePerLevel = 0.8f,
+                    DodgeFlat = 2f,
+                    MaxHealthPerLevel = 10f
+                },
+                "class.scout" => new QualityProfile
+                {
+                    PhysicalDefensePerLevel = 0.8f,
+                    MagicalDefensePerLevel = 0.4f,
+                    DodgeFlat = 2f,
+                    MaxHealthPerLevel = 6f
+                },
+                "class.mage" => new QualityProfile
+                {
+                    PhysicalDefensePerLevel = 0.4f,
+                    MagicalDefensePerLevel = 1.2f,
+                    DodgeFlat = 2f,
+                    MaxHealthPerLevel = 4f
+                },
+                "class.paladin" => new QualityProfile
+                {
+                    PhysicalDefensePerLevel = 1.6f,
+                    MagicalDefensePerLevel = 1.6f,
+                    DodgeFlat = 2f,
+                    MaxHealthPerLevel = 14f
+                },
+                _ => default
+            };
+        }
+
+        private struct QualityProfile
+        {
+            public float MinAttackPerLevel;
+            public float MaxAttackPerLevel;
+            public float CritChanceFlat;
+            public float CritDamageFlat;
+            public float WeaponAccuracyFlat;
+            public float ResourceRegenerationPerLevel;
+            public float MaxResourcePerLevel;
+            public float MaxHealthPerLevel;
+            public float DodgeFlat;
+            public float PhysicalDefensePerLevel;
+            public float MagicalDefensePerLevel;
         }
 
         private static float GetBase(EquipmentPartDefinition part, CharacterStatType stat)
