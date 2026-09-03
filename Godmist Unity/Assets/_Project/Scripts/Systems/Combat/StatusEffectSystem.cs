@@ -34,6 +34,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatDamageSystem damageSystem;
         private readonly PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public StatusEffectSystem(
             Action<string> battleLog = null,
@@ -41,14 +42,17 @@ namespace Godmist.Systems.Combat
             Action<CombatSession> evaluateOutcome = null,
             CombatDamageSystem damageSystem = null,
             PassiveEffectLifecycleSystem passiveEffectLifecycleSystem = null,
-            CombatFeedbackBus feedbackBus = null)
+            CombatFeedbackBus feedbackBus = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
 
             this.damageSystem = damageSystem ?? new CombatDamageSystem(
                 battleLog,
                 evaluateOutcome,
-                removeUnitFromCombat);
+                removeUnitFromCombat,
+                passiveEffectEventDispatcher: passiveEffectEventDispatcher);
 
             var recoverySystem = new CombatRecoverySystem(battleLog);
 
@@ -113,6 +117,8 @@ namespace Godmist.Systems.Combat
             target.AddStatusTolerance(effect.StatusId);
 
             PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
+            PublishStatusEvent(source, target, skill?.SkillId, effect.StatusId,
+                PassiveEffectTriggerType.OnStatusApplied);
 
             return true;
         }
@@ -480,6 +486,9 @@ namespace Godmist.Systems.Combat
                     feedbackLabel ?? statusId);
             }
 
+            PublishStatusEvent(source, target, null, statusId,
+                PassiveEffectTriggerType.OnStatusApplied);
+
             return true;
         }
 
@@ -837,8 +846,49 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnEnd(BattleUnit unit)
         {
+            var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
             unit?.AdvanceStatusTolerances();
+            foreach (var statusId in activeStatusesBefore)
+            {
+                if (!HasStatus(unit, statusId))
+                {
+                    PublishStatusEvent(unit, unit, null, statusId,
+                        PassiveEffectTriggerType.OnStatusExpired);
+                }
+            }
+        }
+
+        private void PublishStatusEvent(
+            BattleUnit source,
+            BattleUnit target,
+            string skillId,
+            string statusId,
+            PassiveEffectTriggerType triggerType)
+        {
+            passiveEffectEventDispatcher?.Publish(
+                triggerType,
+                new PassiveEffectCombatContext(
+                    source: source,
+                    target: target,
+                    skillId: skillId,
+                    statusId: statusId),
+                eventId: statusId);
+        }
+
+        private static HashSet<string> GetActiveStatusIds(BattleUnit unit)
+        {
+            var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var effect in unit?.Character?.PassiveEffects
+                ?? new List<PassiveEffectRuntime>())
+            {
+                if (PassiveEffectLifecycleSystem.IsActive(effect)
+                    && !string.IsNullOrWhiteSpace(effect.EffectId))
+                {
+                    ids.Add(effect.EffectId);
+                }
+            }
+            return ids;
         }
 
         public bool ApplyPeriodicRecovery(

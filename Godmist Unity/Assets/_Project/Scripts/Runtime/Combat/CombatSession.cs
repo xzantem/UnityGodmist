@@ -30,6 +30,7 @@ namespace Godmist.Runtime.Combat
         public List<CombatMapObject> MapObjects = new();
         public List<SummonedCombatMapObject> SummonedObjects = new();
         public List<SummonedCombatMapObject> SummonedObjectTurnOrder = new();
+        [NonSerialized] public PassiveEffectCombatEventDispatcher PassiveEffectEventDispatcher;
 
         public List<CombatTurnParticipant> TurnParticipants = new();
         public List<BattleUnit> TurnOrder = new();

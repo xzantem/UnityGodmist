@@ -96,17 +96,20 @@ namespace Godmist.Systems.Combat
         private readonly ResourceRuleSystem resourceRuleSystem;
         private readonly StatusEffectSystem statusEffectSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public CombatMovementSystem(
             Action<string> battleLog = null,
             ResourceRuleSystem resourceRuleSystem = null,
             StatusEffectSystem statusEffectSystem = null,
-            CombatFeedbackBus feedbackBus = null)
+            CombatFeedbackBus feedbackBus = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
             this.resourceRuleSystem = resourceRuleSystem;
             this.statusEffectSystem = statusEffectSystem;
             this.feedbackBus = feedbackBus;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
@@ -232,6 +235,7 @@ namespace Godmist.Systems.Combat
                         publishFeedback: false,
                         processResource: false,
                         writeBattleLog: false,
+                        publishPassiveEvent: false,
                         out var movementCost))
                 {
                     completed = false;
@@ -248,6 +252,16 @@ namespace Godmist.Systems.Combat
                     CombatFeedbackType.ActionPointSpend,
                     totalMovementCost));
                 resourceRuleSystem?.ProcessUnitMoved(unit, totalMovementCost);
+                (passiveEffectEventDispatcher ?? session.PassiveEffectEventDispatcher)
+                    ?.Publish(
+                        PassiveEffectTriggerType.OnMove,
+                        new PassiveEffectCombatContext(
+                            session: session,
+                            source: unit,
+                            movementCost: totalMovementCost,
+                            movementSteps: unit.MovementStepsThisTurn,
+                            distance: path.Count,
+                            eventValue: totalMovementCost));
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
                     $"moves along a path for {totalMovementCost} AP.");
@@ -270,6 +284,7 @@ namespace Godmist.Systems.Combat
                 publishFeedback: true,
                 processResource: true,
                 writeBattleLog: true,
+                publishPassiveEvent: true,
                 out _);
         }
 
@@ -281,6 +296,7 @@ namespace Godmist.Systems.Combat
             bool publishFeedback,
             bool processResource,
             bool writeBattleLog,
+            bool publishPassiveEvent,
             out int movementCost)
         {
             movementCost = 0;
@@ -365,6 +381,20 @@ namespace Godmist.Systems.Combat
                 battleLog?.Invoke($"{unit.Character.Definition.DisplayName} odzyskuje {recoveredKnives} sztylet.");
             }
             CombatAuraSystem.Refresh(session, statusEffectSystem);
+
+            if (publishPassiveEvent)
+            {
+                (passiveEffectEventDispatcher ?? session.PassiveEffectEventDispatcher)
+                    ?.Publish(
+                        PassiveEffectTriggerType.OnMove,
+                        new PassiveEffectCombatContext(
+                            session: session,
+                            source: unit,
+                            movementCost: movementCost,
+                            movementSteps: unit.MovementStepsThisTurn,
+                            distance: 1,
+                            eventValue: movementCost));
+            }
 
             if (writeBattleLog)
             {

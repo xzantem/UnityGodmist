@@ -91,6 +91,51 @@ namespace Godmist.Systems.Combat
                 {
                     errors.Add("Warunek Always nie moze miec referencji.");
                 }
+
+                ValidateConditionShape(condition, index, errors);
+            }
+        }
+
+        private static void ValidateConditionShape(
+            PassiveEffectConditionDefinition condition,
+            int index,
+            List<string> errors)
+        {
+            var requiresReference = condition.Type is
+                PassiveEffectConditionType.TargetHasStatus
+                or PassiveEffectConditionType.CasterHasStatus
+                or PassiveEffectConditionType.TargetHasTag
+                or PassiveEffectConditionType.DungeonTheme
+                or PassiveEffectConditionType.AttackType
+                or PassiveEffectConditionType.AttackPosition
+                or PassiveEffectConditionType.CasterHasBuff
+                or PassiveEffectConditionType.TargetHasBuff
+                or PassiveEffectConditionType.Skill
+                or PassiveEffectConditionType.Resource
+                or PassiveEffectConditionType.ReferencedEffectSucceeded
+                or PassiveEffectConditionType.ReferencedEffectCrit
+                or PassiveEffectConditionType.ReferencedEffectDodged;
+
+            if (requiresReference && string.IsNullOrWhiteSpace(condition.ReferenceId))
+            {
+                errors.Add($"Warunek pasywki pod indeksem {index} typu {condition.Type} " +
+                    "wymaga referencji.");
+            }
+
+            var requiresValue = condition.Type is
+                PassiveEffectConditionType.TargetHealthBelowPercent
+                or PassiveEffectConditionType.CasterHealthBelowPercent
+                or PassiveEffectConditionType.TargetHealthAbovePercent
+                or PassiveEffectConditionType.CasterHealthAbovePercent
+                or PassiveEffectConditionType.Distance
+                or PassiveEffectConditionType.Resource
+                or PassiveEffectConditionType.StackCount
+                or PassiveEffectConditionType.Turn;
+
+            if (requiresValue && condition.Value == null)
+            {
+                errors.Add($"Warunek pasywki pod indeksem {index} typu {condition.Type} " +
+                    "wymaga wartosci.");
             }
         }
 

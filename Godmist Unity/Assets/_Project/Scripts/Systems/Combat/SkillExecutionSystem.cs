@@ -28,6 +28,7 @@ namespace Godmist.Systems.Combat
         private readonly SummonSystem summonSystem;
         private readonly CombatReactionSystem reactionSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -46,7 +47,8 @@ namespace Godmist.Systems.Combat
             SummonSystem summonSystem = null,
             CombatReactionSystem reactionSystem = null,
             CombatFeedbackBus feedbackBus = null,
-            ModifyResistanceSystem modifyResistanceSystem = null)
+            ModifyResistanceSystem modifyResistanceSystem = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -93,6 +95,7 @@ namespace Godmist.Systems.Combat
             this.summonSystem = summonSystem ?? new SummonSystem(battleLog);
             this.reactionSystem = reactionSystem ?? new CombatReactionSystem(battleLog);
             this.feedbackBus = feedbackBus;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -219,6 +222,13 @@ namespace Godmist.Systems.Combat
                     CombatFeedbackType.ResourceSpend,
                     spentResource,
                     resourceType: caster.Character.ResourcePool.ResourceType));
+                PublishResourceSpent(
+                    session,
+                    caster,
+                    caster,
+                    skill.SkillId,
+                    caster.Character.ResourcePool,
+                    spentResource);
             }
 
             battleLog?.Invoke(
@@ -533,15 +543,27 @@ namespace Godmist.Systems.Combat
 
                         var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
                             caster, valueSource, multiplier);
+                        var passiveContext = new PassiveEffectCombatContext(
+                            session: session,
+                            source: caster,
+                            target: target,
+                            skillId: skill.SkillId,
+                            damageType: effect.DamageType,
+                            distance: caster == null || target == null
+                                ? -1
+                                : Mathf.Abs(caster.Position.X - target.Position.X)
+                                    + Mathf.Abs(caster.Position.Y - target.Position.Y));
                         var damageResult = effect.AlwaysHits
                             ? damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
                                 wasHit: true,
-                                bonusDefensePenetration: effect.BonusPenetration)
+                                bonusDefensePenetration: effect.BonusPenetration,
+                                passiveContext: passiveContext)
                             : damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
                                 skill.SkillAccuracy,
-                                effect.BonusPenetration);
+                                effect.BonusPenetration,
+                                passiveContext);
                         hit |= damageResult.Hit;
                         critical |= damageResult.IsCritical;
                         totalHealthDamage += damageResult.HealthDamage;
@@ -552,7 +574,7 @@ namespace Godmist.Systems.Combat
                             CombatDamageSystem.TryConsumeUniqueBuff(
                                 caster, UniqueBuffType.MaximumDamage);
                         }
-                        ApplyDamageFollowUps(caster, target, skill, effect, effectIndex,
+                        ApplyDamageFollowUps(session, caster, target, skill, effect, effectIndex,
                             damageResult.HealthDamage);
                         statusEffectSystem?.ApplyActiveOnHitStatuses(caster, target);
                         if (!isReactionExecution)
@@ -749,7 +771,18 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.DrainResource:
                 {
-                    var drained = target.Character.ResourcePool?.Drain(effect.BaseValue) ?? 0;
+                    var resourcePool = target.Character.ResourcePool;
+                    var drained = resourcePool?.Drain(effect.BaseValue) ?? 0;
+                    if (drained > 0)
+                    {
+                        PublishResourceSpent(
+                            session,
+                            target,
+                            target,
+                            skill?.SkillId,
+                            resourcePool,
+                            drained);
+                    }
                     return new EffectExecutionResult { Succeeded = drained > 0, ResourceRestored = drained };
                 }
                 case EffectType.BlockResourceRegeneration:
@@ -1613,7 +1646,7 @@ namespace Godmist.Systems.Combat
         }
 
         private void ApplyDamageFollowUps(
-            BattleUnit caster, BattleUnit target, SkillData skill, SkillEffectData effect,
+            CombatSession session, BattleUnit caster, BattleUnit target, SkillData skill, SkillEffectData effect,
             int effectIndex, int healthDamage)
         {
             if (healthDamage <= 0) return;
@@ -1621,9 +1654,20 @@ namespace Godmist.Systems.Combat
                 recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
             if (effect.ResourceDrainPercent > 0f)
             {
-                var drained = target.Character.ResourcePool?.Drain(
+                var resourcePool = target.Character.ResourcePool;
+                var drained = resourcePool?.Drain(
                     Mathf.FloorToInt(healthDamage * effect.ResourceDrainPercent)) ?? 0;
-                if (drained > 0) recoverySystem.RestoreResource(caster, drained);
+                if (drained > 0)
+                {
+                    PublishResourceSpent(
+                        session,
+                        source: target,
+                        target: target,
+                        skillId: skill?.SkillId,
+                        resourcePool,
+                        drained);
+                    recoverySystem.RestoreResource(caster, drained);
+                }
             }
         }
 
@@ -1770,11 +1814,46 @@ namespace Godmist.Systems.Combat
                     CombatFeedbackType.ResourceSpend,
                     spentResource,
                     resourceType: resourcePool.ResourceType));
+                PublishResourceSpent(
+                    session,
+                    caster,
+                    caster,
+                    skill.SkillId,
+                    resourcePool,
+                    spentResource);
                 battleLog?.Invoke(
                     $"{caster.Character.Definition?.DisplayName ?? caster.Character.CharacterId} "
                     + $"płaci {spentResource} {resourcePool.ResourceType} "
                     + $"za podtrzymanie {skill.DisplayName}.");
             }
+        }
+
+        private void PublishResourceSpent(
+            CombatSession session,
+            BattleUnit source,
+            BattleUnit target,
+            string skillId,
+            ResourcePool resourcePool,
+            int amount)
+        {
+            var dispatcher = passiveEffectEventDispatcher
+                ?? session?.PassiveEffectEventDispatcher;
+            if (dispatcher == null || resourcePool == null || amount <= 0)
+            {
+                return;
+            }
+
+            dispatcher.Publish(
+                PassiveEffectTriggerType.OnResourceSpent,
+                new PassiveEffectCombatContext(
+                    session: session,
+                    source: source,
+                    target: target,
+                    skillId: skillId,
+                    resourceType: resourcePool.ResourceType,
+                    resourceAmount: amount,
+                    eventValue: amount),
+                eventId: skillId);
         }
 
         public void DeactivateAllToggles(CombatSession session, BattleUnit caster)

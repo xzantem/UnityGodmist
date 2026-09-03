@@ -54,7 +54,7 @@ namespace Godmist.Views.Combat
         
 
         // Systems
-        public CombatSession Session {get; private set;}
+        [field: NonSerialized] public CombatSession Session { get; private set; }
         private CombatOutcomeSystem outcomeSystem;
         private CombatTurnSystem turnSystem;
         private SimpleCombatAiSystem aiSystem;
@@ -79,6 +79,7 @@ namespace Godmist.Views.Combat
         private CombatVariableSystem combatVariableSystem;
         private ModifyVarSystem modifyVarSystem;
         private ModifyResistanceSystem modifyResistanceSystem;
+        private PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
         private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
@@ -95,6 +96,7 @@ namespace Godmist.Views.Combat
 
         private void Start()
         {
+            passiveEffectEventDispatcher = new PassiveEffectCombatEventDispatcher();
             unitViewSpawner = GetComponent<CombatUnitViewSpawner>();
             if (unitViewSpawner == null)
             {
@@ -107,8 +109,10 @@ namespace Godmist.Views.Combat
                 HandleUnitTurnEnded,
                 HandleSummonedObjectTurnBegan,
                 HandleSummonedObjectTurnEnded,
-                HandleUnitDied);
+                HandleUnitDied,
+                passiveEffectEventDispatcher);
             Session = CreateInitialSession();
+            Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
             ScoutKnifeSystem.ResetForCombat(Session);
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
@@ -120,7 +124,11 @@ namespace Godmist.Views.Combat
             damageSystem = new CombatDamageSystem(
                 AddBattleLog,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                RemoveUnitFromCombat, resourceRuleSystem, combatVariableSystem, feedbackBus);
+                RemoveUnitFromCombat,
+                resourceRuleSystem,
+                combatVariableSystem,
+                feedbackBus,
+                passiveEffectEventDispatcher);
             recoverySystem = new CombatRecoverySystem(AddBattleLog, feedbackBus);
             shieldSystem = new CombatShieldSystem(AddBattleLog, feedbackBus);
             reviveSystem = new CombatReviveSystem(AddBattleLog);
@@ -151,7 +159,8 @@ namespace Godmist.Views.Combat
                 session => outcomeSystem.EvaluateCombatOutcome(session),
                 damageSystem,
                 passiveEffectLifecycleSystem,
-                feedbackBus);
+                feedbackBus,
+                passiveEffectEventDispatcher);
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -179,9 +188,14 @@ namespace Godmist.Views.Combat
                 summonedObjectSystem: summonedObjectSystem,
                 summonSystem: summonSystem,
                 feedbackBus: feedbackBus,
-                modifyResistanceSystem: modifyResistanceSystem);
+                modifyResistanceSystem: modifyResistanceSystem,
+                passiveEffectEventDispatcher: passiveEffectEventDispatcher);
             movementSystem = movementSystem = new CombatMovementSystem(
-                AddBattleLog, resourceRuleSystem, statusEffectSystem, feedbackBus);
+                AddBattleLog,
+                resourceRuleSystem,
+                statusEffectSystem,
+                feedbackBus,
+                passiveEffectEventDispatcher);
             interactionSystem = new CombatInteractionSystem(
                 AddBattleLog, HandleCombatMapObjectChanged, feedbackBus);
             interactionSystem.InitializeMapObjects(Session);
