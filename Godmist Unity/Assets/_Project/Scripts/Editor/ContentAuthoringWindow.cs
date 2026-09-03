@@ -24,6 +24,7 @@ namespace Godmist.Editor
             Equipment,
             EquipmentParts,
             Skills,
+            SkillTrees,
             Characters,
             Encounters,
             Dungeons
@@ -40,6 +41,7 @@ namespace Godmist.Editor
             PartyArmor,
             EmptyEquipmentPart,
             EmptySkill,
+            EmptySkillTree,
             EmptyCharacter,
             EmptyEncounter,
             EmptyDungeon
@@ -62,6 +64,7 @@ namespace Godmist.Editor
         private const string ConsumablesFolder = ItemsFolder + "/Consumables";
         private const string EquipmentFolder = "Assets/_Project/ScriptableObjects/Equipment";
         private const string SkillsFolder = "Assets/_Project/ScriptableObjects/Skills";
+        private const string SkillTreesFolder = SkillsFolder + "/SkillTrees";
         private const string CharactersFolder = "Assets/_Project/ScriptableObjects/Characters";
         private const string EncountersFolder = "Assets/_Project/ScriptableObjects/Encounters";
         private const string DungeonsFolder = "Assets/_Project/ScriptableObjects/Dungeons";
@@ -69,7 +72,7 @@ namespace Godmist.Editor
         private static readonly string[] DomainLabels =
         {
             "Base Items", "Consumables", "Craftable Items", "Equipment", "Equipment Parts",
-            "Skills", "Characters", "Encounters", "Dungeons"
+            "Skills", "Skill Trees", "Characters", "Encounters", "Dungeons"
         };
 
         private const TableColumns DefaultColumns =
@@ -290,11 +293,13 @@ namespace Godmist.Editor
             foreach (var warning in report.Warnings) EditorGUILayout.HelpBox(warning, MessageType.Warning);
 
             EditorGUILayout.BeginHorizontal();
+            var catalogBacked = IsCatalogBackedAsset(selectedAsset);
             using (new EditorGUI.DisabledScope(!report.IsValid || activeCatalog == null))
             {
-                if (GUILayout.Button("Zapisz i przypisz do katalogu", GUILayout.Height(28f))) SaveSelectedAsset();
+                var label = catalogBacked ? "Zapisz i przypisz do katalogu" : "Zapisz asset";
+                if (GUILayout.Button(label, GUILayout.Height(28f))) SaveSelectedAsset();
             }
-            using (new EditorGUI.DisabledScope(activeCatalog == null || IsAssignedToCatalog(selectedAsset)
+            using (new EditorGUI.DisabledScope(!catalogBacked || activeCatalog == null || IsAssignedToCatalog(selectedAsset)
                                                || !report.IsValid))
             {
                 if (GUILayout.Button("Przypisz", GUILayout.Width(100f), GUILayout.Height(28f))) AssignSelectedAsset();
@@ -347,6 +352,7 @@ namespace Godmist.Editor
             AddCreateItem(menu, "Equipment Part / Empty", Preset.EmptyEquipmentPart, EquipmentFolder);
             menu.AddSeparator(string.Empty);
             AddCreateItem(menu, "Skill / Empty", Preset.EmptySkill, SkillsFolder);
+            AddCreateItem(menu, "Skill Tree / Empty", Preset.EmptySkillTree, SkillTreesFolder);
             AddCreateItem(menu, "Character / Empty", Preset.EmptyCharacter, CharactersFolder);
             AddCreateItem(menu, "Encounter / Empty", Preset.EmptyEncounter, EncountersFolder);
             AddCreateItem(menu, "Dungeon / Empty", Preset.EmptyDungeon, DungeonsFolder);
@@ -455,6 +461,7 @@ namespace Godmist.Editor
             var skipped = 0;
             foreach (var asset in GetVisibleAssets())
             {
+                if (!IsCatalogBackedAsset(asset)) continue;
                 if (!ContentAuthoringValidator.Validate(asset, activeCatalog).IsValid)
                 {
                     skipped++;
@@ -514,6 +521,7 @@ namespace Godmist.Editor
             AddAssetsBySearch("t:ItemDefinition", assets);
             AddAssetsBySearch("t:EquipmentPartDefinition", assets);
             AddAssetsBySearch("t:SkillData", assets);
+            AddAssetsBySearch("t:SkillTreeDefinition", assets);
             AddAssetsBySearch("t:CharacterDefinition", assets);
             AddAssetsBySearch("t:EncounterDefinition", assets);
             AddAssetsBySearch("t:DungeonDefinition", assets);
@@ -598,6 +606,8 @@ namespace Godmist.Editor
                         .Select(value => new CategoryOption($"Resource: {value}", $"resource:{value}")));
                     options.Add(new CategoryOption("Toggle", "skill:toggle"));
                     options.Add(new CategoryOption("Normalne", "skill:normal")); break;
+                case ContentDomain.SkillTrees:
+                    break;
                 case ContentDomain.Characters:
                     options.Add(new CategoryOption("Główne postacie", "character:main"));
                     options.Add(new CategoryOption("Pozostałe postacie", "character:recruitable"));
@@ -666,7 +676,11 @@ namespace Godmist.Editor
 
         private static bool IsSupportedAsset(UnityEngine.Object asset) =>
             asset is ItemDefinition || asset is EquipmentPartDefinition || asset is SkillData
-            || asset is CharacterDefinition || asset is EncounterDefinition || asset is DungeonDefinition;
+            || asset is SkillTreeDefinition || asset is CharacterDefinition
+            || asset is EncounterDefinition || asset is DungeonDefinition;
+
+        private static bool IsCatalogBackedAsset(UnityEngine.Object asset) =>
+            asset is not SkillTreeDefinition;
 
         private static ContentDomain GetDomain(UnityEngine.Object asset)
         {
@@ -678,6 +692,7 @@ namespace Godmist.Editor
                 ItemDefinition => ContentDomain.BaseItems,
                 EquipmentPartDefinition => ContentDomain.EquipmentParts,
                 SkillData => ContentDomain.Skills,
+                SkillTreeDefinition => ContentDomain.SkillTrees,
                 CharacterDefinition => ContentDomain.Characters,
                 EncounterDefinition => ContentDomain.Encounters,
                 DungeonDefinition => ContentDomain.Dungeons,
@@ -701,6 +716,7 @@ namespace Godmist.Editor
                 ItemDefinition item => item.Id,
                 EquipmentPartDefinition part => part.Id,
                 SkillData skill => skill.SkillId,
+                SkillTreeDefinition tree => tree.Id,
                 CharacterDefinition character => character.Id,
                 EncounterDefinition encounter => encounter.Id,
                 DungeonDefinition dungeon => dungeon.Id,
@@ -715,6 +731,7 @@ namespace Godmist.Editor
                 ItemDefinition item => item.DisplayName,
                 EquipmentPartDefinition part => part.DisplayName,
                 SkillData skill => skill.DisplayName,
+                SkillTreeDefinition tree => tree.DisplayName,
                 CharacterDefinition character => character.DisplayName,
                 EncounterDefinition encounter => encounter.DisplayName,
                 DungeonDefinition dungeon => dungeon.DisplayName,
@@ -761,7 +778,8 @@ namespace Godmist.Editor
             {
                 ConsumableItemDefinition => "Consumable", CraftableItemDefinition => "Craftable",
                 EquipmentItemDefinition => "Equipment", ItemDefinition => "Item",
-                EquipmentPartDefinition => "Part", SkillData => "Skill", CharacterDefinition => "Character",
+                EquipmentPartDefinition => "Part", SkillData => "Skill", SkillTreeDefinition => "Skill Tree",
+                CharacterDefinition => "Character",
                 EncounterDefinition => "Encounter", DungeonDefinition => "Dungeon", _ => asset.GetType().Name
             };
         }
@@ -773,6 +791,7 @@ namespace Godmist.Editor
                 ItemDefinition item => item.ItemType.ToString(),
                 EquipmentPartDefinition part => part.Kind.ToString(),
                 SkillData skill => skill.IsToggle ? "Toggle" : skill.ResourceType.ToString(),
+                SkillTreeDefinition => "Passive nodes",
                 CharacterDefinition character => character.IsMainCharacter ? "Main" : character.AiRole.ToString(),
                 EncounterDefinition encounter => $"{encounter.GridWidth}x{encounter.GridHeight}",
                 DungeonDefinition dungeon => dungeon.Theme.ToString(), _ => string.Empty
@@ -796,6 +815,7 @@ namespace Godmist.Editor
                 ItemDefinition item => $"{item.BaseValue}g / {item.Weight:0.##}",
                 EquipmentPartDefinition part => part.RequiredClass == null ? "brak klasy" : part.RequiredClass.Id,
                 SkillData skill => $"AP {skill.ActionCost} / R {skill.ResourceCost}",
+                SkillTreeDefinition tree => $"{tree.Nodes?.Count ?? 0} nodes",
                 CharacterDefinition character => $"XP {character.ExperienceReward} / G {character.GoldReward}",
                 EncounterDefinition encounter => $"{encounter.Enemies?.Count ?? 0} enemy",
                 DungeonDefinition dungeon => $"{dungeon.MinFloorCount}-{dungeon.MaxFloorCount} floor",
@@ -812,6 +832,7 @@ namespace Godmist.Editor
                 Preset.MaterialRecipe => typeof(CraftableItemDefinition),
                 Preset.PartyWeapon or Preset.PartyArmor => typeof(EquipmentItemDefinition),
                 Preset.EmptySkill => typeof(SkillData), Preset.EmptyCharacter => typeof(CharacterDefinition),
+                Preset.EmptySkillTree => typeof(SkillTreeDefinition),
                 Preset.EmptyEncounter => typeof(EncounterDefinition), Preset.EmptyDungeon => typeof(DungeonDefinition),
                 _ => typeof(ItemDefinition)
             };
@@ -825,6 +846,7 @@ namespace Godmist.Editor
                 Preset.Utility => "CID_Utility_New", Preset.MaterialRecipe => "CID_MaterialRecipe_New",
                 Preset.PartyWeapon => "EID_PartyWeapon_New", Preset.PartyArmor => "EID_PartyArmor_New",
                 Preset.EmptyEquipmentPart => "EPD_EquipmentPart_New", Preset.EmptySkill => "SkillData_New",
+                Preset.EmptySkillTree => "SkillTree_New",
                 Preset.EmptyCharacter => "CharacterDefinition_New", Preset.EmptyEncounter => "EncounterDefinition_New",
                 Preset.EmptyDungeon => "DungeonDefinition_New", _ => "ID_Item_New"
             };
@@ -882,6 +904,7 @@ namespace Godmist.Editor
                 Preset.Potion or Preset.Bomb or Preset.Utility => "item.consumable.authoring",
                 Preset.MaterialRecipe => "item.material.recipe.authoring", Preset.PartyWeapon => "item.weapon.party.authoring",
                 Preset.PartyArmor => "item.armor.party.authoring", Preset.EmptySkill => "skill.authoring",
+                Preset.EmptySkillTree => "skill.tree.authoring",
                 Preset.EmptyCharacter => "character.authoring", Preset.EmptyEncounter => "encounter.authoring",
                 Preset.EmptyDungeon => "dungeon.authoring", _ => "item.authoring"
             };
@@ -912,7 +935,7 @@ namespace Godmist.Editor
         {
             var filters = new[]
             {
-                "t:ItemDefinition", "t:EquipmentPartDefinition", "t:SkillData",
+                "t:ItemDefinition", "t:EquipmentPartDefinition", "t:SkillData", "t:SkillTreeDefinition",
                 "t:CharacterDefinition", "t:EncounterDefinition", "t:DungeonDefinition"
             };
             var paths = filters.SelectMany(AssetDatabase.FindAssets).Select(AssetDatabase.GUIDToAssetPath)

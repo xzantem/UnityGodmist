@@ -17,7 +17,7 @@ namespace Godmist.Views.UI
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
 
         private readonly List<CombatSkillSlotView> spawnedSlots = new();
-        private CombatSession cachedSession;
+        [System.NonSerialized] private CombatSession cachedSession;
         private BattleUnit cachedActiveUnit;
         private int cachedSkillCount = -1;
         private string cachedSkillOrder = string.Empty;

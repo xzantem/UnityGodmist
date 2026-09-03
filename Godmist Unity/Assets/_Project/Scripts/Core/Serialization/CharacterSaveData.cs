@@ -98,6 +98,7 @@ namespace Godmist.Core.Serialization
         public List<PassiveEffectSourceSaveData> Sources = new();
         public PassiveEffectLifetime Lifetime;
         public int Stacks;
+        public PassiveEffectStackingRule StackingRule;
         public int RemainingDuration;
         public PassiveEffectTickPhase TickPhase;
         public List<PassiveEffectPayloadSaveData> Payloads = new();

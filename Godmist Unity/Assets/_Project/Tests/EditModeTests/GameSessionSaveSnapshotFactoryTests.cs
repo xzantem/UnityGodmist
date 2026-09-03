@@ -99,6 +99,7 @@ namespace Godmist.Tests.EditMode
                 tickPhase: PassiveEffectTickPhase.TurnStart)
             {
                 DefinitionId = "passive.status.bleed",
+                StackingRule = PassiveEffectStackingRule.PerSource,
             };
             bleedEffect.SetStateValue(
                 PassiveEffectRuntimeStateValue.Integer("remainingApplications", 2));
@@ -151,6 +152,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(characterSaveData.ShieldLayers[0].CurrentValue, Is.EqualTo(12));
             Assert.That(characterSaveData.PassiveEffects[0].EffectId, Is.EqualTo("status.bleed"));
             Assert.That(characterSaveData.PassiveEffects[0].DefinitionId, Is.EqualTo("passive.status.bleed"));
+            Assert.That(
+                characterSaveData.PassiveEffects[0].StackingRule,
+                Is.EqualTo(PassiveEffectStackingRule.PerSource));
             Assert.That(
                 characterSaveData.PassiveEffects[0].StateValues[0].Key,
                 Is.EqualTo("remainingApplications"));

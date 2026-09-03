@@ -151,8 +151,6 @@ namespace Godmist.Systems.Debugging
                 DevConsoleArgumentType.ItemId =>
                     command == "createconsumable"
                             ? GetConsumableItemIds(contentCatalog)
-                            : command == "craftmaterial"
-                            ? GetCraftRecipeIds(contentCatalog, gameSession, commandTokens)
                             : GetItemIds(contentCatalog, command, gameSession, commandTokens),
                 DevConsoleArgumentType.EncounterId =>
                     contentCatalog?.EncounterDefinitions?
@@ -197,7 +195,8 @@ namespace Godmist.Systems.Debugging
                 {
                     EquipmentQuality.Normal.ToString(),
                     EquipmentQuality.Poor.ToString(),
-                    EquipmentQuality.Excellent.ToString()
+                    EquipmentQuality.Excellent.ToString(),
+                    EquipmentQuality.Masterpiece.ToString()
                 },
                 DevConsoleArgumentType.InstanceId =>
                     GetInventoryInstanceIds(gameSession, command, commandTokens),
@@ -286,32 +285,6 @@ namespace Godmist.Systems.Debugging
                 ?? Enumerable.Empty<string>();
         }
 
-        private static IEnumerable<string> GetCraftRecipeIds(
-            GameContentCatalog contentCatalog,
-            GameSession gameSession,
-            IReadOnlyList<string> commandTokens)
-        {
-            var blacksmith = GetNpcFromTokens(gameSession, commandTokens);
-            var role = blacksmith?.Definition?.Roles?
-                .OfType<IMaterialCraftingSpecialist>()
-                .FirstOrDefault();
-            if (role?.MaterialRecipes != null && role.MaterialRecipes.Count > 0)
-            {
-                return role.MaterialRecipes
-                    .Where(recipe => recipe != null)
-                    .Where(recipe => contentCatalog != null
-                        && contentCatalog.TryGetItem(recipe.Id, out var catalogRecipe)
-                        && catalogRecipe is CraftableItemDefinition)
-                    .Select(recipe => recipe.Id);
-            }
-
-            return contentCatalog?.ItemDefinitions?
-                .OfType<CraftableItemDefinition>()
-                .Where(definition => definition.CraftingDiscipline != MaterialDiscipline.None)
-                .Select(definition => definition.Id)
-                ?? Enumerable.Empty<string>();
-        }
-
         private static IEnumerable<string> GetNpcIds(
             string command,
             GameSession gameSession)
@@ -320,13 +293,7 @@ namespace Godmist.Systems.Debugging
                 .Where(npc => npc != null)
                 ?? Enumerable.Empty<NpcInstance>();
 
-            if (command == "craftmaterial")
-            {
-                npcs = npcs.Where(npc => npc.Definition?.Roles?
-                    .OfType<IMaterialCraftingSpecialist>()
-                    .Any() == true);
-            }
-            else if (command is "craftequipment" or "upgrade" or "reforge")
+            if (command is "upgrade" or "reforge")
             {
                 npcs = npcs.Where(npc => npc.Definition?.GetRole<BlacksmithRoleData>() != null);
             }
@@ -340,26 +307,9 @@ namespace Godmist.Systems.Debugging
             GameSession gameSession,
             IReadOnlyList<string> commandTokens)
         {
-            if (command == "craftequipment")
-            {
-                var role = GetNpcFromTokens(gameSession, commandTokens)?.Definition
-                    ?.GetRole<BlacksmithRoleData>();
-                if (role?.ClassOffers != null && role.ClassOffers.Count > 0)
-                {
-                    return role.ClassOffers
-                        .Where(offer => offer != null)
-                        .SelectMany(offer => new[] { offer.WeaponBase, offer.ArmorBase })
-                        .Where(definition => definition != null)
-                        .Where(definition => contentCatalog != null
-                            && contentCatalog.TryGetItem(definition.Id, out var catalogDefinition)
-                            && catalogDefinition is EquipmentItemDefinition)
-                        .Select(definition => definition.Id);
-                }
-            }
-
             return contentCatalog?.ItemDefinitions?
                 .Where(definition => definition != null
-                    && (command != "craftequipment"
+                    && (command != "createequipment"
                         || definition is EquipmentItemDefinition))
                 .Select(definition => definition.Id)
                 ?? Enumerable.Empty<string>();
@@ -375,14 +325,14 @@ namespace Godmist.Systems.Debugging
                 .Where(definition => definition != null)
                 ?? Enumerable.Empty<EquipmentPartDefinition>();
 
-            if (command != "craftequipment"
+            if (command != "createequipment"
                 || commandTokens == null
-                || commandTokens.Count < 3)
+                || commandTokens.Count < 2)
             {
                 return definitions.Select(definition => definition.Id);
             }
 
-            var itemId = commandTokens[2];
+            var itemId = commandTokens[1];
             if (TryGetNamedValue(commandTokens, "itemId", out var namedItemId))
             {
                 itemId = namedItemId;
@@ -397,10 +347,10 @@ namespace Godmist.Systems.Debugging
 
             var expectedKind = tokenIndex switch
             {
-                4 => equipment.ItemType == ItemType.Weapon
+                3 => equipment.ItemType == ItemType.Weapon
                     ? EquipmentPartKind.WeaponHead
                     : EquipmentPartKind.ArmorPlate,
-                5 => equipment.ItemType == ItemType.Weapon
+                4 => equipment.ItemType == ItemType.Weapon
                     ? EquipmentPartKind.WeaponBinder
                     : EquipmentPartKind.ArmorBinder,
                 _ => equipment.ItemType == ItemType.Weapon
@@ -413,21 +363,6 @@ namespace Godmist.Systems.Debugging
                     && definition.Kind == expectedKind
                     && definition.Stats != null)
                 .Select(definition => definition.Id);
-        }
-
-        private static NpcInstance GetNpcFromTokens(
-            GameSession gameSession,
-            IReadOnlyList<string> commandTokens)
-        {
-            var npcId = commandTokens?.Count > 1 ? commandTokens[1] : string.Empty;
-            if (TryGetNamedValue(commandTokens, "npcId", out var namedNpcId))
-            {
-                npcId = namedNpcId;
-            }
-
-            return gameSession?.NpcsById?.Values.FirstOrDefault(npc =>
-                npc != null
-                && string.Equals(npc.NpcId, npcId, StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool TryGetNamedValue(

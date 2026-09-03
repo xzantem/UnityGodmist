@@ -62,6 +62,7 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(GetValue(item, CharacterStatType.MagicalDefense), Is.EqualTo(1.2f).Within(0.0001f));
             Assert.That(item.ItemLevel, Is.EqualTo(2));
+            Assert.That(item.RequiredLevel, Is.EqualTo(2));
         }
 
         [Test]
@@ -246,8 +247,8 @@ namespace Godmist.Tests.EditMode
             };
 
             var item = new EquipmentGenerationService().Generate(definition, parts, quality, RarityTier.Common);
-            Assert.That(item.RequiredLevel, Is.EqualTo(15));
             Assert.That(item.ItemLevel, Is.EqualTo(expectedLevel));
+            Assert.That(item.RequiredLevel, Is.EqualTo(expectedLevel));
         }
 
         [Test]

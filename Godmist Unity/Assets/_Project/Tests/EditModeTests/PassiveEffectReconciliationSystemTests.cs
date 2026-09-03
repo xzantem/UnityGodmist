@@ -42,7 +42,8 @@ namespace Godmist.Tests.EditMode
                     CreateVariablePassive(
                         "equipment.passive.gold",
                         GameplayVariableType.GoldGainPercent,
-                        .10f)
+                        .10f),
+                    CreateTriggeredPassive("equipment.passive.triggered")
                 });
 
                 var item = new EquipmentItemInstance(definition, "equipment.instance.1")
@@ -65,7 +66,10 @@ namespace Godmist.Tests.EditMode
 
                 Assert.That(character.Stats.MinAttack.GetValue(), Is.EqualTo(24f));
                 Assert.That(new CombatVariableSystem().GetGoldMultiplier(character), Is.EqualTo(1.1f).Within(.001f));
-                Assert.That(character.PassiveEffects.Count(effect => PassiveEffectReconciliationSystem.IsManaged(effect)), Is.EqualTo(2));
+                Assert.That(character.PassiveEffects.Count(effect => PassiveEffectReconciliationSystem.IsManaged(effect)), Is.EqualTo(3));
+                Assert.That(
+                    character.PassiveEffects.Select(effect => effect.DefinitionId),
+                    Does.Contain("equipment.passive.triggered"));
                 Assert.That(character.PassiveEffects.Count(effect => effect.EffectId == "unmanaged.effect"), Is.EqualTo(1));
 
                 character.Equipment.Weapon = null;
@@ -163,6 +167,55 @@ namespace Godmist.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Refresh_UniqueDefinitionIsMaterializedOnlyOnceAcrossSources()
+        {
+            var character = CreateCharacter();
+            var weaponDefinition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            var armorDefinition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            try
+            {
+                Set(weaponDefinition, "Id", "equipment.test.weapon.unique");
+                Set(weaponDefinition, "ItemType", ItemType.Weapon);
+                Set(weaponDefinition, "PassiveEffects", new List<PassiveEffectDefinition>
+                {
+                    CreateVariablePassive(
+                        "passive.test.unique",
+                        GameplayVariableType.GoldGainPercent,
+                        .10f)
+                });
+
+                Set(armorDefinition, "Id", "equipment.test.armor.unique");
+                Set(armorDefinition, "ItemType", ItemType.Armor);
+                Set(armorDefinition, "PassiveEffects", new List<PassiveEffectDefinition>
+                {
+                    CreateVariablePassive(
+                        "passive.test.unique",
+                        GameplayVariableType.GoldGainPercent,
+                        .10f)
+                });
+
+                character.Equipment.Weapon = new EquipmentItemInstance(
+                    weaponDefinition,
+                    "equipment.instance.weapon");
+                character.Equipment.Armor = new EquipmentItemInstance(
+                    armorDefinition,
+                    "equipment.instance.armor");
+
+                new PassiveEffectReconciliationSystem().Reconcile(character);
+
+                Assert.That(
+                    character.PassiveEffects.Count(effect =>
+                        effect.DefinitionId == "passive.test.unique"),
+                    Is.EqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(weaponDefinition);
+                Object.DestroyImmediate(armorDefinition);
+            }
+        }
+
         private static CharacterInstance CreateCharacter()
         {
             return new CharacterInstance
@@ -205,7 +258,9 @@ namespace Godmist.Tests.EditMode
             Set(operation, "VariableType", variableType);
             Set(operation, "ReferenceId", referenceId);
             Set(operation, "Value", CreateValue(value));
-            return CreateDefinition(id, operation);
+            var definition = CreateDefinition(id, operation);
+            Set(definition, "StackingRule", PassiveEffectStackingRule.Unique);
+            return definition;
         }
 
         private static PassiveEffectDefinition CreateResistancePassive(
@@ -219,6 +274,18 @@ namespace Godmist.Tests.EditMode
             Set(operation, "ResistanceType", resistanceType);
             Set(operation, "Value", CreateValue(value));
             return CreateDefinition(id, operation);
+        }
+
+        private static PassiveEffectDefinition CreateTriggeredPassive(string id)
+        {
+            var definition = CreateVariablePassive(
+                id,
+                GameplayVariableType.GoldGainPercent,
+                .10f);
+            var trigger = new PassiveEffectTriggerDefinition();
+            Set(trigger, "Type", PassiveEffectTriggerType.OnAttack);
+            Set(definition, "Triggers", new List<PassiveEffectTriggerDefinition> { trigger });
+            return definition;
         }
 
         private static PassiveEffectDefinition CreateDefinition(

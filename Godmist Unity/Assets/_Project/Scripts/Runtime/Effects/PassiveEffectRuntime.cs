@@ -19,6 +19,8 @@ namespace Godmist.Runtime.Effects
         public string DisplayName = string.Empty;
         public List<PassiveEffectSourceRuntime> Sources = new();
         public int Stacks = 1;
+        public PassiveEffectStackingRule StackingRule =
+            PassiveEffectStackingRule.Unique;
 
         public PassiveEffectLifetime Lifetime =
             PassiveEffectLifetime.Persistent;

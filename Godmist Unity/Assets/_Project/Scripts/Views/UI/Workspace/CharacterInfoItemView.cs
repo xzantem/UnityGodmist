@@ -40,6 +40,8 @@ namespace Godmist.Views.UI.Workspace
             int stackCount,
             CharacterInfoWindowView nextOwner)
         {
+            if (!ReferenceEquals(item, nextItem))
+                UIWorkspaceTooltipView.ActiveInstance?.InvalidateSource(this);
             item = nextItem; owner = nextOwner;
             if (icon != null)
             {

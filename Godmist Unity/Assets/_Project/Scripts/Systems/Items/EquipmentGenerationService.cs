@@ -133,7 +133,7 @@ namespace Godmist.Systems.Items
             item.PartIds = selected.Select(part => part.Id).ToList();
             var bracket = selected.Max(part => (int)part.LevelBracket);
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
-            item.RequiredLevel = bracket;
+            item.RequiredLevel = item.ItemLevel;
             item.BaseStatModifiers = BuildFinalItemStats(
                 selected,
                 definition.ItemType,

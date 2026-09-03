@@ -7,6 +7,7 @@ using Godmist.Data.Characters;
 using Godmist.Data.Combat;
 using Godmist.Data.Dungeons;
 using Godmist.Data.Skills;
+using Godmist.Systems.Combat;
 using UnityEngine;
 
 namespace Godmist.Editor
@@ -54,6 +55,9 @@ namespace Godmist.Editor
                 case SkillData skill:
                     ValidateSkill(skill, errors, warnings);
                     ValidateDuplicateId(skill, activeCatalog, errors);
+                    break;
+                case SkillTreeDefinition tree:
+                    ValidateSkillTree(tree, errors, warnings);
                     break;
                 case CharacterDefinition character:
                     ValidateCharacter(character, errors, warnings);
@@ -235,6 +239,8 @@ namespace Godmist.Editor
             {
                 warnings.Add("Equipment nie ma przypisanej klasy postaci.");
             }
+
+            ValidatePassives(equipment.PassiveEffects, "PassiveEffects", errors, warnings);
         }
 
         private static void ValidatePart(
@@ -305,6 +311,10 @@ namespace Godmist.Editor
             RequireText(skill.DisplayName, "DisplayName", errors);
             if (!IsFiniteNonNegative(skill.SkillAccuracy))
                 errors.Add("SkillAccuracy musi być skończoną liczbą nieujemną.");
+            if (!Enum.IsDefined(typeof(Core.Enums.AttackType), skill.AttackType))
+                errors.Add("AttackType ma nieprawidłową wartość.");
+            if (!Enum.IsDefined(typeof(Core.Enums.AttackType), skill.PointBlankAttackType))
+                errors.Add("PointBlankAttackType ma nieprawidłową wartość.");
             if (skill.ActionCost < 0) errors.Add("ActionCost nie może być ujemne.");
             if (skill.ResourceCost < 0) errors.Add("ResourceCost nie może być ujemne.");
             if (skill.KnifeCost < 0) errors.Add("KnifeCost nie może być ujemne.");
@@ -323,6 +333,78 @@ namespace Godmist.Editor
                 warnings.Add("Skill nie ma zdefiniowanych efektów.");
             if (skill.IsToggle && !ToggleSkillRules.IsValid(skill))
                 warnings.Add("Skill oznaczony jako toggle nie spełnia reguł toggle.");
+        }
+
+        private static void ValidateSkillTree(
+            SkillTreeDefinition tree,
+            List<string> errors,
+            List<string> warnings)
+        {
+            RequireText(tree.Id, "Id", errors);
+            RequireText(tree.DisplayName, "DisplayName", errors);
+
+            if (tree.Nodes == null || tree.Nodes.Count == 0)
+            {
+                warnings.Add("Skill tree nie ma zdefiniowanych node'ów.");
+            }
+            else
+            {
+                var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                for (var index = 0; index < tree.Nodes.Count; index++)
+                {
+                    var node = tree.Nodes[index];
+                    if (node == null)
+                    {
+                        errors.Add($"Nodes[{index}] nie może być puste.");
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(node.Id) || !ids.Add(node.Id))
+                        errors.Add($"Nodes[{index}].Id musi być niepuste i unikalne.");
+                    if (node.Tier < 1 || node.Tier > 7)
+                        errors.Add($"Nodes[{index}].Tier musi być w zakresie 1-7.");
+                    if (node.Column < 1 || node.Column > 5)
+                        errors.Add($"Nodes[{index}].Column musi być w zakresie 1-5.");
+                    if (node.MaxRanks < 1 || node.MaxRanks > 3)
+                        errors.Add($"Nodes[{index}].MaxRanks musi być w zakresie 1-3.");
+
+                    ValidatePassives(node.PassiveEffects, $"Nodes[{index}].PassiveEffects", errors, warnings);
+                }
+            }
+
+            ValidatePassives(
+                tree.GlobalPassive?.PassivesPerPoint,
+                "GlobalPassive.PassivesPerPoint",
+                errors,
+                warnings);
+        }
+
+        private static void ValidatePassives(
+            IEnumerable<Godmist.Data.Effects.PassiveEffectDefinition> passives,
+            string field,
+            List<string> errors,
+            List<string> warnings)
+        {
+            if (passives == null)
+            {
+                warnings.Add($"{field} nie została zainicjalizowana.");
+                return;
+            }
+
+            var index = 0;
+            foreach (var passive in passives)
+            {
+                if (passive == null)
+                {
+                    errors.Add($"{field}[{index}] nie może być pusta.");
+                    index++;
+                    continue;
+                }
+
+                foreach (var error in PassiveEffectDefinitionValidator.Validate(passive).Errors)
+                    errors.Add($"{field}[{index}]: {error}");
+                index++;
+            }
         }
 
         private static void ValidateCharacter(

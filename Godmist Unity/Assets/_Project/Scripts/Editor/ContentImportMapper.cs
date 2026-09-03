@@ -222,6 +222,10 @@ namespace Godmist.Editor
         private static void MapSkill(Dictionary<string, string> source, ContentImportPreviewRow row)
         {
             SetFloat(source, row, "SkillAccuracy", "skill_accuracy", "celność", "accuracy");
+            SetEnum(source, row, "AttackType", TryParseAttackType,
+                "attack_type", "typ ataku", "rodzaj ataku");
+            SetEnum(source, row, "PointBlankAttackType", TryParseAttackType,
+                "point_blank_attack_type", "typ ataku z bliska", "typ ataku punktowego");
             SetInt(source, row, "ActionCost", "action_cost", "ap", "koszt ap");
             var resource = Get(source, "resource_cost", "resource", "koszt", "koszt zasobu");
             if (TryParseCost(resource, out var resourceCost, out var resourceType))
@@ -572,6 +576,30 @@ namespace Godmist.Editor
             if (value.IndexOf("mikstur", StringComparison.OrdinalIgnoreCase) >= 0) return (true, ConsumableUseType.Potion);
             if (value.IndexOf("bomba", StringComparison.OrdinalIgnoreCase) >= 0) return (true, ConsumableUseType.Bomb);
             if (value.IndexOf("utility", StringComparison.OrdinalIgnoreCase) >= 0) return (true, ConsumableUseType.Utility);
+            return (false, default);
+        }
+
+        private static (bool success, AttackType value) TryParseAttackType(string value)
+        {
+            if (Enum.TryParse(value, true, out AttackType result)
+                && Enum.IsDefined(typeof(AttackType), result))
+            {
+                return (true, result);
+            }
+
+            if (value.IndexOf("wręcz", StringComparison.OrdinalIgnoreCase) >= 0
+                || value.IndexOf("melee", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return (true, AttackType.Melee);
+            }
+
+            if (value.IndexOf("dystans", StringComparison.OrdinalIgnoreCase) >= 0
+                || value.IndexOf("ranged", StringComparison.OrdinalIgnoreCase) >= 0
+                || value.IndexOf("zasięg", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return (true, AttackType.Ranged);
+            }
+
             return (false, default);
         }
 

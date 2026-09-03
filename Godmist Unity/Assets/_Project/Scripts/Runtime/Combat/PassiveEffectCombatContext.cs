@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Data.Skills;
 
 namespace Godmist.Runtime.Combat
 {
@@ -16,6 +17,10 @@ namespace Godmist.Runtime.Combat
         public BattleUnit Source { get; }
         public BattleUnit Target { get; }
         public string SkillId { get; }
+        public SkillData Skill { get; }
+        public IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> TargetsByModeIndex { get; }
+        public string ActionId { get; }
+        public bool IsPassiveDuplicate { get; }
         public AttackType AttackType { get; }
         public AttackPosition AttackPosition { get; }
         public DamageType? DamageType { get; }
@@ -43,6 +48,10 @@ namespace Godmist.Runtime.Combat
             BattleUnit source = null,
             BattleUnit target = null,
             string skillId = null,
+            SkillData skill = null,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex = null,
+            string actionId = null,
+            bool isPassiveDuplicate = false,
             AttackType attackType = AttackType.Unknown,
             AttackPosition attackPosition = AttackPosition.Unknown,
             DamageType? damageType = null,
@@ -69,6 +78,10 @@ namespace Godmist.Runtime.Combat
             Source = source;
             Target = target;
             SkillId = skillId ?? string.Empty;
+            Skill = skill;
+            TargetsByModeIndex = targetsByModeIndex;
+            ActionId = actionId ?? string.Empty;
+            IsPassiveDuplicate = isPassiveDuplicate;
             AttackType = attackType;
             AttackPosition = attackPosition;
             DamageType = damageType;
@@ -107,6 +120,10 @@ namespace Godmist.Runtime.Combat
                 Source,
                 Target,
                 SkillId,
+                Skill,
+                TargetsByModeIndex,
+                ActionId,
+                IsPassiveDuplicate,
                 AttackType,
                 AttackPosition,
                 DamageType,
@@ -124,6 +141,40 @@ namespace Godmist.Runtime.Combat
                 wasMissed,
                 healthDamage,
                 eventValue,
+                TargetTags,
+                ReferencedEffectSucceeded,
+                ReferencedEffectCrit,
+                ReferencedEffectDodged);
+        }
+
+        public PassiveEffectCombatContext AsPassiveDuplicate()
+        {
+            return new PassiveEffectCombatContext(
+                Session,
+                Source,
+                Target,
+                SkillId,
+                Skill,
+                TargetsByModeIndex,
+                ActionId,
+                isPassiveDuplicate: true,
+                AttackType,
+                AttackPosition,
+                DamageType,
+                Distance,
+                MovementCost,
+                MovementSteps,
+                ResourceType,
+                ResourceAmount,
+                StatusId,
+                StackCount,
+                TurnNumber,
+                Succeeded,
+                IsCritical,
+                WasDodged,
+                WasMissed,
+                HealthDamage,
+                EventValue,
                 TargetTags,
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,

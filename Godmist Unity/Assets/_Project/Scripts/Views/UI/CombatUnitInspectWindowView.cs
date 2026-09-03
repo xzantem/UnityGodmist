@@ -846,18 +846,18 @@ namespace Godmist.Views.UI
             AppendStatRange(left, "Atak", FormatRange(
                 stats.MinAttack.GetValue(),
                 stats.MaxAttack.GetValue()));
-            AppendStat(left, "Obrona fizyczna", stats.PhysicalDefense.GetValue());
-            AppendStat(left, "Obrona magiczna", stats.MagicalDefense.GetValue());
+            AppendStat(left, "Obrona fizyczna", stats.PhysicalDefense.GetValue(), format: "0");
+            AppendStat(left, "Obrona magiczna", stats.MagicalDefense.GetValue(), format: "0");
             AppendStat(left, "Przebicie fizyczne",
                 stats.PhysicalDefensePenetration.GetValue() * 100f, "%");
             AppendStat(left, "Przebicie magiczne",
                 stats.MagicalDefensePenetration.GetValue() * 100f, "%");
             AppendStat(left, "Celność", character.WeaponAccuracy, "%");
-            AppendStat(left, "Unik", stats.Dodge.GetValue());
+            AppendStat(left, "Unik", stats.Dodge.GetValue(), format: "0");
             AppendStat(left, "Szansa na krytyk",
                 stats.CritChance.GetValue() * 100f, "%");
             AppendStat(left, "Obrażenia krytyczne",
-                stats.CritDamage.GetValue() * 100f, "%");
+                stats.CritDamage.GetValue(), "x", false, "0.00");
 
             var right = new StringBuilder();
             AppendStat(right, "Szybkość", stats.Speed.GetValue());
@@ -891,13 +891,14 @@ namespace Godmist.Views.UI
             string label,
             float value,
             string suffix = "",
-            bool valueIsFraction = false)
+            bool valueIsFraction = false,
+            string format = "0.#")
         {
             if (result.Length > 0) result.Append('\n');
             var displayedValue = valueIsFraction ? value * 100f : value;
             result.Append(label)
                 .Append(": ")
-                .Append(displayedValue.ToString("0.#"))
+                .Append(displayedValue.ToString(format))
                 .Append(suffix);
         }
 
@@ -915,7 +916,7 @@ namespace Godmist.Views.UI
 
         private static string FormatRange(float minimum, float maximum)
         {
-            return $"{minimum:0.#}–{maximum:0.#}";
+            return $"{Mathf.RoundToInt(minimum)}–{Mathf.RoundToInt(maximum)}";
         }
 
         private string FormatStatus(PassiveEffectRuntime effect)

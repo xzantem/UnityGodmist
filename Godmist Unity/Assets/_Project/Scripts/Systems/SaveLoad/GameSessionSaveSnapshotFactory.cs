@@ -702,6 +702,7 @@ namespace Godmist.Systems.SaveLoad
                     DisplayName = effect.DisplayName,
                     Sources = CopyPassiveEffectSources(effect.Sources),
                     Stacks = effect.Stacks,
+                    StackingRule = effect.StackingRule,
                     Lifetime = effect.Lifetime,
                     TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,

@@ -144,6 +144,9 @@ namespace Godmist.Systems.Combat
             foreach (var definition in tree.GlobalPassive?.PassivesPerPoint
                          ?? new List<PassiveEffectDefinition>())
             {
+                if (ShouldSkipUniqueDefinition(character, definition))
+                    continue;
+
                 if (!PassiveEffectRuntimeFactory.TryCreate(
                         definition,
                         CreateSource(PassiveEffectSourceType.SkillTree, sourceId),
@@ -166,6 +169,9 @@ namespace Godmist.Systems.Combat
                 foreach (var definition in node.PassiveEffects
                              ?? new List<PassiveEffectDefinition>())
                 {
+                    if (ShouldSkipUniqueDefinition(character, definition))
+                        continue;
+
                     if (!PassiveEffectRuntimeFactory.TryCreate(
                             definition,
                             CreateSource(
@@ -214,20 +220,49 @@ namespace Godmist.Systems.Combat
 
             foreach (var definition in definitions)
             {
+                if (ShouldSkipUniqueDefinition(character, definition))
+                    continue;
+
                 if (!PassiveEffectRuntimeFactory.TryCreate(
                         definition,
                         CreateSource(sourceType, sourceId),
-                        $"{sourceId}.{definition?.Id}",
                         out var runtime))
                 {
                     continue;
                 }
+
+                runtime.EffectId = $"{sourceId}.{definition?.Id}";
 
                 if (string.IsNullOrWhiteSpace(runtime.DisplayName))
                     runtime.DisplayName = displayName ?? string.Empty;
 
                 character.PassiveEffects.Add(runtime);
             }
+        }
+
+        private static bool ShouldSkipUniqueDefinition(
+            CharacterInstance character,
+            PassiveEffectDefinition definition)
+        {
+            if (definition == null
+                || definition.StackingRule != PassiveEffectStackingRule.Unique
+                || string.IsNullOrWhiteSpace(definition.Id))
+            {
+                return false;
+            }
+
+            foreach (var existing in character?.PassiveEffects
+                         ?? new List<PassiveEffectRuntime>())
+            {
+                if (existing != null
+                    && IsManaged(existing)
+                    && existing.DefinitionId == definition.Id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static JewelryMetalData FindMetal(

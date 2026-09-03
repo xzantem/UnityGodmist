@@ -281,6 +281,20 @@ namespace Godmist.Systems.Combat
             {
                 return 0;
             }
+            var damageContext = passiveContext ?? new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: damageType);
+            if (PassiveEffectCombatExecutionSystem.TryPreventDamage(
+                    session,
+                    damageContext,
+                    damageType))
+            {
+                battleLog?.Invoke(
+                    $"{GetDisplayName(target)} absorbuje obrażenia magiczne.");
+                return 0;
+            }
             if (target.Character.LifeState == CharacterLifeState.Downed)
             {
                 AccelerateDownedDeath(session, target);
@@ -342,11 +356,6 @@ namespace Godmist.Systems.Combat
             }
             if (shieldDamage > 0 || healthDamage > 0)
             {
-                var damageContext = passiveContext ?? new PassiveEffectCombatContext(
-                    session: session,
-                    source: source,
-                    target: target,
-                    damageType: damageType);
                 Publish(session, PassiveEffectTriggerType.OnDamageTaken,
                     damageContext.WithOutcome(
                         succeeded: true,

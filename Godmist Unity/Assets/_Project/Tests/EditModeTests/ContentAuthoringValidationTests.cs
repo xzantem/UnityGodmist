@@ -111,6 +111,25 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Validate_SkillTree_IsSupportedByContentAuthoring()
+        {
+            var tree = ScriptableObject.CreateInstance<SkillTreeDefinition>();
+            SetAutoProperty(tree, "Id", "tree.test");
+            SetAutoProperty(tree, "DisplayName", "Test tree");
+            SetAutoProperty(tree, "Nodes", new System.Collections.Generic.List<SkillTreeNodeDefinition>
+            {
+                new SkillTreeNodeDefinition()
+            });
+            SetAutoProperty(tree.Nodes[0], "Id", "node.test");
+
+            var report = ContentAuthoringValidator.Validate(tree);
+
+            Assert.That(report.IsValid, Is.True);
+
+            Object.DestroyImmediate(tree);
+        }
+
+        [Test]
         public void Validate_RejectsDuplicateCharacterIdInActiveCatalog()
         {
             var existing = ScriptableObject.CreateInstance<CharacterDefinition>();

@@ -28,6 +28,9 @@ namespace Godmist.Editor
             DrawProperty("<Weight>k__BackingField");
             if (selected != 2) DrawProperty("<RequiredClass>k__BackingField");
             if (selected == 2) DrawProperty("<JewelrySlot>k__BackingField");
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Passive Effects", EditorStyles.boldLabel);
+            DrawProperty("<PassiveEffects>k__BackingField");
             EditorGUILayout.HelpBox(
                 "EquipmentSlot i IsStackable wynikaja z Item Type. Required Level oraz Base Value sa wyliczane runtime; Base Value pozostaje nieobslugiwane do czasu modelu kosztow materialow.",
                 MessageType.Info);

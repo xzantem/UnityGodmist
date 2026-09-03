@@ -61,6 +61,7 @@ namespace Godmist.Systems.Combat
                     ? new List<PassiveEffectSourceRuntime>()
                     : new List<PassiveEffectSourceRuntime> { CopySource(source) },
                 Stacks = 1,
+                StackingRule = definition.StackingRule,
                 Lifetime = lifetime,
                 RemainingDuration = lifetime == Core.Enums.PassiveEffectLifetime.Timed
                     ? definition.DefaultDurationTurns

@@ -67,7 +67,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -277,6 +279,14 @@ PrefabInstance:
       propertyPath: m_text
       value: Magazyn Arungardu
       objectReference: {fileID: 0}
+    - target: {fileID: 7987042011853490793, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
+      propertyPath: maximumSize.x
+      value: 1220
+      objectReference: {fileID: 0}
+    - target: {fileID: 7987042011853490793, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
+      propertyPath: minimumSize.x
+      value: 356
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -316,6 +326,7 @@ MonoBehaviour:
   itemTemplate: {fileID: 6032702379438724176}
   dragGhostTemplate: {fileID: 0}
   statusText: {fileID: 7739845167999631401}
+  maximumColumns: 16
 --- !u!1 &5025570124472202232 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5313361290496147354, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
@@ -459,6 +470,18 @@ PrefabInstance:
       propertyPath: m_Value
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4867587488218035126, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8249692176657219302, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -488,6 +511,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1519675153774526680, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1933728607417047818}
+    - targetCorrespondingSourceObject: {fileID: 1519675153774526680, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5380974285011433894}
     - targetCorrespondingSourceObject: {fileID: 5831304640005700515, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1413753565270525368}
@@ -510,17 +536,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
+    m_Left: 8
+    m_Right: 8
+    m_Top: 8
+    m_Bottom: 8
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 64, y: 64}
   m_Spacing: {x: 8, y: 8}
   m_Constraint: 1
-  m_ConstraintCount: 5
+  m_ConstraintCount: 16
 --- !u!224 &2492374082866070174 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
@@ -569,6 +595,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.CampaignStorageDropTarget
   acceptsStashItems: 1
+--- !u!114 &5380974285011433894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6632864819581773047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!224 &7051081000879806644 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2936394403131882651, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}

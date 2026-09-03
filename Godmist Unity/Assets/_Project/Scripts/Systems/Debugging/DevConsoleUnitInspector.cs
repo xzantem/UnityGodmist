@@ -71,7 +71,7 @@ namespace Godmist.Systems.Debugging
                 output.AppendLine(
                     $"Unik: {GetStatValue(stats.Dodge)} | " +
                     $"Kryt: {GetStatValue(stats.CritChance)}% | " +
-                    $"Obrażenia krytyczne: {GetStatValue(stats.CritDamage)} | " +
+                    $"Obrażenia krytyczne: {stats.CritDamage.GetValue():0.00} | " +
                     $"Szybkość: {GetStatValue(stats.Speed)} | " +
                     $"Celność broni: {character.WeaponAccuracy}");
             }

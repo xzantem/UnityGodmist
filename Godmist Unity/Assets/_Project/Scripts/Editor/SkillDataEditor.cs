@@ -14,6 +14,8 @@ namespace Godmist.Editor
         private SerializedProperty icon;
         private SerializedProperty tooltipDescription;
         private SerializedProperty skillAccuracy;
+        private SerializedProperty attackType;
+        private SerializedProperty pointBlankAttackType;
         private SerializedProperty actionCost;
         private SerializedProperty resourceCost;
         private SerializedProperty resourceType;
@@ -33,6 +35,9 @@ namespace Godmist.Editor
             tooltipDescription = serializedObject.FindProperty(
                 "<TooltipDescription>k__BackingField");
             skillAccuracy = serializedObject.FindProperty("<SkillAccuracy>k__BackingField");
+            attackType = serializedObject.FindProperty("<AttackType>k__BackingField");
+            pointBlankAttackType = serializedObject.FindProperty(
+                "<PointBlankAttackType>k__BackingField");
             actionCost = serializedObject.FindProperty("<ActionCost>k__BackingField");
             resourceCost = serializedObject.FindProperty("<ResourceCost>k__BackingField");
             resourceType = serializedObject.FindProperty("<ResourceType>k__BackingField");
@@ -83,6 +88,13 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(resourceCost, new GUIContent("Resource Cost"));
             EditorGUILayout.PropertyField(resourceType, new GUIContent("Resource Type"));
             EditorGUILayout.PropertyField(knifeCost, new GUIContent("Knife Cost"));
+
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Combat Classification", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(attackType, new GUIContent("Attack Type"));
+            EditorGUILayout.PropertyField(
+                pointBlankAttackType,
+                new GUIContent("Point-Blank Attack Type"));
 
             if (RequiresSkillAccuracy())
             {

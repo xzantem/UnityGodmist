@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
+using Godmist.Core.Types;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Views.UI;
@@ -111,6 +112,56 @@ namespace Godmist.Tests.EditMode
                 presentations[0].Effect.GetPayload<DamageRedirectPayload>()
                     .ProtectedCharacterDisplayName,
                 Is.EqualTo("Chroniony"));
+        }
+
+        [Test]
+        public void Create_ExcludesPersistentEffectsEvenWhenCombatRelevant()
+        {
+            var experience = new PassiveEffectRuntime
+            {
+                EffectId = "passive.experience"
+            };
+            experience.VariableModifiers = new List<GameplayVariableModifier>
+            {
+                new()
+                {
+                    VariableType = GameplayVariableType.ExperienceGainPercent,
+                    Value = .25f
+                }
+            };
+
+            var damage = new PassiveEffectRuntime
+            {
+                EffectId = "passive.damage"
+            };
+            damage.VariableModifiers = new List<GameplayVariableModifier>
+            {
+                new()
+                {
+                    VariableType = GameplayVariableType.DamageDealtPercent,
+                    Value = .25f
+                }
+            };
+
+            var combatDamage = new PassiveEffectRuntime
+            {
+                EffectId = "passive.combat-damage",
+                Lifetime = PassiveEffectLifetime.CombatScoped
+            };
+            combatDamage.VariableModifiers = new List<GameplayVariableModifier>
+            {
+                new()
+                {
+                    VariableType = GameplayVariableType.DamageDealtPercent,
+                    Value = .25f
+                }
+            };
+
+            var presentations = CombatStatusPresentationFactory.Create(
+                new[] { experience, damage, combatDamage });
+
+            Assert.That(presentations, Has.Count.EqualTo(1));
+            Assert.That(presentations[0].Effect, Is.SameAs(combatDamage));
         }
     }
 }

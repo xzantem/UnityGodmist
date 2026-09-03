@@ -181,22 +181,15 @@ namespace Godmist.Systems.Debugging
                 Schema("combat", "Uruchamia debugową walkę z encounterem.",
                     Signature("combat <encounterId>", Arg("encounterId", DevConsoleArgumentType.EncounterId)),
                     "combat combat.encounter.debug"),
-                Schema("craftmaterial", "Wytwarza wynik recepty materiałowej u wybranego specjalisty.",
-                    Signature("craftmaterial <npcId> <recipeId> [characterId]",
-                        Arg("npcId", DevConsoleArgumentType.NpcId),
-                        Arg("recipeId", DevConsoleArgumentType.ItemId),
-                        Arg("characterId", DevConsoleArgumentType.CharacterId, false)),
-                    "craftmaterial npc.blacksmith item.material.ingot characterId=jerzy"),
-                Schema("craftequipment", "Wytwarza wyposażenie z trzema wybranymi częściami u kowala.",
-                    Signature("craftequipment <npcId> <itemId> <quality> <partId> <partId> <partId> [characterId]",
-                        Arg("npcId", DevConsoleArgumentType.NpcId),
+                Schema("createequipment", "Tworzy wyposażenie z trzema wybranymi częściami bez kosztu materiałów.",
+                    Signature("createequipment <itemId> <quality> <partId> <partId> <partId> [characterId]",
                         Arg("itemId", DevConsoleArgumentType.ItemId),
                         Arg("quality", DevConsoleArgumentType.EquipmentQuality),
                         Arg("part1Id", DevConsoleArgumentType.EquipmentPartId),
                         Arg("part2Id", DevConsoleArgumentType.EquipmentPartId),
                         Arg("part3Id", DevConsoleArgumentType.EquipmentPartId),
                         Arg("characterId", DevConsoleArgumentType.CharacterId, false)),
-                    "craftequipment npc.blacksmith item.weapon.debug Normal part.head part.binder part.handle"),
+                    "createequipment item.weapon.debug Normal part.head part.binder part.handle"),
                 Schema("upgrade", "Ulepsza istniejące wyposażenie u kowala.",
                     Signature("upgrade <npcId> <instanceId> <targetProgress> [successChance] [characterId]",
                         Arg("npcId", DevConsoleArgumentType.NpcId),
@@ -748,8 +741,7 @@ namespace Godmist.Systems.Debugging
                 DevConsoleArgumentType.ResistanceType =>
                     Enum.TryParse<ResistanceType>(value, true, out _),
                 DevConsoleArgumentType.EquipmentQuality =>
-                    Enum.TryParse<EquipmentQuality>(value, true, out var quality)
-                    && quality != EquipmentQuality.Masterpiece,
+                    Enum.TryParse<EquipmentQuality>(value, true, out _),
                 _ => true
             };
         }

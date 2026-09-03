@@ -45,7 +45,6 @@ namespace Godmist.Views.UI.Workspace
         private void Awake()
         {
             if (tabTemplate != null) tabTemplate.gameObject.SetActive(false);
-            HideInHierarchyTemplates();
 
             // TradeServiceWindowView is a serialized child/content reference of
             // PF_UIW_NpcServicesWindow. Never create a second one at runtime:
@@ -57,27 +56,6 @@ namespace Godmist.Views.UI.Workspace
                     "NpcServicesWindowView has no serialized TradeServiceWindowView. "
                     + "Assign the Trade tab component in PF_UIW_NpcServicesWindow.",
                     this);
-            }
-        }
-
-        private void HideInHierarchyTemplates()
-        {
-            // The shared service prefab contains legacy slot/card templates for
-            // the other tabs. They are valid Instantiate sources, but must not
-            // render as ordinary children of the shell. External prefab assets
-            // assigned to serialized fields are not returned by this query and
-            // remain available as templates.
-            foreach (var child in GetComponentsInChildren<Transform>(true))
-            {
-                if (child == transform || child == tabTemplate?.transform)
-                    continue;
-
-                var name = child.name;
-                if (name.IndexOf("Template", StringComparison.OrdinalIgnoreCase) >= 0
-                    && !string.Equals(name, "Templates", StringComparison.OrdinalIgnoreCase))
-                {
-                    child.gameObject.SetActive(false);
-                }
             }
         }
 

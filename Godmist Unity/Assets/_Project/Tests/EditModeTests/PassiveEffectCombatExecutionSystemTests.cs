@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Effects;
@@ -18,6 +19,280 @@ namespace Godmist.Tests.EditMode
 {
     public sealed class PassiveEffectCombatExecutionSystemTests
     {
+        [Test]
+        public void PreventDamage_OnlyAbsorbsMagicalDamage()
+        {
+            var definition = CreateDefinition(
+                "passive.unique.magic-absorption",
+                PassiveEffectTriggerType.OnDamageTaken,
+                PassiveEffectOperationType.PreventDamage);
+            var value = new PassiveEffectValueDefinition();
+            Set(value, nameof(PassiveEffectValueDefinition.NumberValue), 1f);
+            Set(definition.Operations[0],
+                nameof(PassiveEffectOperationDefinition.Value), value);
+            var tree = CreateTree(
+                "tree.test",
+                CreateNode("node.test", definition));
+            var targetCharacter = CreateCharacter(tree);
+            targetCharacter.SkillTreeProgress.Add(new SkillTreeProgress
+            {
+                TreeId = tree.Id,
+                NodeInvestments = new List<SkillTreeNodeInvestment>
+                {
+                    new() { NodeId = "node.test", Ranks = 1 }
+                }
+            });
+            new PassiveEffectReconciliationSystem().Reconcile(targetCharacter);
+
+            var source = new BattleUnit { Character = CreateCharacter(null) };
+            var target = new BattleUnit { Character = targetCharacter };
+            var session = new CombatSession
+            {
+                Units = new List<BattleUnit> { source, target }
+            };
+            var magicalContext = new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: DamageType.Magical);
+            var physicalContext = new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: DamageType.Physical);
+
+            Assert.That(
+                PassiveEffectCombatExecutionSystem.TryPreventDamage(
+                    session, magicalContext, DamageType.Magical),
+                Is.True);
+            Assert.That(
+                PassiveEffectCombatExecutionSystem.TryPreventDamage(
+                    session, physicalContext, DamageType.Physical),
+                Is.False);
+        }
+
+        [Test]
+        public void RuntimeFlagAttack_CanBeConsumedBeforeKnifeCost()
+        {
+            var definition = CreateDefinition(
+                "passive.unique.free-knife",
+                PassiveEffectTriggerType.OnAttack,
+                PassiveEffectOperationType.SetRuntimeFlag);
+            Set(definition.Operations[0],
+                nameof(PassiveEffectOperationDefinition.ReferenceId),
+                "dagger.prevent-consume");
+            var value = new PassiveEffectValueDefinition();
+            Set(value, nameof(PassiveEffectValueDefinition.NumberValue), 1f);
+            Set(definition.Operations[0],
+                nameof(PassiveEffectOperationDefinition.Value), value);
+            var tree = CreateTree(
+                "tree.test",
+                CreateNode("node.test", definition));
+            var sourceCharacter = CreateCharacter(tree);
+            sourceCharacter.SkillTreeProgress.Add(new SkillTreeProgress
+            {
+                TreeId = tree.Id,
+                NodeInvestments = new List<SkillTreeNodeInvestment>
+                {
+                    new() { NodeId = "node.test", Ranks = 1 }
+                }
+            });
+            new PassiveEffectReconciliationSystem().Reconcile(sourceCharacter);
+
+            var source = new BattleUnit { Character = sourceCharacter };
+            var session = new CombatSession
+            {
+                Units = new List<BattleUnit> { source }
+            };
+            var context = new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                actionId: "attack-1");
+
+            Assert.That(
+                PassiveEffectCombatExecutionSystem.TryConsumeRuntimeFlagForAttack(
+                    session, context, "dagger.prevent-consume"),
+                Is.True);
+        }
+
+        [Test]
+        public void DuplicateAction_IsQueuedUntilActionResolutionAndMarkedAsDuplicate()
+        {
+            var definition = CreateDefinition(
+                "passive.unique.duplicate",
+                PassiveEffectTriggerType.OnAttack,
+                PassiveEffectOperationType.DuplicateAction);
+            var value = new PassiveEffectValueDefinition();
+            Set(value, nameof(PassiveEffectValueDefinition.NumberValue), 1f);
+            Set(definition.Operations[0],
+                nameof(PassiveEffectOperationDefinition.Value), value);
+            var tree = CreateTree(
+                "tree.test",
+                CreateNode("node.test", definition));
+            var sourceCharacter = CreateCharacter(tree);
+            sourceCharacter.SkillTreeProgress.Add(new SkillTreeProgress
+            {
+                TreeId = tree.Id,
+                NodeInvestments = new List<SkillTreeNodeInvestment>
+                {
+                    new() { NodeId = "node.test", Ranks = 1 }
+                }
+            });
+            new PassiveEffectReconciliationSystem().Reconcile(sourceCharacter);
+
+            var source = new BattleUnit { Character = sourceCharacter };
+            var target = new BattleUnit { Character = CreateCharacter(null) };
+            var session = new CombatSession
+            {
+                Units = new List<BattleUnit> { source, target },
+                PassiveEffectEventDispatcher = new PassiveEffectCombatEventDispatcher()
+            };
+            var callbackCount = 0;
+            var duplicateFlag = false;
+            using var executor = new PassiveEffectCombatExecutionSystem(
+                session,
+                statusEffectSystem: null);
+            executor.DuplicateActionExecutor = context =>
+            {
+                callbackCount++;
+                duplicateFlag = context.IsPassiveDuplicate;
+                return true;
+            };
+            var context = new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                actionId: "attack-1");
+
+            session.PassiveEffectEventDispatcher.Publish(
+                PassiveEffectTriggerType.OnAttack,
+                context);
+            Assert.That(callbackCount, Is.EqualTo(0));
+
+            executor.NotifyActionResolved(context);
+
+            Assert.That(callbackCount, Is.EqualTo(1));
+            Assert.That(duplicateFlag, Is.True);
+        }
+
+        [Test]
+        public void EquipmentPassiveTooltip_IncludesActivationText()
+        {
+            var definition = CreateDefinition(
+                "passive.tooltip.trigger",
+                PassiveEffectTriggerType.OnAttack,
+                PassiveEffectOperationType.DuplicateAction);
+            var tooltip = new PassiveEffectTooltipDefinition();
+            Set(tooltip, nameof(PassiveEffectTooltipDefinition.TriggerText),
+                "Przy ataku.");
+            Set(definition, nameof(PassiveEffectDefinition.Tooltip), tooltip);
+            var result = new StringBuilder();
+            var method = typeof(UIWorkspaceTooltipView).GetMethod(
+                "AppendPassiveDescriptions",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+
+            method.Invoke(
+                null,
+                new object[]
+                {
+                    result,
+                    new List<PassiveEffectDefinition> { definition }
+                });
+
+            Assert.That(result.ToString(), Does.Contain("Aktywacja: Przy ataku."));
+        }
+
+        [Test]
+        public void CombatStatusTooltip_FormatsFlatWeaponAccuracyAsPoints()
+        {
+            var gameObject = new GameObject("Tooltip Test");
+            try
+            {
+                var view = gameObject.AddComponent<UIWorkspaceTooltipView>();
+                var effect = new PassiveEffectRuntime
+                {
+                    EffectId = "equipment.generated.stats",
+                    StatModifiers = new List<StatModifier>
+                    {
+                        new()
+                        {
+                            StatType = CharacterStatType.WeaponAccuracy,
+                            Operation = StatModifierOperation.FlatBase,
+                            Value = 77f
+                        }
+                    }
+                };
+                var method = typeof(UIWorkspaceTooltipView).GetMethod(
+                    "BuildStatusPayload",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+
+                Assert.That(method, Is.Not.Null);
+                var text = (string)method.Invoke(
+                    view,
+                    new object[] { effect, null, null, null });
+
+                Assert.That(text, Does.Contain("+77."));
+                Assert.That(text, Does.Not.Contain("7700%"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void CombatStatusTooltip_ResolvesTriggeredPassiveDescription()
+        {
+            var definition = CreateDefinition(
+                "passive.tooltip.runtime",
+                PassiveEffectTriggerType.OnAttack,
+                PassiveEffectOperationType.SetRuntimeFlag);
+            Set(definition, nameof(PassiveEffectDefinition.DisplayName), "Testowa pasywka");
+            Set(definition, nameof(PassiveEffectDefinition.Description),
+                "Nie zużywa zasobu po ataku.");
+            var tree = CreateTree("tree.tooltip.runtime", CreateNode(
+                "node.tooltip.runtime",
+                definition));
+            var character = CreateCharacter(tree);
+            character.SkillTreeProgress.Add(new SkillTreeProgress
+            {
+                TreeId = tree.Id,
+                NodeInvestments = new List<SkillTreeNodeInvestment>
+                {
+                    new() { NodeId = "node.tooltip.runtime", Ranks = 1 }
+                }
+            });
+            new PassiveEffectReconciliationSystem().Reconcile(character);
+            var runtime = character.PassiveEffects.Find(effect =>
+                effect.DefinitionId == definition.Id);
+            var owner = new BattleUnit { Character = character };
+            var gameObject = new GameObject("Tooltip Test");
+
+            try
+            {
+                var view = gameObject.AddComponent<UIWorkspaceTooltipView>();
+                var method = typeof(UIWorkspaceTooltipView).GetMethod(
+                    "BuildStatusPayload",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+
+                Assert.That(runtime, Is.Not.Null);
+                var text = (string)method.Invoke(
+                    view,
+                    new object[] { runtime, null, null, owner });
+
+                Assert.That(text, Does.Contain("Nie zużywa zasobu po ataku."));
+                Assert.That(text, Does.Contain("Aktywacja:"));
+                Assert.That(text, Does.Not.Contain("Brak dodatkowego działania."));
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+                Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(character.ClassData);
+            }
+        }
+
         [Test]
         public void Reconciliation_MaterializesInvestedNodeAsRuntimeCarrierWithRank()
         {

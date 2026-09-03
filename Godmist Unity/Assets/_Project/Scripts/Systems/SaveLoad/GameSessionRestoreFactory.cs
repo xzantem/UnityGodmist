@@ -857,6 +857,9 @@ namespace Godmist.Systems.SaveLoad
                     || !Enum.IsDefined(
                         typeof(PassiveEffectLifetime),
                         effectSaveData.Lifetime)
+                    || !Enum.IsDefined(
+                        typeof(PassiveEffectStackingRule),
+                        effectSaveData.StackingRule)
                     || !TryCreatePassiveEffectSources(
                         effectSaveData.Sources,
                         out var sources)
@@ -899,6 +902,7 @@ namespace Godmist.Systems.SaveLoad
                     {
                         DisplayName = effectSaveData.DisplayName ?? string.Empty,
                         DefinitionId = effectSaveData.DefinitionId ?? string.Empty,
+                        StackingRule = effectSaveData.StackingRule,
                         Payloads = payloads,
                         StateValues = stateValues
                     });

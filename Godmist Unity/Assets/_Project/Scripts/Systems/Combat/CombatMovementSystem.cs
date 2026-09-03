@@ -28,9 +28,11 @@ namespace Godmist.Systems.Combat
             skill == null || skill.KnifeCost <= 0 || caster?.AvailableKnives >= skill.KnifeCost;
 
         public static bool TrySpendAndDrop(CombatSession session, BattleUnit caster,
-            Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets)
+            Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets,
+            bool preventConsumption = false)
         {
             if (skill?.KnifeCost <= 0) return true;
+            if (preventConsumption) return true;
             if (!CanPay(caster, skill)) return false;
             caster.AvailableKnives -= skill.KnifeCost;
             var target = targets != null && targets.Count > 0 ? targets[0] : null;

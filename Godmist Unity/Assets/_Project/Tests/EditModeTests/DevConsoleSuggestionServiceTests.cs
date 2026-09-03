@@ -40,7 +40,24 @@ namespace Godmist.Tests.EditMode
                 null,
                 null);
 
-            Assert.That(suggestions, Is.EqualTo(new[] { "createconsumable", "createitem" }));
+            Assert.That(suggestions, Is.EqualTo(new[]
+            {
+                "createconsumable",
+                "createequipment",
+                "createitem"
+            }));
+        }
+
+        [Test]
+        public void GetSuggestions_CreateEquipmentQuality_IncludesMasterpiece()
+        {
+            var suggestions = DevConsoleSuggestionService.GetSuggestions(
+                "createequipment equipment.test M",
+                null,
+                null,
+                null);
+
+            Assert.That(suggestions, Does.Contain("Masterpiece"));
         }
 
         [Test]
@@ -300,10 +317,6 @@ namespace Godmist.Tests.EditMode
             });
             session.WorldState.TrySetFlag("tutorial.completed", "true");
 
-            Assert.That(
-                DevConsoleSuggestionService.GetSuggestions(
-                    "craftmaterial npc.", session, null, catalog),
-                Is.EqualTo(new[] { "npc.blacksmith" }));
             Assert.That(
                 DevConsoleSuggestionService.GetSuggestions(
                     "queststate quest.", session, null, catalog),

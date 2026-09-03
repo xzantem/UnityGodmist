@@ -98,6 +98,13 @@ namespace Godmist.Views.UI.Workspace
 
         private void Update()
         {
+            if ((visible && !IsSourceAlive(sourceIdentity))
+                || (pendingShow != null && !IsSourceAlive(pendingSource)))
+            {
+                Hide();
+                return;
+            }
+
             if (pendingShow != null)
             {
                 if (!sourceHovered)
@@ -247,6 +254,16 @@ namespace Godmist.Views.UI.Workspace
             }
 
             sourceHovered = false;
+        }
+
+        public void InvalidateSource(object source)
+        {
+            if (source == null) return;
+            if (ReferenceEquals(source, sourceIdentity)
+                || ReferenceEquals(source, pendingSource))
+            {
+                Hide();
+            }
         }
 
         public void Hide()
@@ -444,9 +461,34 @@ namespace Godmist.Views.UI.Workspace
             };
         }
 
+        private static bool IsSourceAlive(object source)
+        {
+            if (source == null) return true;
+
+            if (source is Component component)
+            {
+                return component != null
+                    && component.gameObject != null
+                    && component.gameObject.activeInHierarchy;
+            }
+
+            if (source is GameObject gameObject)
+            {
+                return gameObject != null && gameObject.activeInHierarchy;
+            }
+
+            return source is not UnityEngine.Object unityObject || unityObject != null;
+        }
+
         private CanvasGroup EnsureCanvasGroup()
         {
-            if (canvasGroup == null) canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            // Do not rely only on the cached serialized reference here. Minimal
+            // test objects and older prefab instances may not have a CanvasGroup,
+            // or may retain a stale component reference after a prefab change.
+            // Resolve the component from the current GameObject before every use.
+            var current = GetComponent<CanvasGroup>();
+            if (current == null) current = gameObject.AddComponent<CanvasGroup>();
+            canvasGroup = current;
             ApplyPointerInteraction();
             return canvasGroup;
         }
@@ -1143,13 +1185,13 @@ namespace Godmist.Views.UI.Workspace
             // even though the base stat is normally displayed as a percentage.
             var isPercent = effect.ModifierOperation == StatModifierOperation.Percent
                 || (effect.ModifierOperation != StatModifierOperation.FlatAbsolute
-                    && IsPercentageStat(effect.ModifierStatType));
+                    && IsFractionalStat(effect.ModifierStatType));
             var value = isPercent
-                ? FormatSignedPercent(effect.ModifierValue)
-                : FormatSignedValue(effect.ModifierValue);
+                ? FormatSignedStatValue(effect.ModifierStatType, effect.ModifierValue, true)
+                : FormatSignedStatValue(effect.ModifierStatType, effect.ModifierValue, false);
             var maximumValue = isPercent
-                ? FormatPercent(effect.ModifierValue)
-                : FormatValue(effect.ModifierValue);
+                ? FormatStatValue(effect.ModifierStatType, effect.ModifierValue, true)
+                : FormatStatValue(effect.ModifierStatType, effect.ModifierValue, false);
 
             return effect.ModifierOperation switch
             {
@@ -1491,11 +1533,33 @@ namespace Godmist.Views.UI.Workspace
             return $"{Mathf.Abs(value) * 100f:0.#}%";
         }
 
-        private static string FormatSignedValue(float value)
+        private static string FormatSignedStatValue(
+            CharacterStatType stat,
+            float value,
+            bool isPercent)
         {
-            return value > 0f
-                ? $"+{FormatValue(value)}"
-                : FormatValue(value);
+            if (value > 0f) return $"+{FormatStatValue(stat, value, isPercent)}";
+            if (value < 0f) return $"-{FormatStatValue(stat, Mathf.Abs(value), isPercent)}";
+            return FormatStatValue(stat, 0f, isPercent);
+        }
+
+        private static string FormatStatValue(
+            CharacterStatType stat,
+            float value,
+            bool isPercent)
+        {
+            return stat switch
+            {
+                CharacterStatType.CritDamage => isPercent
+                    ? $"{value * 100f:0.00}%"
+                    : value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.Dodge => isPercent
+                    ? $"{Mathf.RoundToInt(value * 100f)}%"
+                    : Mathf.RoundToInt(value).ToString("0;-0;0"),
+                _ => isPercent
+                    ? $"{value * 100f:0.##}%"
+                    : FormatValue(value)
+            };
         }
 
         private static string GetDamageTypeDisplayName(DamageType type)
@@ -1639,11 +1703,9 @@ namespace Godmist.Views.UI.Workspace
             return result.ToString();
         }
 
-        private static bool IsPercentageStat(CharacterStatType statType)
+        private static bool IsFractionalStat(CharacterStatType statType)
         {
             return statType == CharacterStatType.CritChance
-                || statType == CharacterStatType.Dodge
-                || statType == CharacterStatType.WeaponAccuracy
                 || statType == CharacterStatType.PhysicalDefensePenetration
                 || statType == CharacterStatType.MagicalDefensePenetration;
         }
@@ -1772,10 +1834,10 @@ namespace Godmist.Views.UI.Workspace
                 if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
                 var isPercent = modifier.Operation == StatModifierOperation.Percent
                     || (modifier.Operation != StatModifierOperation.FlatAbsolute
-                        && IsPercentageStat(modifier.StatType));
+                        && IsFractionalStat(modifier.StatType));
                 var value = isPercent
-                    ? FormatSignedPercent(modifier.Value)
-                    : modifier.Value.ToString("+0.##;-0.##;0");
+                    ? FormatSignedStatValue(modifier.StatType, modifier.Value, true)
+                    : FormatSignedStatValue(modifier.StatType, modifier.Value, false);
                 Append(
                     result,
                     $"Modyfikator {GetStatDisplayName(modifier.StatType)}: {value}.");
@@ -1888,6 +1950,15 @@ namespace Godmist.Views.UI.Workspace
                 Append(result, glossaryEntry.Description);
             }
 
+            if (result.Length == 0
+                && PassiveEffectCombatExecutionSystem.TryResolveDefinition(
+                    owner,
+                    effect.DefinitionId,
+                    out var definition))
+            {
+                AppendPassiveDescriptions(result, new[] { definition });
+            }
+
             return result.Length > 0
                 ? result.ToString()
                 : "Brak dodatkowego działania.";
@@ -1961,7 +2032,7 @@ namespace Godmist.Views.UI.Workspace
             if (item is EquipmentItemInstance equipment)
             {
                 Append(result, $"Slot: {equipment.EquipmentSlot}");
-                Append(result, $"Wymagany poziom: {equipment.RequiredLevel}");
+                Append(result, $"Poziom przedmiotu: {equipment.ItemLevel}");
                 if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId)) Append(result, $"Wymagana klasa: {equipment.RequiredClassId}");
                 if (owner != null && !Godmist.Systems.Items.EquipmentService.MeetsRequirements(owner, equipment))
                     Append(result, "<color=#E06C75>Postać nie spełnia wymagań.</color>");
@@ -2083,7 +2154,7 @@ namespace Godmist.Views.UI.Workspace
             var upgrade = item is EquipmentItemInstance upgraded
                 ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
                 : string.Empty;
-            return $"{item.CurrentRarity}{quality}  •  Poziom przedmiotu {item.ItemLevel}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
+            return $"{item.CurrentRarity}{quality}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
         }
 
         private static void AppendEquipmentStats(
@@ -2160,7 +2231,47 @@ namespace Godmist.Views.UI.Workspace
                     : definition.Tooltip.ConditionText;
                 if (!string.IsNullOrWhiteSpace(conditionText))
                     Append(result, $"Warunek: {conditionText}");
+
+                var triggerText = string.IsNullOrWhiteSpace(definition.Tooltip?.TriggerText)
+                    ? DescribePassiveTriggers(definition)
+                    : definition.Tooltip.TriggerText;
+                if (!string.IsNullOrWhiteSpace(triggerText))
+                    Append(result, $"Aktywacja: {triggerText}");
             }
+        }
+
+        private static string DescribePassiveTriggers(
+            PassiveEffectDefinition definition)
+        {
+            var descriptions = new List<string>();
+            foreach (var trigger in definition?.Triggers
+                         ?? new List<PassiveEffectTriggerDefinition>())
+            {
+                if (trigger == null
+                    || trigger.Type == PassiveEffectTriggerType.AlwaysActive)
+                {
+                    continue;
+                }
+
+                descriptions.Add(trigger.Type switch
+                {
+                    PassiveEffectTriggerType.OnAttack => "przy ataku",
+                    PassiveEffectTriggerType.OnCriticalHit => "po trafieniu krytycznym",
+                    PassiveEffectTriggerType.OnMiss => "po chybieniu",
+                    PassiveEffectTriggerType.OnDodge => "po uniku",
+                    PassiveEffectTriggerType.OnMove => "przy ruchu",
+                    PassiveEffectTriggerType.OnKill => "po zabiciu celu",
+                    PassiveEffectTriggerType.OnDamageTaken => "po otrzymaniu obrażeń",
+                    PassiveEffectTriggerType.OnTurnStart => "na początku tury",
+                    PassiveEffectTriggerType.OnTurnEnd => "na końcu tury",
+                    PassiveEffectTriggerType.OnResourceSpent => "po wydaniu zasobu",
+                    PassiveEffectTriggerType.OnStatusApplied => "po nałożeniu statusu",
+                    PassiveEffectTriggerType.OnStatusExpired => "po wygaśnięciu statusu",
+                    _ => trigger.Type.ToString()
+                });
+            }
+
+            return string.Join(" lub ", descriptions);
         }
 
         private static string DescribePassiveConditions(PassiveEffectDefinition definition)
@@ -2234,9 +2345,13 @@ namespace Godmist.Views.UI.Workspace
 
         private static string FormatEquipmentStatValue(CharacterStatType stat, float value)
         {
-            return stat == CharacterStatType.CritChance
-                ? $"{value * 100f:0.##}%"
-                : FormatEquipmentValue(value);
+            return stat switch
+            {
+                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                _ => FormatEquipmentValue(value)
+            };
         }
 
         // Equipment resolves as whole combat values. Keep the float internally for
@@ -2255,9 +2370,13 @@ namespace Godmist.Views.UI.Workspace
             var color = delta > 0f ? "#3D9E63" : "#C74A45";
             var arrow = delta > 0f ? "↑" : "↓";
             var sign = delta > 0f ? "+" : "-";
-            var value = stat == CharacterStatType.CritChance
-                ? $"{Mathf.Abs(delta) * 100f:0.##}%"
-                : FormatEquipmentValue(Mathf.Abs(delta));
+            var value = stat switch
+            {
+                CharacterStatType.CritChance => $"{Mathf.Abs(delta) * 100f:0.##}%",
+                CharacterStatType.CritDamage => Mathf.Abs(delta).ToString("0.00"),
+                CharacterStatType.Dodge => Mathf.RoundToInt(Mathf.Abs(delta)).ToString("0"),
+                _ => FormatEquipmentValue(Mathf.Abs(delta))
+            };
             return $" <color={color}>{arrow} {sign}{value}</color>";
         }
 

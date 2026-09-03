@@ -432,8 +432,14 @@ namespace Godmist.Views.UI
             var isPercentage = modifier.Operation == StatModifierOperation.Percent
                 || modifier.StatType is CharacterStatType.CritChance or CharacterStatType.Dodge;
             var formattedValue = isPercentage
-                ? $"{value * 100f:+0.##;-0.##;0}%"
-                : $"{value:+0.##;-0.##;0}";
+                ? modifier.StatType == CharacterStatType.Dodge
+                    ? $"{value * 100f:+0;-0;0}%"
+                    : modifier.StatType == CharacterStatType.CritDamage
+                        ? $"{value * 100f:+0.00;-0.00;0.00}%"
+                        : $"{value * 100f:+0.##;-0.##;0}%"
+                : modifier.StatType == CharacterStatType.CritDamage
+                    ? $"{value:+0.00;-0.00;0.00}"
+                    : $"{value:+0.##;-0.##;0}";
 
             return $"{formattedValue} {GetStatDisplayName(modifier.StatType)}";
         }

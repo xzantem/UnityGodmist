@@ -10,6 +10,7 @@ using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
@@ -196,6 +197,7 @@ namespace Godmist.Views.Combat
                 feedbackBus: feedbackBus,
                 modifyResistanceSystem: modifyResistanceSystem,
                 passiveEffectEventDispatcher: passiveEffectEventDispatcher);
+            ConfigurePassiveEffectExecutionCallbacks();
             movementSystem = movementSystem = new CombatMovementSystem(
                 AddBattleLog,
                 resourceRuleSystem,
@@ -433,6 +435,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 passiveEffectLifecycleSystem,
                 AddBattleLog);
+            ConfigurePassiveEffectExecutionCallbacks();
             ScoutKnifeSystem.ResetForCombat(Session);
             hasClearedCombatScopedEffects = false;
 
@@ -440,6 +443,70 @@ namespace Godmist.Views.Combat
             AddBattleLog("Walka rozpoczęta ponownie.");
 
             turnSystem.InitializeTurnOrder(Session);
+        }
+
+        private void ConfigurePassiveEffectExecutionCallbacks()
+        {
+            if (passiveEffectCombatExecutionSystem == null)
+                return;
+
+            passiveEffectCombatExecutionSystem.DuplicateActionExecutor =
+                skillExecutionSystem == null
+                    ? null
+                    : skillExecutionSystem.TryExecutePassiveDuplicate;
+            passiveEffectCombatExecutionSystem.RuntimeFlagTriggered -=
+                HandleRuntimeFlagTriggered;
+            passiveEffectCombatExecutionSystem.RuntimeFlagTriggered +=
+                HandleRuntimeFlagTriggered;
+            if (skillExecutionSystem != null)
+            {
+                skillExecutionSystem.PassiveActionResolved =
+                    passiveEffectCombatExecutionSystem.NotifyActionResolved;
+            }
+        }
+
+        private void HandleRuntimeFlagTriggered(
+            BattleUnit owner,
+            PassiveEffectRuntime runtime,
+            PassiveEffectOperationDefinition operation,
+            PassiveEffectCombatContext context)
+        {
+            if (!string.Equals(
+                    operation?.ReferenceId,
+                    "summon.random-skeleton",
+                    System.StringComparison.OrdinalIgnoreCase)
+                || owner?.Character == null
+                || summonSystem == null)
+            {
+                return;
+            }
+
+            var skeletonDefinition = GameBootstrap.Instance?.ContentCatalog
+                ?.CharacterDefinitions?
+                .FirstOrDefault(definition => string.Equals(
+                    definition?.Id,
+                    "skeleton.test",
+                    System.StringComparison.OrdinalIgnoreCase));
+            if (skeletonDefinition == null)
+            {
+                Debug.LogWarning(
+                    "Nie znaleziono definicji skeleton.test dla pasywki summon.random-skeleton.");
+                return;
+            }
+
+            if (!summonSystem.TrySummonAdjacent(
+                    Session,
+                    owner,
+                    skeletonDefinition,
+                    owner.Character.ClassData,
+                    context?.SkillId ?? "passive-summon",
+                    durationTurns: 3,
+                    maxActiveSummons: 1,
+                    maxHealthPercent: .25f,
+                    out _))
+            {
+                AddBattleLog("Nie ma wolnego pola na przyzwanie szkieletu.");
+            }
         }
 
         private void RemoveFirstEnemyForDebug()

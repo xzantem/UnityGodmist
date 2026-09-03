@@ -23,6 +23,12 @@ namespace Godmist.Systems.Combat
         private readonly StatusEffectSystem statusEffectSystem;
         private readonly PassiveEffectLifecycleSystem lifecycleSystem;
         private readonly Action<string> battleLog;
+        private readonly List<PendingDuplicateAction> pendingDuplicateActions = new();
+        private readonly HashSet<string> queuedDuplicateKeys = new();
+
+        public Func<PassiveEffectCombatContext, bool> DuplicateActionExecutor { get; set; }
+        public event Action<BattleUnit, PassiveEffectRuntime,
+            PassiveEffectOperationDefinition, PassiveEffectCombatContext> RuntimeFlagTriggered;
 
         public PassiveEffectCombatExecutionSystem(
             CombatSession session,
@@ -200,6 +206,98 @@ namespace Godmist.Systems.Combat
             return false;
         }
 
+        public static bool TryPreventDamage(
+            CombatSession session,
+            PassiveEffectCombatContext context,
+            DamageType damageType)
+        {
+            if (damageType != DamageType.Magical || context?.Target == null)
+                return false;
+
+            foreach (var match in FindMatches(
+                         session,
+                         PassiveEffectTriggerType.OnDamageTaken,
+                         context,
+                         offensiveOwner: false))
+            {
+                foreach (var operation in match.Operations)
+                {
+                    if (operation == null
+                        || operation.Type != PassiveEffectOperationType.PreventDamage
+                        || !TargetsOwner(operation.Target))
+                    {
+                        continue;
+                    }
+
+                    var chance = Mathf.Clamp01(
+                        ResolveValue(operation.Value, match.Runtime));
+                    if (UnityEngine.Random.value <= chance)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool TryConsumeRuntimeFlagForAttack(
+            CombatSession session,
+            PassiveEffectCombatContext context,
+            string flagId)
+        {
+            if (context?.Source == null || string.IsNullOrWhiteSpace(flagId))
+                return false;
+
+            foreach (var match in FindMatches(
+                         session,
+                         PassiveEffectTriggerType.OnAttack,
+                         context,
+                         offensiveOwner: true))
+            {
+                foreach (var operation in match.Operations)
+                {
+                    if (operation == null
+                        || operation.Type != PassiveEffectOperationType.SetRuntimeFlag
+                        || !string.Equals(operation.ReferenceId, flagId,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var chance = Mathf.Clamp01(
+                        ResolveValue(operation.Value, match.Runtime));
+                    if (UnityEngine.Random.value <= chance)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void NotifyActionResolved(PassiveEffectCombatContext context)
+        {
+            if (context == null || string.IsNullOrWhiteSpace(context.ActionId))
+                return;
+
+            for (var index = pendingDuplicateActions.Count - 1;
+                index >= 0;
+                index--)
+            {
+                var pending = pendingDuplicateActions[index];
+                if (!string.Equals(
+                        pending.Context.ActionId,
+                        context.ActionId,
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                pendingDuplicateActions.RemoveAt(index);
+                queuedDuplicateKeys.Remove(pending.Key);
+                DuplicateActionExecutor?.Invoke(
+                    pending.Context.AsPassiveDuplicate());
+            }
+        }
+
         private void HandlePublishedEvent(PassiveEffectCombatEvent combatEvent)
         {
             if (combatEvent?.Context == null || session?.Units == null)
@@ -218,6 +316,31 @@ namespace Godmist.Systems.Combat
                 {
                     foreach (var operation in match.Operations)
                     {
+                        if (operation?.Type == PassiveEffectOperationType.DuplicateAction)
+                        {
+                            QueueDuplicateAction(match.Runtime, operation,
+                                combatEvent.Context);
+                            continue;
+                        }
+
+                        // Damage prevention is resolved before damage is applied;
+                        // it must not be evaluated again after OnDamageTaken.
+                        if (operation?.Type == PassiveEffectOperationType.PreventDamage)
+                            continue;
+
+                        // Knife consumption is resolved before the attack starts.
+                        // The OnAttack event is still available for other runtime
+                        // flags, but this flag has already been rolled by the
+                        // action-cost boundary.
+                        if (operation?.Type == PassiveEffectOperationType.SetRuntimeFlag
+                            && string.Equals(operation.ReferenceId,
+                                "dagger.prevent-consume",
+                                StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(combatEvent.Context.ActionId))
+                        {
+                            continue;
+                        }
+
                         ExecuteOperation(owner, match.Runtime, operation,
                             combatEvent.Context);
                     }
@@ -242,7 +365,55 @@ namespace Godmist.Systems.Combat
                 case PassiveEffectOperationType.ModifyStat:
                     ApplyTimedStatModifier(owner, runtime, operation, context);
                     break;
+                case PassiveEffectOperationType.SetRuntimeFlag:
+                    SetRuntimeFlag(owner, runtime, operation, context);
+                    break;
             }
+        }
+
+        private void QueueDuplicateAction(
+            PassiveEffectRuntime runtime,
+            PassiveEffectOperationDefinition operation,
+            PassiveEffectCombatContext context)
+        {
+            if (context?.IsPassiveDuplicate == true
+                || runtime == null
+                || context == null
+                || string.IsNullOrWhiteSpace(context.ActionId))
+            {
+                return;
+            }
+
+            var key = $"{runtime.EffectId}|{context.ActionId}";
+            if (!queuedDuplicateKeys.Add(key))
+                return;
+
+            var chance = Mathf.Clamp01(ResolveValue(operation.Value, runtime));
+            if (UnityEngine.Random.value > chance)
+            {
+                queuedDuplicateKeys.Remove(key);
+                return;
+            }
+
+            pendingDuplicateActions.Add(new PendingDuplicateAction(
+                key,
+                context));
+        }
+
+        private void SetRuntimeFlag(
+            BattleUnit owner,
+            PassiveEffectRuntime runtime,
+            PassiveEffectOperationDefinition operation,
+            PassiveEffectCombatContext context)
+        {
+            if (runtime == null || string.IsNullOrWhiteSpace(operation.ReferenceId))
+                return;
+
+            runtime.SetStateValue(
+                PassiveEffectRuntimeStateValue.Boolean(
+                    operation.ReferenceId,
+                    true));
+            RuntimeFlagTriggered?.Invoke(owner, runtime, operation, context);
         }
 
         private void ApplyStatus(
@@ -480,7 +651,7 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        private static bool TryResolveDefinition(
+        public static bool TryResolveDefinition(
             BattleUnit owner,
             string definitionId,
             out PassiveEffectDefinition definition)
@@ -613,6 +784,20 @@ namespace Godmist.Systems.Combat
             {
                 Runtime = runtime;
                 Operations = operations;
+            }
+        }
+
+        private readonly struct PendingDuplicateAction
+        {
+            public string Key { get; }
+            public PassiveEffectCombatContext Context { get; }
+
+            public PendingDuplicateAction(
+                string key,
+                PassiveEffectCombatContext context)
+            {
+                Key = key;
+                Context = context;
             }
         }
     }
