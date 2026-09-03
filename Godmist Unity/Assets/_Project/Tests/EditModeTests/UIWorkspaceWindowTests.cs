@@ -1,3 +1,7 @@
+using System.Reflection;
+using Godmist.Core.Types;
+using Godmist.Runtime.Characters;
+using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using NUnit.Framework;
 using UnityEngine;
@@ -70,6 +74,82 @@ namespace Godmist.Tests.EditMode
             Assert.That(manager.FocusedWindow, Is.SameAs(first));
             Assert.That(first.transform.GetSiblingIndex(), Is.EqualTo(first.transform.parent.childCount - 1));
             Assert.That(second.transform.GetSiblingIndex(), Is.LessThan(first.transform.GetSiblingIndex()));
+        }
+
+        [Test]
+        public void CombatUnitInspect_FormatsCombatStatsInDisplayUnits()
+        {
+            var character = new CharacterInstance
+            {
+                Stats = new CharacterStats
+                {
+                    MinAttack = new Stat(46.2f),
+                    MaxAttack = new Stat(114.9f),
+                    PhysicalDefense = new Stat(12.6f),
+                    MagicalDefense = new Stat(9.4f),
+                    PhysicalDefensePenetration = new Stat(0.125f),
+                    MagicalDefensePenetration = new Stat(0.256f),
+                    Dodge = new Stat(17.8f),
+                    CritChance = new Stat(0.078f),
+                    CritDamage = new Stat(2.596f),
+                    Speed = new Stat(55f),
+                    ResourceRegeneration = new Stat(0),
+                    WeaponAccuracy = new Stat(100),
+                    MaxResource = new Stat(0),
+                    MaxHealth = new Stat(100),
+                    HealingPower = new Stat(0)
+                }
+            };
+            var method = typeof(CombatUnitInspectWindowView).GetMethod(
+                "BuildStatsColumns",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            Assert.That(method, Is.Not.Null);
+            var arguments = new object[] { character, null, null };
+            method.Invoke(null, arguments);
+
+            var left = (string)arguments[1];
+            Assert.That(left, Does.Contain("Atak: 46–115"));
+            Assert.That(left, Does.Contain("Obrona fizyczna: 13"));
+            Assert.That(left, Does.Contain("Obrona magiczna: 9"));
+            Assert.That(left, Does.Contain("Unik: 18"));
+            Assert.That(left, Does.Contain("Obrażenia krytyczne: 2,60x").Or.Contain("Obrażenia krytyczne: 2.60x"));
+            Assert.That(left, Does.Not.Contain("259.60%"));
+            Assert.That(left, Does.Not.Contain("259,60%"));
+        }
+
+        [Test]
+        public void Tooltip_InvalidateSource_HidesTooltipImmediately()
+        {
+            var tooltipObject = new GameObject("Tooltip");
+            var sourceObject = new GameObject("Tooltip Source");
+            try
+            {
+                var tooltip = tooltipObject.AddComponent<UIWorkspaceTooltipView>();
+                tooltip.ShowText("Title", "Body", sourceObject);
+
+                var setContent = typeof(UIWorkspaceTooltipView).GetMethod(
+                    "SetContent",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                setContent.Invoke(
+                    tooltip,
+                    new object[] { null, "Title", "Body", string.Empty });
+
+                var visible = typeof(UIWorkspaceTooltipView).GetField(
+                    "visible",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(visible, Is.Not.Null);
+                Assert.That((bool)visible.GetValue(tooltip), Is.True);
+
+                tooltip.InvalidateSource(sourceObject);
+
+                Assert.That((bool)visible.GetValue(tooltip), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(sourceObject);
+                Object.DestroyImmediate(tooltipObject);
+            }
         }
 
         private UIWorkspaceWindowManager CreateWorkspace()

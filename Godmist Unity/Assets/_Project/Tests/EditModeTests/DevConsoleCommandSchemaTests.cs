@@ -14,7 +14,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(help, Does.Contain("createitem <itemId> [amount] [characterId]"));
             Assert.That(help, Does.Contain("createconsumable <itemId> [Effect value ...] [characterId]"));
             Assert.That(help, Does.Contain("setworldflag <flagId> <value>"));
-            Assert.That(help, Does.Contain("craftequipment <npcId> <itemId> <quality>"));
+            Assert.That(help, Does.Contain("createequipment <itemId> <quality> <partId>"));
             Assert.That(help, Does.Contain("upgrade <npcId> <instanceId> <targetProgress>"));
             Assert.That(help, Does.Contain("markquestobjective <questId> <objectiveId> [amount]"));
             Assert.That(help, Does.Contain("removeitem <characterId> <instanceId>"));
@@ -26,6 +26,12 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 DevConsoleCommandSchemaRegistry.All.Select(schema => schema.Name),
                 Is.Unique);
+            Assert.That(
+                DevConsoleCommandSchemaRegistry.All.Select(schema => schema.Name),
+                Does.Not.Contain("craftmaterial"));
+            Assert.That(
+                DevConsoleCommandSchemaRegistry.All.Select(schema => schema.Name),
+                Does.Not.Contain("craftequipment"));
         }
 
         [Test]
@@ -112,27 +118,40 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void Parser_NormalizesNamedCraftingAndUpgradeArguments()
+        public void Parser_NormalizesNamedEquipmentCreationAndUpgradeArguments()
         {
-            var craftNormalized = DevConsoleCommandSchemaParser.TryNormalize(
-                "craftmaterial recipe.material npcId=npc.blacksmith characterId=jerzy",
-                out var craftTokens,
-                out var craftError);
+            var createNormalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "createequipment equipment.weapon Excellent part.head part.binder part.handle characterId=jerzy",
+                out var createTokens,
+                out var createError);
             var upgradeNormalized = DevConsoleCommandSchemaParser.TryNormalize(
                 "upgrade npc.blacksmith item.instance.001 0.5 characterId=jerzy",
                 out var upgradeTokens,
                 out var upgradeError);
 
-            Assert.That(craftNormalized, Is.True, craftError);
-            Assert.That(craftTokens, Is.EqualTo(new[]
+            Assert.That(createNormalized, Is.True, createError);
+            Assert.That(createTokens, Is.EqualTo(new[]
             {
-                "craftmaterial", "npc.blacksmith", "recipe.material", "jerzy"
+                "createequipment", "equipment.weapon", "Excellent", "part.head",
+                "part.binder", "part.handle", "jerzy"
             }));
             Assert.That(upgradeNormalized, Is.True, upgradeError);
             Assert.That(upgradeTokens, Is.EqualTo(new[]
             {
                 "upgrade", "npc.blacksmith", "item.instance.001", "0.5", "0.99", "jerzy"
             }));
+        }
+
+        [Test]
+        public void Parser_AllowsMasterpieceEquipmentQuality()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "createequipment equipment.weapon Masterpiece part.head part.binder part.handle",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(tokens[2], Is.EqualTo("Masterpiece"));
         }
 
         [Test]

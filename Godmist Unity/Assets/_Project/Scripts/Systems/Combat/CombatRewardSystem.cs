@@ -101,7 +101,7 @@ namespace Godmist.Systems.Combat
 
                 progressionSystem.AddExperience(
                     character,
-                    ApplyJewelryExperiencePassive(character, experiencePerCharacter));
+                    ApplyExperiencePassive(character, experiencePerCharacter));
 
                 character.Honor += defeatedEnemyRewards.Count;
             }
@@ -170,24 +170,14 @@ namespace Godmist.Systems.Combat
             return result;
         }
 
-        private static int ApplyJewelryExperiencePassive(
+        private static int ApplyExperiencePassive(
             CharacterInstance character,
             int experience)
         {
             if (experience <= 0) return experience;
 
-            var bonus = 0f;
-            foreach (var item in character?.Equipment?.GetEquippedItems()
-                         ?? new List<Runtime.Items.EquipmentItemInstance>())
-            {
-                if (item is Runtime.Items.JewelryItemInstance jewelry
-                    && jewelry.PassiveType == JewelryPassiveType.ExperienceGainPercent)
-                {
-                    bonus += jewelry.PassiveValue;
-                }
-            }
-
-            return Math.Max(0, (int)Math.Round(experience * (1f + bonus)));
+            return Math.Max(0, (int)Math.Round(
+                experience * new CombatVariableSystem().GetExperienceMultiplier(character)));
         }
     }
 }

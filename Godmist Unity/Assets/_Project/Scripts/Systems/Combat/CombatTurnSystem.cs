@@ -20,6 +20,7 @@ namespace Godmist.Systems.Combat
         private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnBegan;
         private readonly Action<SummonedCombatMapObject> onSummonedObjectTurnEnded;
         private readonly Action<BattleUnit> onUnitDied;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public CombatTurnSystem(
             Action<string> battleLog = null,
@@ -27,7 +28,8 @@ namespace Godmist.Systems.Combat
             Action<BattleUnit> onUnitTurnEnded = null,
             Action<SummonedCombatMapObject> onSummonedObjectTurnBegan = null,
             Action<SummonedCombatMapObject> onSummonedObjectTurnEnded = null,
-            Action<BattleUnit> onUnitDied = null)
+            Action<BattleUnit> onUnitDied = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
             this.onUnitTurnBegan = onUnitTurnBegan;
@@ -35,6 +37,7 @@ namespace Godmist.Systems.Combat
             this.onSummonedObjectTurnBegan = onSummonedObjectTurnBegan;
             this.onSummonedObjectTurnEnded = onSummonedObjectTurnEnded;
             this.onUnitDied = onUnitDied;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
 
         public void InitializeTurnOrder(CombatSession session)
@@ -154,6 +157,14 @@ namespace Godmist.Systems.Combat
                     $"{participant.Unit.Character.Definition.DisplayName} konczy ture");
 
                 onUnitTurnEnded?.Invoke(participant.Unit);
+                (passiveEffectEventDispatcher ?? session.PassiveEffectEventDispatcher)
+                    ?.Publish(
+                        PassiveEffectTriggerType.OnTurnEnd,
+                        new PassiveEffectCombatContext(
+                            session: session,
+                            source: participant.Unit,
+                            target: participant.Unit,
+                            turnNumber: session.ActiveTurnIndex));
                 participant.CurrentActionValue =
                     CalculateBaseActionValue(participant);
             }
@@ -284,6 +295,14 @@ namespace Godmist.Systems.Combat
                 unit.ToggleSkillIdsUsedThisTurn?.Clear();
                 unit.ConsumableUseTypesUsedThisTurn?.Clear();
                 onUnitTurnBegan?.Invoke(unit);
+                (passiveEffectEventDispatcher ?? session.PassiveEffectEventDispatcher)
+                    ?.Publish(
+                        PassiveEffectTriggerType.OnTurnStart,
+                        new PassiveEffectCombatContext(
+                            session: session,
+                            source: unit,
+                            target: unit,
+                            turnNumber: session.ActiveTurnIndex));
                 return;
             }
 

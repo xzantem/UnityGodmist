@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
+using Godmist.Data.Characters;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Items;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Debugging;
+using Godmist.Systems.Items;
 using System.Reflection;
 using Godmist.Data.Items;
 using Godmist.Data.Quests;
@@ -295,6 +298,58 @@ namespace Godmist.Tests.EditMode
             Assert.That(target.Inventory.Items, Has.Count.EqualTo(2));
             Assert.That(leader.Inventory.Items, Is.Empty);
 
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CreateItem_LootBagRollsItsContents()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var bag = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            var material = CreateItemDefinition("material.lootbag", "Materiał z lootbaga");
+
+            SetAutoProperty(bag, "Id", "item.lootbag.test");
+            SetAutoProperty(bag, "DisplayName", "Testowy lootbag");
+            SetAutoProperty(bag, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(bag, "BaseRarity", RarityTier.Common);
+
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            var pool = new LootBagPoolData();
+            SetAutoProperty(pool, "DropChance", 1f);
+            var entry = new LootBagPoolEntryData();
+            SetAutoProperty(entry, "ItemDefinition", material);
+            SetAutoProperty(entry, "Amount", new IntRange(1, 1));
+            pool.Entries.Add(entry);
+            bracket.Pools.Add(pool);
+            bag.Brackets.Add(bracket);
+
+            session.TryRegisterCharacter(jerzy);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(bag);
+            catalog.ItemDefinitions.Add(material);
+
+            var result = service.Execute(
+                "createitem item.lootbag.test",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(jerzy.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(
+                jerzy.Inventory.Items[0],
+                Is.TypeOf<Godmist.Runtime.Items.LootBagItemInstance>());
+            var createdBag =
+                (Godmist.Runtime.Items.LootBagItemInstance)jerzy.Inventory.Items[0];
+            Assert.That(createdBag.Contents, Has.Count.EqualTo(1));
+            Assert.That(createdBag.Contents[0].Definition, Is.SameAs(material));
+
+            Object.DestroyImmediate(bag);
             Object.DestroyImmediate(material);
             Object.DestroyImmediate(catalog);
         }
@@ -687,6 +742,121 @@ namespace Godmist.Tests.EditMode
             Assert.That(requestedState, Is.Null);
         }
 
+        [Test]
+        public void Execute_CreateEquipment_CreatesSelectedEquipmentWithoutMaterialsOrBlacksmith()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var characterClass = CreateClass("class.scout");
+            var equipment = CreateEquipmentDefinition(
+                "equipment.scout.weapon",
+                ItemType.Weapon,
+                characterClass);
+            var head = CreatePart(
+                "part.head",
+                characterClass,
+                EquipmentPartKind.WeaponHead);
+            var binder = CreatePart(
+                "part.binder",
+                characterClass,
+                EquipmentPartKind.WeaponBinder);
+            var handle = CreatePart(
+                "part.handle",
+                characterClass,
+                EquipmentPartKind.WeaponHandle);
+            var material = CreateItemDefinition("material.debug", "Debug material");
+            var existingMaterial = new ItemInstanceFactory().Create(material);
+            jerzy.Inventory.Items.Add(existingMaterial);
+            session.TryRegisterCharacter(jerzy);
+
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            catalog.ItemDefinitions.Add(equipment);
+            catalog.ItemDefinitions.Add(material);
+            catalog.EquipmentPartDefinitions.Add(head);
+            catalog.EquipmentPartDefinitions.Add(binder);
+            catalog.EquipmentPartDefinitions.Add(handle);
+
+            var result = service.Execute(
+                "createequipment equipment.scout.weapon Excellent part.head part.binder part.handle characterId=jerzy",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(jerzy.Inventory.Items, Has.Count.EqualTo(2));
+            Assert.That(jerzy.Inventory.Items[0], Is.SameAs(existingMaterial));
+            Assert.That(jerzy.Inventory.Items[1], Is.TypeOf<Godmist.Runtime.Items.EquipmentItemInstance>());
+            Assert.That(
+                ((Godmist.Runtime.Items.EquipmentItemInstance)jerzy.Inventory.Items[1]).Quality,
+                Is.EqualTo(EquipmentQuality.Excellent));
+
+            UnityEngine.Object.DestroyImmediate(characterClass);
+            UnityEngine.Object.DestroyImmediate(equipment);
+            UnityEngine.Object.DestroyImmediate(head);
+            UnityEngine.Object.DestroyImmediate(binder);
+            UnityEngine.Object.DestroyImmediate(handle);
+            UnityEngine.Object.DestroyImmediate(material);
+            UnityEngine.Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
+        public void Execute_CreateEquipment_AllowsMasterpieceForBossUnique()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var characterClass = CreateClass("class.scout");
+            var equipment = ScriptableObject.CreateInstance<BossUniqueEquipmentDefinition>();
+            var head = CreatePart(
+                "part.head",
+                characterClass,
+                EquipmentPartKind.WeaponHead);
+            var binder = CreatePart(
+                "part.binder",
+                characterClass,
+                EquipmentPartKind.WeaponBinder);
+            var handle = CreatePart(
+                "part.handle",
+                characterClass,
+                EquipmentPartKind.WeaponHandle);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            try
+            {
+                SetAutoProperty(equipment, "Id", "unique.deadking.dagger.scout");
+                SetAutoProperty(equipment, "DisplayName", "Unikatowy sztylet");
+                SetAutoProperty(equipment, "ItemType", ItemType.Weapon);
+                SetAutoProperty(equipment, "RequiredClass", characterClass);
+                SetAutoProperty(equipment, "BossId", "boss.test");
+                session.TryRegisterCharacter(jerzy);
+                catalog.ItemDefinitions.Add(equipment);
+                catalog.EquipmentPartDefinitions.Add(head);
+                catalog.EquipmentPartDefinitions.Add(binder);
+                catalog.EquipmentPartDefinitions.Add(handle);
+
+                var result = service.Execute(
+                    "createequipment unique.deadking.dagger.scout Masterpiece part.head part.binder part.handle characterId=jerzy",
+                    session,
+                    null,
+                    catalog);
+
+                Assert.That(result.Success, Is.True, result.Message);
+                Assert.That(jerzy.Inventory.Items, Has.Count.EqualTo(1));
+                Assert.That(
+                    ((EquipmentItemInstance)jerzy.Inventory.Items[0]).Quality,
+                    Is.EqualTo(EquipmentQuality.Masterpiece));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(characterClass);
+                UnityEngine.Object.DestroyImmediate(equipment);
+                UnityEngine.Object.DestroyImmediate(head);
+                UnityEngine.Object.DestroyImmediate(binder);
+                UnityEngine.Object.DestroyImmediate(handle);
+                UnityEngine.Object.DestroyImmediate(catalog);
+            }
+        }
+
         private static ItemDefinition CreateItemDefinition(
             string id,
             string displayName)
@@ -716,6 +886,40 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "UseType", ConsumableUseType.Potion);
 
             return definition;
+        }
+
+        private static CharacterClassData CreateClass(string id)
+        {
+            var value = ScriptableObject.CreateInstance<CharacterClassData>();
+            SetAutoProperty(value, "Id", id);
+            return value;
+        }
+
+        private static EquipmentItemDefinition CreateEquipmentDefinition(
+            string id,
+            ItemType itemType,
+            CharacterClassData requiredClass)
+        {
+            var value = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            SetAutoProperty(value, "Id", id);
+            SetAutoProperty(value, "DisplayName", id);
+            SetAutoProperty(value, "ItemType", itemType);
+            SetAutoProperty(value, "RequiredClass", requiredClass);
+            return value;
+        }
+
+        private static EquipmentPartDefinition CreatePart(
+            string id,
+            CharacterClassData requiredClass,
+            EquipmentPartKind kind)
+        {
+            var value = ScriptableObject.CreateInstance<EquipmentPartDefinition>();
+            SetAutoProperty(value, "Id", id);
+            SetAutoProperty(value, "RequiredClass", requiredClass);
+            SetAutoProperty(value, "Kind", kind);
+            SetAutoProperty(value, "LevelBracket", EquipmentPartLevelBracket.Level5);
+            SetAutoProperty(value, "Stats", new EquipmentPartStats());
+            return value;
         }
 
         private static GameContentCatalog CatalogWith(

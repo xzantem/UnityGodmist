@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
+using Godmist.Systems.Combat;
 
 namespace Godmist.Systems.Items
 {
@@ -257,18 +258,8 @@ namespace Godmist.Systems.Items
                 return gold;
             }
 
-            var bonus = 0f;
-            foreach (var item in leader.Equipment?.GetEquippedItems()
-                         ?? new List<EquipmentItemInstance>())
-            {
-                if (item is JewelryItemInstance jewelry
-                    && jewelry.PassiveType == JewelryPassiveType.GoldGainPercent)
-                {
-                    bonus += jewelry.PassiveValue;
-                }
-            }
-
-            return Math.Max(0, (int)Math.Round(gold * (1f + bonus)));
+            return Math.Max(0, (int)Math.Round(
+                gold * new CombatVariableSystem().GetGoldMultiplier(leader)));
         }
 
         public bool TryClaimBodyGold(

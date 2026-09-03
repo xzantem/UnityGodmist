@@ -17,6 +17,8 @@ MonoBehaviour:
   <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
   <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 87
+  <AttackType>k__BackingField: 2
+  <PointBlankAttackType>k__BackingField: 1
   <ActionCost>k__BackingField: 55
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2

@@ -92,6 +92,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 1577388439410613462}
@@ -248,6 +249,7 @@ MonoBehaviour:
   surfaceStyle: 2
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 2502583300013241151}
   borderImage: {fileID: 0}
@@ -432,6 +434,7 @@ MonoBehaviour:
   surfaceStyle: 4
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 1544229449652003859}
   borderImage: {fileID: 0}
@@ -571,7 +574,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 8
   m_Viewport: {fileID: 4164638833659380297}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 4827151900898267143}
@@ -598,6 +601,7 @@ MonoBehaviour:
   surfaceStyle: 3
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 8273998004092528061}
   borderImage: {fileID: 0}

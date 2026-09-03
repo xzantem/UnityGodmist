@@ -225,7 +225,10 @@ namespace Godmist.Editor
                     SetString(serialized, "SkillId", row.Id);
                     SetValue(serialized, "DisplayName", row.DisplayName);
                     SetValues(row, serialized, ("TooltipDescription", SerializedPropertyType.String),
-                        ("SkillAccuracy", SerializedPropertyType.Float), ("ActionCost", SerializedPropertyType.Integer),
+                        ("SkillAccuracy", SerializedPropertyType.Float),
+                        ("AttackType", SerializedPropertyType.Enum),
+                        ("PointBlankAttackType", SerializedPropertyType.Enum),
+                        ("ActionCost", SerializedPropertyType.Integer),
                         ("ResourceCost", SerializedPropertyType.Integer), ("ResourceType", SerializedPropertyType.Enum));
                     break;
                 case ContentImportTargetType.CharacterDefinition:

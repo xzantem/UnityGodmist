@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Core.Serialization;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
@@ -193,6 +194,10 @@ namespace Godmist.Tests.EditMode
                     Is.EqualTo(
                         restoredCharacter.Stats.CritChance.BaseValue + 0.004f)
                         .Within(0.001f));
+                Assert.That(restoredCharacter.PassiveEffects, Has.Count.EqualTo(1));
+                Assert.That(
+                    restoredCharacter.PassiveEffects[0].DefinitionId,
+                    Is.EqualTo("passive.test.global"));
             }
             finally
             {
@@ -1403,17 +1408,26 @@ namespace Godmist.Tests.EditMode
             float value)
         {
             var passive = new SkillTreeGlobalPassiveDefinition();
+            var definition = new PassiveEffectDefinition();
+            var effectOperation = new PassiveEffectOperationDefinition();
+            SetAutoProperty(definition, "Id", "passive.test.global");
+            SetAutoProperty(effectOperation, "Id", "operation.test.stat");
+            SetAutoProperty(effectOperation, "Type", PassiveEffectOperationType.ModifyStat);
+            SetAutoProperty(effectOperation, "StatType", statType);
+            SetAutoProperty(effectOperation, "ModifierOperation", operation);
+            var effectValue = new PassiveEffectValueDefinition();
+            SetAutoProperty(effectValue, "NumberValue", value);
+            SetAutoProperty(effectOperation, "Value", effectValue);
+            SetAutoProperty(definition, "Operations", new List<PassiveEffectOperationDefinition>
+            {
+                effectOperation
+            });
             SetAutoProperty(
                 passive,
-                "ModifiersPerPoint",
-                new List<StatModifier>
+                "PassivesPerPoint",
+                new List<PassiveEffectDefinition>
                 {
-                    new()
-                    {
-                        StatType = statType,
-                        Operation = operation,
-                        Value = value
-                    }
+                    definition
                 });
             return passive;
         }

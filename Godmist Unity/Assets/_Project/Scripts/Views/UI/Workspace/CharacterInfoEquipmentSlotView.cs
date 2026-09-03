@@ -35,6 +35,8 @@ namespace Godmist.Views.UI.Workspace
 
         public void Bind(EquipmentItemInstance item)
         {
+            if (!ReferenceEquals(Item, item))
+                UIWorkspaceTooltipView.ActiveInstance?.InvalidateSource(this);
             Item = item;
             if (icon != null)
             {

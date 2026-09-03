@@ -15,6 +15,8 @@ namespace Godmist.Data.Skills
         [field: SerializeField] public Sprite Icon { get; private set; }
         [field: SerializeField, TextArea(2, 5)] public string TooltipDescription { get; private set; }
         [field: SerializeField, Min(0f)] public float SkillAccuracy { get; private set; } = 100f;
+        [field: SerializeField] public AttackType AttackType { get; private set; } = AttackType.Unknown;
+        [field: SerializeField] public AttackType PointBlankAttackType { get; private set; } = AttackType.Unknown;
         [field: SerializeField] public int ActionCost { get; private set; }
         [field: SerializeField] public int ResourceCost { get; private set; }
         [field: SerializeField] public ResourceType ResourceType { get; private set; }
@@ -28,6 +30,13 @@ namespace Godmist.Data.Skills
 
         public IReadOnlyList<SkillTargetModeData> TargetModes => targetModes;
         public IReadOnlyList<SkillEffectData> Effects => effects;
+
+        public AttackType ResolveAttackType(int distance)
+        {
+            return distance == 1 && PointBlankAttackType != AttackType.Unknown
+                ? PointBlankAttackType
+                : AttackType;
+        }
     }
 
     /// <summary>

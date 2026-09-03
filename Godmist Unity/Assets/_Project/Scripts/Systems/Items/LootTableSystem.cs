@@ -74,6 +74,14 @@ namespace Godmist.Systems.Items
             return items;
         }
 
+        public LootBagItemInstance CreateLootBag(
+            LootBagItemDefinition definition)
+        {
+            return definition == null
+                ? null
+                : CreateItem(definition) as LootBagItemInstance;
+        }
+
         private int RollAmount(int minAmount, int maxAmount)
         {
             if (minAmount >= maxAmount) return minAmount;
@@ -166,7 +174,62 @@ namespace Godmist.Systems.Items
                 }
             }
 
+            var bossUnique = RollBossUniqueDrop(definition.BossUniqueDrop);
+            if (bossUnique != null)
+            {
+                contents.Add(bossUnique);
+            }
+
             return contents;
+        }
+
+        private EquipmentItemInstance RollBossUniqueDrop(BossUniqueDropData data)
+        {
+            if (data == null
+                || equipmentParts == null
+                || equipmentGenerationService == null
+                || data.EquipmentDefinitions == null
+                || data.EquipmentDefinitions.Count == 0)
+            {
+                return null;
+            }
+
+            var chance = Mathf.Clamp01(data.DropChance);
+            if (randomValue() >= chance) return null;
+
+            var candidates = new List<BossUniqueEquipmentDefinition>();
+            foreach (var definition in data.EquipmentDefinitions)
+            {
+                if (definition != null && definition.RequiredClass != null
+                    && definition.ItemType is ItemType.Weapon or ItemType.Armor)
+                {
+                    candidates.Add(definition);
+                }
+            }
+
+            if (candidates.Count != 4) return null;
+
+            var classIds = new HashSet<string>();
+            var bossId = candidates[0].BossId;
+            if (string.IsNullOrWhiteSpace(bossId)) return null;
+
+            foreach (var candidate in candidates)
+            {
+                if (!classIds.Add(candidate.RequiredClass.Id)
+                    || !string.Equals(candidate.BossId, bossId,
+                        StringComparison.Ordinal))
+                {
+                    return null;
+                }
+            }
+
+            var selectedIndex = Mathf.FloorToInt(
+                Mathf.Clamp01(randomValue()) * candidates.Count);
+            selectedIndex = Mathf.Min(selectedIndex, candidates.Count - 1);
+
+            return equipmentGenerationService.GenerateBossUnique(
+                candidates[selectedIndex],
+                equipmentParts);
         }
     }
 }

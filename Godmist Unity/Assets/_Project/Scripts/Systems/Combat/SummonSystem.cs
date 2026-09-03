@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Godmist.Core.Enums;
+using Godmist.Data.Characters;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
@@ -64,6 +65,89 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool TrySummonAdjacent(
+            CombatSession session,
+            BattleUnit caster,
+            CharacterDefinition characterDefinition,
+            CharacterClassData classData,
+            string sourceSkillId,
+            int durationTurns,
+            int maxActiveSummons,
+            float maxHealthPercent,
+            out BattleUnit summonedUnit)
+        {
+            summonedUnit = null;
+            if (session?.Grid == null
+                || caster?.Character == null
+                || characterDefinition == null
+                || classData == null)
+            {
+                return false;
+            }
+
+            for (var x = -1; x <= 1; x++)
+            {
+                for (var y = -1; y <= 1; y++)
+                {
+                    if (x == 0 && y == 0)
+                        continue;
+
+                    var position = new GridPosition(
+                        caster.Position.X + x,
+                        caster.Position.Y + y);
+                    if (!IsValidAdjacentPosition(session, position))
+                        continue;
+
+                    RemoveOldestOverLimit(
+                        session,
+                        caster.Character.CharacterId,
+                        sourceSkillId,
+                        maxActiveSummons);
+
+                    var character = characterFactory.Create(
+                        characterDefinition,
+                        classData);
+                    character.CharacterId =
+                        $"summon.{caster.Character.CharacterId}.{sourceSkillId}.{++nextCreationOrder}";
+                    character.CurrentHealth = Mathf.Max(1, Mathf.CeilToInt(
+                        character.Stats.MaxHealth.GetValue()
+                        * Mathf.Clamp01(maxHealthPercent)));
+
+                    var speed = Mathf.Max(.01f, character.Stats.Speed.GetValue());
+                    var maxAp = Mathf.Max(0, Mathf.RoundToInt(
+                        speed * session.ActionPointsPerSpeed));
+                    summonedUnit = new BattleUnit
+                    {
+                        Character = character,
+                        Position = position,
+                        IsPlayerSide = caster.IsPlayerSide,
+                        CurrentActionPoints = maxAp,
+                        MaxActionPoints = maxAp,
+                        CurrentActionValue = CombatTurnSystem.BaseActionValue / speed
+                    };
+
+                    session.Summons ??= new();
+                    session.Units.Add(summonedUnit);
+                    session.Summons.Add(new SummonedBattleUnit(
+                        summonedUnit,
+                        caster.Character.CharacterId,
+                        sourceSkillId,
+                        -1,
+                        Mathf.Max(1, durationTurns),
+                        nextCreationOrder));
+                    session.TurnParticipants ??= new();
+                    session.TurnParticipants.Add(
+                        new CombatTurnParticipant(summonedUnit));
+                    battleLog?.Invoke(
+                        $"{caster.Character.Definition.DisplayName} przyzywa "
+                        + $"{character.Definition.DisplayName}.");
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool AdvanceDurationAtTurnEnd(CombatSession session, BattleUnit unit)
         {
             var summon = session?.Summons?.FirstOrDefault(item => item?.Unit == unit);
@@ -108,6 +192,17 @@ namespace Godmist.Systems.Combat
                     position, effect.SummonPlacementRange);
         }
 
+        private static bool IsValidAdjacentPosition(
+            CombatSession session,
+            GridPosition position)
+        {
+            return session.Grid.IsWithinBounds(position)
+                && session.Grid.IsWalkable(position)
+                && !session.Grid.IsBlocked(position)
+                && !session.IsPositionOccupied(position)
+                && !session.IsPositionOccupiedByMapObject(position);
+        }
+
         private void RemoveOldestOverLimit(CombatSession session, BattleUnit caster,
             SkillData skill, int effectIndex, int limit)
         {
@@ -116,6 +211,24 @@ namespace Godmist.Systems.Combat
                 && item.SourceSkillId == skill.SkillId
                 && item.SourceEffectIndex == effectIndex)
                 .OrderBy(item => item.CreationOrder).ToList();
+            while (matches.Count >= Mathf.Max(1, limit))
+            {
+                RemoveSummon(session, matches[0]);
+                matches.RemoveAt(0);
+            }
+        }
+
+        private void RemoveOldestOverLimit(
+            CombatSession session,
+            string creatorCharacterId,
+            string sourceSkillId,
+            int limit)
+        {
+            var matches = session.Summons.Where(item => item != null
+                && item.CreatorCharacterId == creatorCharacterId
+                && item.SourceSkillId == sourceSkillId)
+                .OrderBy(item => item.CreationOrder)
+                .ToList();
             while (matches.Count >= Mathf.Max(1, limit))
             {
                 RemoveSummon(session, matches[0]);

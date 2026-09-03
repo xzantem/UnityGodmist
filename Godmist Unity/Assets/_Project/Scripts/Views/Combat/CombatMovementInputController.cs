@@ -26,7 +26,7 @@ namespace Godmist.Views.Combat
             GridPosition,
             List<GridPosition>> reachablePaths = new();
 
-        private CombatSession cachedSession;
+        [System.NonSerialized] private CombatSession cachedSession;
         private BattleUnit cachedActiveUnit;
         private GridPosition cachedPosition;
         private int cachedActionPoints;

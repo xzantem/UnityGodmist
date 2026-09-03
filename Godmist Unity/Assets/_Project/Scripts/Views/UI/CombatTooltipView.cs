@@ -510,7 +510,7 @@ namespace Godmist.Views.UI
                 EffectType.Teleport => "Teleportuje na wybrane pole.",
                 EffectType.CreateObject => "Tworzy obiekt na polu.",
                 EffectType.Summon => "Przyzywa jednostkę.",
-                EffectType.ModifyStat => $"Modyfikuje: {effect.ModifierStatType} {effect.ModifierValue:+#;-#;0}.",
+                EffectType.ModifyStat => $"Modyfikuje: {effect.ModifierStatType} {FormatStatModifier(effect.ModifierStatType, effect.ModifierValue)}.",
                 EffectType.ModifyVar => $"Modyfikuje: {effect.ModifierVariableType} {effect.ModifierValue:+#;-#;0}.",
                 _ => "Wywołuje dodatkowy efekt."
             };
@@ -525,8 +525,28 @@ namespace Godmist.Views.UI
                 Append(result, $"Leczenie: {effect.StatusHealPercent * 100f:0.#}% maks. zdrowia");
             if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
             if (effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
-            foreach (var modifier in effect.StatModifiers) Append(result, $"{modifier.StatType} {modifier.Value:+#;-#;0}");
-            foreach (var modifier in effect.VariableModifiers) Append(result, $"{modifier.VariableType} {modifier.Value:+#;-#;0}");
+            foreach (var modifier in effect.StatModifiers)
+            {
+                if (modifier != null)
+                {
+                    Append(result, $"{modifier.StatType} {FormatStatModifier(modifier.StatType, modifier.Value)}");
+                }
+            }
+            foreach (var modifier in effect.VariableModifiers)
+            {
+                if (modifier == null) continue;
+                var variableName = modifier.VariableType switch
+                {
+                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
+                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
+                    GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
+                    GameplayVariableType.GoldGainPercent => "zdobywane złoto",
+                    GameplayVariableType.DamageDealtPercentInDungeonTheme =>
+                        $"obrażenia zadawane w theme lochu {modifier.ReferenceId}",
+                    _ => modifier.VariableType.ToString()
+                };
+                Append(result, $"{variableName}: {modifier.Value * 100f:+0.##;-0.##;0}%");
+            }
             if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
             return result.ToString();
         }
@@ -549,6 +569,16 @@ namespace Godmist.Views.UI
         {
             if (builder.Length > 0) builder.Append('\n');
             builder.Append(value);
+        }
+
+        private static string FormatStatModifier(CharacterStatType statType, float value)
+        {
+            return statType switch
+            {
+                CharacterStatType.CritDamage => value.ToString("+0.00;-0.00;0.00"),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("+0;-0;0"),
+                _ => value.ToString("+0.##;-0.##;0")
+            };
         }
     }
 }

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using UnityEngine;
 
 namespace Godmist.Data.Items
@@ -11,6 +13,7 @@ namespace Godmist.Data.Items
     {
         [field: SerializeField] public CharacterClassData RequiredClass { get; private set; }
         [field: SerializeField] public EquipmentSlot JewelrySlot { get; private set; }
+        [field: SerializeField] public List<PassiveEffectDefinition> PassiveEffects { get; private set; } = new();
 
         public EquipmentSlot EquipmentSlot => ItemType switch
         {

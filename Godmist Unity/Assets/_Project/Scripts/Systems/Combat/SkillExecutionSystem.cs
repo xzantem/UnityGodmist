@@ -28,6 +28,9 @@ namespace Godmist.Systems.Combat
         private readonly SummonSystem summonSystem;
         private readonly CombatReactionSystem reactionSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
+
+        public Action<PassiveEffectCombatContext> PassiveActionResolved { get; set; }
 
         public SkillExecutionSystem(
             Action<string> battleLog = null,
@@ -46,7 +49,8 @@ namespace Godmist.Systems.Combat
             SummonSystem summonSystem = null,
             CombatReactionSystem reactionSystem = null,
             CombatFeedbackBus feedbackBus = null,
-            ModifyResistanceSystem modifyResistanceSystem = null)
+            ModifyResistanceSystem modifyResistanceSystem = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
             this.removeUnitFromCombat = removeUnitFromCombat;
@@ -93,6 +97,7 @@ namespace Godmist.Systems.Combat
             this.summonSystem = summonSystem ?? new SummonSystem(battleLog);
             this.reactionSystem = reactionSystem ?? new CombatReactionSystem(battleLog);
             this.feedbackBus = feedbackBus;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
 
         public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, BattleUnit target)
@@ -165,7 +170,10 @@ namespace Godmist.Systems.Combat
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
-            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
+            float executionDamageMultiplier = 1f,
+            bool skipCosts = false,
+            bool isPassiveDuplicate = false)
         {
             var isToggleDeactivation = IsToggleActive(caster, skill);
             if (!CanExecute(
@@ -175,7 +183,8 @@ namespace Godmist.Systems.Combat
                     targetsByModeIndex,
                     teleportDestination,
                     objectPlacementDestination,
-                    isToggleDeactivation))
+                    isToggleDeactivation,
+                    skipCosts))
             {
                 return false;
             }
@@ -191,34 +200,63 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
-            if (!ScoutKnifeSystem.TrySpendAndDrop(
+            var actionId = Guid.NewGuid().ToString("N");
+            var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
+            var actionContext = CreateActionContext(
+                session,
+                caster,
+                skill,
+                targetsByModeIndex,
+                actionId,
+                isPassiveDuplicate,
+                knifeTargets);
+            var preventsKnifeConsumption = !skipCosts
+                && skill.KnifeCost > 0
+                && PassiveEffectCombatExecutionSystem.TryConsumeRuntimeFlagForAttack(
+                    session,
+                    actionContext,
+                    "dagger.prevent-consume");
+
+            if (!skipCosts
+                && !ScoutKnifeSystem.TrySpendAndDrop(
                     session,
                     caster,
                     skill,
-                    ResolveKnifeTargets(skill, targetsByModeIndex)))
+                    knifeTargets,
+                    preventsKnifeConsumption))
             {
                 return false;
             }
 
-            var actionCost =
-                CombatActionCostCalculator.CalculateSkillCost(caster, skill);
-
-            caster.CurrentActionPoints -= actionCost;
-            if (actionCost > 0)
+            if (!skipCosts)
             {
-                feedbackBus?.Publish(new CombatFeedbackEvent(
-                    caster, CombatFeedbackType.ActionPointSpend, actionCost));
-            }
+                var actionCost =
+                    CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
-            var spentResource = caster.Character.ResourcePool?.Drain(skill.ResourceCost) ?? 0;
-            caster.LastSkillResourceSpent = spentResource;
-            if (spentResource > 0)
-            {
-                feedbackBus?.Publish(new CombatFeedbackEvent(
-                    caster,
-                    CombatFeedbackType.ResourceSpend,
-                    spentResource,
-                    resourceType: caster.Character.ResourcePool.ResourceType));
+                caster.CurrentActionPoints -= actionCost;
+                if (actionCost > 0)
+                {
+                    feedbackBus?.Publish(new CombatFeedbackEvent(
+                        caster, CombatFeedbackType.ActionPointSpend, actionCost));
+                }
+
+                var spentResource = caster.Character.ResourcePool?.Drain(skill.ResourceCost) ?? 0;
+                caster.LastSkillResourceSpent = spentResource;
+                if (spentResource > 0)
+                {
+                    feedbackBus?.Publish(new CombatFeedbackEvent(
+                        caster,
+                        CombatFeedbackType.ResourceSpend,
+                        spentResource,
+                        resourceType: caster.Character.ResourcePool.ResourceType));
+                    PublishResourceSpent(
+                        session,
+                        caster,
+                        caster,
+                        skill.SkillId,
+                        caster.Character.ResourcePool,
+                        spentResource);
+                }
             }
 
             battleLog?.Invoke(
@@ -334,7 +372,11 @@ namespace Godmist.Systems.Combat
                         effectIndex,
                         wasHit,
                         teleportDestination,
-                        isReactionExecution: false);
+                        isReactionExecution: false,
+                        executionDamageMultiplier,
+                        targetsByModeIndex,
+                        actionId,
+                        isPassiveDuplicate);
                 }
 
                 resultsByEffectIndex[effectIndex] =
@@ -356,7 +398,61 @@ namespace Godmist.Systems.Combat
                 caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
             }
             CombatTurnSystem.RefreshMaxActionPoints(session);
+            PassiveActionResolved?.Invoke(actionContext);
             return true;
+        }
+
+        public bool TryExecutePassiveDuplicate(PassiveEffectCombatContext context)
+        {
+            if (context?.Session == null
+                || context.Source == null
+                || context.Skill == null
+                || context.TargetsByModeIndex == null)
+            {
+                return false;
+            }
+
+            return TryExecute(
+                context.Session,
+                context.Source,
+                context.Skill,
+                context.TargetsByModeIndex,
+                teleportDestination: null,
+                objectPlacementDestination: null,
+                selectedPositionsByModeIndex: null,
+                executionDamageMultiplier: .6f,
+                skipCosts: true,
+                isPassiveDuplicate: true);
+        }
+
+        private static PassiveEffectCombatContext CreateActionContext(
+            CombatSession session,
+            BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            string actionId,
+            bool isPassiveDuplicate,
+            IReadOnlyList<BattleUnit> fallbackTargets)
+        {
+            var target = fallbackTargets != null && fallbackTargets.Count > 0
+                ? fallbackTargets[0]
+                : null;
+            var distance = caster == null || target == null
+                ? -1
+                : Mathf.Abs(caster.Position.X - target.Position.X)
+                    + Mathf.Abs(caster.Position.Y - target.Position.Y);
+
+            return new PassiveEffectCombatContext(
+                session: session,
+                source: caster,
+                target: target,
+                skillId: skill?.SkillId,
+                skill: skill,
+                targetsByModeIndex: targetsByModeIndex,
+                actionId: actionId,
+                isPassiveDuplicate: isPassiveDuplicate,
+                attackType: skill?.ResolveAttackType(distance) ?? AttackType.Unknown,
+                distance: distance);
         }
 
         private static IReadOnlyList<BattleUnit> ResolveKnifeTargets(
@@ -510,7 +606,11 @@ namespace Godmist.Systems.Combat
             int effectIndex,
             bool wasHit,
             GridPosition? teleportDestination,
-            bool isReactionExecution)
+            bool isReactionExecution,
+            float executionDamageMultiplier = 1f,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex = null,
+            string actionId = null,
+            bool isPassiveDuplicate = false)
         {
             switch (effect.EffectType)
             {
@@ -533,15 +633,37 @@ namespace Godmist.Systems.Combat
 
                         var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
                             caster, valueSource, multiplier);
+                        attackValue = Mathf.Max(
+                            1,
+                            Mathf.RoundToInt(
+                                attackValue * Mathf.Max(0f, executionDamageMultiplier)));
+                        var distance = caster == null || target == null
+                            ? -1
+                            : Mathf.Abs(caster.Position.X - target.Position.X)
+                                + Mathf.Abs(caster.Position.Y - target.Position.Y);
+                        var passiveContext = new PassiveEffectCombatContext(
+                            session: session,
+                            source: caster,
+                            target: target,
+                            skillId: skill.SkillId,
+                            skill: skill,
+                            targetsByModeIndex: targetsByModeIndex,
+                            actionId: actionId,
+                            isPassiveDuplicate: isPassiveDuplicate,
+                            attackType: skill.ResolveAttackType(distance),
+                            damageType: effect.DamageType,
+                            distance: distance);
                         var damageResult = effect.AlwaysHits
                             ? damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
                                 wasHit: true,
-                                bonusDefensePenetration: effect.BonusPenetration)
+                                bonusDefensePenetration: effect.BonusPenetration,
+                                passiveContext: passiveContext)
                             : damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
                                 skill.SkillAccuracy,
-                                effect.BonusPenetration);
+                                effect.BonusPenetration,
+                                passiveContext);
                         hit |= damageResult.Hit;
                         critical |= damageResult.IsCritical;
                         totalHealthDamage += damageResult.HealthDamage;
@@ -552,7 +674,7 @@ namespace Godmist.Systems.Combat
                             CombatDamageSystem.TryConsumeUniqueBuff(
                                 caster, UniqueBuffType.MaximumDamage);
                         }
-                        ApplyDamageFollowUps(caster, target, skill, effect, effectIndex,
+                        ApplyDamageFollowUps(session, caster, target, skill, effect, effectIndex,
                             damageResult.HealthDamage);
                         statusEffectSystem?.ApplyActiveOnHitStatuses(caster, target);
                         if (!isReactionExecution)
@@ -749,7 +871,18 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.DrainResource:
                 {
-                    var drained = target.Character.ResourcePool?.Drain(effect.BaseValue) ?? 0;
+                    var resourcePool = target.Character.ResourcePool;
+                    var drained = resourcePool?.Drain(effect.BaseValue) ?? 0;
+                    if (drained > 0)
+                    {
+                        PublishResourceSpent(
+                            session,
+                            target,
+                            target,
+                            skill?.SkillId,
+                            resourcePool,
+                            drained);
+                    }
                     return new EffectExecutionResult { Succeeded = drained > 0, ResourceRestored = drained };
                 }
                 case EffectType.BlockResourceRegeneration:
@@ -1154,7 +1287,8 @@ namespace Godmist.Systems.Combat
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
-            bool isToggleDeactivation)
+            bool isToggleDeactivation,
+            bool skipCosts)
         {
             if (session == null || caster?.Character == null
                 || skill == null || targetsByModeIndex == null
@@ -1199,12 +1333,6 @@ namespace Godmist.Systems.Combat
             {
                 Debug.LogWarning(
                     $"Toggle skill '{skill.SkillId}' contains an unsupported effect.");
-                return false;
-            }
-
-            if (!isToggleDeactivation && !ScoutKnifeSystem.CanPay(caster, skill))
-            {
-                battleLog?.Invoke("Brak dostępnych sztyletów.");
                 return false;
             }
 
@@ -1351,13 +1479,13 @@ namespace Godmist.Systems.Combat
             var actionCost =
                 CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
-            if (caster.CurrentActionPoints < actionCost)
+            if (!skipCosts && caster.CurrentActionPoints < actionCost)
             {
                 battleLog?.Invoke("Not enough AP.");
                 return false;
             }
 
-            if (skill.ResourceCost > 0
+            if (!skipCosts && skill.ResourceCost > 0
                 && caster.Character.ResourcePool == null)
             {
                 Debug.LogWarning(
@@ -1366,7 +1494,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (skill.ResourceCost > 0
+            if (!skipCosts && skill.ResourceCost > 0
                 && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
             {
                 Debug.LogWarning(
@@ -1375,7 +1503,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (caster.Character.ResourcePool != null
+            if (!skipCosts
+                && caster.Character.ResourcePool != null
                 && caster.Character.ResourcePool.CurrentValue < skill.ResourceCost)
             {
                 battleLog?.Invoke("Not enough resource.");
@@ -1613,7 +1742,7 @@ namespace Godmist.Systems.Combat
         }
 
         private void ApplyDamageFollowUps(
-            BattleUnit caster, BattleUnit target, SkillData skill, SkillEffectData effect,
+            CombatSession session, BattleUnit caster, BattleUnit target, SkillData skill, SkillEffectData effect,
             int effectIndex, int healthDamage)
         {
             if (healthDamage <= 0) return;
@@ -1621,9 +1750,20 @@ namespace Godmist.Systems.Combat
                 recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
             if (effect.ResourceDrainPercent > 0f)
             {
-                var drained = target.Character.ResourcePool?.Drain(
+                var resourcePool = target.Character.ResourcePool;
+                var drained = resourcePool?.Drain(
                     Mathf.FloorToInt(healthDamage * effect.ResourceDrainPercent)) ?? 0;
-                if (drained > 0) recoverySystem.RestoreResource(caster, drained);
+                if (drained > 0)
+                {
+                    PublishResourceSpent(
+                        session,
+                        source: target,
+                        target: target,
+                        skillId: skill?.SkillId,
+                        resourcePool,
+                        drained);
+                    recoverySystem.RestoreResource(caster, drained);
+                }
             }
         }
 
@@ -1770,11 +1910,46 @@ namespace Godmist.Systems.Combat
                     CombatFeedbackType.ResourceSpend,
                     spentResource,
                     resourceType: resourcePool.ResourceType));
+                PublishResourceSpent(
+                    session,
+                    caster,
+                    caster,
+                    skill.SkillId,
+                    resourcePool,
+                    spentResource);
                 battleLog?.Invoke(
                     $"{caster.Character.Definition?.DisplayName ?? caster.Character.CharacterId} "
                     + $"płaci {spentResource} {resourcePool.ResourceType} "
                     + $"za podtrzymanie {skill.DisplayName}.");
             }
+        }
+
+        private void PublishResourceSpent(
+            CombatSession session,
+            BattleUnit source,
+            BattleUnit target,
+            string skillId,
+            ResourcePool resourcePool,
+            int amount)
+        {
+            var dispatcher = passiveEffectEventDispatcher
+                ?? session?.PassiveEffectEventDispatcher;
+            if (dispatcher == null || resourcePool == null || amount <= 0)
+            {
+                return;
+            }
+
+            dispatcher.Publish(
+                PassiveEffectTriggerType.OnResourceSpent,
+                new PassiveEffectCombatContext(
+                    session: session,
+                    source: source,
+                    target: target,
+                    skillId: skillId,
+                    resourceType: resourcePool.ResourceType,
+                    resourceAmount: amount,
+                    eventValue: amount),
+                eventId: skillId);
         }
 
         public void DeactivateAllToggles(CombatSession session, BattleUnit caster)

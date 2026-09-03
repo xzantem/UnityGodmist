@@ -110,12 +110,68 @@ MonoBehaviour:
   - <Id>k__BackingField: node.scout.assassin.karambit_style
     <DisplayName>k__BackingField: Styl Karambitowy
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz
-      o 15%/30%/45%"
+      o 25%/60%/100%"
     <Icon>k__BackingField: {fileID: 0}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 3
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField:
+    - <Id>k__BackingField: passive.node.scout.assassin.karambit_style
+      <DisplayName>k__BackingField: Styl Karambitowy
+      <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz o 25%/60%/100%"
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField:
+      - <Type>k__BackingField: 9
+        <Comparison>k__BackingField: 0
+        <ReferenceId>k__BackingField: Melee
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField: []
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <Negated>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Triggers>k__BackingField:
+      - <Type>k__BackingField: 2
+        <EventId>k__BackingField:
+        <Parameters>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: modify-melee-damage
+        <Type>k__BackingField: 2
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField:
+        <StatType>k__BackingField: 0
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField:
+          - 0.25
+          - 0.6
+          - 1
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField: Tylko dla ataków wręcz.
+        <TriggerText>k__BackingField: Przy ataku.
+        <ShowRuntimeState>k__BackingField: 1
   - <Id>k__BackingField: node.scout.assassin.deep_analysis
     <DisplayName>k__BackingField: "Dog\u0142\u0119bna Analiza"
     <Description>k__BackingField: "Ciosy krytyczne podczas dzia\u0142ania S\u0142abego
@@ -150,6 +206,61 @@ MonoBehaviour:
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.shadow_warrior
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField:
+    - <Id>k__BackingField: passive.node.scout.assassin.surprise
+      <DisplayName>k__BackingField: Zaskoczenie
+      <Description>k__BackingField: "Atak podczas niewidzialno\u015Bci zadaje 30%/60% wi\u0119cej obra\u017Ce\u0144"
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField:
+      - <Type>k__BackingField: 12
+        <Comparison>k__BackingField: 0
+        <ReferenceId>k__BackingField: invisibility
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField: []
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <Negated>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Triggers>k__BackingField:
+      - <Type>k__BackingField: 2
+        <EventId>k__BackingField:
+        <Parameters>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: modify-surprise-damage
+        <Type>k__BackingField: 2
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField:
+        <StatType>k__BackingField: 0
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField:
+          - 0.3
+          - 0.6
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField: Podczas niewidzialności.
+        <TriggerText>k__BackingField: Przy ataku.
+        <ShowRuntimeState>k__BackingField: 1
   - <Id>k__BackingField: node.scout.assassin.shadow_warrior
     <DisplayName>k__BackingField: Wojownik Cieni
     <Description>k__BackingField: "Daje niewidzialno\u015B\u0107 na 3 tury, Wycofanie
@@ -170,6 +281,61 @@ MonoBehaviour:
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.karambit_style
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField:
+    - <Id>k__BackingField: passive.node.scout.assassin.rapid_strikes
+      <DisplayName>k__BackingField: Gwałtowne Uderzenia
+      <Description>k__BackingField: Zwiększa szansę krytyczną w walce wręcz o 5%/10%.
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField:
+      - <Type>k__BackingField: 9
+        <Comparison>k__BackingField: 0
+        <ReferenceId>k__BackingField: Melee
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField: []
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <Negated>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Triggers>k__BackingField:
+      - <Type>k__BackingField: 2
+        <EventId>k__BackingField:
+        <Parameters>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: modify-melee-critical-chance
+        <Type>k__BackingField: 0
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField:
+        <StatType>k__BackingField: 6
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 2
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField:
+          - 0.05
+          - 0.1
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField: Tylko dla ataków wręcz.
+        <TriggerText>k__BackingField: Przy ataku.
+        <ShowRuntimeState>k__BackingField: 1
   - <Id>k__BackingField: node.scout.assassin.throat_cut
     <DisplayName>k__BackingField: "Podci\u0119cie Gard\u0142a"
     <Description>k__BackingField: "Daje 4%/7%/10% szansy na natychmiastowe zabicie
@@ -263,6 +429,48 @@ MonoBehaviour:
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField:
+    - <Id>k__BackingField: passive.node.scout.assassin.foresight
+      <DisplayName>k__BackingField: Przewidywanie
+      <Description>k__BackingField: Daje 20%/40% szansy na zamienienie chybienia w trafienie.
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField: []
+      <Triggers>k__BackingField:
+      - <Type>k__BackingField: 5
+        <EventId>k__BackingField:
+        <Parameters>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: convert-miss-to-hit
+        <Type>k__BackingField: 17
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField: miss-to-hit
+        <StatType>k__BackingField: 0
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField:
+          - 0.2
+          - 0.4
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField:
+        <TriggerText>k__BackingField: Po chybieniu.
+        <ShowRuntimeState>k__BackingField: 1
   - <Id>k__BackingField: node.scout.assassin.low_blow
     <DisplayName>k__BackingField: "Cios Poni\u017Cej Pasa"
     <Description>k__BackingField: "Ciosy krytyczne maj\u0105 30% szansy na og\u0142uszenie
@@ -272,6 +480,47 @@ MonoBehaviour:
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField:
+    - <Id>k__BackingField: passive.node.scout.assassin.low_blow
+      <DisplayName>k__BackingField: Cios Poniżej Pasa
+      <Description>k__BackingField: Cios krytyczny ma 30% szansy na ogłuszenie na 1 turę.
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField: []
+      <Triggers>k__BackingField:
+      - <Type>k__BackingField: 4
+        <EventId>k__BackingField:
+        <Parameters>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: apply-stun
+        <Type>k__BackingField: 6
+        <Target>k__BackingField: 2
+        <ReferenceId>k__BackingField: stun
+        <StatType>k__BackingField: 0
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0
+          <RankValues>k__BackingField:
+          - 0.3
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 1
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField:
+        <TriggerText>k__BackingField: Po trafieniu krytycznym.
+        <ShowRuntimeState>k__BackingField: 1
   - <Id>k__BackingField: node.scout.assassin.dishonorable_cut
     <DisplayName>k__BackingField: "Ci\u0119cie bez Honoru"
     <Description>k__BackingField: "Podci\u0119cie Gard\u0142a ma dwukrotnie wi\u0119ksz\u0105

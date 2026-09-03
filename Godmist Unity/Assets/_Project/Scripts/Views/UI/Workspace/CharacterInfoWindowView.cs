@@ -173,10 +173,18 @@ namespace Godmist.Views.UI.Workspace
                     session,
                     character.CharacterId,
                     lootBag.InstanceId,
-                    out _))
+                    out var openedItemCount))
             {
                 Refresh();
+                return;
             }
+
+            Debug.LogWarning(
+                $"Nie można otworzyć lootbaga '{lootBag.InstanceId}': "
+                + $"zawartość={lootBag.Contents?.Count ?? 0}, "
+                + $"walka={(session.ActiveCombat != null ? "aktywna" : "brak")}, "
+                + $"otwarte={openedItemCount}.",
+                this);
         }
 
         public void TryUseConsumable(ItemInstance item)
@@ -428,7 +436,7 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildStats(CharacterInstance value)
         {
             var stats = value.Stats;
-            return $"Atak: {stats.MinAttack.GetValue():0}-{stats.MaxAttack.GetValue():0}\nObrona fiz.: {stats.PhysicalDefense.GetValue():0}\nObrona mag.: {stats.MagicalDefense.GetValue():0}\nUnik: {stats.Dodge.GetValue():0.#} | Kryt: {stats.CritChance.GetValue() * 100f:0.#}%\nObr. kryt.: {stats.CritDamage.GetValue():0.##} | Szybkość: {stats.Speed.GetValue():0}\nCelność: {stats.WeaponAccuracy.GetValue():0}";
+            return $"Atak: {stats.MinAttack.GetValue():0}-{stats.MaxAttack.GetValue():0}\nObrona fiz.: {stats.PhysicalDefense.GetValue():0}\nObrona mag.: {stats.MagicalDefense.GetValue():0}\nUnik: {stats.Dodge.GetValue():0} | Kryt: {stats.CritChance.GetValue() * 100f:0.#}%\nObr. kryt.: {stats.CritDamage.GetValue():0.00} | Szybkość: {stats.Speed.GetValue():0}\nCelność: {stats.WeaponAccuracy.GetValue():0}";
         }
 
         private static string BuildResistances(ResistanceSet value)

@@ -108,7 +108,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (qualityDropdown == null) return;
             qualityDropdown.ClearOptions();
-            qualityDropdown.AddOptions(new List<string> { "Kiepska (-50%)", "Normalna", "Doskonała (+100%)" });
+            qualityDropdown.AddOptions(new List<string> { "Kiepska", "Normalna", "Doskonała" });
             selectedQuality = EquipmentQuality.Normal;
             qualityDropdown.value = 1;
         }
@@ -495,14 +495,23 @@ namespace Godmist.Views.UI.Workspace
             if (lines == null || Mathf.Abs(value) < 0.0001f) return;
 
             var arrow = value > 0f ? "↑" : "↓";
-            lines.Add($"{GetStatDisplayName(stat)}: {arrow}{Mathf.Abs(value) * 100f:0.##}%");
+            var formattedValue = stat == CharacterStatType.Dodge
+                ? $"{Mathf.RoundToInt(Mathf.Abs(value) * 100f)}%"
+                : stat == CharacterStatType.CritDamage
+                    ? $"{Mathf.Abs(value) * 100f:0.00}%"
+                    : $"{Mathf.Abs(value) * 100f:0.##}%";
+            lines.Add($"{GetStatDisplayName(stat)}: {arrow}{formattedValue}");
         }
 
         private static string FormatBaseStatValue(CharacterStatType stat, float value)
         {
-            return stat == CharacterStatType.CritChance
-                ? $"{value * 100f:0.##}%"
-                : FormatValue(value);
+            return stat switch
+            {
+                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                _ => FormatValue(value)
+            };
         }
 
         private static string BuildStatsText(EquipmentItemInstance result)
@@ -546,9 +555,13 @@ namespace Godmist.Views.UI.Workspace
 
         private static string FormatStatValue(CharacterStatType stat, float value)
         {
-            return stat == CharacterStatType.CritChance
-                ? $"{value * 100f:0.##}%"
-                : FormatValue(value);
+            return stat switch
+            {
+                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                _ => FormatValue(value)
+            };
         }
 
         private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");

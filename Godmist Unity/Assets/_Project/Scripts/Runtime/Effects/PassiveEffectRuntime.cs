@@ -11,11 +11,16 @@ namespace Godmist.Runtime.Effects
     public class PassiveEffectRuntime
     {
         public string EffectId = string.Empty;
+        // Stable reference to a static passive definition. EffectId remains for
+        // compatibility with existing status/effect creators and save files.
+        public string DefinitionId = string.Empty;
         // Human-readable source/effect label for inspect and combat feedback. Empty
         // values intentionally fall back to the effect id and glossary.
         public string DisplayName = string.Empty;
         public List<PassiveEffectSourceRuntime> Sources = new();
         public int Stacks = 1;
+        public PassiveEffectStackingRule StackingRule =
+            PassiveEffectStackingRule.Unique;
 
         public PassiveEffectLifetime Lifetime =
             PassiveEffectLifetime.Persistent;
@@ -25,6 +30,10 @@ namespace Godmist.Runtime.Effects
             PassiveEffectTickPhase.None;
 
         public List<PassiveEffectPayloadRuntime> Payloads = new();
+        // Mutable counters/flags used by future triggered passives. Keeping them
+        // outside typed payloads prevents every new passive family from requiring
+        // a new runtime container and keeps persistence data-driven.
+        public List<PassiveEffectRuntimeStateValue> StateValues = new();
 
         public T GetPayload<T>() where T : PassiveEffectPayloadRuntime
         {
@@ -36,6 +45,26 @@ namespace Godmist.Runtime.Effects
             Payloads ??= new List<PassiveEffectPayloadRuntime>();
             Payloads.RemoveAll(existing => existing is T);
             if (payload != null) Payloads.Add(payload);
+        }
+
+        public PassiveEffectRuntimeStateValue GetStateValue(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return null;
+            return StateValues?.Find(value => value != null && value.Key == key);
+        }
+
+        public void SetStateValue(PassiveEffectRuntimeStateValue value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.Key)) return;
+            StateValues ??= new List<PassiveEffectRuntimeStateValue>();
+            StateValues.RemoveAll(existing => existing != null && existing.Key == value.Key);
+            StateValues.Add(value);
+        }
+
+        public bool RemoveStateValue(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key) || StateValues == null) return false;
+            return StateValues.RemoveAll(value => value != null && value.Key == key) > 0;
         }
 
         // Compatibility accessors keep existing effect creators concise while the

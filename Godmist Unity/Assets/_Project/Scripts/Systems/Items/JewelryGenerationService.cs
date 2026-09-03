@@ -33,15 +33,10 @@ namespace Godmist.Systems.Items
                 item.MetalId = metal.Id;
                 item.MetalDisplayName = metal.DisplayName;
                 item.StatModifiers = metal.StatModifiers == null ? new List<StatModifier>() : new List<StatModifier>(metal.StatModifiers);
-                item.ResistanceType = metal.ResistanceModifier?.ResistanceType ?? default;
-                item.ResistanceValue = metal.ResistanceModifier?.Value ?? 0f;
             }
             item.GemId = gem.Id;
             item.GemDisplayName = gem.DisplayName;
             item.GemDescription = gem.Description;
-            item.PassiveType = gem.PassiveType;
-            item.PassiveValue = gem.Value;
-            item.PassiveDungeonTheme = gem.DungeonTheme;
             if (gem.IsBossUnique) item.Quality = Godmist.Core.Enums.EquipmentQuality.Masterpiece;
             return item;
         }

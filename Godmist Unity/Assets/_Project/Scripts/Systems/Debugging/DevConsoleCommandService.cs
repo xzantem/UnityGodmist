@@ -41,8 +41,6 @@ namespace Godmist.Systems.Debugging
         private readonly InventoryService inventoryService = new();
         private readonly ItemInstanceFactory itemInstanceFactory = new();
         private readonly EquipmentGenerationService equipmentGenerationService = new();
-        private readonly MaterialCraftingService materialCraftingService = new();
-        private readonly BlacksmithCraftingService blacksmithCraftingService = new();
         private readonly EquipmentUpgradeService equipmentUpgradeService = new();
         private readonly StatusEffectSystem statusEffectSystem = new();
 
@@ -102,8 +100,7 @@ namespace Godmist.Systems.Debugging
                 "itemdefs" => GetItemDefinitions(contentCatalog),
                 "encounterdefs" => GetEncounterDefinitions(contentCatalog),
                 "combat" => StartCombat(tokens, combatSession, combatHandler),
-                "craftmaterial" => CraftMaterial(tokens, gameSession, contentCatalog),
-                "craftequipment" => CraftEquipment(tokens, gameSession, contentCatalog),
+                "createequipment" => CreateEquipment(tokens, gameSession, contentCatalog),
                 "upgrade" => UpgradeEquipment(tokens, gameSession, contentCatalog),
                 "reforge" => ReforgeEquipment(tokens, gameSession, contentCatalog),
                 "markquestobjective" => MarkQuestObjective(tokens, gameSession),
@@ -1128,7 +1125,16 @@ namespace Godmist.Systems.Debugging
             {
                 ItemInstance item;
 
-                if (definition is EquipmentItemDefinition equipmentDefinition)
+                if (definition is LootBagItemDefinition lootBagDefinition)
+                {
+                    item = new LootTableSystem(
+                            new System.Random(),
+                            contentCatalog.EquipmentPartDefinitions,
+                            itemInstanceFactory,
+                            target.Level)
+                        .CreateLootBag(lootBagDefinition);
+                }
+                else if (definition is EquipmentItemDefinition equipmentDefinition)
                 {
                     item = equipmentGenerationService.Generate(
                         equipmentDefinition,
@@ -1544,14 +1550,14 @@ namespace Godmist.Systems.Debugging
             return true;
         }
 
-        private DevConsoleCommandResult CraftMaterial(
+        private DevConsoleCommandResult CreateEquipment(
             IReadOnlyList<string> tokens,
             GameSession gameSession,
             GameContentCatalog contentCatalog)
         {
-            if (tokens.Count < 3 || tokens.Count > 4)
+            if (tokens.Count < 6 || tokens.Count > 7)
             {
-                return Fail("Użycie: craftmaterial <npcId> <recipeId> [characterId]");
+                return Fail("Użycie: createequipment <itemId> <quality> <partId> <partId> <partId> [characterId]");
             }
 
             if (gameSession == null || contentCatalog == null)
@@ -1559,83 +1565,25 @@ namespace Godmist.Systems.Debugging
                 return Fail("Brak GameSession albo GameContentCatalog.");
             }
 
-            if (!TryResolveMaterialCraftingSpecialist(
-                    gameSession,
-                    tokens[1],
-                    out var specialist,
-                    out var npcFailure))
-            {
-                return npcFailure;
-            }
-
-            if (!contentCatalog.TryGetItem(tokens[2], out var itemDefinition)
-                || itemDefinition is not CraftableItemDefinition recipe)
-            {
-                return Fail($"'{tokens[2]}' nie jest CraftableItemDefinition.");
-            }
-
-            var characterId = tokens.Count == 4 ? tokens[3] : string.Empty;
-            var recipient = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
-            if (recipient == null)
-            {
-                return targetFailure;
-            }
-
-            var request = new MaterialCraftRequest
-            {
-                Recipe = recipe,
-                RecipientCharacterId = recipient.CharacterId
-            };
-
-            if (!materialCraftingService.TryCraft(
-                    gameSession,
-                    specialist,
-                    request,
-                    out var craftedItems,
-                    out var failureReason))
-            {
-                return Fail($"Crafting nieudany: {failureReason}");
-            }
-
-            return Success(
-                $"Crafting zakończony: {craftedItems.Count}x {recipe.DisplayName} " +
-                $"dla {GetCharacterName(recipient)}.");
-        }
-
-        private DevConsoleCommandResult CraftEquipment(
-            IReadOnlyList<string> tokens,
-            GameSession gameSession,
-            GameContentCatalog contentCatalog)
-        {
-            if (tokens.Count < 7 || tokens.Count > 8)
-            {
-                return Fail("Użycie: craftequipment <npcId> <itemId> <quality> <partId> <partId> <partId> [characterId]");
-            }
-
-            if (gameSession == null || contentCatalog == null)
-            {
-                return Fail("Brak GameSession albo GameContentCatalog.");
-            }
-
-            if (!TryResolveBlacksmith(gameSession, tokens[1], out var blacksmith, out var npcFailure))
-            {
-                return npcFailure;
-            }
-
-            if (!contentCatalog.TryGetItem(tokens[2], out var itemDefinition)
+            if (!contentCatalog.TryGetItem(tokens[1], out var itemDefinition)
                 || itemDefinition is not EquipmentItemDefinition equipmentDefinition)
             {
-                return Fail($"'{tokens[2]}' nie jest EquipmentItemDefinition.");
+                return Fail($"'{tokens[1]}' nie jest EquipmentItemDefinition.");
             }
 
-            if (!Enum.TryParse(tokens[3], true, out EquipmentQuality quality)
-                || quality == EquipmentQuality.Masterpiece)
+            if (!Enum.TryParse(tokens[2], true, out EquipmentQuality quality))
             {
-                return Fail("Jakość musi być jedną z wartości: Poor, Normal, Excellent.");
+                return Fail("Jakość musi być jedną z wartości: Poor, Normal, Excellent, Masterpiece.");
+            }
+
+            if (equipmentDefinition is BossUniqueEquipmentDefinition
+                && quality != EquipmentQuality.Masterpiece)
+            {
+                return Fail("Bossowy unikat można utworzyć wyłącznie z jakością Masterpiece.");
             }
 
             var parts = new List<EquipmentPartDefinition>(3);
-            for (var index = 4; index <= 6; index++)
+            for (var index = 3; index <= 5; index++)
             {
                 var part = contentCatalog.EquipmentPartDefinitions?
                     .FirstOrDefault(candidate => candidate != null
@@ -1648,40 +1596,33 @@ namespace Godmist.Systems.Debugging
                 parts.Add(part);
             }
 
-            var characterId = tokens.Count == 8 ? tokens[7] : string.Empty;
+            var characterId = tokens.Count == 7 ? tokens[6] : string.Empty;
             var recipient = ResolveDefaultCharacter(gameSession, characterId, out var targetFailure);
             if (recipient == null)
             {
                 return targetFailure;
             }
 
-            if (!IsEquipmentOfferedByBlacksmith(blacksmith, equipmentDefinition))
+            var createdItem = equipmentGenerationService.GenerateFromSelectedParts(
+                equipmentDefinition,
+                parts,
+                quality);
+            if (createdItem == null)
             {
-                return Fail("Wybrany equipment nie jest oferowany przez tego kowala.");
+                return Fail("Nie udało się wygenerować equipmentu. Sprawdź Required Class EID oraz komplet trzech zgodnych części w GameContentCatalog.");
             }
 
-            var request = new EquipmentCraftRequest
+            if (!inventoryService.TryAddItem(recipient.Inventory, createdItem))
             {
-                Definition = equipmentDefinition,
-                Parts = parts,
-                Quality = quality,
-                RecipientCharacterId = recipient.CharacterId
-            };
-
-            if (!blacksmithCraftingService.TryCraft(
-                    gameSession,
-                    blacksmith,
-                    request,
-                    out var craftedItem,
-                    out var failureReason))
-            {
-                return Fail($"Crafting equipmentu nieudany: {failureReason}");
+                return Fail(
+                    $"Nie udało się dodać equipmentu do inventory " +
+                    $"postaci {GetCharacterName(recipient)}.");
             }
 
             return Success(
-                $"Crafting zakończony: {craftedItem.Definition.DisplayName} " +
-                $"({quality}) dla {GetCharacterName(recipient)} | " +
-                $"instanceId: {craftedItem.InstanceId}");
+                $"Utworzono {createdItem.Definition.DisplayName} " +
+                $"({quality}) w inventory postaci {GetCharacterName(recipient)} | " +
+                $"instanceId: {createdItem.InstanceId}");
         }
 
         private DevConsoleCommandResult UpgradeEquipment(
@@ -2071,57 +2012,6 @@ namespace Godmist.Systems.Debugging
             }
 
             return true;
-        }
-
-        private static bool TryResolveMaterialCraftingSpecialist(
-            GameSession gameSession,
-            string npcId,
-            out NpcInstance specialist,
-            out DevConsoleCommandResult failure)
-        {
-            specialist = null;
-            failure = default;
-
-            if (gameSession?.NpcsById == null)
-            {
-                failure = Fail("Sesja nie zawiera zarejestrowanych NPC-ów.");
-                return false;
-            }
-
-            specialist = gameSession.NpcsById.Values.FirstOrDefault(npc =>
-                npc != null
-                && string.Equals(npc.NpcId, npcId, StringComparison.OrdinalIgnoreCase));
-
-            if (specialist == null)
-            {
-                failure = Fail($"Nie znaleziono NPC o ID: {npcId}");
-                return false;
-            }
-
-            if (specialist.Definition?.Roles?.OfType<IMaterialCraftingSpecialist>()
-                    .FirstOrDefault() == null)
-            {
-                failure = Fail($"NPC '{npcId}' nie oferuje material craftingu.");
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool IsEquipmentOfferedByBlacksmith(
-            NpcInstance blacksmith,
-            EquipmentItemDefinition equipmentDefinition)
-        {
-            var role = blacksmith?.Definition?.GetRole<BlacksmithRoleData>();
-            return role?.ClassOffers?.Any(offer =>
-                string.Equals(
-                    offer?.WeaponBase?.Id,
-                    equipmentDefinition?.Id,
-                    StringComparison.Ordinal)
-                || string.Equals(
-                    offer?.ArmorBase?.Id,
-                    equipmentDefinition?.Id,
-                    StringComparison.Ordinal)) == true;
         }
 
         private static bool TryFindEquipment(

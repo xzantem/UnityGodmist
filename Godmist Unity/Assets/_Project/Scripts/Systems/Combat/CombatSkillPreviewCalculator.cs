@@ -41,8 +41,9 @@ namespace Godmist.Systems.Combat
 
     /// <summary>
     /// Shared deterministic preview math for combat UI. It deliberately reports a
-    /// worst/best-case range: optional bonus multipliers and possible critical hits
-    /// are included only in the upper bound.
+    /// worst/best-case range for a regular hit: optional bonus multipliers are
+    /// included only in the upper bound. Critical damage is intentionally not
+    /// part of the displayed range.
     /// </summary>
     public static class CombatSkillPreviewCalculator
     {
@@ -211,17 +212,6 @@ namespace Godmist.Systems.Combat
             if (effect.BonusDamageMultiplierChance > 0f)
             {
                 maximumMultiplier *= effect.BonusDamageMultiplier;
-            }
-
-            if ((effect.DamageType == DamageType.Physical
-                    || effect.DamageType == DamageType.Inevitable)
-                && (caster.Character.Stats.CritChance.GetValue() > 0f
-                    || CombatDamageSystem.HasUniqueBuff(
-                        caster,
-                        UniqueBuffType.GuaranteedCriticalHit)))
-            {
-                maximumMultiplier *= Mathf.Max(1f,
-                    caster.Character.Stats.CritDamage.GetValue());
             }
 
             maximum = Mathf.CeilToInt(baseMaximum * maximumMultiplier);

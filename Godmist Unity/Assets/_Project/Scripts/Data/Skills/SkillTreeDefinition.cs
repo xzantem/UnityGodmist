@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Types;
 using Godmist.Core.Interfaces;
+using Godmist.Data.Effects;
 using UnityEngine;
 
 namespace Godmist.Data.Skills
@@ -20,7 +21,7 @@ namespace Godmist.Data.Skills
     {
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField, TextArea(2, 5)] public string Description { get; private set; } = string.Empty;
-        [field: SerializeField] public List<StatModifier> ModifiersPerPoint { get; private set; } = new();
+        [field: SerializeField] public List<PassiveEffectDefinition> PassivesPerPoint { get; private set; } = new();
     }
 
     [Serializable]
@@ -35,6 +36,7 @@ namespace Godmist.Data.Skills
         [field: SerializeField, Range(1, 3)] public int MaxRanks { get; private set; } = 1;
         public int EffectiveMaxRanks => Mathf.Clamp(MaxRanks, 1, 3);
         [field: SerializeField] public List<SkillTreeNodeRequirement> Requirements { get; private set; } = new();
+        [field: SerializeField] public List<PassiveEffectDefinition> PassiveEffects { get; private set; } = new();
     }
 
     [Serializable]

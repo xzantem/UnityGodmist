@@ -312,6 +312,7 @@ MonoBehaviour:
   surfaceStyle: 4
   borderStyle: 2
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 3204533053295568030}
   borderImage: {fileID: 0}
@@ -558,6 +559,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -599,6 +601,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 1
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -760,6 +763,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -801,6 +805,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 3
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -1123,6 +1128,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 3
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -1478,6 +1484,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -1678,6 +1685,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 5
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -2076,6 +2084,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -2396,6 +2405,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -2766,6 +2776,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -2972,6 +2983,7 @@ MonoBehaviour:
   surfaceStyle: 4
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 6421878142475295483}
   borderImage: {fileID: 0}
@@ -3375,6 +3387,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -4206,6 +4219,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -4386,6 +4400,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -4565,7 +4580,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 8
   m_Viewport: {fileID: 3394222659298545244}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 987002277987991889}
@@ -4592,6 +4607,7 @@ MonoBehaviour:
   surfaceStyle: 3
   borderStyle: 1
   textStyle: 2
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 6121500774476985424}
   borderImage: {fileID: 0}
@@ -4752,6 +4768,7 @@ MonoBehaviour:
   surfaceStyle: 0
   borderStyle: 1
   textStyle: 4
+  textAccentStyle: 0
   interactionStyle: 2
   surfaceImage: {fileID: 0}
   borderImage: {fileID: 0}
@@ -4879,6 +4896,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
       propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8249692176657219302, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
@@ -5091,6 +5112,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
       propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749818566139176625, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8249692176657219302, guid: be463281eccc58e4d86f5031b9c0d376, type: 3}
@@ -6807,6 +6832,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MaterialSlotTemplate
       objectReference: {fileID: 0}
+    - target: {fileID: 2966131631877457633, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4558972797688465649, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -7111,6 +7140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6021390a3b6ff5f47872b5e53c085e62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.BlacksmithCraftingWindowView
+  serviceRoot: {fileID: 0}
   window: {fileID: 4127783447986192153}
   titleText: {fileID: 1040834439231198619}
   customNameInput: {fileID: 5688568891756562553}

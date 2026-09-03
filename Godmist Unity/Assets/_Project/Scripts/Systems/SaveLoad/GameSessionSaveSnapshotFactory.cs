@@ -698,13 +698,42 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Add(new PassiveEffectSaveData
                 {
                     EffectId = effect.EffectId,
+                    DefinitionId = effect.DefinitionId,
                     DisplayName = effect.DisplayName,
                     Sources = CopyPassiveEffectSources(effect.Sources),
                     Stacks = effect.Stacks,
+                    StackingRule = effect.StackingRule,
                     Lifetime = effect.Lifetime,
                     TickPhase = effect.TickPhase,
                     RemainingDuration = effect.RemainingDuration,
-                    Payloads = CopyPassiveEffectPayloads(effect.Payloads)
+                    Payloads = CopyPassiveEffectPayloads(effect.Payloads),
+                    StateValues = CopyPassiveEffectStateValues(effect.StateValues)
+                });
+            }
+
+            return saveData;
+        }
+
+        private static List<PassiveEffectRuntimeStateValueSaveData>
+            CopyPassiveEffectStateValues(
+                List<PassiveEffectRuntimeStateValue> stateValues)
+        {
+            var saveData = new List<PassiveEffectRuntimeStateValueSaveData>();
+            if (stateValues == null) return saveData;
+
+            foreach (var stateValue in stateValues)
+            {
+                if (stateValue == null || string.IsNullOrWhiteSpace(stateValue.Key))
+                    continue;
+
+                saveData.Add(new PassiveEffectRuntimeStateValueSaveData
+                {
+                    Key = stateValue.Key,
+                    Type = stateValue.Type,
+                    NumberValue = stateValue.NumberValue,
+                    IntegerValue = stateValue.IntegerValue,
+                    TextValue = stateValue.TextValue,
+                    BooleanValue = stateValue.BooleanValue
                 });
             }
 
@@ -948,11 +977,6 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryGemId = jewelryItem.GemId;
                     itemSaveData.JewelryGemDisplayName = jewelryItem.GemDisplayName;
                     itemSaveData.JewelryGemDescription = jewelryItem.GemDescription;
-                    itemSaveData.JewelryPassiveType = jewelryItem.PassiveType;
-                    itemSaveData.JewelryPassiveValue = jewelryItem.PassiveValue;
-                    itemSaveData.JewelryPassiveDungeonTheme = jewelryItem.PassiveDungeonTheme;
-                    itemSaveData.JewelryResistanceType = jewelryItem.ResistanceType;
-                    itemSaveData.JewelryResistanceValue = jewelryItem.ResistanceValue;
                 }
             }
 
@@ -1055,6 +1079,7 @@ namespace Godmist.Systems.SaveLoad
                 saveData.Add(new GameplayVariableModifierSaveData
                 {
                     VariableType = modifier.VariableType,
+                    ReferenceId = modifier.ReferenceId,
                     Stacking = modifier.Stacking,
                     Value = modifier.Value
                 });

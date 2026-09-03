@@ -15,13 +15,15 @@ namespace Godmist.Systems.Combat
         private readonly ResourceRuleSystem resourceRuleSystem;
         private readonly CombatVariableSystem combatVariableSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public CombatDamageSystem(Action<string> battleLog = null,
             Action<CombatSession> evaluateOutcome = null,
             Action<BattleUnit> removeUnitFromCombat = null,
             ResourceRuleSystem resourceRuleSystem = null,
             CombatVariableSystem combatVariableSystem = null,
-            CombatFeedbackBus feedbackBus = null)
+            CombatFeedbackBus feedbackBus = null,
+            PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher = null)
         {
             this.battleLog = battleLog;
             this.evaluateOutcome = evaluateOutcome;
@@ -29,6 +31,7 @@ namespace Godmist.Systems.Combat
             this.resourceRuleSystem = resourceRuleSystem;
             this.combatVariableSystem = combatVariableSystem ?? new CombatVariableSystem();
             this.feedbackBus = feedbackBus;
+            this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
         public CombatDamageResult ResolveAndApplyDamage(
             CombatSession session,
@@ -37,12 +40,20 @@ namespace Godmist.Systems.Combat
             int attackValue,
             DamageType damageType,
             float skillAccuracy,
-            float bonusDefensePenetration = 0f)
+            float bonusDefensePenetration = 0f,
+            PassiveEffectCombatContext passiveContext = null)
         {
             if (source?.Character == null || target?.Character == null || attackValue <= 0)
             {
                 return new CombatDamageResult(false, false, 0);
             }
+
+            var eventContext = passiveContext ?? new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: damageType);
+            Publish(session, PassiveEffectTriggerType.OnAttack, eventContext);
 
             if (StatusEffectSystem.IsParalyzed(target))
             {
@@ -51,9 +62,22 @@ namespace Godmist.Systems.Combat
 
             var wasHit = IsGuaranteedHitDamageType(damageType)
                 || RollHit(source, target, skillAccuracy);
+            var wasDodged = false;
             if (wasHit && TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
                 wasHit = false;
+                wasDodged = true;
+            }
+
+            if (!wasHit)
+            {
+                if (!wasDodged
+                    && PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                        session,
+                        eventContext))
+                {
+                    wasHit = true;
+                }
             }
 
             if (!wasHit)
@@ -61,11 +85,27 @@ namespace Godmist.Systems.Combat
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss));
 
+                Publish(
+                    session,
+                    wasDodged
+                        ? PassiveEffectTriggerType.OnDodge
+                        : PassiveEffectTriggerType.OnMiss,
+                    eventContext.WithOutcome(
+                        succeeded: false,
+                        wasDodged: wasDodged,
+                        wasMissed: !wasDodged));
                 return new CombatDamageResult(false, false, 0);
             }
 
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(source, damageType);
+            var isCritical = RollCritical(session, source, damageType, eventContext);
+            Publish(session, PassiveEffectTriggerType.OnHit,
+                eventContext.WithOutcome(succeeded: true));
+            if (isCritical)
+            {
+                Publish(session, PassiveEffectTriggerType.OnCriticalHit,
+                    eventContext.WithOutcome(succeeded: true, isCritical: true));
+            }
             var damageAfterCrit = ApplyCriticalDamage(
                 source,
                 damageAfterFreeze,
@@ -90,7 +130,20 @@ namespace Godmist.Systems.Combat
                 source,
                 target,
                 finalDamage,
-                damageType);
+                damageType,
+                passiveContext: eventContext.WithOutcome(
+                    succeeded: true,
+                    isCritical: isCritical));
+
+            if (target.Character.LifeState == CharacterLifeState.Dead)
+            {
+                Publish(session, PassiveEffectTriggerType.OnKill,
+                    eventContext.WithOutcome(
+                        succeeded: true,
+                        isCritical: isCritical,
+                        healthDamage: healthDamage,
+                        eventValue: healthDamage));
+            }
 
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
@@ -102,20 +155,55 @@ namespace Godmist.Systems.Combat
             int attackValue,
             DamageType damageType,
             bool wasHit,
-            float bonusDefensePenetration = 0f)
+            float bonusDefensePenetration = 0f,
+            PassiveEffectCombatContext passiveContext = null)
         {
             if (source?.Character == null
                 || target?.Character == null
                 || attackValue <= 0
-                || !wasHit
-                || StatusEffectSystem.IsParalyzed(target)
-                || TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
+                || StatusEffectSystem.IsParalyzed(target))
             {
                 return new CombatDamageResult(false, false, 0);
             }
 
+            var eventContext = passiveContext ?? new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: damageType);
+            Publish(session, PassiveEffectTriggerType.OnAttack, eventContext);
+            if (!wasHit)
+            {
+                if (PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                        session,
+                        eventContext))
+                {
+                    wasHit = true;
+                }
+            }
+
+            if (!wasHit)
+            {
+                Publish(session, PassiveEffectTriggerType.OnMiss,
+                    eventContext.WithOutcome(succeeded: false, wasMissed: true));
+                return new CombatDamageResult(false, false, 0);
+            }
+            if (TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
+            {
+                Publish(session, PassiveEffectTriggerType.OnDodge,
+                    eventContext.WithOutcome(succeeded: false, wasDodged: true));
+                return new CombatDamageResult(false, false, 0);
+            }
+
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(source, damageType);
+            var isCritical = RollCritical(session, source, damageType, eventContext);
+            Publish(session, PassiveEffectTriggerType.OnHit,
+                eventContext.WithOutcome(succeeded: true));
+            if (isCritical)
+            {
+                Publish(session, PassiveEffectTriggerType.OnCriticalHit,
+                    eventContext.WithOutcome(succeeded: true, isCritical: true));
+            }
             var damageAfterCrit = ApplyCriticalDamage(
                 source,
                 damageAfterFreeze,
@@ -140,13 +228,27 @@ namespace Godmist.Systems.Combat
                 source,
                 target,
                 finalDamage,
-                damageType);
+                damageType,
+                passiveContext: eventContext.WithOutcome(
+                    succeeded: true,
+                    isCritical: isCritical));
+
+            if (target.Character.LifeState == CharacterLifeState.Dead)
+            {
+                Publish(session, PassiveEffectTriggerType.OnKill,
+                    eventContext.WithOutcome(
+                        succeeded: true,
+                        isCritical: isCritical,
+                        healthDamage: healthDamage,
+                        eventValue: healthDamage));
+            }
 
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
         public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target, 
-            int requestedDamage, DamageType damageType, bool allowDamageRedirect = true)
+            int requestedDamage, DamageType damageType, bool allowDamageRedirect = true,
+            PassiveEffectCombatContext passiveContext = null)
         {
             if (session == null || target?.Character == null)
             {
@@ -168,8 +270,29 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
             var incomingDamage = combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage);
+            incomingDamage = Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
+                        session,
+                        passiveContext,
+                        incomingDamage)));
             if (incomingDamage <= 0)
             {
+                return 0;
+            }
+            var damageContext = passiveContext ?? new PassiveEffectCombatContext(
+                session: session,
+                source: source,
+                target: target,
+                damageType: damageType);
+            if (PassiveEffectCombatExecutionSystem.TryPreventDamage(
+                    session,
+                    damageContext,
+                    damageType))
+            {
+                battleLog?.Invoke(
+                    $"{GetDisplayName(target)} absorbuje obrażenia magiczne.");
                 return 0;
             }
             if (target.Character.LifeState == CharacterLifeState.Downed)
@@ -231,6 +354,14 @@ namespace Godmist.Systems.Combat
             {
                 resourceRuleSystem?.ProcessDamageDealt(source);
             }
+            if (shieldDamage > 0 || healthDamage > 0)
+            {
+                Publish(session, PassiveEffectTriggerType.OnDamageTaken,
+                    damageContext.WithOutcome(
+                        succeeded: true,
+                        healthDamage: healthDamage,
+                        eventValue: healthDamage + redirectedHealthDamage));
+            }
             evaluateOutcome?.Invoke(session);
             return healthDamage + redirectedHealthDamage;
         }
@@ -257,6 +388,16 @@ namespace Godmist.Systems.Combat
                 target,
                 finalDamage,
                 damageType);
+        }
+
+        private void Publish(
+            CombatSession session,
+            PassiveEffectTriggerType triggerType,
+            PassiveEffectCombatContext context,
+            string eventId = null)
+        {
+            (passiveEffectEventDispatcher ?? session?.PassiveEffectEventDispatcher)
+                ?.Publish(triggerType, context, eventId);
         }
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
@@ -299,7 +440,11 @@ namespace Godmist.Systems.Combat
             return damageType != DamageType.Physical;
         }
 
-        private static bool RollCritical(BattleUnit source, DamageType damageType)
+        private static bool RollCritical(
+            CombatSession session,
+            BattleUnit source,
+            DamageType damageType,
+            PassiveEffectCombatContext context)
         {
             if (damageType != DamageType.Physical && damageType != DamageType.Inevitable)
                 return false;
@@ -310,6 +455,10 @@ namespace Godmist.Systems.Combat
             }
 
             var chance = source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue();
+            chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(
+                session,
+                context,
+                chance);
 
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
         }
@@ -358,20 +507,14 @@ namespace Godmist.Systems.Combat
             BattleUnit source,
             int damage)
         {
-            if (damage <= 0 || source?.Character?.Equipment == null) return damage;
+            if (damage <= 0 || source?.Character == null) return damage;
 
-            var bonus = 0f;
-            foreach (var item in source.Character.Equipment.GetEquippedItems())
-            {
-                if (item is Runtime.Items.JewelryItemInstance jewelry
-                    && jewelry.PassiveType == JewelryPassiveType.DamageDealtPercentInDungeonTheme
-                    && jewelry.PassiveDungeonTheme == session?.DungeonTheme)
-                {
-                    bonus += jewelry.PassiveValue;
-                }
-            }
-
-            return Mathf.Max(0, Mathf.RoundToInt(damage * (1f + bonus)));
+            return Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    damage * new CombatVariableSystem().GetDungeonThemeDamageMultiplier(
+                        source.Character,
+                        session?.DungeonTheme ?? DungeonTheme.Story)));
         }
 
         public static int ApplyDefense(

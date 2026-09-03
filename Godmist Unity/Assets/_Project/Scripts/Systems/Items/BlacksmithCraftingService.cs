@@ -93,6 +93,12 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (request.Definition is BossUniqueEquipmentDefinition)
+            {
+                preview.FailureReason = "Unikatowego wyposażenia bossa nie można wytworzyć u kowala.";
+                return preview;
+            }
+
             if (!IsCraftableQuality(request.Quality))
             {
                 preview.FailureReason = "Wybierz jakość: kiepska, normalna albo doskonała.";

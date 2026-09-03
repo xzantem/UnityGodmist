@@ -38,53 +38,12 @@ Priorytety:
 
 ## Backlog
 
-### Milestone: Dungeon Content and Layout v2
-
-Nastepny milestone po `Combat v3`. Nie przebudowuje istniejacego loopu wejscie -> eksploracja -> wyjscie; rozwija go o content, decyzje i alternatywne trasy.
-
-### Milestone: Crafting, Upgrading and Consumables v1
-
-Planowany po `Dungeon Content and Layout v2`. NPC, dialogi, questy i handel maja juz fundamenty v1; ten milestone rozszerza konkretne uslugi miejskie zamiast budowac ogolne `NPC v2` od zera.
-
-
-### Milestone: Developer Workflow and Content Authoring v1
-
-Planowany bezpośrednio po `Crafting, Upgrading and Consumables v1`. Skraca iterację contentową: rozwija konsolę developerską, tworzenie danych i walidację assetów. Nie dodaje gameplayu, ale pozwala szybciej budować późniejsze skille, itemy, przeciwników, loot table i crafting z arkuszy.
-
-- `[P1] Rozszerzyć nawigację rekomendacji konsoli v1` - `Tools / Editor / Debug`, `UI / UX`
-  - Konsola pokazuje nadal pięć pozycji naraz, ale scroll kółkiem lub klawiszami góra/dół porusza się po pełnej liście legalnych rekomendacji. Zmiana komendy lub argumentu resetuje zaznaczenie; Enter wybiera aktualną pozycję.
-- `[P1] Dodać schematy komend i opcjonalne argumenty konsoli v1` - `Tools / Editor / Debug`, `Core / Architecture`, `UI / UX`
-  - Każda komenda deklaruje wymagane i opcjonalne argumenty, walidację oraz kontekstowe sugestie. Przykład: `createitem <itemId> [amount] [characterId]`. `help` wyświetla jednoznaczną składnię i przykłady.
-- `[P1] Rozszerzyć zestaw komend content/debug v1` - `Tools / Editor / Debug`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`
-  - Ujednolicić istniejące komendy oraz dodać te potrzebne do testowania contentu: przekazanie itemów do wybranej postaci, złoto, XP, inspekcja inventory, stan questa/flag i wygodne uruchamianie testowego encountera. Każda zmiana runtime ma czytelny raport zwrotny.
-- `[P1] Dodać Content Authoring Window dla itemów i equipmentu v1` - `Tools / Editor / Debug`, `Content / Data`, `Items / Inventory / Economy`
-  - Jedno okno Editorowe z wyszukiwaniem, filtrowaniem i walidacją dla itemów, baz equipmentu, części oraz materiałów. Ułatwia tworzenie/duplikację assetów, ustawienie klasy, bracketu, statystyk, receptury i przypisanie do katalogu contentu.
-- `[P1] Dodać import-preview danych z arkuszy contentowych v1` - `Tools / Editor / Debug`, `Content / Data`
-  - Narzędzie czyta wybrany arkusz lub eksport CSV, pokazuje preview planowanych zmian i waliduje je przed zapisem. Nie nadpisuje assetów automatycznie: pokazuje tworzone, aktualizowane oraz błędne rekordy.
-- `[P1] Dodać walidator contentu i raport referencji v1` - `Tools / Editor / Debug`, `Content / Data`
-  - Jedno polecenie Editorowe sprawdza duplikaty ID, brakujące referencje katalogu, niezgodną klasę bazy/części, złe receptury oraz martwe assety. Błędy prowadzą bezpośrednio do assetu.
-- `[P1] Dodać Game Defines Window v1` - `Tools / Editor / Debug`, `Core / Architecture`, `Design / Systems`, `Content / Data`
-  - Jeden jawny katalog parametrów gameplayowych dostępny z Unity Editora: ekonomia, combat, itemy, crafting, upgrade/reforge, progresja oraz eksploracja. Każdy parametr ma nazwę, opis, jednostkę, zakres i wartość domyślną; przykłady: AP na punkt Speed, mnożnik ceny reforgingu i krzywe kosztu upgrade'u.
-  - Runtime odczytuje konfigurację przez jeden serwis/asset konfiguracji zamiast rozproszonych magic numbers. Narzędzie waliduje zakresy, brakujące definicje i nie pozwala zapisać nielegalnych wartości; aktualizacja parametrów nie miesza się z mutable save state.
-- `[P1] Developer Workflow and Content Authoring v1 — acceptance pass` - `Tools / Editor / Debug`, `Content / Data`, `UI / UX`
-  - Ręczna weryfikacja pełnego flow: rekord w arkuszu → preview importu → asset → walidacja → `createitem` dla wybranej postaci → test w grze.
-
 ### Milestone: Combat Passives and Affixes v1
 
 Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek drzewek skilli, klejnotow i unikatowego equipmentu; rozwija warunkowe efekty walki bez mieszania ich z systemem craftingu.
 
-- `[P1] Ujednolicic framework pasywek dla equipmentu i drzewek skilli v1` - `Combat`, `Items / Inventory / Economy`, `Core / Architecture`, `UI / UX`
-  - Wspolna definicja zrodla, warunkow i efektow pasywki dla drzewek skilli, klejnotow oraz unikatowego equipmentu. Obsluzyc stale modyfikatory statystyk i odpornosci, modyfikatory obrazen, XP oraz zlota, z pelnym persistence i tooltipem. Zachowac zgodnosc z istniejacymi globalnymi pasywkami drzewek; migracje wykonywac etapowo.
-- `[P1] Dodac tagi przeciwnikow i warunkowe modyfikatory v1` - `Combat`, `Content / Data`, `Core / Architecture`
-  - Dodac tagi `Human`, `Beast`, `Undead` i `Demon` na definicjach przeciwnikow oraz warunki pasywek dla typu celu i theme lochu. Uzyc ich m.in. dla obrazen przeciwko okreslonym przeciwnikom i bonusow terenowych klejnotow.
 - `[P1] Dodac unikatowe dropy bossow broni i pancerzy per klasa v1` - `Combat`, `Items / Inventory / Economy`, `Content / Data`
   - Boss ma `30%` szansy na dowolny unikat broni albo pancerza: po `7,5%` na kazda z czterech klas. Unikat losuje normalne czesci equipmentu, ale otrzymuje specjalna pasywke przypisana bossowi zamiast pasywy generycznej.
-- `[P1] Dodac pierwszy pass wykonawczy pasywek node'ow drzewek skilli v1` - `Combat`, `Skills / Progression`, `Content / Data`
-  - Wykorzystac wspolny framework dla reprezentatywnych node'ow Scouta: warunki po ruchu, krytyku, uniku/chybieniu, statusie celu i aktywnym buffie oraz modyfikacje parametrow konkretnej umiejetnosci.
-- `[P2] Rozszerzyc content klejnotow i unikatow bossowych v1` - `Items / Inventory / Economy`, `Combat`, `Content / Data`
-  - Dodac pozostale standardowe klejnoty z arkusza, bossowe pasywy dla kolejnych theme'ow oraz ich zrodla/dropy. Zachowac model metal + klejnot dla zwyklej bizuterii i losowy metal + pasywa bossa dla unikatu.
-- `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug`
-  - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
 
 ### Milestone: City Progression and Specialist Services v1
 
@@ -113,9 +72,11 @@ Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację
 Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne zagrożenia i możliwości przemieszczania w lochu, wykorzystując ustalone zachowania walki i miasta.
 
 - `Dungeon Selector v2`: przed wejściem gracz wybiera spośród kilku wylosowanych propozycji lochów. Każda propozycja ma niezależny seed i poziom losowany wokół średniego poziomu aktywnej drużyny; UI pokazuje theme oraz — gdy zostanie zaimplementowany — rozmiar, nigdy samego seedu.
+- Fog of War oraz scouting - stan komórki całkiem nieodkrytej, odkrytej ale poza FOV, oraz odkrytej i w FOV
 - Indywidualne rozmieszczenie przeciwników, FOV, pościg oraz zasadzki i niewidzialne encountery.
 - Pathfinding sterowany myszką, skakanie oraz nowe typy pułapek eksploracyjnych.
 - Prawdziwe zagadki logiczne i zręcznościowe z czytelnym stanem, persistence i konsekwencjami.
+- Zaawansowane sterowanie drużyną: przypinanie/odpinanie, tworzenie grup, przełączanie poprzez klik na mapie oraz menu kontekstowe: przypnij/odepnij; "pan to"; inspect
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ## In Progress
@@ -134,71 +95,61 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+### Milestone: Combat Passives and Affixes v1
+
+- `[P1] Combat Passives and Affixes v1 - acceptance pass` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Tools / Editor / Debug` - `DONE`
+  - Zweryfikowac warunki, stackowanie, tooltipy, save/load oraz wspoldzialanie pasywek z drzewek, bizuterii i unikatowego equipmentu.
+
+- `[P1] Dodac pierwszy pass wykonawczy pasywek node'ow drzewek skilli v1` - `Combat`, `Skills / Progression`, `Content / Data` - `READY_FOR_SMOKE`
+  - Podpiac node'y Scouta do wspolnego wykonawczego frameworku: materializacja rank runtime, warunki i triggery combatowe, modyfikatory obrazen i szansy krytycznej, zamiana chybienia w trafienie oraz aplikowanie statusu. Dodac czytelne metadane warunku i aktywacji w tooltipie node'a.
+- `[P1] Dodac tagi przeciwnikow i warunkowe modyfikatory v1` - `Combat`, `Content / Data`, `Core / Architecture` - `READY_FOR_SMOKE`
+  - Dodac tagi `Human`, `Beast`, `Undead` i `Demon` na definicjach przeciwnikow oraz warunki pasywek dla typu celu i theme lochu. Uzyc ich m.in. dla obrazen przeciwko okreslonym przeciwnikom i bonusow terenowych klejnotow.
+- `[P1] Zbudowac rdzen wspolnego frameworku pasywek v1` - `Combat`, `Content / Data`, `Core / Architecture`, `UI / UX`
+  - Zdefiniowac wspolny model static definition i runtime state dla pasywek drzewek skilli, equipmentu oraz przyszlych klejnotow: zrodlo, warunek, trigger, target, efekt, stacking, lifetime, tooltip i persistence. Zapewnic rozszerzalne kontrakty dla zlozonych warunkow i efektow bez dodawania nowego contentu combatowego. Zaimplementowano; kompilacja i pelny EditMode suite przechodza.
+- `[P1] Zmigrowac dzialajace pasywki do wspolnego frameworku v1` - `Combat`, `Items / Inventory / Economy`, `Skills / Progression`, `Core / Architecture`
+  - Przeniesc do wspolnego modelu istniejace dzialajace globalne pasywki drzewek, modyfikatory statystyk i odpornosci equipmentu, pasywki bizuterii dotyczace XP, zlota i theme lochu oraz obecne runtime modifiers. Zachowac dotychczasowe zachowanie, kompatybilnosc runtime item instances i save/load; nie dodawac nowych pasywek contentowych.
+- `[P1] Dodac prymitywy ewaluacji combatowej dla pasywek v1` - `Combat`, `Core / Architecture`, `Skills / Progression`, `Items / Inventory / Economy` - `DONE`
+  - Dodac wspolne konteksty i punkty integracji dla przyszlych warunkow oraz modyfikatorow combatowych: typ ataku, pozycja, dystans, status celu, ruch, zasoby, unik, kolejnosc aplikacji, stacking i liczniki. Pokryc je testowymi definicjami i testami integracyjnymi, ale nie aktywowac nowych pasywek Scouta, unikatow bossowych ani innych nowych zachowan contentowych. Zweryfikowano recznie w Encounter i Debug; pelny EditMode suite przechodzi.
+
+### Milestone: Developer Workflow and Content Authoring v1
+
+- `[P1] Rozszerzyć nawigację rekomendacji konsoli v1` - `Tools / Editor / Debug`, `UI / UX`
+- `[P1] Dodać schematy komend i opcjonalne argumenty konsoli v1` - `Tools / Editor / Debug`, `Core / Architecture`, `UI / UX`
+- `[P1] Rozszerzyć zestaw komend content/debug v1` - `Tools / Editor / Debug`, `Items / Inventory / Economy`, `NPC / Quest / Dialogue`
+- `[P1] Dodać Content Authoring Window dla itemów i equipmentu v1` - `Tools / Editor / Debug`, `Content / Data`, `Items / Inventory / Economy`
+- `[P1] Dodać import-preview danych z arkuszy contentowych v1` - `Tools / Editor / Debug`, `Content / Data`
+- `[P1] Dodać walidator contentu i raport referencji v1` - `Tools / Editor / Debug`, `Content / Data`
+- `[P1] Dodać Game Defines Window v1` - `Tools / Editor / Debug`, `Core / Architecture`, `Design / Systems`, `Content / Data`
+- `[P1] Developer Workflow and Content Authoring v1 — acceptance pass` - `Tools / Editor / Debug`, `Content / Data`, `UI / UX`
+
 ### Milestone: Crafting, Upgrading and Consumables v1
 
 - `[P1] Crafting, Upgrading and Consumables v1 - acceptance pass` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Combat`, `Tools / Editor / Debug`
-  - Zaliczone: crafting, upgrade/reforge, storage, consumables, handel z buybackiem oraz snapshot/restore. Testy acceptance obejmują koszty i walidacje, zużycie materiałów i charges, łączenie efektów, sockety, transfery bez zmiany `instanceId` oraz pełne dane runtime w save/load.
-
 - `[P1] Dodac ulepszanie quality i rarity equipmentu u kowala v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Design / Systems`, `UI / UX`
-  - Zrealizowano podgląd, koszt, szanse, zmianę jakości/rzadkości oraz wynik ulepszenia i reforgingu.
-
 - `[P1] Dodac consumables: potiony, bomby i return scroll v1` - `Items / Inventory / Economy`, `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-  - Zrealizowano runtime effects, charges, ograniczenia użycia, utility consumables oraz powrót do miasta z poprawnym zużyciem jednorazowego przedmiotu.
-
 - `[P2] Przenieść handel NPC do UI Workspace Services v1` - `NPC / Quest / Dialogue`, `UI / UX`, `Items / Inventory / Economy`
-  - Zrealizowano prefab-backed sklep/buyback w usługach NPC, transfery drag-and-drop i kliknięcia oraz persistence oferty, buybacku, golda i `instanceId`.
-
 - `[P1] Dodac storage w Arungardzie v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `UI / UX`, `Core / Architecture`
-  - Zrealizowano trwały, bezlimitowy magazyn kampanii w Arungardzie wraz z persistence save/load. Skrzynia otwiera osobne okno UI Workspace; obsługuje drag-and-drop całych stosów, Ctrl+drag jednej sztuki, PPM do pobrania/odłożenia i bezpośrednie zakładanie equipmentu przez aktywnego lidera.
-
 - `[P2] Dodac crafting półproduktów materiałów v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`, `Core / Architecture`
-  - Zrealizowano ogólny `CraftableItemDefinition`, z recepturami na stackowalne półprodukty oraz `MaterialDiscipline` (`Smithing`, `Alchemy`, `Runic`), zachowując wspólny `ItemType.Material`. Kowal v1 korzysta wyłącznie z materiałów `Smithing`.
-  - Dodano startowy content kowalski: sztabki żelaza, łańcuchy, blachy, wyprawioną skórę i paski, deski i patyki modrzewiowe, igły, nitki oraz tkaninę bawełnianą — zgodnie z ustalonymi recepturami.
-  - Zrealizowano rozszerzalne UI Workspace `Usługi NPC` z zakładkami craftingu equipmentu i półproduktów. Koszty agregują inventory aktywnej drużyny, wynik trafia do lidera, a brakujące składniki można kupić z oferty kowala.
-
 - `[P1] Dodac crafting broni i pancerzy z czesci oraz materialow v1` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
-  - Zrealizowano craft u kowala z wyborem bazy i trzech czesci, materialami agregowanymi z aktywnej druzyny, preview, zakupem brakujacego materialu z oferty kowala oraz utrwaleniem wybranej jakosci i nazwy. Generator runtime pozostaje ownerem payloadu.
 
 ### Milestone: Dungeon Content and Layout v2
 
 - `[P1] Dungeon Content and Layout v2 - acceptance pass` - `World / Dungeon / Exploration`, `Combat`, `Items / Inventory / Economy`, `Tools / Editor / Debug`
-  - Zaliczone: layout z petlami i gate'ami, nieregularne footprinty, ciala i persistence, lootbagi, boss, biżuteria oraz przejscia miedzy pietrami przeszly review kodu i reczna weryfikacje w Unity.
-
 - `[P1] Dodac przejscia miedzy pietrami lochu v1` - `World / Dungeon / Exploration`, `Core / Architecture`, `UI / UX`
-  - Zrealizowano dwukierunkowe przejscia miedzy pietrami, zachowanie formacji oraz stanu pieter. Tylko Final ostatniego pietra konczy loch i wymaga pokonania przypisanego bossa.
-
 - `[P1] Zachowac stan czesciowo pokonanego encountera po ucieczce v1` - `Bug`, `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
-  - Zrealizowane wczesniej: pokonani przeciwnicy, ich ciala oraz stan encountera sa zachowane po ucieczce i save/load.
-
 - `[P1] Dodac testowy content bizuterii do lootbagow v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
-  - Zrealizowano model metal + kamien, cztery sloty, persistence oraz testowe dropy zwykle i cztery niezalezne 5% dropy bossa Katakumb. Generator trzech czesci pozostaje wylacznie dla broni i pancerzy.
-
 - `[P1] Dodac UI skrzynek oraz zamki, klucze i lockpicking v1` - `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `UI / UX`, `Content / Data`
-
 - `[P1] Dodac boss encountery i boss lootbagi v1` - `Combat`, `World / Dungeon / Exploration`, `Items / Inventory / Economy`, `Content / Data`
-  - Boss jest gwarantowany albo zalezy od trudnosci i trafia blisko konca lochu. Boss lootbag ma wyzsza szanse na unikaty. Pierwszy pass nie tworzy nowego frameworku faz bossa, skryptow areny ani specjalnego AI.
-
 - `[P1] Dodac lootbagi oraz theme i level-bracket loot tables v1` - `Items / Inventory / Economy`, `World / Dungeon / Exploration`, `Content / Data`
-  - Zwykly loot z przeciwnikow i skrzyn korzysta z lootbagow; ich zawartosc zalezy od motywu lochu oraz przedzialu poziomu. Equipment i potiony nie dropia bezposrednio ze standardowych przeciwnikow.
-
 - `[P1] Dodac anchory pojedynczych przeciwnikow w pokojach v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`
-
 - `[P1] Zablokowac interakcje z obiektami przez sciane v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
-
 - `[P1] Dodac rotacje instancji pokoi v1` - `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
-
 - `[P1] Dodac petle grafu lochu i wymagane odnogi progresji v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
-
 - `[P2] Dodac DungeonRoomEditor v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`
-
 - `[P1] Dopracowac persistence cial przeciwnikow: pozycja smierci v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`
-
 - `[P1] Dodac semantic content anchors i recznie projektowane sytuacje pokoi v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-
 - `[P1] Dodac nieregularne ksztalty pokoi lochu v2` - `World / Dungeon / Exploration`, `Content / Data`, `Design / Systems`
-
 - `[P1] Dodac pulapki, przeszkody, klucze/dzwignie i proste zagadki lochowe v1` - `World / Dungeon / Exploration`, `Combat`, `Content / Data`, `UI / UX`
-
 - `[P2] Rozszerzyc DungeonRoomEditor o legalne krawedzie przejsc i resize footprintu v1` - `Tools / Editor / Debug`, `World / Dungeon / Exploration`, `Content / Data`, `Core / Architecture`
 
 ### Milestone: Save and Load v1

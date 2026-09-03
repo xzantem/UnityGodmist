@@ -123,6 +123,26 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void BuildPreview_SkillMapsAttackTypes()
+        {
+            var sheet = new ContentImportSheet(
+                "Skills",
+                new List<IReadOnlyList<string>>
+                {
+                    new[] { "name", "attack_type", "point_blank_attack_type" },
+                    new[] { "Knife Toss", "ranged", "melee" }
+                },
+                0);
+
+            var rows = ContentImportMapper.BuildPreview(
+                "active_skills.csv", sheet, ContentImportTargetType.SkillData, null);
+
+            Assert.That(rows, Has.Count.EqualTo(1));
+            Assert.That(rows[0].Values["AttackType"], Is.EqualTo(nameof(Godmist.Core.Enums.AttackType.Ranged)));
+            Assert.That(rows[0].Values["PointBlankAttackType"], Is.EqualTo(nameof(Godmist.Core.Enums.AttackType.Melee)));
+        }
+
+        [Test]
         public void BuildPreview_CraftableMapsMultipleIngredientsFromRecipe()
         {
             var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();

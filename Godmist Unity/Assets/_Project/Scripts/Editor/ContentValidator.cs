@@ -12,6 +12,7 @@ using Godmist.Data.NPC;
 using Godmist.Data.Quests;
 using Godmist.Data.Skills;
 using Godmist.Data.World;
+using Godmist.Systems.Combat;
 using UnityEditor;
 using UnityEngine;
 
@@ -474,6 +475,7 @@ namespace Godmist.Editor
                     collector.Error(tree, "Nodes.Column", "Column musi być w zakresie 1-5.");
                 if (node.MaxRanks < 1 || node.MaxRanks > 3)
                     collector.Error(tree, "Nodes.MaxRanks", "MaxRanks musi być w zakresie 1-3.");
+                ValidatePassiveDefinitions(tree, node.PassiveEffects, $"Nodes[{node.Id}].PassiveEffects", collector);
             }
             foreach (var node in nodes.Where(node => node != null))
             {
@@ -487,6 +489,41 @@ namespace Godmist.Editor
                         collector.Error(tree, "Nodes.Requirements.MinimumRanks",
                             "MinimumRanks musi być większe od zera.");
                 }
+            }
+
+            ValidatePassiveDefinitions(
+                tree,
+                tree.GlobalPassive?.PassivesPerPoint,
+                "GlobalPassive.PassivesPerPoint",
+                collector);
+        }
+
+        private static void ValidatePassiveDefinitions(
+            SkillTreeDefinition tree,
+            IEnumerable<Godmist.Data.Effects.PassiveEffectDefinition> passives,
+            string field,
+            Collector collector)
+        {
+            if (passives == null)
+            {
+                collector.Warning(tree, field, "Lista pasywek nie została zainicjalizowana.");
+                return;
+            }
+
+            var index = 0;
+            foreach (var passive in passives)
+            {
+                if (passive == null)
+                {
+                    collector.Error(tree, $"{field}[{index}]", "Definicja pasywki nie może być pusta.");
+                }
+                else
+                {
+                    foreach (var error in PassiveEffectDefinitionValidator.Validate(passive).Errors)
+                        collector.Error(tree, $"{field}[{index}]", error);
+                }
+
+                index++;
             }
         }
 

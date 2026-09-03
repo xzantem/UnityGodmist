@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CD_Boss_Test
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: boss.test
-  <DisplayName>k__BackingField: Boss Test
+  <DisplayName>k__BackingField: Duch Umarłego Króla
   <VisualSprite>k__BackingField: {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}
   <IdleAnimationFrames>k__BackingField:
   - {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}

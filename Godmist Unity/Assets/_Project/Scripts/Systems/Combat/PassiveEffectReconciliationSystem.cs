@@ -1,0 +1,349 @@
+using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Core.Types;
+using Godmist.Data.Effects;
+using Godmist.Data.Items;
+using Godmist.Data.Skills;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Effects;
+using Godmist.Runtime.Items;
+using Godmist.Systems.Characters;
+
+namespace Godmist.Systems.Combat
+{
+    public sealed class PassiveEffectReconciliationSystem
+    {
+        public const string ManagedEquipmentSourcePrefix = "passive-migration.equipment.";
+        public const string ManagedSkillTreeSourcePrefix = "passive-migration.skill-tree.";
+
+        public void Reconcile(CharacterInstance character)
+        {
+            if (character == null) return;
+
+            character.PassiveEffects ??= new List<PassiveEffectRuntime>();
+            RemoveManagedEffects(character.PassiveEffects);
+
+            foreach (var item in character.Equipment?.GetEquippedItems()
+                         ?? Array.Empty<EquipmentItemInstance>())
+            {
+                AddEquipmentStatEffect(character, item);
+                AddEquipmentDefinitions(character, item);
+            }
+
+            foreach (var tree in character.ClassData?.SkillTrees
+                         ?? new List<SkillTreeDefinition>())
+            {
+                AddSkillTreePassives(character, tree);
+            }
+        }
+
+        public static bool IsManaged(PassiveEffectRuntime effect)
+        {
+            foreach (var source in effect?.Sources ?? new List<PassiveEffectSourceRuntime>())
+            {
+                if (source?.SourceType == PassiveEffectSourceType.Equipment
+                    && source.SourceId.StartsWith(
+                        ManagedEquipmentSourcePrefix,
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                if (source?.SourceType == PassiveEffectSourceType.SkillTree
+                    && source.SourceId.StartsWith(
+                        ManagedSkillTreeSourcePrefix,
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void RemoveManagedEffects(
+            List<PassiveEffectRuntime> passiveEffects)
+        {
+            for (var index = passiveEffects.Count - 1; index >= 0; index--)
+            {
+                if (IsManaged(passiveEffects[index]))
+                    passiveEffects.RemoveAt(index);
+            }
+        }
+
+        private static void AddEquipmentStatEffect(
+            CharacterInstance character,
+            EquipmentItemInstance item)
+        {
+            if (item == null || item.StatModifiers == null || item.StatModifiers.Count == 0)
+                return;
+
+            var sourceId = BuildEquipmentSourceId(item);
+            character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                EffectId = $"{sourceId}.stats",
+                DefinitionId = "equipment.generated.stats",
+                DisplayName = item.DisplayName,
+                Sources = new List<PassiveEffectSourceRuntime>
+                {
+                    CreateSource(PassiveEffectSourceType.Equipment, sourceId)
+                },
+                Lifetime = PassiveEffectLifetime.Persistent,
+                StatModifiers = CopyStatModifiers(item.StatModifiers)
+            });
+        }
+
+        private static void AddEquipmentDefinitions(
+            CharacterInstance character,
+            EquipmentItemInstance item)
+        {
+            if (item?.EquipmentDefinition == null) return;
+
+            var sourceId = BuildEquipmentSourceId(item);
+            AddDefinitions(
+                character,
+                item.EquipmentDefinition.PassiveEffects,
+                sourceId,
+                PassiveEffectSourceType.Equipment,
+                item.DisplayName);
+
+            if (item is not JewelryItemInstance jewelry
+                || item.EquipmentDefinition is not JewelryItemDefinition definition)
+            {
+                return;
+            }
+
+            var metal = FindMetal(definition, jewelry.MetalId);
+            AddDefinitions(
+                character,
+                metal?.PassiveEffects,
+                $"{sourceId}.metal.{jewelry.MetalId}",
+                PassiveEffectSourceType.Equipment,
+                jewelry.MetalDisplayName);
+
+            var gem = FindGem(definition, jewelry.GemId);
+            AddDefinitions(
+                character,
+                gem?.PassiveEffects,
+                $"{sourceId}.gem.{jewelry.GemId}",
+                PassiveEffectSourceType.Equipment,
+                jewelry.GemDisplayName);
+        }
+
+        private static void AddSkillTreePassives(
+            CharacterInstance character,
+            SkillTreeDefinition tree)
+        {
+            if (tree == null || string.IsNullOrWhiteSpace(tree.Id)) return;
+
+            var ranks = SkillTreeProgressionSystem.GetInvestedRanks(character, tree.Id);
+            if (ranks <= 0) return;
+
+            var sourceId = $"{ManagedSkillTreeSourcePrefix}{tree.Id}";
+            foreach (var definition in tree.GlobalPassive?.PassivesPerPoint
+                         ?? new List<PassiveEffectDefinition>())
+            {
+                if (ShouldSkipUniqueDefinition(character, definition))
+                    continue;
+
+                if (!PassiveEffectRuntimeFactory.TryCreate(
+                        definition,
+                        CreateSource(PassiveEffectSourceType.SkillTree, sourceId),
+                        $"{sourceId}.{definition?.Id}",
+                        out var runtime))
+                {
+                    continue;
+                }
+
+                ScaleRuntimeValues(runtime, ranks);
+                character.PassiveEffects.Add(runtime);
+            }
+
+            foreach (var node in tree.Nodes ?? new List<SkillTreeNodeDefinition>())
+            {
+                var nodeRanks = GetNodeRanks(character, tree.Id, node?.Id);
+                if (node == null || nodeRanks <= 0)
+                    continue;
+
+                foreach (var definition in node.PassiveEffects
+                             ?? new List<PassiveEffectDefinition>())
+                {
+                    if (ShouldSkipUniqueDefinition(character, definition))
+                        continue;
+
+                    if (!PassiveEffectRuntimeFactory.TryCreate(
+                            definition,
+                            CreateSource(
+                                PassiveEffectSourceType.SkillTree,
+                                sourceId),
+                            out var runtime))
+                    {
+                        continue;
+                    }
+
+                    runtime.EffectId =
+                        $"{sourceId}.node.{node.Id}.{definition?.Id}";
+                    runtime.Stacks = nodeRanks;
+                    ScaleRuntimeValues(runtime, nodeRanks);
+                    if (string.IsNullOrWhiteSpace(runtime.DisplayName))
+                        runtime.DisplayName = node.DisplayName ?? string.Empty;
+                    character.PassiveEffects.Add(runtime);
+                }
+            }
+        }
+
+        private static int GetNodeRanks(
+            CharacterInstance character,
+            string treeId,
+            string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(treeId) || string.IsNullOrWhiteSpace(nodeId))
+                return 0;
+
+            return Math.Max(
+                0,
+                character.SkillTreeProgress?
+                    .Find(progress => progress?.TreeId == treeId)?
+                    .NodeInvestments?
+                    .Find(investment => investment?.NodeId == nodeId)?.Ranks ?? 0);
+        }
+
+        private static void AddDefinitions(
+            CharacterInstance character,
+            List<PassiveEffectDefinition> definitions,
+            string sourceId,
+            PassiveEffectSourceType sourceType,
+            string displayName)
+        {
+            if (definitions == null || definitions.Count == 0) return;
+
+            foreach (var definition in definitions)
+            {
+                if (ShouldSkipUniqueDefinition(character, definition))
+                    continue;
+
+                if (!PassiveEffectRuntimeFactory.TryCreate(
+                        definition,
+                        CreateSource(sourceType, sourceId),
+                        out var runtime))
+                {
+                    continue;
+                }
+
+                runtime.EffectId = $"{sourceId}.{definition?.Id}";
+
+                if (string.IsNullOrWhiteSpace(runtime.DisplayName))
+                    runtime.DisplayName = displayName ?? string.Empty;
+
+                character.PassiveEffects.Add(runtime);
+            }
+        }
+
+        private static bool ShouldSkipUniqueDefinition(
+            CharacterInstance character,
+            PassiveEffectDefinition definition)
+        {
+            if (definition == null
+                || definition.StackingRule != PassiveEffectStackingRule.Unique
+                || string.IsNullOrWhiteSpace(definition.Id))
+            {
+                return false;
+            }
+
+            foreach (var existing in character?.PassiveEffects
+                         ?? new List<PassiveEffectRuntime>())
+            {
+                if (existing != null
+                    && IsManaged(existing)
+                    && existing.DefinitionId == definition.Id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static JewelryMetalData FindMetal(
+            JewelryItemDefinition definition,
+            string metalId)
+        {
+            var metals = definition.Metals != null && definition.Metals.Count > 0
+                ? definition.Metals
+                : definition.MetalSource?.Metals;
+            foreach (var metal in metals ?? new List<JewelryMetalData>())
+            {
+                if (metal?.Id == metalId) return metal;
+            }
+
+            return null;
+        }
+
+        private static JewelryGemData FindGem(
+            JewelryItemDefinition definition,
+            string gemId)
+        {
+            foreach (var gem in definition?.Gems ?? new List<JewelryGemData>())
+            {
+                if (gem?.Id == gemId) return gem;
+            }
+
+            return null;
+        }
+
+        private static PassiveEffectSourceRuntime CreateSource(
+            PassiveEffectSourceType sourceType,
+            string sourceId)
+        {
+            return new PassiveEffectSourceRuntime
+            {
+                SourceType = sourceType,
+                SourceId = sourceId ?? string.Empty
+            };
+        }
+
+        private static string BuildEquipmentSourceId(EquipmentItemInstance item)
+        {
+            return $"{ManagedEquipmentSourcePrefix}{item?.InstanceId ?? string.Empty}";
+        }
+
+        private static void ScaleRuntimeValues(
+            PassiveEffectRuntime runtime,
+            int multiplier)
+        {
+            if (runtime == null) return;
+
+            foreach (var modifier in runtime.StatModifiers ?? new List<StatModifier>())
+                modifier.Value *= multiplier;
+
+            foreach (var modifier in runtime.VariableModifiers
+                         ?? new List<GameplayVariableModifier>())
+            {
+                modifier.Value *= multiplier;
+            }
+
+            var resistance = runtime.GetPayload<ResistanceModifierPayload>();
+            if (resistance != null) resistance.Value *= multiplier;
+        }
+
+        private static List<StatModifier> CopyStatModifiers(
+            List<StatModifier> modifiers)
+        {
+            var result = new List<StatModifier>();
+            foreach (var modifier in modifiers ?? new List<StatModifier>())
+            {
+                if (modifier == null) continue;
+                result.Add(new StatModifier
+                {
+                    StatType = modifier.StatType,
+                    Operation = modifier.Operation,
+                    Stacking = modifier.Stacking,
+                    Value = modifier.Value
+                });
+            }
+
+            return result;
+        }
+    }
+}

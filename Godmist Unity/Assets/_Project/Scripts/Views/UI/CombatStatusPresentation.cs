@@ -64,6 +64,8 @@ namespace Godmist.Views.UI
                     continue;
                 }
 
+                if (!IsCombatRelevant(effect)) continue;
+
                 var known = IsKnownStatus(effect.EffectId);
                 var kind = known ? CombatStatusKind.Status : IsDebuff(effect) ? CombatStatusKind.Debuff : CombatStatusKind.Buff;
                 var appliedAura = FindAppliedAura(effect, auraList);
@@ -168,6 +170,17 @@ namespace Godmist.Views.UI
             }
             result.Sort((a,b) => a.Priority.CompareTo(b.Priority));
             return result;
+        }
+
+        private static bool IsCombatRelevant(PassiveEffectRuntime effect)
+        {
+            if (effect == null) return false;
+
+            // This panel represents the state of the current fight, not the
+            // character's complete passive loadout. Persistent equipment and
+            // skill-tree effects are intentionally omitted; effects carried into
+            // combat or applied during it use Timed/CombatScoped lifetimes.
+            return effect.Lifetime != PassiveEffectLifetime.Persistent;
         }
 
         private static CombatAuraRuntime FindAppliedAura(

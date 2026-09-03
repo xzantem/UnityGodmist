@@ -100,6 +100,27 @@ namespace Godmist.Systems.Combat
                 out appliedEffect);
         }
 
+        public bool TryApplyEffectForExecution(
+            CharacterInstance character,
+            PassiveEffectRuntime incomingEffect,
+            PassiveEffectStackingMode stackingMode)
+        {
+            if (incomingEffect?.Lifetime == PassiveEffectLifetime.Timed)
+            {
+                return TryApplyTimedEffect(
+                    character,
+                    incomingEffect,
+                    stackingMode,
+                    out _);
+            }
+
+            return TryApplyCombatScopedEffect(
+                character,
+                incomingEffect,
+                stackingMode,
+                out _);
+        }
+
         private bool TryApplyEffect(
             CharacterInstance character,
             PassiveEffectRuntime incomingEffect,
@@ -729,6 +750,7 @@ namespace Godmist.Systems.Combat
                 copiedModifiers.Add(new GameplayVariableModifier
                 {
                     VariableType = modifier.VariableType,
+                    ReferenceId = modifier.ReferenceId,
                     Stacking = modifier.Stacking,
                     Value = modifier.Value
                 });

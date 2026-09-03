@@ -20,12 +20,28 @@ namespace Godmist.Views.UI.Workspace
         public ItemInstance Item => item;
         public CharacterInfoWindowView Owner => owner;
 
-        private void Awake() { if (button != null) button.onClick.AddListener(() => owner?.TryEquip(item)); }
+        private void Awake()
+        {
+            if (button != null) button.onClick.AddListener(HandleLeftClick);
+        }
+
+        private void HandleLeftClick()
+        {
+            if (item is LootBagItemInstance)
+            {
+                owner?.TryOpenLootBag(item);
+                return;
+            }
+
+            owner?.TryEquip(item);
+        }
         public void Bind(
             ItemInstance nextItem,
             int stackCount,
             CharacterInfoWindowView nextOwner)
         {
+            if (!ReferenceEquals(item, nextItem))
+                UIWorkspaceTooltipView.ActiveInstance?.InvalidateSource(this);
             item = nextItem; owner = nextOwner;
             if (icon != null)
             {

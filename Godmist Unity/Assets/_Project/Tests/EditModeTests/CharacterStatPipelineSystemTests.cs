@@ -3,6 +3,7 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Effects;
@@ -199,6 +200,21 @@ namespace Godmist.Tests.EditMode
                 Assert.That(
                     character.Stats.CritChance.GetValue(),
                     Is.EqualTo(0.106f).Within(0.001f));
+                Assert.That(character.PassiveEffects, Has.Count.EqualTo(1));
+                Assert.That(character.PassiveEffects[0].DefinitionId, Is.EqualTo("passive.test.global"));
+                Assert.That(
+                    character.PassiveEffects[0].Sources[0].SourceId,
+                    Is.EqualTo("passive-migration.skill-tree.tree.test"));
+
+                statPipeline.Refresh(character);
+                Assert.That(character.PassiveEffects, Has.Count.EqualTo(1));
+
+                character.SkillTreeProgress.Clear();
+                statPipeline.Refresh(character);
+                Assert.That(character.PassiveEffects, Is.Empty);
+                Assert.That(
+                    character.Stats.CritChance.GetValue(),
+                    Is.EqualTo(0.1f).Within(0.001f));
             }
             finally
             {
@@ -241,17 +257,26 @@ namespace Godmist.Tests.EditMode
             float value)
         {
             var passive = new SkillTreeGlobalPassiveDefinition();
+            var definition = new PassiveEffectDefinition();
+            var effectOperation = new PassiveEffectOperationDefinition();
+            SetAutoProperty(definition, "Id", "passive.test.global");
+            SetAutoProperty(effectOperation, "Id", "operation.test.stat");
+            SetAutoProperty(effectOperation, "Type", PassiveEffectOperationType.ModifyStat);
+            SetAutoProperty(effectOperation, "StatType", statType);
+            SetAutoProperty(effectOperation, "ModifierOperation", operation);
+            var effectValue = new PassiveEffectValueDefinition();
+            SetAutoProperty(effectValue, "NumberValue", value);
+            SetAutoProperty(effectOperation, "Value", effectValue);
+            SetAutoProperty(definition, "Operations", new List<PassiveEffectOperationDefinition>
+            {
+                effectOperation
+            });
             SetAutoProperty(
                 passive,
-                "ModifiersPerPoint",
-                new List<StatModifier>
+                "PassivesPerPoint",
+                new List<PassiveEffectDefinition>
                 {
-                    new()
-                    {
-                        StatType = statType,
-                        Operation = operation,
-                        Value = value
-                    }
+                    definition
                 });
             return passive;
         }

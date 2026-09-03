@@ -3,6 +3,7 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
+using Godmist.Data.Effects;
 using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -122,8 +123,17 @@ namespace Godmist.Tests.EditMode
             var gem = new JewelryGemData();
             SetAutoProperty(gem, "Id", "topaz");
             SetAutoProperty(gem, "DisplayName", "Topaz");
-            SetAutoProperty(gem, "PassiveType", JewelryPassiveType.ExperienceGainPercent);
-            SetAutoProperty(gem, "Value", .01f);
+            var passive = new PassiveEffectDefinition();
+            var operation = new PassiveEffectOperationDefinition();
+            SetAutoProperty(passive, "Id", "jewelry.gem.topaz.experience");
+            SetAutoProperty(operation, "Id", "operation.experience");
+            SetAutoProperty(operation, "Type", PassiveEffectOperationType.ModifyGameplayVariable);
+            SetAutoProperty(operation, "VariableType", GameplayVariableType.ExperienceGainPercent);
+            var passiveValue = new PassiveEffectValueDefinition();
+            SetAutoProperty(passiveValue, "NumberValue", .01f);
+            SetAutoProperty(operation, "Value", passiveValue);
+            SetAutoProperty(passive, "Operations", new List<PassiveEffectOperationDefinition> { operation });
+            SetAutoProperty(gem, "PassiveEffects", new List<PassiveEffectDefinition> { passive });
             SetAutoProperty(definition, "Metals", new List<JewelryMetalData> { metal });
             SetAutoProperty(definition, "Gems", new List<JewelryGemData> { gem });
 
@@ -137,7 +147,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(jewelry.EquipmentSlot, Is.EqualTo(EquipmentSlot.Ring));
             Assert.That(jewelry.MetalId, Is.EqualTo("iron"));
             Assert.That(jewelry.GemId, Is.EqualTo("topaz"));
-            Assert.That(jewelry.PassiveType, Is.EqualTo(JewelryPassiveType.ExperienceGainPercent));
+            Assert.That(gem.PassiveEffects, Has.Count.EqualTo(1));
             Assert.That(jewelry.StatModifiers, Has.Count.EqualTo(1));
         }
 
@@ -262,6 +272,80 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void RollLoot_LootBag_BossUniqueDrop_SelectsOneOfFourAndForcesMasterpiece()
+        {
+            var classes = new[]
+            {
+                CreateClass("class.warrior"),
+                CreateClass("class.scout"),
+                CreateClass("class.mage"),
+                CreateClass("class.paladin")
+            };
+            var uniqueDefinitions = new List<BossUniqueEquipmentDefinition>();
+            var parts = new List<EquipmentPartDefinition>();
+
+            for (var index = 0; index < classes.Length; index++)
+            {
+                var definition = ScriptableObject.CreateInstance<
+                    BossUniqueEquipmentDefinition>();
+                SetAutoProperty(definition, "Id", $"unique.{index}");
+                SetAutoProperty(definition, "DisplayName", $"Unikat {index}");
+                SetAutoProperty(definition, "ItemType", ItemType.Weapon);
+                SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+                SetAutoProperty(definition, "RequiredClass", classes[index]);
+                SetAutoProperty(definition, "BossId", "boss.test");
+                uniqueDefinitions.Add(definition);
+
+                parts.Add(CreatePart(
+                    $"head.{index}", classes[index], EquipmentPartKind.WeaponHead));
+                parts.Add(CreatePart(
+                    $"binder.{index}", classes[index], EquipmentPartKind.WeaponBinder));
+                parts.Add(CreatePart(
+                    $"handle.{index}", classes[index], EquipmentPartKind.WeaponHandle));
+            }
+
+            var lootBagDefinition = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            SetAutoProperty(lootBagDefinition, "Id", "item.boss_unique_lootbag");
+            SetAutoProperty(lootBagDefinition, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(lootBagDefinition, "BaseRarity", RarityTier.Common);
+
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            lootBagDefinition.Brackets.Add(bracket);
+            SetAutoProperty(lootBagDefinition, "BossUniqueDrop", new BossUniqueDropData());
+            SetAutoProperty(
+                lootBagDefinition.BossUniqueDrop,
+                "EquipmentDefinitions",
+                uniqueDefinitions);
+
+            var sourceTable = ScriptableObject.CreateInstance<LootTableData>();
+            sourceTable.Entries.Add(CreateLootEntry(
+                lootBagDefinition,
+                1f,
+                new IntRange(1, 1)));
+
+            var randomValues = new Queue<float>(new[] { 0f, 0f, .51f });
+            var loot = new LootTableSystem(
+                    () => randomValues.Dequeue(),
+                    new ItemInstanceFactory(),
+                    new EquipmentGenerationService(new System.Random(7)),
+                    parts,
+                    lootLevel: 1)
+                .RollLoot(sourceTable);
+
+            var bag = (LootBagItemInstance)loot[0];
+            Assert.That(bag.Contents, Has.Count.EqualTo(1));
+
+            var equipment = bag.Contents[0] as EquipmentItemInstance;
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(equipment.Definition, Is.SameAs(uniqueDefinitions[2]));
+            Assert.That(equipment.Quality, Is.EqualTo(EquipmentQuality.Masterpiece));
+            Assert.That(equipment.ItemLevel, Is.EqualTo(10));
+            Assert.That(equipment.RequiredLevel, Is.EqualTo(equipment.ItemLevel));
+            Assert.That(equipment.PartIds, Has.Count.EqualTo(3));
+        }
+
+        [Test]
         public void LootBagService_OpensWhatFitsAndLeavesRemainingContents()
         {
             var gameSession = new GameSession(GameModeState.Exploration);
@@ -355,6 +439,13 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
 
             return definition;
+        }
+
+        private static CharacterClassData CreateClass(string id)
+        {
+            var characterClass = ScriptableObject.CreateInstance<CharacterClassData>();
+            SetAutoProperty(characterClass, "Id", id);
+            return characterClass;
         }
 
         private static LootTableData CreateLootTable(

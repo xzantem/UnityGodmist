@@ -44,7 +44,7 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(range.HasDamage, Is.True);
             Assert.That(range.Minimum, Is.EqualTo(16));
-            Assert.That(range.Maximum, Is.EqualTo(72));
+            Assert.That(range.Maximum, Is.EqualTo(48));
         }
 
         [Test]

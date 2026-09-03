@@ -10,6 +10,7 @@ using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
@@ -54,7 +55,7 @@ namespace Godmist.Views.Combat
         
 
         // Systems
-        public CombatSession Session {get; private set;}
+        [field: NonSerialized] public CombatSession Session { get; private set; }
         private CombatOutcomeSystem outcomeSystem;
         private CombatTurnSystem turnSystem;
         private SimpleCombatAiSystem aiSystem;
@@ -79,6 +80,8 @@ namespace Godmist.Views.Combat
         private CombatVariableSystem combatVariableSystem;
         private ModifyVarSystem modifyVarSystem;
         private ModifyResistanceSystem modifyResistanceSystem;
+        private PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
+        private PassiveEffectCombatExecutionSystem passiveEffectCombatExecutionSystem;
         private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
@@ -95,6 +98,7 @@ namespace Godmist.Views.Combat
 
         private void Start()
         {
+            passiveEffectEventDispatcher = new PassiveEffectCombatEventDispatcher();
             unitViewSpawner = GetComponent<CombatUnitViewSpawner>();
             if (unitViewSpawner == null)
             {
@@ -107,8 +111,10 @@ namespace Godmist.Views.Combat
                 HandleUnitTurnEnded,
                 HandleSummonedObjectTurnBegan,
                 HandleSummonedObjectTurnEnded,
-                HandleUnitDied);
+                HandleUnitDied,
+                passiveEffectEventDispatcher);
             Session = CreateInitialSession();
+            Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
             ScoutKnifeSystem.ResetForCombat(Session);
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
@@ -120,7 +126,11 @@ namespace Godmist.Views.Combat
             damageSystem = new CombatDamageSystem(
                 AddBattleLog,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
-                RemoveUnitFromCombat, resourceRuleSystem, combatVariableSystem, feedbackBus);
+                RemoveUnitFromCombat,
+                resourceRuleSystem,
+                combatVariableSystem,
+                feedbackBus,
+                passiveEffectEventDispatcher);
             recoverySystem = new CombatRecoverySystem(AddBattleLog, feedbackBus);
             shieldSystem = new CombatShieldSystem(AddBattleLog, feedbackBus);
             reviveSystem = new CombatReviveSystem(AddBattleLog);
@@ -151,7 +161,13 @@ namespace Godmist.Views.Combat
                 session => outcomeSystem.EvaluateCombatOutcome(session),
                 damageSystem,
                 passiveEffectLifecycleSystem,
-                feedbackBus);
+                feedbackBus,
+                passiveEffectEventDispatcher);
+            passiveEffectCombatExecutionSystem = new PassiveEffectCombatExecutionSystem(
+                Session,
+                statusEffectSystem,
+                passiveEffectLifecycleSystem,
+                AddBattleLog);
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -179,9 +195,15 @@ namespace Godmist.Views.Combat
                 summonedObjectSystem: summonedObjectSystem,
                 summonSystem: summonSystem,
                 feedbackBus: feedbackBus,
-                modifyResistanceSystem: modifyResistanceSystem);
+                modifyResistanceSystem: modifyResistanceSystem,
+                passiveEffectEventDispatcher: passiveEffectEventDispatcher);
+            ConfigurePassiveEffectExecutionCallbacks();
             movementSystem = movementSystem = new CombatMovementSystem(
-                AddBattleLog, resourceRuleSystem, statusEffectSystem, feedbackBus);
+                AddBattleLog,
+                resourceRuleSystem,
+                statusEffectSystem,
+                feedbackBus,
+                passiveEffectEventDispatcher);
             interactionSystem = new CombatInteractionSystem(
                 AddBattleLog, HandleCombatMapObjectChanged, feedbackBus);
             interactionSystem.InitializeMapObjects(Session);
@@ -200,6 +222,8 @@ namespace Godmist.Views.Combat
 
         private void OnDestroy()
         {
+            passiveEffectCombatExecutionSystem?.Dispose();
+            passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
             {
                 StopCoroutine(activeAiTurnCoroutine);
@@ -402,7 +426,16 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            passiveEffectCombatExecutionSystem?.Dispose();
+            passiveEffectCombatExecutionSystem = null;
             Session = CreateInitialSession();
+            Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
+            passiveEffectCombatExecutionSystem = new PassiveEffectCombatExecutionSystem(
+                Session,
+                statusEffectSystem,
+                passiveEffectLifecycleSystem,
+                AddBattleLog);
+            ConfigurePassiveEffectExecutionCallbacks();
             ScoutKnifeSystem.ResetForCombat(Session);
             hasClearedCombatScopedEffects = false;
 
@@ -410,6 +443,70 @@ namespace Godmist.Views.Combat
             AddBattleLog("Walka rozpoczęta ponownie.");
 
             turnSystem.InitializeTurnOrder(Session);
+        }
+
+        private void ConfigurePassiveEffectExecutionCallbacks()
+        {
+            if (passiveEffectCombatExecutionSystem == null)
+                return;
+
+            passiveEffectCombatExecutionSystem.DuplicateActionExecutor =
+                skillExecutionSystem == null
+                    ? null
+                    : skillExecutionSystem.TryExecutePassiveDuplicate;
+            passiveEffectCombatExecutionSystem.RuntimeFlagTriggered -=
+                HandleRuntimeFlagTriggered;
+            passiveEffectCombatExecutionSystem.RuntimeFlagTriggered +=
+                HandleRuntimeFlagTriggered;
+            if (skillExecutionSystem != null)
+            {
+                skillExecutionSystem.PassiveActionResolved =
+                    passiveEffectCombatExecutionSystem.NotifyActionResolved;
+            }
+        }
+
+        private void HandleRuntimeFlagTriggered(
+            BattleUnit owner,
+            PassiveEffectRuntime runtime,
+            PassiveEffectOperationDefinition operation,
+            PassiveEffectCombatContext context)
+        {
+            if (!string.Equals(
+                    operation?.ReferenceId,
+                    "summon.random-skeleton",
+                    System.StringComparison.OrdinalIgnoreCase)
+                || owner?.Character == null
+                || summonSystem == null)
+            {
+                return;
+            }
+
+            var skeletonDefinition = GameBootstrap.Instance?.ContentCatalog
+                ?.CharacterDefinitions?
+                .FirstOrDefault(definition => string.Equals(
+                    definition?.Id,
+                    "skeleton.test",
+                    System.StringComparison.OrdinalIgnoreCase));
+            if (skeletonDefinition == null)
+            {
+                Debug.LogWarning(
+                    "Nie znaleziono definicji skeleton.test dla pasywki summon.random-skeleton.");
+                return;
+            }
+
+            if (!summonSystem.TrySummonAdjacent(
+                    Session,
+                    owner,
+                    skeletonDefinition,
+                    owner.Character.ClassData,
+                    context?.SkillId ?? "passive-summon",
+                    durationTurns: 3,
+                    maxActiveSummons: 1,
+                    maxHealthPercent: .25f,
+                    out _))
+            {
+                AddBattleLog("Nie ma wolnego pola na przyzwanie szkieletu.");
+            }
         }
 
         private void RemoveFirstEnemyForDebug()

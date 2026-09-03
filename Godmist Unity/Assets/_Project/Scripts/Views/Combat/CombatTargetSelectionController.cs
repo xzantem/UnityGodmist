@@ -49,7 +49,7 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
         private int currentTargetModeIndex;
-        private SkillEffectData selectedTeleportEffect;
+        [System.NonSerialized] private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
         private bool isSelectingTeleportDestination;
         private SkillEffectData selectedCreateObjectEffect;
