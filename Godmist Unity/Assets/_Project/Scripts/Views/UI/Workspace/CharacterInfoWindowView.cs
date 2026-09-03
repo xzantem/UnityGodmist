@@ -173,10 +173,18 @@ namespace Godmist.Views.UI.Workspace
                     session,
                     character.CharacterId,
                     lootBag.InstanceId,
-                    out _))
+                    out var openedItemCount))
             {
                 Refresh();
+                return;
             }
+
+            Debug.LogWarning(
+                $"Nie można otworzyć lootbaga '{lootBag.InstanceId}': "
+                + $"zawartość={lootBag.Contents?.Count ?? 0}, "
+                + $"walka={(session.ActiveCombat != null ? "aktywna" : "brak")}, "
+                + $"otwarte={openedItemCount}.",
+                this);
         }
 
         public void TryUseConsumable(ItemInstance item)

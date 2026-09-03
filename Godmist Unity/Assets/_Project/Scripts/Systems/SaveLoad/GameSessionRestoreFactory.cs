@@ -347,6 +347,12 @@ namespace Godmist.Systems.SaveLoad
                     return false;
                 }
 
+                if (definition is BossUniqueEquipmentDefinition
+                    && itemSaveData.Quality != EquipmentQuality.Masterpiece)
+                {
+                    return false;
+                }
+
                 var item = itemFactory.Create(
                     definition,
                     itemSaveData.InstanceId);

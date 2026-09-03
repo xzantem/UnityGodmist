@@ -1128,7 +1128,16 @@ namespace Godmist.Systems.Debugging
             {
                 ItemInstance item;
 
-                if (definition is EquipmentItemDefinition equipmentDefinition)
+                if (definition is LootBagItemDefinition lootBagDefinition)
+                {
+                    item = new LootTableSystem(
+                            new System.Random(),
+                            contentCatalog.EquipmentPartDefinitions,
+                            itemInstanceFactory,
+                            target.Level)
+                        .CreateLootBag(lootBagDefinition);
+                }
+                else if (definition is EquipmentItemDefinition equipmentDefinition)
                 {
                     item = equipmentGenerationService.Generate(
                         equipmentDefinition,

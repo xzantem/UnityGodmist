@@ -300,6 +300,58 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Execute_CreateItem_LootBagRollsItsContents()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var jerzy = CreateCharacter("jerzy");
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            var bag = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            var material = CreateItemDefinition("material.lootbag", "Materiał z lootbaga");
+
+            SetAutoProperty(bag, "Id", "item.lootbag.test");
+            SetAutoProperty(bag, "DisplayName", "Testowy lootbag");
+            SetAutoProperty(bag, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(bag, "BaseRarity", RarityTier.Common);
+
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            var pool = new LootBagPoolData();
+            SetAutoProperty(pool, "DropChance", 1f);
+            var entry = new LootBagPoolEntryData();
+            SetAutoProperty(entry, "ItemDefinition", material);
+            SetAutoProperty(entry, "Amount", new IntRange(1, 1));
+            pool.Entries.Add(entry);
+            bracket.Pools.Add(pool);
+            bag.Brackets.Add(bracket);
+
+            session.TryRegisterCharacter(jerzy);
+            session.TryAddCharacterToActiveParty("jerzy");
+            catalog.ItemDefinitions.Add(bag);
+            catalog.ItemDefinitions.Add(material);
+
+            var result = service.Execute(
+                "createitem item.lootbag.test",
+                session,
+                null,
+                catalog);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(jerzy.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(
+                jerzy.Inventory.Items[0],
+                Is.TypeOf<Godmist.Runtime.Items.LootBagItemInstance>());
+            var createdBag =
+                (Godmist.Runtime.Items.LootBagItemInstance)jerzy.Inventory.Items[0];
+            Assert.That(createdBag.Contents, Has.Count.EqualTo(1));
+            Assert.That(createdBag.Contents[0].Definition, Is.SameAs(material));
+
+            Object.DestroyImmediate(bag);
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(catalog);
+        }
+
+        [Test]
         public void Execute_CreateConsumable_UsesNamedOptionalCharacterId()
         {
             var service = new DevConsoleCommandService();

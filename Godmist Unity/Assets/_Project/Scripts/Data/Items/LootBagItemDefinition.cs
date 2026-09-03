@@ -12,6 +12,9 @@ namespace Godmist.Data.Items
         [field: SerializeField]
         public List<LootBagBracketData> Brackets { get; private set; } = new();
 
+        [field: SerializeField]
+        public BossUniqueDropData BossUniqueDrop { get; private set; }
+
         public bool TryGetBracket(
             LootLevelBracket bracket,
             out LootBagBracketData data)

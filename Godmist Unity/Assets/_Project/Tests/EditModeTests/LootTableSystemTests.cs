@@ -272,6 +272,80 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void RollLoot_LootBag_BossUniqueDrop_SelectsOneOfFourAndForcesMasterpiece()
+        {
+            var classes = new[]
+            {
+                CreateClass("class.warrior"),
+                CreateClass("class.scout"),
+                CreateClass("class.mage"),
+                CreateClass("class.paladin")
+            };
+            var uniqueDefinitions = new List<BossUniqueEquipmentDefinition>();
+            var parts = new List<EquipmentPartDefinition>();
+
+            for (var index = 0; index < classes.Length; index++)
+            {
+                var definition = ScriptableObject.CreateInstance<
+                    BossUniqueEquipmentDefinition>();
+                SetAutoProperty(definition, "Id", $"unique.{index}");
+                SetAutoProperty(definition, "DisplayName", $"Unikat {index}");
+                SetAutoProperty(definition, "ItemType", ItemType.Weapon);
+                SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+                SetAutoProperty(definition, "RequiredClass", classes[index]);
+                SetAutoProperty(definition, "BossId", "boss.test");
+                uniqueDefinitions.Add(definition);
+
+                parts.Add(CreatePart(
+                    $"head.{index}", classes[index], EquipmentPartKind.WeaponHead));
+                parts.Add(CreatePart(
+                    $"binder.{index}", classes[index], EquipmentPartKind.WeaponBinder));
+                parts.Add(CreatePart(
+                    $"handle.{index}", classes[index], EquipmentPartKind.WeaponHandle));
+            }
+
+            var lootBagDefinition = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            SetAutoProperty(lootBagDefinition, "Id", "item.boss_unique_lootbag");
+            SetAutoProperty(lootBagDefinition, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(lootBagDefinition, "BaseRarity", RarityTier.Common);
+
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            lootBagDefinition.Brackets.Add(bracket);
+            SetAutoProperty(lootBagDefinition, "BossUniqueDrop", new BossUniqueDropData());
+            SetAutoProperty(
+                lootBagDefinition.BossUniqueDrop,
+                "EquipmentDefinitions",
+                uniqueDefinitions);
+
+            var sourceTable = ScriptableObject.CreateInstance<LootTableData>();
+            sourceTable.Entries.Add(CreateLootEntry(
+                lootBagDefinition,
+                1f,
+                new IntRange(1, 1)));
+
+            var randomValues = new Queue<float>(new[] { 0f, 0f, .51f });
+            var loot = new LootTableSystem(
+                    () => randomValues.Dequeue(),
+                    new ItemInstanceFactory(),
+                    new EquipmentGenerationService(new System.Random(7)),
+                    parts,
+                    lootLevel: 1)
+                .RollLoot(sourceTable);
+
+            var bag = (LootBagItemInstance)loot[0];
+            Assert.That(bag.Contents, Has.Count.EqualTo(1));
+
+            var equipment = bag.Contents[0] as EquipmentItemInstance;
+            Assert.That(equipment, Is.Not.Null);
+            Assert.That(equipment.Definition, Is.SameAs(uniqueDefinitions[2]));
+            Assert.That(equipment.Quality, Is.EqualTo(EquipmentQuality.Masterpiece));
+            Assert.That(equipment.ItemLevel, Is.EqualTo(10));
+            Assert.That(equipment.RequiredLevel, Is.EqualTo(equipment.ItemLevel));
+            Assert.That(equipment.PartIds, Has.Count.EqualTo(3));
+        }
+
+        [Test]
         public void LootBagService_OpensWhatFitsAndLeavesRemainingContents()
         {
             var gameSession = new GameSession(GameModeState.Exploration);
@@ -365,6 +439,13 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
 
             return definition;
+        }
+
+        private static CharacterClassData CreateClass(string id)
+        {
+            var characterClass = ScriptableObject.CreateInstance<CharacterClassData>();
+            SetAutoProperty(characterClass, "Id", id);
+            return characterClass;
         }
 
         private static LootTableData CreateLootTable(
