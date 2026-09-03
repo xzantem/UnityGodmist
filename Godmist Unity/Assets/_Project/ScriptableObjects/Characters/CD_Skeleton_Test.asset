@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: skeleton.test
   <DisplayName>k__BackingField: Skeleton Warrior
+  <Tags>k__BackingField:
+  - 2
   <VisualSprite>k__BackingField: {fileID: -6290270615676213359, guid: c13f398b1233462438313c5bf813f405, type: 3}
   <IdleAnimationFrames>k__BackingField: []
   <IdleAnimationFramesPerSecond>k__BackingField: 4

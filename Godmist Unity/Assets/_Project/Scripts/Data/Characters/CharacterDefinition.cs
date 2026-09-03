@@ -14,6 +14,7 @@ namespace Godmist.Data.Characters
     {
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
+        [field: SerializeField] public List<CharacterTag> Tags { get; private set; } = new();
         [field: SerializeField] public Sprite VisualSprite { get; private set; }
         [field: SerializeField] public List<Sprite> IdleAnimationFrames { get; private set; } = new();
         [field: SerializeField] public float IdleAnimationFramesPerSecond { get; private set; } = 4f;

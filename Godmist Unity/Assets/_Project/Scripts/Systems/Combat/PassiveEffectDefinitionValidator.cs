@@ -122,6 +122,24 @@ namespace Godmist.Systems.Combat
                     "wymaga referencji.");
             }
 
+            if (condition.Type == PassiveEffectConditionType.TargetHasTag
+                && !string.IsNullOrWhiteSpace(condition.ReferenceId)
+                && !CharacterTagUtility.TryParse(condition.ReferenceId, out _))
+            {
+                errors.Add($"Warunek pasywki pod indeksem {index} ma nieznany tag celu: " +
+                    $"{condition.ReferenceId}.");
+            }
+
+            if (condition.Type == PassiveEffectConditionType.DungeonTheme
+                && !string.IsNullOrWhiteSpace(condition.ReferenceId)
+                && (!Enum.TryParse(condition.ReferenceId, ignoreCase: true,
+                        out DungeonTheme theme)
+                    || !Enum.IsDefined(typeof(DungeonTheme), theme)))
+            {
+                errors.Add($"Warunek pasywki pod indeksem {index} ma nieznany theme lochu: " +
+                    $"{condition.ReferenceId}.");
+            }
+
             var requiresValue = condition.Type is
                 PassiveEffectConditionType.TargetHealthBelowPercent
                 or PassiveEffectConditionType.CasterHealthBelowPercent

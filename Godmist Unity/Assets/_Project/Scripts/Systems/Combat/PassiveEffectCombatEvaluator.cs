@@ -153,11 +153,12 @@ namespace Godmist.Systems.Combat
                     return CompareHealth(context.Source, condition, below: false, out result);
 
                 case PassiveEffectConditionType.TargetHasTag:
-                    if (string.IsNullOrWhiteSpace(condition.ReferenceId)) return false;
+                    if (!CharacterTagUtility.TryParse(condition.ReferenceId, out var targetTag))
+                        return false;
                     foreach (var tag in context.TargetTags)
                     {
-                        if (string.Equals(tag, condition.ReferenceId,
-                                StringComparison.OrdinalIgnoreCase))
+                        if (CharacterTagUtility.TryParse(tag, out var resolvedTag)
+                            && resolvedTag == targetTag)
                         {
                             result = true;
                             break;
@@ -166,12 +167,16 @@ namespace Godmist.Systems.Combat
                     return true;
 
                 case PassiveEffectConditionType.DungeonTheme:
+                    if (!Enum.TryParse(condition.ReferenceId, ignoreCase: true,
+                            out DungeonTheme dungeonTheme)
+                        || !Enum.IsDefined(typeof(DungeonTheme), dungeonTheme))
+                    {
+                        return false;
+                    }
+
                     result = context.Session != null
-                        && string.Equals(
-                            context.Session.DungeonTheme.ToString(),
-                            condition.ReferenceId,
-                            StringComparison.OrdinalIgnoreCase);
-                    return !string.IsNullOrWhiteSpace(condition.ReferenceId);
+                        && context.Session.DungeonTheme == dungeonTheme;
+                    return true;
 
                 case PassiveEffectConditionType.AttackType:
                     return CompareEnum(context.AttackType, condition.ReferenceId, out result);

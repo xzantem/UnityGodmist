@@ -2147,12 +2147,80 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var definition in definitions ?? Array.Empty<PassiveEffectDefinition>())
             {
+                if (definition == null) continue;
+
                 var description = definition?.Tooltip?.DescriptionOverride;
                 if (string.IsNullOrWhiteSpace(description))
                     description = definition?.Description;
 
                 Append(result, description);
+
+                var conditionText = string.IsNullOrWhiteSpace(definition.Tooltip?.ConditionText)
+                    ? DescribePassiveConditions(definition)
+                    : definition.Tooltip.ConditionText;
+                if (!string.IsNullOrWhiteSpace(conditionText))
+                    Append(result, $"Warunek: {conditionText}");
             }
+        }
+
+        private static string DescribePassiveConditions(PassiveEffectDefinition definition)
+        {
+            if (definition?.Conditions == null || definition.Conditions.Count == 0)
+                return string.Empty;
+
+            var descriptions = new List<string>();
+            foreach (var condition in definition.Conditions)
+            {
+                var description = DescribePassiveCondition(condition);
+                if (!string.IsNullOrWhiteSpace(description))
+                    descriptions.Add(description);
+            }
+
+            if (descriptions.Count == 0) return string.Empty;
+            var separator = definition.ConditionCombination == PassiveEffectConditionCombination.Any
+                ? " lub "
+                : " i ";
+            return string.Join(separator, descriptions);
+        }
+
+        private static string DescribePassiveCondition(
+            PassiveEffectConditionDefinition condition)
+        {
+            if (condition == null || condition.Type == PassiveEffectConditionType.Always)
+                return string.Empty;
+
+            string description;
+            switch (condition.Type)
+            {
+                case PassiveEffectConditionType.TargetHasTag:
+                    description = CharacterTagUtility.TryParse(
+                            condition.ReferenceId,
+                            out var targetTag)
+                        ? $"cel jest typu {GetCharacterTagDisplayName(targetTag)}"
+                        : $"cel ma tag {condition.ReferenceId}";
+                    break;
+
+                case PassiveEffectConditionType.DungeonTheme:
+                    description = $"walka toczy się w theme lochu {condition.ReferenceId}";
+                    break;
+
+                default:
+                    return string.Empty;
+            }
+
+            return condition.Negated ? $"nie ({description})" : description;
+        }
+
+        private static string GetCharacterTagDisplayName(CharacterTag tag)
+        {
+            return tag switch
+            {
+                CharacterTag.Human => "człowiek",
+                CharacterTag.Beast => "bestia",
+                CharacterTag.Undead => "nieumarły",
+                CharacterTag.Demon => "demon",
+                _ => tag.ToString()
+            };
         }
 
         private static float GetStatValue(

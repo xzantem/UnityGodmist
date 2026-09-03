@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
+using Godmist.Data.Characters;
 using Godmist.Data.Effects;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
+using Godmist.Views.UI.Workspace;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
@@ -26,6 +29,150 @@ namespace Godmist.Tests.EditMode
             Assert.That(context.DamageType, Is.EqualTo(DamageType.Magical));
             Assert.That(context.Distance, Is.EqualTo(1));
             Assert.That(context.AttackPosition, Is.EqualTo(AttackPosition.Unknown));
+        }
+
+        [Test]
+        public void Context_ResolvesTargetTagsFromCharacterDefinition()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            try
+            {
+                Set(definition, nameof(CharacterDefinition.Tags),
+                    new List<CharacterTag> { CharacterTag.Undead, CharacterTag.Beast });
+                var target = new BattleUnit
+                {
+                    Character = new CharacterInstance { Definition = definition }
+                };
+
+                var context = new PassiveEffectCombatContext(target: target);
+
+                Assert.That(context.TargetTags, Is.EquivalentTo(new[] { "Undead", "Beast" }));
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void Evaluator_MatchesHumanAliasAgainstCanonicalHumanTag()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            try
+            {
+                Set(definition, nameof(CharacterDefinition.Tags),
+                    new List<CharacterTag> { CharacterTag.Human });
+                var condition = new PassiveEffectConditionDefinition();
+                Set(condition, nameof(PassiveEffectConditionDefinition.Type),
+                    PassiveEffectConditionType.TargetHasTag);
+                Set(condition, nameof(PassiveEffectConditionDefinition.ReferenceId), "Humanoid");
+                var passive = CreateDefinition(condition, null);
+                var target = new BattleUnit
+                {
+                    Character = new CharacterInstance { Definition = definition }
+                };
+
+                var result = PassiveEffectCombatEvaluator.Evaluate(
+                    passive,
+                    null,
+                    new PassiveEffectCombatEvent(
+                        PassiveEffectTriggerType.OnAttack,
+                        new PassiveEffectCombatContext(target: target)));
+
+                Assert.That(result.IsValid, Is.True);
+                Assert.That(result.CanApply, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void Evaluator_DoesNotApplyWhenTargetHasAnotherTag()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            try
+            {
+                Set(definition, nameof(CharacterDefinition.Tags),
+                    new List<CharacterTag> { CharacterTag.Beast });
+                var condition = new PassiveEffectConditionDefinition();
+                Set(condition, nameof(PassiveEffectConditionDefinition.Type),
+                    PassiveEffectConditionType.TargetHasTag);
+                Set(condition, nameof(PassiveEffectConditionDefinition.ReferenceId), "Undead");
+                var passive = CreateDefinition(condition, null);
+                var target = new BattleUnit
+                {
+                    Character = new CharacterInstance { Definition = definition }
+                };
+
+                var result = PassiveEffectCombatEvaluator.Evaluate(
+                    passive,
+                    null,
+                    new PassiveEffectCombatEvent(
+                        PassiveEffectTriggerType.OnAttack,
+                        new PassiveEffectCombatContext(target: target)));
+
+                Assert.That(result.IsValid, Is.True);
+                Assert.That(result.CanApply, Is.False);
+                Assert.That(result.ConditionsMet, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void Evaluator_MatchesDungeonThemeAndRejectsUnknownThemeReference()
+        {
+            var session = new CombatSession { DungeonTheme = DungeonTheme.Catacombs };
+            var condition = new PassiveEffectConditionDefinition();
+            Set(condition, nameof(PassiveEffectConditionDefinition.Type),
+                PassiveEffectConditionType.DungeonTheme);
+            Set(condition, nameof(PassiveEffectConditionDefinition.ReferenceId), "catacombs");
+            var passive = CreateDefinition(condition, null);
+
+            var result = PassiveEffectCombatEvaluator.Evaluate(
+                passive,
+                null,
+                new PassiveEffectCombatEvent(
+                    PassiveEffectTriggerType.OnAttack,
+                    new PassiveEffectCombatContext(session: session)));
+
+            Assert.That(result.CanApply, Is.True);
+
+            Set(condition, nameof(PassiveEffectConditionDefinition.ReferenceId), "UnknownTheme");
+            var invalid = PassiveEffectDefinitionValidator.Validate(passive);
+
+            Assert.That(invalid.IsValid, Is.False);
+            Assert.That(invalid.Errors, Has.Some.Contains("nieznany theme lochu"));
+        }
+
+        [Test]
+        public void Tooltip_GeneratesReadableTagAndThemeConditions()
+        {
+            var tagCondition = new PassiveEffectConditionDefinition();
+            Set(tagCondition, nameof(PassiveEffectConditionDefinition.Type),
+                PassiveEffectConditionType.TargetHasTag);
+            Set(tagCondition, nameof(PassiveEffectConditionDefinition.ReferenceId), "Human");
+            var themeCondition = new PassiveEffectConditionDefinition();
+            Set(themeCondition, nameof(PassiveEffectConditionDefinition.Type),
+                PassiveEffectConditionType.DungeonTheme);
+            Set(themeCondition, nameof(PassiveEffectConditionDefinition.ReferenceId), "Catacombs");
+            var definition = CreateDefinition(tagCondition, null);
+            Set(definition, nameof(PassiveEffectDefinition.Conditions),
+                new List<PassiveEffectConditionDefinition> { tagCondition, themeCondition });
+
+            var method = typeof(UIWorkspaceTooltipView).GetMethod(
+                "DescribePassiveConditions",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+            var text = (string)method.Invoke(null, new object[] { definition });
+
+            Assert.That(text, Does.Contain("cel jest typu człowiek"));
+            Assert.That(text, Does.Contain("theme lochu Catacombs"));
+            Assert.That(text, Does.Contain(" i "));
         }
 
         [Test]

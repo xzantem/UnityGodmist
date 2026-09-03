@@ -87,7 +87,7 @@ namespace Godmist.Runtime.Combat
             HealthDamage = Math.Max(0, healthDamage);
             EventValue = eventValue;
             TargetTags = targetTags == null
-                ? Array.Empty<string>()
+                ? ResolveTargetTags(target)
                 : new List<string>(targetTags).AsReadOnly();
             ReferencedEffectSucceeded = referencedEffectSucceeded;
             ReferencedEffectCrit = referencedEffectCrit;
@@ -128,6 +128,19 @@ namespace Godmist.Runtime.Combat
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,
                 ReferencedEffectDodged);
+        }
+
+        private static IReadOnlyCollection<string> ResolveTargetTags(BattleUnit target)
+        {
+            var tags = target?.Character?.Definition?.Tags;
+            if (tags == null || tags.Count == 0)
+                return Array.Empty<string>();
+
+            var resolvedTags = new List<string>(tags.Count);
+            foreach (var tag in tags)
+                resolvedTags.Add(CharacterTagUtility.ToConditionReference(tag));
+
+            return resolvedTags.AsReadOnly();
         }
     }
 }

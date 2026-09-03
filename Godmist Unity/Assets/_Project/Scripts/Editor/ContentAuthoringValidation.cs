@@ -341,6 +341,19 @@ namespace Godmist.Editor
             if (character.BaseStats == null) errors.Add("CharacterDefinition musi mieć BaseStats.");
             if (character.BaseResistances == null) warnings.Add("Character nie ma BaseResistances.");
             if (character.GrowthData == null) warnings.Add("Character nie ma GrowthData.");
+
+            var characterTags = new HashSet<Core.Enums.CharacterTag>();
+            foreach (var tag in character.Tags ?? new List<Core.Enums.CharacterTag>())
+            {
+                if (!Enum.IsDefined(typeof(Core.Enums.CharacterTag), tag))
+                {
+                    errors.Add($"CharacterDefinition ma nieznany tag: {tag}.");
+                }
+                else if (!characterTags.Add(tag))
+                {
+                    errors.Add($"CharacterDefinition ma zduplikowany tag: {tag}.");
+                }
+            }
         }
 
         private static bool IsObjectPlacementOnlySkill(SkillData skill)
