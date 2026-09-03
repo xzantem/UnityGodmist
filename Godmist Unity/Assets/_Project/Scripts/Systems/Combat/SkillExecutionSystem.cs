@@ -543,16 +543,18 @@ namespace Godmist.Systems.Combat
 
                         var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
                             caster, valueSource, multiplier);
+                        var distance = caster == null || target == null
+                            ? -1
+                            : Mathf.Abs(caster.Position.X - target.Position.X)
+                                + Mathf.Abs(caster.Position.Y - target.Position.Y);
                         var passiveContext = new PassiveEffectCombatContext(
                             session: session,
                             source: caster,
                             target: target,
                             skillId: skill.SkillId,
+                            attackType: skill.ResolveAttackType(distance),
                             damageType: effect.DamageType,
-                            distance: caster == null || target == null
-                                ? -1
-                                : Mathf.Abs(caster.Position.X - target.Position.X)
-                                    + Mathf.Abs(caster.Position.Y - target.Position.Y));
+                            distance: distance);
                         var damageResult = effect.AlwaysHits
                             ? damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,

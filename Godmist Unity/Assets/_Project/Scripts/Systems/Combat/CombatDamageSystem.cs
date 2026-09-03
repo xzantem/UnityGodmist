@@ -71,6 +71,17 @@ namespace Godmist.Systems.Combat
 
             if (!wasHit)
             {
+                if (!wasDodged
+                    && PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                        session,
+                        eventContext))
+                {
+                    wasHit = true;
+                }
+            }
+
+            if (!wasHit)
+            {
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss));
 
@@ -87,7 +98,7 @@ namespace Godmist.Systems.Combat
             }
 
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(source, damageType);
+            var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
                 eventContext.WithOutcome(succeeded: true));
             if (isCritical)
@@ -163,6 +174,16 @@ namespace Godmist.Systems.Combat
             Publish(session, PassiveEffectTriggerType.OnAttack, eventContext);
             if (!wasHit)
             {
+                if (PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                        session,
+                        eventContext))
+                {
+                    wasHit = true;
+                }
+            }
+
+            if (!wasHit)
+            {
                 Publish(session, PassiveEffectTriggerType.OnMiss,
                     eventContext.WithOutcome(succeeded: false, wasMissed: true));
                 return new CombatDamageResult(false, false, 0);
@@ -175,7 +196,7 @@ namespace Godmist.Systems.Combat
             }
 
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(source, damageType);
+            var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
                 eventContext.WithOutcome(succeeded: true));
             if (isCritical)
@@ -249,6 +270,13 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
             var incomingDamage = combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage);
+            incomingDamage = Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
+                        session,
+                        passiveContext,
+                        incomingDamage)));
             if (incomingDamage <= 0)
             {
                 return 0;
@@ -403,7 +431,11 @@ namespace Godmist.Systems.Combat
             return damageType != DamageType.Physical;
         }
 
-        private static bool RollCritical(BattleUnit source, DamageType damageType)
+        private static bool RollCritical(
+            CombatSession session,
+            BattleUnit source,
+            DamageType damageType,
+            PassiveEffectCombatContext context)
         {
             if (damageType != DamageType.Physical && damageType != DamageType.Inevitable)
                 return false;
@@ -414,6 +446,10 @@ namespace Godmist.Systems.Combat
             }
 
             var chance = source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue();
+            chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(
+                session,
+                context,
+                chance);
 
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
         }

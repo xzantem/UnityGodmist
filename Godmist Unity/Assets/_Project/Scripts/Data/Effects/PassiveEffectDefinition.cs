@@ -81,6 +81,7 @@ namespace Godmist.Data.Effects
         [field: SerializeField] public PassiveEffectValueSourceType Source { get; private set; } =
             PassiveEffectValueSourceType.Constant;
         [field: SerializeField] public float NumberValue { get; private set; }
+        [field: SerializeField] public List<float> RankValues { get; private set; } = new();
         [field: SerializeField] public string ReferenceId { get; private set; } = string.Empty;
         [field: SerializeField] public string StateKey { get; private set; } = string.Empty;
         [field: SerializeField] public float Scale { get; private set; } = 1f;

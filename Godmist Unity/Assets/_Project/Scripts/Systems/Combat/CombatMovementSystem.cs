@@ -323,8 +323,10 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            movementCost =
-                CombatActionCostCalculator.CalculateMovementCost(unit);
+            movementCost = PassiveEffectCombatExecutionSystem.ApplyMovementCost(
+                session,
+                unit,
+                CombatActionCostCalculator.CalculateMovementCost(unit));
 
             if (unit.CurrentActionPoints < movementCost)
             {

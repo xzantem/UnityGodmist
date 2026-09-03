@@ -73,13 +73,15 @@ namespace Godmist.Systems.Combat
             var statModifiers = new List<StatModifier>();
             var variableModifiers = new List<GameplayVariableModifier>();
             ResistanceModifierPayload resistanceModifier = null;
+            var materializePersistentPayloads = IsStaticDefinition(definition);
 
             foreach (var operation in definition.Operations ?? new List<PassiveEffectOperationDefinition>())
             {
                 if (operation == null
-                    || operation.Target != PassiveEffectTargetType.Self
                     || operation.Value == null
-                    || operation.Value.Source != PassiveEffectValueSourceType.Constant)
+                    || operation.Value.Source != PassiveEffectValueSourceType.Constant
+                    || requireStaticDefinition
+                        && operation.Target != PassiveEffectTargetType.Self)
                 {
                     return false;
                 }
@@ -94,16 +96,20 @@ namespace Godmist.Systems.Combat
                 switch (operation.Type)
                 {
                     case PassiveEffectOperationType.ModifyStat:
-                        statModifiers.Add(new StatModifier
+                        if (materializePersistentPayloads)
                         {
-                            StatType = operation.StatType,
-                            Operation = operation.ModifierOperation,
-                            Stacking = operation.ModifierStacking,
-                            Value = operation.Value.NumberValue
-                        });
+                            statModifiers.Add(new StatModifier
+                            {
+                                StatType = operation.StatType,
+                                Operation = operation.ModifierOperation,
+                                Stacking = operation.ModifierStacking,
+                                Value = operation.Value.NumberValue
+                            });
+                        }
                         break;
 
                     case PassiveEffectOperationType.ModifyResistance:
+                        if (!materializePersistentPayloads) break;
                         if (resistanceModifier != null) return false;
                         resistanceModifier = new ResistanceModifierPayload
                         {
@@ -113,6 +119,7 @@ namespace Godmist.Systems.Combat
                         break;
 
                     case PassiveEffectOperationType.ModifyGameplayVariable:
+                        if (!materializePersistentPayloads) break;
                         variableModifiers.Add(new GameplayVariableModifier
                         {
                             VariableType = operation.VariableType,
@@ -123,7 +130,13 @@ namespace Godmist.Systems.Combat
                         break;
 
                     default:
-                        return false;
+                        // Triggered definitions are kept as runtime carriers. Their
+                        // executable operations are resolved against the combat
+                        // context by PassiveEffectCombatExecutionSystem instead of
+                        // being flattened into persistent stat payloads.
+                        if (requireStaticDefinition)
+                            return false;
+                        break;
                 }
             }
 

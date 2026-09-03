@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Godmist.Core.Enums;
+using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using TMPro;
 using UnityEngine;
@@ -112,10 +115,99 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildTooltip(SkillTreeNodeDefinition node, int ranks, string blockReason)
         {
             var text = node?.Description ?? string.Empty;
+            AppendPassiveMetadata(ref text, node?.PassiveEffects);
             if (!string.IsNullOrWhiteSpace(text)) text += "\n\n";
             text += $"Ranga: {ranks}/{node?.EffectiveMaxRanks ?? 0}";
             if (!string.IsNullOrWhiteSpace(blockReason)) text += $"\n{blockReason}";
             return text;
+        }
+
+        private static void AppendPassiveMetadata(
+            ref string text,
+            IEnumerable<PassiveEffectDefinition> definitions)
+        {
+            foreach (var definition in definitions ?? Array.Empty<PassiveEffectDefinition>())
+            {
+                if (definition == null) continue;
+
+                var condition = string.IsNullOrWhiteSpace(definition.Tooltip?.ConditionText)
+                    ? DescribeConditions(definition)
+                    : definition.Tooltip.ConditionText;
+                if (!string.IsNullOrWhiteSpace(condition))
+                    AppendLine(ref text, $"Warunek: {condition}");
+
+                var trigger = definition.Tooltip?.TriggerText;
+                if (string.IsNullOrWhiteSpace(trigger))
+                    trigger = DescribeTriggers(definition);
+                if (!string.IsNullOrWhiteSpace(trigger))
+                    AppendLine(ref text, $"Aktywacja: {trigger}");
+            }
+        }
+
+        private static string DescribeConditions(PassiveEffectDefinition definition)
+        {
+            var descriptions = new List<string>();
+            foreach (var condition in definition?.Conditions
+                         ?? new List<PassiveEffectConditionDefinition>())
+            {
+                if (condition == null || condition.Type == PassiveEffectConditionType.Always)
+                    continue;
+
+                var description = condition.Type switch
+                {
+                    PassiveEffectConditionType.AttackType =>
+                        condition.ReferenceId == nameof(AttackType.Melee)
+                            ? "tylko dla ataków wręcz"
+                            : condition.ReferenceId == nameof(AttackType.Ranged)
+                                ? "tylko dla ataków dystansowych"
+                                : $"typ ataku: {condition.ReferenceId}",
+                    PassiveEffectConditionType.CasterHasBuff =>
+                        $"podczas działania buffa {condition.ReferenceId}",
+                    PassiveEffectConditionType.TargetHasBuff =>
+                        $"gdy cel ma buff {condition.ReferenceId}",
+                    PassiveEffectConditionType.TargetHasStatus =>
+                        $"gdy cel ma status {condition.ReferenceId}",
+                    _ => condition.Type.ToString()
+                };
+                descriptions.Add(condition.Negated
+                    ? $"nie {description}"
+                    : description);
+            }
+
+            var separator = definition?.ConditionCombination ==
+                            PassiveEffectConditionCombination.Any
+                ? " lub "
+                : " i ";
+            return string.Join(separator, descriptions);
+        }
+
+        private static string DescribeTriggers(PassiveEffectDefinition definition)
+        {
+            var triggers = new List<string>();
+            foreach (var trigger in definition?.Triggers
+                         ?? new List<PassiveEffectTriggerDefinition>())
+            {
+                if (trigger == null || trigger.Type == PassiveEffectTriggerType.AlwaysActive)
+                    continue;
+
+                triggers.Add(trigger.Type switch
+                {
+                    PassiveEffectTriggerType.OnAttack => "przy ataku",
+                    PassiveEffectTriggerType.OnCriticalHit => "po trafieniu krytycznym",
+                    PassiveEffectTriggerType.OnMiss => "po chybieniu",
+                    PassiveEffectTriggerType.OnDodge => "po uniku",
+                    PassiveEffectTriggerType.OnMove => "przy ruchu",
+                    _ => trigger.Type.ToString()
+                });
+            }
+
+            return string.Join(" lub ", triggers);
+        }
+
+        private static void AppendLine(ref string text, string line)
+        {
+            if (!string.IsNullOrWhiteSpace(text)) text += "\n";
+            text += line;
         }
 
         private enum NodeVisualState

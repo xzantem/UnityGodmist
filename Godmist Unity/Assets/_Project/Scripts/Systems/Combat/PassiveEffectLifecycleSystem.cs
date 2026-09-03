@@ -100,6 +100,27 @@ namespace Godmist.Systems.Combat
                 out appliedEffect);
         }
 
+        public bool TryApplyEffectForExecution(
+            CharacterInstance character,
+            PassiveEffectRuntime incomingEffect,
+            PassiveEffectStackingMode stackingMode)
+        {
+            if (incomingEffect?.Lifetime == PassiveEffectLifetime.Timed)
+            {
+                return TryApplyTimedEffect(
+                    character,
+                    incomingEffect,
+                    stackingMode,
+                    out _);
+            }
+
+            return TryApplyCombatScopedEffect(
+                character,
+                incomingEffect,
+                stackingMode,
+                out _);
+        }
+
         private bool TryApplyEffect(
             CharacterInstance character,
             PassiveEffectRuntime incomingEffect,

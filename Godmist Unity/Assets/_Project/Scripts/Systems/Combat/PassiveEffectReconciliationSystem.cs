@@ -156,6 +156,51 @@ namespace Godmist.Systems.Combat
                 ScaleRuntimeValues(runtime, ranks);
                 character.PassiveEffects.Add(runtime);
             }
+
+            foreach (var node in tree.Nodes ?? new List<SkillTreeNodeDefinition>())
+            {
+                var nodeRanks = GetNodeRanks(character, tree.Id, node?.Id);
+                if (node == null || nodeRanks <= 0)
+                    continue;
+
+                foreach (var definition in node.PassiveEffects
+                             ?? new List<PassiveEffectDefinition>())
+                {
+                    if (!PassiveEffectRuntimeFactory.TryCreate(
+                            definition,
+                            CreateSource(
+                                PassiveEffectSourceType.SkillTree,
+                                sourceId),
+                            out var runtime))
+                    {
+                        continue;
+                    }
+
+                    runtime.EffectId =
+                        $"{sourceId}.node.{node.Id}.{definition?.Id}";
+                    runtime.Stacks = nodeRanks;
+                    ScaleRuntimeValues(runtime, nodeRanks);
+                    if (string.IsNullOrWhiteSpace(runtime.DisplayName))
+                        runtime.DisplayName = node.DisplayName ?? string.Empty;
+                    character.PassiveEffects.Add(runtime);
+                }
+            }
+        }
+
+        private static int GetNodeRanks(
+            CharacterInstance character,
+            string treeId,
+            string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(treeId) || string.IsNullOrWhiteSpace(nodeId))
+                return 0;
+
+            return Math.Max(
+                0,
+                character.SkillTreeProgress?
+                    .Find(progress => progress?.TreeId == treeId)?
+                    .NodeInvestments?
+                    .Find(investment => investment?.NodeId == nodeId)?.Ranks ?? 0);
         }
 
         private static void AddDefinitions(

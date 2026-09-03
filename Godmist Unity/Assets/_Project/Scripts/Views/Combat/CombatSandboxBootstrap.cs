@@ -80,6 +80,7 @@ namespace Godmist.Views.Combat
         private ModifyVarSystem modifyVarSystem;
         private ModifyResistanceSystem modifyResistanceSystem;
         private PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
+        private PassiveEffectCombatExecutionSystem passiveEffectCombatExecutionSystem;
         private bool hasClearedCombatScopedEffects;
         private readonly CombatRewardSystem rewardSystem = new();
         private readonly DungeonCombatOutcomeSystem dungeonCombatOutcomeSystem = new();
@@ -161,6 +162,11 @@ namespace Godmist.Views.Combat
                 passiveEffectLifecycleSystem,
                 feedbackBus,
                 passiveEffectEventDispatcher);
+            passiveEffectCombatExecutionSystem = new PassiveEffectCombatExecutionSystem(
+                Session,
+                statusEffectSystem,
+                passiveEffectLifecycleSystem,
+                AddBattleLog);
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -214,6 +220,8 @@ namespace Godmist.Views.Combat
 
         private void OnDestroy()
         {
+            passiveEffectCombatExecutionSystem?.Dispose();
+            passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
             {
                 StopCoroutine(activeAiTurnCoroutine);
@@ -416,7 +424,15 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            passiveEffectCombatExecutionSystem?.Dispose();
+            passiveEffectCombatExecutionSystem = null;
             Session = CreateInitialSession();
+            Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
+            passiveEffectCombatExecutionSystem = new PassiveEffectCombatExecutionSystem(
+                Session,
+                statusEffectSystem,
+                passiveEffectLifecycleSystem,
+                AddBattleLog);
             ScoutKnifeSystem.ResetForCombat(Session);
             hasClearedCombatScopedEffects = false;
 
