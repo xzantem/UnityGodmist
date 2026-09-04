@@ -9,6 +9,7 @@ namespace Godmist.Systems.NPC
     {
         private readonly ItemInstanceFactory itemInstanceFactory;
         private readonly InventoryService inventoryService;
+        private readonly NpcLoyaltyService npcLoyaltyService;
 
         public NpcInstanceFactory(
             ItemInstanceFactory itemInstanceFactory = null,
@@ -16,6 +17,7 @@ namespace Godmist.Systems.NPC
         {
             this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
             this.inventoryService = inventoryService ?? new InventoryService();
+            npcLoyaltyService = new NpcLoyaltyService();
         }
 
         public NpcInstance Create(NpcDefinition definition)
@@ -34,7 +36,7 @@ namespace Godmist.Systems.NPC
             {
                 NpcId = definition.Id,
                 Definition = definition,
-                LoyaltyLevel = 1,
+                LoyaltyLevel = npcLoyaltyService.InitialLevel,
                 SpentGoldTotal = 0
             };
 

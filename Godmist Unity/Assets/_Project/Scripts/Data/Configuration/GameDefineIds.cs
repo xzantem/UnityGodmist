@@ -5,6 +5,12 @@ namespace Godmist.Data.Configuration
         public const string TraderRelevantSellMultiplier = "economy.trader.relevant_sell_multiplier";
         public const string TraderIrrelevantSellMultiplier = "economy.trader.irrelevant_sell_multiplier";
 
+        public const string NpcLoyaltyInitialLevel = "progression.npc.loyalty.initial_level";
+        public const string NpcLoyaltyMaximumLevel = "progression.npc.loyalty.maximum_level";
+        public const string NpcLoyaltyThresholdBase = "progression.npc.loyalty.threshold_base";
+        public const string NpcLoyaltyThresholdExponentOffset = "progression.npc.loyalty.threshold_exponent_offset";
+        public const string NpcLoyaltyThresholdLevelDivisor = "progression.npc.loyalty.threshold_level_divisor";
+
         public const string ActionPointsPerSpeed = "combat.action_points_per_speed";
         public const string BaseActionValue = "combat.base_action_value";
         public const string EscapeBaseChancePercent = "combat.escape.base_chance_percent";

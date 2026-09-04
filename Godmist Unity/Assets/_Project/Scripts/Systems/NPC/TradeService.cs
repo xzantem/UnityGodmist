@@ -13,6 +13,7 @@ namespace Godmist.Systems.NPC
     public class TradeService
     {
         private readonly InventoryService inventoryService = new();
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         public int GetPriceToBuyFromTrader(ItemInstance item)
         {
@@ -89,7 +90,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            trader.SpentGoldTotal += price;
+            npcLoyaltyService.TryRecordGoldSpent(trader, price);
             paidGold = price;
             return true;
         }
@@ -142,7 +143,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            trader.SpentGoldTotal += price;
+            npcLoyaltyService.TryRecordGoldSpent(trader, price);
             paidGold = price;
             return true;
         }

@@ -59,6 +59,7 @@ namespace Godmist.Systems.Items
         private readonly EquipmentGenerationService equipmentGeneration;
         private readonly InventoryService inventoryService;
         private readonly TradeService tradeService;
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         public BlacksmithCraftingService(
             EquipmentGenerationService equipmentGeneration = null,
@@ -282,7 +283,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            blacksmith.SpentGoldTotal += paidGold;
+            npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             return true;
         }
 

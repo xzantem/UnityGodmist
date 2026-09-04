@@ -11,6 +11,12 @@ namespace Godmist.Data.Configuration
                 Float(GameDefineIds.TraderRelevantSellMultiplier, "Sprzedaż właściwego typu", "Mnożnik ceny sprzedaży itemu zgodnego z ofertą tradera.", GameDefineCategory.Economy, "x", .5f, 0f, 100f),
                 Float(GameDefineIds.TraderIrrelevantSellMultiplier, "Sprzedaż innego typu", "Mnożnik ceny sprzedaży itemu spoza oferty tradera.", GameDefineCategory.Economy, "x", .25f, 0f, 100f),
 
+                Integer(GameDefineIds.NpcLoyaltyInitialLevel, "Początkowy poziom lojalności NPC", "Poziom lojalności nadawany nowej instancji NPC.", GameDefineCategory.Progression, "level", 1, 1, 100),
+                Integer(GameDefineIds.NpcLoyaltyMaximumLevel, "Maksymalny poziom lojalności NPC", "Najwyższy poziom lojalności dostępny w systemie NPC.", GameDefineCategory.Progression, "level", 15, 1, 100),
+                Float(GameDefineIds.NpcLoyaltyThresholdBase, "Baza progu lojalności NPC", "Podstawa potęgowania kosztu przejścia na kolejny poziom lojalności.", GameDefineCategory.Progression, "x", 4f, 1.01f, 100f),
+                Float(GameDefineIds.NpcLoyaltyThresholdExponentOffset, "Przesunięcie wykładnika lojalności NPC", "Stałe przesunięcie wykładnika formuły kosztu lojalności NPC.", GameDefineCategory.Progression, "x", 4f, 0f, 100f),
+                Float(GameDefineIds.NpcLoyaltyThresholdLevelDivisor, "Dzielnik poziomu lojalności NPC", "Dzielnik poziomu w wykładniku formuły kosztu lojalności NPC.", GameDefineCategory.Progression, "level", 3f, .01f, 100f),
+
                 Float(GameDefineIds.ActionPointsPerSpeed, "AP na punkt Speed", "Ile maksymalnych punktów akcji daje jeden punkt Speed.", GameDefineCategory.Combat, "AP/Speed", .25f, 0f, 10f),
                 Float(GameDefineIds.BaseActionValue, "Bazowa wartość AV", "Stała używana do przeliczania Speed na kolejność tur.", GameDefineCategory.Combat, "AV", 10000f, 1f, 100000f),
                 Integer(GameDefineIds.EscapeBaseChancePercent, "Bazowa szansa ucieczki", "Szansa pierwszej próby ucieczki.", GameDefineCategory.Combat, "%", 60, 0, 100),

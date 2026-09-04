@@ -12,6 +12,7 @@ using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.Characters;
+using Godmist.Systems.NPC;
 using UnityEngine;
 
 namespace Godmist.Systems.Items
@@ -36,6 +37,7 @@ namespace Godmist.Systems.Items
     {
         private readonly System.Random random;
         private readonly CharacterStatPipelineSystem statPipeline = new();
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         public EquipmentUpgradeService(System.Random random = null) => this.random = random ?? new System.Random();
 
@@ -83,6 +85,7 @@ namespace Godmist.Systems.Items
             if (!preview.CanExecute) { failureReason = preview.FailureReason; return false; }
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
             paidGold = preview.GoldCost;
+            npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             if (random.NextDouble() < successChance)
             {
                 item.UpgradeProgress = targetProgress;
@@ -133,6 +136,7 @@ namespace Godmist.Systems.Items
             if (!preview.CanExecute) { failureReason = preview.FailureReason; return false; }
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
             paidGold = preview.GoldCost;
+            npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             var (up, unchanged) = GetReforgeChances(item.CurrentRarity);
             var roll = random.NextDouble();
             result = roll < up ? (RarityTier)((int)item.CurrentRarity + 1)

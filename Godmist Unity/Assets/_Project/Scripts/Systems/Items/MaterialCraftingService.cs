@@ -38,6 +38,7 @@ namespace Godmist.Systems.Items
         private readonly InventoryService inventoryService;
         private readonly ItemInstanceFactory itemFactory;
         private readonly TradeService tradeService;
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         public MaterialCraftingService(
             InventoryService inventoryService = null,
@@ -233,7 +234,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            blacksmith.SpentGoldTotal += paidGold;
+            npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             return true;
         }
 

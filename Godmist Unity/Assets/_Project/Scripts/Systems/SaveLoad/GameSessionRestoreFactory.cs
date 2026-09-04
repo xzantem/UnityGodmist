@@ -30,6 +30,7 @@ namespace Godmist.Systems.SaveLoad
         private readonly CharacterInstanceFactory characterFactory;
         private readonly ItemInstanceFactory itemFactory;
         private readonly NpcInstanceFactory npcFactory;
+        private readonly NpcLoyaltyService npcLoyaltyService;
         private readonly InventoryService inventoryService;
         private readonly CharacterStatPipelineSystem statPipeline;
         private readonly DungeonGeneratorService dungeonGenerator;
@@ -61,6 +62,8 @@ namespace Godmist.Systems.SaveLoad
                 ?? new NpcInstanceFactory(
                     this.itemFactory,
                     this.inventoryService);
+
+            npcLoyaltyService = new NpcLoyaltyService();
 
             this.statPipeline = statPipeline
                 ?? new CharacterStatPipelineSystem();
@@ -1483,7 +1486,8 @@ namespace Godmist.Systems.SaveLoad
             foreach (var npcSaveData in npcSaveDataList)
             {
                 if (npcSaveData == null
-                    || npcSaveData.LoyaltyLevel < 1
+                    || npcSaveData.LoyaltyLevel < npcLoyaltyService.InitialLevel
+                    || npcSaveData.LoyaltyLevel > npcLoyaltyService.MaximumLevel
                     || npcSaveData.SpentGoldTotal < 0
                     || !contentCatalog.TryGetNpc(
                         npcSaveData.NpcId,

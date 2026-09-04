@@ -47,6 +47,96 @@ MonoBehaviour:
     MaximumFloatValue: 100
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
+  - Id: progression.npc.loyalty.initial_level
+    DisplayName: Poczatkowy poziom lojalnosci NPC
+    Description: Poziom lojalnosci nadawany nowej instancji NPC.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.maximum_level
+    DisplayName: Maksymalny poziom lojalnosci NPC
+    Description: Najwyzszy poziom lojalnosci dostepny w systemie NPC.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 15
+    CurrentIntegerValue: 15
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.threshold_base
+    DisplayName: Baza progu lojalnosci NPC
+    Description: Podstawa potegowania kosztu przejscia na kolejny poziom lojalnosci.
+    Category: 5
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4
+    CurrentFloatValue: 4
+    MinimumFloatValue: 1.01
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.threshold_exponent_offset
+    DisplayName: Przesuniecie wykladnika lojalnosci NPC
+    Description: Stale przesuniecie wykladnika formuly kosztu lojalnosci NPC.
+    Category: 5
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4
+    CurrentFloatValue: 4
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.threshold_level_divisor
+    DisplayName: Dzielnik poziomu lojalnosci NPC
+    Description: Dzielnik poziomu w wykladniku formuly kosztu lojalnosci NPC.
+    Category: 5
+    Unit: level
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 3
+    CurrentFloatValue: 3
+    MinimumFloatValue: 0.01
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: combat.action_points_per_speed
