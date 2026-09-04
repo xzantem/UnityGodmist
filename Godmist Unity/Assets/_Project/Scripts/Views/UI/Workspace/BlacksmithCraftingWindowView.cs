@@ -54,13 +54,13 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
-            if (equipmentSlotTemplate != null) equipmentSlotTemplate.gameObject.SetActive(false);
-            if (partSlotTemplate != null) partSlotTemplate.gameObject.SetActive(false);
-            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+            HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
             if (qualityDropdown != null) qualityDropdown.onValueChanged.AddListener(HandleQualityChanged);
             if (customNameInput != null) customNameInput.onValueChanged.AddListener(HandleNameChanged);
         }
+
+        private void OnEnable() => HideTemplates();
 
         private void OnDestroy()
         {
@@ -85,6 +85,7 @@ namespace Godmist.Views.UI.Workspace
             blacksmith = nextBlacksmith;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
+            HideTemplates();
             selectedParts.Clear();
             PopulateQualityOptions();
             PopulateEquipmentChoices();
@@ -236,7 +237,7 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold} zł.");
+            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
         }
 
@@ -321,6 +322,13 @@ namespace Godmist.Views.UI.Workspace
         private void SetStatus(string value)
         {
             if (statusText != null) statusText.text = value ?? string.Empty;
+        }
+
+        private void HideTemplates()
+        {
+            if (equipmentSlotTemplate != null) equipmentSlotTemplate.gameObject.SetActive(false);
+            if (partSlotTemplate != null) partSlotTemplate.gameObject.SetActive(false);
+            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
         }
 
         private static string BuildMaterialDescription(CraftingMaterialCost material)

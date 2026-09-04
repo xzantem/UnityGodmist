@@ -9,6 +9,7 @@ using Godmist.Systems.NPC;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Godmist.Views.UI.Workspace
 {
@@ -43,10 +44,14 @@ namespace Godmist.Views.UI.Workspace
         private string recipientCharacterId = string.Empty;
         private NpcServiceKind? selectedService;
         private bool isServiceSessionOpen;
+        private NpcLoyaltyHeaderView loyaltyHeader;
+        private int lastDisplayedLoyaltyLevel = -1;
+        private long lastDisplayedGoldSpent = -1;
 
         private void Awake()
         {
             if (tabTemplate != null) tabTemplate.gameObject.SetActive(false);
+            EnsureLoyaltyHeader();
 
             // TradeServiceWindowView is a serialized child/content reference of
             // PF_UIW_NpcServicesWindow. Never create a second one at runtime:
@@ -65,6 +70,21 @@ namespace Godmist.Views.UI.Workspace
         {
             if (!isServiceSessionOpen) return;
             EndServiceSession();
+        }
+
+        private void Update()
+        {
+            if (!isServiceSessionOpen || npc == null) return;
+
+            var currentLevel = npc.LoyaltyLevel;
+            var goldSpent = loyaltyService.GetGoldSpentTowardNextLevel(npc);
+            if (currentLevel == lastDisplayedLoyaltyLevel
+                && goldSpent == lastDisplayedGoldSpent)
+            {
+                return;
+            }
+
+            UpdateLoyaltyHeader();
         }
 
         public bool Open(NpcInstance nextNpc, string nextRecipientCharacterId)
@@ -87,9 +107,9 @@ namespace Godmist.Views.UI.Workspace
             isServiceSessionOpen = true;
             if (titleText != null)
             {
-                titleText.text = $"Usługi: {npc.Definition.DisplayName}"
-                    + $"\nLojalność: {npc.LoyaltyLevel} • Rabat: {loyaltyService.GetDiscountPercent(npc)}%";
+                titleText.text = $"Usługi: {npc.Definition.DisplayName}";
             }
+            UpdateLoyaltyHeader();
             window?.Open();
             SelectService(GetDefaultService());
             return true;
@@ -210,6 +230,8 @@ namespace Godmist.Views.UI.Workspace
             npc = null;
             recipientCharacterId = string.Empty;
             isServiceSessionOpen = false;
+            lastDisplayedLoyaltyLevel = -1;
+            lastDisplayedGoldSpent = -1;
 
             if (session != null && session.CurrentMode == GameModeState.Menu)
             {
@@ -226,5 +248,177 @@ namespace Godmist.Views.UI.Workspace
             spawnedTabs.Clear();
         }
 
+        private void EnsureLoyaltyHeader()
+        {
+            if (titleText == null) return;
+
+            var header = titleText.transform.parent as RectTransform;
+            if (header == null) return;
+
+            var existing = header.GetComponentInChildren<NpcLoyaltyHeaderView>(true);
+            if (existing != null)
+            {
+                loyaltyHeader = existing;
+                return;
+            }
+
+            var indicatorObject = new GameObject(
+                "NpcLoyaltyHeader",
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI),
+                typeof(NpcLoyaltyHeaderView));
+            indicatorObject.transform.SetParent(header, false);
+
+            var indicatorRect = (RectTransform)indicatorObject.transform;
+            indicatorRect.anchorMin = new Vector2(1f, 0f);
+            indicatorRect.anchorMax = new Vector2(1f, 1f);
+            indicatorRect.pivot = new Vector2(1f, .5f);
+            indicatorRect.sizeDelta = new Vector2(220f, 0f);
+            indicatorRect.anchoredPosition = new Vector2(-56f, 0f);
+
+            var indicatorText = indicatorObject.GetComponent<TextMeshProUGUI>();
+            indicatorText.font = titleText.font;
+            indicatorText.fontSize = Mathf.Min(titleText.fontSize, 20f);
+            indicatorText.fontSizeMin = 12f;
+            indicatorText.fontSizeMax = indicatorText.fontSize;
+            indicatorText.enableAutoSizing = true;
+            indicatorText.color = titleText.color;
+            indicatorText.alignment = TextAlignmentOptions.Right;
+            indicatorText.verticalAlignment = VerticalAlignmentOptions.Middle;
+            indicatorText.overflowMode = TextOverflowModes.Ellipsis;
+            indicatorText.raycastTarget = true;
+            indicatorText.margin = new Vector4(0f, 0f, 8f, 0f);
+
+            var titleRect = titleText.rectTransform;
+            titleRect.anchorMin = new Vector2(0f, 0f);
+            titleRect.anchorMax = new Vector2(1f, 1f);
+            titleRect.offsetMin = new Vector2(16f, 0f);
+            titleRect.offsetMax = new Vector2(-288f, 0f);
+            titleText.alignment = TextAlignmentOptions.Left;
+
+            loyaltyHeader = indicatorObject.GetComponent<NpcLoyaltyHeaderView>();
+        }
+
+        private void UpdateLoyaltyHeader()
+        {
+            if (loyaltyHeader == null) EnsureLoyaltyHeader();
+            if (loyaltyHeader == null || npc == null) return;
+
+            var currentLevel = npc.LoyaltyLevel;
+            var spent = loyaltyService.GetGoldSpentTowardNextLevel(npc);
+            var required = loyaltyService.GetGoldRequiredForNextLevel(npc);
+            var progress = currentLevel >= loyaltyService.MaximumLevel
+                ? $"{currentLevel} (MAX)"
+                : $"{currentLevel} ({spent}/{required})";
+
+            loyaltyHeader.GetComponent<TextMeshProUGUI>().text = $"Lojalność: {progress}";
+            loyaltyHeader.Bind(npc, BuildLoyaltyTooltipData(npc));
+            loyaltyHeader.RefreshTooltip();
+            lastDisplayedLoyaltyLevel = currentLevel;
+            lastDisplayedGoldSpent = spent;
+        }
+
+        private NpcLoyaltyTooltipData BuildLoyaltyTooltipData(NpcInstance targetNpc)
+        {
+            var currentLevel = targetNpc.LoyaltyLevel;
+            var maximumLevel = loyaltyService.MaximumLevel;
+            var breakpoints = new List<NpcLoyaltyBreakpointPresentation>();
+            for (var level = 1; level <= maximumLevel; level++)
+            {
+                var labels = new List<string>();
+                AppendMaterialBreakpointLabel(labels, level, RarityTier.Common,
+                    "Handel materiałami pospolitymi");
+                AppendMaterialBreakpointLabel(labels, level, RarityTier.Uncommon,
+                    "Handel materiałami niepospolitymi");
+                AppendMaterialBreakpointLabel(labels, level, RarityTier.Rare,
+                    "Handel materiałami rzadkimi");
+                AppendMaterialBreakpointLabel(labels, level, RarityTier.Ancient,
+                    "Handel materiałami starożytnymi");
+                AppendMaterialBreakpointLabel(labels, level, RarityTier.Legendary,
+                    "Handel materiałami legendarnymi");
+
+                if (level > 1
+                    && loyaltyService.GetDiscountPercent(level)
+                        != loyaltyService.GetDiscountPercent(level - 1))
+                {
+                    labels.Add($"Ceny usług niższe o {loyaltyService.GetDiscountPercent(level)}%");
+                }
+
+                AppendBlacksmithSpecialEffectLabel(labels, targetNpc, level);
+                if (labels.Count == 0) continue;
+
+                breakpoints.Add(new NpcLoyaltyBreakpointPresentation(
+                    level,
+                    string.Join(" · ", labels),
+                    currentLevel >= level));
+            }
+
+            return new NpcLoyaltyTooltipData(
+                currentLevel,
+                maximumLevel,
+                loyaltyService.GetDiscountPercent(targetNpc),
+                loyaltyService.GetGoldSpentTowardNextLevel(targetNpc),
+                loyaltyService.GetGoldRequiredForNextLevel(targetNpc),
+                breakpoints);
+        }
+
+        private void AppendMaterialBreakpointLabel(
+            List<string> labels,
+            int level,
+            RarityTier rarity,
+            string label)
+        {
+            if (loyaltyService.GetMaterialTradeUnlockLevel(rarity) == level)
+                labels.Add(label);
+        }
+
+        private static void AppendBlacksmithSpecialEffectLabel(
+            List<string> labels,
+            NpcInstance targetNpc,
+            int level)
+        {
+            if (targetNpc?.Definition?.GetRole<BlacksmithRoleData>() == null) return;
+
+            var label = level switch
+            {
+                3 => "Tworzony ekwipunek ma o 5% lepsze statystyki główne",
+                6 => "Nowy ekwipunek zaczyna z 25% ulepszenia",
+                11 => "Niższy koszt ponownego ulepszania",
+                14 => "Tworzony ekwipunek ma co najmniej 4 unikalności",
+                15 => "Przekuwanie ekwipunku nie może obniżyć unikalności",
+                _ => null
+            };
+            if (!string.IsNullOrWhiteSpace(label)) labels.Add(label);
+        }
+
+    }
+
+    public sealed class NpcLoyaltyHeaderView : MonoBehaviour,
+        IPointerEnterHandler,
+        IPointerExitHandler
+    {
+        private NpcInstance npc;
+        private NpcLoyaltyTooltipData tooltipData;
+
+        public void Bind(NpcInstance nextNpc, NpcLoyaltyTooltipData nextTooltipData)
+        {
+            npc = nextNpc;
+            tooltipData = nextTooltipData;
+        }
+
+        public void RefreshTooltip()
+        {
+            if (tooltipData == null) return;
+            UIWorkspaceTooltipView.ActiveInstance?.RefreshNpcLoyaltyTooltip(tooltipData, this);
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (npc == null) return;
+            UIWorkspaceTooltipView.ActiveInstance?.ShowNpcLoyalty(tooltipData, this);
+        }
+
+        public void OnPointerExit(PointerEventData eventData) =>
+            UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
     }
 }

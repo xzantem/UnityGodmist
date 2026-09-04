@@ -39,10 +39,11 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
-            if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
-            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+            HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
         }
+
+        private void OnEnable() => HideTemplates();
 
         private void OnDestroy()
         {
@@ -61,6 +62,7 @@ namespace Godmist.Views.UI.Workspace
             blacksmith = nextBlacksmith;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
+            HideTemplates();
             PopulateRecipes();
             RefreshPreview();
             return true;
@@ -142,7 +144,7 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold} zł.");
+            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
         }
 
@@ -237,6 +239,12 @@ namespace Godmist.Views.UI.Workspace
         private void SetStatus(string message)
         {
             if (statusText != null) statusText.text = message ?? string.Empty;
+        }
+
+        private void HideTemplates()
+        {
+            if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
+            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
         }
 
         private static string BuildMaterialDescription(CraftingMaterialCost material)

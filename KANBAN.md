@@ -239,6 +239,24 @@ Zamkniety: zobacz sekcje `Done`.
 
 Zamkniety: zobacz sekcje `Done`.
 
+### Milestone: City Progression and Specialist Services v1
+
+#### Done / READY_FOR_SMOKE
+
+- `[P1] Dodac trwala lojalnosc NPC i postep wydatkow v1` - `NPC / Quest / Dialogue`, `Core / Architecture` - Done
+- `[P1] Dodac progi lojalnosci, odblokowania uslug i rabaty v1` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX` - `READY_FOR_SMOKE`
+  - Znane braki efektow gameplayowych zapisano w `Godmist Unity/CITY_PROGRESSION_V1_IMPLEMENTATION_NOTES.md`.
+
+#### Backlog milestone'u
+
+- `[P1] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Core / Architecture`
+- `[P1] Dodac role Alchemika, crafting i napelnianie potionow v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data`
+- `[P2] Dodac crafting bizuterii v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+- `[P2] Dodac crafting i identyfikowanie galdurytow/run v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data`
+- `[P2] Dodac socketowanie galdurytow/run w bronie i pancerze v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
+- `[P2] Dodac wyciaganie galdurytow/run z broni i pancerzy v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
+- `[P1] City Progression and Specialist Services v1 - acceptance pass` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Combat`, `UI / UX`, `Tools / Editor / Debug`
+
 ## Git checkpoints
 
 - Commit po zamknieciu jednej karty: kod, assety, testy i zmiana dokumentacji stanowia jeden spojny commit.

@@ -260,7 +260,7 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetMessage($"Kupiono przedmiot za {paidGold} zł.");
+            SetMessage($"Kupiono przedmiot za {paidGold}.");
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
             Refresh();
         }
@@ -282,7 +282,7 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetMessage($"Sprzedano przedmiot za {receivedGold} zł. Trafił do odkupu.");
+            SetMessage($"Sprzedano przedmiot za {receivedGold}. Trafił do odkupu.");
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
             Refresh();
         }
@@ -402,7 +402,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
-                : $"Kupno: {price} zł";
+                : $"Kupno: {price}";
             if (price <= 0)
             {
                 result += "\n<color=#E06C75>"
@@ -416,7 +416,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildSellPriceTooltip(ItemInstance item, int price)
         {
-            var result = $"Sprzedaż: {price} zł";
+            var result = $"Sprzedaż: {price}";
             if (price <= 0)
             {
                 result += "\n<color=#E06C75>"

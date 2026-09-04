@@ -718,6 +718,7 @@ MonoBehaviour:
   glossary: {fileID: 11400000, guid: fa800bf2c77ce5142a505efb93cc77a4, type: 2}
   hoverDelay: 0.25
   lockDelay: 1
+  npcLoyaltyProgressSliderPrefab: {fileID: 4361752180961183546, guid: 0cead5398de30954bb6f5aa31e0c488f, type: 3}
   nestedLinkDelay: 0.25
   exitGracePeriod: 0.4
   minimumHeight: 68
