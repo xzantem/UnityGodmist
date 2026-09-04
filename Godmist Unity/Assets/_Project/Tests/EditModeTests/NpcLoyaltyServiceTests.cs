@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Godmist.Core.Enums;
 using Godmist.Data.Configuration;
+using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.NPC;
@@ -122,6 +124,54 @@ namespace Godmist.Tests.EditMode
             Assert.That(service.TryRecordGoldSpent(npc, -1), Is.False);
             Assert.That(npc.LoyaltyLevel, Is.EqualTo(2));
             Assert.That(npc.SpentGoldTotal, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void Discount_UsesCumulativeLoyaltyBands()
+        {
+            var service = new NpcLoyaltyService();
+
+            Assert.That(service.GetDiscountPercent(1), Is.EqualTo(0));
+            Assert.That(service.GetDiscountPercent(2), Is.EqualTo(1));
+            Assert.That(service.GetDiscountPercent(3), Is.EqualTo(1));
+            Assert.That(service.GetDiscountPercent(4), Is.EqualTo(4));
+            Assert.That(service.GetDiscountPercent(6), Is.EqualTo(4));
+            Assert.That(service.GetDiscountPercent(7), Is.EqualTo(9));
+            Assert.That(service.GetDiscountPercent(8), Is.EqualTo(9));
+            Assert.That(service.GetDiscountPercent(9), Is.EqualTo(16));
+            Assert.That(service.GetDiscountPercent(11), Is.EqualTo(16));
+            Assert.That(service.GetDiscountPercent(12), Is.EqualTo(25));
+            Assert.That(service.GetDiscountPercent(15), Is.EqualTo(25));
+            Assert.That(service.GetDiscountedGoldCost(
+                new NpcInstance { LoyaltyLevel = 12 },
+                100),
+                Is.EqualTo(75));
+        }
+
+        [Test]
+        public void MaterialTrade_UsesLoyaltyRarityGates()
+        {
+            var service = new NpcLoyaltyService();
+            var materialDefinition = ScriptableObject.CreateInstance<ItemDefinition>();
+            SetAutoProperty(materialDefinition, "ItemType", ItemType.Material);
+            SetAutoProperty(materialDefinition, "BaseRarity", RarityTier.Uncommon);
+            var npc = new NpcInstance { LoyaltyLevel = 4 };
+
+            Assert.That(service.IsMaterialTradeUnlocked(
+                npc,
+                materialDefinition,
+                out var lockedReason),
+                Is.False);
+            Assert.That(lockedReason, Does.Contain("5"));
+
+            npc.LoyaltyLevel = 5;
+            Assert.That(service.IsMaterialTradeUnlocked(
+                npc,
+                materialDefinition,
+                out _),
+                Is.True);
+
+            Object.DestroyImmediate(materialDefinition);
         }
 
         private static GameDefineEntry CreateInteger(

@@ -209,7 +209,7 @@ namespace Godmist.Views.UI.Workspace
                     materialsContent,
                     material.Material.Icon,
                     material.Material.DisplayName,
-                    material.Material.Description,
+                    BuildMaterialDescription(material),
                     $"{material.OwnedAmount}/{material.RequiredAmount}",
                     false,
                     material.MissingAmount > 0,
@@ -321,6 +321,16 @@ namespace Godmist.Views.UI.Workspace
         private void SetStatus(string value)
         {
             if (statusText != null) statusText.text = value ?? string.Empty;
+        }
+
+        private static string BuildMaterialDescription(CraftingMaterialCost material)
+        {
+            if (material == null) return string.Empty;
+            if (string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
+                return material.Material?.Description ?? string.Empty;
+
+            return (material.Material?.Description ?? string.Empty)
+                + $"\n<color=#E06C75>{material.PurchaseFailureReason}</color>";
         }
 
         private void RefreshResultPreview(EquipmentItemInstance result)

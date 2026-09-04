@@ -252,8 +252,8 @@ namespace Godmist.Views.UI.Workspace
             if (!success)
             {
                 var price = buybackEntry != null
-                    ? tradeService.GetPriceFromBuyback(buybackEntry)
-                    : tradeService.GetPriceToBuyFromTrader(item);
+                    ? tradeService.GetPriceFromBuyback(trader, buybackEntry)
+                    : tradeService.GetPriceToBuyFromTrader(trader, item);
                 SetMessage(BuildBuyFailureMessage(item, price));
                 UIWorkspaceTooltipView.ActiveInstance?.Hide();
                 Refresh();
@@ -276,7 +276,7 @@ namespace Godmist.Views.UI.Workspace
                     item.InstanceId,
                     out var receivedGold))
             {
-                SetMessage("Nie można sprzedać tego przedmiotu.");
+                SetMessage(GetSellFailureReason(item));
                 UIWorkspaceTooltipView.ActiveInstance?.Hide();
                 Refresh();
                 return;
@@ -308,22 +308,24 @@ namespace Godmist.Views.UI.Workspace
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.PlayerInventory,
-                    $"Sprzedaż: {price} zł",
-                    false,
+                    BuildSellPriceTooltip(stack.Representative, price),
+                    price <= 0,
                     tradingCharacter,
                     null);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.Items))
             {
-                var price = tradeService.GetPriceToBuyFromTrader(stack.Representative);
+                var price = tradeService.GetPriceToBuyFromTrader(
+                    trader,
+                    stack.Representative);
                 SpawnSlot(
                     traderItemsContent,
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.TraderOffer,
-                    BuildBuyPriceTooltip(price),
-                    session != null && session.Gold < price,
+                    BuildBuyPriceTooltip(stack.Representative, price),
+                    price <= 0 || session != null && session.Gold < price,
                     null,
                     null);
             }
@@ -331,14 +333,14 @@ namespace Godmist.Views.UI.Workspace
             foreach (var entry in trader?.ShopInventory?.BuybackStock ?? new List<BuybackEntry>())
             {
                 if (entry?.Item?.Definition == null) continue;
-                var price = tradeService.GetPriceFromBuyback(entry);
+                var price = tradeService.GetPriceFromBuyback(trader, entry);
                 SpawnSlot(
                     traderItemsContent,
                     entry.Item,
                     1,
                     TradeItemSlotSource.Buyback,
-                    BuildBuyPriceTooltip(price),
-                    session != null && session.Gold < price,
+                    BuildBuyPriceTooltip(entry.Item, price),
+                    price <= 0 || session != null && session.Gold < price,
                     null,
                     entry);
             }
@@ -396,24 +398,49 @@ namespace Godmist.Views.UI.Workspace
             return null;
         }
 
-        private string BuildBuyPriceTooltip(int price)
+        private string BuildBuyPriceTooltip(ItemInstance item, int price)
         {
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
                 : $"Kupno: {price} zł";
             if (price <= 0)
             {
-                result += "\n<color=#E06C75>Ten przedmiot nie może być kupiony.</color>";
+                result += "\n<color=#E06C75>"
+                    + GetBuyRestrictionReason(item)
+                    + "</color>";
             }
             else if (session != null && session.Gold < price)
                 result += "\n<color=#E06C75>Brak wystarczającej ilości złota.</color>";
             return result;
         }
 
+        private string BuildSellPriceTooltip(ItemInstance item, int price)
+        {
+            var result = $"Sprzedaż: {price} zł";
+            if (price <= 0)
+            {
+                result += "\n<color=#E06C75>"
+                    + GetSellFailureReason(item)
+                    + "</color>";
+            }
+
+            return result;
+        }
+
+        private string GetSellFailureReason(ItemInstance item)
+        {
+            if (tradeService == null)
+                return "Nie można sprzedać przedmiotu: brak usługi handlu.";
+
+            return tradeService.CanSellItem(trader, item, out var reason)
+                ? "Nie można sprzedać tego przedmiotu."
+                : reason;
+        }
+
         private string BuildBuyFailureMessage(ItemInstance item, int price)
         {
             if (price <= 0)
-                return "Nie można kupić przedmiotu: brak poprawnej ceny.";
+                return GetBuyRestrictionReason(item);
             if (session == null || session.Gold < price)
                 return "Brakuje złota na ten zakup.";
 
@@ -433,6 +460,16 @@ namespace Godmist.Views.UI.Workspace
             }
 
             return "Nie można kupić przedmiotu.";
+        }
+
+        private string GetBuyRestrictionReason(ItemInstance item)
+        {
+            if (tradeService == null)
+                return "Nie można kupić przedmiotu: brak usługi handlu.";
+
+            return tradeService.CanBuyItem(trader, item, out var reason)
+                ? "Nie można kupić przedmiotu: brak poprawnej ceny."
+                : reason;
         }
 
         private bool HasRequiredReferences()

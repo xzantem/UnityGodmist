@@ -62,8 +62,14 @@ namespace Godmist.Systems.Items
                 preview.FailureReason = "Szansa powodzenia musi mieścić się między 0% a 99%.";
                 return preview;
             }
-            preview.GoldCost = Mathf.Max(1, Mathf.CeilToInt((float)(UpgradeCost(baseValue, targetProgress, successChance)
+            var baseGoldCost = Mathf.Max(1, Mathf.CeilToInt((float)(UpgradeCost(
+                baseValue,
+                targetProgress,
+                successChance)
                 - UpgradeCost(baseValue, item.UpgradeProgress, successChance))));
+            preview.GoldCost = npcLoyaltyService.GetDiscountedGoldCost(
+                blacksmith,
+                baseGoldCost);
             var maximumSocketCapacity = GameDefinesRuntime.GetInt(
                 GameDefineIds.SocketCapacityAtFullUpgrade, 5);
             preview.SocketCapacity = Mathf.Clamp(
@@ -121,8 +127,11 @@ namespace Godmist.Systems.Items
             preview.UnchangedChance = (float)unchanged;
             preview.DecreaseChance = 1f - preview.IncreaseChance - preview.UnchangedChance;
             preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
-            preview.GoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * GameDefinesRuntime.GetFloat(
+            var baseGoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * GameDefinesRuntime.GetFloat(
                 GameDefineIds.ReforgeCostMultiplier, .25f)));
+            preview.GoldCost = npcLoyaltyService.GetDiscountedGoldCost(
+                blacksmith,
+                baseGoldCost);
             preview.CanExecute = session.Gold >= preview.GoldCost;
             preview.FailureReason = preview.CanExecute ? string.Empty : "Brakuje złota.";
             return preview;

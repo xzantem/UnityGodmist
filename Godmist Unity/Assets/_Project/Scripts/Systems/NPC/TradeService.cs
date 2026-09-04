@@ -22,6 +22,17 @@ namespace Godmist.Systems.NPC
             return GetBaseValue(item.Definition);
         }
 
+        public int GetPriceToBuyFromTrader(
+            NpcInstance trader,
+            ItemInstance item)
+        {
+            if (!CanBuyItem(trader, item, out _)) return 0;
+
+            return npcLoyaltyService.GetDiscountedGoldCost(
+                trader,
+                GetPriceToBuyFromTrader(item));
+        }
+
         public int GetPriceFromBuyback(BuybackEntry entry)
         {
             if (entry?.Item?.Definition == null) return 0;
@@ -29,11 +40,62 @@ namespace Godmist.Systems.NPC
             return Mathf.Max(0, entry.SoldPrice);
         }
 
+        public int GetPriceFromBuyback(
+            NpcInstance trader,
+            BuybackEntry entry)
+        {
+            if (entry?.Item == null || !CanBuyItem(trader, entry.Item, out _)) return 0;
+
+            return npcLoyaltyService.GetDiscountedGoldCost(
+                trader,
+                GetPriceFromBuyback(entry));
+        }
+
+        public bool CanBuyItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            return CanTradeItem(trader, item, out failureReason);
+        }
+
+        public bool CanSellItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            return CanTradeItem(trader, item, out failureReason);
+        }
+
+        private bool CanTradeItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+            if (!CanTrade(trader) || item?.Definition == null)
+            {
+                failureReason = "Ten NPC nie oferuje poprawnej usługi handlu.";
+                return false;
+            }
+
+            if (!npcLoyaltyService.IsMaterialTradeUnlocked(
+                    trader,
+                    item.Definition,
+                    out failureReason))
+            {
+                failureReason = $"Handel tym materiałem jest zablokowany. {failureReason}";
+                return false;
+            }
+
+            return true;
+        }
+
         public int GetPriceWhenSellingToTrader(
             NpcInstance trader,
             ItemInstance item)
         {
-            if (!CanTrade(trader) || item?.Definition == null) return 0;
+            if (!CanSellItem(trader, item, out _)) return 0;
 
             var multiplier = IsRelevantForTrader(trader, item)
                 ? GameDefinesRuntime.GetFloat(GameDefineIds.TraderRelevantSellMultiplier, .5f)
@@ -61,7 +123,7 @@ namespace Godmist.Systems.NPC
             }
 
             var item = FindItem(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceToBuyFromTrader(item);
+            var price = GetPriceToBuyFromTrader(trader, item);
 
             if (price <= 0 || session.Gold < price) return false;
 
@@ -120,7 +182,7 @@ namespace Godmist.Systems.NPC
             }
 
             var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceFromBuyback(entry);
+            var price = GetPriceFromBuyback(trader, entry);
 
             if (entry == null || price <= 0 || session.Gold < price) return false;
 

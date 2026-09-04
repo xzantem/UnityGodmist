@@ -188,11 +188,18 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(cost.PurchaseFailureReason))
+            {
+                failureReason = cost.PurchaseFailureReason;
+                return false;
+            }
+
             var stock = blacksmith.ShopInventory.Items.Where(item =>
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(tradeService.GetPriceToBuyFromTrader);
+            paidGold = stock.Sum(item =>
+                tradeService.GetPriceToBuyFromTrader(blacksmith, item));
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -372,6 +379,17 @@ namespace Godmist.Systems.Items
                                 ? CraftingMaterialPurchaseState.Available
                                 : CraftingMaterialPurchaseState.InsufficientGold
                 });
+                var cost = costs[costs.Count - 1];
+                if (cost.MissingAmount > 0
+                    && !npcLoyaltyService.IsMaterialTradeUnlocked(
+                        blacksmith,
+                        cost.Material,
+                        out var materialRestriction))
+                {
+                    cost.PurchaseFailureReason =
+                        $"Handel tym materiałem jest zablokowany. {materialRestriction}";
+                    cost.PurchaseState = CraftingMaterialPurchaseState.OutOfStock;
+                }
             }
 
             return costs;
@@ -403,7 +421,7 @@ namespace Godmist.Systems.Items
             amount <= 0 ? 0 : blacksmith?.ShopInventory?.Items?
                 .Where(item => item?.Definition?.Id == definitionId)
                 .Take(amount)
-                .Sum(tradeService.GetPriceToBuyFromTrader) ?? 0;
+                .Sum(item => tradeService.GetPriceToBuyFromTrader(blacksmith, item)) ?? 0;
 
         private static bool CanReceiveAll(Inventory inventory, ItemDefinition definition, int amount)
         {

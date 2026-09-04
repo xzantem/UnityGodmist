@@ -139,6 +139,276 @@ MonoBehaviour:
     CurrentStringValue: 
     DefaultStringValue: 
     CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.level_1
+    DisplayName: Prog rabatu lojalnosci 1
+    Description: Minimalny poziom lojalnosci dla pierwszego progu rabatu.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.level_2
+    DisplayName: Prog rabatu lojalnosci 2
+    Description: Minimalny poziom lojalnosci dla drugiego progu rabatu.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.level_3
+    DisplayName: Prog rabatu lojalnosci 3
+    Description: Minimalny poziom lojalnosci dla trzeciego progu rabatu.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 7
+    CurrentIntegerValue: 7
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.level_4
+    DisplayName: Prog rabatu lojalnosci 4
+    Description: Minimalny poziom lojalnosci dla czwartego progu rabatu.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 9
+    CurrentIntegerValue: 9
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.level_5
+    DisplayName: Prog rabatu lojalnosci 5
+    Description: Minimalny poziom lojalnosci dla piatego progu rabatu.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 12
+    CurrentIntegerValue: 12
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.percent_1
+    DisplayName: Rabat lojalnosci 1
+    Description: Laczny rabat uslug po osiagnieciu pierwszego progu.
+    Category: 5
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.01
+    CurrentFloatValue: 0.01
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.percent_2
+    DisplayName: Rabat lojalnosci 2
+    Description: Laczny rabat uslug po osiagnieciu drugiego progu.
+    Category: 5
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.04
+    CurrentFloatValue: 0.04
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.percent_3
+    DisplayName: Rabat lojalnosci 3
+    Description: Laczny rabat uslug po osiagnieciu trzeciego progu.
+    Category: 5
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.09
+    CurrentFloatValue: 0.09
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.percent_4
+    DisplayName: Rabat lojalnosci 4
+    Description: Laczny rabat uslug po osiagnieciu czwartego progu.
+    Category: 5
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.16
+    CurrentFloatValue: 0.16
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.discount.percent_5
+    DisplayName: Rabat lojalnosci 5
+    Description: Laczny rabat uslug po osiagnieciu piatego progu.
+    Category: 5
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.material.common_unlock_level
+    DisplayName: Materialy pospolite NPC
+    Description: Minimalny poziom lojalnosci dla handlu pospolitymi materialami.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.material.uncommon_unlock_level
+    DisplayName: Materialy niepospolite NPC
+    Description: Minimalny poziom lojalnosci dla handlu niepospolitymi materialami.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.material.rare_unlock_level
+    DisplayName: Materialy rzadkie NPC
+    Description: Minimalny poziom lojalnosci dla handlu rzadkimi materialami.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 8
+    CurrentIntegerValue: 8
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.material.ancient_unlock_level
+    DisplayName: Materialy starozytne NPC
+    Description: Minimalny poziom lojalnosci dla handlu starozytnymi materialami.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.npc.loyalty.material.legendary_unlock_level
+    DisplayName: Materialy legendarne NPC
+    Description: Minimalny poziom lojalnosci dla handlu legendarnymi materialami.
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 13
+    CurrentIntegerValue: 13
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
   - Id: combat.action_points_per_speed
     DisplayName: AP na punkt Speed
     Description: "Ile maksymalnych punkt\xF3w akcji daje jeden punkt Speed."

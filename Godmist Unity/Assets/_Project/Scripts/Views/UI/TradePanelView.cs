@@ -49,6 +49,7 @@ namespace Godmist.Views.UI
 
         private GameSession gameSession;
         private TradeService tradeService;
+        private readonly NpcLoyaltyService loyaltyService = new();
         private NpcInstance trader;
         private CharacterInstance tradingCharacter;
         private ItemInstance selectedItem;
@@ -255,7 +256,9 @@ namespace Godmist.Views.UI
                 ? trader.Definition.DisplayName
                 : trader?.NpcId ?? "-";
 
-            titleText.text = $"Handel - {traderName}";
+            titleText.text = $"Handel - {traderName}\n"
+                + $"Lojalność: {trader?.LoyaltyLevel ?? loyaltyService.InitialLevel}"
+                + $" • Rabat: {loyaltyService.GetDiscountPercent(trader)}%";
             goldText.text = $"Zloto: {gameSession?.Gold ?? 0}";
         }
 
@@ -292,6 +295,7 @@ namespace Godmist.Views.UI
             foreach (var stack in BuildItemStacks(trader.ShopInventory.Items))
             {
                 var buyPrice = tradeService.GetPriceToBuyFromTrader(
+                    trader,
                     stack.Representative);
 
                 var buttonView = Instantiate(itemButtonPrefab, traderItemsContent);
@@ -316,7 +320,7 @@ namespace Godmist.Views.UI
             {
                 if (entry?.Item?.Definition == null) continue;
 
-                var buybackPrice = tradeService.GetPriceFromBuyback(entry);
+                var buybackPrice = tradeService.GetPriceFromBuyback(trader, entry);
                 var buttonView = Instantiate(itemButtonPrefab, buybackItemsContent);
 
                 buttonView.Bind(
@@ -372,11 +376,11 @@ namespace Godmist.Views.UI
             {
                 case SelectedItemSource.TraderStock:
                     priceLabel = "Cena zakupu";
-                    return tradeService.GetPriceToBuyFromTrader(selectedItem);
+                    return tradeService.GetPriceToBuyFromTrader(trader, selectedItem);
 
                 case SelectedItemSource.BuybackStock:
                     priceLabel = "Cena odkupku";
-                    return tradeService.GetPriceFromBuyback(selectedBuybackEntry);
+                    return tradeService.GetPriceFromBuyback(trader, selectedBuybackEntry);
 
                 case SelectedItemSource.PlayerInventory:
                     priceLabel = "Cena sprzedazy";

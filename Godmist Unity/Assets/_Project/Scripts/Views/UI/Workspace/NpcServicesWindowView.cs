@@ -5,6 +5,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
+using Godmist.Systems.NPC;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
@@ -36,6 +37,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private EquipmentUpgradeWindowView equipmentReforgeService;
 
         private readonly List<NpcServiceTabView> spawnedTabs = new();
+        private readonly NpcLoyaltyService loyaltyService = new();
         private GameSession session;
         private NpcInstance npc;
         private string recipientCharacterId = string.Empty;
@@ -83,7 +85,11 @@ namespace Godmist.Views.UI.Workspace
             if (!session.TrySetMode(GameModeState.Menu)) return false;
 
             isServiceSessionOpen = true;
-            if (titleText != null) titleText.text = $"Usługi: {npc.Definition.DisplayName}";
+            if (titleText != null)
+            {
+                titleText.text = $"Usługi: {npc.Definition.DisplayName}"
+                    + $"\nLojalność: {npc.LoyaltyLevel} • Rabat: {loyaltyService.GetDiscountPercent(npc)}%";
+            }
             window?.Open();
             SelectService(GetDefaultService());
             return true;

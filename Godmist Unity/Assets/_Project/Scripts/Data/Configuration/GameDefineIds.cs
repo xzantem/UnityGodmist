@@ -10,6 +10,21 @@ namespace Godmist.Data.Configuration
         public const string NpcLoyaltyThresholdBase = "progression.npc.loyalty.threshold_base";
         public const string NpcLoyaltyThresholdExponentOffset = "progression.npc.loyalty.threshold_exponent_offset";
         public const string NpcLoyaltyThresholdLevelDivisor = "progression.npc.loyalty.threshold_level_divisor";
+        public const string NpcLoyaltyDiscountLevel1 = "progression.npc.loyalty.discount.level_1";
+        public const string NpcLoyaltyDiscountLevel2 = "progression.npc.loyalty.discount.level_2";
+        public const string NpcLoyaltyDiscountLevel3 = "progression.npc.loyalty.discount.level_3";
+        public const string NpcLoyaltyDiscountLevel4 = "progression.npc.loyalty.discount.level_4";
+        public const string NpcLoyaltyDiscountLevel5 = "progression.npc.loyalty.discount.level_5";
+        public const string NpcLoyaltyDiscountPercent1 = "progression.npc.loyalty.discount.percent_1";
+        public const string NpcLoyaltyDiscountPercent2 = "progression.npc.loyalty.discount.percent_2";
+        public const string NpcLoyaltyDiscountPercent3 = "progression.npc.loyalty.discount.percent_3";
+        public const string NpcLoyaltyDiscountPercent4 = "progression.npc.loyalty.discount.percent_4";
+        public const string NpcLoyaltyDiscountPercent5 = "progression.npc.loyalty.discount.percent_5";
+        public const string NpcLoyaltyMaterialCommonUnlockLevel = "progression.npc.loyalty.material.common_unlock_level";
+        public const string NpcLoyaltyMaterialUncommonUnlockLevel = "progression.npc.loyalty.material.uncommon_unlock_level";
+        public const string NpcLoyaltyMaterialRareUnlockLevel = "progression.npc.loyalty.material.rare_unlock_level";
+        public const string NpcLoyaltyMaterialAncientUnlockLevel = "progression.npc.loyalty.material.ancient_unlock_level";
+        public const string NpcLoyaltyMaterialLegendaryUnlockLevel = "progression.npc.loyalty.material.legendary_unlock_level";
 
         public const string ActionPointsPerSpeed = "combat.action_points_per_speed";
         public const string BaseActionValue = "combat.base_action_value";

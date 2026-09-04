@@ -35,6 +35,7 @@ namespace Godmist.Systems.Items
         public bool CanAffordPurchase;
         public CraftingMaterialPurchaseState PurchaseState;
         public int PurchasePrice;
+        public string PurchaseFailureReason = string.Empty;
     }
 
     public enum CraftingMaterialPurchaseState
@@ -235,11 +236,18 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(cost.PurchaseFailureReason))
+            {
+                failureReason = cost.PurchaseFailureReason;
+                return false;
+            }
+
             var stock = blacksmith.ShopInventory.Items.Where(item =>
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(tradeService.GetPriceToBuyFromTrader);
+            paidGold = stock.Sum(item =>
+                tradeService.GetPriceToBuyFromTrader(blacksmith, item));
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -378,6 +386,15 @@ namespace Godmist.Systems.Items
                     PurchasePrice = GetStockPurchasePrice(blacksmith, pair.Key.Id, Mathf.Min(missing, stock))
                 });
                 var cost = costs[costs.Count - 1];
+                if (cost.MissingAmount > 0
+                    && !npcLoyaltyService.IsMaterialTradeUnlocked(
+                        blacksmith,
+                        cost.Material,
+                        out var materialRestriction))
+                {
+                    cost.PurchaseFailureReason =
+                        $"Handel tym materiałem jest zablokowany. {materialRestriction}";
+                }
                 cost.CanAffordPurchase = cost.PurchasableAmount > 0
                     && cost.PurchasePrice > 0
                     && session != null
@@ -442,7 +459,7 @@ namespace Godmist.Systems.Items
             return blacksmith?.ShopInventory?.Items?
                 .Where(candidate => candidate?.Definition?.Id == definitionId)
                 .Take(amount)
-                .Sum(tradeService.GetPriceToBuyFromTrader) ?? 0;
+                .Sum(item => tradeService.GetPriceToBuyFromTrader(blacksmith, item)) ?? 0;
         }
 
         private static bool TrySelectConsumedItems(
