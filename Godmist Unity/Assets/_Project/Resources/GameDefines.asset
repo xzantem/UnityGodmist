@@ -2199,3 +2199,57 @@ MonoBehaviour:
     CurrentBooleanValue: 0
     DefaultStringValue: 
     CurrentStringValue: 
+  - Id: economy.npc.guild_payout.growth_base
+    DisplayName: Baza wzrostu wypłat gildii
+    Description: Podstawa potęgowania wypłaty gildii NPC względem poziomu kampanii.
+    Category: 0
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4
+    CurrentFloatValue: 4
+    MinimumFloatValue: 1.01
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.npc.guild_payout.campaign_exponent
+    DisplayName: Wykładnik poziomu wypłaty gildii
+    Description: Wykładnik poziomu kampanii używany przy skalowaniu wypłaty gildii NPC.
+    Category: 0
+    Unit: x/level
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.npc.guild_payout.progress_per_dungeon
+    DisplayName: Postęp wypłaty za loch
+    Description: Część postępu do wypłaty przy pełnym lochu.
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.4
+    CurrentFloatValue: 0.4
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 

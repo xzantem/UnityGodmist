@@ -10,6 +10,7 @@ using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
@@ -101,6 +102,11 @@ namespace Godmist.Views.UI.Workspace
             recipientCharacterId = nextRecipientCharacterId;
             BuildTabs();
             if (!GetAvailableServices().Any()) return false;
+
+            // Normalize runtime-created loyalty UI every time the service
+            // window opens. This also repairs instances kept alive while
+            // Unity reloads scripts with domain reload disabled.
+            EnsureLoyaltyHeader();
 
             if (!session.TrySetMode(GameModeState.Menu)) return false;
 
@@ -252,13 +258,33 @@ namespace Godmist.Views.UI.Workspace
         {
             if (titleText == null) return;
 
-            var header = titleText.transform.parent as RectTransform;
-            if (header == null) return;
+            var windowRect = window?.transform as RectTransform;
+            // Header is the actual visible title-bar rect. The PF_UIW_Window
+            // root has a border/padding offset, so anchoring here would place
+            // the loyalty indicator in the strip above the title bar.
+            var host = windowRect?.Find("Header") as RectTransform
+                ?? titleText.transform.parent as RectTransform
+                ?? windowRect;
+            if (host == null) return;
 
-            var existing = header.GetComponentInChildren<NpcLoyaltyHeaderView>(true);
+            var existingCandidates = windowRect
+                ?.GetComponentsInChildren<NpcLoyaltyHeaderView>(true)
+                ?? Array.Empty<NpcLoyaltyHeaderView>();
+            var existing = existingCandidates.FirstOrDefault();
             if (existing != null)
             {
+                foreach (var duplicate in existingCandidates)
+                {
+                    if (duplicate != existing)
+                        Destroy(duplicate.gameObject);
+                }
+
+                if (existing.transform.parent != host)
+                    existing.transform.SetParent(host, false);
                 loyaltyHeader = existing;
+                ConfigureLoyaltyHeaderRoot(existing.rectTransform);
+                existing.ConfigureReferenceText(titleText);
+                existing.rectTransform.SetAsLastSibling();
                 return;
             }
 
@@ -267,27 +293,23 @@ namespace Godmist.Views.UI.Workspace
                 typeof(RectTransform),
                 typeof(TextMeshProUGUI),
                 typeof(NpcLoyaltyHeaderView));
-            indicatorObject.transform.SetParent(header, false);
+            indicatorObject.transform.SetParent(host, false);
 
             var indicatorRect = (RectTransform)indicatorObject.transform;
-            indicatorRect.anchorMin = new Vector2(1f, 0f);
-            indicatorRect.anchorMax = new Vector2(1f, 1f);
-            indicatorRect.pivot = new Vector2(1f, .5f);
-            indicatorRect.sizeDelta = new Vector2(220f, 0f);
-            indicatorRect.anchoredPosition = new Vector2(-56f, 0f);
+            ConfigureLoyaltyHeaderRoot(indicatorRect);
 
             var indicatorText = indicatorObject.GetComponent<TextMeshProUGUI>();
             indicatorText.font = titleText.font;
-            indicatorText.fontSize = Mathf.Min(titleText.fontSize, 20f);
-            indicatorText.fontSizeMin = 12f;
+            indicatorText.fontSize = Mathf.Min(titleText.fontSize - 3f, 15f);
+            indicatorText.fontSizeMin = 10f;
             indicatorText.fontSizeMax = indicatorText.fontSize;
-            indicatorText.enableAutoSizing = true;
+            indicatorText.enableAutoSizing = false;
             indicatorText.color = titleText.color;
             indicatorText.alignment = TextAlignmentOptions.Right;
-            indicatorText.verticalAlignment = VerticalAlignmentOptions.Middle;
+            indicatorText.verticalAlignment = VerticalAlignmentOptions.Top;
             indicatorText.overflowMode = TextOverflowModes.Ellipsis;
-            indicatorText.raycastTarget = true;
-            indicatorText.margin = new Vector4(0f, 0f, 8f, 0f);
+            indicatorText.raycastTarget = false;
+            indicatorText.text = string.Empty;
 
             var titleRect = titleText.rectTransform;
             titleRect.anchorMin = new Vector2(0f, 0f);
@@ -297,6 +319,8 @@ namespace Godmist.Views.UI.Workspace
             titleText.alignment = TextAlignmentOptions.Left;
 
             loyaltyHeader = indicatorObject.GetComponent<NpcLoyaltyHeaderView>();
+            loyaltyHeader.ConfigureReferenceText(titleText);
+            indicatorRect.SetAsLastSibling();
         }
 
         private void UpdateLoyaltyHeader()
@@ -307,12 +331,12 @@ namespace Godmist.Views.UI.Workspace
             var currentLevel = npc.LoyaltyLevel;
             var spent = loyaltyService.GetGoldSpentTowardNextLevel(npc);
             var required = loyaltyService.GetGoldRequiredForNextLevel(npc);
-            var progress = currentLevel >= loyaltyService.MaximumLevel
-                ? $"{currentLevel} (MAX)"
-                : $"{currentLevel} ({spent}/{required})";
-
-            loyaltyHeader.GetComponent<TextMeshProUGUI>().text = $"Lojalność: {progress}";
             loyaltyHeader.Bind(npc, BuildLoyaltyTooltipData(npc));
+            loyaltyHeader.SetProgress(
+                currentLevel,
+                spent,
+                required,
+                currentLevel >= loyaltyService.MaximumLevel);
             loyaltyHeader.RefreshTooltip();
             lastDisplayedLoyaltyLevel = currentLevel;
             lastDisplayedGoldSpent = spent;
@@ -391,19 +415,77 @@ namespace Godmist.Views.UI.Workspace
             if (!string.IsNullOrWhiteSpace(label)) labels.Add(label);
         }
 
+        private static void ConfigureLoyaltyHeaderRoot(RectTransform rect)
+        {
+            if (rect == null) return;
+
+            // Keep this as a fixed-size overlay inside the visible Header. A
+            // stretch-based rect here can inherit the window's full width when
+            // Unity preserves a runtime-created hierarchy across reloads.
+            rect.anchorMin = new Vector2(1f, .5f);
+            rect.anchorMax = new Vector2(1f, .5f);
+            rect.pivot = new Vector2(1f, .5f);
+            rect.sizeDelta = new Vector2(260f, 44f);
+            rect.anchoredPosition = new Vector2(-44f, 0f);
+
+            var layout = rect.GetComponent<LayoutElement>()
+                ?? rect.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = true;
+
+        }
+
     }
 
     public sealed class NpcLoyaltyHeaderView : MonoBehaviour,
         IPointerEnterHandler,
         IPointerExitHandler
     {
+        internal RectTransform rectTransform => transform as RectTransform;
+
         private NpcInstance npc;
         private NpcLoyaltyTooltipData tooltipData;
+        private TextMeshProUGUI titleText;
+        private TextMeshProUGUI levelText;
+        private TextMeshProUGUI progressText;
+        private Slider progressSlider;
+        private RectTransform progressRow;
+
+        private TextMeshProUGUI referenceText;
+
+        internal void ConfigureReferenceText(TextMeshProUGUI reference)
+        {
+            referenceText = reference;
+        }
 
         public void Bind(NpcInstance nextNpc, NpcLoyaltyTooltipData nextTooltipData)
         {
             npc = nextNpc;
             tooltipData = nextTooltipData;
+            EnsureProgressVisuals();
+        }
+
+        public void SetProgress(int level, long spent, int required, bool isMax)
+        {
+            EnsureProgressVisuals();
+            if (levelText != null)
+            {
+                levelText.text = level.ToString();
+                levelText.fontStyle = FontStyles.Bold;
+            }
+
+            if (progressSlider != null)
+            {
+                progressSlider.minValue = 0f;
+                progressSlider.maxValue = 1f;
+                progressSlider.interactable = false;
+                progressSlider.value = isMax || required <= 0
+                    ? 1f
+                    : Mathf.Clamp01((float)(spent / (double)required));
+                SetSliderGraphicsRaycastTarget(progressSlider, false);
+            }
+
+            if (progressText != null)
+                progressText.text = isMax ? "MAX" : $"{spent} / {required}";
         }
 
         public void RefreshTooltip()
@@ -420,5 +502,174 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnPointerExit(PointerEventData eventData) =>
             UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
+
+        private void EnsureProgressVisuals()
+        {
+            if (titleText == null)
+            {
+                titleText = transform.Find("LoyaltyTitle")
+                    ?.GetComponent<TextMeshProUGUI>();
+            }
+
+            if (titleText == null)
+            {
+                var titleObject = new GameObject(
+                    "LoyaltyTitle",
+                    typeof(RectTransform),
+                    typeof(TextMeshProUGUI));
+                titleObject.transform.SetParent(transform, false);
+                titleText = titleObject.GetComponent<TextMeshProUGUI>();
+
+                var titleRect = titleText.rectTransform;
+                titleRect.anchorMin = new Vector2(0f, 1f);
+                titleRect.anchorMax = new Vector2(1f, 1f);
+                titleRect.pivot = new Vector2(.5f, 1f);
+                titleRect.offsetMin = new Vector2(0f, -18f);
+                titleRect.offsetMax = new Vector2(0f, -2f);
+            }
+
+            var rootText = GetComponent<TextMeshProUGUI>();
+            if (referenceText == null) referenceText = rootText;
+            if (rootText != null)
+            {
+                // The root is now only the transparent pointer target. The
+                // visible label lives in its own fixed-height child rect.
+                rootText.text = string.Empty;
+                rootText.raycastTarget = true;
+            }
+            if (titleText == null) return;
+
+            titleText.font = referenceText?.font ?? titleText.font;
+            titleText.fontSize = referenceText != null
+                ? Mathf.Min(referenceText.fontSize - 3f, 15f)
+                : titleText.fontSize;
+            titleText.fontSizeMin = 10f;
+            titleText.fontSizeMax = titleText.fontSize;
+            titleText.enableAutoSizing = false;
+            titleText.color = referenceText?.color ?? titleText.color;
+            titleText.text = "Lojalność";
+            titleText.verticalAlignment = VerticalAlignmentOptions.Middle;
+            titleText.alignment = TextAlignmentOptions.Right;
+            titleText.margin = new Vector4(0f, 0f, 8f, 0f);
+            titleText.raycastTarget = false;
+
+            if (progressRow == null)
+            {
+                // Domain-reload-disabled sessions can retain children created
+                // by an older version while private references are reset. Do
+                // not let those stale full-width rows remain visible.
+                for (var index = transform.childCount - 1; index >= 0; index--)
+                {
+                    var child = transform.GetChild(index);
+                    if (child.name != "LoyaltyProgressRow") continue;
+
+                    child.gameObject.SetActive(false);
+                    Destroy(child.gameObject);
+                }
+
+                var rowObject = new GameObject(
+                    "LoyaltyProgressRow",
+                    typeof(RectTransform));
+                rowObject.transform.SetParent(transform, false);
+                progressRow = rowObject.GetComponent<RectTransform>();
+                progressRow.anchorMin = new Vector2(0f, 0f);
+                progressRow.anchorMax = new Vector2(1f, 0f);
+                progressRow.pivot = new Vector2(.5f, 0f);
+                progressRow.offsetMin = Vector2.zero;
+                progressRow.offsetMax = new Vector2(0f, 23f);
+
+                levelText = CreateText("Level", rowObject.transform);
+                var levelRect = levelText.rectTransform;
+                levelRect.anchorMin = new Vector2(0f, 0f);
+                levelRect.anchorMax = new Vector2(0f, 1f);
+                levelRect.pivot = new Vector2(0f, .5f);
+                levelRect.sizeDelta = new Vector2(20f, 0f);
+                levelRect.anchoredPosition = Vector2.zero;
+                levelText.alignment = TextAlignmentOptions.Center;
+
+                progressSlider = UIWorkspaceTooltipView.ActiveInstance
+                    ?.InstantiateNpcLoyaltyProgressSlider(rowObject.transform);
+                if (progressSlider != null)
+                {
+                    ConfigureProgressSliderRect();
+                    ConfigureProgressSlider();
+                }
+            }
+
+            // Unity can preserve runtime children during a script reload. If
+            // an older version left a layout group behind, remove it before
+            // applying the explicit rect layout below.
+            var staleLayout = progressRow?.GetComponent<HorizontalLayoutGroup>();
+            if (staleLayout != null) Destroy(staleLayout);
+
+            if (progressSlider == null)
+            {
+                progressSlider = UIWorkspaceTooltipView.ActiveInstance
+                    ?.InstantiateNpcLoyaltyProgressSlider(progressRow);
+                if (progressSlider != null)
+                {
+                    ConfigureProgressSliderRect();
+                    ConfigureProgressSlider();
+                }
+            }
+        }
+
+        private void ConfigureProgressSliderRect()
+        {
+            if (progressSlider == null || progressRow == null) return;
+
+            var sliderRect = progressSlider.GetComponent<RectTransform>();
+            sliderRect.anchorMin = new Vector2(0f, 0f);
+            sliderRect.anchorMax = new Vector2(1f, 1f);
+            sliderRect.offsetMin = new Vector2(25f, 0f);
+            sliderRect.offsetMax = Vector2.zero;
+            sliderRect.localScale = Vector3.one;
+        }
+
+        private void ConfigureProgressSlider()
+        {
+            progressSlider.name = "LoyaltyProgressSlider";
+            var sliderLayout = progressSlider.gameObject.GetComponent<LayoutElement>()
+                ?? progressSlider.gameObject.AddComponent<LayoutElement>();
+            sliderLayout.minWidth = 150f;
+            sliderLayout.preferredWidth = 178f;
+            sliderLayout.flexibleWidth = 1f;
+            sliderLayout.minHeight = 23f;
+            sliderLayout.preferredHeight = 23f;
+
+            progressText = CreateText("ProgressValue", progressSlider.transform);
+            var progressRect = progressText.rectTransform;
+            progressRect.anchorMin = Vector2.zero;
+            progressRect.anchorMax = Vector2.one;
+            progressRect.offsetMin = Vector2.zero;
+            progressRect.offsetMax = Vector2.zero;
+            progressText.alignment = TextAlignmentOptions.Center;
+            progressText.raycastTarget = false;
+        }
+
+        private TextMeshProUGUI CreateText(string name, Transform parent)
+        {
+            var textObject = new GameObject(
+                name,
+                typeof(RectTransform),
+                typeof(TextMeshProUGUI));
+            textObject.transform.SetParent(parent, false);
+            var text = textObject.GetComponent<TextMeshProUGUI>();
+            text.font = titleText.font;
+            text.fontSize = Mathf.Max(10f, titleText.fontSize);
+            text.color = titleText.color;
+            text.alignment = TextAlignmentOptions.Right;
+            text.verticalAlignment = VerticalAlignmentOptions.Middle;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private static void SetSliderGraphicsRaycastTarget(Slider slider, bool value)
+        {
+            foreach (var graphic in slider.GetComponentsInChildren<Graphic>(true))
+                graphic.raycastTarget = value;
+        }
     }
 }

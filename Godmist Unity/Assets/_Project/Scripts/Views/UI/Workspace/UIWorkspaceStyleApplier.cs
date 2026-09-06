@@ -26,6 +26,29 @@ namespace Godmist.Views.UI.Workspace
 
         public UIWorkspaceStylePalette Palette => palette;
 
+        public void ConfigureRuntime(
+            UIWorkspaceStylePalette nextPalette,
+            UIWorkspaceSurfaceStyle nextSurfaceStyle,
+            UIWorkspaceAccentStyle nextBorderStyle,
+            UIWorkspaceTextStyle nextTextStyle,
+            UIWorkspaceAccentStyle nextTextAccentStyle,
+            Image nextSurfaceImage = null,
+            Image nextBorderImage = null,
+            TMP_Text nextText = null,
+            Selectable nextSelectable = null)
+        {
+            palette = nextPalette;
+            surfaceStyle = nextSurfaceStyle;
+            borderStyle = nextBorderStyle;
+            textStyle = nextTextStyle;
+            textAccentStyle = nextTextAccentStyle;
+            surfaceImage = nextSurfaceImage;
+            borderImage = nextBorderImage;
+            text = nextText;
+            selectable = nextSelectable;
+            Apply();
+        }
+
         private void OnEnable()
         {
             Apply();

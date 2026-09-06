@@ -49,13 +49,24 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 
 Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji oraz rozwija specjalistyczne uslugi NPC bez mieszania ich z kolejnym passsem walki lub lochow.
 
-- Loyalty NPC, progi uslug, rabaty i trwały progress wydatkow.
-- Alchemik, rune-maker i pozostale planowane uslugi specjalistyczne.
-- Crafting półproduktów kowalskich oraz rozróżnienie zastosowań materiałów dla specjalistów.
-- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
-  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii. Karta obejmuje rowniez galduryty i runy jako uslugi/content ekonomii NPC.
-- `[P2] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Design / Systems`, `Core / Architecture`
-  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz jest blokowana przy braku srodkow, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
+- `[P1] Dodac trwala lojalnosc NPC i postep wydatkow v1` - `NPC / Quest / Dialogue`, `Core / Architecture` - `READY_FOR_SMOKE`
+  - Dodac osobny, zapisywalny stan lojalnosci oraz skumulowanych wydatkow dla kazdego NPC. Zdefiniowac dane progresji i przygotowac je pod pozniejsze progi odblokowan oraz rabatow.
+- `[P1] Dodac progi lojalnosci, odblokowania uslug i rabaty v1` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX` - `READY_FOR_SMOKE`
+  - Dodac data-driven progi lojalnosci, odblokowywanie uslug i rabaty. UI ma pokazywac dostepnosc uslugi oraz czytelny powod blokady.
+- `[P1] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Core / Architecture` - `READY_FOR_SMOKE`
+  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz przy niewystarczajacym saldzie wymaga potwierdzenia i wyplaca saldo NPC, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
+- `[P1] Dodac role Alchemika, crafting i napełnianie potionow v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data`
+  - Dodac role oraz uslugi Alchemika, receptury potionow, napełnianie potionow i podstawowy content alchemiczny. Rozszerzyc konfiguracje materialow craftowalnych analogicznie do istniejącego kowala, przypisujac materialy o dyscyplinie `Alchemy` do `AlchemistRoleData`.
+- `[P2] Dodac crafting bizuterii v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX`
+  - Dodac osobny model craftingu biżuterii oparty o metal + klejnot, bez automatycznego modelu trzech czesci equipmentu i bez socketow na galduryty/runy. Zachowac preview, rarity, level, tooltip i save/load.
+- `[P2] Dodac crafting i identyfikowanie galdurytow/run v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data`
+  - Traktowac galduryty i runy jako ten sam system. Dodac role Rune-forgera/Enchantera, receptury oraz stan niezidentyfikowanego i zidentyfikowanego galdurytu. Rozszerzyc konfiguracje materialow craftowalnych analogicznie do kowala, przypisujac materialy o dyscyplinie `Runic` do `RuneForgerRoleData` albo `EnchanterRoleData`.
+- `[P2] Dodac socketowanie galdurytow/run w bronie i pancerze v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
+  - Dodac sockety wyłącznie dla broni i pancerzy, walidacje kompatybilnosci oraz wplyw zidentyfikowanych galdurytow/run na pasywki i statystyki. Zachowac persistence i czytelny tooltip.
+- `[P2] Dodac wyciaganie galdurytow/run z broni i pancerzy v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
+  - Dodac wyjmowanie galdurytow/run z osadzonych broni i pancerzy, aktualizacje statystyk oraz pasywek po wyjeciu i zapis pelnego stanu operacji.
+- `[P1] City Progression and Specialist Services v1 - acceptance pass` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Combat`, `UI / UX`, `Tools / Editor / Debug`
+  - Zweryfikowac lojalnosc, progi uslug, rabaty, ekonomie NPC, role specjalistow, crafting, galduryty, runy, tooltipy oraz save/load.
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1

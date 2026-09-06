@@ -244,7 +244,11 @@ namespace Godmist.Systems.SaveLoad
                 {
                     NpcId = npc.NpcId,
                     LoyaltyLevel = npc.LoyaltyLevel,
-                    SpentGoldTotal = npc.SpentGoldTotal
+                    SpentGoldTotal = npc.SpentGoldTotal,
+                    GoldBalance = npc.GoldBalance,
+                    TotalGoldReceived = npc.TotalGoldReceived,
+                    TotalGoldSpent = npc.TotalGoldSpent,
+                    GuildPayoutProgress = npc.GuildPayoutProgress
                 };
 
                 if (npc.ShopInventory != null)
@@ -308,6 +312,8 @@ namespace Godmist.Systems.SaveLoad
                 Seed = dungeon.Seed,
                 DungeonLevel = dungeon.DungeonLevel,
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
+                HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
+                GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
                 PlayerPositionX = dungeon.PlayerPosition.x,

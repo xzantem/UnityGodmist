@@ -10,6 +10,9 @@ namespace Godmist.Data.Configuration
             {
                 Float(GameDefineIds.TraderRelevantSellMultiplier, "Sprzedaż właściwego typu", "Mnożnik ceny sprzedaży itemu zgodnego z ofertą tradera.", GameDefineCategory.Economy, "x", .5f, 0f, 100f),
                 Float(GameDefineIds.TraderIrrelevantSellMultiplier, "Sprzedaż innego typu", "Mnożnik ceny sprzedaży itemu spoza oferty tradera.", GameDefineCategory.Economy, "x", .25f, 0f, 100f),
+                Float(GameDefineIds.NpcGuildPayoutGrowthBase, "Baza wzrostu wypłat gildii", "Podstawa potęgowania wypłaty gildii NPC względem poziomu kampanii.", GameDefineCategory.Economy, "x", 4f, 1.01f, 100f),
+                Float(GameDefineIds.NpcGuildPayoutCampaignExponent, "Wykładnik poziomu wypłaty gildii", "Wykładnik poziomu kampanii używany przy skalowaniu wypłaty gildii NPC.", GameDefineCategory.Economy, "x/level", .1f, 0f, 10f),
+                Float(GameDefineIds.NpcGuildPayoutProgressPerDungeon, "Postęp wypłaty za loch", "Część postępu do wypłaty przy pełnym lochu.", GameDefineCategory.Economy, "%", .4f, 0f, 1f),
 
                 Integer(GameDefineIds.NpcLoyaltyInitialLevel, "Początkowy poziom lojalności NPC", "Poziom lojalności nadawany nowej instancji NPC.", GameDefineCategory.Progression, "level", 1, 1, 100),
                 Integer(GameDefineIds.NpcLoyaltyMaximumLevel, "Maksymalny poziom lojalności NPC", "Najwyższy poziom lojalności dostępny w systemie NPC.", GameDefineCategory.Progression, "level", 15, 1, 100),

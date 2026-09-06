@@ -39,6 +39,10 @@ namespace Godmist.Core.Serialization
         public string NpcId = string.Empty;
         public int LoyaltyLevel;
         public int SpentGoldTotal;
+        public long GoldBalance;
+        public long TotalGoldReceived;
+        public long TotalGoldSpent;
+        public float GuildPayoutProgress;
 
         public List<string> ShopItemInstanceIds = new();
         public List<BuybackEntrySaveData> BuybackEntries = new();

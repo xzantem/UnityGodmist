@@ -242,6 +242,10 @@ namespace Godmist.Tests.EditMode
                 NpcId = "npc.guard",
                 LoyaltyLevel = 4,
                 SpentGoldTotal = 125,
+                GoldBalance = 340,
+                TotalGoldReceived = 900,
+                TotalGoldSpent = 560,
+                GuildPayoutProgress = .6f,
                 ShopInventory = new ShopInventory()
             };
 
@@ -286,6 +290,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(npcSaveData.NpcId, Is.EqualTo("npc.guard"));
             Assert.That(npcSaveData.LoyaltyLevel, Is.EqualTo(4));
             Assert.That(npcSaveData.SpentGoldTotal, Is.EqualTo(125));
+            Assert.That(npcSaveData.GoldBalance, Is.EqualTo(340));
+            Assert.That(npcSaveData.TotalGoldReceived, Is.EqualTo(900));
+            Assert.That(npcSaveData.TotalGoldSpent, Is.EqualTo(560));
+            Assert.That(npcSaveData.GuildPayoutProgress, Is.EqualTo(.6f));
             Assert.That(
                 npcSaveData.ShopItemInstanceIds,
                 Is.EquivalentTo(new[] { "item.shop.01" }));
@@ -339,6 +347,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(saveData.ActiveDungeon.DungeonId, Is.EqualTo("dungeon.test"));
             Assert.That(saveData.ActiveDungeon.Seed, Is.EqualTo(12345));
             Assert.That(saveData.ActiveDungeon.CurrentFloorIndex, Is.EqualTo(0));
+            Assert.That(saveData.ActiveDungeon.HighestReachedFloorIndex, Is.EqualTo(0));
+            Assert.That(saveData.ActiveDungeon.GuildProgressCreditedFloorCount, Is.EqualTo(0));
             Assert.That(saveData.ActiveDungeon.HasPlayerPosition, Is.True);
             Assert.That(saveData.ActiveDungeon.PlayerPositionX, Is.EqualTo(12.5f));
             Assert.That(saveData.ActiveDungeon.PlayerPositionY, Is.EqualTo(-4f));

@@ -152,7 +152,7 @@ namespace Godmist.Views.UI.Workspace
                     ? $"<color=#F2C14E>Koszt: {preview.GoldCost} g</color>"
                     : $"<color=#E06C75>Koszt: {preview.GoldCost} g • Brakuje {missingGold} g</color>";
             }
-            if (statusText != null) statusText.text = preview.CanExecute ? string.Empty : preview.FailureReason;
+            SetStatus(preview.CanExecute ? string.Empty : preview.FailureReason);
             if (actionButton != null) actionButton.interactable = preview.CanExecute;
         }
 
@@ -258,8 +258,13 @@ namespace Godmist.Views.UI.Workspace
             }
 
             Populate(retainedUpgradeTarget);
-            if (statusText != null) statusText.text = feedback;
+            SetStatus(feedback);
             CharacterInfoWindowView.RefreshOpenWindows(session);
+        }
+
+        private void SetStatus(string message)
+        {
+            if (statusText != null) statusText.text = message ?? string.Empty;
         }
     }
 }

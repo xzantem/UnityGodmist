@@ -1529,6 +1529,18 @@ Current goal:
   - and similar item properties
 - Base pricing rules are otherwise fixed.
 
+### NPC Treasury and Guild Payroll
+
+- Trader and service NPCs have their own persistent gold balance used to pay for items bought from the player.
+- An NPC has no maximum gold limit. Its balance may accumulate indefinitely; there is no `maximumGold` field in the economy model.
+- NPC economy state includes at least current gold, cumulative gold received, cumulative gold spent, and progress toward the next guild payout.
+- After a configured number of fully completed dungeons, the NPC receives a guild payroll payment. The payment is calculated from the campaign level, represented by the highest level of the active party at the payout trigger.
+- A payout is added to the current balance and does not reset or replace the existing balance.
+- Buying an item from an NPC increases that NPC's balance. Selling to an NPC is blocked when the NPC cannot afford the transaction.
+- Starting gold, payout cadence, base amount, and campaign-level scaling are configuration/defines rather than hard-coded trade UI rules.
+- NPC treasury and payout progress must be persisted with the NPC runtime state.
+- Treasury and loyalty are separate systems. Loyalty may later modify economy parameters, but it has no implicit effect until explicitly defined.
+
 ### Shop Inventory
 
 - The rotating offer is fully replaced on refresh.

@@ -218,6 +218,10 @@ namespace Godmist.Tests.EditMode
             {
                 NpcId = npcDefinition.Id,
                 Definition = npcDefinition,
+                GoldBalance = 340,
+                TotalGoldReceived = 900,
+                TotalGoldSpent = 560,
+                GuildPayoutProgress = .6f,
                 ShopInventory = new ShopInventory()
             };
             npc.ShopInventory.Items.Add(new ItemInstance(shopDefinition, "save.shop"));
@@ -241,6 +245,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredEquipment.Quality, Is.EqualTo(EquipmentQuality.Excellent));
             Assert.That(restoredEquipment.UpgradeProgress, Is.EqualTo(.75f));
             Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(17.5f));
+            Assert.That(restored.NpcsById[npcDefinition.Id].GoldBalance, Is.EqualTo(340));
+            Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldReceived, Is.EqualTo(900));
+            Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldSpent, Is.EqualTo(560));
+            Assert.That(restored.NpcsById[npcDefinition.Id].GuildPayoutProgress, Is.EqualTo(.6f));
             Assert.That(restored.NpcsById[npcDefinition.Id].ShopInventory.Items.Single().InstanceId, Is.EqualTo("save.shop"));
             Assert.That(restored.NpcsById[npcDefinition.Id].ShopInventory.BuybackStock.Single().Item.InstanceId, Is.EqualTo("save.buyback"));
         }

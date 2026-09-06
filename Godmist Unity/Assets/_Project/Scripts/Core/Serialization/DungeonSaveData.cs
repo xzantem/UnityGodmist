@@ -10,6 +10,8 @@ namespace Godmist.Core.Serialization
         public int Seed;
         public int DungeonLevel = 1;
         public int CurrentFloorIndex;
+        public int HighestReachedFloorIndex = -1;
+        public int GuildProgressCreditedFloorCount;
         public bool IsCompleted;
 
         public bool HasPlayerPosition;

@@ -50,3 +50,22 @@ jeszcze zaimplementowana.
 Obecne etykiety nagród są informacją projektową w UI, a nie dowodem działania
 efektu. Przy implementacji kolejnych kart należy usunąć ten status dopiero po
 podłączeniu efektu do właściwego systemu runtime, UI, save/load i testów.
+
+## Karta 3 — zaimplementowane
+
+- osobny, trwały portfel golda każdego NPC: saldo, suma otrzymanego i wydanego golda,
+- początkowe saldo równe jednej wypłacie; domyślna baza wypłaty NPC to `250`,
+- wypłata skaluje się data-driven z poziomem kampanii: `baseAmount * 4^((level - 1) * 0.1)`,
+- postęp wypłaty wynosi `40% * (ukończone piętra / liczba pięter)`; przy wyjściu z nieukończonego lochu liczone są tylko nowo ukończone piętra, a nadwyżka po wypłacie przepada,
+- wypłata trafia do wszystkich zarejestrowanych NPC i używa najwyższego poziomu aktywnej drużyny,
+- zakup od NPC zwiększa jego saldo, ale nie nalicza lojalności przy zakupie z buybacku,
+- sprzedaż bez pełnego pokrycia wymaga potwierdzenia i wypłaca aktualne saldo NPC; cena przedmiotu w buybacku pozostaje normalną ceną zakupu,
+- saldo, historia transakcji, postęp wypłaty i stan naliczonych pięter są zapisywane i odtwarzane,
+- aktywne okno handlu pokazuje saldo NPC oraz przyczynę braku możliwości sprzedaży.
+
+## Karta 3 — rzeczy nadal poza zakresem / do smoke testu
+
+- potwierdzenie częściowej sprzedaży jest runtime'owym UI w aktywnym `TradeServiceWindowView`; nie zmieniano prefabów ani scen,
+- część efektów lojalności Kowala, Alchemika i Enchantera/Rune-forgera nadal jest tylko opisana w tooltipie — lista powyżej pozostaje źródłem prawdy,
+- nie dodano jeszcze ról i usług Alchemika, craftingu biżuterii ani systemu galdurytów/run; należą do kolejnych kart milestone'u,
+- pełny build wygenerowanego `Assembly-CSharp.csproj` jest blokowany przez istniejący, nieobecny plik `Assets/_Project/Tests/EditMode/CombatDamageSystemTests.cs`; osobne assembly źródłowe i testowe budują się poprawnie.

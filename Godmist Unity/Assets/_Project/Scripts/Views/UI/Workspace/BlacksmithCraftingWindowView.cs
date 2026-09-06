@@ -128,6 +128,8 @@ namespace Godmist.Views.UI.Workspace
                     .Where(offer => offer != null)
                     .Select(offer => offer.ArmorBase)
                     .Where(item => item != null && item.ItemType == ItemType.Armor))
+                .GroupBy(item => item.Id)
+                .Select(group => group.First())
                 .ToList();
             if (!definitions.Contains(selectedDefinition)) selectedDefinition = definitions.FirstOrDefault();
 

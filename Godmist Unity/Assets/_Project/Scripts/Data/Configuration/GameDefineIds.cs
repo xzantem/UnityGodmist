@@ -4,6 +4,9 @@ namespace Godmist.Data.Configuration
     {
         public const string TraderRelevantSellMultiplier = "economy.trader.relevant_sell_multiplier";
         public const string TraderIrrelevantSellMultiplier = "economy.trader.irrelevant_sell_multiplier";
+        public const string NpcGuildPayoutGrowthBase = "economy.npc.guild_payout.growth_base";
+        public const string NpcGuildPayoutCampaignExponent = "economy.npc.guild_payout.campaign_exponent";
+        public const string NpcGuildPayoutProgressPerDungeon = "economy.npc.guild_payout.progress_per_dungeon";
 
         public const string NpcLoyaltyInitialLevel = "progression.npc.loyalty.initial_level";
         public const string NpcLoyaltyMaximumLevel = "progression.npc.loyalty.maximum_level";

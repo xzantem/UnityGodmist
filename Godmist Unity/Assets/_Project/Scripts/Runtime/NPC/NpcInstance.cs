@@ -11,6 +11,10 @@ namespace Godmist.Runtime.NPC
 
         public int LoyaltyLevel = 1;
         public int SpentGoldTotal;
+        public long GoldBalance;
+        public long TotalGoldReceived;
+        public long TotalGoldSpent;
+        public float GuildPayoutProgress;
         public ShopInventory ShopInventory;
     }
 }

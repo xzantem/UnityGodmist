@@ -35,6 +35,9 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Image unavailableOverlay;
         [SerializeField] private TextMeshProUGUI countText;
 
+        private Image countBackground;
+        private static Sprite countBadgeSprite;
+
         private TradeServiceWindowView owner;
         private string tooltipExtra;
         private CharacterInstance tooltipOwner;
@@ -52,6 +55,7 @@ namespace Godmist.Views.UI.Workspace
             border ??= transform.Find("Border")?.GetComponent<Image>();
             unavailableOverlay ??= transform.Find("Overlay")?.GetComponent<Image>();
             countText ??= transform.Find("CountLabel")?.GetComponent<TextMeshProUGUI>();
+            EnsureCountBackground();
         }
 
         public void Bind(
@@ -82,6 +86,9 @@ namespace Godmist.Views.UI.Workspace
             if (countText != null)
             {
                 var showCount = item?.Definition?.IsStackable == true && stackCount > 1;
+                ConfigureCountBadge();
+                if (countBackground != null)
+                    countBackground.gameObject.SetActive(showCount);
                 countText.gameObject.SetActive(showCount);
                 countText.text = showCount ? stackCount.ToString() : string.Empty;
             }
@@ -142,5 +149,69 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnPointerExit(PointerEventData eventData) =>
             UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
+
+        private void EnsureCountBackground()
+        {
+            if (countBackground != null || countText == null) return;
+
+            var existing = transform.Find("CountBackground")?.GetComponent<Image>();
+            if (existing != null)
+            {
+                countBackground = existing;
+                return;
+            }
+
+            var backgroundObject = new GameObject(
+                "CountBackground",
+                typeof(RectTransform),
+                typeof(Image));
+            backgroundObject.transform.SetParent(transform, false);
+            countBackground = backgroundObject.GetComponent<Image>();
+            countBackground.raycastTarget = false;
+            countBackground.sprite = GetCountBadgeSprite();
+            countBackground.type = Image.Type.Sliced;
+            countBackground.color = new Color(0f, 0f, 0f, .78f);
+
+            var backgroundRect = backgroundObject.GetComponent<RectTransform>();
+            backgroundRect.anchorMin = new Vector2(1f, 0f);
+            backgroundRect.anchorMax = new Vector2(1f, 0f);
+            backgroundRect.pivot = new Vector2(1f, 0f);
+            backgroundRect.sizeDelta = new Vector2(28f, 22f);
+            backgroundRect.anchoredPosition = new Vector2(-3f, 3f);
+
+            backgroundObject.transform.SetSiblingIndex(countText.transform.GetSiblingIndex());
+        }
+
+        private void ConfigureCountBadge()
+        {
+            if (countText == null) return;
+            EnsureCountBackground();
+
+            var countRect = countText.rectTransform;
+            countRect.anchorMin = new Vector2(1f, 0f);
+            countRect.anchorMax = new Vector2(1f, 0f);
+            countRect.pivot = new Vector2(1f, 0f);
+            countRect.sizeDelta = new Vector2(28f, 22f);
+            countRect.anchoredPosition = new Vector2(-3f, 3f);
+            countText.alignment = TextAlignmentOptions.Center;
+            countText.verticalAlignment = VerticalAlignmentOptions.Middle;
+            countText.fontStyle = FontStyles.Bold;
+            countText.fontSize = Mathf.Max(16f, countText.fontSize);
+            countText.raycastTarget = false;
+        }
+
+        private Sprite GetCountBadgeSprite()
+        {
+            if (countBadgeSprite != null) return countBadgeSprite;
+            countBadgeSprite = border?.sprite;
+            if (countBadgeSprite != null) return countBadgeSprite;
+
+            countBadgeSprite = Sprite.Create(
+                Texture2D.whiteTexture,
+                new Rect(0f, 0f, 1f, 1f),
+                new Vector2(.5f, .5f));
+            countBadgeSprite.name = "RuntimeTradeCountBadge";
+            return countBadgeSprite;
+        }
     }
 }

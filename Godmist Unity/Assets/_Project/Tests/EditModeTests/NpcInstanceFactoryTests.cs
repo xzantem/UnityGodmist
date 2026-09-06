@@ -31,6 +31,7 @@ namespace Godmist.Tests.EditMode
 
             var npc = factory.Create(npcDefinition);
 
+            Assert.That(npc.GoldBalance, Is.EqualTo(250));
             Assert.That(npc.ShopInventory, Is.Not.Null);
             Assert.That(npc.ShopInventory.Items, Has.Count.EqualTo(3));
             Assert.That(npc.ShopInventory.Items[0].Definition, Is.SameAs(material));

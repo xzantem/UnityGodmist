@@ -1489,6 +1489,13 @@ namespace Godmist.Systems.SaveLoad
                     || npcSaveData.LoyaltyLevel < npcLoyaltyService.InitialLevel
                     || npcSaveData.LoyaltyLevel > npcLoyaltyService.MaximumLevel
                     || npcSaveData.SpentGoldTotal < 0
+                    || npcSaveData.GoldBalance < 0
+                    || npcSaveData.TotalGoldReceived < 0
+                    || npcSaveData.TotalGoldSpent < 0
+                    || float.IsNaN(npcSaveData.GuildPayoutProgress)
+                    || float.IsInfinity(npcSaveData.GuildPayoutProgress)
+                    || npcSaveData.GuildPayoutProgress < 0f
+                    || npcSaveData.GuildPayoutProgress >= 1f
                     || !contentCatalog.TryGetNpc(
                         npcSaveData.NpcId,
                         out var definition))
@@ -1500,6 +1507,10 @@ namespace Godmist.Systems.SaveLoad
 
                 npc.LoyaltyLevel = npcSaveData.LoyaltyLevel;
                 npc.SpentGoldTotal = npcSaveData.SpentGoldTotal;
+                npc.GoldBalance = npcSaveData.GoldBalance;
+                npc.TotalGoldReceived = npcSaveData.TotalGoldReceived;
+                npc.TotalGoldSpent = npcSaveData.TotalGoldSpent;
+                npc.GuildPayoutProgress = npcSaveData.GuildPayoutProgress;
 
                 if (npc.ShopInventory == null)
                 {
@@ -1655,7 +1666,9 @@ namespace Godmist.Systems.SaveLoad
                     new Vector2(
                         saveData.PlayerPositionX,
                         saveData.PlayerPositionY),
-                    saveData.ClearedEncounterIds))
+                    saveData.ClearedEncounterIds,
+                    saveData.HighestReachedFloorIndex,
+                    saveData.GuildProgressCreditedFloorCount))
             {
                 Debug.LogError(
                     $"Nie udało się odtworzyć stanu lochu "

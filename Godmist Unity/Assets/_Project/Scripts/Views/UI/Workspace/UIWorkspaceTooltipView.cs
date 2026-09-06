@@ -75,6 +75,16 @@ namespace Godmist.Views.UI.Workspace
 
         public bool IsSkillTooltipSuppressed => suppressForDrag;
 
+        public Slider InstantiateNpcLoyaltyProgressSlider(Transform parent)
+        {
+            if (parent == null || npcLoyaltyProgressSliderPrefab == null) return null;
+
+            return Instantiate(
+                npcLoyaltyProgressSliderPrefab,
+                parent,
+                false);
+        }
+
         private void Awake()
         {
             ActiveInstance = this;
