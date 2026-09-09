@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace Godmist.Data.NPC
 {
+    public enum DialoguePartyAction
+    {
+        None,
+        HealActiveParty
+    }
+
     [Serializable]
     public class DialogueChoiceData
     {
@@ -16,5 +22,8 @@ namespace Godmist.Data.NPC
 
         [field: SerializeField]
         public DialogueChoiceQuestActionData QuestAction { get; private set; }
+
+        [field: SerializeField]
+        public DialoguePartyAction PartyAction { get; private set; }
     }
 }

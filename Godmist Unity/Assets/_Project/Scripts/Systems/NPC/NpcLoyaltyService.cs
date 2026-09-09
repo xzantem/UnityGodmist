@@ -1,8 +1,13 @@
 using System;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Configuration;
 using Godmist.Data.Items;
+using Godmist.Data.NPC;
+using Godmist.Runtime.Characters;
+using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
+using UnityEngine;
 
 namespace Godmist.Systems.NPC
 {
@@ -183,4 +188,148 @@ namespace Godmist.Systems.NPC
         private int NormalizeLevel(int level) =>
             Math.Max(InitialLevel, Math.Min(MaximumLevel, level));
     }
+
+    public sealed class PriestHealingPreview
+    {
+        public int HealableMembers;
+        public int MissingHealth;
+        public bool CanHeal;
+        public string FailureReason = string.Empty;
+    }
+
+    /// <summary>
+    /// Free city service offered by a priest. It heals every living active party
+    /// member to maximum health; dead and downed characters are deliberately not
+    /// revived by a healing-only service.
+    /// </summary>
+    public sealed class PriestHealingService
+    {
+        public PriestHealingPreview CreatePreview(GameSession session, NpcInstance priest)
+        {
+            var preview = new PriestHealingPreview();
+            if (priest?.Definition?.GetRole<PriestRoleData>() == null)
+            {
+                preview.FailureReason = "Wybrany NPC nie oferuje posługi kapłańskiej.";
+                return preview;
+            }
+
+            if (session == null)
+            {
+                preview.FailureReason = "Brak aktywnej drużyny.";
+                return preview;
+            }
+
+            foreach (var character in GetHealableMembers(session))
+            {
+                var maxHealth = GetMaxHealth(character);
+                if (maxHealth < 1) continue;
+
+                preview.HealableMembers++;
+                preview.MissingHealth += Mathf.Max(0, maxHealth - character.CurrentHealth);
+            }
+
+            preview.CanHeal = preview.MissingHealth > 0;
+            if (!preview.CanHeal)
+            {
+                preview.FailureReason = preview.HealableMembers > 0
+                    ? "Drużyna jest już w pełni zdrowa."
+                    : "Brak żywych członków aktywnej drużyny do uzdrowienia.";
+            }
+
+            return preview;
+        }
+
+        public bool TryHealActiveParty(
+            GameSession session,
+            NpcInstance priest,
+            out int restoredHealth,
+            out string failureReason)
+        {
+            restoredHealth = 0;
+            failureReason = string.Empty;
+
+            if (priest?.Definition?.GetRole<PriestRoleData>() == null)
+            {
+                failureReason = "Wybrany NPC nie oferuje posługi kapłańskiej.";
+                return false;
+            }
+
+            return TryHealActiveParty(session, out restoredHealth, out failureReason);
+        }
+
+        public bool TryHealActiveParty(
+            GameSession session,
+            out int restoredHealth,
+            out string failureReason)
+        {
+            restoredHealth = 0;
+            failureReason = string.Empty;
+            if (session == null)
+            {
+                failureReason = "Brak aktywnej drużyny.";
+                return false;
+            }
+
+            foreach (var character in GetHealableMembers(session))
+            {
+                var maxHealth = GetMaxHealth(character);
+                if (maxHealth < 1) continue;
+
+                var previousHealth = character.CurrentHealth;
+                character.CurrentHealth = maxHealth;
+                restoredHealth += Mathf.Max(0, maxHealth - previousHealth);
+            }
+
+            return restoredHealth > 0;
+        }
+
+        private static CharacterInstance[] GetHealableMembers(GameSession session)
+        {
+            return session.PlayerParty.ActiveMemberIds
+                .Where(session.CharactersById.ContainsKey)
+                .Select(characterId => session.CharactersById[characterId])
+                .Where(character => character != null
+                    && character.LifeState == CharacterLifeState.Alive)
+                .ToArray();
+        }
+
+        private static int GetMaxHealth(CharacterInstance character)
+        {
+            return character?.Stats == null
+                ? 0
+                : Mathf.Max(0, Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+        }
+    }
+
+    /// <summary>Runs explicitly authored party actions selected in dialogue.</summary>
+    public sealed class DialoguePartyActionSystem : IDisposable
+    {
+        private readonly DialogueService dialogueService;
+        private readonly GameSession session;
+        private readonly PriestHealingService healingService = new();
+
+        public DialoguePartyActionSystem(
+            DialogueService nextDialogueService,
+            GameSession nextSession)
+        {
+            dialogueService = nextDialogueService
+                ?? throw new ArgumentNullException(nameof(nextDialogueService));
+            session = nextSession ?? throw new ArgumentNullException(nameof(nextSession));
+            dialogueService.DialogueChoiceSelected += HandleDialogueChoiceSelected;
+        }
+
+        public void Dispose() =>
+            dialogueService.DialogueChoiceSelected -= HandleDialogueChoiceSelected;
+
+        private void HandleDialogueChoiceSelected(
+            DialogueSession dialogue,
+            DialogueChoiceData choice)
+        {
+            if (choice?.PartyAction == DialoguePartyAction.HealActiveParty)
+            {
+                healingService.TryHealActiveParty(session, out _, out _);
+            }
+        }
+    }
+
 }

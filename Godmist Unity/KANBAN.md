@@ -110,6 +110,10 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - Data-driven crafting potionow i bomb, materialy Alchemika, alkohole/prochy/katalizator, crafting materialow i napełnianie consumables.
   - Panel zostal ujednolicony z UI Kowala; tooltipy, sloty materialow i refille przechodza przez wspolne reguly UI Workspace.
   - Zweryfikowano testy EditMode dla craftingu i napełniania.
+- `[P1] Dodac Kapłana z darmowym leczeniem drużyny v1` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX` - `DONE`
+  - Dodano role i definicję Kapłana oraz dialog z opcją darmowego pełnego leczenia aktywnej drużyny.
+  - Leczenie jest jawną akcją dialogową `HealActiveParty`; nie tworzy osobnej zakładki usług i nie wskrzesza powalonych postaci.
+  - Zweryfikowano wybór dialogowy testem EditMode.
 
 ### Milestone: Combat Passives and Affixes v1
 

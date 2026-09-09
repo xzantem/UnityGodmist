@@ -51,6 +51,7 @@ namespace Godmist.Views.Game
         private SceneLoader sceneLoader;
         private QuestObjectiveProgressSystem questObjectiveProgressSystem;
         private DialogueQuestActionSystem dialogueQuestActionSystem;
+        private DialoguePartyActionSystem dialoguePartyActionSystem;
         private bool autosaveRequested;
         private string pendingAutosaveReason = string.Empty;
 
@@ -626,6 +627,9 @@ namespace Godmist.Views.Game
             dialogueQuestActionSystem = new DialogueQuestActionSystem(
                 DialogueService,
                 QuestService);
+            dialoguePartyActionSystem = new DialoguePartyActionSystem(
+                DialogueService,
+                Session);
 
             questObjectiveProgressSystem =
                 new QuestObjectiveProgressSystem(
@@ -640,6 +644,8 @@ namespace Godmist.Views.Game
         {
             dialogueQuestActionSystem?.Dispose();
             dialogueQuestActionSystem = null;
+            dialoguePartyActionSystem?.Dispose();
+            dialoguePartyActionSystem = null;
 
             if (QuestService != null)
             {

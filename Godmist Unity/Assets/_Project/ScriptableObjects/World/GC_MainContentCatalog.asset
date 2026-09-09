@@ -16,6 +16,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: de6e9e26cd986e144b254dcc7b76b803, type: 2}
   - {fileID: 11400000, guid: 28eba9f7a64e2ff45859b802054c5de2, type: 2}
   - {fileID: 11400000, guid: 53cc60ce4d17f0f4286723077e4226d9, type: 2}
+  - {fileID: 11400000, guid: cfd12c621cfed9647b5a25687587852c, type: 2}
   <CharacterClasses>k__BackingField:
   - {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   - {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
@@ -71,6 +72,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 42d6c3e8f8b55271904c7d3eab6f8011, type: 2}
   - {fileID: 11400000, guid: 53e7d4f9a9c66382a15d8e4fbc709122, type: 2}
   - {fileID: 11400000, guid: 64f8e5a0bad77493b26e9f50cd810233, type: 2}
+  - {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+  - {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
+  - {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+  - {fileID: 11400000, guid: d4e6f8a0b2c94375a1d3e5f7b9c0a2d4, type: 2}
+  - {fileID: 11400000, guid: e5f7a9c1b3d64820a4c6e8f0b2d4a6c8, type: 2}
+  - {fileID: 11400000, guid: a7c9e1f3b5d74268c0e2f4a6b8d0c1e3, type: 2}
+  - {fileID: 11400000, guid: b8d0f2a4c6e84971a3b5d7f9c0e2a4b6, type: 2}
+  - {fileID: 11400000, guid: a1b2c3d4e5f6478890ab1c2d3e4f5678, type: 2}
+  - {fileID: 11400000, guid: b2c3d4e5f6a7589012bc3d4e5f6a7890, type: 2}
+  - {fileID: 11400000, guid: c3d4e5f6a7b8690123cd4e5f6a7b8901, type: 2}
+  - {fileID: 11400000, guid: e5f6a7b8c9d0812345ef6a7b8c9d0123, type: 2}
+  - {fileID: 11400000, guid: f6a7b8c9d0e1923456f7a8b9c0d12345, type: 2}
+  - {fileID: 11400000, guid: 07a8b9c0d1e2435678fa9b0c1d2e3456, type: 2}
+  - {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+  - {fileID: 11400000, guid: 70b3d78f2b2f4d4194d70b9d9fe2a192, type: 2}
+  - {fileID: 11400000, guid: 3f47d6f1a2e84b478a8c1c1a5b2d6e34, type: 2}
+  - {fileID: 11400000, guid: 589fc4d9cf994775b14c7e2a480a5631, type: 2}
   <EquipmentPartDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 9cd20ed58af3e5f44965e26e28cb5bfc, type: 2}
   - {fileID: 11400000, guid: 7a98008e91b020c47bb638a534775d59, type: 2}
@@ -121,6 +139,8 @@ MonoBehaviour:
   <NpcDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 1db441565dea98645a943ad6b5aa0556, type: 2}
   - {fileID: 11400000, guid: 85089cbb43fa63b498aeb8837b8d355b, type: 2}
+  - {fileID: 11400000, guid: 0479c6c0cd614e3f9eb8495cf84f2878, type: 2}
+  - {fileID: 11400000, guid: 5b4d6f8a0c2e73b5d7f9a1c3e5b7d9f1, type: 2}
   <DungeonDefinitions>k__BackingField:
   - {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
   <EncounterDefinitions>k__BackingField:
