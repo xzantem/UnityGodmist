@@ -151,9 +151,11 @@ namespace Godmist.Views.NPC
 
             panelRoot.SetActive(shouldShowDialogue);
 
-            var isTrader = dialogue.Npc?.Definition?.GetRole<TraderRoleData>() != null;
-            var isBlacksmith = dialogue.Npc?.Definition?.GetRole<BlacksmithRoleData>() != null;
-            SetServicesButtonVisible(shouldShowDialogue && (isTrader || isBlacksmith));
+            var definition = dialogue.Npc?.Definition;
+            var hasServices = definition?.GetRole<TraderRoleData>() != null
+                || definition?.GetRole<BlacksmithRoleData>() != null
+                || definition?.GetRole<AlchemistRoleData>() != null;
+            SetServicesButtonVisible(shouldShowDialogue && hasServices);
 
             if (shouldShowDialogue)
             {

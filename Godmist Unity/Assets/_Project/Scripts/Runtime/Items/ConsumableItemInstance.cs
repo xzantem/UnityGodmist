@@ -22,6 +22,7 @@ namespace Godmist.Runtime.Items
         public int CatalystDurationModifier;
         public float CatalystEffectMultiplier = 1f;
         public int CatalystChargeBonus;
+        public string CatalystDisplayName = string.Empty;
         public ConsumableItemInstance(ConsumableItemDefinition definition, string instanceId = null) : base(definition, instanceId)
         {
             CurrentCharges = MaxCharges;

@@ -37,6 +37,10 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private MaterialCraftingWindowView materialCraftingService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentUpgradeService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentReforgeService;
+        [SerializeField] private AlchemyCraftingWindowView potionCraftingService;
+        [SerializeField] private AlchemyCraftingWindowView bombCraftingService;
+        [SerializeField] private PotionRefillWindowView potionRefillService;
+        [SerializeField] private PotionRefillWindowView bombRefillService;
 
         private readonly List<NpcServiceTabView> spawnedTabs = new();
         private readonly NpcLoyaltyService loyaltyService = new();
@@ -129,7 +133,10 @@ namespace Godmist.Views.UI.Workspace
                 if (tabTemplate == null || tabsContent == null) continue;
                 var tab = Instantiate(tabTemplate, tabsContent);
                 tab.gameObject.SetActive(true);
-                tab.Bind(GetTabDefinition(kind)?.Icon, selectedService == kind,
+                tab.Bind(
+                    GetTabDefinition(kind)?.Icon,
+                    GetServiceDisplayName(kind),
+                    selectedService == kind,
                     () => SelectService(kind));
                 spawnedTabs.Add(tab);
             }
@@ -149,6 +156,16 @@ namespace Godmist.Views.UI.Workspace
                 yield return NpcServiceKind.EquipmentUpgrade;
                 yield return NpcServiceKind.EquipmentReforge;
             }
+
+            if (npc?.Definition?.GetRole<AlchemistRoleData>() != null)
+            {
+                yield return NpcServiceKind.MaterialCrafting;
+                yield return NpcServiceKind.PotionCrafting;
+                yield return NpcServiceKind.BombCrafting;
+                yield return NpcServiceKind.PotionRefill;
+                yield return NpcServiceKind.BombRefill;
+            }
+
         }
 
         private NpcServiceKind GetDefaultService()
@@ -174,6 +191,14 @@ namespace Godmist.Views.UI.Workspace
                     && equipmentUpgradeService.Show(npc, recipientCharacterId),
                 NpcServiceKind.EquipmentReforge => equipmentReforgeService != null
                     && equipmentReforgeService.Show(npc, recipientCharacterId),
+                NpcServiceKind.PotionCrafting => potionCraftingService != null
+                    && potionCraftingService.Show(npc, recipientCharacterId),
+                NpcServiceKind.BombCrafting => bombCraftingService != null
+                    && bombCraftingService.Show(npc, recipientCharacterId),
+                NpcServiceKind.PotionRefill => potionRefillService != null
+                    && potionRefillService.Show(npc, recipientCharacterId),
+                NpcServiceKind.BombRefill => bombRefillService != null
+                    && bombRefillService.Show(npc, recipientCharacterId),
                 _ => false
             };
 
@@ -205,6 +230,18 @@ namespace Godmist.Views.UI.Workspace
                 case NpcServiceKind.EquipmentReforge:
                     equipmentReforgeService?.Hide();
                     break;
+                case NpcServiceKind.PotionCrafting:
+                    potionCraftingService?.Hide();
+                    break;
+                case NpcServiceKind.BombCrafting:
+                    bombCraftingService?.Hide();
+                    break;
+                case NpcServiceKind.PotionRefill:
+                    potionRefillService?.Hide();
+                    break;
+                case NpcServiceKind.BombRefill:
+                    bombRefillService?.Hide();
+                    break;
             }
         }
 
@@ -213,8 +250,11 @@ namespace Godmist.Views.UI.Workspace
             for (var index = 0; index < spawnedTabs.Count; index++)
             {
                 var kind = GetAvailableServiceAt(index);
-                spawnedTabs[index].Bind(GetTabDefinition(kind)?.Icon,
-                    selectedService == kind, () => SelectService(kind));
+                spawnedTabs[index].Bind(
+                    GetTabDefinition(kind)?.Icon,
+                    GetServiceDisplayName(kind),
+                    selectedService == kind,
+                    () => SelectService(kind));
             }
         }
 
@@ -227,6 +267,24 @@ namespace Godmist.Views.UI.Workspace
         {
             return (tabDefinitions ?? Array.Empty<NpcServiceTabDefinition>())
                 .FirstOrDefault(definition => definition != null && definition.Kind == kind);
+        }
+
+        private static string GetServiceDisplayName(NpcServiceKind kind)
+        {
+            return kind switch
+            {
+                NpcServiceKind.Trade => "Handel",
+                NpcServiceKind.EquipmentCrafting => "Wytwarzanie wyposażenia",
+                NpcServiceKind.MaterialCrafting => "Wytwarzanie materiałów",
+                NpcServiceKind.EquipmentUpgrade => "Ulepszanie wyposażenia",
+                NpcServiceKind.EquipmentReforge => "Przekuwanie wyposażenia",
+                NpcServiceKind.EquipmentInfusion => "Infuzja wyposażenia",
+                NpcServiceKind.PotionCrafting => "Warzenie mikstur",
+                NpcServiceKind.PotionRefill => "Napełnianie mikstur",
+                NpcServiceKind.BombCrafting => "Wytwarzanie bomb",
+                NpcServiceKind.BombRefill => "Napełnianie bomb",
+                _ => kind.ToString()
+            };
         }
 
         private void EndServiceSession()
@@ -672,4 +730,5 @@ namespace Godmist.Views.UI.Workspace
                 graphic.raycastTarget = value;
         }
     }
+
 }

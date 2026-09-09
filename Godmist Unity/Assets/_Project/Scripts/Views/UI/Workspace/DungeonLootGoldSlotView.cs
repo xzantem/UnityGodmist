@@ -44,8 +44,8 @@ namespace Godmist.Views.UI.Workspace
         public void OnPointerEnter(PointerEventData eventData)
         {
             UIWorkspaceTooltipView.ActiveInstance?.ShowText(
-                "Złoto",
-                $"Odbierz {gold} szt. złota aktywną postacią.",
+                "Nagroda",
+                $"Odbierz nagrodę: {gold}.",
                 this);
         }
 

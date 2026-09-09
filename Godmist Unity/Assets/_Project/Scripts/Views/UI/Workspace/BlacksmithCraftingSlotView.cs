@@ -24,6 +24,9 @@ namespace Godmist.Views.UI.Workspace
         private string tooltipBody;
         private ItemInstance tooltipItem;
         private CharacterInstance tooltipOwner;
+        private bool selectedState;
+        private bool missingState;
+        private CraftingMaterialPurchaseState purchaseState;
 
         public void SetIcon(Sprite nextIcon)
         {
@@ -48,6 +51,12 @@ namespace Godmist.Views.UI.Workspace
             tooltipOwner = owner;
         }
 
+        public void SetSelected(bool selected)
+        {
+            selectedState = selected;
+            RefreshBorderColor();
+        }
+
         public void Bind(
             Sprite nextIcon,
             string nextTooltipTitle,
@@ -63,6 +72,9 @@ namespace Godmist.Views.UI.Workspace
         {
             SetTooltip(nextTooltipTitle, nextTooltipBody);
             SetIcon(nextIcon);
+            selectedState = selected;
+            missingState = missing;
+            this.purchaseState = purchaseState;
 
             if (countText != null)
             {
@@ -70,26 +82,29 @@ namespace Godmist.Views.UI.Workspace
                 countText.text = countLabel ?? string.Empty;
             }
 
-            var palette = GetComponent<UIWorkspaceStyleApplier>()?.Palette
-                ?? GetComponentInChildren<UIWorkspaceStyleApplier>()?.Palette;
-            if (border != null && palette != null)
+            RefreshBorderColor();
+
+            var rootButton = GetComponent<Button>();
+            if (rootButton == null)
             {
-                var missingAccent = purchaseState is CraftingMaterialPurchaseState.InsufficientGold
-                    or CraftingMaterialPurchaseState.OutOfStock
-                    ? UIWorkspaceAccentStyle.Negative
-                    : UIWorkspaceAccentStyle.Warning;
-                border.color = missing
-                    ? palette.GetAccentColor(missingAccent)
-                    : selected
-                        ? palette.GetAccentColor(UIWorkspaceAccentStyle.Selected)
-                        : palette.GetAccentColor(UIWorkspaceAccentStyle.Neutral);
+                rootButton = gameObject.AddComponent<Button>();
+                rootButton.transition = Selectable.Transition.None;
             }
 
-            if (button != null)
+            if (rootButton.targetGraphic == null)
+                rootButton.targetGraphic = GetComponent<Graphic>();
+
+            // Some material cards contain a nested PF_UIW_ItemSlot Button while
+            // recipe cards have a Button on their root. Keep one click target for
+            // the entire card so clicking its icon/count/background behaves identically.
+            if (button != null && button != rootButton)
             {
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => selectAction?.Invoke());
+                button.enabled = false;
             }
+
+            rootButton.onClick.RemoveAllListeners();
+            rootButton.onClick.AddListener(() => selectAction?.Invoke());
 
             var canBuy = buyAction != null && !string.IsNullOrWhiteSpace(buyLabel);
             if (buyButton != null)
@@ -101,6 +116,23 @@ namespace Godmist.Views.UI.Workspace
             }
 
             if (buyPriceText != null) buyPriceText.text = buyLabel ?? string.Empty;
+        }
+
+        private void RefreshBorderColor()
+        {
+            var palette = GetComponent<UIWorkspaceStyleApplier>()?.Palette
+                ?? GetComponentInChildren<UIWorkspaceStyleApplier>()?.Palette;
+            if (border == null || palette == null) return;
+
+            var missingAccent = purchaseState is CraftingMaterialPurchaseState.InsufficientGold
+                or CraftingMaterialPurchaseState.OutOfStock
+                ? UIWorkspaceAccentStyle.Negative
+                : UIWorkspaceAccentStyle.Warning;
+            border.color = missingState
+                ? palette.GetAccentColor(missingAccent)
+                : selectedState
+                    ? palette.GetAccentColor(UIWorkspaceAccentStyle.Selected)
+                    : palette.GetAccentColor(UIWorkspaceAccentStyle.Neutral);
         }
 
         public void OnPointerEnter(PointerEventData eventData)

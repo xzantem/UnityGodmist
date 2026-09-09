@@ -995,6 +995,7 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.CatalystDurationModifier = consumableItem.CatalystDurationModifier;
                 itemSaveData.CatalystEffectMultiplier = consumableItem.CatalystEffectMultiplier;
                 itemSaveData.CatalystChargeBonus = consumableItem.CatalystChargeBonus;
+                itemSaveData.CatalystDisplayName = consumableItem.CatalystDisplayName;
                 foreach (var effect in consumableItem.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
                 {
                     if (effect == null) continue;

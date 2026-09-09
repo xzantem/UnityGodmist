@@ -47,6 +47,8 @@ MonoBehaviour:
     MaximumFloatValue: 100
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
   - Id: progression.npc.loyalty.initial_level
     DisplayName: Poczatkowy poziom lojalnosci NPC
     Description: Poziom lojalnosci nadawany nowej instancji NPC.
@@ -135,8 +137,6 @@ MonoBehaviour:
     MaximumFloatValue: 100
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
-    DefaultStringValue: 
-    CurrentStringValue: 
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: progression.npc.loyalty.discount.level_1
@@ -2199,6 +2199,1357 @@ MonoBehaviour:
     CurrentBooleanValue: 0
     DefaultStringValue: 
     CurrentStringValue: 
+  - Id: combat.escape.honor_penalty
+    DisplayName: "Kara Honor za ucieczk\u0119"
+    Description: "Ilo\u015B\u0107 Honor tracona przez posta\u0107 po ucieczce z walki."
+    Category: 1
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.freeze.damage_per_remaining_turn
+    DisplayName: "Premia obra\u017Ce\u0144 za Freeze"
+    Description: "Mno\u017Cnik dodawany za ka\u017Cd\u0105 pozosta\u0142\u0105 tur\u0119
+      Freeze po jego przerwaniu."
+    Category: 1
+    Unit: x/tura
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.dot.resistance_half_point
+    DisplayName: "Po\u0142owa krzywej odporno\u015Bci DoT"
+    Description: "Punkt przej\u015Bcia pomi\u0119dzy dwiema cz\u0119\u015Bciami krzywej
+      obra\u017Ce\u0144 status\xF3w obra\u017Ce\u0144 w czasie."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.dot.low_resistance_multiplier
+    DisplayName: "Mno\u017Cnik DoT przy zerowej odporno\u015Bci"
+    Description: "Mno\u017Cnik obra\u017Ce\u0144 DoT przy zerowej odporno\u015Bci."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 2
+    CurrentFloatValue: 2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.dot.low_resistance_slope
+    DisplayName: "Nachylenie niskiej odporno\u015Bci DoT"
+    Description: "Nachylenie pierwszej cz\u0119\u015Bci krzywej obra\u017Ce\u0144
+      DoT."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 2
+    CurrentFloatValue: 2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.dot.high_resistance_base
+    DisplayName: "Baza wysokiej odporno\u015Bci DoT"
+    Description: "Baza drugiej cz\u0119\u015Bci krzywej obra\u017Ce\u0144 DoT."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 1.5
+    CurrentFloatValue: 1.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.dot.high_resistance_slope
+    DisplayName: "Nachylenie wysokiej odporno\u015Bci DoT"
+    Description: "Nachylenie drugiej cz\u0119\u015Bci krzywej obra\u017Ce\u0144 DoT."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 1
+    CurrentFloatValue: 1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.resistance_half_point
+    DisplayName: "Po\u0142owa krzywej odporno\u015Bci statusu"
+    Description: "Punkt, w kt\xF3rym krzywa modyfikacji szansy statusu zmienia cz\u0119\u015B\u0107."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0.01
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.resistance_multiplier
+    DisplayName: "Mno\u017Cnik odporno\u015Bci statusu"
+    Description: "Mno\u017Cnik szansy statusu przy odporno\u015Bci powy\u017Cej po\u0142owy
+      krzywej."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 2
+    CurrentFloatValue: 2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_input_1
+    DisplayName: "Krzywa statusu: pr\xF3g 1"
+    Description: "Pierwszy punkt wej\u015Bciowy krzywej bonusu szansy statusu."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.01
+    CurrentFloatValue: 0.01
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_input_2
+    DisplayName: "Krzywa statusu: pr\xF3g 2"
+    Description: "Drugi punkt wej\u015Bciowy krzywej bonusu szansy statusu."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.03
+    CurrentFloatValue: 0.03
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_input_3
+    DisplayName: "Krzywa statusu: pr\xF3g 3"
+    Description: "Trzeci punkt wej\u015Bciowy krzywej bonusu szansy statusu."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.25
+    CurrentFloatValue: 0.25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_input_4
+    DisplayName: "Krzywa statusu: pr\xF3g 4"
+    Description: "Czwarty punkt wej\u015Bciowy krzywej bonusu szansy statusu."
+    Category: 1
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_output_1
+    DisplayName: "Krzywa statusu: warto\u015B\u0107 1"
+    Description: "Pierwsza warto\u015B\u0107 wyj\u015Bciowa krzywej bonusu szansy
+      statusu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.0404
+    CurrentFloatValue: 0.0404
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_output_2
+    DisplayName: "Krzywa statusu: warto\u015B\u0107 2"
+    Description: "Druga warto\u015B\u0107 wyj\u015Bciowa krzywej bonusu szansy statusu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.0722
+    CurrentFloatValue: 0.0722
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_output_3
+    DisplayName: "Krzywa statusu: warto\u015B\u0107 3"
+    Description: "Trzecia warto\u015B\u0107 wyj\u015Bciowa krzywej bonusu szansy
+      statusu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.3333
+    CurrentFloatValue: 0.3333
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_output_4
+    DisplayName: "Krzywa statusu: warto\u015B\u0107 4"
+    Description: "Czwarta warto\u015B\u0107 wyj\u015Bciowa krzywej bonusu szansy
+      statusu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.4
+    CurrentFloatValue: 0.4
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.status.chance.curve_output_5
+    DisplayName: "Krzywa statusu: warto\u015B\u0107 5"
+    Description: "Ko\u0144cowa warto\u015B\u0107 wyj\u015Bciowa krzywej bonusu szansy
+      statusu."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.summon_score
+    DisplayName: "AI: przywo\u0142anie"
+    Description: "Bazowy priorytet umiej\u0119tno\u015Bci przywo\u0142uj\u0105cych."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 75
+    CurrentFloatValue: 75
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.delayed_effect_per_target
+    DisplayName: "AI: op\xF3\u017Aniony efekt"
+    Description: "Priorytet op\xF3\u017Anionego efektu za ka\u017Cdy cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 25
+    CurrentFloatValue: 25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.action_cost_penalty_per_point
+    DisplayName: 'AI: kara za koszt AP'
+    Description: "Kara priorytetu za ka\u017Cdy punkt kosztu akcji."
+    Category: 1
+    Unit: score/AP
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.35
+    CurrentFloatValue: 0.35
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.resource_cost_penalty_per_point
+    DisplayName: 'AI: kara za koszt zasobu'
+    Description: "Kara priorytetu za ka\u017Cdy punkt kosztu zasobu."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.aggressive_damage_per_target
+    DisplayName: 'AI: agresywny damage'
+    Description: "Premia agresywnej osobowo\u015Bci za efekt obra\u017Ce\u0144 na
+      cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 30
+    CurrentFloatValue: 30
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.aggressive_status_per_target
+    DisplayName: 'AI: agresywny status'
+    Description: "Premia agresywnej osobowo\u015Bci za status na cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 15
+    CurrentFloatValue: 15
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.cautious_recovery_per_target
+    DisplayName: "AI: ostro\u017Cne leczenie"
+    Description: "Premia ostro\u017Cnej osobowo\u015Bci za leczenie lub tarcz\u0119
+      na cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 30
+    CurrentFloatValue: 30
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.dps_damage_per_target
+    DisplayName: 'AI: rola DPS damage'
+    Description: "Premia roli DPS za obra\u017Cenia na cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 60
+    CurrentFloatValue: 60
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.dps_status_per_target
+    DisplayName: 'AI: rola DPS status'
+    Description: Premia roli DPS za status na cel.
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 20
+    CurrentFloatValue: 20
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.tank_shield_per_target
+    DisplayName: 'AI: rola Tank tarcza'
+    Description: "Premia roli Tank za tarcz\u0119 na cel."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 35
+    CurrentFloatValue: 35
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.tank_taunt_per_target
+    DisplayName: 'AI: rola Tank taunt'
+    Description: Premia roli Tank za taunt na cel.
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 90
+    CurrentFloatValue: 90
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.tank_push_pull_per_target
+    DisplayName: 'AI: rola Tank kontrola'
+    Description: "Premia roli Tank za odepchni\u0119cie lub przyci\u0105gni\u0119cie
+      celu."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 25
+    CurrentFloatValue: 25
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.healer_recovery_per_target
+    DisplayName: 'AI: rola Healer'
+    Description: Premia roli Healer za leczenie lub odnowienie zasobu.
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 70
+    CurrentFloatValue: 70
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.support_utility_per_target
+    DisplayName: 'AI: rola Support utility'
+    Description: "Premia roli Support za tarcz\u0119, modyfikacj\u0119 statystyk
+      lub zmiennej."
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 55
+    CurrentFloatValue: 55
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.support_status_per_target
+    DisplayName: 'AI: rola Support status'
+    Description: Premia roli Support za status na cel.
+    Category: 1
+    Unit: score/cel
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 40
+    CurrentFloatValue: 40
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.lethal_damage_bonus
+    DisplayName: "AI: premia za zab\xF3jstwo"
+    Description: "Dodatkowa premia za efekt, kt\xF3ry mo\u017Ce zabi\u0107 cel."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 10000
+    CurrentFloatValue: 10000
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.hard_control_bonus
+    DisplayName: 'AI: twarda kontrola'
+    Description: "Premia za status b\u0119d\u0105cy tward\u0105 kontrol\u0105."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 300
+    CurrentFloatValue: 300
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.soft_control_bonus
+    DisplayName: "AI: mi\u0119kka kontrola"
+    Description: "Premia za status nieb\u0119d\u0105cy tward\u0105 kontrol\u0105."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 100
+    CurrentFloatValue: 100
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.downed_recovery_bonus
+    DisplayName: 'AI: podniesienie powalonego'
+    Description: Dodatkowa premia za podniesienie powalonego celu.
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 5000
+    CurrentFloatValue: 5000
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1000000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.shield_value_multiplier
+    DisplayName: "AI: warto\u015B\u0107 tarczy"
+    Description: "Mno\u017Cnik warto\u015Bci bazowej tarczy w ocenie AI."
+    Category: 1
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.modify_bonus
+    DisplayName: 'AI: modyfikacja'
+    Description: "Premia za efekt modyfikuj\u0105cy statystyk\u0119 lub zmienn\u0105."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 40
+    CurrentFloatValue: 40
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.push_pull_bonus
+    DisplayName: 'AI: push/pull'
+    Description: "Premia za efekt odepchni\u0119cia lub przyci\u0105gni\u0119cia."
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 30
+    CurrentFloatValue: 30
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.ai.fallback_bonus
+    DisplayName: 'AI: fallback'
+    Description: Premia za efekt awaryjny.
+    Category: 1
+    Unit: score
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 10
+    CurrentFloatValue: 10
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.duplicate.second_multiplier
+    DisplayName: Drugi efekt consumabla
+    Description: "Mno\u017Cnik warto\u015Bci drugiego powtarzaj\u0105cego si\u0119
+      efektu consumabla."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.75
+    CurrentFloatValue: 0.75
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.duplicate.third_plus_multiplier
+    DisplayName: Kolejne efekty consumabla
+    Description: "Mno\u017Cnik warto\u015Bci trzeciego i kolejnych powtarzaj\u0105cych
+      si\u0119 efekt\xF3w consumabla."
+    Category: 2
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.6
+    CurrentFloatValue: 0.6
+    MinimumFloatValue: 0
+    MaximumFloatValue: 10
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.potion.long_duration
+    DisplayName: "D\u0142ugi efekt mikstury"
+    Description: "Domy\u015Blny czas trwania regeneracji i zwi\u0119kszenia maksymalnego
+      zasobu."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 6
+    CurrentIntegerValue: 6
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.potion.stat_duration
+    DisplayName: Efekt statystyki mikstury
+    Description: "Domy\u015Blny czas trwania modyfikacji statystyki mikstury."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.potion.speed_duration
+    DisplayName: Efekt Speed mikstury
+    Description: "Domy\u015Blny czas trwania modyfikacji Speed mikstury."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.potion.action_point_duration
+    DisplayName: Efekt AP mikstury
+    Description: "Domy\u015Blny czas trwania modyfikacji AP mikstury."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.damage_over_time_duration
+    DisplayName: Efekt DoT bomby
+    Description: "Domy\u015Blny czas trwania Bleed i Poison na\u0142o\u017Conych
+      przez bomb\u0119."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 4
+    CurrentIntegerValue: 4
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.burn_duration
+    DisplayName: Efekt Burn bomby
+    Description: "Domy\u015Blny czas trwania Burn na\u0142o\u017Conego przez bomb\u0119."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.control_duration
+    DisplayName: Efekt kontroli bomby
+    Description: "Domy\u015Blny czas trwania Stun i Freeze na\u0142o\u017Conych przez
+      bomb\u0119."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 2
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.consumable.bomb.stat_duration
+    DisplayName: Efekt statystyki bomby
+    Description: "Domy\u015Blny czas trwania modyfikacji statystyki na\u0142o\u017Conej
+      przez bomb\u0119."
+    Category: 2
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.poor_cost_multiplier
+    DisplayName: "Koszt jako\u015Bci Poor"
+    Description: "Mno\u017Cnik kosztu craftingu wyposa\u017Cenia o jako\u015Bci Poor."
+    Category: 3
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.excellent_cost_multiplier
+    DisplayName: "Koszt jako\u015Bci Excellent"
+    Description: "Mno\u017Cnik kosztu craftingu wyposa\u017Cenia o jako\u015Bci Excellent."
+    Category: 3
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 2
+    CurrentFloatValue: 2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.poor_weight
+    DisplayName: "Losowanie jako\u015Bci Poor"
+    Description: "Waga losowania jako\u015Bci Poor."
+    Category: 2
+    Unit: waga
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.normal_weight
+    DisplayName: "Losowanie jako\u015Bci Normal"
+    Description: "Waga losowania jako\u015Bci Normal."
+    Category: 2
+    Unit: waga
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.excellent_weight
+    DisplayName: "Losowanie jako\u015Bci Excellent"
+    Description: "Waga losowania jako\u015Bci Excellent."
+    Category: 2
+    Unit: waga
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.poor_level_adjustment
+    DisplayName: "Poziom jako\u015Bci Poor"
+    Description: "Korekta poziomu itemu dla jako\u015Bci Poor."
+    Category: 2
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: -3
+    CurrentIntegerValue: -3
+    MinimumIntegerValue: -100
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.excellent_level_adjustment
+    DisplayName: "Poziom jako\u015Bci Excellent"
+    Description: "Korekta poziomu itemu dla jako\u015Bci Excellent."
+    Category: 2
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: -100
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.quality.masterpiece_level_adjustment
+    DisplayName: "Poziom jako\u015Bci Masterpiece"
+    Description: "Korekta poziomu itemu dla jako\u015Bci Masterpiece."
+    Category: 2
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: -100
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.trash_weight
+    DisplayName: Rarity Trash
+    Description: Waga losowania rarity Trash.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.02
+    CurrentFloatValue: 0.02
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.broken_weight
+    DisplayName: Rarity Broken
+    Description: Waga losowania rarity Broken.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.03
+    CurrentFloatValue: 0.03
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.damaged_weight
+    DisplayName: Rarity Damaged
+    Description: Waga losowania rarity Damaged.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.04
+    CurrentFloatValue: 0.04
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.common_weight
+    DisplayName: Rarity Common
+    Description: Waga losowania rarity Common.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.uncommon_weight
+    DisplayName: Rarity Uncommon
+    Description: Waga losowania rarity Uncommon.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.2
+    CurrentFloatValue: 0.2
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.rare_weight
+    DisplayName: Rarity Rare
+    Description: Waga losowania rarity Rare.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.ancient_weight
+    DisplayName: Rarity Ancient
+    Description: Waga losowania rarity Ancient.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.05
+    CurrentFloatValue: 0.05
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.legendary_weight
+    DisplayName: Rarity Legendary
+    Description: Waga losowania rarity Legendary.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.03
+    CurrentFloatValue: 0.03
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.mythic_weight
+    DisplayName: Rarity Mythic
+    Description: Waga losowania rarity Mythic.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.02
+    CurrentFloatValue: 0.02
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.equipment.rarity.godly_weight
+    DisplayName: Rarity Godly
+    Description: Waga losowania rarity Godly.
+    Category: 2
+    Unit: waga
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.01
+    CurrentFloatValue: 0.01
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.early_end_level
+    DisplayName: Koniec growth early
+    Description: "Ostatni poziom pierwszego przedzia\u0142u growth."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 200
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.mid_end_level
+    DisplayName: Koniec growth mid
+    Description: "Ostatni poziom drugiego przedzia\u0142u growth."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 20
+    CurrentIntegerValue: 20
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 200
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.late_end_level
+    DisplayName: Koniec growth late
+    Description: "Ostatni poziom trzeciego przedzia\u0142u growth."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 30
+    CurrentIntegerValue: 30
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 200
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: progression.growth.endgame_end_level
+    DisplayName: Koniec growth endgame
+    Description: "Ostatni poziom czwartego przedzia\u0142u growth."
+    Category: 5
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 40
+    CurrentIntegerValue: 40
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 200
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: exploration.encounter.chase_speed
+    DisplayName: "Pr\u0119dko\u015B\u0107 po\u015Bcigu"
+    Description: "Pr\u0119dko\u015B\u0107 przeciwnika \u015Bcigaj\u0105cego dru\u017Cyn\u0119
+      w eksploracji."
+    Category: 6
+    Unit: unity units/s
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4.5
+    CurrentFloatValue: 4.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
   - Id: economy.npc.guild_payout.growth_base
     DisplayName: Baza wzrostu wypłat gildii
     Description: Podstawa potęgowania wypłaty gildii NPC względem poziomu kampanii.
@@ -2249,6 +3600,132 @@ MonoBehaviour:
     CurrentFloatValue: 0.4
     MinimumFloatValue: 0
     MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.ingredient_count
+    DisplayName: Liczba składników alchemicznych
+    Description: Liczba ziół lub części potworów wymaganych do craftingu potionu albo bomby.
+    Category: 3
+    Unit: składniki
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 10
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.level.tier_1
+    DisplayName: Poziom alchemii tieru 1
+    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 1.
+    Category: 3
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 11
+    CurrentIntegerValue: 11
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.level.tier_2
+    DisplayName: Poziom alchemii tieru 2
+    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 2.
+    Category: 3
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 21
+    CurrentIntegerValue: 21
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.level.tier_3
+    DisplayName: Poziom alchemii tieru 3
+    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 3.
+    Category: 3
+    Unit: level
+    ValueType: 0
+    DefaultIntegerValue: 41
+    CurrentIntegerValue: 41
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.medium.min_tier.level_1
+    DisplayName: Minimalny tier medium dla poziomu 11
+    Description: Minimalny tier alkoholu lub prochu dla consumabli poziomu 11.
+    Category: 3
+    Unit: tier
+    ValueType: 0
+    DefaultIntegerValue: 1
+    CurrentIntegerValue: 1
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 5
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.medium.min_tier.level_2
+    DisplayName: Minimalny tier medium dla poziomu 21
+    Description: Minimalny tier alkoholu lub prochu dla consumabli poziomu 21.
+    Category: 3
+    Unit: tier
+    ValueType: 0
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 5
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.alchemy.medium.min_tier.level_3
+    DisplayName: Minimalny tier medium dla poziomu 41
+    Description: Minimalny tier alkoholu lub prochu dla consumabli poziomu 41.
+    Category: 3
+    Unit: tier
+    ValueType: 0
+    DefaultIntegerValue: 5
+    CurrentIntegerValue: 5
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 5
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
     DefaultStringValue: 

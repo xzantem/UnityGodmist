@@ -48,6 +48,10 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField, Min(0f)] private float contentHeightPadding = 16f;
         [SerializeField] private Vector2 pointerOffset = new(4f, -4f);
 
+        private const float TitleOnlyTooltipHorizontalPadding = 32f;
+        private const float TitleOnlyTooltipMinimumWidth = 120f;
+        private const float TitleOnlyTooltipVerticalPadding = 20f;
+
         private CanvasGroup canvasGroup;
         private readonly List<UIWorkspaceTooltipView> nested = new();
         private bool visible;
@@ -70,6 +74,7 @@ namespace Godmist.Views.UI.Workspace
         private float pendingNestedExitStartedAt;
         private Color defaultAccentColor;
         private bool hasDefaultAccentColor;
+        private TextAlignmentOptions defaultTitleAlignment;
         private NpcLoyaltyProgressionView npcLoyaltyProgression;
         private float defaultTooltipWidth;
 
@@ -89,6 +94,9 @@ namespace Godmist.Views.UI.Workspace
         {
             ActiveInstance = this;
             defaultTooltipWidth = tooltipRect != null ? tooltipRect.rect.width : 0f;
+            defaultTitleAlignment = titleText != null
+                ? titleText.alignment
+                : TextAlignmentOptions.TopLeft;
             EnsureCanvasGroup();
             ConfigureTextLayout(titleText);
             ConfigureTextLayout(bodyText);
@@ -380,6 +388,9 @@ namespace Godmist.Views.UI.Workspace
         private void SetContent(Sprite sprite, string title, string body, string meta)
         {
             RestoreDefaultTooltipWidth();
+            var isTitleOnly = sprite == null
+                && string.IsNullOrWhiteSpace(body)
+                && string.IsNullOrWhiteSpace(meta);
             npcLoyaltyProgression?.gameObject.SetActive(false);
             sourceIdentity = pendingSource;
             pendingSource = null;
@@ -396,10 +407,21 @@ namespace Godmist.Views.UI.Workspace
             if (icon != null)
             {
                 icon.sprite = sprite;
-                icon.enabled = sprite != null;
+                // The icon lives in a horizontal layout group with the title.
+                // Disabling only its Image still left its LayoutElement active and
+                // reserved a 40 px blank column for iconless tooltips.
+                icon.gameObject.SetActive(sprite != null);
             }
 
-            if (titleText != null) titleText.text = title ?? string.Empty;
+            if (titleText != null)
+            {
+                titleText.textWrappingMode = TextWrappingModes.Normal;
+                titleText.overflowMode = TextOverflowModes.Overflow;
+                titleText.alignment = isTitleOnly
+                    ? TextAlignmentOptions.Center
+                    : defaultTitleAlignment;
+                titleText.text = title ?? string.Empty;
+            }
             if (bodyText != null)
             {
                 bodyText.gameObject.SetActive(!string.IsNullOrWhiteSpace(body));
@@ -412,6 +434,8 @@ namespace Godmist.Views.UI.Workspace
                 metaText.gameObject.SetActive(!string.IsNullOrWhiteSpace(meta));
                 metaText.text = meta ?? string.Empty;
             }
+
+            if (isTitleOnly) ResizeTitleOnlyTooltipWidth();
 
             ResizeForContent();
             resizeAfterLayout = true;
@@ -461,6 +485,27 @@ namespace Godmist.Views.UI.Workspace
             if (defaultTooltipWidth > 1f) SetTooltipWidth(defaultTooltipWidth);
         }
 
+        private void ResizeTitleOnlyTooltipWidth()
+        {
+            if (titleText == null) return;
+
+            // Measure against an unconstrained line. Measuring with a width of
+            // zero used TMP's previous narrow layout width, so a title that had
+            // already wrapped reported the width of one word and made the next
+            // tooltip even narrower.
+            var preferredWidth = titleText.GetPreferredValues(
+                titleText.text,
+                10000f,
+                0f).x;
+            var desiredWidth = Mathf.Max(
+                TitleOnlyTooltipMinimumWidth,
+                Mathf.Ceil(preferredWidth) + TitleOnlyTooltipHorizontalPadding);
+            SetTooltipWidth(ClampTooltipWidth(
+                defaultTooltipWidth > 1f
+                    ? Mathf.Min(desiredWidth, defaultTooltipWidth)
+                    : desiredWidth));
+        }
+
         private void EnsureNpcLoyaltyProgression()
         {
             if (npcLoyaltyProgression != null || bodyText == null) return;
@@ -495,15 +540,18 @@ namespace Godmist.Views.UI.Workspace
             var contentWidth = contentRect != null && contentRect.rect.width > 1f
                 ? contentRect.rect.width
                 : Mathf.Max(1f, tooltipWidth - 24f);
-            var iconHeight = icon != null && icon.enabled ? 40f : 0f;
+            var iconHeight = icon != null && icon.isActiveAndEnabled ? 40f : 0f;
+            var titleWidth = titleText != null && titleText.rectTransform.rect.width > 1f
+                ? titleText.rectTransform.rect.width
+                : Mathf.Max(1f, contentWidth - (iconHeight > 0f ? iconHeight + 12f : 0f));
             var titleHeight = titleText != null
-                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, contentWidth, 0f).y)
+                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, titleWidth, 0f).y)
                 : 0f;
             var headerHeight = Mathf.Max(iconHeight, titleHeight);
             var headerLayout = titleText?.transform.parent?.GetComponent<LayoutElement>();
             if (headerLayout != null)
             {
-                var compactHeaderHeight = Mathf.Max(24f, headerHeight);
+                var compactHeaderHeight = Mathf.Max(24f, headerHeight + 8f);
                 headerLayout.minHeight = compactHeaderHeight;
                 headerLayout.preferredHeight = compactHeaderHeight;
                 headerHeight = compactHeaderHeight;
@@ -511,20 +559,27 @@ namespace Godmist.Views.UI.Workspace
 
             var customBodyActive = npcLoyaltyProgression != null
                 && npcLoyaltyProgression.gameObject.activeSelf;
+            var hasBody = customBodyActive
+                || bodyText != null && bodyText.gameObject.activeSelf;
+            var hasMeta = metaText != null && metaText.gameObject.activeSelf;
+            var isTitleOnly = !customBodyActive
+                && !hasBody
+                && !hasMeta
+                && (icon == null || !icon.isActiveAndEnabled);
             var bodyHeight = customBodyActive
                 ? npcLoyaltyProgression.GetPreferredHeight(contentWidth)
-                : bodyText != null && bodyText.gameObject.activeSelf
+                : hasBody
                     ? Mathf.Ceil(bodyText.GetPreferredValues(bodyText.text, contentWidth, 0f).y)
                     : 0f;
-            var metaHeight = metaText != null && metaText.gameObject.activeSelf
+            var metaHeight = hasMeta
                 ? Mathf.Ceil(metaText.GetPreferredValues(metaText.text, contentWidth, 0f).y)
                 : 0f;
-            var sectionCount = 1 + (customBodyActive
-                    || bodyText != null && bodyText.gameObject.activeSelf ? 1 : 0)
-                + (metaText != null && metaText.gameObject.activeSelf ? 1 : 0);
+            var sectionCount = 1 + (hasBody ? 1 : 0) + (hasMeta ? 1 : 0);
             tooltipRect.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
+                isTitleOnly
+                    ? headerHeight + TitleOnlyTooltipVerticalPadding
+                    : Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
         }
 
@@ -2172,6 +2227,8 @@ namespace Godmist.Views.UI.Workspace
             }
             else if (item is ConsumableItemInstance consumable)
             {
+                Append(result, $"Ładunki: {consumable.CurrentCharges}/{consumable.MaxCharges}");
+                AppendConsumableCatalyst(result, consumable);
                 if (consumable.RuntimeEffects != null && consumable.RuntimeEffects.Count > 0)
                 {
                     foreach (var runtimeEffect in consumable.RuntimeEffects)
@@ -2215,6 +2272,25 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
             return result.ToString();
+        }
+
+        private static void AppendConsumableCatalyst(StringBuilder result, ConsumableItemInstance consumable)
+        {
+            if (consumable == null || (string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
+                && consumable.CatalystDurationModifier == 0
+                && consumable.CatalystEffectMultiplier == 1f
+                && consumable.CatalystChargeBonus == 0)) return;
+            var modifier = consumable.CatalystDurationModifier != 0
+                ? $"{consumable.CatalystDurationModifier:+#;-#} tura czasu trwania"
+                : consumable.CatalystEffectMultiplier != 1f
+                    ? $"{(consumable.CatalystEffectMultiplier - 1f):+0%;-0%} siły efektów"
+                    : consumable.CatalystChargeBonus != 0
+                        ? $"+{consumable.CatalystChargeBonus} ładunek"
+                        : "aktywny";
+            var name = string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
+                ? "aktywny"
+                : consumable.CatalystDisplayName;
+            Append(result, $"Katalizator: {name} ({modifier})");
         }
 
         private static string AppendTooltipExtra(string body, string extraBody)

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58ca9bddad3e43d46860c8d712619500, type: 3}
+  m_Name: DD_Arungard_Alchemist_Greeting
+  m_EditorClassIdentifier: Data::Godmist.Data.NPC.DialogueDefinition
+  <Id>k__BackingField: dialogue.arungard.alchemist.greeting
+  <StartNodeId>k__BackingField: greeting
+  <Nodes>k__BackingField:
+  - <NodeId>k__BackingField: greeting
+    <SpeakerId>k__BackingField: npc.arungard.alchemist_01
+    <Text>k__BackingField: Mogę przygotować mikstury i uzupełnić ich ładunki.
+    <Choices>k__BackingField:
+    - <ChoiceId>k__BackingField: close
+      <DisplayText>k__BackingField: Do widzenia.
+      <NextNodeId>k__BackingField: 
+      <QuestAction>k__BackingField:
+        <QuestId>k__BackingField: 
+        <MakeQuestAvailable>k__BackingField: 0
+        <StartQuest>k__BackingField: 0
+        <QuestBranchId>k__BackingField: 

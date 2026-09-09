@@ -22,6 +22,7 @@ namespace Godmist.Core.Serialization
         public int CatalystDurationModifier;
         public float CatalystEffectMultiplier = 1f;
         public int CatalystChargeBonus;
+        public string CatalystDisplayName;
         public List<ConsumableEffectSaveData> ConsumableEffects = new();
         public List<string> LootBagContentItemInstanceIds = new();
         public string RequiredClassId = string.Empty;

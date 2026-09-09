@@ -380,6 +380,7 @@ namespace Godmist.Systems.SaveLoad
                     consumableItem.CatalystDurationModifier = itemSaveData.CatalystDurationModifier;
                     consumableItem.CatalystEffectMultiplier = itemSaveData.CatalystEffectMultiplier;
                     consumableItem.CatalystChargeBonus = itemSaveData.CatalystChargeBonus;
+                    consumableItem.CatalystDisplayName = itemSaveData.CatalystDisplayName ?? string.Empty;
                     if (itemSaveData.CurrentCharges < 0 || itemSaveData.CurrentCharges > consumableItem.MaxCharges) return false;
                     consumableItem.CurrentCharges = itemSaveData.CurrentCharges;
                     if (consumableItem.IsBomb)
@@ -1375,7 +1376,13 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var characterId in saveData.ActiveMemberIds)
             {
-                if (!session.TryAddCharacterToActiveParty(characterId))
+                // Restore must reproduce the saved party composition, including
+                // incapacitated or dead members.  The gameplay API deliberately
+                // prevents adding such characters to an active party, but using it
+                // here made otherwise valid saves unloadable after a party member
+                // died.
+                if (!session.CharactersById.ContainsKey(characterId)
+                    || !session.PlayerParty.TryAddActiveMember(characterId))
                 {
                     return false;
                 }
@@ -1383,7 +1390,8 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var characterId in saveData.BenchMemberIds)
             {
-                if (!session.TryAddCharacterToBench(characterId))
+                if (!session.CharactersById.ContainsKey(characterId)
+                    || !session.PlayerParty.TryAddBenchMember(characterId))
                 {
                     return false;
                 }
@@ -1395,7 +1403,7 @@ namespace Godmist.Systems.SaveLoad
                     session.PlayerParty.ActiveLeaderId);
             }
 
-            return session.TrySetActiveLeader(
+            return session.PlayerParty.TrySetActiveLeader(
                 saveData.ActiveLeaderId);
         }
 
