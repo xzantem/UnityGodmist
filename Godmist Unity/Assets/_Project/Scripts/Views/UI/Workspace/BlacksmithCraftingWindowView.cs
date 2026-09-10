@@ -218,7 +218,7 @@ namespace Godmist.Views.UI.Workspace
                     material.MissingAmount > 0,
                     null,
                     canOfferPurchase
-                        ? $"{material.PurchasableAmount} ({material.PurchasePrice}g)"
+                        ? $"{material.PurchasableAmount}× • {material.PurchasePrice}g"
                         : null,
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
@@ -363,9 +363,12 @@ namespace Godmist.Views.UI.Workspace
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(result?.Definition?.Icon);
-                previewTooltipSlot.SetTooltip(
-                    result?.DisplayName ?? "Podgląd przedmiotu",
-                    BuildPreviewTooltip(result));
+                if (result != null)
+                    previewTooltipSlot.SetItemTooltip(result, null);
+                else
+                    previewTooltipSlot.SetTooltip(
+                        "Podgląd przedmiotu",
+                        "Wybierz wyposażenie i części, aby zobaczyć szczegóły.");
             }
 
             SetPreviewLabel(previewNameText, result?.DisplayName);
@@ -404,17 +407,6 @@ namespace Godmist.Views.UI.Workspace
                 : default);
             var requiredClass = GetRequiredClassDisplayName(result);
             return $"{itemType} • {requiredClass} • Poziom {result.ItemLevel}";
-        }
-
-        private static string BuildPreviewTooltip(EquipmentItemInstance result)
-        {
-            if (result == null) return "Wybierz wyposażenie i części, aby zobaczyć szczegóły.";
-
-            return $"{BuildPreviewSummary(result)}\n"
-                + $"Jakość: {GetQualityDisplayName(result.Quality)}\n"
-                + "Rzadkość: losowana przy craftingu\n"
-                + "Statystyki:\n"
-                + BuildStatsText(result);
         }
 
         private static string GetRequiredClassDisplayName(EquipmentItemInstance result)

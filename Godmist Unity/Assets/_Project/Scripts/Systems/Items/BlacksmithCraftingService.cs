@@ -95,7 +95,7 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
-            if (request.Definition is BossUniqueEquipmentDefinition)
+            if (request.Definition is UniqueEquipmentDefinition)
             {
                 preview.FailureReason = "Unikatowego wyposażenia bossa nie można wytworzyć u kowala.";
                 return preview;
@@ -386,15 +386,6 @@ namespace Godmist.Systems.Items
                     PurchasePrice = GetStockPurchasePrice(blacksmith, pair.Key.Id, Mathf.Min(missing, stock))
                 });
                 var cost = costs[costs.Count - 1];
-                if (cost.MissingAmount > 0
-                    && !npcLoyaltyService.IsMaterialTradeUnlocked(
-                        blacksmith,
-                        cost.Material,
-                        out var materialRestriction))
-                {
-                    cost.PurchaseFailureReason =
-                        $"Handel tym materiałem jest zablokowany. {materialRestriction}";
-                }
                 cost.CanAffordPurchase = cost.PurchasableAmount > 0
                     && cost.PurchasePrice > 0
                     && session != null

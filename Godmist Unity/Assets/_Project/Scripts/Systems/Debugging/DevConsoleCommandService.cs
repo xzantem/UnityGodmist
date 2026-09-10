@@ -19,6 +19,7 @@ using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.NPC;
 using UnityEngine;
 
 namespace Godmist.Systems.Debugging
@@ -43,6 +44,7 @@ namespace Godmist.Systems.Debugging
         private readonly EquipmentGenerationService equipmentGenerationService = new();
         private readonly EquipmentUpgradeService equipmentUpgradeService = new();
         private readonly StatusEffectSystem statusEffectSystem = new();
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         private int? debugSeed;
 
@@ -107,6 +109,7 @@ namespace Godmist.Systems.Debugging
                 "removeitem" => RemoveItem(tokens, gameSession),
                 "clearinventory" => ClearInventory(tokens, gameSession),
                 "setlevel" => SetLevel(tokens, gameSession),
+                "setloyalty" => SetLoyalty(tokens, gameSession),
                 "noclip" => SetNoclip(tokens, noclipHandler),
                 "revealmap" => SetMapVisibility(gameSession, true),
                 "clearmap" => SetMapVisibility(gameSession, false),
@@ -237,6 +240,30 @@ namespace Godmist.Systems.Debugging
                 return Fail($"level musi mieścić się w zakresie {CharacterProgressionSystem.MinimumLevel}-{CharacterProgressionSystem.MaximumLevel}.");
 
             return Success($"Ustawiono poziom {GetCharacterName(character)}: {previousLevel} -> {character.Level}.");
+        }
+
+        private DevConsoleCommandResult SetLoyalty(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: setloyalty <npcId> <level>");
+            if (gameSession?.NpcsById == null
+                || !gameSession.NpcsById.TryGetValue(tokens[1], out var npc))
+            {
+                return Fail($"Nie znaleziono NPC o ID: {tokens[1]}");
+            }
+
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var level))
+                return Fail("level musi być liczbą całkowitą.");
+            if (level < npcLoyaltyService.InitialLevel || level > npcLoyaltyService.MaximumLevel)
+            {
+                return Fail($"level musi mieścić się w zakresie "
+                    + $"{npcLoyaltyService.InitialLevel}-{npcLoyaltyService.MaximumLevel}.");
+            }
+
+            var previousLevel = npc.LoyaltyLevel;
+            npc.LoyaltyLevel = level;
+            return Success($"Ustawiono lojalność NPC {npc.NpcId}: {previousLevel} -> {npc.LoyaltyLevel}.");
         }
 
         private static DevConsoleCommandResult SetNoclip(
@@ -1576,7 +1603,7 @@ namespace Godmist.Systems.Debugging
                 return Fail("Jakość musi być jedną z wartości: Poor, Normal, Excellent, Masterpiece.");
             }
 
-            if (equipmentDefinition is BossUniqueEquipmentDefinition
+            if (equipmentDefinition is UniqueEquipmentDefinition
                 && quality != EquipmentQuality.Masterpiece)
             {
                 return Fail("Bossowy unikat można utworzyć wyłącznie z jakością Masterpiece.");

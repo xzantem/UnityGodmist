@@ -345,9 +345,11 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(
                 definition,
                 "ItemType",
-                useType == ConsumableUseType.Potion
-                    ? ItemType.Potion
-                    : ItemType.Tool);
+                useType == ConsumableUseType.Bomb
+                    ? ItemType.Bomb
+                    : useType == ConsumableUseType.Potion
+                        ? ItemType.Potion
+                        : ItemType.Tool);
 
             return definition;
         }

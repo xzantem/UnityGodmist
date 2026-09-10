@@ -259,10 +259,12 @@ namespace Godmist.Views.UI.Workspace
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(preview.Result?.Definition?.Icon);
-                previewTooltipSlot.SetTooltip(preview.Result?.DisplayName ?? "Wynik craftingu",
-                    preview.Result == null
-                        ? "Wybierz trzy różne składniki i właściwy alkohol lub proch."
-                        : BuildResultTooltip(preview.Result));
+                if (preview.Result != null)
+                    previewTooltipSlot.SetItemTooltip(preview.Result, null);
+                else
+                    previewTooltipSlot.SetTooltip(
+                        "Wynik craftingu",
+                        "Wybierz trzy różne składniki i właściwy alkohol lub proch.");
             }
             if (previewNameText != null) previewNameText.text = preview.Result?.DisplayName ?? "Wybierz składniki";
             if (previewSummaryText != null)
@@ -290,7 +292,7 @@ namespace Godmist.Views.UI.Workspace
                 slot.gameObject.SetActive(true);
                 slot?.Bind(cost.Material.Icon, cost.Material.DisplayName, BuildMaterialDescription(cost),
                     $"{cost.OwnedAmount}/{cost.RequiredAmount}", cost.MissingAmount <= 0, cost.MissingAmount > 0,
-                    null, canOfferPurchase ? $"{cost.PurchasableAmount} ({cost.PurchasePrice}g)" : null,
+                    null, canOfferPurchase ? $"{cost.PurchasableAmount}× • {cost.PurchasePrice}g" : null,
                     canOfferPurchase ? () => TryBuyMissingMaterial(cost.Material.Id) : null,
                     cost.PurchaseState, cost.PurchaseState == CraftingMaterialPurchaseState.Available);
             }
@@ -446,34 +448,6 @@ namespace Godmist.Views.UI.Workspace
                 : $"Brakuje: {cost.MissingAmount}. Alchemik nie ma zapasu.";
         }
 
-        private string BuildResultTooltip(ConsumableItemInstance result)
-        {
-            var effects = string.Join("\n", result.RuntimeEffects?.Select(effect =>
-                $"• {FormatEffectType(effect.EffectType)}: {FormatEffectValue(effect.Value)}") ?? Enumerable.Empty<string>());
-            var catalyst = BuildCatalystTooltip(result);
-            return $"Poziom: {result.ItemLevel}\nŁadunki: {result.MaxCharges}\nEfekty:\n{effects}{catalyst}";
-        }
-
-        private string BuildCatalystTooltip(ConsumableItemInstance result)
-        {
-            if (selectedCatalyst == null) return string.Empty;
-
-            var modifier = result.CatalystDurationModifier != 0
-                ? $"czas działania {(result.CatalystDurationModifier > 0 ? "+" : string.Empty)}{result.CatalystDurationModifier} tury"
-                : result.CatalystEffectMultiplier != 1f
-                    ? $"siła efektów {(result.CatalystEffectMultiplier - 1f):+0%;-0%}"
-                    : result.CatalystChargeBonus != 0
-                        ? $"ładunki +{result.CatalystChargeBonus}"
-                        : "modyfikator aktywny";
-            return $"\nKatalizator: {GetCatalystShortName(result.CatalystDisplayName ?? GetDisplayName(selectedCatalyst))} ({modifier})";
-        }
-
-        private static string GetCatalystShortName(string name)
-        {
-            var separator = name?.LastIndexOf(':') ?? -1;
-            return separator >= 0 && separator + 1 < name.Length ? name[(separator + 1)..].Trim() : name;
-        }
-
         private static string FormatEffectType(ConsumableRuntimeEffectType effectType) => effectType switch
         {
             ConsumableRuntimeEffectType.RestoreHealth => "Odzyskanie HP",
@@ -484,5 +458,6 @@ namespace Godmist.Views.UI.Workspace
         };
 
         private static string FormatEffectValue(float value) => $"{value * 100f:0.##}%";
+
     }
 }

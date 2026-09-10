@@ -177,11 +177,15 @@ namespace Godmist.Views.UI.Workspace
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(preview.Consumable?.Definition?.Icon);
-                previewTooltipSlot.SetTooltip(
-                    preview.Consumable?.DisplayName ?? GetOperationName(),
-                    preview.Consumable == null
-                        ? $"Wybierz {GetConsumableName()}."
-                        : $"Ładunki: {preview.CurrentCharges}/{preview.MaxCharges}\nPo napełnieniu: {preview.MaxCharges}/{preview.MaxCharges}");
+                if (preview.Consumable != null)
+                    previewTooltipSlot.SetItemTooltip(
+                        preview.Consumable,
+                        null,
+                        $"Po napełnieniu: {preview.MaxCharges}/{preview.MaxCharges}");
+                else
+                    previewTooltipSlot.SetTooltip(
+                        GetOperationName(),
+                        $"Wybierz {GetConsumableName()}.");
             }
             if (previewNameText != null) previewNameText.text = preview.Consumable?.DisplayName ?? string.Empty;
             if (previewSummaryText != null)

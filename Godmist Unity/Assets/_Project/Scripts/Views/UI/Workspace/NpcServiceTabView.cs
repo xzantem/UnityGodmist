@@ -13,6 +13,7 @@ namespace Godmist.Views.UI.Workspace
         EquipmentUpgrade,
         EquipmentReforge,
         EquipmentInfusion,
+        JewelryCrafting,
         PotionCrafting,
         PotionRefill,
         BombCrafting,

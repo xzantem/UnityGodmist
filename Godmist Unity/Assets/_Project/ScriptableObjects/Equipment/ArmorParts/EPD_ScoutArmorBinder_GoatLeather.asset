@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EPD_ScoutArmorBinder_GoatLeather
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.scout.armor.binder.common.goat_leather
-  <DisplayName>k__BackingField: 
+  <DisplayName>k__BackingField: "Rzemienie z koziej sk\xF3ry"
   <Description>k__BackingField: 
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
@@ -29,8 +29,8 @@ MonoBehaviour:
     ResourceRegenerationBase: 0
     MaxHealthBase: 94
     DodgeBase: 0
-    PhysicalDefenseBase: 12
-    MagicalDefenseBase: 4
+    PhysicalDefenseBase: 0
+    MagicalDefenseBase: 0
     MinAttackPercent: 0
     MaxAttackPercent: 0
     CritChancePercent: 0
@@ -38,10 +38,10 @@ MonoBehaviour:
     WeaponAccuracyPercent: 0
     MaxResourcePercent: 0
     ResourceRegenerationPercent: 0
-    MaxHealthPercent: 0.2
+    MaxHealthPercent: 0
     DodgePercent: 0.2
     PhysicalDefensePercent: 0.2
     MagicalDefensePercent: -0.2
   <CraftingMaterials>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - <Material>k__BackingField: {fileID: 11400000, guid: 0a569b03954ad1d4bb8f554846df8931, type: 2}
     <Amount>k__BackingField: 2

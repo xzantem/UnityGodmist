@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: EPD_ScoutArmorBase_Iron
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.scout.armor.base.common.iron
+  <DisplayName>k__BackingField: "Umocnienia z \u017Celaza"
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <Kind>k__BackingField: 5
   <LevelBracket>k__BackingField: 5
@@ -24,10 +27,10 @@ MonoBehaviour:
     WeaponAccuracyBase: 0
     MaxResourceBase: 0
     ResourceRegenerationBase: 0
-    MaxHealthBase: 94
+    MaxHealthBase: 0
     DodgeBase: 18
-    PhysicalDefenseBase: 12
-    MagicalDefenseBase: 4
+    PhysicalDefenseBase: 0
+    MagicalDefenseBase: 0
     MinAttackPercent: 0
     MaxAttackPercent: 0
     CritChancePercent: 0
@@ -36,9 +39,9 @@ MonoBehaviour:
     MaxResourcePercent: 0
     ResourceRegenerationPercent: 0
     MaxHealthPercent: 0.2
-    DodgePercent: 0.2
+    DodgePercent: 0
     PhysicalDefensePercent: 0.2
     MagicalDefensePercent: -0.2
   <CraftingMaterials>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-    <Amount>k__BackingField: 2
+  - <Material>k__BackingField: {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
+    <Amount>k__BackingField: 4

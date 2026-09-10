@@ -547,6 +547,7 @@ namespace Godmist.Editor
             else if (value.IndexOf("broń", StringComparison.OrdinalIgnoreCase) >= 0) result = ItemType.Weapon;
             else if (value.IndexOf("pancerz", StringComparison.OrdinalIgnoreCase) >= 0) result = ItemType.Armor;
             else if (value.IndexOf("mikstur", StringComparison.OrdinalIgnoreCase) >= 0) result = ItemType.Potion;
+            else if (value.IndexOf("bomb", StringComparison.OrdinalIgnoreCase) >= 0) result = ItemType.Bomb;
             else { result = default; return false; }
             return true;
         }

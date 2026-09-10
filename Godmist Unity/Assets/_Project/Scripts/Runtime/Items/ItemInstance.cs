@@ -17,6 +17,8 @@ namespace Godmist.Runtime.Items
             ? CustomName
             : Definition?.DisplayName ?? "Przedmiot";
 
+        public virtual int BaseValue => Math.Max(0, Definition?.BaseValue ?? 0);
+
         public ItemInstance() {}
 
         public ItemInstance(ItemDefinition definition, string instanceId = null)

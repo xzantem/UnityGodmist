@@ -970,6 +970,7 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.PartIds = equipmentItem.PartIds == null
                     ? new List<string>()
                     : new List<string>(equipmentItem.PartIds);
+                itemSaveData.PrimaryPartDisplayName = equipmentItem.PrimaryPartDisplayName ?? string.Empty;
                 itemSaveData.BaseStatModifiers = CopyStatModifiers(
                     equipmentItem.BaseStatModifiers);
                 itemSaveData.StatModifiers = CopyStatModifiers(
@@ -982,7 +983,7 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryMetalDisplayName = jewelryItem.MetalDisplayName;
                     itemSaveData.JewelryGemId = jewelryItem.GemId;
                     itemSaveData.JewelryGemDisplayName = jewelryItem.GemDisplayName;
-                    itemSaveData.JewelryGemDescription = jewelryItem.GemDescription;
+                    itemSaveData.JewelryCraftedBaseValue = jewelryItem.CraftedBaseValue;
                 }
             }
 
@@ -996,6 +997,7 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.CatalystEffectMultiplier = consumableItem.CatalystEffectMultiplier;
                 itemSaveData.CatalystChargeBonus = consumableItem.CatalystChargeBonus;
                 itemSaveData.CatalystDisplayName = consumableItem.CatalystDisplayName;
+                itemSaveData.ConsumableCraftedBaseValue = consumableItem.CraftedBaseValue;
                 foreach (var effect in consumableItem.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
                 {
                     if (effect == null) continue;

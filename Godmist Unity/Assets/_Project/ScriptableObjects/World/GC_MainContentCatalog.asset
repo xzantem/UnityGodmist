@@ -23,8 +23,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   - {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
   <ItemDefinitions>k__BackingField:
-  - {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-  - {fileID: 11400000, guid: 599073e397cea2c43a0ff3f1f702838a, type: 2}
   - {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
   - {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
   - {fileID: 11400000, guid: 7c8f8fc5cbb9452b8cb0f6d8e31745b1, type: 2}

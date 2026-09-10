@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 104b7618b2b2a4b4792b4d15034466cc, type: 3}
-  m_Name: EID_MageWand_Test
+  m_Name: EID_ScoutSwordAndDagger
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
-  <Id>k__BackingField: equipment.mage.wand.test
-  <DisplayName>k__BackingField: "R\xF3\u017Cd\u017Cka testowa"
+  <Id>k__BackingField: equipment.scout.sword_dagger
+  <DisplayName>k__BackingField: Miecz i Sztylet
   <Description>k__BackingField: 
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
+  <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 2
   <IsStackable>k__BackingField: 0
-  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <JewelrySlot>k__BackingField: 0
+  <PassiveEffects>k__BackingField: []

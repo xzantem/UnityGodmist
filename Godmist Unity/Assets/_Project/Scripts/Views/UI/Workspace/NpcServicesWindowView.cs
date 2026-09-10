@@ -37,6 +37,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private MaterialCraftingWindowView materialCraftingService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentUpgradeService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentReforgeService;
+        [SerializeField] private JewelryCraftingWindowView jewelryCraftingService;
         [SerializeField] private AlchemyCraftingWindowView potionCraftingService;
         [SerializeField] private AlchemyCraftingWindowView bombCraftingService;
         [SerializeField] private PotionRefillWindowView potionRefillService;
@@ -166,6 +167,11 @@ namespace Godmist.Views.UI.Workspace
                 yield return NpcServiceKind.BombRefill;
             }
 
+            if (npc?.Definition?.GetRole<EnchanterRoleData>() != null)
+            {
+                yield return NpcServiceKind.JewelryCrafting;
+            }
+
         }
 
         private NpcServiceKind GetDefaultService()
@@ -191,6 +197,8 @@ namespace Godmist.Views.UI.Workspace
                     && equipmentUpgradeService.Show(npc, recipientCharacterId),
                 NpcServiceKind.EquipmentReforge => equipmentReforgeService != null
                     && equipmentReforgeService.Show(npc, recipientCharacterId),
+                NpcServiceKind.JewelryCrafting => jewelryCraftingService != null
+                    && jewelryCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.PotionCrafting => potionCraftingService != null
                     && potionCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.BombCrafting => bombCraftingService != null
@@ -229,6 +237,9 @@ namespace Godmist.Views.UI.Workspace
                     break;
                 case NpcServiceKind.EquipmentReforge:
                     equipmentReforgeService?.Hide();
+                    break;
+                case NpcServiceKind.JewelryCrafting:
+                    jewelryCraftingService?.Hide();
                     break;
                 case NpcServiceKind.PotionCrafting:
                     potionCraftingService?.Hide();
@@ -279,6 +290,7 @@ namespace Godmist.Views.UI.Workspace
                 NpcServiceKind.EquipmentUpgrade => "Ulepszanie wyposażenia",
                 NpcServiceKind.EquipmentReforge => "Przekuwanie wyposażenia",
                 NpcServiceKind.EquipmentInfusion => "Infuzja wyposażenia",
+                NpcServiceKind.JewelryCrafting => "Tworzenie biżuterii",
                 NpcServiceKind.PotionCrafting => "Warzenie mikstur",
                 NpcServiceKind.PotionRefill => "Napełnianie mikstur",
                 NpcServiceKind.BombCrafting => "Wytwarzanie bomb",
@@ -408,17 +420,6 @@ namespace Godmist.Views.UI.Workspace
             for (var level = 1; level <= maximumLevel; level++)
             {
                 var labels = new List<string>();
-                AppendMaterialBreakpointLabel(labels, level, RarityTier.Common,
-                    "Handel materiałami pospolitymi");
-                AppendMaterialBreakpointLabel(labels, level, RarityTier.Uncommon,
-                    "Handel materiałami niepospolitymi");
-                AppendMaterialBreakpointLabel(labels, level, RarityTier.Rare,
-                    "Handel materiałami rzadkimi");
-                AppendMaterialBreakpointLabel(labels, level, RarityTier.Ancient,
-                    "Handel materiałami starożytnymi");
-                AppendMaterialBreakpointLabel(labels, level, RarityTier.Legendary,
-                    "Handel materiałami legendarnymi");
-
                 if (level > 1
                     && loyaltyService.GetDiscountPercent(level)
                         != loyaltyService.GetDiscountPercent(level - 1))
@@ -442,16 +443,6 @@ namespace Godmist.Views.UI.Workspace
                 loyaltyService.GetGoldSpentTowardNextLevel(targetNpc),
                 loyaltyService.GetGoldRequiredForNextLevel(targetNpc),
                 breakpoints);
-        }
-
-        private void AppendMaterialBreakpointLabel(
-            List<string> labels,
-            int level,
-            RarityTier rarity,
-            string label)
-        {
-            if (loyaltyService.GetMaterialTradeUnlockLevel(rarity) == level)
-                labels.Add(label);
         }
 
         private static void AppendBlacksmithSpecialEffectLabel(

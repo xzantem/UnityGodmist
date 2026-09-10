@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: LT_EnemyTest
   m_EditorClassIdentifier: Data::Godmist.Data.Items.LootTableData
   <Entries>k__BackingField:
-  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
     <DropChance>k__BackingField: 1
     <Amount>k__BackingField:
       Min: 1

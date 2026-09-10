@@ -23,12 +23,6 @@ namespace Godmist.Data.Configuration
         public const string NpcLoyaltyDiscountPercent3 = "progression.npc.loyalty.discount.percent_3";
         public const string NpcLoyaltyDiscountPercent4 = "progression.npc.loyalty.discount.percent_4";
         public const string NpcLoyaltyDiscountPercent5 = "progression.npc.loyalty.discount.percent_5";
-        public const string NpcLoyaltyMaterialCommonUnlockLevel = "progression.npc.loyalty.material.common_unlock_level";
-        public const string NpcLoyaltyMaterialUncommonUnlockLevel = "progression.npc.loyalty.material.uncommon_unlock_level";
-        public const string NpcLoyaltyMaterialRareUnlockLevel = "progression.npc.loyalty.material.rare_unlock_level";
-        public const string NpcLoyaltyMaterialAncientUnlockLevel = "progression.npc.loyalty.material.ancient_unlock_level";
-        public const string NpcLoyaltyMaterialLegendaryUnlockLevel = "progression.npc.loyalty.material.legendary_unlock_level";
-
         public const string ActionPointsPerSpeed = "combat.action_points_per_speed";
         public const string BaseActionValue = "combat.base_action_value";
         public const string EscapeBaseChancePercent = "combat.escape.base_chance_percent";

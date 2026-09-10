@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
@@ -51,6 +52,11 @@ namespace Godmist.Views.UI.Workspace
         private const float TitleOnlyTooltipHorizontalPadding = 32f;
         private const float TitleOnlyTooltipMinimumWidth = 120f;
         private const float TitleOnlyTooltipVerticalPadding = 20f;
+        private const float ItemTooltipIconAndSpacingWidth = 48f;
+        private const float ItemTooltipContentHorizontalPadding = 24f;
+        private const float ItemTooltipTitleBuffer = 8f;
+        private const float ItemTooltipMinimumWidth = 200f;
+        private const float ItemTooltipMaximumWidth = 560f;
 
         private CanvasGroup canvasGroup;
         private readonly List<UIWorkspaceTooltipView> nested = new();
@@ -101,6 +107,8 @@ namespace Godmist.Views.UI.Workspace
             ConfigureTextLayout(titleText);
             ConfigureTextLayout(bodyText);
             ConfigureTextLayout(metaText);
+            if (bodyText != null) bodyText.lineSpacing = 1.5f;
+            ConfigureItemHeaderLayout();
             EnsureNpcLoyaltyProgression();
             CacheDefaultAccentColor();
             Hide();
@@ -112,6 +120,16 @@ namespace Godmist.Views.UI.Workspace
             text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
+        }
+
+        private void ConfigureItemHeaderLayout()
+        {
+            var headerLayout = titleText?.transform.parent?.GetComponent<HorizontalLayoutGroup>();
+            if (headerLayout == null) return;
+
+            // Keep the icon centered against the complete title block instead of
+            // pinning it to the first line of a wrapped title.
+            headerLayout.childAlignment = TextAnchor.MiddleLeft;
         }
 
         private void OnDestroy()
@@ -232,7 +250,12 @@ namespace Godmist.Views.UI.Workspace
 
         public void ShowText(string title, string body, object source)
         {
-            QueueShow(source ?? this, () => SetContent(null, title, body, string.Empty));
+            ShowText(title, body, source, string.Empty);
+        }
+
+        public void ShowText(string title, string body, object source, string meta)
+        {
+            QueueShow(source ?? this, () => SetContent(null, title, body, meta));
         }
 
         public void ShowNpcLoyalty(NpcLoyaltyTooltipData data, object source)
@@ -257,14 +280,19 @@ namespace Godmist.Views.UI.Workspace
             }
         }
 
-        public void ShowItem(ItemInstance item, CharacterInstance owner, object source)
+        public void ShowItem(
+            ItemInstance item,
+            CharacterInstance owner,
+            object source,
+            int? contextPrice = null)
         {
             if (item?.Definition == null) return;
             QueueShow(source ?? item, () => SetContent(
                 item.Definition.Icon,
                 item.DisplayName,
                 BuildItemBody(item, owner),
-                BuildItemMeta(item)));
+                BuildItemMeta(item, contextPrice),
+                reserveIconSlot: true));
         }
 
         /// <summary>
@@ -276,7 +304,8 @@ namespace Godmist.Views.UI.Workspace
             ItemInstance item,
             CharacterInstance owner,
             object source,
-            string extraBody)
+            string extraBody,
+            int? contextPrice = null)
         {
             if (item?.Definition == null) return;
 
@@ -284,7 +313,8 @@ namespace Godmist.Views.UI.Workspace
                 item.Definition.Icon,
                 item.DisplayName,
                 AppendTooltipExtra(BuildItemBody(item, owner), extraBody),
-                BuildItemMeta(item)));
+                BuildItemMeta(item, contextPrice),
+                reserveIconSlot: true));
         }
 
         public void NotifySourceExit(object source = null)
@@ -385,7 +415,12 @@ namespace Godmist.Views.UI.Workspace
             UpdateLockProgressVisual();
         }
 
-        private void SetContent(Sprite sprite, string title, string body, string meta)
+        private void SetContent(
+            Sprite sprite,
+            string title,
+            string body,
+            string meta,
+            bool reserveIconSlot = false)
         {
             RestoreDefaultTooltipWidth();
             var isTitleOnly = sprite == null
@@ -410,7 +445,7 @@ namespace Godmist.Views.UI.Workspace
                 // The icon lives in a horizontal layout group with the title.
                 // Disabling only its Image still left its LayoutElement active and
                 // reserved a 40 px blank column for iconless tooltips.
-                icon.gameObject.SetActive(sprite != null);
+                icon.gameObject.SetActive(sprite != null || reserveIconSlot);
             }
 
             if (titleText != null)
@@ -435,6 +470,7 @@ namespace Godmist.Views.UI.Workspace
                 metaText.text = meta ?? string.Empty;
             }
 
+            if (reserveIconSlot) ResizeItemTooltipWidthToContent();
             if (isTitleOnly) ResizeTitleOnlyTooltipWidth();
 
             ResizeForContent();
@@ -581,6 +617,34 @@ namespace Godmist.Views.UI.Workspace
                     ? headerHeight + TitleOnlyTooltipVerticalPadding
                     : Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+        }
+
+        private void ResizeItemTooltipWidthToContent()
+        {
+            if (tooltipRect == null) return;
+
+            var titleWidth = titleText == null || string.IsNullOrWhiteSpace(titleText.text)
+                ? 0f
+                : titleText.GetPreferredValues(titleText.text, 10000f, 0f).x
+                    + (icon != null && icon.gameObject.activeSelf
+                        ? ItemTooltipIconAndSpacingWidth
+                        : 0f)
+                    + ItemTooltipTitleBuffer;
+            var bodyWidth = bodyText == null || !bodyText.gameObject.activeSelf
+                || string.IsNullOrWhiteSpace(bodyText.text)
+                ? 0f
+                : bodyText.GetPreferredValues(bodyText.text, 10000f, 0f).x;
+            var metaWidth = metaText == null || !metaText.gameObject.activeSelf
+                || string.IsNullOrWhiteSpace(metaText.text)
+                ? 0f
+                : metaText.GetPreferredValues(metaText.text, 10000f, 0f).x;
+            var desiredWidth = Mathf.Ceil(
+                Mathf.Max(titleWidth, bodyWidth, metaWidth)
+                + ItemTooltipContentHorizontalPadding);
+            var targetWidth = Mathf.Min(
+                ItemTooltipMaximumWidth,
+                Mathf.Max(ItemTooltipMinimumWidth, desiredWidth));
+            SetTooltipWidth(ClampTooltipWidth(targetWidth));
         }
 
         private void HideLocal()
@@ -1889,8 +1953,87 @@ namespace Godmist.Views.UI.Workspace
                 CharacterStatType.MaxResource => "maksymalnego zasobu",
                 CharacterStatType.PhysicalDefensePenetration => "przebicia obrony fizycznej",
                 CharacterStatType.MagicalDefensePenetration => "przebicia obrony magicznej",
+                CharacterStatType.HealingPower => "siły leczenia",
                 _ => statType.ToString()
             };
+        }
+
+        private static string GetEquipmentStatDisplayName(CharacterStatType statType)
+        {
+            return statType switch
+            {
+                CharacterStatType.MaxHealth => "Zdrowie",
+                CharacterStatType.PhysicalDefense => "Obrona fizyczna",
+                CharacterStatType.MagicalDefense => "Obrona magiczna",
+                CharacterStatType.Dodge => "Unik",
+                CharacterStatType.CritChance => "Szansa na trafienie krytyczne",
+                CharacterStatType.CritDamage => "Obrażenia krytyczne",
+                CharacterStatType.Speed => "Szybkość",
+                CharacterStatType.ResourceRegeneration => "Regeneracja zasobu",
+                CharacterStatType.WeaponAccuracy => "Celność broni",
+                CharacterStatType.MaxResource => "Maksymalny zasób",
+                CharacterStatType.PhysicalDefensePenetration => "Przebicie obrony fizycznej",
+                CharacterStatType.MagicalDefensePenetration => "Przebicie obrony magicznej",
+                CharacterStatType.HealingPower => "Siła leczenia",
+                _ => GetStatDisplayName(statType)
+            };
+        }
+
+        private static string GetEquipmentSlotDisplayName(EquipmentSlot slot)
+        {
+            return slot switch
+            {
+                EquipmentSlot.Weapon => "Broń",
+                EquipmentSlot.Armor => "Pancerz",
+                EquipmentSlot.Necklace => "Naszyjnik",
+                EquipmentSlot.Ring => "Pierścień",
+                EquipmentSlot.Bracelet => "Bransoleta",
+                EquipmentSlot.Earrings => "Kolczyki",
+                _ => slot.ToString()
+            };
+        }
+
+        private static string GetQualityDisplayName(EquipmentQuality quality)
+        {
+            return quality switch
+            {
+                EquipmentQuality.Normal => "Normalna",
+                EquipmentQuality.Poor => "Słaba",
+                EquipmentQuality.Excellent => "Doskonała",
+                EquipmentQuality.Masterpiece => "Arcydzieło",
+                _ => quality.ToString()
+            };
+        }
+
+        public static string GetRarityDisplayName(RarityTier rarity)
+        {
+            return rarity switch
+            {
+                RarityTier.Trash => "Śmieciowy",
+                RarityTier.Broken => "Złamany",
+                RarityTier.Damaged => "Uszkodzony",
+                RarityTier.Common => "Pospolity",
+                RarityTier.Uncommon => "Niepospolity",
+                RarityTier.Rare => "Rzadki",
+                RarityTier.Ancient => "Starożytny",
+                RarityTier.Legendary => "Legendarny",
+                RarityTier.Mythic => "Mityczny",
+                RarityTier.Godly => "Boski",
+                _ => rarity.ToString()
+            };
+        }
+
+        private static string FormatAttackValue(float minimum, float maximum)
+        {
+            return Mathf.Approximately(minimum, maximum)
+                ? FormatEquipmentValue(minimum)
+                : $"{FormatEquipmentValue(minimum)}–{FormatEquipmentValue(maximum)}";
+        }
+
+        private static string CapitalizeFirst(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return value ?? string.Empty;
+            return char.ToUpperInvariant(value[0]) + value[1..];
         }
 
         private static string GetStackingDisplayName(StatModifierStacking stacking)
@@ -2192,7 +2335,7 @@ namespace Godmist.Views.UI.Workspace
                 : item.Definition.Description ?? string.Empty);
             if (item is EquipmentItemInstance equipment)
             {
-                Append(result, $"Slot: {equipment.EquipmentSlot}");
+                Append(result, $"Typ: {GetEquipmentSlotDisplayName(equipment.EquipmentSlot)}");
                 Append(result, $"Poziom przedmiotu: {equipment.ItemLevel}");
                 if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId)) Append(result, $"Wymagana klasa: {equipment.RequiredClassId}");
                 if (owner != null && !Godmist.Systems.Items.EquipmentService.MeetsRequirements(owner, equipment))
@@ -2204,23 +2347,21 @@ namespace Godmist.Views.UI.Workspace
                     ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
                 AppendPassiveDescriptions(
                     result,
-                    equipment.EquipmentDefinition?.PassiveEffects);
+                    (equipment.Definition as UniqueEquipmentDefinition)?.Effects);
 
                 if (equipment is JewelryItemInstance jewelry
                     && equipment.EquipmentDefinition is JewelryItemDefinition jewelryDefinition)
                 {
-                    if (!string.IsNullOrWhiteSpace(jewelry.GemDisplayName))
-                        Append(result, $"Kamień: {jewelry.GemDisplayName}");
-                    if (!string.IsNullOrWhiteSpace(jewelry.GemDescription))
-                        Append(result, jewelry.GemDescription);
-
-                    var metals = jewelryDefinition.Metals != null && jewelryDefinition.Metals.Count > 0
-                        ? jewelryDefinition.Metals
-                        : jewelryDefinition.MetalSource?.Metals;
-                    foreach (var metal in metals ?? new List<JewelryMetalData>())
+                    foreach (var metal in jewelryDefinition.Metals ?? new List<JewelryMetalData>())
                     {
-                        if (metal?.Id == jewelry.MetalId)
-                            AppendPassiveDescriptions(result, metal.PassiveEffects);
+                        if (Godmist.Systems.Items.JewelryGenerationService.GetMetalRecipeKey(metal) == jewelry.MetalId)
+                            AppendJewelryModifiers(result, metal.Material?.DisplayName, metal.Modifiers);
+                    }
+
+                    foreach (var gem in jewelryDefinition.Gems ?? new List<JewelryGemDefinition>())
+                    {
+                        if (gem?.CraftingMaterial?.Id == jewelry.GemId)
+                            AppendJewelryModifiers(result, jewelry.GemDisplayName, gem.Modifiers);
                     }
 
                 }
@@ -2289,8 +2430,16 @@ namespace Godmist.Views.UI.Workspace
                         : "aktywny";
             var name = string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
                 ? "aktywny"
-                : consumable.CatalystDisplayName;
+                : GetCatalystShortName(consumable.CatalystDisplayName);
             Append(result, $"Katalizator: {name} ({modifier})");
+        }
+
+        private static string GetCatalystShortName(string name)
+        {
+            var separator = name?.LastIndexOf(':') ?? -1;
+            return separator >= 0 && separator + 1 < name.Length
+                ? name[(separator + 1)..].Trim()
+                : name;
         }
 
         private static string AppendTooltipExtra(string body, string extraBody)
@@ -2330,13 +2479,19 @@ namespace Godmist.Views.UI.Workspace
             return null;
         }
 
-        private static string BuildItemMeta(ItemInstance item)
+        private static string BuildItemMeta(ItemInstance item, int? contextPrice = null)
         {
-            var quality = item is EquipmentItemInstance equipment ? $" • {equipment.Quality}" : string.Empty;
-            var upgrade = item is EquipmentItemInstance upgraded
+            var isJewelry = item is JewelryItemInstance;
+            var quality = item is EquipmentItemInstance equipment && !isJewelry
+                ? $" • {GetQualityDisplayName(equipment.Quality)}"
+                : string.Empty;
+            var upgrade = item is EquipmentItemInstance upgraded && !isJewelry
                 ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
                 : string.Empty;
-            return $"{item.CurrentRarity}{quality}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
+            var price = contextPrice.HasValue
+                ? contextPrice.Value > 0 ? $" •  {contextPrice.Value}g" : string.Empty
+                : $" •  {Mathf.Max(0, item.BaseValue)}g";
+            return $"{GetRarityDisplayName(item.CurrentRarity)}{quality}{upgrade}  •  Waga: {item.Definition.Weight:0.##} kg{price}";
         }
 
         private static void AppendEquipmentStats(
@@ -2360,7 +2515,7 @@ namespace Godmist.Views.UI.Workspace
                 var average = (minAttack + maxAttack) * 0.5f;
                 Append(
                     result,
-                    $"Atak: {FormatEquipmentValue(minAttack)}–{FormatEquipmentValue(maxAttack)}"
+                    $"Atak: {FormatAttackValue(minAttack, maxAttack)}"
                     + FormatComparisonDelta(average - equippedAverage, equippedItem != null));
             }
 
@@ -2374,7 +2529,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    $"{stat}: {FormatEquipmentStatValue(stat, value)}"
+                    $"{GetEquipmentStatDisplayName(stat)}: {FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
         }
@@ -2420,6 +2575,154 @@ namespace Godmist.Views.UI.Workspace
                 if (!string.IsNullOrWhiteSpace(triggerText))
                     Append(result, $"Aktywacja: {triggerText}");
             }
+        }
+
+        private static void AppendJewelryModifiers(
+            StringBuilder result,
+            string sourceName,
+            IEnumerable<JewelryModifierData> modifiers)
+        {
+            foreach (var modifier in modifiers ?? Array.Empty<JewelryModifierData>())
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                switch (modifier.Target)
+                {
+                    case JewelryModifierTarget.Stat:
+                        // Stat modifiers are already included by AppendEquipmentStats.
+                        break;
+                    case JewelryModifierTarget.Resistance:
+                        Append(result,
+                            $"Odporność na {GetResistanceDisplayName(modifier.ResistanceType)}: "
+                            + FormatSignedPercent(modifier.Value));
+                        break;
+                    case JewelryModifierTarget.GameplayVariable:
+                        var jewelryVariableName = GetJewelryGameplayVariableDisplayName(
+                            modifier.GameplayVariable, modifier.ReferenceId);
+                        Append(result, FormatJewelryModifier(
+                            sourceName,
+                            jewelryVariableName,
+                            FormatSignedPercent(modifier.Value),
+                            valueBeforeName: true));
+                        break;
+                }
+            }
+        }
+
+        public static string BuildJewelryIngredientEffects(
+            IEnumerable<JewelryModifierData> modifiers)
+        {
+            var source = modifiers?.Where(modifier => modifier != null).ToList()
+                ?? new List<JewelryModifierData>();
+            var result = new StringBuilder();
+            var hasMinimumAttack = false;
+            var hasMaximumAttack = false;
+            var minimumAttack = 0f;
+            var maximumAttack = 0f;
+
+            foreach (var modifier in source)
+            {
+                if (modifier.Target != JewelryModifierTarget.Stat) continue;
+                if (modifier.StatType == CharacterStatType.MinAttack)
+                {
+                    hasMinimumAttack = true;
+                    minimumAttack += modifier.Value;
+                }
+                else if (modifier.StatType == CharacterStatType.MaxAttack)
+                {
+                    hasMaximumAttack = true;
+                    maximumAttack += modifier.Value;
+                }
+            }
+
+            if (hasMinimumAttack || hasMaximumAttack)
+            {
+                var minimum = hasMinimumAttack ? minimumAttack : maximumAttack;
+                var maximum = hasMaximumAttack ? maximumAttack : minimumAttack;
+                Append(result, $"Atak: {FormatAttackValue(minimum, maximum)}");
+            }
+
+            foreach (var modifier in source)
+            {
+                if (modifier.Target == JewelryModifierTarget.Stat)
+                {
+                    if (modifier.StatType is CharacterStatType.MinAttack or CharacterStatType.MaxAttack)
+                        continue;
+
+                    var isPercent = modifier.Operation == StatModifierOperation.Percent
+                        || (modifier.Operation != StatModifierOperation.FlatAbsolute
+                            && IsFractionalStat(modifier.StatType));
+                    Append(result,
+                        $"{GetEquipmentStatDisplayName(modifier.StatType)}: "
+                        + FormatStatValue(modifier.StatType, modifier.Value, isPercent));
+                    continue;
+                }
+
+                if (modifier.Target == JewelryModifierTarget.Resistance)
+                {
+                    Append(result,
+                        $"Odporność na {GetResistanceDisplayName(modifier.ResistanceType)}: "
+                        + FormatSignedPercent(modifier.Value));
+                    continue;
+                }
+
+                if (modifier.Target == JewelryModifierTarget.GameplayVariable)
+                {
+                    Append(result,
+                        $"{FormatSignedPercent(modifier.Value)} "
+                        + GetJewelryGameplayVariableDisplayName(
+                            modifier.GameplayVariable,
+                            modifier.ReferenceId));
+                }
+            }
+
+            return result.ToString();
+        }
+
+        private static string GetJewelryGameplayVariableDisplayName(
+            GameplayVariableType type,
+            string referenceId)
+        {
+            return type switch
+            {
+                GameplayVariableType.DamageDealtPercent => "zadawanych obrażeń",
+                GameplayVariableType.DamageReceivedPercent => "otrzymywanych obrażeń",
+                GameplayVariableType.ExperienceGainPercent => "zdobywanego doświadczenia",
+                GameplayVariableType.GoldGainPercent => "zdobywanego złota",
+                GameplayVariableType.DamageDealtPercentInDungeonTheme =>
+                    string.IsNullOrWhiteSpace(referenceId)
+                        ? "zadawanych obrażeń w lochu"
+                        : $"zadawanych obrażeń w {GetDungeonThemeLocativeName(referenceId)}",
+                _ => GetGameplayVariableDisplayName(type, referenceId)
+            };
+        }
+
+        private static string GetDungeonThemeLocativeName(string referenceId)
+        {
+            return referenceId?.Trim().ToLowerInvariant() switch
+            {
+                "catacombs" => "Katakumbach",
+                "forest" => "Lesie",
+                "elvenruins" => "Elfiańskich Ruinach",
+                "docks" => "Dokach",
+                "desert" => "Pustyni",
+                "temple" => "Świątyni",
+                "mountains" => "Górach",
+                "swamp" => "Bagnach",
+                "story" => "Lochu Fabularnym",
+                _ => referenceId
+            };
+        }
+
+        private static string FormatJewelryModifier(
+            string sourceName,
+            string modifierName,
+            string value,
+            bool valueBeforeName = false)
+        {
+            var prefix = string.IsNullOrWhiteSpace(sourceName) ? string.Empty : $"{sourceName}: ";
+            return valueBeforeName
+                ? $"{prefix}{value} {modifierName}."
+                : $"{prefix}{CapitalizeFirst(modifierName)} {value}.";
         }
 
         private static string DescribePassiveTriggers(

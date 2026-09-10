@@ -66,7 +66,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void MaterialTrade_RejectsMaterialAboveNpcLoyaltyGate()
+        public void MaterialTrade_AllowsMaterialAboveFormerNpcLoyaltyGate()
         {
             var service = new TradeService();
             var session = new GameSession();
@@ -89,10 +89,10 @@ namespace Godmist.Tests.EditMode
                 item.InstanceId,
                 out var paidGold);
 
-            Assert.That(result, Is.False);
-            Assert.That(paidGold, Is.EqualTo(0));
-            Assert.That(session.Gold, Is.EqualTo(100));
-            Assert.That(trader.ShopInventory.Items, Has.Count.EqualTo(1));
+            Assert.That(result, Is.True);
+            Assert.That(paidGold, Is.EqualTo(96));
+            Assert.That(session.Gold, Is.EqualTo(4));
+            Assert.That(trader.ShopInventory.Items, Is.Empty);
         }
 
         [Test]

@@ -13,17 +13,17 @@ MonoBehaviour:
   m_Name: EPD_MageWeaponBinder_GoatLeather
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.weapon.binder.common.goat_leather
-  <DisplayName>k__BackingField: 
+  <DisplayName>k__BackingField: "Os\u0142ona z koziej sk\xF3ry"
   <Description>k__BackingField: 
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   <Kind>k__BackingField: 1
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:
-    MinAttackBase: 13
-    MaxAttackBase: 29
-    CritChanceBase: 0.06
-    CritDamageBase: 1.02
+    MinAttackBase: 0
+    MaxAttackBase: 0
+    CritChanceBase: 0
+    CritDamageBase: 0
     WeaponAccuracyBase: 0
     MaxResourceBase: 0
     ResourceRegenerationBase: 3
@@ -33,9 +33,9 @@ MonoBehaviour:
     MagicalDefenseBase: 0
     MinAttackPercent: -0.2
     MaxAttackPercent: -0.2
-    CritChancePercent: -0.2
+    CritChancePercent: 0
     CritDamagePercent: 0.2
-    WeaponAccuracyPercent: -0.2
+    WeaponAccuracyPercent: 0
     MaxResourcePercent: -0.2
     ResourceRegenerationPercent: 0
     MaxHealthPercent: 0
@@ -43,5 +43,5 @@ MonoBehaviour:
     PhysicalDefensePercent: 0
     MagicalDefensePercent: 0
   <CraftingMaterials>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - <Material>k__BackingField: {fileID: 11400000, guid: 0261d60a5969e89498047fc2cdce66c6, type: 2}
     <Amount>k__BackingField: 2

@@ -24,6 +24,9 @@ namespace Godmist.Views.UI.Workspace
         private string tooltipBody;
         private ItemInstance tooltipItem;
         private CharacterInstance tooltipOwner;
+        private string tooltipExtraBody;
+        private int? tooltipPrice;
+        private string tooltipMeta;
         private bool selectedState;
         private bool missingState;
         private CraftingMaterialPurchaseState purchaseState;
@@ -39,16 +42,36 @@ namespace Godmist.Views.UI.Workspace
 
         public void SetTooltip(string nextTooltipTitle, string nextTooltipBody)
         {
+            SetTooltip(nextTooltipTitle, nextTooltipBody, string.Empty);
+        }
+
+        public void SetTooltip(string nextTooltipTitle, string nextTooltipBody, string nextTooltipMeta)
+        {
             tooltipItem = null;
             tooltipOwner = null;
+            tooltipExtraBody = string.Empty;
+            tooltipPrice = null;
+            tooltipMeta = nextTooltipMeta ?? string.Empty;
             tooltipTitle = nextTooltipTitle ?? string.Empty;
             tooltipBody = nextTooltipBody ?? string.Empty;
         }
 
         public void SetItemTooltip(ItemInstance item, CharacterInstance owner)
         {
+            SetItemTooltip(item, owner, string.Empty);
+        }
+
+        public void SetItemTooltip(
+            ItemInstance item,
+            CharacterInstance owner,
+            string extraBody,
+            int? contextPrice = null)
+        {
             tooltipItem = item;
             tooltipOwner = owner;
+            tooltipExtraBody = extraBody ?? string.Empty;
+            tooltipPrice = contextPrice;
+            tooltipMeta = string.Empty;
         }
 
         public void SetSelected(bool selected)
@@ -68,9 +91,10 @@ namespace Godmist.Views.UI.Workspace
             string buyLabel = null,
             Action buyAction = null,
             CraftingMaterialPurchaseState purchaseState = CraftingMaterialPurchaseState.NotNeeded,
-            bool buyInteractable = true)
+            bool buyInteractable = true,
+            string nextTooltipMeta = null)
         {
-            SetTooltip(nextTooltipTitle, nextTooltipBody);
+            SetTooltip(nextTooltipTitle, nextTooltipBody, nextTooltipMeta);
             SetIcon(nextIcon);
             selectedState = selected;
             missingState = missing;
@@ -115,7 +139,20 @@ namespace Godmist.Views.UI.Workspace
                 if (canBuy) buyButton.onClick.AddListener(() => buyAction());
             }
 
-            if (buyPriceText != null) buyPriceText.text = buyLabel ?? string.Empty;
+            if (buyPriceText != null)
+            {
+                buyPriceText.text = buyLabel ?? string.Empty;
+                var priceRect = buyPriceText.rectTransform;
+                priceRect.offsetMin = new Vector2(2f, priceRect.offsetMin.y);
+                priceRect.offsetMax = new Vector2(-2f, priceRect.offsetMax.y);
+                buyPriceText.alignment = TextAlignmentOptions.Center;
+                buyPriceText.verticalAlignment = VerticalAlignmentOptions.Middle;
+                buyPriceText.textWrappingMode = TextWrappingModes.NoWrap;
+                buyPriceText.overflowMode = TextOverflowModes.Overflow;
+                buyPriceText.enableAutoSizing = true;
+                buyPriceText.fontSizeMin = 8f;
+                buyPriceText.fontSizeMax = Mathf.Max(8f, buyPriceText.fontSize);
+            }
         }
 
         private void RefreshBorderColor()
@@ -139,11 +176,16 @@ namespace Godmist.Views.UI.Workspace
         {
             if (tooltipItem != null)
             {
-                UIWorkspaceTooltipView.ActiveInstance?.ShowItem(tooltipItem, tooltipOwner, this);
+                if (string.IsNullOrWhiteSpace(tooltipExtraBody))
+                    UIWorkspaceTooltipView.ActiveInstance?.ShowItem(tooltipItem, tooltipOwner, this);
+                else
+                    UIWorkspaceTooltipView.ActiveInstance?.ShowItemWithExtra(
+                        tooltipItem, tooltipOwner, this, tooltipExtraBody, tooltipPrice);
                 return;
             }
 
-            UIWorkspaceTooltipView.ActiveInstance?.ShowText(tooltipTitle, tooltipBody, this);
+            UIWorkspaceTooltipView.ActiveInstance?.ShowText(
+                tooltipTitle, tooltipBody, this, tooltipMeta);
         }
 
         public void OnPointerExit(PointerEventData eventData) =>

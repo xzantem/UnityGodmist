@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Configuration;
-using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -118,53 +117,6 @@ namespace Godmist.Systems.NPC
             var discount = GetDiscountPercent(npc) / 100d;
             var result = Math.Floor(baseCost * (1d - discount));
             return Math.Max(1, result >= int.MaxValue ? int.MaxValue : (int)result);
-        }
-
-        public bool IsMaterialTradeUnlocked(
-            NpcInstance npc,
-            ItemDefinition material,
-            out string failureReason)
-        {
-            failureReason = string.Empty;
-            if (material == null || material.ItemType != ItemType.Material) return true;
-
-            var requiredLevel = GetMaterialTradeUnlockLevel(material.BaseRarity);
-            var currentLevel = NormalizeLevel(npc?.LoyaltyLevel ?? InitialLevel);
-            if (currentLevel >= requiredLevel) return true;
-
-            failureReason = $"Odblokuje się na lojalności {requiredLevel}. "
-                + $"Obecna lojalność: {currentLevel}.";
-            return false;
-        }
-
-        public int GetMaterialTradeUnlockLevel(RarityTier rarity)
-        {
-            if (rarity >= RarityTier.Legendary)
-            {
-                return Math.Max(1, GameDefinesRuntime.GetInt(
-                    GameDefineIds.NpcLoyaltyMaterialLegendaryUnlockLevel, 13));
-            }
-
-            if (rarity >= RarityTier.Ancient)
-            {
-                return Math.Max(1, GameDefinesRuntime.GetInt(
-                    GameDefineIds.NpcLoyaltyMaterialAncientUnlockLevel, 10));
-            }
-
-            if (rarity >= RarityTier.Rare)
-            {
-                return Math.Max(1, GameDefinesRuntime.GetInt(
-                    GameDefineIds.NpcLoyaltyMaterialRareUnlockLevel, 8));
-            }
-
-            if (rarity >= RarityTier.Uncommon)
-            {
-                return Math.Max(1, GameDefinesRuntime.GetInt(
-                    GameDefineIds.NpcLoyaltyMaterialUncommonUnlockLevel, 5));
-            }
-
-            return Math.Max(1, GameDefinesRuntime.GetInt(
-                GameDefineIds.NpcLoyaltyMaterialCommonUnlockLevel, 1));
         }
 
         public bool TryRecordGoldSpent(NpcInstance npc, int amount)

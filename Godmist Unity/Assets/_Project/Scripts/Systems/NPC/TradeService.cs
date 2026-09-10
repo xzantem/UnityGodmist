@@ -26,7 +26,7 @@ namespace Godmist.Systems.NPC
         {
             if (item?.Definition == null) return 0;
 
-            return GetBaseValue(item.Definition);
+            return GetBaseValue(item);
         }
 
         public int GetPriceToBuyFromTrader(
@@ -116,15 +116,6 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            if (!npcLoyaltyService.IsMaterialTradeUnlocked(
-                    trader,
-                    item.Definition,
-                    out failureReason))
-            {
-                failureReason = $"Handel tym materiałem jest zablokowany. {failureReason}";
-                return false;
-            }
-
             return true;
         }
 
@@ -139,7 +130,7 @@ namespace Godmist.Systems.NPC
                 : GameDefinesRuntime.GetFloat(GameDefineIds.TraderIrrelevantSellMultiplier, .25f);
 
             return Mathf.FloorToInt(
-                GetBaseValue(item.Definition) * multiplier);
+                GetBaseValue(item) * multiplier);
         }
 
         public bool TryBuyFromTrader(
@@ -195,11 +186,14 @@ namespace Godmist.Systems.NPC
             return true;
         }
 
-        private static int GetBaseValue(ItemDefinition definition)
+        private static int GetBaseValue(ItemInstance item)
         {
-            return definition is CraftableItemDefinition craftable
-                ? craftable.CalculatedBaseValue
-                : Mathf.Max(0, definition?.BaseValue ?? 0);
+            if (item?.Definition is CraftableItemDefinition craftable)
+            {
+                return craftable.CalculatedBaseValue;
+            }
+
+            return Mathf.Max(0, item?.BaseValue ?? 0);
         }
 
         public bool TryBuyFromBuyback(

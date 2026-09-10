@@ -351,7 +351,8 @@ namespace Godmist.Views.UI.Workspace
                     BuildSellPriceTooltip(stack.Representative, price),
                     price <= 0,
                     tradingCharacter,
-                    null);
+                    null,
+                    price);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.Items))
@@ -367,7 +368,8 @@ namespace Godmist.Views.UI.Workspace
                     BuildBuyPriceTooltip(stack.Representative, price),
                     price <= 0 || session != null && session.Gold < price,
                     null,
-                    null);
+                    null,
+                    price);
             }
 
             foreach (var entry in trader?.ShopInventory?.BuybackStock ?? new List<BuybackEntry>())
@@ -382,7 +384,8 @@ namespace Godmist.Views.UI.Workspace
                     BuildBuyPriceTooltip(entry.Item, price),
                     price <= 0 || session != null && session.Gold < price,
                     null,
-                    entry);
+                    entry,
+                    price);
             }
 
             Canvas.ForceUpdateCanvases();
@@ -398,7 +401,8 @@ namespace Godmist.Views.UI.Workspace
             string priceLabel,
             bool unavailable,
             CharacterInstance tooltipOwner,
-            BuybackEntry buybackEntry)
+            BuybackEntry buybackEntry,
+            int? tooltipPrice)
         {
             if (content == null || itemSlotTemplate == null || item == null) return;
 
@@ -412,7 +416,8 @@ namespace Godmist.Views.UI.Workspace
                 priceLabel,
                 unavailable,
                 tooltipOwner,
-                buybackEntry);
+                buybackEntry,
+                tooltipPrice);
             spawnedSlots.Add(slot);
         }
 
@@ -442,30 +447,26 @@ namespace Godmist.Views.UI.Workspace
         {
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
-                : $"Kupno: {price}";
+                : string.Empty;
             if (price <= 0)
             {
-                result += "\n<color=#E06C75>"
-                    + GetBuyRestrictionReason(item)
-                    + "</color>";
+                result = $"{result}\n<color=#E06C75>{GetBuyRestrictionReason(item)}</color>";
             }
             else if (session != null && session.Gold < price)
-                result += "\n<color=#E06C75>Brak wystarczającej ilości złota.</color>";
+                result = "<color=#E06C75>Brak wystarczającej ilości złota.</color>";
             return result;
         }
 
         private string BuildSellPriceTooltip(ItemInstance item, int price)
         {
-            var result = $"Sprzedaż: {price}";
+            var result = string.Empty;
             if (price <= 0)
             {
-                result += "\n<color=#E06C75>"
-                    + GetSellFailureReason(item)
-                    + "</color>";
+                result = $"<color=#E06C75>{GetSellFailureReason(item)}</color>";
             }
             else if (trader != null && trader.GoldBalance < price)
             {
-                result += $"\nNPC może obecnie zapłacić: {trader.GoldBalance}";
+                result = $"NPC może obecnie zapłacić: {trader.GoldBalance}";
             }
 
             return result;

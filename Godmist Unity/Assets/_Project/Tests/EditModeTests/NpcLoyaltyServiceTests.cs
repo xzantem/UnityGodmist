@@ -148,32 +148,6 @@ namespace Godmist.Tests.EditMode
                 Is.EqualTo(75));
         }
 
-        [Test]
-        public void MaterialTrade_UsesLoyaltyRarityGates()
-        {
-            var service = new NpcLoyaltyService();
-            var materialDefinition = ScriptableObject.CreateInstance<ItemDefinition>();
-            SetAutoProperty(materialDefinition, "ItemType", ItemType.Material);
-            SetAutoProperty(materialDefinition, "BaseRarity", RarityTier.Uncommon);
-            var npc = new NpcInstance { LoyaltyLevel = 4 };
-
-            Assert.That(service.IsMaterialTradeUnlocked(
-                npc,
-                materialDefinition,
-                out var lockedReason),
-                Is.False);
-            Assert.That(lockedReason, Does.Contain("5"));
-
-            npc.LoyaltyLevel = 5;
-            Assert.That(service.IsMaterialTradeUnlocked(
-                npc,
-                materialDefinition,
-                out _),
-                Is.True);
-
-            Object.DestroyImmediate(materialDefinition);
-        }
-
         private static GameDefineEntry CreateInteger(
             string id, int value, int minimum, int maximum) => new()
         {

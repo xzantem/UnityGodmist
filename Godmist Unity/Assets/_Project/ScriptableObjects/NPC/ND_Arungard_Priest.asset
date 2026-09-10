@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: ND_Arungard_Priest
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
   <Id>k__BackingField: npc.arungard.priest_01
-  <DisplayName>k__BackingField: Kapłan
-  <Portrait>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Kap\u0142an"
+  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: 9bcbe8abce4c4a94a98364a556ae54a4, type: 2}
   <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:
-  - {fileID: 11400000, guid: 6c8a8bd1afef437f8f10949c8cbfd249, type: 2}
+  - {fileID: 0}

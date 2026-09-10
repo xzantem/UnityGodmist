@@ -29,12 +29,6 @@ namespace Godmist.Data.Configuration
                 Float(GameDefineIds.NpcLoyaltyDiscountPercent3, "Rabat lojalności 3", "Łączny rabat usług po osiągnięciu trzeciego progu.", GameDefineCategory.Progression, "%", .09f, 0f, 1f),
                 Float(GameDefineIds.NpcLoyaltyDiscountPercent4, "Rabat lojalności 4", "Łączny rabat usług po osiągnięciu czwartego progu.", GameDefineCategory.Progression, "%", .16f, 0f, 1f),
                 Float(GameDefineIds.NpcLoyaltyDiscountPercent5, "Rabat lojalności 5", "Łączny rabat usług po osiągnięciu piątego progu.", GameDefineCategory.Progression, "%", .25f, 0f, 1f),
-                Integer(GameDefineIds.NpcLoyaltyMaterialCommonUnlockLevel, "Materiały pospolite NPC", "Minimalny poziom lojalności dla handlu pospolitymi materiałami.", GameDefineCategory.Progression, "level", 1, 1, 100),
-                Integer(GameDefineIds.NpcLoyaltyMaterialUncommonUnlockLevel, "Materiały niepospolite NPC", "Minimalny poziom lojalności dla handlu niepospolitymi materiałami.", GameDefineCategory.Progression, "level", 5, 1, 100),
-                Integer(GameDefineIds.NpcLoyaltyMaterialRareUnlockLevel, "Materiały rzadkie NPC", "Minimalny poziom lojalności dla handlu rzadkimi materiałami.", GameDefineCategory.Progression, "level", 8, 1, 100),
-                Integer(GameDefineIds.NpcLoyaltyMaterialAncientUnlockLevel, "Materiały starożytne NPC", "Minimalny poziom lojalności dla handlu starożytnymi materiałami.", GameDefineCategory.Progression, "level", 10, 1, 100),
-                Integer(GameDefineIds.NpcLoyaltyMaterialLegendaryUnlockLevel, "Materiały legendarne NPC", "Minimalny poziom lojalności dla handlu legendarnymi materiałami.", GameDefineCategory.Progression, "level", 13, 1, 100),
-
                 Float(GameDefineIds.ActionPointsPerSpeed, "AP na punkt Speed", "Ile maksymalnych punktów akcji daje jeden punkt Speed.", GameDefineCategory.Combat, "AP/Speed", .25f, 0f, 10f),
                 Float(GameDefineIds.BaseActionValue, "Bazowa wartość AV", "Stała używana do przeliczania Speed na kolejność tur.", GameDefineCategory.Combat, "AV", 10000f, 1f, 100000f),
                 Integer(GameDefineIds.EscapeBaseChancePercent, "Bazowa szansa ucieczki", "Szansa pierwszej próby ucieczki.", GameDefineCategory.Combat, "%", 60, 0, 100),

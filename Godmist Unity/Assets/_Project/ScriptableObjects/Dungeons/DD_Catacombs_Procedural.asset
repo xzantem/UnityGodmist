@@ -22,8 +22,8 @@ MonoBehaviour:
   <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: b3d7f5a9c2e46810a6c4e8f1d5b7a290, type: 2}
   <MinFloorCount>k__BackingField: 2
   <MaxFloorCount>k__BackingField: 2
-  <MinRoomCountPerFloor>k__BackingField: 9
-  <MaxRoomCountPerFloor>k__BackingField: 15
+  <MinRoomCountPerFloor>k__BackingField: 12
+  <MaxRoomCountPerFloor>k__BackingField: 18
   <MinOptionalRoomCount>k__BackingField: 3
   <MaxOptionalRoomCount>k__BackingField: 6
   <MinLoopConnections>k__BackingField: 1

@@ -41,6 +41,7 @@ namespace Godmist.Views.UI.Workspace
         private TradeServiceWindowView owner;
         private string tooltipExtra;
         private CharacterInstance tooltipOwner;
+        private int? tooltipPrice;
 
         public ItemInstance Item { get; private set; }
         public BuybackEntry BuybackEntry { get; private set; }
@@ -66,7 +67,8 @@ namespace Godmist.Views.UI.Workspace
             string priceLabel,
             bool unavailable,
             CharacterInstance nextTooltipOwner = null,
-            BuybackEntry buybackEntry = null)
+            BuybackEntry buybackEntry = null,
+            int? nextTooltipPrice = null)
         {
             AutoWire();
             owner = nextOwner;
@@ -75,6 +77,7 @@ namespace Godmist.Views.UI.Workspace
             Source = source;
             tooltipOwner = nextTooltipOwner;
             tooltipExtra = priceLabel ?? string.Empty;
+            tooltipPrice = nextTooltipPrice;
 
             if (icon != null)
             {
@@ -143,7 +146,8 @@ namespace Godmist.Views.UI.Workspace
                     Item,
                     tooltipOwner,
                     this,
-                    tooltipExtra);
+                    tooltipExtra,
+                    tooltipPrice);
             }
         }
 

@@ -350,7 +350,7 @@ namespace Godmist.Systems.SaveLoad
                     return false;
                 }
 
-                if (definition is BossUniqueEquipmentDefinition
+                if (definition is UniqueEquipmentDefinition
                     && itemSaveData.Quality != EquipmentQuality.Masterpiece)
                 {
                     return false;
@@ -381,6 +381,7 @@ namespace Godmist.Systems.SaveLoad
                     consumableItem.CatalystEffectMultiplier = itemSaveData.CatalystEffectMultiplier;
                     consumableItem.CatalystChargeBonus = itemSaveData.CatalystChargeBonus;
                     consumableItem.CatalystDisplayName = itemSaveData.CatalystDisplayName ?? string.Empty;
+                    consumableItem.CraftedBaseValue = itemSaveData.ConsumableCraftedBaseValue;
                     if (itemSaveData.CurrentCharges < 0 || itemSaveData.CurrentCharges > consumableItem.MaxCharges) return false;
                     consumableItem.CurrentCharges = itemSaveData.CurrentCharges;
                     if (consumableItem.IsBomb)
@@ -454,6 +455,7 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.Quality = itemSaveData.Quality;
                     equipmentItem.PartIds = new List<string>(
                         partIds);
+                    equipmentItem.PrimaryPartDisplayName = itemSaveData.PrimaryPartDisplayName ?? string.Empty;
                     equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
                         ? baseModifiers
                         : new List<StatModifier>(modifiers);
@@ -466,7 +468,7 @@ namespace Godmist.Systems.SaveLoad
                         jewelryItem.MetalDisplayName = itemSaveData.JewelryMetalDisplayName ?? string.Empty;
                         jewelryItem.GemId = itemSaveData.JewelryGemId ?? string.Empty;
                         jewelryItem.GemDisplayName = itemSaveData.JewelryGemDisplayName ?? string.Empty;
-                        jewelryItem.GemDescription = itemSaveData.JewelryGemDescription ?? string.Empty;
+                        jewelryItem.CraftedBaseValue = itemSaveData.JewelryCraftedBaseValue;
                     }
                 }
 

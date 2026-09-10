@@ -312,7 +312,7 @@ namespace Godmist.Tests.EditMode
             var definition = ScriptableObject.CreateInstance<ConsumableItemDefinition>();
             SetAutoProperty(definition, "Id", id);
             SetAutoProperty(definition, "DisplayName", id);
-            SetAutoProperty(definition, "ItemType", ItemType.Tool);
+            SetAutoProperty(definition, "ItemType", useType == ConsumableUseType.Bomb ? ItemType.Bomb : ItemType.Potion);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
             SetAutoProperty(definition, "UseType", useType);
             SetAutoProperty(definition, "MaxCharges", maxCharges);

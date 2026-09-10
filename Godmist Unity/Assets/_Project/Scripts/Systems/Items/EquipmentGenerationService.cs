@@ -39,7 +39,7 @@ namespace Godmist.Systems.Items
                 || !Enum.IsDefined(typeof(EquipmentQuality), quality)
                 || !Enum.IsDefined(typeof(RarityTier), rarity)) return null;
 
-            if (definition is BossUniqueEquipmentDefinition
+            if (definition is UniqueEquipmentDefinition
                 && quality != EquipmentQuality.Masterpiece)
             {
                 return null;
@@ -63,8 +63,8 @@ namespace Godmist.Systems.Items
             return GenerateFromSelectedParts(definition, selected, quality, rarity);
         }
 
-        public EquipmentItemInstance GenerateBossUnique(
-            BossUniqueEquipmentDefinition definition,
+        public EquipmentItemInstance GenerateUnique(
+            EquipmentItemDefinition definition,
             IReadOnlyList<EquipmentPartDefinition> availableParts)
         {
             if (definition == null) return null;
@@ -103,7 +103,7 @@ namespace Godmist.Systems.Items
                 || !Enum.IsDefined(typeof(EquipmentQuality), quality)
                 || !Enum.IsDefined(typeof(RarityTier), rarity)) return null;
 
-            if (definition is BossUniqueEquipmentDefinition
+            if (definition is UniqueEquipmentDefinition
                 && quality != EquipmentQuality.Masterpiece)
             {
                 return null;
@@ -131,6 +131,7 @@ namespace Godmist.Systems.Items
             item.CurrentRarity = rarity;
             item.Quality = quality;
             item.PartIds = selected.Select(part => part.Id).ToList();
+            item.PrimaryPartDisplayName = selected[0].DisplayName;
             var bracket = selected.Max(part => (int)part.LevelBracket);
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
             item.RequiredLevel = item.ItemLevel;

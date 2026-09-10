@@ -344,13 +344,6 @@ namespace Godmist.Systems.Items
                                 : CraftingMaterialPurchaseState.InsufficientGold
                 };
 
-                if (cost.MissingAmount > 0
-                    && !loyaltyService.IsMaterialTradeUnlocked(alchemist, pair.Definition, out var restriction))
-                {
-                    cost.PurchaseFailureReason = $"Handel tym materiałem jest zablokowany. {restriction}";
-                    cost.PurchaseState = CraftingMaterialPurchaseState.OutOfStock;
-                }
-
                 costs.Add(cost);
             }
 
@@ -476,6 +469,8 @@ namespace Godmist.Systems.Items
         {
             var result = (ConsumableItemInstance)itemFactory.Create(configuration.ResultDefinition);
             result.ItemLevel = configuration.ResultLevel;
+            result.CurrentRarity = GetCraftedRarity(request);
+            result.CraftedBaseValue = GetCraftedBaseValue(request);
             result.CustomName = string.IsNullOrWhiteSpace(request.CustomName)
                 ? BuildDefaultName(role, request.UseType, configuration)
                 : request.CustomName.Trim();
@@ -503,6 +498,26 @@ namespace Godmist.Systems.Items
             }
 
             return result;
+        }
+
+        private static RarityTier GetCraftedRarity(AlchemyCraftRequest request)
+        {
+            var rarities = (request?.Ingredients ?? new List<ItemDefinition>())
+                .Append(request?.Medium)
+                .Append(request?.Catalyst)
+                .Where(item => item != null)
+                .Select(item => item.BaseRarity)
+                .ToList();
+            return rarities.Count == 0 ? RarityTier.Common : rarities.Max();
+        }
+
+        private static int GetCraftedBaseValue(AlchemyCraftRequest request)
+        {
+            var materials = (request?.Ingredients ?? new List<ItemDefinition>())
+                .Append(request?.Medium)
+                .Append(request?.Catalyst)
+                .Where(item => item != null);
+            return materials.Sum(item => Mathf.Max(0, item.BaseValue));
         }
 
         private static string BuildDefaultName(

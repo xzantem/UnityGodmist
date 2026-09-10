@@ -6,6 +6,7 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
+using Godmist.Runtime.NPC;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Debugging;
 using Godmist.Systems.Items;
@@ -707,6 +708,20 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Execute_SetLoyalty_UpdatesRegisteredNpcLevel()
+        {
+            var service = new DevConsoleCommandService();
+            var session = new GameSession();
+            var npc = new NpcInstance { NpcId = "npc.enchanter", LoyaltyLevel = 1 };
+            session.TryRegisterNpc(npc);
+
+            var result = service.Execute("setloyalty npc.enchanter 5", session, null);
+
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(npc.LoyaltyLevel, Is.EqualTo(5));
+        }
+
+        [Test]
         public void Execute_HelpWithCommand_ReturnsOnlyThatCommandDetails()
         {
             var service = new DevConsoleCommandService();
@@ -807,7 +822,7 @@ namespace Godmist.Tests.EditMode
             var session = new GameSession();
             var jerzy = CreateCharacter("jerzy");
             var characterClass = CreateClass("class.scout");
-            var equipment = ScriptableObject.CreateInstance<BossUniqueEquipmentDefinition>();
+            var equipment = ScriptableObject.CreateInstance<UniqueEquipmentDefinition>();
             var head = CreatePart(
                 "part.head",
                 characterClass,
@@ -827,7 +842,6 @@ namespace Godmist.Tests.EditMode
                 SetAutoProperty(equipment, "DisplayName", "Unikatowy sztylet");
                 SetAutoProperty(equipment, "ItemType", ItemType.Weapon);
                 SetAutoProperty(equipment, "RequiredClass", characterClass);
-                SetAutoProperty(equipment, "BossId", "boss.test");
                 session.TryRegisterCharacter(jerzy);
                 catalog.ItemDefinitions.Add(equipment);
                 catalog.EquipmentPartDefinitions.Add(head);

@@ -60,10 +60,10 @@ namespace Godmist.Tests.EditMode
         [Test]
         public void AlchemyCrafting_CreatesNamedPotionFromThreeIngredientsAndOneAlcohol()
         {
-            var alcohol = CreateMaterial("alchemy.alcohol.t1");
-            var leaf = CreateMaterial("alchemy.leaf");
-            var root = CreateMaterial("alchemy.root");
-            var cap = CreateMaterial("alchemy.cap");
+            var alcohol = CreateMaterial("alchemy.alcohol.t1", baseValue: 46);
+            var leaf = CreateMaterial("alchemy.leaf", baseValue: 21);
+            var root = CreateMaterial("alchemy.root", RarityTier.Uncommon, 19);
+            var cap = CreateMaterial("alchemy.cap", RarityTier.Rare, 18);
             var potionDefinition = CreateConsumable("alchemy.healing_potion", ConsumableUseType.Potion);
             var role = CreateAlchemyRole(
                 potionDefinition,
@@ -74,7 +74,7 @@ namespace Godmist.Tests.EditMode
                     CreateIngredient(root, 1, ConsumableRuntimeEffectType.RestoreResource, 0.10f),
                     CreateIngredient(cap, 1, ConsumableRuntimeEffectType.RegenHealth, 0.05f)
                 },
-                new[] { CreateMedium(alcohol, 1) });
+                new[] { CreateMedium(alcohol, 3) });
             var alchemist = CreateAlchemist(role);
             var character = new CharacterInstance { CharacterId = "alchemy.crafter" };
             var session = CreateSession(character, "alchemy.crafting");
@@ -92,7 +92,7 @@ namespace Godmist.Tests.EditMode
                 RecipientCharacterId = character.CharacterId
             });
             Assert.That(defaultPreview.Result.DisplayName, Does.Contain("lecznicza").IgnoreCase);
-            Assert.That(defaultPreview.Result.DisplayName, Does.Contain("zwyczajna"));
+            Assert.That(defaultPreview.Result.DisplayName, Does.Contain("wyrafinowana"));
             Assert.That(defaultPreview.Result.DisplayName, Does.Contain("mikstura"));
 
             var crafted = service.TryCraft(
@@ -115,8 +115,10 @@ namespace Godmist.Tests.EditMode
             var potion = character.Inventory.Items.Single() as ConsumableItemInstance;
             Assert.That(potion, Is.Not.Null);
             Assert.That(potion.ConsumableDefinition, Is.SameAs(potionDefinition));
-            Assert.That(potion.ItemLevel, Is.EqualTo(11));
+            Assert.That(potion.ItemLevel, Is.EqualTo(21));
             Assert.That(potion.DisplayName, Is.EqualTo("Eliksir testowy"));
+            Assert.That(potion.CurrentRarity, Is.EqualTo(RarityTier.Rare));
+            Assert.That(potion.BaseValue, Is.EqualTo(104));
             Assert.That(potion.RuntimeEffects.Select(effect => effect.EffectType), Is.EquivalentTo(new[]
             {
                 ConsumableRuntimeEffectType.RestoreHealth,
@@ -399,12 +401,15 @@ namespace Godmist.Tests.EditMode
         {
             var ingredient = new AlchemyIngredientData();
             SetAutoProperty(ingredient, "Material", material);
-            SetAutoProperty(material, "BaseRarity", tier switch
+            if (material.BaseRarity == RarityTier.Common)
             {
-                2 => RarityTier.Uncommon,
-                3 => RarityTier.Ancient,
-                _ => RarityTier.Common
-            });
+                SetAutoProperty(material, "BaseRarity", tier switch
+                {
+                    2 => RarityTier.Uncommon,
+                    3 => RarityTier.Ancient,
+                    _ => RarityTier.Common
+                });
+            }
             var effect = new ConsumableEffectDefinition();
             SetAutoProperty(effect, "SourceIngredient", material);
             SetAutoProperty(effect, "EffectType", effectType);
@@ -461,14 +466,18 @@ namespace Godmist.Tests.EditMode
             };
         }
 
-        private static ItemDefinition CreateMaterial(string id)
+        private static ItemDefinition CreateMaterial(
+            string id,
+            RarityTier rarity = RarityTier.Common,
+            int baseValue = 0)
         {
             var material = ScriptableObject.CreateInstance<ItemDefinition>();
             SetAutoProperty(material, "Id", id);
             SetAutoProperty(material, "DisplayName", id);
             SetAutoProperty(material, "ItemType", ItemType.Material);
             SetAutoProperty(material, "MaterialDiscipline", MaterialDiscipline.Alchemy);
-            SetAutoProperty(material, "BaseRarity", RarityTier.Common);
+            SetAutoProperty(material, "BaseRarity", rarity);
+            SetAutoProperty(material, "BaseValue", baseValue);
             SetAutoProperty(material, "IsStackable", true);
             return material;
         }
@@ -478,7 +487,7 @@ namespace Godmist.Tests.EditMode
             var consumable = ScriptableObject.CreateInstance<ConsumableItemDefinition>();
             SetAutoProperty(consumable, "Id", id);
             SetAutoProperty(consumable, "DisplayName", id);
-            SetAutoProperty(consumable, "ItemType", useType == ConsumableUseType.Bomb ? ItemType.Tool : ItemType.Potion);
+            SetAutoProperty(consumable, "ItemType", useType == ConsumableUseType.Bomb ? ItemType.Bomb : ItemType.Potion);
             SetAutoProperty(consumable, "BaseRarity", RarityTier.Common);
             SetAutoProperty(consumable, "UseType", useType);
             SetAutoProperty(consumable, "MaxCharges", 5);

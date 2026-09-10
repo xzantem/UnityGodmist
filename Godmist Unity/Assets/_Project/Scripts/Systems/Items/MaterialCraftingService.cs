@@ -380,16 +380,6 @@ namespace Godmist.Systems.Items
                                 : CraftingMaterialPurchaseState.InsufficientGold
                 });
                 var cost = costs[costs.Count - 1];
-                if (cost.MissingAmount > 0
-                    && !npcLoyaltyService.IsMaterialTradeUnlocked(
-                        blacksmith,
-                        cost.Material,
-                        out var materialRestriction))
-                {
-                    cost.PurchaseFailureReason =
-                        $"Handel tym materiałem jest zablokowany. {materialRestriction}";
-                    cost.PurchaseState = CraftingMaterialPurchaseState.OutOfStock;
-                }
             }
 
             return costs;

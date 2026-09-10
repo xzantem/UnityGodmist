@@ -17,15 +17,77 @@ MonoBehaviour:
   <GlobalPassive>k__BackingField:
     <DisplayName>k__BackingField: Taniec Ostrzy
     <Description>k__BackingField: "+0.5% minimalnego i maksymalnego ataku za kazdy wydany punkt."
-    <ModifiersPerPoint>k__BackingField:
-    - StatType: 1
-      Operation: 1
-      Stacking: 0
-      Value: 0.005
-    - StatType: 2
-      Operation: 1
-      Stacking: 0
-      Value: 0.005
+    <PassivesPerPoint>k__BackingField:
+    - <Id>k__BackingField: tree.scout.blade_dancer.global.min_attack
+      <DisplayName>k__BackingField: Taniec Ostrzy
+      <Description>k__BackingField: "+0.5% minimalnego i maksymalnego ataku za kazdy wydany punkt."
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField: []
+      <Triggers>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: modify-min-attack
+        <Type>k__BackingField: 0
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField:
+        <StatType>k__BackingField: 1
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0.005
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField:
+        <TriggerText>k__BackingField:
+        <ShowRuntimeState>k__BackingField: 1
+    - <Id>k__BackingField: tree.scout.blade_dancer.global.max_attack
+      <DisplayName>k__BackingField: Taniec Ostrzy
+      <Description>k__BackingField: "+0.5% minimalnego i maksymalnego ataku za kazdy wydany punkt."
+      <Lifetime>k__BackingField: 0
+      <DefaultDurationTurns>k__BackingField: 0
+      <TickPhase>k__BackingField: 0
+      <StackingRule>k__BackingField: 1
+      <ConditionCombination>k__BackingField: 0
+      <Conditions>k__BackingField: []
+      <Triggers>k__BackingField: []
+      <Operations>k__BackingField:
+      - <Id>k__BackingField: modify-max-attack
+        <Type>k__BackingField: 0
+        <Target>k__BackingField: 0
+        <ReferenceId>k__BackingField:
+        <StatType>k__BackingField: 2
+        <VariableType>k__BackingField: 0
+        <ResistanceType>k__BackingField: 0
+        <ModifierOperation>k__BackingField: 1
+        <ModifierStacking>k__BackingField: 0
+        <Value>k__BackingField:
+          <Source>k__BackingField: 0
+          <NumberValue>k__BackingField: 0.005
+          <ReferenceId>k__BackingField:
+          <StateKey>k__BackingField:
+          <Scale>k__BackingField: 1
+          <Offset>k__BackingField: 0
+        <DurationTurns>k__BackingField: 0
+        <Parameters>k__BackingField: []
+      <Tooltip>k__BackingField:
+        <TitleOverride>k__BackingField:
+        <DescriptionOverride>k__BackingField:
+        <ConditionText>k__BackingField:
+        <TriggerText>k__BackingField:
+        <ShowRuntimeState>k__BackingField: 1
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.scout.assassin.test1
     <DisplayName>k__BackingField: test1
