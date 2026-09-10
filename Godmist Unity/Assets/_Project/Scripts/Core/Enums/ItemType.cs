@@ -12,7 +12,8 @@ namespace Godmist.Core.Enums
         Key = 7,
         QuestItem = 8,
         Valuable = 9,
-        Tool = 10
+        Tool = 10,
+        Bomb = 11
     }
 
     /// <summary>

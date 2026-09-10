@@ -12,6 +12,7 @@ using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Items;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -31,13 +32,13 @@ namespace Godmist.Tests.EditMode
         public void Refresh_MaterializesEquipmentPassivesAndRemovesThemAfterUnequip()
         {
             var character = CreateCharacter();
-            var definition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            var definition = ScriptableObject.CreateInstance<UniqueEquipmentDefinition>();
             try
             {
                 Set(definition, "Id", "equipment.test.weapon");
                 Set(definition, "DisplayName", "Testowa broń");
                 Set(definition, "ItemType", ItemType.Weapon);
-                Set(definition, "PassiveEffects", new List<PassiveEffectDefinition>
+                Set(definition, "Effects", new List<PassiveEffectDefinition>
                 {
                     CreateVariablePassive(
                         "equipment.passive.gold",
@@ -92,49 +93,57 @@ namespace Godmist.Tests.EditMode
             var character = CreateCharacter();
             character.BaseResistances.FireResistance = .10f;
             var definition = ScriptableObject.CreateInstance<JewelryItemDefinition>();
+            var chain = ScriptableObject.CreateInstance<ItemDefinition>();
+            var topaz = ScriptableObject.CreateInstance<ItemDefinition>();
+            JewelryGemDefinition gem = null;
             try
             {
                 Set(definition, "Id", "jewelry.test.ring");
                 Set(definition, "DisplayName", "Testowy pierścień");
                 Set(definition, "ItemType", ItemType.Jewelry);
                 Set(definition, "JewelrySlot", EquipmentSlot.Ring);
+                Set(chain, "Id", "item.smithing.test_chain");
+                Set(chain, "DisplayName", "Testowy łańcuch");
+                Set(chain, "BaseRarity", RarityTier.Common);
+                Set(topaz, "Id", "item.gem.test_topaz");
+                Set(topaz, "DisplayName", "Testowy kamień");
 
                 var metal = new JewelryMetalData();
-                Set(metal, "Id", "metal.test");
-                Set(metal, "DisplayName", "Testowy metal");
-                Set(metal, "PassiveEffects", new List<PassiveEffectDefinition>
+                Set(metal, "Material", chain);
+                Set(metal, "Amount", 1);
+                Set(metal, "Modifiers", new List<JewelryModifierData>
                 {
-                    CreateResistancePassive(
-                        "jewelry.metal.test.fire",
-                        ResistanceType.Fire,
-                        .20f)
+                    new()
+                    {
+                    }
                 });
+                Set(metal.Modifiers[0], "Target", JewelryModifierTarget.Resistance);
+                Set(metal.Modifiers[0], "ResistanceType", ResistanceType.Fire);
+                Set(metal.Modifiers[0], "Value", .20f);
 
-                var gem = new JewelryGemData();
-                Set(gem, "Id", "gem.test");
-                Set(gem, "DisplayName", "Testowy kamień");
-                Set(gem, "PassiveEffects", new List<PassiveEffectDefinition>
+                gem = ScriptableObject.CreateInstance<JewelryGemDefinition>();
+                Set(gem, "CraftingMaterial", topaz);
+                Set(gem, "Modifiers", new List<JewelryModifierData>
                 {
-                    CreateVariablePassive(
-                        "jewelry.gem.test.experience",
-                        GameplayVariableType.ExperienceGainPercent,
-                        .10f),
-                    CreateVariablePassive(
-                        "jewelry.gem.test.catacombs",
-                        GameplayVariableType.DamageDealtPercentInDungeonTheme,
-                        .25f,
-                        "Catacombs")
+                    new(), new()
                 });
+                Set(gem.Modifiers[0], "Target", JewelryModifierTarget.GameplayVariable);
+                Set(gem.Modifiers[0], "GameplayVariable", GameplayVariableType.ExperienceGainPercent);
+                Set(gem.Modifiers[0], "Value", .10f);
+                Set(gem.Modifiers[1], "Target", JewelryModifierTarget.GameplayVariable);
+                Set(gem.Modifiers[1], "GameplayVariable", GameplayVariableType.DamageDealtPercentInDungeonTheme);
+                Set(gem.Modifiers[1], "ReferenceId", "Catacombs");
+                Set(gem.Modifiers[1], "Value", .25f);
 
                 Set(definition, "Metals", new List<JewelryMetalData> { metal });
-                Set(definition, "Gems", new List<JewelryGemData> { gem });
+                Set(definition, "Gems", new List<JewelryGemDefinition> { gem });
 
                 var jewelry = new JewelryItemInstance(definition, "jewelry.instance.1")
                 {
-                    MetalId = metal.Id,
-                    MetalDisplayName = metal.DisplayName,
-                    GemId = gem.Id,
-                    GemDisplayName = gem.DisplayName
+                    MetalId = JewelryGenerationService.GetMetalRecipeKey(metal),
+                    MetalDisplayName = JewelryGenerationService.GetMetalDisplayName(metal),
+                    GemId = topaz.Id,
+                    GemDisplayName = topaz.DisplayName
                 };
                 character.Equipment.Ring = jewelry;
 
@@ -148,9 +157,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(
                     new CombatVariableSystem().GetDungeonThemeDamageMultiplier(character, DungeonTheme.Story),
                     Is.EqualTo(1f).Within(.001f));
-                Assert.That(character.PassiveEffects.Select(effect => effect.DefinitionId), Does.Contain("jewelry.metal.test.fire"));
-                Assert.That(character.PassiveEffects.Select(effect => effect.DefinitionId), Does.Contain("jewelry.gem.test.experience"));
-                Assert.That(character.PassiveEffects.Select(effect => effect.DefinitionId), Does.Contain("jewelry.gem.test.catacombs"));
+                Assert.That(character.PassiveEffects.Count(effect => effect.DefinitionId == "jewelry.modifier"), Is.EqualTo(3));
 
                 character.Equipment.Ring = null;
                 statPipeline.Refresh(character);
@@ -163,6 +170,9 @@ namespace Godmist.Tests.EditMode
             }
             finally
             {
+                Object.DestroyImmediate(chain);
+                Object.DestroyImmediate(topaz);
+                Object.DestroyImmediate(gem);
                 Object.DestroyImmediate(definition);
             }
         }
@@ -171,13 +181,13 @@ namespace Godmist.Tests.EditMode
         public void Refresh_UniqueDefinitionIsMaterializedOnlyOnceAcrossSources()
         {
             var character = CreateCharacter();
-            var weaponDefinition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
-            var armorDefinition = ScriptableObject.CreateInstance<EquipmentItemDefinition>();
+            var weaponDefinition = ScriptableObject.CreateInstance<UniqueEquipmentDefinition>();
+            var armorDefinition = ScriptableObject.CreateInstance<UniqueEquipmentDefinition>();
             try
             {
                 Set(weaponDefinition, "Id", "equipment.test.weapon.unique");
                 Set(weaponDefinition, "ItemType", ItemType.Weapon);
-                Set(weaponDefinition, "PassiveEffects", new List<PassiveEffectDefinition>
+                Set(weaponDefinition, "Effects", new List<PassiveEffectDefinition>
                 {
                     CreateVariablePassive(
                         "passive.test.unique",
@@ -187,7 +197,7 @@ namespace Godmist.Tests.EditMode
 
                 Set(armorDefinition, "Id", "equipment.test.armor.unique");
                 Set(armorDefinition, "ItemType", ItemType.Armor);
-                Set(armorDefinition, "PassiveEffects", new List<PassiveEffectDefinition>
+                Set(armorDefinition, "Effects", new List<PassiveEffectDefinition>
                 {
                     CreateVariablePassive(
                         "passive.test.unique",

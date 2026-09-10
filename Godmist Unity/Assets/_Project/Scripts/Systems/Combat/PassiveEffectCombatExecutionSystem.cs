@@ -695,23 +695,13 @@ namespace Godmist.Systems.Combat
             foreach (var item in owner?.Character?.Equipment?.GetEquippedItems()
                          ?? Array.Empty<EquipmentItemInstance>())
             {
-                foreach (var definition in item?.EquipmentDefinition?.PassiveEffects
+                foreach (var definition in (item?.Definition as UniqueEquipmentDefinition)?.Effects
                              ?? new List<PassiveEffectDefinition>())
                     yield return definition;
 
-                if (item is not JewelryItemInstance jewelry
-                    || item.EquipmentDefinition is not JewelryItemDefinition jewelryDefinition)
-                    continue;
-
-                var metal = FindMetal(jewelryDefinition, jewelry.MetalId);
-                foreach (var definition in metal?.PassiveEffects
-                             ?? new List<PassiveEffectDefinition>())
-                    yield return definition;
-
-                var gem = FindGem(jewelryDefinition, jewelry.GemId);
-                foreach (var definition in gem?.PassiveEffects
-                             ?? new List<PassiveEffectDefinition>())
-                    yield return definition;
+                // Jewelry uses persistent domain modifiers (stats, resistances and
+                // gameplay variables), materialized by PassiveEffectReconciliationSystem.
+                // It intentionally cannot carry arbitrary triggered combat passives.
             }
         }
 
@@ -750,24 +740,21 @@ namespace Godmist.Systems.Combat
             JewelryItemDefinition definition,
             string metalId)
         {
-            var metals = definition.Metals != null && definition.Metals.Count > 0
-                ? definition.Metals
-                : definition.MetalSource?.Metals;
-            foreach (var metal in metals ?? new List<JewelryMetalData>())
+            foreach (var metal in definition?.Metals ?? new List<JewelryMetalData>())
             {
-                if (metal?.Id == metalId) return metal;
+                if (Godmist.Systems.Items.JewelryGenerationService.GetMetalRecipeKey(metal) == metalId) return metal;
             }
 
             return null;
         }
 
-        private static JewelryGemData FindGem(
+        private static JewelryGemDefinition FindGem(
             JewelryItemDefinition definition,
             string gemId)
         {
-            foreach (var gem in definition?.Gems ?? new List<JewelryGemData>())
+            foreach (var gem in definition?.Gems ?? new List<JewelryGemDefinition>())
             {
-                if (gem?.Id == gemId) return gem;
+                if (gem?.CraftingMaterial?.Id == gemId) return gem;
             }
 
             return null;

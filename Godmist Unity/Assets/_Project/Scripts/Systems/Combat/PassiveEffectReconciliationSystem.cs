@@ -103,7 +103,7 @@ namespace Godmist.Systems.Combat
             var sourceId = BuildEquipmentSourceId(item);
             AddDefinitions(
                 character,
-                item.EquipmentDefinition.PassiveEffects,
+                (item.Definition as UniqueEquipmentDefinition)?.Effects,
                 sourceId,
                 PassiveEffectSourceType.Equipment,
                 item.DisplayName);
@@ -115,20 +115,74 @@ namespace Godmist.Systems.Combat
             }
 
             var metal = FindMetal(definition, jewelry.MetalId);
-            AddDefinitions(
+            AddJewelryModifiers(
                 character,
-                metal?.PassiveEffects,
+                metal?.Modifiers,
                 $"{sourceId}.metal.{jewelry.MetalId}",
-                PassiveEffectSourceType.Equipment,
                 jewelry.MetalDisplayName);
 
             var gem = FindGem(definition, jewelry.GemId);
-            AddDefinitions(
+            AddJewelryModifiers(
                 character,
-                gem?.PassiveEffects,
+                gem?.Modifiers,
                 $"{sourceId}.gem.{jewelry.GemId}",
-                PassiveEffectSourceType.Equipment,
                 jewelry.GemDisplayName);
+        }
+
+        private static void AddJewelryModifiers(
+            CharacterInstance character,
+            List<JewelryModifierData> modifiers,
+            string sourceId,
+            string displayName)
+        {
+            for (var index = 0; index < (modifiers?.Count ?? 0); index++)
+            {
+                var modifier = modifiers[index];
+                if (modifier == null) continue;
+
+                var runtime = new PassiveEffectRuntime
+                {
+                    EffectId = $"{sourceId}.modifier.{index}",
+                    DefinitionId = "jewelry.modifier",
+                    DisplayName = displayName ?? string.Empty,
+                    Lifetime = PassiveEffectLifetime.Persistent,
+                    Sources = new List<PassiveEffectSourceRuntime>
+                    {
+                        CreateSource(PassiveEffectSourceType.Equipment, sourceId)
+                    }
+                };
+
+                switch (modifier.Target)
+                {
+                    case JewelryModifierTarget.Stat:
+                        // Stats are generated into EquipmentItemInstance.BaseStatModifiers
+                        // so upgrades and normal equipment presentation use one path.
+                        continue;
+                    case JewelryModifierTarget.Resistance:
+                        runtime.SetPayload(new ResistanceModifierPayload
+                        {
+                            ResistanceType = modifier.ResistanceType,
+                            Value = modifier.Value
+                        });
+                        break;
+                    case JewelryModifierTarget.GameplayVariable:
+                        runtime.VariableModifiers = new List<GameplayVariableModifier>
+                        {
+                            new()
+                            {
+                                VariableType = modifier.GameplayVariable,
+                                ReferenceId = modifier.ReferenceId ?? string.Empty,
+                                Stacking = StatModifierStacking.Additive,
+                                Value = modifier.Value
+                            }
+                        };
+                        break;
+                    default:
+                        continue;
+                }
+
+                character.PassiveEffects.Add(runtime);
+            }
         }
 
         private static void AddSkillTreePassives(
@@ -269,24 +323,21 @@ namespace Godmist.Systems.Combat
             JewelryItemDefinition definition,
             string metalId)
         {
-            var metals = definition.Metals != null && definition.Metals.Count > 0
-                ? definition.Metals
-                : definition.MetalSource?.Metals;
-            foreach (var metal in metals ?? new List<JewelryMetalData>())
+            foreach (var metal in definition?.Metals ?? new List<JewelryMetalData>())
             {
-                if (metal?.Id == metalId) return metal;
+                if (Godmist.Systems.Items.JewelryGenerationService.GetMetalRecipeKey(metal) == metalId) return metal;
             }
 
             return null;
         }
 
-        private static JewelryGemData FindGem(
+        private static JewelryGemDefinition FindGem(
             JewelryItemDefinition definition,
             string gemId)
         {
-            foreach (var gem in definition?.Gems ?? new List<JewelryGemData>())
+            foreach (var gem in definition?.Gems ?? new List<JewelryGemDefinition>())
             {
-                if (gem?.Id == gemId) return gem;
+                if (gem?.CraftingMaterial?.Id == gemId) return gem;
             }
 
             return null;
