@@ -151,6 +151,7 @@ namespace Godmist.Views.UI.Workspace
                     $"x{CountPartyItems(material.Id)}",
                     selectedIngredients.Any(item => item?.Id == material.Id), false,
                     () => ToggleIngredient(material));
+                slot?.SetDefinitionTooltip(material, BuildIngredientTooltip(option));
             }
             HideUnusedSlots(ingredientSlots, activeIds);
         }
@@ -174,6 +175,7 @@ namespace Godmist.Views.UI.Workspace
                 var capturedIndex = index;
                 slot.Bind(ingredient.Icon, ingredient.DisplayName, BuildIngredientTooltip(option),
                     string.Empty, true, false, () => RemoveIngredient(capturedIndex));
+                slot.SetDefinitionTooltip(ingredient, BuildIngredientTooltip(option));
             }
         }
 
@@ -295,6 +297,8 @@ namespace Godmist.Views.UI.Workspace
                     null, canOfferPurchase ? $"{cost.PurchasableAmount}× • {cost.PurchasePrice}g" : null,
                     canOfferPurchase ? () => TryBuyMissingMaterial(cost.Material.Id) : null,
                     cost.PurchaseState, cost.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(cost.Material, BuildMaterialDescription(cost),
+                    cost.PurchasePrice > 0 ? cost.PurchasePrice : (int?)null);
             }
         }
 

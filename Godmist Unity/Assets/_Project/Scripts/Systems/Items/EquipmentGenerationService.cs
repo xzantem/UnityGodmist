@@ -132,9 +132,15 @@ namespace Godmist.Systems.Items
             item.Quality = quality;
             item.PartIds = selected.Select(part => part.Id).ToList();
             item.PrimaryPartDisplayName = selected[0].DisplayName;
+            item.PrimaryMaterialId = selected[0].CraftingMaterials?
+                .FirstOrDefault(requirement => requirement?.Material != null)?.Material?.Id ?? string.Empty;
             var bracket = selected.Max(part => (int)part.LevelBracket);
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
             item.RequiredLevel = item.ItemLevel;
+            item.CraftedBaseValue = Math.Max(0, selected.Sum(part =>
+                (part.CraftingMaterials ?? new()).Where(requirement => requirement?.Material != null)
+                    .Sum(requirement => requirement.Amount
+                        * ItemDefinitionValueUtility.GetValue(requirement.Material))));
             item.BaseStatModifiers = BuildFinalItemStats(
                 selected,
                 definition.ItemType,

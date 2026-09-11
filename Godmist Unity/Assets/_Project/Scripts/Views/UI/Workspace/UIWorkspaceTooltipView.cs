@@ -2412,6 +2412,12 @@ namespace Godmist.Views.UI.Workspace
                     UnityEngine.Object.Destroy(runtimeSkill);
                 }
             }
+            else if (item is GalduryteItemInstance galduryte)
+            {
+                Append(result, $"Typ: {(galduryte.TargetType == GalduryteTargetType.Weapon ? "Broń" : "Pancerz")}");
+                Append(result, $"Poziom galdurytu: {galduryte.ItemLevel}");
+                Append(result, galduryte.GetEffectSummary());
+            }
             return result.ToString();
         }
 
@@ -2488,9 +2494,12 @@ namespace Godmist.Views.UI.Workspace
             var upgrade = item is EquipmentItemInstance upgraded && !isJewelry
                 ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
                 : string.Empty;
+            var intrinsicValue = Mathf.Max(0, item.BaseValue);
+            if (intrinsicValue <= 0 && item.Definition is CraftableItemDefinition craftable)
+                intrinsicValue = Mathf.Max(0, craftable.CalculatedBaseValue);
             var price = contextPrice.HasValue
                 ? contextPrice.Value > 0 ? $" •  {contextPrice.Value}g" : string.Empty
-                : $" •  {Mathf.Max(0, item.BaseValue)}g";
+                : $" •  {intrinsicValue}g";
             return $"{GetRarityDisplayName(item.CurrentRarity)}{quality}{upgrade}  •  Waga: {item.Definition.Weight:0.##} kg{price}";
         }
 

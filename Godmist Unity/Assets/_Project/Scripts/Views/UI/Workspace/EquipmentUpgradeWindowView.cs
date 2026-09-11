@@ -139,8 +139,7 @@ namespace Godmist.Views.UI.Workspace
                         ? $"{selected.CurrentRarity}\n{preview.FailureReason}"
                     : isReforge
                         ? $"{selected.CurrentRarity} → {preview.TargetRarity}\n" +
-                          $"Zwiększenie: {preview.IncreaseChance:P0}  •  Bez zmian: {preview.UnchangedChance:P0}  •  Spadek: {preview.DecreaseChance:P0}\n" +
-                          $"Wartość: {preview.CurrentValue:0}"
+                          $"Zwiększenie: {preview.IncreaseChance:P0}  •  Bez zmian: {preview.UnchangedChance:P0}  •  Spadek: {preview.DecreaseChance:P0}"
                         : $"{selected.UpgradeProgress:P0} → {preview.TargetProgress:P0}\n" +
                           $"Szansa powodzenia: {preview.SuccessChance:P0}\n" +
                           $"Sockety: {selected.SocketCapacity} → {preview.SocketCapacity}";

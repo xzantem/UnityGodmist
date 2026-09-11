@@ -38,6 +38,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private EquipmentUpgradeWindowView equipmentUpgradeService;
         [SerializeField] private EquipmentUpgradeWindowView equipmentReforgeService;
         [SerializeField] private JewelryCraftingWindowView jewelryCraftingService;
+        [SerializeField] private GalduryteCraftingWindowView galduryteCraftingService;
+        [SerializeField] private GalduryteIdentificationWindowView galduryteIdentificationService;
         [SerializeField] private AlchemyCraftingWindowView potionCraftingService;
         [SerializeField] private AlchemyCraftingWindowView bombCraftingService;
         [SerializeField] private PotionRefillWindowView potionRefillService;
@@ -170,6 +172,8 @@ namespace Godmist.Views.UI.Workspace
             if (npc?.Definition?.GetRole<EnchanterRoleData>() != null)
             {
                 yield return NpcServiceKind.JewelryCrafting;
+                yield return NpcServiceKind.GalduryteCrafting;
+                yield return NpcServiceKind.GalduryteIdentification;
             }
 
         }
@@ -199,6 +203,10 @@ namespace Godmist.Views.UI.Workspace
                     && equipmentReforgeService.Show(npc, recipientCharacterId),
                 NpcServiceKind.JewelryCrafting => jewelryCraftingService != null
                     && jewelryCraftingService.Show(npc, recipientCharacterId),
+                NpcServiceKind.GalduryteCrafting => galduryteCraftingService != null
+                    && galduryteCraftingService.Show(npc, recipientCharacterId),
+                NpcServiceKind.GalduryteIdentification => galduryteIdentificationService != null
+                    && galduryteIdentificationService.Show(npc, recipientCharacterId),
                 NpcServiceKind.PotionCrafting => potionCraftingService != null
                     && potionCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.BombCrafting => bombCraftingService != null
@@ -240,6 +248,12 @@ namespace Godmist.Views.UI.Workspace
                     break;
                 case NpcServiceKind.JewelryCrafting:
                     jewelryCraftingService?.Hide();
+                    break;
+                case NpcServiceKind.GalduryteCrafting:
+                    galduryteCraftingService?.Hide();
+                    break;
+                case NpcServiceKind.GalduryteIdentification:
+                    galduryteIdentificationService?.Hide();
                     break;
                 case NpcServiceKind.PotionCrafting:
                     potionCraftingService?.Hide();
@@ -291,6 +305,8 @@ namespace Godmist.Views.UI.Workspace
                 NpcServiceKind.EquipmentReforge => "Przekuwanie wyposażenia",
                 NpcServiceKind.EquipmentInfusion => "Infuzja wyposażenia",
                 NpcServiceKind.JewelryCrafting => "Tworzenie biżuterii",
+                NpcServiceKind.GalduryteCrafting => "Wytwarzanie galdurytów",
+                NpcServiceKind.GalduryteIdentification => "Identyfikacja galdurytów",
                 NpcServiceKind.PotionCrafting => "Warzenie mikstur",
                 NpcServiceKind.PotionRefill => "Napełnianie mikstur",
                 NpcServiceKind.BombCrafting => "Wytwarzanie bomb",

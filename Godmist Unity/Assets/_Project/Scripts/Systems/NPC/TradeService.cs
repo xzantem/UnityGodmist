@@ -188,12 +188,15 @@ namespace Godmist.Systems.NPC
 
         private static int GetBaseValue(ItemInstance item)
         {
-            if (item?.Definition is CraftableItemDefinition craftable)
+            var runtimeValue = Mathf.Max(0, item?.BaseValue ?? 0);
+            if (runtimeValue > 0)
             {
-                return craftable.CalculatedBaseValue;
+                return runtimeValue;
             }
 
-            return Mathf.Max(0, item?.BaseValue ?? 0);
+            return item?.Definition is CraftableItemDefinition craftable
+                ? craftable.CalculatedBaseValue
+                : runtimeValue;
         }
 
         public bool TryBuyFromBuyback(

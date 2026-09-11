@@ -517,7 +517,7 @@ namespace Godmist.Systems.Items
                 .Append(request?.Medium)
                 .Append(request?.Catalyst)
                 .Where(item => item != null);
-            return materials.Sum(item => Mathf.Max(0, item.BaseValue));
+            return materials.Sum(ItemDefinitionValueUtility.GetValue);
         }
 
         private static string BuildDefaultName(

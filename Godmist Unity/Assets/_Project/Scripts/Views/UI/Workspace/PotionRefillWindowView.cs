@@ -38,33 +38,6 @@ namespace Godmist.Views.UI.Workspace
         private readonly List<BlacksmithCraftingSlotView> mediumSlots = new();
         private bool isVisible;
 
-        /// <summary>Used by the prefab layout installer to wire a self-contained refill service.</summary>
-        public void ConfigureLayout(
-            GameObject root,
-            Transform consumablesContent,
-            Transform mediumsContent,
-            BlacksmithCraftingSlotView consumableTemplate,
-            BlacksmithCraftingSlotView mediumTemplate,
-            BlacksmithCraftingSlotView previewSlot,
-            TextMeshProUGUI nameText,
-            TextMeshProUGUI summaryText,
-            TextMeshProUGUI nextStatusText,
-            Button refillButton,
-            ConsumableUseType type)
-        {
-            serviceRoot = root;
-            recipeGrid = consumablesContent;
-            materialsGrid = mediumsContent;
-            recipeSlotTemplate = consumableTemplate;
-            materialSlotTemplate = mediumTemplate;
-            previewTooltipSlot = previewSlot;
-            previewNameText = nameText;
-            previewSummaryText = summaryText;
-            statusText = nextStatusText;
-            craftButton = refillButton;
-            refillType = type;
-        }
-
         private void Awake()
         {
             HideTemplates();
@@ -137,6 +110,7 @@ namespace Godmist.Views.UI.Workspace
                     });
                 if (slot != null) consumableSlots.Add(slot);
             }
+
         }
 
         private void RefreshPreview()
@@ -153,7 +127,7 @@ namespace Godmist.Views.UI.Workspace
                 if (option?.Medium == null) continue;
                 var cost = option.Cost;
                 var canOfferPurchase = cost?.HasPurchasableStock == true && cost.PurchasePrice > 0;
-                mediumSlots.Add(CreateSlot(
+                var slot = CreateSlot(
                     materialSlotTemplate,
                     targetGrid,
                     option.Medium.Icon,
@@ -171,8 +145,12 @@ namespace Godmist.Views.UI.Workspace
                     canOfferPurchase ? $"{cost.PurchasableAmount} ({cost.PurchasePrice}g)" : null,
                     canOfferPurchase ? () => TryBuyMedium(option.Medium) : null,
                     cost?.PurchaseState ?? CraftingMaterialPurchaseState.OutOfStock,
-                    cost?.PurchaseState == CraftingMaterialPurchaseState.Available));
+                    cost?.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(option.Medium, BuildMediumTooltip(option),
+                    cost?.PurchasePrice > 0 ? cost.PurchasePrice : (int?)null);
+                mediumSlots.Add(slot);
             }
+
 
             if (previewTooltipSlot != null)
             {
@@ -241,23 +219,9 @@ namespace Godmist.Views.UI.Workspace
             ? "Napełnianie bomby"
             : "Napełnianie mikstury";
 
-        private Transform GetRecipeGrid() => ResolveInnerGrid(recipeGrid, "RecipeContent");
+        private Transform GetRecipeGrid() => recipeGrid;
 
-        private Transform GetMaterialsGrid() => ResolveInnerGrid(materialsGrid, "MaterialsGrid");
-
-        private static Transform ResolveInnerGrid(Transform configured, string expectedName)
-        {
-            if (configured == null) return null;
-            if (configured.name == expectedName) return configured;
-
-            foreach (Transform child in configured)
-            {
-                var nested = ResolveInnerGrid(child, expectedName);
-                if (nested != null) return nested;
-            }
-
-            return configured;
-        }
+        private Transform GetMaterialsGrid() => materialsGrid;
 
         private BlacksmithCraftingSlotView CreateSlot(
             BlacksmithCraftingSlotView template,

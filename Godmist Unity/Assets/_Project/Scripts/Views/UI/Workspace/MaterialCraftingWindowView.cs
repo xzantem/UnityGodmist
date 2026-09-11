@@ -101,7 +101,7 @@ namespace Godmist.Views.UI.Workspace
 
             foreach (var recipe in recipes)
             {
-                CreateSlot(
+                var slot = CreateSlot(
                     recipeSlotTemplate,
                     recipeGrid,
                     recipe.Icon,
@@ -118,6 +118,7 @@ namespace Godmist.Views.UI.Workspace
                         PopulateRecipes();
                         RefreshPreview();
                     });
+                slot?.SetDefinitionTooltip(recipe);
             }
         }
 
@@ -139,7 +140,7 @@ namespace Godmist.Views.UI.Workspace
             {
                 var materialId = material.Material.Id;
                 var canOfferPurchase = material.HasPurchasableStock && material.PurchasePrice > 0;
-                CreateSlot(
+                var slot = CreateSlot(
                     materialSlotTemplate,
                     materialsGrid,
                     material.Material.Icon,
@@ -153,6 +154,8 @@ namespace Godmist.Views.UI.Workspace
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(material.Material, BuildMaterialDescription(material),
+                    material.PurchasePrice > 0 ? material.PurchasePrice : (int?)null);
             }
 
             if (craftButton != null) craftButton.interactable = preview.CanCraft;

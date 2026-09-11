@@ -89,4 +89,16 @@ namespace Godmist.Systems.Items
             };
         }
     }
+
+    internal static class ItemDefinitionValueUtility
+    {
+        public static int GetValue(ItemDefinition definition)
+        {
+            return definition is CraftableItemDefinition craftable
+                ? craftable.CalculatedBaseValue
+                : definition?.BaseValue > 0
+                    ? definition.BaseValue
+                    : 0;
+        }
+    }
 }

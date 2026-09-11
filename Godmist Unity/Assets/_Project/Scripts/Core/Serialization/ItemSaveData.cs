@@ -25,12 +25,24 @@ namespace Godmist.Core.Serialization
         public string CatalystDisplayName;
         public int ConsumableCraftedBaseValue;
         public List<ConsumableEffectSaveData> ConsumableEffects = new();
+        public bool IsGalduryte;
+        public GalduryteTargetType GalduryteTargetType;
+        public GalduryteTier GalduryteTier;
+        public GaldurytePowderColor GaldurytePowderColor;
+        public bool GalduryteIsIdentified;
+        public string GalduryteStoneDefinitionId = string.Empty;
+        public string GaldurytePowderDefinitionId = string.Empty;
+        public string GalduryteStoneDisplayName = string.Empty;
+        public int GalduryteCraftedBaseValue;
+        public List<GalduryteEffectSaveData> GalduryteEffects = new();
         public List<string> LootBagContentItemInstanceIds = new();
         public string RequiredClassId = string.Empty;
         public int RequiredLevel;
         public EquipmentQuality Quality = EquipmentQuality.Normal;
         public List<string> PartIds = new();
         public string PrimaryPartDisplayName = string.Empty;
+        public string PrimaryMaterialId = string.Empty;
+        public int EquipmentCraftedBaseValue;
         public List<StatModifierSaveData> BaseStatModifiers = new();
         public List<StatModifierSaveData> StatModifiers = new();
         public float UpgradeProgress;
@@ -53,5 +65,14 @@ namespace Godmist.Core.Serialization
         public ResistanceType ResistanceType = ResistanceType.Weakening;
         public TargetType TargetType = TargetType.Caster;
         public TargetingType TargetingType = TargetingType.Allies;
+    }
+
+    [Serializable]
+    public class GalduryteEffectSaveData
+    {
+        public GalduryteEffectType EffectType;
+        public GaldurytePowderColor PowderColor;
+        public GalduryteEffectGrade Grade;
+        public float Value;
     }
 }

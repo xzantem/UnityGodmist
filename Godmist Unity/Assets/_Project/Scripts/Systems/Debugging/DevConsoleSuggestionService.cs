@@ -40,10 +40,7 @@ namespace Godmist.Systems.Debugging
                 out var namedPrefix);
             var suggestionPrefix = activePrefix;
 
-            if (namedArgument != null)
-            {
-                suggestionPrefix = $"{namedArgument.Name}={namedPrefix}";
-            }
+            if (namedArgument != null) suggestionPrefix = namedPrefix;
 
             var candidates = tokenIndex == 0
                 ? DevConsoleCommandSchemaRegistry.All
@@ -55,10 +52,7 @@ namespace Godmist.Systems.Debugging
                     gameSession,
                     combatSession,
                     contentCatalog,
-                    namedArgument)
-                    .Select(candidate => namedArgument == null
-                        ? candidate
-                        : $"{namedArgument.Name}={candidate}");
+                    namedArgument);
 
             return candidates
                 .Where(candidate => !string.IsNullOrWhiteSpace(candidate))
@@ -144,6 +138,24 @@ namespace Godmist.Systems.Debugging
             CombatSession combatSession,
             GameContentCatalog contentCatalog)
         {
+            if (command == "creategalduryte")
+            {
+                if (string.Equals(argument.Name, "tier", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new[] { "1", "2", "3" };
+                }
+
+                if (string.Equals(argument.Name, "target", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new[] { "armor", "weapon" };
+                }
+
+                if (string.Equals(argument.Name, "identified", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new[] { "identified", "unidentified" };
+                }
+            }
+
             return argument.Type switch
             {
                 DevConsoleArgumentType.CharacterId =>

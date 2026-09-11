@@ -55,10 +55,6 @@ Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji ora
   - Dodac data-driven progi lojalnosci, odblokowywanie uslug i rabaty. UI ma pokazywac dostepnosc uslugi oraz czytelny powod blokady.
 - `[P1] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Core / Architecture` - `READY_FOR_SMOKE`
   - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz przy niewystarczajacym saldzie wymaga potwierdzenia i wyplaca saldo NPC, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
-- `[P2] Dodac crafting bizuterii v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX` - `READY_FOR_SMOKE`
-  - Dodac osobny model craftingu biżuterii oparty o metal + klejnot, bez automatycznego modelu trzech czesci equipmentu i bez socketow na galduryty/runy. Zachowac preview, rarity, level, tooltip i save/load.
-- `[P2] Dodac crafting i identyfikowanie galdurytow/run v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data`
-  - Traktowac galduryty i runy jako ten sam system. Dodac role Rune-forgera/Enchantera, receptury oraz stan niezidentyfikowanego i zidentyfikowanego galdurytu. Rozszerzyc konfiguracje materialow craftowalnych analogicznie do kowala, przypisujac materialy o dyscyplinie `Runic` do `RuneForgerRoleData` albo `EnchanterRoleData`.
 - `[P2] Dodac socketowanie galdurytow/run w bronie i pancerze v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
   - Dodac sockety wyłącznie dla broni i pancerzy, walidacje kompatybilnosci oraz wplyw zidentyfikowanych galdurytow/run na pasywki i statystyki. Zachowac persistence i czytelny tooltip.
 - `[P2] Dodac wyciaganie galdurytow/run z broni i pancerzy v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture`
@@ -109,6 +105,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 ## Done
 
 ### Milestone: City Progression and Specialist Services v1
+
+- `[P2] Dodac crafting bizuterii v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX` - `DONE`
+  - Osobny model craftingu biżuterii oparty o metal + klejnot, bez automatycznego modelu trzech części equipmentu i bez socketów na galduryty. Ujednolicono preview, nazewnictwo, tooltipy, materiały oraz save/load.
+- `[P2] Dodac crafting i identyfikowanie galdurytow/run v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data` - `DONE`
+  - Galduryty/runy jako wspólny system: Enchanter tworzy i identyfikuje galduryty, a niezidentyfikowany i zidentyfikowany stan jest zapisywany. Dodano materiały, tiering, losowanie efektów, tooltipy oraz komendę debugową.
 
 - `[P1] Dodac role Alchemika, crafting i napełnianie potionow v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data` - `DONE`
   - Data-driven crafting potionow i bomb, materialy Alchemika, alkohole/prochy/katalizator, crafting materialow i napełnianie consumables.

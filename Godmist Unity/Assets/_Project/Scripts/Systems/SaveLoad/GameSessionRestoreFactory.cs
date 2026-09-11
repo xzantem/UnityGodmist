@@ -340,12 +340,15 @@ namespace Godmist.Systems.SaveLoad
                 var isLootBagDefinition = definition is LootBagItemDefinition;
 
                 var isConsumableDefinition = definition is ConsumableItemDefinition;
+                var isGalduryteDefinition = definition is GalduryteItemDefinition;
 
                 if (itemSaveData.IsEquipment != isEquipmentDefinition
                     || itemSaveData.IsLootBag != isLootBagDefinition
                     || itemSaveData.IsConsumable != isConsumableDefinition
+                    || itemSaveData.IsGalduryte != isGalduryteDefinition
                     || (itemSaveData.IsEquipment && itemSaveData.IsLootBag)
-                    || (itemSaveData.IsConsumable && (itemSaveData.IsEquipment || itemSaveData.IsLootBag)))
+                    || (itemSaveData.IsConsumable && (itemSaveData.IsEquipment || itemSaveData.IsLootBag || itemSaveData.IsGalduryte))
+                    || (itemSaveData.IsGalduryte && (itemSaveData.IsEquipment || itemSaveData.IsLootBag)))
                 {
                     return false;
                 }
@@ -423,6 +426,57 @@ namespace Godmist.Systems.SaveLoad
                     }
                 }
 
+                if (item is GalduryteItemInstance galduryteItem)
+                {
+                    if (!Enum.IsDefined(typeof(GalduryteTargetType), itemSaveData.GalduryteTargetType)
+                        || !Enum.IsDefined(typeof(GalduryteTier), itemSaveData.GalduryteTier)
+                        || !Enum.IsDefined(typeof(GaldurytePowderColor), itemSaveData.GaldurytePowderColor)
+                        || itemSaveData.GalduryteCraftedBaseValue < 0
+                        || string.IsNullOrWhiteSpace(itemSaveData.GalduryteStoneDefinitionId)
+                        || string.IsNullOrWhiteSpace(itemSaveData.GaldurytePowderDefinitionId)
+                        || itemSaveData.GalduryteEffects == null
+                        || itemSaveData.GalduryteEffects.Count == 0
+                        || itemSaveData.ItemLevel != GalduryteRuntimeRules.GetLevel(itemSaveData.GalduryteTier))
+                    {
+                        return false;
+                    }
+
+                    var effectTypes = new HashSet<GalduryteEffectType>();
+                    var effectColors = new HashSet<GaldurytePowderColor>();
+                    var restoredEffects = new List<GalduryteEffectInstance>();
+                    foreach (var effect in itemSaveData.GalduryteEffects)
+                    {
+                        if (effect == null
+                            || !Enum.IsDefined(typeof(GalduryteEffectType), effect.EffectType)
+                            || !Enum.IsDefined(typeof(GaldurytePowderColor), effect.PowderColor)
+                            || !Enum.IsDefined(typeof(GalduryteEffectGrade), effect.Grade)
+                            || float.IsNaN(effect.Value)
+                            || float.IsInfinity(effect.Value)
+                            || effect.Value < 0f
+                            || !effectTypes.Add(effect.EffectType)
+                            || !effectColors.Add(effect.PowderColor))
+                        {
+                            return false;
+                        }
+
+                        restoredEffects.Add(new GalduryteEffectInstance(
+                            effect.EffectType,
+                            effect.PowderColor,
+                            effect.Grade,
+                            effect.Value));
+                    }
+
+                    galduryteItem.TargetType = itemSaveData.GalduryteTargetType;
+                    galduryteItem.Tier = itemSaveData.GalduryteTier;
+                    galduryteItem.GuaranteedPowderColor = itemSaveData.GaldurytePowderColor;
+                    galduryteItem.IsIdentified = itemSaveData.GalduryteIsIdentified;
+                    galduryteItem.StoneDefinitionId = itemSaveData.GalduryteStoneDefinitionId ?? string.Empty;
+                    galduryteItem.PowderDefinitionId = itemSaveData.GaldurytePowderDefinitionId ?? string.Empty;
+                    galduryteItem.StoneDisplayName = itemSaveData.GalduryteStoneDisplayName ?? string.Empty;
+                    galduryteItem.CraftedBaseValue = itemSaveData.GalduryteCraftedBaseValue;
+                    galduryteItem.Effects = restoredEffects;
+                }
+
                 if (item is EquipmentItemInstance equipmentItem)
                 {
                     var partIds = itemSaveData.PartIds ?? new List<string>();
@@ -456,6 +510,8 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.PartIds = new List<string>(
                         partIds);
                     equipmentItem.PrimaryPartDisplayName = itemSaveData.PrimaryPartDisplayName ?? string.Empty;
+                    equipmentItem.PrimaryMaterialId = itemSaveData.PrimaryMaterialId ?? string.Empty;
+                    equipmentItem.CraftedBaseValue = itemSaveData.EquipmentCraftedBaseValue;
                     equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
                         ? baseModifiers
                         : new List<StatModifier>(modifiers);

@@ -12,7 +12,6 @@ namespace Godmist.Runtime.Items
         public string MetalDisplayName = string.Empty;
         public string GemId = string.Empty;
         public string GemDisplayName = string.Empty;
-        public int CraftedBaseValue;
         public JewelryItemInstance() {}
 
         public JewelryItemInstance(JewelryItemDefinition definition, string instanceId = null)

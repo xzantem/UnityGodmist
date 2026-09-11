@@ -112,6 +112,7 @@ namespace Godmist.Data.Configuration
                 Integer(GameDefineIds.AlchemyMediumTierForLevel1, "Medium alchemiczny dla poziomu 11", "Minimalny tier alkoholu lub prochu dla consumabla poziomu 11.", GameDefineCategory.Crafting, "tier", 1, 1, 5),
                 Integer(GameDefineIds.AlchemyMediumTierForLevel2, "Medium alchemiczny dla poziomu 21", "Minimalny tier alkoholu lub prochu dla consumabla poziomu 21.", GameDefineCategory.Crafting, "tier", 3, 1, 5),
                 Integer(GameDefineIds.AlchemyMediumTierForLevel3, "Medium alchemiczny dla poziomu 41", "Minimalny tier alkoholu lub prochu dla consumabla poziomu 41.", GameDefineCategory.Crafting, "tier", 5, 1, 5),
+                Float(GameDefineIds.GalduryteIdentificationCostPercent, "Koszt identyfikacji galdurytu", "Część wartości galdurytu pobierana za jego identyfikację u Zaklinacza.", GameDefineCategory.Crafting, "%", .30f, 0f, 1f),
                 Float(GameDefineIds.EquipmentPoorQualityCostMultiplier, "Koszt jakości Poor", "Mnożnik kosztu craftingu wyposażenia o jakości Poor.", GameDefineCategory.Crafting, "x", .5f, 0f, 100f),
                 Float(GameDefineIds.EquipmentExcellentQualityCostMultiplier, "Koszt jakości Excellent", "Mnożnik kosztu craftingu wyposażenia o jakości Excellent.", GameDefineCategory.Crafting, "x", 2f, 0f, 100f),
                 Integer(GameDefineIds.EquipmentQualityPoorWeight, "Losowanie jakości Poor", "Waga losowania jakości Poor.", GameDefineCategory.Items, "waga", 1, 0, 1000),

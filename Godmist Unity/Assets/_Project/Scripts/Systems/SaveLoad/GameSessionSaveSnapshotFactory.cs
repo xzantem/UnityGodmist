@@ -971,6 +971,8 @@ namespace Godmist.Systems.SaveLoad
                     ? new List<string>()
                     : new List<string>(equipmentItem.PartIds);
                 itemSaveData.PrimaryPartDisplayName = equipmentItem.PrimaryPartDisplayName ?? string.Empty;
+                itemSaveData.PrimaryMaterialId = equipmentItem.PrimaryMaterialId ?? string.Empty;
+                itemSaveData.EquipmentCraftedBaseValue = equipmentItem.CraftedBaseValue;
                 itemSaveData.BaseStatModifiers = CopyStatModifiers(
                     equipmentItem.BaseStatModifiers);
                 itemSaveData.StatModifiers = CopyStatModifiers(
@@ -1012,6 +1014,31 @@ namespace Godmist.Systems.SaveLoad
                         ResistanceType = effect.ResistanceType,
                         TargetType = effect.TargetType,
                         TargetingType = effect.TargetingType
+                    });
+                }
+            }
+
+            if (item is GalduryteItemInstance galduryteItem)
+            {
+                itemSaveData.IsGalduryte = true;
+                itemSaveData.GalduryteTargetType = galduryteItem.TargetType;
+                itemSaveData.GalduryteTier = galduryteItem.Tier;
+                itemSaveData.GaldurytePowderColor = galduryteItem.GuaranteedPowderColor;
+                itemSaveData.GalduryteIsIdentified = galduryteItem.IsIdentified;
+                itemSaveData.GalduryteStoneDefinitionId = galduryteItem.StoneDefinitionId ?? string.Empty;
+                itemSaveData.GaldurytePowderDefinitionId = galduryteItem.PowderDefinitionId ?? string.Empty;
+                itemSaveData.GalduryteStoneDisplayName = galduryteItem.StoneDisplayName ?? string.Empty;
+                itemSaveData.GalduryteCraftedBaseValue = galduryteItem.CraftedBaseValue;
+
+                foreach (var effect in galduryteItem.Effects ?? new List<GalduryteEffectInstance>())
+                {
+                    if (effect == null) continue;
+                    itemSaveData.GalduryteEffects.Add(new GalduryteEffectSaveData
+                    {
+                        EffectType = effect.EffectType,
+                        PowderColor = effect.PowderColor,
+                        Grade = effect.Grade,
+                        Value = effect.Value
                     });
                 }
             }

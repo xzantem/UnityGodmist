@@ -44,6 +44,7 @@ namespace Godmist.Tests.EditMode
             {
                 "createconsumable",
                 "createequipment",
+                "creategalduryte",
                 "createitem"
             }));
         }
@@ -58,6 +59,48 @@ namespace Godmist.Tests.EditMode
                 null);
 
             Assert.That(suggestions, Does.Contain("Masterpiece"));
+        }
+
+        [Test]
+        public void GetSuggestions_CreateGalduryte_ReturnsContextualArguments()
+        {
+            var tierSuggestions = DevConsoleSuggestionService.GetSuggestions(
+                "creategalduryte ",
+                null,
+                null,
+                null);
+            var targetSuggestions = DevConsoleSuggestionService.GetSuggestions(
+                "creategalduryte 1 ",
+                null,
+                null,
+                null);
+            var statusSuggestions = DevConsoleSuggestionService.GetSuggestions(
+                "creategalduryte 1 weapon ",
+                null,
+                null,
+                null);
+
+            Assert.That(tierSuggestions, Is.EqualTo(new[] { "1", "2", "3" }));
+            Assert.That(targetSuggestions, Is.EqualTo(new[] { "armor", "weapon" }));
+            Assert.That(statusSuggestions, Is.EqualTo(new[] { "identified", "unidentified" }));
+        }
+
+        [Test]
+        public void GetSuggestions_CreateGalduryte_NamedArgumentsReturnContextualValues()
+        {
+            var targetSuggestions = DevConsoleSuggestionService.GetSuggestions(
+                "creategalduryte target=",
+                null,
+                null,
+                null);
+            var statusSuggestions = DevConsoleSuggestionService.GetSuggestions(
+                "creategalduryte identified=",
+                null,
+                null,
+                null);
+
+            Assert.That(targetSuggestions, Is.EqualTo(new[] { "armor", "weapon" }));
+            Assert.That(statusSuggestions, Is.EqualTo(new[] { "identified", "unidentified" }));
         }
 
         [Test]

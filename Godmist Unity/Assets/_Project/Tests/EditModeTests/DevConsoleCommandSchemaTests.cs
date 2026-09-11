@@ -76,6 +76,47 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Parser_NormalizesGalduryteCommandWithDefaultIdentificationStatus()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "creategalduryte 1 weapon",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "creategalduryte",
+                    "1",
+                    "weapon",
+                    "identified"
+                }));
+        }
+
+        [Test]
+        public void Parser_NormalizesUnidentifiedGalduryteForExplicitCharacter()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "creategalduryte 1 armor unidentified characterId=jerzy",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "creategalduryte",
+                    "1",
+                    "armor",
+                    "unidentified",
+                    "jerzy"
+                }));
+        }
+
+        [Test]
         public void Parser_DistinguishesMissingAndInvalidRequiredArguments()
         {
             var missing = DevConsoleCommandSchemaParser.TryNormalize(

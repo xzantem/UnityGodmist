@@ -15,6 +15,10 @@ namespace Godmist.Runtime.Items
         public EquipmentQuality Quality = EquipmentQuality.Normal;
         public List<string> PartIds = new();
         public string PrimaryPartDisplayName = string.Empty;
+        // The material of the first structural part determines the crafted name.
+        // Keep the id on the instance so names remain stable after save/load.
+        public string PrimaryMaterialId = string.Empty;
+        public int CraftedBaseValue;
         // Payload before the mutable upgrade modifier is applied.
         public List<StatModifier> BaseStatModifiers = new();
         public List<StatModifier> StatModifiers = new();
@@ -31,13 +35,25 @@ namespace Godmist.Runtime.Items
                 ? unique.BaseDefinition
                 : Definition as EquipmentItemDefinition;
 
-        public override string DisplayName => !string.IsNullOrWhiteSpace(CustomName)
-            ? CustomName
-            : Definition is UniqueEquipmentDefinition
-                ? base.DisplayName
-                : !string.IsNullOrWhiteSpace(PrimaryPartDisplayName)
-                    ? PrimaryPartDisplayName
-                    : base.DisplayName;
+        public override int BaseValue => CraftedBaseValue > 0
+            ? CraftedBaseValue
+            : base.BaseValue;
+
+        public override string DisplayName
+        {
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(CustomName)) return CustomName;
+                if (Definition is UniqueEquipmentDefinition || this is JewelryItemInstance)
+                    return base.DisplayName;
+
+                return CraftedEquipmentNameFormatter.Format(
+                    base.DisplayName,
+                    Quality,
+                    PrimaryMaterialId,
+                    PrimaryPartDisplayName);
+            }
+        }
 
         public EquipmentSlot EquipmentSlot =>
             EquipmentDefinition != null

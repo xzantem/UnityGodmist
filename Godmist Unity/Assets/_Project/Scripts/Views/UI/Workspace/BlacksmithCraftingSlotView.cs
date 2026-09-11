@@ -1,4 +1,5 @@
 using System;
+using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Items;
@@ -59,6 +60,13 @@ namespace Godmist.Views.UI.Workspace
         public void SetItemTooltip(ItemInstance item, CharacterInstance owner)
         {
             SetItemTooltip(item, owner, string.Empty);
+        }
+
+        /// <summary>Uses the normal inventory/trade tooltip for a catalog item.</summary>
+        public void SetDefinitionTooltip(ItemDefinition definition, string extraBody = "", int? contextPrice = null)
+        {
+            if (definition == null) return;
+            SetItemTooltip(new ItemInstance(definition), null, extraBody, contextPrice);
         }
 
         public void SetItemTooltip(

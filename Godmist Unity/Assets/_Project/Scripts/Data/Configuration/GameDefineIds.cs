@@ -107,6 +107,7 @@ namespace Godmist.Data.Configuration
         public const string AlchemyMediumTierForLevel1 = "items.alchemy.medium.min_tier.level_1";
         public const string AlchemyMediumTierForLevel2 = "items.alchemy.medium.min_tier.level_2";
         public const string AlchemyMediumTierForLevel3 = "items.alchemy.medium.min_tier.level_3";
+        public const string GalduryteIdentificationCostPercent = "items.galduryte.identification_cost_percent";
         public const string EquipmentPoorQualityCostMultiplier = "items.equipment.quality.poor_cost_multiplier";
         public const string EquipmentExcellentQualityCostMultiplier = "items.equipment.quality.excellent_cost_multiplier";
         public const string EquipmentQualityPoorWeight = "items.equipment.quality.poor_weight";

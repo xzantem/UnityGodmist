@@ -44,7 +44,6 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
-            ConfigureJewelryLayout();
             HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
             if (customNameInput != null) customNameInput.onValueChanged.AddListener(HandleNameChanged);
@@ -67,7 +66,6 @@ namespace Godmist.Views.UI.Workspace
             enchanter = nextEnchanter;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
-            ConfigureJewelryLayout();
             HideTemplates();
             PopulateJewelry();
             return selectedDefinition != null;
@@ -225,39 +223,6 @@ namespace Godmist.Views.UI.Workspace
             if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
         }
 
-        private void ConfigureJewelryLayout()
-        {
-            var root = serviceRoot != null ? serviceRoot.transform : transform;
-            SetText(root.Find("AssemblyColumn/BaseSection/SectionTitle"), "1. Wybierz biżuterię");
-            SetText(root.Find("AssemblyColumn/PartsSection/SectionTitle"), "2. Wybierz materiały");
-            SetText(root.Find("AssemblyColumn/SettingsSection/SectionTitle"), "3. Nazwa");
-            SetText(root.Find("AssemblyColumn/PartsSection/Content/PartColumns/WeaponHeadStage/StageLabel"), "Wybierz metal");
-            SetText(root.Find("AssemblyColumn/PartsSection/Content/PartColumns/WeaponBinderStage/StageLabel"), "Wybierz klejnot");
-
-            foreach (var stageName in new[]
-            {
-                "WeaponHandleStage", "ArmorPlateStage", "ArmorBinderStage", "ArmorBaseStage"
-            })
-            {
-                root.Find($"AssemblyColumn/PartsSection/Content/PartColumns/{stageName}")?.gameObject.SetActive(false);
-            }
-
-            root.Find("AssemblyColumn/SettingsSection/Content/QualityDropdown")?.gameObject.SetActive(false);
-
-            if (jewelryContent != null && jewelryContent.TryGetComponent<GridLayoutGroup>(out var jewelryGrid))
-            {
-                jewelryGrid.padding = new RectOffset(0, 0, 0, 0);
-                jewelryGrid.spacing = new Vector2(8f, 8f);
-                jewelryGrid.childAlignment = TextAnchor.UpperCenter;
-                jewelryGrid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                jewelryGrid.constraintCount = 4;
-            }
-
-            ConfigureJewelrySectionHeight(1);
-
-            ConfigurePreviewTextLayout();
-        }
-
         private void ConfigureJewelrySectionHeight(int itemCount)
         {
             if (jewelryContent == null) return;
@@ -281,43 +246,6 @@ namespace Godmist.Views.UI.Workspace
             sectionLayout.minHeight = -1f;
             sectionLayout.preferredHeight = Mathf.Ceil(gridHeight + 64f);
             LayoutRebuilder.MarkLayoutForRebuild(section);
-        }
-
-        private void ConfigurePreviewTextLayout()
-        {
-            if (previewNameText == null) return;
-
-            previewNameText.textWrappingMode = TextWrappingModes.Normal;
-            previewNameText.overflowMode = TextOverflowModes.Overflow;
-            previewNameText.alignment = TextAlignmentOptions.Left;
-
-            var nameLayout = previewNameText.GetComponent<LayoutElement>();
-            if (nameLayout != null)
-            {
-                nameLayout.minHeight = -1;
-                nameLayout.preferredHeight = -1;
-            }
-
-            var resultInfo = previewNameText.transform.parent as RectTransform;
-            if (resultInfo == null) return;
-
-            var resultInfoFitter = resultInfo.GetComponent<ContentSizeFitter>()
-                ?? resultInfo.gameObject.AddComponent<ContentSizeFitter>();
-            resultInfoFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            var resultHeader = resultInfo.parent as RectTransform;
-            if (resultHeader == null) return;
-
-            var resultHeaderLayout = resultHeader.GetComponent<LayoutElement>()
-                ?? resultHeader.gameObject.AddComponent<LayoutElement>();
-            resultHeaderLayout.minHeight = 80f;
-            resultHeaderLayout.preferredHeight = -1f;
-        }
-
-        private static void SetText(Transform target, string value)
-        {
-            var label = target?.GetComponent<TextMeshProUGUI>();
-            if (label != null) label.text = value;
         }
 
         private void SetStatus(string value) { if (statusText != null) statusText.text = value ?? string.Empty; }

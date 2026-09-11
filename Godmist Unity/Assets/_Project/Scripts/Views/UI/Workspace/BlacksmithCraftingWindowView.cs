@@ -135,7 +135,7 @@ namespace Godmist.Views.UI.Workspace
 
             foreach (var definition in definitions)
             {
-                CreateSlot(
+                var slot = CreateSlot(
                     equipmentSlotTemplate,
                     equipmentContent,
                     definition.Icon,
@@ -152,6 +152,9 @@ namespace Godmist.Views.UI.Workspace
                     PopulatePartChoices();
                     RefreshPreview();
                 });
+                // A base choice is a crafting category, not an actual item instance.
+                // Keep its hover affordance deliberately compact: its name only.
+                slot?.SetTooltip(definition.DisplayName, string.Empty);
             }
 
             if (selectedDefinition != null) PopulatePartChoices();
@@ -175,7 +178,7 @@ namespace Godmist.Views.UI.Workspace
                              .OrderBy(part => part.Id)
                          ?? Enumerable.Empty<EquipmentPartDefinition>())
                 {
-                    CreateSlot(
+                    var slot = CreateSlot(
                         partSlotTemplate,
                         selection.Content,
                         part.Icon,
@@ -207,7 +210,7 @@ namespace Godmist.Views.UI.Workspace
                 var materialId = material.Material.Id;
                 var canOfferPurchase = material.HasPurchasableStock
                     && material.PurchasePrice > 0;
-                CreateSlot(
+                var slot = CreateSlot(
                     materialSlotTemplate,
                     materialsContent,
                     material.Material.Icon,
@@ -223,6 +226,8 @@ namespace Godmist.Views.UI.Workspace
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(material.Material, BuildMaterialDescription(material),
+                    material.PurchasePrice > 0 ? material.PurchasePrice : (int?)null);
             }
 
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
