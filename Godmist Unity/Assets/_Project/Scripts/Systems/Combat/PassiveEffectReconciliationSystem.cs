@@ -29,6 +29,7 @@ namespace Godmist.Systems.Combat
             {
                 AddEquipmentStatEffect(character, item);
                 AddEquipmentDefinitions(character, item);
+                AddSocketedGaldurytes(character, item);
             }
 
             foreach (var tree in character.ClassData?.SkillTrees
@@ -128,6 +129,80 @@ namespace Godmist.Systems.Combat
                 $"{sourceId}.gem.{jewelry.GemId}",
                 jewelry.GemDisplayName);
         }
+
+        private static void AddSocketedGaldurytes(
+            CharacterInstance character,
+            EquipmentItemInstance equipment)
+        {
+            foreach (var galduryte in equipment?.SocketedGaldurytes
+                         ?? new List<GalduryteItemInstance>())
+            {
+                if (galduryte?.IsIdentified != true) continue;
+                var sourceId = $"{BuildEquipmentSourceId(equipment)}.galduryte.{galduryte.InstanceId}";
+                var stats = new List<StatModifier>();
+                var variables = new List<GameplayVariableModifier>();
+                foreach (var effect in galduryte.Effects ?? new List<GalduryteEffectInstance>())
+                {
+                    if (effect == null) continue;
+                    switch (effect.EffectType)
+                    {
+                        case GalduryteEffectType.GeneralDamagePercent:
+                            variables.Add(new GameplayVariableModifier
+                            {
+                                VariableType = GameplayVariableType.DamageDealtPercent,
+                                Stacking = StatModifierStacking.Additive,
+                                Value = effect.Value
+                            });
+                            break;
+                        case GalduryteEffectType.CriticalChancePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.CritChance, effect.Value,
+                                StatModifierOperation.FlatAbsolute));
+                            break;
+                        case GalduryteEffectType.AccuracyPercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.WeaponAccuracy, effect.Value,
+                                StatModifierOperation.FlatAbsolute));
+                            break;
+                        case GalduryteEffectType.MaxHealthPercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.MaxHealth, effect.Value,
+                                StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.PhysicalDefensePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.PhysicalDefense, effect.Value,
+                                StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.SpeedPercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.Speed, effect.Value,
+                                StatModifierOperation.Percent));
+                            break;
+                    }
+                }
+                if (stats.Count == 0 && variables.Count == 0) continue;
+                character.PassiveEffects.Add(new PassiveEffectRuntime
+                {
+                    EffectId = sourceId,
+                    DefinitionId = "equipment.socketed_galduryte",
+                    DisplayName = galduryte.DisplayName,
+                    Sources = new List<PassiveEffectSourceRuntime>
+                    {
+                        CreateSource(PassiveEffectSourceType.Equipment, sourceId)
+                    },
+                    Lifetime = PassiveEffectLifetime.Persistent,
+                    StatModifiers = stats,
+                    VariableModifiers = variables
+                });
+            }
+        }
+
+        private static StatModifier CreateGalduryteStat(
+            CharacterStatType stat,
+            float value,
+            StatModifierOperation operation) => new()
+        {
+            StatType = stat,
+            Operation = operation,
+            Stacking = StatModifierStacking.Additive,
+            Value = value
+        };
 
         private static void AddJewelryModifiers(
             CharacterInstance character,

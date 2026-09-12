@@ -46,6 +46,7 @@ namespace Godmist.Core.Serialization
         public List<StatModifierSaveData> BaseStatModifiers = new();
         public List<StatModifierSaveData> StatModifiers = new();
         public float UpgradeProgress;
+        public List<string> SocketedGalduryteInstanceIds = new();
         public string JewelryMetalId = string.Empty;
         public string JewelryMetalDisplayName = string.Empty;
         public string JewelryGemId = string.Empty;

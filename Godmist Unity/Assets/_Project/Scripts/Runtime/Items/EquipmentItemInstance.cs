@@ -22,6 +22,9 @@ namespace Godmist.Runtime.Items
         // Payload before the mutable upgrade modifier is applied.
         public List<StatModifier> BaseStatModifiers = new();
         public List<StatModifier> StatModifiers = new();
+        // Socketed items are owned by this equipment instance until the later
+        // extraction service releases them back into an inventory.
+        public List<GalduryteItemInstance> SocketedGaldurytes = new();
         public float UpgradeProgress;
 
         public int SocketCapacity => Math.Clamp(

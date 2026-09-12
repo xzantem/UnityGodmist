@@ -40,6 +40,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private JewelryCraftingWindowView jewelryCraftingService;
         [SerializeField] private GalduryteCraftingWindowView galduryteCraftingService;
         [SerializeField] private GalduryteIdentificationWindowView galduryteIdentificationService;
+        [SerializeField] private GalduryteSocketingWindowView galduryteSocketingService;
         [SerializeField] private AlchemyCraftingWindowView potionCraftingService;
         [SerializeField] private AlchemyCraftingWindowView bombCraftingService;
         [SerializeField] private PotionRefillWindowView potionRefillService;
@@ -174,6 +175,7 @@ namespace Godmist.Views.UI.Workspace
                 yield return NpcServiceKind.JewelryCrafting;
                 yield return NpcServiceKind.GalduryteCrafting;
                 yield return NpcServiceKind.GalduryteIdentification;
+                yield return NpcServiceKind.GalduryteSocketing;
             }
 
         }
@@ -207,6 +209,8 @@ namespace Godmist.Views.UI.Workspace
                     && galduryteCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.GalduryteIdentification => galduryteIdentificationService != null
                     && galduryteIdentificationService.Show(npc, recipientCharacterId),
+                NpcServiceKind.GalduryteSocketing => galduryteSocketingService != null
+                    && galduryteSocketingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.PotionCrafting => potionCraftingService != null
                     && potionCraftingService.Show(npc, recipientCharacterId),
                 NpcServiceKind.BombCrafting => bombCraftingService != null
@@ -254,6 +258,9 @@ namespace Godmist.Views.UI.Workspace
                     break;
                 case NpcServiceKind.GalduryteIdentification:
                     galduryteIdentificationService?.Hide();
+                    break;
+                case NpcServiceKind.GalduryteSocketing:
+                    galduryteSocketingService?.Hide();
                     break;
                 case NpcServiceKind.PotionCrafting:
                     potionCraftingService?.Hide();
@@ -307,6 +314,7 @@ namespace Godmist.Views.UI.Workspace
                 NpcServiceKind.JewelryCrafting => "Tworzenie biżuterii",
                 NpcServiceKind.GalduryteCrafting => "Wytwarzanie galdurytów",
                 NpcServiceKind.GalduryteIdentification => "Identyfikacja galdurytów",
+                NpcServiceKind.GalduryteSocketing => "Osadzanie galdurytów",
                 NpcServiceKind.PotionCrafting => "Warzenie mikstur",
                 NpcServiceKind.PotionRefill => "Napełnianie mikstur",
                 NpcServiceKind.BombCrafting => "Wytwarzanie bomb",

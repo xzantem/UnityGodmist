@@ -16,6 +16,7 @@ namespace Godmist.Views.UI.Workspace
         JewelryCrafting,
         GalduryteCrafting,
         GalduryteIdentification,
+        GalduryteSocketing,
         PotionCrafting,
         PotionRefill,
         BombCrafting,

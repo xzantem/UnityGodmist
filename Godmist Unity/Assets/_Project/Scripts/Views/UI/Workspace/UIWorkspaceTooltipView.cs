@@ -2337,10 +2337,14 @@ namespace Godmist.Views.UI.Workspace
             {
                 Append(result, $"Typ: {GetEquipmentSlotDisplayName(equipment.EquipmentSlot)}");
                 Append(result, $"Poziom przedmiotu: {equipment.ItemLevel}");
-                if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId)) Append(result, $"Wymagana klasa: {equipment.RequiredClassId}");
+                if (equipment is not JewelryItemInstance)
+                    Append(result, $"Ulepszenie: {equipment.UpgradeProgress:P0}");
+                if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId))
+                    Append(result, $"Wymagana klasa: {GetRequiredClassDisplayName(equipment)}");
                 if (owner != null && !Godmist.Systems.Items.EquipmentService.MeetsRequirements(owner, equipment))
                     Append(result, "<color=#E06C75>Postać nie spełnia wymagań.</color>");
                 var equippedItem = owner?.Equipment?.GetItem(equipment.EquipmentSlot);
+                result.AppendLine();
                 AppendEquipmentStats(
                     result,
                     equipment,
@@ -2348,6 +2352,7 @@ namespace Godmist.Views.UI.Workspace
                 AppendPassiveDescriptions(
                     result,
                     (equipment.Definition as UniqueEquipmentDefinition)?.Effects);
+                AppendSocketedGalduryteEffects(result, equipment);
 
                 if (equipment is JewelryItemInstance jewelry
                     && equipment.EquipmentDefinition is JewelryItemDefinition jewelryDefinition)
@@ -2421,6 +2426,39 @@ namespace Godmist.Views.UI.Workspace
             return result.ToString();
         }
 
+        private static void AppendSocketedGalduryteEffects(
+            StringBuilder result,
+            EquipmentItemInstance equipment)
+        {
+            if (equipment == null || equipment is JewelryItemInstance) return;
+            result.AppendLine();
+            Append(result, $"Galduryty: {equipment.SocketedGaldurytes?.Count ?? 0}/{equipment.SocketCapacity}");
+            var hasDisplayedGalduryte = false;
+            foreach (var galduryte in equipment?.SocketedGaldurytes
+                         ?? new List<GalduryteItemInstance>())
+            {
+                if (galduryte?.IsIdentified != true) continue;
+                var effects = galduryte.GetEffectSummary();
+                if (!string.IsNullOrWhiteSpace(effects))
+                {
+                    if (hasDisplayedGalduryte) result.AppendLine();
+                    Append(result, $"<b>{galduryte.DisplayName}</b>");
+                    Append(result, effects);
+                    hasDisplayedGalduryte = true;
+                }
+            }
+        }
+
+        private static string GetRequiredClassDisplayName(EquipmentItemInstance equipment) =>
+            equipment.RequiredClassId switch
+            {
+                "class.warrior" => "Wojownik",
+                "class.scout" => "Zwiadowca",
+                "class.mage" => "Mag",
+                "class.paladin" => "Paladyn",
+                _ => equipment.EquipmentDefinition?.RequiredClass?.ClassName ?? "Nieznana klasa"
+            };
+
         private static void AppendConsumableCatalyst(StringBuilder result, ConsumableItemInstance consumable)
         {
             if (consumable == null || (string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
@@ -2491,16 +2529,13 @@ namespace Godmist.Views.UI.Workspace
             var quality = item is EquipmentItemInstance equipment && !isJewelry
                 ? $" • {GetQualityDisplayName(equipment.Quality)}"
                 : string.Empty;
-            var upgrade = item is EquipmentItemInstance upgraded && !isJewelry
-                ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
-                : string.Empty;
             var intrinsicValue = Mathf.Max(0, item.BaseValue);
             if (intrinsicValue <= 0 && item.Definition is CraftableItemDefinition craftable)
                 intrinsicValue = Mathf.Max(0, craftable.CalculatedBaseValue);
             var price = contextPrice.HasValue
                 ? contextPrice.Value > 0 ? $" •  {contextPrice.Value}g" : string.Empty
                 : $" •  {intrinsicValue}g";
-            return $"{GetRarityDisplayName(item.CurrentRarity)}{quality}{upgrade}  •  Waga: {item.Definition.Weight:0.##} kg{price}";
+            return $"{GetRarityDisplayName(item.CurrentRarity)}{quality}  •  Waga: {item.Definition.Weight:0.##} kg{price}";
         }
 
         private static void AppendEquipmentStats(
@@ -2538,7 +2573,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    $"{GetEquipmentStatDisplayName(stat)}: {FormatEquipmentStatValue(stat, value)}"
+                    $"{(stat == CharacterStatType.CritDamage ? "Mnożnik obrażeń krytycznych" : GetEquipmentStatDisplayName(stat))}: {FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
         }
@@ -2842,7 +2877,7 @@ namespace Godmist.Views.UI.Workspace
             return stat switch
             {
                 CharacterStatType.CritChance => $"{value * 100f:0.##}%",
-                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.CritDamage => "×" + value.ToString("0.00;-0.00;0.00"),
                 CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
                 _ => FormatEquipmentValue(value)
             };

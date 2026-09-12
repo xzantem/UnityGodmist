@@ -337,6 +337,10 @@ namespace Godmist.Views.UI
 
             var commandLine = commandInput.text;
             var tokenStartIndex = FindCurrentTokenStartIndex(commandLine);
+            // Named-argument suggestions contain only the value. Preserve the key.
+            var equalsIndex = commandLine.IndexOf('=', tokenStartIndex);
+            if (tokenStartIndex > 0 && equalsIndex >= tokenStartIndex)
+                tokenStartIndex = equalsIndex + 1;
             var prefix = commandLine.Substring(0, tokenStartIndex);
             var suggestion = suggestions[selectedSuggestionIndex];
 

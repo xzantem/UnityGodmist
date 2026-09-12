@@ -147,6 +147,15 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            if (!TryRestoreSocketedGaldurytes(
+                    saveData.ItemInstances,
+                    itemsById,
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy osadzonych galdurytach.");
+                return false;
+            }
+
             if (!TryRestoreCharacters(
                     restoredSession,
                     saveData.Characters,
@@ -301,6 +310,32 @@ namespace Godmist.Systems.SaveLoad
                 }
             }
 
+            return true;
+        }
+
+        private static bool TryRestoreSocketedGaldurytes(
+            List<ItemSaveData> itemSaveDataList,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            foreach (var data in itemSaveDataList ?? new List<ItemSaveData>())
+            {
+                if (data?.SocketedGalduryteInstanceIds == null
+                    || data.SocketedGalduryteInstanceIds.Count == 0) continue;
+                if (!itemsById.TryGetValue(data.InstanceId, out var item)
+                    || item is not EquipmentItemInstance equipment) return false;
+
+                equipment.SocketedGaldurytes = new List<GalduryteItemInstance>();
+                foreach (var id in data.SocketedGalduryteInstanceIds)
+                {
+                    if (!TryTakeItem(id, itemsById, assignedItemIds, out var socketed)
+                        || socketed is not GalduryteItemInstance galduryte
+                        || !galduryte.IsIdentified
+                        || equipment.SocketedGaldurytes.Count >= equipment.SocketCapacity)
+                        return false;
+                    equipment.SocketedGaldurytes.Add(galduryte);
+                }
+            }
             return true;
         }
 

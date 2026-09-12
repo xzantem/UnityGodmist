@@ -978,6 +978,12 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
                 itemSaveData.UpgradeProgress = equipmentItem.UpgradeProgress;
+                foreach (var socketed in equipmentItem.SocketedGaldurytes
+                             ?? new List<GalduryteItemInstance>())
+                {
+                    if (!TryCaptureItem(socketed, saveData, capturedItemIds)) return false;
+                    itemSaveData.SocketedGalduryteInstanceIds.Add(socketed.InstanceId);
+                }
 
                 if (equipmentItem is JewelryItemInstance jewelryItem)
                 {

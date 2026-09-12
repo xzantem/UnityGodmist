@@ -245,7 +245,7 @@ namespace Godmist.Tests.EditMode
                 null,
                 null);
 
-            Assert.That(suggestions, Is.EqualTo(new[] { "characterId=jerzy" }));
+            Assert.That(suggestions, Is.EqualTo(new[] { "jerzy" }));
         }
 
         [Test]
