@@ -74,6 +74,13 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Domknąć granice i geometrię areny w lochu v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Wykorzystać rzeczywisty footprint lochu, ściany zewnętrzne i wewnętrzne, drzwi i przejścia. Zapewnić spójność widocznych granic z ruchem, celowaniem i linią efektu.
+  - Zatwierdzone: arena obejmuje jeden pokój i nie rozszerza się; indywidualne wejście/wyjście przez granicę, istniejące równoległe sesje. Każde opuszczenie pokoju, także przejściem bez drzwi, jest wyjściem. Linia strzału może przechodzić poza pokojem; blokuje ją rzeczywista geometria i właściwości obiektów.
+  - Acceptance obejmuje wąski korytarz, nieregularny pokój, filar i przejście między przestrzeniami.
+  - DONE — smoke użytkownika PASS: kontekst zbiera także ściany graniczne; LOS sprawdza ściany oraz żywy stan geometrii poza areną bez dodawania tam pól walki. Wyjście respektuje również przeszkody ruchowe za progiem.
+  - PASS: 56/56 EditMode (seamless, LOS, grid, integracja, AI). PASS: manualny smoke scenariuszy geometrii zaakceptowany przez użytkownika. Bez zmian serialized state i commit/push zatwierdzone przez użytkownika.
+
 - `[P1] Wdrożyć reperkusje porażki i odzyskiwanie towarzyszy v1` - `Combat`, `Core / Architecture`, `NPC / Quest / Dialogue`
   - Status: DONE — smoke funkcjonalny i UI zaakceptowane przez użytkownika.
   - Porażka kampanii po śmierci głównej postaci albo braku żywych aktywnych członków: najnowszy poprawny zapis tej kampanii / inny zapis / menu. Brak zapisów blokuje oba przyciski wczytywania. Żywy członek poza pokojem nadal może ratować powalonych.
@@ -100,7 +107,7 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - To karta o ogólnym design patternie dla wariantowych danych contentu; modyfikatory biżuterii są tylko pierwszym konkretnym przykładem tego problemu.
   - Przypisanie do milestone'u oraz priorytet do ustalenia.
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
-  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wejscie gracza w FOV przeciwnika uruchamia poscig, a walka zaczyna sie po jego dogonieniu. Bez jednego wspolnego anchoru dla calej grupy.
+  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wykrycie wrogiej postaci w FOV rozpoczyna walke zgodnie z Combat v5; poscig odbywa sie juz w ramach starcia. Bez jednego wspolnego anchoru dla calej grupy.
   - Przypisanie do milestone'u oraz priorytet do ustalenia.
 - `[Do decyzji] Dodac pathfinding ruchu sterowanego myszka w eksploracji lochu v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
   - Klikniecie walkable celu wyznacza sciezke po mapie lochu i prowadzi druzyne po kolejnych komorkach z uwzglednieniem przeszkod, scian i zamknietych przejsc.
@@ -115,6 +122,41 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - Uwzględnić otwieranie dozwolonych drzwi przez istniejący system interakcji oraz koszt AP. Respektować blokady i zatwierdzone granice sesji; nie dodawać pościgu ani pathfindingu eksploracyjnego.
   - Przeliczać trasę po zmianie przeszkód, stanu drzwi lub zajętości pól. Brak dostępnej drogi nie może powodować zapętlenia tury ani powtarzania bezskutecznych akcji.
   - Weryfikacja: obejście ściany w wielu turach, początkowe oddalenie od celu, wąskie przejście, zajęte pola, drzwi otwarte/zamknięte/niedostępne oraz cel nieosiągalny. Sprawdzić rzeczywistą ścieżkę, koszty AP i poprawne zakończenie tury.
+
+- `[P1] Dodać niskie ściany i balustrady jako krawędzie pokoju v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Rozwinąć model rzeczywistych krawędzi pokoju: pełna ściana, niski murek, balustrada. Nie zastępować ich semantic anchors ani wolnostojącymi przeszkodami na polach.
+  - Rozdzielić blokowanie ruchu i LOS/efektu na krawędziach; używać tych samych właściwości w eksploracji, walce i prezentacji. Balustrada może blokować ruch, przepuszczając strzały.
+  - Zachować płaską logikę podłogi Combat v4. Dostępne balkony, schody i różne wysokości należą do szerszego Combat v5.
+  - Weryfikacja: krawędź zewnętrzna i wewnętrzna, narożniki, pokój O/U, brak przejścia przez balustradę, zgodność widoku i LOS. Wykonać przed kartą przeszkód taktycznych.
+
+### Milestone: Combat v5 — Perception and Dungeon-wide Combat
+
+Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless nadal korzysta z tych samych obiektów i sceny. V4 zachowuje ograniczenie do pokoju jako etap przejściowy; nie rozwijać w nim dodatkowych mechanik silnie zależnych od granicy pokoju, które v5 zastąpi.
+
+- `[P1] Wdrożyć FOV i wykrywanie wrogich jednostek v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Wykrycie wrogiej jednostki w FOV rozpoczyna walkę albo powoduje dołączenie obserwatora do istniejącego starcia. Dotyczy dowolnej wrogiej postaci, niezależnie od aktywnego lidera.
+  - Zastąpić model „pościg za liderem, start walki po dogonieniu”. Nie czekać na dojście przeciwnika do wykrytej jednostki.
+  - Przed implementacją ustalić zakres/kąt FOV, przesłanianie, częstotliwość wykrywania i zasady współdzielenia informacji. Wykorzystać istniejący LOS oraz właściwości geometrii.
+- `[P1] Rozszerzyć przestrzeń walki na cały loch i dynamiczne uczestnictwo v1` - `Combat`, `Core / Architecture`
+  - Usunąć granicę pokoju jako granicę starcia. „Cały loch” oznacza przestrzeń możliwego starcia, nie automatyczne dołączenie wszystkich przeciwników.
+  - Uczestnictwo wynika z wykrywania; kolejne jednostki dołączają po uzyskaniu kontaktu. Zachować oddzielenie runtime od prezentacji i pojedynczą reprezentację jednostek.
+  - Uzgodnić łączenie/rozdzielanie równoległych sesji, kolejkę tur oraz upływ czasu dla postaci poza walką. Doprecyzować zakres względem osobnych pięter lochu.
+- `[P1] Przebudować pościg, utratę kontaktu i ucieczkę v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Pościg jest zachowaniem uczestnika rozpoczętego starcia; cel nie jest ograniczony do lidera drużyny.
+  - Kierunek docelowy: postać może opuścić walkę, gdy wszyscy przeciwnicy stracą z nią kontakt wzrokowy, zamiast przekraczać granicę pokoju.
+  - Do ustalenia przed implementacją: natychmiastowe wyjście czy okres utraty kontaktu/poszukiwań, pamięć ostatniej pozycji, zmiana celu oraz ponowne wykrycie. Nie uznawać pamięci/poszukiwania ani konkretnego czasu ucieczki za zatwierdzone.
+  - Sprawdzić rozdzieloną drużynę, chowanie się za filarem, brak wielokrotnego resetowania walki i zasobów przez krótką utratę widoczności.
+- `[P1] Zintegrować Fog of War i pamięć odkrytej mapy z FOV v1` - `World / Dungeon / Exploration`, `UI / UX`
+  - Rozdzielić wykrywanie przez jednostki od prezentacji wiedzy gracza. Stany mapy: nieodkryta, odkryta poza aktualnym FOV, aktualnie widoczna.
+  - Uzgodnić wspólną/indywidualną wiedzę drużyny i prezentację niewidocznych jednostek; nie ujawniać ich przez HUD ani feedback.
+- `[P1] Zintegrować wysokości, schody i balkony z modelem lochu i walki` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Element szerszego Combat v5, bez osobnego milestone'u „Wertykalności lochów”.
+  - Ustalić model różnych wysokości podłogi w pokoju oraz przejść po schodach; osobno zdecydować, czy wspieramy chodzenie nad i pod balkonem przy tym samym rzucie pola.
+  - Uwzględnić pozycje, połączenia pól, ruch/AI, FOV/LOS, zasięgi, kamerę, authoring i save compatibility. Konkretne reguły przewagi wysokości, upadków i skoków nie są zatwierdzone.
+  - Rozstrzygnąć model przed dużym content passem, aby nie przebudowywać później gotowych pokojów.
+- `[P1] Combat v5 — acceptance zintegrowanego modelu` - `Combat`, `World / Dungeon / Exploration`, `UI / UX`
+  - Wykrycie dowolnego członka drużyny, dołączanie posiłków, starcia przekraczające pokoje, rozdzielona drużyna, utrata/odzyskanie kontaktu, równoległe sesje oraz zatwierdzona geometria wysokości.
+  - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
 

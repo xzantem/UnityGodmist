@@ -47,6 +47,120 @@ namespace Godmist.Tests.EditMode
             }
         };
 
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        public void RingRoom_SightCrossesOutsideFloor_UnlessRealWallBlocks(bool wall, bool visible)
+        {
+            var map = new DungeonFloorMap();
+            var room = new List<Vector2Int>();
+            for (var x=0;x<5;x++) for(var y=0;y<3;y++)
+            {
+                var cell=new Vector2Int(x,y);
+                var inside=y!=1 || x==0 || x==4;
+                map.TryAddFloorCell(cell,inside ? "arena" : "outside");
+                if(inside)room.Add(cell);
+            }
+            // The wall is completely outside the combat footprint, inside the ring.
+            if(wall)map.TryAddWall(new Vector2Int(2,1),new Vector2Int(3,1));
+            var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);
+            var context=new DungeonCombatContext("d",0,"e","arena",Vector2Int.zero,Vector2Int.zero,room,null,null);
+            new DungeonBattleGridFactory().TryCreate(context,out var grid);
+            var combat=new CombatSession{Grid=grid,DungeonContext=context,IsSeamless=true};
+            combat.EnvironmentBlocksLineOfSight=(a,b)=>DungeonCombatArenaSystem.BlocksEnvironmentSight(floor,context,a,b);
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(combat,new GridPosition(0,1),new GridPosition(4,1)),Is.EqualTo(visible));
+            Assert.That(grid.IsWalkable(new GridPosition(2,1)),Is.False);
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(combat,new GridPosition(4,1),new GridPosition(0,1)),Is.EqualTo(visible));
+        }
+
+        [Test]
+        public void ContextIncludesOuterWall_AndItBlocksSight()
+        {
+            var definition=ScriptableObject.CreateInstance<EncounterDefinition>();
+            try
+            {
+                var map=new DungeonFloorMap();
+                map.TryAddFloorCell(Vector2Int.zero,"arena");
+                map.TryAddFloorCell(Vector2Int.right,"outside");
+                map.TryAddFloorCell(Vector2Int.right*2,"arena");
+                map.TryAddWall(Vector2Int.zero,Vector2Int.right);
+                var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);
+                var dungeon=new DungeonInstance("d",1);dungeon.TryAddFloor(floor);
+                var encounter=new DungeonEncounterInstance("e",definition,"arena",new RectInt(0,0,3,1));
+                Assert.That(new DungeonCombatContextFactory().TryCreate(dungeon,encounter,out var context),Is.True);
+                Assert.That(context.WallEdges.Count,Is.EqualTo(1));
+                new DungeonBattleGridFactory().TryCreate(context,out var grid);
+                Assert.That(new CombatLineOfSightService().HasLineOfSight(new CombatSession{Grid=grid,DungeonContext=context},new GridPosition(0,0),new GridPosition(2,0)),Is.False);
+            }
+            finally{Object.DestroyImmediate(definition);}
+        }
+
+        [Test]
+        public void DoorlessExit_TracksOccupancyAndDoesNotExpandArena()
+        {
+            var map=new DungeonFloorMap();map.TryAddFloorCell(Vector2Int.zero,"arena");map.TryAddFloorCell(Vector2Int.left,"corridor");
+            var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);
+            var context=new DungeonCombatContext("d",0,"e","arena",Vector2Int.zero,Vector2Int.zero,new[]{Vector2Int.zero},null,null);
+            new DungeonBattleGridFactory().TryCreate(context,out var grid);
+            var combat=new CombatSession{Grid=grid,DungeonContext=context,IsSeamless=true};
+            var occupied=new HashSet<Vector2Int>();
+            DungeonCombatArenaSystem.RefreshExits(combat,floor,occupied);
+            Assert.That(combat.OpenExitEdges.Count,Is.EqualTo(1));
+            Assert.That(grid.IsWalkable(new GridPosition(-1,0)),Is.False);
+            occupied.Add(Vector2Int.left);DungeonCombatArenaSystem.RefreshExits(combat,floor,occupied);
+            Assert.That(combat.OpenExitEdges,Is.Empty);
+            occupied.Clear();DungeonCombatArenaSystem.RefreshExits(combat,floor,occupied);
+            Assert.That(combat.OpenExitEdges.Count,Is.EqualTo(1));
+            map.TryAddWall(Vector2Int.zero,Vector2Int.left);DungeonCombatArenaSystem.RefreshExits(combat,floor,occupied);
+            Assert.That(combat.OpenExitEdges,Is.Empty);
+        }
+
+        [Test]
+        public void OutsideDoor_StateChangesAffectExistingSightQuery()
+        {
+            var definition=ScriptableObject.CreateInstance<DoorDungeonObjectDefinition>();
+            try
+            {
+                var map=new DungeonFloorMap();
+                for(var x=0;x<4;x++)map.TryAddFloorCell(new Vector2Int(x,0),x==0||x==3?"arena":"outside");
+                var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);
+                var door=new DoorDungeonObjectInstance("door",definition,new DungeonCellEdge(Vector2Int.right,Vector2Int.right*2));
+                floor.TryAddObject(door);
+                var context=new DungeonCombatContext("d",0,"e","arena",Vector2Int.zero,Vector2Int.zero,new[]{Vector2Int.zero,Vector2Int.right*3},null,null);
+                new DungeonBattleGridFactory().TryCreate(context,out var grid);
+                var combat=new CombatSession{Grid=grid,DungeonContext=context};
+                combat.EnvironmentBlocksLineOfSight=(a,b)=>DungeonCombatArenaSystem.BlocksEnvironmentSight(floor,context,a,b);
+                var sight=new CombatLineOfSightService();
+                door.TryRestoreOpen(false);
+                Assert.That(sight.HasLineOfSight(combat,new GridPosition(0,0),new GridPosition(3,0)),Is.False);
+                door.TrySetOpen(true);
+                Assert.That(sight.HasLineOfSight(combat,new GridPosition(0,0),new GridPosition(3,0)),Is.True);
+                door.TrySetOpen(false);
+                Assert.That(sight.HasLineOfSight(combat,new GridPosition(0,0),new GridPosition(3,0)),Is.False);
+            }
+            finally{Object.DestroyImmediate(definition);}
+        }
+
+        [TestCase(false,true)]
+        [TestCase(true,false)]
+        public void OutsideObstacle_UsesSightFlagIndependentlyOfMovement(bool blocksSight,bool visible)
+        {
+            var definition=ScriptableObject.CreateInstance<ObstacleDungeonObjectDefinition>();
+            try
+            {
+                typeof(ObstacleDungeonObjectDefinition).GetField("<BlocksLineOfSight>k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(definition,blocksSight);
+                var map=new DungeonFloorMap();for(var x=0;x<3;x++)map.TryAddFloorCell(new Vector2Int(x,0),x==1?"outside":"arena");
+                var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);floor.TryAddObject(new ObstacleDungeonObjectInstance("obstacle",definition,Vector2Int.right));
+                var context=new DungeonCombatContext("d",0,"e","arena",Vector2Int.zero,Vector2Int.zero,new[]{Vector2Int.zero,Vector2Int.right*2},null,null);
+                new DungeonBattleGridFactory().TryCreate(context,out var grid);
+                var combat=new CombatSession{Grid=grid,DungeonContext=context,IsSeamless=true};
+                combat.EnvironmentBlocksLineOfSight=(a,b)=>DungeonCombatArenaSystem.BlocksEnvironmentSight(floor,context,a,b);
+                Assert.That(new CombatLineOfSightService().HasLineOfSight(combat,new GridPosition(0,0),new GridPosition(2,0)),Is.EqualTo(visible));
+                DungeonCombatArenaSystem.RefreshExits(combat,floor,new HashSet<Vector2Int>());
+                Assert.That(combat.OpenExitEdges,Is.Empty,"Movement remains blocked even by a see-through obstacle.");
+            }
+            finally{Object.DestroyImmediate(definition);}
+        }
+
         [Test]
         public void Focus_DoesNotChangeMembershipOrPermitSave()
         {

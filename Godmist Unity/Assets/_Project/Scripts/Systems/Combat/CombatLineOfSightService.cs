@@ -65,6 +65,14 @@ namespace Godmist.Systems.Combat
             GridPosition previousPosition,
             GridPosition currentPosition)
         {
+            if (session.EnvironmentBlocksLineOfSight?.Invoke(previousPosition, currentPosition) == true)
+                return true;
+            if (session.DungeonContext != null)
+                foreach (var wall in session.DungeonContext.WallEdges)
+                    if (CrossesEdge(previousPosition, currentPosition, new BattleCellEdge(
+                        DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.FirstCell),
+                        DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.SecondCell))))
+                        return true;
             foreach (var mapObject in session.MapObjects)
             {
                 if (mapObject == null || !session.DoesObjectBlockLineOfSight(mapObject))
@@ -74,7 +82,7 @@ namespace Godmist.Systems.Combat
 
                 if (mapObject is DoorCombatMapObject door)
                 {
-                    if (CrossesDoorEdge(
+                    if (CrossesEdge(
                             previousPosition,
                             currentPosition,
                             door.Edge))
@@ -94,7 +102,7 @@ namespace Godmist.Systems.Combat
             return false;
         }
 
-        private static bool CrossesDoorEdge(
+        public static bool CrossesEdge(
             GridPosition previousPosition,
             GridPosition currentPosition,
             BattleCellEdge edge)

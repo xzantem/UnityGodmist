@@ -164,6 +164,9 @@ namespace Godmist.Systems.Combat
                 DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story
             };
             AddDungeonMapObjects(session, context);
+            if (gameSession.ActiveDungeon != null && gameSession.ActiveDungeon.TryGetCurrentFloor(out var floor))
+                session.EnvironmentBlocksLineOfSight = (from, to) =>
+                    DungeonCombatArenaSystem.BlocksEnvironmentSight(floor, context, from, to);
             session.ExternalPositionOccupied = position => gameSession.IsOccupiedInOtherCombat(session, position);
             var occupied = new HashSet<GridPosition>();
             DungeonCombatParticipationSystem.AddExternalReservations(session, occupied);

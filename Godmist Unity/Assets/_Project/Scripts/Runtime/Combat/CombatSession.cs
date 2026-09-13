@@ -25,6 +25,7 @@ namespace Godmist.Runtime.Combat
         public readonly Dictionary<string, BattleUnit> DepartedUnits = new();
         public readonly HashSet<BattleCellEdge> OpenExitEdges = new();
         [NonSerialized] public Func<GridPosition, bool> ExternalPositionOccupied;
+        [NonSerialized] public Func<GridPosition, GridPosition, bool> EnvironmentBlocksLineOfSight;
         public bool IsExitPosition(GridPosition position) => IsSeamless && !Grid.IsWalkable(position);
         public bool CanMoveBetween(BattleUnit unit, GridPosition from, GridPosition to)
         {

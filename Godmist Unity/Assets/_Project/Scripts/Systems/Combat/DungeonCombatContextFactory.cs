@@ -35,7 +35,7 @@ namespace Godmist.Systems.Combat
             }
 
             var combatCellSet = new HashSet<Vector2Int>(combatCells);
-            var wallEdges = CollectInternalWalls(
+            var wallEdges = CollectArenaWalls(
                 floor.Map,
                 combatCellSet);
 
@@ -78,7 +78,7 @@ namespace Godmist.Systems.Combat
             return cells;
         }
 
-        private static List<DungeonCellEdge> CollectInternalWalls(
+        private static List<DungeonCellEdge> CollectArenaWalls(
             DungeonFloorMap map,
             HashSet<Vector2Int> combatCells)
         {
@@ -87,7 +87,7 @@ namespace Godmist.Systems.Combat
             foreach (var wallEdge in map.WallEdges)
             {
                 if (combatCells.Contains(wallEdge.FirstCell)
-                    && combatCells.Contains(wallEdge.SecondCell))
+                    || combatCells.Contains(wallEdge.SecondCell))
                 {
                     walls.Add(wallEdge);
                 }
