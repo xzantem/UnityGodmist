@@ -10,6 +10,7 @@ using Godmist.Data.Items;
 using Godmist.Data.Skills;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
@@ -1740,20 +1741,26 @@ namespace Godmist.Systems.SaveLoad
 
             try
             {
-                dungeon = dungeonGenerator.Generate(
-                    definition,
-                    saveData.Seed,
-                    saveData.DungeonLevel > 0
-                        ? saveData.DungeonLevel
-                        : definition.DungeonLevel);
+                if (saveData.LayoutVersion != 0)
+                {
+                    if (!DungeonLayoutSnapshot.TryRestore(saveData, definition, contentCatalog, out dungeon))
+                        return false;
+                }
+                else
+                {
+                    // Legacy saves have no generated layout. The next snapshot upgrades them.
+                    if (saveData.Layout != null && saveData.Layout.Count > 0) return false;
+                    dungeon = dungeonGenerator.Generate(
+                        definition,
+                        saveData.Seed,
+                        saveData.DungeonLevel > 0
+                            ? saveData.DungeonLevel
+                            : definition.DungeonLevel);
 
-                encounterPlacementSystem.Place(dungeon);
-                objectPlacementSystem.Place(
-                    dungeon,
-                    contentCatalog.EquipmentPartDefinitions);
-                rewardPreparationSystem.Prepare(
-                    dungeon,
-                    contentCatalog.EquipmentPartDefinitions);
+                    encounterPlacementSystem.Place(dungeon);
+                    objectPlacementSystem.Place(dungeon, contentCatalog.EquipmentPartDefinitions);
+                    rewardPreparationSystem.Prepare(dungeon, contentCatalog.EquipmentPartDefinitions);
+                }
             }
             catch (Exception exception)
             {
@@ -1958,6 +1965,42 @@ namespace Godmist.Systems.SaveLoad
                                     .GeneratedEnemyBodyEnemyInstanceIds))
                     {
                         return false;
+                    }
+
+                    if (encounterDelta.HasPreparedRewards)
+                    {
+                        if (encounterDelta.Rewards == null) return false;
+                        var rewards = new CombatRewardResult();
+                        var rewardIds = new HashSet<string>(StringComparer.Ordinal);
+                        foreach (var savedReward in encounterDelta.Rewards)
+                        {
+                            if (savedReward == null || savedReward.Gold < 0 || savedReward.Experience < 0
+                                || savedReward.ItemIds == null || !rewardIds.Add(savedReward.EnemyId ?? string.Empty)) return false;
+                            var rewardItems = new List<ItemInstance>();
+                            foreach (var itemId in savedReward.ItemIds)
+                            {
+                                if (!TryTakeItem(itemId, itemsById, assignedItemIds, out var item)) return false;
+                                rewardItems.Add(item);
+                            }
+                            if (string.IsNullOrEmpty(savedReward.EnemyId))
+                            {
+                                if (encounterDelta.Rewards.Count != 1) return false;
+                                rewards.Gold = savedReward.Gold;
+                                rewards.ExperiencePerActiveCharacter = savedReward.Experience;
+                                rewards.Items = rewardItems;
+                            }
+                            else
+                            {
+                                if (restoredEncounter.IsEnemyDefeated(savedReward.EnemyId)
+                                    || restoredEncounter.IsEnemyBodyGenerated(savedReward.EnemyId)) return false;
+                                rewards.EnemyRewards.Add(new CombatEnemyReward
+                                {
+                                    EnemyInstanceId = savedReward.EnemyId, Gold = savedReward.Gold,
+                                    ExperiencePerActiveCharacter = savedReward.Experience, Items = rewardItems
+                                });
+                            }
+                        }
+                        if (!dungeon.TryStorePreRolledRewards(encounterDelta.EncounterInstanceId, rewards)) return false;
                     }
 
                     restored = true;

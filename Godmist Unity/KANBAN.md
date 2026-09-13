@@ -74,6 +74,13 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Zapewnić trwałość stanu obiektów areny v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Zachować tożsamość i stan drzwi, przeszkód oraz pułapek między eksploracją, walką, ucieczką i kolejnym encounterem. Rozszerzyć istniejący mechanizm persistence zamiast tworzyć niezależne kopie stanu.
+  - Obsłużyć zapis/odczyt w ramach aktualnie wspieranych momentów zapisu i kompatybilność starszych save'ów. Nie rozszerzać automatycznie zakresu o zapis w środku walki.
+  - Testy obejmują zużytą pułapkę, otwarte drzwi, stan przeciwników i brak resetu po powrocie do eksploracji.
+  - Uwzględnić aktualizacje puli contentu: obecne odtwarzanie lochu regeneruje obiekty z seeda i bieżących definicji. Nowe sarkofagi/gruz/filary są na razie w osobnym demo; przełączenie produkcyjnej puli wymaga zachowania tożsamości i układu obiektów istniejących zapisów.
+  - DONE: snapshot wygenerowanej geometrii i tożsamości obiektów, dotychczasowe delty stanu, zachowanie przygotowanych nagród. Starszy zapis odtwarza loch dotychczasowo i migruje przy następnym zapisie (zatwierdzone przez użytkownika). Automatyczne testy 82/82 PASS, build PASS, self-review PASS. Smoke użytkownika PASS. Raport: `COMBAT_V4_PERSISTENCE_VERIFICATION.md`.
+
 - `[P1] Teren taktyczny i koszty przemieszczania v1` - `Combat`, `Content / Data`, `Design / Systems`
   - Combat v4, przed grywalnym contentem i acceptance: typ podłoża, dodatkowy koszt ruchu, czytelny podgląd AP i integracja z AI.
   - Zatwierdzone: trudny teren +1 AP za wejście na pole, sumowane z +2 AP murka. Nie zmienia licznika zwykłych kroków. Dash/charge/push/pull/teleport bez dopłaty AP podłoża.
