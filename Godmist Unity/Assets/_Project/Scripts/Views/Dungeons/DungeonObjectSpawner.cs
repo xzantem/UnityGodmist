@@ -22,6 +22,12 @@ namespace Godmist.Views.Dungeons
 
         private readonly List<DungeonObjectView> spawnedObjects = new();
         private readonly List<GameObject> spawnedEnemyBodies = new();
+        private readonly HashSet<string> spawnedBodyIds = new();
+        public void RefreshDoorViews()
+        {
+            foreach (var view in spawnedObjects)
+                if (view is DungeonDoorView door) door.RefreshState();
+        }
 
         public bool Rebuild(
             DungeonFloorInstance floor,
@@ -181,9 +187,15 @@ namespace Godmist.Views.Dungeons
                 }
             }
 
+            RefreshBodies(floor, partyController);
+            return true;
+        }
+
+        public void RefreshBodies(DungeonFloorInstance floor, ExplorationPartyController partyController)
+        {
             foreach (var body in floor.EnemyBodies)
             {
-                if (body == null)
+                if (body == null || spawnedBodyIds.Contains(body.InstanceId))
                 {
                     continue;
                 }
@@ -209,9 +221,10 @@ namespace Godmist.Views.Dungeons
                     floorTilemap);
 
                 spawnedEnemyBodies.Add(bodyView.gameObject);
+                spawnedBodyIds.Add(body.InstanceId);
             }
 
-            return true;
+
         }
 
         private void OnDestroy()
@@ -240,6 +253,7 @@ namespace Godmist.Views.Dungeons
             }
 
             spawnedEnemyBodies.Clear();
+            spawnedBodyIds.Clear();
         }
     }
 }

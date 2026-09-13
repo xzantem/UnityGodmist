@@ -149,6 +149,58 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool TryCreateSeamless(GameSession gameSession, DungeonEncounterInstance encounter,
+            DungeonCombatContext context, IReadOnlyDictionary<string, Vector2Int> playerCells,
+            IReadOnlyDictionary<string, Vector2Int> enemyCells, out CombatSession result)
+        {
+            result = null;
+            if (gameSession == null || encounter?.Definition?.Enemies == null || context == null
+                || playerCells == null || enemyCells == null
+                || !dungeonBattleGridFactory.TryCreate(context, out var grid)) return false;
+            var session = new CombatSession
+            {
+                CombatId = encounter.InstanceId, DungeonContext = context, IsSeamless = true,
+                Grid = grid, ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story
+            };
+            AddDungeonMapObjects(session, context);
+            session.ExternalPositionOccupied = position => gameSession.IsOccupiedInOtherCombat(session, position);
+            var occupied = new HashSet<GridPosition>();
+            DungeonCombatParticipationSystem.AddExternalReservations(session, occupied);
+            foreach (var id in gameSession.PlayerParty.ActiveMemberIds)
+            {
+                if (!playerCells.TryGetValue(id, out var cell) || !context.ContainsWorldCell(cell)
+                    || gameSession.GetCombatForCharacter(id) != null) continue;
+                if (!gameSession.CharactersById.TryGetValue(id, out var character)
+                    || character.LifeState != CharacterLifeState.Alive) continue;
+                if (!DungeonCombatPositionResolver.TryResolve(grid,
+                    DungeonBattleGridFactory.ToBattlePosition(context, cell), occupied, out var position)) return false;
+                occupied.Add(position);
+                session.Units.Add(CreateBattleUnit(character, position, true));
+            }
+            if (session.Units.Count == 0) return false;
+            foreach (var data in encounter.Definition.Enemies)
+            {
+                if (data == null || string.IsNullOrWhiteSpace(data.InstanceId)) return false;
+                if (encounter.IsEnemyDefeated(data.InstanceId)) continue;
+                if (data.CharacterDefinition == null || data.ClassData == null
+                    || !enemyCells.TryGetValue(data.InstanceId, out var cell)
+                    || !DungeonCombatPositionResolver.TryResolve(grid,
+                        DungeonBattleGridFactory.ToBattlePosition(context, cell), occupied, out var position)) return false;
+                var character = characterFactory.Create(data.CharacterDefinition, data.ClassData, context.DungeonLevel);
+                character.CharacterId = data.InstanceId;
+                occupied.Add(position);
+                session.Units.Add(CreateBattleUnit(character, position, false));
+            }
+            if (!session.Units.Any(unit => !unit.IsPlayerSide)) return false;
+            session.Rewards = ResolveRewards(gameSession, encounter.Definition, encounter.InstanceId);
+            result = session;
+            return true;
+        }
+
+        public BattleUnit CreateJoiningUnit(CharacterInstance character, GridPosition position)
+            => CreateBattleUnit(character, position, true);
+
         private bool TryCreateGrid(
             EncounterDefinition encounter,
             DungeonCombatContext dungeonContext,

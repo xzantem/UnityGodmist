@@ -12,11 +12,13 @@ namespace Godmist.Systems.Combat
 {
     public static class ScoutKnifeSystem
     {
-        public static void ResetForCombat(CombatSession session)
+        public static void ResetForCombat(CombatSession session, bool preserveInitialized = false)
         {
             foreach (var unit in session?.Units ?? new List<BattleUnit>())
             {
-                if (unit?.Character?.ClassData?.Id != "class.scout") continue;
+                if (unit == null || (preserveInitialized && unit.HasInitializedCombatResources)) continue;
+                unit.HasInitializedCombatResources = true;
+                if (unit.Character?.ClassData?.Id != "class.scout") continue;
                 unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0
                     ? GameDefinesRuntime.GetInt(GameDefineIds.DefaultMaxKnives, 5)
                     : unit.MaxKnives);
@@ -178,7 +180,7 @@ namespace Godmist.Systems.Combat
                     {
                         continue;
                     }
-                    if (!session.Grid.CanMoveBetween(current, candidate)
+                    if (!session.CanMoveBetween(unit, current, candidate)
                         || session.IsPositionOccupied(candidate, unit)
                         || session.DoesObjectBlockMovement(
                             session.GetMapObjectAt(candidate)))
@@ -202,7 +204,7 @@ namespace Godmist.Systems.Combat
 
                     paths[candidate] = nextPath;
                     reachablePaths[candidate] = nextPath;
-                    queue.Enqueue(candidate);
+                    if (!session.IsExitPosition(candidate)) queue.Enqueue(candidate);
                 }
             }
 
@@ -335,11 +337,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!session.Grid.TryMove(
-                    unit.Position,
-                    deltaX,
-                    deltaY,
-                    out var targetPosition))
+            var targetPosition = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            if (!session.CanMoveBetween(unit, unit.Position, targetPosition))
             {
                 return false;
             }

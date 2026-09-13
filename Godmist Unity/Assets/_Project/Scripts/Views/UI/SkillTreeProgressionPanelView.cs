@@ -76,7 +76,7 @@ namespace Godmist.Views.UI
 
         public void Open(GameSession gameSession, string characterId)
         {
-            if (gameSession == null || gameSession.ActiveCombat != null
+            if (gameSession == null || gameSession.IsCharacterInCombat(characterId)
                 || string.IsNullOrWhiteSpace(characterId)
                 || !gameSession.CharactersById.TryGetValue(characterId, out character)
                 || character == null)
@@ -106,7 +106,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (session.ActiveCombat != null)
+            if (session.IsCharacterInCombat(character?.CharacterId))
             {
                 Close();
                 return;
@@ -354,7 +354,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (session.ActiveCombat != null)
+            if (session.IsCharacterInCombat(character?.CharacterId))
             {
                 Close();
                 return;

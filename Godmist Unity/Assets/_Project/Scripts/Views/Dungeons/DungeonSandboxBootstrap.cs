@@ -12,6 +12,7 @@ namespace Godmist.Views.Dungeons
     public class DungeonSandboxBootstrap : MonoBehaviour
     {
         [SerializeField] private DungeonFloorMapView floorMapView;
+        [SerializeField] private DungeonCombatCoordinator combatCoordinator;
         [SerializeField] private ExplorationCameraFollow cameraFollow;
         [SerializeField] private DungeonPartySpawner partySpawner;
         [SerializeField] private DungeonEncounterSpawner encounterSpawner;
@@ -87,6 +88,9 @@ namespace Godmist.Views.Dungeons
                 if (!objectSpawner.Rebuild(floor, partySpawner.PartyController)) return;
 
                 if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
+                if (combatCoordinator == null || !combatCoordinator.Initialize(session, floor,
+                    floorMapView, partySpawner.PartyController, encounterSpawner, objectSpawner))
+                { Debug.LogError("DungeonSandboxBootstrap: brak poprawnej integracji seamless."); return; }
 
                 if (!TryGetRoomCenter(
                         dungeon,

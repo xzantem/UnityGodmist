@@ -35,9 +35,76 @@ namespace Godmist.Views.Combat
         // It must never enter Unity's scene/prefab serialization graph.
         [System.NonSerialized] private CombatSession boundSession;
         private Sprite missingSprite;
+        private Godmist.Runtime.Game.GameSession dungeonSession;
+        private Godmist.Views.Dungeons.DungeonFloorMapView floorMap;
+        private readonly Dictionary<BattleUnit, Godmist.Views.Exploration.ExplorationCharacterView> borrowed = new();
+        private readonly Dictionary<BattleUnit, CombatSession> owners = new();
+        private readonly Dictionary<BattleUnit, GridPosition> movementTargets = new();
+        public void ConfigureDungeon(Godmist.Runtime.Game.GameSession game, Godmist.Views.Dungeons.DungeonFloorMapView map)
+        { dungeonSession = game; floorMap = map; }
+        public void Borrow(CombatSession session, BattleUnit unit, Godmist.Views.Exploration.ExplorationCharacterView view)
+        {
+            borrowed[unit] = view;
+            owners[unit] = session;
+            view.BindCombat(unit);
+            view.SetPosition(WorldPosition(session, unit.Position));
+        }
+        public void Release(BattleUnit unit)
+        {
+            if (borrowed.Remove(unit, out var view) && view != null) view.ReleaseCombat();
+            owners.Remove(unit);
+            movementTargets.Remove(unit);
+            presentationMovingUnits.Remove(unit);
+        }
+        private Vector3 WorldPosition(CombatSession session, GridPosition position) =>
+            floorMap.CellToWorldCenter(Godmist.Systems.Combat.DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, position));
+        private Vector3 UnitWorldPosition(BattleUnit unit, GridPosition position) =>
+            owners.TryGetValue(unit, out var owner) ? WorldPosition(owner, position) : GridToWorldPosition(position);
+        private void SynchronizeDungeon(float deltaTime)
+        {
+            var aggregate = new CombatSession();
+            foreach (var session in dungeonSession.Combats)
+            {
+                boundSession = session;
+                foreach (var unit in session.Units) owners[unit] = session;
+                EnsureViews(session);
+                SynchronizeViews(session);
+                EnsureSummonedObjectViews(session);
+                SynchronizeSummonedObjectViews(session);
+                aggregate.Units.AddRange(session.Units);
+                aggregate.SummonedObjects.AddRange(session.SummonedObjects);
+                aggregate.MapObjects.AddRange(session.MapObjects);
+            }
+            foreach (var pair in borrowed)
+            {
+                var unit = pair.Key;
+                var view = pair.Value;
+                if (view == null) continue;
+                var target = movementTargets.TryGetValue(unit, out var step) ? step : unit.Position;
+                view.MoveTowards(UnitWorldPosition(unit, target), 6f * deltaTime, 0f);
+                var owner = owners[unit];
+                var isFocused = sandboxBootstrap.Session == owner;
+                view.RefreshCombatPresentation(owner.ActiveUnit == unit,
+                    isFocused && ((targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
+                        || (inspectController != null && inspectController.HoveredUnit == unit)),
+                    isFocused && targetSelectionController != null && targetSelectionController.IsSelectingTarget);
+            }
+            RemoveMissingViews(aggregate);
+            RemoveMissingSummonedObjectViews(aggregate);
+            // Knives use each owning room's mapping, but are removed against the union.
+            foreach (var session in dungeonSession.Combats)
+            {
+                boundSession = session;
+                SynchronizeKnifeViews(session, false);
+            }
+            RemoveMissingKnifeViews(aggregate);
+        }
+
 
         public bool TryGetWorldPosition(BattleUnit unit, out Vector3 position)
         {
+            if (unit != null && borrowed.TryGetValue(unit, out var existing) && existing != null)
+            { position = existing.transform.position; return true; }
             if (unit != null && views.TryGetValue(unit, out var view) && view != null)
             {
                 position = view.transform.position;
@@ -50,19 +117,22 @@ namespace Godmist.Views.Combat
 
         public bool TryGetWorldPosition(GridPosition gridPosition, out Vector3 position)
         {
-            position = GridToWorldPosition(gridPosition);
+            position = dungeonSession != null && sandboxBootstrap.Session?.DungeonContext != null
+                ? WorldPosition(sandboxBootstrap.Session, gridPosition) : GridToWorldPosition(gridPosition);
             return true;
         }
 
         public bool TryBeginPresentationMovement(BattleUnit unit)
         {
-            if (unit == null || !views.ContainsKey(unit)) return false;
+            if (unit == null || (!views.ContainsKey(unit) && !borrowed.ContainsKey(unit))) return false;
             presentationMovingUnits.Add(unit);
             return true;
         }
 
         public bool TryMovePresentationStep(BattleUnit unit, GridPosition targetPosition)
         {
+            if (unit != null && borrowed.ContainsKey(unit) && presentationMovingUnits.Contains(unit))
+            { movementTargets[unit] = targetPosition; return true; }
             if (unit == null
                 || !presentationMovingUnits.Contains(unit)
                 || !views.TryGetValue(unit, out var view)
@@ -71,12 +141,15 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
-            view.SetWorldPosition(GridToWorldPosition(targetPosition));
+            view.SetWorldPosition(UnitWorldPosition(unit, targetPosition));
             return true;
         }
 
         public bool IsPresentationMovementInProgress(BattleUnit unit)
         {
+            if (unit != null && borrowed.TryGetValue(unit, out var existing) && existing != null
+                && movementTargets.TryGetValue(unit, out var target))
+                return Vector2.Distance(existing.Position, UnitWorldPosition(unit, target)) > 0.01f;
             return unit != null
                 && presentationMovingUnits.Contains(unit)
                 && views.TryGetValue(unit, out var view)
@@ -88,9 +161,10 @@ namespace Godmist.Views.Combat
         {
             if (unit == null) return;
             presentationMovingUnits.Remove(unit);
+            movementTargets.Remove(unit);
             if (views.TryGetValue(unit, out var view) && view != null)
             {
-                view.SetWorldPosition(GridToWorldPosition(unit.Position));
+                view.SetWorldPosition(UnitWorldPosition(unit, unit.Position));
             }
         }
 
@@ -121,6 +195,7 @@ namespace Godmist.Views.Combat
 
         private void LateUpdate()
         {
+            if (dungeonSession != null) { SynchronizeDungeon(Time.deltaTime); return; }
             var session = sandboxBootstrap?.Session;
 
             if (session == null)
@@ -153,7 +228,7 @@ namespace Godmist.Views.Combat
 
             foreach (var unit in session.Units)
             {
-                if (unit == null || views.ContainsKey(unit))
+                if (unit == null || views.ContainsKey(unit) || borrowed.ContainsKey(unit))
                 {
                     continue;
                 }
@@ -168,7 +243,7 @@ namespace Godmist.Views.Combat
                 view.Bind(unit);
                 if (view.GetComponent<CombatUnitVisualStateView>() == null)
                     view.gameObject.AddComponent<CombatUnitVisualStateView>();
-                view.SetWorldPosition(GridToWorldPosition(unit.Position), true);
+                view.SetWorldPosition(UnitWorldPosition(unit, unit.Position), true);
                 views.Add(unit, view);
             }
         }
@@ -184,7 +259,7 @@ namespace Godmist.Views.Combat
 
                 if (!presentationMovingUnits.Contains(unit))
                 {
-                    view.SetWorldPosition(GridToWorldPosition(unit.Position));
+                    view.SetWorldPosition(UnitWorldPosition(unit, unit.Position));
                 }
                 view.Refresh();
                 view.SetNameLabelVisible(false);
@@ -218,6 +293,7 @@ namespace Godmist.Views.Combat
             foreach (var unit in unitsToRemove)
             {
                 views.Remove(unit);
+                owners.Remove(unit);
                 presentationMovingUnits.Remove(unit);
             }
         }
@@ -334,7 +410,7 @@ namespace Godmist.Views.Combat
             }
         }
 
-        private void SynchronizeKnifeViews(CombatSession session)
+        private void SynchronizeKnifeViews(CombatSession session, bool removeMissing = true)
         {
             var activeKnives = new HashSet<KnifeCombatMapObject>();
             foreach (var mapObject in session.MapObjects)
@@ -354,6 +430,11 @@ namespace Godmist.Views.Combat
                 }
                 renderer.transform.position = GridToWorldPosition(knife.Position);
             }
+            if (removeMissing) RemoveMissingKnifeViews(session);
+        }
+        private void RemoveMissingKnifeViews(CombatSession session)
+        {
+            var activeKnives = new HashSet<CombatMapObject>(session.MapObjects);
             var removed = new List<KnifeCombatMapObject>();
             foreach (var pair in knifeViews)
             {
@@ -392,6 +473,8 @@ namespace Godmist.Views.Combat
 
         private Vector3 GridToWorldPosition(GridPosition gridPosition)
         {
+            if (floorMap != null && boundSession?.DungeonContext != null)
+                return WorldPosition(boundSession, gridPosition);
             return new Vector3(
                 gridOrigin.x + gridPosition.X * cellSize,
                 gridOrigin.y + gridPosition.Y * cellSize,

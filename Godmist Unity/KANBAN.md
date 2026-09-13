@@ -1,4 +1,4 @@
-﻿`KANBAN.md` jest głównym źródłem prawdy dla aktualnego stanu prac,
+`KANBAN.md` jest głównym źródłem prawdy dla aktualnego stanu prac,
 priorytetów i wyboru kolejnej karty. Starsze roadmapy mają charakter referencyjny.
 
 # Godmist - Kanban
@@ -73,6 +73,16 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ## Done
+
+- `[P1] Zintegrować walkę seamless w scenie lochu v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture` - `DONE`
+  - Zastąpić produkcyjne przełączanie scen eksploracja/walka przełączaniem trybu na istniejącej mapie i widokach jednostek. Nie budować drugiej kopii mapy ani równolegle aktywnych kontrolerów tych samych postaci.
+  - Rozdzielić lifecycle eksploracji i walki: zatrzymanie eksploracyjnego sterowania, start tur, podpięcie HUD/input, zakończenie walki i przywrócenie eksploracji. Uwzględnić zwycięstwo, ucieczkę, porażkę i nieudany start bez pozostawienia częściowego stanu.
+  - Zachować sandbox/debug walki oraz istniejące systemy combat; nie przepisywać core combat bez potrzeby. Przed implementacją uzgodnić konieczne zasady pozycji i granic, od których zależy integracja.
+  - Zatwierdzone rozszerzenie: wiele równoległych sesji przypisanych do pokojów, indywidualne uczestnictwo i przełączanie sterowania między walką a eksploracją. Osoby poza pokojem dołączają po wejściu; wyjście za próg za zwykły koszt ruchu zastępuje losową ucieczkę i może rozdzielić drużynę.
+  - Snap do środka komórki; deterministyczny wybór dostępnego pola bez przekraczania ścian/zamkniętych drzwi; nieudany start nie pozostawia aktywnej sesji.
+  - Dołączenie czeka pełny odstęp Action Value według szybkości (bez wprowadzania wspólnych rund). Ponowne wejście nie odnawia zasobów ani nie skraca oczekiwania.
+  - Powaleni nie kończą automatycznie walki, gdy żywy członek drużyny poza pokojem może przyjść na ratunek. Reperkusje porażki są osobną następną kartą.
+  - Smoke użytkownika zaakceptowany. Regresja 71/71 PASS; końcowy zestaw po poprawkach widoczności i kotwiczenia napisów 22/22 PASS. Karta zamknięta na polecenie użytkownika.
 
 ### Karty do decyzji o przypisaniu do milestone'u
 

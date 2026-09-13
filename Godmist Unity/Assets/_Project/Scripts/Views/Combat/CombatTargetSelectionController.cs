@@ -18,6 +18,11 @@ namespace Godmist.Views.Combat
 {
     public class CombatTargetSelectionController : MonoBehaviour
     {
+        public void SetGridMapping(Vector2 origin, float size)
+        {
+            gridOrigin = origin;
+            cellSize = Mathf.Max(0.01f, size);
+        }
         [Header("References")]
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;

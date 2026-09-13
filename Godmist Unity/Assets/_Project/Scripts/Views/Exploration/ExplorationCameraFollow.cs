@@ -26,6 +26,21 @@ namespace Godmist.Views.Exploration
         private bool isPanning;
         public bool IsFollowingLeader => currentMode == CameraMode.FollowLeader;
 
+        private bool combatSuspended;
+        private float explorationZoom;
+        public void SetCombatSuspended(bool suspended)
+        {
+            if (combatSuspended == suspended) return;
+            if (worldCamera != null)
+            {
+                if (suspended) explorationZoom = worldCamera.orthographicSize;
+                else worldCamera.orthographicSize = explorationZoom;
+            }
+            combatSuspended = suspended;
+            isPanning = false;
+            enabled = !suspended;
+        }
+
         private void Awake()
         {
             worldCamera = GetComponent<Camera>();

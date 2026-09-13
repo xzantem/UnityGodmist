@@ -131,6 +131,8 @@ namespace Godmist.Views.Game
 
         public bool StartCombat()
         {
+            // Dungeon encounters are started by the scene owner without loading a scene.
+            if (Session?.ActiveCombat?.IsSeamless == true) return true;
             if (sceneLoader == null)
             {
                 Debug.LogError("GameBootstrap: brak SceneLoader.");
@@ -154,7 +156,7 @@ namespace Godmist.Views.Game
                 return false;
             }
 
-            if (Session.ActiveCombat != null)
+            if (Session.HasCombat)
             {
                 message = "Walczysz juz w aktywnej sesji.";
                 return false;
@@ -233,7 +235,7 @@ namespace Godmist.Views.Game
         {
             message = string.Empty;
 
-            if (Session?.ActiveCombat != null)
+            if (Session?.HasCombat == true)
             {
                 message = "Nie można wczytać gry podczas walki.";
                 return false;
@@ -269,7 +271,7 @@ namespace Godmist.Views.Game
         {
             message = string.Empty;
 
-            if (Session?.ActiveCombat != null)
+            if (Session?.HasCombat == true)
             {
                 message = "Nie można wczytać gry podczas walki.";
                 return false;
@@ -301,6 +303,7 @@ namespace Godmist.Views.Game
 
         public bool TryReturnFromCombat()
         {
+            if (Session?.ActiveCombat?.IsSeamless == true) return false;
             if (sceneLoader == null || Session == null)
             {
                 return false;
@@ -321,6 +324,7 @@ namespace Godmist.Views.Game
             int targetFloorIndex = 0,
             string targetRoomId = null)
         {
+            if (Session?.HasCombat == true) return false;
             if (definition == null || !definition.IsProcedural)
             {
                 Debug.LogError(
@@ -432,7 +436,7 @@ namespace Godmist.Views.Game
 
         public bool TryExitDungeon()
         {
-            if (Session == null || Session.ActiveDungeon == null)
+            if (Session == null || Session.ActiveDungeon == null || Session.HasCombat)
             {
                 return false;
             }
@@ -499,7 +503,7 @@ namespace Godmist.Views.Game
 
         public bool TryReturnToArungardFromDungeon()
         {
-            if (Session?.ActiveDungeon == null || Session.ActiveCombat != null) return false;
+            if (Session?.ActiveDungeon == null || Session.HasCombat) return false;
 
             // Scene loading is asynchronous. Capture the live leader position
             // before the dungeon scene is destroyed so resuming the same
@@ -544,6 +548,7 @@ namespace Godmist.Views.Game
             IReadOnlyDictionary<string, Vector2> targetPartyPositions)
         {
             if (Session?.ActiveDungeon == null
+                || Session.HasCombat
                 || targetPartyPositions == null
                 || sceneLoader == null)
             {

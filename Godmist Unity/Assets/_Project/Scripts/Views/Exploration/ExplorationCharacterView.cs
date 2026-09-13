@@ -9,6 +9,7 @@ namespace Godmist.Views.Exploration
     public class ExplorationCharacterView : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer bodyRenderer;
+        [SerializeField] private Godmist.Views.Combat.CombatUnitVisualStateView combatVisualState;
         [SerializeField] private TextMeshPro nameLabel;
         [SerializeField] private Rigidbody2D body;
         [SerializeField] private Collider2D movementCollider;
@@ -23,6 +24,29 @@ namespace Godmist.Views.Exploration
         private int animationFrameIndex;
         private float lastMovementTime = float.NegativeInfinity;
         private bool noclipEnabled;
+        public string EnemyInstanceId { get; private set; }
+        public CharacterInstance RuntimeCharacter { get; private set; }
+        public void SetEnemyInstanceId(string value) => EnemyInstanceId = value;
+        public Godmist.Runtime.Combat.BattleUnit CombatUnit { get; private set; }
+        public void BindCombat(Godmist.Runtime.Combat.BattleUnit unit)
+        {
+            CombatUnit = unit;
+            RuntimeCharacter = unit.Character;
+            if (body != null) body.simulated = false;
+            if (movementCollider != null) movementCollider.enabled = false;
+        }
+        public void ReleaseCombat()
+        {
+            CombatUnit = null;
+            combatVisualState?.ClearHighlight();
+            if (body != null) body.position = transform.position;
+        }
+
+        public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting)
+        {
+            if (CombatUnit == null) { combatVisualState?.ClearHighlight(); return; }
+            combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true);
+        }
 
         public string CharacterId { get; private set; } = string.Empty;
         public Vector2 Position => transform.position;
@@ -32,6 +56,7 @@ namespace Godmist.Views.Exploration
             if (character == null) return;
 
             CharacterId = character.CharacterId;
+            RuntimeCharacter = character;
 
             ConfigureVisual(character.Definition);
 
@@ -69,8 +94,8 @@ namespace Godmist.Views.Exploration
                 bodyRenderer.color = isActiveLeader ? leaderColor : followerColor;
             }
 
-            if (body != null) body.simulated = isActiveLeader && !noclipEnabled;
-            if (movementCollider != null) movementCollider.enabled = isActiveLeader && !noclipEnabled;
+            if (body != null) body.simulated = CombatUnit == null && isActiveLeader && !noclipEnabled;
+            if (movementCollider != null) movementCollider.enabled = CombatUnit == null && isActiveLeader && !noclipEnabled;
         }
 
         public void SetNoclip(bool enabled)

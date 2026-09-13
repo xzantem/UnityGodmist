@@ -18,6 +18,23 @@ namespace Godmist.Runtime.Combat
         public bool HasEscapePenaltyEligibleCharacters;
         public HashSet<string> EscapePenaltyEligibleCharacterIds = new();
         public bool IsDebugSession;
+        [NonSerialized] public DungeonCombatContext DungeonContext;
+        public bool IsSeamless;
+        // Rescue eligibility is supplied by the dungeon owner, independent of UI focus.
+        public bool CanReceiveReinforcements;
+        public readonly Dictionary<string, BattleUnit> DepartedUnits = new();
+        public readonly HashSet<BattleCellEdge> OpenExitEdges = new();
+        [NonSerialized] public Func<GridPosition, bool> ExternalPositionOccupied;
+        public bool IsExitPosition(GridPosition position) => IsSeamless && !Grid.IsWalkable(position);
+        public bool CanMoveBetween(BattleUnit unit, GridPosition from, GridPosition to)
+        {
+            if (ExternalPositionOccupied?.Invoke(to) == true) return false;
+            if (Grid.CanMoveBetween(from, to)) return true;
+            return IsSeamless && unit?.IsPlayerSide == true && Grid.IsWalkable(from)
+                && !Grid.IsBlocked(from) && IsExitPosition(to)
+                && Math.Abs(from.X - to.X) + Math.Abs(from.Y - to.Y) == 1
+                && OpenExitEdges.Contains(new BattleCellEdge(from, to));
+        }
         public DungeonTheme DungeonTheme = DungeonTheme.Story;
         public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
             GameDefineIds.ActionPointsPerSpeed, 0.25f);
@@ -43,6 +60,7 @@ namespace Godmist.Runtime.Combat
             GridPosition position,
             BattleUnit ignoredUnit = null)
         {
+            if (ExternalPositionOccupied?.Invoke(position) == true) return true;
             foreach (var unit in Units)
             {
                 if (unit == null || unit == ignoredUnit)

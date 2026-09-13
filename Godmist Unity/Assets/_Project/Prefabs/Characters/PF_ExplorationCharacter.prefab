@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 2333303334119171999}
   - component: {fileID: 3185174498380836762}
   - component: {fileID: 4011232049458454462}
+  - component: {fileID: 3480589672769072211}
   m_Layer: 0
   m_Name: PF_ExplorationCharacter
   m_TagString: Untagged
@@ -204,11 +205,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Exploration.ExplorationCharacterView
   bodyRenderer: {fileID: 3397598699321819124}
+  combatVisualState: {fileID: 3480589672769072211}
   nameLabel: {fileID: 6198129022348499675}
   body: {fileID: 2333303334119171999}
   movementCollider: {fileID: 3185174498380836762}
   leaderColor: {r: 1, g: 1, b: 1, a: 1}
   followerColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &3480589672769072211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2837173134878029291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a1df5fa5e14b2aa48660e3e86f7c4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitVisualStateView
+  activeTurnColor: {r: 1, g: 0.78, b: 0.22, a: 1}
+  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
+  targetColor: {r: 1, g: 0.34, b: 0.28, a: 1}
+  outlineWidth: 0.06
+  pulseSpeed: 2.5
 --- !u!1 &7422089678188437496
 GameObject:
   m_ObjectHideFlags: 0

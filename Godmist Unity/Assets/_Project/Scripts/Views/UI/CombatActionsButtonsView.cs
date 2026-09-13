@@ -15,6 +15,7 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatConsumableSelectionView consumableSelectionPrefab;
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
         private CombatConsumableSelectionView consumableSelection;
+        private Godmist.Runtime.Combat.CombatSession boundSession;
 
         private void Start()
         {
@@ -35,6 +36,11 @@ namespace Godmist.Views.UI
         private void Update()
         {
             if (sandboxBootstrap == null) return;
+            if (boundSession != sandboxBootstrap.Session)
+            {
+                if (consumableSelection != null) consumableSelection.gameObject.SetActive(false);
+                boundSession = sandboxBootstrap.Session;
+            }
 
             if (endTurnButton != null)
             {
@@ -47,6 +53,11 @@ namespace Godmist.Views.UI
             }
             if (consumablesButton != null)
                 consumablesButton.interactable = sandboxBootstrap.CanEndTurn();
+        }
+
+        private void OnDisable()
+        {
+            if (consumableSelection != null) consumableSelection.gameObject.SetActive(false);
         }
 
         private void OnDestroy()

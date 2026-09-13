@@ -43,7 +43,16 @@ namespace Godmist.Views.UI
 
         public void Bind(CombatFeedbackBus nextFeedbackBus)
         {
+            if (feedbackBus == nextFeedbackBus) return;
             if (feedbackBus != null) feedbackBus.Published -= HandleFeedback;
+            StopAllCoroutines();
+            foreach (var view in activeFeedbackViews)
+                if (view != null) Destroy(view.gameObject);
+            pendingEntries.Clear();
+            activeQueues.Clear();
+            activeFeedbackViews.Clear();
+            activeFeedbackTargets.Clear();
+            activeFeedbackSizes.Clear();
             feedbackBus = nextFeedbackBus;
             if (feedbackBus != null) feedbackBus.Published += HandleFeedback;
         }
@@ -115,7 +124,7 @@ namespace Godmist.Views.UI
                     var canvas = feedbackRoot.GetComponentInParent<Canvas>();
                     var uiCamera = canvas != null
                         && canvas.renderMode != RenderMode.ScreenSpaceOverlay
-                        ? worldCamera
+                        ? canvas.worldCamera
                         : null;
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                             feedbackRoot, screenPosition, uiCamera, out var localPosition))
@@ -142,6 +151,13 @@ namespace Godmist.Views.UI
                             localPosition, 0f,
                             emphasized,
                             drift);
+                        var targetUnit = feedbackEvent.Target;
+                        var anchorOffset = (Vector3)offset;
+                        view.BindWorldAnchor(worldCamera, feedbackRoot,
+                            () => unitViewSpawner != null
+                                && unitViewSpawner.TryGetWorldPosition(targetUnit, out var currentPosition)
+                                    ? currentPosition + anchorOffset : (Vector3?)null,
+                            worldPosition + anchorOffset, localPosition - anchorPosition);
                         activeFeedbackViews.Add(view);
                         activeFeedbackTargets[view] = feedbackEvent.Target;
                         activeFeedbackSizes[view] = textSize;

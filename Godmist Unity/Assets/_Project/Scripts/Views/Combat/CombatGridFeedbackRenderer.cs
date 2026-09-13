@@ -18,6 +18,11 @@ namespace Godmist.Views.Combat
 
     public class CombatGridFeedbackRenderer : MonoBehaviour
     {
+        public void SetGridMapping(Vector2 origin, float size)
+        {
+            gridOrigin = origin;
+            cellSize = Mathf.Max(0.01f, size);
+        }
         [Header("Visual Assets")]
         [SerializeField] private Sprite feedbackSprite;
         [SerializeField] private TMP_FontAsset pathCostFont;

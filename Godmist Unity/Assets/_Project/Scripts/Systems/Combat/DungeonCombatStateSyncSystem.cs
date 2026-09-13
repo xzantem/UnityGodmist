@@ -14,12 +14,12 @@ namespace Godmist.Systems.Combat
             if (gameSession == null
                 || combatSession == null
                 || gameSession.ActiveDungeon == null
-                || gameSession.ActiveDungeonCombatContext == null)
+                || (combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext) == null)
             {
                 return false;
             }
 
-            var context = gameSession.ActiveDungeonCombatContext;
+            var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
             if (!string.Equals(
                     combatSession.CombatId,
@@ -87,12 +87,12 @@ namespace Godmist.Systems.Combat
             if (gameSession == null
                 || combatSession == null
                 || gameSession.ActiveDungeon == null
-                || gameSession.ActiveDungeonCombatContext == null)
+                || (combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext) == null)
             {
                 return false;
             }
 
-            var context = gameSession.ActiveDungeonCombatContext;
+            var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
             if (!string.Equals(
                     combatSession.CombatId,

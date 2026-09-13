@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Godmist.Core.Enums;
+using Godmist.Runtime.Combat;
+
+namespace Godmist.Systems.Combat
+{
+    public static class DungeonCombatParticipationSystem
+    {
+        public static bool TryJoin(CombatSession session, BattleUnit unit, GridPosition preferred)
+        {
+            if (session?.IsSeamless != true || session.Outcome != CombatOutcomeState.Ongoing
+                || unit?.Character?.LifeState != CharacterLifeState.Alive || session.Units.Contains(unit)) return false;
+            var occupied = new HashSet<GridPosition>(session.Units.Select(value => value.Position));
+            AddExternalReservations(session, occupied);
+            if (!DungeonCombatPositionResolver.TryResolve(session.Grid, preferred, occupied, out var position)) return false;
+            unit.Position = position;
+            unit.CurrentActionValue = Math.Max(unit.CurrentActionValue, CombatTurnSystem.CalculateBaseActionValue(unit));
+            session.Units.Add(unit);
+            session.DepartedUnits.Remove(unit.Character.CharacterId);
+            session.TurnParticipants.Add(new CombatTurnParticipant(unit));
+            CombatTurnSystem.ReorderParticipants(session);
+            return true;
+        }
+
+        public static void AddExternalReservations(CombatSession session, ISet<GridPosition> occupied)
+        {
+            if (session.ExternalPositionOccupied == null) return;
+            for (var x = 0; x < session.Grid.Width; x++)
+            for (var y = 0; y < session.Grid.Height; y++)
+            {
+                var position = new GridPosition(x, y);
+                if (session.ExternalPositionOccupied(position)) occupied.Add(position);
+            }
+        }
+
+        public static bool TryLeave(CombatSession session, BattleUnit unit)
+        {
+            if (session?.IsSeamless != true || unit?.IsPlayerSide != true
+                || unit.Character?.LifeState != CharacterLifeState.Alive
+                || !session.IsExitPosition(unit.Position) || !session.Units.Contains(unit)) return false;
+            unit.CurrentActionValue = Math.Max(unit.CurrentActionValue, CombatTurnSystem.CalculateBaseActionValue(unit));
+            session.DepartedUnits[unit.Character.CharacterId] = unit;
+            session.Units.Remove(unit);
+            session.TurnParticipants.RemoveAll(value => value.Unit == unit);
+            if (session.ActiveUnit == unit)
+            {
+                session.ActiveUnit = null;
+                session.ActiveParticipant = null;
+                session.ActiveSummonedObject = null;
+            }
+            CombatTurnSystem.ReorderParticipants(session);
+            return true;
+        }
+    }
+}

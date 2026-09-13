@@ -33,6 +33,65 @@ namespace Godmist.Runtime.Game
         public bool HasExplorationPosition { get; private set; }
         public Vector2 ExplorationPosition { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
+        private readonly List<CombatSession> combats = new();
+        public IReadOnlyList<CombatSession> Combats => combats;
+        public bool HasCombat => combats.Count > 0;
+        public bool IsCharacterInCombat(string characterId) =>
+            combats.Exists(combat => !combat.IsSeamless) || GetCombatForCharacter(characterId) != null;
+
+        public CombatSession GetCombatForCharacter(string characterId)
+        {
+            if (string.IsNullOrWhiteSpace(characterId)) return null;
+            return combats.Find(combat => combat.Units.Exists(unit =>
+                unit?.IsPlayerSide == true && unit.Character?.CharacterId == characterId));
+        }
+
+        public bool TryRegisterDungeonCombat(CombatSession combat)
+        {
+            var context = combat?.DungeonContext;
+            if (context == null || ActiveDungeon == null
+                || context.DungeonId != ActiveDungeon.DungeonId
+                || context.FloorIndex != ActiveDungeon.CurrentFloorIndex
+                || combats.Exists(existing => existing.CombatId == combat.CombatId
+                    || existing.DungeonContext?.EncounterRoomId == context.EncounterRoomId)) return false;
+            foreach (var unit in combat.Units)
+                if (unit?.IsPlayerSide == true && GetCombatForCharacter(unit.Character?.CharacterId) != null)
+                    return false;
+            combats.Add(combat);
+            combat.ExternalPositionOccupied = position => IsOccupiedInOtherCombat(combat, position);
+            return true;
+        }
+
+        public bool IsOccupiedInOtherCombat(CombatSession source, GridPosition position)
+        {
+            var origin = source.DungeonContext.WorldBounds.min;
+            var world = new Vector2Int(origin.x + position.X, origin.y + position.Y);
+            foreach (var other in combats)
+            {
+                if (other == source || other.DungeonContext == null) continue;
+                var otherOrigin = other.DungeonContext.WorldBounds.min;
+                if (other.Units.Exists(unit => unit != null
+                    && otherOrigin.x + unit.Position.X == world.x
+                    && otherOrigin.y + unit.Position.Y == world.y)) return true;
+            }
+            return false;
+        }
+
+        public bool TryFocusCombat(CombatSession combat)
+        {
+            if (combat != null && !combats.Contains(combat)) return false;
+            ActiveCombat = combat;
+            ActiveDungeonCombatContext = combat?.DungeonContext;
+            return true;
+        }
+
+        public bool TryRemoveCombat(CombatSession combat)
+        {
+            if (combat == null || !combats.Remove(combat)) return false;
+            combat.ExternalPositionOccupied = null;
+            if (ActiveCombat == combat) TryFocusCombat(null);
+            return true;
+        }
         public DungeonCombatContext ActiveDungeonCombatContext { get; private set; }
         public int Gold { get; private set; }
         public IReadOnlyList<ItemInstance> PendingLoot => pendingLoot;
@@ -220,6 +279,7 @@ namespace Godmist.Runtime.Game
 
         public bool TrySetActiveDungeon(DungeonInstance dungeon)
         {
+            if (HasCombat) return false;
             if (dungeon == null || string.IsNullOrWhiteSpace(dungeon.DungeonId)) return false;
             if (ReferenceEquals(ActiveDungeon, dungeon)) return false;
 
@@ -229,7 +289,7 @@ namespace Godmist.Runtime.Game
 
         public bool TryClearActiveDungeon()
         {
-            if (ActiveDungeon == null) return false;
+            if (ActiveDungeon == null || HasCombat) return false;
 
             ActiveDungeon = null;
             return true;
@@ -261,9 +321,11 @@ namespace Godmist.Runtime.Game
         public bool TrySetActiveCombat(CombatSession combat)
         {
             if (combat == null || string.IsNullOrWhiteSpace(combat.CombatId)) return false;
-            if (ActiveCombat != null) return false;
+            if (HasCombat) return false;
 
             ActiveCombat = combat;
+            combat.DungeonContext ??= ActiveDungeonCombatContext;
+            combats.Add(combat);
             return true;
         }
 
@@ -271,6 +333,8 @@ namespace Godmist.Runtime.Game
         {
             if (ActiveCombat == null) return false;
 
+            ActiveCombat.ExternalPositionOccupied = null;
+            combats.Remove(ActiveCombat);
             ActiveCombat = null;
             TryClearActiveDungeonCombatContext();
             return true;

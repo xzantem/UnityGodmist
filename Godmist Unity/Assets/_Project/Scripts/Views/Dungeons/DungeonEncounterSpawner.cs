@@ -20,6 +20,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonFloorMapView floorMapView;
 
         private readonly List<EncounterTriggerView> spawnedTriggers = new();
+        public IReadOnlyList<EncounterTriggerView> Triggers => spawnedTriggers;
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 
         public bool Rebuild(
@@ -139,6 +140,7 @@ namespace Godmist.Views.Dungeons
                     $"EncounterEnemy_{encounterInstance.InstanceId}_{enemyIndex:00}";
 
                 enemyView.Bind(enemyData.CharacterDefinition);
+                enemyView.SetEnemyInstanceId(enemyData.InstanceId);
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
 

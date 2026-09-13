@@ -8,6 +8,11 @@ namespace Godmist.Views.Combat
 {
     public class CombatMovementInputController : MonoBehaviour
     {
+        public void SetGridMapping(Vector2 origin, float size)
+        {
+            gridOrigin = origin;
+            cellSize = Mathf.Max(0.01f, size);
+        }
         [Header("References")]
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;
@@ -57,6 +62,7 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
+            if (sandboxBootstrap?.Session?.IsSeamless == true) cacheValid = false;
 
             if (DevConsoleView.IsOpen)
             {
