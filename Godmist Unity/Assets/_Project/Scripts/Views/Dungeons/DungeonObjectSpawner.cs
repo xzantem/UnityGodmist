@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Godmist.Data.Dungeons;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.UI.Workspace;
@@ -14,6 +16,48 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonEnemyBodyView enemyBodyPrefab;
         [SerializeField] private DungeonLootWindowView dungeonLootWindowPrefab;
         [SerializeField] private DungeonObstacleView obstaclePrefab;
+        [SerializeField] private List<ObstaclePrefabBinding> obstaclePrefabs = new();
+
+        [Serializable]
+        public sealed class ObstaclePrefabBinding
+        {
+            public ObstacleDungeonObjectDefinition definition;
+            public DungeonObstacleView prefab;
+        }
+
+        public bool ValidateObstaclePrefabs(out string error)
+        {
+            var definitions = new HashSet<ObstacleDungeonObjectDefinition>();
+            foreach (var binding in obstaclePrefabs)
+            {
+                if (binding == null || binding.definition == null || binding.prefab == null)
+                {
+                    error = "Przeszkoda wymaga definicji i prefabu.";
+                    return false;
+                }
+                if (!definitions.Add(binding.definition))
+                {
+                    error = "Powtórzone przypisanie prefabu przeszkody: " + binding.definition.name;
+                    return false;
+                }
+                if (!binding.prefab.HasBlockingCollider && binding.definition.BlocksMovement)
+                {
+                    error = "Przeszkoda blokująca ruch wymaga podpiętego collidera: " + binding.definition.name;
+                    return false;
+                }
+            }
+            error = null;
+            return true;
+        }
+
+        public DungeonObstacleView ResolveObstaclePrefab(ObstacleDungeonObjectDefinition definition)
+        {
+            foreach (var binding in obstaclePrefabs)
+                if (binding != null && binding.definition == definition && definition != null)
+                    return binding.prefab;
+            return obstaclePrefab;
+        }
+
         [SerializeField] private DungeonDoorView doorPrefab;
         [SerializeField] private DungeonSpikeTrapView spikeTrapPrefab;
         [SerializeField] private DungeonLeverView leverPrefab;
@@ -33,6 +77,11 @@ namespace Godmist.Views.Dungeons
             DungeonFloorInstance floor,
             ExplorationPartyController partyController)
         {
+            if (!ValidateObstaclePrefabs(out var obstacleError))
+            {
+                Debug.LogError("DungeonObjectSpawner: " + obstacleError);
+                return false;
+            }
             ClearSpawnedObjects();
 
             if (floor == null || partyController == null || floorTilemap == null)
@@ -108,7 +157,8 @@ namespace Godmist.Views.Dungeons
 
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
                 {
-                    if (obstaclePrefab == null)
+                    var selectedPrefab = ResolveObstaclePrefab(obstacle.Definition as ObstacleDungeonObjectDefinition);
+                    if (selectedPrefab == null)
                     {
                         Debug.LogError(
                             "DungeonObjectSpawner: brak prefabu DungeonObstacleView.");
@@ -116,7 +166,7 @@ namespace Godmist.Views.Dungeons
                         return false;
                     }
 
-                    var obstacleView = Instantiate(obstaclePrefab, parent);
+                    var obstacleView = Instantiate(selectedPrefab, parent);
 
                     obstacleView.name = $"Obstacle_{obstacle.InstanceId}";
                     obstacleView.Initialize(

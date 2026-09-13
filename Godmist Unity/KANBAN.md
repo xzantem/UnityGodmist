@@ -74,6 +74,15 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Rozwinąć przeszkody taktyczne areny v1` - `Combat`, `Content / Data`, `Design / Systems`
+  - Rozwinąć istniejące przeszkody z niezależnym blokowaniem ruchu i linii widzenia/efektu; nie tworzyć drugiego modelu tych samych właściwości.
+  - Zweryfikować zwykły ruch, dash/charge, push/pull, teleport i kolizje według istniejących zasad. Dodać reprezentatywne warianty contentu oraz walidację danych.
+  - Niszczenie obiektów nie jest jeszcze zatwierdzoną mechaniką: uzgodnić zakres przed dodaniem HP, obrażeń lub nagród obiektów.
+  - Zatwierdzone: sarkofag i duży gruz blokują ruch, przepuszczają LOS; filar blokuje oba. Każdy obiekt zajmuje jedno pole. Bez niszczenia.
+  - Status: DONE — 96/96 EditMode PASS, zapis prefabów/referencji i demo seed 4205 PASS, self-review PASS; smoke użytkownika PASS — funkcjonalność zaakceptowana.
+  - Tymczasowe grafiki zaakceptowane; użytkownik zastąpi je docelowymi sprite’ami w przyszłości.
+  - Uwzględnić aktualizacje puli contentu: obecne odtwarzanie lochu regeneruje obiekty z seeda i bieżących definicji. Nowe sarkofagi/gruz/filary są na razie w osobnym demo; przełączenie produkcyjnej puli wymaga zachowania tożsamości i układu obiektów istniejących zapisów.
+
 - `[P1] Dodać niskie ściany i balustrady jako krawędzie pokoju v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
   - Rozwinąć model rzeczywistych krawędzi pokoju: pełna ściana, niski murek, balustrada. Nie zastępować ich semantic anchors ani wolnostojącymi przeszkodami na polach.
   - Rozdzielić blokowanie ruchu i LOS/efektu na krawędziach; używać tych samych właściwości w eksploracji, walce i prezentacji. Balustrada blokuje ruch i przepuszcza strzały.
@@ -152,6 +161,10 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - Unikalne przeszkody i efekty rozwijać wspólnie z istniejącymi kartami przeszkód/pułapek; nie dodawać w tej karcie rozbudowanego systemu reakcji środowiskowych.
 
 ### Milestone: Combat v5 — Perception and Dungeon-wide Combat
+
+- `[P1] Niszczenie przeszkód i obsługa obrażeń obiektów v1` - `Combat`, `Core / Architecture`, `Content / Data`
+  - Osobna karta Combat v5: serwis obsługi niszczenia, integracja targetowania i obrażeń obiektów oraz trwałość skutków.
+  - Przed implementacją uzgodnić podatne obiekty, HP, ataki/efekty, nagrody i stan po zniszczeniu. Nie dodawać mechaniki w karcie statycznych przeszkód Combat v4.
 
 Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless nadal korzysta z tych samych obiektów i sceny. V4 zachowuje ograniczenie do pokoju jako etap przejściowy; nie rozwijać w nim dodatkowych mechanik silnie zależnych od granicy pokoju, które v5 zastąpi.
 

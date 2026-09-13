@@ -614,6 +614,9 @@ namespace Godmist.Editor
             RequireText(value.DisplayName, value, "DisplayName", collector);
             if (value.SpawnWeight < 1)
                 collector.Error(value, "SpawnWeight", "SpawnWeight musi być większe od zera.");
+            if (value is ObstacleDungeonObjectDefinition obstacle
+                && !obstacle.BlocksMovement && !obstacle.BlocksLineOfSight)
+                collector.Warning(value, "BlocksMovement", "Przeszkoda nie blokuje ruchu ani LOS; sprawdź, czy powinna być dekoracją.");
             if (value is ChestDungeonObjectDefinition chest
                 && chest.LockType != ChestLockType.Unlocked
                 && chest.RequiredKey == null)
