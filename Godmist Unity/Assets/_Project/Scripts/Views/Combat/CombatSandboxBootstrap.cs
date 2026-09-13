@@ -75,6 +75,11 @@ namespace Godmist.Views.Combat
             focused.Initialize();
             drivers.Add(focused.Session, focused);
         }
+        public void BindDungeonFeedback()
+        {
+            if (seamlessDungeon) floatingFeedback?.Bind(dungeonFeedback);
+        }
+
         public bool TryBegin(CombatSession session)
         {
             if (!seamlessDungeon || session == null || drivers.ContainsKey(session) || unitViewSpawner == null) return false;
@@ -117,7 +122,7 @@ namespace Godmist.Views.Combat
             driver.CombatMapObjectChanged -= RelayMapObjectChanged;
             driver.Dispose();
             drivers.Remove(session);
-            if (seamlessDungeon && drivers.Count == 0) floatingFeedback?.Bind(null);
+            // Exploration continues publishing to the same scene-wide bus after the last fight.
         }
         private void RelayMapObjectChanged(CombatMapObject value) => CombatMapObjectChanged?.Invoke(value);
         private void Update()

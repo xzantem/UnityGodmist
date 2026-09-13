@@ -632,7 +632,8 @@ namespace Godmist.Systems.Combat
                 var candidate = new GridPosition(aiUnit.Position.X + direction.x,
                     aiUnit.Position.Y + direction.y);
                 var candidateDistance = GetManhattanDistance(candidate, target.Position);
-                if (candidateDistance <= bestDistance || candidateDistance > desiredRange
+                if ((session.EvaluateTrapRisk?.Invoke(aiUnit, new[] { candidate }) ?? 0f) > 0f
+                    || candidateDistance <= bestDistance || candidateDistance > desiredRange
                     || session?.Grid == null || !session.Grid.IsWithinBounds(candidate)
                     || session.Grid.IsBlocked(candidate)
                     || !session.CanMoveBetween(aiUnit, aiUnit.Position, candidate)
@@ -858,40 +859,34 @@ namespace Godmist.Systems.Combat
                 || target.Character.LifeState != CharacterLifeState.Alive) return false;
 
             var start = aiUnit.Position;
-            var queue = new Queue<GridPosition>();
-            var visited = new HashSet<GridPosition> { start };
-            var previous = new Dictionary<GridPosition, GridPosition>();
-            queue.Enqueue(start);
-
-            // Search the complete arena, independent of this turn's AP. Rebuild for each
-            // action: occupancy, doors and obstacles may have changed since the last step.
-            while (queue.Count > 0)
+            var pending = new List<(GridPosition cell, List<GridPosition> path, float risk)> { (start, new(), 0f) };
+            var best = new Dictionary<(GridPosition, string), (float risk, int steps)> { [(start, "")] = (0f, 0) };
+            while (pending.Count > 0)
             {
-                var current = queue.Dequeue();
-                if (IsAdjacent(current, target.Position)
-                    && CanPlanAcross(session, aiUnit, current, target.Position))
+                pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : a.path.Count.CompareTo(b.path.Count));
+                var node = pending[0]; pending.RemoveAt(0);
+                var current = node.cell;
+                if (IsAdjacent(current, target.Position) && CanPlanAcross(session, aiUnit, current, target.Position))
                 {
-                    path = BuildPath(previous, start, current);
-                    // The target may stand immediately behind a closed door. Include its
-                    // cell only as an interaction endpoint; movement still rejects occupancy.
-                    if (FindClosedDirectDoor(session, current, target.Position) != null)
-                        path.Add(target.Position);
+                    path = node.path;
+                    if (FindClosedDirectDoor(session, current, target.Position) != null) path.Add(target.Position);
                     return true;
                 }
-
                 foreach (var direction in MovementDirections)
                 {
                     var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
-                    if (visited.Contains(candidate)
-                        || session.IsPositionOccupied(candidate, aiUnit)
+                    if (session.IsPositionOccupied(candidate, aiUnit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))
                         || !CanPlanAcross(session, aiUnit, current, candidate)) continue;
-                    visited.Add(candidate);
-                    previous[candidate] = current;
-                    queue.Enqueue(candidate);
+                    var next = new List<GridPosition>(node.path) { candidate };
+                    var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
+                    if (!float.IsFinite(risk)) continue;
+                    var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
+                    if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.steps <= next.Count)) continue;
+                    best[key] = (risk, next.Count);
+                    pending.Add((candidate, next, risk));
                 }
             }
-
             return false;
         }
 

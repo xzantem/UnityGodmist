@@ -152,7 +152,7 @@ namespace Godmist.Runtime.Dungeons
 
             if (!TryGetObject(objectInstanceId, out var source)
                 || source is not SpikeTrapDungeonObjectInstance sourceTrap
-                || sourceTrap.IsTriggered)
+                || !sourceTrap.IsActive || sourceTrap.IsTriggered)
             {
                 return false;
             }
@@ -169,7 +169,7 @@ namespace Godmist.Runtime.Dungeons
             foreach (var dungeonObject in objects)
             {
                 if (dungeonObject is not SpikeTrapDungeonObjectInstance trap
-                    || trap.IsTriggered)
+                    || !trap.IsActive || trap.IsTriggered)
                 {
                     continue;
                 }

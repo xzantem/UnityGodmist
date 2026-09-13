@@ -426,7 +426,7 @@ namespace Godmist.Systems.Combat
             var resistance = GetResistance(target, statusId);
             var chance = CalculateEffectChance(clampedChance, resistance);
 
-            if (UnityEngine.Random.value > chance)
+            if (chance <= 0f || UnityEngine.Random.value > chance)
             {
                 return false;
             }
@@ -1043,7 +1043,7 @@ namespace Godmist.Systems.Combat
             return UnityEngine.Random.value <= chance;
         }
 
-        private static float CalculateEffectChance(
+        public static float CalculateEffectChance(
             float baseChance,
             float resistance)
         {
@@ -1143,6 +1143,7 @@ namespace Godmist.Systems.Combat
             var resistances = target.Character.Resistances;
             var resistanceType = statusId.ToLowerInvariant() switch
             {
+                StatusEffectIds.Weakening => ResistanceType.Weakening,
                 StatusEffectIds.Bleed => ResistanceType.Bleed,
                 StatusEffectIds.Poison => ResistanceType.Poison,
                 StatusEffectIds.Burn => ResistanceType.Fire,
@@ -1262,10 +1263,11 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            return CombatDamageValueCalculator.CalculateDamageValue(
+            var damage = CombatDamageValueCalculator.CalculateDamageValue(
                 source,
                 DamageValueSource.AverageAttack,
                 statusDamageMultiplier);
+            return HasStatus(source, StatusEffectIds.Weakening) ? Mathf.CeilToInt(damage * .8f) : damage;
         }
     }
 }

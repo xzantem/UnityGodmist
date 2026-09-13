@@ -372,6 +372,7 @@ namespace Godmist.Systems.Combat
                     unit, CombatFeedbackType.ActionPointSpend, movementCost));
             }
             unit.MovementStepsThisTurn++;
+            session.NotifyUnitEnteredCell(unit);
 
             if (processResource)
             {

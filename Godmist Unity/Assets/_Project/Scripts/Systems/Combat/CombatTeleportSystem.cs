@@ -82,6 +82,7 @@ namespace Godmist.Systems.Combat
             }
 
             target.Position = destination;
+            session.NotifyUnitEnteredCell(target);
 
             CombatAuraSystem.Refresh(session, statusEffectSystem);
 

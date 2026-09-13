@@ -2281,6 +2281,9 @@ namespace Godmist.Systems.Combat
                 }
 
                 movedUnit.Position = nextPosition;
+                session.NotifyUnitEnteredCell(movedUnit);
+                if (movedUnit.Character.LifeState != CharacterLifeState.Alive
+                    || StatusEffectSystem.IsHardCrowdControlled(movedUnit)) break;
                 CombatAuraSystem.Refresh(session, statusEffectSystem);
                 movedTiles++;
             }

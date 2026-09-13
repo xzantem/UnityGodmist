@@ -20,6 +20,10 @@ namespace Godmist.Runtime.Combat
         public bool IsDebugSession;
         [NonSerialized] public DungeonCombatContext DungeonContext;
         public bool IsSeamless;
+        [NonSerialized] public Action<BattleUnit> UnitEnteredCell;
+        [NonSerialized] public Func<BattleUnit, IReadOnlyList<GridPosition>, float> EvaluateTrapRisk;
+        [NonSerialized] public Func<IReadOnlyList<GridPosition>, string> TrapRouteState;
+        public void NotifyUnitEnteredCell(BattleUnit unit) => UnitEnteredCell?.Invoke(unit);
         // Rescue eligibility is supplied by the dungeon owner, independent of UI focus.
         public bool CanReceiveReinforcements;
         public readonly Dictionary<string, BattleUnit> DepartedUnits = new();

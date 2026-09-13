@@ -85,7 +85,7 @@ namespace Godmist.Views.Dungeons
                     dungeon.ClearPendingPlayerPartyPositions();
                 }
 
-                if (!objectSpawner.Rebuild(floor, partySpawner.PartyController)) return;
+                if (!objectSpawner.Rebuild(floor, partySpawner.PartyController, dungeon.Definition.Theme)) return;
 
                 if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
                 if (combatCoordinator == null || !combatCoordinator.Initialize(session, floor,

@@ -97,8 +97,24 @@ namespace Godmist.Views.Game
             InitializeRuntimeServices();
         }
 
+        private readonly ExplorationStatusEffectSystem cityStatusEffects = new();
+
         private void Update()
         {
+            // Dungeon occupants are ticked by their scene owner; the persistent owner covers city exploration.
+            if (Session != null && Session.ActiveDungeon == null && !Session.IsDefeated
+                && Session.CurrentMode == GameModeState.Exploration
+                && !Godmist.Views.UI.DevConsoleView.IsOpen)
+            {
+                var occupants = Session.PlayerParty.ActiveMemberIds
+                    .Where(id => Session.CharactersById.ContainsKey(id) && Session.GetCombatForCharacter(id) == null)
+                    .Select(id => new DungeonTrapOccupant(
+                        new Godmist.Runtime.Combat.BattleUnit { Character = Session.CharactersById[id], IsPlayerSide = true },
+                        null, Vector2Int.zero)).ToArray();
+                cityStatusEffects.Advance(Time.deltaTime, occupants);
+                if (CampaignDefeatSystem.ShouldDefeat(Session)) Session.MarkDefeated();
+            }
+
             if (!autosaveRequested)
             {
                 return;

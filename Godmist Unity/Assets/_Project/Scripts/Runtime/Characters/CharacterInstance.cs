@@ -35,6 +35,7 @@ namespace Godmist.Runtime.Characters
         public EquipmentSet Equipment = new();
 
         public int CurrentHealth;
+        [NonSerialized] public float ExplorationStatusElapsedSeconds;
         public int Honor;
         // Temporary effective value, equipment will calculate it later.
         public float WeaponAccuracy = GameDefinesRuntime.GetFloat(

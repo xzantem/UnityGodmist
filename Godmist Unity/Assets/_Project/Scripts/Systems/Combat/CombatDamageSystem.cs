@@ -112,6 +112,8 @@ namespace Godmist.Systems.Combat
                 isCritical);
             damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
+            if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
+                damageAfterCrit = Mathf.CeilToInt(damageAfterCrit * .8f);
             var finalDamage = ApplyDefense(
                 source,
                 target,
@@ -210,6 +212,8 @@ namespace Godmist.Systems.Combat
                 isCritical);
             damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
+            if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
+                damageAfterCrit = Mathf.CeilToInt(damageAfterCrit * .8f);
             var finalDamage = ApplyDefense(
                 source,
                 target,

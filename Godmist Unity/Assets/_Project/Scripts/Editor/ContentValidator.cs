@@ -617,6 +617,16 @@ namespace Godmist.Editor
             if (value is ObstacleDungeonObjectDefinition obstacle
                 && !obstacle.BlocksMovement && !obstacle.BlocksLineOfSight)
                 collector.Warning(value, "BlocksMovement", "Przeszkoda nie blokuje ruchu ani LOS; sprawdź, czy powinna być dekoracją.");
+            if (value is SpikeTrapDungeonObjectDefinition trap)
+            {
+                if (!Enum.IsDefined(typeof(DamageType), trap.DamageType) || trap.Damage < 1
+                    || trap.StatusDamage < 0 || trap.Duration < 1 || !float.IsFinite(trap.DamageGrowthPerLevel)
+                    || trap.DamageGrowthPerLevel < 0f || !float.IsFinite(trap.StatusChance)
+                    || trap.StatusChance < 0f || trap.StatusChance > 1f)
+                    collector.Error(value, "Trap", "Nieprawidłowe obrażenia, czas, szansa lub skalowanie pułapki.");
+                if (!string.IsNullOrEmpty(trap.StatusId) && !Godmist.Core.Constants.StatusEffectIds.KnownIds.Contains(trap.StatusId))
+                    collector.Error(value, "StatusId", "Nieznany status pułapki.");
+            }
             if (value is ChestDungeonObjectDefinition chest
                 && chest.LockType != ChestLockType.Unlocked
                 && chest.RequiredKey == null)

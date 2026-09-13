@@ -151,6 +151,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5b4d6f8a0c2e73b5d7f9a1c3e5b7d9f1, type: 2}
   - {fileID: 11400000, guid: 6f909c69e4455f94eb9edd401b092701, type: 2}
   <DungeonDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 7a04761175c5d9f488ecf6d98624fac3, type: 2}
   - {fileID: 11400000, guid: 62ab8f3093044b8d81cc6c89766334c7, type: 2}
   - {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
   <EncounterDefinitions>k__BackingField:

@@ -275,6 +275,8 @@ namespace Godmist.Views.Combat
             return true;
         }
 
+        [SerializeField] private Color trapPreviewColor = new(1f, .2f, .1f, .85f);
+        private bool previewedTrapDanger;
         private void RefreshMovementPreview()
         {
             if (feedbackRenderer == null
@@ -294,13 +296,15 @@ namespace Godmist.Views.Combat
             }
 
             var pathCost = sandboxBootstrap.GetActiveUnitMovementPathCost(path);
-            if (previewedDestination == hoveredPosition && previewedPathCost == pathCost) return;
+            var danger = (sandboxBootstrap.Session.EvaluateTrapRisk?.Invoke(cachedActiveUnit, path) ?? 0f) > 0f;
+            if (previewedDestination == hoveredPosition && previewedPathCost == pathCost && previewedTrapDanger == danger) return;
+            previewedTrapDanger = danger;
 
             feedbackRenderer.ShowMovementPreview(
                 path,
                 cachedActiveUnit.Position,
                 pathCost,
-                movementPreviewColor);
+                danger ? trapPreviewColor : movementPreviewColor, danger);
             previewedDestination = hoveredPosition;
             previewedPathCost = pathCost;
         }

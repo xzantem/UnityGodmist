@@ -118,7 +118,7 @@ namespace Godmist.Views.Combat
             IReadOnlyList<GridPosition> path,
             GridPosition origin,
             int actionPointCost,
-            Color color)
+            Color color, bool danger = false)
         {
             ClearMovementPreview();
             if (path == null || path.Count == 0) return;
@@ -143,7 +143,7 @@ namespace Godmist.Views.Combat
             if (pathCostFont != null)
             {
                 pathCost = CreatePathCost();
-                pathCost.text = actionPointCost.ToString();
+                pathCost.text = actionPointCost + (danger ? " !" : "");
                 pathCost.color = color;
                 // GridToLocal returns the cell centre. Keep the label inside the
                 // destination cell, near its upper-right corner; the old vertical

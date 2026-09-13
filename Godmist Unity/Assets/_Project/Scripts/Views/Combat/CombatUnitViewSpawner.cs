@@ -108,6 +108,8 @@ namespace Godmist.Views.Combat
         }
 
 
+        public System.Func<BattleUnit, Vector3?> ExplorationWorldPosition { get; set; }
+
         public bool TryGetWorldPosition(BattleUnit unit, out Vector3 position)
         {
             if (unit != null && borrowed.TryGetValue(unit, out var existing) && existing != null)
@@ -118,6 +120,9 @@ namespace Godmist.Views.Combat
                 return true;
             }
 
+            var explorationPosition = unit == null ? null : ExplorationWorldPosition?.Invoke(unit);
+            if (explorationPosition.HasValue)
+            { position = explorationPosition.Value; return true; }
             position = default;
             return false;
         }

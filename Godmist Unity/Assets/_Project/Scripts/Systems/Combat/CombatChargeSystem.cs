@@ -92,6 +92,9 @@ namespace Godmist.Systems.Combat
                 if (occupant == null)
                 {
                     caster.Position = nextPosition;
+                    session.NotifyUnitEnteredCell(caster);
+                    if (caster.Character.LifeState != CharacterLifeState.Alive
+                        || StatusEffectSystem.IsHardCrowdControlled(caster)) return true;
                     CombatAuraSystem.Refresh(session, statusEffectSystem);
                     movedDistance++;
                     continue;
@@ -236,6 +239,9 @@ namespace Godmist.Systems.Combat
                         unit.Position.X + deltaX,
                         unit.Position.Y + deltaY);
                 }
+                foreach (var moved in chain) session.NotifyUnitEnteredCell(moved);
+                if (chain.Exists(member => member.Character.LifeState != CharacterLifeState.Alive
+                    || StatusEffectSystem.IsHardCrowdControlled(member))) return true;
             }
 
             battleLog?.Invoke(

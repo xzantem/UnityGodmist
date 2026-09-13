@@ -5,6 +5,7 @@ using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Dungeons;
 using Godmist.Views.Combat;
 using Godmist.Views.Exploration;
 using Godmist.Views.UI;
@@ -45,6 +46,9 @@ namespace Godmist.Views.Dungeons
         private readonly DungeonCombatStateSyncSystem stateSync = new();
         private readonly CombatRewardSystem rewards = new();
         private readonly CombatOutcomeSystem outcomeEvaluator = new();
+        private DungeonTrapSystem trapSystem;
+        private readonly Dictionary<string, BattleUnit> exploringEnemies = new();
+        private readonly Dictionary<string, Vector2Int> trapPreviousCells = new();
         private bool initialized;
         private CombatSession focused;
 
@@ -60,10 +64,14 @@ namespace Godmist.Views.Dungeons
             game = session; floor = dungeonFloor; map = floorView; party = controller;
             objects = objectSpawner; encounters = encounterSpawner;
             unitViews.ConfigureDungeon(game, map);
+            unitViews.ExplorationWorldPosition = ResolveExplorationFeedbackPosition;
+            combatHost.BindDungeonFeedback();
             party.SetCombatCoordinator(this);
             foreach (var trigger in encounters.Triggers) trigger.SetCombatCoordinator(this);
             combatHost.CombatMapObjectChanged += HandleMapObjectChanged;
             foreach (var view in party.ActiveMemberViews) previousExplorationPositions[view.CharacterId] = view.Position;
+            trapSystem = new DungeonTrapSystem(floor, game.ActiveDungeon.DungeonLevel,
+                session => session == null ? combatHost.DungeonFeedback : combatHost.GetDriver(session)?.FeedbackBus);
             initialized = true;
             SetFocus(null, true);
             return true;
@@ -114,6 +122,14 @@ namespace Godmist.Views.Dungeons
             // Start execution only after every participant has a valid, unique view.
             if (!combatHost.TryBegin(session)) return RejectStart();
             sources.Add(session, trigger);
+            foreach(var trap in floor.Objects.OfType<SpikeTrapDungeonObjectInstance>())
+                if(session.DungeonContext.ContainsWorldCell(trap.Position))
+                    session.MapObjects.Add(new TrapCombatMapObject(trap, DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, trap.Position)));
+            session.UnitEnteredCell = unit => trapSystem.EnterCell(
+                DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position), GatherTrapOccupants());
+            session.TrapRouteState = path => trapSystem.RouteState(path.Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
+            session.EvaluateTrapRisk = (unit, path) => trapSystem.EstimateRisk(unit,
+                path.Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             foreach (var pair in nextBindings)
             { bindings.Add(pair.Key, pair.Value); bindingSessions[pair.Key] = session; unitViews.Borrow(session, pair.Key, pair.Value); }
             combatHost.GetDriver(session).StartTurns();
@@ -139,6 +155,7 @@ namespace Godmist.Views.Dungeons
             if (placementNotice != null && Time.unscaledTime >= placementNoticeUntil)
                 placementNotice.alpha = 0f;
             if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) return;
+            AdvanceExplorationTraps();
             if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
             foreach (var session in game.Combats.ToArray())
             {
@@ -162,6 +179,73 @@ namespace Godmist.Views.Dungeons
             RefreshFocus();
             foreach (var view in party.ActiveMemberViews)
                 if (view.CombatUnit == null) previousExplorationPositions[view.CharacterId] = view.Position;
+        }
+
+        private Vector3? ResolveExplorationFeedbackPosition(BattleUnit unit)
+        {
+            var view = party.ActiveMemberViews.FirstOrDefault(candidate => candidate.RuntimeCharacter == unit.Character)
+                ?? encounters.Triggers.SelectMany(trigger => trigger.EnemyViews)
+                    .FirstOrDefault(candidate => candidate.RuntimeCharacter == unit.Character);
+            return view != null ? view.transform.position : (Vector3?)null;
+        }
+
+        private List<DungeonTrapOccupant> GatherTrapOccupants()
+        {
+            var result = new List<DungeonTrapOccupant>();
+            foreach (var session in game.Combats)
+                foreach (var unit in session.Units)
+                    result.Add(new DungeonTrapOccupant(unit, session,
+                        DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position)));
+            foreach (var view in party.ActiveMemberViews)
+            {
+                if (game.GetCombatForCharacter(view.CharacterId) != null
+                    || !game.CharactersById.TryGetValue(view.CharacterId, out var character)) continue;
+                if (!retainedPlayers.TryGetValue(view.CharacterId, out var unit))
+                    retainedPlayers[view.CharacterId] = unit = sessionFactory.CreateJoiningUnit(character, new GridPosition(0, 0));
+                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position)));
+            }
+            foreach (var view in encounters.Triggers.SelectMany(trigger => trigger.EnemyViews))
+            {
+                if (view.CombatUnit != null || view.RuntimeCharacter == null || !view.gameObject.activeInHierarchy) continue;
+                if (!exploringEnemies.TryGetValue(view.EnemyInstanceId, out var unit))
+                    exploringEnemies[view.EnemyInstanceId] = unit = new BattleUnit { Character = view.RuntimeCharacter, IsPlayerSide = false };
+                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position)));
+            }
+            return result;
+        }
+
+        private void AdvanceExplorationTraps()
+        {
+            var occupants = GatherTrapOccupants();
+            trapSystem.AdvanceExploration(Time.deltaTime, occupants);
+            foreach(var occupant in occupants)
+            {
+                var id = occupant.Unit.Character.CharacterId;
+                if (occupant.Session != null) { trapPreviousCells.Remove(id); continue; }
+                if (!trapPreviousCells.TryGetValue(id, out var previous) || previous != occupant.Cell)
+                    trapSystem.EnterCell(occupant.Cell, occupants);
+                trapPreviousCells[id] = occupant.Cell;
+            }
+            foreach(var trigger in encounters.Triggers)
+            {
+                var dead = trigger.EnemyViews.Where(view => view.CombatUnit == null
+                    && view.RuntimeCharacter?.LifeState == CharacterLifeState.Dead
+                    && !trigger.Encounter.IsEnemyDefeated(view.EnemyInstanceId)).ToArray();
+                if(dead.Length == 0 || !contextFactory.TryCreate(game.ActiveDungeon, trigger.Encounter, out var context)) continue;
+                var result = new CombatSession { DungeonContext = context };
+                if(game.ActiveDungeon.TryGetPreRolledRewards(trigger.Encounter.InstanceId, out var loot)) result.Rewards = loot;
+                foreach(var view in dead)
+                {
+                    trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId);
+                    result.TryMarkEnemyDefeated(view.EnemyInstanceId, DungeonBattleGridFactory.ToBattlePosition(context, map.WorldToCell(view.transform.position)));
+                    view.gameObject.SetActive(false);
+                }
+                DungeonCombatOutcomeSystem.TryCreateEnemyBodies(game.ActiveDungeon, context, result);
+                if (trigger.EnemyViews.All(view => trigger.Encounter.IsEnemyDefeated(view.EnemyInstanceId)))
+                    game.ActiveDungeon.TryMarkEncounterCleared(trigger.Encounter.InstanceId);
+                trigger.ReleaseEncounter();
+                objects.RefreshBodies(floor, party);
+            }
         }
 
         private void JoinArrivals(CombatSession session, CombatExecutionDriver driver)
@@ -234,6 +318,7 @@ namespace Godmist.Views.Dungeons
             objects.RefreshBodies(floor, party);
             sources[session].ReleaseEncounter();
             sources.Remove(session);
+            session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
             combatHost.End(session);
             game.TryRemoveCombat(session);
             ClearFinishedCombatState();
@@ -247,6 +332,7 @@ namespace Godmist.Views.Dungeons
             game.MarkDefeated();
             foreach (var session in sources.Keys.ToArray())
             {
+                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
                 combatHost.End(session);
                 game.TryRemoveCombat(session);
             }
@@ -326,10 +412,11 @@ namespace Godmist.Views.Dungeons
 
         private void OnDestroy()
         {
+            if (unitViews != null) unitViews.ExplorationWorldPosition = null;
             if (!initialized) return;
             combatHost.CombatMapObjectChanged -= HandleMapObjectChanged;
             foreach (var session in sources.Keys.ToArray())
-            { combatHost.End(session); game.TryRemoveCombat(session); }
+            { session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; combatHost.End(session); game.TryRemoveCombat(session); }
             foreach (var unit in bindings.Keys.ToArray()) Release(unit);
         }
     }

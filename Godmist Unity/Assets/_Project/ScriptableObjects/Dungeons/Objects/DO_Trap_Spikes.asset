@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4285ce039d640d44d80b241fe3861f48, type: 3}
+  m_Name: DO_Trap_Spikes
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.SpikeTrapDungeonObjectDefinition
+  <Id>k__BackingField: object.trap.spikes
+  <DisplayName>k__BackingField: "Zardzewia\u0142e kolce"
+  <SpawnWeight>k__BackingField: 1
+  <Damage>k__BackingField: 30
+  <DamageType>k__BackingField: 0
+  <StatusId>k__BackingField: bleed
+  <StatusDamage>k__BackingField: 10
+  <Duration>k__BackingField: 3
+  <StatusChance>k__BackingField: 1
+  <DamageGrowthPerLevel>k__BackingField: 0.065
+  <DealsImmediateDamage>k__BackingField: 1

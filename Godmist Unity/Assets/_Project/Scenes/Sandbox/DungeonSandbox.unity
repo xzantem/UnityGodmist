@@ -3685,6 +3685,17 @@ MonoBehaviour:
     prefab: {fileID: 264584748160448340, guid: ab078ab66e9b9c449bedce677e1a5a24, type: 3}
   - definition: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
     prefab: {fileID: 6676885779285032644, guid: 8ea81abbf4d572b4d93557727b31a715, type: 3}
+  spikeTrapPrefab: {fileID: 8224058198522383774, guid: e1903d28a14ab90449e07935000bc87e, type: 3}
+  trapPrefabs:
+  - definition: {fileID: 11400000, guid: c93126558afb0664a82641061edc7b91, type: 2}
+    theme: 0
+    prefab: {fileID: 8224058198522383774, guid: e1903d28a14ab90449e07935000bc87e, type: 3}
+  - definition: {fileID: 11400000, guid: bb57f1a55abedd0428e8318082820cde, type: 2}
+    theme: 0
+    prefab: {fileID: 2160471129299693973, guid: c247f67becf9ba7438cdd5289a600a57, type: 3}
+  - definition: {fileID: 11400000, guid: a1503f674931c37438245449843693d8, type: 2}
+    theme: 0
+    prefab: {fileID: 2423168432046688857, guid: e86ee3894234f10459c62565677c2819, type: 3}
   doorPrefab: {fileID: 337228898627737318, guid: 2292e3aee2720074ea482e70d0a1dc6f, type: 3}
   objectsRoot: {fileID: 487655857}
 --- !u!1 &494994876
@@ -20576,6 +20587,7 @@ MonoBehaviour:
   movementRangeColor: {r: 1, g: 0.72, b: 0.2, a: 0.85}
   movementPreviewColor: {r: 1, g: 0.84, b: 0.38, a: 1}
   inspectedMovementRangeColor: {r: 0.85, g: 0.3, b: 1, a: 0.85}
+  trapPreviewColor: {r: 1, g: 0.2, b: 0.1, a: 0.85}
 --- !u!4 &1028127581
 Transform:
   m_ObjectHideFlags: 0

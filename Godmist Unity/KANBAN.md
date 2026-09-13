@@ -74,6 +74,19 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Dodać pułapki bojowe i integrację z ruchem v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Wykorzystać istniejący model pułapek eksploracyjnych tam, gdzie pasuje; dodać brakujące przeniesienie do runtime walki, stan aktywacji i wykonanie efektów.
+  - Przed implementacją uzgodnić wyzwalanie przez ruch, przemieszczenia wymuszone i teleport, podatne strony, widoczność, jednorazowość/odnawianie oraz pierwsze efekty.
+  - Preview i wykonanie nie mogą uruchamiać pułapki podwójnie; walidacja i podgląd nie mutują jej stanu. Wspierać przerwanie ruchu przez skutki pułapki.
+  - Zatwierdzone: kolce (fizyczne + krwawienie), jednorazowy gaz na wskazanych polach (zatrucie), pieczęć grobowa (magiczne + osłabienie). Pule według motywu lochu; współdzielona mechanika i warianty wyglądu. Pierwszy content: katakumby.
+  - Wyzwalanie: zwykły ruch/dash/charge/push/pull na przekroczonych polach, teleport wyłącznie na celu; obie strony. Jednorazowe grupy lokalne dla pokoju, bez trwałej chmury. Same obrażenia nie zatrzymują ruchu, utrata możliwości działania zatrzymuje.
+  - Skalowanie poziomem lochu, standardowa obrona i odporności. AI preferuje bezpieczne obejście; przy braku bezpiecznej drogi wybiera najmniejsze zagrożenie i odrzuca przewidywane powalenie.
+  - Zatwierdzone: poza walką tick statusów co 6 sekund aktywnej gry; w walce według tur jednostki, bez resetowania efektu przy zmianie trybu. Osłabienie: −20% zadawanych obrażeń przez 4 tury. Pułapki bez rzutu trafienia/uniku/krytyka, z normalną obroną i odpornościami. Minigra rozbrajania poza zakresem.
+  - Wzrost obrażeń: 6,5% bazy × skumulowany wzrost schodkowy postaci.
+  - Zatwierdzony balans poziomu 1: kolce 30 fizycznych + krwawienie 10 × 3; gaz zatrucie 12 × 5; pieczęć 40 magicznych + osłabienie na 4 tury.
+  - DONE: smoke użytkownika PASS; testy 105/105 PASS, kompilacja poprawki feedbacku PASS; demo `dungeon.catacombs.traps_demo`, seed 4205. Produkcyjna pula pozostaje bez zmian do karty persistence.
+  - Stały podgląd statusów eksploracji odłożony za zgodą użytkownika do karty prezentacji Combat v4.
+
 - `[P1] Rozwinąć przeszkody taktyczne areny v1` - `Combat`, `Content / Data`, `Design / Systems`
   - Rozwinąć istniejące przeszkody z niezależnym blokowaniem ruchu i linii widzenia/efektu; nie tworzyć drugiego modelu tych samych właściwości.
   - Zweryfikować zwykły ruch, dash/charge, push/pull, teleport i kolizje według istniejących zasad. Dodać reprezentatywne warianty contentu oraz walidację danych.

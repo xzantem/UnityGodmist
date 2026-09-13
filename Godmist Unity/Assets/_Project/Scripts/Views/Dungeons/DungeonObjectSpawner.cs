@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Data.Dungeons;
+using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.UI.Workspace;
@@ -60,6 +61,21 @@ namespace Godmist.Views.Dungeons
 
         [SerializeField] private DungeonDoorView doorPrefab;
         [SerializeField] private DungeonSpikeTrapView spikeTrapPrefab;
+        [SerializeField] private List<TrapPrefabBinding> trapPrefabs = new();
+        [Serializable]
+        public sealed class TrapPrefabBinding
+        {
+            public SpikeTrapDungeonObjectDefinition definition;
+            public DungeonTheme theme;
+            public DungeonSpikeTrapView prefab;
+        }
+        public DungeonSpikeTrapView ResolveTrapPrefab(SpikeTrapDungeonObjectDefinition definition, DungeonTheme theme)
+        {
+            foreach(var binding in trapPrefabs)
+                if(binding != null && binding.definition == definition && binding.theme == theme) return binding.prefab;
+            return spikeTrapPrefab;
+        }
+
         [SerializeField] private DungeonLeverView leverPrefab;
         [SerializeField] private DungeonConditionView conditionPrefab;
         [SerializeField] private Transform objectsRoot;
@@ -75,7 +91,7 @@ namespace Godmist.Views.Dungeons
 
         public bool Rebuild(
             DungeonFloorInstance floor,
-            ExplorationPartyController partyController)
+            ExplorationPartyController partyController, DungeonTheme theme = DungeonTheme.Story)
         {
             if (!ValidateObstaclePrefabs(out var obstacleError))
             {
@@ -179,11 +195,13 @@ namespace Godmist.Views.Dungeons
 
                 if (dungeonObject is SpikeTrapDungeonObjectInstance spikeTrap)
                 {
-                    var spikeTrapView = spikeTrapPrefab != null
-                        ? Instantiate(spikeTrapPrefab, parent)
-                        : DungeonObjectView.CreateFallback<DungeonSpikeTrapView>(
-                            parent,
-                            $"SpikeTrap_{spikeTrap.InstanceId}");
+                    var trapPrefab = ResolveTrapPrefab(spikeTrap.Definition as SpikeTrapDungeonObjectDefinition, theme);
+                    if (trapPrefab == null)
+                    {
+                        Debug.LogError("DungeonObjectSpawner: brak prefabu pułapki.");
+                        return false;
+                    }
+                    var spikeTrapView = Instantiate(trapPrefab, parent);
 
                     spikeTrapView.name = $"SpikeTrap_{spikeTrap.InstanceId}";
                     spikeTrapView.Initialize(

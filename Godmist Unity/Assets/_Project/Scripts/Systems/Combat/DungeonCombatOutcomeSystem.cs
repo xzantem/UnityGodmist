@@ -129,7 +129,7 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private static bool TryCreateEnemyBodies(
+        public static bool TryCreateEnemyBodies(
             DungeonInstance dungeon,
             DungeonCombatContext context,
             CombatSession combatSession)
