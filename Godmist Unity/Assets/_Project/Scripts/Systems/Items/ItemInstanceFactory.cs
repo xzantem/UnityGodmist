@@ -25,6 +25,11 @@ namespace Godmist.Systems.Items
                 return new JewelryItemInstance(jewelryDefinition, instanceId);
             }
 
+            if (definition is GalduryteItemDefinition galduryteDefinition)
+            {
+                return new GalduryteItemInstance(galduryteDefinition, instanceId);
+            }
+
             if (definition is EquipmentItemDefinition equipmentDefinition)
             {
                 return new EquipmentItemInstance(

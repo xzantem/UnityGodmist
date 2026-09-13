@@ -44,11 +44,6 @@ MonoBehaviour:
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
-    - rewardType: 2
-      amount: 1
-      itemDefinition: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-      worldFlagId: 
-      worldFlagValue: true
     - rewardType: 4
       amount: 1
       itemDefinition: {fileID: 0}

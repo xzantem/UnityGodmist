@@ -9,6 +9,8 @@ namespace Godmist.Systems.NPC
     {
         private readonly ItemInstanceFactory itemInstanceFactory;
         private readonly InventoryService inventoryService;
+        private readonly NpcLoyaltyService npcLoyaltyService;
+        private readonly NpcEconomyService npcEconomyService;
 
         public NpcInstanceFactory(
             ItemInstanceFactory itemInstanceFactory = null,
@@ -16,9 +18,13 @@ namespace Godmist.Systems.NPC
         {
             this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
             this.inventoryService = inventoryService ?? new InventoryService();
+            npcLoyaltyService = new NpcLoyaltyService();
+            npcEconomyService = new NpcEconomyService();
         }
 
-        public NpcInstance Create(NpcDefinition definition)
+        public NpcInstance Create(
+            NpcDefinition definition,
+            int campaignLevel = 1)
         {
             if (definition == null)
             {
@@ -34,9 +40,17 @@ namespace Godmist.Systems.NPC
             {
                 NpcId = definition.Id,
                 Definition = definition,
-                LoyaltyLevel = 1,
-                SpentGoldTotal = 0
+                LoyaltyLevel = npcLoyaltyService.InitialLevel,
+                SpentGoldTotal = 0,
+                GoldBalance = 0,
+                TotalGoldReceived = 0,
+                TotalGoldSpent = 0,
+                GuildPayoutProgress = 0f
             };
+
+            npc.GoldBalance = npcEconomyService.GetInitialGold(
+                npc,
+                campaignLevel);
 
             CreateShopInventory(npc);
 

@@ -310,7 +310,7 @@ namespace Godmist.Views.UI.Workspace
             }
 
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            LootClaimed?.Invoke(bodyInstanceId, $"+ {claimedGold} złota");
+            LootClaimed?.Invoke(bodyInstanceId, $"+ {claimedGold}");
             CharacterInfoWindowView.RefreshOpenWindows(session);
             Refresh();
             return true;

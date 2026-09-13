@@ -10,6 +10,36 @@ namespace Godmist.Tests.EditMode
 {
     public class DevConsoleViewTests
     {
+        [TestCase("createitem item.test characterId=je", "jerzy", "createitem item.test characterId=jerzy")]
+        [TestCase("creategalduryte target=", "armor", "creategalduryte target=armor")]
+        [TestCase("creategalduryte 1 ar", "armor", "creategalduryte 1 armor")]
+        public void ApplySelectedSuggestion_PreservesNamedArgumentKey(string line, string suggestion, string expected)
+        {
+            var root = new GameObject("SuggestionCompletionTest");
+            var inputObject = new GameObject("Input");
+            var textObject = new GameObject("Text");
+            try
+            {
+                var view = root.AddComponent<DevConsoleView>();
+                var inputType = Type.GetType("TMPro.TMP_InputField, Unity.TextMeshPro");
+                var input = inputObject.AddComponent(inputType);
+                var text = textObject.AddComponent(Type.GetType("TMPro.TextMeshProUGUI, Unity.TextMeshPro"));
+                SetPrivateProperty(input, "textComponent", text);
+                SetPrivateProperty(input, "text", line);
+                SetPrivateField(view, "commandInput", input);
+                SetPrivateField(view, "suggestions", new List<string> { suggestion });
+                SetPrivateField(view, "selectedSuggestionIndex", 0);
+                InvokePrivate(view, "ApplySelectedSuggestion");
+                Assert.That(GetInputText(inputType, input), Is.EqualTo(expected));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(textObject);
+                UnityEngine.Object.DestroyImmediate(inputObject);
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
         [Test]
         public void SuggestionNavigation_UsesFullListAndKeepsFiveVisible()
         {

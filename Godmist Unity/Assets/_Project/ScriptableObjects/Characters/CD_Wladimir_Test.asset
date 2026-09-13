@@ -40,13 +40,16 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 36
     <PhysicalDefense>k__BackingField: 8
     <MagicalDefense>k__BackingField: 4
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 17
-    <CritChance>k__BackingField: 0.25
-    <CritDamage>k__BackingField: 1.5
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 1
     <Speed>k__BackingField: 55
-    <WeaponAccuracy>k__BackingField: 85
+    <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 200
     <ResourceRegeneration>k__BackingField: 0
+    <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
     <BleedResistance>k__BackingField: 0.5
     <PoisonResistance>k__BackingField: 0.7
@@ -70,10 +73,11 @@ MonoBehaviour:
   <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
   <StartingSkills>k__BackingField:
   - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
-  - {fileID: 11400000, guid: 6ce51c6ac2a89a3408a6c4093d4cf401, type: 2}
+  - {fileID: 11400000, guid: 64476796537f2e2468b46fae9a0ad962, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}
   - {fileID: 11400000, guid: 7e460c15d4989af40bc79434f56e6519, type: 2}
   - {fileID: 11400000, guid: c14c208428aa07949be900a800b8b55a, type: 2}
+  - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
   - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0

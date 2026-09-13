@@ -244,7 +244,11 @@ namespace Godmist.Systems.SaveLoad
                 {
                     NpcId = npc.NpcId,
                     LoyaltyLevel = npc.LoyaltyLevel,
-                    SpentGoldTotal = npc.SpentGoldTotal
+                    SpentGoldTotal = npc.SpentGoldTotal,
+                    GoldBalance = npc.GoldBalance,
+                    TotalGoldReceived = npc.TotalGoldReceived,
+                    TotalGoldSpent = npc.TotalGoldSpent,
+                    GuildPayoutProgress = npc.GuildPayoutProgress
                 };
 
                 if (npc.ShopInventory != null)
@@ -308,6 +312,8 @@ namespace Godmist.Systems.SaveLoad
                 Seed = dungeon.Seed,
                 DungeonLevel = dungeon.DungeonLevel,
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
+                HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
+                GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
                 PlayerPositionX = dungeon.PlayerPosition.x,
@@ -964,11 +970,20 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.PartIds = equipmentItem.PartIds == null
                     ? new List<string>()
                     : new List<string>(equipmentItem.PartIds);
+                itemSaveData.PrimaryPartDisplayName = equipmentItem.PrimaryPartDisplayName ?? string.Empty;
+                itemSaveData.PrimaryMaterialId = equipmentItem.PrimaryMaterialId ?? string.Empty;
+                itemSaveData.EquipmentCraftedBaseValue = equipmentItem.CraftedBaseValue;
                 itemSaveData.BaseStatModifiers = CopyStatModifiers(
                     equipmentItem.BaseStatModifiers);
                 itemSaveData.StatModifiers = CopyStatModifiers(
                     equipmentItem.StatModifiers);
                 itemSaveData.UpgradeProgress = equipmentItem.UpgradeProgress;
+                foreach (var socketed in equipmentItem.SocketedGaldurytes
+                             ?? new List<GalduryteItemInstance>())
+                {
+                    if (!TryCaptureItem(socketed, saveData, capturedItemIds)) return false;
+                    itemSaveData.SocketedGalduryteInstanceIds.Add(socketed.InstanceId);
+                }
 
                 if (equipmentItem is JewelryItemInstance jewelryItem)
                 {
@@ -976,7 +991,7 @@ namespace Godmist.Systems.SaveLoad
                     itemSaveData.JewelryMetalDisplayName = jewelryItem.MetalDisplayName;
                     itemSaveData.JewelryGemId = jewelryItem.GemId;
                     itemSaveData.JewelryGemDisplayName = jewelryItem.GemDisplayName;
-                    itemSaveData.JewelryGemDescription = jewelryItem.GemDescription;
+                    itemSaveData.JewelryCraftedBaseValue = jewelryItem.CraftedBaseValue;
                 }
             }
 
@@ -989,6 +1004,8 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.CatalystDurationModifier = consumableItem.CatalystDurationModifier;
                 itemSaveData.CatalystEffectMultiplier = consumableItem.CatalystEffectMultiplier;
                 itemSaveData.CatalystChargeBonus = consumableItem.CatalystChargeBonus;
+                itemSaveData.CatalystDisplayName = consumableItem.CatalystDisplayName;
+                itemSaveData.ConsumableCraftedBaseValue = consumableItem.CraftedBaseValue;
                 foreach (var effect in consumableItem.RuntimeEffects ?? new List<ConsumableEffectRuntime>())
                 {
                     if (effect == null) continue;
@@ -1003,6 +1020,32 @@ namespace Godmist.Systems.SaveLoad
                         ResistanceType = effect.ResistanceType,
                         TargetType = effect.TargetType,
                         TargetingType = effect.TargetingType
+                    });
+                }
+            }
+
+            if (item is GalduryteItemInstance galduryteItem)
+            {
+                itemSaveData.IsGalduryte = true;
+                itemSaveData.GalduryteTargetType = galduryteItem.TargetType;
+                itemSaveData.GalduryteTier = galduryteItem.Tier;
+                itemSaveData.GaldurytePowderColor = galduryteItem.GuaranteedPowderColor;
+                itemSaveData.GalduryteIsIdentified = galduryteItem.IsIdentified;
+                itemSaveData.GalduryteIsDestroyed = galduryteItem.IsDestroyed;
+                itemSaveData.GalduryteStoneDefinitionId = galduryteItem.StoneDefinitionId ?? string.Empty;
+                itemSaveData.GaldurytePowderDefinitionId = galduryteItem.PowderDefinitionId ?? string.Empty;
+                itemSaveData.GalduryteStoneDisplayName = galduryteItem.StoneDisplayName ?? string.Empty;
+                itemSaveData.GalduryteCraftedBaseValue = galduryteItem.CraftedBaseValue;
+
+                foreach (var effect in galduryteItem.Effects ?? new List<GalduryteEffectInstance>())
+                {
+                    if (effect == null) continue;
+                    itemSaveData.GalduryteEffects.Add(new GalduryteEffectSaveData
+                    {
+                        EffectType = effect.EffectType,
+                        PowderColor = effect.PowderColor,
+                        Grade = effect.Grade,
+                        Value = effect.Value
                     });
                 }
             }

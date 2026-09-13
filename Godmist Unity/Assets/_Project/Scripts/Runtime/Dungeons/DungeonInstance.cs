@@ -13,6 +13,8 @@ namespace Godmist.Runtime.Dungeons
         public int Seed { get; }
         public int DungeonLevel { get; }
         public int CurrentFloorIndex { get; private set; }
+        public int HighestReachedFloorIndex { get; private set; }
+        public int GuildProgressCreditedFloorCount { get; private set; }
         public bool IsCompleted { get; private set; }
 
         private readonly HashSet<string> clearedEncounterIds = new();
@@ -76,6 +78,11 @@ namespace Godmist.Runtime.Dungeons
             if (!TryGetFloor(floorIndex, out _)) return false;
 
             CurrentFloorIndex = floorIndex;
+            if (floorIndex > HighestReachedFloorIndex)
+            {
+                HighestReachedFloorIndex = floorIndex;
+            }
+
             return true;
         }
 
@@ -134,9 +141,27 @@ namespace Godmist.Runtime.Dungeons
             bool isCompleted,
             bool hasPlayerPosition,
             Vector2 playerPosition,
-            IEnumerable<string> restoredClearedEncounterIds)
+            IEnumerable<string> restoredClearedEncounterIds,
+            int highestReachedFloorIndex = -1,
+            int guildProgressCreditedFloorCount = 0)
         {
             if (!TryGetFloor(currentFloorIndex, out _))
+            {
+                return false;
+            }
+
+            var normalizedHighestReachedFloorIndex = highestReachedFloorIndex < 0
+                ? currentFloorIndex
+                : highestReachedFloorIndex;
+
+            var completedFloorCount = isCompleted
+                ? floors.Count
+                : normalizedHighestReachedFloorIndex;
+
+            if (!TryGetFloor(normalizedHighestReachedFloorIndex, out _)
+                || normalizedHighestReachedFloorIndex < currentFloorIndex
+                || guildProgressCreditedFloorCount < 0
+                || guildProgressCreditedFloorCount > completedFloorCount)
             {
                 return false;
             }
@@ -157,6 +182,8 @@ namespace Godmist.Runtime.Dungeons
             }
 
             CurrentFloorIndex = currentFloorIndex;
+            HighestReachedFloorIndex = normalizedHighestReachedFloorIndex;
+            GuildProgressCreditedFloorCount = guildProgressCreditedFloorCount;
             IsCompleted = isCompleted;
 
             clearedEncounterIds.Clear();
@@ -171,6 +198,26 @@ namespace Godmist.Runtime.Dungeons
                 ? playerPosition
                 : default;
 
+            return true;
+        }
+
+        public int GetCompletedFloorCount()
+        {
+            if (floors.Count == 0) return 0;
+            if (IsCompleted) return floors.Count;
+
+            return Mathf.Clamp(HighestReachedFloorIndex, 0, floors.Count);
+        }
+
+        public bool TrySetGuildProgressCreditedFloorCount(int floorCount)
+        {
+            if (floorCount < GuildProgressCreditedFloorCount
+                || floorCount > GetCompletedFloorCount())
+            {
+                return false;
+            }
+
+            GuildProgressCreditedFloorCount = floorCount;
             return true;
         }
 

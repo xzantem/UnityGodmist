@@ -872,7 +872,7 @@ namespace Godmist.Editor
                     SetProperty(serialized, "<UseType>k__BackingField", (int)ConsumableUseType.Potion);
                     SetProperty(serialized, "<MaxCharges>k__BackingField", 5); break;
                 case Preset.Bomb:
-                    SetProperty(serialized, "<ItemType>k__BackingField", (int)ItemType.Tool);
+                    SetProperty(serialized, "<ItemType>k__BackingField", (int)ItemType.Bomb);
                     SetProperty(serialized, "<UseType>k__BackingField", (int)ConsumableUseType.Bomb);
                     SetProperty(serialized, "<MaxCharges>k__BackingField", 5); break;
                 case Preset.Utility:

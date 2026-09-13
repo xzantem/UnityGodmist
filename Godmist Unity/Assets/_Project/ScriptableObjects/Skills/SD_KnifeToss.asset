@@ -30,6 +30,7 @@ MonoBehaviour:
   targetModes:
   - targetType: 0
     targetingType: 0
+    includesCaster: 0
     absoluteRange:
       shape: 1
       minRange: 1
@@ -42,6 +43,7 @@ MonoBehaviour:
       rectangleWidth: 3
   - targetType: 9
     targetingType: 0
+    includesCaster: 0
     absoluteRange:
       shape: 1
       minRange: 1
@@ -64,7 +66,7 @@ MonoBehaviour:
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 1
     onHitStatusDurationTurns: 1
     lifeStealPercent: 0
@@ -100,6 +102,7 @@ MonoBehaviour:
     stacks: 1
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    percentageValue: 0
     counterattackRange:
       shape: 1
       minRange: 1

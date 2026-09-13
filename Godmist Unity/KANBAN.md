@@ -49,13 +49,6 @@ Planowany po `Crafting, Upgrading and Consumables v1`. Wspolny model dla pasywek
 
 Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji oraz rozwija specjalistyczne uslugi NPC bez mieszania ich z kolejnym passsem walki lub lochow.
 
-- Loyalty NPC, progi uslug, rabaty i trwały progress wydatkow.
-- Alchemik, rune-maker i pozostale planowane uslugi specjalistyczne.
-- Crafting półproduktów kowalskich oraz rozróżnienie zastosowań materiałów dla specjalistów.
-- `[P2] Dodac crafting bizuterii oraz galduryty/runy v2` - `Items / Inventory / Economy`, `NPC / Quest / Dialogue`, `Content / Data`, `Design / Systems`
-  - Osobny model po pierwszym passie dropow bizuterii; nie zakladac automatycznie modelu trzech czesci dla bizuterii. Karta obejmuje rowniez galduryty i runy jako uslugi/content ekonomii NPC.
-- `[P2] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Design / Systems`, `Core / Architecture`
-  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz jest blokowana przy braku srodkow, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1
@@ -79,10 +72,14 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 - Zaawansowane sterowanie drużyną: przypinanie/odpinanie, tworzenie grup, przełączanie poprzez klik na mapie oraz menu kontekstowe: przypnij/odepnij; "pan to"; inspect
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
-## In Progress
+## Done
 
 ### Karty do decyzji o przypisaniu do milestone'u
 
+- `[Do decyzji] Rozdzielić warianty modyfikatorów danych contentu v1` - `Core / Architecture`, `Content / Data`, `Tools / Editor / Debug`
+  - Zastąpić wspólne modele serializowane, które przechowują nieużywane pola zależne od typu (np. jednocześnie statystykę, odporność i zmienną rozgrywki), rozłącznymi wariantami danych albo wrapperem z dedykowanym payloadem dla każdego wariantu. Inspector ma ujawniać wyłącznie pola aktywnego wariantu, walidacja odrzucać niepełne dane, a runtime konsumować typowany payload zamiast ignorować „martwe” wartości. Obecny model `JewelryModifierData` może pozostać rozwiązaniem przejściowym do czasu refaktoru.
+  - To karta o ogólnym design patternie dla wariantowych danych contentu; modyfikatory biżuterii są tylko pierwszym konkretnym przykładem tego problemu.
+  - Przypisanie do milestone'u oraz priorytet do ustalenia.
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
   - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wejscie gracza w FOV przeciwnika uruchamia poscig, a walka zaczyna sie po jego dogonieniu. Bez jednego wspolnego anchoru dla calej grupy.
   - Przypisanie do milestone'u oraz priorytet do ustalenia.
@@ -93,7 +90,49 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - Generator ma dopuszczac lepsze upakowanie nieregularnych pokoi, blokujac rzeczywiste zajete komorki zamiast calego prostokatnego bounding boxa; uwzglednic dziury, sasiedztwo pokoi i kompatybilne przejscia.
   - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
 
-## Done
+## In Progress
+
+- `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
+  - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.
+  - Statyczny layout zapisany w prefabie; bez runtime builderow. Smoke zaakceptowany przez uzytkownika; 53/53 testy PASS i koncowy retest prefabu 7/7 PASS.
+
+- `[P1] City Progression and Specialist Services v1 - acceptance pass` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Combat`, `UI / UX`, `Tools / Editor / Debug` - `DONE`
+  - Domknieto acceptance i poprawki po code review: ksiegowanie oplat, buyback, walidacja wlasnosci, bonus trafienia, zachowanie postepu ulepszania i statyczne UI w prefabie.
+  - Testy regresyjne 189/189 PASS; koncowy retest 29/29 PASS. Smoke zaakceptowany przez uzytkownika. Raport: CITY_SERVICES_ACCEPTANCE.md.
+
+- `[P1] Dodac trwala lojalnosc NPC i postep wydatkow v1` - `NPC / Quest / Dialogue`, `Core / Architecture` - `DONE`
+  - Dodac osobny, zapisywalny stan lojalnosci oraz skumulowanych wydatkow dla kazdego NPC. Zdefiniowac dane progresji i przygotowac je pod pozniejsze progi odblokowan oraz rabatow.
+  - Smoke zaakceptowany przez uzytkownika 2026-09-13.
+- `[P1] Dodac progi lojalnosci, odblokowania uslug i rabaty v1` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX` - `DONE`
+  - Dodac data-driven progi lojalnosci, odblokowywanie uslug i rabaty. UI ma pokazywac dostepnosc uslugi oraz czytelny powod blokady.
+  - Smoke zaakceptowany przez uzytkownika 2026-09-13.
+- `[P1] Dodac ekonomie NPC i wyplaty gildii v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Core / Architecture` - `DONE`
+  - Dodac osobny, trwaly portfel golda dla kazdego NPC bez maksymalnego limitu. NPC otrzymuje skonfigurowana wyplate po okreslonej liczbie w pelni ukonczonych lochow; kwota skaluje sie z poziomem kampanii (najwyzszym poziomem aktywnej druzyny). Zakupy zwiekszaja portfel NPC, sprzedaz przy niewystarczajacym saldzie wymaga potwierdzenia i wyplaca saldo NPC, a saldo i postep do wyplaty sa zapisywane. UI handlu pokazuje saldo i powod odrzucenia transakcji.
+  - Smoke zaakceptowany przez uzytkownika 2026-09-13.
+
+- `[P2] Dodac wyciaganie galdurytow/run z broni i pancerzy v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture` - `DONE`
+  - Osobna zakladka Zaklinacza. Szansa 70%, od lojalnosci 6: 80%. Kazda proba kosztuje 120% wartosci galdurytu; zniszczony kosztuje 180%, bez kumulacji doplat. Niepowodzenie pozostawia zniszczony galduryt bez efektow w sockecie. Powodzenie zwraca sprawny galduryt do wlasciciela/magazynu albo calkowicie usuwa zniszczony. Stan zapisuje sie w save/load.
+  - Poprawiony layout osadzania i wyciagania: zawijane ostrzezenie, osobna szansa przy koszcie, wysokosc tytulu zaleznа od tekstu i brak miejsca rezerwowanego przez pusty status. Testy EditMode przeszly; smoke zaakceptowany przez uzytkownika 2026-09-13.
+
+- `[P2] Dodac socketowanie galdurytow/run w bronie i pancerze v1` - `Items / Inventory / Economy`, `Combat`, `Core / Architecture` - `DONE`
+  - Osobna zakladka Zaklinacza: wybor wyposazenia i galdurytu, lista zajetych i wolnych socketow, koszt i osadzanie. Walidacja celu, poziomu, rzadkosci, identyfikacji i pojemnosci; koszt konfigurowany jako procent wartosci galdurytu; efekty oraz save/load osadzonych instancji.
+  - Poprawione prefaby, interakcje, tooltipy wyposazenia i autouzupelnianie nazwanych argumentow konsoli. Smoke zaakceptowany przez uzytkownika; kompilacja przeszla. Dodane testy konsoli wymagaja uruchomienia EditMode. Mieszanie tierow czesci pozostaje do przyszlej decyzji.
+
+### Milestone: City Progression and Specialist Services v1
+
+- `[P2] Dodac crafting bizuterii v1` - `Items / Inventory / Economy`, `Content / Data`, `UI / UX` - `DONE`
+  - Osobny model craftingu biżuterii oparty o metal + klejnot, bez automatycznego modelu trzech części equipmentu i bez socketów na galduryty. Ujednolicono preview, nazewnictwo, tooltipy, materiały oraz save/load.
+- `[P2] Dodac crafting i identyfikowanie galdurytow/run v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data` - `DONE`
+  - Galduryty/runy jako wspólny system: Enchanter tworzy i identyfikuje galduryty, a niezidentyfikowany i zidentyfikowany stan jest zapisywany. Dodano materiały, tiering, losowanie efektów, tooltipy oraz komendę debugową.
+
+- `[P1] Dodac role Alchemika, crafting i napełnianie potionow v1` - `NPC / Quest / Dialogue`, `Items / Inventory / Economy`, `Content / Data` - `DONE`
+  - Data-driven crafting potionow i bomb, materialy Alchemika, alkohole/prochy/katalizator, crafting materialow i napełnianie consumables.
+  - Panel zostal ujednolicony z UI Kowala; tooltipy, sloty materialow i refille przechodza przez wspolne reguly UI Workspace.
+  - Zweryfikowano testy EditMode dla craftingu i napełniania.
+- `[P1] Dodac Kapłana z darmowym leczeniem drużyny v1` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX` - `DONE`
+  - Dodano role i definicję Kapłana oraz dialog z opcją darmowego pełnego leczenia aktywnej drużyny.
+  - Leczenie jest jawną akcją dialogową `HealActiveParty`; nie tworzy osobnej zakładki usług i nie wskrzesza powalonych postaci.
+  - Zweryfikowano wybór dialogowy testem EditMode.
 
 ### Milestone: Combat Passives and Affixes v1
 

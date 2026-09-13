@@ -27,6 +27,75 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void GetPriceToBuyFromTrader_AppliesNpcLoyaltyDiscount()
+        {
+            var service = new TradeService();
+            var trader = CreateTrader(new List<ItemType>());
+            trader.LoyaltyLevel = 12;
+            var item = CreateItem("item.material", ItemType.Material, 100);
+
+            var price = service.GetPriceToBuyFromTrader(trader, item);
+
+            Assert.That(price, Is.EqualTo(75));
+        }
+
+        [Test]
+        public void TryBuyFromTrader_ChargesDiscountedPrice()
+        {
+            var service = new TradeService();
+            var session = new GameSession();
+            var trader = CreateTrader(new List<ItemType>());
+            trader.LoyaltyLevel = 12;
+            var buyer = new CharacterInstance();
+            var item = CreateItem("item.weapon", ItemType.Weapon, 100);
+
+            session.TryAddGold(100);
+            trader.ShopInventory.Items.Add(item);
+
+            var result = service.TryBuyFromTrader(
+                session,
+                trader,
+                buyer,
+                item.InstanceId,
+                out var paidGold);
+
+            Assert.That(result, Is.True);
+            Assert.That(paidGold, Is.EqualTo(75));
+            Assert.That(session.Gold, Is.EqualTo(25));
+            Assert.That(trader.SpentGoldTotal, Is.EqualTo(75));
+        }
+
+        [Test]
+        public void MaterialTrade_AllowsMaterialAboveFormerNpcLoyaltyGate()
+        {
+            var service = new TradeService();
+            var session = new GameSession();
+            var trader = CreateTrader(new List<ItemType>());
+            trader.LoyaltyLevel = 4;
+            var buyer = new CharacterInstance();
+            var item = CreateItem(
+                "item.uncommon_material",
+                ItemType.Material,
+                100,
+                RarityTier.Uncommon);
+
+            session.TryAddGold(100);
+            trader.ShopInventory.Items.Add(item);
+
+            var result = service.TryBuyFromTrader(
+                session,
+                trader,
+                buyer,
+                item.InstanceId,
+                out var paidGold);
+
+            Assert.That(result, Is.True);
+            Assert.That(paidGold, Is.EqualTo(96));
+            Assert.That(session.Gold, Is.EqualTo(4));
+            Assert.That(trader.ShopInventory.Items, Is.Empty);
+        }
+
+        [Test]
         public void GetPriceWhenSellingToTrader_UsesHalfForRelevantItem()
         {
             var service = new TradeService();
@@ -103,6 +172,98 @@ namespace Godmist.Tests.EditMode
             Assert.That(trader.ShopInventory.BuybackStock, Has.Count.EqualTo(1));
             Assert.That(trader.ShopInventory.BuybackStock[0].Item, Is.SameAs(item));
             Assert.That(trader.ShopInventory.BuybackStock[0].SoldPrice, Is.EqualTo(50));
+            Assert.That(trader.GoldBalance, Is.EqualTo(950));
+            Assert.That(trader.TotalGoldSpent, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void TrySellToTrader_RequiresExplicitAcceptanceForPartialPayment()
+        {
+            var service = new TradeService();
+            var session = new GameSession();
+            var trader = CreateTrader(new List<ItemType> { ItemType.Material });
+            trader.GoldBalance = 60;
+            var seller = new CharacterInstance();
+            var item = CreateItem("item.material", ItemType.Material, 200);
+
+            seller.Inventory.Items.Add(item);
+
+            Assert.That(
+                service.TrySellToTrader(
+                    session,
+                    trader,
+                    seller,
+                    item.InstanceId,
+                    out var receivedGold),
+                Is.False);
+            Assert.That(receivedGold, Is.EqualTo(0));
+            Assert.That(seller.Inventory.Items, Has.Count.EqualTo(1));
+            Assert.That(trader.ShopInventory.BuybackStock, Is.Empty);
+
+            Assert.That(
+                service.TrySellToTrader(
+                    session,
+                    trader,
+                    seller,
+                    item.InstanceId,
+                    acceptPartialPayment: true,
+                    out receivedGold),
+                Is.True);
+            Assert.That(receivedGold, Is.EqualTo(60));
+            Assert.That(session.Gold, Is.EqualTo(60));
+            Assert.That(trader.GoldBalance, Is.EqualTo(0));
+            Assert.That(trader.TotalGoldSpent, Is.EqualTo(60));
+            Assert.That(trader.ShopInventory.BuybackStock, Has.Count.EqualTo(1));
+            Assert.That(
+                service.GetPriceFromBuyback(
+                    trader,
+                    trader.ShopInventory.BuybackStock[0]),
+                Is.EqualTo(200));
+        }
+
+        [Test]
+        public void TrySellToTrader_AllowsConfirmedFreeSaleWhenTraderHasNoGold()
+        {
+            var service = new TradeService();
+            var session = new GameSession();
+            var trader = CreateTrader(new List<ItemType> { ItemType.Material });
+            trader.GoldBalance = 0;
+            var seller = new CharacterInstance();
+            var item = CreateItem("item.material.free-sale", ItemType.Material, 200);
+            seller.Inventory.Items.Add(item);
+
+            Assert.That(
+                service.TryGetSellQuote(
+                    trader,
+                    item,
+                    out var normalPrice,
+                    out var payableGold,
+                    out var failureReason),
+                Is.True);
+            Assert.That(normalPrice, Is.EqualTo(100));
+            Assert.That(payableGold, Is.EqualTo(0));
+            Assert.That(failureReason, Is.Empty);
+
+            Assert.That(
+                service.TrySellToTrader(
+                    session,
+                    trader,
+                    seller,
+                    item.InstanceId,
+                    acceptPartialPayment: true,
+                    out var receivedGold),
+                Is.True);
+            Assert.That(receivedGold, Is.EqualTo(0));
+            Assert.That(session.Gold, Is.EqualTo(0));
+            Assert.That(trader.GoldBalance, Is.EqualTo(0));
+            Assert.That(trader.TotalGoldSpent, Is.EqualTo(0));
+            Assert.That(seller.Inventory.Items, Is.Empty);
+            Assert.That(trader.ShopInventory.BuybackStock, Has.Count.EqualTo(1));
+            Assert.That(
+                service.GetPriceFromBuyback(
+                    trader,
+                    trader.ShopInventory.BuybackStock[0]),
+                Is.EqualTo(200));
         }
 
         [Test]
@@ -131,7 +292,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void TryBuyFromBuyback_ReturnsExactSoldItemForOriginalSellPrice()
+        public void TryBuyFromBuyback_UsesNormalPurchasePriceWithoutLoyaltyProgress()
         {
             var service = new TradeService();
             var session = new GameSession();
@@ -148,6 +309,8 @@ namespace Godmist.Tests.EditMode
                 item.InstanceId,
                 out var receivedGold);
 
+            session.TryAddGold(50);
+
             var didBuyBack = service.TryBuyFromBuyback(
                 session,
                 trader,
@@ -158,8 +321,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(didSell, Is.True);
             Assert.That(receivedGold, Is.EqualTo(50));
             Assert.That(didBuyBack, Is.True);
-            Assert.That(paidGold, Is.EqualTo(50));
+            Assert.That(paidGold, Is.EqualTo(100));
             Assert.That(session.Gold, Is.EqualTo(0));
+            Assert.That(trader.SpentGoldTotal, Is.EqualTo(0));
+            Assert.That(trader.GoldBalance, Is.EqualTo(1050));
             Assert.That(trader.ShopInventory.BuybackStock, Is.Empty);
             Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
             Assert.That(character.Inventory.Items[0], Is.SameAs(item));
@@ -187,6 +352,7 @@ namespace Godmist.Tests.EditMode
             {
                 NpcId = "npc.trader",
                 Definition = definition,
+                GoldBalance = 1000,
                 ShopInventory = new ShopInventory()
             };
         }
@@ -194,7 +360,8 @@ namespace Godmist.Tests.EditMode
         private static ItemInstance CreateItem(
             string itemId,
             ItemType itemType,
-            int baseValue)
+            int baseValue,
+            RarityTier baseRarity = RarityTier.Common)
         {
             var definition = ScriptableObject.CreateInstance<ItemDefinition>();
 
@@ -202,7 +369,7 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "DisplayName", itemId);
             SetAutoProperty(definition, "ItemType", itemType);
             SetAutoProperty(definition, "BaseValue", baseValue);
-            SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+            SetAutoProperty(definition, "BaseRarity", baseRarity);
 
             return new ItemInstance(definition, $"{itemId}.instance");
         }

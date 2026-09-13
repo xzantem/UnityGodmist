@@ -23,6 +23,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private BlacksmithCraftingSlotView equipmentSlotTemplate;
         [SerializeField] private Slider targetProgressSlider;
         [SerializeField] private Slider successChanceSlider;
+        [SerializeField] private TextMeshProUGUI targetProgressLabel;
+        [SerializeField] private TextMeshProUGUI successChanceLabel;
         [SerializeField] private GameObject upgradeOptionsRoot;
         [SerializeField] private BlacksmithCraftingSlotView previewSlot;
         [SerializeField] private TextMeshProUGUI previewNameText;
@@ -41,8 +43,6 @@ namespace Godmist.Views.UI.Workspace
         private void Awake()
         {
             if (equipmentSlotTemplate != null) equipmentSlotTemplate.gameObject.SetActive(false);
-            EnsureSliderInputSurface(targetProgressSlider);
-            EnsureSliderInputSurface(successChanceSlider);
             if (actionButton != null) actionButton.onClick.AddListener(Execute);
             if (targetProgressSlider != null) targetProgressSlider.onValueChanged.AddListener(HandleSliderChanged);
             if (successChanceSlider != null) successChanceSlider.onValueChanged.AddListener(HandleSliderChanged);
@@ -64,6 +64,13 @@ namespace Godmist.Views.UI.Workspace
         public void Hide() => serviceRoot?.SetActive(false);
         private void HandleSliderChanged(float _)
         {
+            // Displayed percentages and the actual operation must use the same value.
+            if (targetProgressSlider != null)
+                targetProgressSlider.SetValueWithoutNotify(Mathf.Max(
+                    selected?.UpgradeProgress ?? 0f,
+                    Mathf.Round(targetProgressSlider.value * 100f) / 100f));
+            if (successChanceSlider != null)
+                successChanceSlider.SetValueWithoutNotify(Mathf.Round(successChanceSlider.value * 100f) / 100f);
             executionPreviewText = null;
             Refresh();
         }
@@ -96,24 +103,6 @@ namespace Godmist.Views.UI.Workspace
             targetProgressSlider.SetValueWithoutNotify(Mathf.Clamp(retainedTarget ?? currentProgress, currentProgress, 1f));
         }
 
-        private static void EnsureSliderInputSurface(Slider slider)
-        {
-            if (slider == null) return;
-
-            // A Fill Rect has zero width at value 0. Give the Slider root its own
-            // transparent raycast target, so clicking and dragging works across the
-            // complete control at every value.
-            var inputSurface = slider.GetComponent<Graphic>();
-            if (inputSurface == null)
-            {
-                var image = slider.gameObject.AddComponent<Image>();
-                image.color = Color.clear;
-                inputSurface = image;
-            }
-
-            inputSurface.raycastTarget = true;
-            if (slider.targetGraphic == null) slider.targetGraphic = inputSurface;
-        }
         private static IEnumerable<EquipmentItemInstance> Enumerate(CharacterInstance owner) =>
             (owner.Inventory?.Items ?? new())
                 .OfType<EquipmentItemInstance>()
@@ -122,6 +111,8 @@ namespace Godmist.Views.UI.Workspace
                     && (item.Definition.ItemType == ItemType.Weapon || item.Definition.ItemType == ItemType.Armor));
         private void Refresh()
         {
+            if (targetProgressLabel != null) targetProgressLabel.text = $"Cel ulepszenia: {targetProgressSlider.value:P0}";
+            if (successChanceLabel != null) successChanceLabel.text = $"Szansa powodzenia: {successChanceSlider.value:P0}";
             var catalog = GameBootstrap.Instance?.ContentCatalog;
             var preview = isReforge ? service.CreateReforgePreview(session, blacksmith, selected, catalog) : service.CreateUpgradePreview(session, blacksmith, selected, targetProgressSlider?.value ?? 0f, successChanceSlider?.value ?? 0f, catalog);
             var previewItem = BuildPreviewItem(preview);
@@ -136,14 +127,13 @@ namespace Godmist.Views.UI.Workspace
                 previewText.text = selected == null
                     ? "Wybierz wyposażenie."
                     : isReforge && selected.CurrentRarity == RarityTier.Godly
-                        ? $"{selected.CurrentRarity}\n{preview.FailureReason}"
+                        ? $"{UIWorkspaceTooltipView.GetRarityDisplayName(selected.CurrentRarity)}\n{preview.FailureReason}"
                     : isReforge
-                        ? $"{selected.CurrentRarity} → {preview.TargetRarity}\n" +
-                          $"Zwiększenie: {preview.IncreaseChance:P0}  •  Bez zmian: {preview.UnchangedChance:P0}  •  Spadek: {preview.DecreaseChance:P0}\n" +
-                          $"Wartość: {preview.CurrentValue:0}"
-                        : $"{selected.UpgradeProgress:P0} → {preview.TargetProgress:P0}\n" +
+                        ? $"{UIWorkspaceTooltipView.GetRarityDisplayName(selected.CurrentRarity)} → {UIWorkspaceTooltipView.GetRarityDisplayName(preview.TargetRarity)}\n" +
+                          $"Zwiększenie: {preview.IncreaseChance:P0}  •  Bez zmian: {preview.UnchangedChance:P0}  •  Spadek: {preview.DecreaseChance:P0}"
+                        : $"Ulepszenie: {selected.UpgradeProgress:P0} → {preview.TargetProgress:P0}\n" +
                           $"Szansa powodzenia: {preview.SuccessChance:P0}\n" +
-                          $"Sockety: {selected.SocketCapacity} → {preview.SocketCapacity}";
+                          $"Gniazda: {selected.SocketCapacity} → {preview.SocketCapacity}";
             }
             if (costText != null)
             {
@@ -152,7 +142,7 @@ namespace Godmist.Views.UI.Workspace
                     ? $"<color=#F2C14E>Koszt: {preview.GoldCost} g</color>"
                     : $"<color=#E06C75>Koszt: {preview.GoldCost} g • Brakuje {missingGold} g</color>";
             }
-            if (statusText != null) statusText.text = preview.CanExecute ? string.Empty : preview.FailureReason;
+            SetStatus(preview.CanExecute ? string.Empty : preview.FailureReason);
             if (actionButton != null) actionButton.interactable = preview.CanExecute;
         }
 
@@ -216,24 +206,26 @@ namespace Godmist.Views.UI.Workspace
                 var before = selected?.CurrentRarity;
                 var executed = service.TryReforge(session, blacksmith, selectedOwner, selected, catalog,
                     out var result, out var paid, out var error);
+                var beforeName = before.HasValue ? UIWorkspaceTooltipView.GetRarityDisplayName(before.Value) : string.Empty;
+                var resultName = UIWorkspaceTooltipView.GetRarityDisplayName(result);
                 if (!executed)
                 {
                     feedback = error;
                 }
                 else if (result > before)
                 {
-                    feedback = $"<color=#3D9E63><b>REFORGING UDANY</b></color>  {before} → {result} • Koszt: {paid} g.";
-                    executionPreviewText = $"<b>Wynik reforgingu</b>\n{before} → {result}\nUnikalność została zwiększona.";
+                    feedback = $"<color=#3D9E63><b>PRZEKUCIE UDANE</b></color>  {beforeName} → {resultName} • Koszt: {paid} g.";
+                    executionPreviewText = $"<b>Wynik przekucia</b>\n{beforeName} → {resultName}\nUnikalność została zwiększona.";
                 }
                 else if (result == before)
                 {
-                    feedback = $"<color=#F2C14E><b>REFORGING BEZ ZMIANY</b></color>  {before} • Koszt: {paid} g.";
-                    executionPreviewText = $"<b>Wynik reforgingu</b>\n{before} → {result}\nUnikalność nie zmieniła się.";
+                    feedback = $"<color=#F2C14E><b>PRZEKUCIE BEZ ZMIANY</b></color>  {beforeName} • Koszt: {paid} g.";
+                    executionPreviewText = $"<b>Wynik przekucia</b>\n{beforeName} → {resultName}\nUnikalność nie zmieniła się.";
                 }
                 else
                 {
-                    feedback = $"<color=#E06C75><b>REFORGING NIEUDANY</b></color>  {before} → {result} • Koszt: {paid} g.";
-                    executionPreviewText = $"<b>Wynik reforgingu</b>\n{before} → {result}\nUnikalność została obniżona.";
+                    feedback = $"<color=#E06C75><b>PRZEKUCIE NIEUDANE</b></color>  {beforeName} → {resultName} • Koszt: {paid} g.";
+                    executionPreviewText = $"<b>Wynik przekucia</b>\n{beforeName} → {resultName}\nUnikalność została obniżona.";
                 }
             }
             else
@@ -249,8 +241,8 @@ namespace Godmist.Views.UI.Workspace
 
                 if (executed)
                     executionPreviewText = success
-                        ? $"<b>Wynik ulepszenia</b>\nPostęp: {selected.UpgradeProgress:P0}\nSockety: {selected.SocketCapacity}/5"
-                        : $"<b>Wynik ulepszenia</b>\nPostęp po niepowodzeniu: {selected.UpgradeProgress:P0}\nSockety: {selected.SocketCapacity}/5";
+                        ? $"<b>Wynik ulepszenia</b>\nPostęp: {selected.UpgradeProgress:P0}\nGniazda: {selected.SocketCapacity}"
+                        : $"<b>Wynik ulepszenia</b>\nPostęp po niepowodzeniu: {selected.UpgradeProgress:P0}\nGniazda: {selected.SocketCapacity}";
 
                 // The requested target remains useful after a failed or rejected attempt.
                 // Only a successful upgrade replaces it with the new current progress.
@@ -258,8 +250,13 @@ namespace Godmist.Views.UI.Workspace
             }
 
             Populate(retainedUpgradeTarget);
-            if (statusText != null) statusText.text = feedback;
+            SetStatus(feedback);
             CharacterInfoWindowView.RefreshOpenWindows(session);
+        }
+
+        private void SetStatus(string message)
+        {
+            if (statusText != null) statusText.text = message ?? string.Empty;
         }
     }
 }

@@ -39,6 +39,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI traderHeaderText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI messageText;
+        [SerializeField] private Sprite goldIconSprite;
 
         private readonly List<TradeItemSlotView> spawnedSlots = new();
         private GameSession session;
@@ -48,12 +49,21 @@ namespace Godmist.Views.UI.Workspace
         private CharacterInstance tradingCharacter;
         private TradeItemSlotView draggedSlot;
         private GameObject dragGhost;
+        [SerializeField] private GameObject partialSaleConfirmationRoot;
+        [SerializeField] private TextMeshProUGUI partialSaleText;
+        [SerializeField] private Button partialSaleConfirmButton;
+        [SerializeField] private Button partialSaleCancelButton;
+        [SerializeField] private TextMeshProUGUI playerGoldText;
+        [SerializeField] private TextMeshProUGUI traderGoldText;
+        private ItemInstance pendingPartialSaleItem;
         private bool isShown;
 
         private bool IsShown => isShown && (serviceRoot == null || serviceRoot.activeSelf);
 
         private void Awake()
         {
+            partialSaleConfirmButton.onClick.AddListener(ConfirmPartialSale);
+            partialSaleCancelButton.onClick.AddListener(HidePartialSaleConfirmation);
             if (itemSlotTemplate != null
                 && itemSlotTemplate.transform.IsChildOf(transform))
             {
@@ -76,6 +86,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDisable()
         {
             EndDrag(null, null);
+            HidePartialSaleConfirmation();
             isShown = false;
         }
 
@@ -102,7 +113,7 @@ namespace Godmist.Views.UI.Workspace
             isShown = true;
             if (serviceRoot != null && serviceRoot != gameObject)
                 serviceRoot.SetActive(true);
-            SetMessage("Kliknij przedmiot, aby wykonać transakcję, albo przeciągnij go na drugą listę.");
+            SetMessage("Kliknij — kup/sprzedaj  •  Przeciągnij — przenieś");
             Refresh();
             return true;
         }
@@ -111,6 +122,7 @@ namespace Godmist.Views.UI.Workspace
         {
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             EndDrag(null, null);
+            HidePartialSaleConfirmation();
             isShown = false;
             if (serviceRoot != null && serviceRoot != gameObject)
                 serviceRoot.SetActive(false);
@@ -252,15 +264,15 @@ namespace Godmist.Views.UI.Workspace
             if (!success)
             {
                 var price = buybackEntry != null
-                    ? tradeService.GetPriceFromBuyback(buybackEntry)
-                    : tradeService.GetPriceToBuyFromTrader(item);
+                    ? tradeService.GetPriceFromBuyback(trader, buybackEntry)
+                    : tradeService.GetPriceToBuyFromTrader(trader, item);
                 SetMessage(BuildBuyFailureMessage(item, price));
                 UIWorkspaceTooltipView.ActiveInstance?.Hide();
                 Refresh();
                 return;
             }
 
-            SetMessage($"Kupiono przedmiot za {paidGold} zł.");
+            SetMessage($"Kupiono przedmiot za {paidGold}.");
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
             Refresh();
         }
@@ -269,20 +281,47 @@ namespace Godmist.Views.UI.Workspace
         {
             if (item == null || session == null || tradeService == null) return;
 
-            if (!tradeService.TrySellToTrader(
-                    session,
+            if (!tradeService.TryGetSellQuote(
                     trader,
-                    tradingCharacter,
-                    item.InstanceId,
-                    out var receivedGold))
+                    item,
+                    out var normalPrice,
+                    out var payableGold,
+                    out var quoteFailureReason))
             {
-                SetMessage("Nie można sprzedać tego przedmiotu.");
+                SetMessage(quoteFailureReason);
                 UIWorkspaceTooltipView.ActiveInstance?.Hide();
                 Refresh();
                 return;
             }
 
-            SetMessage($"Sprzedano przedmiot za {receivedGold} zł. Trafił do odkupu.");
+            if (payableGold < normalPrice)
+            {
+                ShowPartialSaleConfirmation(item, normalPrice, payableGold);
+                return;
+            }
+
+            ExecuteSell(item, acceptPartialPayment: false);
+        }
+
+        private void ExecuteSell(
+            ItemInstance item,
+            bool acceptPartialPayment)
+        {
+            if (!tradeService.TrySellToTrader(
+                    session,
+                    trader,
+                    tradingCharacter,
+                    item.InstanceId,
+                    acceptPartialPayment,
+                    out var receivedGold))
+            {
+                SetMessage(GetSellFailureReason(item));
+                UIWorkspaceTooltipView.ActiveInstance?.Hide();
+                Refresh();
+                return;
+            }
+
+            SetMessage($"Sprzedano przedmiot za {receivedGold}. Trafił do odkupu.");
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
             Refresh();
         }
@@ -293,13 +332,21 @@ namespace Godmist.Views.UI.Workspace
 
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             ClearSlots();
-            if (goldText != null) goldText.text = $"Złoto: {session?.Gold ?? 0}";
+            if (goldText != null) goldText.gameObject.SetActive(false);
             if (playerHeaderText != null)
-                playerHeaderText.text = tradingCharacter?.Definition?.DisplayName
+            {
+                var playerName = tradingCharacter?.Definition?.DisplayName
                     ?? tradingCharacter?.CharacterId
                     ?? "Gracz";
+                ConfigurePanelHeader(playerHeaderText, playerName, session?.Gold ?? 0);
+            }
             if (traderHeaderText != null)
-                traderHeaderText.text = $"Oferta: {trader?.Definition?.DisplayName ?? "Handlarz"}";
+            {
+                ConfigurePanelHeader(
+                    traderHeaderText,
+                    trader?.Definition?.DisplayName ?? "Handlarz",
+                    trader?.GoldBalance ?? 0);
+            }
             foreach (var stack in BuildItemStacks(tradingCharacter?.Inventory?.Items))
             {
                 var price = tradeService.GetPriceWhenSellingToTrader(trader, stack.Representative);
@@ -308,39 +355,44 @@ namespace Godmist.Views.UI.Workspace
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.PlayerInventory,
-                    $"Sprzedaż: {price} zł",
-                    false,
+                    BuildSellPriceTooltip(stack.Representative, price),
+                    price <= 0,
                     tradingCharacter,
-                    null);
+                    null,
+                    price);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.Items))
             {
-                var price = tradeService.GetPriceToBuyFromTrader(stack.Representative);
+                var price = tradeService.GetPriceToBuyFromTrader(
+                    trader,
+                    stack.Representative);
                 SpawnSlot(
                     traderItemsContent,
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.TraderOffer,
-                    BuildBuyPriceTooltip(price),
-                    session != null && session.Gold < price,
+                    BuildBuyPriceTooltip(stack.Representative, price),
+                    price <= 0 || session != null && session.Gold < price,
                     null,
-                    null);
+                    null,
+                    price);
             }
 
             foreach (var entry in trader?.ShopInventory?.BuybackStock ?? new List<BuybackEntry>())
             {
                 if (entry?.Item?.Definition == null) continue;
-                var price = tradeService.GetPriceFromBuyback(entry);
+                var price = tradeService.GetPriceFromBuyback(trader, entry);
                 SpawnSlot(
                     traderItemsContent,
                     entry.Item,
                     1,
                     TradeItemSlotSource.Buyback,
-                    BuildBuyPriceTooltip(price),
-                    session != null && session.Gold < price,
+                    BuildBuyPriceTooltip(entry.Item, price),
+                    price <= 0 || session != null && session.Gold < price,
                     null,
-                    entry);
+                    entry,
+                    price);
             }
 
             Canvas.ForceUpdateCanvases();
@@ -356,7 +408,8 @@ namespace Godmist.Views.UI.Workspace
             string priceLabel,
             bool unavailable,
             CharacterInstance tooltipOwner,
-            BuybackEntry buybackEntry)
+            BuybackEntry buybackEntry,
+            int? tooltipPrice)
         {
             if (content == null || itemSlotTemplate == null || item == null) return;
 
@@ -370,7 +423,8 @@ namespace Godmist.Views.UI.Workspace
                 priceLabel,
                 unavailable,
                 tooltipOwner,
-                buybackEntry);
+                buybackEntry,
+                tooltipPrice);
             spawnedSlots.Add(slot);
         }
 
@@ -396,24 +450,88 @@ namespace Godmist.Views.UI.Workspace
             return null;
         }
 
-        private string BuildBuyPriceTooltip(int price)
+        private string BuildBuyPriceTooltip(ItemInstance item, int price)
         {
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
-                : $"Kupno: {price} zł";
+                : string.Empty;
             if (price <= 0)
             {
-                result += "\n<color=#E06C75>Ten przedmiot nie może być kupiony.</color>";
+                result = $"{result}\n<color=#E06C75>{GetBuyRestrictionReason(item)}</color>";
             }
             else if (session != null && session.Gold < price)
-                result += "\n<color=#E06C75>Brak wystarczającej ilości złota.</color>";
+                result = "<color=#E06C75>Brak wystarczającej ilości złota.</color>";
             return result;
+        }
+
+        private string BuildSellPriceTooltip(ItemInstance item, int price)
+        {
+            var result = string.Empty;
+            if (price <= 0)
+            {
+                result = $"<color=#E06C75>{GetSellFailureReason(item)}</color>";
+            }
+            else if (trader != null && trader.GoldBalance < price)
+            {
+                result = $"NPC może obecnie zapłacić: {trader.GoldBalance}";
+            }
+
+            return result;
+        }
+
+        private void ShowPartialSaleConfirmation(ItemInstance item, int normalPrice, int payableGold)
+        {
+            pendingPartialSaleItem = item;
+            partialSaleText.text = $"{trader?.Definition?.DisplayName ?? "NPC"} ma tylko {payableGold} g.\n"
+                + $"Czy na pewno chcesz sprzedać ten przedmiot za tę kwotę?\nNormalna cena: {normalPrice} g";
+            partialSaleConfirmationRoot.SetActive(true);
+        }
+
+        private void ConfirmPartialSale()
+        {
+            var item = pendingPartialSaleItem;
+            HidePartialSaleConfirmation();
+
+            if (item != null)
+            {
+                ExecuteSell(item, acceptPartialPayment: true);
+            }
+        }
+
+        private void HidePartialSaleConfirmation()
+        {
+            pendingPartialSaleItem = null;
+            if (partialSaleConfirmationRoot != null) partialSaleConfirmationRoot.SetActive(false);
+        }
+
+
+
+
+
+        private void ConfigurePanelHeader(TextMeshProUGUI header, string displayName, long gold)
+        {
+            if (header == null) return;
+            header.text = displayName ?? string.Empty;
+            var amount = header == playerHeaderText ? playerGoldText : traderGoldText;
+            if (amount != null) amount.text = gold.ToString();
+        }
+
+
+
+        private string GetSellFailureReason(ItemInstance item)
+        {
+            if (tradeService == null)
+                return "Nie można sprzedać przedmiotu: brak usługi handlu.";
+
+            return tradeService.CanSellItem(trader, item, out var reason)
+                ? "Nie można sprzedać tego przedmiotu."
+                : reason;
         }
 
         private string BuildBuyFailureMessage(ItemInstance item, int price)
         {
             if (price <= 0)
-                return "Nie można kupić przedmiotu: brak poprawnej ceny.";
+                return GetBuyRestrictionReason(item);
             if (session == null || session.Gold < price)
                 return "Brakuje złota na ten zakup.";
 
@@ -433,6 +551,16 @@ namespace Godmist.Views.UI.Workspace
             }
 
             return "Nie można kupić przedmiotu.";
+        }
+
+        private string GetBuyRestrictionReason(ItemInstance item)
+        {
+            if (tradeService == null)
+                return "Nie można kupić przedmiotu: brak usługi handlu.";
+
+            return tradeService.CanBuyItem(trader, item, out var reason)
+                ? "Nie można kupić przedmiotu: brak poprawnej ceny."
+                : reason;
         }
 
         private bool HasRequiredReferences()

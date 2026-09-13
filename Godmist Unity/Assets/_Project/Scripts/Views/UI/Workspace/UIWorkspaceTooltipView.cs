@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
@@ -38,6 +39,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField, Min(0f)] private float hoverDelay = .25f;
         [SerializeField, Min(0f)] private float lockDelay = 1f;
         [SerializeField] private Image lockProgressFill;
+        [SerializeField] private Slider npcLoyaltyProgressSliderPrefab;
         [SerializeField, Min(1f)] private float lockProgressWidth = 336f;
         [SerializeField] private Graphic lockAccentGraphic;
         [SerializeField] private Color lockedAccentColor = new(.22f, .18f, .10f, .97f);
@@ -46,6 +48,15 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField, Min(64f)] private float minimumHeight = 68f;
         [SerializeField, Min(0f)] private float contentHeightPadding = 16f;
         [SerializeField] private Vector2 pointerOffset = new(4f, -4f);
+
+        private const float TitleOnlyTooltipHorizontalPadding = 32f;
+        private const float TitleOnlyTooltipMinimumWidth = 120f;
+        private const float TitleOnlyTooltipVerticalPadding = 20f;
+        private const float ItemTooltipIconAndSpacingWidth = 48f;
+        private const float ItemTooltipContentHorizontalPadding = 24f;
+        private const float ItemTooltipTitleBuffer = 8f;
+        private const float ItemTooltipMinimumWidth = 200f;
+        private const float ItemTooltipMaximumWidth = 560f;
 
         private CanvasGroup canvasGroup;
         private readonly List<UIWorkspaceTooltipView> nested = new();
@@ -69,16 +80,36 @@ namespace Godmist.Views.UI.Workspace
         private float pendingNestedExitStartedAt;
         private Color defaultAccentColor;
         private bool hasDefaultAccentColor;
+        private TextAlignmentOptions defaultTitleAlignment;
+        private NpcLoyaltyProgressionView npcLoyaltyProgression;
+        private float defaultTooltipWidth;
 
         public bool IsSkillTooltipSuppressed => suppressForDrag;
+
+        public Slider InstantiateNpcLoyaltyProgressSlider(Transform parent)
+        {
+            if (parent == null || npcLoyaltyProgressSliderPrefab == null) return null;
+
+            return Instantiate(
+                npcLoyaltyProgressSliderPrefab,
+                parent,
+                false);
+        }
 
         private void Awake()
         {
             ActiveInstance = this;
+            defaultTooltipWidth = tooltipRect != null ? tooltipRect.rect.width : 0f;
+            defaultTitleAlignment = titleText != null
+                ? titleText.alignment
+                : TextAlignmentOptions.TopLeft;
             EnsureCanvasGroup();
             ConfigureTextLayout(titleText);
             ConfigureTextLayout(bodyText);
             ConfigureTextLayout(metaText);
+            if (bodyText != null) bodyText.lineSpacing = 1.5f;
+            ConfigureItemHeaderLayout();
+            EnsureNpcLoyaltyProgression();
             CacheDefaultAccentColor();
             Hide();
         }
@@ -89,6 +120,16 @@ namespace Godmist.Views.UI.Workspace
             text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
+        }
+
+        private void ConfigureItemHeaderLayout()
+        {
+            var headerLayout = titleText?.transform.parent?.GetComponent<HorizontalLayoutGroup>();
+            if (headerLayout == null) return;
+
+            // Keep the icon centered against the complete title block instead of
+            // pinning it to the first line of a wrapped title.
+            headerLayout.childAlignment = TextAnchor.MiddleLeft;
         }
 
         private void OnDestroy()
@@ -209,17 +250,49 @@ namespace Godmist.Views.UI.Workspace
 
         public void ShowText(string title, string body, object source)
         {
-            QueueShow(source ?? this, () => SetContent(null, title, body, string.Empty));
+            ShowText(title, body, source, string.Empty);
         }
 
-        public void ShowItem(ItemInstance item, CharacterInstance owner, object source)
+        public void ShowText(string title, string body, object source, string meta)
+        {
+            QueueShow(source ?? this, () => SetContent(null, title, body, meta));
+        }
+
+        public void ShowNpcLoyalty(NpcLoyaltyTooltipData data, object source)
+        {
+            if (data == null) return;
+            QueueShow(source ?? data, () => SetNpcLoyaltyContent(data));
+        }
+
+        public void RefreshNpcLoyaltyTooltip(NpcLoyaltyTooltipData data, object source)
+        {
+            if (data == null || source == null) return;
+
+            if (visible && ReferenceEquals(sourceIdentity, source))
+            {
+                RefreshNpcLoyaltyContent(data);
+                return;
+            }
+
+            if (pendingShow != null && ReferenceEquals(pendingSource, source))
+            {
+                pendingShow = () => SetNpcLoyaltyContent(data);
+            }
+        }
+
+        public void ShowItem(
+            ItemInstance item,
+            CharacterInstance owner,
+            object source,
+            int? contextPrice = null)
         {
             if (item?.Definition == null) return;
             QueueShow(source ?? item, () => SetContent(
                 item.Definition.Icon,
                 item.DisplayName,
                 BuildItemBody(item, owner),
-                BuildItemMeta(item)));
+                BuildItemMeta(item, contextPrice),
+                reserveIconSlot: true));
         }
 
         /// <summary>
@@ -231,7 +304,8 @@ namespace Godmist.Views.UI.Workspace
             ItemInstance item,
             CharacterInstance owner,
             object source,
-            string extraBody)
+            string extraBody,
+            int? contextPrice = null)
         {
             if (item?.Definition == null) return;
 
@@ -239,7 +313,8 @@ namespace Godmist.Views.UI.Workspace
                 item.Definition.Icon,
                 item.DisplayName,
                 AppendTooltipExtra(BuildItemBody(item, owner), extraBody),
-                BuildItemMeta(item)));
+                BuildItemMeta(item, contextPrice),
+                reserveIconSlot: true));
         }
 
         public void NotifySourceExit(object source = null)
@@ -340,8 +415,18 @@ namespace Godmist.Views.UI.Workspace
             UpdateLockProgressVisual();
         }
 
-        private void SetContent(Sprite sprite, string title, string body, string meta)
+        private void SetContent(
+            Sprite sprite,
+            string title,
+            string body,
+            string meta,
+            bool reserveIconSlot = false)
         {
+            RestoreDefaultTooltipWidth();
+            var isTitleOnly = sprite == null
+                && string.IsNullOrWhiteSpace(body)
+                && string.IsNullOrWhiteSpace(meta);
+            npcLoyaltyProgression?.gameObject.SetActive(false);
             sourceIdentity = pendingSource;
             pendingSource = null;
             visible = true;
@@ -357,10 +442,21 @@ namespace Godmist.Views.UI.Workspace
             if (icon != null)
             {
                 icon.sprite = sprite;
-                icon.enabled = sprite != null;
+                // The icon lives in a horizontal layout group with the title.
+                // Disabling only its Image still left its LayoutElement active and
+                // reserved a 40 px blank column for iconless tooltips.
+                icon.gameObject.SetActive(sprite != null || reserveIconSlot);
             }
 
-            if (titleText != null) titleText.text = title ?? string.Empty;
+            if (titleText != null)
+            {
+                titleText.textWrappingMode = TextWrappingModes.Normal;
+                titleText.overflowMode = TextOverflowModes.Overflow;
+                titleText.alignment = isTitleOnly
+                    ? TextAlignmentOptions.Center
+                    : defaultTitleAlignment;
+                titleText.text = title ?? string.Empty;
+            }
             if (bodyText != null)
             {
                 bodyText.gameObject.SetActive(!string.IsNullOrWhiteSpace(body));
@@ -374,9 +470,94 @@ namespace Godmist.Views.UI.Workspace
                 metaText.text = meta ?? string.Empty;
             }
 
+            if (reserveIconSlot) ResizeItemTooltipWidthToContent();
+            if (isTitleOnly) ResizeTitleOnlyTooltipWidth();
+
             ResizeForContent();
             resizeAfterLayout = true;
             PlaceAt(Input.mousePosition);
+        }
+
+        private void SetNpcLoyaltyContent(NpcLoyaltyTooltipData data)
+        {
+            SetContent(null, "Lojalność NPC", string.Empty, string.Empty);
+            RefreshNpcLoyaltyContent(data);
+        }
+
+        private void RefreshNpcLoyaltyContent(NpcLoyaltyTooltipData data)
+        {
+            EnsureNpcLoyaltyProgression();
+            if (npcLoyaltyProgression == null) return;
+
+            var desiredWidth = NpcLoyaltyProgressionView.GetPreferredWidth(data, bodyText);
+            SetTooltipWidth(ClampTooltipWidth(desiredWidth));
+            Canvas.ForceUpdateCanvases();
+            npcLoyaltyProgression.Bind(data, bodyText);
+            npcLoyaltyProgression.gameObject.SetActive(true);
+            ResizeForContent();
+            resizeAfterLayout = true;
+            PlaceAt(Input.mousePosition);
+        }
+
+        private float ClampTooltipWidth(float desiredWidth)
+        {
+            // Measure loyalty content against the canvas, not the transient tooltip layout.
+            var canvas = tooltipRect?.GetComponentInParent<Canvas>()?.rootCanvas;
+            var canvasRect = canvas?.GetComponent<RectTransform>();
+            var availableWidth = canvasRect != null && canvasRect.rect.width > 1f
+                ? Mathf.Max(1f, canvasRect.rect.width - 24f)
+                : Mathf.Max(1f, desiredWidth);
+            return Mathf.Min(Mathf.Max(1f, desiredWidth), availableWidth);
+        }
+
+        private void SetTooltipWidth(float width)
+        {
+            if (tooltipRect == null) return;
+            tooltipRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+        }
+
+        private void RestoreDefaultTooltipWidth()
+        {
+            if (defaultTooltipWidth > 1f) SetTooltipWidth(defaultTooltipWidth);
+        }
+
+        private void ResizeTitleOnlyTooltipWidth()
+        {
+            if (titleText == null) return;
+
+            // Measure against an unconstrained line. Measuring with a width of
+            // zero used TMP's previous narrow layout width, so a title that had
+            // already wrapped reported the width of one word and made the next
+            // tooltip even narrower.
+            var preferredWidth = titleText.GetPreferredValues(
+                titleText.text,
+                10000f,
+                0f).x;
+            var desiredWidth = Mathf.Max(
+                TitleOnlyTooltipMinimumWidth,
+                Mathf.Ceil(preferredWidth) + TitleOnlyTooltipHorizontalPadding);
+            SetTooltipWidth(ClampTooltipWidth(
+                defaultTooltipWidth > 1f
+                    ? Mathf.Min(desiredWidth, defaultTooltipWidth)
+                    : desiredWidth));
+        }
+
+        private void EnsureNpcLoyaltyProgression()
+        {
+            if (npcLoyaltyProgression != null || bodyText == null) return;
+
+            var parent = bodyText.transform.parent as RectTransform;
+            if (parent == null) return;
+
+            var progressionObject = new GameObject(
+                "NpcLoyaltyProgression",
+                typeof(RectTransform),
+                typeof(NpcLoyaltyProgressionView));
+            progressionObject.transform.SetParent(parent, false);
+
+            npcLoyaltyProgression = progressionObject.GetComponent<NpcLoyaltyProgressionView>();
+            npcLoyaltyProgression.Configure(bodyText, npcLoyaltyProgressSliderPrefab);
+            progressionObject.SetActive(false);
         }
 
         private void ResizeForContent()
@@ -395,36 +576,80 @@ namespace Godmist.Views.UI.Workspace
             var contentWidth = contentRect != null && contentRect.rect.width > 1f
                 ? contentRect.rect.width
                 : Mathf.Max(1f, tooltipWidth - 24f);
-            var iconHeight = icon != null && icon.enabled ? 40f : 0f;
+            var iconHeight = icon != null && icon.isActiveAndEnabled ? 40f : 0f;
+            var titleWidth = titleText != null && titleText.rectTransform.rect.width > 1f
+                ? titleText.rectTransform.rect.width
+                : Mathf.Max(1f, contentWidth - (iconHeight > 0f ? iconHeight + 12f : 0f));
             var titleHeight = titleText != null
-                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, contentWidth, 0f).y)
+                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, titleWidth, 0f).y)
                 : 0f;
             var headerHeight = Mathf.Max(iconHeight, titleHeight);
             var headerLayout = titleText?.transform.parent?.GetComponent<LayoutElement>();
             if (headerLayout != null)
             {
-                var compactHeaderHeight = Mathf.Max(24f, headerHeight);
+                var compactHeaderHeight = Mathf.Max(24f, headerHeight + 8f);
                 headerLayout.minHeight = compactHeaderHeight;
                 headerLayout.preferredHeight = compactHeaderHeight;
                 headerHeight = compactHeaderHeight;
             }
 
-            var bodyHeight = bodyText != null && bodyText.gameObject.activeSelf
-                ? Mathf.Ceil(bodyText.GetPreferredValues(bodyText.text, contentWidth, 0f).y)
-                : 0f;
-            var metaHeight = metaText != null && metaText.gameObject.activeSelf
+            var customBodyActive = npcLoyaltyProgression != null
+                && npcLoyaltyProgression.gameObject.activeSelf;
+            var hasBody = customBodyActive
+                || bodyText != null && bodyText.gameObject.activeSelf;
+            var hasMeta = metaText != null && metaText.gameObject.activeSelf;
+            var isTitleOnly = !customBodyActive
+                && !hasBody
+                && !hasMeta
+                && (icon == null || !icon.isActiveAndEnabled);
+            var bodyHeight = customBodyActive
+                ? npcLoyaltyProgression.GetPreferredHeight(contentWidth)
+                : hasBody
+                    ? Mathf.Ceil(bodyText.GetPreferredValues(bodyText.text, contentWidth, 0f).y)
+                    : 0f;
+            var metaHeight = hasMeta
                 ? Mathf.Ceil(metaText.GetPreferredValues(metaText.text, contentWidth, 0f).y)
                 : 0f;
-            var sectionCount = 1 + (bodyText != null && bodyText.gameObject.activeSelf ? 1 : 0)
-                + (metaText != null && metaText.gameObject.activeSelf ? 1 : 0);
+            var sectionCount = 1 + (hasBody ? 1 : 0) + (hasMeta ? 1 : 0);
             tooltipRect.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
+                isTitleOnly
+                    ? headerHeight + TitleOnlyTooltipVerticalPadding
+                    : Mathf.Max(minimumHeight, contentHeightPadding + headerHeight + bodyHeight + metaHeight + 6f * (sectionCount - 1)));
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+        }
+
+        private void ResizeItemTooltipWidthToContent()
+        {
+            if (tooltipRect == null) return;
+
+            var titleWidth = titleText == null || string.IsNullOrWhiteSpace(titleText.text)
+                ? 0f
+                : titleText.GetPreferredValues(titleText.text, 10000f, 0f).x
+                    + (icon != null && icon.gameObject.activeSelf
+                        ? ItemTooltipIconAndSpacingWidth
+                        : 0f)
+                    + ItemTooltipTitleBuffer;
+            var bodyWidth = bodyText == null || !bodyText.gameObject.activeSelf
+                || string.IsNullOrWhiteSpace(bodyText.text)
+                ? 0f
+                : bodyText.GetPreferredValues(bodyText.text, 10000f, 0f).x;
+            var metaWidth = metaText == null || !metaText.gameObject.activeSelf
+                || string.IsNullOrWhiteSpace(metaText.text)
+                ? 0f
+                : metaText.GetPreferredValues(metaText.text, 10000f, 0f).x;
+            var desiredWidth = Mathf.Ceil(
+                Mathf.Max(titleWidth, bodyWidth, metaWidth)
+                + ItemTooltipContentHorizontalPadding);
+            var targetWidth = Mathf.Min(
+                ItemTooltipMaximumWidth,
+                Mathf.Max(ItemTooltipMinimumWidth, desiredWidth));
+            SetTooltipWidth(ClampTooltipWidth(targetWidth));
         }
 
         private void HideLocal()
         {
+            npcLoyaltyProgression?.gameObject.SetActive(false);
             visible = false;
             sourceHovered = false;
             isLocked = false;
@@ -1728,8 +1953,87 @@ namespace Godmist.Views.UI.Workspace
                 CharacterStatType.MaxResource => "maksymalnego zasobu",
                 CharacterStatType.PhysicalDefensePenetration => "przebicia obrony fizycznej",
                 CharacterStatType.MagicalDefensePenetration => "przebicia obrony magicznej",
+                CharacterStatType.HealingPower => "siły leczenia",
                 _ => statType.ToString()
             };
+        }
+
+        private static string GetEquipmentStatDisplayName(CharacterStatType statType)
+        {
+            return statType switch
+            {
+                CharacterStatType.MaxHealth => "Zdrowie",
+                CharacterStatType.PhysicalDefense => "Obrona fizyczna",
+                CharacterStatType.MagicalDefense => "Obrona magiczna",
+                CharacterStatType.Dodge => "Unik",
+                CharacterStatType.CritChance => "Szansa na trafienie krytyczne",
+                CharacterStatType.CritDamage => "Obrażenia krytyczne",
+                CharacterStatType.Speed => "Szybkość",
+                CharacterStatType.ResourceRegeneration => "Regeneracja zasobu",
+                CharacterStatType.WeaponAccuracy => "Celność broni",
+                CharacterStatType.MaxResource => "Maksymalny zasób",
+                CharacterStatType.PhysicalDefensePenetration => "Przebicie obrony fizycznej",
+                CharacterStatType.MagicalDefensePenetration => "Przebicie obrony magicznej",
+                CharacterStatType.HealingPower => "Siła leczenia",
+                _ => GetStatDisplayName(statType)
+            };
+        }
+
+        private static string GetEquipmentSlotDisplayName(EquipmentSlot slot)
+        {
+            return slot switch
+            {
+                EquipmentSlot.Weapon => "Broń",
+                EquipmentSlot.Armor => "Pancerz",
+                EquipmentSlot.Necklace => "Naszyjnik",
+                EquipmentSlot.Ring => "Pierścień",
+                EquipmentSlot.Bracelet => "Bransoleta",
+                EquipmentSlot.Earrings => "Kolczyki",
+                _ => slot.ToString()
+            };
+        }
+
+        private static string GetQualityDisplayName(EquipmentQuality quality)
+        {
+            return quality switch
+            {
+                EquipmentQuality.Normal => "Normalna",
+                EquipmentQuality.Poor => "Słaba",
+                EquipmentQuality.Excellent => "Doskonała",
+                EquipmentQuality.Masterpiece => "Arcydzieło",
+                _ => quality.ToString()
+            };
+        }
+
+        public static string GetRarityDisplayName(RarityTier rarity)
+        {
+            return rarity switch
+            {
+                RarityTier.Trash => "Śmieciowy",
+                RarityTier.Broken => "Złamany",
+                RarityTier.Damaged => "Uszkodzony",
+                RarityTier.Common => "Pospolity",
+                RarityTier.Uncommon => "Niepospolity",
+                RarityTier.Rare => "Rzadki",
+                RarityTier.Ancient => "Starożytny",
+                RarityTier.Legendary => "Legendarny",
+                RarityTier.Mythic => "Mityczny",
+                RarityTier.Godly => "Boski",
+                _ => rarity.ToString()
+            };
+        }
+
+        private static string FormatAttackValue(float minimum, float maximum)
+        {
+            return Mathf.Approximately(minimum, maximum)
+                ? FormatEquipmentValue(minimum)
+                : $"{FormatEquipmentValue(minimum)}–{FormatEquipmentValue(maximum)}";
+        }
+
+        private static string CapitalizeFirst(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return value ?? string.Empty;
+            return char.ToUpperInvariant(value[0]) + value[1..];
         }
 
         private static string GetStackingDisplayName(StatModifierStacking stacking)
@@ -2031,41 +2335,46 @@ namespace Godmist.Views.UI.Workspace
                 : item.Definition.Description ?? string.Empty);
             if (item is EquipmentItemInstance equipment)
             {
-                Append(result, $"Slot: {equipment.EquipmentSlot}");
+                Append(result, $"Typ: {GetEquipmentSlotDisplayName(equipment.EquipmentSlot)}");
                 Append(result, $"Poziom przedmiotu: {equipment.ItemLevel}");
-                if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId)) Append(result, $"Wymagana klasa: {equipment.RequiredClassId}");
+                if (equipment is not JewelryItemInstance)
+                    Append(result, $"Ulepszenie: {equipment.UpgradeProgress:P0}");
+                if (!string.IsNullOrWhiteSpace(equipment.RequiredClassId))
+                    Append(result, $"Wymagana klasa: {GetRequiredClassDisplayName(equipment)}");
                 if (owner != null && !Godmist.Systems.Items.EquipmentService.MeetsRequirements(owner, equipment))
                     Append(result, "<color=#E06C75>Postać nie spełnia wymagań.</color>");
                 var equippedItem = owner?.Equipment?.GetItem(equipment.EquipmentSlot);
+                result.AppendLine();
                 AppendEquipmentStats(
                     result,
                     equipment,
                     ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
                 AppendPassiveDescriptions(
                     result,
-                    equipment.EquipmentDefinition?.PassiveEffects);
+                    (equipment.Definition as UniqueEquipmentDefinition)?.Effects);
+                AppendSocketedGalduryteEffects(result, equipment);
 
                 if (equipment is JewelryItemInstance jewelry
                     && equipment.EquipmentDefinition is JewelryItemDefinition jewelryDefinition)
                 {
-                    if (!string.IsNullOrWhiteSpace(jewelry.GemDisplayName))
-                        Append(result, $"Kamień: {jewelry.GemDisplayName}");
-                    if (!string.IsNullOrWhiteSpace(jewelry.GemDescription))
-                        Append(result, jewelry.GemDescription);
-
-                    var metals = jewelryDefinition.Metals != null && jewelryDefinition.Metals.Count > 0
-                        ? jewelryDefinition.Metals
-                        : jewelryDefinition.MetalSource?.Metals;
-                    foreach (var metal in metals ?? new List<JewelryMetalData>())
+                    foreach (var metal in jewelryDefinition.Metals ?? new List<JewelryMetalData>())
                     {
-                        if (metal?.Id == jewelry.MetalId)
-                            AppendPassiveDescriptions(result, metal.PassiveEffects);
+                        if (Godmist.Systems.Items.JewelryGenerationService.GetMetalRecipeKey(metal) == jewelry.MetalId)
+                            AppendJewelryModifiers(result, metal.Material?.DisplayName, metal.Modifiers);
+                    }
+
+                    foreach (var gem in jewelryDefinition.Gems ?? new List<JewelryGemDefinition>())
+                    {
+                        if (gem?.CraftingMaterial?.Id == jewelry.GemId)
+                            AppendJewelryModifiers(result, jewelry.GemDisplayName, gem.Modifiers);
                     }
 
                 }
             }
             else if (item is ConsumableItemInstance consumable)
             {
+                Append(result, $"Ładunki: {consumable.CurrentCharges}/{consumable.MaxCharges}");
+                AppendConsumableCatalyst(result, consumable);
                 if (consumable.RuntimeEffects != null && consumable.RuntimeEffects.Count > 0)
                 {
                     foreach (var runtimeEffect in consumable.RuntimeEffects)
@@ -2108,7 +2417,73 @@ namespace Godmist.Views.UI.Workspace
                     UnityEngine.Object.Destroy(runtimeSkill);
                 }
             }
+            else if (item is GalduryteItemInstance galduryte)
+            {
+                Append(result, $"Typ: {(galduryte.TargetType == GalduryteTargetType.Weapon ? "Broń" : "Pancerz")}");
+                Append(result, $"Poziom galdurytu: {galduryte.ItemLevel}");
+                Append(result, galduryte.GetEffectSummary());
+            }
             return result.ToString();
+        }
+
+        private static void AppendSocketedGalduryteEffects(
+            StringBuilder result,
+            EquipmentItemInstance equipment)
+        {
+            if (equipment == null || equipment is JewelryItemInstance) return;
+            result.AppendLine();
+            Append(result, $"Galduryty: {equipment.SocketedGaldurytes?.Count ?? 0}/{equipment.SocketCapacity}");
+            var hasDisplayedGalduryte = false;
+            foreach (var galduryte in equipment?.SocketedGaldurytes
+                         ?? new List<GalduryteItemInstance>())
+            {
+                if (galduryte?.IsIdentified != true) continue;
+                var effects = galduryte.GetEffectSummary();
+                if (!string.IsNullOrWhiteSpace(effects))
+                {
+                    if (hasDisplayedGalduryte) result.AppendLine();
+                    Append(result, $"<b>{galduryte.DisplayName}</b>");
+                    Append(result, effects);
+                    hasDisplayedGalduryte = true;
+                }
+            }
+        }
+
+        public static string GetRequiredClassDisplayName(EquipmentItemInstance equipment) =>
+            equipment.RequiredClassId switch
+            {
+                "class.warrior" => "Wojownik",
+                "class.scout" => "Zwiadowca",
+                "class.mage" => "Mag",
+                "class.paladin" => "Paladyn",
+                _ => equipment.EquipmentDefinition?.RequiredClass?.ClassName ?? "Nieznana klasa"
+            };
+
+        private static void AppendConsumableCatalyst(StringBuilder result, ConsumableItemInstance consumable)
+        {
+            if (consumable == null || (string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
+                && consumable.CatalystDurationModifier == 0
+                && consumable.CatalystEffectMultiplier == 1f
+                && consumable.CatalystChargeBonus == 0)) return;
+            var modifier = consumable.CatalystDurationModifier != 0
+                ? $"{consumable.CatalystDurationModifier:+#;-#} tura czasu trwania"
+                : consumable.CatalystEffectMultiplier != 1f
+                    ? $"{(consumable.CatalystEffectMultiplier - 1f):+0%;-0%} siły efektów"
+                    : consumable.CatalystChargeBonus != 0
+                        ? $"+{consumable.CatalystChargeBonus} ładunek"
+                        : "aktywny";
+            var name = string.IsNullOrWhiteSpace(consumable.CatalystDisplayName)
+                ? "aktywny"
+                : GetCatalystShortName(consumable.CatalystDisplayName);
+            Append(result, $"Katalizator: {name} ({modifier})");
+        }
+
+        private static string GetCatalystShortName(string name)
+        {
+            var separator = name?.LastIndexOf(':') ?? -1;
+            return separator >= 0 && separator + 1 < name.Length
+                ? name[(separator + 1)..].Trim()
+                : name;
         }
 
         private static string AppendTooltipExtra(string body, string extraBody)
@@ -2148,13 +2523,19 @@ namespace Godmist.Views.UI.Workspace
             return null;
         }
 
-        private static string BuildItemMeta(ItemInstance item)
+        private static string BuildItemMeta(ItemInstance item, int? contextPrice = null)
         {
-            var quality = item is EquipmentItemInstance equipment ? $" • {equipment.Quality}" : string.Empty;
-            var upgrade = item is EquipmentItemInstance upgraded
-                ? $"  •  Ulepszenie {upgraded.UpgradeProgress:P0}  •  Sockety {upgraded.SocketCapacity}/5"
+            var isJewelry = item is JewelryItemInstance;
+            var quality = item is EquipmentItemInstance equipment && !isJewelry
+                ? $" • {GetQualityDisplayName(equipment.Quality)}"
                 : string.Empty;
-            return $"{item.CurrentRarity}{quality}{upgrade}  •  Waga {item.Definition.Weight:0.##} kg";
+            var intrinsicValue = Mathf.Max(0, item.BaseValue);
+            if (intrinsicValue <= 0 && item.Definition is CraftableItemDefinition craftable)
+                intrinsicValue = Mathf.Max(0, craftable.CalculatedBaseValue);
+            var price = contextPrice.HasValue
+                ? contextPrice.Value > 0 ? $" •  {contextPrice.Value}g" : string.Empty
+                : $" •  {intrinsicValue}g";
+            return $"{GetRarityDisplayName(item.CurrentRarity)}{quality}  •  Waga: {item.Definition.Weight:0.##} kg{price}";
         }
 
         private static void AppendEquipmentStats(
@@ -2178,7 +2559,7 @@ namespace Godmist.Views.UI.Workspace
                 var average = (minAttack + maxAttack) * 0.5f;
                 Append(
                     result,
-                    $"Atak: {FormatEquipmentValue(minAttack)}–{FormatEquipmentValue(maxAttack)}"
+                    $"Atak: {FormatAttackValue(minAttack, maxAttack)}"
                     + FormatComparisonDelta(average - equippedAverage, equippedItem != null));
             }
 
@@ -2192,7 +2573,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    $"{stat}: {FormatEquipmentStatValue(stat, value)}"
+                    $"{(stat == CharacterStatType.CritDamage ? "Mnożnik obrażeń krytycznych" : GetEquipmentStatDisplayName(stat))}: {FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
         }
@@ -2238,6 +2619,154 @@ namespace Godmist.Views.UI.Workspace
                 if (!string.IsNullOrWhiteSpace(triggerText))
                     Append(result, $"Aktywacja: {triggerText}");
             }
+        }
+
+        private static void AppendJewelryModifiers(
+            StringBuilder result,
+            string sourceName,
+            IEnumerable<JewelryModifierData> modifiers)
+        {
+            foreach (var modifier in modifiers ?? Array.Empty<JewelryModifierData>())
+            {
+                if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
+                switch (modifier.Target)
+                {
+                    case JewelryModifierTarget.Stat:
+                        // Stat modifiers are already included by AppendEquipmentStats.
+                        break;
+                    case JewelryModifierTarget.Resistance:
+                        Append(result,
+                            $"Odporność na {GetResistanceDisplayName(modifier.ResistanceType)}: "
+                            + FormatSignedPercent(modifier.Value));
+                        break;
+                    case JewelryModifierTarget.GameplayVariable:
+                        var jewelryVariableName = GetJewelryGameplayVariableDisplayName(
+                            modifier.GameplayVariable, modifier.ReferenceId);
+                        Append(result, FormatJewelryModifier(
+                            sourceName,
+                            jewelryVariableName,
+                            FormatSignedPercent(modifier.Value),
+                            valueBeforeName: true));
+                        break;
+                }
+            }
+        }
+
+        public static string BuildJewelryIngredientEffects(
+            IEnumerable<JewelryModifierData> modifiers)
+        {
+            var source = modifiers?.Where(modifier => modifier != null).ToList()
+                ?? new List<JewelryModifierData>();
+            var result = new StringBuilder();
+            var hasMinimumAttack = false;
+            var hasMaximumAttack = false;
+            var minimumAttack = 0f;
+            var maximumAttack = 0f;
+
+            foreach (var modifier in source)
+            {
+                if (modifier.Target != JewelryModifierTarget.Stat) continue;
+                if (modifier.StatType == CharacterStatType.MinAttack)
+                {
+                    hasMinimumAttack = true;
+                    minimumAttack += modifier.Value;
+                }
+                else if (modifier.StatType == CharacterStatType.MaxAttack)
+                {
+                    hasMaximumAttack = true;
+                    maximumAttack += modifier.Value;
+                }
+            }
+
+            if (hasMinimumAttack || hasMaximumAttack)
+            {
+                var minimum = hasMinimumAttack ? minimumAttack : maximumAttack;
+                var maximum = hasMaximumAttack ? maximumAttack : minimumAttack;
+                Append(result, $"Atak: {FormatAttackValue(minimum, maximum)}");
+            }
+
+            foreach (var modifier in source)
+            {
+                if (modifier.Target == JewelryModifierTarget.Stat)
+                {
+                    if (modifier.StatType is CharacterStatType.MinAttack or CharacterStatType.MaxAttack)
+                        continue;
+
+                    var isPercent = modifier.Operation == StatModifierOperation.Percent
+                        || (modifier.Operation != StatModifierOperation.FlatAbsolute
+                            && IsFractionalStat(modifier.StatType));
+                    Append(result,
+                        $"{GetEquipmentStatDisplayName(modifier.StatType)}: "
+                        + FormatStatValue(modifier.StatType, modifier.Value, isPercent));
+                    continue;
+                }
+
+                if (modifier.Target == JewelryModifierTarget.Resistance)
+                {
+                    Append(result,
+                        $"Odporność na {GetResistanceDisplayName(modifier.ResistanceType)}: "
+                        + FormatSignedPercent(modifier.Value));
+                    continue;
+                }
+
+                if (modifier.Target == JewelryModifierTarget.GameplayVariable)
+                {
+                    Append(result,
+                        $"{FormatSignedPercent(modifier.Value)} "
+                        + GetJewelryGameplayVariableDisplayName(
+                            modifier.GameplayVariable,
+                            modifier.ReferenceId));
+                }
+            }
+
+            return result.ToString();
+        }
+
+        private static string GetJewelryGameplayVariableDisplayName(
+            GameplayVariableType type,
+            string referenceId)
+        {
+            return type switch
+            {
+                GameplayVariableType.DamageDealtPercent => "zadawanych obrażeń",
+                GameplayVariableType.DamageReceivedPercent => "otrzymywanych obrażeń",
+                GameplayVariableType.ExperienceGainPercent => "zdobywanego doświadczenia",
+                GameplayVariableType.GoldGainPercent => "zdobywanego złota",
+                GameplayVariableType.DamageDealtPercentInDungeonTheme =>
+                    string.IsNullOrWhiteSpace(referenceId)
+                        ? "zadawanych obrażeń w lochu"
+                        : $"zadawanych obrażeń w {GetDungeonThemeLocativeName(referenceId)}",
+                _ => GetGameplayVariableDisplayName(type, referenceId)
+            };
+        }
+
+        private static string GetDungeonThemeLocativeName(string referenceId)
+        {
+            return referenceId?.Trim().ToLowerInvariant() switch
+            {
+                "catacombs" => "Katakumbach",
+                "forest" => "Lesie",
+                "elvenruins" => "Elfiańskich Ruinach",
+                "docks" => "Dokach",
+                "desert" => "Pustyni",
+                "temple" => "Świątyni",
+                "mountains" => "Górach",
+                "swamp" => "Bagnach",
+                "story" => "Lochu Fabularnym",
+                _ => referenceId
+            };
+        }
+
+        private static string FormatJewelryModifier(
+            string sourceName,
+            string modifierName,
+            string value,
+            bool valueBeforeName = false)
+        {
+            var prefix = string.IsNullOrWhiteSpace(sourceName) ? string.Empty : $"{sourceName}: ";
+            return valueBeforeName
+                ? $"{prefix}{value} {modifierName}."
+                : $"{prefix}{CapitalizeFirst(modifierName)} {value}.";
         }
 
         private static string DescribePassiveTriggers(
@@ -2348,7 +2877,7 @@ namespace Godmist.Views.UI.Workspace
             return stat switch
             {
                 CharacterStatType.CritChance => $"{value * 100f:0.##}%",
-                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
+                CharacterStatType.CritDamage => "×" + value.ToString("0.00;-0.00;0.00"),
                 CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
                 _ => FormatEquipmentValue(value)
             };
@@ -2401,6 +2930,545 @@ namespace Godmist.Views.UI.Workspace
             if (string.IsNullOrWhiteSpace(value)) return;
             if (builder.Length > 0) builder.Append('\n');
             builder.Append(value);
+        }
+    }
+
+    public sealed class NpcLoyaltyTooltipData
+    {
+        public NpcLoyaltyTooltipData(
+            int currentLevel,
+            int maximumLevel,
+            int discountPercent,
+            long spentTowardNextLevel,
+            int requiredForNextLevel,
+            IReadOnlyList<NpcLoyaltyBreakpointPresentation> breakpoints)
+        {
+            CurrentLevel = currentLevel;
+            MaximumLevel = maximumLevel;
+            DiscountPercent = discountPercent;
+            SpentTowardNextLevel = spentTowardNextLevel;
+            RequiredForNextLevel = requiredForNextLevel;
+            Breakpoints = breakpoints ?? Array.Empty<NpcLoyaltyBreakpointPresentation>();
+        }
+
+        public int CurrentLevel { get; }
+        public int MaximumLevel { get; }
+        public int DiscountPercent { get; }
+        public long SpentTowardNextLevel { get; }
+        public int RequiredForNextLevel { get; }
+        public IReadOnlyList<NpcLoyaltyBreakpointPresentation> Breakpoints { get; }
+    }
+
+    public readonly struct NpcLoyaltyBreakpointPresentation
+    {
+        public NpcLoyaltyBreakpointPresentation(int level, string label, bool isUnlocked)
+        {
+            Level = level;
+            Label = label ?? string.Empty;
+            IsUnlocked = isUnlocked;
+        }
+
+        public int Level { get; }
+        public string Label { get; }
+        public bool IsUnlocked { get; }
+    }
+
+    public sealed class NpcLoyaltyProgressionView : MonoBehaviour
+    {
+        private const float TrackLeft = 20f;
+        private const float TrackWidth = 4f;
+        private const float MarkerCenterX = TrackLeft + TrackWidth * .5f;
+        private const float MarkerSize = 18f;
+        private const float RowHeight = 30f;
+        private const float TrackTopPadding = 10f;
+        private const float TrackBottomPadding = 14f;
+        private const float SummaryHeight = 18f;
+        private const float ProgressLabelHeight = 16f;
+        private const float ProgressBarHeight = 20f;
+        private const float LayoutSpacing = 9f;
+        private const float ContentPaddingLeft = 10f;
+        private const float ContentPaddingRight = 10f;
+        private const float ContentPaddingBottom = 24f;
+        private const float LabelLeft = TrackLeft + MarkerSize + 8f;
+        private const float HorizontalContentPadding =
+            ContentPaddingLeft + LabelLeft + ContentPaddingRight + 24f;
+        private static readonly Color SuccessColor = new(0.34f, 0.82f, 0.58f, 1f);
+        private static readonly Color SuccessTrackColor = new(0.28f, 0.68f, 0.48f, 1f);
+        private static readonly Color NextColor = new(0.90f, 0.72f, 0.26f, 1f);
+        private static readonly Color NextTrackColor = new(0.72f, 0.57f, 0.24f, .85f);
+        private static readonly Color LockedColor = new(0.90f, 0.91f, 0.94f, .48f);
+        private static readonly Color LockedTrackColor = new(0.35f, 0.37f, 0.42f, 1f);
+        private static readonly Color CircleInteriorColor = new(0.04f, 0.06f, 0.09f, 1f);
+        private static Sprite whiteSprite;
+
+        private readonly List<GameObject> spawnedObjects = new();
+        private TextMeshProUGUI referenceText;
+        private TextMeshProUGUI summaryText;
+        private TextMeshProUGUI progressLabelText;
+        private TextMeshProUGUI progressValueText;
+        private RectTransform progressBarRoot;
+        private Slider progressSlider;
+        private RectTransform trackRoot;
+        private LayoutElement rootLayout;
+        private LayoutElement trackLayout;
+        private Slider npcLoyaltyProgressSliderPrefab;
+        private NpcLoyaltyTooltipData data;
+
+        public void Configure(
+            TextMeshProUGUI reference,
+            Slider progressSliderPrefab)
+        {
+            referenceText = reference;
+            npcLoyaltyProgressSliderPrefab = progressSliderPrefab;
+        }
+
+        public void Bind(NpcLoyaltyTooltipData nextData, TextMeshProUGUI reference)
+        {
+            data = nextData;
+            referenceText = reference ?? referenceText;
+            Rebuild();
+        }
+
+        public static float GetPreferredWidth(
+            NpcLoyaltyTooltipData nextData,
+            TextMeshProUGUI reference)
+        {
+            if (nextData == null || reference == null) return 0f;
+
+            var preferredWidth = MeasureTextWidth(
+                reference,
+                $"Poziom {nextData.CurrentLevel} / {nextData.MaximumLevel}    "
+                    + $"Rabat: {nextData.DiscountPercent}%",
+                Mathf.Max(12f, reference.fontSize - 1f));
+            foreach (var breakpoint in nextData.Breakpoints)
+            {
+                preferredWidth = Mathf.Max(
+                    preferredWidth,
+                    MeasureTextWidth(
+                        reference,
+                        $"{breakpoint.Level} · {breakpoint.Label}",
+                        Mathf.Max(10f, reference.fontSize - 3f)));
+            }
+
+            return preferredWidth + HorizontalContentPadding;
+        }
+
+        private static float MeasureTextWidth(
+            TextMeshProUGUI reference,
+            string text,
+            float fontSize)
+        {
+            if (reference == null || string.IsNullOrEmpty(text)) return 0f;
+
+            var wasActive = reference.gameObject.activeSelf;
+            var previousFontSize = reference.fontSize;
+            var previousWrappingMode = reference.textWrappingMode;
+            var previousOverflowMode = reference.overflowMode;
+            reference.gameObject.SetActive(true);
+            reference.fontSize = fontSize;
+            reference.textWrappingMode = TextWrappingModes.NoWrap;
+            reference.overflowMode = TextOverflowModes.Overflow;
+            var width = reference.GetPreferredValues(text).x;
+            if (float.IsNaN(width) || float.IsInfinity(width) || width < fontSize * 2f)
+            {
+                width = text.Length * fontSize * .55f;
+            }
+            reference.fontSize = previousFontSize;
+            reference.textWrappingMode = previousWrappingMode;
+            reference.overflowMode = previousOverflowMode;
+            if (!wasActive) reference.gameObject.SetActive(false);
+            return width;
+        }
+
+        public float GetPreferredHeight(float width)
+        {
+            var breakpointCount = Mathf.Max(1, data?.Breakpoints?.Count ?? 0);
+            return ContentPaddingBottom
+                + SummaryHeight
+                + ProgressLabelHeight
+                + ProgressBarHeight
+                + breakpointCount * RowHeight
+                + 3f * LayoutSpacing;
+        }
+
+        private void Rebuild()
+        {
+            ClearSpawnedObjects();
+            if (data == null) return;
+
+            var verticalLayout = gameObject.GetComponent<VerticalLayoutGroup>()
+                ?? gameObject.AddComponent<VerticalLayoutGroup>();
+            verticalLayout.padding = new RectOffset(
+                Mathf.RoundToInt(ContentPaddingLeft),
+                Mathf.RoundToInt(ContentPaddingRight),
+                0,
+                0);
+            verticalLayout.spacing = LayoutSpacing;
+            verticalLayout.childAlignment = TextAnchor.UpperLeft;
+            verticalLayout.childControlWidth = true;
+            verticalLayout.childControlHeight = true;
+            verticalLayout.childForceExpandWidth = true;
+            verticalLayout.childForceExpandHeight = false;
+
+            rootLayout = gameObject.GetComponent<LayoutElement>()
+                ?? gameObject.AddComponent<LayoutElement>();
+            rootLayout.minHeight = GetPreferredHeight(0f);
+            rootLayout.preferredHeight = GetPreferredHeight(0f);
+            rootLayout.flexibleWidth = 1f;
+
+            summaryText = CreateText("Summary", transform, SummaryHeight);
+            summaryText.text = $"Poziom {data.CurrentLevel} / {data.MaximumLevel}    "
+                + $"Rabat: {data.DiscountPercent}%";
+            summaryText.fontSize = Mathf.Max(12f, referenceText.fontSize - 1f);
+            summaryText.fontStyle = FontStyles.Bold;
+
+            progressLabelText = CreateText("ProgressLabel", transform, ProgressLabelHeight);
+            progressLabelText.text = data.CurrentLevel >= data.MaximumLevel
+                ? "Maksymalny poziom lojalności"
+                : $"Postęp do poziomu {data.CurrentLevel + 1}";
+            progressLabelText.fontSize = Mathf.Max(10f, referenceText.fontSize - 3f);
+            progressLabelText.color = new Color(
+                referenceText.color.r,
+                referenceText.color.g,
+                referenceText.color.b,
+                .75f);
+
+            progressBarRoot = CreateRect("ProgressBar", transform);
+            var progressBarLayout = progressBarRoot.gameObject.AddComponent<LayoutElement>();
+            progressBarLayout.minHeight = ProgressBarHeight;
+            progressBarLayout.preferredHeight = ProgressBarHeight;
+            progressBarLayout.flexibleWidth = 1f;
+
+            var progressRatio = data.RequiredForNextLevel <= 0
+                ? 1f
+                : Mathf.Clamp01(data.SpentTowardNextLevel / (float)data.RequiredForNextLevel);
+            if (npcLoyaltyProgressSliderPrefab != null)
+            {
+                progressSlider = Instantiate(
+                    npcLoyaltyProgressSliderPrefab,
+                    progressBarRoot,
+                    false);
+                progressSlider.name = "NpcLoyaltyProgressSlider";
+                spawnedObjects.Add(progressSlider.gameObject);
+                progressSlider.interactable = false;
+                progressSlider.minValue = 0f;
+                progressSlider.maxValue = 1f;
+                progressSlider.wholeNumbers = false;
+                progressSlider.value = progressRatio;
+                SetStretchRect(progressSlider.GetComponent<RectTransform>());
+
+                var sliderLayout = progressSlider.GetComponent<LayoutElement>();
+                if (sliderLayout != null)
+                {
+                    sliderLayout.minHeight = ProgressBarHeight;
+                    sliderLayout.preferredHeight = ProgressBarHeight;
+                }
+            }
+
+            progressValueText = CreateText("ProgressValue", progressBarRoot, ProgressBarHeight);
+            progressValueText.alignment = TextAlignmentOptions.Center;
+            progressValueText.text = data.CurrentLevel >= data.MaximumLevel
+                ? "MAX"
+                : $"{data.SpentTowardNextLevel} / {data.RequiredForNextLevel}";
+            SetStretchRect(progressValueText.rectTransform);
+
+            trackRoot = CreateRect("ProgressionTrack", transform);
+            trackLayout = trackRoot.gameObject.AddComponent<LayoutElement>();
+            trackLayout.minHeight = GetTrackHeight();
+            trackLayout.preferredHeight = GetTrackHeight();
+            trackLayout.flexibleWidth = 1f;
+            BuildTrack();
+
+            var bottomPadding = CreateRect("BottomPadding", transform);
+            var bottomPaddingLayout = bottomPadding.gameObject.AddComponent<LayoutElement>();
+            bottomPaddingLayout.minHeight = ContentPaddingBottom;
+            bottomPaddingLayout.preferredHeight = ContentPaddingBottom;
+            bottomPaddingLayout.flexibleWidth = 1f;
+        }
+
+        private void BuildTrack()
+        {
+            var breakpoints = data.Breakpoints;
+            var trackHeight = GetTrackHeight();
+            var nextBreakpointLevel = int.MaxValue;
+            foreach (var breakpoint in breakpoints)
+            {
+                if (breakpoint.Level > data.CurrentLevel)
+                {
+                    nextBreakpointLevel = breakpoint.Level;
+                    break;
+                }
+            }
+
+            for (var index = 0; index < breakpoints.Count; index++)
+            {
+                var breakpoint = breakpoints[index];
+                var position = data.MaximumLevel <= 1
+                    ? 0f
+                    : Mathf.Clamp01((breakpoint.Level - 1f) / (data.MaximumLevel - 1f));
+                var y = TrackTopPadding
+                    + position * (trackHeight - TrackTopPadding - TrackBottomPadding);
+
+                if (index < breakpoints.Count - 1)
+                {
+                    var nextBreakpoint = breakpoints[index + 1];
+                    var nextPosition = data.MaximumLevel <= 1
+                        ? 0f
+                        : Mathf.Clamp01((nextBreakpoint.Level - 1f) / (data.MaximumLevel - 1f));
+                    var nextY = TrackTopPadding
+                        + nextPosition * (trackHeight - TrackTopPadding - TrackBottomPadding);
+                    var segment = CreateImage(
+                        $"ProgressionTrackSegment_{breakpoint.Level}",
+                        trackRoot,
+                        GetTrackSegmentColor(
+                            breakpoint.Level,
+                            nextBreakpoint.Level,
+                            nextBreakpointLevel));
+                    SetTopAnchoredRect(
+                        segment.rectTransform,
+                        TrackLeft,
+                        y,
+                        TrackWidth,
+                        nextY - y);
+                }
+
+                var markerObject = new GameObject(
+                    $"Breakpoint_{breakpoint.Level}",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(NpcLoyaltyCircleGraphic));
+                markerObject.transform.SetParent(trackRoot, false);
+                spawnedObjects.Add(markerObject);
+                var markerRect = (RectTransform)markerObject.transform;
+                markerRect.anchorMin = new Vector2(0f, 1f);
+                markerRect.anchorMax = new Vector2(0f, 1f);
+                markerRect.pivot = new Vector2(.5f, .5f);
+                markerRect.sizeDelta = new Vector2(MarkerSize, MarkerSize);
+                markerRect.anchoredPosition = new Vector2(MarkerCenterX, -y);
+                var isNext = breakpoint.Level == nextBreakpointLevel;
+                markerObject.GetComponent<NpcLoyaltyCircleGraphic>().SetAppearance(
+                    breakpoint.IsUnlocked,
+                    isNext,
+                    SuccessColor,
+                    LockedColor,
+                    NextColor,
+                    CircleInteriorColor);
+
+                var label = CreateText(
+                    $"BreakpointLabel_{breakpoint.Level}",
+                    trackRoot,
+                    RowHeight);
+                label.text = $"{breakpoint.Level} · {breakpoint.Label}";
+                label.color = breakpoint.IsUnlocked ? referenceText.color : new Color(
+                    referenceText.color.r,
+                    referenceText.color.g,
+                    referenceText.color.b,
+                    .48f);
+                if (isNext) label.color = NextColor;
+                label.fontSize = Mathf.Max(10f, referenceText.fontSize - 3f);
+                label.textWrappingMode = TextWrappingModes.NoWrap;
+                label.overflowMode = TextOverflowModes.Overflow;
+                SetTopAnchoredRect(label.rectTransform, LabelLeft,
+                    y - RowHeight / 2f, -ContentPaddingRight, RowHeight);
+            }
+        }
+
+        private Color GetTrackSegmentColor(
+            int startLevel,
+            int endLevel,
+            int nextBreakpointLevel)
+        {
+            if (endLevel <= data.CurrentLevel) return SuccessTrackColor;
+            if (startLevel <= data.CurrentLevel && endLevel == nextBreakpointLevel)
+            {
+                return NextTrackColor;
+            }
+
+            return LockedTrackColor;
+        }
+
+        private float GetTrackHeight() =>
+            Mathf.Max(RowHeight, Mathf.Max(1, data?.Breakpoints?.Count ?? 0) * RowHeight)
+            + TrackBottomPadding;
+
+        private TextMeshProUGUI CreateText(string name, Transform parent, float height)
+        {
+            var textObject = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
+            textObject.transform.SetParent(parent, false);
+            spawnedObjects.Add(textObject);
+            var text = textObject.GetComponent<TextMeshProUGUI>();
+            text.font = referenceText.font;
+            text.fontSize = referenceText.fontSize;
+            text.color = referenceText.color;
+            text.alignment = TextAlignmentOptions.Left;
+            text.verticalAlignment = VerticalAlignmentOptions.Middle;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.raycastTarget = false;
+            var layout = textObject.AddComponent<LayoutElement>();
+            layout.minHeight = height;
+            layout.preferredHeight = height;
+            layout.flexibleWidth = 1f;
+            return text;
+        }
+
+        private Image CreateImage(string name, Transform parent, Color color)
+        {
+            var imageObject = new GameObject(name, typeof(RectTransform), typeof(Image));
+            imageObject.transform.SetParent(parent, false);
+            spawnedObjects.Add(imageObject);
+            var image = imageObject.GetComponent<Image>();
+            image.sprite = WhiteSprite;
+            image.color = color;
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private RectTransform CreateRect(string name, Transform parent)
+        {
+            var rectObject = new GameObject(name, typeof(RectTransform));
+            rectObject.transform.SetParent(parent, false);
+            spawnedObjects.Add(rectObject);
+            return (RectTransform)rectObject.transform;
+        }
+
+        private static void SetTopAnchoredRect(
+            RectTransform rect,
+            float left,
+            float top,
+            float width,
+            float height)
+        {
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(width < 0f ? 1f : 0f, 1f);
+            rect.pivot = new Vector2(0f, 1f);
+            rect.offsetMin = new Vector2(left, -top - height);
+            rect.offsetMax = width < 0f
+                ? new Vector2(width, -top)
+                : new Vector2(left + width, -top);
+        }
+
+        private static void SetStretchRect(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        private void ClearSpawnedObjects()
+        {
+            foreach (var spawnedObject in spawnedObjects)
+            {
+                if (spawnedObject == null) continue;
+                if (Application.isPlaying) Destroy(spawnedObject);
+                else DestroyImmediate(spawnedObject);
+            }
+            spawnedObjects.Clear();
+        }
+
+        private static Sprite WhiteSprite
+        {
+            get
+            {
+                if (whiteSprite != null) return whiteSprite;
+                whiteSprite = Sprite.Create(
+                    Texture2D.whiteTexture,
+                    new Rect(0f, 0f, 1f, 1f),
+                    new Vector2(.5f, .5f),
+                    1f);
+                whiteSprite.hideFlags = HideFlags.HideAndDontSave;
+                return whiteSprite;
+            }
+        }
+    }
+
+    [RequireComponent(typeof(CanvasRenderer))]
+    internal sealed class NpcLoyaltyCircleGraphic : MaskableGraphic
+    {
+        private const int Segments = 32;
+        private const float RingThickness = 2.5f;
+        private bool filled;
+        private bool highlighted;
+        private Color successColor = Color.green;
+        private Color lockedColor = Color.gray;
+        private Color nextColor = Color.yellow;
+        private Color interiorColor = Color.black;
+
+        public void SetAppearance(
+            bool isFilled,
+            bool isHighlighted,
+            Color nextSuccessColor,
+            Color nextLockedColor,
+            Color nextColorValue,
+            Color nextInteriorColor)
+        {
+            filled = isFilled;
+            highlighted = isHighlighted;
+            successColor = nextSuccessColor;
+            lockedColor = nextLockedColor;
+            nextColor = nextColorValue;
+            interiorColor = nextInteriorColor;
+            SetVerticesDirty();
+        }
+
+        protected override void OnPopulateMesh(VertexHelper vertexHelper)
+        {
+            vertexHelper.Clear();
+            var rect = rectTransform.rect;
+            var center = rect.center;
+            var radius = Mathf.Min(rect.width, rect.height) * .5f;
+
+            if (filled)
+            {
+                vertexHelper.AddVert(center, successColor, new Vector2(.5f, .5f));
+                for (var index = 0; index <= Segments; index++)
+                {
+                    var angle = index / (float)Segments * Mathf.PI * 2f;
+                    var position = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                    vertexHelper.AddVert(position, successColor, new Vector2(.5f, .5f));
+                    if (index == 0) continue;
+                    vertexHelper.AddTriangle(0, index, index + 1);
+                }
+
+                return;
+            }
+
+            var ringColor = highlighted ? nextColor : lockedColor;
+            var innerRadius = Mathf.Max(0f, radius - RingThickness);
+            vertexHelper.AddVert(center, interiorColor, new Vector2(.5f, .5f));
+            for (var index = 0; index <= Segments; index++)
+            {
+                var angle = index / (float)Segments * Mathf.PI * 2f;
+                var position = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * innerRadius;
+                vertexHelper.AddVert(position, interiorColor, new Vector2(.5f, .5f));
+                if (index == 0) continue;
+                vertexHelper.AddTriangle(0, index, index + 1);
+            }
+
+            var ringVertexOffset = Segments + 2;
+            for (var index = 0; index <= Segments; index++)
+            {
+                var angle = index / (float)Segments * Mathf.PI * 2f;
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                vertexHelper.AddVert(
+                    center + direction * radius,
+                    ringColor,
+                    new Vector2(.5f, .5f));
+                vertexHelper.AddVert(
+                    center + direction * innerRadius,
+                    ringColor,
+                    new Vector2(.5f, .5f));
+                if (index == 0) continue;
+
+                var previousOuter = ringVertexOffset + (index - 1) * 2;
+                var previousInner = previousOuter + 1;
+                var currentOuter = ringVertexOffset + index * 2;
+                var currentInner = currentOuter + 1;
+                vertexHelper.AddTriangle(previousOuter, currentOuter, previousInner);
+                vertexHelper.AddTriangle(previousInner, currentOuter, currentInner);
+            }
         }
     }
 }

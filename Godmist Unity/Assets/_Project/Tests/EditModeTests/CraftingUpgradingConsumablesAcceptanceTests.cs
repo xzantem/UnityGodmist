@@ -104,6 +104,61 @@ namespace Godmist.Tests.EditMode
                 EquipmentUpgradeService.UpgradeCost(30f, 1f, .5f)
                 - EquipmentUpgradeService.UpgradeCost(30f, 0f, .5f)));
             Assert.That(preview.GoldCost, Is.EqualTo(expectedGoldCost));
+            foreach (var progress in new[] { .19f, .2f, .4f, .6f, .8f, 1f })
+            {
+                var boundary = new EquipmentUpgradeService().CreateUpgradePreview(
+                    session, blacksmith, item, progress, .5f, catalog);
+                var projected = new EquipmentItemInstance { UpgradeProgress = progress };
+                Assert.That(boundary.SocketCapacity, Is.EqualTo(projected.SocketCapacity));
+                Assert.That(boundary.SocketCapacity, Is.EqualTo(Mathf.FloorToInt(progress * 5f + .0001f)));
+            }
+            item.UpgradeProgress = .8f;
+            var failed = new EquipmentUpgradeService(new AlwaysFailRandom());
+            Assert.That(failed.TryUpgrade(session, blacksmith, null, item, 1f, .5f, catalog,
+                out var succeeded, out _, out _), Is.True);
+            Assert.That(succeeded, Is.False);
+            Assert.That(item.UpgradeProgress, Is.EqualTo(.8f));
+            Assert.That(item.SocketCapacity, Is.EqualTo(4));
+        }
+
+        private sealed class AlwaysFailRandom : System.Random
+        {
+            public override double NextDouble() => .999;
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MaterialCrafting_BuysMissingMaterialFromBuyback(bool rejectTransfer)
+        {
+            var ore = CreateItem("material.buyback", ItemType.Material, 10);
+            var recipe = CreateRecipe("recipe.buyback", 1, (ore, 1));
+            var npc = CreateBlacksmith(recipe);
+            npc.Definition.Roles.Add(ScriptableObject.CreateInstance<TraderRoleData>());
+            npc.ShopInventory ??= new ShopInventory();
+            var item = new ItemInstance(ore);
+            npc.ShopInventory.BuybackStock.Add(new BuybackEntry(item, 5));
+            var owner = new CharacterInstance { CharacterId = "buyer" };
+            var session = new GameSession();
+            session.TryRegisterCharacter(owner);
+            session.TryAddCharacterToActiveParty(owner.CharacterId);
+            session.TryAddGold(1000);
+            if (rejectTransfer)
+                owner.Inventory.Items.Add(new ItemInstance(CreateItem("other", ItemType.Material, 1), item.InstanceId));
+            var bought = new MaterialCraftingService().TryBuyMissingMaterial(session, npc,
+                new MaterialCraftRequest { Recipe = recipe, RecipientCharacterId = owner.CharacterId },
+                ore.Id, out var paid, out var reason);
+            if (rejectTransfer)
+            {
+                Assert.That(bought, Is.False);
+                Assert.That(npc.ShopInventory.BuybackStock.Single().Item, Is.SameAs(item));
+                Assert.That(session.Gold, Is.EqualTo(1000));
+                Assert.That(npc.GoldBalance, Is.Zero);
+                return;
+            }
+            Assert.That(bought, Is.True, reason);
+            Assert.That(owner.Inventory.Items.Single(), Is.SameAs(item));
+            Assert.That(npc.ShopInventory.BuybackStock, Is.Empty);
+            Assert.That(npc.GoldBalance, Is.EqualTo(paid));
         }
 
         [Test]
@@ -218,6 +273,10 @@ namespace Godmist.Tests.EditMode
             {
                 NpcId = npcDefinition.Id,
                 Definition = npcDefinition,
+                GoldBalance = 340,
+                TotalGoldReceived = 900,
+                TotalGoldSpent = 560,
+                GuildPayoutProgress = .6f,
                 ShopInventory = new ShopInventory()
             };
             npc.ShopInventory.Items.Add(new ItemInstance(shopDefinition, "save.shop"));
@@ -241,6 +300,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredEquipment.Quality, Is.EqualTo(EquipmentQuality.Excellent));
             Assert.That(restoredEquipment.UpgradeProgress, Is.EqualTo(.75f));
             Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(17.5f));
+            Assert.That(restored.NpcsById[npcDefinition.Id].GoldBalance, Is.EqualTo(340));
+            Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldReceived, Is.EqualTo(900));
+            Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldSpent, Is.EqualTo(560));
+            Assert.That(restored.NpcsById[npcDefinition.Id].GuildPayoutProgress, Is.EqualTo(.6f));
             Assert.That(restored.NpcsById[npcDefinition.Id].ShopInventory.Items.Single().InstanceId, Is.EqualTo("save.shop"));
             Assert.That(restored.NpcsById[npcDefinition.Id].ShopInventory.BuybackStock.Single().Item.InstanceId, Is.EqualTo("save.buyback"));
         }
@@ -304,7 +367,7 @@ namespace Godmist.Tests.EditMode
             var definition = ScriptableObject.CreateInstance<ConsumableItemDefinition>();
             SetAutoProperty(definition, "Id", id);
             SetAutoProperty(definition, "DisplayName", id);
-            SetAutoProperty(definition, "ItemType", ItemType.Tool);
+            SetAutoProperty(definition, "ItemType", useType == ConsumableUseType.Bomb ? ItemType.Bomb : ItemType.Potion);
             SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
             SetAutoProperty(definition, "UseType", useType);
             SetAutoProperty(definition, "MaxCharges", maxCharges);

@@ -30,37 +30,54 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI previewSummaryText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private Button craftButton;
+        [SerializeField] private TextMeshProUGUI recipeSectionLabel;
+        [SerializeField] private TextMeshProUGUI materialsSectionLabel;
 
         private readonly MaterialCraftingService craftingService = new();
         private GameSession session;
-        private NpcInstance blacksmith;
+        private NpcInstance specialist;
+        private TMP_InputField previewNameInput;
         private string recipientCharacterId = string.Empty;
         private CraftableItemDefinition selectedRecipe;
+        private bool isVisible;
 
         private void Awake()
         {
-            if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
-            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+            // This label was inherited from an input-field prefab. The input field
+            // synchronizes its serialized empty value back into the TMP component,
+            // hiding the product name written by RefreshResultPreview.
+            previewNameInput = previewNameText?.GetComponent<TMP_InputField>();
+            if (previewNameInput != null) previewNameInput.enabled = false;
+            if (previewNameText != null) previewNameText.raycastTarget = false;
+            HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
         }
+
+        private void OnEnable() => HideTemplates();
+
+        private void OnDisable() => isVisible = false;
 
         private void OnDestroy()
         {
             if (craftButton != null) craftButton.onClick.RemoveListener(TryCraft);
         }
 
-        public bool Show(NpcInstance nextBlacksmith, string nextRecipientCharacterId)
+        public bool Show(NpcInstance nextSpecialist, string nextRecipientCharacterId)
         {
             session = GameBootstrap.Instance?.Session;
-            if (session == null || nextBlacksmith == null
+            if (session == null || nextSpecialist == null
                 || string.IsNullOrWhiteSpace(nextRecipientCharacterId))
             {
                 return false;
             }
 
-            blacksmith = nextBlacksmith;
+            specialist = nextSpecialist;
             recipientCharacterId = nextRecipientCharacterId;
+            isVisible = true;
             serviceRoot?.SetActive(true);
+            HideTemplates();
+            if (recipeSectionLabel != null) recipeSectionLabel.text = "Receptury";
+            if (materialsSectionLabel != null) materialsSectionLabel.text = "Materiały";
             PopulateRecipes();
             RefreshPreview();
             return true;
@@ -68,13 +85,15 @@ namespace Godmist.Views.UI.Workspace
 
         public void Hide()
         {
+            isVisible = false;
             serviceRoot?.SetActive(false);
         }
 
         private void PopulateRecipes()
         {
             ClearSlots(recipeGrid);
-            var recipes = blacksmith?.Definition?.GetRole<BlacksmithRoleData>()?.MaterialRecipes
+            var recipes = specialist?.Definition?.Roles?.OfType<IMaterialCraftingSpecialist>()
+                .FirstOrDefault()?.MaterialRecipes
                 ?.Where(recipe => recipe != null)
                 .OrderBy(recipe => recipe.DisplayName)
                 .ToList() ?? new List<CraftableItemDefinition>();
@@ -82,7 +101,7 @@ namespace Godmist.Views.UI.Workspace
 
             foreach (var recipe in recipes)
             {
-                CreateSlot(
+                var slot = CreateSlot(
                     recipeSlotTemplate,
                     recipeGrid,
                     recipe.Icon,
@@ -99,25 +118,34 @@ namespace Godmist.Views.UI.Workspace
                         PopulateRecipes();
                         RefreshPreview();
                     });
+                slot?.SetDefinitionTooltip(recipe);
             }
         }
 
         private void RefreshPreview()
         {
             ClearSlots(materialsGrid);
-            var preview = craftingService.CreatePreview(session, blacksmith, BuildRequest());
-            RefreshResultPreview(preview.Result, preview.ResultAmount);
+            var preview = craftingService.CreatePreview(session, specialist, BuildRequest());
+            // The selected recipe is already the deterministic result. Keep it
+            // visible even when the preview is not craftable yet (for example due
+            // to missing materials or an invalid recipient), just like the other
+            // crafting windows do.
+            RefreshResultPreview(
+                preview.Result ?? selectedRecipe,
+                preview.ResultAmount > 0
+                    ? preview.ResultAmount
+                    : selectedRecipe?.OutputAmount ?? 0);
 
             foreach (var material in preview.Materials ?? Array.Empty<CraftingMaterialCost>())
             {
                 var materialId = material.Material.Id;
                 var canOfferPurchase = material.HasPurchasableStock && material.PurchasePrice > 0;
-                CreateSlot(
+                var slot = CreateSlot(
                     materialSlotTemplate,
                     materialsGrid,
                     material.Material.Icon,
                     material.Material.DisplayName,
-                    material.Material.Description,
+                    BuildMaterialDescription(material),
                     $"{material.OwnedAmount}/{material.RequiredAmount}",
                     false,
                     material.MissingAmount > 0,
@@ -126,6 +154,8 @@ namespace Godmist.Views.UI.Workspace
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(material.Material, BuildMaterialDescription(material),
+                    material.PurchasePrice > 0 ? material.PurchasePrice : (int?)null);
             }
 
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
@@ -134,22 +164,26 @@ namespace Godmist.Views.UI.Workspace
 
         private void BuyMissingMaterial(string materialId)
         {
+            if (!isVisible) return;
+
             if (!craftingService.TryBuyMissingMaterial(
-                    session, blacksmith, BuildRequest(), materialId,
+                    session, specialist, BuildRequest(), materialId,
                     out var paidGold, out var failureReason))
             {
                 SetStatus(failureReason);
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold} zł.");
+            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
         }
 
         private void TryCraft()
         {
+            if (!isVisible) return;
+
             if (!craftingService.TryCraft(
-                    session, blacksmith, BuildRequest(), out var items,
+                    session, specialist, BuildRequest(), out var items,
                     out var failureReason))
             {
                 SetStatus(failureReason);
@@ -169,23 +203,41 @@ namespace Godmist.Views.UI.Workspace
 
         private void RefreshResultPreview(ItemDefinition result, int amount)
         {
+            var resultName = GetResultDisplayName(result);
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(result?.Icon);
                 previewTooltipSlot.SetTooltip(
-                    result?.DisplayName ?? "Wynik craftingu",
+                    resultName,
                     result == null
                         ? "Wybierz receptę, aby zobaczyć wynik."
-                        : $"{result.DisplayName}\nWynik recepty: {amount}×\n{result.Description}");
+                        : $"{resultName}\nWynik recepty: {amount}×\n{result.Description}");
             }
 
-            if (previewNameText != null) previewNameText.text = result?.DisplayName ?? string.Empty;
+            if (previewNameText != null)
+            {
+                previewNameText.gameObject.SetActive(true);
+                previewNameInput?.SetTextWithoutNotify(resultName);
+                previewNameText.text = resultName;
+            }
             if (previewSummaryText != null)
             {
                 previewSummaryText.text = result == null
                     ? "Wybierz receptę."
                     : $"Wynik recepty • {amount}×";
             }
+        }
+
+        private static string GetResultDisplayName(ItemDefinition result)
+        {
+            if (!string.IsNullOrWhiteSpace(result?.DisplayName))
+            {
+                return result.DisplayName;
+            }
+
+            return !string.IsNullOrWhiteSpace(result?.Id)
+                ? result.Id
+                : "Wynik craftingu";
         }
 
         private static string BuildRecipeTooltip(CraftableItemDefinition recipe)
@@ -237,6 +289,22 @@ namespace Godmist.Views.UI.Workspace
         private void SetStatus(string message)
         {
             if (statusText != null) statusText.text = message ?? string.Empty;
+        }
+
+        private void HideTemplates()
+        {
+            if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
+            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+        }
+
+        private static string BuildMaterialDescription(CraftingMaterialCost material)
+        {
+            if (material == null) return string.Empty;
+            if (string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
+                return material.Material?.Description ?? string.Empty;
+
+            return (material.Material?.Description ?? string.Empty)
+                + $"\n<color=#E06C75>{material.PurchaseFailureReason}</color>";
         }
     }
 }

@@ -369,6 +369,13 @@ namespace Godmist.Views.UI
         private void ResizeForContent(bool compact)
         {
             if (tooltipRect == null) return;
+            titleText?.ForceMeshUpdate();
+            var titleWidth = titleText != null && titleText.rectTransform.rect.width > 1f
+                ? titleText.rectTransform.rect.width
+                : Mathf.Max(1f, tooltipRect.rect.width - 24f - (icon != null && icon.enabled ? 48f : 0f));
+            var titleHeight = titleText != null
+                ? Mathf.Ceil(titleText.GetPreferredValues(titleText.text, titleWidth, 0f).y)
+                : 0f;
             if (!compact)
             {
                 if (descriptionText != null) descriptionText.ForceMeshUpdate();
@@ -376,7 +383,7 @@ namespace Godmist.Views.UI
                 var metaHeight = costText != null && costText.gameObject.activeSelf ? 22f : 0f;
                 tooltipRect.SetSizeWithCurrentAnchors(
                     RectTransform.Axis.Vertical,
-                    Mathf.Max(expandedTooltipHeight, 64f + descriptionHeight + metaHeight));
+                    Mathf.Max(expandedTooltipHeight, 24f + titleHeight + descriptionHeight + metaHeight));
                 return;
             }
 
@@ -384,7 +391,7 @@ namespace Godmist.Views.UI
             var payloadHeight = descriptionText != null
                 ? Mathf.Ceil(descriptionText.preferredHeight)
                 : 0f;
-            var height = Mathf.Max(68f, 56f + payloadHeight);
+            var height = Mathf.Max(68f, 24f + titleHeight + payloadHeight);
             tooltipRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
         }
 

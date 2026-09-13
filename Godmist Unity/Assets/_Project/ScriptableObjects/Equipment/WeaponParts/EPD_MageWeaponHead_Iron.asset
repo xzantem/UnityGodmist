@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EPD_MageWeaponHead_Iron
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.weapon.head.common.iron
-  <DisplayName>k__BackingField: 
+  <DisplayName>k__BackingField: "Katalizator z \u017Celaza"
   <Description>k__BackingField: 
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
@@ -33,7 +33,7 @@ MonoBehaviour:
     MagicalDefenseBase: 0
     MinAttackPercent: 0
     MaxAttackPercent: 0
-    CritChancePercent: -0.2
+    CritChancePercent: 0
     CritDamagePercent: 0
     WeaponAccuracyPercent: 0.2
     MaxResourcePercent: 0.2
@@ -43,5 +43,5 @@ MonoBehaviour:
     PhysicalDefensePercent: 0
     MagicalDefensePercent: 0
   <CraftingMaterials>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
+  - <Material>k__BackingField: {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
     <Amount>k__BackingField: 2

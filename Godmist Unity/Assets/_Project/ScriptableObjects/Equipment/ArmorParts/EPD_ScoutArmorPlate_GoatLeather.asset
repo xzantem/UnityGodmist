@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: EPD_ScoutArmorPlate_GoatLeather
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.scout.armor.plate.common.goat_leathe
+  <DisplayName>k__BackingField: "Sk\xF3ra z kozy"
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <Kind>k__BackingField: 3
   <LevelBracket>k__BackingField: 5
@@ -40,5 +43,5 @@ MonoBehaviour:
     PhysicalDefensePercent: 0
     MagicalDefensePercent: 0
   <CraftingMaterials>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-    <Amount>k__BackingField: 2
+  - <Material>k__BackingField: {fileID: 11400000, guid: 0261d60a5969e89498047fc2cdce66c6, type: 2}
+    <Amount>k__BackingField: 8

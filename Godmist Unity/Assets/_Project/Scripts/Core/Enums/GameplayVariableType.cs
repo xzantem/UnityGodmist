@@ -6,6 +6,7 @@ namespace Godmist.Core.Enums
         DamageReceivedPercent = 1,
         ExperienceGainPercent = 2,
         GoldGainPercent = 3,
-        DamageDealtPercentInDungeonTheme = 4
+        DamageDealtPercentInDungeonTheme = 4,
+        HitChanceBonus = 5
     }
 }

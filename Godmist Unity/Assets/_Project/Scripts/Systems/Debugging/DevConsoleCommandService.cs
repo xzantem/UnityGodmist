@@ -19,6 +19,7 @@ using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.NPC;
 using UnityEngine;
 
 namespace Godmist.Systems.Debugging
@@ -43,6 +44,8 @@ namespace Godmist.Systems.Debugging
         private readonly EquipmentGenerationService equipmentGenerationService = new();
         private readonly EquipmentUpgradeService equipmentUpgradeService = new();
         private readonly StatusEffectSystem statusEffectSystem = new();
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
+        private readonly GalduryteCraftingService galduryteCraftingService = new();
 
         private int? debugSeed;
 
@@ -94,6 +97,7 @@ namespace Godmist.Systems.Debugging
                 "setresource" => SetResource(tokens, gameSession, combatSession),
                 "giveitem" => GiveItem(tokens, gameSession, combatSession, contentCatalog),
                 "createitem" => CreateItem(tokens, gameSession, contentCatalog),
+                "creategalduryte" => CreateGalduryte(tokens, gameSession, contentCatalog),
                 "createconsumable" => CreateConsumable(tokens, gameSession, contentCatalog),
                 "items" => GetInventory(tokens, gameSession, combatSession),
                 "inspectitem" => InspectItem(tokens, gameSession),
@@ -107,6 +111,7 @@ namespace Godmist.Systems.Debugging
                 "removeitem" => RemoveItem(tokens, gameSession),
                 "clearinventory" => ClearInventory(tokens, gameSession),
                 "setlevel" => SetLevel(tokens, gameSession),
+                "setloyalty" => SetLoyalty(tokens, gameSession),
                 "noclip" => SetNoclip(tokens, noclipHandler),
                 "revealmap" => SetMapVisibility(gameSession, true),
                 "clearmap" => SetMapVisibility(gameSession, false),
@@ -237,6 +242,30 @@ namespace Godmist.Systems.Debugging
                 return Fail($"level musi mieścić się w zakresie {CharacterProgressionSystem.MinimumLevel}-{CharacterProgressionSystem.MaximumLevel}.");
 
             return Success($"Ustawiono poziom {GetCharacterName(character)}: {previousLevel} -> {character.Level}.");
+        }
+
+        private DevConsoleCommandResult SetLoyalty(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: setloyalty <npcId> <level>");
+            if (gameSession?.NpcsById == null
+                || !gameSession.NpcsById.TryGetValue(tokens[1], out var npc))
+            {
+                return Fail($"Nie znaleziono NPC o ID: {tokens[1]}");
+            }
+
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var level))
+                return Fail("level musi być liczbą całkowitą.");
+            if (level < npcLoyaltyService.InitialLevel || level > npcLoyaltyService.MaximumLevel)
+            {
+                return Fail($"level musi mieścić się w zakresie "
+                    + $"{npcLoyaltyService.InitialLevel}-{npcLoyaltyService.MaximumLevel}.");
+            }
+
+            var previousLevel = npc.LoyaltyLevel;
+            npc.LoyaltyLevel = level;
+            return Success($"Ustawiono lojalność NPC {npc.NpcId}: {previousLevel} -> {npc.LoyaltyLevel}.");
         }
 
         private static DevConsoleCommandResult SetNoclip(
@@ -1172,6 +1201,103 @@ namespace Godmist.Systems.Debugging
                 $"postaci {GetCharacterName(target)}.");
         }
 
+        private DevConsoleCommandResult CreateGalduryte(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count < 3)
+                return Fail("Użycie: creategalduryte <tier> <weapon|armor> [identified] [characterId].");
+            if (gameSession == null || contentCatalog == null)
+                return Fail("Brak GameSession albo GameContentCatalog.");
+
+            if (!TryParseGalduryteTier(tokens[1], out var tier))
+                return Fail("Tier galdurytu musi być 1, 2 albo 3 (limestone, granite, marble).");
+            if (!TryParseGalduryteTarget(tokens[2], out var targetType))
+                return Fail("Cel galdurytu musi być weapon albo armor.");
+
+            var statusToken = tokens.Count >= 4 ? tokens[3] : "identified";
+            var identified = !string.Equals(
+                statusToken,
+                "unidentified",
+                StringComparison.OrdinalIgnoreCase);
+            var characterToken = tokens.Count >= 5
+                ? tokens[4]
+                : string.Equals(statusToken, "identified", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(statusToken, "unidentified", StringComparison.OrdinalIgnoreCase)
+                    ? string.Empty
+                    : statusToken;
+            var target = ResolveDefaultCharacter(gameSession, characterToken, out var targetFailure);
+            if (target == null) return targetFailure;
+
+            var definition = contentCatalog.ItemDefinitions
+                ?.OfType<GalduryteItemDefinition>()
+                .FirstOrDefault();
+            var stoneDefinitionId = tier switch
+            {
+                GalduryteTier.Limestone => "item.runic.solid_limestone",
+                GalduryteTier.Granite => "item.runic.solid_granite",
+                GalduryteTier.Marble => "item.runic.solid_marble",
+                _ => string.Empty
+            };
+            var stone = contentCatalog.ItemDefinitions
+                ?.FirstOrDefault(item => item?.Id == stoneDefinitionId);
+            var powder = contentCatalog.ItemDefinitions
+                ?.FirstOrDefault(item => item?.Id == "item.runic.galduryte_powder.red");
+            if (!galduryteCraftingService.TryCreateDebugGalduryte(
+                    definition,
+                    stone,
+                    powder,
+                    tier,
+                    targetType,
+                    identified,
+                    out var item,
+                    out var failureReason))
+            {
+                return Fail(failureReason);
+            }
+
+            if (!inventoryService.TryAddItem(target.Inventory, item))
+                return Fail($"Nie udało się dodać galdurytu do inventory postaci {GetCharacterName(target)}.");
+
+            return Success(
+                $"Utworzono {item.DisplayName} ({(identified ? "zidentyfikowany" : "niezidentyfikowany")}) " +
+                $"w inventory postaci {GetCharacterName(target)}.");
+        }
+
+        private static bool TryParseGalduryteTier(string value, out GalduryteTier tier)
+        {
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var numeric)
+                && Enum.IsDefined(typeof(GalduryteTier), numeric))
+            {
+                tier = (GalduryteTier)numeric;
+                return true;
+            }
+
+            return Enum.TryParse(value, true, out tier)
+                && Enum.IsDefined(typeof(GalduryteTier), tier);
+        }
+
+        private static bool TryParseGalduryteTarget(string value, out GalduryteTargetType targetType)
+        {
+            if (string.Equals(value, "weapon", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "broń", StringComparison.OrdinalIgnoreCase))
+            {
+                targetType = GalduryteTargetType.Weapon;
+                return true;
+            }
+
+            if (string.Equals(value, "armor", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "pancerz", StringComparison.OrdinalIgnoreCase))
+            {
+                targetType = GalduryteTargetType.Armor;
+                return true;
+            }
+
+            targetType = default;
+            return false;
+        }
+
         private DevConsoleCommandResult CreateConsumable(
             IReadOnlyList<string> tokens,
             GameSession gameSession,
@@ -1576,7 +1702,7 @@ namespace Godmist.Systems.Debugging
                 return Fail("Jakość musi być jedną z wartości: Poor, Normal, Excellent, Masterpiece.");
             }
 
-            if (equipmentDefinition is BossUniqueEquipmentDefinition
+            if (equipmentDefinition is UniqueEquipmentDefinition
                 && quality != EquipmentQuality.Masterpiece)
             {
                 return Fail("Bossowy unikat można utworzyć wyłącznie z jakością Masterpiece.");

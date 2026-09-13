@@ -88,6 +88,61 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TryCreate_RestoresDeadActivePartyMember()
+        {
+            var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+
+            try
+            {
+                SetAutoProperty(characterDefinition, "Id", "character.dead");
+                SetAutoProperty(classData, "Id", "class.dead");
+                SetAutoProperty(classData, "ResourceType", ResourceType.Momentum);
+                catalog.CharacterDefinitions.Add(characterDefinition);
+                catalog.CharacterClasses.Add(classData);
+
+                var saveData = GameSaveData.CreateNew("Martwy czlonek druzyny");
+                saveData.Party.MaxActiveMembers = Party.DefaultMaxActiveMembers;
+                saveData.Party.ActiveLeaderId = "character.dead";
+                saveData.Party.ActiveMemberIds.Add("character.dead");
+                saveData.Characters.Add(new CharacterSaveData
+                {
+                    CharacterId = "character.dead",
+                    ClassId = "class.dead",
+                    Level = 1,
+                    CurrentHealth = 0,
+                    LifeState = CharacterLifeState.Dead,
+                    AvailabilityState = CharacterAvailabilityState.Available,
+                    ResourcePool = new ResourcePoolSaveData
+                    {
+                        ResourceType = ResourceType.Momentum
+                    },
+                    Resistances = new ResistanceSetSaveData()
+                });
+
+                Assert.That(
+                    new GameSessionRestoreFactory().TryCreate(
+                        saveData,
+                        catalog,
+                        out var restoredSession),
+                    Is.True);
+                Assert.That(
+                    restoredSession.PlayerParty.ActiveMemberIds,
+                    Is.EquivalentTo(new[] { "character.dead" }));
+                Assert.That(
+                    restoredSession.PlayerParty.ActiveLeaderId,
+                    Is.EqualTo("character.dead"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(catalog);
+                Object.DestroyImmediate(classData);
+                Object.DestroyImmediate(characterDefinition);
+            }
+        }
+
+        [Test]
         public void TryCreate_RoundTripsSkillTreeInvestmentsThroughJson()
         {
             var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();

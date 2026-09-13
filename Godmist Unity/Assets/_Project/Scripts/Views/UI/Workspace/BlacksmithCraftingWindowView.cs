@@ -54,13 +54,13 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
-            if (equipmentSlotTemplate != null) equipmentSlotTemplate.gameObject.SetActive(false);
-            if (partSlotTemplate != null) partSlotTemplate.gameObject.SetActive(false);
-            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+            HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
             if (qualityDropdown != null) qualityDropdown.onValueChanged.AddListener(HandleQualityChanged);
             if (customNameInput != null) customNameInput.onValueChanged.AddListener(HandleNameChanged);
         }
+
+        private void OnEnable() => HideTemplates();
 
         private void OnDestroy()
         {
@@ -85,6 +85,7 @@ namespace Godmist.Views.UI.Workspace
             blacksmith = nextBlacksmith;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
+            HideTemplates();
             selectedParts.Clear();
             PopulateQualityOptions();
             PopulateEquipmentChoices();
@@ -127,12 +128,14 @@ namespace Godmist.Views.UI.Workspace
                     .Where(offer => offer != null)
                     .Select(offer => offer.ArmorBase)
                     .Where(item => item != null && item.ItemType == ItemType.Armor))
+                .GroupBy(item => item.Id)
+                .Select(group => group.First())
                 .ToList();
             if (!definitions.Contains(selectedDefinition)) selectedDefinition = definitions.FirstOrDefault();
 
             foreach (var definition in definitions)
             {
-                CreateSlot(
+                var slot = CreateSlot(
                     equipmentSlotTemplate,
                     equipmentContent,
                     definition.Icon,
@@ -149,6 +152,9 @@ namespace Godmist.Views.UI.Workspace
                     PopulatePartChoices();
                     RefreshPreview();
                 });
+                // A base choice is a crafting category, not an actual item instance.
+                // Keep its hover affordance deliberately compact: its name only.
+                slot?.SetTooltip(definition.DisplayName, string.Empty);
             }
 
             if (selectedDefinition != null) PopulatePartChoices();
@@ -172,7 +178,7 @@ namespace Godmist.Views.UI.Workspace
                              .OrderBy(part => part.Id)
                          ?? Enumerable.Empty<EquipmentPartDefinition>())
                 {
-                    CreateSlot(
+                    var slot = CreateSlot(
                         partSlotTemplate,
                         selection.Content,
                         part.Icon,
@@ -204,22 +210,24 @@ namespace Godmist.Views.UI.Workspace
                 var materialId = material.Material.Id;
                 var canOfferPurchase = material.HasPurchasableStock
                     && material.PurchasePrice > 0;
-                CreateSlot(
+                var slot = CreateSlot(
                     materialSlotTemplate,
                     materialsContent,
                     material.Material.Icon,
                     material.Material.DisplayName,
-                    material.Material.Description,
+                    BuildMaterialDescription(material),
                     $"{material.OwnedAmount}/{material.RequiredAmount}",
                     false,
                     material.MissingAmount > 0,
                     null,
                     canOfferPurchase
-                        ? $"{material.PurchasableAmount} ({material.PurchasePrice}g)"
+                        ? $"{material.PurchasableAmount}× • {material.PurchasePrice}g"
                         : null,
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
+                slot?.SetDefinitionTooltip(material.Material, BuildMaterialDescription(material),
+                    material.PurchasePrice > 0 ? material.PurchasePrice : (int?)null);
             }
 
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
@@ -236,7 +244,7 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold} zł.");
+            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
         }
 
@@ -323,6 +331,23 @@ namespace Godmist.Views.UI.Workspace
             if (statusText != null) statusText.text = value ?? string.Empty;
         }
 
+        private void HideTemplates()
+        {
+            if (equipmentSlotTemplate != null) equipmentSlotTemplate.gameObject.SetActive(false);
+            if (partSlotTemplate != null) partSlotTemplate.gameObject.SetActive(false);
+            if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
+        }
+
+        private static string BuildMaterialDescription(CraftingMaterialCost material)
+        {
+            if (material == null) return string.Empty;
+            if (string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
+                return material.Material?.Description ?? string.Empty;
+
+            return (material.Material?.Description ?? string.Empty)
+                + $"\n<color=#E06C75>{material.PurchaseFailureReason}</color>";
+        }
+
         private void RefreshResultPreview(EquipmentItemInstance result)
         {
             var hasStructuredPreview = previewTooltipSlot != null
@@ -343,9 +368,12 @@ namespace Godmist.Views.UI.Workspace
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(result?.Definition?.Icon);
-                previewTooltipSlot.SetTooltip(
-                    result?.DisplayName ?? "Podgląd przedmiotu",
-                    BuildPreviewTooltip(result));
+                if (result != null)
+                    previewTooltipSlot.SetItemTooltip(result, null);
+                else
+                    previewTooltipSlot.SetTooltip(
+                        "Podgląd przedmiotu",
+                        "Wybierz wyposażenie i części, aby zobaczyć szczegóły.");
             }
 
             SetPreviewLabel(previewNameText, result?.DisplayName);
@@ -386,23 +414,9 @@ namespace Godmist.Views.UI.Workspace
             return $"{itemType} • {requiredClass} • Poziom {result.ItemLevel}";
         }
 
-        private static string BuildPreviewTooltip(EquipmentItemInstance result)
-        {
-            if (result == null) return "Wybierz wyposażenie i części, aby zobaczyć szczegóły.";
-
-            return $"{BuildPreviewSummary(result)}\n"
-                + $"Jakość: {GetQualityDisplayName(result.Quality)}\n"
-                + "Rzadkość: losowana przy craftingu\n"
-                + "Statystyki:\n"
-                + BuildStatsText(result);
-        }
-
         private static string GetRequiredClassDisplayName(EquipmentItemInstance result)
         {
-            var className = result?.EquipmentDefinition?.RequiredClass?.ClassName;
-            if (!string.IsNullOrWhiteSpace(className)) return className;
-            if (!string.IsNullOrWhiteSpace(result?.RequiredClassId)) return result.RequiredClassId;
-            return "dowolna";
+            return result == null ? "dowolna" : UIWorkspaceTooltipView.GetRequiredClassDisplayName(result);
         }
 
         private static string BuildPartTooltip(EquipmentPartDefinition part)

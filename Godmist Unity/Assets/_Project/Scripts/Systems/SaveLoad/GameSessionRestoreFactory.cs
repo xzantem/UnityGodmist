@@ -30,6 +30,7 @@ namespace Godmist.Systems.SaveLoad
         private readonly CharacterInstanceFactory characterFactory;
         private readonly ItemInstanceFactory itemFactory;
         private readonly NpcInstanceFactory npcFactory;
+        private readonly NpcLoyaltyService npcLoyaltyService;
         private readonly InventoryService inventoryService;
         private readonly CharacterStatPipelineSystem statPipeline;
         private readonly DungeonGeneratorService dungeonGenerator;
@@ -61,6 +62,8 @@ namespace Godmist.Systems.SaveLoad
                 ?? new NpcInstanceFactory(
                     this.itemFactory,
                     this.inventoryService);
+
+            npcLoyaltyService = new NpcLoyaltyService();
 
             this.statPipeline = statPipeline
                 ?? new CharacterStatPipelineSystem();
@@ -141,6 +144,15 @@ namespace Godmist.Systems.SaveLoad
                     assignedItemIds))
             {
                 Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu zawartości lootbagów.");
+                return false;
+            }
+
+            if (!TryRestoreSocketedGaldurytes(
+                    saveData.ItemInstances,
+                    itemsById,
+                    assignedItemIds))
+            {
+                Debug.LogError("Odtwarzanie GameSession odrzucone przy osadzonych galdurytach.");
                 return false;
             }
 
@@ -301,6 +313,32 @@ namespace Godmist.Systems.SaveLoad
             return true;
         }
 
+        private static bool TryRestoreSocketedGaldurytes(
+            List<ItemSaveData> itemSaveDataList,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
+        {
+            foreach (var data in itemSaveDataList ?? new List<ItemSaveData>())
+            {
+                if (data?.SocketedGalduryteInstanceIds == null
+                    || data.SocketedGalduryteInstanceIds.Count == 0) continue;
+                if (!itemsById.TryGetValue(data.InstanceId, out var item)
+                    || item is not EquipmentItemInstance equipment) return false;
+
+                equipment.SocketedGaldurytes = new List<GalduryteItemInstance>();
+                foreach (var id in data.SocketedGalduryteInstanceIds)
+                {
+                    if (!TryTakeItem(id, itemsById, assignedItemIds, out var socketed)
+                        || socketed is not GalduryteItemInstance galduryte
+                        || !galduryte.IsIdentified
+                        || equipment.SocketedGaldurytes.Count >= equipment.SocketCapacity)
+                        return false;
+                    equipment.SocketedGaldurytes.Add(galduryte);
+                }
+            }
+            return true;
+        }
+
         private bool TryCreateItems(
             List<ItemSaveData> itemSaveDataList,
             GameContentCatalog contentCatalog,
@@ -337,17 +375,20 @@ namespace Godmist.Systems.SaveLoad
                 var isLootBagDefinition = definition is LootBagItemDefinition;
 
                 var isConsumableDefinition = definition is ConsumableItemDefinition;
+                var isGalduryteDefinition = definition is GalduryteItemDefinition;
 
                 if (itemSaveData.IsEquipment != isEquipmentDefinition
                     || itemSaveData.IsLootBag != isLootBagDefinition
                     || itemSaveData.IsConsumable != isConsumableDefinition
+                    || itemSaveData.IsGalduryte != isGalduryteDefinition
                     || (itemSaveData.IsEquipment && itemSaveData.IsLootBag)
-                    || (itemSaveData.IsConsumable && (itemSaveData.IsEquipment || itemSaveData.IsLootBag)))
+                    || (itemSaveData.IsConsumable && (itemSaveData.IsEquipment || itemSaveData.IsLootBag || itemSaveData.IsGalduryte))
+                    || (itemSaveData.IsGalduryte && (itemSaveData.IsEquipment || itemSaveData.IsLootBag)))
                 {
                     return false;
                 }
 
-                if (definition is BossUniqueEquipmentDefinition
+                if (definition is UniqueEquipmentDefinition
                     && itemSaveData.Quality != EquipmentQuality.Masterpiece)
                 {
                     return false;
@@ -377,6 +418,8 @@ namespace Godmist.Systems.SaveLoad
                     consumableItem.CatalystDurationModifier = itemSaveData.CatalystDurationModifier;
                     consumableItem.CatalystEffectMultiplier = itemSaveData.CatalystEffectMultiplier;
                     consumableItem.CatalystChargeBonus = itemSaveData.CatalystChargeBonus;
+                    consumableItem.CatalystDisplayName = itemSaveData.CatalystDisplayName ?? string.Empty;
+                    consumableItem.CraftedBaseValue = itemSaveData.ConsumableCraftedBaseValue;
                     if (itemSaveData.CurrentCharges < 0 || itemSaveData.CurrentCharges > consumableItem.MaxCharges) return false;
                     consumableItem.CurrentCharges = itemSaveData.CurrentCharges;
                     if (consumableItem.IsBomb)
@@ -418,6 +461,58 @@ namespace Godmist.Systems.SaveLoad
                     }
                 }
 
+                if (item is GalduryteItemInstance galduryteItem)
+                {
+                    if (!Enum.IsDefined(typeof(GalduryteTargetType), itemSaveData.GalduryteTargetType)
+                        || !Enum.IsDefined(typeof(GalduryteTier), itemSaveData.GalduryteTier)
+                        || !Enum.IsDefined(typeof(GaldurytePowderColor), itemSaveData.GaldurytePowderColor)
+                        || itemSaveData.GalduryteCraftedBaseValue < 0
+                        || string.IsNullOrWhiteSpace(itemSaveData.GalduryteStoneDefinitionId)
+                        || string.IsNullOrWhiteSpace(itemSaveData.GaldurytePowderDefinitionId)
+                        || itemSaveData.GalduryteEffects == null
+                        || itemSaveData.GalduryteEffects.Count == 0
+                        || itemSaveData.ItemLevel != GalduryteRuntimeRules.GetLevel(itemSaveData.GalduryteTier))
+                    {
+                        return false;
+                    }
+
+                    var effectTypes = new HashSet<GalduryteEffectType>();
+                    var effectColors = new HashSet<GaldurytePowderColor>();
+                    var restoredEffects = new List<GalduryteEffectInstance>();
+                    foreach (var effect in itemSaveData.GalduryteEffects)
+                    {
+                        if (effect == null
+                            || !Enum.IsDefined(typeof(GalduryteEffectType), effect.EffectType)
+                            || !Enum.IsDefined(typeof(GaldurytePowderColor), effect.PowderColor)
+                            || !Enum.IsDefined(typeof(GalduryteEffectGrade), effect.Grade)
+                            || float.IsNaN(effect.Value)
+                            || float.IsInfinity(effect.Value)
+                            || effect.Value < 0f
+                            || !effectTypes.Add(effect.EffectType)
+                            || !effectColors.Add(effect.PowderColor))
+                        {
+                            return false;
+                        }
+
+                        restoredEffects.Add(new GalduryteEffectInstance(
+                            effect.EffectType,
+                            effect.PowderColor,
+                            effect.Grade,
+                            effect.Value));
+                    }
+
+                    galduryteItem.TargetType = itemSaveData.GalduryteTargetType;
+                    galduryteItem.Tier = itemSaveData.GalduryteTier;
+                    galduryteItem.GuaranteedPowderColor = itemSaveData.GaldurytePowderColor;
+                    galduryteItem.IsIdentified = itemSaveData.GalduryteIsIdentified;
+                    galduryteItem.IsDestroyed = itemSaveData.GalduryteIsDestroyed;
+                    galduryteItem.StoneDefinitionId = itemSaveData.GalduryteStoneDefinitionId ?? string.Empty;
+                    galduryteItem.PowderDefinitionId = itemSaveData.GaldurytePowderDefinitionId ?? string.Empty;
+                    galduryteItem.StoneDisplayName = itemSaveData.GalduryteStoneDisplayName ?? string.Empty;
+                    galduryteItem.CraftedBaseValue = itemSaveData.GalduryteCraftedBaseValue;
+                    galduryteItem.Effects = restoredEffects;
+                }
+
                 if (item is EquipmentItemInstance equipmentItem)
                 {
                     var partIds = itemSaveData.PartIds ?? new List<string>();
@@ -450,6 +545,9 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.Quality = itemSaveData.Quality;
                     equipmentItem.PartIds = new List<string>(
                         partIds);
+                    equipmentItem.PrimaryPartDisplayName = itemSaveData.PrimaryPartDisplayName ?? string.Empty;
+                    equipmentItem.PrimaryMaterialId = itemSaveData.PrimaryMaterialId ?? string.Empty;
+                    equipmentItem.CraftedBaseValue = itemSaveData.EquipmentCraftedBaseValue;
                     equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
                         ? baseModifiers
                         : new List<StatModifier>(modifiers);
@@ -462,7 +560,7 @@ namespace Godmist.Systems.SaveLoad
                         jewelryItem.MetalDisplayName = itemSaveData.JewelryMetalDisplayName ?? string.Empty;
                         jewelryItem.GemId = itemSaveData.JewelryGemId ?? string.Empty;
                         jewelryItem.GemDisplayName = itemSaveData.JewelryGemDisplayName ?? string.Empty;
-                        jewelryItem.GemDescription = itemSaveData.JewelryGemDescription ?? string.Empty;
+                        jewelryItem.CraftedBaseValue = itemSaveData.JewelryCraftedBaseValue;
                     }
                 }
 
@@ -1372,7 +1470,13 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var characterId in saveData.ActiveMemberIds)
             {
-                if (!session.TryAddCharacterToActiveParty(characterId))
+                // Restore must reproduce the saved party composition, including
+                // incapacitated or dead members.  The gameplay API deliberately
+                // prevents adding such characters to an active party, but using it
+                // here made otherwise valid saves unloadable after a party member
+                // died.
+                if (!session.CharactersById.ContainsKey(characterId)
+                    || !session.PlayerParty.TryAddActiveMember(characterId))
                 {
                     return false;
                 }
@@ -1380,7 +1484,8 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var characterId in saveData.BenchMemberIds)
             {
-                if (!session.TryAddCharacterToBench(characterId))
+                if (!session.CharactersById.ContainsKey(characterId)
+                    || !session.PlayerParty.TryAddBenchMember(characterId))
                 {
                     return false;
                 }
@@ -1392,7 +1497,7 @@ namespace Godmist.Systems.SaveLoad
                     session.PlayerParty.ActiveLeaderId);
             }
 
-            return session.TrySetActiveLeader(
+            return session.PlayerParty.TrySetActiveLeader(
                 saveData.ActiveLeaderId);
         }
 
@@ -1483,8 +1588,16 @@ namespace Godmist.Systems.SaveLoad
             foreach (var npcSaveData in npcSaveDataList)
             {
                 if (npcSaveData == null
-                    || npcSaveData.LoyaltyLevel < 1
+                    || npcSaveData.LoyaltyLevel < npcLoyaltyService.InitialLevel
+                    || npcSaveData.LoyaltyLevel > npcLoyaltyService.MaximumLevel
                     || npcSaveData.SpentGoldTotal < 0
+                    || npcSaveData.GoldBalance < 0
+                    || npcSaveData.TotalGoldReceived < 0
+                    || npcSaveData.TotalGoldSpent < 0
+                    || float.IsNaN(npcSaveData.GuildPayoutProgress)
+                    || float.IsInfinity(npcSaveData.GuildPayoutProgress)
+                    || npcSaveData.GuildPayoutProgress < 0f
+                    || npcSaveData.GuildPayoutProgress >= 1f
                     || !contentCatalog.TryGetNpc(
                         npcSaveData.NpcId,
                         out var definition))
@@ -1496,6 +1609,10 @@ namespace Godmist.Systems.SaveLoad
 
                 npc.LoyaltyLevel = npcSaveData.LoyaltyLevel;
                 npc.SpentGoldTotal = npcSaveData.SpentGoldTotal;
+                npc.GoldBalance = npcSaveData.GoldBalance;
+                npc.TotalGoldReceived = npcSaveData.TotalGoldReceived;
+                npc.TotalGoldSpent = npcSaveData.TotalGoldSpent;
+                npc.GuildPayoutProgress = npcSaveData.GuildPayoutProgress;
 
                 if (npc.ShopInventory == null)
                 {
@@ -1651,7 +1768,9 @@ namespace Godmist.Systems.SaveLoad
                     new Vector2(
                         saveData.PlayerPositionX,
                         saveData.PlayerPositionY),
-                    saveData.ClearedEncounterIds))
+                    saveData.ClearedEncounterIds,
+                    saveData.HighestReachedFloorIndex,
+                    saveData.GuildProgressCreditedFloorCount))
             {
                 Debug.LogError(
                     $"Nie udało się odtworzyć stanu lochu "

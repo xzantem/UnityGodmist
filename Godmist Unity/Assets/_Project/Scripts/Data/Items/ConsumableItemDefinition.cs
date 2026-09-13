@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Godmist.Data.Items
 {
     [CreateAssetMenu(fileName = "ConsumableItemDefinition", menuName = "Godmist/Items/Consumable Item Definition")]
-    public sealed class ConsumableItemDefinition : ItemDefinition
+    public class ConsumableItemDefinition : ItemDefinition
     {
         [field: SerializeField] public ConsumableUseType UseType { get; private set; }
         [field: SerializeField, Min(1)] public int MaxCharges { get; private set; } = 1;

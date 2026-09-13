@@ -133,7 +133,7 @@ namespace Godmist.Tests.EditMode
                     BindingFlags.Instance | BindingFlags.NonPublic);
                 setContent.Invoke(
                     tooltip,
-                    new object[] { null, "Title", "Body", string.Empty });
+                    new object[] { null, "Title", "Body", string.Empty, false });
 
                 var visible = typeof(UIWorkspaceTooltipView).GetField(
                     "visible",

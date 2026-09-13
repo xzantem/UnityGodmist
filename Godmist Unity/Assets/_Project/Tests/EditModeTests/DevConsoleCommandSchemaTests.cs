@@ -20,6 +20,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(help, Does.Contain("removeitem <characterId> <instanceId>"));
             Assert.That(help, Does.Contain("clearinventory [characterId]"));
             Assert.That(help, Does.Contain("setlevel <characterId> <level>"));
+            Assert.That(help, Does.Contain("setloyalty <npcId> <level>"));
             Assert.That(help, Does.Contain("spawnobject <objectId> <x> <y> [instanceId]"));
             Assert.That(help, Does.Contain("help [command]"));
             Assert.That(help, Does.Contain("Przykład: createitem item.weapon.debug characterId=jerzy amount=3"));
@@ -70,6 +71,47 @@ namespace Godmist.Tests.EditMode
                     "createitem",
                     "item.weapon.debug",
                     "1",
+                    "jerzy"
+                }));
+        }
+
+        [Test]
+        public void Parser_NormalizesGalduryteCommandWithDefaultIdentificationStatus()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "creategalduryte 1 weapon",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "creategalduryte",
+                    "1",
+                    "weapon",
+                    "identified"
+                }));
+        }
+
+        [Test]
+        public void Parser_NormalizesUnidentifiedGalduryteForExplicitCharacter()
+        {
+            var normalized = DevConsoleCommandSchemaParser.TryNormalize(
+                "creategalduryte 1 armor unidentified characterId=jerzy",
+                out var tokens,
+                out var error);
+
+            Assert.That(normalized, Is.True, error);
+            Assert.That(
+                tokens,
+                Is.EqualTo(new[]
+                {
+                    "creategalduryte",
+                    "1",
+                    "armor",
+                    "unidentified",
                     "jerzy"
                 }));
         }

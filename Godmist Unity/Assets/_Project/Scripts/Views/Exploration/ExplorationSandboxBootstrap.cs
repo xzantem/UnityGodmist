@@ -133,9 +133,28 @@ namespace Godmist.Views.Exploration
                 return existingNpc;
             }
 
-            var npc = npcFactory.Create(binding.Definition);
+            var npc = npcFactory.Create(
+                binding.Definition,
+                GetHighestActivePartyLevel(session));
 
             return session.TryRegisterNpc(npc) ? npc : null;
+        }
+
+        private static int GetHighestActivePartyLevel(GameSession session)
+        {
+            var highestLevel = 1;
+
+            foreach (var characterId in session.PlayerParty.ActiveMemberIds)
+            {
+                if (session.CharactersById.TryGetValue(
+                        characterId,
+                        out var character))
+                {
+                    highestLevel = Mathf.Max(highestLevel, character.Level);
+                }
+            }
+
+            return highestLevel;
         }
     }
 

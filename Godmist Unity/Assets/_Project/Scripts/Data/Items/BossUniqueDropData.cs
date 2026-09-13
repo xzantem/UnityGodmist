@@ -11,6 +11,6 @@ namespace Godmist.Data.Items
         public float DropChance { get; private set; } = .30f;
 
         [field: SerializeField]
-        public List<BossUniqueEquipmentDefinition> EquipmentDefinitions { get; private set; } = new();
+        public List<EquipmentItemDefinition> EquipmentDefinitions { get; private set; } = new();
     }
 }

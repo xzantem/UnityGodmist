@@ -4,7 +4,31 @@ namespace Godmist.Data.Configuration
     {
         public const string TraderRelevantSellMultiplier = "economy.trader.relevant_sell_multiplier";
         public const string TraderIrrelevantSellMultiplier = "economy.trader.irrelevant_sell_multiplier";
+        public const string NpcGuildPayoutGrowthBase = "economy.npc.guild_payout.growth_base";
+        public const string NpcGuildPayoutCampaignExponent = "economy.npc.guild_payout.campaign_exponent";
+        public const string NpcGuildPayoutProgressPerDungeon = "economy.npc.guild_payout.progress_per_dungeon";
+        public const string GalduryteSocketingCostPercent = "crafting.galduryte.socketing_cost_percent";
+        public const string GalduryteExtractionCostPercent = "crafting.galduryte.extraction_cost_percent";
+        public const string GalduryteDestroyedExtractionMultiplier = "crafting.galduryte.destroyed_extraction_multiplier";
+        public const string GalduryteExtractionSuccessChance = "crafting.galduryte.extraction_success_chance";
+        public const string GalduryteExtractionLoyaltyThreshold = "crafting.galduryte.extraction_loyalty_threshold";
+        public const string GalduryteExtractionLoyaltyBonus = "crafting.galduryte.extraction_loyalty_bonus";
 
+        public const string NpcLoyaltyInitialLevel = "progression.npc.loyalty.initial_level";
+        public const string NpcLoyaltyMaximumLevel = "progression.npc.loyalty.maximum_level";
+        public const string NpcLoyaltyThresholdBase = "progression.npc.loyalty.threshold_base";
+        public const string NpcLoyaltyThresholdExponentOffset = "progression.npc.loyalty.threshold_exponent_offset";
+        public const string NpcLoyaltyThresholdLevelDivisor = "progression.npc.loyalty.threshold_level_divisor";
+        public const string NpcLoyaltyDiscountLevel1 = "progression.npc.loyalty.discount.level_1";
+        public const string NpcLoyaltyDiscountLevel2 = "progression.npc.loyalty.discount.level_2";
+        public const string NpcLoyaltyDiscountLevel3 = "progression.npc.loyalty.discount.level_3";
+        public const string NpcLoyaltyDiscountLevel4 = "progression.npc.loyalty.discount.level_4";
+        public const string NpcLoyaltyDiscountLevel5 = "progression.npc.loyalty.discount.level_5";
+        public const string NpcLoyaltyDiscountPercent1 = "progression.npc.loyalty.discount.percent_1";
+        public const string NpcLoyaltyDiscountPercent2 = "progression.npc.loyalty.discount.percent_2";
+        public const string NpcLoyaltyDiscountPercent3 = "progression.npc.loyalty.discount.percent_3";
+        public const string NpcLoyaltyDiscountPercent4 = "progression.npc.loyalty.discount.percent_4";
+        public const string NpcLoyaltyDiscountPercent5 = "progression.npc.loyalty.discount.percent_5";
         public const string ActionPointsPerSpeed = "combat.action_points_per_speed";
         public const string BaseActionValue = "combat.base_action_value";
         public const string EscapeBaseChancePercent = "combat.escape.base_chance_percent";
@@ -82,6 +106,14 @@ namespace Godmist.Data.Configuration
         public const string ConsumableBombBurnDuration = "items.consumable.bomb.burn_duration";
         public const string ConsumableBombControlDuration = "items.consumable.bomb.control_duration";
         public const string ConsumableBombStatDuration = "items.consumable.bomb.stat_duration";
+        public const string AlchemyIngredientCount = "items.alchemy.ingredient_count";
+        public const string AlchemyLevelTier1 = "items.alchemy.level.tier_1";
+        public const string AlchemyLevelTier2 = "items.alchemy.level.tier_2";
+        public const string AlchemyLevelTier3 = "items.alchemy.level.tier_3";
+        public const string AlchemyMediumTierForLevel1 = "items.alchemy.medium.min_tier.level_1";
+        public const string AlchemyMediumTierForLevel2 = "items.alchemy.medium.min_tier.level_2";
+        public const string AlchemyMediumTierForLevel3 = "items.alchemy.medium.min_tier.level_3";
+        public const string GalduryteIdentificationCostPercent = "items.galduryte.identification_cost_percent";
         public const string EquipmentPoorQualityCostMultiplier = "items.equipment.quality.poor_cost_multiplier";
         public const string EquipmentExcellentQualityCostMultiplier = "items.equipment.quality.excellent_cost_multiplier";
         public const string EquipmentQualityPoorWeight = "items.equipment.quality.poor_weight";
@@ -137,8 +169,6 @@ namespace Godmist.Data.Configuration
         public const string UpgradeValueRarityBase = "upgrade_reforge.upgrade.value_rarity_base";
         public const string UpgradeValueProgressMultiplier = "upgrade_reforge.upgrade.value_progress_multiplier";
         public const string UpgradeValueBaseMultiplier = "upgrade_reforge.upgrade.value_base_multiplier";
-        public const string UpgradeFailureProgressLossMin = "upgrade_reforge.upgrade.failure_progress_loss_min";
-        public const string UpgradeFailureProgressLossMax = "upgrade_reforge.upgrade.failure_progress_loss_max";
         public const string ReforgeCostMultiplier = "upgrade_reforge.reforge.cost_multiplier";
         public const string UpgradeSuccessChanceMax = "upgrade_reforge.upgrade.success_chance_max";
         public const string ReforgeTrashIncreaseChance = "upgrade_reforge.reforge.trash.increase_chance";

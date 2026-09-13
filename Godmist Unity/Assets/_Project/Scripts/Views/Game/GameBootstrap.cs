@@ -40,6 +40,7 @@ namespace Godmist.Views.Game
         public DialogueService DialogueService { get; private set; }
         public QuestService QuestService { get; private set; }
         public TradeService TradeService { get; private set; }
+        public NpcEconomyService NpcEconomyService { get; private set; }
         public SaveManager SaveManager { get; private set; }
         public GameContentCatalog ContentCatalog => contentCatalog;
         public GameDefines GameDefines => gameDefines;
@@ -50,6 +51,7 @@ namespace Godmist.Views.Game
         private SceneLoader sceneLoader;
         private QuestObjectiveProgressSystem questObjectiveProgressSystem;
         private DialogueQuestActionSystem dialogueQuestActionSystem;
+        private DialoguePartyActionSystem dialoguePartyActionSystem;
         private bool autosaveRequested;
         private string pendingAutosaveReason = string.Empty;
 
@@ -451,6 +453,11 @@ namespace Godmist.Views.Game
             }
 
             dungeon.TryMarkCompleted();
+            NpcEconomyService?.TryApplyDungeonProgress(
+                Session,
+                dungeon,
+                out _,
+                out _);
 
             questObjectiveProgressSystem?.ReportDungeonExited(
                 dungeon.DungeonId);
@@ -501,6 +508,12 @@ namespace Godmist.Views.Game
                 ?.PersistCurrentPosition();
 
             if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
+
+            NpcEconomyService?.TryApplyDungeonProgress(
+                Session,
+                Session.ActiveDungeon,
+                out _,
+                out _);
             RequestAutosave("Return scroll");
             return true;
         }
@@ -608,11 +621,15 @@ namespace Godmist.Views.Game
         {
             DialogueService = new DialogueService();
             QuestService = new QuestService(Session);
-            TradeService = new TradeService();
+            NpcEconomyService = new NpcEconomyService();
+            TradeService = new TradeService(NpcEconomyService);
 
             dialogueQuestActionSystem = new DialogueQuestActionSystem(
                 DialogueService,
                 QuestService);
+            dialoguePartyActionSystem = new DialoguePartyActionSystem(
+                DialogueService,
+                Session);
 
             questObjectiveProgressSystem =
                 new QuestObjectiveProgressSystem(
@@ -627,6 +644,8 @@ namespace Godmist.Views.Game
         {
             dialogueQuestActionSystem?.Dispose();
             dialogueQuestActionSystem = null;
+            dialoguePartyActionSystem?.Dispose();
+            dialoguePartyActionSystem = null;
 
             if (QuestService != null)
             {

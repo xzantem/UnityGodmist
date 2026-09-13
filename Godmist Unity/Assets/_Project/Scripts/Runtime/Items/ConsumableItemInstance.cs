@@ -22,6 +22,8 @@ namespace Godmist.Runtime.Items
         public int CatalystDurationModifier;
         public float CatalystEffectMultiplier = 1f;
         public int CatalystChargeBonus;
+        public string CatalystDisplayName = string.Empty;
+        public int CraftedBaseValue;
         public ConsumableItemInstance(ConsumableItemDefinition definition, string instanceId = null) : base(definition, instanceId)
         {
             CurrentCharges = MaxCharges;
@@ -35,6 +37,10 @@ namespace Godmist.Runtime.Items
         public bool HasCharges => CurrentCharges > 0;
 
         public bool IsBomb => ConsumableDefinition?.UseType == ConsumableUseType.Bomb;
+
+        public override int BaseValue => CraftedBaseValue > 0
+            ? CraftedBaseValue
+            : base.BaseValue;
 
         public void ConfigureBombTargeting(int range, int areaSize)
         {

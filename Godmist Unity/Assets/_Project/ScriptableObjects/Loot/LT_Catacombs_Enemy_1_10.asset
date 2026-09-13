@@ -18,8 +18,3 @@ MonoBehaviour:
     <Amount>k__BackingField:
       Min: 1
       Max: 1
-  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 59d66353c1206f543ac8ac559017b57f, type: 2}
-    <DropChance>k__BackingField: 1
-    <Amount>k__BackingField:
-      Min: 1
-      Max: 2

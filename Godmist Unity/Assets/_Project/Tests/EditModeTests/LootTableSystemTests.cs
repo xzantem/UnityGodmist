@@ -106,38 +106,40 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(definition, "ItemType", ItemType.Jewelry);
             SetAutoProperty(definition, "JewelrySlot", EquipmentSlot.Ring);
 
+            var chain = ScriptableObject.CreateInstance<ItemDefinition>();
+            SetAutoProperty(chain, "Id", "item.smithing.iron_chain");
+            SetAutoProperty(chain, "DisplayName", "Żelazny łańcuch");
+            SetAutoProperty(chain, "BaseRarity", RarityTier.Common);
+
+            var topaz = ScriptableObject.CreateInstance<ItemDefinition>();
+            SetAutoProperty(topaz, "Id", "item.gem.topaz");
+            SetAutoProperty(topaz, "DisplayName", "Topaz");
+
             var metal = new JewelryMetalData();
-            SetAutoProperty(metal, "Id", "iron");
-            SetAutoProperty(metal, "DisplayName", "Żelazny");
-            SetAutoProperty(metal, "MinimumLevel", 1);
-            SetAutoProperty(metal, "StatModifiers", new List<StatModifier>
+            SetAutoProperty(metal, "Material", chain);
+            SetAutoProperty(metal, "Amount", 1);
+            SetAutoProperty(metal, "Modifiers", new List<JewelryModifierData>
             {
                 new()
                 {
-                    StatType = CharacterStatType.MinAttack,
-                    Operation = StatModifierOperation.FlatBase,
-                    Value = 2f
+                    // Values are injected below because the authoring model has private setters.
                 }
             });
+            SetAutoProperty(metal.Modifiers[0], "Target", JewelryModifierTarget.Stat);
+            SetAutoProperty(metal.Modifiers[0], "StatType", CharacterStatType.MinAttack);
+            SetAutoProperty(metal.Modifiers[0], "Operation", StatModifierOperation.FlatBase);
+            SetAutoProperty(metal.Modifiers[0], "Value", 2f);
 
-            var gem = new JewelryGemData();
-            SetAutoProperty(gem, "Id", "topaz");
-            SetAutoProperty(gem, "DisplayName", "Topaz");
-            var passive = new PassiveEffectDefinition();
-            var operation = new PassiveEffectOperationDefinition();
-            SetAutoProperty(passive, "Id", "jewelry.gem.topaz.experience");
-            SetAutoProperty(operation, "Id", "operation.experience");
-            SetAutoProperty(operation, "Type", PassiveEffectOperationType.ModifyGameplayVariable);
-            SetAutoProperty(operation, "VariableType", GameplayVariableType.ExperienceGainPercent);
-            var passiveValue = new PassiveEffectValueDefinition();
-            SetAutoProperty(passiveValue, "NumberValue", .01f);
-            SetAutoProperty(operation, "Value", passiveValue);
-            SetAutoProperty(passive, "Operations", new List<PassiveEffectOperationDefinition> { operation });
-            SetAutoProperty(gem, "PassiveEffects", new List<PassiveEffectDefinition> { passive });
+            var gem = ScriptableObject.CreateInstance<JewelryGemDefinition>();
+            SetAutoProperty(gem, "CraftingMaterial", topaz);
+            SetAutoProperty(gem, "Modifiers", new List<JewelryModifierData> { new() });
+            SetAutoProperty(gem.Modifiers[0], "Target", JewelryModifierTarget.GameplayVariable);
+            SetAutoProperty(gem.Modifiers[0], "GameplayVariable", GameplayVariableType.ExperienceGainPercent);
+            SetAutoProperty(gem.Modifiers[0], "Value", .01f);
             SetAutoProperty(definition, "Metals", new List<JewelryMetalData> { metal });
-            SetAutoProperty(definition, "Gems", new List<JewelryGemData> { gem });
+            SetAutoProperty(definition, "Gems", new List<JewelryGemDefinition> { gem });
 
-            var items = new LootTableSystem(() => 0f, lootLevel: 1)
+            var items = new LootTableSystem(() => 0f, lootLevel: 10)
                 .RollLoot(CreateLootTable(definition, 1f, new IntRange(1, 1)));
 
             Assert.That(items, Has.Count.EqualTo(1));
@@ -145,10 +147,15 @@ namespace Godmist.Tests.EditMode
 
             var jewelry = (JewelryItemInstance)items[0];
             Assert.That(jewelry.EquipmentSlot, Is.EqualTo(EquipmentSlot.Ring));
-            Assert.That(jewelry.MetalId, Is.EqualTo("iron"));
-            Assert.That(jewelry.GemId, Is.EqualTo("topaz"));
-            Assert.That(gem.PassiveEffects, Has.Count.EqualTo(1));
+            Assert.That(jewelry.MetalId, Is.EqualTo("item.smithing.iron_chain:1"));
+            Assert.That(jewelry.GemId, Is.EqualTo("item.gem.topaz"));
+            Assert.That(gem.Modifiers, Has.Count.EqualTo(1));
             Assert.That(jewelry.StatModifiers, Has.Count.EqualTo(1));
+
+            Object.DestroyImmediate(chain);
+            Object.DestroyImmediate(topaz);
+            Object.DestroyImmediate(gem);
+            Object.DestroyImmediate(definition);
         }
 
         [Test]
@@ -281,19 +288,18 @@ namespace Godmist.Tests.EditMode
                 CreateClass("class.mage"),
                 CreateClass("class.paladin")
             };
-            var uniqueDefinitions = new List<BossUniqueEquipmentDefinition>();
+            var uniqueDefinitions = new List<EquipmentItemDefinition>();
             var parts = new List<EquipmentPartDefinition>();
 
             for (var index = 0; index < classes.Length; index++)
             {
                 var definition = ScriptableObject.CreateInstance<
-                    BossUniqueEquipmentDefinition>();
+                    UniqueEquipmentDefinition>();
                 SetAutoProperty(definition, "Id", $"unique.{index}");
                 SetAutoProperty(definition, "DisplayName", $"Unikat {index}");
                 SetAutoProperty(definition, "ItemType", ItemType.Weapon);
                 SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
                 SetAutoProperty(definition, "RequiredClass", classes[index]);
-                SetAutoProperty(definition, "BossId", "boss.test");
                 uniqueDefinitions.Add(definition);
 
                 parts.Add(CreatePart(

@@ -197,10 +197,11 @@ namespace Godmist.Systems.Items
             var chance = Mathf.Clamp01(data.DropChance);
             if (randomValue() >= chance) return null;
 
-            var candidates = new List<BossUniqueEquipmentDefinition>();
+            var candidates = new List<EquipmentItemDefinition>();
             foreach (var definition in data.EquipmentDefinitions)
             {
                 if (definition != null && definition.RequiredClass != null
+                    && definition is UniqueEquipmentDefinition
                     && definition.ItemType is ItemType.Weapon or ItemType.Armor)
                 {
                     candidates.Add(definition);
@@ -210,14 +211,10 @@ namespace Godmist.Systems.Items
             if (candidates.Count != 4) return null;
 
             var classIds = new HashSet<string>();
-            var bossId = candidates[0].BossId;
-            if (string.IsNullOrWhiteSpace(bossId)) return null;
 
             foreach (var candidate in candidates)
             {
-                if (!classIds.Add(candidate.RequiredClass.Id)
-                    || !string.Equals(candidate.BossId, bossId,
-                        StringComparison.Ordinal))
+                if (!classIds.Add(candidate.RequiredClass.Id))
                 {
                     return null;
                 }
@@ -227,7 +224,7 @@ namespace Godmist.Systems.Items
                 Mathf.Clamp01(randomValue()) * candidates.Count);
             selectedIndex = Mathf.Min(selectedIndex, candidates.Count - 1);
 
-            return equipmentGenerationService.GenerateBossUnique(
+            return equipmentGenerationService.GenerateUnique(
                 candidates[selectedIndex],
                 equipmentParts);
         }

@@ -35,6 +35,7 @@ namespace Godmist.Systems.Items
         public bool CanAffordPurchase;
         public CraftingMaterialPurchaseState PurchaseState;
         public int PurchasePrice;
+        public string PurchaseFailureReason = string.Empty;
     }
 
     public enum CraftingMaterialPurchaseState
@@ -59,6 +60,7 @@ namespace Godmist.Systems.Items
         private readonly EquipmentGenerationService equipmentGeneration;
         private readonly InventoryService inventoryService;
         private readonly TradeService tradeService;
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
 
         public BlacksmithCraftingService(
             EquipmentGenerationService equipmentGeneration = null,
@@ -93,7 +95,7 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
-            if (request.Definition is BossUniqueEquipmentDefinition)
+            if (request.Definition is UniqueEquipmentDefinition)
             {
                 preview.FailureReason = "Unikatowego wyposażenia bossa nie można wytworzyć u kowala.";
                 return preview;
@@ -234,11 +236,18 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            var stock = blacksmith.ShopInventory.Items.Where(item =>
+            if (!string.IsNullOrWhiteSpace(cost.PurchaseFailureReason))
+            {
+                failureReason = cost.PurchaseFailureReason;
+                return false;
+            }
+
+            var stock = CraftingMerchantStock.Items(blacksmith).Where(item =>
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(tradeService.GetPriceToBuyFromTrader);
+            paidGold = stock.Sum(item =>
+                CraftingMerchantStock.Price(blacksmith, item));
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -265,7 +274,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            foreach (var item in stock) blacksmith.ShopInventory.Items.Remove(item);
+            var origins = CraftingMerchantStock.Remove(blacksmith, stock);
             foreach (var item in stock)
             {
                 if (inventoryService.TryAddItem(recipient.Inventory, item)) continue;
@@ -273,16 +282,16 @@ namespace Godmist.Systems.Items
                 foreach (var transferred in stock)
                 {
                     recipient.Inventory.Items.Remove(transferred);
-                    if (!blacksmith.ShopInventory.Items.Contains(transferred))
-                        blacksmith.ShopInventory.Items.Add(transferred);
                 }
+                CraftingMerchantStock.Restore(blacksmith, origins);
                 session.TryAddGold(paidGold);
                 failureReason = "Nie udało się przekazać materiału do inventory postaci.";
                 paidGold = 0;
                 return false;
             }
 
-            blacksmith.SpentGoldTotal += paidGold;
+            npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
+            new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
             return true;
         }
 
@@ -428,8 +437,8 @@ namespace Godmist.Systems.Items
         }
 
         private static int GetBlacksmithStock(NpcInstance blacksmith, string definitionId) =>
-            blacksmith?.ShopInventory?.Items?.Count(item =>
-                item?.Definition?.Id == definitionId) ?? 0;
+            CraftingMerchantStock.Items(blacksmith).Count(item =>
+                item?.Definition?.Id == definitionId);
 
         private int GetStockPurchasePrice(
             NpcInstance blacksmith,
@@ -438,10 +447,10 @@ namespace Godmist.Systems.Items
         {
             if (amount <= 0) return 0;
 
-            return blacksmith?.ShopInventory?.Items?
+            return CraftingMerchantStock.Items(blacksmith)
                 .Where(candidate => candidate?.Definition?.Id == definitionId)
                 .Take(amount)
-                .Sum(tradeService.GetPriceToBuyFromTrader) ?? 0;
+                .Sum(item => CraftingMerchantStock.Price(blacksmith, item));
         }
 
         private static bool TrySelectConsumedItems(

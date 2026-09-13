@@ -418,6 +418,8 @@ namespace Godmist.Editor
         {
             RequireText(npc.Id, npc, "Id", collector);
             RequireText(npc.DisplayName, npc, "DisplayName", collector);
+            if (npc.GuildPayoutBaseAmount < 1)
+                collector.Error(npc, "GuildPayoutBaseAmount", "Bazowa wypłata gildii NPC musi być większa od zera.");
             if (npc.BaseDialogue == null)
                 collector.Warning(npc, "BaseDialogue", "NPC nie ma przypisanego dialogu bazowego.");
             ValidateListNulls(npc, "Roles", npc.Roles, collector, false);

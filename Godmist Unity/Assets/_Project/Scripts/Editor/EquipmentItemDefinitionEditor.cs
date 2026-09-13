@@ -1,43 +1,40 @@
-using Godmist.Core.Enums;
 using Godmist.Data.Items;
 using UnityEditor;
-using UnityEngine;
 
 namespace Godmist.Editor
 {
-    [CustomEditor(typeof(EquipmentItemDefinition))]
-    public class EquipmentItemDefinitionEditor : UnityEditor.Editor
+    [CustomEditor(typeof(EquipmentItemDefinition), true)]
+    public sealed class EquipmentItemDefinitionEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            DrawProperty("<Id>k__BackingField");
-            DrawProperty("<DisplayName>k__BackingField");
-            DrawProperty("<Description>k__BackingField");
-            DrawProperty("<Icon>k__BackingField");
+            Draw("<Id>k__BackingField");
 
-            var itemType = serializedObject.FindProperty("<ItemType>k__BackingField");
-            var choices = new[] { "Weapon", "Armor", "Jewelry" };
-            var selected = itemType.enumValueIndex == (int)ItemType.Armor ? 1
-                : itemType.enumValueIndex == (int)ItemType.Jewelry ? 2 : 0;
-            selected = EditorGUILayout.Popup("Item Type", selected, choices);
-            itemType.enumValueIndex = selected == 0 ? (int)ItemType.Weapon
-                : selected == 1 ? (int)ItemType.Armor : (int)ItemType.Jewelry;
+            if (target is UniqueEquipmentDefinition)
+            {
+                Draw("<BaseDefinition>k__BackingField");
+                Draw("<DisplayName>k__BackingField");
+                Draw("<Description>k__BackingField");
+                Draw("<Effects>k__BackingField");
+                EditorGUILayout.HelpBox(
+                    "Typ, waga, klasa, slot oraz wartości bazowe pochodzą z Base Definition. "
+                    + "Rzadkość i wartość instancji ustala generator.",
+                    MessageType.Info);
+                serializedObject.ApplyModifiedProperties();
+                return;
+            }
 
-            DrawProperty("<BaseRarity>k__BackingField");
-            DrawProperty("<Weight>k__BackingField");
-            if (selected != 2) DrawProperty("<RequiredClass>k__BackingField");
-            if (selected == 2) DrawProperty("<JewelrySlot>k__BackingField");
-            EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("Passive Effects", EditorStyles.boldLabel);
-            DrawProperty("<PassiveEffects>k__BackingField");
-            EditorGUILayout.HelpBox(
-                "EquipmentSlot i IsStackable wynikaja z Item Type. Required Level oraz Base Value sa wyliczane runtime; Base Value pozostaje nieobslugiwane do czasu modelu kosztow materialow.",
-                MessageType.Info);
+            Draw("<Icon>k__BackingField");
+            Draw("<Weight>k__BackingField");
+            Draw("<ItemType>k__BackingField");
+            EditorGUILayout.HelpBox("Zwykłe wyposażenie otrzymuje nazwę z pierwszej wybranej części.", MessageType.Info);
+
+            Draw("<RequiredClass>k__BackingField");
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawProperty(string name)
+        private void Draw(string name)
         {
             var property = serializedObject.FindProperty(name);
             if (property != null) EditorGUILayout.PropertyField(property, true);

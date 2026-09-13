@@ -1,17 +1,19 @@
 using UnityEngine;
+using System.Collections.Generic;
+using Godmist.Data.Effects;
 
 namespace Godmist.Data.Items
 {
-    /// <summary>
-    /// Static identity for a boss unique. Its runtime uniqueness is represented
-    /// by this definition together with Masterpiece quality; no separate
-    /// runtime boolean is needed.
-    /// </summary>
     [CreateAssetMenu(
-        fileName = "BossUniqueEquipmentDefinition",
-        menuName = "Godmist/Items/Boss Unique Equipment Definition")]
-    public sealed class BossUniqueEquipmentDefinition : EquipmentItemDefinition
+        fileName = "UniqueEquipmentDefinition",
+        menuName = "Godmist/Items/Unique Equipment Definition")]
+    public sealed class UniqueEquipmentDefinition : EquipmentItemDefinition
     {
-        [field: SerializeField] public string BossId { get; private set; } = string.Empty;
+        [field: SerializeField] public EquipmentItemDefinition BaseDefinition { get; private set; }
+        [field: SerializeField] public List<PassiveEffectDefinition> Effects { get; private set; } = new();
+
+        public EquipmentItemDefinition EffectiveDefinition => BaseDefinition != null
+            ? BaseDefinition
+            : this;
     }
 }

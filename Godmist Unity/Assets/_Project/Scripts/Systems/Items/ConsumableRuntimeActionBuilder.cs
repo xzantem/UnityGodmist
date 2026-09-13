@@ -146,20 +146,37 @@ namespace Godmist.Systems.Items
                     useType == ConsumableUseType.Bomb
                         ? EffectPolarity.Negative
                         : EffectPolarity.Positive);
-                Set(effect, "baseValue", Mathf.CeilToInt(Mathf.Max(0f, effectiveValue)));
-                Set(effect, "percentageValue", Mathf.Clamp01(Mathf.Max(0f, effectiveValue)));
                 Set(effect, "targetModeIndex", Mathf.Max(0, runtime.TargetModeIndex));
                 Set(effect, "statusId", string.IsNullOrWhiteSpace(runtime.StatusId)
                     ? ConsumableRuntimeRules.GetImpliedStatusId(runtime.EffectType)
                     : runtime.StatusId);
-                var duration = ConsumableRuntimeRules.GetDuration(
+                var baseDuration = ConsumableRuntimeRules.GetDuration(
                     useType,
                     runtime.EffectType,
                     durationTurns);
+                var duration = baseDuration;
                 if (duration > 0)
                 {
                     duration = Mathf.Max(1, duration + item.CatalystDurationModifier);
                 }
+
+                // A duration catalyst is intentionally not a dilution mechanic for
+                // health regeneration: extending 6 turns to 7 raises 25% to
+                // 25% * 7 / 6 = 29.17%, as defined for alchemical regeneration.
+                if (runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth
+                    && baseDuration > 0
+                    && duration > 0)
+                {
+                    effectiveValue *= duration / (float)baseDuration;
+                }
+                // Regeneration values describe the total recovery over the full
+                // duration. Combat consumes the percentage once per turn, so it
+                // must receive the per-turn amount here.
+                var appliedValue = runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth && duration > 0
+                    ? effectiveValue / duration
+                    : effectiveValue;
+                Set(effect, "baseValue", Mathf.CeilToInt(Mathf.Max(0f, appliedValue)));
+                Set(effect, "percentageValue", Mathf.Clamp01(Mathf.Max(0f, appliedValue)));
                 Set(effect, "durationTurns", duration);
                 var chance = runtime.EffectType is
                     ConsumableRuntimeEffectType.ApplyStun

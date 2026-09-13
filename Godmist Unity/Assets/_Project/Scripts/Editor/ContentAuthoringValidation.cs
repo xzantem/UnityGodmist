@@ -132,9 +132,9 @@ namespace Godmist.Editor
                 }
 
                 if (consumable.UseType == Core.Enums.ConsumableUseType.Bomb
-                    && item.ItemType != Core.Enums.ItemType.Tool)
+                    && item.ItemType != Core.Enums.ItemType.Bomb)
                 {
-                    errors.Add("Bomba musi mieć ItemType = Tool.");
+                    errors.Add("Bomba musi mieć ItemType = Bomb.");
                 }
 
                 if (consumable.UseType == Core.Enums.ConsumableUseType.Utility
@@ -225,8 +225,8 @@ namespace Godmist.Editor
                 errors.Add("Equipment musi mieć ItemType = Weapon, Armor albo Jewelry.");
             }
 
-            if (equipment.ItemType == Core.Enums.ItemType.Jewelry
-                && equipment.JewelrySlot is not Core.Enums.EquipmentSlot.Necklace
+            if (equipment is JewelryItemDefinition jewelry
+                && jewelry.JewelrySlot is not Core.Enums.EquipmentSlot.Necklace
                     and not Core.Enums.EquipmentSlot.Ring
                     and not Core.Enums.EquipmentSlot.Bracelet
                     and not Core.Enums.EquipmentSlot.Earrings)
@@ -240,7 +240,8 @@ namespace Godmist.Editor
                 warnings.Add("Equipment nie ma przypisanej klasy postaci.");
             }
 
-            ValidatePassives(equipment.PassiveEffects, "PassiveEffects", errors, warnings);
+            if (equipment is UniqueEquipmentDefinition unique)
+                ValidatePassives(unique.Effects, "Effects", errors, warnings);
         }
 
         private static void ValidatePart(

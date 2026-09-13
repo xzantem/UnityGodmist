@@ -13,6 +13,7 @@ namespace Godmist.Data.NPC
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public Sprite Portrait { get; private set; }
         [field: SerializeField] public DialogueDefinition BaseDialogue { get; private set; }
+        [field: SerializeField, Min(1)] public int GuildPayoutBaseAmount { get; private set; } = 250;
 
         [field: SerializeField] public List<NpcRoleData> Roles
         {

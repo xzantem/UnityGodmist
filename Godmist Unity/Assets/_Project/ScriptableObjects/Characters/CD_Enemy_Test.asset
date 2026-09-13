@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dee6cd9b98d0fa545a9ab04727ca3174, type: 3}
   m_Name: CD_Enemy_Test
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
-  <Id>k__BackingField: enemy.test
-  <DisplayName>k__BackingField: Enemy Test
+  <Id>k__BackingField: enemy.catacombs.skeleton_swordsman
+  <DisplayName>k__BackingField: Szkielet Miecznik
+  <Tags>k__BackingField: 02000000
   <VisualSprite>k__BackingField: {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}
   <IdleAnimationFrames>k__BackingField:
   - {fileID: -3801395117379775012, guid: 252e7f3182eb51e42b953de4efbe0260, type: 3}
@@ -35,35 +36,36 @@ MonoBehaviour:
   <RecruitmentQuestId>k__BackingField: 
   <ClassData>k__BackingField: {fileID: 0}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 90
-    <MinAttack>k__BackingField: 8
-    <MaxAttack>k__BackingField: 12
+    <MaxHealth>k__BackingField: 350
+    <MinAttack>k__BackingField: 42
+    <MaxAttack>k__BackingField: 64
     <PhysicalDefense>k__BackingField: 10
-    <MagicalDefense>k__BackingField: 10
+    <MagicalDefense>k__BackingField: 4
     <PhysicalDefensePenetration>k__BackingField: 0
     <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 15
-    <CritChance>k__BackingField: 0.25
-    <CritDamage>k__BackingField: 1.5
-    <Speed>k__BackingField: 48
-    <WeaponAccuracy>k__BackingField: 100
+    <CritChance>k__BackingField: 0.11
+    <CritDamage>k__BackingField: 2
+    <Speed>k__BackingField: 44
+    <WeaponAccuracy>k__BackingField: 80
     <MaxResource>k__BackingField: 50
     <ResourceRegeneration>k__BackingField: 0
+    <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
-    <BleedResistance>k__BackingField: 0
-    <PoisonResistance>k__BackingField: 0
-    <FireResistance>k__BackingField: 0
-    <WeakeningResistance>k__BackingField: 0
-    <SuppressionResistance>k__BackingField: 0
-    <MoveResistance>k__BackingField: 0
+    <BleedResistance>k__BackingField: 1
+    <PoisonResistance>k__BackingField: 0.2
+    <FireResistance>k__BackingField: 0.4
+    <WeakeningResistance>k__BackingField: 0.25
+    <SuppressionResistance>k__BackingField: 0.25
+    <MoveResistance>k__BackingField: 0.25
   <GrowthData>k__BackingField:
-    <MaxHealth>k__BackingField: 0
-    <MinAttack>k__BackingField: 0
-    <MaxAttack>k__BackingField: 0
-    <PhysicalDefense>k__BackingField: 0
-    <MagicalDefense>k__BackingField: 0
-    <Dodge>k__BackingField: 0
-    <CritChance>k__BackingField: 0
+    <MaxHealth>k__BackingField: 23
+    <MinAttack>k__BackingField: 2.73
+    <MaxAttack>k__BackingField: 4.16
+    <PhysicalDefense>k__BackingField: 2
+    <MagicalDefense>k__BackingField: 0.8
+    <Dodge>k__BackingField: 0.1125
+    <CritChance>k__BackingField: 0.000275
     <CritDamage>k__BackingField: 0
     <Speed>k__BackingField: 0
     <WeaponAccuracy>k__BackingField: 0

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
@@ -11,16 +12,28 @@ namespace Godmist.Views.UI.Workspace
         MaterialCrafting,
         EquipmentUpgrade,
         EquipmentReforge,
-        EquipmentInfusion
+        EquipmentInfusion,
+        JewelryCrafting,
+        GalduryteCrafting,
+        GalduryteIdentification,
+        GalduryteSocketing,
+        PotionCrafting,
+        PotionRefill,
+        BombCrafting,
+        BombRefill,
+        GalduryteExtraction
     }
 
-    public sealed class NpcServiceTabView : MonoBehaviour
+    public sealed class NpcServiceTabView : MonoBehaviour,
+        IPointerEnterHandler,
+        IPointerExitHandler
     {
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
         [SerializeField] private Image selectedBorder;
 
         private Action selectAction;
+        private string tooltipTitle = string.Empty;
 
         private void Awake()
         {
@@ -32,13 +45,33 @@ namespace Godmist.Views.UI.Workspace
             if (button != null) button.onClick.RemoveListener(Select);
         }
 
-        public void Bind(Sprite nextIcon, bool isSelected, Action nextSelectAction)
+        public void Bind(
+            Sprite nextIcon,
+            string nextTooltipTitle,
+            bool isSelected,
+            Action nextSelectAction)
         {
             if (icon != null) icon.sprite = nextIcon;
             if (selectedBorder != null) selectedBorder.enabled = isSelected;
+            tooltipTitle = nextTooltipTitle ?? string.Empty;
             selectAction = nextSelectAction;
         }
 
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (!string.IsNullOrWhiteSpace(tooltipTitle))
+            {
+                UIWorkspaceTooltipView.ActiveInstance?.ShowText(
+                    tooltipTitle,
+                    string.Empty,
+                    this);
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
+        }
 
         private void Select()
         {

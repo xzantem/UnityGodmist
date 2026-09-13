@@ -1,3 +1,4 @@
+using System;
 using Godmist.Data.Items;
 using Godmist.Data.Configuration;
 using Godmist.Data.NPC;
@@ -13,33 +14,123 @@ namespace Godmist.Systems.NPC
     public class TradeService
     {
         private readonly InventoryService inventoryService = new();
+        private readonly NpcLoyaltyService npcLoyaltyService = new();
+        private readonly NpcEconomyService npcEconomyService;
+
+        public TradeService(NpcEconomyService npcEconomyService = null)
+        {
+            this.npcEconomyService = npcEconomyService ?? new NpcEconomyService();
+        }
 
         public int GetPriceToBuyFromTrader(ItemInstance item)
         {
             if (item?.Definition == null) return 0;
 
-            return GetBaseValue(item.Definition);
+            return GetBaseValue(item);
+        }
+
+        public int GetPriceToBuyFromTrader(
+            NpcInstance trader,
+            ItemInstance item)
+        {
+            if (!CanBuyItem(trader, item, out _)) return 0;
+
+            return npcLoyaltyService.GetDiscountedGoldCost(
+                trader,
+                GetPriceToBuyFromTrader(item));
         }
 
         public int GetPriceFromBuyback(BuybackEntry entry)
         {
             if (entry?.Item?.Definition == null) return 0;
 
-            return Mathf.Max(0, entry.SoldPrice);
+            return GetPriceToBuyFromTrader(entry.Item);
+        }
+
+        public int GetPriceFromBuyback(
+            NpcInstance trader,
+            BuybackEntry entry)
+        {
+            if (entry?.Item == null || !CanBuyItem(trader, entry.Item, out _)) return 0;
+
+            return npcLoyaltyService.GetDiscountedGoldCost(
+                trader,
+                GetPriceToBuyFromTrader(entry.Item));
+        }
+
+        public bool TryGetSellQuote(
+            NpcInstance trader,
+            ItemInstance item,
+            out int normalPrice,
+            out int payableGold,
+            out string failureReason)
+        {
+            normalPrice = 0;
+            payableGold = 0;
+
+            if (!CanSellItem(trader, item, out failureReason))
+            {
+                return false;
+            }
+
+            normalPrice = GetPriceWhenSellingToTrader(trader, item);
+            if (normalPrice <= 0)
+            {
+                failureReason = "Nie można ustalić poprawnej ceny sprzedaży.";
+                return false;
+            }
+
+            payableGold = (int)Math.Min(
+                trader.GoldBalance,
+                normalPrice);
+
+            failureReason = string.Empty;
+            return true;
+        }
+
+        public bool CanBuyItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            return CanTradeItem(trader, item, out failureReason);
+        }
+
+        public bool CanSellItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            return CanTradeItem(trader, item, out failureReason);
+        }
+
+        private bool CanTradeItem(
+            NpcInstance trader,
+            ItemInstance item,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+            if (!CanTrade(trader) || item?.Definition == null)
+            {
+                failureReason = "Ten NPC nie oferuje poprawnej usługi handlu.";
+                return false;
+            }
+
+            return true;
         }
 
         public int GetPriceWhenSellingToTrader(
             NpcInstance trader,
             ItemInstance item)
         {
-            if (!CanTrade(trader) || item?.Definition == null) return 0;
+            if (!CanSellItem(trader, item, out _)) return 0;
 
             var multiplier = IsRelevantForTrader(trader, item)
                 ? GameDefinesRuntime.GetFloat(GameDefineIds.TraderRelevantSellMultiplier, .5f)
                 : GameDefinesRuntime.GetFloat(GameDefineIds.TraderIrrelevantSellMultiplier, .25f);
 
             return Mathf.FloorToInt(
-                GetBaseValue(item.Definition) * multiplier);
+                GetBaseValue(item) * multiplier);
         }
 
         public bool TryBuyFromTrader(
@@ -60,7 +151,7 @@ namespace Godmist.Systems.NPC
             }
 
             var item = FindItem(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceToBuyFromTrader(item);
+            var price = GetPriceToBuyFromTrader(trader, item);
 
             if (price <= 0 || session.Gold < price) return false;
 
@@ -89,16 +180,23 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            trader.SpentGoldTotal += price;
+            npcLoyaltyService.TryRecordGoldSpent(trader, price);
+            npcEconomyService.TryReceiveGold(trader, price);
             paidGold = price;
             return true;
         }
 
-        private static int GetBaseValue(ItemDefinition definition)
+        private static int GetBaseValue(ItemInstance item)
         {
-            return definition is CraftableItemDefinition craftable
+            var runtimeValue = Mathf.Max(0, item?.BaseValue ?? 0);
+            if (runtimeValue > 0)
+            {
+                return runtimeValue;
+            }
+
+            return item?.Definition is CraftableItemDefinition craftable
                 ? craftable.CalculatedBaseValue
-                : Mathf.Max(0, definition?.BaseValue ?? 0);
+                : runtimeValue;
         }
 
         public bool TryBuyFromBuyback(
@@ -119,7 +217,7 @@ namespace Godmist.Systems.NPC
             }
 
             var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceFromBuyback(entry);
+            var price = GetPriceFromBuyback(trader, entry);
 
             if (entry == null || price <= 0 || session.Gold < price) return false;
 
@@ -142,7 +240,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            trader.SpentGoldTotal += price;
+            npcEconomyService.TryReceiveGold(trader, price);
             paidGold = price;
             return true;
         }
@@ -152,6 +250,23 @@ namespace Godmist.Systems.NPC
             NpcInstance trader,
             CharacterInstance seller,
             string itemInstanceId,
+            out int receivedGold)
+        {
+            return TrySellToTrader(
+                session,
+                trader,
+                seller,
+                itemInstanceId,
+                acceptPartialPayment: false,
+                out receivedGold);
+        }
+
+        public bool TrySellToTrader(
+            GameSession session,
+            NpcInstance trader,
+            CharacterInstance seller,
+            string itemInstanceId,
+            bool acceptPartialPayment,
             out int receivedGold)
         {
             receivedGold = 0;
@@ -167,7 +282,13 @@ namespace Godmist.Systems.NPC
             var item = FindItem(seller.Inventory, itemInstanceId);
             var price = GetPriceWhenSellingToTrader(trader, item);
 
-            if (price <= 0) return false;
+            if (price <= 0
+                || !acceptPartialPayment && trader.GoldBalance < price)
+            {
+                return false;
+            }
+
+            var payableGold = (int)Math.Min(trader.GoldBalance, price);
 
             if (!inventoryService.TryRemoveItem(
                     seller.Inventory,
@@ -177,20 +298,33 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            if (!TryAddToBuyback(trader.ShopInventory, removedItem, price))
+            if (!TryAddToBuyback(
+                    trader.ShopInventory,
+                    removedItem,
+                    payableGold))
             {
                 inventoryService.TryAddItem(seller.Inventory, removedItem);
                 return false;
             }
 
-            if (!session.TryAddGold(price))
+            var npcPaid = payableGold == 0
+                || npcEconomyService.TrySpendGold(trader, payableGold);
+            var playerReceived = payableGold == 0
+                || session.TryAddGold(payableGold);
+            if (!npcPaid || !playerReceived)
             {
                 RemoveFromBuyback(trader.ShopInventory, removedItem.InstanceId);
                 inventoryService.TryAddItem(seller.Inventory, removedItem);
+
+                if (npcPaid && payableGold > 0)
+                {
+                    npcEconomyService.TryReceiveGold(trader, payableGold);
+                }
+
                 return false;
             }
 
-            receivedGold = price;
+            receivedGold = payableGold;
             return true;
         }
 
@@ -250,7 +384,7 @@ namespace Godmist.Systems.NPC
         {
             if (shopInventory?.BuybackStock == null
                 || item == null
-                || soldPrice <= 0)
+                || soldPrice < 0)
             {
                 return false;
             }

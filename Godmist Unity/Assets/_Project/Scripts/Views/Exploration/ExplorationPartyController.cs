@@ -210,6 +210,11 @@ namespace Godmist.Views.Exploration
 
         private ExplorationCharacterView GetActiveLeaderView()
         {
+            if (gameSession == null || gameSession.PlayerParty == null)
+            {
+                return null;
+            }
+
             viewsById.TryGetValue(gameSession.PlayerParty.ActiveLeaderId, out var leaderView);
 
             return leaderView;

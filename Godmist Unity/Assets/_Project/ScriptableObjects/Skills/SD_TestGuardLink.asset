@@ -17,6 +17,8 @@ MonoBehaviour:
   <Icon>k__BackingField: {fileID: -4707956904956906972, guid: 70d699e9a89501641b6b4efab91525ad, type: 3}
   <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
+  <AttackType>k__BackingField: 0
+  <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 0
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 0
@@ -26,8 +28,22 @@ MonoBehaviour:
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
   targetModes:
+  - targetType: 1
+    targetingType: 2
+    includesCaster: 0
+    absoluteRange:
+      shape: 1
+      minRange: 1
+      maxRange: 4
+      rectangleWidth: 1
+    relativeRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 1
   - targetType: 9
-    targetingType: 1
+    targetingType: 2
+    includesCaster: 0
     absoluteRange:
       shape: 1
       minRange: 1
@@ -39,11 +55,11 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 1
   effects:
-  - effectType: 19
+  - effectType: 3
     polarity: 1
     alwaysHits: 0
     targetModeIndex: 0
-    baseValue: 0
+    baseValue: 1000
     damageValueSource: 0
     damageMultiplier: 0
     damageHitCount: 0
@@ -84,8 +100,9 @@ MonoBehaviour:
     statusId: 
     durationTurns: 4
     stacks: 0
-    statusDamageMultiplier: 0
+    statusDamageMultiplier: 0.9
     statusHealPercent: 0
+    percentageValue: 0
     counterattackRange:
       shape: 0
       minRange: 0
@@ -96,14 +113,87 @@ MonoBehaviour:
     modifierVariableType: 0
     modifierOperation: 0
     modifierStacking: 0
-    modifierValue: 0
-    uniqueBuffType: 3
+    modifierValue: 1
+    uniqueBuffType: 4
     uniqueBuffStacks: 0
     resistanceType: 0
-    actionPointModifier: 0
+    actionPointModifier: 2
     actionValuePercent: 0
     resourceRegenerationBlockTurns: 0
-    healthSacrificePercent: 0
+    healthSacrificePercent: 0.257
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0.5
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 0
+    shieldAverageAttackMultiplier: 0
+    conditions: []
+  - effectType: 3
+    polarity: 1
+    alwaysHits: 0
+    targetModeIndex: 1
+    baseValue: 1000
+    damageValueSource: 0
+    damageMultiplier: 0
+    damageHitCount: 0
+    bonusPenetration: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 0
+    onHitStatusId: bleed
+    onHitStatusChance: 0.8
+    onHitStatusDurationTurns: 2
+    lifeStealPercent: 0
+    resourceDrainPercent: 0
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    maxActiveObjects: 0
+    summonedCharacterDefinition: {fileID: 0}
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonDurationTurns: 0
+    maxActiveSummons: 0
+    summonPercentMaxHealth: 0
+    baseChance: 0
+    statusId: 
+    durationTurns: 4
+    stacks: 0
+    statusDamageMultiplier: 0.9
+    statusHealPercent: 0
+    percentageValue: 0
+    counterattackRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 1
+    uniqueBuffType: 4
+    uniqueBuffStacks: 0
+    resistanceType: 0
+    actionPointModifier: 2
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0.257
     resourceRestorePerSacrificedHealth: 0
     redirectedDamagePercent: 0.5
     auraRadius: 0

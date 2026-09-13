@@ -35,9 +35,12 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Image unavailableOverlay;
         [SerializeField] private TextMeshProUGUI countText;
 
+        [SerializeField] private Image countBackground;
+
         private TradeServiceWindowView owner;
         private string tooltipExtra;
         private CharacterInstance tooltipOwner;
+        private int? tooltipPrice;
 
         public ItemInstance Item { get; private set; }
         public BuybackEntry BuybackEntry { get; private set; }
@@ -62,7 +65,8 @@ namespace Godmist.Views.UI.Workspace
             string priceLabel,
             bool unavailable,
             CharacterInstance nextTooltipOwner = null,
-            BuybackEntry buybackEntry = null)
+            BuybackEntry buybackEntry = null,
+            int? nextTooltipPrice = null)
         {
             AutoWire();
             owner = nextOwner;
@@ -71,6 +75,7 @@ namespace Godmist.Views.UI.Workspace
             Source = source;
             tooltipOwner = nextTooltipOwner;
             tooltipExtra = priceLabel ?? string.Empty;
+            tooltipPrice = nextTooltipPrice;
 
             if (icon != null)
             {
@@ -82,6 +87,8 @@ namespace Godmist.Views.UI.Workspace
             if (countText != null)
             {
                 var showCount = item?.Definition?.IsStackable == true && stackCount > 1;
+                if (countBackground != null)
+                    countBackground.gameObject.SetActive(showCount);
                 countText.gameObject.SetActive(showCount);
                 countText.text = showCount ? stackCount.ToString() : string.Empty;
             }
@@ -136,11 +143,18 @@ namespace Godmist.Views.UI.Workspace
                     Item,
                     tooltipOwner,
                     this,
-                    tooltipExtra);
+                    tooltipExtra,
+                    tooltipPrice);
             }
         }
 
         public void OnPointerExit(PointerEventData eventData) =>
             UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
+
+
+
+
+
+
     }
 }

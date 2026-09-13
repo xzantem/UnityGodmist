@@ -434,8 +434,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -625,7 +625,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 360, y: 68}
+  m_SizeDelta: {x: 420, y: 68}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6650732784816634663
 CanvasRenderer:
@@ -718,6 +718,7 @@ MonoBehaviour:
   glossary: {fileID: 11400000, guid: fa800bf2c77ce5142a505efb93cc77a4, type: 2}
   hoverDelay: 0.25
   lockDelay: 1
+  npcLoyaltyProgressSliderPrefab: {fileID: 4361752180961183546, guid: 0cead5398de30954bb6f5aa31e0c488f, type: 3}
   nestedLinkDelay: 0.25
   exitGracePeriod: 0.4
   minimumHeight: 68
