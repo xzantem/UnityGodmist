@@ -152,8 +152,14 @@ namespace Godmist.Systems.Combat
         public bool TryCreateSeamless(GameSession gameSession, DungeonEncounterInstance encounter,
             DungeonCombatContext context, IReadOnlyDictionary<string, Vector2Int> playerCells,
             IReadOnlyDictionary<string, Vector2Int> enemyCells, out CombatSession result)
+            => TryCreateSeamless(gameSession, encounter, context, playerCells, enemyCells, out result, out _);
+
+        public bool TryCreateSeamless(GameSession gameSession, DungeonEncounterInstance encounter,
+            DungeonCombatContext context, IReadOnlyDictionary<string, Vector2Int> playerCells,
+            IReadOnlyDictionary<string, Vector2Int> enemyCells, out CombatSession result, out bool placementFailed)
         {
             result = null;
+            placementFailed = false;
             if (gameSession == null || encounter?.Definition?.Enemies == null || context == null
                 || playerCells == null || enemyCells == null
                 || !dungeonBattleGridFactory.TryCreate(context, out var grid)) return false;
@@ -176,10 +182,8 @@ namespace Godmist.Systems.Combat
                     || gameSession.GetCombatForCharacter(id) != null) continue;
                 if (!gameSession.CharactersById.TryGetValue(id, out var character)
                     || character.LifeState != CharacterLifeState.Alive) continue;
-                if (!DungeonCombatPositionResolver.TryResolve(grid,
-                    DungeonBattleGridFactory.ToBattlePosition(context, cell), occupied, out var position)) return false;
-                occupied.Add(position);
-                session.Units.Add(CreateBattleUnit(character, position, true));
+                session.Units.Add(CreateBattleUnit(character,
+                    DungeonBattleGridFactory.ToBattlePosition(context, cell), true));
             }
             if (session.Units.Count == 0) return false;
             foreach (var data in encounter.Definition.Enemies)
@@ -187,15 +191,20 @@ namespace Godmist.Systems.Combat
                 if (data == null || string.IsNullOrWhiteSpace(data.InstanceId)) return false;
                 if (encounter.IsEnemyDefeated(data.InstanceId)) continue;
                 if (data.CharacterDefinition == null || data.ClassData == null
-                    || !enemyCells.TryGetValue(data.InstanceId, out var cell)
-                    || !DungeonCombatPositionResolver.TryResolve(grid,
-                        DungeonBattleGridFactory.ToBattlePosition(context, cell), occupied, out var position)) return false;
+                    || !enemyCells.TryGetValue(data.InstanceId, out var cell)) return false;
                 var character = characterFactory.Create(data.CharacterDefinition, data.ClassData, context.DungeonLevel);
                 character.CharacterId = data.InstanceId;
-                occupied.Add(position);
-                session.Units.Add(CreateBattleUnit(character, position, false));
+                session.Units.Add(CreateBattleUnit(character,
+                    DungeonBattleGridFactory.ToBattlePosition(context, cell), false));
             }
             if (!session.Units.Any(unit => !unit.IsPlayerSide)) return false;
+            if (!DungeonCombatPositionResolver.TryResolveGroup(grid,
+                session.Units.Select(unit => unit.Position).ToList(), occupied, out var positions))
+            {
+                placementFailed = true;
+                return false;
+            }
+            for (var i = 0; i < session.Units.Count; i++) session.Units[i].Position = positions[i];
             session.Rewards = ResolveRewards(gameSession, encounter.Definition, encounter.InstanceId);
             result = session;
             return true;

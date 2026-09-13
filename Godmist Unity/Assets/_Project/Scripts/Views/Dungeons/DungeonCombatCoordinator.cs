@@ -25,6 +25,9 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private CombatCameraFramer combatCamera;
         [SerializeField] private GameObject combatHudRoot;
         [SerializeField] private GameObject explorationHudRoot;
+        [SerializeField] private CanvasGroup placementNotice;
+        [SerializeField] private TMPro.TMP_Text placementNoticeText;
+        private float placementNoticeUntil;
         private GameSession game;
         private DungeonFloorInstance floor;
         private DungeonFloorMapView map;
@@ -75,7 +78,12 @@ namespace Godmist.Views.Dungeons
                 || !contextFactory.TryCreate(game.ActiveDungeon, trigger.Encounter, out var context)) return false;
             var playerCells = party.ActiveMemberViews.ToDictionary(view => view.CharacterId, view => map.WorldToCell(view.transform.position));
             var enemyCells = trigger.EnemyViews.ToDictionary(view => view.EnemyInstanceId, view => map.WorldToCell(view.transform.position));
-            if (!sessionFactory.TryCreateSeamless(game, trigger.Encounter, context, playerCells, enemyCells, out var session)) return false;
+            if (!sessionFactory.TryCreateSeamless(game, trigger.Encounter, context, playerCells, enemyCells,
+                out var session, out var placementFailed))
+            {
+                if (placementFailed) ShowPlacementNotice("Brak miejsca na rozpoczęcie walki");
+                return false;
+            }
             var nextBindings = new Dictionary<BattleUnit, ExplorationCharacterView>();
             var originalPositions = new Dictionary<BattleUnit, GridPosition>();
             bool RejectStart()
@@ -116,8 +124,20 @@ namespace Godmist.Views.Dungeons
             return true;
         }
 
+        private void ShowPlacementNotice(string message)
+        {
+            if (placementNotice == null || placementNoticeText == null) return;
+            // Repeated collision callbacks must not keep extending the same notification.
+            if (placementNotice.alpha > 0f && placementNoticeText.text == message) return;
+            placementNoticeText.text = message;
+            placementNotice.alpha = 1f;
+            placementNoticeUntil = Time.unscaledTime + 4f;
+        }
+
         private void Update()
         {
+            if (placementNotice != null && Time.unscaledTime >= placementNoticeUntil)
+                placementNotice.alpha = 0f;
             if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) return;
             if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
             foreach (var session in game.Combats.ToArray())
@@ -146,6 +166,14 @@ namespace Godmist.Views.Dungeons
 
         private void JoinArrivals(CombatSession session, CombatExecutionDriver driver)
         {
+            var arrivalCells = new HashSet<GridPosition>(party.ActiveMemberViews
+                .Where(view => view.CombatUnit == null
+                    && game.GetCombatForCharacter(view.CharacterId) == null
+                    && game.CharactersById.TryGetValue(view.CharacterId, out var character)
+                    && character.LifeState == CharacterLifeState.Alive)
+                .Select(view => DungeonBattleGridFactory.ToBattlePosition(
+                    session.DungeonContext, map.WorldToCell(view.transform.position)))
+                .Where(cell => session.Grid.IsWalkable(cell) && !session.Grid.IsBlocked(cell)));
             foreach (var view in party.ActiveMemberViews)
             {
                 if (view.CombatUnit != null || game.GetCombatForCharacter(view.CharacterId) != null
@@ -156,10 +184,13 @@ namespace Godmist.Views.Dungeons
                 var position = DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, cell);
                 var unit = retainedPlayers.TryGetValue(view.CharacterId, out var retained)
                     ? retained : sessionFactory.CreateJoiningUnit(character, position);
-                if (!driver.TryJoin(unit, position))
+                var reservedArrivals = new HashSet<GridPosition>(arrivalCells);
+                reservedArrivals.Remove(position);
+                if (!driver.TryJoin(unit, position, reservedArrivals))
                 {
                     if (previousExplorationPositions.TryGetValue(view.CharacterId, out var previous)) view.SetPosition(previous);
                     party.CancelMovement();
+                    ShowPlacementNotice("Brak miejsca, aby dołączyć");
                     continue;
                 }
                 retainedPlayers[view.CharacterId] = unit;

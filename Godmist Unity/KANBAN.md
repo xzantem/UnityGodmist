@@ -74,6 +74,16 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Ustalić i wdrożyć pozycje oraz formację przy wejściu i wyjściu z walki v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Seamless już przenosi pozycje eksploracyjne; rozstawianie na przeciwnych krawędziach pozostaje w starszej ścieżce/sandboxie. Domknąć istniejącego resolvera bez nowego szyku.
+  - Uzgodnić snap do siatki, przypadki kolizji, brak miejsca, pozycje przeciwników i powrót po ucieczce. Rozwiązywanie konfliktów ma być deterministyczne i nie umieszczać jednostek w ścianach ani na zajętych polach.
+  - Zachować pozycje po zwycięstwie i obsłużyć kolejne walki w tej samej scenie bez duplikowania jednostek.
+  - Zatwierdzone: snap do środka zajmowanego pola, jednakowo dla obu stron; bez ustawiania nowej formacji. Zachować końcowe pozycje po zwycięstwie i miejsce przekroczenia granicy przy wyjściu.
+  - Rezerwować najpierw wszystkie poprawne pozycje, potem rozwiązywać konflikty deterministycznie na najbliższym wolnym polu dostępnym bez przekraczania ścian/zamkniętych drzwi.
+  - Brak miejsca to zabezpieczenie błędnego układu: atomowo odrzucić start bez zmiany pozycji; przy dołączeniu pozostawić postać przed wejściem i utrzymać walkę. Komunikat dla gracza.
+  - Status: DONE — 47/47 EditMode PASS; prefab komunikatu UIW zapisany i podpięty, weryfikacja zapisu i self-review PASS. Manualny smoke PASS — zaakceptowany przez użytkownika.
+  - Combat v4: naprawić regresję InspectWindow (biały panel i jasny tekst), następnie przegląd kontrastu, hierarchii, pasków, języka i integracji UIW w karcie prezentacji. Przed zmianą przedstawić układ użytkownikowi; static UI w prefabach/scenie.
+
 - `[P1] Combat v4 — nawigacja przeciwników wokół przeszkód i obsługa drzwi v1` - `Combat`, `Core / Architecture`
   - Karta zatwierdzona przez użytkownika; wykonać po domknięciu granic i geometrii areny.
   - Rozwinąć istniejące AI i mechanizmy ruchu: planować pełną trasę ponad budżet jednej tury, a wykonywać odcinek za dostępne AP. Obsłużyć obejście wymagające chwilowego oddalenia się od celu.

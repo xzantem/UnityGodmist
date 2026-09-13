@@ -69,9 +69,9 @@ namespace Godmist.Views.Combat
             battleLog?.ClearLog();
             foreach (var entry in logEntries) battleLog?.AddEntry(entry);
         }
-        public bool TryJoin(BattleUnit unit, GridPosition position)
+        public bool TryJoin(BattleUnit unit, GridPosition position, ISet<GridPosition> reservedArrivals = null)
         {
-            if (!DungeonCombatParticipationSystem.TryJoin(Session, unit, position)) return false;
+            if (!DungeonCombatParticipationSystem.TryJoin(Session, unit, position, reservedArrivals)) return false;
             ScoutKnifeSystem.ResetForCombat(Session, true);
             if (Session.ActiveParticipant == null) turnSystem.AdvanceTurn(Session);
             return true;

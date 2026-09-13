@@ -51,7 +51,14 @@ namespace Godmist.Views.Combat
         }
         public void Release(BattleUnit unit)
         {
-            if (borrowed.Remove(unit, out var view) && view != null) view.ReleaseCombat();
+            if (borrowed.Remove(unit, out var view) && view != null)
+            {
+                // Logical movement can finish before its animation. Restore exploration at
+                // the committed cell, never at an intermediate point of that animation.
+                if (owners.TryGetValue(unit, out var owner) && floorMap != null)
+                    view.SetPosition(WorldPosition(owner, unit.Position));
+                view.ReleaseCombat();
+            }
             owners.Remove(unit);
             movementTargets.Remove(unit);
             presentationMovingUnits.Remove(unit);

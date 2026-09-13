@@ -195,6 +195,70 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void GroupPositions_ReserveOriginalCellsBeforeDisplacingCollision()
+        {
+            var preferred = new List<GridPosition> { new(0, 0), new(0, 0), new(0, 1) };
+            var reserved = new HashSet<GridPosition>();
+            Assert.That(DungeonCombatPositionResolver.TryResolveGroup(
+                new BattleGrid(2, 2), preferred, reserved, out var result), Is.True);
+            Assert.That(result, Is.EqualTo(new[] { new GridPosition(0, 0), new GridPosition(1, 0), new GridPosition(0, 1) }));
+            Assert.That(reserved, Is.Empty);
+            Assert.That(preferred[1], Is.EqualTo(new GridPosition(0, 0)));
+        }
+
+        [Test]
+        public void GroupPositions_RespectsExternalReservationsAndIsDeterministic()
+        {
+            var grid = new BattleGrid(3, 2);
+            var preferred = new[] { new GridPosition(0, 0), new GridPosition(0, 0), new GridPosition(1, 0) };
+            var reserved = new HashSet<GridPosition> { new(0, 1) };
+            Assert.That(DungeonCombatPositionResolver.TryResolveGroup(grid, preferred, reserved, out var first), Is.True);
+            Assert.That(DungeonCombatPositionResolver.TryResolveGroup(grid, preferred, reserved, out var second), Is.True);
+            Assert.That(first, Is.EqualTo(second));
+            Assert.That(first[2], Is.EqualTo(new GridPosition(1, 0)));
+            Assert.That(first, Has.No.Member(new GridPosition(0, 1)));
+            Assert.That(new HashSet<GridPosition>(first).Count, Is.EqualTo(3));
+            Assert.That(reserved.Count, Is.EqualTo(1));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void GroupPositions_CannotDisplaceThroughClosedEdgeOrBlockedCell(bool blockedCell)
+        {
+            var grid = new BattleGrid(2, 1);
+            if (blockedCell) grid.SetBlocked(new GridPosition(1, 0), true);
+            else grid.SetBlockedEdge(new GridPosition(0, 0), new GridPosition(1, 0));
+            var reserved = new HashSet<GridPosition>();
+            Assert.That(DungeonCombatPositionResolver.TryResolveGroup(grid,
+                new[] { new GridPosition(0, 0), new GridPosition(0, 0) }, reserved, out var result), Is.False);
+            Assert.That(result, Is.Null);
+            Assert.That(reserved, Is.Empty);
+        }
+
+        [Test]
+        public void Join_ReservesOtherArrivalsOriginalPositions()
+        {
+            var session = Combat("one");
+            session.Units.Add(Unit("occupant"));
+            var joining = Unit("joining");
+            var reserved = new HashSet<GridPosition> { new(0, 1) };
+            Assert.That(DungeonCombatParticipationSystem.TryJoin(session, joining, new(0, 0), reserved), Is.True);
+            Assert.That(joining.Position, Is.EqualTo(new GridPosition(1, 0)));
+            Assert.That(reserved.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GroupPositions_FullRoomFailsAtomically()
+        {
+            var reserved = new HashSet<GridPosition>();
+            Assert.That(DungeonCombatPositionResolver.TryResolveGroup(new BattleGrid(2, 1),
+                new[] { new GridPosition(0, 0), new GridPosition(0, 0), new GridPosition(1, 0) },
+                reserved, out var result), Is.False);
+            Assert.That(result, Is.Null);
+            Assert.That(reserved, Is.Empty);
+        }
+
+        [Test]
         public void PositionConflict_SearchIsDeterministicAndCannotCrossClosedEdge()
         {
             var grid = new BattleGrid(3, 1);
@@ -309,8 +373,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(player.Character.CurrentHealth, Is.EqualTo(12));
         }
 
-        [Test]
-        public void Factory_UsesOnlyMembersInsideRoom_AndKeepsContactPositions()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Factory_UsesOnlyMembersInsideRoom_AndKeepsContactPositions(bool overlap)
         {
             var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
             var classData = ScriptableObject.CreateInstance<CharacterClassData>();
@@ -336,20 +401,82 @@ namespace Godmist.Tests.EditMode
                     Assert.That(game.TryAddCharacterToActiveParty(id), Is.True);
                 }
                 var players = new Dictionary<string, Vector2Int>
-                    { ["inside"] = Vector2Int.up, ["outside"] = new(8, 8) };
-                var enemies = new Dictionary<string, Vector2Int> { ["enemy"] = Vector2Int.right };
+                    { ["inside"] = overlap ? Vector2Int.zero : Vector2Int.up, ["outside"] = new(8, 8) };
+                if (overlap)
+                {
+                    var extra = Unit("extra").Character;
+                    extra.AvailabilityState = CharacterAvailabilityState.Available;
+                    game.TryRegisterCharacter(extra);
+                    Assert.That(game.TryAddCharacterToActiveParty("extra"), Is.True);
+                    players["extra"] = Vector2Int.zero;
+                }
+                var enemyCell = overlap ? Vector2Int.up : Vector2Int.right;
+                var enemies = new Dictionary<string, Vector2Int> { ["enemy"] = enemyCell };
                 Assert.That(new CombatSessionFactory().TryCreateSeamless(game, encounter,
                     Combat("one").DungeonContext, players, enemies, out var session), Is.True);
-                Assert.That(session.Units.Count, Is.EqualTo(2));
+                Assert.That(session.Units.Count, Is.EqualTo(overlap ? 3 : 2));
                 Assert.That(session.Units[0].Character, Is.SameAs(game.CharactersById["inside"]));
-                Assert.That(session.Units[0].Position, Is.EqualTo(new GridPosition(0, 1)));
-                Assert.That(session.Units[1].Position, Is.EqualTo(new GridPosition(1, 0)));
+                Assert.That(session.Units[0].Position, Is.EqualTo(new GridPosition(0, overlap ? 0 : 1)));
+                Assert.That(session.Units[session.Units.Count - 1].Position,
+                    Is.EqualTo(new GridPosition(enemyCell.x, enemyCell.y)));
+                if (overlap) Assert.That(session.Units[1].Position, Is.EqualTo(new GridPosition(1, 0)));
                 Assert.That(game.HasCombat, Is.False, "Factory does not commit a partially constructed session.");
+                var fullRoom = new DungeonCombatContext("dungeon", 0, "one", "one",
+                    Vector2Int.zero, Vector2Int.zero, new[] { Vector2Int.zero }, null, null);
+                players["inside"] = Vector2Int.zero;
+                enemies["enemy"] = Vector2Int.zero;
+                Assert.That(new CombatSessionFactory().TryCreateSeamless(game, encounter,
+                    fullRoom, players, enemies, out var rejected, out var placementFailed), Is.False);
+                Assert.That(placementFailed, Is.True);
+                Assert.That(rejected, Is.Null);
+                Assert.That(game.HasCombat, Is.False);
+                Assert.That(players["inside"], Is.EqualTo(Vector2Int.zero));
+
             }
             finally
             {
                 Object.DestroyImmediate(definition); Object.DestroyImmediate(classData);
                 Object.DestroyImmediate(encounterDefinition);
+            }
+        }
+
+        [Test]
+        public void BorrowAndRelease_UsesCellCenterEvenWhenAnimationHasNotFinished()
+        {
+            var root = new GameObject("test-grid", typeof(Grid));
+            var tileObject = new GameObject("tiles", typeof(UnityEngine.Tilemaps.Tilemap));
+            tileObject.transform.SetParent(root.transform);
+            var holder = new GameObject("holder");
+            var characterObject = new GameObject("character");
+            try
+            {
+                var map = holder.AddComponent<Godmist.Views.Dungeons.DungeonFloorMapView>();
+                typeof(Godmist.Views.Dungeons.DungeonFloorMapView)
+                    .GetField("floorTilemap", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(map, tileObject.GetComponent<UnityEngine.Tilemaps.Tilemap>());
+                var spawner = holder.AddComponent<Godmist.Views.Combat.CombatUnitViewSpawner>();
+                spawner.ConfigureDungeon(Game(), map);
+                var view = characterObject.AddComponent<Godmist.Views.Exploration.ExplorationCharacterView>();
+                var combat = Combat("one");
+                var unit = Unit("test");
+                view.SetPosition(new Vector2(0.2f, 0.8f));
+                spawner.Borrow(combat, unit, view);
+                Assert.That(view.Position, Is.EqualTo(map.CellToWorldCenter(Vector2Int.zero)));
+                unit.Position = new GridPosition(-1, 0);
+                view.SetPosition(new Vector2(0.2f, 0.5f));
+                spawner.Release(unit);
+                Assert.That(view.Position, Is.EqualTo(map.CellToWorldCenter(Vector2Int.left)));
+                Assert.That(view.CombatUnit, Is.Null);
+                unit.Position = new GridPosition(1, 1);
+                spawner.Borrow(combat, unit, view);
+                spawner.Release(unit);
+                Assert.That(view.Position, Is.EqualTo(map.CellToWorldCenter(Vector2Int.one)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(characterObject);
+                Object.DestroyImmediate(holder);
+                Object.DestroyImmediate(root);
             }
         }
 
