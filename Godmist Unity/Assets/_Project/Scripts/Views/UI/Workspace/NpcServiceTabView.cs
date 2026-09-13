@@ -20,7 +20,8 @@ namespace Godmist.Views.UI.Workspace
         PotionCrafting,
         PotionRefill,
         BombCrafting,
-        BombRefill
+        BombRefill,
+        GalduryteExtraction
     }
 
     public sealed class NpcServiceTabView : MonoBehaviour,

@@ -30,6 +30,7 @@ namespace Godmist.Core.Serialization
         public GalduryteTier GalduryteTier;
         public GaldurytePowderColor GaldurytePowderColor;
         public bool GalduryteIsIdentified;
+        public bool GalduryteIsDestroyed;
         public string GalduryteStoneDefinitionId = string.Empty;
         public string GaldurytePowderDefinitionId = string.Empty;
         public string GalduryteStoneDisplayName = string.Empty;

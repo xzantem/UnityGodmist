@@ -124,7 +124,7 @@ namespace Godmist.Views.UI.Workspace
             if (previewNameText != null) previewNameText.text = selectedEquipment?.DisplayName ?? "Wybierz wyposażenie";
             if (previewSummaryText != null) previewSummaryText.text = selectedEquipment == null
                 ? "Wybierz broń lub pancerz."
-                : $"Sockety: {selectedEquipment.SocketedGaldurytes?.Count ?? 0}/{selectedEquipment.SocketCapacity}";
+                : $"Galduryty: {selectedEquipment.SocketedGaldurytes?.Count ?? 0}/{selectedEquipment.SocketCapacity}";
             if (costText != null)
             {
                 var missingGold = Mathf.Max(0, preview.GoldCost - (session?.Gold ?? 0));
@@ -135,6 +135,7 @@ namespace Godmist.Views.UI.Workspace
             }
             if (socketButton != null) socketButton.interactable = preview.CanSocket;
             if (statusText != null) statusText.text = preview.CanSocket ? string.Empty : preview.FailureReason;
+            if (statusText != null) statusText.gameObject.SetActive(!string.IsNullOrEmpty(statusText.text));
 
             if (selectedEquipment == null) return;
             foreach (var galduryte in selectedEquipment.SocketedGaldurytes ?? new List<GalduryteItemInstance>())
@@ -157,6 +158,7 @@ namespace Godmist.Views.UI.Workspace
                     out var paid, out var failure))
             {
                 if (statusText != null) statusText.text = failure;
+                if (statusText != null) statusText.gameObject.SetActive(true);
                 return;
             }
             if (statusText != null) statusText.text = $"Osadzono galduryt za {paid} g.";

@@ -1031,6 +1031,7 @@ namespace Godmist.Systems.SaveLoad
                 itemSaveData.GalduryteTier = galduryteItem.Tier;
                 itemSaveData.GaldurytePowderColor = galduryteItem.GuaranteedPowderColor;
                 itemSaveData.GalduryteIsIdentified = galduryteItem.IsIdentified;
+                itemSaveData.GalduryteIsDestroyed = galduryteItem.IsDestroyed;
                 itemSaveData.GalduryteStoneDefinitionId = galduryteItem.StoneDefinitionId ?? string.Empty;
                 itemSaveData.GaldurytePowderDefinitionId = galduryteItem.PowderDefinitionId ?? string.Empty;
                 itemSaveData.GalduryteStoneDisplayName = galduryteItem.StoneDisplayName ?? string.Empty;

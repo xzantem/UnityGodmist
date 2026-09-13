@@ -8,6 +8,11 @@ namespace Godmist.Data.Configuration
         public const string NpcGuildPayoutCampaignExponent = "economy.npc.guild_payout.campaign_exponent";
         public const string NpcGuildPayoutProgressPerDungeon = "economy.npc.guild_payout.progress_per_dungeon";
         public const string GalduryteSocketingCostPercent = "crafting.galduryte.socketing_cost_percent";
+        public const string GalduryteExtractionCostPercent = "crafting.galduryte.extraction_cost_percent";
+        public const string GalduryteDestroyedExtractionMultiplier = "crafting.galduryte.destroyed_extraction_multiplier";
+        public const string GalduryteExtractionSuccessChance = "crafting.galduryte.extraction_success_chance";
+        public const string GalduryteExtractionLoyaltyThreshold = "crafting.galduryte.extraction_loyalty_threshold";
+        public const string GalduryteExtractionLoyaltyBonus = "crafting.galduryte.extraction_loyalty_bonus";
 
         public const string NpcLoyaltyInitialLevel = "progression.npc.loyalty.initial_level";
         public const string NpcLoyaltyMaximumLevel = "progression.npc.loyalty.maximum_level";

@@ -125,7 +125,7 @@ namespace Godmist.Systems.Items
             foreach (var source in GetInventories(session))
                 foreach (var item in source.Items?.OfType<GalduryteItemInstance>()
                              ?? Enumerable.Empty<GalduryteItemInstance>())
-                    if (item.IsIdentified) yield return item;
+                    if (item.IsIdentified && !item.IsDestroyed) yield return item;
         }
 
         private static bool Validate(
@@ -146,7 +146,7 @@ namespace Godmist.Systems.Items
                 reason = "Wybierz broń albo pancerz.";
                 return false;
             }
-            if (galduryte == null || !galduryte.IsIdentified)
+            if (galduryte == null || !galduryte.IsIdentified || galduryte.IsDestroyed)
             {
                 reason = "Wybierz zidentyfikowany galduryt.";
                 return false;

@@ -137,7 +137,7 @@ namespace Godmist.Systems.Combat
             foreach (var galduryte in equipment?.SocketedGaldurytes
                          ?? new List<GalduryteItemInstance>())
             {
-                if (galduryte?.IsIdentified != true) continue;
+                if (galduryte?.IsIdentified != true || galduryte.IsDestroyed) continue;
                 var sourceId = $"{BuildEquipmentSourceId(equipment)}.galduryte.{galduryte.InstanceId}";
                 var stats = new List<StatModifier>();
                 var variables = new List<GameplayVariableModifier>();

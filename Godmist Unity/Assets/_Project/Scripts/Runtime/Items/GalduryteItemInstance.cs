@@ -39,6 +39,7 @@ namespace Godmist.Runtime.Items
         public string StoneDisplayName = string.Empty;
         public int CraftedBaseValue;
         public bool IsIdentified;
+        public bool IsDestroyed;
         public List<GalduryteEffectInstance> Effects = new();
 
         public GalduryteItemDefinition GalduryteDefinition =>
@@ -68,6 +69,7 @@ namespace Godmist.Runtime.Items
 
         public string GetEffectSummary()
         {
+            if (IsDestroyed) return "Zniszczony — nie daje efektów.";
             if (!IsIdentified) return "Niezidentyfikowany";
             return Effects == null || Effects.Count == 0
                 ? "Brak efektów"

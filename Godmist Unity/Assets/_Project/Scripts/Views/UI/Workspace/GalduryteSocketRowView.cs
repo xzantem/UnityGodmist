@@ -29,5 +29,13 @@ namespace Godmist.Views.UI.Workspace
                 effectText.gameObject.SetActive(!string.IsNullOrWhiteSpace(effects));
             }
         }
+
+        public void BindForExtraction(GalduryteItemInstance galduryte, bool selected, System.Action onClick)
+        {
+            Bind(galduryte, false);
+            iconSlot?.Bind(galduryte?.Definition?.Icon, galduryte?.DisplayName,
+                galduryte?.GetEffectSummary(), string.Empty, selected, false, onClick);
+            if (galduryte != null) iconSlot?.SetItemTooltip(galduryte, null);
+        }
     }
 }
