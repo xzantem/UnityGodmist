@@ -33,6 +33,7 @@ namespace Godmist.Editor
         private EditTool activeTool;
         private DungeonStructuralAnchorType newStructuralType =
             DungeonStructuralAnchorType.Wall;
+        private DungeonWallType newWallType = DungeonWallType.Full;
         private DungeonEdgeDirection newStructuralDirection =
             DungeonEdgeDirection.Right;
         private DungeonSemanticAnchorType newSemanticType =
@@ -478,8 +479,10 @@ namespace Godmist.Editor
                     newStructuralDirection = (DungeonEdgeDirection)EditorGUILayout.EnumPopup(
                         "Direction",
                         newStructuralDirection);
+                    if (newStructuralType == DungeonStructuralAnchorType.Wall)
+                        newWallType = (DungeonWallType)EditorGUILayout.EnumPopup("Wall type", newWallType);
                     EditorGUILayout.LabelField(
-                        "Kliknij komorke, aby dodac kotwice na krawedzi.");
+                        "Full: ściana; Low: murek +2 AP; Railing: balustrada. Kliknij pole przy krawędzi.");
                     break;
 
                 case EditTool.SemanticAnchor:
@@ -587,9 +590,11 @@ namespace Godmist.Editor
                     ? new Color(0.85f, 0.55f, 0.15f, 0.95f)
                     : new Color(0.75f, 0.75f, 0.8f, 0.95f);
 
-                DrawAnchorMarker(cellRect, color, type == DungeonStructuralAnchorType.Door
-                    ? "D"
-                    : "W");
+                var wallType = (DungeonWallType)property.FindPropertyRelative("<WallType>k__BackingField").enumValueIndex;
+                if (type == DungeonStructuralAnchorType.Wall && wallType != DungeonWallType.Full)
+                    color = wallType == DungeonWallType.Low ? new Color(0.65f, 0.48f, 0.28f) : new Color(0.35f, 0.75f, 0.8f);
+                DrawAnchorMarker(cellRect, color, type == DungeonStructuralAnchorType.Door ? "D"
+                    : wallType == DungeonWallType.Low ? "L" : wallType == DungeonWallType.Railing ? "R" : "W");
 
                 var neighbour = localCell + GetDirectionOffset(direction);
                 var neighbourRect = GetCellRect(gridRect, cellSize, size, neighbour);
@@ -686,6 +691,9 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<Direction>k__BackingField"));
 
+            if ((DungeonStructuralAnchorType)property.FindPropertyRelative("<Type>k__BackingField").enumValueIndex
+                == DungeonStructuralAnchorType.Wall)
+                EditorGUILayout.PropertyField(property.FindPropertyRelative("<WallType>k__BackingField"));
             if (GUILayout.Button("Remove selected anchor"))
             {
                 structuralAnchorsProperty.DeleteArrayElementAtIndex(
@@ -975,18 +983,10 @@ namespace Godmist.Editor
             Vector2Int cell,
             Vector2Int size)
         {
-            var existing = FindStructuralAnchorAt(cell, size);
-
-            if (existing >= 0)
-            {
-                selectedStructuralAnchor = existing;
-                return;
-            }
-
             var floorCells = GetFloorCells(size);
             var secondCell = cell + GetDirectionOffset(newStructuralDirection);
 
-            if (!floorCells.Contains(cell) || !floorCells.Contains(secondCell))
+            if (!floorCells.Contains(cell) || (newStructuralType != DungeonStructuralAnchorType.Wall && !floorCells.Contains(secondCell)))
             {
                 ShowNotification(new GUIContent(
                     "Structural anchor musi laczyc dwie komorki podlogi."));
@@ -1018,6 +1018,7 @@ namespace Godmist.Editor
                 cell;
             element.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
                 (int)newStructuralDirection;
+            element.FindPropertyRelative("<WallType>k__BackingField").enumValueIndex = (int)newWallType;
             selectedStructuralAnchor = newIndex;
         }
 
@@ -1248,6 +1249,14 @@ namespace Godmist.Editor
         private bool IsBoundaryEdgeAllowed(
             DungeonRoomBoundaryEdgeData edge)
         {
+            for (var i = 0; i < structuralAnchorsProperty.arraySize; i++)
+            {
+                var wall = structuralAnchorsProperty.GetArrayElementAtIndex(i);
+                if (wall.FindPropertyRelative("<Type>k__BackingField").enumValueIndex == (int)DungeonStructuralAnchorType.Wall
+                    && wall.FindPropertyRelative("<LocalCell>k__BackingField").vector2IntValue == edge.LocalCell
+                    && wall.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex == (int)edge.Direction)
+                    return false;
+            }
             if (!boundaryEdgesConfiguredProperty.boolValue)
             {
                 return true;
@@ -1323,12 +1332,10 @@ namespace Godmist.Editor
 
         private int CountAllowedBoundaryEdges()
         {
-            if (!boundaryEdgesConfiguredProperty.boolValue)
-            {
-                return GetExternalBoundaryEdges(sizeProperty.vector2IntValue).Count;
-            }
-
-            return allowedBoundaryEdgesProperty.arraySize;
+            var count = 0;
+            foreach (var edge in GetExternalBoundaryEdges(sizeProperty.vector2IntValue))
+                if (IsBoundaryEdgeAllowed(edge)) count++;
+            return count;
         }
 
         private void SetAllowedBoundaryEdges(

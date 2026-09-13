@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Godmist.Core.Enums;
 using Godmist.Runtime.Dungeons;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -11,6 +12,8 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private TileBase floorTile;
         [SerializeField] private DungeonWallSegmentView wallSegmentPrefab;
         [SerializeField] private Transform wallsRoot;
+        [SerializeField] private DungeonWallSegmentView lowWallPrefab;
+        [SerializeField] private DungeonWallSegmentView railingPrefab;
 
         private readonly List<GameObject> spawnedWalls = new();
 
@@ -59,7 +62,7 @@ namespace Godmist.Views.Dungeons
 
             foreach (var wallEdge in map.WallEdges)
             {
-                SpawnWallSegment(wallEdge);
+                SpawnWallSegment(wallEdge, map.GetWallType(wallEdge));
             }
 
             foreach (var gateEdge in map.ClosedProgressionGateEdges)
@@ -127,15 +130,19 @@ namespace Godmist.Views.Dungeons
             hasWorldBounds = false;
         }
 
-        private void SpawnWallSegment(DungeonCellEdge edge)
+        private void SpawnWallSegment(DungeonCellEdge edge, DungeonWallType type = DungeonWallType.Full)
         {
             var parent = wallsRoot != null ? wallsRoot : transform;
 
+            var prefab = type == DungeonWallType.Low ? lowWallPrefab
+                : type == DungeonWallType.Railing ? railingPrefab : wallSegmentPrefab;
+            if (prefab == null) { Debug.LogError("Missing wall prefab: " + type); return; }
             var wallSegment = Instantiate(
-                wallSegmentPrefab,
+                prefab,
                 parent);
 
-            wallSegment.Bind(edge, floorTilemap);
+            wallSegment.Bind(edge, floorTilemap, type != DungeonWallType.Low
+                || !boundMap.IsWalkable(edge.FirstCell) || !boundMap.IsWalkable(edge.SecondCell));
             spawnedWalls.Add(wallSegment.gameObject);
         }
 

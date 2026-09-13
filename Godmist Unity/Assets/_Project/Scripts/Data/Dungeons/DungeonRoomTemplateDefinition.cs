@@ -90,6 +90,10 @@ namespace Godmist.Data.Dungeons
                 return false;
             }
 
+            foreach (var anchor in StructuralAnchors ?? new List<DungeonStructuralAnchorData>())
+                if (anchor != null && anchor.Type == DungeonStructuralAnchorType.Wall
+                    && anchor.LocalCell == localCell && anchor.Direction == direction) return false;
+
             if (!BoundaryEdgesConfigured)
             {
                 return true;

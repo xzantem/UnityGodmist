@@ -159,52 +159,38 @@ namespace Godmist.Systems.Combat
                 return reachablePaths;
             }
 
-            var queue = new Queue<GridPosition>();
-            var paths = new Dictionary<GridPosition, List<GridPosition>>();
-
-            queue.Enqueue(unit.Position);
-            paths[unit.Position] = new List<GridPosition>();
-
+            var queue = new Queue<(GridPosition position, List<GridPosition> path)>();
+            var labels = new Dictionary<GridPosition, List<(int steps, int cost)>>
+            {
+                [unit.Position] = new() { (0, 0) }
+            };
+            var bestCosts = new Dictionary<GridPosition, int>();
+            queue.Enqueue((unit.Position, new List<GridPosition>()));
             while (queue.Count > 0)
             {
-                var current = queue.Dequeue();
-                var currentPath = paths[current];
-
+                var (current, currentPath) = queue.Dequeue();
                 foreach (var direction in MovementDirections)
                 {
-                    var candidate = new GridPosition(
-                        current.X + direction.x, 
-                        current.Y + direction.y);
-
-                    if (paths.ContainsKey(candidate))
-                    {
-                        continue;
-                    }
+                    var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
                     if (!session.CanMoveBetween(unit, current, candidate)
                         || session.IsPositionOccupied(candidate, unit)
-                        || session.DoesObjectBlockMovement(
-                            session.GetMapObjectAt(candidate)))
+                        || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
+                    var nextPath = new List<GridPosition>(currentPath) { candidate };
+                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath);
+                    if (cost > availableActionPoints) continue;
+                    if (!labels.TryGetValue(candidate, out var candidates))
+                        labels[candidate] = candidates = new List<(int steps, int cost)>();
+                    // A cheaper but longer route and a shorter costly route can both matter,
+                    // because the ordinary step cost increases throughout the turn.
+                    if (candidates.Exists(label => label.steps <= nextPath.Count && label.cost <= cost)) continue;
+                    candidates.RemoveAll(label => label.steps >= nextPath.Count && label.cost >= cost);
+                    candidates.Add((nextPath.Count, cost));
+                    if (!bestCosts.TryGetValue(candidate, out var best) || cost < best)
                     {
-                        continue;
+                        bestCosts[candidate] = cost;
+                        reachablePaths[candidate] = nextPath;
                     }
-
-                    var nextPath = new List<GridPosition>(currentPath)
-                    {
-                        candidate
-                    };
-
-                    var pathCost = CalculatePathCost(
-                        movementStepsAlreadyTaken,
-                        nextPath.Count);
-
-                    if (pathCost > availableActionPoints)
-                    {
-                        continue;
-                    }
-
-                    paths[candidate] = nextPath;
-                    reachablePaths[candidate] = nextPath;
-                    if (!session.IsExitPosition(candidate)) queue.Enqueue(candidate);
+                    if (!session.IsExitPosition(candidate)) queue.Enqueue((candidate, nextPath));
                 }
             }
 
@@ -343,6 +329,8 @@ namespace Godmist.Systems.Combat
                 unit,
                 CombatActionCostCalculator.CalculateMovementCost(unit));
 
+            var nextCell = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell);
             if (unit.CurrentActionPoints < movementCost)
             {
                 return false;
@@ -419,6 +407,18 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        public static int CalculatePathCost(CombatSession session, GridPosition origin,
+            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path)
+        {
+            var cost = CalculatePathCost(movementStepsAlreadyTaken, path.Count);
+            foreach (var cell in path)
+            {
+                cost += session.Grid.GetMovementSurcharge(origin, cell);
+                origin = cell;
+            }
+            return cost;
         }
 
         public static int CalculatePathCost(

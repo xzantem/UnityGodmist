@@ -348,7 +348,7 @@ namespace Godmist.Systems.Combat
 
             if (deltaX == 0 || deltaY == 0)
             {
-                return session.Grid.CanMoveBetween(from, to);
+                return session.Grid.CanDisplaceBetween(from, to);
             }
 
             var horizontal = new GridPosition(
@@ -360,12 +360,12 @@ namespace Godmist.Systems.Combat
                 from.Y + deltaY);
 
             var throughHorizontal =
-                session.Grid.CanMoveBetween(from, horizontal)
-                && session.Grid.CanMoveBetween(horizontal, to);
+                session.Grid.CanDisplaceBetween(from, horizontal)
+                && session.Grid.CanDisplaceBetween(horizontal, to);
 
             var throughVertical =
-                session.Grid.CanMoveBetween(from, vertical)
-                && session.Grid.CanMoveBetween(vertical, to);
+                session.Grid.CanDisplaceBetween(from, vertical)
+                && session.Grid.CanDisplaceBetween(vertical, to);
 
             return throughHorizontal || throughVertical;
         }

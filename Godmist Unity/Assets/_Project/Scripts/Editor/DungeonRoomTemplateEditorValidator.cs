@@ -316,7 +316,7 @@ namespace Godmist.Editor
                 var secondCell = firstCell + anchor.GetDirectionOffset();
 
                 if (!floorCells.Contains(firstCell)
-                    || !floorCells.Contains(secondCell))
+                    || (anchor.Type != DungeonStructuralAnchorType.Wall && !floorCells.Contains(secondCell)))
                 {
                     report.AddError(
                         $"Structural anchor ({firstCell.x}, {firstCell.y}) "
@@ -324,6 +324,8 @@ namespace Godmist.Editor
                     continue;
                 }
 
+                if (!Enum.IsDefined(typeof(DungeonWallType), anchor.WallType))
+                    report.AddError("Nieprawidłowy typ ściany.");
                 var edge = new StructuralEdgeKey(firstCell, secondCell);
 
                 if (!usedEdges.Add(edge))

@@ -23,7 +23,7 @@ namespace Godmist.Systems.Combat
                 new BattleCellEdge(DungeonBattleGridFactory.ToBattlePosition(context, edge.FirstCell),
                     DungeonBattleGridFactory.ToBattlePosition(context, edge.SecondCell)));
             foreach (var wall in floor.Map.WallEdges)
-                if (Crosses(wall)) return true;
+                if (floor.Map.GetWallType(wall) == DungeonWallType.Full && Crosses(wall)) return true;
             foreach (var gate in floor.Map.ClosedProgressionGateEdges)
                 if (Crosses(gate)) return true;
             var world = DungeonBattleGridFactory.ToWorldPosition(context, to);

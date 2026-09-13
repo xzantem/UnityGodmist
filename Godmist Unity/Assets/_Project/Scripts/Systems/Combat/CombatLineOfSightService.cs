@@ -69,7 +69,8 @@ namespace Godmist.Systems.Combat
                 return true;
             if (session.DungeonContext != null)
                 foreach (var wall in session.DungeonContext.WallEdges)
-                    if (CrossesEdge(previousPosition, currentPosition, new BattleCellEdge(
+                    if (session.DungeonContext.GetWallType(wall) == Godmist.Core.Enums.DungeonWallType.Full
+                        && CrossesEdge(previousPosition, currentPosition, new BattleCellEdge(
                         DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.FirstCell),
                         DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.SecondCell))))
                         return true;

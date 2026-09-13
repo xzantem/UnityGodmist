@@ -30,20 +30,8 @@ namespace Godmist.Views.Combat
 
             transform.position = (firstCenter + secondCenter) * 0.5f;
 
-            if (deltaX != 0)
-            {
-                transform.localScale = new Vector3(
-                    thickness,
-                    1f,
-                    1f);
-
-                return;
-            }
-
-            transform.localScale = new Vector3(
-                1f,
-                thickness,
-                1f);
+            transform.rotation = Quaternion.Euler(0f, 0f, deltaX != 0 ? 0f : 90f);
+            transform.localScale = new Vector3(thickness, 1f, 1f);
         }
     }
 }

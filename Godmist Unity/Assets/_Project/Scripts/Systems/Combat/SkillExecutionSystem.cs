@@ -2313,15 +2313,17 @@ namespace Godmist.Systems.Combat
 
             if (!isDiagonal)
             {
-                return session.Grid.CanMoveBetween(currentPosition, nextPosition)
+                return session.Grid.CanDisplaceBetween(currentPosition, nextPosition)
                     && !session.IsPositionOccupied(nextPosition, movedUnit);
             }
 
-            return session.Grid.IsWalkable(currentPosition)
-                && session.Grid.IsWalkable(nextPosition)
-                && !session.Grid.IsBlocked(currentPosition)
-                && !session.Grid.IsBlocked(nextPosition)
-                && !session.IsPositionOccupied(nextPosition, movedUnit);
+            var horizontal = new GridPosition(nextPosition.X, currentPosition.Y);
+            var vertical = new GridPosition(currentPosition.X, nextPosition.Y);
+            return !session.IsPositionOccupied(nextPosition, movedUnit)
+                && ((session.Grid.CanDisplaceBetween(currentPosition, horizontal)
+                        && session.Grid.CanDisplaceBetween(horizontal, nextPosition))
+                    || (session.Grid.CanDisplaceBetween(currentPosition, vertical)
+                        && session.Grid.CanDisplaceBetween(vertical, nextPosition)));
         }
     }
 

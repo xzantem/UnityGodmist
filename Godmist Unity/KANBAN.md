@@ -74,6 +74,15 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Dodać niskie ściany i balustrady jako krawędzie pokoju v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Rozwinąć model rzeczywistych krawędzi pokoju: pełna ściana, niski murek, balustrada. Nie zastępować ich semantic anchors ani wolnostojącymi przeszkodami na polach.
+  - Rozdzielić blokowanie ruchu i LOS/efektu na krawędziach; używać tych samych właściwości w eksploracji, walce i prezentacji. Balustrada blokuje ruch i przepuszcza strzały.
+  - Zachować płaską logikę podłogi Combat v4. Dostępne balkony, schody i różne wysokości należą do szerszego Combat v5.
+  - Weryfikacja: krawędź zewnętrzna i wewnętrzna, narożniki, pokój O/U, brak przejścia przez balustradę, zgodność widoku i LOS. Wykonać przed kartą przeszkód taktycznych.
+  - Zatwierdzone: niski murek przepuszcza zwykły ruch za koszt kroku +2 AP (trzeci krok = 5 AP); eksploracja bez opłaty AP. Oba typy przepuszczają LOS i blokują dash/charge/push/pull; teleport zachowuje istniejące zasady.
+  - Brak podłogi za krawędzią wyklucza przejście; wizualnie może oznaczać szyb, przepaść lub niedostępną niższą kondygnację. Generator nie zastępuje zadeklarowanych murków/balustrad drzwiami.
+  - Status: DONE — 119/119 EditMode PASS, prefaby i referencje zapisane, walidacja i self-review PASS; smoke użytkownika PASS — zaakceptowany przez użytkownika.
+
 - `[P1] Ustalić i wdrożyć pozycje oraz formację przy wejściu i wyjściu z walki v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
   - Seamless już przenosi pozycje eksploracyjne; rozstawianie na przeciwnych krawędziach pozostaje w starszej ścieżce/sandboxie. Domknąć istniejącego resolvera bez nowego szyku.
   - Uzgodnić snap do siatki, przypadki kolizji, brak miejsca, pozycje przeciwników i powrót po ucieczce. Rozwiązywanie konfliktów ma być deterministyczne i nie umieszczać jednostek w ścianach ani na zajętych polach.
@@ -136,11 +145,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 
 
-- `[P1] Dodać niskie ściany i balustrady jako krawędzie pokoju v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
-  - Rozwinąć model rzeczywistych krawędzi pokoju: pełna ściana, niski murek, balustrada. Nie zastępować ich semantic anchors ani wolnostojącymi przeszkodami na polach.
-  - Rozdzielić blokowanie ruchu i LOS/efektu na krawędziach; używać tych samych właściwości w eksploracji, walce i prezentacji. Balustrada może blokować ruch, przepuszczając strzały.
-  - Zachować płaską logikę podłogi Combat v4. Dostępne balkony, schody i różne wysokości należą do szerszego Combat v5.
-  - Weryfikacja: krawędź zewnętrzna i wewnętrzna, narożniki, pokój O/U, brak przejścia przez balustradę, zgodność widoku i LOS. Wykonać przed kartą przeszkód taktycznych.
+
+- `[P1] Teren taktyczny i koszty przemieszczania v1` - `Combat`, `Content / Data`, `Design / Systems`
+  - Combat v4, przed grywalnym contentem i acceptance: typ podłoża, dodatkowy koszt ruchu, czytelny podgląd AP i integracja z AI.
+  - Trudny teren +1 AP pozostaje propozycją, nie zatwierdzonym balansem. Przed implementacją uzgodnić typy terenu i wpływ na poszczególne przemieszczenia.
+  - Unikalne przeszkody i efekty rozwijać wspólnie z istniejącymi kartami przeszkód/pułapek; nie dodawać w tej karcie rozbudowanego systemu reakcji środowiskowych.
 
 ### Milestone: Combat v5 — Perception and Dungeon-wide Combat
 

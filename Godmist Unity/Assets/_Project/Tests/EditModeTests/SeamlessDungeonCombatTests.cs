@@ -194,6 +194,117 @@ namespace Godmist.Tests.EditMode
             Assert.That(game.Combats.Count, Is.EqualTo(1));
         }
 
+        [TestCase(DungeonWallType.Low)]
+        [TestCase(DungeonWallType.Railing)]
+        public void TypedWalls_BlockDiagonalPushThroughClosedCorner(DungeonWallType type)
+        {
+            var session = Combat("one"); var unit = Unit("player");
+            session.Units.Add(unit);
+            session.Grid.SetWallEdge(new(0, 0), new(1, 0), type);
+            session.Grid.SetWallEdge(new(0, 0), new(0, 1), type);
+            var method = typeof(SkillExecutionSystem).GetMethod("CanForcedDisplacementMove",
+                BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.That((bool)method.Invoke(null, new object[] { session, unit, new GridPosition(1, 1), 1, 1 }), Is.False);
+            var charge = typeof(CombatChargeSystem).GetMethod("CanTraverse", BindingFlags.NonPublic | BindingFlags.Static);
+            Assert.That((bool)charge.Invoke(null, new object[] { session, new GridPosition(0, 0), new GridPosition(1, 1) }), Is.False);
+            Assert.That((bool)charge.Invoke(null, new object[] { session, new GridPosition(0, 0), new GridPosition(1, 0) }), Is.False);
+
+        }
+
+        [Test]
+        public void LowWall_AiPaysActualCrossingCost()
+        {
+            var session = Combat("one");
+            session.Grid = new BattleGrid(3, 1);
+            var enemy = Unit("enemy", false); var player = Unit("player");
+            player.Position = new GridPosition(2, 0);
+            session.Units.Add(enemy); session.Units.Add(player); session.ActiveUnit = enemy;
+            session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
+            enemy.CurrentActionPoints = 2;
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryMoveAiTowardsTarget(session, enemy, player), Is.False);
+            enemy.CurrentActionPoints = 3;
+            Assert.That(ai.TryMoveAiTowardsTarget(session, enemy, player), Is.True);
+            Assert.That(enemy.CurrentActionPoints, Is.Zero);
+            Assert.That(enemy.Position, Is.EqualTo(new GridPosition(1, 0)));
+        }
+
+        [TestCase(DungeonWallType.Full, false, false)]
+        [TestCase(DungeonWallType.Low, true, true)]
+        [TestCase(DungeonWallType.Railing, false, true)]
+        public void TypedWalls_ShareMovementAndSightRules(DungeonWallType type, bool walk, bool sight)
+        {
+            var edge = new DungeonCellEdge(Vector2Int.zero, Vector2Int.right);
+            var context = new DungeonCombatContext("dungeon", 0, "encounter", "room",
+                Vector2Int.zero, Vector2Int.right, new[] { Vector2Int.zero, Vector2Int.right },
+                new[] { edge }, null, nextWallTypes: new Dictionary<DungeonCellEdge, DungeonWallType> { [edge] = type });
+            Assert.That(new DungeonBattleGridFactory().TryCreate(context, out var grid), Is.True);
+            var session = new CombatSession { Grid = grid, DungeonContext = context };
+            Assert.That(grid.CanMoveBetween(new(0, 0), new(1, 0)), Is.EqualTo(walk));
+            Assert.That(grid.CanDisplaceBetween(new(0, 0), new(1, 0)), Is.False);
+            Assert.That(grid.CanDisplaceBetween(new(1, 0), new(0, 0)), Is.False);
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(session, new(0, 0), new(1, 0)), Is.EqualTo(sight));
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(session, new(1, 0), new(0, 0)), Is.EqualTo(sight));
+        }
+
+        [TestCase(4, false)]
+        [TestCase(5, true)]
+        public void LowWall_ThirdStepCostsFiveAp_PreviewMatchesExecution(int ap, bool succeeds)
+        {
+            var session = Combat("one");
+            var unit = Unit("player");
+            session.Units.Add(unit);
+            unit.CurrentActionPoints = ap;
+            unit.MovementStepsThisTurn = 2;
+            session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
+            var system = new CombatMovementSystem();
+            var paths = system.CalculateReachablePaths(session, unit);
+            Assert.That(paths.ContainsKey(new GridPosition(1, 0)), Is.EqualTo(succeeds));
+            Assert.That(system.TryMoveOneStep(session, unit, 1, 0), Is.EqualTo(succeeds));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(succeeds ? 0 : ap));
+            Assert.That(unit.MovementStepsThisTurn, Is.EqualTo(succeeds ? 3 : 2));
+        }
+
+        [Test]
+        public void LowWall_ReachabilitySelectsCheaperEqualLengthPath()
+        {
+            var session = Combat("one");
+            var unit = Unit("player");
+            session.Units.Add(unit);
+            unit.CurrentActionPoints = 3;
+            session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
+            var paths = new CombatMovementSystem().CalculateReachablePaths(session, unit);
+            Assert.That(paths[new GridPosition(1, 1)], Is.EqualTo(new[] { new GridPosition(0, 1), new GridPosition(1, 1) }));
+            Assert.That(CombatMovementSystem.CalculatePathCost(session, unit.Position, 0,
+                paths[new GridPosition(1, 1)]), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void LowWall_ExitChargesSurchargeButVoidRemainsInaccessible()
+        {
+            var session = Combat("one");
+            var unit = Unit("player");
+            session.Units.Add(unit);
+            session.Grid.SetWallEdge(new(0, 0), new(-1, 0), DungeonWallType.Low);
+            Assert.That(session.CanMoveBetween(unit, new(0, 0), new(-1, 0)), Is.False);
+            session.OpenExitEdges.Add(new BattleCellEdge(new(0, 0), new(-1, 0)));
+            unit.CurrentActionPoints = 3;
+            Assert.That(new CombatMovementSystem().TryMoveOneStep(session, unit, -1, 0), Is.True);
+            Assert.That(unit.CurrentActionPoints, Is.Zero);
+        }
+
+        [TestCase(DungeonWallType.Low)]
+        [TestCase(DungeonWallType.Railing)]
+        public void TypedWalls_TeleportStillUsesLegalDestination(DungeonWallType type)
+        {
+            var session = Combat("one");
+            var unit = Unit("player"); session.Units.Add(unit);
+            session.Grid.SetWallEdge(new(0, 0), new(1, 0), type);
+            var teleport = new CombatTeleportSystem();
+            Assert.That(teleport.CanTeleport(session, unit, unit, new(1, 0), true), Is.True);
+            Assert.That(teleport.CanTeleport(session, unit, unit, new(-1, 0), false), Is.False);
+        }
+
         [Test]
         public void GroupPositions_ReserveOriginalCellsBeforeDisplacingCollision()
         {

@@ -46,7 +46,7 @@ namespace Godmist.Systems.Combat
                     context,
                     wallEdge.SecondCell);
 
-                grid.SetBlockedEdge(firstCell, secondCell);
+                grid.SetWallEdge(firstCell, secondCell, context.GetWallType(wallEdge));
             }
 
             foreach (var mapObject in context.MapObjects)
