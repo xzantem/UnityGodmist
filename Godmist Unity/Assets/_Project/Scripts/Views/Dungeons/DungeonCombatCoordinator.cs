@@ -118,7 +118,8 @@ namespace Godmist.Views.Dungeons
 
         private void Update()
         {
-            if (!initialized || DevConsoleView.IsOpen) return;
+            if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) return;
+            if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
             foreach (var session in game.Combats.ToArray())
             {
                 if (!session.IsSeamless) continue;
@@ -135,6 +136,7 @@ namespace Godmist.Views.Dungeons
                 }
                 if (session.Outcome == CombatOutcomeState.Ongoing) JoinArrivals(session, driver);
                 outcomeEvaluator.EvaluateCombatOutcome(session);
+                if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
                 if (session.Outcome != CombatOutcomeState.Ongoing) Finish(session);
             }
             RefreshFocus();
@@ -185,19 +187,6 @@ namespace Godmist.Views.Dungeons
 
         private void Finish(CombatSession session)
         {
-            // Real defeat consequences are the next card. Do not reset the campaign here.
-            if (session.Outcome == CombatOutcomeState.Defeat)
-            {
-                combatHost.End(session);
-                foreach (var unit in bindings.Keys.Where(unit => bindingSessions[unit] == session).ToArray()) Release(unit);
-                game.TryRemoveCombat(session);
-                sources[session].ReleaseEncounter();
-                sources.Remove(session);
-                ClearFinishedCombatState();
-                party.CancelMovement();
-                Debug.LogWarning("Porażka: sesja zakończona. Reperkusje kampanii należą do następnej karty.");
-                return;
-            }
             if (!outcomes.TryApplyOutcome(game, session))
             { Debug.LogError("Nie udało się zastosować wyniku walki " + session.CombatId); return; }
             if (session.Outcome == CombatOutcomeState.Victory) rewards.TryGrantVictoryRewards(game, session);
@@ -217,7 +206,29 @@ namespace Godmist.Views.Dungeons
             combatHost.End(session);
             game.TryRemoveCombat(session);
             ClearFinishedCombatState();
+            CampaignDefeatSystem.StoreRecoverableCompanions(game);
+            party.RemoveUnavailableViews();
             party.CancelMovement();
+        }
+
+        private void EndCampaign()
+        {
+            game.MarkDefeated();
+            foreach (var session in sources.Keys.ToArray())
+            {
+                combatHost.End(session);
+                game.TryRemoveCombat(session);
+            }
+            foreach (var unit in bindings.Keys.ToArray()) Release(unit);
+            sources.Clear();
+            retainedPlayers.Clear();
+            targeting.CancelTargetSelection();
+            targeting.enabled = movementInput.enabled = inspectInput.enabled = false;
+            gridFeedback.ClearAll();
+            combatHudRoot.SetActive(false);
+            explorationHudRoot.SetActive(false);
+            party.CancelMovement();
+            party.CloseInventoryForCombat();
         }
 
         private void ClearFinishedCombatState()
@@ -242,7 +253,7 @@ namespace Godmist.Views.Dungeons
 
         public void RefreshFocus()
         {
-            if (!initialized) return;
+            if (!initialized || game.IsDefeated) return;
             SetFocus(game.GetCombatForCharacter(game.PlayerParty.ActiveLeaderId));
         }
 

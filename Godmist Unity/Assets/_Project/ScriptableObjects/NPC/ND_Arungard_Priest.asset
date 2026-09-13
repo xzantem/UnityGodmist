@@ -18,4 +18,4 @@ MonoBehaviour:
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: 9bcbe8abce4c4a94a98364a556ae54a4, type: 2}
   <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: e6b9ac912f1532c4ab9e818b2b377d25, type: 2}

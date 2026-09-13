@@ -23,7 +23,7 @@ namespace Godmist.Systems.SaveLoad
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if (session.HasCombat)
+            if ((session.HasCombat || session.IsDefeated))
             {
                 throw new InvalidOperationException(
                     "Nie mozna utworzyc zapisu podczas aktywnej walki.");
@@ -46,7 +46,7 @@ namespace Godmist.Systems.SaveLoad
         {
             if (saveData == null
                 || session == null
-                || session.HasCombat
+                || (session.HasCombat || session.IsDefeated)
                 || string.IsNullOrWhiteSpace(saveData.SaveId))
             {
                 return false;

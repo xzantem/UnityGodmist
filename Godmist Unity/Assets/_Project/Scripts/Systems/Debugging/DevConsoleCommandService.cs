@@ -89,6 +89,7 @@ namespace Godmist.Systems.Debugging
                 "worldflags" => GetWorldFlags(gameSession),
                 "setworldflag" => SetWorldFlag(tokens, gameSession),
                 "gold" => AddGold(tokens, gameSession),
+                "sethonor" => SetHonor(tokens, gameSession),
                 "xp" => AddExperience(tokens, gameSession, combatSession),
                 "heal" => Heal(tokens, gameSession, combatSession),
                 "resource" => RestoreResource(tokens, gameSession, combatSession),
@@ -760,6 +761,19 @@ namespace Godmist.Systems.Debugging
 
             return Success(
                 DevConsoleUnitInspector.BuildReport(target, combatSession));
+        }
+
+        private static DevConsoleCommandResult SetHonor(
+            IReadOnlyList<string> tokens, GameSession gameSession)
+        {
+            if ((tokens.Count != 2 && tokens.Count != 3)
+                || !int.TryParse(tokens[tokens.Count - 1], out var value))
+                return Fail("Użycie: sethonor [characterId] <liczba całkowita>");
+            var character = ResolveDefaultCharacter(gameSession,
+                tokens.Count == 3 ? tokens[1] : null, out var failure);
+            if (character == null) return failure;
+            character.Honor = value;
+            return Success($"Honor {GetCharacterName(character)}: {value}.");
         }
 
         private static DevConsoleCommandResult AddGold(

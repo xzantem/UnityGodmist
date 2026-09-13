@@ -36,6 +36,10 @@ namespace Godmist.Runtime.Game
         private readonly List<CombatSession> combats = new();
         public IReadOnlyList<CombatSession> Combats => combats;
         public bool HasCombat => combats.Count > 0;
+        public bool IsDefeated { get; private set; }
+        public event Action PartyRosterChanged;
+        public void NotifyPartyRosterChanged() => PartyRosterChanged?.Invoke();
+        public void MarkDefeated() { IsDefeated = true; TrySetMode(GameModeState.Menu); }
         public bool IsCharacterInCombat(string characterId) =>
             combats.Exists(combat => !combat.IsSeamless) || GetCombatForCharacter(characterId) != null;
 
@@ -115,6 +119,7 @@ namespace Godmist.Runtime.Game
 
         public bool TrySetMode(GameModeState nextMode)
         {
+            if (IsDefeated && nextMode != GameModeState.Menu && nextMode != GameModeState.Loading) return false;
             if (CurrentMode == nextMode) return false;
 
             var previousMode = CurrentMode;

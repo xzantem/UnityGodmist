@@ -74,6 +74,15 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Wdrożyć reperkusje porażki i odzyskiwanie towarzyszy v1` - `Combat`, `Core / Architecture`, `NPC / Quest / Dialogue`
+  - Status: DONE — smoke funkcjonalny i UI zaakceptowane przez użytkownika.
+  - Porażka kampanii po śmierci głównej postaci albo braku żywych aktywnych członków: najnowszy poprawny zapis tej kampanii / inny zapis / menu. Brak zapisów blokuje oba przyciski wczytywania. Żywy członek poza pokojem nadal może ratować powalonych.
+  - Lokalna przegrana pokoju zachowuje stan lochu; martwi towarzysze trafiają do odzyskiwania u kapłana. StoryLocked pozostaje zablokowany.
+  - Odzyskanie: ceil(300 * 4^((level-1)/10)), pełne HP i zasoby, zachowanie tożsamości/ekwipunku/progresji, aktywny slot lub rezerwa. Tylko honor rozmówcy; bez lojalności kapłana.
+  - Nowe złoto przeciwnika: baza ceil(10 * 4^((dungeonLevel-1)/10)), niezależny równomierny rozrzut 50–150% na przeciwnika; wcześniej wylosowane nagrody w zapisach pozostają bez zmian.
+  - Dziewięć zatwierdzonych tierów honoru bez ograniczenia do −100…100. Progi i zniżki w Game Defines; zniżki domyślnie 0% do balansu, tier −75…−50: Niechlubny.
+  - UI zapisane w scenie/prefabach za zgodą użytkownika. Regresja EditMode 89/89 PASS. Manualny smoke i wizualny UI pass: PASS użytkownika. Końcowe testy odzyskiwania 43/43 PASS, konsoli 51/51 PASS; kolejne poprawki UI skompilowane i zweryfikowane.
+
 - `[P1] Zintegrować walkę seamless w scenie lochu v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture` - `DONE`
   - Zastąpić produkcyjne przełączanie scen eksploracja/walka przełączaniem trybu na istniejącej mapie i widokach jednostek. Nie budować drugiej kopii mapy ani równolegle aktywnych kontrolerów tych samych postaci.
   - Rozdzielić lifecycle eksploracji i walki: zatrzymanie eksploracyjnego sterowania, start tur, podpięcie HUD/input, zakończenie walki i przywrócenie eksploracji. Uwzględnić zwycięstwo, ucieczkę, porażkę i nieudany start bez pozostawienia częściowego stanu.
@@ -99,6 +108,13 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 - `[Do decyzji] Rozszerzyc blokowanie layoutu pokoi z bounding boxa na rzeczywisty footprint v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
   - Generator ma dopuszczac lepsze upakowanie nieregularnych pokoi, blokujac rzeczywiste zajete komorki zamiast calego prostokatnego bounding boxa; uwzglednic dziury, sasiedztwo pokoi i kompatybilne przejscia.
   - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
+
+- `[P1] Combat v4 — nawigacja przeciwników wokół przeszkód i obsługa drzwi v1` - `Combat`, `Core / Architecture`
+  - Karta zatwierdzona przez użytkownika; wykonać po domknięciu granic i geometrii areny.
+  - Rozwinąć istniejące AI i mechanizmy ruchu: planować pełną trasę ponad budżet jednej tury, a wykonywać odcinek za dostępne AP. Obsłużyć obejście wymagające chwilowego oddalenia się od celu.
+  - Uwzględnić otwieranie dozwolonych drzwi przez istniejący system interakcji oraz koszt AP. Respektować blokady i zatwierdzone granice sesji; nie dodawać pościgu ani pathfindingu eksploracyjnego.
+  - Przeliczać trasę po zmianie przeszkód, stanu drzwi lub zajętości pól. Brak dostępnej drogi nie może powodować zapętlenia tury ani powtarzania bezskutecznych akcji.
+  - Weryfikacja: obejście ściany w wielu turach, początkowe oddalenie od celu, wąskie przejście, zajęte pola, drzwi otwarte/zamknięte/niedostępne oraz cel nieosiągalny. Sprawdzić rzeczywistą ścieżkę, koszty AP i poprawne zakończenie tury.
 
 ## In Progress
 

@@ -22,6 +22,20 @@ namespace Godmist.Tests.EditMode
 {
     public class DevConsoleCommandServiceTests
     {
+        [TestCase("sethonor -125", -125)]
+        [TestCase("sethonor jerzy 250", 250)]
+        public void SetHonorSetsExactValue(string command, int expected)
+        {
+            var session = new GameSession();
+            var character = CreateCharacter("jerzy");
+            session.TryRegisterCharacter(character);
+            session.PlayerParty.TryAddActiveMember("jerzy");
+            session.PlayerParty.TrySetActiveLeader("jerzy");
+            var result = new DevConsoleCommandService().Execute(command, session, null);
+            Assert.That(result.Success, Is.True, result.Message);
+            Assert.That(character.Honor, Is.EqualTo(expected));
+        }
+
         [Test]
         public void Execute_GoldCommand_AddsGoldToGameSession()
         {

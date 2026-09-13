@@ -20,6 +20,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private List<NpcSceneBinding> npcBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
         private readonly NpcInstanceFactory npcFactory = new();
+        private GameSession boundSession;
 
         private void Start()
         {
@@ -46,7 +47,11 @@ namespace Godmist.Views.Exploration
                 }
 
                 binding.CharacterView.Bind(character);
-                characterViews.Add(binding.CharacterView);
+                var available = session.PlayerParty.IsActiveMember(character.CharacterId)
+                    && character.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive
+                    && character.AvailabilityState == Godmist.Core.Enums.CharacterAvailabilityState.Available;
+                binding.CharacterView.gameObject.SetActive(available);
+                if (available) characterViews.Add(binding.CharacterView);
             }
 
             foreach (var binding in npcBindings)
@@ -67,6 +72,8 @@ namespace Godmist.Views.Exploration
             }
 
             partyController.Initialize(session, characterViews);
+            boundSession = session;
+            boundSession.PartyRosterChanged += RefreshRecoveredMembers;
 
             // Arungard owns a separate town position. The active dungeon may
             // remain in the session after a return scroll, but its saved
@@ -81,6 +88,29 @@ namespace Godmist.Views.Exploration
                 session.TrySetExplorationPosition(
                     partyController.ActiveLeaderTransform.position);
             }
+        }
+
+        private void OnDestroy()
+        {
+            if (boundSession != null) boundSession.PartyRosterChanged -= RefreshRecoveredMembers;
+        }
+
+        private void RefreshRecoveredMembers()
+        {
+            var views = new List<ExplorationCharacterView>();
+            var position = partyController.ActiveLeaderTransform?.position ?? Vector3.zero;
+            foreach (var binding in partyBindings)
+            {
+                var view = binding.CharacterView;
+                if (view == null || !boundSession.CharactersById.TryGetValue(view.CharacterId, out var character)) continue;
+                var active = boundSession.PlayerParty.IsActiveMember(character.CharacterId)
+                    && character.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive
+                    && character.AvailabilityState == Godmist.Core.Enums.CharacterAvailabilityState.Available;
+                if (active && !view.gameObject.activeSelf) view.SetPosition(position);
+                view.gameObject.SetActive(active);
+                if (active) views.Add(view);
+            }
+            partyController.Initialize(boundSession, views);
         }
 
         private CharacterInstance GetOrCreateCharacter(

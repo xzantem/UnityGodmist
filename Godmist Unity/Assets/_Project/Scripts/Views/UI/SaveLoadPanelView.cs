@@ -210,6 +210,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
+            if (GameBootstrap.Instance?.Session?.IsDefeated == true) summaries = GameBootstrap.Instance.GetDefeatSaves();
             foreach (var summary in summaries)
             {
                 saveSummaries.Add(summary);

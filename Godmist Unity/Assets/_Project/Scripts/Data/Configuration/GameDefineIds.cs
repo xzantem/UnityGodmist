@@ -2,6 +2,10 @@ namespace Godmist.Data.Configuration
 {
     public static class GameDefineIds
     {
+        public const string EnemyGoldBase = "economy.enemy.gold_base";
+        public const string CompanionRecoveryBase = "economy.companion.recovery_base";
+        public const string CombatEconomyGrowthBase = "economy.combat.growth_base";
+        public const string CombatEconomyLevelSpan = "economy.combat.level_span";
         public const string TraderRelevantSellMultiplier = "economy.trader.relevant_sell_multiplier";
         public const string TraderIrrelevantSellMultiplier = "economy.trader.irrelevant_sell_multiplier";
         public const string NpcGuildPayoutGrowthBase = "economy.npc.guild_payout.growth_base";

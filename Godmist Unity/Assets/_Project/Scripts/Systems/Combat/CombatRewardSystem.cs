@@ -15,6 +15,7 @@ namespace Godmist.Systems.Combat
 {
     public class CombatRewardSystem
     {
+        private readonly Func<double> goldRandom;
         private readonly CharacterProgressionSystem progressionSystem;
         private readonly LootTableSystem lootTableSystem;
         private readonly Func<CharacterDefinition, LootTableData> lootTableResolver;
@@ -22,11 +23,13 @@ namespace Godmist.Systems.Combat
         public CombatRewardSystem(
             CharacterProgressionSystem progressionSystem = null,
             LootTableSystem lootTableSystem = null,
-            Func<CharacterDefinition, LootTableData> lootTableResolver = null)
+            Func<CharacterDefinition, LootTableData> lootTableResolver = null,
+            Func<double> goldRandom = null)
         {
             this.progressionSystem = progressionSystem ?? new CharacterProgressionSystem();
             this.lootTableSystem = lootTableSystem ?? new LootTableSystem();
             this.lootTableResolver = lootTableResolver;
+            this.goldRandom = goldRandom ?? (() => UnityEngine.Random.value);
         }
 
         public CombatRewardResult RollEncounterRewards(EncounterDefinition encounter)
@@ -36,7 +39,7 @@ namespace Godmist.Systems.Combat
 
         public CombatRewardResult RollEncounterRewards(
             EncounterDefinition encounter,
-            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver)
+            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver, int enemyLevel = 1)
         {
             var rewards = new CombatRewardResult();
 
@@ -54,7 +57,7 @@ namespace Godmist.Systems.Combat
                 {
                     EnemyInstanceId = enemyData.InstanceId,
                     ExperiencePerActiveCharacter = definition.ExperienceReward,
-                    Gold = definition.GoldReward,
+                    Gold = CombatEconomyScaling.RollEnemyGold(enemyLevel, goldRandom()),
                     Items = lootTableSystem.RollLoot(
                         encounterEnemyLootTableResolver?.Invoke(enemyData)
                         ?? lootTableResolver?.Invoke(definition)

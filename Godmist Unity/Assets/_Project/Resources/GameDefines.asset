@@ -3639,4 +3639,436 @@ MonoBehaviour:
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
     DefaultStringValue: 
+    CurrentStringValue:
+  - Id: economy.enemy.gold_base
+    DisplayName: "Z\u0142oto przeciwnika"
+    Description: Nagroda na poziomie 1.
+    Category: 0
+    Unit: gold
+    ValueType: 0
+    DefaultIntegerValue: 10
+    CurrentIntegerValue: 10
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 1000000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.companion.recovery_base
+    DisplayName: Odzyskanie towarzysza
+    Description: "Cena na poziomie 1 przed zni\u017Ck\u0105 honoru."
+    Category: 0
+    Unit: gold
+    ValueType: 0
+    DefaultIntegerValue: 300
+    CurrentIntegerValue: 300
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 1000000
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.combat.growth_base
+    DisplayName: Wzrost ekonomii walki
+    Description: "Podstawa skalowania z\u0142ota i odzyskiwania."
+    Category: 0
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 4
+    CurrentFloatValue: 4
+    MinimumFloatValue: 1
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.combat.level_span
+    DisplayName: "Przedzia\u0142 poziom\xF3w ekonomii"
+    Description: "Liczba poziom\xF3w na jeden mno\u017Cnik wzrostu."
+    Category: 0
+    Unit: poziomy
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 10
+    CurrentFloatValue: 10
+    MinimumFloatValue: 1
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_count
+    DisplayName: "Liczba tier\xF3w honoru"
+    Description: "Liczba prog\xF3w rabatu honoru."
+    Category: 0
+    Unit: tiery
+    ValueType: 0
+    DefaultIntegerValue: 9
+    CurrentIntegerValue: 9
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 20
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_0.minimum
+    DisplayName: "Honor: Wygnaniec \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: -2147483648
+    CurrentIntegerValue: -2147483648
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_0.discount_percent
+    DisplayName: "Honor: Wygnaniec \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: -100
+    CurrentFloatValue: -100
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_1.minimum
+    DisplayName: "Honor: Haniebny \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: -100
+    CurrentIntegerValue: -100
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_1.discount_percent
+    DisplayName: "Honor: Haniebny \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: -75
+    CurrentFloatValue: -75
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_2.minimum
+    DisplayName: "Honor: Niechlubny \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: -75
+    CurrentIntegerValue: -75
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_2.discount_percent
+    DisplayName: "Honor: Niechlubny \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: -50
+    CurrentFloatValue: -50
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_3.minimum
+    DisplayName: "Honor: Podejrzany \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: -50
+    CurrentIntegerValue: -50
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_3.discount_percent
+    DisplayName: "Honor: Podejrzany \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: -25
+    CurrentFloatValue: -25
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_4.minimum
+    DisplayName: "Honor: Rekrut \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: -20
+    CurrentIntegerValue: -20
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_4.discount_percent
+    DisplayName: "Honor: Rekrut \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_5.minimum
+    DisplayName: "Honor: Najemnik \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: 40
+    CurrentIntegerValue: 40
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_5.discount_percent
+    DisplayName: "Honor: Najemnik \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 5
+    CurrentFloatValue: 5
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_6.minimum
+    DisplayName: "Honor: Bojownik \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: 100
+    CurrentIntegerValue: 100
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_6.discount_percent
+    DisplayName: "Honor: Bojownik \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 10
+    CurrentFloatValue: 10
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_7.minimum
+    DisplayName: "Honor: Rycerz \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: 150
+    CurrentIntegerValue: 150
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_7.discount_percent
+    DisplayName: "Honor: Rycerz \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 15
+    CurrentFloatValue: 15
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_8.minimum
+    DisplayName: "Honor: Przyw\xF3dca \u2014 pr\xF3g"
+    Description: "Dolna granica w\u0142\u0105cznie; pierwszy tier obejmuje wszystkie
+      ni\u017Csze warto\u015Bci."
+    Category: 0
+    Unit: Honor
+    ValueType: 0
+    DefaultIntegerValue: 200
+    CurrentIntegerValue: 200
+    MinimumIntegerValue: -2147483648
+    MaximumIntegerValue: 2147483647
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: economy.honor.tier_8.discount_percent
+    DisplayName: "Honor: Przyw\xF3dca \u2014 zni\u017Cka"
+    Description: "\u0141\u0105czna zni\u017Cka odzyskiwania towarzysza; 0 do czasu
+      ustalenia balansu."
+    Category: 0
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 20
+    CurrentFloatValue: 20
+    MinimumFloatValue: -1000
+    MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
     CurrentStringValue: 

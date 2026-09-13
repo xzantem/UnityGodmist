@@ -84,7 +84,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (session.HasCombat)
+            if ((session.HasCombat || session.IsDefeated))
             {
                 message = "Nie można zapisać gry podczas walki.";
                 return false;
@@ -334,7 +334,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (session.HasCombat)
+            if ((session.HasCombat || session.IsDefeated))
             {
                 message = "Nie można zapisać gry podczas walki.";
                 return false;

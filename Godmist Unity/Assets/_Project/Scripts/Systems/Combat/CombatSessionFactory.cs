@@ -519,7 +519,7 @@ namespace Godmist.Systems.Combat
             }
 
             var rolledRewards = rewardSystem.RollEncounterRewards(
-                encounter);
+                encounter, null, dungeon?.DungeonLevel ?? 1);
 
             dungeon?.TryStorePreRolledRewards(
                 combatId,

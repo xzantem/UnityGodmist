@@ -47,6 +47,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private PotionRefillWindowView potionRefillService;
         [SerializeField] private PotionRefillWindowView bombRefillService;
 
+        [SerializeField] private CompanionRecoveryWindowView companionRecoveryService;
         private readonly List<NpcServiceTabView> spawnedTabs = new();
         private readonly NpcLoyaltyService loyaltyService = new();
         private GameSession session;
@@ -147,6 +148,7 @@ namespace Godmist.Views.UI.Workspace
 
         private IEnumerable<NpcServiceKind> GetAvailableServices()
         {
+            if (npc?.Definition?.GetRole<PriestRoleData>() != null) yield return NpcServiceKind.CompanionRecovery;
             if (npc?.Definition?.GetRole<TraderRoleData>() != null)
             {
                 yield return NpcServiceKind.Trade;
@@ -193,6 +195,7 @@ namespace Godmist.Views.UI.Workspace
 
             var didShow = kind switch
             {
+                NpcServiceKind.CompanionRecovery => companionRecoveryService != null && companionRecoveryService.Show(npc, recipientCharacterId),
                 NpcServiceKind.Trade => tradeService != null
                     && tradeService.Show(npc, recipientCharacterId),
                 NpcServiceKind.EquipmentCrafting => equipmentCraftingService != null
@@ -237,6 +240,7 @@ namespace Godmist.Views.UI.Workspace
         {
             switch (selectedService)
             {
+                case NpcServiceKind.CompanionRecovery: companionRecoveryService?.Hide(); break;
                 case NpcServiceKind.Trade:
                     tradeService?.Hide();
                     break;
@@ -310,6 +314,7 @@ namespace Godmist.Views.UI.Workspace
         {
             return kind switch
             {
+                NpcServiceKind.CompanionRecovery => "Odzyskiwanie towarzyszy",
                 NpcServiceKind.Trade => "Handel",
                 NpcServiceKind.EquipmentCrafting => "Wytwarzanie wyposażenia",
                 NpcServiceKind.MaterialCrafting => "Wytwarzanie materiałów",
@@ -359,6 +364,9 @@ namespace Godmist.Views.UI.Workspace
         private void UpdateLoyaltyHeader()
         {
             if (loyaltyHeader == null || npc == null) return;
+            var isPriest = npc.Definition?.GetRole<PriestRoleData>() != null;
+            loyaltyHeader.gameObject.SetActive(!isPriest);
+            if (isPriest) return;
 
             var currentLevel = npc.LoyaltyLevel;
             var spent = loyaltyService.GetGoldSpentTowardNextLevel(npc);

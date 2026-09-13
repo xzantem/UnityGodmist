@@ -26,8 +26,15 @@ namespace Godmist.Views.UI.Workspace
         {
             var nextSession = Godmist.Views.Game.GameBootstrap.Instance?.Session;
             if (nextSession == session) return;
+            if (session != null) session.PartyRosterChanged -= Refresh;
             session = nextSession;
+            if (session != null) session.PartyRosterChanged += Refresh;
             Refresh();
+        }
+
+        private void OnDestroy()
+        {
+            if (session != null) session.PartyRosterChanged -= Refresh;
         }
 
         public void Refresh()

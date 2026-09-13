@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Configuration;
@@ -218,6 +219,33 @@ namespace Godmist.Views.Game
             sceneLoader.TryLoadScene(
                 explorationSceneName,
                 GameModeState.Exploration);
+        }
+
+        public IReadOnlyList<GameSaveSummary> GetDefeatSaves()
+        {
+            if (Session == null || SaveManager == null || contentCatalog == null
+                || !SaveManager.TryGetSaveSummaries(out var summaries, out _)) return Array.Empty<GameSaveSummary>();
+            return summaries.Where(summary => summary.CampaignId == Session.CampaignId
+                && SaveManager.TryLoadSave(summary, contentCatalog, out _, out _)).ToArray();
+        }
+
+        public bool TryLoadLatestAfterDefeat(out string message)
+        {
+            message = "Brak poprawnego zapisu tej kampanii.";
+            if (Session?.IsDefeated != true) return false;
+            var latest = GetDefeatSaves().FirstOrDefault();
+            return latest != null && TryLoadSave(latest, out message);
+        }
+
+        public bool TryReturnToMainMenu()
+        {
+            if (sceneLoader == null || sceneLoader.IsLoading || !Application.CanStreamedLevelBeLoaded("Bootstrap")) return false;
+            UnsubscribeRuntimeServices();
+            Session = new GameSession(GameModeState.Menu);
+            autosaveRequested = false;
+            sceneLoader.Initialize(Session);
+            InitializeRuntimeServices();
+            return sceneLoader.TryLoadScene("Bootstrap", GameModeState.Menu);
         }
 
         public bool TrySaveQuick(out string message)

@@ -32,6 +32,16 @@ namespace Godmist.Views.Exploration
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
+        public void RemoveUnavailableViews()
+        {
+            var removed = new List<string>();
+            foreach (var pair in viewsById)
+                if (!gameSession.PlayerParty.IsActiveMember(pair.Key))
+                { pair.Value.gameObject.SetActive(false); removed.Add(pair.Key); }
+            foreach (var id in removed) viewsById.Remove(id);
+            RefreshLeaderVisuals();
+        }
+
         public bool IsNoclipEnabled { get; private set; }
 
         public Transform ActiveLeaderTransform
@@ -70,7 +80,7 @@ namespace Godmist.Views.Exploration
         {
             if (DevConsoleView.IsOpen) return;
 
-            if (gameSession == null)
+            if (gameSession == null || gameSession.IsDefeated)
             {
                 return;
             }

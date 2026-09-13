@@ -24,7 +24,8 @@ namespace Godmist.Systems.Combat
         {
             if (combatSession == null
                 || (combatSession.Outcome != CombatOutcomeState.Victory
-                    && combatSession.Outcome != CombatOutcomeState.Escaped))
+                    && combatSession.Outcome != CombatOutcomeState.Escaped
+                    && !(combatSession.IsSeamless && combatSession.Outcome == CombatOutcomeState.Defeat)))
             {
                 return false;
             }
@@ -60,7 +61,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (combatSession.Outcome == CombatOutcomeState.Escaped)
+            if (combatSession.Outcome != CombatOutcomeState.Victory)
             {
                 gameSession.ActiveDungeon.ClearPendingPlayerPartyPositions();
                 return true;
