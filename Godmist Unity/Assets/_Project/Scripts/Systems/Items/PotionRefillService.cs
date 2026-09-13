@@ -67,7 +67,7 @@ namespace Godmist.Systems.Items
 
             if (consumable.CurrentCharges >= consumable.MaxCharges)
             {
-                preview.FailureReason = "Ten consumable jest już napełniony.";
+                preview.FailureReason = consumable.IsBomb ? "Ta bomba jest już pełna." : "Ta mikstura jest już pełna.";
                 return preview;
             }
 

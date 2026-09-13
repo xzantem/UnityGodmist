@@ -2449,7 +2449,7 @@ namespace Godmist.Views.UI.Workspace
             }
         }
 
-        private static string GetRequiredClassDisplayName(EquipmentItemInstance equipment) =>
+        public static string GetRequiredClassDisplayName(EquipmentItemInstance equipment) =>
             equipment.RequiredClassId switch
             {
                 "class.warrior" => "Wojownik",

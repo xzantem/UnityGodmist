@@ -45,6 +45,19 @@ Zmiana nie modyfikuje cen, szans, progów lojalności, formatu zapisu ani prefab
 3. Sprawdź próbę zablokowaną brakiem złota: oba salda pozostają bez zmian.
 4. Zapisz i wczytaj grę; sprawdź zachowanie salda i lojalności.
 
+## Drugi pass: UI — 2026-09-13, DONE
+
+- Podglądy: kwadratowe ikony o minimalnym wymiarze 80, wysokość nazwy i podpisu z preferowanej wysokości tekstu, zawijane komunikaty.
+- Materiały mikstur/bomb: trzy kolumny i dwa rzędy mieszczące pięć materiałów; ustawienia bezpośrednio w prefabie.
+- Poprawione etykiety bomb, klasy wyposażenia, unikalności przekucia, gniazd oraz pełnych mikstur/bomb.
+- Napełnianie rozdziela zaznaczenie od stanu pełnego przedmiotu i wyjaśnia pustą sekcję materiałów.
+- Identyfikacja bez wyboru nie pokazuje czerwonego kosztu 0/braku 0 ani technicznego błędu szukania instancji.
+- Niedostępny tier galdurytu zachowuje bezefektowy podgląd, ale blokuje operację krótkim komunikatem. Nie rozszerzano pul efektów.
+- Suwaki wybierają pełne procenty; wspólne obliczenie gniazd dla instancji i podglądu daje jedno gniazdo przy 20%. Liczba jest dostępna także w zablokowanym podglądzie.
+- 53/53 testy EditMode PASS, w tym pomiar layoutu długiej nazwy, kwadratowy slot, pojemność materiałów i zaokrąglanie suwaka do 20%.
+- Końcowy retest prefabu po korekcie kolejności status/przycisk: 7/7 PASS. Self-review zakończony; tymczasowe skrypty zapisujące prefab usunięte.
+- Wizualny smoke zaakceptowany przez użytkownika przed commit/push. Placeholdery ikon poza zakresem.
+
 ## Granice weryfikacji
 
 Nie wykonywano nowego wizualnego smoke testu ani pełnego przebiegu PlayMode. Testy automatyczne nie oznaczają pełnego pokrycia wszystkich wariantów contentu i wyglądu tooltipów. Istniejące ograniczenie puli efektów galdurytów wyższych tierów pozostaje zgodne z wcześniejszym ustaleniem, bez rozszerzania zakresu tej karty.

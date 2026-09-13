@@ -44,7 +44,12 @@ namespace Godmist.Systems.Items
         public EquipmentUpgradePreview CreateUpgradePreview(GameSession session, NpcInstance blacksmith,
             EquipmentItemInstance item, float targetProgress, float successChance, GameContentCatalog catalog)
         {
-            var preview = new EquipmentUpgradePreview { TargetProgress = targetProgress, SuccessChance = successChance };
+            var preview = new EquipmentUpgradePreview
+            {
+                TargetProgress = targetProgress,
+                SuccessChance = successChance,
+                SocketCapacity = EquipmentItemInstance.GetSocketCapacity(targetProgress)
+            };
             if (!TryValidate(session, blacksmith, item, catalog, out var baseValue, out var error))
             {
                 preview.FailureReason = error;
@@ -70,12 +75,6 @@ namespace Godmist.Systems.Items
             preview.GoldCost = npcLoyaltyService.GetDiscountedGoldCost(
                 blacksmith,
                 baseGoldCost);
-            var maximumSocketCapacity = GameDefinesRuntime.GetInt(
-                GameDefineIds.SocketCapacityAtFullUpgrade, 5);
-            preview.SocketCapacity = Mathf.Clamp(
-                Mathf.FloorToInt(targetProgress * maximumSocketCapacity + .0001f),
-                0,
-                maximumSocketCapacity);
             preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
             preview.CanExecute = session.Gold >= preview.GoldCost;
             preview.FailureReason = preview.CanExecute ? string.Empty : "Brakuje złota.";

@@ -117,7 +117,7 @@ namespace Godmist.Views.UI.Workspace
                 else
                     previewTooltipSlot.SetTooltip(
                         "Identyfikacja galdurytu",
-                        preview.FailureReason ?? "Wybierz niezidentyfikowany galduryt.");
+                        "Wybierz niezidentyfikowany galduryt.");
             }
 
             if (previewNameText != null)
@@ -132,13 +132,14 @@ namespace Godmist.Views.UI.Workspace
             if (costText != null)
             {
                 var missingGold = Mathf.Max(0, preview.GoldCost - (session?.Gold ?? 0));
-                costText.text = preview.CanIdentify
+                costText.text = preview.Galduryte == null ? "Koszt: —" : missingGold == 0
                     ? $"<color=#F2C14E>Koszt: {preview.GoldCost} g</color>"
                     : $"<color=#E06C75>Koszt: {preview.GoldCost} g • Brakuje {missingGold} g</color>";
             }
             if (identifyButton != null) identifyButton.interactable = preview.CanIdentify;
-            if (statusText != null && preview.Galduryte == null)
-                statusText.text = preview.FailureReason;
+            if (statusText != null)
+                statusText.text = preview.Galduryte == null ? "Brak niezidentyfikowanych galdurytów."
+                    : preview.CanIdentify ? string.Empty : preview.FailureReason;
         }
 
         private static string GetTargetName(GalduryteTargetType targetType) => targetType switch
@@ -166,10 +167,10 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            if (statusText != null)
-                statusText.text = $"Zidentyfikowano: {identified.DisplayName} za {paidGold}g.";
             selectedGalduryte = null;
             PopulateOptions();
+            if (statusText != null)
+                statusText.text = $"Zidentyfikowano: {identified.DisplayName} za {paidGold}g.";
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
 

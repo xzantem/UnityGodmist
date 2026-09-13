@@ -25,6 +25,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI previewNameText;
         [SerializeField] private TextMeshProUGUI previewSummaryText;
         [SerializeField] private TextMeshProUGUI statusText;
+        [SerializeField] private TextMeshProUGUI mediumEmptyText;
         [SerializeField] private Button craftButton;
         [SerializeField] private ConsumableUseType refillType = ConsumableUseType.Potion;
 
@@ -98,7 +99,7 @@ namespace Godmist.Views.UI.Workspace
                     $"Ładunki: {consumable.CurrentCharges}/{consumable.MaxCharges}",
                     $"{consumable.CurrentCharges}/{consumable.MaxCharges}",
                     ReferenceEquals(consumable, selectedConsumable),
-                    consumable.CurrentCharges >= consumable.MaxCharges,
+                    false,
                     () =>
                     {
                         selectedConsumable = consumable;
@@ -118,6 +119,15 @@ namespace Godmist.Views.UI.Workspace
             var targetGrid = GetMaterialsGrid();
             ClearSlots(mediumSlots);
             var preview = refillService.CreatePreview(session, alchemist, BuildRequest());
+            if (mediumEmptyText != null)
+            {
+                mediumEmptyText.gameObject.SetActive(preview.MediumOptions == null || !preview.MediumOptions.Any());
+                mediumEmptyText.text = selectedConsumable == null
+                    ? "Wybierz przedmiot do napełnienia."
+                    : selectedConsumable.CurrentCharges >= selectedConsumable.MaxCharges
+                        ? "Napełnianie nie jest potrzebne."
+                        : "Brak dostępnych materiałów do napełnienia.";
+            }
             var visibleOptions = selectedMedium == null
                 ? preview.MediumOptions ?? Enumerable.Empty<RefillMediumOption>()
                 : (preview.MediumOptions ?? Enumerable.Empty<RefillMediumOption>())

@@ -27,8 +27,10 @@ namespace Godmist.Runtime.Items
         public List<GalduryteItemInstance> SocketedGaldurytes = new();
         public float UpgradeProgress;
 
-        public int SocketCapacity => Math.Clamp(
-            (int)Math.Floor(UpgradeProgress * GameDefinesRuntime.GetInt(
+        public int SocketCapacity => GetSocketCapacity(UpgradeProgress);
+
+        public static int GetSocketCapacity(float progress) => Math.Clamp(
+            (int)Math.Floor(progress * GameDefinesRuntime.GetInt(
                 GameDefineIds.SocketCapacityAtFullUpgrade, 5) + .0001f),
             0,
             GameDefinesRuntime.GetInt(GameDefineIds.SocketCapacityAtFullUpgrade, 5));

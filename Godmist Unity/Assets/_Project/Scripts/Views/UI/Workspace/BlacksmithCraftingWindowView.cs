@@ -416,10 +416,7 @@ namespace Godmist.Views.UI.Workspace
 
         private static string GetRequiredClassDisplayName(EquipmentItemInstance result)
         {
-            var className = result?.EquipmentDefinition?.RequiredClass?.ClassName;
-            if (!string.IsNullOrWhiteSpace(className)) return className;
-            if (!string.IsNullOrWhiteSpace(result?.RequiredClassId)) return result.RequiredClassId;
-            return "dowolna";
+            return result == null ? "dowolna" : UIWorkspaceTooltipView.GetRequiredClassDisplayName(result);
         }
 
         private static string BuildPartTooltip(EquipmentPartDefinition part)

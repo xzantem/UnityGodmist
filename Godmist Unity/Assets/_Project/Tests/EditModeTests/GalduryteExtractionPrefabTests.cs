@@ -8,6 +8,108 @@ namespace Godmist.Tests.EditMode
     public sealed class GalduryteExtractionPrefabTests
     {
         [Test]
+        public void SpecialistPreviews_UseContentHeightAndNonShrinkingSquareIcons()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_NpcServicesWindow.prefab");
+            var count = 0;
+            foreach (var view in prefab.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (view == null || view is GalduryteSocketingWindowView || view is GalduryteExtractionWindowView) continue;
+                var so = new SerializedObject(view);
+                var title = so.FindProperty("previewNameText")?.objectReferenceValue as Component;
+                if (title == null) continue;
+                count++;
+                var le = title.GetComponent<UnityEngine.UI.LayoutElement>();
+                Assert.That(le.preferredHeight, Is.EqualTo(-1), view.name);
+                Assert.That(le.minWidth, Is.EqualTo(0), view.name);
+                var status = so.FindProperty("statusText")?.objectReferenceValue as Component;
+                var action = (so.FindProperty("identifyButton")?.objectReferenceValue ?? so.FindProperty("craftButton")?.objectReferenceValue ?? so.FindProperty("actionButton")?.objectReferenceValue) as Component;
+                if (status != null && action != null && status.transform.parent == action.transform.parent)
+                    Assert.That(status.transform.GetSiblingIndex(), Is.LessThan(action.transform.GetSiblingIndex()), view.name);
+                var icon = title.transform.parent.parent.Find("ResultIconSlot");
+                if (icon == null) continue;
+                var iconLayout = icon.GetComponent<UnityEngine.UI.LayoutElement>();
+                Assert.That(iconLayout.minWidth, Is.EqualTo(80), view.name);
+                Assert.That(iconLayout.minHeight, Is.EqualTo(80), view.name);
+            }
+            Assert.That(count, Is.GreaterThanOrEqualTo(8));
+        }
+
+        [Test]
+        public void AlchemyMaterials_FiveCardsFitInTwoRowsInsideColumn()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_NpcServicesWindow.prefab");
+            foreach (var view in prefab.GetComponentsInChildren<AlchemyCraftingWindowView>(true))
+            {
+                var so = new SerializedObject(view);
+                var content = (Component)so.FindProperty("materialRequirementsContent").objectReferenceValue;
+                var grid = content.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+                Assert.That(grid.constraintCount, Is.EqualTo(3));
+                var section = content.transform.parent.parent;
+                var column = section.parent.GetComponent<UnityEngine.UI.LayoutElement>();
+                Assert.That(3 * grid.cellSize.x + 2 * grid.spacing.x + grid.padding.horizontal + 24,
+                    Is.LessThanOrEqualTo(column.preferredWidth));
+                Assert.That(2 * grid.cellSize.y + grid.spacing.y + grid.padding.vertical + 52,
+                    Is.LessThanOrEqualTo(section.GetComponent<UnityEngine.UI.LayoutElement>().preferredHeight));
+            }
+        }
+
+        [Test]
+        public void SpecialistPreview_LongTitleDoesNotOverlapCaptionAfterLayout()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_NpcServicesWindow.prefab");
+            foreach (var view in prefab.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (view == null || view is GalduryteSocketingWindowView || view is GalduryteExtractionWindowView) continue;
+                var titleRef = new SerializedObject(view).FindProperty("previewNameText")?.objectReferenceValue as Component;
+                if (titleRef == null || titleRef.transform.parent.name != "ResultInfo") continue;
+                var row = Object.Instantiate(titleRef.transform.parent.parent.gameObject);
+                try
+                {
+                    row.SetActive(true);
+                    var rect = (RectTransform)row.transform;
+                    rect.anchorMin = rect.anchorMax = Vector2.zero;
+                    rect.sizeDelta = new Vector2(320, 112);
+                    var title = row.transform.Find("ResultInfo/" + titleRef.name).GetComponent(titleRef.GetType());
+                    var data = new SerializedObject(title);
+                    data.FindProperty("m_text").stringValue = "Doskonały Żelazny Długi Miecz";
+                    data.ApplyModifiedPropertiesWithoutUndo();
+                    UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+                    UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+                    var caption = title.transform.parent.GetChild(1) as RectTransform;
+                    var titleRect = (RectTransform)title.transform;
+                    Assert.That(caption.anchoredPosition.y + caption.rect.height * (1 - caption.pivot.y),
+                        Is.LessThanOrEqualTo(titleRect.anchoredPosition.y - titleRect.rect.height * titleRect.pivot.y + .01f), view.name);
+                    var icon = row.transform.Find("ResultIconSlot") as RectTransform;
+                    Assert.That(icon.rect.width, Is.EqualTo(icon.rect.height).Within(.01f), view.name);
+                }
+                finally { Object.DestroyImmediate(row); }
+            }
+        }
+
+        [Test]
+        public void UpgradeSlider_RoundedTwentyPercentIsActualTwentyPercent()
+        {
+            var root = new GameObject("upgrade", typeof(RectTransform));
+            try
+            {
+                var view = root.AddComponent<EquipmentUpgradeWindowView>();
+                var sliderRoot = new GameObject("slider", typeof(RectTransform), typeof(UnityEngine.UI.Slider));
+                sliderRoot.transform.SetParent(root.transform);
+                var slider = sliderRoot.GetComponent<UnityEngine.UI.Slider>();
+                var so = new SerializedObject(view);
+                so.FindProperty("targetProgressSlider").objectReferenceValue = slider;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                slider.value = .196f;
+                typeof(EquipmentUpgradeWindowView).GetMethod("HandleSliderChanged", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(view, new object[] { slider.value });
+                Assert.That(slider.value, Is.EqualTo(.2f).Within(.000001f));
+                Assert.That(new Godmist.Runtime.Items.EquipmentItemInstance { UpgradeProgress = slider.value }.SocketCapacity, Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void ExtractionPrefab_HasLocalReferencesAndInteractiveMaskedSelection()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_NpcServicesWindow.prefab");

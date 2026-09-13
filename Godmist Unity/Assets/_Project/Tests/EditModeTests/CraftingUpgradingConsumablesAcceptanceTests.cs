@@ -104,6 +104,14 @@ namespace Godmist.Tests.EditMode
                 EquipmentUpgradeService.UpgradeCost(30f, 1f, .5f)
                 - EquipmentUpgradeService.UpgradeCost(30f, 0f, .5f)));
             Assert.That(preview.GoldCost, Is.EqualTo(expectedGoldCost));
+            foreach (var progress in new[] { .19f, .2f, .4f, .6f, .8f, 1f })
+            {
+                var boundary = new EquipmentUpgradeService().CreateUpgradePreview(
+                    session, blacksmith, item, progress, .5f, catalog);
+                var projected = new EquipmentItemInstance { UpgradeProgress = progress };
+                Assert.That(boundary.SocketCapacity, Is.EqualTo(projected.SocketCapacity));
+                Assert.That(boundary.SocketCapacity, Is.EqualTo(Mathf.FloorToInt(progress * 5f + .0001f)));
+            }
             item.UpgradeProgress = .8f;
             var failed = new EquipmentUpgradeService(new AlwaysFailRandom());
             Assert.That(failed.TryUpgrade(session, blacksmith, null, item, 1f, .5f, catalog,

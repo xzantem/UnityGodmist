@@ -99,6 +99,7 @@ namespace Godmist.Systems.Items
             preview.Materials = BuildMaterialCosts(session, enchanter, stone, powder);
             if (!TryBuildPreview(role, stone, powder, tier, request.TargetType, out var result, out var rollFailure))
             {
+                preview.Result = result;
                 preview.FailureReason = rollFailure;
                 return preview;
             }
@@ -408,14 +409,11 @@ namespace Godmist.Systems.Items
             }
 
             var level = GalduryteRuntimeRules.GetLevel(tier);
-            if (!GalduryteRuntimeRules.CanGenerateEffects(
+            var canGenerate = GalduryteRuntimeRules.CanGenerateEffects(
                     targetType,
                     powderData.Color,
                     level,
-                    out failureReason))
-            {
-                return false;
-            }
+                    out failureReason);
 
             result = itemFactory.Create(role.GalduryteDefinition) as GalduryteItemInstance;
             if (result == null)
@@ -437,7 +435,8 @@ namespace Godmist.Systems.Items
                 + ItemDefinitionValueUtility.GetValue(powder));
             result.Effects = new List<GalduryteEffectInstance>();
             result.IsIdentified = false;
-            return true;
+            if (!canGenerate) failureReason = "Ten tier galdurytu nie jest jeszcze dostępny.";
+            return canGenerate;
         }
 
         private bool TryBuildResult(
