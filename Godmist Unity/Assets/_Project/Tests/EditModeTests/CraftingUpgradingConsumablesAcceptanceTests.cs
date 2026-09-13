@@ -104,6 +104,53 @@ namespace Godmist.Tests.EditMode
                 EquipmentUpgradeService.UpgradeCost(30f, 1f, .5f)
                 - EquipmentUpgradeService.UpgradeCost(30f, 0f, .5f)));
             Assert.That(preview.GoldCost, Is.EqualTo(expectedGoldCost));
+            item.UpgradeProgress = .8f;
+            var failed = new EquipmentUpgradeService(new AlwaysFailRandom());
+            Assert.That(failed.TryUpgrade(session, blacksmith, null, item, 1f, .5f, catalog,
+                out var succeeded, out _, out _), Is.True);
+            Assert.That(succeeded, Is.False);
+            Assert.That(item.UpgradeProgress, Is.EqualTo(.8f));
+            Assert.That(item.SocketCapacity, Is.EqualTo(4));
+        }
+
+        private sealed class AlwaysFailRandom : System.Random
+        {
+            public override double NextDouble() => .999;
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MaterialCrafting_BuysMissingMaterialFromBuyback(bool rejectTransfer)
+        {
+            var ore = CreateItem("material.buyback", ItemType.Material, 10);
+            var recipe = CreateRecipe("recipe.buyback", 1, (ore, 1));
+            var npc = CreateBlacksmith(recipe);
+            npc.Definition.Roles.Add(ScriptableObject.CreateInstance<TraderRoleData>());
+            npc.ShopInventory ??= new ShopInventory();
+            var item = new ItemInstance(ore);
+            npc.ShopInventory.BuybackStock.Add(new BuybackEntry(item, 5));
+            var owner = new CharacterInstance { CharacterId = "buyer" };
+            var session = new GameSession();
+            session.TryRegisterCharacter(owner);
+            session.TryAddCharacterToActiveParty(owner.CharacterId);
+            session.TryAddGold(1000);
+            if (rejectTransfer)
+                owner.Inventory.Items.Add(new ItemInstance(CreateItem("other", ItemType.Material, 1), item.InstanceId));
+            var bought = new MaterialCraftingService().TryBuyMissingMaterial(session, npc,
+                new MaterialCraftRequest { Recipe = recipe, RecipientCharacterId = owner.CharacterId },
+                ore.Id, out var paid, out var reason);
+            if (rejectTransfer)
+            {
+                Assert.That(bought, Is.False);
+                Assert.That(npc.ShopInventory.BuybackStock.Single().Item, Is.SameAs(item));
+                Assert.That(session.Gold, Is.EqualTo(1000));
+                Assert.That(npc.GoldBalance, Is.Zero);
+                return;
+            }
+            Assert.That(bought, Is.True, reason);
+            Assert.That(owner.Inventory.Items.Single(), Is.SameAs(item));
+            Assert.That(npc.ShopInventory.BuybackStock, Is.Empty);
+            Assert.That(npc.GoldBalance, Is.EqualTo(paid));
         }
 
         [Test]

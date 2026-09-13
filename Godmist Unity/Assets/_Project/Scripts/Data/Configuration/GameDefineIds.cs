@@ -169,8 +169,6 @@ namespace Godmist.Data.Configuration
         public const string UpgradeValueRarityBase = "upgrade_reforge.upgrade.value_rarity_base";
         public const string UpgradeValueProgressMultiplier = "upgrade_reforge.upgrade.value_progress_multiplier";
         public const string UpgradeValueBaseMultiplier = "upgrade_reforge.upgrade.value_base_multiplier";
-        public const string UpgradeFailureProgressLossMin = "upgrade_reforge.upgrade.failure_progress_loss_min";
-        public const string UpgradeFailureProgressLossMax = "upgrade_reforge.upgrade.failure_progress_loss_max";
         public const string ReforgeCostMultiplier = "upgrade_reforge.reforge.cost_multiplier";
         public const string UpgradeSuccessChanceMax = "upgrade_reforge.upgrade.success_chance_max";
         public const string ReforgeTrashIncreaseChance = "upgrade_reforge.reforge.trash.increase_chance";

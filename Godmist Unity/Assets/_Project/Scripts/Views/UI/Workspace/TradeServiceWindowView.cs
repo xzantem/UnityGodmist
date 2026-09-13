@@ -49,7 +49,12 @@ namespace Godmist.Views.UI.Workspace
         private CharacterInstance tradingCharacter;
         private TradeItemSlotView draggedSlot;
         private GameObject dragGhost;
-        private GameObject partialSaleConfirmationRoot;
+        [SerializeField] private GameObject partialSaleConfirmationRoot;
+        [SerializeField] private TextMeshProUGUI partialSaleText;
+        [SerializeField] private Button partialSaleConfirmButton;
+        [SerializeField] private Button partialSaleCancelButton;
+        [SerializeField] private TextMeshProUGUI playerGoldText;
+        [SerializeField] private TextMeshProUGUI traderGoldText;
         private ItemInstance pendingPartialSaleItem;
         private bool isShown;
 
@@ -57,6 +62,8 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
+            partialSaleConfirmButton.onClick.AddListener(ConfirmPartialSale);
+            partialSaleCancelButton.onClick.AddListener(HidePartialSaleConfirmation);
             if (itemSlotTemplate != null
                 && itemSlotTemplate.transform.IsChildOf(transform))
             {
@@ -472,103 +479,12 @@ namespace Godmist.Views.UI.Workspace
             return result;
         }
 
-        private void ShowPartialSaleConfirmation(
-            ItemInstance item,
-            int normalPrice,
-            int payableGold)
+        private void ShowPartialSaleConfirmation(ItemInstance item, int normalPrice, int payableGold)
         {
-            HidePartialSaleConfirmation();
             pendingPartialSaleItem = item;
-
-            partialSaleConfirmationRoot = new GameObject(
-                "TradePartialSaleConfirmation",
-                typeof(RectTransform),
-                typeof(Image));
-            partialSaleConfirmationRoot.transform.SetParent(transform, false);
-            partialSaleConfirmationRoot.transform.SetAsLastSibling();
-
-            var overlayRect = partialSaleConfirmationRoot.GetComponent<RectTransform>();
-            overlayRect.anchorMin = Vector2.zero;
-            overlayRect.anchorMax = Vector2.one;
-            overlayRect.offsetMin = Vector2.zero;
-            overlayRect.offsetMax = Vector2.zero;
-            partialSaleConfirmationRoot.GetComponent<Image>().color =
-                new Color(0f, 0f, 0f, .55f);
-
-            var panel = new GameObject(
-                "Panel",
-                typeof(RectTransform),
-                typeof(Image),
-                typeof(VerticalLayoutGroup));
-            panel.transform.SetParent(partialSaleConfirmationRoot.transform, false);
-
-            var panelRect = panel.GetComponent<RectTransform>();
-            panelRect.anchorMin = panelRect.anchorMax = new Vector2(.5f, .5f);
-            panelRect.pivot = new Vector2(.5f, .5f);
-            panelRect.sizeDelta = new Vector2(440f, 190f);
-            var panelImage = panel.GetComponent<Image>();
-            panelImage.color = new Color(.08f, .09f, .12f, .98f);
-
-            var palette = ResolveWorkspacePalette();
-            if (palette != null)
-            {
-                panel.AddComponent<UIWorkspaceStyleApplier>().ConfigureRuntime(
-                    palette,
-                    UIWorkspaceSurfaceStyle.Window,
-                    UIWorkspaceAccentStyle.Neutral,
-                    UIWorkspaceTextStyle.Body,
-                    UIWorkspaceAccentStyle.None,
-                    panelImage);
-            }
-
-            var sizeFitter = panel.AddComponent<ContentSizeFitter>();
-            sizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            var panelElement = panel.AddComponent<LayoutElement>();
-            panelElement.minWidth = 440f;
-            panelElement.preferredWidth = 440f;
-
-            var layout = panel.GetComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(24, 24, 22, 18);
-            layout.spacing = 12f;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-
-            var text = CreateConfirmationText(
-                panel.transform,
-                $"{trader?.Definition?.DisplayName ?? "NPC"} ma tylko {payableGold} golda.\n"
-                + $"Czy na pewno chcesz sprzedać ten przedmiot za tę kwotę?\n"
-                + $"Normalna cena: {normalPrice}");
-            text.gameObject.AddComponent<LayoutElement>().preferredHeight = 92f;
-
-            var buttons = new GameObject(
-                "Buttons",
-                typeof(RectTransform),
-                typeof(HorizontalLayoutGroup));
-            buttons.transform.SetParent(panel.transform, false);
-            var buttonsLayout = buttons.GetComponent<HorizontalLayoutGroup>();
-            buttonsLayout.spacing = 12f;
-            buttonsLayout.childControlWidth = true;
-            buttonsLayout.childControlHeight = true;
-            buttonsLayout.childForceExpandWidth = true;
-
-            var confirmButton = CreateConfirmationButton(
-                buttons.transform,
-                "Sprzedaj",
-                ConfirmPartialSale);
-            var confirmLayout = confirmButton.gameObject.AddComponent<LayoutElement>();
-            confirmLayout.preferredWidth = 180f;
-            confirmLayout.preferredHeight = 42f;
-
-            var cancelButton = CreateConfirmationButton(
-                buttons.transform,
-                "Anuluj",
-                HidePartialSaleConfirmation);
-            var cancelLayout = cancelButton.gameObject.AddComponent<LayoutElement>();
-            cancelLayout.preferredWidth = 180f;
-            cancelLayout.preferredHeight = 42f;
+            partialSaleText.text = $"{trader?.Definition?.DisplayName ?? "NPC"} ma tylko {payableGold} g.\n"
+                + $"Czy na pewno chcesz sprzedać ten przedmiot za tę kwotę?\nNormalna cena: {normalPrice} g";
+            partialSaleConfirmationRoot.SetActive(true);
         }
 
         private void ConfirmPartialSale()
@@ -585,175 +501,22 @@ namespace Godmist.Views.UI.Workspace
         private void HidePartialSaleConfirmation()
         {
             pendingPartialSaleItem = null;
-
-            if (partialSaleConfirmationRoot != null)
-            {
-                Destroy(partialSaleConfirmationRoot);
-                partialSaleConfirmationRoot = null;
-            }
+            if (partialSaleConfirmationRoot != null) partialSaleConfirmationRoot.SetActive(false);
         }
 
-        private static TextMeshProUGUI CreateConfirmationText(
-            Transform parent,
-            string content)
-        {
-            var textObject = new GameObject(
-                "Message",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            textObject.transform.SetParent(parent, false);
 
-            var text = textObject.GetComponent<TextMeshProUGUI>();
-            text.text = content;
-            text.fontSize = 18f;
-            text.alignment = TextAlignmentOptions.Center;
-            text.textWrappingMode = TextWrappingModes.Normal;
-            text.color = Color.white;
-            return text;
-        }
 
-        private static Button CreateConfirmationButton(
-            Transform parent,
-            string label,
-            UnityEngine.Events.UnityAction onClick)
-        {
-            var buttonObject = new GameObject(
-                label,
-                typeof(RectTransform),
-                typeof(Image),
-                typeof(Button));
-            buttonObject.transform.SetParent(parent, false);
 
-            var image = buttonObject.GetComponent<Image>();
-            image.color = new Color(.2f, .25f, .32f, 1f);
-            var button = buttonObject.GetComponent<Button>();
-            button.targetGraphic = image;
-
-            var ownerStyle = parent.GetComponentInParent<UIWorkspaceStyleApplier>();
-            if (ownerStyle?.Palette != null)
-            {
-                buttonObject.AddComponent<UIWorkspaceStyleApplier>().ConfigureRuntime(
-                    ownerStyle.Palette,
-                    UIWorkspaceSurfaceStyle.Raised,
-                    UIWorkspaceAccentStyle.Neutral,
-                    UIWorkspaceTextStyle.Body,
-                    UIWorkspaceAccentStyle.None,
-                    image,
-                    nextSelectable: button);
-            }
-            button.onClick.AddListener(onClick);
-
-            var text = CreateConfirmationText(buttonObject.transform, label);
-            text.fontSize = 16f;
-            text.raycastTarget = false;
-
-            var textRect = text.rectTransform;
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
-
-            return button;
-        }
 
         private void ConfigurePanelHeader(TextMeshProUGUI header, string displayName, long gold)
         {
             if (header == null) return;
-
             header.text = displayName ?? string.Empty;
-            header.fontStyle = FontStyles.Bold;
-            header.fontSize = Mathf.Max(header.fontSize, 18f);
-            header.enableAutoSizing = true;
-            header.fontSizeMin = 14f;
-            header.fontSizeMax = Mathf.Max(header.fontSize, 20f);
-            header.overflowMode = TextOverflowModes.Ellipsis;
-
-            var goldDisplay = header.transform.Find("GoldDisplay") as RectTransform;
-            if (goldDisplay == null)
-            {
-                var goldObject = new GameObject(
-                    "GoldDisplay",
-                    typeof(RectTransform),
-                    typeof(HorizontalLayoutGroup));
-                goldObject.transform.SetParent(header.transform, false);
-                goldDisplay = goldObject.GetComponent<RectTransform>();
-
-                goldDisplay.anchorMin = new Vector2(1f, 0f);
-                goldDisplay.anchorMax = new Vector2(1f, 1f);
-                goldDisplay.pivot = new Vector2(1f, .5f);
-                goldDisplay.sizeDelta = new Vector2(104f, 0f);
-                goldDisplay.anchoredPosition = Vector2.zero;
-
-                var layout = goldObject.GetComponent<HorizontalLayoutGroup>();
-                layout.spacing = 5f;
-                layout.childAlignment = TextAnchor.MiddleRight;
-                layout.childControlWidth = true;
-                layout.childControlHeight = true;
-                layout.childForceExpandWidth = false;
-                layout.childForceExpandHeight = false;
-
-                var iconObject = new GameObject(
-                    "GoldIcon",
-                    typeof(RectTransform),
-                    typeof(CanvasRenderer),
-                    typeof(Image),
-                    typeof(LayoutElement));
-                iconObject.transform.SetParent(goldDisplay, false);
-                var iconRect = iconObject.GetComponent<RectTransform>();
-                iconRect.sizeDelta = new Vector2(22f, 22f);
-                var iconLayout = iconObject.GetComponent<LayoutElement>();
-                iconLayout.minWidth = 22f;
-                iconLayout.preferredWidth = 22f;
-                iconLayout.minHeight = 22f;
-                iconLayout.preferredHeight = 22f;
-                var icon = iconObject.GetComponent<Image>();
-                icon.sprite = goldIconSprite;
-                icon.preserveAspect = true;
-                icon.raycastTarget = false;
-
-                var amountObject = new GameObject(
-                    "GoldAmount",
-                    typeof(RectTransform),
-                    typeof(TextMeshProUGUI));
-                amountObject.transform.SetParent(goldDisplay, false);
-                var amount = amountObject.GetComponent<TextMeshProUGUI>();
-                amount.font = header.font;
-                amount.fontSize = header.fontSize;
-                amount.fontStyle = FontStyles.Bold;
-                amount.fontSizeMin = header.fontSizeMin;
-                amount.fontSizeMax = header.fontSizeMax;
-                amount.enableAutoSizing = header.enableAutoSizing;
-                amount.color = header.color;
-                amount.alignment = TextAlignmentOptions.Right;
-                amount.verticalAlignment = VerticalAlignmentOptions.Middle;
-                amount.textWrappingMode = TextWrappingModes.NoWrap;
-                amount.overflowMode = TextOverflowModes.Ellipsis;
-                amount.raycastTarget = false;
-            }
-
-            var amountText = goldDisplay.Find("GoldAmount")?.GetComponent<TextMeshProUGUI>();
-            if (amountText != null)
-            {
-                amountText.font = header.font;
-                amountText.fontSize = header.fontSize;
-                amountText.fontStyle = FontStyles.Bold;
-                amountText.color = header.color;
-                amountText.text = gold.ToString();
-            }
-
-            var iconImage = goldDisplay.Find("GoldIcon")?.GetComponent<Image>();
-            if (iconImage != null)
-            {
-                iconImage.sprite = goldIconSprite;
-                iconImage.enabled = goldIconSprite != null;
-            }
+            var amount = header == playerHeaderText ? playerGoldText : traderGoldText;
+            if (amount != null) amount.text = gold.ToString();
         }
 
-        private UIWorkspaceStylePalette ResolveWorkspacePalette()
-        {
-            return GetComponentInParent<UIWorkspaceStyleApplier>(true)?.Palette
-                ?? GetComponentInChildren<UIWorkspaceStyleApplier>(true)?.Palette;
-        }
+
 
         private string GetSellFailureReason(ItemInstance item)
         {

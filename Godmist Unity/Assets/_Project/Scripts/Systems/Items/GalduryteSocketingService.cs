@@ -96,6 +96,7 @@ namespace Godmist.Systems.Items
             equipment.SocketedGaldurytes ??= new List<GalduryteItemInstance>();
             equipment.SocketedGaldurytes.Add(removedGalduryte);
             loyalty.TryRecordGoldSpent(enchanter, preview.GoldCost);
+            new NpcEconomyService().TryReceiveGold(enchanter, preview.GoldCost);
             RefreshOwnerStats(session, equipment);
             paidGold = preview.GoldCost;
             failureReason = string.Empty;
@@ -103,6 +104,9 @@ namespace Godmist.Systems.Items
         }
 
         public IEnumerable<EquipmentItemInstance> GetSocketableEquipment(GameSession session)
+            => GetOwnedEquipment(session);
+
+        private static IEnumerable<EquipmentItemInstance> GetOwnedEquipment(GameSession session)
         {
             var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (var character in GetPartyCharacters(session))
@@ -141,7 +145,8 @@ namespace Godmist.Systems.Items
                 reason = "Brak aktywnej usługi Zaklinacza.";
                 return false;
             }
-            if (!IsWeaponOrArmor(equipment))
+            if (!IsWeaponOrArmor(equipment)
+                || !GetOwnedEquipment(session).Any(item => ReferenceEquals(item, equipment)))
             {
                 reason = "Wybierz broń albo pancerz.";
                 return false;
@@ -149,6 +154,11 @@ namespace Godmist.Systems.Items
             if (galduryte == null || !galduryte.IsIdentified || galduryte.IsDestroyed)
             {
                 reason = "Wybierz zidentyfikowany galduryt.";
+                return false;
+            }
+            if (!TryFindInventory(session, galduryte, out _))
+            {
+                reason = "Wybrany galduryt nie należy do gracza.";
                 return false;
             }
             if (preview.FreeSockets <= 0)
@@ -205,8 +215,7 @@ namespace Godmist.Systems.Items
         private static bool TryFindInventory(GameSession session, ItemInstance item, out Inventory result)
         {
             result = GetInventories(session).FirstOrDefault(source => source.Items?.Any(
-                candidate => ReferenceEquals(candidate, item)
-                    || candidate.InstanceId == item?.InstanceId) == true);
+                candidate => ReferenceEquals(candidate, item)) == true);
             return result != null;
         }
 

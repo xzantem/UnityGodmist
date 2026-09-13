@@ -226,11 +226,11 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            var stock = alchemist.ShopInventory.Items
+            var stock = CraftingMerchantStock.Items(alchemist)
                 .Where(item => item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(item => tradeService.GetPriceToBuyFromTrader(alchemist, item));
+            paidGold = stock.Sum(item => CraftingMerchantStock.Price(alchemist, item));
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -255,7 +255,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            foreach (var item in stock) alchemist.ShopInventory.Items.Remove(item);
+            var origins = CraftingMerchantStock.Remove(alchemist, stock);
             foreach (var item in stock)
             {
                 if (inventoryService.TryAddItem(recipient.Inventory, item)) continue;
@@ -263,10 +263,10 @@ namespace Godmist.Systems.Items
                 foreach (var transferred in stock)
                 {
                     recipient.Inventory.Items.Remove(transferred);
-                    if (!alchemist.ShopInventory.Items.Contains(transferred))
-                        alchemist.ShopInventory.Items.Add(transferred);
+
                 }
 
+                CraftingMerchantStock.Restore(alchemist, origins);
                 session.TryAddGold(paidGold);
                 paidGold = 0;
                 failureReason = "Nie udało się przekazać składnika do inventory postaci.";
@@ -274,6 +274,7 @@ namespace Godmist.Systems.Items
             }
 
             loyaltyService.TryRecordGoldSpent(alchemist, paidGold);
+            new NpcEconomyService().TryReceiveGold(alchemist, paidGold);
             return true;
         }
 
@@ -576,13 +577,13 @@ namespace Godmist.Systems.Items
         }
 
         private static int GetAlchemistStock(NpcInstance alchemist, string definitionId) =>
-            alchemist?.ShopInventory?.Items?.Count(item => item?.Definition?.Id == definitionId) ?? 0;
+            CraftingMerchantStock.Items(alchemist).Count(item => item?.Definition?.Id == definitionId);
 
         private int GetStockPurchasePrice(NpcInstance alchemist, string definitionId, int amount) =>
-            amount <= 0 ? 0 : alchemist?.ShopInventory?.Items?
+            amount <= 0 ? 0 : CraftingMerchantStock.Items(alchemist)
                 .Where(item => item?.Definition?.Id == definitionId)
                 .Take(amount)
-                .Sum(item => tradeService.GetPriceToBuyFromTrader(alchemist, item)) ?? 0;
+                .Sum(item => CraftingMerchantStock.Price(alchemist, item));
 
         private static bool CanReceiveAll(Inventory inventory, ItemInstance item, int amount)
         {

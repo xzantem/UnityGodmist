@@ -432,12 +432,20 @@ namespace Godmist.Systems.Combat
                 skillAccuracy,
                 dodge);
 
+            chance = ApplyHitChanceBonus(source.Character, chance);
+
             return UnityEngine.Random.value <= chance;
         }
 
         public static bool IsGuaranteedHitDamageType(DamageType damageType)
         {
             return damageType != DamageType.Physical;
+        }
+
+        public static float ApplyHitChanceBonus(Godmist.Runtime.Characters.CharacterInstance character, float chance)
+        {
+            var bonus = new CombatVariableSystem().GetMultiplier(character, GameplayVariableType.HitChanceBonus) - 1f;
+            return Mathf.Clamp01(chance + bonus);
         }
 
         private static bool RollCritical(

@@ -227,6 +227,7 @@ namespace Godmist.Systems.Items
             }
 
             loyalty.TryRecordGoldSpent(enchanter, paidGold);
+            new NpcEconomyService().TryReceiveGold(enchanter, paidGold);
             return true;
         }
 

@@ -200,7 +200,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            var stock = enchanter.ShopInventory.Items
+            var stock = CraftingMerchantStock.Items(enchanter)
                 .Where(item => item?.Definition?.Id == materialId)
                 .Take(1)
                 .ToList();
@@ -210,7 +210,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            paidGold = tradeService.GetPriceToBuyFromTrader(enchanter, stock[0]);
+            paidGold = CraftingMerchantStock.Price(enchanter, stock[0]);
             if (paidGold <= 0)
             {
                 failureReason = "Nie udało się ustalić ceny tego materiału.";
@@ -233,7 +233,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            enchanter.ShopInventory.Items.Remove(stock[0]);
+            var origins = CraftingMerchantStock.Remove(enchanter, stock);
             if (inventoryService.TryAddItem(recipient.Inventory, stock[0]))
             {
                 loyaltyService.TryRecordGoldSpent(enchanter, paidGold);
@@ -241,7 +241,7 @@ namespace Godmist.Systems.Items
                 return true;
             }
 
-            enchanter.ShopInventory.Items.Add(stock[0]);
+            CraftingMerchantStock.Restore(enchanter, origins);
             session.TryAddGold(paidGold);
             paidGold = 0;
             failureReason = "Nie udało się przekazać materiału do inventory postaci.";
@@ -570,14 +570,14 @@ namespace Godmist.Systems.Items
                 {
                     var owned = CountPartyItems(session, material.Id);
                     var missing = Mathf.Max(0, 1 - owned);
-                    var stock = enchanter?.ShopInventory?.Items?.Count(item => item?.Definition?.Id == material.Id) ?? 0;
+                    var stock = CraftingMerchantStock.Items(enchanter).Count(item => item?.Definition?.Id == material.Id);
                     var purchasable = Mathf.Min(missing, stock);
                     var price = purchasable <= 0
                         ? 0
-                        : enchanter.ShopInventory.Items
+                        : CraftingMerchantStock.Items(enchanter)
                             .Where(item => item?.Definition?.Id == material.Id)
                             .Take(purchasable)
-                            .Sum(item => tradeService.GetPriceToBuyFromTrader(enchanter, item));
+                            .Sum(item => CraftingMerchantStock.Price(enchanter, item));
                     return new CraftingMaterialCost
                     {
                         Material = material,

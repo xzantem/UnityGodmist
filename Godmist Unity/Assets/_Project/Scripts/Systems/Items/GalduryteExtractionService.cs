@@ -100,6 +100,7 @@ namespace Godmist.Systems.Items
             else galduryte.IsDestroyed = true;
 
             new NpcLoyaltyService().TryRecordGoldSpent(npc, preview.GoldCost);
+            new NpcEconomyService().TryReceiveGold(npc, preview.GoldCost);
             if (owner != null) new CharacterStatPipelineSystem().Refresh(owner);
             result = new GalduryteExtractionResult
             {

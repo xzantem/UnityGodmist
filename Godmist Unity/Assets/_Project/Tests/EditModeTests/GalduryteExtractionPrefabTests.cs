@@ -68,5 +68,25 @@ namespace Godmist.Tests.EditMode
                 Assert.That(chance, Is.Not.EqualTo(warning));
             }
         }
+
+        [Test]
+        public void NpcStaticUi_IsSerializedWithCompleteReferences()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_NpcServicesWindow.prefab");
+            var header = prefab.GetComponentInChildren<NpcLoyaltyHeaderView>(true);
+            Assert.That(header, Is.Not.Null);
+            Assert.That(MonoScript.FromMonoBehaviour(header).GetClass(), Is.EqualTo(typeof(NpcLoyaltyHeaderView)));
+            var serialized = new SerializedObject(header);
+            foreach (var field in new[] { "titleText", "levelText", "progressText", "progressSlider", "progressRow" })
+                Assert.That(serialized.FindProperty(field).objectReferenceValue, Is.Not.Null, field);
+            var window = new SerializedObject(prefab.GetComponentInChildren<NpcServicesWindowView>(true));
+            Assert.That(window.FindProperty("loyaltyHeader").objectReferenceValue, Is.EqualTo(header));
+            var trade = new SerializedObject(prefab.GetComponentInChildren<TradeServiceWindowView>(true));
+            foreach (var field in new[] { "partialSaleConfirmationRoot", "partialSaleText", "partialSaleConfirmButton", "partialSaleCancelButton", "playerGoldText", "traderGoldText" })
+                Assert.That(trade.FindProperty(field).objectReferenceValue, Is.Not.Null, field);
+            Assert.That(((GameObject)trade.FindProperty("partialSaleConfirmationRoot").objectReferenceValue).activeSelf, Is.False);
+            foreach (var slot in prefab.GetComponentsInChildren<TradeItemSlotView>(true))
+                Assert.That(new SerializedObject(slot).FindProperty("countBackground").objectReferenceValue, Is.Not.Null);
+        }
     }
 }

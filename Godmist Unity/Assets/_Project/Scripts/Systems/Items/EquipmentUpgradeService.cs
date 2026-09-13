@@ -92,6 +92,7 @@ namespace Godmist.Systems.Items
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
             paidGold = preview.GoldCost;
             npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
+            new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
             if (random.NextDouble() < successChance)
             {
                 item.UpgradeProgress = targetProgress;
@@ -100,15 +101,7 @@ namespace Godmist.Systems.Items
             }
             else
             {
-                var minimumLoss = GameDefinesRuntime.GetFloat(
-                    GameDefineIds.UpgradeFailureProgressLossMin, .1f);
-                var maximumLoss = GameDefinesRuntime.GetFloat(
-                    GameDefineIds.UpgradeFailureProgressLossMax, .2f);
-                item.UpgradeProgress = Mathf.Max(
-                    0f,
-                    item.UpgradeProgress - (minimumLoss
-                        + (float)random.NextDouble() * Mathf.Max(0f, maximumLoss - minimumLoss)));
-                failureReason = "Ulepszenie nie powiodło się; postęp spadł.";
+                failureReason = "Ulepszenie nie powiodło się; postęp pozostał bez zmian.";
             }
             ApplyUpgradeStats(item);
             if (owner != null && owner.Equipment.GetEquippedItems().Any(equipped => ReferenceEquals(equipped, item))) statPipeline.Refresh(owner);
@@ -146,6 +139,7 @@ namespace Godmist.Systems.Items
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
             paidGold = preview.GoldCost;
             npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
+            new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
             var (up, unchanged) = GetReforgeChances(item.CurrentRarity);
             var roll = random.NextDouble();
             result = roll < up ? (RarityTier)((int)item.CurrentRarity + 1)

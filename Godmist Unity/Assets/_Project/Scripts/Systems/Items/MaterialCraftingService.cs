@@ -194,12 +194,12 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            var stock = blacksmith.ShopInventory.Items.Where(item =>
+            var stock = CraftingMerchantStock.Items(blacksmith).Where(item =>
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
             paidGold = stock.Sum(item =>
-                tradeService.GetPriceToBuyFromTrader(blacksmith, item));
+                CraftingMerchantStock.Price(blacksmith, item));
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -224,7 +224,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            foreach (var item in stock) blacksmith.ShopInventory.Items.Remove(item);
+            var origins = CraftingMerchantStock.Remove(blacksmith, stock);
             foreach (var item in stock)
             {
                 if (inventoryService.TryAddItem(recipient.Inventory, item)) continue;
@@ -232,9 +232,8 @@ namespace Godmist.Systems.Items
                 foreach (var transferred in stock)
                 {
                     recipient.Inventory.Items.Remove(transferred);
-                    if (!blacksmith.ShopInventory.Items.Contains(transferred))
-                        blacksmith.ShopInventory.Items.Add(transferred);
                 }
+                CraftingMerchantStock.Restore(blacksmith, origins);
                 session.TryAddGold(paidGold);
                 failureReason = "Nie udało się przekazać materiału do inventory postaci.";
                 paidGold = 0;
@@ -242,6 +241,7 @@ namespace Godmist.Systems.Items
             }
 
             npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
+            new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
             return true;
         }
 
@@ -405,13 +405,13 @@ namespace Godmist.Systems.Items
         }
 
         private static int GetBlacksmithStock(NpcInstance blacksmith, string definitionId) =>
-            blacksmith?.ShopInventory?.Items?.Count(item => item?.Definition?.Id == definitionId) ?? 0;
+            CraftingMerchantStock.Items(blacksmith).Count(item => item?.Definition?.Id == definitionId);
 
         private int GetStockPurchasePrice(NpcInstance blacksmith, string definitionId, int amount) =>
-            amount <= 0 ? 0 : blacksmith?.ShopInventory?.Items?
+            amount <= 0 ? 0 : CraftingMerchantStock.Items(blacksmith)
                 .Where(item => item?.Definition?.Id == definitionId)
                 .Take(amount)
-                .Sum(item => tradeService.GetPriceToBuyFromTrader(blacksmith, item)) ?? 0;
+                .Sum(item => CraftingMerchantStock.Price(blacksmith, item));
 
         private static bool CanReceiveAll(Inventory inventory, ItemDefinition definition, int amount)
         {

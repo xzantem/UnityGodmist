@@ -159,8 +159,12 @@ namespace Godmist.Systems.Combat
                                 StatModifierOperation.FlatAbsolute));
                             break;
                         case GalduryteEffectType.AccuracyPercent:
-                            stats.Add(CreateGalduryteStat(CharacterStatType.WeaponAccuracy, effect.Value,
-                                StatModifierOperation.FlatAbsolute));
+                            variables.Add(new GameplayVariableModifier
+                            {
+                                VariableType = GameplayVariableType.HitChanceBonus,
+                                Stacking = StatModifierStacking.Additive,
+                                Value = effect.Value
+                            });
                             break;
                         case GalduryteEffectType.MaxHealthPercent:
                             stats.Add(CreateGalduryteStat(CharacterStatType.MaxHealth, effect.Value,

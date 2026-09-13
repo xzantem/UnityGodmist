@@ -77,6 +77,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var result, out var reason), Is.True, reason);
             Assert.That(result.Succeeded, Is.True);
             Assert.That(result.PaidGold, Is.EqualTo(120));
+            Assert.That(npc.GoldBalance, Is.EqualTo(120));
+            Assert.That(npc.TotalGoldReceived, Is.EqualTo(120));
             Assert.That(session.Gold, Is.EqualTo(9880));
             Assert.That(npc.SpentGoldTotal, Is.EqualTo(120));
             Assert.That(equipment.SocketedGaldurytes, Is.Empty);
@@ -93,6 +95,8 @@ namespace Godmist.Tests.EditMode
             var service = new GalduryteExtractionService(new FixedRandom { Value = .99 });
             Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var result, out _), Is.True);
             Assert.That(result.Succeeded, Is.False);
+            Assert.That(npc.GoldBalance, Is.EqualTo(120));
+            Assert.That(npc.TotalGoldReceived, Is.EqualTo(120));
             Assert.That(galduryte.IsDestroyed, Is.True);
             Assert.That(equipment.SocketedGaldurytes.Single(), Is.SameAs(galduryte));
             Assert.That(owner.PassiveEffects.Any(effect => effect.DefinitionId == "equipment.socketed_galduryte"), Is.False);
@@ -178,6 +182,56 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredStone.InstanceId, Is.EqualTo(galduryte.InstanceId));
             Assert.That(restoredStone.Effects.Single().Value, Is.EqualTo(.02f));
             Assert.That(restoredStone.BaseValue, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void Socketing_CreditsNpcTreasuryExactlyOnce()
+        {
+            equipment.SocketedGaldurytes.Clear();
+            equipment.ItemLevel = 12;
+            equipment.CurrentRarity = RarityTier.Common;
+            session.Stash.Items.Add(galduryte);
+            Assert.That(new GalduryteSocketingService().TrySocket(session, npc, equipment, galduryte, out var paid, out var reason), Is.True, reason);
+            Assert.That(paid, Is.EqualTo(50));
+            Assert.That(npc.GoldBalance, Is.EqualTo(paid));
+            Assert.That(npc.TotalGoldReceived, Is.EqualTo(paid));
+            Assert.That(npc.SpentGoldTotal, Is.EqualTo(paid));
+        }
+
+        [Test]
+        public void Socketing_RejectsForeignEquipmentAndCopiedGalduryte()
+        {
+            equipment.SocketedGaldurytes.Clear();
+            equipment.ItemLevel = 12;
+            equipment.CurrentRarity = RarityTier.Common;
+            session.Stash.Items.Add(galduryte);
+            var service = new GalduryteSocketingService();
+            var foreign = new EquipmentItemInstance(equipment.EquipmentDefinition)
+            { ItemLevel = 12, CurrentRarity = RarityTier.Common, UpgradeProgress = 1f };
+            Assert.That(service.TrySocket(session, npc, foreign, galduryte, out _, out _), Is.False);
+            var copy = new GalduryteItemInstance(galduryte.GalduryteDefinition, galduryte.InstanceId)
+            { IsIdentified = true, ItemLevel = 11 };
+            Assert.That(service.TrySocket(session, npc, equipment, copy, out _, out _), Is.False);
+            Assert.That(session.Gold, Is.EqualTo(10000));
+            Assert.That(session.Stash.Items, Does.Contain(galduryte));
+        }
+
+        [Test]
+        public void HitChanceBonus_DoesNotChangeWeaponAccuracy_AndDestroyedStoneStopsBonus()
+        {
+            var owner = MoveToCharacter(true);
+            galduryte.Effects.Clear();
+            var pipeline = new CharacterStatPipelineSystem();
+            pipeline.Refresh(owner);
+            var accuracy = owner.WeaponAccuracy;
+            galduryte.Effects.Add(new GalduryteEffectInstance(GalduryteEffectType.AccuracyPercent,
+                GaldurytePowderColor.Red, GalduryteEffectGrade.D, .02f));
+            pipeline.Refresh(owner);
+            Assert.That(owner.WeaponAccuracy, Is.EqualTo(accuracy));
+            Assert.That(Godmist.Systems.Combat.CombatDamageSystem.ApplyHitChanceBonus(owner, .5f), Is.EqualTo(.52f).Within(.00001));
+            galduryte.IsDestroyed = true;
+            pipeline.Refresh(owner);
+            Assert.That(Godmist.Systems.Combat.CombatDamageSystem.ApplyHitChanceBonus(owner, .5f), Is.EqualTo(.5f));
         }
 
         private CharacterInstance MoveToCharacter(bool equipped)

@@ -174,8 +174,6 @@ namespace Godmist.Data.Configuration
                 Float(GameDefineIds.UpgradeValueRarityBase, "Upgrade: baza wartości rarity", "Bazowa wartość używana do wyceny rarity.", GameDefineCategory.UpgradeReforge, "x", 3f, 0f, 1000f),
                 Float(GameDefineIds.UpgradeValueProgressMultiplier, "Upgrade: mnożnik progressu", "Wpływ postępu na aktualną wartość wyposażenia.", GameDefineCategory.UpgradeReforge, "x", 4f, 0f, 1000f),
                 Float(GameDefineIds.UpgradeValueBaseMultiplier, "Upgrade: mnożnik wartości", "Mnożnik bazowej wartości wyposażenia.", GameDefineCategory.UpgradeReforge, "x", .25f, 0f, 100f),
-                Float(GameDefineIds.UpgradeFailureProgressLossMin, "Upgrade: minimalna strata", "Minimalna strata postępu przy nieudanym upgrade'zie.", GameDefineCategory.UpgradeReforge, "progress", .1f, 0f, 1f),
-                Float(GameDefineIds.UpgradeFailureProgressLossMax, "Upgrade: maksymalna strata", "Maksymalna strata postępu przy nieudanym upgrade'zie.", GameDefineCategory.UpgradeReforge, "progress", .2f, 0f, 1f),
                 Float(GameDefineIds.ReforgeCostMultiplier, "Koszt reforgingu", "Mnożnik aktualnej wartości itemu używany do wyliczenia ceny reforgingu.", GameDefineCategory.UpgradeReforge, "x", .25f, 0f, 100f),
                 Float(GameDefineIds.UpgradeSuccessChanceMax, "Maksymalna szansa upgrade'u", "Maksymalna dozwolona szansa powodzenia upgrade'u.", GameDefineCategory.UpgradeReforge, "%", .99f, 0f, 1f),
                 Float(GameDefineIds.ReforgeTrashIncreaseChance, "Reforge Trash: wzrost", "Szansa podniesienia rarity z Trash.", GameDefineCategory.UpgradeReforge, "%", .90f, 0f, 1f),

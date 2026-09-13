@@ -167,6 +167,7 @@ namespace Godmist.Systems.Combat
                     caster?.Character?.WeaponAccuracy ?? 0f,
                     skill?.SkillAccuracy ?? 0f,
                     dodge);
+                hitChance = CombatDamageSystem.ApplyHitChanceBonus(caster?.Character, hitChance);
             }
 
             return new CombatSkillTargetPreview(
