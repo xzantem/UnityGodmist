@@ -459,6 +459,254 @@ namespace Godmist.Tests.EditMode
             Assert.That(aiUnit.CurrentActionPoints, Is.EqualTo(0));
         }
 
+        [Test]
+        public void Navigation_DetoursAroundEdgeWallAcrossTurnsInitiallyMovingAway()
+        {
+            var session = CreateNavigationSession(5, 4, new GridPosition(1, 1), new GridPosition(3, 1));
+            var unit = session.ActiveUnit;
+            for (var y = 0; y < 3; y++)
+                session.Grid.SetBlockedEdge(new GridPosition(1, y), new GridPosition(2, y));
+            var ai = new SimpleCombatAiSystem();
+            var visited = new List<GridPosition>();
+            for (var turn = 0; turn < 8; turn++)
+            {
+                unit.CurrentActionPoints = 1;
+                unit.MovementStepsThisTurn = 0;
+                var before = unit.Position;
+                if (!ai.TryExecuteNextAction(session, unit, ai.CreateTurnState(), out var action)) break;
+                Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Movement));
+                foreach (var step in action.MovementPath)
+                {
+                    Assert.That(session.Grid.CanMoveBetween(before, step), Is.True);
+                    before = step;
+                    visited.Add(step);
+                }
+                Assert.That(unit.CurrentActionPoints, Is.Zero);
+            }
+            Assert.That(ai.GetManhattanDistance(visited[0], session.Units[1].Position), Is.GreaterThan(2));
+            Assert.That(visited, Does.Contain(new GridPosition(1, 3)));
+            Assert.That(ai.IsAdjacent(unit.Position, session.Units[1].Position), Is.True);
+        }
+
+        [Test]
+        public void Navigation_ClosedDoorIsSeparatePaidInteractionAndThenTraversable()
+        {
+            var session = CreateNavigationSession(6, 1, new GridPosition(0, 0), new GridPosition(5, 0));
+            var unit = session.ActiveUnit;
+            var door = AddNavigationDoor(session, 2, DoorInteractionMode.DirectOnly);
+            var changed = 0;
+            var interaction = new CombatInteractionSystem(onObjectChanged: _ => changed++);
+            var ai = new SimpleCombatAiSystem(interactionSystem: interaction);
+            var state = ai.CreateTurnState();
+
+            Assert.That(ai.TryExecuteNextAction(session, unit, state, out var approach), Is.True);
+            Assert.That(approach.MovementPath, Is.EqualTo(new[] { new GridPosition(1, 0), new GridPosition(2, 0) }));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(7));
+            Assert.That(door.IsOpen, Is.False);
+            Assert.That(ai.TryExecuteNextAction(session, unit, state, out var opening), Is.True);
+            Assert.That(opening.Type, Is.EqualTo(SimpleCombatAiActionType.Interaction));
+            Assert.That(opening.MovementPath, Is.Null);
+            Assert.That(unit.Position, Is.EqualTo(new GridPosition(2, 0)));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(5));
+            Assert.That(changed, Is.EqualTo(1));
+            Assert.That(door.IsOpen, Is.True);
+            Assert.That(session.Grid.CanMoveBetween(new GridPosition(2, 0), new GridPosition(3, 0)), Is.True);
+            Assert.That(ai.TryExecuteNextAction(session, unit, state, out var crossing), Is.True);
+            Assert.That(crossing.MovementPath, Is.EqualTo(new[] { new GridPosition(3, 0) }));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(2));
+            Assert.That(ai.TryExecuteNextAction(session, unit, state, out _), Is.False);
+            Assert.That(door.IsOpen, Is.True);
+        }
+
+        [Test]
+        public void Navigation_TargetImmediatelyBehindDoorOpensWithoutEnteringOccupiedCell()
+        {
+            var session = CreateNavigationSession(2, 1, new GridPosition(0, 0), new GridPosition(1, 0));
+            var door = AddNavigationDoor(session, 0, DoorInteractionMode.DirectOnly);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, session.ActiveUnit, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Interaction));
+            Assert.That(door.IsOpen, Is.True);
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+            Assert.That(ai.TryExecuteNextAction(session, session.ActiveUnit, ai.CreateTurnState(), out _), Is.False);
+        }
+
+        [Test]
+        public void Navigation_CannotAffordDoorEndsTurnWithoutTogglingOrSpending()
+        {
+            var session = CreateNavigationSession(3, 1, new GridPosition(0, 0), new GridPosition(2, 0));
+            var door = AddNavigationDoor(session, 0, DoorInteractionMode.DirectOnly);
+            session.ActiveUnit.CurrentActionPoints = 1;
+            var ended = 0;
+            var ai = new SimpleCombatAiSystem(endTurn: _ => ended++);
+            ai.ExecuteSimpleAiTurn(session, session.ActiveUnit);
+            Assert.That(ended, Is.EqualTo(1));
+            Assert.That(door.IsOpen, Is.False);
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(1));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Navigation_LeverOnlyDoorRequiresExternalOpening(bool open)
+        {
+            var session = CreateNavigationSession(4, 1, new GridPosition(0, 0), new GridPosition(3, 0));
+            var door = AddNavigationDoor(session, 1, DoorInteractionMode.LeverOnly, open);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.EqualTo(open));
+            Assert.That(door.IsOpen, Is.EqualTo(open));
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(open ? 2 : 0, 0)));
+        }
+
+        [Test]
+        public void Navigation_ReplansAfterOccupancyAndDoorChanges()
+        {
+            var session = CreateNavigationSession(5, 1, new GridPosition(0, 0), new GridPosition(4, 0));
+            var blocker = CreateAiCombatUnit("blocker", false, new GridPosition(2, 0));
+            session.Units.Add(blocker);
+            var door = AddNavigationDoor(session, 2, DoorInteractionMode.LeverOnly);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
+            session.Units.Remove(blocker);
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
+            door.IsOpen = true;
+            new CombatInteractionSystem().InitializeMapObjects(session);
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.True);
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(3, 0)));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void Navigation_ReplansAfterObstacleRemoval()
+        {
+            var session = CreateNavigationSession(4, 1, new GridPosition(0, 0), new GridPosition(3, 0));
+            session.Grid.SetBlocked(new GridPosition(1, 0), true);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
+            session.Grid.SetBlocked(new GridPosition(1, 0), false);
+            Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.True);
+        }
+
+        [Test]
+        public void Navigation_AdjacentTargetAcrossWallRequiresRealDetour()
+        {
+            var session = CreateNavigationSession(3, 2, new GridPosition(0, 0), new GridPosition(1, 0));
+            session.Grid.SetBlockedEdge(new GridPosition(0, 0), new GridPosition(1, 0));
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, session.ActiveUnit, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.MovementPath, Is.EqualTo(new[] { new GridPosition(0, 1), new GridPosition(1, 1) }));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void Navigation_UnreachableTargetEndsTurnWithoutFutileMovement()
+        {
+            var session = CreateNavigationSession(4, 1, new GridPosition(0, 0), new GridPosition(3, 0));
+            session.Grid.SetBlockedEdge(new GridPosition(1, 0), new GridPosition(2, 0));
+            var ended = 0;
+            new SimpleCombatAiSystem(endTurn: _ => ended++).ExecuteSimpleAiTurn(session, session.ActiveUnit);
+            Assert.That(ended, Is.EqualTo(1));
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void Navigation_EnemyCannotUseRoomExitAsDetour()
+        {
+            var session = CreateNavigationSession(3, 2, new GridPosition(0, 0), new GridPosition(2, 0));
+            session.IsSeamless = true;
+            session.Grid = new BattleGrid(3, 2, nextUsesExplicitWalkablePositions: true);
+            for (var x = 0; x < 3; x++) session.Grid.SetWalkable(new GridPosition(x, 0));
+            session.Grid.SetBlocked(new GridPosition(1, 0), true);
+            session.OpenExitEdges.Add(new BattleCellEdge(new GridPosition(0, 0), new GridPosition(0, 1)));
+            Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(
+                session, session.ActiveUnit, session.Units[1]), Is.False);
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+        }
+
+        [Test]
+        public void Navigation_RespectsMovementStepsAlreadySpent()
+        {
+            var session = CreateNavigationSession(4, 1, new GridPosition(0, 0), new GridPosition(3, 0));
+            session.ActiveUnit.MovementStepsThisTurn = 2;
+            session.ActiveUnit.CurrentActionPoints = 2;
+            Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(
+                session, session.ActiveUnit, session.Units[1]), Is.False);
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(2));
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+        }
+
+        [Test]
+        public void Navigation_RangedRoleDetoursWhenTargetIsInRangeButBehindWall()
+        {
+            var session = CreateNavigationSession(4, 2, new GridPosition(0, 0), new GridPosition(2, 0));
+            var unit = session.ActiveUnit;
+            SetAutoProperty(unit.Character.Definition, "AiRole", CombatAiRole.Dps);
+            var skill = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            ConfigureTargetMode(skill, TargetingType.Enemies, 3);
+            unit.Character.Skills.Add(skill);
+            var wall = new BattleCellEdge(new GridPosition(1, 0), new GridPosition(2, 0));
+            session.Grid.SetBlockedEdge(wall.FirstCell, wall.SecondCell);
+            // Grid edges describe movement; the dungeon supplies physical sight blockers separately.
+            session.EnvironmentBlocksLineOfSight = (from, to) => CombatLineOfSightService.CrossesEdge(from, to, wall);
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(session, unit.Position, session.Units[1].Position), Is.False);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, unit, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.MovementPath, Does.Contain(new GridPosition(1, 1)));
+            Assert.That(new CombatLineOfSightService().HasLineOfSight(session, unit.Position, session.Units[1].Position), Is.True);
+        }
+
+        [Test]
+        public void Navigation_RangedRetreatSkipsWallAndUsesLegalAlternative()
+        {
+            var session = CreateNavigationSession(4, 3, new GridPosition(1, 1), new GridPosition(0, 1));
+            var unit = session.ActiveUnit;
+            SetAutoProperty(unit.Character.Definition, "AiRole", CombatAiRole.Dps);
+            var skill = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            ConfigureTargetMode(skill, TargetingType.Enemies, 3);
+            unit.Character.Skills.Add(skill);
+            session.Grid.SetBlockedEdge(new GridPosition(1, 1), new GridPosition(2, 1));
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, unit, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.MovementPath, Is.EqualTo(new[] { new GridPosition(1, 2) }));
+        }
+
+        [Test]
+        public void Navigation_PartialMovementPublishesOneAggregatedApEvent()
+        {
+            var session = CreateNavigationSession(7, 1, new GridPosition(0, 0), new GridPosition(6, 0));
+            session.ActiveUnit.CurrentActionPoints = 3;
+            var bus = new CombatFeedbackBus();
+            var events = new List<CombatFeedbackEvent>();
+            bus.Published += events.Add;
+            var ai = new SimpleCombatAiSystem(movementSystem: new CombatMovementSystem(feedbackBus: bus));
+            Assert.That(ai.TryExecuteNextAction(session, session.ActiveUnit, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.MovementPath.Count, Is.EqualTo(2));
+            Assert.That(events.Count, Is.EqualTo(1));
+            Assert.That(events[0].Type, Is.EqualTo(CombatFeedbackType.ActionPointSpend));
+            Assert.That(events[0].Amount, Is.EqualTo(3));
+        }
+
+        private CombatSession CreateNavigationSession(int width, int height, GridPosition start, GridPosition target)
+        {
+            var unit = CreateAiCombatUnit("ai", false, start);
+            return new CombatSession
+            {
+                Outcome = CombatOutcomeState.Ongoing,
+                Grid = new BattleGrid(width, height),
+                ActiveUnit = unit,
+                Units = new List<BattleUnit> { unit, CreateAiCombatUnit("target", true, target) }
+            };
+        }
+
+        private static DoorCombatMapObject AddNavigationDoor(
+            CombatSession session, int x, DoorInteractionMode mode, bool open = false)
+        {
+            var door = new DoorCombatMapObject("door", new GridPosition(x, 0), new GridPosition(x + 1, 0), mode, open);
+            session.MapObjects.Add(door);
+            new CombatInteractionSystem().InitializeMapObjects(session);
+            return door;
+        }
+
         private float CalculateScore(
             BattleUnit caster,
             SkillData skill,

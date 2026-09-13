@@ -241,7 +241,8 @@ namespace Godmist.Views.Combat
                 endTurn: session => turnSystem.EndActiveTurn(session), 
                 evaluateOutcome: session => outcomeSystem.EvaluateCombatOutcome(session),
                 skillExecutionSystem: skillExecutionSystem, targetingService: targetingService,
-                movementSystem: movementSystem, lineOfSightService: lineOfSightService);
+                movementSystem: movementSystem, lineOfSightService: lineOfSightService,
+                interactionSystem: interactionSystem);
             if (!Session.IsSeamless) battleLog?.ClearLog();
             AddBattleLog("Walka rozpoczęta.");
 

@@ -14,7 +14,8 @@ namespace Godmist.Systems.Combat
     public enum SimpleCombatAiActionType
     {
         Movement,
-        Skill
+        Skill,
+        Interaction
     }
 
     public readonly struct SimpleCombatAiAction
@@ -49,6 +50,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatTargetingService targetingService;
         private readonly CombatMovementSystem movementSystem;
         private readonly CombatLineOfSightService lineOfSightService;
+        private readonly CombatInteractionSystem interactionSystem;
         private static readonly Vector2Int[] MovementDirections =
         {
             new(1, 0),
@@ -64,7 +66,8 @@ namespace Godmist.Systems.Combat
             SkillExecutionSystem skillExecutionSystem = null,
             CombatTargetingService targetingService = null,
             CombatMovementSystem movementSystem = null,
-            CombatLineOfSightService lineOfSightService = null)
+            CombatLineOfSightService lineOfSightService = null,
+            CombatInteractionSystem interactionSystem = null)
         {
             this.battleLog = battleLog;
             this.endTurn = endTurn;
@@ -73,6 +76,7 @@ namespace Godmist.Systems.Combat
             this.targetingService = targetingService ?? new CombatTargetingService();
             this.movementSystem = movementSystem ?? new CombatMovementSystem(battleLog);
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
+            this.interactionSystem = interactionSystem ?? new CombatInteractionSystem(battleLog);
         }
 
         public void ExecuteSimpleAiTurn(CombatSession session, BattleUnit aiUnit)
@@ -143,7 +147,7 @@ namespace Godmist.Systems.Combat
             }
 
             action = new SimpleCombatAiAction(
-                SimpleCombatAiActionType.Movement,
+                movementPath == null ? SimpleCombatAiActionType.Interaction : SimpleCombatAiActionType.Movement,
                 movementPath: movementPath);
             return true;
         }
@@ -566,7 +570,8 @@ namespace Godmist.Systems.Combat
 
             if (personality != CombatAiPersonality.Aggressive
                 && isSquishyRangedRole && desiredRange > 1
-                && distance <= desiredRange)
+                && distance <= desiredRange
+                && lineOfSightService.HasLineOfSight(session, aiUnit.Position, target.Position))
             {
                 return distance < desiredRange
                     && TryMoveAiAwayFromTarget(
@@ -630,6 +635,7 @@ namespace Godmist.Systems.Combat
                 if (candidateDistance <= bestDistance || candidateDistance > desiredRange
                     || session?.Grid == null || !session.Grid.IsWithinBounds(candidate)
                     || session.Grid.IsBlocked(candidate)
+                    || !session.CanMoveBetween(aiUnit, aiUnit.Position, candidate)
                     || session.IsPositionOccupied(candidate, aiUnit)
                     || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate)))
                 {
@@ -816,136 +822,105 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (GetManhattanDistance(aiUnit.Position, target.Position) <= 1)
+            if (!TryFindPathToTarget(session, aiUnit, target, out var path)
+                || path.Count == 0) return false;
+
+            // Opening is a separate action so the existing driver presents/synchronizes it
+            // before movement. Never toggle an already-open door.
+            var firstDoor = FindClosedDirectDoor(session, aiUnit.Position, path[0]);
+            if (firstDoor != null)
+                return interactionSystem.TryInteract(session, aiUnit, path[0]);
+
+            var movementSegment = new List<GridPosition>();
+            var previous = aiUnit.Position;
+            foreach (var next in path)
             {
-                return false;
+                if (FindClosedDirectDoor(session, previous, next) != null) break;
+                movementSegment.Add(next);
+                previous = next;
             }
 
-            if (!TryFindPathToTarget(
-                    session,
-                    aiUnit,
-                    target,
-                    out var path))
-            {
-                return false;
-            }
-
-            if (!movementSystem.TryMoveAlongPath(
-                session,
-                aiUnit,
-                path))
-            {
-                return false;
-            }
-
-            movementPath = path;
+            // The movement owner applies real costs/statuses and may stop before the planned
+            // endpoint. Present only the completed prefix, retaining its aggregated feedback.
+            movementSystem.TryMoveAlongPath(session, aiUnit, movementSegment, out var completedPath);
+            if (completedPath.Count == 0) return false;
+            movementPath = completedPath;
             return true;
         }
 
         private bool TryFindPathToTarget(
-            CombatSession session,
-            BattleUnit aiUnit,
-            BattleUnit target,
+            CombatSession session, BattleUnit aiUnit, BattleUnit target,
             out List<GridPosition> path)
         {
             path = null;
-
-            if (session?.Grid == null
-                || aiUnit?.Character == null
-                || target?.Character == null
+            if (session?.Grid == null || aiUnit?.Character == null || target?.Character == null
                 || aiUnit.Character.LifeState != CharacterLifeState.Alive
-                || target.Character.LifeState != CharacterLifeState.Alive)
-            {
-                return false;
-            }
-            var start = aiUnit.Position; 
+                || target.Character.LifeState != CharacterLifeState.Alive) return false;
+
+            var start = aiUnit.Position;
             var queue = new Queue<GridPosition>();
-            var visited = new HashSet<GridPosition>();
-            var previous = new Dictionary<
-                GridPosition,
-                GridPosition>();
-
+            var visited = new HashSet<GridPosition> { start };
+            var previous = new Dictionary<GridPosition, GridPosition>();
             queue.Enqueue(start);
-            visited.Add(start);
 
-            GridPosition goal = default;
-            var foundGoal = false;
-            var bestReachablePosition = start;
-            var bestReachableDistance = GetManhattanDistance(
-                start,
-                target.Position);
-
+            // Search the complete arena, independent of this turn's AP. Rebuild for each
+            // action: occupancy, doors and obstacles may have changed since the last step.
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
-                if (current != start
-                    && IsAdjacent(current, target.Position))
+                if (IsAdjacent(current, target.Position)
+                    && CanPlanAcross(session, aiUnit, current, target.Position))
                 {
-                    goal = current;
-                    foundGoal = true;
-                    break;
-                }
-
-                if (current != start)
-                {
-                    var currentDistance = GetManhattanDistance(
-                        current,
-                        target.Position);
-                    if (currentDistance < bestReachableDistance)
-                    {
-                        bestReachablePosition = current;
-                        bestReachableDistance = currentDistance;
-                    }
+                    path = BuildPath(previous, start, current);
+                    // The target may stand immediately behind a closed door. Include its
+                    // cell only as an interaction endpoint; movement still rejects occupancy.
+                    if (FindClosedDirectDoor(session, current, target.Position) != null)
+                        path.Add(target.Position);
+                    return true;
                 }
 
                 foreach (var direction in MovementDirections)
                 {
-                    var candidate = new GridPosition(
-                        current.X + direction.x,
-                        current.Y + direction.y);
-
-                    if (visited.Contains(candidate))
-                    {
-                        continue;
-                    }
-                    if (!session.Grid.IsWithinBounds(candidate))
-                    {
-                        continue;
-                    }
-                    if (session.Grid.IsBlocked(candidate))
-                    {
-                        continue;
-                    }
-                    if (session.IsPositionOccupied(candidate, aiUnit))
-                    {
-                        continue;
-                    }
-
-                    var nextPathLength = BuildPath(previous, start, current).Count + 1;
-                    if (CombatMovementSystem.CalculatePathCost(
-                            aiUnit,
-                            nextPathLength)
-                        > aiUnit.CurrentActionPoints)
-                    {
-                        continue;
-                    }
-
+                    var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
+                    if (visited.Contains(candidate)
+                        || session.IsPositionOccupied(candidate, aiUnit)
+                        || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))
+                        || !CanPlanAcross(session, aiUnit, current, candidate)) continue;
                     visited.Add(candidate);
                     previous[candidate] = current;
                     queue.Enqueue(candidate);
                 }
             }
-            if (!foundGoal)
-            {
-                goal = bestReachablePosition;
-                if (goal == start)
-                {
-                    return false;
-                }
-            }
 
-            path = BuildPath(previous, start, goal);
-            return true;
+            return false;
+        }
+
+        private static bool CanPlanAcross(
+            CombatSession session, BattleUnit unit, GridPosition from, GridPosition to)
+        {
+            // AI navigation never expands into an exit cell, including AI-controlled allies.
+            if (!session.Grid.IsWalkable(to) || session.Grid.IsBlocked(to)
+                || session.ExternalPositionOccupied?.Invoke(to) == true) return false;
+            if (session.CanMoveBetween(unit, from, to)) return true;
+            return FindClosedDirectDoor(session, from, to) != null;
+        }
+
+        private static DoorCombatMapObject FindClosedDirectDoor(
+            CombatSession session, GridPosition from, GridPosition to)
+        {
+            var edge = new BattleCellEdge(from, to);
+            // A door must not turn a solid dungeon wall into a planned passage.
+            if (session.DungeonContext != null)
+                foreach (var wall in session.DungeonContext.WallEdges)
+                    if (new BattleCellEdge(
+                            DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.FirstCell),
+                            DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.SecondCell))
+                        .Equals(edge)) return null;
+
+            foreach (var mapObject in session.MapObjects)
+                if (mapObject is DoorCombatMapObject door && !door.IsOpen
+                    && door.CanInteract() && door.Edge.Equals(edge)) return door;
+            return null;
         }
 
         private static List<GridPosition> BuildPath(

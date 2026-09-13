@@ -119,7 +119,8 @@ namespace Godmist.Runtime.Combat
 
         public bool DoesObjectBlockMovement(CombatMapObject mapObject)
         {
-            if (mapObject == null || !mapObject.BlocksMovement)
+            // Doors block their edge, never the floor cell used as their object position.
+            if (mapObject == null || mapObject is DoorCombatMapObject || !mapObject.BlocksMovement)
             {
                 return false;
             }

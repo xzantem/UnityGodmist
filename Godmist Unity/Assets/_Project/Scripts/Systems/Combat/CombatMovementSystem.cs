@@ -216,6 +216,16 @@ namespace Godmist.Systems.Combat
             BattleUnit unit, 
             IReadOnlyList<GridPosition> path)
         {
+            return TryMoveAlongPath(session, unit, path, out _);
+        }
+
+        public bool TryMoveAlongPath(
+            CombatSession session,
+            BattleUnit unit,
+            IReadOnlyList<GridPosition> path,
+            out List<GridPosition> completedPath)
+        {
+            completedPath = new List<GridPosition>();
             if (session?.Grid == null
                 || unit?.Character == null
                 || path == null
@@ -246,6 +256,7 @@ namespace Godmist.Systems.Combat
                     break;
                 }
 
+                completedPath.Add(targetPosition);
                 totalMovementCost += movementCost;
             }
 
@@ -264,7 +275,7 @@ namespace Godmist.Systems.Combat
                             source: unit,
                             movementCost: totalMovementCost,
                             movementSteps: unit.MovementStepsThisTurn,
-                            distance: path.Count,
+                            distance: completedPath.Count,
                             eventValue: totalMovementCost));
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
