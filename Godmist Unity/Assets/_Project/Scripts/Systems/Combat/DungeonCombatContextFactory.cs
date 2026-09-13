@@ -53,7 +53,7 @@ namespace Godmist.Systems.Combat
                 combatCells,
                 wallEdges,
                 mapObjects,
-                dungeon.DungeonLevel, floor.Map.WallTypes);
+                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells);
 
             return true;
         }

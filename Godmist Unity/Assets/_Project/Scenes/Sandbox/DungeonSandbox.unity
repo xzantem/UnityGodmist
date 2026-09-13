@@ -10340,10 +10340,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab3977374081397459b4cd9e1d3a5cca, type: 3}
+  difficultTerrainTile: {fileID: 11400000, guid: 1d552b5a72dfe6a4d8e28888b3bf1d33, type: 2}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonFloorMapView
   floorTilemap: {fileID: 1441778419}
   floorTile: {fileID: 11400000, guid: 296f61084efe49de831c2f26a8842ec0, type: 2}
+  difficultTerrainColor: {r: 0.9, g: 0.85, b: 0.75, a: 1}
   wallSegmentPrefab: {fileID: 5195768252353925608, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
   wallsRoot: {fileID: 1850466267}
   lowWallPrefab: {fileID: 3527243450726320141, guid: 07766f787ead0db48bc5adadf425aaa6, type: 3}
@@ -16952,14 +16954,20 @@ MonoBehaviour:
   feedbackRoot: {fileID: 355209553}
   feedbackSortingLayer: Default
   feedbackSortingOrder: 1
+  pathSortingOrder: 7
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
-  edgeThickness: 0.045
+  edgeThickness: 0.025
   pathSegmentLength: 1
-  pathSegmentThickness: 0.065
+  pathSegmentThickness: 0.035
   feedbackZ: -0.2
   costLabelOffset: {x: 0, y: 0.22}
   pathCostWorldScale: 0.12
+  innerGridAlpha: 0.18
+  innerGridThickness: 0.012
+  haloAlpha: 0.12
+  haloWidthMultiplier: 3
+  destinationFillAlpha: 0.1
 --- !u!4 &355209553
 Transform:
   m_ObjectHideFlags: 0
@@ -20588,6 +20596,10 @@ MonoBehaviour:
   movementPreviewColor: {r: 1, g: 0.84, b: 0.38, a: 1}
   inspectedMovementRangeColor: {r: 0.85, g: 0.3, b: 1, a: 0.85}
   trapPreviewColor: {r: 1, g: 0.2, b: 0.1, a: 0.85}
+  surchargeGradientEndColor: {r: 0.65, g: 0.27, b: 0.09, a: 1}
+  surchargeGradientMaximum: 3
+  movementFillAlpha: 0.025
+  difficultTerrainFillAlpha: 0.1
 --- !u!4 &1028127581
 Transform:
   m_ObjectHideFlags: 0

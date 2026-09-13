@@ -160,11 +160,8 @@ namespace Godmist.Systems.Combat
             }
 
             var queue = new Queue<(GridPosition position, List<GridPosition> path)>();
-            var labels = new Dictionary<GridPosition, List<(int steps, int cost)>>
-            {
-                [unit.Position] = new() { (0, 0) }
-            };
-            var bestCosts = new Dictionary<GridPosition, int>();
+            var labels = new Dictionary<(GridPosition cell, string traps, GridPosition direction), List<(int steps, int cost, float risk, int turns)>>();
+            var best = new Dictionary<GridPosition, (float risk, int cost, int turns)>();
             queue.Enqueue((unit.Position, new List<GridPosition>()));
             while (queue.Count > 0)
             {
@@ -172,22 +169,26 @@ namespace Godmist.Systems.Combat
                 foreach (var direction in MovementDirections)
                 {
                     var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
-                    if (!session.CanMoveBetween(unit, current, candidate)
+                    if (candidate == unit.Position || currentPath.Contains(candidate)
+                        || !session.CanMoveBetween(unit, current, candidate)
                         || session.IsPositionOccupied(candidate, unit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
                     var nextPath = new List<GridPosition>(currentPath) { candidate };
                     var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath);
                     if (cost > availableActionPoints) continue;
-                    if (!labels.TryGetValue(candidate, out var candidates))
-                        labels[candidate] = candidates = new List<(int steps, int cost)>();
-                    // A cheaper but longer route and a shorter costly route can both matter,
-                    // because the ordinary step cost increases throughout the turn.
-                    if (candidates.Exists(label => label.steps <= nextPath.Count && label.cost <= cost)) continue;
-                    candidates.RemoveAll(label => label.steps >= nextPath.Count && label.cost >= cost);
-                    candidates.Add((nextPath.Count, cost));
-                    if (!bestCosts.TryGetValue(candidate, out var best) || cost < best)
+                    var risk = session.EvaluateTrapRisk?.Invoke(unit, nextPath) ?? 0f;
+                    var turns = CountPathTurns(unit.Position, nextPath);
+                    var key = (candidate, session.TrapRouteState?.Invoke(nextPath) ?? "", new GridPosition(direction.x, direction.y));
+                    if (!labels.TryGetValue(key, out var candidates)) labels[key] = candidates = new();
+                    if (candidates.Exists(label => label.steps <= nextPath.Count && label.cost <= cost
+                        && label.risk <= risk && label.turns <= turns)) continue;
+                    candidates.RemoveAll(label => label.steps >= nextPath.Count && label.cost >= cost
+                        && label.risk >= risk && label.turns >= turns);
+                    candidates.Add((nextPath.Count, cost, risk, turns));
+                    if (!best.TryGetValue(candidate, out var old) || risk < old.risk
+                        || risk == old.risk && (cost < old.cost || cost == old.cost && turns < old.turns))
                     {
-                        bestCosts[candidate] = cost;
+                        best[candidate] = (risk, cost, turns);
                         reachablePaths[candidate] = nextPath;
                     }
                     if (!session.IsExitPosition(candidate)) queue.Enqueue((candidate, nextPath));
@@ -203,6 +204,19 @@ namespace Godmist.Systems.Combat
             IReadOnlyList<GridPosition> path)
         {
             return TryMoveAlongPath(session, unit, path, out _);
+        }
+
+        public static int CountPathTurns(GridPosition origin, IReadOnlyList<GridPosition> path)
+        {
+            int turns = 0;
+            var previousDirection = new GridPosition(0, 0);
+            for (int i = 0; i < path.Count; i++)
+            {
+                var direction = new GridPosition(path[i].X - origin.X, path[i].Y - origin.Y);
+                if (i > 0 && direction != previousDirection) turns++;
+                previousDirection = direction; origin = path[i];
+            }
+            return turns;
         }
 
         public bool TryMoveAlongPath(
@@ -314,7 +328,7 @@ namespace Godmist.Systems.Combat
             {
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
-                    "nie może się ruszyć przez status kontroli.");
+                    "nie moÅ¼e siÄ™ ruszyÄ‡ przez status kontroli.");
 
                 return false;
             }

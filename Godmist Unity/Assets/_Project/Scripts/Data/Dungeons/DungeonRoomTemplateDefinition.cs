@@ -54,6 +54,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<DungeonSemanticAnchorData> SemanticAnchors { get; private set; } = new();
 
+        [field: SerializeField] public List<Vector2Int> DifficultTerrainCells { get; private set; } = new();
+
         private void OnValidate()
         {
             SizeInCells = new Vector2Int(

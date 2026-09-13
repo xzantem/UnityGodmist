@@ -36,6 +36,9 @@ namespace Godmist.Systems.Combat
                     ToBattlePosition(context, worldCell));
             }
 
+            foreach (var cell in context.DifficultTerrainCells)
+                if (context.ContainsWorldCell(cell)) grid.SetDifficultTerrain(ToBattlePosition(context, cell));
+
             foreach (var wallEdge in context.WallEdges)
             {
                 var firstCell = ToBattlePosition(

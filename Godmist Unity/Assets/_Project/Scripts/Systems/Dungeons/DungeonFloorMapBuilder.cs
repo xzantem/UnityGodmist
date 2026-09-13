@@ -206,6 +206,10 @@ namespace Godmist.Systems.Dungeons
                         $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
                 }
 
+                foreach (var localCell in template.DifficultTerrainCells)
+                    map.SetDifficultTerrain(room.LayoutPosition + DungeonRoomTransformUtility.TransformCell(
+                        localCell, template.SizeInCells, room.RotationDegrees));
+
                 foreach (var anchor in template.StructuralAnchors)
                 {
                     if (anchor == null

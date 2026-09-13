@@ -10,6 +10,7 @@ namespace Godmist.Views.Dungeons
     {
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private TileBase floorTile;
+        [SerializeField] private TileBase difficultTerrainTile;
         [SerializeField] private DungeonWallSegmentView wallSegmentPrefab;
         [SerializeField] private Transform wallsRoot;
         [SerializeField] private DungeonWallSegmentView lowWallPrefab;
@@ -20,6 +21,8 @@ namespace Godmist.Views.Dungeons
         private DungeonFloorMap boundMap;
         private Bounds worldBounds;
         private bool hasWorldBounds;
+
+        [SerializeField] private Color difficultTerrainColor = new(.55f, .43f, .3f, 1f);
 
         public void Rebuild(DungeonFloorMap map)
         {
@@ -57,7 +60,10 @@ namespace Godmist.Views.Dungeons
             {
                 floorTilemap.SetTile(
                     new Vector3Int(cell.x, cell.y, 0),
-                    floorTile);
+                    map.IsDifficultTerrain(cell) && difficultTerrainTile != null ? difficultTerrainTile : floorTile);
+                var tileCell = new Vector3Int(cell.x, cell.y, 0);
+                floorTilemap.SetTileFlags(tileCell, TileFlags.None);
+                floorTilemap.SetColor(tileCell, map.IsDifficultTerrain(cell) ? difficultTerrainColor : Color.white);
             }
 
             foreach (var wallEdge in map.WallEdges)

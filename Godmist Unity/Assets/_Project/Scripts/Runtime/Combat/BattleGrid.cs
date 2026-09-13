@@ -15,8 +15,13 @@ namespace Godmist.Runtime.Combat
         private readonly Dictionary<BattleCellEdge, DungeonWallType> wallTypes = new();
         public void SetWallEdge(GridPosition from, GridPosition to, DungeonWallType type)
             => wallTypes[new BattleCellEdge(from, to)] = type;
+        private readonly HashSet<GridPosition> difficultTerrain = new();
+        public void SetDifficultTerrain(GridPosition cell) => difficultTerrain.Add(cell);
+        public bool IsDifficultTerrain(GridPosition cell) => difficultTerrain.Contains(cell);
+        public int GetTerrainMovementSurcharge(GridPosition cell) => IsDifficultTerrain(cell) ? 1 : 0;
         public int GetMovementSurcharge(GridPosition from, GridPosition to)
-            => wallTypes.TryGetValue(new BattleCellEdge(from, to), out var type) && type == DungeonWallType.Low ? 2 : 0;
+            => (wallTypes.TryGetValue(new BattleCellEdge(from, to), out var type) && type == DungeonWallType.Low ? 2 : 0)
+                + GetTerrainMovementSurcharge(to);
         public bool CanDisplaceBetween(GridPosition from, GridPosition to)
             => CanMoveBetween(from, to) && !wallTypes.ContainsKey(new BattleCellEdge(from, to));
 

@@ -66,6 +66,12 @@ namespace Godmist.Views.Dungeons
             unitViews.ConfigureDungeon(game, map);
             unitViews.ExplorationWorldPosition = ResolveExplorationFeedbackPosition;
             combatHost.BindDungeonFeedback();
+            foreach (var view in party.ActiveMemberViews.Concat(encounters.Triggers.SelectMany(trigger => trigger.EnemyViews)))
+            {
+                view.ConfigureTerrain(floor.Map, map);
+                view.CanCrossTo = cell => !floor.Objects.OfType<ObstacleDungeonObjectInstance>()
+                    .Any(obstacle => obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell);
+            }
             party.SetCombatCoordinator(this);
             foreach (var trigger in encounters.Triggers) trigger.SetCombatCoordinator(this);
             combatHost.CombatMapObjectChanged += HandleMapObjectChanged;
@@ -82,7 +88,8 @@ namespace Godmist.Views.Dungeons
 
         public bool TryStartEncounter(EncounterTriggerView trigger)
         {
-            if (!initialized || trigger == null || IsRoomFighting(trigger.Encounter.RoomId)
+            if (!initialized || trigger == null || party.ActiveMemberViews.Any(view => view.IsCrossingLowWall)
+                || trigger.EnemyViews.Any(view => view.IsCrossingLowWall) || IsRoomFighting(trigger.Encounter.RoomId)
                 || !contextFactory.TryCreate(game.ActiveDungeon, trigger.Encounter, out var context)) return false;
             var playerCells = party.ActiveMemberViews.ToDictionary(view => view.CharacterId, view => map.WorldToCell(view.transform.position));
             var enemyCells = trigger.EnemyViews.ToDictionary(view => view.EnemyInstanceId, view => map.WorldToCell(view.transform.position));
@@ -260,7 +267,7 @@ namespace Godmist.Views.Dungeons
                 .Where(cell => session.Grid.IsWalkable(cell) && !session.Grid.IsBlocked(cell)));
             foreach (var view in party.ActiveMemberViews)
             {
-                if (view.CombatUnit != null || game.GetCombatForCharacter(view.CharacterId) != null
+                if (view.IsCrossingLowWall || view.CombatUnit != null || game.GetCombatForCharacter(view.CharacterId) != null
                     || !game.CharactersById.TryGetValue(view.CharacterId, out var character)
                     || character.LifeState != CharacterLifeState.Alive) continue;
                 var cell = map.WorldToCell(view.transform.position);

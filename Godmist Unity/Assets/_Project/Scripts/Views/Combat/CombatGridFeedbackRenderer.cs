@@ -13,7 +13,8 @@ namespace Godmist.Views.Combat
         SkillTarget,
         RelativeRange,
         AffectedArea,
-        MovementPreview
+        MovementPreview,
+        ActiveMovementUnit
     }
 
     public class CombatGridFeedbackRenderer : MonoBehaviour
@@ -29,6 +30,7 @@ namespace Godmist.Views.Combat
         [SerializeField] private Transform feedbackRoot;
         [SerializeField] private string feedbackSortingLayer = "Default";
         [SerializeField] private int feedbackSortingOrder = -1;
+        [SerializeField] private int pathSortingOrder = 1;
 
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
@@ -39,6 +41,12 @@ namespace Godmist.Views.Combat
         [SerializeField] private float feedbackZ = -.2f;
         [SerializeField] private Vector2 costLabelOffset = new(0f, .22f);
         [SerializeField, Min(0.001f)] private float pathCostWorldScale = .12f;
+
+        [SerializeField, Range(0f, 1f)] private float innerGridAlpha = .18f;
+        [SerializeField, Min(.001f)] private float innerGridThickness = .012f;
+        [SerializeField, Range(0f, 1f)] private float haloAlpha = .12f;
+        [SerializeField, Min(1f)] private float haloWidthMultiplier = 3f;
+        [SerializeField, Range(0f, 1f)] private float destinationFillAlpha = .1f;
 
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> outlines = new();
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> fills = new();
@@ -54,27 +62,58 @@ namespace Godmist.Views.Combat
         public void ShowOutline(
             CombatGridFeedbackLayer layer,
             IEnumerable<GridPosition> positions,
-            Color color)
+            Color color, System.Func<GridPosition, Color> cellColor = null)
         {
             ClearOutline(layer);
             if (feedbackSprite == null) return;
 
+            var cells = new HashSet<GridPosition>(positions);
             var renderers = new List<SpriteRenderer>();
-            foreach (var edge in CombatGridFeedbackGeometry.BuildOutlineEdges(positions))
+            foreach (var edge in CombatGridFeedbackGeometry.BuildOutlineEdges(cells))
             {
                 var renderer = CreateSpriteRenderer("Combat feedback edge");
-                renderer.color = color;
+                renderer.color = cellColor?.Invoke(edge.Cell) ?? color;
                 ConfigureEdge(renderer.transform, renderer.sprite, edge);
+                if (layer == CombatGridFeedbackLayer.MovementPreview || layer == CombatGridFeedbackLayer.ActiveMovementUnit)
+                    renderer.sortingOrder = pathSortingOrder;
                 renderers.Add(renderer);
+                var halo = CreateSpriteRenderer("Combat boundary halo");
+                halo.sortingOrder = renderer.sortingOrder;
+                halo.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, renderer.color.a * haloAlpha);
+                ConfigureEdge(halo.transform, halo.sprite, edge);
+                var scale = halo.transform.localScale;
+                if (edge.Direction == CombatGridEdgeDirection.Top || edge.Direction == CombatGridEdgeDirection.Bottom) scale.y *= haloWidthMultiplier;
+                else scale.x *= haloWidthMultiplier;
+                halo.transform.localScale = scale;
+                renderers.Add(halo);
             }
-
+            if (layer == CombatGridFeedbackLayer.MovementRange || layer == CombatGridFeedbackLayer.InspectedMovementRange)
+            {
+                foreach (var cell in cells)
+                {
+                    if (cells.Contains(new GridPosition(cell.X + 1, cell.Y))) AddInnerEdge(cell, CombatGridEdgeDirection.Right);
+                    if (cells.Contains(new GridPosition(cell.X, cell.Y + 1))) AddInnerEdge(cell, CombatGridEdgeDirection.Top);
+                }
+            }
+            void AddInnerEdge(GridPosition cell, CombatGridEdgeDirection direction)
+            {
+                var line = CreateSpriteRenderer("Combat individual cell edge");
+                var tint = cellColor?.Invoke(cell) ?? color;
+                line.color = new Color(tint.r, tint.g, tint.b, innerGridAlpha);
+                ConfigureEdge(line.transform, line.sprite, new CombatGridOutlineEdge(cell, direction));
+                var scale = line.transform.localScale;
+                if (direction == CombatGridEdgeDirection.Top) scale.y *= innerGridThickness / edgeThickness;
+                else scale.x *= innerGridThickness / edgeThickness;
+                line.transform.localScale = scale;
+                renderers.Add(line);
+            }
             outlines[layer] = renderers;
         }
 
         public void ShowFill(
             CombatGridFeedbackLayer layer,
             IEnumerable<GridPosition> positions,
-            Color color)
+            Color color, System.Func<GridPosition, Color> cellColor = null)
         {
             ClearFill(layer);
             if (feedbackSprite == null || positions == null) return;
@@ -83,10 +122,11 @@ namespace Godmist.Views.Combat
             foreach (var position in positions)
             {
                 var renderer = CreateSpriteRenderer("Combat feedback fill");
-                renderer.color = color;
+                renderer.color = cellColor?.Invoke(position) ?? color;
                 renderer.transform.localPosition = GridToLocal(position) + Vector3.back * .01f;
                 ScaleSprite(renderer.transform, renderer.sprite, Vector2.one * cellSize);
                 renderers.Add(renderer);
+
             }
 
             fills[layer] = renderers;
@@ -118,7 +158,7 @@ namespace Godmist.Views.Combat
             IReadOnlyList<GridPosition> path,
             GridPosition origin,
             int actionPointCost,
-            Color color, bool danger = false)
+            Color color, bool danger = false, System.Func<GridPosition, GridPosition, Color> stepColor = null)
         {
             ClearMovementPreview();
             if (path == null || path.Count == 0) return;
@@ -128,9 +168,18 @@ namespace Godmist.Views.Combat
             {
                 if (feedbackSprite == null) break;
                 var marker = CreateSpriteRenderer("Combat movement path");
-                marker.color = color;
+                marker.sortingOrder = pathSortingOrder;
+                marker.color = !danger && stepColor != null ? stepColor(previous, path[index]) : color;
                 ConfigurePathSegment(marker.transform, marker.sprite, previous, path[index]);
                 pathMarkers.Add(marker);
+                var halo = CreateSpriteRenderer("Combat path halo");
+                halo.sortingOrder = pathSortingOrder;
+                halo.color = new Color(marker.color.r, marker.color.g, marker.color.b, marker.color.a * haloAlpha);
+                ConfigurePathSegment(halo.transform, halo.sprite, previous, path[index]);
+                var haloScale = halo.transform.localScale;
+                if (previous.Y == path[index].Y) haloScale.y *= haloWidthMultiplier; else haloScale.x *= haloWidthMultiplier;
+                halo.transform.localScale = haloScale;
+                pathMarkers.Add(halo);
                 previous = path[index];
             }
 
@@ -139,6 +188,9 @@ namespace Godmist.Views.Combat
                 CombatGridFeedbackLayer.MovementPreview,
                 new[] { destination },
                 color);
+
+            ShowFill(CombatGridFeedbackLayer.MovementPreview, new[] { destination },
+                new Color(color.r, color.g, color.b, destinationFillAlpha));
 
             if (pathCostFont != null)
             {
@@ -164,6 +216,7 @@ namespace Godmist.Views.Combat
 
             pathMarkers.Clear();
             ClearOutline(CombatGridFeedbackLayer.MovementPreview);
+            ClearFill(CombatGridFeedbackLayer.MovementPreview);
             DestroyObject(ref pathCost);
         }
 
@@ -270,7 +323,7 @@ namespace Godmist.Views.Combat
 
             var meshRenderer = feedbackObject.GetComponent<MeshRenderer>();
             meshRenderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
-            meshRenderer.sortingOrder = feedbackSortingOrder;
+            meshRenderer.sortingOrder = pathSortingOrder;
             return text;
         }
 

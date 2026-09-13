@@ -74,6 +74,17 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Teren taktyczny i koszty przemieszczania v1` - `Combat`, `Content / Data`, `Design / Systems`
+  - Combat v4, przed grywalnym contentem i acceptance: typ podłoża, dodatkowy koszt ruchu, czytelny podgląd AP i integracja z AI.
+  - Zatwierdzone: trudny teren +1 AP za wejście na pole, sumowane z +2 AP murka. Nie zmienia licznika zwykłych kroków. Dash/charge/push/pull/teleport bez dopłaty AP podłoża.
+  - Eksploracja: trudny teren 50% prędkości drużyny i przeciwników; niski murek — jednostajne przejście 0,6 s z blokadą sterowania ruchem. W eksploracji postacie nie rezerwują pól; obecność towarzysza nie blokuje przejścia przez murek ani natychmiastowego powrotu.
+  - Ścieżka gracza: bezpieczeństwo → koszt AP → najmniej zakrętów; gdy brak bezpiecznej drogi, można wybrać nawet śmiertelną z ostrzeżeniem. AI: bezpieczeństwo → AP; odrzuca przewidywane powalenie.
+  - Czytelność: odmienne wypełnienie trudnego terenu i kolor kosztownych odcinków preview; pułapki zachowują czerwone ostrzeżenie.
+  - DONE — smoke użytkownika PASS: demo dungeon.catacombs.terrain_demo. Produkcyjny content bez zmian.
+  - Unikalne przeszkody i efekty rozwijać wspólnie z istniejącymi kartami przeszkód/pułapek; nie dodawać w tej karcie rozbudowanego systemu reakcji środowiskowych.
+  - Końcowy styl: delikatna siatka pojedynczych kwadratów, gradient żółty → brązowo-rudy, ścieżka nad pułapkami. Docelowy pixel-art pass odłożony do karty prezentacji Combat v4.
+  - Testy: regresja 108/108 PASS, uzupełnienie terenu 8/8 PASS; końcowy retest terenu/seamless 57/57 PASS.
+
 - `[P1] Dodać pułapki bojowe i integrację z ruchem v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
   - Wykorzystać istniejący model pułapek eksploracyjnych tam, gdzie pasuje; dodać brakujące przeniesienie do runtime walki, stan aktywacji i wykonanie efektów.
   - Przed implementacją uzgodnić wyzwalanie przez ruch, przemieszczenia wymuszone i teleport, podatne strony, widoczność, jednorazowość/odnawianie oraz pierwsze efekty.
@@ -168,12 +179,6 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 
 
-- `[P1] Teren taktyczny i koszty przemieszczania v1` - `Combat`, `Content / Data`, `Design / Systems`
-  - Combat v4, przed grywalnym contentem i acceptance: typ podłoża, dodatkowy koszt ruchu, czytelny podgląd AP i integracja z AI.
-  - Trudny teren +1 AP pozostaje propozycją, nie zatwierdzonym balansem. Przed implementacją uzgodnić typy terenu i wpływ na poszczególne przemieszczenia.
-  - Unikalne przeszkody i efekty rozwijać wspólnie z istniejącymi kartami przeszkód/pułapek; nie dodawać w tej karcie rozbudowanego systemu reakcji środowiskowych.
-
-### Milestone: Combat v5 — Perception and Dungeon-wide Combat
 
 - `[P1] Niszczenie przeszkód i obsługa obrażeń obiektów v1` - `Combat`, `Core / Architecture`, `Content / Data`
   - Osobna karta Combat v5: serwis obsługi niszczenia, integracja targetowania i obrażeń obiektów oraz trwałość skutków.

@@ -21,6 +21,7 @@ namespace Godmist.Runtime.Combat
         public Vector2Int EnemyAnchorWorldPosition { get; }
         public RectInt WorldBounds { get; }
 
+        public IReadOnlyCollection<Vector2Int> DifficultTerrainCells { get; }
         public IReadOnlyList<Vector2Int> WorldCells => worldCells;
         public IReadOnlyList<DungeonCellEdge> WallEdges => wallEdges;
         private readonly Dictionary<DungeonCellEdge, DungeonWallType> wallTypes;
@@ -38,7 +39,8 @@ namespace Godmist.Runtime.Combat
             IEnumerable<DungeonCellEdge> nextWallEdges,
             IEnumerable<DungeonCombatMapObjectSnapshot> nextMapObjects,
             int dungeonLevel = 1,
-            IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> nextWallTypes = null)
+            IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> nextWallTypes = null,
+            IEnumerable<Vector2Int> difficultTerrainCells = null)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -89,6 +91,7 @@ namespace Godmist.Runtime.Combat
                 ? new List<DungeonCombatMapObjectSnapshot>(nextMapObjects)
                 : new List<DungeonCombatMapObjectSnapshot>();
 
+            DifficultTerrainCells = new HashSet<Vector2Int>(difficultTerrainCells ?? Array.Empty<Vector2Int>());
             DungeonId = dungeonId;
             FloorIndex = floorIndex;
             EncounterInstanceId = encounterInstanceId;

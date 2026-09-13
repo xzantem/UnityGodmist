@@ -185,7 +185,7 @@ namespace Godmist.Views.Combat
             reachablePaths =
                 sandboxBootstrap.GetActiveUnitMovementPaths();
 
-            RebuildHighlights();
+            RebuildHighlights(session.Grid);
 
             cachedSession = session;
             cachedActiveUnit = activeUnit;
@@ -197,23 +197,31 @@ namespace Godmist.Views.Combat
             cacheValid = true;
         }
 
-        private void RebuildHighlights()
+        [SerializeField, Range(0f, 1f)] private float movementFillAlpha = .025f;
+        [SerializeField, Range(0f, 1f)] private float difficultTerrainFillAlpha = .1f;
+
+        private void RebuildHighlights(BattleGrid grid)
         {
             ClearHighlights();
             feedbackRenderer?.ShowOutline(
                 CombatGridFeedbackLayer.MovementRange,
                 reachablePaths.Keys,
-                movementRangeColor);
+                movementRangeColor,
+                cell => ShadeForSurcharge(movementRangeColor, grid.GetTerrainMovementSurcharge(cell)));
             feedbackRenderer?.ShowFill(
                 CombatGridFeedbackLayer.MovementRange,
                 reachablePaths.Keys,
-                WithAlpha(movementRangeColor, .24f));
+                WithAlpha(movementRangeColor, movementFillAlpha),
+                cell => ShadeForSurcharge(WithAlpha(movementRangeColor, grid.IsDifficultTerrain(cell) ? difficultTerrainFillAlpha : movementFillAlpha), grid.GetTerrainMovementSurcharge(cell)));
+            feedbackRenderer?.ShowOutline(CombatGridFeedbackLayer.ActiveMovementUnit,
+                new[] { sandboxBootstrap.Session.ActiveUnit.Position }, Color.Lerp(movementRangeColor, Color.white, .35f));
         }
 
         private void ClearHighlights()
         {
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.MovementRange);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.MovementRange);
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.ActiveMovementUnit);
             ClearInspectedMovementRange();
             feedbackRenderer?.ClearMovementPreview();
             previewedDestination = null;
@@ -252,11 +260,15 @@ namespace Godmist.Views.Combat
             feedbackRenderer?.ShowOutline(
                 CombatGridFeedbackLayer.InspectedMovementRange,
                 inspectedPaths.Keys,
-                inspectedMovementRangeColor);
+                inspectedMovementRangeColor,
+                cell => ShadeForSurcharge(inspectedMovementRangeColor,
+                    sandboxBootstrap.Session.Grid.GetTerrainMovementSurcharge(cell)));
             feedbackRenderer?.ShowFill(
                 CombatGridFeedbackLayer.InspectedMovementRange,
                 inspectedPaths.Keys,
-                WithAlpha(inspectedMovementRangeColor, .2f));
+                WithAlpha(inspectedMovementRangeColor, movementFillAlpha),
+                cell => ShadeForSurcharge(WithAlpha(inspectedMovementRangeColor, sandboxBootstrap.Session.Grid.IsDifficultTerrain(cell) ? difficultTerrainFillAlpha : movementFillAlpha),
+                    sandboxBootstrap.Session.Grid.GetTerrainMovementSurcharge(cell)));
 
             cachedInspectedUnit = inspectedUnit;
             cachedInspectedPosition = inspectedUnit.Position;
@@ -276,6 +288,8 @@ namespace Godmist.Views.Combat
         }
 
         [SerializeField] private Color trapPreviewColor = new(1f, .2f, .1f, .85f);
+        [SerializeField] private Color surchargeGradientEndColor = new(.65f, .27f, .09f, 1f);
+        [SerializeField, Min(1)] private int surchargeGradientMaximum = 3;
         private bool previewedTrapDanger;
         private void RefreshMovementPreview()
         {
@@ -304,7 +318,8 @@ namespace Godmist.Views.Combat
                 path,
                 cachedActiveUnit.Position,
                 pathCost,
-                danger ? trapPreviewColor : movementPreviewColor, danger);
+                danger ? trapPreviewColor : movementPreviewColor, danger,
+                (from, to) => ShadeForSurcharge(movementPreviewColor, cachedSession.Grid.GetMovementSurcharge(from, to)));
             previewedDestination = hoveredPosition;
             previewedPathCost = pathCost;
         }
@@ -327,6 +342,14 @@ namespace Godmist.Views.Combat
                 / cellSize);
 
             return new GridPosition(gridX, gridY);
+        }
+
+        private Color ShadeForSurcharge(Color baseColor, int surcharge)
+        {
+            var amount = Mathf.Clamp01((float)surcharge / Mathf.Max(1, surchargeGradientMaximum));
+            var color = Color.Lerp(baseColor, surchargeGradientEndColor, amount);
+            color.a = baseColor.a;
+            return color;
         }
 
         private static Color WithAlpha(Color color, float alpha)

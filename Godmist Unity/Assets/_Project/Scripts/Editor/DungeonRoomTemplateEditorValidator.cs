@@ -65,6 +65,10 @@ namespace Godmist.Editor
             }
 
             var floorCells = ValidateFootprint(template, size, report);
+            var terrainCells = new HashSet<Vector2Int>();
+            foreach (var cell in template.DifficultTerrainCells)
+                if (!floorCells.Contains(cell) || !terrainCells.Add(cell))
+                    report.AddError("Difficult terrain must use unique floor cells inside the room.");
             ValidateBoundaryEdges(template, floorCells, report);
             ValidateStructuralAnchors(template, floorCells, report);
             ValidateSemanticAnchors(template, floorCells, report);

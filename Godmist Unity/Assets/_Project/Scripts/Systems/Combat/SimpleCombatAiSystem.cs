@@ -860,10 +860,10 @@ namespace Godmist.Systems.Combat
 
             var start = aiUnit.Position;
             var pending = new List<(GridPosition cell, List<GridPosition> path, float risk)> { (start, new(), 0f) };
-            var best = new Dictionary<(GridPosition, string), (float risk, int steps)> { [(start, "")] = (0f, 0) };
+            var best = new Dictionary<(GridPosition, string, int), (float risk, int cost)> { [(start, "", 0)] = (0f, 0) };
             while (pending.Count > 0)
             {
-                pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : a.path.Count.CompareTo(b.path.Count));
+                pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, a.path).CompareTo(CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, b.path)));
                 var node = pending[0]; pending.RemoveAt(0);
                 var current = node.cell;
                 if (IsAdjacent(current, target.Position) && CanPlanAcross(session, aiUnit, current, target.Position))
@@ -875,15 +875,16 @@ namespace Godmist.Systems.Combat
                 foreach (var direction in MovementDirections)
                 {
                     var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
-                    if (session.IsPositionOccupied(candidate, aiUnit)
+                    if (candidate == start || node.path.Contains(candidate) || session.IsPositionOccupied(candidate, aiUnit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))
                         || !CanPlanAcross(session, aiUnit, current, candidate)) continue;
                     var next = new List<GridPosition>(node.path) { candidate };
                     var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
                     if (!float.IsFinite(risk)) continue;
-                    var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
-                    if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.steps <= next.Count)) continue;
-                    best[key] = (risk, next.Count);
+                    var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "", next.Count);
+                    var cost = CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, next);
+                    if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.cost <= cost)) continue;
+                    best[key] = (risk, cost);
                     pending.Add((candidate, next, risk));
                 }
             }

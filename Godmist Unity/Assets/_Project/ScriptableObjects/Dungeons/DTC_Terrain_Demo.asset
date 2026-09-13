@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98f1774ae40b044b953f05665485a2a, type: 3}
+  m_Name: DTC_Terrain_Demo
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateCatalog
+  <Id>k__BackingField: rooms.combat_v4.terrain_demo
+  <Templates>k__BackingField:
+  - {fileID: 11400000, guid: 62c97963f13476548bb26614efda70e6, type: 2}
+  - {fileID: 11400000, guid: 404ea4966bb83ea4e80f786d3064cd04, type: 2}
+  - {fileID: 11400000, guid: 04bcab2509379674a8bac83b99abe76c, type: 2}
+  - {fileID: 11400000, guid: a48ee17c1ad14210a6e654eca69b9bdc, type: 2}

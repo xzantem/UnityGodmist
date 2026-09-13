@@ -24,12 +24,31 @@ namespace Godmist.Views.Exploration
         private int animationFrameIndex;
         private float lastMovementTime = float.NegativeInfinity;
         private bool noclipEnabled;
+        private Godmist.Runtime.Dungeons.DungeonFloorMap terrainMap;
+        private Godmist.Views.Dungeons.DungeonFloorMapView terrainView;
+        private Vector2 crossingStart, crossingEnd;
+        private float crossingElapsed;
+        private bool restoreBody, restoreCollider;
+        public bool IsCrossingLowWall { get; private set; }
+        public System.Func<Vector2Int, bool> CanCrossTo { get; set; }
+        public void ConfigureTerrain(Godmist.Runtime.Dungeons.DungeonFloorMap map,
+            Godmist.Views.Dungeons.DungeonFloorMapView view) { terrainMap = map; terrainView = view; }
+
+        private void EndWallCrossing()
+        {
+            if (!IsCrossingLowWall) return;
+            IsCrossingLowWall = false;
+            if (body != null) { body.position = transform.position; body.simulated = restoreBody; }
+            if (movementCollider != null) movementCollider.enabled = restoreCollider;
+        }
+
         public string EnemyInstanceId { get; private set; }
         public CharacterInstance RuntimeCharacter { get; private set; }
         public void SetEnemyInstanceId(string value) => EnemyInstanceId = value;
         public Godmist.Runtime.Combat.BattleUnit CombatUnit { get; private set; }
         public void BindCombat(Godmist.Runtime.Combat.BattleUnit unit)
         {
+            EndWallCrossing();
             CombatUnit = unit;
             RuntimeCharacter = unit.Character;
             if (body != null) body.simulated = false;
@@ -94,6 +113,8 @@ namespace Godmist.Views.Exploration
                 bodyRenderer.color = isActiveLeader ? leaderColor : followerColor;
             }
 
+            if (IsCrossingLowWall)
+            { restoreBody = isActiveLeader && !noclipEnabled; restoreCollider = restoreBody; return; }
             if (body != null) body.simulated = CombatUnit == null && isActiveLeader && !noclipEnabled;
             if (movementCollider != null) movementCollider.enabled = CombatUnit == null && isActiveLeader && !noclipEnabled;
         }
@@ -114,7 +135,38 @@ namespace Godmist.Views.Exploration
 
         public void Move(Vector2 offset)
         {
-            if (offset.sqrMagnitude < 0.0001f) return;
+            if (IsCrossingLowWall || offset.sqrMagnitude < 0.0001f) return;
+            if (CombatUnit == null && terrainMap != null && terrainView != null && !noclipEnabled)
+            {
+                var from = terrainView.WorldToCell(Position);
+                if (terrainMap.IsDifficultTerrain(from)) offset *= .5f;
+                var to = terrainView.WorldToCell(Position + offset);
+                if (from.x != to.x && from.y != to.y)
+                {
+                    // Crossing a corner must not bypass a low edge just because input is diagonal.
+                    var horizontal = new Vector2Int(to.x, from.y);
+                    var vertical = new Vector2Int(from.x, to.y);
+                    foreach (var adjacent in new[] { horizontal, vertical })
+                        if (terrainMap.HasWallBetween(from, adjacent)
+                            && terrainMap.GetWallType(new Godmist.Runtime.Dungeons.DungeonCellEdge(from, adjacent)) == Godmist.Core.Enums.DungeonWallType.Low)
+                        { to = adjacent; break; }
+                }
+                if (from != to && terrainMap.HasWallBetween(from, to)
+                    && terrainMap.GetWallType(new Godmist.Runtime.Dungeons.DungeonCellEdge(from, to)) == Godmist.Core.Enums.DungeonWallType.Low
+                    && terrainMap.CanMoveBetween(from, to))
+                {
+                    if (CanCrossTo?.Invoke(to) == false) return;
+                    crossingStart = Position;
+                    crossingEnd = terrainView.CellToWorldCenter(to);
+                    crossingElapsed = 0f;
+                    restoreBody = body != null && body.simulated;
+                    restoreCollider = movementCollider != null && movementCollider.enabled;
+                    if (body != null) body.simulated = false;
+                    if (movementCollider != null) movementCollider.enabled = false;
+                    IsCrossingLowWall = true;
+                    return;
+                }
+            }
 
             SetFacingDirection(offset);
             PlayRunAnimation();
@@ -155,6 +207,19 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
+            if (IsCrossingLowWall && !Godmist.Views.UI.DevConsoleView.IsOpen)
+            {
+                if (RuntimeCharacter != null && RuntimeCharacter.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive)
+                    EndWallCrossing();
+                else
+                {
+                    crossingElapsed += Time.deltaTime;
+                    transform.position = Vector2.Lerp(crossingStart, crossingEnd, Mathf.Clamp01(crossingElapsed / .6f));
+                    PlayRunAnimation();
+                    lastMovementTime = Time.time;
+                    if (crossingElapsed >= .6f) EndWallCrossing();
+                }
+            }
             if (Time.time - lastMovementTime > 0.08f)
             {
                 PlayIdleAnimation();
@@ -222,6 +287,7 @@ namespace Godmist.Views.Exploration
 
         public void SetPosition(Vector2 position)
         {
+            EndWallCrossing();
             lastMovementTime = float.NegativeInfinity;
             PlayIdleAnimation();
             transform.position = position;
