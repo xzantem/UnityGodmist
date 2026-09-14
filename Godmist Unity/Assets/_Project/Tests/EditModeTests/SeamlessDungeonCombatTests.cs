@@ -595,6 +595,73 @@ namespace Godmist.Tests.EditMode
             target.GetType().GetField("<" + name + ">k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
 
         [Test]
+        public void ExplorationEnemySpawnHasUniqueRuntimeAtDungeonLevelAndReceivesTrapDamage()
+        {
+            var root = new GameObject("enemy spawn test");
+            var prefab = new GameObject("enemy prefab");
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var encounterDefinition = ScriptableObject.CreateInstance<EncounterDefinition>();
+            var trapDefinition = ScriptableObject.CreateInstance<SpikeTrapDungeonObjectDefinition>();
+            var spawned = new List<ExplorationCharacterView>();
+            try
+            {
+                SetProperty(definition, "Id", "enemy.definition");
+                var baseStats = new CharacterBaseStatsData();
+                SetProperty(baseStats, "MaxHealth", 1000);
+                SetProperty(definition, "BaseStats", baseStats);
+                SetProperty(classData, "Id", "class.warrior");
+                SetProperty(classData, "ResourceType", ResourceType.Rage);
+                var enemies = new List<EncounterEnemyData>();
+                foreach (var id in new[] { "enemy.one", "enemy.two" })
+                {
+                    var data = new EncounterEnemyData();
+                    SetProperty(data, "InstanceId", id);
+                    SetProperty(data, "CharacterDefinition", definition);
+                    SetProperty(data, "ClassData", classData);
+                    enemies.Add(data);
+                }
+                SetProperty(encounterDefinition, "Enemies", enemies);
+                var encounter = new DungeonEncounterInstance("encounter", encounterDefinition, "room", new RectInt(0, 0, 4, 1));
+                var map = new DungeonFloorMap();
+                for (var x = 0; x < 4; x++) map.TryAddFloorCell(new Vector2Int(x, 0), "room");
+                var mapView = root.AddComponent<DungeonFloorMapView>();
+                var spawner = root.AddComponent<DungeonEncounterSpawner>();
+                var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+                typeof(DungeonEncounterSpawner).GetField("floorMapView", flags).SetValue(spawner, mapView);
+                typeof(DungeonEncounterSpawner).GetField("enemyViewPrefab", flags).SetValue(spawner, prefab.AddComponent<ExplorationCharacterView>());
+                spawned = (List<ExplorationCharacterView>)typeof(DungeonEncounterSpawner)
+                    .GetMethod("SpawnEnemyViews", flags).Invoke(spawner, new object[] { encounter, map, 11 });
+                Assert.That(spawned.Count, Is.EqualTo(2));
+                for (var i = 0; i < spawned.Count; i++)
+                {
+                    Assert.That(spawned[i].RuntimeCharacter, Is.Not.Null);
+                    Assert.That(spawned[i].RuntimeCharacter.Level, Is.EqualTo(11));
+                    Assert.That(spawned[i].RuntimeCharacter.CharacterId, Is.EqualTo(enemies[i].InstanceId));
+                    Assert.That(spawned[i].CombatUnit, Is.Null);
+                }
+                Assert.That(spawned[0].RuntimeCharacter, Is.Not.SameAs(spawned[1].RuntimeCharacter));
+                var floor = new DungeonFloorInstance(0); floor.TrySetMap(map);
+                floor.TryAddObject(new SpikeTrapDungeonObjectInstance("trap", trapDefinition, Vector2Int.zero));
+                var unit = new BattleUnit { Character = spawned[0].RuntimeCharacter, IsPlayerSide = false };
+                var health = unit.Character.CurrentHealth;
+                new Godmist.Systems.Dungeons.DungeonTrapSystem(floor, 11).EnterCell(Vector2Int.zero,
+                    new[] { new Godmist.Systems.Dungeons.DungeonTrapOccupant(unit, null, Vector2Int.zero) });
+                Assert.That(unit.Character.CurrentHealth, Is.LessThan(health));
+                spawned[0].BindCombat(unit);
+                Assert.That(spawned[0].CombatUnit.Character, Is.SameAs(unit.Character));
+                Assert.That(spawned[0].RuntimeCharacter.CurrentHealth, Is.LessThan(health));
+            }
+            finally
+            {
+                foreach (var view in spawned) if (view != null) Object.DestroyImmediate(view.gameObject);
+                Object.DestroyImmediate(root); Object.DestroyImmediate(prefab);
+                Object.DestroyImmediate(definition); Object.DestroyImmediate(classData);
+                Object.DestroyImmediate(encounterDefinition); Object.DestroyImmediate(trapDefinition);
+            }
+        }
+
+        [Test]
         public void BoundaryDoor_IsIncludedWithoutAddingAdjacentRoomToArena()
         {
             var doorDefinition = ScriptableObject.CreateInstance<DoorDungeonObjectDefinition>();

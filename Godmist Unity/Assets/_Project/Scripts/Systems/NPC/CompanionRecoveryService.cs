@@ -25,7 +25,8 @@ namespace Godmist.Systems.NPC
         {
             if (character == null) return 0;
             var baseCost = GetBaseCost(character);
-            return Math.Max(0, (int)Math.Ceiling(baseCost * (1d - HonorPriceSystem.GetDiscountPercent(speaker?.Honor ?? 0) / 100d)));
+            var cost = Math.Ceiling(baseCost * (1d - HonorPriceSystem.GetDiscountPercent(speaker?.Honor ?? 0) / 100d));
+            return (int)Math.Clamp(cost, 0d, int.MaxValue);
         }
 
         public bool TryRecover(GameSession game, NpcInstance priest, string speakerId, string characterId, out string message)

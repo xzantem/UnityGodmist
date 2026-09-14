@@ -229,7 +229,7 @@ namespace Godmist.Data.Configuration
             for (var tier = 0; tier < minimums.Length; tier++)
             {
                 entries.Add(Integer($"economy.honor.tier_{tier}.minimum", $"Honor: {names[tier]} — próg", "Dolna granica włącznie; pierwszy tier obejmuje wszystkie niższe wartości.", GameDefineCategory.Economy, "Honor", minimums[tier], int.MinValue, int.MaxValue));
-                entries.Add(Float($"economy.honor.tier_{tier}.discount_percent", $"Honor: {names[tier]} — zniżka", "Łączna zniżka odzyskiwania towarzysza; 0 do czasu ustalenia balansu.", GameDefineCategory.Economy, "%", 0f, 0f, 100f));
+                entries.Add(Float($"economy.honor.tier_{tier}.discount_percent", $"Honor: {names[tier]} — zniżka", "Zniżka odzyskiwania; wartość ujemna podnosi cenę (-100% = cena ×2).", GameDefineCategory.Economy, "%", 0f, -1000f, 100f));
             }
             return entries;
         }

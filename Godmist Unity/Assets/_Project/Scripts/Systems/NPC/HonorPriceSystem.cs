@@ -27,7 +27,8 @@ namespace Godmist.Systems.NPC
         public static float GetDiscountPercent(int honor)
         {
             var tier = GetTierIndex(honor);
-            return Mathf.Clamp(GameDefinesRuntime.GetFloat($"economy.honor.tier_{tier}.discount_percent", 0f), 0f, 100f);
+            // A negative discount is a surcharge: -100% means twice the base price.
+            return Mathf.Clamp(GameDefinesRuntime.GetFloat($"economy.honor.tier_{tier}.discount_percent", 0f), -1000f, 100f);
         }
     }
 }

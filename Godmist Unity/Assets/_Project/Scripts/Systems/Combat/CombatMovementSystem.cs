@@ -328,7 +328,7 @@ namespace Godmist.Systems.Combat
             {
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
-                    "nie moÅ¼e siÄ™ ruszyÄ‡ przez status kontroli.");
+                    "nie może się ruszyć przez status kontroli.");
 
                 return false;
             }

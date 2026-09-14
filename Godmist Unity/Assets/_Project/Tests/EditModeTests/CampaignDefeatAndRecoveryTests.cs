@@ -85,6 +85,48 @@ namespace Godmist.Tests.EditMode
             Assert.That(HonorPriceSystem.GetTierIndex(honor),Is.EqualTo(tier));
             Assert.That(HonorPriceSystem.GetDiscountPercent(honor),Is.Zero);
         }
+
+        [TestCase(-100f, 600)]
+        [TestCase(-50f, 450)]
+        [TestCase(25f, 225)]
+        [TestCase(100f, 0)]
+        public void RecoveryUsesSignedHonorDiscountAndChargesQuotedPrice(float discount, int expected)
+        {
+            var defines = ScriptableObject.CreateInstance<GameDefines>();
+            try
+            {
+                defines.TryGet("economy.honor.tier_0.discount_percent", out var entry);
+                entry.CurrentFloatValue = discount;
+                main.Honor = -101;
+                GameDefinesRuntime.Configure(defines);
+                var service = new CompanionRecoveryService();
+                Assert.That(service.GetCost(companion, main), Is.EqualTo(expected));
+                Assert.That(service.TryRecover(game, priest, "main", "companion", out _), Is.True);
+                Assert.That(game.Gold, Is.EqualTo(1000 - expected));
+                Assert.That(priest.GoldBalance, Is.EqualTo(expected));
+            }
+            finally { GameDefinesRuntime.Configure(null); Object.DestroyImmediate(defines); }
+        }
+
+        [Test]
+        public void HonorSurchargeCannotOverflowIntoFreeRecovery()
+        {
+            var defines = ScriptableObject.CreateInstance<GameDefines>();
+            try
+            {
+                defines.TryGet("economy.honor.tier_0.discount_percent", out var entry);
+                entry.CurrentFloatValue = -100;
+                main.Honor = -101;
+                companion.Level = int.MaxValue;
+                GameDefinesRuntime.Configure(defines);
+                var service = new CompanionRecoveryService();
+                Assert.That(service.GetCost(companion, main), Is.EqualTo(int.MaxValue));
+                Assert.That(service.TryRecover(game, priest, "main", "companion", out _), Is.False);
+                Assert.That(game.Gold, Is.EqualTo(1000));
+                Assert.That(companion.LifeState, Is.EqualTo(CharacterLifeState.Dead));
+            }
+            finally { GameDefinesRuntime.Configure(null); Object.DestroyImmediate(defines); }
+        }
         [Test] public void StoringDeadCompanionPreservesStoryLock()
         {
             companion.AvailabilityState=CharacterAvailabilityState.StoryLocked;

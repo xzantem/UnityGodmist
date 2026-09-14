@@ -53,6 +53,8 @@ Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji ora
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1
 
+Branch: `milestone/combat-v4-arena-obstacles-transition-v1`. Acceptance zaakceptowane; raport: `COMBAT_V4_ACCEPTANCE.md`.
+
 Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację i taktykę areny walki oraz poprawia przejście eksploracja → walka, nie rozszerzając jeszcze zachowań przeciwników w lochu.
 
 - Pułapki bojowe, zewnętrzne ściany areny i inne przeszkody taktyczne.
@@ -73,6 +75,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 - Objętościowo: przed rozpoczęciem zapewnić porównywalny zakres pracy, contentu, testów i acceptance passu względem poprzednich milestone'ów. Jeżeli sam zakres systemowy okaże się zbyt mały, dołączyć pasujący content tej kategorii zamiast sztucznie mnożyć karty.
 
 ## Done
+
+- `[P1] Combat v4 - acceptance, code review i UI pass` - `Combat`, `World / Dungeon / Exploration`, `UI / UX`, `Tools / Editor / Debug`
+  - Acceptance całego milestone'u: wiele kolejnych walk bez przeładowania sceny, wejście/wyjście, zwycięstwo/ucieczka/porażka, geometria, targeting, przemieszczenia, pułapki, AI, persistence i kamera.
+  - Wykonać szerszy code quality review, regresję oraz osobny wizualny UI acceptance. Kontrolować podwójne subskrypcje/input, duplikację obiektów, utratę stanu i sprzątanie lifecycle.
+  - Raport rozróżnia PASS/FAIL/NOT RUN. Milestone zamknąć dopiero po smoke użytkownika; commit/push wymagają osobnego polecenia.
+  - DONE: smoke i zamknięcie zaakceptowane przez użytkownika. Pełny review milestone'u zakończony; poprawiono pułapki przeciwników przed walką, dopłaty honoru/overflow i komunikat ruchu. Build PASS; wcześniejsza regresja EditMode 805/805 PASS; wykonanie nowych testów po review NOT RUN (Unity otwarte). Raport: `COMBAT_V4_ACCEPTANCE.md`.
 
 - `[P1] Przygotować content i scenariusze taktyczne Combat v4` - `Combat`, `Content / Data`, `Tools / Editor / Debug`
   - Przygotować grywalne układy: korytarz, sala z filarami, nieregularny pokój, duża arena oraz przejścia między przestrzeniami zgodnie z zatwierdzonym zakresem areny.

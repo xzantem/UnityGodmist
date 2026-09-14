@@ -87,7 +87,7 @@ namespace Godmist.Views.Dungeons
 
                 if (!objectSpawner.Rebuild(floor, partySpawner.PartyController, dungeon.Definition.Theme)) return;
 
-                if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController)) return;
+                if (!encounterSpawner.Rebuild(floor, partySpawner.PartyController, dungeon.DungeonLevel)) return;
                 if (combatCoordinator == null || !combatCoordinator.Initialize(session, floor,
                     floorMapView, partySpawner.PartyController, encounterSpawner, objectSpawner))
                 { Debug.LogError("DungeonSandboxBootstrap: brak poprawnej integracji seamless."); return; }
