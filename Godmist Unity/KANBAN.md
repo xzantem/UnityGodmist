@@ -53,7 +53,7 @@ Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji ora
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1
 
-Branch: `milestone/combat-v4-arena-obstacles-transition-v1`. Acceptance zaakceptowane; raport: `COMBAT_V4_ACCEPTANCE.md`.
+Branch: `milestone/combat-v4-arena-obstacles-transition-v1`. Acceptance: `COMBAT_V4_ACCEPTANCE.md`.
 
 Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację i taktykę areny walki oraz poprawia przejście eksploracja → walka, nie rozszerzając jeszcze zachowań przeciwników w lochu.
 
