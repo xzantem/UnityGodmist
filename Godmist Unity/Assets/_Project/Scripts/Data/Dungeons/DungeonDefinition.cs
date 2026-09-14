@@ -70,9 +70,11 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<DungeonObjectDefinition> ObjectDefinitions { get; private set; } = new();
 
+        [field: Tooltip("Legacy save reconstruction only. New dungeons use room anchors and content groups.")]
         [field: SerializeField, Min(0)]
         public int MinObjectCountPerFloor { get; private set; } = 1;
 
+        [field: Tooltip("Legacy save reconstruction only. New dungeons use room anchors and content groups.")]
         [field: SerializeField, Min(0)]
         public int MaxObjectCountPerFloor { get; private set; } = 3;
 

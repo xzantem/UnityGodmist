@@ -1758,7 +1758,7 @@ namespace Godmist.Systems.SaveLoad
                             : definition.DungeonLevel);
 
                     encounterPlacementSystem.Place(dungeon);
-                    objectPlacementSystem.Place(dungeon, contentCatalog.EquipmentPartDefinitions);
+                    objectPlacementSystem.PlaceLegacySave(dungeon, contentCatalog.EquipmentPartDefinitions);
                     rewardPreparationSystem.Prepare(dungeon, contentCatalog.EquipmentPartDefinitions);
                 }
             }

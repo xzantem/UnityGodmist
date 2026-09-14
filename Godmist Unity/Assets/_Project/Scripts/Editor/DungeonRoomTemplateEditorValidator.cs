@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
+using Godmist.Systems.Dungeons;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,6 +23,22 @@ namespace Godmist.Editor
 
     public static class DungeonRoomTemplateEditorValidator
     {
+        [MenuItem("CONTEXT/DungeonDefinition/Validate Room Content")]
+        private static void ValidateDungeonContent(MenuCommand command)
+        {
+            var definition = (DungeonDefinition)command.context;
+            try
+            {
+                DungeonObjectPlacementSystem.ValidateContentDefinitions(definition);
+                var errors = new List<string>();
+                foreach (var template in definition.RoomTemplateCatalog.Templates)
+                    foreach (var error in Validate(template).Errors) errors.Add($"{template.Id}: {error}");
+                if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n", errors));
+                Debug.Log($"Room Content: PASS ({definition.Id}). Konflikty z wygenerowanymi drzwiami sprawdza placement.", definition);
+            }
+            catch (InvalidOperationException exception) { Debug.LogError(exception.Message, definition); }
+        }
+
         private static readonly Vector2Int[] cardinalDirections =
         {
             Vector2Int.up,
@@ -72,6 +89,8 @@ namespace Godmist.Editor
             ValidateBoundaryEdges(template, floorCells, report);
             ValidateStructuralAnchors(template, floorCells, report);
             ValidateSemanticAnchors(template, floorCells, report);
+            try { DungeonRoomContentPlanner.ValidateRequiredSpace(template); }
+            catch (InvalidOperationException exception) { report.AddError(exception.Message); }
             ValidateProgressionBranchTemplate(template, report);
             ValidateNonProgressionControls(template, report);
 

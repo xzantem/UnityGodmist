@@ -3,11 +3,229 @@ using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Editor;
+using UnityEditor;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
+    public class DungeonRoomEditorContentEditsTests
+    {
+        private DungeonRoomTemplateDefinition template;
+        private SerializedObject serialized;
+
+        [SetUp]
+        public void Setup()
+        {
+            template = ScriptableObject.CreateInstance<DungeonRoomTemplateDefinition>();
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("a", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.zero, Vector2Int.one));
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("b", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.right, Vector2Int.one, requiresAnchorId: "a"));
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("c", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.up, Vector2Int.one));
+            serialized = new SerializedObject(template);
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            Undo.ClearUndo(template);
+            serialized.Dispose();
+            Object.DestroyImmediate(template);
+        }
+
+        [Test]
+        public void RenameUpdatesDependencyAndGroupAndSupportsUndoRedo()
+        {
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }));
+            serialized.Update();
+            Undo.IncrementCurrentGroup();
+            Assert.That(DungeonRoomEditorContentEdits.RenameAnchor(serialized, "a", "renamed", out var error), Is.True, error);
+            Assert.That(template.SemanticAnchors[1].RequiresAnchorId, Is.EqualTo("renamed"));
+            Assert.That(template.ContentGroups[0].AnchorIds[0], Is.EqualTo("renamed"));
+            Undo.FlushUndoRecordObjects();
+            Undo.PerformUndo();
+            Assert.That(template.SemanticAnchors[0].Id, Is.EqualTo("a"));
+            Assert.That(template.SemanticAnchors[1].RequiresAnchorId, Is.EqualTo("a"));
+            Assert.That(template.ContentGroups[0].AnchorIds[0], Is.EqualTo("a"));
+            Undo.PerformRedo();
+            Assert.That(template.SemanticAnchors[0].Id, Is.EqualTo("renamed"));
+            Assert.That(template.SemanticAnchors[1].RequiresAnchorId, Is.EqualTo("renamed"));
+        }
+
+        [TestCase("")]
+        [TestCase("b")]
+        public void InvalidRenameDoesNotChangeData(string name)
+        {
+            var before = EditorJsonUtility.ToJson(template);
+            Assert.That(DungeonRoomEditorContentEdits.RenameAnchor(serialized, "a", name, out _), Is.False);
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+        }
+
+        [Test]
+        public void DeletionRejectsExternalDependencyAndRemovesEmptyGroupWhenComplete()
+        {
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }));
+            serialized.Update();
+            Assert.That(DungeonRoomEditorContentEdits.DeleteAnchors(serialized, new[] { "a" }, out var error), Is.False);
+            Assert.That(error, Does.Contain("b").And.Contain("a"));
+            Assert.That(template.SemanticAnchors.Count, Is.EqualTo(3));
+            Assert.That(DungeonRoomEditorContentEdits.DeleteAnchors(serialized, new[] { "a", "b" }, out error), Is.True, error);
+            Assert.That(template.ContentGroups, Is.Empty);
+            Assert.That(template.SemanticAnchors.Count, Is.EqualTo(1));
+            Assert.That(template.SemanticAnchors[0].Id, Is.EqualTo("c"));
+        }
+
+        [Test]
+        public void CreateGroupNormalizesMembersAndUndoRestoresOriginalSettings()
+        {
+            template.SemanticAnchors[0] = new DungeonSemanticAnchorData("a", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.zero, Vector2Int.one, .2f, true);
+            serialized.Update();
+            Undo.IncrementCurrentGroup();
+            Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "pair", new[] { "a", "b" }, true, .33f, out var error), Is.True, error);
+            Assert.That(template.ContentGroups.Count, Is.EqualTo(1));
+            Assert.That(template.ContentGroups[0].IsRequired, Is.True);
+            Assert.That(template.ContentGroups[0].SpawnChance, Is.EqualTo(.33f));
+            Assert.That(template.SemanticAnchors[0].IsRequired, Is.False);
+            Assert.That(template.SemanticAnchors[0].SpawnChance, Is.EqualTo(1f));
+            Undo.FlushUndoRecordObjects();
+            Undo.PerformUndo();
+            Assert.That(template.ContentGroups, Is.Empty);
+            Assert.That(template.SemanticAnchors[0].IsRequired, Is.True);
+            Assert.That(template.SemanticAnchors[0].SpawnChance, Is.EqualTo(.2f));
+        }
+
+        [Test]
+        public void CreatingGroupThatContractsDependencyCycleIsRejected()
+        {
+            template.SemanticAnchors[2] = new DungeonSemanticAnchorData("c", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.up, Vector2Int.one, requiresAnchorId: "b");
+            serialized.Update();
+            Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "cycle", new[] { "a", "c" }, false, 1f, out var error), Is.False);
+            Assert.That(error, Does.Contain("cykl"));
+            Assert.That(template.ContentGroups, Is.Empty);
+        }
+
+        [Test]
+        public void EnemyAndExistingMembershipCannotBeGroupedAgain()
+        {
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("enemy", DungeonSemanticAnchorType.Enemy,
+                Vector2Int.one, Vector2Int.one, encounterEnemyIndex: 0));
+            serialized.Update();
+            Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "bad", new[] { "a", "enemy" }, false, 1, out _), Is.False);
+            Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "pair", new[] { "a", "b" }, false, 1, out _), Is.True);
+            Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "again", new[] { "a", "c" }, false, 1, out _), Is.False);
+        }
+
+        [Test]
+        public void MoveMemberRemovesEmptySourceAndJoiningSameGroupIsIdempotent()
+        {
+            template.ContentGroups.Add(new DungeonContentGroupData("source", new[] { "a" }, true));
+            template.ContentGroups.Add(new DungeonContentGroupData("target", new[] { "b", "c" }, false, .33f));
+            serialized.Update();
+            Assert.That(DungeonRoomEditorContentEdits.JoinGroup(serialized, "a", 1, out var error), Is.True, error);
+            Assert.That(template.ContentGroups.Count, Is.EqualTo(1));
+            Assert.That(template.ContentGroups[0].AnchorIds, Is.EquivalentTo(new[] { "a", "b", "c" }));
+            Assert.That(DungeonRoomEditorContentEdits.JoinGroup(serialized, "a", 0, out error), Is.True, error);
+            Assert.That(template.ContentGroups[0].AnchorIds.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void DetachAndDissolvePreserveGroupSettingsOnIndependentAnchors()
+        {
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }, true, .33f));
+            serialized.Update();
+            Assert.That(DungeonRoomEditorContentEdits.DetachAnchor(serialized, "a", out var error), Is.True, error);
+            Assert.That(template.SemanticAnchors[0].IsRequired, Is.True);
+            Assert.That(template.SemanticAnchors[0].SpawnChance, Is.EqualTo(.33f));
+            Assert.That(template.ContentGroups[0].AnchorIds, Is.EqualTo(new[] { "b" }));
+            DungeonRoomEditorContentEdits.DissolveGroup(serialized, 0);
+            Assert.That(template.ContentGroups, Is.Empty);
+            Assert.That(template.SemanticAnchors[1].IsRequired, Is.True);
+            Assert.That(template.SemanticAnchors[1].RequiresAnchorId, Is.EqualTo("a"));
+        }
+
+        [Test]
+        public void SelectionNeverCreatesAnchorsAndCtrlClickTogglesSelection()
+        {
+            var window = ScriptableObject.CreateInstance<DungeonRoomEditorWindow>();
+            var previousSelection = Selection.activeObject;
+            try
+            {
+                Invoke(window, "SetTemplate", template);
+                Invoke(window, "EnsureSerializedObject");
+                var before = EditorJsonUtility.ToJson(template);
+                Click(window, new Vector2(5, 75), false);
+                Click(window, new Vector2(15, 75), true);
+                var selected = (HashSet<string>)typeof(DungeonRoomEditorWindow).GetField("selectedAnchorIds",
+                    BindingFlags.Instance | BindingFlags.NonPublic).GetValue(window);
+                Assert.That(selected, Is.EquivalentTo(new[] { "a", "b" }));
+                Click(window, new Vector2(5, 75), true);
+                Assert.That(selected, Is.EquivalentTo(new[] { "b" }));
+                Click(window, new Vector2(25, 75), false);
+                Assert.That(selected, Is.Empty);
+                Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+            }
+            finally
+            {
+                Object.DestroyImmediate(window);
+                Selection.activeObject = previousSelection;
+            }
+        }
+
+        [UnityEngine.TestTools.UnityTest]
+        public System.Collections.IEnumerator EditorPanelsRenderAtMinimumAndLargeWindowSizes()
+        {
+            var window = ScriptableObject.CreateInstance<DungeonRoomEditorWindow>();
+            var previousSelection = Selection.activeObject;
+            try
+            {
+                Invoke(window, "SetTemplate", template);
+                window.Show();
+                foreach (var size in new[] { new Vector2(960, 560), new Vector2(1600, 900) })
+                {
+                    window.position = new Rect(new Vector2(30, 30), size);
+                    window.Repaint();
+                    yield return null;
+                    yield return null;
+                    Invoke(window, "EnsureSerializedObject");
+                    Invoke(window, "SelectSemantic", 0, false);
+                    window.Repaint();
+                    yield return null;
+                    Assert.That(DungeonRoomEditorContentEdits.CreateGroup(serialized, "render.group", new[] { "a", "b" }, false, .33f, out var error), Is.True, error);
+                    // The group was authored through another SerializedObject, as with a separate Inspector.
+                    ((SerializedObject)typeof(DungeonRoomEditorWindow).GetField("serializedTemplate",
+                        BindingFlags.Instance | BindingFlags.NonPublic).GetValue(window)).Update();
+                    Invoke(window, "SelectGroup", 0);
+                    Assert.That((int)typeof(DungeonRoomEditorWindow).GetField("selectedGroup",
+                        BindingFlags.Instance | BindingFlags.NonPublic).GetValue(window), Is.EqualTo(0));
+                    window.Repaint();
+                    yield return null;
+                    DungeonRoomEditorContentEdits.DissolveGroup(serialized, 0);
+                    Invoke(window, "ClearAnchorSelection");
+                }
+                UnityEngine.TestTools.LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                window.Close();
+                Selection.activeObject = previousSelection;
+            }
+        }
+
+        private static object Invoke(object target, string name, params object[] args)
+            => target.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, args);
+
+        private static void Click(DungeonRoomEditorWindow window, Vector2 point, bool control)
+        {
+            var input = new Event { type = EventType.MouseDown, button = 0, mousePosition = point,
+                modifiers = control ? EventModifiers.Control : EventModifiers.None };
+            Invoke(window, "ProcessGridInput", input, new Rect(0, 0, 80, 80), 10f, new Vector2Int(8, 8));
+        }
+    }
+
     public class DungeonRoomTemplateEditorValidatorTests
     {
         private readonly List<Object> createdObjects = new();

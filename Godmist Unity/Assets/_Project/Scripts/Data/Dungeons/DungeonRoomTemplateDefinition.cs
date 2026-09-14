@@ -54,6 +54,10 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<DungeonSemanticAnchorData> SemanticAnchors { get; private set; } = new();
 
+        [field: Header("Atomic content groups")]
+        [field: SerializeField]
+        public List<DungeonContentGroupData> ContentGroups { get; private set; } = new();
+
         [field: SerializeField] public List<Vector2Int> DifficultTerrainCells { get; private set; } = new();
 
         private void OnValidate()
@@ -156,6 +160,26 @@ namespace Godmist.Data.Dungeons
             AllowedRotationDegrees = normalized.Count > 0
                 ? normalized
                 : new List<int>(DungeonRoomTransformUtility.AllRotations);
+        }
+    }
+
+    [System.Serializable]
+    public sealed class DungeonContentGroupData
+    {
+        [field: SerializeField] public string Id { get; private set; } = string.Empty;
+        [field: SerializeField] public List<string> AnchorIds { get; private set; } = new();
+        [field: SerializeField] public bool IsRequired { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float SpawnChance { get; private set; } = 1f;
+
+        public DungeonContentGroupData() { }
+
+        public DungeonContentGroupData(string id, IEnumerable<string> anchorIds,
+            bool isRequired = false, float spawnChance = 1f)
+        {
+            Id = id;
+            AnchorIds = new List<string>(anchorIds);
+            IsRequired = isRequired;
+            SpawnChance = spawnChance;
         }
     }
 }

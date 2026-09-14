@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Runtime.Dungeons;
@@ -14,7 +15,8 @@ namespace Godmist.Systems.Dungeons
         public Dictionary<string, Vector2Int> Resolve(
             DungeonFloorInstance floor,
             DungeonRoomTemplateCatalog catalog,
-            DungeonEncounterInstance encounter)
+            DungeonEncounterInstance encounter,
+            bool normalizeLegacyData = true)
         {
             var result = new Dictionary<string, Vector2Int>(
                 StringComparer.Ordinal);
@@ -50,7 +52,7 @@ namespace Godmist.Systems.Dungeons
                 floor,
                 catalog,
                 new[] { DungeonSemanticAnchorType.Enemy },
-                _ => true);
+                _ => true, normalizeLegacyData);
             var usedCells = new HashSet<Vector2Int>();
 
             foreach (var candidate in candidates)
@@ -105,7 +107,8 @@ namespace Godmist.Systems.Dungeons
 
         public HashSet<Vector2Int> GetReservedCells(
             DungeonFloorInstance floor,
-            DungeonRoomTemplateCatalog catalog)
+            DungeonRoomTemplateCatalog catalog,
+            bool normalizeLegacyData = true)
         {
             var result = new HashSet<Vector2Int>();
 
@@ -116,7 +119,7 @@ namespace Godmist.Systems.Dungeons
 
             foreach (var encounter in floor.Encounters)
             {
-                foreach (var cell in Resolve(floor, catalog, encounter).Values)
+                foreach (var cell in Resolve(floor, catalog, encounter, normalizeLegacyData).Values)
                 {
                     result.Add(cell);
                 }
@@ -146,13 +149,222 @@ namespace Godmist.Systems.Dungeons
         }
     }
 
+    // A selection opportunity is a single anchor or an atomic authored group.
+    // Placement feasibility is evaluated before its one probability decision.
+    public sealed class DungeonContentOpportunity
+    {
+        public string Id { get; }
+        public string Category { get; }
+        public float SpawnChance { get; }
+        public bool IsRequired { get; internal set; }
+        public List<DungeonSemanticAnchorPlacement> Anchors { get; } = new();
+        public List<DungeonContentOpportunity> Dependencies { get; } = new();
+
+        public DungeonContentOpportunity(string id, string category, float chance, bool required)
+        {
+            Id = id;
+            Category = category;
+            SpawnChance = chance;
+            IsRequired = required;
+        }
+    }
+
+    public static class DungeonRoomContentPlanner
+    {
+        public static void ValidateTemplate(DungeonRoomTemplateDefinition template)
+        {
+            var anchors = new Dictionary<string, DungeonSemanticAnchorData>(StringComparer.Ordinal);
+            foreach (var anchor in template.SemanticAnchors ?? new())
+            {
+                if (anchor == null || string.IsNullOrWhiteSpace(anchor.Id)
+                    || !anchors.TryAdd(anchor.Id, anchor))
+                    throw Error(template, "Pusta lub powtorzona kotwa.");
+                if (!Enum.IsDefined(typeof(DungeonSemanticAnchorType), anchor.Type)
+                    || float.IsNaN(anchor.SpawnChance) || anchor.SpawnChance < 0 || anchor.SpawnChance > 1
+                    || anchor.AreaSize.x <= 0 || anchor.AreaSize.y <= 0)
+                    throw Error(template, $"Kotwa '{anchor.Id}' ma nieprawidlowy typ, obszar lub szanse.");
+            }
+            var groupIds = new HashSet<string>(StringComparer.Ordinal);
+            var membership = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var group in template.ContentGroups ?? new())
+            {
+                if (group == null || string.IsNullOrWhiteSpace(group.Id) || !groupIds.Add(group.Id)
+                    || group.AnchorIds == null || group.AnchorIds.Count == 0
+                    || float.IsNaN(group.SpawnChance) || group.SpawnChance < 0 || group.SpawnChance > 1)
+                    throw Error(template, "Grupa musi miec unikalne Id, kotwy i szanse 0-1.");
+                foreach (var id in group.AnchorIds)
+                {
+                    if (string.IsNullOrWhiteSpace(id) || !anchors.TryGetValue(id, out var anchor)
+                        || anchor.Type == DungeonSemanticAnchorType.Enemy || !membership.TryAdd(id, group.Id))
+                        throw Error(template, $"Grupa '{group.Id}': nieprawidlowa lub wielokrotnie przypisana kotwa '{id}'.");
+                    // Group settings are authoritative; conflicting per-anchor settings are authoring errors.
+                    if (anchor.IsRequired || anchor.SpawnChance != 1f)
+                        throw Error(template, $"Grupa '{group.Id}', kotwa '{id}': ustaw Required=false i Chance=1 na kotwie; konfiguruj grupe.");
+                }
+            }
+            foreach (var anchor in anchors.Values)
+            {
+                var visiting = new HashSet<string>(StringComparer.Ordinal) { anchor.Id };
+                var current = anchor;
+                while (!string.IsNullOrWhiteSpace(current.RequiresAnchorId))
+                {
+                    if (!anchors.TryGetValue(current.RequiresAnchorId, out current)
+                        || current.Type == DungeonSemanticAnchorType.Enemy
+                        || !visiting.Add(current.Id))
+                        throw Error(template, $"Kotwa '{anchor.Id}': brak zaleznosci, zaleznosc od Enemy lub cykl.");
+                }
+            }
+            // Contracting groups can introduce cycles even when the anchor graph is acyclic.
+            var edges = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+            string Unit(string id) => membership.TryGetValue(id, out var group) ? "group:" + group : "anchor:" + id;
+            foreach (var anchor in anchors.Values)
+            {
+                var key = Unit(anchor.Id);
+                if (!edges.ContainsKey(key)) edges.Add(key, new HashSet<string>(StringComparer.Ordinal));
+                if (!string.IsNullOrWhiteSpace(anchor.RequiresAnchorId) && key != Unit(anchor.RequiresAnchorId))
+                    edges[key].Add(Unit(anchor.RequiresAnchorId));
+            }
+            var done = new HashSet<string>();
+            var active = new HashSet<string>();
+            void Visit(string id)
+            {
+                if (done.Contains(id)) return;
+                if (!active.Add(id)) throw Error(template, $"Cykl zaleznosci grup przy '{id}'.");
+                foreach (var dependency in edges[id]) Visit(dependency);
+                active.Remove(id);
+                done.Add(id);
+            }
+            foreach (var key in edges.Keys) Visit(key);
+        }
+
+        public static List<DungeonContentOpportunity> Build(
+            DungeonRoomTemplateCatalog catalog, IReadOnlyList<DungeonSemanticAnchorPlacement> candidates)
+        {
+            var result = new List<DungeonContentOpportunity>();
+            foreach (var roomCandidates in candidates.GroupBy(c => c.Room.RoomId))
+            {
+                var room = roomCandidates.First().Room;
+                var template = catalog.Templates.Single(t => t != null && t.Id == room.TemplateId);
+                ValidateTemplate(template);
+                var byAnchor = new Dictionary<string, DungeonContentOpportunity>(StringComparer.Ordinal);
+                var byId = roomCandidates.ToDictionary(c => c.Anchor.Id, StringComparer.Ordinal);
+                foreach (var group in template.ContentGroups ?? new())
+                {
+                    var members = group.AnchorIds.Select(id => byId[id]).OrderBy(c => c.Anchor.Id, StringComparer.Ordinal).ToList();
+                    var category = string.Join("+", members.Select(c => c.Anchor.Type.ToString()).Distinct().OrderBy(s => s, StringComparer.Ordinal));
+                    var unit = new DungeonContentOpportunity(room.RoomId + "/group:" + group.Id,
+                        category, group.SpawnChance, group.IsRequired);
+                    unit.Anchors.AddRange(members);
+                    result.Add(unit);
+                    foreach (var member in members) byAnchor.Add(member.Anchor.Id, unit);
+                }
+                foreach (var candidate in roomCandidates)
+                {
+                    if (byAnchor.ContainsKey(candidate.Anchor.Id)) continue;
+                    var unit = new DungeonContentOpportunity(room.RoomId + "/anchor:" + candidate.Anchor.Id,
+                        candidate.Anchor.Type.ToString(), candidate.Anchor.SpawnChance, candidate.Anchor.IsRequired);
+                    unit.Anchors.Add(candidate);
+                    result.Add(unit);
+                    byAnchor.Add(candidate.Anchor.Id, unit);
+                }
+                foreach (var candidate in roomCandidates)
+                {
+                    var unit = byAnchor[candidate.Anchor.Id];
+                    if (room.IsRequiredProgressionRoom && (candidate.Anchor.Type == DungeonSemanticAnchorType.Lever
+                        || candidate.Anchor.Type == DungeonSemanticAnchorType.Condition)) unit.IsRequired = true;
+                    if (string.IsNullOrWhiteSpace(candidate.Anchor.RequiresAnchorId)) continue;
+                    var dependency = byAnchor[candidate.Anchor.RequiresAnchorId];
+                    if (dependency != unit && !unit.Dependencies.Contains(dependency)) unit.Dependencies.Add(dependency);
+                }
+            }
+            var sorted = new List<DungeonContentOpportunity>();
+            var visited = new HashSet<DungeonContentOpportunity>();
+            void Visit(DungeonContentOpportunity unit)
+            {
+                if (!visited.Add(unit)) return;
+                foreach (var dependency in unit.Dependencies.OrderBy(d => d.Id, StringComparer.Ordinal)) Visit(dependency);
+                sorted.Add(unit);
+            }
+            foreach (var unit in result.OrderBy(u => u.Id, StringComparer.Ordinal)) Visit(unit);
+            void Require(DungeonContentOpportunity unit)
+            {
+                unit.IsRequired = true;
+                foreach (var dependency in unit.Dependencies) Require(dependency);
+            }
+            foreach (var unit in sorted.Where(u => u.IsRequired).ToList()) Require(unit);
+            return sorted;
+        }
+
+        public static void ValidateRequiredSpace(DungeonRoomTemplateDefinition template)
+        {
+            ValidateTemplate(template);
+            var anchors = template.SemanticAnchors ?? new();
+            var required = new HashSet<string>(anchors.Where(a => a.IsRequired
+                || template.CanBeRequiredProgressionBranch && (a.Type == DungeonSemanticAnchorType.Lever
+                    || a.Type == DungeonSemanticAnchorType.Condition)).Select(a => a.Id), StringComparer.Ordinal);
+            var previousCount = -1;
+            while (previousCount != required.Count)
+            {
+                previousCount = required.Count;
+                foreach (var group in template.ContentGroups ?? new())
+                    if (group.IsRequired || group.AnchorIds.Any(required.Contains)) required.UnionWith(group.AnchorIds);
+                foreach (var anchor in anchors)
+                    if (required.Contains(anchor.Id) && !string.IsNullOrWhiteSpace(anchor.RequiresAnchorId))
+                        required.Add(anchor.RequiresAnchorId);
+            }
+            var placements = new List<DungeonSemanticAnchorPlacement>();
+            var reserved = new HashSet<Vector2Int>();
+            foreach (var anchor in anchors)
+            {
+                var cells = new List<Vector2Int>();
+                for (var x = 0; x < anchor.AreaSize.x; x++)
+                    for (var y = 0; y < anchor.AreaSize.y; y++) cells.Add(anchor.LocalCell + new Vector2Int(x, y));
+                if (anchor.Type == DungeonSemanticAnchorType.Enemy) reserved.UnionWith(cells);
+                else if (required.Contains(anchor.Id)) placements.Add(new DungeonSemanticAnchorPlacement(
+                    null, anchor, new RectInt(anchor.LocalCell, anchor.AreaSize), cells));
+            }
+            if (!TryAssign(placements, reserved, out _))
+                throw Error(template, "Brak miejsca na komplet wymaganych kotew: " + string.Join(", ", required.OrderBy(s => s, StringComparer.Ordinal)));
+        }
+
+        // Bipartite matching avoids greedy failures for overlapping authored areas.
+        public static bool TryAssign(IReadOnlyList<DungeonSemanticAnchorPlacement> anchors,
+            HashSet<Vector2Int> reserved, out Dictionary<DungeonSemanticAnchorPlacement, Vector2Int> positions)
+        {
+            var occupants = new Dictionary<Vector2Int, DungeonSemanticAnchorPlacement>();
+            bool Assign(DungeonSemanticAnchorPlacement anchor, HashSet<Vector2Int> visited)
+            {
+                foreach (var cell in anchor.Cells.OrderBy(c => c.y).ThenBy(c => c.x))
+                {
+                    if (reserved.Contains(cell) || !visited.Add(cell)) continue;
+                    if (occupants.TryGetValue(cell, out var previous) && !Assign(previous, visited)) continue;
+                    occupants[cell] = anchor;
+                    return true;
+                }
+                return false;
+            }
+            foreach (var anchor in anchors)
+            {
+                if (Assign(anchor, new HashSet<Vector2Int>())) continue;
+                positions = null;
+                return false;
+            }
+            positions = occupants.ToDictionary(p => p.Value, p => p.Key);
+            return true;
+        }
+
+        private static InvalidOperationException Error(DungeonRoomTemplateDefinition template, string message)
+            => new($"Szablon '{template.Id}': {message}");
+    }
+
     public class DungeonSemanticAnchorResolver
     {
         public List<DungeonSemanticAnchorPlacement> GetCandidates(
             DungeonFloorInstance floor,
             DungeonRoomTemplateCatalog catalog,
             IReadOnlyCollection<DungeonSemanticAnchorType> types,
-            Func<DungeonRoomType, bool> roomTypeFilter)
+            Func<DungeonRoomType, bool> roomTypeFilter,
+            bool normalizeLegacyData = true)
         {
             var result = new List<DungeonSemanticAnchorPlacement>();
 
@@ -186,7 +398,7 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    anchor.Normalize();
+                    if (normalizeLegacyData) anchor.Normalize();
 
                     if (string.IsNullOrWhiteSpace(anchor.Id))
                     {
