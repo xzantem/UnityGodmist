@@ -6,8 +6,12 @@ namespace Godmist.Data.Configuration
     {
         public static List<GameDefineEntry> CreateEntries()
         {
-            return new List<GameDefineEntry>
+            var entries = new List<GameDefineEntry>
             {
+                Integer(GameDefineIds.EnemyGoldBase, "Złoto przeciwnika", "Nagroda na poziomie 1.", GameDefineCategory.Economy, "gold", 10, 0, 1000000),
+                Integer(GameDefineIds.CompanionRecoveryBase, "Odzyskanie towarzysza", "Cena na poziomie 1 przed zniżką honoru.", GameDefineCategory.Economy, "gold", 300, 1, 1000000),
+                Float(GameDefineIds.CombatEconomyGrowthBase, "Wzrost ekonomii walki", "Podstawa skalowania złota i odzyskiwania.", GameDefineCategory.Economy, "x", 4f, 1f, 100f),
+                Float(GameDefineIds.CombatEconomyLevelSpan, "Przedział poziomów ekonomii", "Liczba poziomów na jeden mnożnik wzrostu.", GameDefineCategory.Economy, "poziomy", 10f, 1f, 100f),
                 Float(GameDefineIds.TraderRelevantSellMultiplier, "Sprzedaż właściwego typu", "Mnożnik ceny sprzedaży itemu zgodnego z ofertą tradera.", GameDefineCategory.Economy, "x", .5f, 0f, 100f),
                 Float(GameDefineIds.TraderIrrelevantSellMultiplier, "Sprzedaż innego typu", "Mnożnik ceny sprzedaży itemu spoza oferty tradera.", GameDefineCategory.Economy, "x", .25f, 0f, 100f),
                 Float(GameDefineIds.NpcGuildPayoutGrowthBase, "Baza wzrostu wypłat gildii", "Podstawa potęgowania wypłaty gildii NPC względem poziomu kampanii.", GameDefineCategory.Economy, "x", 4f, 1.01f, 100f),
@@ -219,6 +223,15 @@ namespace Godmist.Data.Configuration
                 Float(GameDefineIds.EncounterCombatStartDistance, "Odległość rozpoczęcia walki", "Odległość, przy której encounter przechodzi do walki.", GameDefineCategory.Exploration, "unity units", .85f, 0f, 100f),
                 Float(GameDefineIds.EncounterChaseSpeed, "Prędkość pościgu", "Prędkość przeciwnika ścigającego drużynę w eksploracji.", GameDefineCategory.Exploration, "unity units/s", 4.5f, 0f, 100f)
             };
+            entries.Add(Integer("economy.honor.tier_count", "Liczba tierów honoru", "Liczba progów rabatu honoru.", GameDefineCategory.Economy, "tiery", 9, 1, 20));
+            var minimums = new[] { int.MinValue, -100, -75, -50, -20, 40, 100, 150, 200 };
+            var names = new[] { "Wygnaniec", "Haniebny", "Niechlubny", "Podejrzany", "Rekrut", "Najemnik", "Bojownik", "Rycerz", "Przywódca" };
+            for (var tier = 0; tier < minimums.Length; tier++)
+            {
+                entries.Add(Integer($"economy.honor.tier_{tier}.minimum", $"Honor: {names[tier]} — próg", "Dolna granica włącznie; pierwszy tier obejmuje wszystkie niższe wartości.", GameDefineCategory.Economy, "Honor", minimums[tier], int.MinValue, int.MaxValue));
+                entries.Add(Float($"economy.honor.tier_{tier}.discount_percent", $"Honor: {names[tier]} — zniżka", "Zniżka odzyskiwania; wartość ujemna podnosi cenę (-100% = cena ×2).", GameDefineCategory.Economy, "%", 0f, -1000f, 100f));
+            }
+            return entries;
         }
 
         private static GameDefineEntry Integer(

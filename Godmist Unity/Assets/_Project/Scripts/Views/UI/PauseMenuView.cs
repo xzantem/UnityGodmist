@@ -55,7 +55,7 @@ namespace Godmist.Views.UI
             
             var session = GameBootstrap.Instance?.Session;
 
-            if (session == null) return;
+            if (session == null || session.IsDefeated) return;
             if (!Input.GetKeyDown(KeyCode.Escape)) return;
 
             if (saveLoadPanel != null && saveLoadPanel.IsOpen)
@@ -71,6 +71,16 @@ namespace Godmist.Views.UI
             }
 
             Open();
+        }
+
+        public void OpenLoadAfterDefeat()
+        {
+            gameSession = GameBootstrap.Instance?.Session;
+            if (gameSession?.IsDefeated != true) return;
+            overlayRoot.SetActive(true);
+            menuPanelRoot.SetActive(false);
+            SetGameTitleVisible(false);
+            saveLoadPanel.Open(SaveLoadPanelMode.Load);
         }
 
         public void Open()
@@ -127,6 +137,7 @@ namespace Godmist.Views.UI
 
         private void HandleSaveLoadPanelClosed()
         {
+            if (gameSession?.IsDefeated == true) { overlayRoot.SetActive(false); return; }
             if (!IsOpen) return;
 
             menuPanelRoot.SetActive(true);

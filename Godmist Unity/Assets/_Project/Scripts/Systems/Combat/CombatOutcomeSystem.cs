@@ -59,6 +59,16 @@ namespace Godmist.Systems.Combat
 
             if (!anyLivingPlayerUnits)
             {
+                if (session.IsSeamless && session.CanReceiveReinforcements
+                    && session.Units.Exists(unit => unit?.IsPlayerSide == true
+                        && unit.Character?.LifeState == CharacterLifeState.Downed)) return;
+                if (session.IsSeamless && !session.Units.Exists(unit => unit?.IsPlayerSide == true
+                    && unit.Character?.LifeState != CharacterLifeState.Dead))
+                {
+                    session.Outcome = session.DepartedUnits.Count > 0
+                        ? CombatOutcomeState.Escaped : CombatOutcomeState.Defeat;
+                    return;
+                }
                 session.Outcome = CombatOutcomeState.Defeat;
                 battleLog?.Invoke("Porazka.");
             }

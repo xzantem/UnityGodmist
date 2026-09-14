@@ -58,6 +58,67 @@ namespace Godmist.Tests.EditMode
                 Is.True);
         }
 
+        [TestCase(DungeonWallType.Low, true)]
+        [TestCase(DungeonWallType.Railing, false)]
+        public void Build_TypedInternalEdge_UsesSameExplorationRules(DungeonWallType type, bool walk)
+        {
+            var floor = CreateFloorWithSingleRoom();
+            template.StructuralAnchors.Clear();
+            template.StructuralAnchors.Add(new DungeonStructuralAnchorData(
+                DungeonStructuralAnchorType.Wall, new(1, 1), DungeonEdgeDirection.Right, type));
+            var map = new DungeonFloorMapBuilder().Build(floor, catalog);
+            Assert.That(map.CanMoveBetween(new(1, 1), new(2, 1)), Is.EqualTo(walk));
+            Assert.That(map.GetWallType(new DungeonCellEdge(new(1, 1), new(2, 1))), Is.EqualTo(type));
+        }
+
+        [TestCase(DungeonWallType.Low)]
+        [TestCase(DungeonWallType.Railing)]
+        public void Build_TypedExternalEdge_PreservesVoidAndExcludesDoorway(DungeonWallType type)
+        {
+            var floor = CreateFloorWithSingleRoom();
+            template.StructuralAnchors.Clear();
+            template.StructuralAnchors.Add(new DungeonStructuralAnchorData(
+                DungeonStructuralAnchorType.Wall, Vector2Int.zero, DungeonEdgeDirection.Left, type));
+            var map = new DungeonFloorMapBuilder().Build(floor, catalog);
+            Assert.That(map.GetWallType(new DungeonCellEdge(Vector2Int.zero, Vector2Int.left)), Is.EqualTo(type));
+            Assert.That(map.CanMoveBetween(Vector2Int.zero, Vector2Int.left), Is.False);
+            Assert.That(template.AllowsBoundaryEdge(Vector2Int.zero, DungeonEdgeDirection.Left), Is.False);
+        }
+
+        [TestCase(0)]
+        [TestCase(90)]
+        [TestCase(180)]
+        [TestCase(270)]
+        public void Build_RotatesTypedExternalEdges(int rotation)
+        {
+            CreateFloorWithSingleRoom();
+            template.StructuralAnchors.Clear();
+            template.StructuralAnchors.Add(new DungeonStructuralAnchorData(
+                DungeonStructuralAnchorType.Wall, Vector2Int.zero, DungeonEdgeDirection.Left, DungeonWallType.Low));
+            var floor = new DungeonFloorInstance(0);
+            floor.TryAddRoom(new DungeonRoomInstance("rotated", DungeonRoomType.Normal, template.Id, Vector2Int.zero,
+                rotationDegrees: rotation));
+            var map = new DungeonFloorMapBuilder().Build(floor, catalog);
+            var cell = DungeonRoomTransformUtility.TransformCell(Vector2Int.zero, template.SizeInCells, rotation);
+            var offset = DungeonRoomTransformUtility.GetDirectionOffset(
+                DungeonRoomTransformUtility.TransformDirection(DungeonEdgeDirection.Left, rotation));
+            Assert.That(map.GetWallType(new DungeonCellEdge(cell, cell + offset)), Is.EqualTo(DungeonWallType.Low));
+            Assert.That(map.CanMoveBetween(cell, cell + offset), Is.False);
+        }
+
+        [Test]
+        public void SerializedWallType_RoundTripsAndLegacyDefaultsToFullWall()
+        {
+            var legacy = JsonUtility.FromJson<DungeonStructuralAnchorData>("{}");
+            Assert.That(legacy.WallType, Is.EqualTo(DungeonWallType.Full));
+            var low = new DungeonStructuralAnchorData(DungeonStructuralAnchorType.Wall,
+                new Vector2Int(1, 2), DungeonEdgeDirection.Left, DungeonWallType.Low);
+            var restored = JsonUtility.FromJson<DungeonStructuralAnchorData>(JsonUtility.ToJson(low));
+            Assert.That(restored.WallType, Is.EqualTo(DungeonWallType.Low));
+            Assert.That(restored.LocalCell, Is.EqualTo(low.LocalCell));
+            Assert.That(restored.Direction, Is.EqualTo(low.Direction));
+        }
+
         private DungeonFloorInstance CreateFloorWithSingleRoom()
         {
             catalog = ScriptableObject.CreateInstance<DungeonRoomTemplateCatalog>();

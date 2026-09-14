@@ -206,6 +206,10 @@ namespace Godmist.Systems.Dungeons
                         $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
                 }
 
+                foreach (var localCell in template.DifficultTerrainCells)
+                    map.SetDifficultTerrain(room.LayoutPosition + DungeonRoomTransformUtility.TransformCell(
+                        localCell, template.SizeInCells, room.RotationDegrees));
+
                 foreach (var anchor in template.StructuralAnchors)
                 {
                     if (anchor == null
@@ -225,8 +229,7 @@ namespace Godmist.Systems.Dungeons
                                              anchor.Direction,
                                              room.RotationDegrees));
 
-                    if (!map.IsWalkable(firstCell)
-                        || !map.IsWalkable(secondCell))
+                    if (!map.IsWalkable(firstCell))
                     {
                         throw new InvalidOperationException(
                             $"Kotwica sciany w szablonie '{template.Id}' "
@@ -234,16 +237,19 @@ namespace Godmist.Systems.Dungeons
                     }
 
                     if (!map.TryGetRoomId(firstCell, out var firstRoomId)
-                        || !map.TryGetRoomId(secondCell, out var secondRoomId)
-                        || firstRoomId != room.RoomId
-                        || secondRoomId != room.RoomId)
+                        || firstRoomId != room.RoomId)
                     {
                         throw new InvalidOperationException(
                             $"Kotwica sciany w szablonie '{template.Id}' "
                             + "nie moze wychodzic poza granice pokoju.");
                     }
 
-                    map.TryAddWall(firstCell, secondCell);
+                    if (!Enum.IsDefined(typeof(DungeonWallType), anchor.WallType))
+                        throw new InvalidOperationException("Invalid wall type in room template.");
+                    var edge = new DungeonCellEdge(firstCell, secondCell);
+                    if (map.WallTypes.TryGetValue(edge, out var existing) && existing != anchor.WallType)
+                        throw new InvalidOperationException("Conflicting wall types on shared room edge.");
+                    map.SetWallType(edge, anchor.WallType);
                 }
             }
         }

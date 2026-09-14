@@ -151,4 +151,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b466ddb4d0129f7489ea4981d2eb41ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonWallSegmentView
+  movementCollider: {fileID: 7356106466946371252}
   thickness: 0.4

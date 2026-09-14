@@ -26,6 +26,18 @@ namespace Godmist.Tests.EditMode
             createdObjects.Clear();
         }
 
+        [TestCase(DungeonWallType.Full)]
+        [TestCase(DungeonWallType.Low)]
+        [TestCase(DungeonWallType.Railing)]
+        public void Validate_ExternalWallEdge_IsValid(DungeonWallType type)
+        {
+            var template = CreateTemplate();
+            template.StructuralAnchors.Add(new DungeonStructuralAnchorData(
+                DungeonStructuralAnchorType.Wall, Vector2Int.zero, DungeonEdgeDirection.Left, type));
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+            Assert.That(report.IsValid, Is.True, string.Join("\n", report.Errors));
+        }
+
         [Test]
         public void Validate_DefaultRectangle_IsValid()
         {

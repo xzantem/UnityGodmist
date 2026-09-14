@@ -1,4 +1,5 @@
 using System;
+using Godmist.Core.Enums;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,23 @@ namespace Godmist.Runtime.Dungeons
     {
         private readonly HashSet<Vector2Int> floorCells = new();
         private readonly Dictionary<Vector2Int, string> roomIdByCell = new();
+        private readonly Dictionary<DungeonCellEdge, DungeonWallType> wallTypes = new();
+        private readonly HashSet<Vector2Int> difficultTerrain = new();
+        public IReadOnlyCollection<Vector2Int> DifficultTerrainCells => difficultTerrain;
+        public bool IsDifficultTerrain(Vector2Int cell) => difficultTerrain.Contains(cell);
+        public void SetDifficultTerrain(Vector2Int cell)
+        {
+            if (!IsWalkable(cell)) throw new ArgumentException("Terrain must be on a floor cell.");
+            difficultTerrain.Add(cell);
+        }
+        public IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> WallTypes => wallTypes;
+        public DungeonWallType GetWallType(DungeonCellEdge edge) => wallTypes.TryGetValue(edge, out var type) ? type : DungeonWallType.Full;
+        public bool SetWallType(DungeonCellEdge edge, DungeonWallType type)
+        {
+            if (!floorCells.Contains(edge.FirstCell) && !floorCells.Contains(edge.SecondCell)) return false;
+            wallEdges.Add(edge); wallTypes[edge] = type; return true;
+        }
+
         private readonly HashSet<DungeonCellEdge> wallEdges = new();
         private readonly HashSet<DungeonCellEdge> closedDoorEdges = new();
         private readonly HashSet<DungeonCellEdge> closedProgressionGateEdges = new();
@@ -147,7 +165,8 @@ namespace Godmist.Runtime.Dungeons
 
             var edge = new DungeonCellEdge(firstCell, secondCell);
 
-            return !HasWallBetween(firstCell, secondCell)
+            return (!HasWallBetween(firstCell, secondCell)
+                    || GetWallType(new DungeonCellEdge(firstCell, secondCell)) == DungeonWallType.Low)
                 && (ignoreClosedDoorEdges
                     || (!closedDoorEdges.Contains(edge)
                         && !closedProgressionGateEdges.Contains(edge)));

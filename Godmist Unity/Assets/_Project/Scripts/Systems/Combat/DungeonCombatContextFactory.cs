@@ -35,7 +35,7 @@ namespace Godmist.Systems.Combat
             }
 
             var combatCellSet = new HashSet<Vector2Int>(combatCells);
-            var wallEdges = CollectInternalWalls(
+            var wallEdges = CollectArenaWalls(
                 floor.Map,
                 combatCellSet);
 
@@ -53,7 +53,7 @@ namespace Godmist.Systems.Combat
                 combatCells,
                 wallEdges,
                 mapObjects,
-                dungeon.DungeonLevel);
+                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells);
 
             return true;
         }
@@ -78,7 +78,7 @@ namespace Godmist.Systems.Combat
             return cells;
         }
 
-        private static List<DungeonCellEdge> CollectInternalWalls(
+        private static List<DungeonCellEdge> CollectArenaWalls(
             DungeonFloorMap map,
             HashSet<Vector2Int> combatCells)
         {
@@ -87,7 +87,7 @@ namespace Godmist.Systems.Combat
             foreach (var wallEdge in map.WallEdges)
             {
                 if (combatCells.Contains(wallEdge.FirstCell)
-                    && combatCells.Contains(wallEdge.SecondCell))
+                    || combatCells.Contains(wallEdge.SecondCell))
                 {
                     walls.Add(wallEdge);
                 }
@@ -106,8 +106,7 @@ namespace Godmist.Systems.Combat
             foreach (var dungeonObject in floor.Objects)
             {
                 if (dungeonObject == null
-                    || !dungeonObject.IsActive
-                    || !combatCells.Contains(dungeonObject.Position))
+                    || !dungeonObject.IsActive)
                 {
                     continue;
                 }
@@ -118,7 +117,7 @@ namespace Godmist.Systems.Combat
                 if (dungeonObject is DoorDungeonObjectInstance door)
                 {
                     if (!combatCells.Contains(door.Edge.FirstCell)
-                        || !combatCells.Contains(door.Edge.SecondCell))
+                        && !combatCells.Contains(door.Edge.SecondCell))
                     {
                         continue;
                     }
@@ -132,6 +131,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (!combatCells.Contains(dungeonObject.Position)) continue;
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
                 {
                     blocksMovement = obstacle.BlocksMovement;

@@ -24,19 +24,20 @@ namespace Godmist.Systems.Combat
         {
             if (combatSession == null
                 || (combatSession.Outcome != CombatOutcomeState.Victory
-                    && combatSession.Outcome != CombatOutcomeState.Escaped))
+                    && combatSession.Outcome != CombatOutcomeState.Escaped
+                    && !(combatSession.IsSeamless && combatSession.Outcome == CombatOutcomeState.Defeat)))
             {
                 return false;
             }
 
             if (gameSession == null
                 || gameSession.ActiveDungeon == null
-                || gameSession.ActiveDungeonCombatContext == null)
+                || (combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext) == null)
             {
                 return false;
             }
 
-            var context = gameSession.ActiveDungeonCombatContext;
+            var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
             if (!string.Equals(
                     combatSession.CombatId,
@@ -60,7 +61,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (combatSession.Outcome == CombatOutcomeState.Escaped)
+            if (combatSession.Outcome != CombatOutcomeState.Victory)
             {
                 gameSession.ActiveDungeon.ClearPendingPlayerPartyPositions();
                 return true;
@@ -128,7 +129,7 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private static bool TryCreateEnemyBodies(
+        public static bool TryCreateEnemyBodies(
             DungeonInstance dungeon,
             DungeonCombatContext context,
             CombatSession combatSession)

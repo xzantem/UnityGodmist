@@ -17,7 +17,7 @@ namespace Godmist.Systems.Items
             openedItemCount = 0;
 
             if (gameSession == null
-                || gameSession.ActiveCombat != null
+                || gameSession.IsCharacterInCombat(characterId)
                 || string.IsNullOrWhiteSpace(characterId)
                 || string.IsNullOrWhiteSpace(bagInstanceId)
                 || !gameSession.PlayerParty.IsActiveMember(characterId)

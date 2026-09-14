@@ -1,4 +1,5 @@
 using System;
+using Godmist.Core.Enums;
 using System.Collections.Generic;
 
 namespace Godmist.Runtime.Combat
@@ -11,6 +12,19 @@ namespace Godmist.Runtime.Combat
 
         private readonly HashSet<GridPosition> walkablePositions = new();
         private readonly HashSet<GridPosition> blockedPositions = new();
+        private readonly Dictionary<BattleCellEdge, DungeonWallType> wallTypes = new();
+        public void SetWallEdge(GridPosition from, GridPosition to, DungeonWallType type)
+            => wallTypes[new BattleCellEdge(from, to)] = type;
+        private readonly HashSet<GridPosition> difficultTerrain = new();
+        public void SetDifficultTerrain(GridPosition cell) => difficultTerrain.Add(cell);
+        public bool IsDifficultTerrain(GridPosition cell) => difficultTerrain.Contains(cell);
+        public int GetTerrainMovementSurcharge(GridPosition cell) => IsDifficultTerrain(cell) ? 1 : 0;
+        public int GetMovementSurcharge(GridPosition from, GridPosition to)
+            => (wallTypes.TryGetValue(new BattleCellEdge(from, to), out var type) && type == DungeonWallType.Low ? 2 : 0)
+                + GetTerrainMovementSurcharge(to);
+        public bool CanDisplaceBetween(GridPosition from, GridPosition to)
+            => CanMoveBetween(from, to) && !wallTypes.ContainsKey(new BattleCellEdge(from, to));
+
         private readonly HashSet<BattleCellEdge> blockedEdges = new();
 
         private readonly bool usesExplicitWalkablePositions;
@@ -120,8 +134,9 @@ namespace Godmist.Runtime.Combat
                 return false;
             }
 
-            return blockedEdges.Contains(
-                new BattleCellEdge(firstCell, secondCell));
+            var edge = new BattleCellEdge(firstCell, secondCell);
+            return blockedEdges.Contains(edge)
+                || (wallTypes.TryGetValue(edge, out var type) && type != DungeonWallType.Low);
         }
 
         public GridPosition GetOffsetPosition(
@@ -150,7 +165,9 @@ namespace Godmist.Runtime.Combat
                 && IsWalkable(secondCell)
                 && !IsBlocked(firstCell)
                 && !IsBlocked(secondCell)
-                && !HasBlockedEdge(firstCell, secondCell);
+                && !HasBlockedEdge(firstCell, secondCell)
+                && (!wallTypes.TryGetValue(new BattleCellEdge(firstCell, secondCell), out var type)
+                    || type == DungeonWallType.Low);
         }
 
         public bool TryMove(

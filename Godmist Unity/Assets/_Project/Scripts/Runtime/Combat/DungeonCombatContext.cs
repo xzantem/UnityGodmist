@@ -21,8 +21,11 @@ namespace Godmist.Runtime.Combat
         public Vector2Int EnemyAnchorWorldPosition { get; }
         public RectInt WorldBounds { get; }
 
+        public IReadOnlyCollection<Vector2Int> DifficultTerrainCells { get; }
         public IReadOnlyList<Vector2Int> WorldCells => worldCells;
         public IReadOnlyList<DungeonCellEdge> WallEdges => wallEdges;
+        private readonly Dictionary<DungeonCellEdge, DungeonWallType> wallTypes;
+        public DungeonWallType GetWallType(DungeonCellEdge edge) => wallTypes.TryGetValue(edge, out var type) ? type : DungeonWallType.Full;
         public IReadOnlyList<DungeonCombatMapObjectSnapshot> MapObjects => mapObjects;
 
         public DungeonCombatContext(
@@ -35,7 +38,9 @@ namespace Godmist.Runtime.Combat
             IEnumerable<Vector2Int> nextWorldCells,
             IEnumerable<DungeonCellEdge> nextWallEdges,
             IEnumerable<DungeonCombatMapObjectSnapshot> nextMapObjects,
-            int dungeonLevel = 1)
+            int dungeonLevel = 1,
+            IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> nextWallTypes = null,
+            IEnumerable<Vector2Int> difficultTerrainCells = null)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -78,10 +83,15 @@ namespace Godmist.Runtime.Combat
                 ? new List<DungeonCellEdge>(nextWallEdges)
                 : new List<DungeonCellEdge>();
 
+            wallTypes = new Dictionary<DungeonCellEdge, DungeonWallType>();
+            foreach (var edge in wallEdges)
+                if (nextWallTypes != null && nextWallTypes.TryGetValue(edge, out var type)) wallTypes[edge] = type;
+
             mapObjects = nextMapObjects != null
                 ? new List<DungeonCombatMapObjectSnapshot>(nextMapObjects)
                 : new List<DungeonCombatMapObjectSnapshot>();
 
+            DifficultTerrainCells = new HashSet<Vector2Int>(difficultTerrainCells ?? Array.Empty<Vector2Int>());
             DungeonId = dungeonId;
             FloorIndex = floorIndex;
             EncounterInstanceId = encounterInstanceId;

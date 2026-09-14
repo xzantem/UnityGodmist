@@ -34,6 +34,10 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public string ActivationGroupId { get; private set; } = string.Empty;
 
+        [field: SerializeField]
+        [field: Tooltip("Opcjonalny konkretny obiekt z puli lochu. Puste zachowuje losowanie według typu kotwy.")]
+        public DungeonObjectDefinition ObjectDefinition { get; private set; }
+
         public DungeonSemanticAnchorData()
         {
         }
@@ -47,8 +51,10 @@ namespace Godmist.Data.Dungeons
             bool isRequired = false,
             string requiresAnchorId = null,
             string activationGroupId = null,
-            int encounterEnemyIndex = -1)
+            int encounterEnemyIndex = -1,
+            DungeonObjectDefinition objectDefinition = null)
         {
+            ObjectDefinition = objectDefinition;
             Id = id ?? string.Empty;
             Type = type;
             LocalCell = localCell;

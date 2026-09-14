@@ -36,6 +36,9 @@ namespace Godmist.Systems.Combat
                     ToBattlePosition(context, worldCell));
             }
 
+            foreach (var cell in context.DifficultTerrainCells)
+                if (context.ContainsWorldCell(cell)) grid.SetDifficultTerrain(ToBattlePosition(context, cell));
+
             foreach (var wallEdge in context.WallEdges)
             {
                 var firstCell = ToBattlePosition(
@@ -46,7 +49,7 @@ namespace Godmist.Systems.Combat
                     context,
                     wallEdge.SecondCell);
 
-                grid.SetBlockedEdge(firstCell, secondCell);
+                grid.SetWallEdge(firstCell, secondCell, context.GetWallType(wallEdge));
             }
 
             foreach (var mapObject in context.MapObjects)

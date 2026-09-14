@@ -41,7 +41,8 @@ namespace Godmist.Systems.Dungeons
                     }
 
                     return characterDefinition?.LootTable;
-                });
+                },
+                goldRandom: random.NextDouble);
 
             foreach (var floor in dungeon.Floors)
             {
@@ -68,7 +69,7 @@ namespace Godmist.Systems.Dungeons
                             lootCatalog,
                             bossDefinition,
                             encounterInstance,
-                            enemyData));
+                            enemyData), dungeon.DungeonLevel);
 
                     dungeon.TryStorePreRolledRewards(
                         encounterInstance.InstanceId,

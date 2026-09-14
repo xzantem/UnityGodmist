@@ -154,7 +154,8 @@ namespace Godmist.Views.NPC
             var definition = dialogue.Npc?.Definition;
             var hasServices = definition?.GetRole<TraderRoleData>() != null
                 || definition?.GetRole<BlacksmithRoleData>() != null
-                || definition?.GetRole<AlchemistRoleData>() != null;
+                || definition?.GetRole<AlchemistRoleData>() != null
+                || definition?.GetRole<PriestRoleData>() != null;
             SetServicesButtonVisible(shouldShowDialogue && hasServices);
 
             if (shouldShowDialogue)

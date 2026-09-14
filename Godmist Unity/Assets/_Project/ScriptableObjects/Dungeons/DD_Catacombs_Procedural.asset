@@ -44,5 +44,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e97090c83c566d4aa377a29d4a43b97, type: 2}
   - {fileID: 11400000, guid: e35f093698fd54e47a385a862e0f305a, type: 2}
   - {fileID: 11400000, guid: d8d0f4cf9eecd654c9e3aefd97a2ed3a, type: 2}
+  - {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
+  - {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
+  - {fileID: 11400000, guid: afa538ff94198384589c93161a858ade, type: 2}
+  - {fileID: 11400000, guid: c93126558afb0664a82641061edc7b91, type: 2}
+  - {fileID: 11400000, guid: bb57f1a55abedd0428e8318082820cde, type: 2}
+  - {fileID: 11400000, guid: a1503f674931c37438245449843693d8, type: 2}
   <MinObjectCountPerFloor>k__BackingField: 0
   <MaxObjectCountPerFloor>k__BackingField: 99

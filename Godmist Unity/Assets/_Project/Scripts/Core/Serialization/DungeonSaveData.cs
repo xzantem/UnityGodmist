@@ -9,6 +9,9 @@ namespace Godmist.Core.Serialization
         public string DungeonId = string.Empty;
         public int Seed;
         public int DungeonLevel = 1;
+        // Zero means the legacy seed-only format. Never fall back for a damaged snapshot.
+        public int LayoutVersion;
+        public List<DungeonFloorLayoutSaveData> Layout = new();
         public int CurrentFloorIndex;
         public int HighestReachedFloorIndex = -1;
         public int GuildProgressCreditedFloorCount;
@@ -31,6 +34,77 @@ namespace Godmist.Core.Serialization
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
         public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonFloorLayoutSaveData
+    {
+        public int FloorIndex;
+        public bool HasMap;
+        public List<DungeonRoomLayoutSaveData> Rooms = new();
+        public List<DungeonConnectionLayoutSaveData> Connections = new();
+        public List<DungeonCellSaveData> Cells = new();
+        public List<DungeonWallSaveData> Walls = new();
+        public List<DungeonObjectLayoutSaveData> Objects = new();
+        public List<DungeonEncounterLayoutSaveData> Encounters = new();
+    }
+
+    [Serializable]
+    public class DungeonRoomLayoutSaveData
+    {
+        public string Id, TemplateId;
+        public int Type, X, Y, Rotation;
+        public bool Required, Completed;
+    }
+
+    [Serializable]
+    public class DungeonConnectionLayoutSaveData
+    {
+        public string FirstRoomId, SecondRoomId;
+        public bool HasGeometry, HasGate;
+        public int FirstX, FirstY, SecondX, SecondY, Width;
+        public string GateId, ConditionId, BranchRoomId;
+        public List<string> RequiredSources = new();
+    }
+
+    [Serializable]
+    public class DungeonCellSaveData
+    {
+        public int X, Y;
+        public string RoomId;
+        public bool Difficult;
+    }
+
+    [Serializable]
+    public class DungeonWallSaveData
+    {
+        public int FirstX, FirstY, SecondX, SecondY, Type;
+    }
+
+    [Serializable]
+    public class DungeonObjectLayoutSaveData
+    {
+        public string Id, DefinitionId;
+        public int Type, X, Y, DoorSecondX, DoorSecondY;
+        public bool Required;
+        public string ConditionId, ActivationGroupId;
+    }
+
+    [Serializable]
+    public class DungeonEncounterLayoutSaveData
+    {
+        public string Id, DefinitionId, RoomId;
+        public int X, Y, Width, Height;
+        public int PositionX, PositionY, RetreatX, RetreatY;
+        public bool HasRetreat;
+        public List<DungeonEnemyPositionSaveData> EnemyPositions = new();
+    }
+
+    [Serializable]
+    public class DungeonEnemyPositionSaveData
+    {
+        public string Id;
+        public int X, Y;
     }
 
     [Serializable]
@@ -71,7 +145,18 @@ namespace Godmist.Core.Serialization
     public class DungeonEncounterDeltaSaveData
     {
         public string EncounterInstanceId = string.Empty;
+        public bool HasPreparedRewards;
+        public List<DungeonEnemyRewardSaveData> Rewards = new();
         public List<string> DefeatedEnemyInstanceIds = new();
         public List<string> GeneratedEnemyBodyEnemyInstanceIds = new();
+    }
+
+    [Serializable]
+    public class DungeonEnemyRewardSaveData
+    {
+        // Empty id denotes the legacy aggregate reward.
+        public string EnemyId;
+        public int Experience, Gold;
+        public List<string> ItemIds = new();
     }
 }

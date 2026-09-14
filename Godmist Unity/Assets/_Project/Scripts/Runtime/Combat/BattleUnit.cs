@@ -16,6 +16,7 @@ namespace Godmist.Runtime.Combat
         public int CurrentActionPoints;
         public int MaxActionPoints;
         public int MovementStepsThisTurn;
+        public bool HasInitializedCombatResources;
         public int MaxKnives;
         public int AvailableKnives;
         public float CurrentActionValue;

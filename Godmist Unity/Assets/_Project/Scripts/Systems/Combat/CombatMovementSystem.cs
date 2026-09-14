@@ -12,11 +12,13 @@ namespace Godmist.Systems.Combat
 {
     public static class ScoutKnifeSystem
     {
-        public static void ResetForCombat(CombatSession session)
+        public static void ResetForCombat(CombatSession session, bool preserveInitialized = false)
         {
             foreach (var unit in session?.Units ?? new List<BattleUnit>())
             {
-                if (unit?.Character?.ClassData?.Id != "class.scout") continue;
+                if (unit == null || (preserveInitialized && unit.HasInitializedCombatResources)) continue;
+                unit.HasInitializedCombatResources = true;
+                if (unit.Character?.ClassData?.Id != "class.scout") continue;
                 unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0
                     ? GameDefinesRuntime.GetInt(GameDefineIds.DefaultMaxKnives, 5)
                     : unit.MaxKnives);
@@ -157,52 +159,39 @@ namespace Godmist.Systems.Combat
                 return reachablePaths;
             }
 
-            var queue = new Queue<GridPosition>();
-            var paths = new Dictionary<GridPosition, List<GridPosition>>();
-
-            queue.Enqueue(unit.Position);
-            paths[unit.Position] = new List<GridPosition>();
-
+            var queue = new Queue<(GridPosition position, List<GridPosition> path)>();
+            var labels = new Dictionary<(GridPosition cell, string traps, GridPosition direction), List<(int steps, int cost, float risk, int turns)>>();
+            var best = new Dictionary<GridPosition, (float risk, int cost, int turns)>();
+            queue.Enqueue((unit.Position, new List<GridPosition>()));
             while (queue.Count > 0)
             {
-                var current = queue.Dequeue();
-                var currentPath = paths[current];
-
+                var (current, currentPath) = queue.Dequeue();
                 foreach (var direction in MovementDirections)
                 {
-                    var candidate = new GridPosition(
-                        current.X + direction.x, 
-                        current.Y + direction.y);
-
-                    if (paths.ContainsKey(candidate))
-                    {
-                        continue;
-                    }
-                    if (!session.Grid.CanMoveBetween(current, candidate)
+                    var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
+                    if (candidate == unit.Position || currentPath.Contains(candidate)
+                        || !session.CanMoveBetween(unit, current, candidate)
                         || session.IsPositionOccupied(candidate, unit)
-                        || session.DoesObjectBlockMovement(
-                            session.GetMapObjectAt(candidate)))
+                        || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
+                    var nextPath = new List<GridPosition>(currentPath) { candidate };
+                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath);
+                    if (cost > availableActionPoints) continue;
+                    var risk = session.EvaluateTrapRisk?.Invoke(unit, nextPath) ?? 0f;
+                    var turns = CountPathTurns(unit.Position, nextPath);
+                    var key = (candidate, session.TrapRouteState?.Invoke(nextPath) ?? "", new GridPosition(direction.x, direction.y));
+                    if (!labels.TryGetValue(key, out var candidates)) labels[key] = candidates = new();
+                    if (candidates.Exists(label => label.steps <= nextPath.Count && label.cost <= cost
+                        && label.risk <= risk && label.turns <= turns)) continue;
+                    candidates.RemoveAll(label => label.steps >= nextPath.Count && label.cost >= cost
+                        && label.risk >= risk && label.turns >= turns);
+                    candidates.Add((nextPath.Count, cost, risk, turns));
+                    if (!best.TryGetValue(candidate, out var old) || risk < old.risk
+                        || risk == old.risk && (cost < old.cost || cost == old.cost && turns < old.turns))
                     {
-                        continue;
+                        best[candidate] = (risk, cost, turns);
+                        reachablePaths[candidate] = nextPath;
                     }
-
-                    var nextPath = new List<GridPosition>(currentPath)
-                    {
-                        candidate
-                    };
-
-                    var pathCost = CalculatePathCost(
-                        movementStepsAlreadyTaken,
-                        nextPath.Count);
-
-                    if (pathCost > availableActionPoints)
-                    {
-                        continue;
-                    }
-
-                    paths[candidate] = nextPath;
-                    reachablePaths[candidate] = nextPath;
-                    queue.Enqueue(candidate);
+                    if (!session.IsExitPosition(candidate)) queue.Enqueue((candidate, nextPath));
                 }
             }
 
@@ -214,6 +203,29 @@ namespace Godmist.Systems.Combat
             BattleUnit unit, 
             IReadOnlyList<GridPosition> path)
         {
+            return TryMoveAlongPath(session, unit, path, out _);
+        }
+
+        public static int CountPathTurns(GridPosition origin, IReadOnlyList<GridPosition> path)
+        {
+            int turns = 0;
+            var previousDirection = new GridPosition(0, 0);
+            for (int i = 0; i < path.Count; i++)
+            {
+                var direction = new GridPosition(path[i].X - origin.X, path[i].Y - origin.Y);
+                if (i > 0 && direction != previousDirection) turns++;
+                previousDirection = direction; origin = path[i];
+            }
+            return turns;
+        }
+
+        public bool TryMoveAlongPath(
+            CombatSession session,
+            BattleUnit unit,
+            IReadOnlyList<GridPosition> path,
+            out List<GridPosition> completedPath)
+        {
+            completedPath = new List<GridPosition>();
             if (session?.Grid == null
                 || unit?.Character == null
                 || path == null
@@ -244,6 +256,7 @@ namespace Godmist.Systems.Combat
                     break;
                 }
 
+                completedPath.Add(targetPosition);
                 totalMovementCost += movementCost;
             }
 
@@ -262,7 +275,7 @@ namespace Godmist.Systems.Combat
                             source: unit,
                             movementCost: totalMovementCost,
                             movementSteps: unit.MovementStepsThisTurn,
-                            distance: path.Count,
+                            distance: completedPath.Count,
                             eventValue: totalMovementCost));
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
@@ -330,16 +343,15 @@ namespace Godmist.Systems.Combat
                 unit,
                 CombatActionCostCalculator.CalculateMovementCost(unit));
 
+            var nextCell = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell);
             if (unit.CurrentActionPoints < movementCost)
             {
                 return false;
             }
 
-            if (!session.Grid.TryMove(
-                    unit.Position,
-                    deltaX,
-                    deltaY,
-                    out var targetPosition))
+            var targetPosition = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            if (!session.CanMoveBetween(unit, unit.Position, targetPosition))
             {
                 return false;
             }
@@ -374,6 +386,7 @@ namespace Godmist.Systems.Combat
                     unit, CombatFeedbackType.ActionPointSpend, movementCost));
             }
             unit.MovementStepsThisTurn++;
+            session.NotifyUnitEnteredCell(unit);
 
             if (processResource)
             {
@@ -409,6 +422,18 @@ namespace Godmist.Systems.Combat
             }
 
             return true;
+        }
+
+        public static int CalculatePathCost(CombatSession session, GridPosition origin,
+            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path)
+        {
+            var cost = CalculatePathCost(movementStepsAlreadyTaken, path.Count);
+            foreach (var cell in path)
+            {
+                cost += session.Grid.GetMovementSurcharge(origin, cell);
+                origin = cell;
+            }
+            return cost;
         }
 
         public static int CalculatePathCost(

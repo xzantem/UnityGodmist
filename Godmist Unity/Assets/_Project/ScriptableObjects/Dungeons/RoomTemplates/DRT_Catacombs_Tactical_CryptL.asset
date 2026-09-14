@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc410525305dd84a8f71c3d39096c80, type: 3}
+  m_Name: DRT_Catacombs_Tactical_CryptL
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateDefinition
+  <Id>k__BackingField: room.catacombs.tactical.cryptl
+  <DisplayName>k__BackingField: "Krypta L"
+  <RoomType>k__BackingField: 1
+  <CanBeRequiredProgressionBranch>k__BackingField: 0
+  <SizeInCells>k__BackingField: {x: 12, y: 12}
+  <AllowedRotationDegrees>k__BackingField: 000000005a000000b40000000e010000
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+    - {x: 0, y: 2}
+    - {x: 0, y: 3}
+    - {x: 0, y: 4}
+    - {x: 0, y: 5}
+    - {x: 0, y: 6}
+    - {x: 0, y: 7}
+    - {x: 0, y: 8}
+    - {x: 0, y: 9}
+    - {x: 0, y: 10}
+    - {x: 0, y: 11}
+    - {x: 1, y: 0}
+    - {x: 1, y: 1}
+    - {x: 1, y: 2}
+    - {x: 1, y: 3}
+    - {x: 1, y: 4}
+    - {x: 1, y: 5}
+    - {x: 1, y: 6}
+    - {x: 1, y: 7}
+    - {x: 1, y: 8}
+    - {x: 1, y: 9}
+    - {x: 1, y: 10}
+    - {x: 1, y: 11}
+    - {x: 2, y: 0}
+    - {x: 2, y: 1}
+    - {x: 2, y: 2}
+    - {x: 2, y: 3}
+    - {x: 2, y: 4}
+    - {x: 2, y: 5}
+    - {x: 2, y: 6}
+    - {x: 2, y: 7}
+    - {x: 2, y: 8}
+    - {x: 2, y: 9}
+    - {x: 2, y: 10}
+    - {x: 2, y: 11}
+    - {x: 3, y: 0}
+    - {x: 3, y: 1}
+    - {x: 3, y: 2}
+    - {x: 3, y: 3}
+    - {x: 3, y: 4}
+    - {x: 3, y: 5}
+    - {x: 3, y: 6}
+    - {x: 3, y: 7}
+    - {x: 3, y: 8}
+    - {x: 3, y: 9}
+    - {x: 3, y: 10}
+    - {x: 3, y: 11}
+    - {x: 4, y: 0}
+    - {x: 4, y: 1}
+    - {x: 4, y: 2}
+    - {x: 4, y: 3}
+    - {x: 4, y: 4}
+    - {x: 4, y: 5}
+    - {x: 4, y: 6}
+    - {x: 4, y: 7}
+    - {x: 4, y: 8}
+    - {x: 4, y: 9}
+    - {x: 4, y: 10}
+    - {x: 4, y: 11}
+    - {x: 5, y: 0}
+    - {x: 5, y: 1}
+    - {x: 5, y: 2}
+    - {x: 5, y: 3}
+    - {x: 5, y: 4}
+    - {x: 6, y: 0}
+    - {x: 6, y: 1}
+    - {x: 6, y: 2}
+    - {x: 6, y: 3}
+    - {x: 6, y: 4}
+    - {x: 7, y: 0}
+    - {x: 7, y: 1}
+    - {x: 7, y: 2}
+    - {x: 7, y: 3}
+    - {x: 7, y: 4}
+    - {x: 8, y: 0}
+    - {x: 8, y: 1}
+    - {x: 8, y: 2}
+    - {x: 8, y: 3}
+    - {x: 8, y: 4}
+    - {x: 9, y: 0}
+    - {x: 9, y: 1}
+    - {x: 9, y: 2}
+    - {x: 9, y: 3}
+    - {x: 9, y: 4}
+    - {x: 10, y: 0}
+    - {x: 10, y: 1}
+    - {x: 10, y: 2}
+    - {x: 10, y: 3}
+    - {x: 10, y: 4}
+    - {x: 11, y: 0}
+    - {x: 11, y: 1}
+    - {x: 11, y: 2}
+    - {x: 11, y: 3}
+    - {x: 11, y: 4}
+  <AllowedBoundaryEdges>k__BackingField: []
+  <BoundaryEdgesConfigured>k__BackingField: 0
+  <StructuralAnchors>k__BackingField: []
+  <SemanticAnchors>k__BackingField:
+  - <Id>k__BackingField: obstacle_sarcophagus.2.4
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 2, y: 4}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField:
+    <ActivationGroupId>k__BackingField:
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
+  - <Id>k__BackingField: obstacle_sarcophagus.3.4
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 3, y: 4}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField:
+    <ActivationGroupId>k__BackingField:
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
+  - <Id>k__BackingField: obstacle_sarcophagus.7.2
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 7, y: 2}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField:
+    <ActivationGroupId>k__BackingField:
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
+  - <Id>k__BackingField: trap_gas.2.7
+    <Type>k__BackingField: 2
+    <LocalCell>k__BackingField: {x: 2, y: 7}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField:
+    <ActivationGroupId>k__BackingField:
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: bb57f1a55abedd0428e8318082820cde, type: 2}
+  - <Id>k__BackingField: trap_gas.7.3
+    <Type>k__BackingField: 2
+    <LocalCell>k__BackingField: {x: 7, y: 3}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField:
+    <ActivationGroupId>k__BackingField:
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: bb57f1a55abedd0428e8318082820cde, type: 2}
+  <DifficultTerrainCells>k__BackingField: 
+  - {x: 1, y: 6}
+  - {x: 2, y: 6}
+  - {x: 3, y: 6}
+  - {x: 6, y: 2}
+  - {x: 6, y: 3}

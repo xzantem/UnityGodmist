@@ -49,6 +49,7 @@ namespace Godmist.Views.Combat
                 renderer.sortingLayerID = renderers[0].sortingLayerID;
                 renderer.sortingOrder = renderers[0].sortingOrder - 1;
                 renderer.sharedMaterial = outlineMaterial;
+                renderer.enabled = false;
                 outlineRenderers[index] = renderer;
                 outlineProperties[index] = new MaterialPropertyBlock();
             }
@@ -59,14 +60,21 @@ namespace Godmist.Views.Combat
             if (outlineMaterial != null) Destroy(outlineMaterial);
         }
 
-        public void Refresh(BattleUnit unit, bool isActive, bool isHovered, bool isTargeting)
+        public void ClearHighlight()
+        {
+            if (outlineRenderers == null) return;
+            foreach (var renderer in outlineRenderers)
+                if (renderer != null) renderer.enabled = false;
+        }
+
+        public void Refresh(BattleUnit unit, bool isActive, bool isHovered, bool isTargeting, bool preserveBodyColors = false)
         {
             if (renderers == null) Awake();
             var accent = isHovered ? (isTargeting ? targetColor : inspectColor) : isActive ? activeTurnColor : Color.clear;
             for (var i = 0; i < renderers.Length; i++)
             {
                 if (renderers[i] == null) continue;
-                renderers[i].color = defaults[i];
+                if (!preserveBodyColors) renderers[i].color = defaults[i];
             }
             if (outlineRenderers == null) return;
             // The colour deliberately reaches the unmodified accent.  The easing keeps it

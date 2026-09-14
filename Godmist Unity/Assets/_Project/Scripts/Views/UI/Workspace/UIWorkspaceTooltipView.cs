@@ -214,7 +214,8 @@ namespace Godmist.Views.UI.Workspace
             SkillData skill,
             int actionCost,
             object source,
-            BattleUnit caster = null)
+            BattleUnit caster = null,
+            string availabilityReason = null)
         {
             if (suppressForDrag || skill == null) return;
             QueueShow(source ?? skill, () => SetContent(
@@ -223,7 +224,7 @@ namespace Godmist.Views.UI.Workspace
                     ? "Przedmiot użytkowy"
                     : skill.DisplayName,
                 BuildSkillDescription(skill, caster),
-                BuildSkillMeta(skill, actionCost)));
+                BuildSkillMeta(skill, actionCost) + (string.IsNullOrEmpty(availabilityReason) ? string.Empty : "\n" + availabilityReason)));
         }
 
         public void ShowStatus(CombatStatusPresentation presentation, object source)
@@ -242,10 +243,19 @@ namespace Godmist.Views.UI.Workspace
                     presentation.Aura,
                     presentation.OutgoingRedirect,
                     presentation.Owner),
-                BuildStatusMeta(
+                presentation.ExplorationCharacter != null ? ExplorationStatusDuration(presentation) : BuildStatusMeta(
                     effect,
                     presentation.Aura,
                     presentation.OutgoingRedirect)));
+        }
+
+        public static string ExplorationStatusDuration(CombatStatusPresentation presentation)
+        {
+            var ticks = presentation.Effect?.RemainingDuration ?? 0;
+            if (ticks <= 0) return "Bez limitu czasu";
+            var seconds = Mathf.Max(0, ticks * Godmist.Systems.Combat.ExplorationStatusEffectSystem.ExplorationTickSeconds
+                - (presentation.ExplorationCharacter?.ExplorationStatusElapsedSeconds ?? 0));
+            return $"Pozostało: {Mathf.CeilToInt(seconds)} s · ticki: {ticks}";
         }
 
         public void ShowText(string title, string body, object source)
@@ -1093,7 +1103,8 @@ namespace Godmist.Views.UI.Workspace
 
         private static string BuildSkillMeta(SkillData skill, int actionCost)
         {
-            var result = $"AP {actionCost}  •  RES {skill.ResourceCost}";
+            var result = $"Koszt: {actionCost} AP";
+            if (skill.ResourceCost > 0) result += $"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {skill.ResourceCost}";
             if (skill.KnifeCost > 0) result += $"  •  SZTYLETY {skill.KnifeCost}";
             if (!skill.IsToggle) return result;
 
@@ -1608,7 +1619,7 @@ namespace Godmist.Views.UI.Workspace
             var group = GetTargetingDisplayName(mode.TargetingType);
             return mode.TargetType switch
             {
-                TargetType.Caster => "rzucający",
+                TargetType.Caster => "użytkownik umiejętności",
                 TargetType.Single => $"pojedynczy {GetTargetingSingularName(mode.TargetingType)}",
                 TargetType.All => GetTargetingPluralName(mode.TargetingType),
                 TargetType.AreaAroundCaster =>

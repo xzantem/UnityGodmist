@@ -65,6 +65,10 @@ namespace Godmist.Editor
             }
 
             var floorCells = ValidateFootprint(template, size, report);
+            var terrainCells = new HashSet<Vector2Int>();
+            foreach (var cell in template.DifficultTerrainCells)
+                if (!floorCells.Contains(cell) || !terrainCells.Add(cell))
+                    report.AddError("Difficult terrain must use unique floor cells inside the room.");
             ValidateBoundaryEdges(template, floorCells, report);
             ValidateStructuralAnchors(template, floorCells, report);
             ValidateSemanticAnchors(template, floorCells, report);
@@ -316,7 +320,7 @@ namespace Godmist.Editor
                 var secondCell = firstCell + anchor.GetDirectionOffset();
 
                 if (!floorCells.Contains(firstCell)
-                    || !floorCells.Contains(secondCell))
+                    || (anchor.Type != DungeonStructuralAnchorType.Wall && !floorCells.Contains(secondCell)))
                 {
                     report.AddError(
                         $"Structural anchor ({firstCell.x}, {firstCell.y}) "
@@ -324,6 +328,8 @@ namespace Godmist.Editor
                     continue;
                 }
 
+                if (!Enum.IsDefined(typeof(DungeonWallType), anchor.WallType))
+                    report.AddError("Nieprawidłowy typ ściany.");
                 var edge = new StructuralEdgeKey(firstCell, secondCell);
 
                 if (!usedEdges.Add(edge))
@@ -371,6 +377,21 @@ namespace Godmist.Editor
                         anchor.Type))
                 {
                     report.AddError("Semantic anchor ma nieprawidlowy typ.");
+                }
+
+                if (anchor.ObjectDefinition != null)
+                {
+                    var matches = anchor.Type switch
+                    {
+                        DungeonSemanticAnchorType.Obstacle => anchor.ObjectDefinition is ObstacleDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Trap => anchor.ObjectDefinition is SpikeTrapDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Chest => anchor.ObjectDefinition is ChestDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Lever => anchor.ObjectDefinition is LeverDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Condition or DungeonSemanticAnchorType.Reward => anchor.ObjectDefinition is ConditionDungeonObjectDefinition,
+                        _ => false
+                    };
+                    if (!matches || string.IsNullOrWhiteSpace(anchor.ObjectDefinition.Id) || anchor.ObjectDefinition.SpawnWeight <= 0)
+                        report.AddError($"Semantic anchor '{anchor.Id}' ma niezgodna definicje obiektu.");
                 }
 
                 if (anchor.AreaSize.x <= 0 || anchor.AreaSize.y <= 0)

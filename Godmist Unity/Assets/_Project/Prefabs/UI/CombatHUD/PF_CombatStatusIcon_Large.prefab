@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6546886396125127199}
   - component: {fileID: 619840863648374749}
+  - component: {fileID: 2959586203281236842}
+  - component: {fileID: 6012204231989306454}
   m_Layer: 0
   m_Name: PF_CombatStatusIcon_Large
   m_TagString: Untagged
@@ -52,6 +54,45 @@ MonoBehaviour:
   icon: {fileID: 550830137666240997}
   stackText: {fileID: 0}
   durationText: {fileID: 0}
+  showCounters: 1
+--- !u!222 &2959586203281236842
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4077795663614012995}
+  m_CullTransparentMesh: 1
+--- !u!114 &6012204231989306454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4077795663614012995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4387612829538833350
 GameObject:
   m_ObjectHideFlags: 0

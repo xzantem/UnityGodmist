@@ -23,7 +23,7 @@ namespace Godmist.Systems.SaveLoad
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if (session.ActiveCombat != null)
+            if ((session.HasCombat || session.IsDefeated))
             {
                 throw new InvalidOperationException(
                     "Nie mozna utworzyc zapisu podczas aktywnej walki.");
@@ -46,7 +46,7 @@ namespace Godmist.Systems.SaveLoad
         {
             if (saveData == null
                 || session == null
-                || session.ActiveCombat != null
+                || (session.HasCombat || session.IsDefeated)
                 || string.IsNullOrWhiteSpace(saveData.SaveId))
             {
                 return false;
@@ -311,6 +311,8 @@ namespace Godmist.Systems.SaveLoad
                 DungeonId = dungeon.DungeonId,
                 Seed = dungeon.Seed,
                 DungeonLevel = dungeon.DungeonLevel,
+                LayoutVersion = DungeonLayoutSnapshot.CurrentVersion,
+                Layout = DungeonLayoutSnapshot.Capture(dungeon),
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
                 HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
                 GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
@@ -458,8 +460,7 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
-                    dungeonSaveData.EncounterDeltas.Add(
-                        new DungeonEncounterDeltaSaveData
+                    var encounterDelta = new DungeonEncounterDeltaSaveData
                         {
                             EncounterInstanceId = encounter.InstanceId,
                             DefeatedEnemyInstanceIds = new List<string>(
@@ -467,13 +468,47 @@ namespace Godmist.Systems.SaveLoad
                             GeneratedEnemyBodyEnemyInstanceIds =
                                 new List<string>(
                                     encounter.GeneratedEnemyBodyEnemyInstanceIds)
-                        });
+                        };
+                    if (dungeon.TryGetPreRolledRewards(encounter.InstanceId, out var rewards))
+                    {
+                        encounterDelta.HasPreparedRewards = true;
+                        if (!dungeon.IsEncounterCleared(encounter.InstanceId))
+                        {
+                            if (rewards.EnemyRewards.Count == 0)
+                            {
+                                if (!TryCaptureDungeonReward(encounterDelta, null, rewards.ExperiencePerActiveCharacter,
+                                    rewards.Gold, rewards.Items, saveData, capturedItemIds)) return false;
+                            }
+                            foreach (var reward in rewards.EnemyRewards)
+                            {
+                                if (encounter.IsEnemyDefeated(reward.EnemyInstanceId)
+                                    || encounter.IsEnemyBodyGenerated(reward.EnemyInstanceId)) continue;
+                                if (!TryCaptureDungeonReward(encounterDelta, reward.EnemyInstanceId, reward.ExperiencePerActiveCharacter,
+                                    reward.Gold, reward.Items, saveData, capturedItemIds)) return false;
+                            }
+                        }
+                    }
+                    dungeonSaveData.EncounterDeltas.Add(encounterDelta);
                 }
 
                 dungeonSaveData.FloorDeltas.Add(floorDelta);
             }
 
             saveData.ActiveDungeon = dungeonSaveData;
+            return true;
+        }
+
+        private static bool TryCaptureDungeonReward(DungeonEncounterDeltaSaveData encounter, string enemyId,
+            int experience, int gold, List<ItemInstance> items, GameSaveData saveData, HashSet<string> capturedItemIds)
+        {
+            if (experience < 0 || gold < 0 || items == null) return false;
+            var reward = new DungeonEnemyRewardSaveData { EnemyId = enemyId, Experience = experience, Gold = gold };
+            foreach (var item in items)
+            {
+                if (!TryCaptureItem(item, saveData, capturedItemIds)) return false;
+                reward.ItemIds.Add(item.InstanceId);
+            }
+            encounter.Rewards.Add(reward);
             return true;
         }
 

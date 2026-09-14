@@ -13,24 +13,9 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI stackText;
         [SerializeField] private TextMeshProUGUI durationText;
 
+        [SerializeField] private bool showCounters = true;
         private CombatStatusPresentation presentation;
         private UIWorkspaceTooltipView tooltip;
-
-        private void Awake()
-        {
-            // Status templates are authored in several HUD contexts. Give the root a
-            // transparent raycast surface so pointer events work even when the visible
-            // sprite is a child with Raycast Target disabled.
-            var graphic = GetComponent<Graphic>();
-            if (graphic == null)
-            {
-                var raycastSurface = gameObject.AddComponent<Image>();
-                raycastSurface.color = Color.clear;
-                graphic = raycastSurface;
-            }
-
-            graphic.raycastTarget = true;
-        }
 
         public void Bind(
             CombatStatusPresentation source,
@@ -47,8 +32,8 @@ namespace Godmist.Views.UI
                 icon.enabled = icon.sprite != null;
             }
 
-            SetCounter(stackText, effect.Stacks);
-            SetCounter(durationText, effect.RemainingDuration);
+            SetCounter(stackText, showCounters ? effect.Stacks : 0);
+            SetCounter(durationText, showCounters ? effect.RemainingDuration : 0);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -61,6 +46,8 @@ namespace Godmist.Views.UI
         {
             tooltip?.NotifySourceExit(this);
         }
+
+        private void OnDisable() => tooltip?.NotifySourceExit(this);
 
         private static void SetCounter(TextMeshProUGUI label, int value)
         {

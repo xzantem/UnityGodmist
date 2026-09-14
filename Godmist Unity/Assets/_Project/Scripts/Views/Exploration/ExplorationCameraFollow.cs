@@ -26,6 +26,26 @@ namespace Godmist.Views.Exploration
         private bool isPanning;
         public bool IsFollowingLeader => currentMode == CameraMode.FollowLeader;
 
+        private bool combatSuspended;
+        private float explorationZoom;
+        private bool restoringZoom;
+        public void SetCombatSuspended(bool suspended)
+        {
+            if (combatSuspended == suspended) return;
+            if (worldCamera != null)
+            {
+                if (suspended)
+                {
+                    if (!restoringZoom) explorationZoom = worldCamera.orthographicSize;
+                    restoringZoom = false;
+                }
+                else restoringZoom = true;
+            }
+            combatSuspended = suspended;
+            isPanning = false;
+            enabled = !suspended;
+        }
+
         private void Awake()
         {
             worldCamera = GetComponent<Camera>();
@@ -83,6 +103,13 @@ namespace Godmist.Views.Exploration
 
         private void LateUpdate()
         {
+            if (restoringZoom && worldCamera != null)
+            {
+                worldCamera.orthographicSize = Mathf.Lerp(worldCamera.orthographicSize, explorationZoom,
+                    1f - Mathf.Exp(-followSpeed * Time.unscaledDeltaTime));
+                if (Mathf.Abs(worldCamera.orthographicSize - explorationZoom) < 0.01f)
+                { worldCamera.orthographicSize = explorationZoom; restoringZoom = false; }
+            }
             if (currentMode != CameraMode.FollowLeader) return;
             if (partyController == null || partyController.ActiveLeaderTransform == null) return;
 

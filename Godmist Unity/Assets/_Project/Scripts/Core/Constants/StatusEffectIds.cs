@@ -5,6 +5,7 @@ namespace Godmist.Core.Constants
 {
     public static class StatusEffectIds
     {
+        public const string Weakening = "weakening";
         public const string Bleed = "bleed";
         public const string Poison = "poison";
         public const string Burn = "burn";
@@ -24,6 +25,7 @@ namespace Godmist.Core.Constants
         public static readonly IReadOnlyList<string> KnownIds =
             new[]
             {
+                Weakening,
                 Bleed,
                 Poison,
                 Burn,

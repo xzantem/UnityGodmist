@@ -25,6 +25,16 @@ namespace Godmist.Data.World
         [field: SerializeField] public List<NpcDefinition> NpcDefinitions { get; private set; } = new();
         [field: SerializeField] public List<DungeonDefinition> DungeonDefinitions { get; private set; } = new();
         [field: SerializeField] public List<EncounterDefinition> EncounterDefinitions { get; private set; } = new();
+        // Retain definitions here when removing them from a dungeon's generation pool.
+        [field: SerializeField] public List<DungeonObjectDefinition> DungeonObjectDefinitions { get; private set; } = new();
+
+        public bool TryGetDungeonObject(string id, out DungeonObjectDefinition definition)
+        {
+            if (TryFind(DungeonObjectDefinitions, id, out definition)) return true;
+            foreach (var dungeon in DungeonDefinitions)
+                if (dungeon != null && TryFind(dungeon.ObjectDefinitions, id, out definition)) return true;
+            return false;
+        }
 
         public bool TryGetCharacter(
             string characterId,
@@ -134,6 +144,7 @@ namespace Godmist.Data.World
                 NpcDefinition value => value.Id,
                 EncounterDefinition value => value.Id,
                 DungeonDefinition value => value.Id,
+                DungeonObjectDefinition value => value.Id,
                 _ => string.Empty
             };
         }

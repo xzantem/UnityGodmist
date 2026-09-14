@@ -14,6 +14,8 @@ namespace Godmist.Views.UI
         [SerializeField, Min(0f)] private float verticalPadding = 12f;
         [SerializeField, Min(0f)] private float minimumDrawerHeight = 0f;
 
+        public string SelectedCharacterId { private get; set; }
+
         private readonly List<CombatPartyMemberView> entries = new();
 
         private void Awake()
@@ -56,7 +58,7 @@ namespace Godmist.Views.UI
                 entries[index].gameObject.SetActive(visible);
                 if (visible)
                 {
-                    entries[index].Bind(playerUnits[index]);
+                    entries[index].Bind(playerUnits[index], playerUnits[index].Character.CharacterId == SelectedCharacterId, playerUnits[index] == session.ActiveUnit);
                 }
             }
 

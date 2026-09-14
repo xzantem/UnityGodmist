@@ -12,12 +12,14 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Image portrait;
         [SerializeField] private TextMeshProUGUI nameText;
 
+        [SerializeField] private CombatStatusCollectionView statusCollection;
         private CharacterInstance character;
         private Action<CharacterInstance> onClick;
 
         public void Bind(CharacterInstance nextCharacter, Action<CharacterInstance> nextOnClick)
         {
             character = nextCharacter;
+            statusCollection?.BindCharacter(character);
             onClick = nextOnClick;
             if (portrait != null)
             {

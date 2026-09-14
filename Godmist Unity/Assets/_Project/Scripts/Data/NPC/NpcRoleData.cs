@@ -9,13 +9,6 @@ namespace Godmist.Data.NPC
     {
     }
 
-    [CreateAssetMenu(
-        fileName = "PriestRole",
-        menuName = "Godmist/NPC/Roles/Priest Role")]
-    public sealed class PriestRoleData : NpcRoleData
-    {
-    }
-
     /// <summary>
     /// Contract for NPC roles that expose material recipes. The role owns the
     /// discipline and recipe list so console and UI workflows can stay

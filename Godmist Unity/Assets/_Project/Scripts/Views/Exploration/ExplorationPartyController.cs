@@ -24,6 +24,23 @@ namespace Godmist.Views.Exploration
 
         private Camera worldCamera;
         private Vector2? movementDestination;
+        private Godmist.Views.Dungeons.DungeonCombatCoordinator combatCoordinator;
+        public bool IsSeparated { get; private set; }
+        public void SetCombatCoordinator(Godmist.Views.Dungeons.DungeonCombatCoordinator value) => combatCoordinator = value;
+        public void SeparateForCombat() { IsSeparated = true; CancelMovement(); }
+        public void CancelMovement() => movementDestination = null;
+        public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
+        public void RefreshControlState() => RefreshLeaderVisuals();
+
+        public void RemoveUnavailableViews()
+        {
+            var removed = new List<string>();
+            foreach (var pair in viewsById)
+                if (!gameSession.PlayerParty.IsActiveMember(pair.Key))
+                { pair.Value.gameObject.SetActive(false); removed.Add(pair.Key); }
+            foreach (var id in removed) viewsById.Remove(id);
+            RefreshLeaderVisuals();
+        }
 
         public bool IsNoclipEnabled { get; private set; }
 
@@ -63,15 +80,18 @@ namespace Godmist.Views.Exploration
         {
             if (DevConsoleView.IsOpen) return;
 
-            if (gameSession == null)
+            if (gameSession == null || gameSession.IsDefeated)
             {
                 return;
             }
 
-            if (gameSession.ActiveCombat != null)
+            if (combatCoordinator != null && Input.GetKeyDown(KeyCode.Tab))
             {
+                TryCycleLeader();
+                combatCoordinator.RefreshFocus();
                 return;
             }
+            if (gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) return;
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
@@ -128,7 +148,7 @@ namespace Godmist.Views.Exploration
 
             if (gameSession == null
                 || gameSession.CurrentMode != GameModeState.Exploration
-                || gameSession.ActiveCombat != null)
+                || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
                 return;
             }
@@ -168,6 +188,7 @@ namespace Godmist.Views.Exploration
 
         private void MoveFollowers(ExplorationCharacterView leaderView)
         {
+            if (IsSeparated || gameSession.HasCombat) return;
             var previousView = leaderView;
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
@@ -233,7 +254,7 @@ namespace Godmist.Views.Exploration
 
             foreach (var characterView in viewsById.Values)
             {
-                characterView.SetIsActiveLeader(characterView.CharacterId == gameSession.PlayerParty.ActiveLeaderId);
+                characterView.SetIsActiveLeader(characterView.CombatUnit == null && characterView.CharacterId == gameSession.PlayerParty.ActiveLeaderId);
             }
         }
 

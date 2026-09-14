@@ -134,17 +134,24 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            var halfSize = RectTransform.rect.size * 0.5f;
-            var min = root.rect.min + halfSize;
-            var max = root.rect.max - halfSize;
-            var position = RectTransform.anchoredPosition;
-            position.x = min.x > max.x
-                ? root.rect.center.x
-                : Mathf.Clamp(position.x, min.x, max.x);
-            position.y = min.y > max.y
-                ? root.rect.center.y
-                : Mathf.Clamp(position.y, min.y, max.y);
-            RectTransform.anchoredPosition = position;
+            // Compare actual corners in workspace coordinates, independent of anchors/pivot.
+            var corners = new Vector3[4];
+            RectTransform.GetWorldCorners(corners);
+            var min = (Vector2)root.InverseTransformPoint(corners[0]);
+            var max = min;
+            foreach (var corner in corners)
+            {
+                var point = (Vector2)root.InverseTransformPoint(corner);
+                min = Vector2.Min(min, point);
+                max = Vector2.Max(max, point);
+            }
+            var bounds = root.rect;
+            var correction = Vector2.zero;
+            correction.x = max.x - min.x > bounds.width ? bounds.center.x - (min.x + max.x) * .5f
+                : min.x < bounds.xMin ? bounds.xMin - min.x : max.x > bounds.xMax ? bounds.xMax - max.x : 0f;
+            correction.y = max.y - min.y > bounds.height ? bounds.center.y - (min.y + max.y) * .5f
+                : min.y < bounds.yMin ? bounds.yMin - min.y : max.y > bounds.yMax ? bounds.yMax - max.y : 0f;
+            RectTransform.position += root.TransformVector(correction);
         }
 
         private UIWorkspaceWindowManager ResolveManager()

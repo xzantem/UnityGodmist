@@ -7,6 +7,8 @@ namespace Godmist.Views.Dungeons
     {
         [SerializeField] private Collider2D blockingCollider;
 
+        public bool HasBlockingCollider => blockingCollider != null;
+
         public void Initialize(
             ObstacleDungeonObjectInstance obstacle,
             Vector3 worldPosition)

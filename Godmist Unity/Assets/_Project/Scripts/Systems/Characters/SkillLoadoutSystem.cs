@@ -174,7 +174,7 @@ namespace Godmist.Systems.Characters
             character = null;
 
             if (session == null
-                || session.ActiveCombat != null
+                || session.IsCharacterInCombat(characterId)
                 || string.IsNullOrWhiteSpace(characterId)
                 || !session.CharactersById.TryGetValue(
                     characterId,

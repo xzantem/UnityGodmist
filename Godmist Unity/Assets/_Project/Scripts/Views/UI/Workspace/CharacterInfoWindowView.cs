@@ -130,7 +130,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void OpenSkillLoadout()
         {
-            if (session == null || character == null || session.ActiveCombat != null) return;
+            if (session == null || character == null || session.IsCharacterInCombat(character?.CharacterId)) return;
             if (skillLoadoutWindow == null)
             {
                 var manager = window?.Manager;
@@ -143,7 +143,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void OpenSkillTree()
         {
-            if (session == null || character == null || session.ActiveCombat != null) return;
+            if (session == null || character == null || session.IsCharacterInCombat(character?.CharacterId)) return;
             if (skillTreeWindow == null)
             {
                 var manager = window?.Manager;
@@ -156,7 +156,8 @@ namespace Godmist.Views.UI.Workspace
 
         public void TryEquip(ItemInstance item)
         {
-            if (item is not EquipmentItemInstance equipment || character == null) return;
+            if (item is not EquipmentItemInstance equipment || character == null
+                || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             if (equipmentService.TryEquip(character, equipment.InstanceId)) Refresh();
         }
 
@@ -182,14 +183,14 @@ namespace Godmist.Views.UI.Workspace
             Debug.LogWarning(
                 $"Nie można otworzyć lootbaga '{lootBag.InstanceId}': "
                 + $"zawartość={lootBag.Contents?.Count ?? 0}, "
-                + $"walka={(session.ActiveCombat != null ? "aktywna" : "brak")}, "
+                + $"walka={(session.IsCharacterInCombat(character?.CharacterId) ? "aktywna" : "brak")}, "
                 + $"otwarte={openedItemCount}.",
                 this);
         }
 
         public void TryUseConsumable(ItemInstance item)
         {
-            if (item is not ConsumableItemInstance consumable || character == null || session == null || session.ActiveCombat != null) return;
+            if (item is not ConsumableItemInstance consumable || character == null || session == null || session.IsCharacterInCombat(character?.CharacterId)) return;
             if (!consumableService.TryUseInExploration(
                     character,
                     consumable,
@@ -202,7 +203,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void TryUnequip(EquipmentSlot slot)
         {
-            if (character == null) return;
+            if (character == null || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             if (equipmentService.TryUnequip(character, slot)) Refresh();
         }
 

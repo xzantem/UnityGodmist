@@ -92,7 +92,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (session == null || session.ActiveCombat != null)
+            if (session == null || session.IsCharacterInCombat(character?.CharacterId))
             {
                 Close();
             }
@@ -124,7 +124,7 @@ namespace Godmist.Views.UI
         public void Open(GameSession gameSession, string characterId)
         {
             if (gameSession == null
-                || gameSession.ActiveCombat != null
+                || gameSession.IsCharacterInCombat(characterId)
                 || !IsActivePartyMember(gameSession, characterId)
                 || !gameSession.CharactersById.TryGetValue(
                     characterId,
@@ -160,7 +160,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (session.ActiveCombat != null)
+            if (session.IsCharacterInCombat(character?.CharacterId))
             {
                 Close();
                 return;
@@ -407,7 +407,7 @@ namespace Godmist.Views.UI
             if (isBasic
                 || session == null
                 || character == null
-                || session.ActiveCombat != null)
+                || session.IsCharacterInCombat(character?.CharacterId))
             {
                 card?.FlashInvalid();
                 return;
@@ -434,7 +434,7 @@ namespace Godmist.Views.UI
         {
             if (session == null
                 || character == null
-                || session.ActiveCombat != null
+                || session.IsCharacterInCombat(character?.CharacterId)
                 || isBasic)
             {
                 card?.FlashInvalid();
@@ -467,7 +467,7 @@ namespace Godmist.Views.UI
         {
             if (session == null
                 || character == null
-                || session.ActiveCombat != null
+                || session.IsCharacterInCombat(character?.CharacterId)
                 || string.IsNullOrWhiteSpace(skillId))
             {
                 return;
@@ -641,7 +641,7 @@ namespace Godmist.Views.UI
             if (dragHasBeenHandled
                 || session == null
                 || character == null
-                || session.ActiveCombat != null
+                || session.IsCharacterInCombat(character?.CharacterId)
                 || string.IsNullOrWhiteSpace(draggedSkillId))
             {
                 return;
@@ -692,7 +692,7 @@ namespace Godmist.Views.UI
             if (dragHasBeenHandled
                 || session == null
                 || character == null
-                || session.ActiveCombat != null
+                || session.IsCharacterInCombat(character?.CharacterId)
                 || string.IsNullOrWhiteSpace(draggedSkillId))
             {
                 return;

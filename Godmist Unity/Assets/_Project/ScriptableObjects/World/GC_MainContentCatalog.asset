@@ -151,6 +151,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5b4d6f8a0c2e73b5d7f9a1c3e5b7d9f1, type: 2}
   - {fileID: 11400000, guid: 6f909c69e4455f94eb9edd401b092701, type: 2}
   <DungeonDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: da32a195ccbd4704bb39faee67872819, type: 2}
+  - {fileID: 11400000, guid: 7a04761175c5d9f488ecf6d98624fac3, type: 2}
+  - {fileID: 11400000, guid: 62ab8f3093044b8d81cc6c89766334c7, type: 2}
   - {fileID: 11400000, guid: d0ca948740b36364b8d7c9fed98569d3, type: 2}
+  - {fileID: 11400000, guid: d17b3135ce3441878fe1e96d5a3ad3e2, type: 2}
+  - {fileID: 11400000, guid: ae7f68e49ead4a5da62d67e6783dc5a3, type: 2}
+  - {fileID: 11400000, guid: 6666421c8e174070b02b131c14248b03, type: 2}
+  - {fileID: 11400000, guid: 811d9f96d1234ca3ae7017bdcb149f3c, type: 2}
+  - {fileID: 11400000, guid: 00e7788b5ebc481ab1315150cf44349c, type: 2}
   <EncounterDefinitions>k__BackingField:
   - {fileID: 11400000, guid: f75344cd0e63cbe4db0ef60441fba08e, type: 2}

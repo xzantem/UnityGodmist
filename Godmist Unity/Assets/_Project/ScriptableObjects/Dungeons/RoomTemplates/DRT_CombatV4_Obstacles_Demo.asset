@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc410525305dd84a8f71c3d39096c80, type: 3}
+  m_Name: DRT_CombatV4_Obstacles_Demo
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateDefinition
+  <Id>k__BackingField: room.combat_v4.obstacles_demo
+  <DisplayName>k__BackingField: "Katakumby \u2014 przeszkody demo"
+  <RoomType>k__BackingField: 1
+  <CanBeRequiredProgressionBranch>k__BackingField: 0
+  <SizeInCells>k__BackingField: {x: 8, y: 8}
+  <AllowedRotationDegrees>k__BackingField: 000000005a000000b40000000e010000
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField: []
+  <AllowedBoundaryEdges>k__BackingField: []
+  <BoundaryEdgesConfigured>k__BackingField: 0
+  <StructuralAnchors>k__BackingField: []
+  <SemanticAnchors>k__BackingField:
+  - <Id>k__BackingField: obstacle.2.2
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 2, y: 2}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+  - <Id>k__BackingField: obstacle.2.5
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 2, y: 5}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+  - <Id>k__BackingField: obstacle.5.2
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 5, y: 2}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+  - <Id>k__BackingField: obstacle.5.5
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 5, y: 5}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 

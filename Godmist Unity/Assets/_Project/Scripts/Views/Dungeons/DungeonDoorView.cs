@@ -160,7 +160,7 @@ namespace Godmist.Views.Dungeons
             }
         }
 
-        private void RefreshState()
+        public void RefreshState()
         {
             if (door == null)
             {

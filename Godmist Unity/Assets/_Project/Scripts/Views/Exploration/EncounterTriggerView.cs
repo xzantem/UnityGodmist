@@ -44,6 +44,31 @@ namespace Godmist.Views.Exploration
         private ExplorationCharacterView chaserView;
 
         private bool isTriggered;
+        private Godmist.Views.Dungeons.DungeonCombatCoordinator combatCoordinator;
+        public DungeonEncounterInstance Encounter => encounterInstance;
+        public IReadOnlyList<ExplorationCharacterView> EnemyViews => enemyViews;
+        public void SetCombatCoordinator(Godmist.Views.Dungeons.DungeonCombatCoordinator value) => combatCoordinator = value;
+        public void ReleaseEncounter()
+        {
+            var survivors = new List<ExplorationCharacterView>();
+            navigationByEnemy.Clear();
+            foreach (var view in enemyViews)
+            {
+                if (view == null || !view.gameObject.activeSelf
+                    || view.RuntimeCharacter?.LifeState == Godmist.Core.Enums.CharacterLifeState.Dead)
+                {
+                    if (view != null) homePositionByEnemy.Remove(view);
+                    continue;
+                }
+                survivors.Add(view);
+                navigationByEnemy[view] = new EnemyNavigationState();
+            }
+            enemyViews = survivors;
+            chaserView = survivors.Count > 0 ? survivors[0] : null;
+            isTriggered = false;
+            isReturningHome = true;
+        }
+        public void MarkTriggered() => isTriggered = true;
         private bool hasInitialized;
         private bool isReturningHome;
 
@@ -110,7 +135,7 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (!hasInitialized || isTriggered)
+            if (!hasInitialized || isTriggered || (combatCoordinator != null && combatCoordinator.IsRoomFighting(encounterInstance.RoomId)))
             {
                 return;
             }
@@ -401,59 +426,12 @@ namespace Godmist.Views.Exploration
 
         private void TryStartEncounter()
         {
-            var gameBootstrap = GameBootstrap.Instance;
-            var gameSession = gameBootstrap != null
-                ? gameBootstrap.Session
-                : null;
-
-            if (gameSession == null || gameSession.ActiveCombat != null)
+            if (combatCoordinator == null)
             {
+                Debug.LogError("EncounterTriggerView: brak DungeonCombatCoordinator.");
                 return;
             }
-
-            if (!dungeonCombatContextFactory.TryCreate(
-                    gameSession.ActiveDungeon,
-                    encounterInstance,
-                    out var dungeonCombatContext))
-            {
-                Debug.LogError(
-                    "EncounterTriggerView: nie udalo sie utworzyc DungeonCombatContext.");
-
-                return;
-            }
-
-            if (!gameSession.TrySetActiveDungeonCombatContext(
-                    dungeonCombatContext))
-            {
-                Debug.LogError(
-                    "EncounterTriggerView: nie udalo sie zapisac DungeonCombatContext.");
-
-                return;
-            }
-
-            var factory = new CombatSessionFactory(ActionPointsPerSpeed);
-
-            if (!factory.TryCreate(
-                    gameSession,
-                    encounterInstance,
-                    out var combatSession))
-            {
-                gameSession.TryClearActiveDungeonCombatContext();
-
-                Debug.LogError(
-                    "EncounterTriggerView: nie udalo sie utworzyc CombatSession.");
-
-                return;
-            }
-
-            if (!gameSession.TrySetActiveCombat(combatSession))
-            {
-                gameSession.TryClearActiveDungeonCombatContext();
-                return;
-            }
-
-            isTriggered = true;
-            gameBootstrap.StartCombat();
+            combatCoordinator.TryStartEncounter(this);
         }
 
         private bool IsEncounterCleared()

@@ -20,7 +20,7 @@ namespace Godmist.Views.Combat
             combatSession = null;
 
             if (gameSession == null
-                || gameSession.ActiveCombat != null
+                || gameSession.HasCombat
                 || encounterDefinition == null)
             {
                 return false;

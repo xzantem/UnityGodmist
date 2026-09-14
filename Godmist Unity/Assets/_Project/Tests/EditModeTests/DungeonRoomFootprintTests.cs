@@ -28,8 +28,9 @@ namespace Godmist.Tests.EditMode
             }
         }
 
-        [Test]
-        public void Build_OFootprint_LeavesInteriorVoidAndWalls()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Build_OFootprint_LeavesInteriorVoidAndWalls(bool lowInnerWall)
         {
             catalog = ScriptableObject.CreateInstance<DungeonRoomTemplateCatalog>();
             template = ScriptableObject.CreateInstance<DungeonRoomTemplateDefinition>();
@@ -49,6 +50,9 @@ namespace Godmist.Tests.EditMode
                     new Vector2Int(2, 1),
                     new Vector2Int(2, 2)));
 
+            if (lowInnerWall)
+                template.StructuralAnchors.Add(new DungeonStructuralAnchorData(
+                    DungeonStructuralAnchorType.Wall, new Vector2Int(0, 1), DungeonEdgeDirection.Right, DungeonWallType.Low));
             catalog.Templates.Add(template);
 
             var floor = new DungeonFloorInstance(0);

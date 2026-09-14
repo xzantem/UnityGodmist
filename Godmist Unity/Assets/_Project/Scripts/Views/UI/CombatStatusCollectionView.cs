@@ -6,7 +6,7 @@ using Godmist.Views.UI.Workspace;
 
 namespace Godmist.Views.UI
 {
-    public class CombatStatusCollectionView : MonoBehaviour
+    public class CombatStatusCollectionView : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler, UnityEngine.EventSystems.IPointerExitHandler, UnityEngine.EventSystems.IPointerMoveHandler
     {
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
         [SerializeField] private Transform iconRoot;
@@ -16,10 +16,42 @@ namespace Godmist.Views.UI
 
         private readonly List<CombatStatusIconView> spawnedIcons = new();
         private BattleUnit boundUnit;
+        private Godmist.Runtime.Characters.CharacterInstance boundCharacter;
+        private float nextRefresh;
+        private List<CombatStatusPresentation> currentStatuses = new();
+        public void BindCharacter(Godmist.Runtime.Characters.CharacterInstance character)
+        { boundUnit = null; boundCharacter = character; Refresh(); }
+        private void Update()
+        {
+            if (boundCharacter == null || Time.unscaledTime < nextRefresh) return;
+            nextRefresh = Time.unscaledTime + .2f;
+            Refresh();
+        }
+        public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData data)
+        {
+            if (currentStatuses.Count <= maximumVisibleIcons || overflowText == null
+                || !RectTransformUtility.RectangleContainsScreenPoint(overflowText.rectTransform, data.position, data.enterEventCamera))
+            {
+                tooltipView?.NotifySourceExit(this);
+                return;
+            }
+            var lines = new List<string>();
+            for (var i = maximumVisibleIcons; i < currentStatuses.Count; i++)
+            {
+                var entry = currentStatuses[i];
+                lines.Add((string.IsNullOrWhiteSpace(entry.Effect.DisplayName) ? entry.Effect.EffectId : entry.Effect.DisplayName) +
+                    (entry.ExplorationCharacter != null ? " · " + UIWorkspaceTooltipView.ExplorationStatusDuration(entry) : ""));
+            }
+            tooltipView?.ShowText("Pozostałe efekty", string.Join("\n", lines), this);
+        }
+        public void OnPointerMove(UnityEngine.EventSystems.PointerEventData data) => OnPointerEnter(data);
+        public void OnPointerExit(UnityEngine.EventSystems.PointerEventData data) => tooltipView?.NotifySourceExit(this);
+        private void OnDisable() => tooltipView?.NotifySourceExit(this);
 
         public void Bind(BattleUnit unit)
         {
             boundUnit = unit;
+            boundCharacter = null;
             Refresh();
         }
 
@@ -27,12 +59,20 @@ namespace Godmist.Views.UI
         {
             tooltipView ??= UIWorkspaceTooltipView.ActiveInstance;
 
-            var effects = boundUnit?.Character?.PassiveEffects;
+            var effects = (boundCharacter ?? boundUnit?.Character)?.PassiveEffects;
             var statuses = CombatStatusPresentationFactory.Create(
                 effects,
                 boundUnit?.ActiveAuras,
                 boundUnit?.OutgoingDamageRedirects,
                 boundUnit);
+            if (boundCharacter != null)
+                for (var i = 0; i < statuses.Count; i++)
+                {
+                    var status = statuses[i];
+                    statuses[i] = new CombatStatusPresentation(status.Effect, status.Kind, status.Priority,
+                        explorationCharacter: boundCharacter);
+                }
+            currentStatuses = statuses;
             var visibleCount = Mathf.Min(statuses.Count, maximumVisibleIcons);
             EnsureIconCount(visibleCount);
 
@@ -44,7 +84,7 @@ namespace Godmist.Views.UI
                 if (visible)
                 {
                     var effectId = statuses[index].Effect?.EffectId;
-                    var statusIcon = tooltipView?.GetGlossaryIcon(effectId);
+                    var statusIcon = tooltipView?.GetGlossaryIcon(effectId) ?? tooltipView?.GetGlossaryIcon("buff");
                     iconView.Bind(statuses[index], tooltipView, statusIcon);
                 }
             }

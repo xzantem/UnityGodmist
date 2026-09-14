@@ -8,6 +8,11 @@ namespace Godmist.Views.Combat
 {
     public class CombatUnitInspectController : MonoBehaviour
     {
+        public void SetGridMapping(Vector2 origin, float size)
+        {
+            gridOrigin = origin;
+            cellSize = Mathf.Max(0.01f, size);
+        }
         [Header("References")]
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
         [SerializeField] private Camera worldCamera;
@@ -25,6 +30,7 @@ namespace Godmist.Views.Combat
 
         private BattleUnit selectedUnit;
         private CombatUnitInspectWindowView floatingInspectWindow;
+        public BattleUnit InspectedUnit => floatingInspectWindow != null && floatingInspectWindow.IsVisible ? selectedUnit : null;
         public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()
@@ -160,6 +166,13 @@ namespace Godmist.Views.Combat
             }
 
             inspectPanel?.Show(unit);
+        }
+
+        private void OnDisable()
+        {
+            selectedUnit = null;
+            HoveredUnit = null;
+            HideInspect();
         }
 
         private void HideInspect()

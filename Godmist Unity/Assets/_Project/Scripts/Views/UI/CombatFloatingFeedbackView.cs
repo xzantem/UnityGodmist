@@ -23,6 +23,44 @@ namespace Godmist.Views.UI
         private Vector2 activeTravel;
         private float startTime;
         private float delay;
+        private Camera anchorCamera;
+        private RectTransform anchorRoot;
+        private System.Func<Vector3?> resolveWorldAnchor;
+        private Vector3 lastWorldAnchor;
+        private Vector2 layoutOffset;
+
+        public void BindWorldAnchor(Camera camera, RectTransform root,
+            System.Func<Vector3?> resolvePosition, Vector3 initialWorldPosition, Vector2 offset)
+        {
+            anchorCamera = camera;
+            anchorRoot = root;
+            resolveWorldAnchor = resolvePosition;
+            lastWorldAnchor = initialWorldPosition;
+            layoutOffset = offset;
+            RefreshWorldAnchor();
+        }
+
+        private void OnEnable() => Canvas.willRenderCanvases += RefreshWorldAnchor;
+        private void OnDisable() => Canvas.willRenderCanvases -= RefreshWorldAnchor;
+
+        private void RefreshWorldAnchor()
+        {
+            if (anchorCamera == null || anchorRoot == null) return;
+            var resolved = resolveWorldAnchor?.Invoke();
+            if (resolved.HasValue) lastWorldAnchor = resolved.Value;
+            var canvas = anchorRoot.GetComponentInParent<Canvas>();
+            var uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? canvas.worldCamera : null;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(anchorRoot,
+                    anchorCamera.WorldToScreenPoint(lastWorldAnchor), uiCamera, out var projected)) return;
+            rectTransform ??= transform as RectTransform;
+            var nextPosition = projected + layoutOffset;
+            var shift = nextPosition - startPosition;
+            startPosition = nextPosition;
+            introStartPosition += shift;
+            // Translate the running animation; camera motion must not restart its lifetime or drift.
+            rectTransform.anchoredPosition += shift;
+        }
 
         public Vector2 LayoutPosition => startPosition;
 

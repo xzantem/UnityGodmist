@@ -18,6 +18,28 @@ namespace Godmist.Runtime.Combat
         public bool HasEscapePenaltyEligibleCharacters;
         public HashSet<string> EscapePenaltyEligibleCharacterIds = new();
         public bool IsDebugSession;
+        [NonSerialized] public DungeonCombatContext DungeonContext;
+        public bool IsSeamless;
+        [NonSerialized] public Action<BattleUnit> UnitEnteredCell;
+        [NonSerialized] public Func<BattleUnit, IReadOnlyList<GridPosition>, float> EvaluateTrapRisk;
+        [NonSerialized] public Func<IReadOnlyList<GridPosition>, string> TrapRouteState;
+        public void NotifyUnitEnteredCell(BattleUnit unit) => UnitEnteredCell?.Invoke(unit);
+        // Rescue eligibility is supplied by the dungeon owner, independent of UI focus.
+        public bool CanReceiveReinforcements;
+        public readonly Dictionary<string, BattleUnit> DepartedUnits = new();
+        public readonly HashSet<BattleCellEdge> OpenExitEdges = new();
+        [NonSerialized] public Func<GridPosition, bool> ExternalPositionOccupied;
+        [NonSerialized] public Func<GridPosition, GridPosition, bool> EnvironmentBlocksLineOfSight;
+        public bool IsExitPosition(GridPosition position) => IsSeamless && !Grid.IsWalkable(position);
+        public bool CanMoveBetween(BattleUnit unit, GridPosition from, GridPosition to)
+        {
+            if (ExternalPositionOccupied?.Invoke(to) == true) return false;
+            if (Grid.CanMoveBetween(from, to)) return true;
+            return IsSeamless && unit?.IsPlayerSide == true && Grid.IsWalkable(from)
+                && !Grid.IsBlocked(from) && IsExitPosition(to)
+                && Math.Abs(from.X - to.X) + Math.Abs(from.Y - to.Y) == 1
+                && OpenExitEdges.Contains(new BattleCellEdge(from, to));
+        }
         public DungeonTheme DungeonTheme = DungeonTheme.Story;
         public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
             GameDefineIds.ActionPointsPerSpeed, 0.25f);
@@ -43,6 +65,7 @@ namespace Godmist.Runtime.Combat
             GridPosition position,
             BattleUnit ignoredUnit = null)
         {
+            if (ExternalPositionOccupied?.Invoke(position) == true) return true;
             foreach (var unit in Units)
             {
                 if (unit == null || unit == ignoredUnit)
@@ -100,7 +123,8 @@ namespace Godmist.Runtime.Combat
 
         public bool DoesObjectBlockMovement(CombatMapObject mapObject)
         {
-            if (mapObject == null || !mapObject.BlocksMovement)
+            // Doors block their edge, never the floor cell used as their object position.
+            if (mapObject == null || mapObject is DoorCombatMapObject || !mapObject.BlocksMovement)
             {
                 return false;
             }

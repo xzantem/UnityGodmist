@@ -1,4 +1,4 @@
-﻿`KANBAN.md` jest głównym źródłem prawdy dla aktualnego stanu prac,
+`KANBAN.md` jest głównym źródłem prawdy dla aktualnego stanu prac,
 priorytetów i wyboru kolejnej karty. Starsze roadmapy mają charakter referencyjny.
 
 # Godmist - Kanban
@@ -53,6 +53,8 @@ Planowany po `Combat Passives and Affixes v1`. Domyka miejski loop progresji ora
 
 ### Milestone: Combat v4 — Arena, Obstacles and Transition v1
 
+Branch: `milestone/combat-v4-arena-obstacles-transition-v1`. Acceptance: `COMBAT_V4_ACCEPTANCE.md`.
+
 Planowany po `City Progression and Specialist Services v1`. Rozwija prezentację i taktykę areny walki oraz poprawia przejście eksploracja → walka, nie rozszerzając jeszcze zachowań przeciwników w lochu.
 
 - Pułapki bojowe, zewnętrzne ściany areny i inne przeszkody taktyczne.
@@ -74,6 +76,129 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Combat v4 - acceptance, code review i UI pass` - `Combat`, `World / Dungeon / Exploration`, `UI / UX`, `Tools / Editor / Debug`
+  - Acceptance całego milestone'u: wiele kolejnych walk bez przeładowania sceny, wejście/wyjście, zwycięstwo/ucieczka/porażka, geometria, targeting, przemieszczenia, pułapki, AI, persistence i kamera.
+  - Wykonać szerszy code quality review, regresję oraz osobny wizualny UI acceptance. Kontrolować podwójne subskrypcje/input, duplikację obiektów, utratę stanu i sprzątanie lifecycle.
+  - Raport rozróżnia PASS/FAIL/NOT RUN. Milestone zamknąć dopiero po smoke użytkownika; commit/push wymagają osobnego polecenia.
+  - DONE: smoke i zamknięcie zaakceptowane przez użytkownika. Pełny review milestone'u zakończony; poprawiono pułapki przeciwników przed walką, dopłaty honoru/overflow i komunikat ruchu. Build PASS; wcześniejsza regresja EditMode 805/805 PASS; wykonanie nowych testów po review NOT RUN (Unity otwarte). Raport: `COMBAT_V4_ACCEPTANCE.md`.
+
+- `[P1] Przygotować content i scenariusze taktyczne Combat v4` - `Combat`, `Content / Data`, `Tools / Editor / Debug`
+  - Przygotować grywalne układy: korytarz, sala z filarami, nieregularny pokój, duża arena oraz przejścia między przestrzeniami zgodnie z zatwierdzonym zakresem areny.
+  - Włączyć przeszkody i pierwsze zatwierdzone pułapki do rzeczywistego contentu, nie tylko sandboxa. Zapewnić powtarzalne wejście do scenariuszy przez istniejące narzędzia debug/testowe.
+  - Walidować przejścia, miejsca dla uczestników i brak niezamierzonych softlocków; liczby i efekty ustalać na podstawie danych projektu lub z użytkownikiem.
+  - Zatwierdzone: tylko katakumby; pięć układów także w normalnej puli lochów, obecni przeciwnicy i balans. Implementacja: kotwy z opcjonalną konkretną definicją; wspólne szablony produkcyjne/debugowe. DONE: smoke użytkownika PASS; zaakceptowano drugi pass rozmieszczenia. Dalsze ręczne dopracowanie przy pierwszym content passie. Build PASS, regresja 55/55 PASS, testy contentu 9/9 PASS. Raport: `COMBAT_V4_CONTENT_VERIFICATION.md`.
+
+- `[P1] Domknąć prezentację areny i informacje taktyczne v1` - `Combat`, `UI / UX`, `Content / Data`
+  - Docelowy pixel-art pass highlightów: zachować zaakceptowaną czytelność pojedynczych kwadratów, granicy zasięgu, ścieżki i gradientu kosztów; dopasować kontury oraz poświatę do pixel artu. Obecny styl zaakceptowany jako rozwiązanie tymczasowe.
+  - Dodać stały podgląd aktywnych statusów poza walką (efekt i pozostały czas/ticki), spójny z prezentacją bojową. Odłożone z karty pułapek za zgodą użytkownika; komunikaty floating nie zastępują podglądu. Przed implementacją uzgodnić układ UI.
+  - Czytelne granice walki, ściany, przeszkody i stany pułapek; tooltipy, wskazanie blokady ruchu/celowania oraz feedback aktywacji.
+  - Naprawić zgłoszoną regresję Combat InspectWindow: biały panel i bardzo jasny tekst powodują brak kontrastu. Zweryfikować faktyczną przyczynę w prefabie/stylowaniu.
+  - W Combat v4 wykonać przegląd tego okna i dostosować do istniejących prefabów/stylów UIW: kontrast, hierarchia statystyk, czytelność pasków, spójność języka, odstępy oraz sekcje efektów/umiejętności. Przed zmianami przedstawić układ użytkownikowi; static UI w prefabie/scenie. Bez odkładania tej regresji do Combat v5.
+  - Wspólne widoki lochu i walki, bez dublowania geometrii. Statyczne hierarchy, layout, styl i referencje zapisać w prefabach/scenach; kod aktualizuje dane i dynamiczne stany.
+  - Przed nowym UI przedstawić układ użytkownikowi. Sprawdzić czytelność dużej areny, zasłanianie jednostek i długie teksty.
+  - DONE: wdrożone statusy eksploracyjne, informacje taktyczne, Inspect i wspólny HUD UIW, podgląd AP, rail z liczbami, ikonowe akcje, siatka skilli 2×5 z przewijaniem, wskazanie kolejki i poprawka tooltipa.
+  - Smoke użytkownika PASS (2026-09-14), zamknięcie zaakceptowane. Build PASS; ostatni wykonany zestaw EditMode 18/18 PASS. Test regresyjny ostatniej poprawki tooltipa skompilowany; wykonanie w Unity NOT RUN przy otwartym Editorze. Self-review PASS. Raport: `COMBAT_V4_PRESENTATION_VERIFICATION.md`.
+
+- `[P1] Dodać sterowanie kamerą większych aren v1` - `Combat`, `UI / UX`
+  - Rozwinąć obecne automatyczne kadrowanie o przesuwanie, zoom, ograniczenie kadru, skupienie na jednostce i powrót do czytelnego widoku.
+  - Zachować ciągłość kamery przy przełączeniu trybu; bez wymuszonego ekranu przejścia. Uzgodnić gesty/klawisze i zasady automatycznego śledzenia.
+  - Input kamery nie może kolidować z UI, wyborem celu ani ruchem; uwzględnić zasłanianie areny przez HUD i różne proporcje ekranu.
+  - Zatwierdzone: MMB drag, WASD/strzałki, kółko zoom, F na jednostkę mającą turę, Home na arenę. Przesuwanie po całym piętrze; oglądanie innych walk nie zmienia aktywnej sesji. Automatyczne przesunięcie tylko przy rozpoczęciu tury poza widokiem, bez śledzenia kroków i bez zmiany zoomu. Kadr zapamiętywany osobno dla sesji. Zoom ma stały zakres 50–200% (100% = size 5), również Home respektuje granice 2.5–10; poprzednie testy limitów 12/12 PASS; zakres 50–200% zaakceptowany w smoke.
+  - DONE: konfiguracja zapisana w DungeonSandbox; 58/58 EditMode PASS, build PASS, self-review PASS. Smoke użytkownika PASS. Raport: `COMBAT_V4_CAMERA_VERIFICATION.md`.
+
+- `[P1] Zapewnić trwałość stanu obiektów areny v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Zachować tożsamość i stan drzwi, przeszkód oraz pułapek między eksploracją, walką, ucieczką i kolejnym encounterem. Rozszerzyć istniejący mechanizm persistence zamiast tworzyć niezależne kopie stanu.
+  - Obsłużyć zapis/odczyt w ramach aktualnie wspieranych momentów zapisu i kompatybilność starszych save'ów. Nie rozszerzać automatycznie zakresu o zapis w środku walki.
+  - Testy obejmują zużytą pułapkę, otwarte drzwi, stan przeciwników i brak resetu po powrocie do eksploracji.
+  - Uwzględnić aktualizacje puli contentu: obecne odtwarzanie lochu regeneruje obiekty z seeda i bieżących definicji. Nowe sarkofagi/gruz/filary są na razie w osobnym demo; przełączenie produkcyjnej puli wymaga zachowania tożsamości i układu obiektów istniejących zapisów.
+  - DONE: snapshot wygenerowanej geometrii i tożsamości obiektów, dotychczasowe delty stanu, zachowanie przygotowanych nagród. Starszy zapis odtwarza loch dotychczasowo i migruje przy następnym zapisie (zatwierdzone przez użytkownika). Automatyczne testy 82/82 PASS, build PASS, self-review PASS. Smoke użytkownika PASS. Raport: `COMBAT_V4_PERSISTENCE_VERIFICATION.md`.
+
+- `[P1] Teren taktyczny i koszty przemieszczania v1` - `Combat`, `Content / Data`, `Design / Systems`
+  - Combat v4, przed grywalnym contentem i acceptance: typ podłoża, dodatkowy koszt ruchu, czytelny podgląd AP i integracja z AI.
+  - Zatwierdzone: trudny teren +1 AP za wejście na pole, sumowane z +2 AP murka. Nie zmienia licznika zwykłych kroków. Dash/charge/push/pull/teleport bez dopłaty AP podłoża.
+  - Eksploracja: trudny teren 50% prędkości drużyny i przeciwników; niski murek — jednostajne przejście 0,6 s z blokadą sterowania ruchem. W eksploracji postacie nie rezerwują pól; obecność towarzysza nie blokuje przejścia przez murek ani natychmiastowego powrotu.
+  - Ścieżka gracza: bezpieczeństwo → koszt AP → najmniej zakrętów; gdy brak bezpiecznej drogi, można wybrać nawet śmiertelną z ostrzeżeniem. AI: bezpieczeństwo → AP; odrzuca przewidywane powalenie.
+  - Czytelność: odmienne wypełnienie trudnego terenu i kolor kosztownych odcinków preview; pułapki zachowują czerwone ostrzeżenie.
+  - DONE — smoke użytkownika PASS: demo dungeon.catacombs.terrain_demo. Produkcyjny content bez zmian.
+  - Unikalne przeszkody i efekty rozwijać wspólnie z istniejącymi kartami przeszkód/pułapek; nie dodawać w tej karcie rozbudowanego systemu reakcji środowiskowych.
+  - Końcowy styl: delikatna siatka pojedynczych kwadratów, gradient żółty → brązowo-rudy, ścieżka nad pułapkami. Docelowy pixel-art pass odłożony do karty prezentacji Combat v4.
+  - Testy: regresja 108/108 PASS, uzupełnienie terenu 8/8 PASS; końcowy retest terenu/seamless 57/57 PASS.
+
+- `[P1] Dodać pułapki bojowe i integrację z ruchem v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Wykorzystać istniejący model pułapek eksploracyjnych tam, gdzie pasuje; dodać brakujące przeniesienie do runtime walki, stan aktywacji i wykonanie efektów.
+  - Przed implementacją uzgodnić wyzwalanie przez ruch, przemieszczenia wymuszone i teleport, podatne strony, widoczność, jednorazowość/odnawianie oraz pierwsze efekty.
+  - Preview i wykonanie nie mogą uruchamiać pułapki podwójnie; walidacja i podgląd nie mutują jej stanu. Wspierać przerwanie ruchu przez skutki pułapki.
+  - Zatwierdzone: kolce (fizyczne + krwawienie), jednorazowy gaz na wskazanych polach (zatrucie), pieczęć grobowa (magiczne + osłabienie). Pule według motywu lochu; współdzielona mechanika i warianty wyglądu. Pierwszy content: katakumby.
+  - Wyzwalanie: zwykły ruch/dash/charge/push/pull na przekroczonych polach, teleport wyłącznie na celu; obie strony. Jednorazowe grupy lokalne dla pokoju, bez trwałej chmury. Same obrażenia nie zatrzymują ruchu, utrata możliwości działania zatrzymuje.
+  - Skalowanie poziomem lochu, standardowa obrona i odporności. AI preferuje bezpieczne obejście; przy braku bezpiecznej drogi wybiera najmniejsze zagrożenie i odrzuca przewidywane powalenie.
+  - Zatwierdzone: poza walką tick statusów co 6 sekund aktywnej gry; w walce według tur jednostki, bez resetowania efektu przy zmianie trybu. Osłabienie: −20% zadawanych obrażeń przez 4 tury. Pułapki bez rzutu trafienia/uniku/krytyka, z normalną obroną i odpornościami. Minigra rozbrajania poza zakresem.
+  - Wzrost obrażeń: 6,5% bazy × skumulowany wzrost schodkowy postaci.
+  - Zatwierdzony balans poziomu 1: kolce 30 fizycznych + krwawienie 10 × 3; gaz zatrucie 12 × 5; pieczęć 40 magicznych + osłabienie na 4 tury.
+  - DONE: smoke użytkownika PASS; testy 105/105 PASS, kompilacja poprawki feedbacku PASS; demo `dungeon.catacombs.traps_demo`, seed 4205. Produkcyjna pula pozostaje bez zmian do karty persistence.
+  - Stały podgląd statusów eksploracji odłożony za zgodą użytkownika do karty prezentacji Combat v4.
+
+- `[P1] Rozwinąć przeszkody taktyczne areny v1` - `Combat`, `Content / Data`, `Design / Systems`
+  - Rozwinąć istniejące przeszkody z niezależnym blokowaniem ruchu i linii widzenia/efektu; nie tworzyć drugiego modelu tych samych właściwości.
+  - Zweryfikować zwykły ruch, dash/charge, push/pull, teleport i kolizje według istniejących zasad. Dodać reprezentatywne warianty contentu oraz walidację danych.
+  - Niszczenie obiektów nie jest jeszcze zatwierdzoną mechaniką: uzgodnić zakres przed dodaniem HP, obrażeń lub nagród obiektów.
+  - Zatwierdzone: sarkofag i duży gruz blokują ruch, przepuszczają LOS; filar blokuje oba. Każdy obiekt zajmuje jedno pole. Bez niszczenia.
+  - Status: DONE — 96/96 EditMode PASS, zapis prefabów/referencji i demo seed 4205 PASS, self-review PASS; smoke użytkownika PASS — funkcjonalność zaakceptowana.
+  - Tymczasowe grafiki zaakceptowane; użytkownik zastąpi je docelowymi sprite’ami w przyszłości.
+  - Uwzględnić aktualizacje puli contentu: obecne odtwarzanie lochu regeneruje obiekty z seeda i bieżących definicji. Nowe sarkofagi/gruz/filary są na razie w osobnym demo; przełączenie produkcyjnej puli wymaga zachowania tożsamości i układu obiektów istniejących zapisów.
+
+- `[P1] Dodać niskie ściany i balustrady jako krawędzie pokoju v1` - `Combat`, `World / Dungeon / Exploration`, `Content / Data`
+  - Rozwinąć model rzeczywistych krawędzi pokoju: pełna ściana, niski murek, balustrada. Nie zastępować ich semantic anchors ani wolnostojącymi przeszkodami na polach.
+  - Rozdzielić blokowanie ruchu i LOS/efektu na krawędziach; używać tych samych właściwości w eksploracji, walce i prezentacji. Balustrada blokuje ruch i przepuszcza strzały.
+  - Zachować płaską logikę podłogi Combat v4. Dostępne balkony, schody i różne wysokości należą do szerszego Combat v5.
+  - Weryfikacja: krawędź zewnętrzna i wewnętrzna, narożniki, pokój O/U, brak przejścia przez balustradę, zgodność widoku i LOS. Wykonać przed kartą przeszkód taktycznych.
+  - Zatwierdzone: niski murek przepuszcza zwykły ruch za koszt kroku +2 AP (trzeci krok = 5 AP); eksploracja bez opłaty AP. Oba typy przepuszczają LOS i blokują dash/charge/push/pull; teleport zachowuje istniejące zasady.
+  - Brak podłogi za krawędzią wyklucza przejście; wizualnie może oznaczać szyb, przepaść lub niedostępną niższą kondygnację. Generator nie zastępuje zadeklarowanych murków/balustrad drzwiami.
+  - Status: DONE — 119/119 EditMode PASS, prefaby i referencje zapisane, walidacja i self-review PASS; smoke użytkownika PASS — zaakceptowany przez użytkownika.
+
+- `[P1] Ustalić i wdrożyć pozycje oraz formację przy wejściu i wyjściu z walki v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Seamless już przenosi pozycje eksploracyjne; rozstawianie na przeciwnych krawędziach pozostaje w starszej ścieżce/sandboxie. Domknąć istniejącego resolvera bez nowego szyku.
+  - Uzgodnić snap do siatki, przypadki kolizji, brak miejsca, pozycje przeciwników i powrót po ucieczce. Rozwiązywanie konfliktów ma być deterministyczne i nie umieszczać jednostek w ścianach ani na zajętych polach.
+  - Zachować pozycje po zwycięstwie i obsłużyć kolejne walki w tej samej scenie bez duplikowania jednostek.
+  - Zatwierdzone: snap do środka zajmowanego pola, jednakowo dla obu stron; bez ustawiania nowej formacji. Zachować końcowe pozycje po zwycięstwie i miejsce przekroczenia granicy przy wyjściu.
+  - Rezerwować najpierw wszystkie poprawne pozycje, potem rozwiązywać konflikty deterministycznie na najbliższym wolnym polu dostępnym bez przekraczania ścian/zamkniętych drzwi.
+  - Brak miejsca to zabezpieczenie błędnego układu: atomowo odrzucić start bez zmiany pozycji; przy dołączeniu pozostawić postać przed wejściem i utrzymać walkę. Komunikat dla gracza.
+  - Status: DONE — 47/47 EditMode PASS; prefab komunikatu UIW zapisany i podpięty, weryfikacja zapisu i self-review PASS. Manualny smoke PASS — zaakceptowany przez użytkownika.
+  - Combat v4: naprawić regresję InspectWindow (biały panel i jasny tekst), następnie przegląd kontrastu, hierarchii, pasków, języka i integracji UIW w karcie prezentacji. Przed zmianą przedstawić układ użytkownikowi; static UI w prefabach/scenie.
+
+- `[P1] Combat v4 — nawigacja przeciwników wokół przeszkód i obsługa drzwi v1` - `Combat`, `Core / Architecture`
+  - Karta zatwierdzona przez użytkownika; wykonać po domknięciu granic i geometrii areny.
+  - Rozwinąć istniejące AI i mechanizmy ruchu: planować pełną trasę ponad budżet jednej tury, a wykonywać odcinek za dostępne AP. Obsłużyć obejście wymagające chwilowego oddalenia się od celu.
+  - Uwzględnić otwieranie dozwolonych drzwi przez istniejący system interakcji oraz koszt AP. Respektować blokady i zatwierdzone granice sesji; nie dodawać pościgu ani pathfindingu eksploracyjnego.
+  - Przeliczać trasę po zmianie przeszkód, stanu drzwi lub zajętości pól. Brak dostępnej drogi nie może powodować zapętlenia tury ani powtarzania bezskutecznych akcji.
+  - Weryfikacja: obejście ściany w wielu turach, początkowe oddalenie od celu, wąskie przejście, zajęte pola, drzwi otwarte/zamknięte/niedostępne oraz cel nieosiągalny. Sprawdzić rzeczywistą ścieżkę, koszty AP i poprawne zakończenie tury.
+  - DONE — implementacja i self-review zakończone; 65/65 EditMode PASS, smoke użytkownika PASS. Commit i push zatwierdzone.
+
+- `[P1] Domknąć granice i geometrię areny w lochu v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Wykorzystać rzeczywisty footprint lochu, ściany zewnętrzne i wewnętrzne, drzwi i przejścia. Zapewnić spójność widocznych granic z ruchem, celowaniem i linią efektu.
+  - Zatwierdzone: arena obejmuje jeden pokój i nie rozszerza się; indywidualne wejście/wyjście przez granicę, istniejące równoległe sesje. Każde opuszczenie pokoju, także przejściem bez drzwi, jest wyjściem. Linia strzału może przechodzić poza pokojem; blokuje ją rzeczywista geometria i właściwości obiektów.
+  - Acceptance obejmuje wąski korytarz, nieregularny pokój, filar i przejście między przestrzeniami.
+  - DONE — smoke użytkownika PASS: kontekst zbiera także ściany graniczne; LOS sprawdza ściany oraz żywy stan geometrii poza areną bez dodawania tam pól walki. Wyjście respektuje również przeszkody ruchowe za progiem.
+  - PASS: 56/56 EditMode (seamless, LOS, grid, integracja, AI). PASS: manualny smoke scenariuszy geometrii zaakceptowany przez użytkownika. Bez zmian serialized state i commit/push zatwierdzone przez użytkownika.
+
+- `[P1] Wdrożyć reperkusje porażki i odzyskiwanie towarzyszy v1` - `Combat`, `Core / Architecture`, `NPC / Quest / Dialogue`
+  - Status: DONE — smoke funkcjonalny i UI zaakceptowane przez użytkownika.
+  - Porażka kampanii po śmierci głównej postaci albo braku żywych aktywnych członków: najnowszy poprawny zapis tej kampanii / inny zapis / menu. Brak zapisów blokuje oba przyciski wczytywania. Żywy członek poza pokojem nadal może ratować powalonych.
+  - Lokalna przegrana pokoju zachowuje stan lochu; martwi towarzysze trafiają do odzyskiwania u kapłana. StoryLocked pozostaje zablokowany.
+  - Odzyskanie: ceil(300 * 4^((level-1)/10)), pełne HP i zasoby, zachowanie tożsamości/ekwipunku/progresji, aktywny slot lub rezerwa. Tylko honor rozmówcy; bez lojalności kapłana.
+  - Nowe złoto przeciwnika: baza ceil(10 * 4^((dungeonLevel-1)/10)), niezależny równomierny rozrzut 50–150% na przeciwnika; wcześniej wylosowane nagrody w zapisach pozostają bez zmian.
+  - Dziewięć zatwierdzonych tierów honoru bez ograniczenia do −100…100. Progi i zniżki w Game Defines; zniżki domyślnie 0% do balansu, tier −75…−50: Niechlubny.
+  - UI zapisane w scenie/prefabach za zgodą użytkownika. Regresja EditMode 89/89 PASS. Manualny smoke i wizualny UI pass: PASS użytkownika. Końcowe testy odzyskiwania 43/43 PASS, konsoli 51/51 PASS; kolejne poprawki UI skompilowane i zweryfikowane.
+
+- `[P1] Zintegrować walkę seamless w scenie lochu v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture` - `DONE`
+  - Zastąpić produkcyjne przełączanie scen eksploracja/walka przełączaniem trybu na istniejącej mapie i widokach jednostek. Nie budować drugiej kopii mapy ani równolegle aktywnych kontrolerów tych samych postaci.
+  - Rozdzielić lifecycle eksploracji i walki: zatrzymanie eksploracyjnego sterowania, start tur, podpięcie HUD/input, zakończenie walki i przywrócenie eksploracji. Uwzględnić zwycięstwo, ucieczkę, porażkę i nieudany start bez pozostawienia częściowego stanu.
+  - Zachować sandbox/debug walki oraz istniejące systemy combat; nie przepisywać core combat bez potrzeby. Przed implementacją uzgodnić konieczne zasady pozycji i granic, od których zależy integracja.
+  - Zatwierdzone rozszerzenie: wiele równoległych sesji przypisanych do pokojów, indywidualne uczestnictwo i przełączanie sterowania między walką a eksploracją. Osoby poza pokojem dołączają po wejściu; wyjście za próg za zwykły koszt ruchu zastępuje losową ucieczkę i może rozdzielić drużynę.
+  - Snap do środka komórki; deterministyczny wybór dostępnego pola bez przekraczania ścian/zamkniętych drzwi; nieudany start nie pozostawia aktywnej sesji.
+  - Dołączenie czeka pełny odstęp Action Value według szybkości (bez wprowadzania wspólnych rund). Ponowne wejście nie odnawia zasobów ani nie skraca oczekiwania.
+  - Powaleni nie kończą automatycznie walki, gdy żywy członek drużyny poza pokojem może przyjść na ratunek. Reperkusje porażki są osobną następną kartą.
+  - Smoke użytkownika zaakceptowany. Regresja 71/71 PASS; końcowy zestaw po poprawkach widoczności i kotwiczenia napisów 22/22 PASS. Karta zamknięta na polecenie użytkownika.
+
 ### Karty do decyzji o przypisaniu do milestone'u
 
 - `[Do decyzji] Rozdzielić warianty modyfikatorów danych contentu v1` - `Core / Architecture`, `Content / Data`, `Tools / Editor / Debug`
@@ -81,7 +206,7 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
   - To karta o ogólnym design patternie dla wariantowych danych contentu; modyfikatory biżuterii są tylko pierwszym konkretnym przykładem tego problemu.
   - Przypisanie do milestone'u oraz priorytet do ustalenia.
 - `[Do decyzji] Dodac indywidualne rozmieszczenie przeciwnikow, FOV i poscig w lochu v2` - `World / Dungeon / Exploration`, `Combat`, `Core / Architecture`, `Design / Systems`
-  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wejscie gracza w FOV przeciwnika uruchamia poscig, a walka zaczyna sie po jego dogonieniu. Bez jednego wspolnego anchoru dla calej grupy.
+  - Przeciwnicy sa rozmieszczani indywidualnie albo wedlug autorskiego ukladu pokoju; wykrycie wrogiej postaci w FOV rozpoczyna walke zgodnie z Combat v5; poscig odbywa sie juz w ramach starcia. Bez jednego wspolnego anchoru dla calej grupy.
   - Przypisanie do milestone'u oraz priorytet do ustalenia.
 - `[Do decyzji] Dodac pathfinding ruchu sterowanego myszka w eksploracji lochu v1` - `World / Dungeon / Exploration`, `UI / UX`, `Core / Architecture`
   - Klikniecie walkable celu wyznacza sciezke po mapie lochu i prowadzi druzyne po kolejnych komorkach z uwzglednieniem przeszkod, scian i zamknietych przejsc.
@@ -89,6 +214,41 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 - `[Do decyzji] Rozszerzyc blokowanie layoutu pokoi z bounding boxa na rzeczywisty footprint v2` - `World / Dungeon / Exploration`, `Core / Architecture`, `Design / Systems`
   - Generator ma dopuszczac lepsze upakowanie nieregularnych pokoi, blokujac rzeczywiste zajete komorki zamiast calego prostokatnego bounding boxa; uwzglednic dziury, sasiedztwo pokoi i kompatybilne przejscia.
   - Karta odlozona poza pierwszy pass nieregularnych footprintow; przypisanie do milestone'u oraz priorytet do ustalenia.
+
+
+
+
+
+- `[P1] Niszczenie przeszkód i obsługa obrażeń obiektów v1` - `Combat`, `Core / Architecture`, `Content / Data`
+  - Osobna karta Combat v5: serwis obsługi niszczenia, integracja targetowania i obrażeń obiektów oraz trwałość skutków.
+  - Przed implementacją uzgodnić podatne obiekty, HP, ataki/efekty, nagrody i stan po zniszczeniu. Nie dodawać mechaniki w karcie statycznych przeszkód Combat v4.
+
+Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless nadal korzysta z tych samych obiektów i sceny. V4 zachowuje ograniczenie do pokoju jako etap przejściowy; nie rozwijać w nim dodatkowych mechanik silnie zależnych od granicy pokoju, które v5 zastąpi.
+
+- `[P1] Wdrożyć FOV i wykrywanie wrogich jednostek v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Wykrycie wrogiej jednostki w FOV rozpoczyna walkę albo powoduje dołączenie obserwatora do istniejącego starcia. Dotyczy dowolnej wrogiej postaci, niezależnie od aktywnego lidera.
+  - Zastąpić model „pościg za liderem, start walki po dogonieniu”. Nie czekać na dojście przeciwnika do wykrytej jednostki.
+  - Przed implementacją ustalić zakres/kąt FOV, przesłanianie, częstotliwość wykrywania i zasady współdzielenia informacji. Wykorzystać istniejący LOS oraz właściwości geometrii.
+- `[P1] Rozszerzyć przestrzeń walki na cały loch i dynamiczne uczestnictwo v1` - `Combat`, `Core / Architecture`
+  - Usunąć granicę pokoju jako granicę starcia. „Cały loch” oznacza przestrzeń możliwego starcia, nie automatyczne dołączenie wszystkich przeciwników.
+  - Uczestnictwo wynika z wykrywania; kolejne jednostki dołączają po uzyskaniu kontaktu. Zachować oddzielenie runtime od prezentacji i pojedynczą reprezentację jednostek.
+  - Uzgodnić łączenie/rozdzielanie równoległych sesji, kolejkę tur oraz upływ czasu dla postaci poza walką. Doprecyzować zakres względem osobnych pięter lochu.
+- `[P1] Przebudować pościg, utratę kontaktu i ucieczkę v1` - `Combat`, `World / Dungeon / Exploration`, `Design / Systems`
+  - Pościg jest zachowaniem uczestnika rozpoczętego starcia; cel nie jest ograniczony do lidera drużyny.
+  - Kierunek docelowy: postać może opuścić walkę, gdy wszyscy przeciwnicy stracą z nią kontakt wzrokowy, zamiast przekraczać granicę pokoju.
+  - Do ustalenia przed implementacją: natychmiastowe wyjście czy okres utraty kontaktu/poszukiwań, pamięć ostatniej pozycji, zmiana celu oraz ponowne wykrycie. Nie uznawać pamięci/poszukiwania ani konkretnego czasu ucieczki za zatwierdzone.
+  - Sprawdzić rozdzieloną drużynę, chowanie się za filarem, brak wielokrotnego resetowania walki i zasobów przez krótką utratę widoczności.
+- `[P1] Zintegrować Fog of War i pamięć odkrytej mapy z FOV v1` - `World / Dungeon / Exploration`, `UI / UX`
+  - Rozdzielić wykrywanie przez jednostki od prezentacji wiedzy gracza. Stany mapy: nieodkryta, odkryta poza aktualnym FOV, aktualnie widoczna.
+  - Uzgodnić wspólną/indywidualną wiedzę drużyny i prezentację niewidocznych jednostek; nie ujawniać ich przez HUD ani feedback.
+- `[P1] Zintegrować wysokości, schody i balkony z modelem lochu i walki` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
+  - Element szerszego Combat v5, bez osobnego milestone'u „Wertykalności lochów”.
+  - Ustalić model różnych wysokości podłogi w pokoju oraz przejść po schodach; osobno zdecydować, czy wspieramy chodzenie nad i pod balkonem przy tym samym rzucie pola.
+  - Uwzględnić pozycje, połączenia pól, ruch/AI, FOV/LOS, zasięgi, kamerę, authoring i save compatibility. Konkretne reguły przewagi wysokości, upadków i skoków nie są zatwierdzone.
+  - Rozstrzygnąć model przed dużym content passem, aby nie przebudowywać później gotowych pokojów.
+- `[P1] Combat v5 — acceptance zintegrowanego modelu` - `Combat`, `World / Dungeon / Exploration`, `UI / UX`
+  - Wykrycie dowolnego członka drużyny, dołączanie posiłków, starcia przekraczające pokoje, rozdzielona drużyna, utrata/odzyskanie kontaktu, równoległe sesje oraz zatwierdzona geometria wysokości.
+  - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
 

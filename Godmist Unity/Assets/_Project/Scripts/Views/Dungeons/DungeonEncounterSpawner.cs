@@ -20,11 +20,12 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonFloorMapView floorMapView;
 
         private readonly List<EncounterTriggerView> spawnedTriggers = new();
+        public IReadOnlyList<EncounterTriggerView> Triggers => spawnedTriggers;
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 
         public bool Rebuild(
             DungeonFloorInstance floor,
-            ExplorationPartyController partyController)
+            ExplorationPartyController partyController, int dungeonLevel = 1)
         {
             ClearSpawnedViews();
 
@@ -57,7 +58,7 @@ namespace Godmist.Views.Dungeons
 
                 var enemyViews = SpawnEnemyViews(
                     encounterInstance,
-                    floor.Map);
+                    floor.Map, dungeonLevel);
 
                 if (enemyViews.Count == 0)
                 {
@@ -90,7 +91,7 @@ namespace Godmist.Views.Dungeons
 
         private List<ExplorationCharacterView> SpawnEnemyViews(
             DungeonEncounterInstance encounterInstance,
-            DungeonFloorMap floorMap)
+            DungeonFloorMap floorMap, int dungeonLevel)
         {
             var result = new List<ExplorationCharacterView>();
             var enemies = encounterInstance.Definition?.Enemies;
@@ -138,7 +139,13 @@ namespace Godmist.Views.Dungeons
                 enemyView.name =
                     $"EncounterEnemy_{encounterInstance.InstanceId}_{enemyIndex:00}";
 
-                enemyView.Bind(enemyData.CharacterDefinition);
+                // Traps and timed effects also target enemies before their first combat.
+                // The coordinator reuses this instance when borrowing the view for combat.
+                var character = new Godmist.Systems.Characters.CharacterInstanceFactory().Create(
+                    enemyData.CharacterDefinition, enemyData.ClassData, dungeonLevel);
+                character.CharacterId = enemyData.InstanceId;
+                enemyView.Bind(character);
+                enemyView.SetEnemyInstanceId(enemyData.InstanceId);
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
 

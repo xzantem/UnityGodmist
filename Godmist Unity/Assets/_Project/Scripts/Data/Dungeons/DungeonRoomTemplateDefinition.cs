@@ -54,6 +54,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public List<DungeonSemanticAnchorData> SemanticAnchors { get; private set; } = new();
 
+        [field: SerializeField] public List<Vector2Int> DifficultTerrainCells { get; private set; } = new();
+
         private void OnValidate()
         {
             SizeInCells = new Vector2Int(
@@ -89,6 +91,10 @@ namespace Godmist.Data.Dungeons
             {
                 return false;
             }
+
+            foreach (var anchor in StructuralAnchors ?? new List<DungeonStructuralAnchorData>())
+                if (anchor != null && anchor.Type == DungeonStructuralAnchorType.Wall
+                    && anchor.LocalCell == localCell && anchor.Direction == direction) return false;
 
             if (!BoundaryEdgesConfigured)
             {

@@ -60,8 +60,9 @@ namespace Godmist.Systems.Combat
 
             foreach (var participant in session.TurnParticipants)
             {
-                participant.CurrentActionValue =
-                    CalculateBaseActionValue(participant);
+                participant.CurrentActionValue = session.IsSeamless
+                    ? Math.Max(participant.CurrentActionValue, CalculateBaseActionValue(participant))
+                    : CalculateBaseActionValue(participant);
             }
 
             ClearActiveParticipant(session);

@@ -8,6 +8,7 @@ namespace Godmist.Views.UI
 {
     public class CombatActiveUnitView : MonoBehaviour
     {
+        [SerializeField] private CombatVitalsView vitals;
         [SerializeField] private Image portrait;
         [SerializeField] private Slider healthSlider;
         [SerializeField] private Slider shieldSlider;
@@ -22,9 +23,11 @@ namespace Godmist.Views.UI
         [SerializeField] private Color enemyAccentColor = new(0.78f, 0.20f, 0.18f, 1f);
         [SerializeField] private Color inactivePipColor = new(0.12f, 0.15f, 0.19f, 0.95f);
 
+        [SerializeField] private TextMeshProUGUI unitNameText;
+
         private readonly List<Image> actionPointPips = new();
 
-        public void Bind(BattleUnit unit, bool isActive)
+        public void Bind(BattleUnit unit, bool isActive, int previewCost = 0)
         {
             if (unit?.Character == null)
             {
@@ -35,6 +38,7 @@ namespace Godmist.Views.UI
             gameObject.SetActive(true);
 
             var character = unit.Character;
+            if (unitNameText != null) unitNameText.text = character.Definition?.DisplayName ?? character.CharacterId;
             var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
             var shield = character.ShieldPool?.TotalShield ?? 0;
             var resource = character.ResourcePool;
@@ -51,6 +55,8 @@ namespace Godmist.Views.UI
                 sideFrame.enabled = isActive;
             }
 
+            if(vitals != null) { vitals.Bind(unit,previewCost); statusCollection?.Bind(unit); return; }
+
             SetSliderValue(healthSlider, character.CurrentHealth, maxHealth);
             SetSliderVisible(shieldSlider, shield > 0);
             SetSliderValue(shieldSlider, shield, Mathf.Max(maxHealth, shield));
@@ -59,6 +65,8 @@ namespace Godmist.Views.UI
             if (resource != null)
             {
                 CombatResourceColors.ApplyToFill(resourceSlider, resource.ResourceType);
+                resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.Initialize(null,
+                    CombatResourceColors.ResourceName(resource.ResourceType), $"{resource.CurrentValue}/{resource.MaxValue}");
             }
 
             if (healthValueText != null)

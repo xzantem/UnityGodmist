@@ -22,6 +22,24 @@ namespace Godmist.Tests.EditMode
             Object.DestroyImmediate(workspaceObject);
         }
 
+        [TestCase(0f, 0f)]
+        [TestCase(0f, .5f)]
+        [TestCase(1f, 1f)]
+        public void Move_NonCenteredAnchorsReachBothWorkspaceEdges(float anchor, float pivot)
+        {
+            var manager = CreateWorkspace();
+            var window = CreateWindow("Inspect", manager, out var rect);
+            rect.anchorMin = rect.anchorMax = new Vector2(anchor, .5f);
+            rect.pivot = new Vector2(pivot, .5f);
+            var corners = new Vector3[4];
+            window.Move(new Vector2(5000f, 0));
+            rect.GetWorldCorners(corners);
+            Assert.That(manager.transform.InverseTransformPoint(corners[2]).x, Is.EqualTo(500f).Within(.01f));
+            window.Move(new Vector2(-5000f, 0));
+            rect.GetWorldCorners(corners);
+            Assert.That(manager.transform.InverseTransformPoint(corners[0]).x, Is.EqualTo(-500f).Within(.01f));
+        }
+
         [Test]
         public void Move_ClampsWindowInsideWorkspace()
         {

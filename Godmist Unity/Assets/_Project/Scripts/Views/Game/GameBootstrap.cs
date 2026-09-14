@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
 using Godmist.Data.Configuration;
@@ -96,8 +97,24 @@ namespace Godmist.Views.Game
             InitializeRuntimeServices();
         }
 
+        private readonly ExplorationStatusEffectSystem cityStatusEffects = new();
+
         private void Update()
         {
+            // Dungeon occupants are ticked by their scene owner; the persistent owner covers city exploration.
+            if (Session != null && Session.ActiveDungeon == null && !Session.IsDefeated
+                && Session.CurrentMode == GameModeState.Exploration
+                && !Godmist.Views.UI.DevConsoleView.IsOpen)
+            {
+                var occupants = Session.PlayerParty.ActiveMemberIds
+                    .Where(id => Session.CharactersById.ContainsKey(id) && Session.GetCombatForCharacter(id) == null)
+                    .Select(id => new DungeonTrapOccupant(
+                        new Godmist.Runtime.Combat.BattleUnit { Character = Session.CharactersById[id], IsPlayerSide = true },
+                        null, Vector2Int.zero)).ToArray();
+                cityStatusEffects.Advance(Time.deltaTime, occupants);
+                if (CampaignDefeatSystem.ShouldDefeat(Session)) Session.MarkDefeated();
+            }
+
             if (!autosaveRequested)
             {
                 return;
@@ -131,6 +148,8 @@ namespace Godmist.Views.Game
 
         public bool StartCombat()
         {
+            // Dungeon encounters are started by the scene owner without loading a scene.
+            if (Session?.ActiveCombat?.IsSeamless == true) return true;
             if (sceneLoader == null)
             {
                 Debug.LogError("GameBootstrap: brak SceneLoader.");
@@ -154,7 +173,7 @@ namespace Godmist.Views.Game
                 return false;
             }
 
-            if (Session.ActiveCombat != null)
+            if (Session.HasCombat)
             {
                 message = "Walczysz juz w aktywnej sesji.";
                 return false;
@@ -218,6 +237,33 @@ namespace Godmist.Views.Game
                 GameModeState.Exploration);
         }
 
+        public IReadOnlyList<GameSaveSummary> GetDefeatSaves()
+        {
+            if (Session == null || SaveManager == null || contentCatalog == null
+                || !SaveManager.TryGetSaveSummaries(out var summaries, out _)) return Array.Empty<GameSaveSummary>();
+            return summaries.Where(summary => summary.CampaignId == Session.CampaignId
+                && SaveManager.TryLoadSave(summary, contentCatalog, out _, out _)).ToArray();
+        }
+
+        public bool TryLoadLatestAfterDefeat(out string message)
+        {
+            message = "Brak poprawnego zapisu tej kampanii.";
+            if (Session?.IsDefeated != true) return false;
+            var latest = GetDefeatSaves().FirstOrDefault();
+            return latest != null && TryLoadSave(latest, out message);
+        }
+
+        public bool TryReturnToMainMenu()
+        {
+            if (sceneLoader == null || sceneLoader.IsLoading || !Application.CanStreamedLevelBeLoaded("Bootstrap")) return false;
+            UnsubscribeRuntimeServices();
+            Session = new GameSession(GameModeState.Menu);
+            autosaveRequested = false;
+            sceneLoader.Initialize(Session);
+            InitializeRuntimeServices();
+            return sceneLoader.TryLoadScene("Bootstrap", GameModeState.Menu);
+        }
+
         public bool TrySaveQuick(out string message)
         {
             if (SaveManager == null)
@@ -233,7 +279,7 @@ namespace Godmist.Views.Game
         {
             message = string.Empty;
 
-            if (Session?.ActiveCombat != null)
+            if (Session?.HasCombat == true)
             {
                 message = "Nie można wczytać gry podczas walki.";
                 return false;
@@ -269,7 +315,7 @@ namespace Godmist.Views.Game
         {
             message = string.Empty;
 
-            if (Session?.ActiveCombat != null)
+            if (Session?.HasCombat == true)
             {
                 message = "Nie można wczytać gry podczas walki.";
                 return false;
@@ -301,6 +347,7 @@ namespace Godmist.Views.Game
 
         public bool TryReturnFromCombat()
         {
+            if (Session?.ActiveCombat?.IsSeamless == true) return false;
             if (sceneLoader == null || Session == null)
             {
                 return false;
@@ -321,6 +368,7 @@ namespace Godmist.Views.Game
             int targetFloorIndex = 0,
             string targetRoomId = null)
         {
+            if (Session?.HasCombat == true) return false;
             if (definition == null || !definition.IsProcedural)
             {
                 Debug.LogError(
@@ -432,7 +480,7 @@ namespace Godmist.Views.Game
 
         public bool TryExitDungeon()
         {
-            if (Session == null || Session.ActiveDungeon == null)
+            if (Session == null || Session.ActiveDungeon == null || Session.HasCombat)
             {
                 return false;
             }
@@ -499,7 +547,7 @@ namespace Godmist.Views.Game
 
         public bool TryReturnToArungardFromDungeon()
         {
-            if (Session?.ActiveDungeon == null || Session.ActiveCombat != null) return false;
+            if (Session?.ActiveDungeon == null || Session.HasCombat) return false;
 
             // Scene loading is asynchronous. Capture the live leader position
             // before the dungeon scene is destroyed so resuming the same
@@ -544,6 +592,7 @@ namespace Godmist.Views.Game
             IReadOnlyDictionary<string, Vector2> targetPartyPositions)
         {
             if (Session?.ActiveDungeon == null
+                || Session.HasCombat
                 || targetPartyPositions == null
                 || sceneLoader == null)
             {

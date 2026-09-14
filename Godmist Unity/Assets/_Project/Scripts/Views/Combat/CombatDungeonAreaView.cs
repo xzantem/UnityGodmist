@@ -15,6 +15,8 @@ namespace Godmist.Views.Combat
         [Header("Walls")]
         [SerializeField] private CombatWallSegmentView wallSegmentPrefab;
         [SerializeField] private Transform wallsRoot;
+        [SerializeField] private CombatWallSegmentView lowWallPrefab;
+        [SerializeField] private CombatWallSegmentView railingPrefab;
 
         [Header("Objects")]
         [SerializeField] private SpriteRenderer blockingObjectPrefab;
@@ -65,8 +67,12 @@ namespace Godmist.Views.Combat
                     ? wallsRoot
                     : transform;
 
+                var type = context.GetWallType(worldEdge);
+                var prefab = type == DungeonWallType.Low ? lowWallPrefab
+                    : type == DungeonWallType.Railing ? railingPrefab : wallSegmentPrefab;
+                if (prefab == null) { Debug.LogError("Missing wall prefab: " + type); continue; }
                 var wallSegment = Instantiate(
-                    wallSegmentPrefab,
+                    prefab,
                     wallParent);
 
                 wallSegment.Bind(
