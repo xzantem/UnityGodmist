@@ -74,6 +74,13 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Dodać sterowanie kamerą większych aren v1` - `Combat`, `UI / UX`
+  - Rozwinąć obecne automatyczne kadrowanie o przesuwanie, zoom, ograniczenie kadru, skupienie na jednostce i powrót do czytelnego widoku.
+  - Zachować ciągłość kamery przy przełączeniu trybu; bez wymuszonego ekranu przejścia. Uzgodnić gesty/klawisze i zasady automatycznego śledzenia.
+  - Input kamery nie może kolidować z UI, wyborem celu ani ruchem; uwzględnić zasłanianie areny przez HUD i różne proporcje ekranu.
+  - Zatwierdzone: MMB drag, WASD/strzałki, kółko zoom, F na jednostkę mającą turę, Home na arenę. Przesuwanie po całym piętrze; oglądanie innych walk nie zmienia aktywnej sesji. Automatyczne przesunięcie tylko przy rozpoczęciu tury poza widokiem, bez śledzenia kroków i bez zmiany zoomu. Kadr zapamiętywany osobno dla sesji. Zoom ma stały zakres 50–200% (100% = size 5), również Home respektuje granice 2.5–10; poprzednie testy limitów 12/12 PASS; zakres 50–200% zaakceptowany w smoke.
+  - DONE: konfiguracja zapisana w DungeonSandbox; 58/58 EditMode PASS, build PASS, self-review PASS. Smoke użytkownika PASS. Raport: `COMBAT_V4_CAMERA_VERIFICATION.md`.
+
 - `[P1] Zapewnić trwałość stanu obiektów areny v1` - `Combat`, `World / Dungeon / Exploration`, `Core / Architecture`
   - Zachować tożsamość i stan drzwi, przeszkód oraz pułapek między eksploracją, walką, ucieczką i kolejnym encounterem. Rozszerzyć istniejący mechanizm persistence zamiast tworzyć niezależne kopie stanu.
   - Obsłużyć zapis/odczyt w ramach aktualnie wspieranych momentów zapisu i kompatybilność starszych save'ów. Nie rozszerzać automatycznie zakresu o zapis w środku walki.

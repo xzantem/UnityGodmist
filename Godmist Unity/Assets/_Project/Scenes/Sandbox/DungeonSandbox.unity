@@ -17073,6 +17073,9 @@ MonoBehaviour:
   worldCamera: {fileID: 375354600}
   padding: 1.5
   minimumOrthographicSize: 5
+  keyboardPanSpeed: 15
+  zoomSpeed: 0.15
+  transitionSpeed: 8
   leftHudFraction: 0.06
   rightHudFraction: 0.06
   bottomHudFraction: 0.1

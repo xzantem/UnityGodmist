@@ -704,6 +704,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            cameraFramer?.NotifyTurnBegan(Session, unit);
             if (!unit.IsPlayerSide)
             {
                 activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(unit));

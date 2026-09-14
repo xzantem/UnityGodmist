@@ -327,6 +327,7 @@ namespace Godmist.Views.Dungeons
             sources.Remove(session);
             session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
             combatHost.End(session);
+            combatCamera.Forget(session);
             game.TryRemoveCombat(session);
             ClearFinishedCombatState();
             CampaignDefeatSystem.StoreRecoverableCompanions(game);
@@ -341,6 +342,7 @@ namespace Godmist.Views.Dungeons
             {
                 session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
                 combatHost.End(session);
+                combatCamera.Forget(session);
                 game.TryRemoveCombat(session);
             }
             foreach (var unit in bindings.Keys.ToArray()) Release(unit);
@@ -397,6 +399,7 @@ namespace Godmist.Views.Dungeons
             targeting.enabled = next != null;
             movementInput.enabled = next != null;
             inspectInput.enabled = next != null;
+            if (next == null) combatCamera.Focus(null, default, default, null);
             explorationCamera.SetCombatSuspended(next != null);
             if (next != null)
             {
@@ -411,7 +414,10 @@ namespace Godmist.Views.Dungeons
                 var bounds = new Bounds(origin, Vector3.zero);
                 foreach (var cell in context.WorldCells) bounds.Encapsulate(map.CellToWorldCenter(cell));
                 bounds.Expand(cellSize);
-                combatCamera.Frame(bounds);
+                map.TryGetWorldBounds(out var floorBounds);
+                combatCamera.Focus(next, bounds, floorBounds, unit =>
+                    unitViews.TryGetWorldPosition(unit, out var position) ? position
+                        : (Vector3)(origin + new Vector2(unit.Position.X, unit.Position.Y) * cellSize));
             }
             party.CancelMovement();
             party.RefreshControlState();
@@ -423,7 +429,11 @@ namespace Godmist.Views.Dungeons
             if (!initialized) return;
             combatHost.CombatMapObjectChanged -= HandleMapObjectChanged;
             foreach (var session in sources.Keys.ToArray())
-            { session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; combatHost.End(session); game.TryRemoveCombat(session); }
+            {
+                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
+                if (combatCamera != null) combatCamera.Forget(session);
+                combatHost.End(session); game.TryRemoveCombat(session);
+            }
             foreach (var unit in bindings.Keys.ToArray()) Release(unit);
         }
     }
