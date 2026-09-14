@@ -324,6 +324,13 @@ namespace Godmist.Systems.Dungeons
             semanticCandidates = semanticCandidates.FindAll(
                 IsEligibleSemanticCandidate);
 
+            foreach (var candidate in semanticCandidates)
+            {
+                if (candidate.Anchor.ObjectDefinition != null
+                    && !GetDefinitionsForAnchorType(definitions, candidate.Anchor.Type).Contains(candidate.Anchor.ObjectDefinition))
+                    throw new InvalidOperationException($"Kotwa '{candidate.Anchor.Id}' wskazuje obiekt spoza zgodnej puli lochu.");
+            }
+
             semanticCandidates = semanticCandidates.FindAll(candidate =>
                 GetDefinitionsForAnchorType(
                     definitions,
@@ -393,6 +400,12 @@ namespace Godmist.Systems.Dungeons
                     definitions,
                     selectedAnchor.Anchor.Type);
 
+                if (selectedAnchor.Anchor.ObjectDefinition != null)
+                {
+                    if (!matchingDefinitions.Contains(selectedAnchor.Anchor.ObjectDefinition))
+                        throw new InvalidOperationException($"Kotwa '{selectedAnchor.Anchor.Id}' wskazuje obiekt spoza zgodnej puli lochu.");
+                    matchingDefinitions = new List<DungeonObjectDefinition> { selectedAnchor.Anchor.ObjectDefinition };
+                }
                 if (matchingDefinitions.Count == 0) continue;
 
                 var position = GetAvailableAnchorPosition(

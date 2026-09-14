@@ -379,6 +379,21 @@ namespace Godmist.Editor
                     report.AddError("Semantic anchor ma nieprawidlowy typ.");
                 }
 
+                if (anchor.ObjectDefinition != null)
+                {
+                    var matches = anchor.Type switch
+                    {
+                        DungeonSemanticAnchorType.Obstacle => anchor.ObjectDefinition is ObstacleDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Trap => anchor.ObjectDefinition is SpikeTrapDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Chest => anchor.ObjectDefinition is ChestDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Lever => anchor.ObjectDefinition is LeverDungeonObjectDefinition,
+                        DungeonSemanticAnchorType.Condition or DungeonSemanticAnchorType.Reward => anchor.ObjectDefinition is ConditionDungeonObjectDefinition,
+                        _ => false
+                    };
+                    if (!matches || string.IsNullOrWhiteSpace(anchor.ObjectDefinition.Id) || anchor.ObjectDefinition.SpawnWeight <= 0)
+                        report.AddError($"Semantic anchor '{anchor.Id}' ma niezgodna definicje obiektu.");
+                }
+
                 if (anchor.AreaSize.x <= 0 || anchor.AreaSize.y <= 0)
                 {
                     report.AddError(

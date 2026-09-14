@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccca2633228553c44864ed1c20223033, type: 3}
+  m_Name: DD_Catacombs_Tactical_Corridor
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonDefinition
+  <Id>k__BackingField: dungeon.catacombs.tactical.corridor
+  <DisplayName>k__BackingField: "Korytarz grobowy — scenariusz Combat v4"
+  <Theme>k__BackingField: 0
+  <IsProcedural>k__BackingField: 1
+  <IsStoryDungeon>k__BackingField: 0
+  <LayoutProfile>k__BackingField: {fileID: 11400000, guid: 681f292da1385ca48a9bc4bf9656a075, type: 2}
+  <DungeonLevel>k__BackingField: 1
+  <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: b3d7f5a9c2e46810a6c4e8f1d5b7a290, type: 2}
+  <MinFloorCount>k__BackingField: 1
+  <MaxFloorCount>k__BackingField: 1
+  <MinRoomCountPerFloor>k__BackingField: 6
+  <MaxRoomCountPerFloor>k__BackingField: 6
+  <MinOptionalRoomCount>k__BackingField: 0
+  <MaxOptionalRoomCount>k__BackingField: 0
+  <MinLoopConnections>k__BackingField: 0
+  <MaxLoopConnections>k__BackingField: 0
+  <MinProgressionGateCount>k__BackingField: 0
+  <MaxProgressionGateCount>k__BackingField: 0
+  <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: d9ed6b1c92174a848a724b4bf3d06f42, type: 2}
+  <EncounterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: f70fadf3a76a46141837274e5f0228b1, type: 2}
+  <BossEncounterDefinition>k__BackingField: {fileID: 11400000, guid: 8a58e4408557e7f4ebf463711f269fb9, type: 2}
+  <MinEncounterCountPerFloor>k__BackingField: 3
+  <MaxEncounterCountPerFloor>k__BackingField: 3
+  <AllowEncounterDefinitionRepeats>k__BackingField: 1
+  <ObjectDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: d3bf5aa9a734ca9469f4667b9ecaa922, type: 2}
+  - {fileID: 11400000, guid: 4757e2597fbf78f4d90f997789b5831e, type: 2}
+  - {fileID: 11400000, guid: 646b43c553df3c5488892474afab66ce, type: 2}
+  - {fileID: 11400000, guid: 1e97090c83c566d4aa377a29d4a43b97, type: 2}
+  - {fileID: 11400000, guid: e35f093698fd54e47a385a862e0f305a, type: 2}
+  - {fileID: 11400000, guid: d8d0f4cf9eecd654c9e3aefd97a2ed3a, type: 2}
+  - {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
+  - {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
+  - {fileID: 11400000, guid: afa538ff94198384589c93161a858ade, type: 2}
+  - {fileID: 11400000, guid: c93126558afb0664a82641061edc7b91, type: 2}
+  - {fileID: 11400000, guid: bb57f1a55abedd0428e8318082820cde, type: 2}
+  - {fileID: 11400000, guid: a1503f674931c37438245449843693d8, type: 2}
+  <MinObjectCountPerFloor>k__BackingField: 0
+  <MaxObjectCountPerFloor>k__BackingField: 99

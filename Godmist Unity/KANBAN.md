@@ -74,6 +74,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Przygotować content i scenariusze taktyczne Combat v4` - `Combat`, `Content / Data`, `Tools / Editor / Debug`
+  - Przygotować grywalne układy: korytarz, sala z filarami, nieregularny pokój, duża arena oraz przejścia między przestrzeniami zgodnie z zatwierdzonym zakresem areny.
+  - Włączyć przeszkody i pierwsze zatwierdzone pułapki do rzeczywistego contentu, nie tylko sandboxa. Zapewnić powtarzalne wejście do scenariuszy przez istniejące narzędzia debug/testowe.
+  - Walidować przejścia, miejsca dla uczestników i brak niezamierzonych softlocków; liczby i efekty ustalać na podstawie danych projektu lub z użytkownikiem.
+  - Zatwierdzone: tylko katakumby; pięć układów także w normalnej puli lochów, obecni przeciwnicy i balans. Implementacja: kotwy z opcjonalną konkretną definicją; wspólne szablony produkcyjne/debugowe. DONE: smoke użytkownika PASS; zaakceptowano drugi pass rozmieszczenia. Dalsze ręczne dopracowanie przy pierwszym content passie. Build PASS, regresja 55/55 PASS, testy contentu 9/9 PASS. Raport: `COMBAT_V4_CONTENT_VERIFICATION.md`.
+
 - `[P1] Domknąć prezentację areny i informacje taktyczne v1` - `Combat`, `UI / UX`, `Content / Data`
   - Docelowy pixel-art pass highlightów: zachować zaakceptowaną czytelność pojedynczych kwadratów, granicy zasięgu, ścieżki i gradientu kosztów; dopasować kontury oraz poświatę do pixel artu. Obecny styl zaakceptowany jako rozwiązanie tymczasowe.
   - Dodać stały podgląd aktywnych statusów poza walką (efekt i pozostały czas/ticki), spójny z prezentacją bojową. Odłożone z karty pułapek za zgodą użytkownika; komunikaty floating nie zastępują podglądu. Przed implementacją uzgodnić układ UI.
