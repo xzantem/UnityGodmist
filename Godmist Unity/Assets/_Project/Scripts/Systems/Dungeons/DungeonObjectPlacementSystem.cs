@@ -34,6 +34,17 @@ namespace Godmist.Systems.Dungeons
             IReadOnlyList<EquipmentPartDefinition> equipmentParts, bool legacy)
         {
             if (dungeon == null || dungeon.Definition == null) return;
+            if (!legacy && dungeon.HasPlacedContent) return;
+            if (!legacy)
+            {
+                var catalog = dungeon.Definition.RoomTemplateCatalog;
+                var usedIds = dungeon.Floors.Where(f => f != null).SelectMany(f => f.Rooms)
+                    .Select(r => r.TemplateId).Distinct(StringComparer.Ordinal).ToList();
+                var templates = usedIds.Select(id => catalog?.Templates.Find(t => t != null && t.Id == id)
+                    ?? throw new InvalidOperationException($"Brak szablonu '{id}'.")).ToList();
+                foreach (var template in templates) DungeonRoomContentPlanner.ValidateTemplate(template);
+                DungeonDistributionValidator.Validate(templates);
+            }
 
             LootTableData themedChestLootTable = null;
             var hasThemedChestLootTable =
@@ -58,6 +69,8 @@ namespace Godmist.Systems.Dungeons
                 equipmentParts,
                 lootLevel: dungeon.DungeonLevel);
 
+            var distribution = legacy ? null : new DungeonContentDistribution(dungeon.Seed);
+
             foreach (var floor in dungeon.Floors)
             {
                 if (floor == null
@@ -79,7 +92,7 @@ namespace Godmist.Systems.Dungeons
                 if (!legacy)
                 {
                     PlaceCompleteObjects(dungeon, floor, objectDefinitions, lootTableSystem,
-                        random, hasThemedChestLootTable ? themedChestLootTable : null);
+                        random, hasThemedChestLootTable ? themedChestLootTable : null, distribution);
                 }
                 else if (objectDefinitions.Count > 0)
                 {
@@ -101,6 +114,7 @@ namespace Godmist.Systems.Dungeons
                         + $"na pietrze {floor.FloorIndex}.");
                 }
             }
+            dungeon.MarkContentPlaced();
         }
 
         private static bool BindProgressionObjects(DungeonFloorInstance floor)
@@ -333,11 +347,12 @@ namespace Godmist.Systems.Dungeons
                             + "brak poprawnej definicji w puli (typ, waga, loot lub klucz).");
                 }
             }
+            DungeonDistributionValidator.Validate(definition.RoomTemplateCatalog.Templates);
         }
 
         private static void PlaceCompleteObjects(DungeonInstance dungeon, DungeonFloorInstance floor,
             List<DungeonObjectDefinition> definitions, LootTableSystem lootTableSystem,
-            System.Random random, LootTableData themedChestLootTable)
+            System.Random random, LootTableData themedChestLootTable, DungeonContentDistribution distribution)
         {
             var catalog = dungeon.Definition.RoomTemplateCatalog;
             if (catalog == null)
@@ -383,9 +398,8 @@ namespace Godmist.Systems.Dungeons
                 var trial = new List<DungeonSemanticAnchorPlacement>(selectedAnchors);
                 trial.AddRange(opportunity.Anchors);
                 if (!DungeonRoomContentPlanner.TryAssign(trial, reserved, out var trialPositions)) continue;
-                // One decision per eligible opportunity. Controlled distribution belongs to the next card.
-                if (opportunity.SpawnChance <= 0f
-                    || opportunity.SpawnChance < 1f && random.NextDouble() >= opportunity.SpawnChance) continue;
+                // One draw only after dependencies and the complete group's space qualify.
+                if (!distribution.Roll(opportunity.DistributionKey, opportunity.SpawnChance)) continue;
                 selected.Add(opportunity);
                 selectedAnchors = trial;
                 positions = trialPositions;

@@ -123,6 +123,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(serializer.TryDeserialize(json, out var saved), Is.True);
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             Assert.That(restored.ActiveDungeon.Floors.Count, Is.EqualTo(1));
+            Assert.That(restored.ActiveDungeon.HasPlacedContent, Is.True);
             var restoredFloor = restored.ActiveDungeon.Floors[0];
             Assert.That(restoredFloor.Map.FloorCells, Is.EquivalentTo(floor.Map.FloorCells));
             Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.True);

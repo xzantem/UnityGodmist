@@ -127,6 +127,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -137,6 +138,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -147,6 +149,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -157,6 +160,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -167,6 +171,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -177,6 +182,7 @@ MonoBehaviour:
     <EncounterEnemyIndex>k__BackingField: -1
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
@@ -190,5 +196,6 @@ MonoBehaviour:
     - obstacle_pillar.4.8
     - obstacle_pillar.7.3
     <IsRequired>k__BackingField: 0
-    <SpawnChance>k__BackingField: 1
+    <SpawnChance>k__BackingField: 0.33
+    <DistributionKey>k__BackingField: optional.pillars
   <DifficultTerrainCells>k__BackingField: []

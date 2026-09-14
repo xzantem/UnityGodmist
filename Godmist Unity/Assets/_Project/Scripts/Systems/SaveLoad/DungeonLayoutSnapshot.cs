@@ -214,6 +214,7 @@ namespace Godmist.Systems.SaveLoad
                 }
             }
             if (!HasCompleteState(data, candidate)) return false;
+            candidate.MarkContentPlaced();
             dungeon = candidate;
             return true;
         }

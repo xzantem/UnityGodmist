@@ -834,7 +834,10 @@ namespace Godmist.Editor
                 {
                     EditorGUILayout.PropertyField(Field(property, "IsRequired"), new GUIContent("Stały element"));
                     using (new EditorGUI.DisabledScope(Field(property, "IsRequired").boolValue))
+                    {
                         DrawChance(Field(property, "SpawnChance"));
+                        DrawDistributionKey(property);
+                    }
                 }
                 else
                 {
@@ -948,6 +951,7 @@ namespace Godmist.Editor
             }
             EditorGUILayout.PropertyField(Field(group, "IsRequired"), new GUIContent("Stała grupa"));
             using (new EditorGUI.DisabledScope(Field(group, "IsRequired").boolValue)) DrawChance(Field(group, "SpawnChance"));
+            using (new EditorGUI.DisabledScope(Field(group, "IsRequired").boolValue)) DrawDistributionKey(group);
             EditorGUILayout.HelpBox("Cały komplet albo nic. Nie jest to grupa wspólnej aktywacji pułapek.", MessageType.Info);
             var members = Field(group, "AnchorIds");
             EditorGUILayout.LabelField($"Kotwy ({members.arraySize})", EditorStyles.boldLabel);
@@ -1252,6 +1256,7 @@ namespace Godmist.Editor
             element.FindPropertyRelative(
                 "<EncounterEnemyIndex>k__BackingField").intValue = -1;
             element.FindPropertyRelative("<ObjectDefinition>k__BackingField").objectReferenceValue = null;
+            Field(element, "DistributionKey").stringValue = string.Empty;
             ClearAnchorSelection();
             selectedSemanticAnchor = newIndex;
             selectedAnchorIds.Add(Field(element, "Id").stringValue);
@@ -1820,6 +1825,14 @@ namespace Godmist.Editor
             };
         }
 
+        private static void DrawDistributionKey(SerializedProperty property)
+        {
+            EditorGUILayout.PropertyField(Field(property, "DistributionKey"), new GUIContent("Klucz rozkładu"));
+            EditorGUILayout.HelpBox("Ten sam klucz współdzieli historię w całym lochu, również przy różnych szansach. "
+                + "Grupa stanowi jedną okazję. Dla zależnych okazji i wspólnych obszarów użyj osobnych kluczy. "
+                + "Walidacja puli wykrywa również cykle między szablonami. Klucz wymagany dla szans większych od 0% i mniejszych od 100%.", MessageType.None);
+        }
+
         private static void DrawAnchorMarker(Rect rect, Color color, string label)
         {
             var marker = new Rect(
@@ -1972,6 +1985,7 @@ namespace Godmist.Editor
             Field(group, "Id").stringValue = id;
             Field(group, "IsRequired").boolValue = required;
             Field(group, "SpawnChance").floatValue = chance;
+            Field(group, "DistributionKey").stringValue = string.Empty;
             var members = Field(group, "AnchorIds");
             members.arraySize = ids.Count;
             for (var i = 0; i < ids.Count; i++)
@@ -1987,6 +2001,7 @@ namespace Godmist.Editor
         {
             Field(anchor, "IsRequired").boolValue = false;
             Field(anchor, "SpawnChance").floatValue = 1f;
+            Field(anchor, "DistributionKey").stringValue = string.Empty;
         }
 
         public static bool JoinGroup(SerializedObject data, string id, int targetIndex, out string error)
@@ -2035,6 +2050,7 @@ namespace Godmist.Editor
                 {
                     Field(anchor, "IsRequired").boolValue = Field(group, "IsRequired").boolValue;
                     Field(anchor, "SpawnChance").floatValue = Field(group, "SpawnChance").floatValue;
+                    Field(anchor, "DistributionKey").stringValue = Field(group, "DistributionKey").stringValue;
                 }
             }
             var members = Field(group, "AnchorIds");

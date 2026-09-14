@@ -170,12 +170,14 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public List<string> AnchorIds { get; private set; } = new();
         [field: SerializeField] public bool IsRequired { get; private set; }
         [field: SerializeField, Range(0f, 1f)] public float SpawnChance { get; private set; } = 1f;
+        [field: SerializeField] public string DistributionKey { get; private set; } = string.Empty;
 
         public DungeonContentGroupData() { }
 
         public DungeonContentGroupData(string id, IEnumerable<string> anchorIds,
-            bool isRequired = false, float spawnChance = 1f)
+            bool isRequired = false, float spawnChance = 1f, string distributionKey = null)
         {
+            DistributionKey = distributionKey ?? string.Empty;
             Id = id;
             AnchorIds = new List<string>(anchorIds);
             IsRequired = isRequired;

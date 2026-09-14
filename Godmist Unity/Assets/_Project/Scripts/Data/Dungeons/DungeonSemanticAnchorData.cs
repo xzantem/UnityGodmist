@@ -29,6 +29,10 @@ namespace Godmist.Data.Dungeons
         public bool IsRequired { get; private set; }
 
         [field: SerializeField]
+        [field: Tooltip("Wspolna historia opcjonalnej zawartosci w calym lochu. Wymagany dla szansy pomiedzy 0 i 1.")]
+        public string DistributionKey { get; private set; } = string.Empty;
+
+        [field: SerializeField]
         public string RequiresAnchorId { get; private set; } = string.Empty;
 
         [field: SerializeField]
@@ -52,8 +56,10 @@ namespace Godmist.Data.Dungeons
             string requiresAnchorId = null,
             string activationGroupId = null,
             int encounterEnemyIndex = -1,
-            DungeonObjectDefinition objectDefinition = null)
+            DungeonObjectDefinition objectDefinition = null,
+            string distributionKey = null)
         {
+            DistributionKey = distributionKey ?? string.Empty;
             ObjectDefinition = objectDefinition;
             Id = id ?? string.Empty;
             Type = type;

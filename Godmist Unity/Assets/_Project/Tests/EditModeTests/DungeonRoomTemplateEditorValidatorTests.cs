@@ -135,11 +135,12 @@ namespace Godmist.Tests.EditMode
         [Test]
         public void DetachAndDissolvePreserveGroupSettingsOnIndependentAnchors()
         {
-            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }, true, .33f));
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }, true, .33f, "test.pair"));
             serialized.Update();
             Assert.That(DungeonRoomEditorContentEdits.DetachAnchor(serialized, "a", out var error), Is.True, error);
             Assert.That(template.SemanticAnchors[0].IsRequired, Is.True);
             Assert.That(template.SemanticAnchors[0].SpawnChance, Is.EqualTo(.33f));
+            Assert.That(template.SemanticAnchors[0].DistributionKey, Is.EqualTo("test.pair"));
             Assert.That(template.ContentGroups[0].AnchorIds, Is.EqualTo(new[] { "b" }));
             DungeonRoomEditorContentEdits.DissolveGroup(serialized, 0);
             Assert.That(template.ContentGroups, Is.Empty);

@@ -155,13 +155,15 @@ namespace Godmist.Systems.Dungeons
     {
         public string Id { get; }
         public string Category { get; }
+        public string DistributionKey { get; }
         public float SpawnChance { get; }
         public bool IsRequired { get; internal set; }
         public List<DungeonSemanticAnchorPlacement> Anchors { get; } = new();
         public List<DungeonContentOpportunity> Dependencies { get; } = new();
 
-        public DungeonContentOpportunity(string id, string category, float chance, bool required)
+        public DungeonContentOpportunity(string id, string category, float chance, bool required, string distributionKey = null)
         {
+            DistributionKey = distributionKey;
             Id = id;
             Category = category;
             SpawnChance = chance;
@@ -192,6 +194,7 @@ namespace Godmist.Systems.Dungeons
                     || group.AnchorIds == null || group.AnchorIds.Count == 0
                     || float.IsNaN(group.SpawnChance) || group.SpawnChance < 0 || group.SpawnChance > 1)
                     throw Error(template, "Grupa musi miec unikalne Id, kotwy i szanse 0-1.");
+                ValidateDistributionKey(template, "grupa '" + group.Id + "'", group.IsRequired, group.SpawnChance, group.DistributionKey);
                 foreach (var id in group.AnchorIds)
                 {
                     if (string.IsNullOrWhiteSpace(id) || !anchors.TryGetValue(id, out var anchor)
@@ -204,6 +207,8 @@ namespace Godmist.Systems.Dungeons
             }
             foreach (var anchor in anchors.Values)
             {
+                if (anchor.Type != DungeonSemanticAnchorType.Enemy && !membership.ContainsKey(anchor.Id))
+                    ValidateDistributionKey(template, "kotwa '" + anchor.Id + "'", anchor.IsRequired, anchor.SpawnChance, anchor.DistributionKey);
                 var visiting = new HashSet<string>(StringComparer.Ordinal) { anchor.Id };
                 var current = anchor;
                 while (!string.IsNullOrWhiteSpace(current.RequiresAnchorId))
@@ -235,6 +240,7 @@ namespace Godmist.Systems.Dungeons
                 done.Add(id);
             }
             foreach (var key in edges.Keys) Visit(key);
+            DungeonDistributionValidator.Validate(new[] { template });
         }
 
         public static List<DungeonContentOpportunity> Build(
@@ -253,7 +259,7 @@ namespace Godmist.Systems.Dungeons
                     var members = group.AnchorIds.Select(id => byId[id]).OrderBy(c => c.Anchor.Id, StringComparer.Ordinal).ToList();
                     var category = string.Join("+", members.Select(c => c.Anchor.Type.ToString()).Distinct().OrderBy(s => s, StringComparer.Ordinal));
                     var unit = new DungeonContentOpportunity(room.RoomId + "/group:" + group.Id,
-                        category, group.SpawnChance, group.IsRequired);
+                        category, group.SpawnChance, group.IsRequired, group.DistributionKey);
                     unit.Anchors.AddRange(members);
                     result.Add(unit);
                     foreach (var member in members) byAnchor.Add(member.Anchor.Id, unit);
@@ -262,7 +268,7 @@ namespace Godmist.Systems.Dungeons
                 {
                     if (byAnchor.ContainsKey(candidate.Anchor.Id)) continue;
                     var unit = new DungeonContentOpportunity(room.RoomId + "/anchor:" + candidate.Anchor.Id,
-                        candidate.Anchor.Type.ToString(), candidate.Anchor.SpawnChance, candidate.Anchor.IsRequired);
+                        candidate.Anchor.Type.ToString(), candidate.Anchor.SpawnChance, candidate.Anchor.IsRequired, candidate.Anchor.DistributionKey);
                     unit.Anchors.Add(candidate);
                     result.Add(unit);
                     byAnchor.Add(candidate.Anchor.Id, unit);
@@ -293,6 +299,14 @@ namespace Godmist.Systems.Dungeons
             }
             foreach (var unit in sorted.Where(u => u.IsRequired).ToList()) Require(unit);
             return sorted;
+        }
+
+        private static void ValidateDistributionKey(DungeonRoomTemplateDefinition template, string owner,
+            bool required, float chance, string key)
+        {
+            if (!required && chance > 0 && chance < 1
+                && (string.IsNullOrWhiteSpace(key) || key != key.Trim()))
+                throw Error(template, owner + ": podaj klucz rozkladu bez bialych znakow na poczatku i koncu.");
         }
 
         public static void ValidateRequiredSpace(DungeonRoomTemplateDefinition template)

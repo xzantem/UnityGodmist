@@ -60,10 +60,10 @@ namespace Godmist.Tests.EditMode
         }
 
         private void Anchor(string id, int x, bool required = false, float chance = 1f,
-            string dependency = null, int width = 1)
+            string dependency = null, int width = 1, string key = "test.content")
             => template.SemanticAnchors.Add(new DungeonSemanticAnchorData(id,
                 DungeonSemanticAnchorType.Obstacle, new Vector2Int(x, 0), new Vector2Int(width, 1),
-                chance, required, dependency));
+                chance, required, dependency, distributionKey: key));
 
         private DungeonInstance Dungeon(int seed = 42, int roomCount = 1, DungeonRoomType type = DungeonRoomType.Normal)
         {
@@ -112,7 +112,7 @@ namespace Godmist.Tests.EditMode
         {
             Anchor("a", 0);
             Anchor("b", 1);
-            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }, spawnChance: .33f));
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "a", "b" }, spawnChance: .33f, distributionKey: "test.pairs"));
             var successes = 0;
             for (var seed = 0; seed < 100; seed++)
             {
@@ -274,6 +274,125 @@ namespace Godmist.Tests.EditMode
                 Vector2Int.zero, Vector2Int.one, objectDefinition: foreign));
             Assert.Throws<InvalidOperationException>(() => DungeonObjectPlacementSystem.ValidateContentDefinitions(definition));
             Assert.Throws<InvalidOperationException>(() => new DungeonObjectPlacementSystem().Place(Dungeon()));
+        }
+
+        [Test]
+        public void DistributionContinuesAcrossFloorsAndRepeatedPlacementDoesNotRerollEmptyFloors()
+        {
+            Anchor("optional", 0, chance: .33f);
+            for (var seed = 0; seed < 60; seed++)
+            {
+                var dungeon = Dungeon(seed);
+                for (var i = 1; i < 12; i++)
+                {
+                    var floor = new DungeonFloorInstance(i);
+                    floor.TryAddRoom(new DungeonRoomInstance("room.0", DungeonRoomType.Normal, template.Id, Vector2Int.zero));
+                    var map = new DungeonFloorMap();
+                    map.TryAddFloorCell(Vector2Int.zero, "room.0");
+                    floor.TrySetMap(map);
+                    dungeon.TryAddFloor(floor);
+                }
+                var expected = new DungeonContentDistribution(seed);
+                new DungeonObjectPlacementSystem().Place(dungeon);
+                var counts = new List<int>();
+                foreach (var floor in dungeon.Floors)
+                {
+                    counts.Add(floor.Objects.Count);
+                    Assert.That(floor.Objects.Count, Is.EqualTo(expected.Roll("test.content", .33f) ? 1 : 0));
+                }
+                new DungeonObjectPlacementSystem().Place(dungeon);
+                for (var i = 0; i < counts.Count; i++) Assert.That(dungeon.Floors[i].Objects.Count, Is.EqualTo(counts[i]));
+            }
+        }
+
+        [Test]
+        public void IneligibleAndGuaranteedAnchorsDoNotConsumeDistribution()
+        {
+            Anchor("a.fixed", 0, true);
+            Anchor("b.blocked", 0, chance: .33f);
+            Anchor("c.disabled", 1, chance: 0);
+            Anchor("d.dependent", 2, chance: .33f, dependency: "c.disabled");
+            Anchor("e.eligible", 3, chance: .33f);
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var dungeon = Dungeon(seed);
+                new DungeonObjectPlacementSystem().Place(dungeon);
+                var success = new DungeonContentDistribution(seed).Roll("test.content", .33f);
+                Assert.That(dungeon.Floors[0].Objects.Count, Is.EqualTo(success ? 2 : 1));
+            }
+        }
+
+        [Test]
+        public void OptionalFractionalChanceRequiresAuthorKey()
+        {
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("missing.key", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.zero, Vector2Int.one, .33f));
+            var error = Assert.Throws<InvalidOperationException>(() => new DungeonObjectPlacementSystem().Place(Dungeon()));
+            StringAssert.Contains("missing.key", error.Message);
+            StringAssert.Contains("klucz", error.Message);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SameKeyDependenciesAreRejectedIncludingThroughGuaranteedElements(bool indirect)
+        {
+            Anchor("root", 0, chance: .33f);
+            if (indirect) Anchor("bridge", 1, dependency: "root");
+            Anchor("child", 2, chance: .33f, dependency: indirect ? "bridge" : "root");
+            var dungeon = Dungeon();
+            var error = Assert.Throws<InvalidOperationException>(() => new DungeonObjectPlacementSystem().Place(dungeon));
+            StringAssert.Contains("test.content", error.Message);
+            StringAssert.Contains("room.test", error.Message);
+            Assert.That(dungeon.Floors[0].Objects, Is.Empty);
+            Assert.That(dungeon.HasPlacedContent, Is.False);
+        }
+
+        [Test]
+        public void SeparateKeysAllowDependencyAndSpaceCompetition()
+        {
+            Anchor("root", 0, chance: .33f, width: 2, key: "root");
+            Anchor("child", 1, chance: .33f, dependency: "root", key: "child");
+            Assert.DoesNotThrow(() => DungeonRoomContentPlanner.ValidateTemplate(template));
+            for (var seed = 0; seed < 40; seed++)
+                Assert.DoesNotThrow(() => new DungeonObjectPlacementSystem().Place(Dungeon(seed)));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SameKeySpaceCompetitionIncludesRequiredAreaBridges(bool bridge)
+        {
+            Anchor("first", 0, chance: .33f);
+            Anchor("second", bridge ? 2 : 0, chance: .33f);
+            if (bridge) Anchor("wide.required", 0, true, width: 3);
+            var error = Assert.Throws<InvalidOperationException>(() => DungeonRoomContentPlanner.ValidateTemplate(template));
+            StringAssert.Contains("wspolny obszar", error.Message);
+        }
+
+        [Test]
+        public void AtomicGroupMembersMayDependOnEachOtherAndShareSpace()
+        {
+            Anchor("first", 0, width: 2);
+            Anchor("second", 0, dependency: "first", width: 2);
+            template.ContentGroups.Add(new DungeonContentGroupData("pair", new[] { "first", "second" },
+                spawnChance: .33f, distributionKey: "pair"));
+            Assert.DoesNotThrow(() => DungeonRoomContentPlanner.ValidateTemplate(template));
+        }
+
+        [Test]
+        public void FeedbackBetweenKeysAcrossTemplatesIsRejectedByPoolValidation()
+        {
+            Anchor("first", 0, chance: .33f, key: "A");
+            Anchor("second", 1, chance: .33f, dependency: "first", key: "B");
+            var other = Asset<DungeonRoomTemplateDefinition>("other.room");
+            other.SemanticAnchors.Add(new DungeonSemanticAnchorData("first", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.zero, Vector2Int.one, .33f, distributionKey: "B"));
+            other.SemanticAnchors.Add(new DungeonSemanticAnchorData("second", DungeonSemanticAnchorType.Obstacle,
+                Vector2Int.right, Vector2Int.one, .33f, requiresAnchorId: "first", distributionKey: "A"));
+            definition.RoomTemplateCatalog.Templates.Add(other);
+            Assert.DoesNotThrow(() => DungeonRoomContentPlanner.ValidateTemplate(template));
+            Assert.DoesNotThrow(() => DungeonRoomContentPlanner.ValidateTemplate(other));
+            var error = Assert.Throws<InvalidOperationException>(() => DungeonObjectPlacementSystem.ValidateContentDefinitions(definition));
+            StringAssert.Contains("Konflikt historii RNG", error.Message);
         }
 
         [Test]
