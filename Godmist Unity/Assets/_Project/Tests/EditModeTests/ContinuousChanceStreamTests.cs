@@ -7,6 +7,97 @@ namespace Godmist.Tests.EditMode
 {
     public class ContinuousChanceStreamTests
     {
+        [TestCase(.25, 8, 2)]
+        [TestCase(.5, 4, 2)]
+        [TestCase(.8, 10, 8)]
+        [TestCase(.33, 7, -1)]
+        [TestCase(.2573, 8, -1)]
+        public void CompleteBagsHaveExpectedCountsWithoutRoundingChance(double p, int size, int exact)
+        {
+            for (var seed = 0; seed < 100; seed++)
+            {
+                var stream = new ContinuousChanceStream(seed);
+                for (var bag = 0; bag < 20; bag++)
+                {
+                    var hits = 0;
+                    for (var i = 0; i < size; i++) if (stream.Roll(p)) hits++;
+                    Assert.That(stream.PoolSize, Is.EqualTo(size));
+                    Assert.That(stream.RemainingCount, Is.Zero);
+                    if (exact >= 0) Assert.That(hits, Is.EqualTo(exact));
+                    else Assert.That(hits, Is.InRange((int)Math.Floor(size * p), (int)Math.Ceiling(size * p)));
+                }
+            }
+        }
+
+        [Test]
+        public void BuffChangesThresholdImmediatelyButResizesOnlyOnRefill()
+        {
+            var stream = new ContinuousChanceStream(91);
+            stream.Roll(.25);
+            Assert.That(stream.PoolSize, Is.EqualTo(8));
+            Assert.That(stream.RemainingCount, Is.EqualTo(7));
+            for (var i = 0; i < 7; i++) stream.Roll(.8);
+            Assert.That(stream.PoolSize, Is.EqualTo(8));
+            Assert.That(stream.RemainingCount, Is.Zero);
+            stream.Roll(.8);
+            Assert.That(stream.PoolSize, Is.EqualTo(10));
+            Assert.That(stream.RemainingCount, Is.EqualTo(9));
+        }
+
+        [Test]
+        public void GuaranteedAndInvalidRollsLeavePartialBagUnchanged()
+        {
+            var a = new ContinuousChanceStream(7);
+            var b = new ContinuousChanceStream(7);
+            for (var i = 0; i < 80; i++)
+            {
+                a.Roll(0); a.Roll(1);
+                Assert.Throws<ArgumentOutOfRangeException>(() => a.Roll(double.NaN));
+                var p = new[] { .25, .5, .6, .35, .25 }[i % 5];
+                Assert.That(a.Roll(p), Is.EqualTo(b.Roll(p)));
+            }
+        }
+
+        [Test]
+        public void ExtremeProbabilitiesUseSparseBagWithoutOverflow()
+        {
+            var stream = new ContinuousChanceStream(4);
+            Assert.DoesNotThrow(() => stream.Roll(double.Epsilon));
+            Assert.That(stream.PoolSize, Is.EqualTo(int.MaxValue));
+            Assert.That(stream.RemainingCount, Is.EqualTo(int.MaxValue - 1));
+            Assert.DoesNotThrow(() => stream.Roll(1 - 1e-15));
+        }
+
+        [TestCase(.8f, 10)]
+        [TestCase(.1f, 20)]
+        [TestCase(.33f, 7)]
+        public void UnityFloatChancesDoNotInflateIntegralBagSizes(float chance, int size)
+        {
+            var stream = new ContinuousChanceStream(5);
+            stream.Roll(chance);
+            Assert.That(stream.PoolSize, Is.EqualTo(size));
+        }
+
+        [Test]
+        public void ChangedThresholdAffectsCurrentBagBeforeRefill()
+        {
+            var different = 0;
+            for (var seed = 0; seed < 200; seed++)
+            {
+                var low = new ContinuousChanceStream(seed);
+                var high = new ContinuousChanceStream(seed);
+                low.Roll(.25); high.Roll(.25);
+                for (var i = 0; i < 7; i++)
+                {
+                    var a = low.Roll(.25);
+                    var b = high.Roll(.75);
+                    Assert.That(!a || b, Is.True);
+                    if (a != b) different++;
+                }
+            }
+            Assert.That(different, Is.GreaterThan(0));
+        }
+
         [Test]
         public void KeysAreIndependentAndFixedOutcomesDoNotAdvanceHistory()
         {
