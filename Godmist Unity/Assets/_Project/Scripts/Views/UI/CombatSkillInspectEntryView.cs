@@ -13,6 +13,8 @@ namespace Godmist.Views.UI
         IPointerEnterHandler,
         IPointerExitHandler
     {
+        [SerializeField] private UnityEngine.UI.Image icon;
+        [SerializeField] private TMPro.TextMeshProUGUI label;
         private SkillData skill;
         private BattleUnit caster;
         private UIWorkspaceTooltipView tooltip;
@@ -24,10 +26,14 @@ namespace Godmist.Views.UI
             UIWorkspaceTooltipView sourceTooltip)
         {
             skill = sourceSkill;
+            if (icon != null) { icon.sprite = skill.Icon; icon.enabled = icon.sprite != null; }
+            if (label != null) label.text = skill.DisplayName;
             caster = sourceCaster;
             tooltip = sourceTooltip;
             actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
         }
+
+        private void OnDisable() => tooltip?.NotifySourceExit(this);
 
         public void OnPointerEnter(PointerEventData eventData)
         {

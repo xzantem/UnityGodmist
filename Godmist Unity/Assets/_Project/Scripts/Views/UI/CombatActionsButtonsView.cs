@@ -30,7 +30,7 @@ namespace Godmist.Views.UI
             if (consumablesButton != null) consumablesButton.onClick.AddListener(OnConsumablesClicked);
             AddTooltip(endTurnButton, "Zakończ turę", "Kończy turę aktywnej jednostki. Niewydane Punkty Akcji przepadają.");
             AddTooltip(escapeButton, "Ucieczka", "Próbuje uciec z walki. Nieudana próba zwiększa szansę powodzenia następnej.");
-            AddTooltip(consumablesButton, "Consumables", "Otwiera potiony, bomby i przedmioty użytkowe dostępne dla aktywnej postaci.");
+            AddTooltip(consumablesButton, "Przedmioty", "Otwiera mikstury, bomby i przedmioty użytkowe dostępne dla aktywnej postaci.");
         }
 
         private void Update()
@@ -114,7 +114,7 @@ namespace Godmist.Views.UI
         {
             if (button == null) return;
             var trigger = button.GetComponent<CombatSimpleTooltipTrigger>();
-            if (trigger == null) trigger = button.gameObject.AddComponent<CombatSimpleTooltipTrigger>();
+            if (trigger == null) return;
             trigger.Initialize(tooltipView, title, description);
         }
     }

@@ -260,7 +260,7 @@ namespace Godmist.Systems.Combat
             }
 
             battleLog?.Invoke(
-                $"{caster.Character.Definition.DisplayName} uses {skill.DisplayName}.");
+                $"{caster.Character.Definition.DisplayName} używa {skill.DisplayName}.");
 
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =

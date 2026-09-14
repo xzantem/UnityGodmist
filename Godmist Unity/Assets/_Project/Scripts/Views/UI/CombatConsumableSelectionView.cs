@@ -24,6 +24,7 @@ namespace Godmist.Views.UI
         [SerializeField] private Vector2 slotSize = new(64f, 64f);
         [SerializeField] private Vector2 slotSpacing = new(8f, 8f);
         [SerializeField] private Vector2 windowPadding = new(24f, 24f);
+        [SerializeField] private GameObject emptyState;
         private readonly List<CombatSkillSlotView> spawned = new();
         private Coroutine resizeRoutine;
         private BattleUnit lastBuiltUnit;
@@ -175,6 +176,7 @@ namespace Godmist.Views.UI
         {
             foreach (var slot in spawned) if (slot != null) Destroy(slot.gameObject);
             spawned.Clear();
+            if (emptyState != null) emptyState.SetActive(true);
             var unit = sandboxBootstrap?.Session?.ActiveUnit;
             if (unit?.Character?.Inventory?.Items == null || contentRoot == null || itemTemplate == null)
             {
@@ -197,6 +199,7 @@ namespace Godmist.Views.UI
                 spawned.Add(slot);
             }
 
+            if (emptyState != null) emptyState.SetActive(spawned.Count == 0);
             lastBuiltUnit = unit;
             lastBuiltInventorySignature = BuildInventorySignature(unit);
 

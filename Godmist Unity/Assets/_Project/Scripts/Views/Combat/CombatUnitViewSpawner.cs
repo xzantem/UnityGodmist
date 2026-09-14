@@ -37,6 +37,7 @@ namespace Godmist.Views.Combat
         private Sprite missingSprite;
         private Godmist.Runtime.Game.GameSession dungeonSession;
         private Godmist.Views.Dungeons.DungeonFloorMapView floorMap;
+        [SerializeField] private Godmist.Views.UI.CombatHudView hud;
         private readonly Dictionary<BattleUnit, Godmist.Views.Exploration.ExplorationCharacterView> borrowed = new();
         private readonly Dictionary<BattleUnit, CombatSession> owners = new();
         private readonly Dictionary<BattleUnit, GridPosition> movementTargets = new();
@@ -93,8 +94,9 @@ namespace Godmist.Views.Combat
                 var isFocused = sandboxBootstrap.Session == owner;
                 view.RefreshCombatPresentation(owner.ActiveUnit == unit,
                     isFocused && ((targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
-                        || (inspectController != null && inspectController.HoveredUnit == unit)),
-                    isFocused && targetSelectionController != null && targetSelectionController.IsSelectingTarget);
+                        || (inspectController != null && (inspectController.HoveredUnit == unit || inspectController.InspectedUnit == unit))
+                        || (hud != null && hud.HighlightedUnit == unit)),
+                    isFocused && targetSelectionController != null && targetSelectionController.HoveredUnit == unit && !unit.IsPlayerSide && targetSelectionController.IsSelectingTarget);
             }
             RemoveMissingViews(aggregate);
             RemoveMissingSummonedObjectViews(aggregate);
@@ -279,8 +281,9 @@ namespace Godmist.Views.Combat
                     unit,
                     session.ActiveUnit == unit,
                     (targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
-                    || (inspectController != null && inspectController.HoveredUnit == unit),
-                    targetSelectionController != null && targetSelectionController.IsSelectingTarget);
+                    || (inspectController != null && (inspectController.HoveredUnit == unit || inspectController.InspectedUnit == unit))
+                        || (hud != null && hud.HighlightedUnit == unit),
+                    targetSelectionController != null && targetSelectionController.HoveredUnit == unit && !unit.IsPlayerSide && targetSelectionController.IsSelectingTarget);
             }
         }
 

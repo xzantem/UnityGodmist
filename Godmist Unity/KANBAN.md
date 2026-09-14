@@ -74,6 +74,17 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] Domknąć prezentację areny i informacje taktyczne v1` - `Combat`, `UI / UX`, `Content / Data`
+  - Docelowy pixel-art pass highlightów: zachować zaakceptowaną czytelność pojedynczych kwadratów, granicy zasięgu, ścieżki i gradientu kosztów; dopasować kontury oraz poświatę do pixel artu. Obecny styl zaakceptowany jako rozwiązanie tymczasowe.
+  - Dodać stały podgląd aktywnych statusów poza walką (efekt i pozostały czas/ticki), spójny z prezentacją bojową. Odłożone z karty pułapek za zgodą użytkownika; komunikaty floating nie zastępują podglądu. Przed implementacją uzgodnić układ UI.
+  - Czytelne granice walki, ściany, przeszkody i stany pułapek; tooltipy, wskazanie blokady ruchu/celowania oraz feedback aktywacji.
+  - Naprawić zgłoszoną regresję Combat InspectWindow: biały panel i bardzo jasny tekst powodują brak kontrastu. Zweryfikować faktyczną przyczynę w prefabie/stylowaniu.
+  - W Combat v4 wykonać przegląd tego okna i dostosować do istniejących prefabów/stylów UIW: kontrast, hierarchia statystyk, czytelność pasków, spójność języka, odstępy oraz sekcje efektów/umiejętności. Przed zmianami przedstawić układ użytkownikowi; static UI w prefabie/scenie. Bez odkładania tej regresji do Combat v5.
+  - Wspólne widoki lochu i walki, bez dublowania geometrii. Statyczne hierarchy, layout, styl i referencje zapisać w prefabach/scenach; kod aktualizuje dane i dynamiczne stany.
+  - Przed nowym UI przedstawić układ użytkownikowi. Sprawdzić czytelność dużej areny, zasłanianie jednostek i długie teksty.
+  - DONE: wdrożone statusy eksploracyjne, informacje taktyczne, Inspect i wspólny HUD UIW, podgląd AP, rail z liczbami, ikonowe akcje, siatka skilli 2×5 z przewijaniem, wskazanie kolejki i poprawka tooltipa.
+  - Smoke użytkownika PASS (2026-09-14), zamknięcie zaakceptowane. Build PASS; ostatni wykonany zestaw EditMode 18/18 PASS. Test regresyjny ostatniej poprawki tooltipa skompilowany; wykonanie w Unity NOT RUN przy otwartym Editorze. Self-review PASS. Raport: `COMBAT_V4_PRESENTATION_VERIFICATION.md`.
+
 - `[P1] Dodać sterowanie kamerą większych aren v1` - `Combat`, `UI / UX`
   - Rozwinąć obecne automatyczne kadrowanie o przesuwanie, zoom, ograniczenie kadru, skupienie na jednostce i powrót do czytelnego widoku.
   - Zachować ciągłość kamery przy przełączeniu trybu; bez wymuszonego ekranu przejścia. Uzgodnić gesty/klawisze i zasady automatycznego śledzenia.

@@ -30,6 +30,7 @@ namespace Godmist.Views.Combat
 
         private BattleUnit selectedUnit;
         private CombatUnitInspectWindowView floatingInspectWindow;
+        public BattleUnit InspectedUnit => floatingInspectWindow != null && floatingInspectWindow.IsVisible ? selectedUnit : null;
         public BattleUnit HoveredUnit { get; private set; }
 
         private void Awake()

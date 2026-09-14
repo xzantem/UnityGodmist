@@ -57,6 +57,7 @@ namespace Godmist.Views.Exploration
         public void ReleaseCombat()
         {
             CombatUnit = null;
+            if (nameLabel != null) nameLabel.gameObject.SetActive(true);
             combatVisualState?.ClearHighlight();
             if (body != null) body.position = transform.position;
         }
@@ -64,6 +65,7 @@ namespace Godmist.Views.Exploration
         public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting)
         {
             if (CombatUnit == null) { combatVisualState?.ClearHighlight(); return; }
+            if (nameLabel != null) nameLabel.gameObject.SetActive(false);
             combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true);
         }
 

@@ -18,7 +18,8 @@ namespace Godmist.Views.UI
             int priority,
             CombatAuraRuntime aura = null,
             CombatDamageRedirectRuntime outgoingRedirect = null,
-            BattleUnit owner = null)
+            BattleUnit owner = null,
+            Godmist.Runtime.Characters.CharacterInstance explorationCharacter = null)
         {
             Effect = effect;
             Kind = kind;
@@ -26,6 +27,7 @@ namespace Godmist.Views.UI
             Aura = aura;
             OutgoingRedirect = outgoingRedirect;
             Owner = owner;
+            ExplorationCharacter = explorationCharacter;
         }
         public PassiveEffectRuntime Effect { get; }
         public CombatStatusKind Kind { get; }
@@ -36,6 +38,7 @@ namespace Godmist.Views.UI
         public CombatAuraRuntime Aura { get; }
         public CombatDamageRedirectRuntime OutgoingRedirect { get; }
         public BattleUnit Owner { get; }
+        public Godmist.Runtime.Characters.CharacterInstance ExplorationCharacter { get; }
     }
 
     public static class CombatStatusPresentationFactory

@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitVisualStateView
   activeTurnColor: {r: 1, g: 0.78, b: 0.22, a: 1}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
+  inspectColor: {r: 1, g: 1, b: 1, a: 1}
   targetColor: {r: 1, g: 0.34, b: 0.28, a: 1}
   outlineWidth: 0.06
   pulseSpeed: 2.5

@@ -16,7 +16,12 @@ namespace Godmist.Views.UI
         [SerializeField] private Image unavailableOverlay;
         [SerializeField] private TextMeshProUGUI hotkeyText;
 
-        private TextMeshProUGUI runtimeKnifeCountText;
+        [SerializeField] private TextMeshProUGUI actionCostText;
+        [SerializeField] private Image selectedFrame;
+        private string unavailableReason;
+        [SerializeField] private TextMeshProUGUI shortcutText;
+        private Action<bool> hoverChanged;
+        public void SetShortcut(int index) { if(shortcutText!=null)shortcutText.text=index>=0 && index<10?((index+1)%10).ToString():""; }
         private SkillData skill;
         private UIWorkspaceTooltipView tooltipView;
         private Func<BattleUnit> casterProvider;
@@ -28,8 +33,10 @@ namespace Godmist.Views.UI
             SkillData sourceSkill,
             UIWorkspaceTooltipView sourceTooltipView,
             Action onClick,
-            Func<BattleUnit> sourceCasterProvider = null)
+            Func<BattleUnit> sourceCasterProvider = null,
+            Action<bool> onHoverChanged = null)
         {
+            hoverChanged = onHoverChanged;
             skill = sourceSkill;
             tooltipView = sourceTooltipView;
             casterProvider = sourceCasterProvider;
@@ -52,9 +59,14 @@ namespace Godmist.Views.UI
             bool isAvailable,
             int calculatedActionCost,
             bool isActiveToggle,
-            string knifeCount)
+            string knifeCount,
+            bool selected = false,
+            string reason = null)
         {
             actionCost = calculatedActionCost;
+            unavailableReason = reason;
+            if (actionCostText != null) actionCostText.text = $"{actionCost} AP";
+            if (selectedFrame != null) selectedFrame.enabled = selected;
             if (button != null)
             {
                 button.interactable = isAvailable;
@@ -79,22 +91,6 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(knifeCount))
-            {
-                if (runtimeKnifeCountText != null)
-                {
-                    runtimeKnifeCountText.enabled = false;
-                }
-
-                return;
-            }
-
-            var counterText = GetKnifeCountText();
-            if (counterText != null)
-            {
-                counterText.text = knifeCount;
-                counterText.enabled = true;
-            }
         }
 
         public bool TryActivate()
@@ -108,48 +104,17 @@ namespace Godmist.Views.UI
             return true;
         }
 
-        private TextMeshProUGUI GetKnifeCountText()
-        {
-            if (hotkeyText != null)
-            {
-                return hotkeyText;
-            }
-
-            if (runtimeKnifeCountText != null)
-            {
-                return runtimeKnifeCountText;
-            }
-
-            var counterObject = new GameObject("Knife Count", typeof(RectTransform), typeof(TextMeshProUGUI));
-            counterObject.transform.SetParent(transform, false);
-            counterObject.transform.SetAsLastSibling();
-
-            var counterRect = (RectTransform)counterObject.transform;
-            counterRect.anchorMin = new Vector2(1f, 0f);
-            counterRect.anchorMax = new Vector2(1f, 0f);
-            counterRect.pivot = new Vector2(1f, 0f);
-            counterRect.anchoredPosition = new Vector2(-3f, 3f);
-            counterRect.sizeDelta = new Vector2(40f, 18f);
-
-            runtimeKnifeCountText = counterObject.GetComponent<TextMeshProUGUI>();
-            runtimeKnifeCountText.alignment = TextAlignmentOptions.BottomRight;
-            runtimeKnifeCountText.fontSize = 14f;
-            runtimeKnifeCountText.fontStyle = FontStyles.Bold;
-            runtimeKnifeCountText.color = Color.white;
-            runtimeKnifeCountText.outlineWidth = 0.2f;
-            runtimeKnifeCountText.outlineColor = Color.black;
-            runtimeKnifeCountText.raycastTarget = false;
-            runtimeKnifeCountText.enabled = false;
-            return runtimeKnifeCountText;
-        }
-
         public void OnPointerEnter(PointerEventData eventData)
         {
-            tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke());
+            hoverChanged?.Invoke(true);
+            tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
         }
+
+        private void OnDisable(){hoverChanged?.Invoke(false);tooltipView?.NotifySourceExit(this);}
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            hoverChanged?.Invoke(false);
             tooltipView?.NotifySourceExit(this);
         }
     }

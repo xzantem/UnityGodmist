@@ -24,6 +24,8 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private CombatGridFeedbackRenderer gridFeedback;
         [SerializeField] private ExplorationCameraFollow explorationCamera;
         [SerializeField] private CombatCameraFramer combatCamera;
+        [SerializeField] private DungeonTacticalTooltip tacticalTooltip;
+        [SerializeField] private Godmist.Views.UI.CombatPartyRailView partyRail;
         [SerializeField] private GameObject combatHudRoot;
         [SerializeField] private GameObject explorationHudRoot;
         [SerializeField] private CanvasGroup placementNotice;
@@ -63,6 +65,7 @@ namespace Godmist.Views.Dungeons
             { Debug.LogError("DungeonCombatCoordinator: niekompletny wiring seamless."); return false; }
             game = session; floor = dungeonFloor; map = floorView; party = controller;
             objects = objectSpawner; encounters = encounterSpawner;
+            tacticalTooltip?.Bind(floor, map);
             unitViews.ConfigureDungeon(game, map);
             unitViews.ExplorationWorldPosition = ResolveExplorationFeedbackPosition;
             combatHost.BindDungeonFeedback();
@@ -380,6 +383,7 @@ namespace Godmist.Views.Dungeons
         public void RefreshFocus()
         {
             if (!initialized || game.IsDefeated) return;
+            if (partyRail != null) partyRail.SelectedCharacterId = game.PlayerParty.ActiveLeaderId;
             SetFocus(game.GetCombatForCharacter(game.PlayerParty.ActiveLeaderId));
         }
 

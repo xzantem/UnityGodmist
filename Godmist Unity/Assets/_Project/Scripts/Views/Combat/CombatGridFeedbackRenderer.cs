@@ -77,15 +77,18 @@ namespace Godmist.Views.Combat
                 if (layer == CombatGridFeedbackLayer.MovementPreview || layer == CombatGridFeedbackLayer.ActiveMovementUnit)
                     renderer.sortingOrder = pathSortingOrder;
                 renderers.Add(renderer);
-                var halo = CreateSpriteRenderer("Combat boundary halo");
-                halo.sortingOrder = renderer.sortingOrder;
-                halo.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, renderer.color.a * haloAlpha);
-                ConfigureEdge(halo.transform, halo.sprite, edge);
-                var scale = halo.transform.localScale;
-                if (edge.Direction == CombatGridEdgeDirection.Top || edge.Direction == CombatGridEdgeDirection.Bottom) scale.y *= haloWidthMultiplier;
-                else scale.x *= haloWidthMultiplier;
-                halo.transform.localScale = scale;
-                renderers.Add(halo);
+                if (haloAlpha > 0f)
+                {
+                    var halo = CreateSpriteRenderer("Combat boundary halo");
+                    halo.sortingOrder = renderer.sortingOrder;
+                    halo.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, renderer.color.a * haloAlpha);
+                    ConfigureEdge(halo.transform, halo.sprite, edge);
+                    var scale = halo.transform.localScale;
+                    if (edge.Direction == CombatGridEdgeDirection.Top || edge.Direction == CombatGridEdgeDirection.Bottom) scale.y *= haloWidthMultiplier;
+                    else scale.x *= haloWidthMultiplier;
+                    halo.transform.localScale = scale;
+                    renderers.Add(halo);
+                }
             }
             if (layer == CombatGridFeedbackLayer.MovementRange || layer == CombatGridFeedbackLayer.InspectedMovementRange)
             {
@@ -172,14 +175,17 @@ namespace Godmist.Views.Combat
                 marker.color = !danger && stepColor != null ? stepColor(previous, path[index]) : color;
                 ConfigurePathSegment(marker.transform, marker.sprite, previous, path[index]);
                 pathMarkers.Add(marker);
-                var halo = CreateSpriteRenderer("Combat path halo");
-                halo.sortingOrder = pathSortingOrder;
-                halo.color = new Color(marker.color.r, marker.color.g, marker.color.b, marker.color.a * haloAlpha);
-                ConfigurePathSegment(halo.transform, halo.sprite, previous, path[index]);
-                var haloScale = halo.transform.localScale;
-                if (previous.Y == path[index].Y) haloScale.y *= haloWidthMultiplier; else haloScale.x *= haloWidthMultiplier;
-                halo.transform.localScale = haloScale;
-                pathMarkers.Add(halo);
+                if (haloAlpha > 0f)
+                {
+                    var halo = CreateSpriteRenderer("Combat path halo");
+                    halo.sortingOrder = pathSortingOrder;
+                    halo.color = new Color(marker.color.r, marker.color.g, marker.color.b, marker.color.a * haloAlpha);
+                    ConfigurePathSegment(halo.transform, halo.sprite, previous, path[index]);
+                    var haloScale = halo.transform.localScale;
+                    if (previous.Y == path[index].Y) haloScale.y *= haloWidthMultiplier; else haloScale.x *= haloWidthMultiplier;
+                    halo.transform.localScale = haloScale;
+                    pathMarkers.Add(halo);
+                }
                 previous = path[index];
             }
 

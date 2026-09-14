@@ -39,6 +39,7 @@ namespace Godmist.Views.Combat
         private bool cacheValid;
         private GridPosition? previewedDestination;
         private int previewedPathCost;
+        public int PreviewCost => isActiveAndEnabled && previewedDestination.HasValue ? previewedPathCost : 0;
         private BattleUnit cachedInspectedUnit;
         private GridPosition cachedInspectedPosition;
         private int cachedInspectedMaxActionPoints;
