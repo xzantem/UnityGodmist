@@ -13,6 +13,9 @@ namespace Godmist.Runtime.Dungeons
         public Vector2Int FirstDoorCell { get; private set; }
         public Vector2Int SecondDoorCell { get; private set; }
         public int DoorwayWidth { get; private set; }
+        public int DoorwayLevel { get; private set; }
+        public DungeonSurfacePosition FirstDoorSurface => new(FirstDoorCell, DoorwayLevel);
+        public DungeonSurfacePosition SecondDoorSurface => new(SecondDoorCell, DoorwayLevel);
 
         public bool HasProgressionGate { get; private set; }
         public string ProgressionGateId { get; private set; } = string.Empty;
@@ -59,21 +62,18 @@ namespace Godmist.Runtime.Dungeons
             SecondRoomId = secondRoomId;
         }
 
-        public bool TrySetDirectPassage(
-            Vector2Int firstDoorCell,
-            Vector2Int secondDoorCell,
-            int doorwayWidth)
-        {
-            if (doorwayWidth < 1)
-            {
-                return false;
-            }
+        public bool TrySetDirectPassage(Vector2Int firstDoorCell, Vector2Int secondDoorCell, int doorwayWidth)
+            => TrySetDirectPassage(new DungeonSurfacePosition(firstDoorCell), new DungeonSurfacePosition(secondDoorCell), doorwayWidth);
 
-            FirstDoorCell = firstDoorCell;
-            SecondDoorCell = secondDoorCell;
+        public bool TrySetDirectPassage(DungeonSurfacePosition first, DungeonSurfacePosition second, int doorwayWidth)
+        {
+            if (doorwayWidth < 1 || first.Level != second.Level
+                || Math.Abs((long)first.Cell.x - second.Cell.x) + Math.Abs((long)first.Cell.y - second.Cell.y) != 1) return false;
+            FirstDoorCell = first.Cell;
+            SecondDoorCell = second.Cell;
+            DoorwayLevel = first.Level;
             DoorwayWidth = doorwayWidth;
             HasGeometry = true;
-
             return true;
         }
 

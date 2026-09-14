@@ -19,6 +19,25 @@ namespace Godmist.Systems.Combat
         public static bool BlocksEnvironmentSight(DungeonFloorInstance floor, DungeonCombatContext context,
             GridPosition from, GridPosition to)
         {
+            if (context.SurfaceMap?.HasElevatedSurfaces == true)
+            {
+                var map = context.SurfaceMap;
+                if (!map.TryGetSightPoint(DungeonBattleGridFactory.ToDungeonTraversalPosition(context, from), out var start)
+                    || !map.TryGetSightPoint(DungeonBattleGridFactory.ToDungeonTraversalPosition(context, to), out var end)) return true;
+                foreach (var item in floor.Objects)
+                {
+                    if (item == null || !item.IsActive) continue;
+                    if (item is DoorDungeonObjectInstance outsideDoor)
+                    {
+                        if (!outsideDoor.IsOpen && !context.ContainsWorldCell(outsideDoor.Edge.FirstCell)
+                            && !context.ContainsWorldCell(outsideDoor.Edge.SecondCell)
+                            && DungeonFloorMap.SightCrossesEdge(start, end, new DungeonSurfaceEdge(outsideDoor.Edge))) return true;
+                    }
+                    else if (!context.ContainsWorldCell(item.Position) && item is ObstacleDungeonObjectInstance outsideObstacle
+                        && outsideObstacle.BlocksLineOfSight && DungeonFloorMap.SightCrossesCell(start, end, new DungeonSurfacePosition(item.Position))) return true;
+                }
+                return false;
+            }
             bool Crosses(DungeonCellEdge edge) => CombatLineOfSightService.CrossesEdge(from, to,
                 new BattleCellEdge(DungeonBattleGridFactory.ToBattlePosition(context, edge.FirstCell),
                     DungeonBattleGridFactory.ToBattlePosition(context, edge.SecondCell)));
@@ -44,7 +63,7 @@ namespace Godmist.Systems.Combat
             return false;
         }
 
-        public static void RefreshExits(CombatSession session, DungeonFloorInstance floor, ISet<Vector2Int> explorationCells)
+        public static void RefreshExits(CombatSession session, DungeonFloorInstance floor, ISet<Vector2Int> explorationCells, ISet<DungeonTraversalPosition> explorationPositions = null)
         {
             foreach (var combatDoor in session.MapObjects.OfType<DoorCombatMapObject>())
             {
@@ -55,6 +74,23 @@ namespace Godmist.Systems.Combat
             }
             session.OpenExitEdges.Clear();
             var context = session.DungeonContext;
+            if (context.SurfaceMap?.HasElevatedSurfaces == true)
+            {
+                foreach (var inside in session.Grid.Positions)
+                foreach (var outside in floor.Map.GetTraversalNeighbours(DungeonBattleGridFactory.ToDungeonTraversalPosition(context, inside)))
+                {
+                    var target = DungeonBattleGridFactory.ToBattleTraversalPosition(context, outside);
+                    if (session.Grid.IsWalkable(target) || session.IsPositionOccupied(target)
+                        || explorationPositions?.Contains(outside) == true) continue;
+                    floor.Map.TryGetTraversalCell(outside, out var cell);
+                    if (!outside.IsOnStairs && outside.Surface.Level == 0
+                        && (explorationPositions == null && explorationCells.Contains(cell)
+                            || floor.Objects.OfType<ObstacleDungeonObjectInstance>().Any(obstacle =>
+                                obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell))) continue;
+                    session.OpenExitEdges.Add(new BattleCellEdge(inside, target));
+                }
+                return;
+            }
             foreach (var cell in context.WorldCells)
             foreach (var direction in Directions)
             {

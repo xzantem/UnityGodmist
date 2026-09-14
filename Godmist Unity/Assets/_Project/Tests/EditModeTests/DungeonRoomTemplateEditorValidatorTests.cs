@@ -617,3 +617,240 @@ namespace Godmist.Tests.EditMode
         }
     }
 }
+
+namespace Godmist.Tests.EditMode
+{
+    public class DungeonRoomSurfaceEditorTests
+    {
+        private DungeonRoomTemplateDefinition template;
+        private DungeonRoomEditorWindow window;
+        private Object previousSelection;
+        private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        [SetUp] public void Setup()
+        {
+            previousSelection = Selection.activeObject;
+            template = ScriptableObject.CreateInstance<DungeonRoomTemplateDefinition>();
+            using (var data = new SerializedObject(template))
+            {
+                data.FindProperty("<SizeInCells>k__BackingField").vector2IntValue = new Vector2Int(3, 3);
+                data.FindProperty("<Id>k__BackingField").stringValue = "height.test";
+                data.FindProperty("<DisplayName>k__BackingField").stringValue = "Height test";
+                data.FindProperty("<AllowedBoundaryEdges>k__BackingField").arraySize = 0;
+                data.FindProperty("<BoundaryEdgesConfigured>k__BackingField").boolValue = true;
+                data.ApplyModifiedPropertiesWithoutUndo();
+            }
+            window = ScriptableObject.CreateInstance<DungeonRoomEditorWindow>();
+            Invoke("SetTemplate", template); Invoke("EnsureSerializedObject");
+        }
+        [TearDown] public void Cleanup()
+        {
+            Object.DestroyImmediate(window); Undo.ClearUndo(template); Object.DestroyImmediate(template);
+            Selection.activeObject = previousSelection;
+        }
+        private object Invoke(string name, params object[] args) => typeof(DungeonRoomEditorWindow).GetMethod(name, Flags).Invoke(window, args);
+        private void Set(string name, object value) => typeof(DungeonRoomEditorWindow).GetField(name, Flags).SetValue(window, value);
+        private SerializedObject Data => (SerializedObject)typeof(DungeonRoomEditorWindow).GetField("serializedTemplate", Flags).GetValue(window);
+        private bool Paint(Vector2Int cell, int level, bool add)
+        {
+            var args = new object[] { cell, level, add, null };
+            return (bool)Invoke("TryPaintSurface", args);
+        }
+        private static Godmist.Runtime.Dungeons.DungeonSurfacePosition Surface(int x, int y, int level)
+            => new(new Vector2Int(x, y), level);
+        private bool Stair(Godmist.Runtime.Dungeons.DungeonSurfacePosition a, Godmist.Runtime.Dungeons.DungeonSurfacePosition b)
+        {
+            var cells = new List<Vector2Int> { a.Cell }; var current = a.Cell;
+            while (current.x != b.Cell.x) { current.x += current.x < b.Cell.x ? 1 : -1; cells.Add(current); }
+            while (current.y != b.Cell.y) { current.y += current.y < b.Cell.y ? 1 : -1; cells.Add(current); }
+            return (bool)Invoke("TrySaveStairRoute", new object[] { a, b, cells, -1, null });
+        }
+
+        [Test] public void PaintingUpperLevelPreservesLegacyGroundAndUndoRedo()
+        {
+            Assert.That(template.Surfaces, Is.Empty);
+            Undo.IncrementCurrentGroup();
+            Assert.That(Paint(Vector2Int.one, 1, true), Is.True);
+            Assert.That(template.Surfaces.Count, Is.EqualTo(10));
+            Assert.That(template.ContainsSurface(Vector2Int.one, 0), Is.True);
+            Assert.That(template.ContainsSurface(Vector2Int.one, 1), Is.True);
+            Undo.FlushUndoRecordObjects(); Undo.PerformUndo(); Data.Update();
+            Assert.That(template.Surfaces, Is.Empty);
+            Assert.That(template.ContainsSurface(Vector2Int.one, 1), Is.False);
+            Undo.PerformRedo(); Data.Update();
+            Assert.That(template.ContainsSurface(Vector2Int.one, 1), Is.True);
+        }
+
+        [Test] public void DeletingUpperSurfaceDoesNotDeleteGroundOrGroundContent()
+        {
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("content", DungeonSemanticAnchorType.Obstacle, Vector2Int.one, Vector2Int.one)); Data.Update();
+            Paint(Vector2Int.one, 1, true);
+            Assert.That(Paint(Vector2Int.one, 1, false), Is.True);
+            var before = EditorJsonUtility.ToJson(template);
+            Assert.That(Paint(Vector2Int.one, 0, false), Is.False);
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+        }
+
+        [Test] public void StairRequiresDifferentExistingLevelsRejectsDuplicateAndProtectsEndpoints()
+        {
+            Paint(Vector2Int.one, 1, true);
+            var a = Surface(0, 0, 0); var b = Surface(1, 1, 1);
+            Assert.That(Stair(a, Surface(1, 1, 0)), Is.False);
+            Assert.That(Stair(a, Surface(1, 1, 2)), Is.False);
+            Assert.That(Stair(a, b), Is.True);
+            Assert.That(Stair(b, a), Is.False);
+            var before = EditorJsonUtility.ToJson(template);
+            Assert.That(Paint(Vector2Int.one, 1, false), Is.False);
+            Assert.That(Paint(Vector2Int.zero, 0, false), Is.False);
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+            Assert.DoesNotThrow(() => template.ValidateSurfaceGeometry());
+        }
+
+        [Test] public void StairAdditionCanBeUndoneAndRedoneWithoutLosingSurfaces()
+        {
+            Paint(Vector2Int.one, 1, true);
+            Undo.IncrementCurrentGroup();
+            Stair(Surface(0, 0, 0), Surface(1, 1, 1));
+            Undo.FlushUndoRecordObjects(); Undo.PerformUndo(); Data.Update();
+            Assert.That(template.Stairs, Is.Empty);
+            Assert.That(template.ContainsSurface(Vector2Int.one, 1), Is.True);
+            Undo.PerformRedo(); Data.Update();
+            Assert.That(template.Stairs.Count, Is.EqualTo(1));
+            Assert.DoesNotThrow(() => template.ValidateSurfaceGeometry());
+        }
+
+        [Test] public void ValidationRejectsGroundContentAndTerrainOnUpperOnlySurface()
+        {
+            Paint(Vector2Int.one, 1, true); Paint(Vector2Int.one, 0, false);
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("upper.only", DungeonSemanticAnchorType.Obstacle, Vector2Int.one, Vector2Int.one));
+            template.DifficultTerrainCells.Add(Vector2Int.one);
+            var report = DungeonRoomTemplateEditorValidator.Validate(template);
+            Assert.That(report.Errors, Has.Some.Contains("upper.only"));
+            Assert.That(report.Errors, Has.Some.Contains("Difficult terrain"));
+        }
+
+        [Test] public void LevelSwitchKeepsPendingEndpointButClearsSelection()
+        {
+            Paint(Vector2Int.one, 1, true);
+            Invoke("PlaceStairEndpoint", Vector2Int.zero);
+            Invoke("PlaceStairEndpoint", Vector2Int.right);
+            Invoke("ChangeLevel", 1);
+            Invoke("PlaceStairEndpoint", Vector2Int.one);
+            Assert.That(template.Stairs.Count, Is.EqualTo(1));
+            Assert.That(template.Stairs[0].First.Level, Is.EqualTo(0));
+            Assert.That(template.Stairs[0].Second.Level, Is.EqualTo(1));
+        }
+
+        [Test] public void StructuralAnchorsAtSameXYRemainIndependent()
+        {
+            Paint(Vector2Int.one, 1, true);
+            Invoke("SelectOrAddStructuralAnchor", Vector2Int.one, new Vector2Int(3, 3)); Data.ApplyModifiedProperties();
+            Invoke("ChangeLevel", 1);
+            Invoke("SelectOrAddStructuralAnchor", Vector2Int.one, new Vector2Int(3, 3)); Data.ApplyModifiedProperties();
+            Assert.That(template.StructuralAnchors.Count, Is.EqualTo(2));
+            Assert.That(template.StructuralAnchors[0].Level, Is.EqualTo(0));
+            Assert.That(template.StructuralAnchors[1].Level, Is.EqualTo(1));
+            Assert.That(Paint(Vector2Int.one, 1, false), Is.False);
+        }
+
+        [Test] public void BoundaryOperationsAffectOnlyActiveLevel()
+        {
+            Paint(Vector2Int.zero, 1, true);
+            Invoke("SetAllBoundaryEdges", true); Data.ApplyModifiedProperties();
+            var groundCount = template.AllowedBoundaryEdges.Count;
+            Invoke("ChangeLevel", 1);
+            Invoke("SetAllBoundaryEdges", true); Data.ApplyModifiedProperties();
+            Assert.That(template.AllowedBoundaryEdges.Count, Is.EqualTo(groundCount + 2));
+            Invoke("SetAllBoundaryEdges", false); Data.ApplyModifiedProperties();
+            Assert.That(template.AllowedBoundaryEdges.Count, Is.EqualTo(groundCount));
+            Assert.That(template.AllowedBoundaryEdges.TrueForAll(edge => edge.Level == 0), Is.True);
+        }
+
+        [Test] public void ResizeShiftsSurfacesStairsAnchorsAndTerrainAndUndoRestoresEverything()
+        {
+            Paint(Vector2Int.one, 1, true); Stair(Surface(0, 0, 0), Surface(1, 1, 1));
+            template.DifficultTerrainCells.Add(Vector2Int.right); Data.Update();
+            var before = EditorJsonUtility.ToJson(template);
+            Undo.IncrementCurrentGroup();
+            Invoke("ResizeRoom", DungeonEdgeDirection.Left, true);
+            Assert.That(template.SizeInCells.x, Is.EqualTo(4));
+            Assert.That(template.ContainsSurface(new Vector2Int(2, 1), 1), Is.True);
+            Assert.That(template.Stairs[0].First.LocalCell, Is.EqualTo(Vector2Int.right));
+            Assert.That(template.Stairs[0].Second.LocalCell, Is.EqualTo(new Vector2Int(2, 1)));
+            Assert.That(template.DifficultTerrainCells[0], Is.EqualTo(new Vector2Int(2, 0)));
+            Assert.DoesNotThrow(() => template.ValidateSurfaceGeometry());
+            Undo.FlushUndoRecordObjects(); Undo.PerformUndo(); Data.Update();
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+        }
+
+        [Test] public void ResizeCannotClipStairEndpoint()
+        {
+            Paint(Vector2Int.one, 1, true); Stair(Surface(0, 0, 0), Surface(1, 1, 1));
+            var before = EditorJsonUtility.ToJson(template);
+            Invoke("ResizeRoom", DungeonEdgeDirection.Left, false);
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+        }
+
+        [Test] public void StairDraftRejectsSkippedCellAndCanTurnBeforeChangingLevel()
+        {
+            Paint(Vector2Int.one, 1, true);
+            Invoke("PlaceStairEndpoint", Vector2Int.zero);
+            Invoke("PlaceStairEndpoint", new Vector2Int(2, 0));
+            Assert.That(((List<Vector2Int>)typeof(DungeonRoomEditorWindow).GetField("pendingStairPath", Flags).GetValue(window)).Count, Is.EqualTo(1));
+            Invoke("PlaceStairEndpoint", Vector2Int.right);
+            Invoke("ChangeLevel", 1); Invoke("PlaceStairEndpoint", Vector2Int.one);
+            Assert.That(template.Stairs[0].PathCells, Is.EqualTo(new[] { Vector2Int.zero, Vector2Int.right, Vector2Int.one }));
+        }
+
+        [Test] public void EditingAndCancelingRoutePreservesOriginalUntilSave()
+        {
+            Paint(Vector2Int.one, 1, true); Stair(Surface(0, 0, 0), Surface(1, 1, 1));
+            var before = EditorJsonUtility.ToJson(template);
+            Set("selectedStair", 0); Invoke("BeginStairRouteEdit");
+            Invoke("PlaceStairEndpoint", Vector2Int.up); Invoke("CancelStairDraft");
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+            Set("selectedStair", 0); Invoke("BeginStairRouteEdit");
+            Invoke("PlaceStairEndpoint", Vector2Int.up); Invoke("ChangeLevel", 1); Invoke("PlaceStairEndpoint", Vector2Int.one);
+            Assert.That(template.Stairs.Count, Is.EqualTo(1));
+            Assert.That(template.Stairs[0].PathCells, Is.EqualTo(new[] { Vector2Int.zero, Vector2Int.up, Vector2Int.one }));
+        }
+
+        [Test] public void InteriorStairCellKeepsFootprintWithoutFloorBelowAndPreventsClipping()
+        {
+            Paint(Vector2Int.one, 1, true);
+            var path = new[] { Vector2Int.right, Vector2Int.zero, Vector2Int.up, Vector2Int.one };
+            Assert.That(Invoke("TrySaveStairRoute", new object[] { Surface(1, 0, 0), Surface(1, 1, 1), path, -1, null }), Is.True);
+            Assert.That(Paint(Vector2Int.zero, 0, false), Is.True);
+            Assert.That(template.ContainsSurface(Vector2Int.zero, 0), Is.False);
+            Assert.That(template.Footprint.Contains(Vector2Int.zero, template.SizeInCells), Is.True);
+            Assert.That(DungeonRoomTemplateEditorValidator.Validate(template).IsValid, Is.True);
+            var before = EditorJsonUtility.ToJson(template);
+            Invoke("ResizeRoom", DungeonEdgeDirection.Left, false);
+            Assert.That(EditorJsonUtility.ToJson(template), Is.EqualTo(before));
+        }
+
+        [Test] public void GroundAnchorCannotBeSelectedOrCreatedOnUpperLevel()
+        {
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData("content", DungeonSemanticAnchorType.Obstacle, Vector2Int.one, Vector2Int.one)); Data.Update();
+            Paint(Vector2Int.one, 1, true); Invoke("ChangeLevel", 1);
+            Assert.That(Invoke("FindSemanticAnchorAt", Vector2Int.one, new Vector2Int(3, 3)), Is.EqualTo(-1));
+            Invoke("SelectOrAddSemanticAnchor", Vector2Int.one, new Vector2Int(3, 3)); Data.ApplyModifiedProperties();
+            Assert.That(template.SemanticAnchors.Count, Is.EqualTo(1));
+        }
+
+        [UnityEngine.TestTools.UnityTest]
+        public System.Collections.IEnumerator LayeredEditorRendersAtMinimumAndLargeSizes()
+        {
+            Paint(Vector2Int.one, 1, true); Stair(Surface(0, 0, 0), Surface(1, 1, 1));
+            window.Show();
+            foreach (var size in new[] { new Vector2(960, 560), new Vector2(1600, 900) })
+            {
+                window.position = new Rect(new Vector2(30, 30), size);
+                Invoke("ChangeLevel", 1); Set("selectedStair", 0); window.Repaint();
+                yield return null; yield return null;
+                Invoke("ClearAnchorSelection"); Set("selectedSurface", (Godmist.Runtime.Dungeons.DungeonSurfacePosition?)Surface(1, 1, 1));
+                window.Repaint(); yield return null;
+                Assert.That(DungeonRoomTemplateEditorValidator.Validate(template).IsValid, Is.True);
+            }
+        }
+    }
+}

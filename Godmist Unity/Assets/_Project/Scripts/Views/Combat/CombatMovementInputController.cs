@@ -8,6 +8,8 @@ namespace Godmist.Views.Combat
 {
     public class CombatMovementInputController : MonoBehaviour
     {
+        public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -110,7 +112,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var destination = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var destination)) return;
 
             if (sandboxBootstrap.TryReviveAt(destination))
             {
@@ -302,7 +304,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var hoveredPosition = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
             if (!reachablePaths.TryGetValue(hoveredPosition, out var path))
             {
                 feedbackRenderer.ClearMovementPreview();
@@ -325,7 +327,7 @@ namespace Godmist.Views.Combat
             previewedPathCost = pathCost;
         }
 
-        private GridPosition GetGridPositionUnderMouse()
+        private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
             var screenPosition = Input.mousePosition;
             screenPosition.z =
@@ -342,7 +344,10 @@ namespace Godmist.Views.Combat
                 (worldPosition.y - gridOrigin.y)
                 / cellSize);
 
-            return new GridPosition(gridX, gridY);
+            var resolved = ResolvePointerPosition != null
+                ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
+            position = resolved.GetValueOrDefault();
+            return resolved.HasValue;
         }
 
         private Color ShadeForSurcharge(Color baseColor, int surcharge)

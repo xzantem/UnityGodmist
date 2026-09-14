@@ -8,6 +8,7 @@ namespace Godmist.Views.Dungeons
     {
         [SerializeField] private Collider2D movementCollider;
         [SerializeField] private float thickness = 0.14f;
+        public float Thickness => thickness;
 
         public void Bind(
             DungeonCellEdge edge,

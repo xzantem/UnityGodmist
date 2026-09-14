@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
@@ -334,6 +335,21 @@ namespace Godmist.Systems.SaveLoad
                 {
                     FloorIndex = floor.FloorIndex
                 };
+
+                foreach (var pair in floor.ActorPositions.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
+                {
+                    var position = pair.Value;
+                    if (floor.Map == null || !floor.Map.TryGetTraversalCell(position, out _)) return false;
+                    floorDelta.ActorPositions.Add(new DungeonActorPositionSaveData
+                    {
+                        ActorId = pair.Key, IsOnStairs = position.IsOnStairs,
+                        OffsetX = floor.GetActorOffset(pair.Key).x, OffsetY = floor.GetActorOffset(pair.Key).y,
+                        X = position.Surface.Cell.x, Y = position.Surface.Cell.y, Level = position.Surface.Level,
+                        StairStep = position.StairStep,
+                        FirstX = position.Stair.First.Cell.x, FirstY = position.Stair.First.Cell.y, FirstLevel = position.Stair.First.Level,
+                        SecondX = position.Stair.Second.Cell.x, SecondY = position.Stair.Second.Cell.y, SecondLevel = position.Stair.Second.Level
+                    });
+                }
 
                 foreach (var room in floor.Rooms)
                 {

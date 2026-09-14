@@ -2268,7 +2268,7 @@ namespace Godmist.Systems.Combat
 
                 var nextPosition = new GridPosition(
                     movedUnit.Position.X + stepX,
-                    movedUnit.Position.Y + stepY);
+                    movedUnit.Position.Y + stepY, movedUnit.Position.Level);
 
                 if (!CanForcedDisplacementMove(
                         session,
@@ -2320,8 +2320,8 @@ namespace Godmist.Systems.Combat
                     && !session.IsPositionOccupied(nextPosition, movedUnit);
             }
 
-            var horizontal = new GridPosition(nextPosition.X, currentPosition.Y);
-            var vertical = new GridPosition(currentPosition.X, nextPosition.Y);
+            var horizontal = new GridPosition(nextPosition.X, currentPosition.Y, currentPosition.Level);
+            var vertical = new GridPosition(currentPosition.X, nextPosition.Y, currentPosition.Level);
             return !session.IsPositionOccupied(nextPosition, movedUnit)
                 && ((session.Grid.CanDisplaceBetween(currentPosition, horizontal)
                         && session.Grid.CanDisplaceBetween(horizontal, nextPosition))
@@ -2453,7 +2453,11 @@ namespace Godmist.Systems.Combat
                             || target.Character.LifeState != CharacterLifeState.Alive
                             || !MatchesTargeting(source, target, aura.TargetingType)
                             || (!aura.IncludesCaster && target == source)
-                            || !IsInRange(source.Position, target.Position, aura.Radius))
+                            || !IsInRange(source.Position, target.Position, aura.Radius)
+                            || (session.DungeonContext?.SurfaceMap?.HasElevatedSurfaces == true
+                                && session.DungeonContext.SurfaceMap.BlocksFloorSight(
+                                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, source.Position),
+                                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, target.Position))))
                         {
                             continue;
                         }

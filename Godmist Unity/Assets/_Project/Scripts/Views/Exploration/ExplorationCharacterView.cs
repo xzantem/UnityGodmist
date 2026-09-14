@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Godmist.Views.Exploration
 {
-    public class ExplorationCharacterView : MonoBehaviour
+    public partial class ExplorationCharacterView : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer bodyRenderer;
         [SerializeField] private Godmist.Views.Combat.CombatUnitVisualStateView combatVisualState;
@@ -26,13 +26,29 @@ namespace Godmist.Views.Exploration
         private bool noclipEnabled;
         private Godmist.Runtime.Dungeons.DungeonFloorMap terrainMap;
         private Godmist.Views.Dungeons.DungeonFloorMapView terrainView;
+        public Godmist.Views.Dungeons.DungeonFloorMapView TerrainView => terrainView;
+        private Renderer[] elevationRenderers;
+        private void LateUpdate()
+        {
+            if (terrainView == null) return;
+            elevationRenderers ??= GetComponentsInChildren<Renderer>(true);
+            var visible = !UsesLayeredTraversal
+                ? !terrainView.IsSurfaceOccluded(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(terrainView.WorldToCell(Position)))
+                : terrainView.IsTraversalVisible(DungeonPosition);
+            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !visible;
+        }
         private Vector2 crossingStart, crossingEnd;
         private float crossingElapsed;
         private bool restoreBody, restoreCollider;
         public bool IsCrossingLowWall { get; private set; }
         public System.Func<Vector2Int, bool> CanCrossTo { get; set; }
         public void ConfigureTerrain(Godmist.Runtime.Dungeons.DungeonFloorMap map,
-            Godmist.Views.Dungeons.DungeonFloorMapView view) { terrainMap = map; terrainView = view; }
+            Godmist.Views.Dungeons.DungeonFloorMapView view,
+            Godmist.Runtime.Dungeons.DungeonFloorInstance floor = null, string actorKey = null)
+        {
+            terrainMap = map; terrainView = view; terrainFloor = floor; traversalActorKey = actorKey;
+            RestoreTraversalPosition();
+        }
 
         private void EndWallCrossing()
         {
@@ -46,9 +62,10 @@ namespace Godmist.Views.Exploration
         public CharacterInstance RuntimeCharacter { get; private set; }
         public void SetEnemyInstanceId(string value) => EnemyInstanceId = value;
         public Godmist.Runtime.Combat.BattleUnit CombatUnit { get; private set; }
-        public void BindCombat(Godmist.Runtime.Combat.BattleUnit unit)
+        public void BindCombat(Godmist.Runtime.Combat.BattleUnit unit, Godmist.Runtime.Combat.DungeonCombatContext context = null)
         {
             EndWallCrossing();
+            combatContext = context;
             CombatUnit = unit;
             RuntimeCharacter = unit.Character;
             if (body != null) body.simulated = false;
@@ -56,7 +73,11 @@ namespace Godmist.Views.Exploration
         }
         public void ReleaseCombat()
         {
+            var position = DungeonPosition;
+            PreferredTraversalDestination = null;
             CombatUnit = null;
+            combatContext = null;
+            if (UsesLayeredTraversal) StoreTraversalPosition(position);
             if (nameLabel != null) nameLabel.gameObject.SetActive(true);
             combatVisualState?.ClearHighlight();
             if (body != null) body.position = transform.position;
@@ -117,8 +138,8 @@ namespace Godmist.Views.Exploration
 
             if (IsCrossingLowWall)
             { restoreBody = isActiveLeader && !noclipEnabled; restoreCollider = restoreBody; return; }
-            if (body != null) body.simulated = CombatUnit == null && isActiveLeader && !noclipEnabled;
-            if (movementCollider != null) movementCollider.enabled = CombatUnit == null && isActiveLeader && !noclipEnabled;
+            if (body != null) body.simulated = CombatUnit == null && isActiveLeader && !noclipEnabled && !UsesLayeredTraversal;
+            if (movementCollider != null) movementCollider.enabled = CombatUnit == null && isActiveLeader && !noclipEnabled && !UsesLayeredTraversal;
         }
 
         public void SetNoclip(bool enabled)
@@ -137,6 +158,8 @@ namespace Godmist.Views.Exploration
 
         public void Move(Vector2 offset)
         {
+            if (UsesLayeredTraversal && CombatUnit == null && !noclipEnabled)
+            { MoveLayeredDirection(offset); return; }
             if (IsCrossingLowWall || offset.sqrMagnitude < 0.0001f) return;
             if (CombatUnit == null && terrainMap != null && terrainView != null && !noclipEnabled)
             {
@@ -219,7 +242,7 @@ namespace Godmist.Views.Exploration
                     transform.position = Vector2.Lerp(crossingStart, crossingEnd, Mathf.Clamp01(crossingElapsed / .6f));
                     PlayRunAnimation();
                     lastMovementTime = Time.time;
-                    if (crossingElapsed >= .6f) EndWallCrossing();
+                    if (crossingElapsed >= .6f) { EndWallCrossing(); if (UsesLayeredTraversal) terrainFloor?.SetActorOffset(TraversalActorId, Vector2.zero); }
                 }
             }
             if (Time.time - lastMovementTime > 0.08f)
@@ -289,6 +312,15 @@ namespace Godmist.Views.Exploration
 
         public void SetPosition(Vector2 position)
         {
+            PreferredTraversalDestination = null;
+            if (UsesLayeredTraversal && CombatUnit == null)
+            {
+                var surface = new Godmist.Runtime.Dungeons.DungeonTraversalPosition(
+                    new Godmist.Runtime.Dungeons.DungeonSurfacePosition(terrainView.WorldToCell(position)));
+                if (terrainMap.TryGetTraversalCell(surface, out _)) StoreTraversalPosition(surface);
+                else if (terrainView.TryGetVisibleTraversal(position, out var visible)) StoreTraversalPosition(visible);
+                else if (!noclipEnabled) return;
+            }
             EndWallCrossing();
             lastMovementTime = float.NegativeInfinity;
             PlayIdleAnimation();

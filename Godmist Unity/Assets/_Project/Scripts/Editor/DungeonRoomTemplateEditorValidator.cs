@@ -82,9 +82,15 @@ namespace Godmist.Editor
             }
 
             var floorCells = ValidateFootprint(template, size, report);
+            try { template.ValidateSurfaceGeometry(); }
+            catch (InvalidOperationException exception) { report.AddError(exception.Message); }
+            foreach (var stair in template.Stairs ?? new List<DungeonRoomStairData>())
+                if (stair?.First != null && stair.Second != null && !Godmist.Core.Utilities.DungeonStairPathUtility.TryResolve(
+                        stair.First.LocalCell, stair.Second.LocalCell, stair.PathCells, out _, out var stairError))
+                    report.AddError(stairError);
             var terrainCells = new HashSet<Vector2Int>();
             foreach (var cell in template.DifficultTerrainCells)
-                if (!floorCells.Contains(cell) || !terrainCells.Add(cell))
+                if (!template.ContainsSurface(cell, 0) || !terrainCells.Add(cell))
                     report.AddError("Difficult terrain must use unique floor cells inside the room.");
             ValidateBoundaryEdges(template, floorCells, report);
             ValidateStructuralAnchors(template, floorCells, report);
@@ -221,7 +227,7 @@ namespace Godmist.Editor
                 return;
             }
 
-            var usedEdges = new HashSet<BoundaryEdgeKey>();
+            var usedEdges = new HashSet<(BoundaryEdgeKey, int)>();
 
             foreach (var edge in template.AllowedBoundaryEdges
                          ?? new List<DungeonRoomBoundaryEdgeData>())
@@ -253,9 +259,9 @@ namespace Godmist.Editor
                     continue;
                 }
 
-                if (!usedEdges.Add(new BoundaryEdgeKey(
+                if (!usedEdges.Add((new BoundaryEdgeKey(
                         edge.LocalCell,
-                        edge.Direction)))
+                        edge.Direction), edge.Level)))
                 {
                     report.AddError(
                         $"External passage edge ({edge.LocalCell.x}, {edge.LocalCell.y}) "
@@ -309,7 +315,7 @@ namespace Godmist.Editor
             HashSet<Vector2Int> floorCells,
             DungeonRoomTemplateValidationReport report)
         {
-            var usedEdges = new HashSet<StructuralEdgeKey>();
+            var usedEdges = new HashSet<(StructuralEdgeKey, int)>();
 
             foreach (var anchor in template.StructuralAnchors
                          ?? new List<DungeonStructuralAnchorData>())
@@ -335,11 +341,13 @@ namespace Godmist.Editor
                     continue;
                 }
 
+                if (anchor.Type == DungeonStructuralAnchorType.Door && anchor.Level != 0)
+                    report.AddError("Drzwi jako obiekt są obecnie obsługiwane na poziomie 0. Na górnym poziomie użyj przejścia między pokojami.");
                 var firstCell = anchor.LocalCell;
                 var secondCell = firstCell + anchor.GetDirectionOffset();
 
-                if (!floorCells.Contains(firstCell)
-                    || (anchor.Type != DungeonStructuralAnchorType.Wall && !floorCells.Contains(secondCell)))
+                if (!template.ContainsSurface(firstCell, anchor.Level)
+                    || (anchor.Type != DungeonStructuralAnchorType.Wall && !template.ContainsSurface(secondCell, anchor.Level)))
                 {
                     report.AddError(
                         $"Structural anchor ({firstCell.x}, {firstCell.y}) "
@@ -351,7 +359,7 @@ namespace Godmist.Editor
                     report.AddError("Nieprawidłowy typ ściany.");
                 var edge = new StructuralEdgeKey(firstCell, secondCell);
 
-                if (!usedEdges.Add(edge))
+                if (!usedEdges.Add((edge, anchor.Level)))
                 {
                     report.AddError(
                         $"Structural anchor na krawedzi ({firstCell.x}, {firstCell.y}) "
@@ -428,11 +436,11 @@ namespace Godmist.Editor
                             y < anchor.LocalCell.y + anchor.AreaSize.y;
                             y++)
                         {
-                            if (!floorCells.Contains(new Vector2Int(x, y)))
+                            if (!template.ContainsSurface(new Vector2Int(x, y), 0))
                             {
                                 report.AddError(
                                     $"Semantic anchor '{anchor.Id}' wskazuje "
-                                    + "obszar poza footprintem.");
+                                    + "obszar poza footprintem lub bez powierzchni na poziomie 0.");
                                 x = anchor.LocalCell.x + anchor.AreaSize.x;
                                 break;
                             }

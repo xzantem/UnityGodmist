@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Runtime.Combat;
 using TMPro;
 using UnityEngine;
@@ -19,6 +20,16 @@ namespace Godmist.Views.Combat
 
     public class CombatGridFeedbackRenderer : MonoBehaviour
     {
+        public System.Func<GridPosition, bool> IsPositionVisible { get; set; }
+        private readonly Dictionary<CombatGridFeedbackLayer, (GridPosition[] Cells, Color Color, System.Func<GridPosition, Color> Tint)> outlineSources = new();
+        private readonly Dictionary<CombatGridFeedbackLayer, (GridPosition[] Cells, Color Color, System.Func<GridPosition, Color> Tint)> fillSources = new();
+        public void RefreshVisibility()
+        {
+            if (pathCost != null) pathCost.gameObject.SetActive(IsPositionVisible?.Invoke(pathCostPosition) != false);
+            foreach (var pair in outlineSources.ToArray()) ShowOutline(pair.Key, pair.Value.Cells, pair.Value.Color, pair.Value.Tint);
+            foreach (var pair in fillSources.ToArray()) ShowFill(pair.Key, pair.Value.Cells, pair.Value.Color, pair.Value.Tint);
+        }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -52,6 +63,7 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> fills = new();
         private readonly List<SpriteRenderer> pathMarkers = new();
         private TMP_Text pathCost;
+        private GridPosition pathCostPosition;
 
         private void Awake()
         {
@@ -67,12 +79,16 @@ namespace Godmist.Views.Combat
             ClearOutline(layer);
             if (feedbackSprite == null) return;
 
-            var cells = new HashSet<GridPosition>(positions);
+            var source = positions.ToArray();
+            outlineSources[layer] = (source, color, cellColor);
+            var projected = source.Where(p => IsPositionVisible?.Invoke(p) != false)
+                .GroupBy(p => new GridPosition(p.X, p.Y)).ToDictionary(group => group.Key, group => group.First());
+            var cells = new HashSet<GridPosition>(projected.Keys);
             var renderers = new List<SpriteRenderer>();
             foreach (var edge in CombatGridFeedbackGeometry.BuildOutlineEdges(cells))
             {
                 var renderer = CreateSpriteRenderer("Combat feedback edge");
-                renderer.color = cellColor?.Invoke(edge.Cell) ?? color;
+                renderer.color = cellColor?.Invoke(projected[edge.Cell]) ?? color;
                 ConfigureEdge(renderer.transform, renderer.sprite, edge);
                 if (layer == CombatGridFeedbackLayer.MovementPreview || layer == CombatGridFeedbackLayer.ActiveMovementUnit)
                     renderer.sortingOrder = pathSortingOrder;
@@ -101,7 +117,7 @@ namespace Godmist.Views.Combat
             void AddInnerEdge(GridPosition cell, CombatGridEdgeDirection direction)
             {
                 var line = CreateSpriteRenderer("Combat individual cell edge");
-                var tint = cellColor?.Invoke(cell) ?? color;
+                var tint = cellColor?.Invoke(projected[cell]) ?? color;
                 line.color = new Color(tint.r, tint.g, tint.b, innerGridAlpha);
                 ConfigureEdge(line.transform, line.sprite, new CombatGridOutlineEdge(cell, direction));
                 var scale = line.transform.localScale;
@@ -122,7 +138,9 @@ namespace Godmist.Views.Combat
             if (feedbackSprite == null || positions == null) return;
 
             var renderers = new List<SpriteRenderer>();
-            foreach (var position in positions)
+            var source = positions.ToArray();
+            fillSources[layer] = (source, color, cellColor);
+            foreach (var position in source.Where(p => IsPositionVisible?.Invoke(p) != false))
             {
                 var renderer = CreateSpriteRenderer("Combat feedback fill");
                 renderer.color = cellColor?.Invoke(position) ?? color;
@@ -137,6 +155,7 @@ namespace Godmist.Views.Combat
 
         public void ClearOutline(CombatGridFeedbackLayer layer)
         {
+            outlineSources.Remove(layer);
             if (!outlines.TryGetValue(layer, out var renderers)) return;
             foreach (var renderer in renderers)
             {
@@ -148,6 +167,7 @@ namespace Godmist.Views.Combat
 
         public void ClearFill(CombatGridFeedbackLayer layer)
         {
+            fillSources.Remove(layer);
             if (!fills.TryGetValue(layer, out var renderers)) return;
             foreach (var renderer in renderers)
             {
@@ -161,7 +181,7 @@ namespace Godmist.Views.Combat
             IReadOnlyList<GridPosition> path,
             GridPosition origin,
             int actionPointCost,
-            Color color, bool danger = false, System.Func<GridPosition, GridPosition, Color> stepColor = null)
+            Color color, bool danger = false, System.Func<GridPosition, GridPosition, Color> stepColor = null, bool showCost = true)
         {
             ClearMovementPreview();
             if (path == null || path.Count == 0) return;
@@ -198,9 +218,11 @@ namespace Godmist.Views.Combat
             ShowFill(CombatGridFeedbackLayer.MovementPreview, new[] { destination },
                 new Color(color.r, color.g, color.b, destinationFillAlpha));
 
-            if (pathCostFont != null)
+            if (showCost && pathCostFont != null)
             {
+                pathCostPosition = destination;
                 pathCost = CreatePathCost();
+                pathCost.gameObject.SetActive(IsPositionVisible?.Invoke(destination) != false);
                 pathCost.text = actionPointCost + (danger ? " !" : "");
                 pathCost.color = color;
                 // GridToLocal returns the cell centre. Keep the label inside the

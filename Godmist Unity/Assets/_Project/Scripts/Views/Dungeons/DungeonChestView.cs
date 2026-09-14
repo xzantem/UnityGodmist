@@ -53,6 +53,7 @@ namespace Godmist.Views.Dungeons
 
         public bool CanInteract()
         {
+            if (!IsElevationVisible || partyController?.CanInteractWithGroundObjects != true) return false;
             var gameBootstrap = GameBootstrap.Instance;
 
             if (chest == null

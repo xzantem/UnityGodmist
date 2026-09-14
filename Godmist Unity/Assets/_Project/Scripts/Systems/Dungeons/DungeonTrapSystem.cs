@@ -16,8 +16,9 @@ namespace Godmist.Systems.Dungeons
         public readonly BattleUnit Unit;
         public readonly CombatSession Session;
         public readonly Vector2Int Cell;
-        public DungeonTrapOccupant(BattleUnit unit, CombatSession session, Vector2Int cell)
-        { Unit = unit; Session = session; Cell = cell; }
+        public readonly bool IsOnGroundSurface;
+        public DungeonTrapOccupant(BattleUnit unit, CombatSession session, Vector2Int cell, bool isOnGroundSurface = true)
+        { Unit = unit; Session = session; Cell = cell; IsOnGroundSurface = isOnGroundSurface; }
     }
 
     // Shared floor state is authoritative even when occupants belong to different combat sessions.
@@ -38,7 +39,7 @@ namespace Godmist.Systems.Dungeons
 
         public bool EnterCell(Vector2Int cell, IReadOnlyList<DungeonTrapOccupant> occupants)
         {
-            if (!occupants.Any(o => o.Cell == cell && o.Unit?.Character?.LifeState == CharacterLifeState.Alive)) return false;
+            if (!occupants.Any(o => o.IsOnGroundSurface && o.Cell == cell && o.Unit?.Character?.LifeState == CharacterLifeState.Alive)) return false;
             var traps = floor.Objects.OfType<SpikeTrapDungeonObjectInstance>()
                 .Where(t => t.Position == cell && t.IsActive && !t.IsTriggered).ToArray();
             bool activated = false;
@@ -47,7 +48,7 @@ namespace Godmist.Systems.Dungeons
                 if (!floor.TryTriggerSpikeTrap(source.InstanceId, out var group)) continue;
                 activated = true;
                 foreach (var trap in group)
-                    foreach (var occupant in occupants.Where(o => o.Cell == trap.Position))
+                    foreach (var occupant in occupants.Where(o => o.IsOnGroundSurface && o.Cell == trap.Position))
                         Apply(trap, occupant);
             }
             return activated;

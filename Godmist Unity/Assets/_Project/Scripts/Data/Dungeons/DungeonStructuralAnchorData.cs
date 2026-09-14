@@ -19,6 +19,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public DungeonWallType WallType { get; private set; } = DungeonWallType.Full;
 
+        [field: SerializeField] public int Level { get; private set; }
+
         public DungeonStructuralAnchorData()
         {
         }
@@ -26,11 +28,12 @@ namespace Godmist.Data.Dungeons
         public DungeonStructuralAnchorData(
             DungeonStructuralAnchorType type,
             Vector2Int localCell,
-            DungeonEdgeDirection direction, DungeonWallType wallType = DungeonWallType.Full)
+            DungeonEdgeDirection direction, DungeonWallType wallType = DungeonWallType.Full, int level = 0)
         {
             Type = type;
             WallType = wallType;
             LocalCell = localCell;
+            Level = level;
             Direction = direction;
         }
 

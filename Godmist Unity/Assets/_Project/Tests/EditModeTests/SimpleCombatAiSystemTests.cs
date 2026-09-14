@@ -18,6 +18,25 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<UnityEngine.Object> createdAssets = new();
 
+        [Test]
+        public void Navigation_UnreachableUpperTargetVisitsBoundedGraphInsteadOfEnumeratingPaths()
+        {
+            var session = CreateNavigationSession(12, 12, new GridPosition(0, 0), new GridPosition(11, 11, 1));
+            var grid = new BattleGrid(12, 12, nextUsesExplicitWalkablePositions: true);
+            for (var x = 0; x < 12; x++) for (var y = 0; y < 12; y++) grid.SetWalkable(new GridPosition(x, y));
+            grid.SetWalkable(session.Units[1].Position);
+            var visits = 0;
+            grid.TraversalNeighbours = p =>
+            {
+                Assert.That(++visits, Is.LessThan(5000), "An unreachable layer must not enumerate combinatorial route lengths.");
+                return p.Level == 0 ? new[] { new GridPosition(p.X + 1, p.Y), new GridPosition(p.X - 1, p.Y),
+                    new GridPosition(p.X, p.Y + 1), new GridPosition(p.X, p.Y - 1) } : Array.Empty<GridPosition>();
+            };
+            session.Grid = grid;
+            Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
+            Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+        }
+
         [TearDown]
         public void TearDown()
         {

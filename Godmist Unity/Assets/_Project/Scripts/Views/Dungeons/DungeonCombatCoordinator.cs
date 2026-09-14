@@ -9,6 +9,7 @@ using Godmist.Systems.Dungeons;
 using Godmist.Views.Combat;
 using Godmist.Views.Exploration;
 using Godmist.Views.UI;
+using Godmist.Views.UI.Workspace;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
@@ -31,6 +32,8 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private CanvasGroup placementNotice;
         [SerializeField] private TMPro.TMP_Text placementNoticeText;
         private float placementNoticeUntil;
+        private BattleUnit elevationActiveUnit;
+        private int feedbackElevation;
         private GameSession game;
         private DungeonFloorInstance floor;
         private DungeonFloorMapView map;
@@ -65,16 +68,29 @@ namespace Godmist.Views.Dungeons
             { Debug.LogError("DungeonCombatCoordinator: niekompletny wiring seamless."); return false; }
             game = session; floor = dungeonFloor; map = floorView; party = controller;
             objects = objectSpawner; encounters = encounterSpawner;
+            objects.BindElevationView(map);
             tacticalTooltip?.Bind(floor, map);
             unitViews.ConfigureDungeon(game, map);
             unitViews.ExplorationWorldPosition = ResolveExplorationFeedbackPosition;
-            combatHost.BindDungeonFeedback();
-            foreach (var view in party.ActiveMemberViews.Concat(encounters.Triggers.SelectMany(trigger => trigger.EnemyViews)))
+            unitViews.ExplorationPresentationVisible = unit =>
             {
-                view.ConfigureTerrain(floor.Map, map);
+                var view = party.ActiveMemberViews.Concat(encounters.Triggers.SelectMany(trigger => trigger.EnemyViews))
+                    .FirstOrDefault(candidate => candidate.RuntimeCharacter == unit.Character);
+                return view == null || map.IsTraversalVisible(view.DungeonPosition);
+            };
+            combatHost.BindDungeonFeedback();
+            void ConfigureView(ExplorationCharacterView view, string key)
+            {
+                view.ConfigureTerrain(floor.Map, map, floor, key);
                 view.CanCrossTo = cell => !floor.Objects.OfType<ObstacleDungeonObjectInstance>()
                     .Any(obstacle => obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell);
             }
+            foreach (var view in party.ActiveMemberViews) ConfigureView(view, "player:" + view.CharacterId);
+            foreach (var trigger in encounters.Triggers)
+                foreach (var view in trigger.EnemyViews) ConfigureView(view, "enemy:" + trigger.Encounter.InstanceId + ":" + view.EnemyInstanceId);
+            party.ConfigureTraversal(floor, map, gridFeedback);
+            foreach (var view in encounters.Triggers.SelectMany(trigger => trigger.EnemyViews))
+                view.CanEnterTraversal = position => party.CanEnterTraversal(view, position);
             party.SetCombatCoordinator(this);
             foreach (var trigger in encounters.Triggers) trigger.SetCombatCoordinator(this);
             combatHost.CombatMapObjectChanged += HandleMapObjectChanged;
@@ -135,11 +151,11 @@ namespace Godmist.Views.Dungeons
             foreach(var trap in floor.Objects.OfType<SpikeTrapDungeonObjectInstance>())
                 if(session.DungeonContext.ContainsWorldCell(trap.Position))
                     session.MapObjects.Add(new TrapCombatMapObject(trap, DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, trap.Position)));
-            session.UnitEnteredCell = unit => trapSystem.EnterCell(
-                DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position), GatherTrapOccupants());
-            session.TrapRouteState = path => trapSystem.RouteState(path.Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
+            session.UnitEnteredCell = unit => { if (unit.Position.Level == 0 && !unit.Position.IsOnStairs) trapSystem.EnterCell(
+                DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position), GatherTrapOccupants()); };
+            session.TrapRouteState = path => trapSystem.RouteState(path.Where(cell => cell.Level == 0 && !cell.IsOnStairs).Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             session.EvaluateTrapRisk = (unit, path) => trapSystem.EstimateRisk(unit,
-                path.Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
+                path.Where(cell => cell.Level == 0 && !cell.IsOnStairs).Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             foreach (var pair in nextBindings)
             { bindings.Add(pair.Key, pair.Value); bindingSessions[pair.Key] = session; unitViews.Borrow(session, pair.Key, pair.Value); }
             combatHost.GetDriver(session).StartTurns();
@@ -165,11 +181,18 @@ namespace Godmist.Views.Dungeons
             if (placementNotice != null && Time.unscaledTime >= placementNoticeUntil)
                 placementNotice.alpha = 0f;
             if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) return;
+            if (!UIWorkspaceInputRouter.HasFocusedTextInput()
+                && (game.CurrentMode == GameModeState.Combat || party.CanAcceptExplorationInput))
+            {
+                if (Input.GetKeyDown(KeyCode.PageUp)) { map.StepViewedLevel(1); gridFeedback.RefreshVisibility(); }
+                else if (Input.GetKeyDown(KeyCode.PageDown)) { map.StepViewedLevel(-1); gridFeedback.RefreshVisibility(); }
+            }
             AdvanceExplorationTraps();
             if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
             foreach (var session in game.Combats.ToArray())
             {
                 if (!session.IsSeamless) continue;
+                PresentDefeatedEnemies(session);
                 session.CanReceiveReinforcements = DungeonCombatArenaSystem.CanReceiveReinforcements(game, session);
                 RefreshExits(session);
                 var driver = combatHost.GetDriver(session);
@@ -187,6 +210,17 @@ namespace Godmist.Views.Dungeons
                 if (session.Outcome != CombatOutcomeState.Ongoing) Finish(session);
             }
             RefreshFocus();
+            var focusView = party.ActiveMemberViews.FirstOrDefault(v => v.CharacterId == game.PlayerParty.ActiveLeaderId);
+            if (focused?.ActiveUnit != null) map.FocusElevation(DungeonBattleGridFactory.ToDungeonTraversalPosition(focused.DungeonContext, focused.ActiveUnit.Position));
+            else if (focusView != null) map.FocusElevation(focusView.DungeonPosition);
+            if (focused?.ActiveUnit != elevationActiveUnit)
+            {
+                elevationActiveUnit = focused?.ActiveUnit;
+                if (elevationActiveUnit != null && floor.Map.TryGetTraversalHeight(
+                    DungeonBattleGridFactory.ToDungeonTraversalPosition(focused.DungeonContext, elevationActiveUnit.Position), out var height))
+                    map.FollowElevation(Mathf.CeilToInt(height), true);
+            }
+            if (feedbackElevation != map.PresentationRevision) { feedbackElevation = map.PresentationRevision; gridFeedback.RefreshVisibility(); }
             foreach (var view in party.ActiveMemberViews)
                 if (view.CombatUnit == null) previousExplorationPositions[view.CharacterId] = view.Position;
         }
@@ -205,21 +239,21 @@ namespace Godmist.Views.Dungeons
             foreach (var session in game.Combats)
                 foreach (var unit in session.Units)
                     result.Add(new DungeonTrapOccupant(unit, session,
-                        DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position)));
+                        DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position), unit.Position.Level == 0 && !unit.Position.IsOnStairs));
             foreach (var view in party.ActiveMemberViews)
             {
                 if (game.GetCombatForCharacter(view.CharacterId) != null
                     || !game.CharactersById.TryGetValue(view.CharacterId, out var character)) continue;
                 if (!retainedPlayers.TryGetValue(view.CharacterId, out var unit))
                     retainedPlayers[view.CharacterId] = unit = sessionFactory.CreateJoiningUnit(character, new GridPosition(0, 0));
-                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position)));
+                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position), !view.DungeonPosition.IsOnStairs && view.DungeonPosition.Surface.Level == 0));
             }
             foreach (var view in encounters.Triggers.SelectMany(trigger => trigger.EnemyViews))
             {
                 if (view.CombatUnit != null || view.RuntimeCharacter == null || !view.gameObject.activeInHierarchy) continue;
                 if (!exploringEnemies.TryGetValue(view.EnemyInstanceId, out var unit))
                     exploringEnemies[view.EnemyInstanceId] = unit = new BattleUnit { Character = view.RuntimeCharacter, IsPlayerSide = false };
-                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position)));
+                result.Add(new DungeonTrapOccupant(unit, null, map.WorldToCell(view.transform.position), !view.DungeonPosition.IsOnStairs && view.DungeonPosition.Surface.Level == 0));
             }
             return result;
         }
@@ -231,7 +265,7 @@ namespace Godmist.Views.Dungeons
             foreach(var occupant in occupants)
             {
                 var id = occupant.Unit.Character.CharacterId;
-                if (occupant.Session != null) { trapPreviousCells.Remove(id); continue; }
+                if (occupant.Session != null || !occupant.IsOnGroundSurface) { trapPreviousCells.Remove(id); continue; }
                 if (!trapPreviousCells.TryGetValue(id, out var previous) || previous != occupant.Cell)
                     trapSystem.EnterCell(occupant.Cell, occupants);
                 trapPreviousCells[id] = occupant.Cell;
@@ -247,7 +281,7 @@ namespace Godmist.Views.Dungeons
                 foreach(var view in dead)
                 {
                     trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId);
-                    result.TryMarkEnemyDefeated(view.EnemyInstanceId, DungeonBattleGridFactory.ToBattlePosition(context, map.WorldToCell(view.transform.position)));
+                    result.TryMarkEnemyDefeated(view.EnemyInstanceId, DungeonBattleGridFactory.ToBattleTraversalPosition(context, view.DungeonPosition));
                     view.gameObject.SetActive(false);
                 }
                 DungeonCombatOutcomeSystem.TryCreateEnemyBodies(game.ActiveDungeon, context, result);
@@ -265,8 +299,8 @@ namespace Godmist.Views.Dungeons
                     && game.GetCombatForCharacter(view.CharacterId) == null
                     && game.CharactersById.TryGetValue(view.CharacterId, out var character)
                     && character.LifeState == CharacterLifeState.Alive)
-                .Select(view => DungeonBattleGridFactory.ToBattlePosition(
-                    session.DungeonContext, map.WorldToCell(view.transform.position)))
+                .Select(view => DungeonBattleGridFactory.ToBattleTraversalPosition(
+                    session.DungeonContext, view.DungeonPosition))
                 .Where(cell => session.Grid.IsWalkable(cell) && !session.Grid.IsBlocked(cell)));
             foreach (var view in party.ActiveMemberViews)
             {
@@ -275,14 +309,14 @@ namespace Godmist.Views.Dungeons
                     || character.LifeState != CharacterLifeState.Alive) continue;
                 var cell = map.WorldToCell(view.transform.position);
                 if (!session.DungeonContext.ContainsWorldCell(cell)) continue;
-                var position = DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, cell);
+                var position = DungeonBattleGridFactory.ToBattleTraversalPosition(session.DungeonContext, view.DungeonPosition);
                 var unit = retainedPlayers.TryGetValue(view.CharacterId, out var retained)
                     ? retained : sessionFactory.CreateJoiningUnit(character, position);
                 var reservedArrivals = new HashSet<GridPosition>(arrivalCells);
                 reservedArrivals.Remove(position);
                 if (!driver.TryJoin(unit, position, reservedArrivals))
                 {
-                    if (previousExplorationPositions.TryGetValue(view.CharacterId, out var previous)) view.SetPosition(previous);
+                    if (!view.UsesLayeredTraversal && previousExplorationPositions.TryGetValue(view.CharacterId, out var previous)) view.SetPosition(previous);
                     party.CancelMovement();
                     ShowPlacementNotice("Brak miejsca, aby dołączyć");
                     continue;
@@ -300,7 +334,8 @@ namespace Godmist.Views.Dungeons
             var explorationCells = new HashSet<Vector2Int>(party.ActiveMemberViews
                 .Where(view => view.CombatUnit == null)
                 .Select(view => map.WorldToCell(view.transform.position)));
-            DungeonCombatArenaSystem.RefreshExits(session, floor, explorationCells);
+            DungeonCombatArenaSystem.RefreshExits(session, floor, explorationCells,
+                new HashSet<DungeonTraversalPosition>(party.ActiveMemberViews.Where(view => view.CombatUnit == null).Select(view => view.DungeonPosition)));
         }
 
         private void HandleMapObjectChanged(CombatMapObject value)
@@ -308,6 +343,23 @@ namespace Godmist.Views.Dungeons
             foreach (var session in game.Combats)
                 if (session.MapObjects.Contains(value)) stateSync.TrySyncDoorStates(game, session);
             objects.RefreshDoorViews();
+        }
+
+        private void PresentDefeatedEnemies(CombatSession session)
+        {
+            var changed = false;
+            foreach (var pair in bindings)
+            {
+                if (bindingSessions[pair.Key] != session || pair.Key.IsPlayerSide
+                    || pair.Key.Character.LifeState != CharacterLifeState.Dead || !pair.Value.gameObject.activeSelf) continue;
+                session.TryMarkEnemyDefeated(pair.Value.EnemyInstanceId, pair.Key.Position);
+                pair.Value.gameObject.SetActive(false);
+                changed = true;
+            }
+            if (!changed) return;
+            stateSync.TrySyncDefeatedEnemyStates(game, session);
+            DungeonCombatOutcomeSystem.TryCreateEnemyBodies(game.ActiveDungeon, session.DungeonContext, session);
+            objects.RefreshBodies(floor, party);
         }
 
         private void Finish(CombatSession session)
@@ -369,6 +421,7 @@ namespace Godmist.Views.Dungeons
                 foreach (var id in game.PlayerParty.ActiveMemberIds)
                     if (game.CharactersById.TryGetValue(id, out var character)) lifecycle.RemoveCombatScopedEffects(character);
                 retainedPlayers.Clear();
+                party.RejoinAfterCombat();
             }
         }
 
@@ -390,10 +443,15 @@ namespace Godmist.Views.Dungeons
         private void SetFocus(CombatSession next, bool force = false)
         {
             if (!force && focused == next) return;
+            var leaderView = party.ActiveMemberViews.FirstOrDefault(view => view.CharacterId == game.PlayerParty.ActiveLeaderId);
+            if (leaderView != null) map.FocusElevation(leaderView.DungeonPosition, true);
             targeting.CancelTargetSelection();
             movementInput.enabled = false;
             inspectInput.enabled = false;
             gridFeedback.ClearAll();
+            gridFeedback.IsPositionVisible = next?.DungeonContext == null ? null
+                : position => map.IsTraversalSelectable(DungeonBattleGridFactory.ToDungeonTraversalPosition(next.DungeonContext, position));
+            inspectInput.IsPositionVisible = gridFeedback.IsPositionVisible;
             focused = next;
             game.TryFocusCombat(next);
             combatHost.Focus(next);
@@ -411,6 +469,11 @@ namespace Godmist.Views.Dungeons
                 var context = next.DungeonContext;
                 var origin = map.CellToWorldCenter(context.WorldBounds.min);
                 var cellSize = Vector2.Distance(origin, map.CellToWorldCenter(context.WorldBounds.min + Vector2Int.right));
+                GridPosition? ResolvePointer(Vector3 world) => map.TryGetVisibleTraversal(world, out var position)
+                    ? (map.IsTraversalSelectable(position) ? DungeonBattleGridFactory.ToBattleTraversalPosition(context, position) : null) : null;
+                targeting.ResolvePointerPosition = ResolvePointer;
+                movementInput.ResolvePointerPosition = ResolvePointer;
+                inspectInput.ResolvePointerPosition = ResolvePointer;
                 targeting.SetGridMapping(origin, cellSize);
                 movementInput.SetGridMapping(origin, cellSize);
                 inspectInput.SetGridMapping(origin, cellSize);
@@ -429,7 +492,7 @@ namespace Godmist.Views.Dungeons
 
         private void OnDestroy()
         {
-            if (unitViews != null) unitViews.ExplorationWorldPosition = null;
+            if (unitViews != null) { unitViews.ExplorationWorldPosition = null; unitViews.ExplorationPresentationVisible = null; }
             if (!initialized) return;
             combatHost.CombatMapObjectChanged -= HandleMapObjectChanged;
             foreach (var session in sources.Keys.ToArray())

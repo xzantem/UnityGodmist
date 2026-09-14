@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Godmist.Views.Exploration
 {
-    public class ExplorationPartyController : MonoBehaviour
+    public partial class ExplorationPartyController : MonoBehaviour
     {
         [SerializeField] private float movementSpeed = 4f;
         [SerializeField] private float followerDistance = 1f;
@@ -25,10 +25,15 @@ namespace Godmist.Views.Exploration
         private Camera worldCamera;
         private Vector2? movementDestination;
         private Godmist.Views.Dungeons.DungeonCombatCoordinator combatCoordinator;
+        public bool CanAcceptExplorationInput => gameSession != null && !gameSession.IsDefeated
+            && gameSession.CurrentMode == GameModeState.Exploration
+            && (inventoryEquipmentPanel == null || !inventoryEquipmentPanel.IsOpen)
+            && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput();
         public bool IsSeparated { get; private set; }
         public void SetCombatCoordinator(Godmist.Views.Dungeons.DungeonCombatCoordinator value) => combatCoordinator = value;
+        public void RejoinAfterCombat() { IsSeparated = false; CancelMovement(); }
         public void SeparateForCombat() { IsSeparated = true; CancelMovement(); }
-        public void CancelMovement() => movementDestination = null;
+        public void CancelMovement() { movementDestination = null; traversalPath.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -78,7 +83,7 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
+            if (DevConsoleView.IsOpen) { return; }
 
             if (gameSession == null || gameSession.IsDefeated)
             {
@@ -91,10 +96,11 @@ namespace Godmist.Views.Exploration
                 combatCoordinator.RefreshFocus();
                 return;
             }
-            if (gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) return;
+            if (gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) { return; }
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
+
                 return;
             }
 
@@ -131,6 +137,9 @@ namespace Godmist.Views.Exploration
         private void TryMoveLeaderToPointerPosition()
         {
             var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
+            var terrainView = GetActiveLeaderView()?.TerrainView;
+            if (!IsNoclipEnabled && GetActiveLeaderView()?.UsesLayeredTraversal == true)
+            { TrySetTraversalDestination(pointerWorldPosition); return; }
 
             if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
             {
@@ -158,11 +167,19 @@ namespace Godmist.Views.Exploration
             var leaderView = GetActiveLeaderView();
 
             if (leaderView == null) return;
+            if (leaderView.UsesLayeredTraversal && !IsNoclipEnabled)
+            {
+                TickTraversalMovement(leaderView);
+                MoveFollowers(leaderView);
+                PersistCurrentPosition(leaderView);
+                return;
+            }
 
             var movement = GetMovementDirection(leaderView);
 
             if (movement.sqrMagnitude > 0f)
             {
+                leaderView.TerrainView?.FollowElevation(0, true);
                 var offset = movement * movementSpeed * Time.fixedDeltaTime;
                 if (IsNoclipEnabled)
                 {
@@ -197,7 +214,8 @@ namespace Godmist.Views.Exploration
 
                 if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
 
-                followerView.MoveTowards(previousView.Position, 
+                if (followerView.UsesLayeredTraversal && !IsNoclipEnabled) FollowTraversal(followerView, previousView);
+                else followerView.MoveTowards(previousView.Position,
                     movementSpeed * Time.fixedDeltaTime, followerDistance);
 
                 previousView = followerView;
@@ -243,8 +261,9 @@ namespace Godmist.Views.Exploration
 
         private void HandleActiveLeaderChanged(string previousLeaderId, string nextLeaderId)
         {
-            movementDestination = null;
-            
+            CancelMovement();
+            var leader = GetActiveLeaderView();
+            leader?.TerrainView?.FollowElevation(leader.PresentationLevel, true);
             RefreshLeaderVisuals();
         }
 
@@ -321,7 +340,7 @@ namespace Godmist.Views.Exploration
         public void SetNoclip(bool enabled)
         {
             IsNoclipEnabled = enabled;
-            movementDestination = null;
+            CancelMovement();
 
             foreach (var characterView in viewsById.Values)
             {

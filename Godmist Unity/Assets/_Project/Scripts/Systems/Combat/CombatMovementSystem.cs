@@ -75,7 +75,7 @@ namespace Godmist.Systems.Combat
             for (var x = -1; x <= 1; x++) for (var y = -1; y <= 1; y++)
             {
                 if (x == 0 && y == 0) continue;
-                var candidate = new GridPosition(target.Position.X + x, target.Position.Y + y);
+                var candidate = session.Grid.GetOffsetPosition(target.Position, x, y);
                 if (!session.Grid.IsWalkable(candidate) || session.Grid.IsBlocked(candidate)
                     || session.IsPositionOccupied(candidate) || session.IsPositionOccupiedByMapObject(candidate)) continue;
                 candidates.Add(candidate);
@@ -166,9 +166,9 @@ namespace Godmist.Systems.Combat
             while (queue.Count > 0)
             {
                 var (current, currentPath) = queue.Dequeue();
-                foreach (var direction in MovementDirections)
+                foreach (var candidate in session.Grid.GetNeighbours(current))
                 {
-                    var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
+                    var direction = (x: candidate.X - current.X, y: candidate.Y - current.Y);
                     if (candidate == unit.Position || currentPath.Contains(candidate)
                         || !session.CanMoveBetween(unit, current, candidate)
                         || session.IsPositionOccupied(candidate, unit)
@@ -250,7 +250,7 @@ namespace Godmist.Systems.Combat
                         processResource: false,
                         writeBattleLog: false,
                         publishPassiveEvent: false,
-                        out var movementCost))
+                        out var movementCost, targetPosition))
                 {
                     completed = false;
                     break;
@@ -312,7 +312,7 @@ namespace Godmist.Systems.Combat
             bool processResource,
             bool writeBattleLog,
             bool publishPassiveEvent,
-            out int movementCost)
+            out int movementCost, GridPosition? requestedPosition = null)
         {
             movementCost = 0;
             if (session?.Grid == null
@@ -343,14 +343,14 @@ namespace Godmist.Systems.Combat
                 unit,
                 CombatActionCostCalculator.CalculateMovementCost(unit));
 
-            var nextCell = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            var nextCell = requestedPosition ?? session.Grid.GetOffsetPosition(unit.Position, deltaX, deltaY);
             movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell);
             if (unit.CurrentActionPoints < movementCost)
             {
                 return false;
             }
 
-            var targetPosition = new GridPosition(unit.Position.X + deltaX, unit.Position.Y + deltaY);
+            var targetPosition = nextCell;
             if (!session.CanMoveBetween(unit, unit.Position, targetPosition))
             {
                 return false;

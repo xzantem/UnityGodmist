@@ -13,6 +13,18 @@ namespace Godmist.Runtime.Dungeons
         private readonly List<DungeonObjectInstance> objects = new();
         private readonly List<DungeonEnemyBodyInstance> enemyBodies = new();
 
+        private readonly Dictionary<string, DungeonTraversalPosition> actorPositions = new();
+        private readonly Dictionary<string, Vector2> actorOffsets = new();
+        public Vector2 GetActorOffset(string actorId) => actorOffsets.TryGetValue(actorId, out var offset) ? offset : Vector2.zero;
+        public void SetActorOffset(string actorId, Vector2 offset) { if (!string.IsNullOrWhiteSpace(actorId)) actorOffsets[actorId] = offset; }
+        public IReadOnlyDictionary<string, DungeonTraversalPosition> ActorPositions => actorPositions;
+        public bool TrySetActorPosition(string actorId, DungeonTraversalPosition position)
+        {
+            if (string.IsNullOrWhiteSpace(actorId) || Map == null || !Map.TryGetTraversalCell(position, out _)) return false;
+            actorPositions[actorId] = position; actorOffsets.Remove(actorId); return true;
+        }
+        public bool TryGetActorPosition(string actorId, out DungeonTraversalPosition position)
+            => actorPositions.TryGetValue(actorId, out position);
         public int FloorIndex { get; }
         public IReadOnlyList<DungeonRoomInstance> Rooms => rooms;
         public IReadOnlyList<DungeonRoomConnection> Connections => connections;
@@ -601,7 +613,7 @@ namespace Godmist.Runtime.Dungeons
                     connection.SecondDoorCell + lateral * offset);
 
                 if (!Map.TrySetProgressionGateState(
-                        edge,
+                        new DungeonSurfaceEdge(edge, connection.DoorwayLevel),
                         connection.IsProgressionGateUnlocked))
                 {
                     return false;

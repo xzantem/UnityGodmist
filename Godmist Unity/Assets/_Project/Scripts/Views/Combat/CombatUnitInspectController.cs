@@ -8,6 +8,9 @@ namespace Godmist.Views.Combat
 {
     public class CombatUnitInspectController : MonoBehaviour
     {
+        public System.Func<GridPosition, bool> IsPositionVisible { get; set; }
+        public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -62,6 +65,7 @@ namespace Godmist.Views.Combat
 
         private void Update()
         {
+            if (selectedUnit != null && IsPositionVisible?.Invoke(selectedUnit.Position) == false) { selectedUnit = null; HideInspect(); }
             if (DevConsoleView.IsOpen)
             {
                 HoveredUnit = null;
@@ -111,7 +115,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var position = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var position)) return;
 
             // Movement and inspection read the same primary click. If the
             // click targets a reachable destination, it is a movement command,
@@ -206,12 +210,11 @@ namespace Godmist.Views.Combat
             }
 
             var session = sandboxBootstrap?.Session;
-            return session == null
-                ? null
-                : FindUnitAtPosition(session, GetGridPositionUnderMouse());
+            return session != null && TryGetGridPositionUnderMouse(out var position)
+                ? FindUnitAtPosition(session, position) : null;
         }
 
-        private GridPosition GetGridPositionUnderMouse()
+        private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
             var screenPosition = Input.mousePosition;
             screenPosition.z =
@@ -226,7 +229,10 @@ namespace Godmist.Views.Combat
             var gridY = Mathf.RoundToInt(
                 (worldPosition.y - gridOrigin.y) / cellSize);
 
-            return new GridPosition(gridX, gridY);
+            var resolved = ResolvePointerPosition != null
+                ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
+            position = resolved.GetValueOrDefault();
+            return resolved.HasValue;
         }
     }
 }

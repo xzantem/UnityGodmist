@@ -1837,6 +1837,31 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
+                    if (floorDelta.ActorPositions != null)
+                    {
+                        var actorIds = new HashSet<string>();
+                        foreach (var saved in floorDelta.ActorPositions)
+                        {
+                            if (saved == null || string.IsNullOrWhiteSpace(saved.ActorId) || !actorIds.Add(saved.ActorId)) return false;
+                            DungeonTraversalPosition position;
+                            if (saved.IsOnStairs)
+                            {
+                                if (saved.StairStep <= 0 || saved.FirstLevel >= saved.SecondLevel) return false;
+                                var stairs = new DungeonStairConnection(
+                                    new DungeonSurfacePosition(new Vector2Int(saved.FirstX, saved.FirstY), saved.FirstLevel),
+                                    new DungeonSurfacePosition(new Vector2Int(saved.SecondX, saved.SecondY), saved.SecondLevel));
+                                position = new DungeonTraversalPosition(stairs, saved.StairStep);
+                            }
+                            else
+                            {
+                                if (saved.StairStep != 0) return false;
+                                position = new DungeonTraversalPosition(new DungeonSurfacePosition(new Vector2Int(saved.X, saved.Y), saved.Level));
+                            }
+                            if (!float.IsFinite(saved.OffsetX) || !float.IsFinite(saved.OffsetY) || !floor.TrySetActorPosition(saved.ActorId, position)) return false;
+                            floor.SetActorOffset(saved.ActorId, new Vector2(saved.OffsetX, saved.OffsetY));
+                        }
+                    }
+
                     if (floorDelta.VisitedRoomIds != null)
                     {
                         foreach (var roomId in floorDelta.VisitedRoomIds)

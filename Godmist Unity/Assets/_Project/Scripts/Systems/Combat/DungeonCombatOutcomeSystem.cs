@@ -204,10 +204,16 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                DungeonTraversalPosition? deathNode = null;
+                if (floor.Map.HasElevatedSurfaces && combatSession.TryGetEnemyDeathPosition(enemyInstanceId, out var deathCell))
+                {
+                    var node = DungeonBattleGridFactory.ToDungeonTraversalPosition(context, deathCell);
+                    if (floor.Map.TryGetTraversalCell(node, out _)) deathNode = node;
+                }
                 var body = new DungeonEnemyBodyInstance(
                     bodyInstanceId,
                     enemyInstanceId,
-                    ResolveBodyPosition(
+                    deathNode.HasValue && floor.Map.TryGetTraversalCell(deathNode.Value, out var deathWorld) ? deathWorld : ResolveBodyPosition(
                         floor,
                         context,
                         combatSession,
@@ -221,6 +227,7 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                if (deathNode.HasValue) floor.TrySetActorPosition("body:" + body.InstanceId, deathNode.Value);
                 occupiedBodyPositions.Add(body.Position);
                 encounter.TryMarkEnemyBodyGenerated(enemyInstanceId);
             }

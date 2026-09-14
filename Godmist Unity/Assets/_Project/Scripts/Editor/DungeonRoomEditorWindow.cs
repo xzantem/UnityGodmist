@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Godmist.Editor
 {
-    public class DungeonRoomEditorWindow : EditorWindow
+    public partial class DungeonRoomEditorWindow : EditorWindow
     {
         private enum EditTool
         {
@@ -17,7 +17,8 @@ namespace Godmist.Editor
             Footprint,
             StructuralAnchor,
             SemanticAnchor,
-            BoundaryEdge
+            BoundaryEdge,
+            Stairs
         }
 
         private DungeonRoomTemplateDefinition template;
@@ -61,6 +62,7 @@ namespace Godmist.Editor
         {
             serializedTemplate?.Update();
             ClearAnchorSelection();
+            CancelStairDraft();
             poolValidationMessage = null;
             Repaint();
         }
@@ -176,9 +178,10 @@ namespace Godmist.Editor
             showResize = EditorGUILayout.Foldout(showResize, $"Rozmiar: {sizeProperty.vector2IntValue.x} × {sizeProperty.vector2IntValue.y}", true);
             if (showResize) DrawResizeButtons();
             EditorGUILayout.Space(6f);
+            DrawLevelControls();
             EditorGUILayout.LabelField("Narzędzie", EditorStyles.boldLabel);
             activeTool = (EditTool)GUILayout.SelectionGrid((int)activeTool,
-                new[] { "Zaznacz", "Podłoga", "Postaw strukturę", "Postaw zawartość", "Przejścia" }, 1);
+                new[] { "Zaznacz", "Podłoga", "Postaw strukturę", "Postaw zawartość", "Przejścia", "Schody" }, 1);
             DrawToolOptions();
             EditorGUILayout.Space(6f);
             anchorSearch = EditorGUILayout.TextField("Szukaj", anchorSearch);
@@ -196,7 +199,7 @@ namespace Godmist.Editor
             {
                 var anchor = semanticAnchorsProperty.GetArrayElementAtIndex(i);
                 var id = Field(anchor, "Id").stringValue;
-                if (!MatchesSearch(id)) continue;
+                if (!MatchesSearch(id) || activeLevel != 0) continue;
                 var label = GetSemanticLabel((DungeonSemanticAnchorType)Field(anchor, "Type").enumValueIndex) + "  " + id;
                 if (GUILayout.Button(new GUIContent(label, id), selectedAnchorIds.Contains(id) ? EditorStyles.miniButtonMid : EditorStyles.miniButton))
                     SelectSemantic(i, Event.current.control || Event.current.command);
@@ -206,7 +209,7 @@ namespace Godmist.Editor
             {
                 var anchor = structuralAnchorsProperty.GetArrayElementAtIndex(i);
                 var label = $"{(DungeonStructuralAnchorType)Field(anchor, "Type").enumValueIndex} {Field(anchor, "LocalCell").vector2IntValue}";
-                if (!MatchesSearch(label)) continue;
+                if (!MatchesSearch(label) || Field(anchor, "Level").intValue != activeLevel) continue;
                 if (GUILayout.Button(label, EditorStyles.miniButton))
                 {
                     ClearAnchorSelection();
@@ -215,6 +218,7 @@ namespace Godmist.Editor
                     showStructuralAnchors = true;
                 }
             }
+            DrawStairLibrary();
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
@@ -261,7 +265,7 @@ namespace Godmist.Editor
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("Siatka", EditorStyles.boldLabel);
+            GUILayout.Label($"Siatka · poziom {activeLevel}", EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
             var nextZoom = GUILayout.HorizontalSlider(zoom, .1f, 3f, GUILayout.Width(90f));
             if (!Mathf.Approximately(nextZoom, zoom)) { zoom = nextZoom; fitGrid = false; }
@@ -366,18 +370,18 @@ namespace Godmist.Editor
                 return;
             }
 
-            var oldFloorCells = GetFloorCells(oldSize);
+            var oldFloorCells = GetFootprintCells(oldSize);
 
             if (!grow && HasAnchorsInRemovedStrip(
                     oldSize,
                     direction))
             {
                 ShowNotification(new GUIContent(
-                    "Nie mozna zmniejszyc pokoju: usuwany pas zawiera anchor."));
+                    "Nie można zmniejszyć pokoju: usuwany pas zawiera kotwę, koniec schodów lub trudny teren."));
                 return;
             }
 
-            var oldUsesFullBoundingBox = floorOffsetsProperty.arraySize == 0;
+            var oldUsesFullBoundingBox = floorOffsetsProperty.arraySize == 0 && surfacesProperty.arraySize == 0;
             var resizedFloorCells = new HashSet<Vector2Int>();
 
             if (oldUsesFullBoundingBox)
@@ -408,12 +412,19 @@ namespace Godmist.Editor
                 }
             }
 
+            if (resizedFloorCells.Count == 0)
+            {
+                ShowNotification(new GUIContent("Nie można usunąć wszystkich powierzchni pokoju."));
+                return;
+            }
+            ResizeSurfacesAndStairs(oldSize, newSize, direction, grow, delta);
             SetFloorCells(resizedFloorCells, newSize);
             ShiftAnchors(delta);
             ResizeAllowedBoundaryEdges(newSize, delta, resizedFloorCells);
             sizeProperty.vector2IntValue = newSize;
 
-            ClearSelectionIfOutsideRoom();
+            ClearAnchorSelection();
+            CancelStairDraft();
             serializedTemplate.ApplyModifiedProperties();
             Repaint();
         }
@@ -458,6 +469,16 @@ namespace Godmist.Editor
                 }
             }
 
+            for (var i = 0; i < stairsProperty.arraySize; i++)
+            {
+                var stair = stairsProperty.GetArrayElementAtIndex(i);
+                if (IsInRemovedStrip(ReadSurface(Field(stair, "First")).Cell, size, direction)
+                    || IsInRemovedStrip(ReadSurface(Field(stair, "Second")).Cell, size, direction)
+                    || ReadStairPath(stair).Any(cell => IsInRemovedStrip(cell, size, direction))) return true;
+            }
+            var terrain = serializedTemplate.FindProperty("<DifficultTerrainCells>k__BackingField");
+            for (var i = 0; i < terrain.arraySize; i++)
+                if (IsInRemovedStrip(terrain.GetArrayElementAtIndex(i).vector2IntValue, size, direction)) return true;
             return false;
         }
 
@@ -523,7 +544,7 @@ namespace Godmist.Editor
                         newFloorCells))
                 {
                     transformedEdges.Add(
-                        new DungeonRoomBoundaryEdgeData(localCell, direction));
+                        new DungeonRoomBoundaryEdgeData(localCell, direction, Field(property, "Level").intValue));
                 }
             }
 
@@ -567,12 +588,23 @@ namespace Godmist.Editor
                     newStructuralDirection = (DungeonEdgeDirection)EditorGUILayout.EnumPopup(
                         "Direction",
                         newStructuralDirection);
+                    if (newStructuralType == DungeonStructuralAnchorType.Door && activeLevel != 0)
+                        EditorGUILayout.HelpBox("Drzwi jako obiekt: tylko poziom 0. Wyjścia pokojów ustaw narzędziem Przejścia.", MessageType.Info);
                     if (newStructuralType == DungeonStructuralAnchorType.Wall)
                         newWallType = (DungeonWallType)EditorGUILayout.EnumPopup("Wall type", newWallType);
                     EditorGUILayout.HelpBox("Full: ściana; Low: murek +2 AP; Railing: balustrada. Kliknij pole przy krawędzi.", MessageType.None);
                     break;
 
+                case EditTool.Stairs:
+                    EditorGUILayout.HelpBox(pendingStairStart.HasValue
+                        ? $"Początek: {pendingStairStart.Value}. Klikaj kolejne sąsiednie pola. Aby zakończyć, zmień poziom i kliknij powierzchnię końcową."
+                        : "Kliknij początek na podłodze, potem kolejne pola trasy. Zmień poziom, aby wskazać koniec.", MessageType.None);
+                    if (pendingStairPath.Count > 1 && GUILayout.Button("Cofnij ostatnie pole")) pendingStairPath.RemoveAt(pendingStairPath.Count - 1);
+                    if (pendingStairStart.HasValue && GUILayout.Button("Anuluj połączenie")) CancelStairDraft();
+                    break;
                 case EditTool.SemanticAnchor:
+                    if (activeLevel != 0)
+                        EditorGUILayout.HelpBox("Kotwy zawartości można obecnie umieszczać tylko na poziomie 0.", MessageType.Info);
                     newSemanticType = (DungeonSemanticAnchorType)EditorGUILayout.EnumPopup(
                         "New type",
                         newSemanticType);
@@ -613,6 +645,7 @@ namespace Godmist.Editor
                 }
             }
 
+            DrawOtherLevelPreview(gridRect, cellSize, size);
             // Draw after every cell fill, using the same GUI clipping space as the viewport.
             // Handles.DrawLine does not share the nested GUI group's coordinates reliably.
             var gridColor = new Color(0f, 0f, 0f, 0.45f);
@@ -624,6 +657,9 @@ namespace Godmist.Editor
             DrawBoundaryEdges(gridRect, cellSize, size);
             DrawStructuralAnchors(gridRect, cellSize, size);
             DrawSemanticAnchors(gridRect, cellSize, size);
+            DrawStairMarkers(gridRect, cellSize, size);
+            if (selectedSurface.HasValue && selectedSurface.Value.Level == activeLevel)
+                DrawSelectionOutline(GetCellRect(gridRect, cellSize, size, selectedSurface.Value.Cell));
         }
 
         private void DrawBoundaryEdges(
@@ -665,6 +701,7 @@ namespace Godmist.Editor
             for (var index = 0; index < structuralAnchorsProperty.arraySize; index++)
             {
                 var property = structuralAnchorsProperty.GetArrayElementAtIndex(index);
+                if (Field(property, "Level").intValue != activeLevel) continue;
                 var localCell = property.FindPropertyRelative(
                     "<LocalCell>k__BackingField").vector2IntValue;
                 var type = (DungeonStructuralAnchorType)property.FindPropertyRelative(
@@ -694,7 +731,7 @@ namespace Godmist.Editor
             float cellSize,
             Vector2Int size)
         {
-            if (!showSemanticAnchors) return;
+            if (!showSemanticAnchors || activeLevel != 0) return;
 
             for (var index = 0; index < semanticAnchorsProperty.arraySize; index++)
             {
@@ -733,7 +770,9 @@ namespace Godmist.Editor
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(300f), GUILayout.ExpandHeight(true));
             detailsScroll = EditorGUILayout.BeginScrollView(detailsScroll);
-            if (selectedGroup >= 0 && selectedGroup < contentGroupsProperty.arraySize) DrawGroupSelection();
+            if (selectedStair >= 0 && selectedStair < stairsProperty.arraySize) DrawStairSelection();
+            else if (selectedSurface.HasValue) DrawSurfaceSelection();
+            else if (selectedGroup >= 0 && selectedGroup < contentGroupsProperty.arraySize) DrawGroupSelection();
             else if (selectedAnchorIds.Count > 1) DrawMultiSelection();
             else if (IsValidSemanticSelection()) DrawSemanticSelection();
             else if (IsValidStructuralSelection()) DrawStructuralSelection();
@@ -764,6 +803,7 @@ namespace Godmist.Editor
 
             var property = structuralAnchorsProperty.GetArrayElementAtIndex(
                 selectedStructuralAnchor);
+            EditorGUILayout.LabelField("Poziom", Field(property, "Level").intValue.ToString());
             EditorGUILayout.PropertyField(
                 property.FindPropertyRelative("<Type>k__BackingField"));
             EditorGUILayout.PropertyField(
@@ -987,11 +1027,14 @@ namespace Godmist.Editor
         private void ClearAnchorSelection()
         {
             selectedAnchorIds.Clear();
+            selectedStair = -1;
+            selectedSurface = null;
             selectedSemanticAnchor = selectedStructuralAnchor = selectedGroup = -1;
         }
 
         private void SelectSemantic(int index, bool additive)
         {
+            ChangeLevel(0);
             var id = Field(semanticAnchorsProperty.GetArrayElementAtIndex(index), "Id").stringValue;
             if (!additive) ClearAnchorSelection();
             selectedGroup = selectedStructuralAnchor = -1;
@@ -1005,6 +1048,7 @@ namespace Godmist.Editor
 
         private void SelectGroup(int index)
         {
+            ChangeLevel(0);
             ClearAnchorSelection();
             if (index < 0 || index >= contentGroupsProperty.arraySize) return;
             selectedGroup = index;
@@ -1113,7 +1157,13 @@ namespace Godmist.Editor
                             ClearAnchorSelection();
                             selectedStructuralAnchor = structural;
                         }
-                        else if (!currentEvent.control && !currentEvent.command) ClearAnchorSelection();
+                        else if (!currentEvent.control && !currentEvent.command)
+                        {
+                            ClearAnchorSelection();
+                            var surface = new Godmist.Runtime.Dungeons.DungeonSurfacePosition(cell, activeLevel);
+                            selectedStair = FindStairAt(surface);
+                            if (selectedStair < 0 && GetFloorCells(size).Contains(cell)) selectedSurface = surface;
+                        }
                     }
                     break;
                 case EditTool.Footprint:
@@ -1134,6 +1184,9 @@ namespace Godmist.Editor
                     }
                     break;
 
+                case EditTool.Stairs:
+                    if (currentEvent.type == EventType.MouseDown) PlaceStairEndpoint(cell);
+                    break;
                 case EditTool.BoundaryEdge:
                     break;
             }
@@ -1156,22 +1209,15 @@ namespace Godmist.Editor
 
             if (!footprintPaintValue.HasValue) return;
 
-            if (footprintPaintValue.Value)
-            {
-                floorCells.Add(cell);
-            }
-            else
-            {
-                floorCells.Remove(cell);
-            }
-
-            SetFloorCells(floorCells, size);
+            if (!TryPaintSurface(cell, activeLevel, footprintPaintValue.Value, out var error))
+                ShowNotification(new GUIContent(error));
         }
 
         private void SelectOrAddStructuralAnchor(
             Vector2Int cell,
             Vector2Int size)
         {
+            if (newStructuralType == DungeonStructuralAnchorType.Door && activeLevel != 0) return;
             var floorCells = GetFloorCells(size);
             var secondCell = cell + GetDirectionOffset(newStructuralDirection);
 
@@ -1185,6 +1231,7 @@ namespace Godmist.Editor
             for (var index = 0; index < structuralAnchorsProperty.arraySize; index++)
             {
                 var property = structuralAnchorsProperty.GetArrayElementAtIndex(index);
+                if (Field(property, "Level").intValue != activeLevel) continue;
                 var localCell = property.FindPropertyRelative(
                     "<LocalCell>k__BackingField").vector2IntValue;
                 var direction = (DungeonEdgeDirection)property.FindPropertyRelative(
@@ -1209,6 +1256,7 @@ namespace Godmist.Editor
             element.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
                 (int)newStructuralDirection;
             element.FindPropertyRelative("<WallType>k__BackingField").enumValueIndex = (int)newWallType;
+            Field(element, "Level").intValue = activeLevel;
             ClearAnchorSelection();
             selectedStructuralAnchor = newIndex;
         }
@@ -1217,6 +1265,7 @@ namespace Godmist.Editor
             Vector2Int cell,
             Vector2Int size)
         {
+            if (activeLevel != 0) return;
             var existing = FindSemanticAnchorAt(cell, size);
 
             if (existing >= 0)
@@ -1355,6 +1404,8 @@ namespace Godmist.Editor
             serializedTemplate = null;
             ClearAnchorSelection();
             activeTool = EditTool.Select;
+            activeLevel = 0;
+            CancelStairDraft();
             fitGrid = true;
             pan = Vector2.zero;
             poolValidationMessage = null;
@@ -1394,6 +1445,8 @@ namespace Godmist.Editor
             semanticAnchorsProperty = serializedTemplate.FindProperty(
                 "<SemanticAnchors>k__BackingField");
             contentGroupsProperty = serializedTemplate.FindProperty("<ContentGroups>k__BackingField");
+            surfacesProperty = serializedTemplate.FindProperty("<Surfaces>k__BackingField");
+            stairsProperty = serializedTemplate.FindProperty("<Stairs>k__BackingField");
 
             if (!boundaryEdgesConfiguredProperty.boolValue)
             {
@@ -1402,7 +1455,7 @@ namespace Godmist.Editor
             }
         }
 
-        private HashSet<Vector2Int> GetFloorCells(Vector2Int size)
+        private HashSet<Vector2Int> GetFootprintCells(Vector2Int size)
         {
             var floorCells = new HashSet<Vector2Int>();
 
@@ -1449,13 +1502,12 @@ namespace Godmist.Editor
             }
         }
 
-        private List<DungeonRoomBoundaryEdgeData> GetExternalBoundaryEdges(
-            Vector2Int size)
+        private List<DungeonRoomBoundaryEdgeData> GetExternalBoundaryEdges(Vector2Int size)
         {
-            return new List<DungeonRoomBoundaryEdgeData>(
-                DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(
-                    size,
-                    GetFloorCells(size)));
+            var activeCells = GetFloorCells(size);
+            return DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(size, GetFootprintCells(size))
+                .Where(edge => activeCells.Contains(edge.LocalCell))
+                .Select(edge => new DungeonRoomBoundaryEdgeData(edge.LocalCell, edge.Direction, activeLevel)).ToList();
         }
 
         private bool IsBoundaryEdgeAllowed(
@@ -1464,7 +1516,8 @@ namespace Godmist.Editor
             for (var i = 0; i < structuralAnchorsProperty.arraySize; i++)
             {
                 var wall = structuralAnchorsProperty.GetArrayElementAtIndex(i);
-                if (wall.FindPropertyRelative("<Type>k__BackingField").enumValueIndex == (int)DungeonStructuralAnchorType.Wall
+                if (Field(wall, "Level").intValue == edge.Level
+                    && wall.FindPropertyRelative("<Type>k__BackingField").enumValueIndex == (int)DungeonStructuralAnchorType.Wall
                     && wall.FindPropertyRelative("<LocalCell>k__BackingField").vector2IntValue == edge.LocalCell
                     && wall.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex == (int)edge.Direction)
                     return false;
@@ -1491,7 +1544,7 @@ namespace Godmist.Editor
                 var candidateDirection = (DungeonEdgeDirection)property.FindPropertyRelative(
                     "<Direction>k__BackingField").enumValueIndex;
 
-                if (candidateCell == localCell && candidateDirection == direction)
+                if (candidateCell == localCell && candidateDirection == direction && Field(property, "Level").intValue == activeLevel)
                 {
                     return true;
                 }
@@ -1513,7 +1566,7 @@ namespace Godmist.Editor
                 var direction = (DungeonEdgeDirection)property.FindPropertyRelative(
                     "<Direction>k__BackingField").enumValueIndex;
 
-                if (localCell != edge.LocalCell || direction != edge.Direction)
+                if (localCell != edge.LocalCell || direction != edge.Direction || Field(property, "Level").intValue != edge.Level)
                 {
                     continue;
                 }
@@ -1529,6 +1582,7 @@ namespace Godmist.Editor
                 edge.LocalCell;
             newProperty.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
                 (int)edge.Direction;
+            Field(newProperty, "Level").intValue = edge.Level;
         }
 
         private void SetAllBoundaryEdges(bool allowed)
@@ -1539,6 +1593,7 @@ namespace Godmist.Editor
                 ? GetExternalBoundaryEdges(sizeProperty.vector2IntValue)
                 : new List<DungeonRoomBoundaryEdgeData>();
 
+            edges.AddRange(ReadBoundaryEdges().Where(edge => edge.Level != activeLevel));
             SetAllowedBoundaryEdges(edges);
         }
 
@@ -1562,6 +1617,7 @@ namespace Godmist.Editor
                     edges[index].LocalCell;
                 property.FindPropertyRelative("<Direction>k__BackingField").enumValueIndex =
                     (int)edges[index].Direction;
+                Field(property, "Level").intValue = edges[index].Level;
             }
         }
 
@@ -1600,6 +1656,7 @@ namespace Godmist.Editor
             for (var index = 0; index < structuralAnchorsProperty.arraySize; index++)
             {
                 var property = structuralAnchorsProperty.GetArrayElementAtIndex(index);
+                if (Field(property, "Level").intValue != activeLevel) continue;
                 var localCell = property.FindPropertyRelative(
                     "<LocalCell>k__BackingField").vector2IntValue;
                 var direction = (DungeonEdgeDirection)property.FindPropertyRelative(
@@ -1617,6 +1674,7 @@ namespace Godmist.Editor
 
         private int FindSemanticAnchorAt(Vector2Int cell, Vector2Int size)
         {
+            if (activeLevel != 0) return -1;
             for (var index = 0; index < semanticAnchorsProperty.arraySize; index++)
             {
                 var property = semanticAnchorsProperty.GetArrayElementAtIndex(index);

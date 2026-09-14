@@ -136,6 +136,17 @@ namespace Godmist.Systems.Combat
                     break;
             }
 
+            var context = session.DungeonContext;
+            if (context?.SurfaceMap?.HasElevatedSurfaces == true)
+            {
+                var center = mode.TargetType == TargetType.AreaAroundTile
+                    || (mode.TargetType == TargetType.Single && mode.UseRelativeRange)
+                    ? selectedPosition ?? caster.Position : caster.Position;
+                var origin = DungeonBattleGridFactory.ToDungeonTraversalPosition(context, center);
+                targets.RemoveAll(unit => context.SurfaceMap.BlocksFloorSight(origin,
+                    DungeonBattleGridFactory.ToDungeonTraversalPosition(context, unit.Position)));
+            }
+
             if (requiredEnemyTarget != null
                 && mode.TargetingType == TargetingType.Enemies
                 && !targets.Contains(requiredEnemyTarget))
@@ -185,7 +196,8 @@ namespace Godmist.Systems.Combat
             {
                 for (var y = 0; y < session.Grid.Height; y++)
                 {
-                    var position = new GridPosition(x, y);
+                    foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
 
                     if (!IsValidTargetPosition(session, caster, mode, position)
                         && !(mode.IncludesCaster && position == caster.Position))
@@ -203,6 +215,7 @@ namespace Godmist.Systems.Combat
                     {
                         positions.Add(position);
                     }
+                }
                 }
             }
 
@@ -237,7 +250,8 @@ namespace Godmist.Systems.Combat
                 {
                     for (var y = 0; y < session.Grid.Height; y++)
                     {
-                        var position = new GridPosition(x, y);
+                        foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
 
                         if (IsPositionWithinRange(
                                 caster.Position,
@@ -247,6 +261,7 @@ namespace Godmist.Systems.Combat
                             positions.Add(position);
                         }
                     }
+                }
                 }
 
                 return positions;
@@ -261,7 +276,8 @@ namespace Godmist.Systems.Combat
             {
                 for (var y = 0; y < session.Grid.Height; y++)
                 {
-                    var position = new GridPosition(x, y);
+                    foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
 
                     if (IsPositionWithinRange(
                             caster.Position,
@@ -270,6 +286,7 @@ namespace Godmist.Systems.Combat
                     {
                         positions.Add(position);
                     }
+                }
                 }
             }
 
@@ -325,7 +342,8 @@ namespace Godmist.Systems.Combat
             {
                 for (var y = 0; y < session.Grid.Height; y++)
                 {
-                    var position = new GridPosition(x, y);
+                    foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
 
                     if (IsPositionWithinRelativeRange(
                             caster.Position,
@@ -336,6 +354,7 @@ namespace Godmist.Systems.Combat
                     {
                         positions.Add(position);
                     }
+                }
                 }
             }
 
@@ -358,12 +377,14 @@ namespace Godmist.Systems.Combat
             {
                 for (var y = 0; y < session.Grid.Height; y++)
                 {
-                    var position = new GridPosition(x, y);
+                    foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
 
                     if (IsPositionWithinRange(center, position, range))
                     {
                         positions.Add(position);
                     }
+                }
                 }
             }
 
@@ -449,7 +470,7 @@ namespace Godmist.Systems.Combat
             {
                 if (session.Grid.IsWithinBounds(position))
                 {
-                    positions.Add(position);
+                    foreach (var layered in session.Grid.GetPositionsAt(position.X, position.Y)) positions.Add(layered);
                 }
             }
 
@@ -614,13 +635,15 @@ namespace Godmist.Systems.Combat
             {
                 for (var y = 0; y < session.Grid.Height; y++)
                 {
-                    var position = new GridPosition(x, y);
+                    foreach (var position in session.Grid.GetPositionsAt(x, y))
+                    {
                     if (position == caster.Position)
                     {
                         continue;
                     }
 
                     positions.Add(position);
+                }
                 }
             }
 

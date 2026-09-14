@@ -29,6 +29,7 @@ namespace Godmist.Views.Dungeons
             { ResetHover(); return; }
             var next = map.WorldToCell(worldCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x,
                 Input.mousePosition.y, -worldCamera.transform.position.z)));
+            if (!map.IsSurfaceVisible(new DungeonSurfacePosition(next))) { ResetHover(); return; }
             if ((pointer - Input.mousePosition).sqrMagnitude > 4f || cell != next)
             { pointer = Input.mousePosition; cell = next; ResetHover(); return; }
             if (Time.unscaledTime - stationarySince < dwellSeconds) return;

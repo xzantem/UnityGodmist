@@ -45,6 +45,7 @@ namespace Godmist.Views.Dungeons
             if (gameBootstrap == null
                 || gameBootstrap.Session.CurrentMode != GameModeState.Exploration
                 || partyController == null
+                || !partyController.CanInteractWithGroundObjects
                 || partyController.ActiveLeaderTransform == null)
             {
                 return;

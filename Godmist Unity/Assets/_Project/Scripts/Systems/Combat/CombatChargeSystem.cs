@@ -177,7 +177,7 @@ namespace Godmist.Systems.Combat
 
                     var frontDestination = new GridPosition(
                         frontUnit.Position.X + deltaX,
-                        frontUnit.Position.Y + deltaY);
+                        frontUnit.Position.Y + deltaY, frontUnit.Position.Level);
 
                     if (!CanTraverse(
                             session,
@@ -237,7 +237,7 @@ namespace Godmist.Systems.Combat
 
                     unit.Position = new GridPosition(
                         unit.Position.X + deltaX,
-                        unit.Position.Y + deltaY);
+                        unit.Position.Y + deltaY, unit.Position.Level);
                 }
                 foreach (var moved in chain) session.NotifyUnitEnteredCell(moved);
                 if (chain.Exists(member => member.Character.LifeState != CharacterLifeState.Alive
@@ -286,7 +286,7 @@ namespace Godmist.Systems.Combat
 
                 positions.Add(new GridPosition(
                     origin.X + offsetX,
-                    origin.Y + offsetY));
+                    origin.Y + offsetY, origin.Level));
             }
 
             return positions;
@@ -359,11 +359,11 @@ namespace Godmist.Systems.Combat
 
             var horizontal = new GridPosition(
                 from.X + deltaX,
-                from.Y);
+                from.Y, from.Level);
 
             var vertical = new GridPosition(
                 from.X,
-                from.Y + deltaY);
+                from.Y + deltaY, from.Level);
 
             var throughHorizontal =
                 session.Grid.CanDisplaceBetween(from, horizontal)

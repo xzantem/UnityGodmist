@@ -209,6 +209,31 @@ namespace Godmist.Systems.Dungeons
             return false;
         }
 
+        public static bool TryFindPath(DungeonFloorMap map, DungeonTraversalPosition start,
+            DungeonTraversalPosition target, out List<DungeonTraversalPosition> path,
+            System.Func<DungeonTraversalPosition, bool> canEnter = null)
+        {
+            path = new List<DungeonTraversalPosition>();
+            if (map == null || !map.TryGetTraversalCell(start, out _) || !map.TryGetTraversalCell(target, out _)) return false;
+            var previous = new Dictionary<DungeonTraversalPosition, DungeonTraversalPosition> { [start] = start };
+            var pending = new Queue<DungeonTraversalPosition>(); pending.Enqueue(start);
+            while (pending.Count > 0)
+            {
+                var current = pending.Dequeue();
+                if (current == target)
+                {
+                    while (current != start) { path.Add(current); current = previous[current]; }
+                    path.Add(start); path.Reverse(); return true;
+                }
+                foreach (var next in map.GetTraversalNeighbours(current))
+                {
+                    if (previous.ContainsKey(next) || (canEnter != null && !canEnter(next))) continue;
+                    previous.Add(next, current); pending.Enqueue(next);
+                }
+            }
+            return false;
+        }
+
         private static List<Vector2Int> RebuildPath(
             Dictionary<Vector2Int, Vector2Int> previousCellByCell,
             Vector2Int startCell,

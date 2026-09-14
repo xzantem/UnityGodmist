@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Dungeons;
 using Godmist.Runtime.Dungeons;
@@ -88,12 +89,10 @@ namespace Godmist.Systems.Dungeons
                     template.SizeInCells,
                     template.Id);
 
-                foreach (var localCell in DungeonRoomTransformUtility
-                             .EnumerateTransformedFootprint(
-                                 template,
-                                 room.RotationDegrees))
+                template.ValidateSurfaceGeometry();
+                foreach (var surface in template.EnumerateSurfaces())
                 {
-                    var cell = room.LayoutPosition + localCell;
+                    var cell = TransformSurface(surface, template, room);
 
                     if (!map.TryAddFloorCell(cell, room.RoomId))
                     {
@@ -101,14 +100,23 @@ namespace Godmist.Systems.Dungeons
                             $"Komorka {cell} nalezy do wiecej niz jednego pokoju.");
                     }
                 }
+                foreach (var stair in template.Stairs ?? new List<DungeonRoomStairData>())
+                    if (!map.TryAddStairs(TransformSurface(stair.First, template, room), TransformSurface(stair.Second, template, room),
+                            stair.PathCells?.Select(cell => room.LayoutPosition + DungeonRoomTransformUtility.TransformCell(cell, template.SizeInCells, room.RotationDegrees)).ToArray()))
+                        throw new InvalidOperationException($"Nieprawidlowe schody w pokoju '{room.RoomId}'.");
             }
         }
 
-        private static HashSet<DungeonCellEdge> BuildOpenEdges(
+        private static DungeonSurfacePosition TransformSurface(DungeonRoomSurfaceData surface,
+            DungeonRoomTemplateDefinition template, DungeonRoomInstance room)
+            => new(room.LayoutPosition + DungeonRoomTransformUtility.TransformCell(surface.LocalCell,
+                template.SizeInCells, room.RotationDegrees), surface.Level);
+
+        private static HashSet<DungeonSurfaceEdge> BuildOpenEdges(
             DungeonFloorInstance floor,
             DungeonFloorMap map)
         {
-            var openEdges = new HashSet<DungeonCellEdge>();
+            var openEdges = new HashSet<DungeonSurfaceEdge>();
 
             foreach (var connection in floor.Connections)
             {
@@ -136,33 +144,40 @@ namespace Godmist.Systems.Dungeons
                     var secondDoorCell = connection.SecondDoorCell
                                          + lateral * offset;
 
-                    if (!map.IsWalkable(firstDoorCell)
-                        || !map.IsWalkable(secondDoorCell))
+                    if (!map.TryGetRoomId(new DungeonSurfacePosition(firstDoorCell, connection.DoorwayLevel), out var firstRoom)
+                        || firstRoom != connection.FirstRoomId
+                        || !map.TryGetRoomId(new DungeonSurfacePosition(secondDoorCell, connection.DoorwayLevel), out var secondRoom)
+                        || secondRoom != connection.SecondRoomId)
                     {
                         throw new InvalidOperationException(
-                            "Drzwi wskazuja komorke poza podloga lochu.");
+                            "Drzwi wymagaja powierzchni obu pokojow na tym samym poziomie na calej szerokosci.");
                     }
 
                     openEdges.Add(
-                        new DungeonCellEdge(
-                            firstDoorCell,
-                            secondDoorCell));
+                        new DungeonSurfaceEdge(new DungeonCellEdge(firstDoorCell, secondDoorCell), connection.DoorwayLevel));
                 }
             }
 
+            foreach (var stair in map.Stairs)
+                if (map.TryGetStairPath(stair, out var path))
+                {
+                    openEdges.Add(new DungeonSurfaceEdge(new DungeonCellEdge(path[0], path[1]), stair.First.Level));
+                    openEdges.Add(new DungeonSurfaceEdge(new DungeonCellEdge(path[path.Count - 2], path[path.Count - 1]), stair.Second.Level));
+                }
             return openEdges;
         }
 
         private static void AddWallEdges(
             DungeonFloorMap map,
-            HashSet<DungeonCellEdge> openEdges)
+            HashSet<DungeonSurfaceEdge> openEdges)
         {
-            foreach (var cell in map.FloorCells)
+            foreach (var cell in map.Surfaces)
             {
                 foreach (var direction in CardinalDirections)
                 {
-                    var neighbour = cell + direction;
+                    var neighbour = new DungeonSurfacePosition(cell.Cell + direction, cell.Level);
 
+                    if (openEdges.Contains(new DungeonSurfaceEdge(cell, neighbour))) continue;
                     if (!map.IsWalkable(neighbour))
                     {
                         map.TryAddWall(cell, neighbour);
@@ -177,9 +192,7 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
-                    var edge = new DungeonCellEdge(
-                        cell,
-                        neighbour);
+                    var edge = new DungeonSurfaceEdge(cell, neighbour);
 
                     if (openEdges.Contains(edge))
                     {
@@ -229,14 +242,15 @@ namespace Godmist.Systems.Dungeons
                                              anchor.Direction,
                                              room.RotationDegrees));
 
-                    if (!map.IsWalkable(firstCell))
+                    var firstSurface = new DungeonSurfacePosition(firstCell, anchor.Level);
+                    if (!map.IsWalkable(firstSurface))
                     {
                         throw new InvalidOperationException(
                             $"Kotwica sciany w szablonie '{template.Id}' "
                             + "wskazuje pole poza pokojem.");
                     }
 
-                    if (!map.TryGetRoomId(firstCell, out var firstRoomId)
+                    if (!map.TryGetRoomId(firstSurface, out var firstRoomId)
                         || firstRoomId != room.RoomId)
                     {
                         throw new InvalidOperationException(
@@ -246,12 +260,42 @@ namespace Godmist.Systems.Dungeons
 
                     if (!Enum.IsDefined(typeof(DungeonWallType), anchor.WallType))
                         throw new InvalidOperationException("Invalid wall type in room template.");
-                    var edge = new DungeonCellEdge(firstCell, secondCell);
-                    if (map.WallTypes.TryGetValue(edge, out var existing) && existing != anchor.WallType)
+                    var edge = new DungeonSurfaceEdge(new DungeonCellEdge(firstCell, secondCell), anchor.Level);
+                    if (map.SurfaceWallTypes.TryGetValue(edge, out var existing) && existing != anchor.WallType)
                         throw new InvalidOperationException("Conflicting wall types on shared room edge.");
                     map.SetWallType(edge, anchor.WallType);
                 }
             }
+        }
+    }
+}
+
+namespace Godmist.Systems.Dungeons
+{
+    public static class DungeonPassageGeometry
+    {
+        public static bool TryFindCommonLevel(DungeonRoomTemplateDefinition first,
+            DungeonRoomTemplateDefinition second, int firstRotation, int secondRotation,
+            Vector2Int firstCell, Vector2Int secondCell, int width, Vector2Int lateral,
+            DungeonEdgeDirection firstDirection, DungeonEdgeDirection secondDirection, out int level)
+        {
+            level = 0;
+            if (first == null || second == null || width < 1) return false;
+            first.ValidateSurfaceGeometry();
+            second.ValidateSurfaceGeometry();
+            // Stable ordering, no new RNG draw for legacy templates.
+            foreach (var candidate in first.EnumerateSurfaces().Select(s => s.Level).Distinct().OrderBy(l => l))
+            {
+                var matches = true;
+                for (var offset = 0; offset < width; offset++)
+                    if (!DungeonRoomTransformUtility.AllowsTransformedBoundaryEdge(first, firstCell + lateral * offset,
+                            firstDirection, firstRotation, candidate)
+                        || !DungeonRoomTransformUtility.AllowsTransformedBoundaryEdge(second, secondCell + lateral * offset,
+                            secondDirection, secondRotation, candidate))
+                    { matches = false; break; }
+                if (matches) { level = candidate; return true; }
+            }
+            return false;
         }
     }
 }

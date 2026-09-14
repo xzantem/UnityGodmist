@@ -29,10 +29,8 @@ namespace Godmist.Systems.Combat
         public static void AddExternalReservations(CombatSession session, ISet<GridPosition> occupied)
         {
             if (session.ExternalPositionOccupied == null) return;
-            for (var x = 0; x < session.Grid.Width; x++)
-            for (var y = 0; y < session.Grid.Height; y++)
+            foreach (var position in session.Grid.Positions)
             {
-                var position = new GridPosition(x, y);
                 if (session.ExternalPositionOccupied(position)) occupied.Add(position);
             }
         }

@@ -174,6 +174,13 @@ namespace Godmist.Systems.Combat
                 session.EnvironmentBlocksLineOfSight = (from, to) =>
                     DungeonCombatArenaSystem.BlocksEnvironmentSight(floor, context, from, to);
             session.ExternalPositionOccupied = position => gameSession.IsOccupiedInOtherCombat(session, position);
+            GridPosition ActorPosition(string key, Vector2Int fallback)
+            {
+                if (gameSession.ActiveDungeon != null && gameSession.ActiveDungeon.TryGetCurrentFloor(out var actorFloor)
+                    && actorFloor.TryGetActorPosition(key, out var saved))
+                    return DungeonBattleGridFactory.ToBattleTraversalPosition(context, saved);
+                return DungeonBattleGridFactory.ToBattlePosition(context, fallback);
+            }
             var occupied = new HashSet<GridPosition>();
             DungeonCombatParticipationSystem.AddExternalReservations(session, occupied);
             foreach (var id in gameSession.PlayerParty.ActiveMemberIds)
@@ -183,7 +190,7 @@ namespace Godmist.Systems.Combat
                 if (!gameSession.CharactersById.TryGetValue(id, out var character)
                     || character.LifeState != CharacterLifeState.Alive) continue;
                 session.Units.Add(CreateBattleUnit(character,
-                    DungeonBattleGridFactory.ToBattlePosition(context, cell), true));
+                    ActorPosition("player:" + id, cell), true));
             }
             if (session.Units.Count == 0) return false;
             foreach (var data in encounter.Definition.Enemies)
@@ -195,7 +202,7 @@ namespace Godmist.Systems.Combat
                 var character = characterFactory.Create(data.CharacterDefinition, data.ClassData, context.DungeonLevel);
                 character.CharacterId = data.InstanceId;
                 session.Units.Add(CreateBattleUnit(character,
-                    DungeonBattleGridFactory.ToBattlePosition(context, cell), false));
+                    ActorPosition("enemy:" + encounter.InstanceId + ":" + data.InstanceId, cell), false));
             }
             if (!session.Units.Any(unit => !unit.IsPlayerSide)) return false;
             if (!DungeonCombatPositionResolver.TryResolveGroup(grid,

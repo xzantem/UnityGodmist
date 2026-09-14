@@ -25,20 +25,11 @@ namespace Godmist.Data.Dungeons
             }
 
             var size = template.SizeInCells;
-            var floorCells = new HashSet<Vector2Int>();
-            var footprint = template.Footprint ?? new DungeonRoomFootprint();
-
-            foreach (var cell in footprint.Enumerate(size))
-            {
-                floorCells.Add(cell);
-            }
-
-            foreach (var edge in EnumerateExternalBoundaryEdges(
-                         size,
-                         floorCells))
-            {
-                yield return edge;
-            }
+            var floorCells = new HashSet<Vector2Int>((template.Footprint ?? new DungeonRoomFootprint()).Enumerate(size));
+            foreach (var edge in EnumerateExternalBoundaryEdges(size, floorCells))
+                foreach (var surface in template.EnumerateSurfaces())
+                    if (surface != null && surface.LocalCell == edge.LocalCell)
+                        yield return new DungeonRoomBoundaryEdgeData(edge.LocalCell, edge.Direction, surface.Level);
         }
 
         public static IEnumerable<DungeonRoomBoundaryEdgeData>
@@ -447,7 +438,7 @@ namespace Godmist.Data.Dungeons
             DungeonRoomTemplateDefinition template,
             Vector2Int transformedCell,
             DungeonEdgeDirection transformedDirection,
-            int rotationDegrees)
+            int rotationDegrees, int level = 0)
         {
             if (template == null) return false;
 
@@ -461,7 +452,7 @@ namespace Godmist.Data.Dungeons
 
             return template.AllowsBoundaryEdge(
                 authoredCell,
-                authoredDirection);
+                authoredDirection, level);
         }
 
         public static IEnumerable<Vector2Int> EnumerateTransformedFootprint(

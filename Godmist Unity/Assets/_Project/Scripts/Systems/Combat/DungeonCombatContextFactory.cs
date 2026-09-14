@@ -53,7 +53,7 @@ namespace Godmist.Systems.Combat
                 combatCells,
                 wallEdges,
                 mapObjects,
-                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells);
+                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells, floor.Map);
 
             return true;
         }
@@ -64,16 +64,22 @@ namespace Godmist.Systems.Combat
         {
             var cells = new List<Vector2Int>();
 
-            foreach (var cell in map.FloorCells)
+            foreach (var surface in map.Surfaces)
             {
-                if (!map.TryGetRoomId(cell, out var cellRoomId)
+                var cell = surface.Cell;
+                if (!map.TryGetRoomId(surface, out var cellRoomId)
                     || cellRoomId != roomId)
                 {
                     continue;
                 }
 
-                cells.Add(cell);
+                if (!cells.Contains(cell)) cells.Add(cell);
             }
+            foreach (var stairs in map.Stairs)
+                if (map.TryGetRoomId(stairs.First, out var firstRoom) && firstRoom == roomId
+                    && map.TryGetRoomId(stairs.Second, out var secondRoom) && secondRoom == roomId
+                    && map.TryGetStairPath(stairs, out var path))
+                    foreach (var cell in path) if (!cells.Contains(cell)) cells.Add(cell);
 
             return cells;
         }

@@ -5,6 +5,19 @@ namespace Godmist.Views.Dungeons
 {
     public abstract class DungeonObjectView : MonoBehaviour
     {
+        private DungeonFloorMapView elevationView;
+        private Renderer[] elevationRenderers;
+        public bool IsElevationVisible => elevationView == null || DungeonObject == null
+            || !elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(DungeonObject.Position));
+        public void BindElevationView(DungeonFloorMapView view)
+        { elevationView = view; elevationRenderers = GetComponentsInChildren<Renderer>(true); }
+        protected virtual void LateUpdate()
+        {
+            if (elevationRenderers == null) return;
+            foreach (var renderer in elevationRenderers)
+                if (renderer != null) renderer.forceRenderingOff = !IsElevationVisible;
+        }
+
         public string InstanceId { get; private set; } = string.Empty;
 
         protected DungeonObjectInstance DungeonObject { get; private set; }

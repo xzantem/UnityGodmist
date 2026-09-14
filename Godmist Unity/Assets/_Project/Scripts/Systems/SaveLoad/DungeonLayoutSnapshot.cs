@@ -12,7 +12,7 @@ namespace Godmist.Systems.SaveLoad
     // Stores generated geometry and identities; mutable object state stays in the existing deltas.
     public static class DungeonLayoutSnapshot
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 3;
 
         public static List<DungeonFloorLayoutSaveData> Capture(DungeonInstance dungeon)
         {
@@ -33,30 +33,52 @@ namespace Godmist.Systems.SaveLoad
                         FirstRoomId = connection.FirstRoomId, SecondRoomId = connection.SecondRoomId,
                         HasGeometry = connection.HasGeometry, FirstX = connection.FirstDoorCell.x,
                         FirstY = connection.FirstDoorCell.y, SecondX = connection.SecondDoorCell.x,
-                        SecondY = connection.SecondDoorCell.y, Width = connection.DoorwayWidth,
+                        SecondY = connection.SecondDoorCell.y, Width = connection.DoorwayWidth, Level = connection.DoorwayLevel,
                         HasGate = connection.HasProgressionGate, GateId = connection.ProgressionGateId,
                         ConditionId = connection.ProgressionConditionId, BranchRoomId = connection.RequiredBranchRoomId,
                         RequiredSources = new List<string>(connection.RequiredProgressionSourceIds)
                     });
                 if (floor.Map != null)
                 {
-                    foreach (var cell in floor.Map.FloorCells)
+                    foreach (var surface in floor.Map.Surfaces)
                     {
-                        floor.Map.TryGetRoomId(cell, out var roomId);
+                        var cell = surface.Cell;
+                        floor.Map.TryGetRoomId(surface, out var roomId);
                         data.Cells.Add(new DungeonCellSaveData
-                        { X = cell.x, Y = cell.y, RoomId = roomId, Difficult = floor.Map.IsDifficultTerrain(cell) });
+                        { X = cell.x, Y = cell.y, Level = surface.Level, RoomId = roomId,
+                            Difficult = surface.Level == 0 && floor.Map.IsDifficultTerrain(cell) });
                     }
-                    foreach (var edge in floor.Map.WallEdges)
+                    foreach (var stair in floor.Map.Stairs)
+                    {
+                        var stairData = new DungeonStairSaveData
+                        {
+                            FirstX = stair.First.Cell.x, FirstY = stair.First.Cell.y, FirstLevel = stair.First.Level,
+                            SecondX = stair.Second.Cell.x, SecondY = stair.Second.Cell.y, SecondLevel = stair.Second.Level
+                        };
+                        if (floor.Map.TryGetStairPath(stair, out var path))
+                            foreach (var cell in path) stairData.PathCells.Add(new DungeonStairPathCellSaveData { X = cell.x, Y = cell.y });
+                        data.Stairs.Add(stairData);
+                    }
+                    data.Stairs.Sort((a, b) =>
+                    {
+                        var first = new DungeonSurfacePosition(new Vector2Int(a.FirstX, a.FirstY), a.FirstLevel)
+                            .CompareTo(new DungeonSurfacePosition(new Vector2Int(b.FirstX, b.FirstY), b.FirstLevel));
+                        return first != 0 ? first : new DungeonSurfacePosition(new Vector2Int(a.SecondX, a.SecondY), a.SecondLevel)
+                            .CompareTo(new DungeonSurfacePosition(new Vector2Int(b.SecondX, b.SecondY), b.SecondLevel));
+                    });
+                    foreach (var edge in floor.Map.SurfaceWallEdges)
                         data.Walls.Add(new DungeonWallSaveData
                         {
                             FirstX = edge.FirstCell.x, FirstY = edge.FirstCell.y,
                             SecondX = edge.SecondCell.x, SecondY = edge.SecondCell.y,
-                            Type = (int)floor.Map.GetWallType(edge)
+                            Type = (int)floor.Map.GetWallType(edge), Level = edge.Level
                         });
-                    data.Cells.Sort((a, b) => a.X != b.X ? a.X.CompareTo(b.X) : a.Y.CompareTo(b.Y));
+                    data.Cells.Sort((a, b) => a.Level != b.Level ? a.Level.CompareTo(b.Level)
+                        : a.X != b.X ? a.X.CompareTo(b.X) : a.Y.CompareTo(b.Y));
                     data.Walls.Sort((a, b) =>
                     {
-                        var comparison = a.FirstX.CompareTo(b.FirstX);
+                        var comparison = a.Level.CompareTo(b.Level);
+                        if (comparison == 0) comparison = a.FirstX.CompareTo(b.FirstX);
                         if (comparison == 0) comparison = a.FirstY.CompareTo(b.FirstY);
                         if (comparison == 0) comparison = a.SecondX.CompareTo(b.SecondX);
                         return comparison == 0 ? a.SecondY.CompareTo(b.SecondY) : comparison;
@@ -98,7 +120,8 @@ namespace Godmist.Systems.SaveLoad
             GameContentCatalog catalog, out DungeonInstance dungeon)
         {
             dungeon = null;
-            if (data.LayoutVersion != CurrentVersion || data.Layout == null || data.Layout.Count == 0) return false;
+            if (data == null || (data.LayoutVersion < 1 || data.LayoutVersion > CurrentVersion)
+                || data.Layout == null || data.Layout.Count == 0) return false;
             var candidate = new DungeonInstance(definition, data.Seed, data.DungeonLevel);
             var objectIds = new HashSet<string>(StringComparer.Ordinal);
             var encounterIds = new HashSet<string>(StringComparer.Ordinal);
@@ -106,6 +129,8 @@ namespace Godmist.Systems.SaveLoad
             {
                 if (saved == null || saved.FloorIndex < 0 || saved.Rooms == null || saved.Connections == null
                     || saved.Cells == null || saved.Walls == null || saved.Objects == null || saved.Encounters == null) return false;
+                if (data.LayoutVersion >= 2 && saved.Stairs == null) return false;
+                if (data.LayoutVersion == 1 && saved.Stairs != null && saved.Stairs.Count != 0) return false;
                 var floor = new DungeonFloorInstance(saved.FloorIndex);
                 if (!candidate.TryAddFloor(floor)) return false;
                 foreach (var room in saved.Rooms)
@@ -119,11 +144,11 @@ namespace Godmist.Systems.SaveLoad
                 }
                 foreach (var connection in saved.Connections)
                 {
-                    if (connection == null || !floor.TryAddConnection(connection.FirstRoomId, connection.SecondRoomId)) return false;
+                    if (connection == null || (data.LayoutVersion == 1 && connection.Level != 0) || !floor.TryAddConnection(connection.FirstRoomId, connection.SecondRoomId)) return false;
                     var restored = floor.Connections[floor.Connections.Count - 1];
                     if (connection.HasGeometry && !restored.TrySetDirectPassage(
-                        new Vector2Int(connection.FirstX, connection.FirstY),
-                        new Vector2Int(connection.SecondX, connection.SecondY), connection.Width)) return false;
+                        new DungeonSurfacePosition(new Vector2Int(connection.FirstX, connection.FirstY), connection.Level),
+                        new DungeonSurfacePosition(new Vector2Int(connection.SecondX, connection.SecondY), connection.Level), connection.Width)) return false;
                     if (connection.HasGate)
                     {
                         if (!connection.HasGeometry || !floor.TryGetRoom(connection.BranchRoomId, out _)
@@ -138,22 +163,48 @@ namespace Godmist.Systems.SaveLoad
                     foreach (var cell in saved.Cells)
                     {
                         if (cell == null || !floor.TryGetRoom(cell.RoomId, out _)
-                            || !map.TryAddFloorCell(new Vector2Int(cell.X, cell.Y), cell.RoomId)) return false;
+                            || (data.LayoutVersion == 1 && cell.Level != 0)
+                            || (cell.Level != 0 && cell.Difficult)
+                            || !map.TryAddFloorCell(new DungeonSurfacePosition(new Vector2Int(cell.X, cell.Y), cell.Level), cell.RoomId)) return false;
                         if (cell.Difficult) map.SetDifficultTerrain(new Vector2Int(cell.X, cell.Y));
                     }
-                    var walls = new HashSet<DungeonCellEdge>();
+                    if (saved.Stairs != null)
+                        foreach (var stair in saved.Stairs)
+                        {
+                            if (stair == null || (data.LayoutVersion >= 3 && stair.PathCells == null)
+                                || (data.LayoutVersion < 3 && stair.PathCells?.Count > 0)) return false;
+                            var path = new List<Vector2Int>();
+                            if (stair.PathCells != null)
+                                foreach (var cell in stair.PathCells)
+                                {
+                                    if (cell == null) return false;
+                                    path.Add(new Vector2Int(cell.X, cell.Y));
+                                }
+                            if (!map.TryAddStairs(
+                                new DungeonSurfacePosition(new Vector2Int(stair.FirstX, stair.FirstY), stair.FirstLevel),
+                                new DungeonSurfacePosition(new Vector2Int(stair.SecondX, stair.SecondY), stair.SecondLevel), path)) return false;
+                        }
+                    var walls = new HashSet<DungeonSurfaceEdge>();
                     foreach (var wall in saved.Walls)
                     {
-                        if (wall == null || !Enum.IsDefined(typeof(DungeonWallType), wall.Type)) return false;
+                        if (wall == null || (data.LayoutVersion == 1 && wall.Level != 0) || !Enum.IsDefined(typeof(DungeonWallType), wall.Type)) return false;
                         var first = new Vector2Int(wall.FirstX, wall.FirstY);
                         var second = new Vector2Int(wall.SecondX, wall.SecondY);
                         if (Math.Abs((long)first.x - second.x) + Math.Abs((long)first.y - second.y) != 1) return false;
-                        var edge = new DungeonCellEdge(first, second);
+                        var edge = new DungeonSurfaceEdge(new DungeonCellEdge(first, second), wall.Level);
                         if (!walls.Add(edge) || !map.SetWallType(edge, (DungeonWallType)wall.Type)) return false;
+                    }
+                    foreach (var connection in floor.Connections)
+                    {
+                        if (!connection.HasGeometry) continue;
+                        var lateral = connection.FirstDoorCell.x != connection.SecondDoorCell.x ? Vector2Int.up : Vector2Int.right;
+                        for (var offset = 0; offset < connection.DoorwayWidth; offset++)
+                            if (!map.IsWalkable(new DungeonSurfacePosition(connection.FirstDoorCell + lateral * offset, connection.DoorwayLevel))
+                                || !map.IsWalkable(new DungeonSurfacePosition(connection.SecondDoorCell + lateral * offset, connection.DoorwayLevel))) return false;
                     }
                     if (!floor.TrySetMap(map)) return false;
                 }
-                else if (saved.Cells.Count != 0 || saved.Walls.Count != 0) return false;
+                else if (saved.Cells.Count != 0 || saved.Walls.Count != 0 || saved.Stairs?.Count > 0) return false;
                 foreach (var obj in saved.Objects)
                 {
                     if (obj == null || string.IsNullOrWhiteSpace(obj.Id) || !objectIds.Add(obj.Id)

@@ -90,23 +90,25 @@ namespace Godmist.Systems.Dungeons
             public LayoutDirection Direction { get; }
             public int StartCell { get; }
             public int Width { get; }
+            public int Level { get; }
 
             public DoorwayReservation(
                 LayoutDirection direction,
                 int startCell,
-                int width)
+                int width, int level)
             {
                 Direction = direction;
                 StartCell = startCell;
                 Width = width;
+                Level = level;
             }
 
             public bool Overlaps(
                 LayoutDirection direction,
                 int startCell,
-                int width)
+                int width, int level)
             {
-                if (Direction != direction)
+                if (Direction != direction || Level != level)
                 {
                     return false;
                 }
@@ -1252,7 +1254,7 @@ namespace Godmist.Systems.Dungeons
                         doorwayWidth,
                         true,
                         firstDoorDirection,
-                        secondDoorDirection))
+                        secondDoorDirection, out var doorwayLevel))
                 {
                     continue;
                 }
@@ -1265,14 +1267,14 @@ namespace Godmist.Systems.Dungeons
                         secondRoomId,
                         secondDoorDirection,
                         doorwayStart,
-                        doorwayWidth))
+                        doorwayWidth, doorwayLevel))
                 {
                     continue;
                 }
 
                 return connection.TrySetDirectPassage(
-                    firstDoorCell,
-                    secondDoorCell,
+                    new DungeonSurfacePosition(firstDoorCell, doorwayLevel),
+                    new DungeonSurfacePosition(secondDoorCell, doorwayLevel),
                     doorwayWidth);
             }
 
@@ -1346,7 +1348,7 @@ namespace Godmist.Systems.Dungeons
                         doorwayWidth,
                         false,
                         firstDoorDirection,
-                        secondDoorDirection))
+                        secondDoorDirection, out var doorwayLevel))
                 {
                     continue;
                 }
@@ -1359,14 +1361,14 @@ namespace Godmist.Systems.Dungeons
                         secondRoomId,
                         secondDoorDirection,
                         doorwayStart,
-                        doorwayWidth))
+                        doorwayWidth, doorwayLevel))
                 {
                     continue;
                 }
 
                 return connection.TrySetDirectPassage(
-                    firstDoorCell,
-                    secondDoorCell,
+                    new DungeonSurfacePosition(firstDoorCell, doorwayLevel),
+                    new DungeonSurfacePosition(secondDoorCell, doorwayLevel),
                     doorwayWidth);
             }
 
@@ -1374,58 +1376,16 @@ namespace Godmist.Systems.Dungeons
         }
 
         private static bool AreDoorwayCellsInFootprints(
-            DungeonRoomTemplateDefinition firstTemplate,
-            DungeonRoomTemplateDefinition secondTemplate,
-            int firstRotation,
-            int secondRotation,
-            RectInt firstRoomArea,
-            RectInt secondRoomArea,
-            Vector2Int firstDoorCell,
-            Vector2Int secondDoorCell,
-            int doorwayWidth,
-            bool isVertical,
-            LayoutDirection firstDirection,
-            LayoutDirection secondDirection)
+            DungeonRoomTemplateDefinition firstTemplate, DungeonRoomTemplateDefinition secondTemplate,
+            int firstRotation, int secondRotation, RectInt firstRoomArea, RectInt secondRoomArea,
+            Vector2Int firstDoorCell, Vector2Int secondDoorCell, int doorwayWidth, bool isVertical,
+            LayoutDirection firstDirection, LayoutDirection secondDirection, out int level)
         {
-            var lateral = isVertical
-                ? Vector2Int.up
-                : Vector2Int.right;
-
-            for (var offset = 0; offset < doorwayWidth; offset++)
-            {
-                var firstCell = firstDoorCell + lateral * offset;
-                var secondCell = secondDoorCell + lateral * offset;
-
-                if (!DungeonRoomTransformUtility.AllowsTransformedBoundaryEdge(
-                        firstTemplate,
-                        firstCell - firstRoomArea.position,
-                        ToEdgeDirection(firstDirection),
-                        firstRotation)
-                    || !DungeonRoomTransformUtility.AllowsTransformedBoundaryEdge(
-                        secondTemplate,
-                        secondCell - secondRoomArea.position,
-                        ToEdgeDirection(secondDirection),
-                        secondRotation))
-                {
-                    return false;
-                }
-
-                if (!DungeonRoomTransformUtility.ContainsTransformedCell(
-                        firstTemplate.Footprint,
-                        firstCell - firstRoomArea.position,
-                        firstTemplate.SizeInCells,
-                        firstRotation)
-                    || !DungeonRoomTransformUtility.ContainsTransformedCell(
-                        secondTemplate.Footprint,
-                        secondCell - secondRoomArea.position,
-                        secondTemplate.SizeInCells,
-                        secondRotation))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return DungeonPassageGeometry.TryFindCommonLevel(firstTemplate, secondTemplate,
+                firstRotation, secondRotation, firstDoorCell - firstRoomArea.position,
+                secondDoorCell - secondRoomArea.position, doorwayWidth,
+                isVertical ? Vector2Int.up : Vector2Int.right,
+                ToEdgeDirection(firstDirection), ToEdgeDirection(secondDirection), out level);
         }
 
         private static DungeonEdgeDirection ToEdgeDirection(
@@ -1500,20 +1460,20 @@ namespace Godmist.Systems.Dungeons
             string secondRoomId,
             LayoutDirection secondDirection,
             int secondStartCell,
-            int doorwayWidth)
+            int doorwayWidth, int level)
         {
             if (!IsDoorwayAvailable(
                     reservationsByRoomId,
                     firstRoomId,
                     firstDirection,
                     firstStartCell,
-                    doorwayWidth)
+                    doorwayWidth, level)
                 || !IsDoorwayAvailable(
                     reservationsByRoomId,
                     secondRoomId,
                     secondDirection,
                     secondStartCell,
-                    doorwayWidth))
+                    doorwayWidth, level))
             {
                 return false;
             }
@@ -1523,14 +1483,14 @@ namespace Godmist.Systems.Dungeons
                 firstRoomId,
                 firstDirection,
                 firstStartCell,
-                doorwayWidth);
+                doorwayWidth, level);
 
             AddDoorwayReservation(
                 reservationsByRoomId,
                 secondRoomId,
                 secondDirection,
                 secondStartCell,
-                doorwayWidth);
+                doorwayWidth, level);
 
             return true;
         }
@@ -1540,7 +1500,7 @@ namespace Godmist.Systems.Dungeons
             string roomId,
             LayoutDirection direction,
             int startCell,
-            int doorwayWidth)
+            int doorwayWidth, int level)
         {
             if (!reservationsByRoomId.TryGetValue(
                     roomId,
@@ -1554,7 +1514,7 @@ namespace Godmist.Systems.Dungeons
                 if (reservation.Overlaps(
                         direction,
                         startCell,
-                        doorwayWidth))
+                        doorwayWidth, level))
                 {
                     return false;
                 }
@@ -1568,7 +1528,7 @@ namespace Godmist.Systems.Dungeons
             string roomId,
             LayoutDirection direction,
             int startCell,
-            int doorwayWidth)
+            int doorwayWidth, int level)
         {
             if (!reservationsByRoomId.TryGetValue(
                     roomId,
@@ -1582,7 +1542,7 @@ namespace Godmist.Systems.Dungeons
                 new DoorwayReservation(
                     direction,
                     startCell,
-                    doorwayWidth));
+                    doorwayWidth, level));
         }
 
         private static LayoutDirection[] GetOptionalRoomDirections(

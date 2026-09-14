@@ -16,6 +16,22 @@ namespace Godmist.Views.Dungeons
 {
     public class DungeonEnemyBodyView : MonoBehaviour
     {
+        private DungeonFloorMapView elevationView;
+        private Renderer[] elevationRenderers;
+        public bool IsElevationVisible => elevationView == null
+            || (floor?.Map?.HasElevatedSurfaces == true ? elevationView.IsTraversalVisible(BodyPosition)
+                : !elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(elevationView.WorldToCell(transform.position))));
+        private DungeonTraversalPosition BodyPosition => floor != null && body != null
+            && floor.TryGetActorPosition("body:" + body.InstanceId, out var position) ? position
+            : new DungeonTraversalPosition(new DungeonSurfacePosition(body?.Position ?? Vector2Int.zero));
+        public void BindElevationView(DungeonFloorMapView view)
+        { elevationView = view; elevationRenderers = GetComponentsInChildren<Renderer>(true); }
+        private void LateUpdate()
+        {
+            if (elevationRenderers == null) return;
+            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !IsElevationVisible;
+        }
+
         [SerializeField] private float interactionRadius = 1.25f;
         [SerializeField] private SpriteRenderer bodyRenderer;
 
@@ -99,6 +115,8 @@ namespace Godmist.Views.Dungeons
 
         public bool CanInteract()
         {
+            if (!IsElevationVisible) return false;
+            if (floor?.Map?.HasElevatedSurfaces == true && partyController?.CanInteractAt(BodyPosition) != true) return false;
             var session = GameBootstrap.Instance?.Session;
 
             if (body == null
@@ -117,6 +135,7 @@ namespace Godmist.Views.Dungeons
             var offset = partyController.ActiveLeaderTransform.position
                          - transform.position;
 
+            if (floor.Map.HasElevatedSurfaces) return offset.sqrMagnitude <= interactionRadius * interactionRadius && partyController.CanInteractAt(BodyPosition);
             return offset.sqrMagnitude
                    <= interactionRadius * interactionRadius
                    && floorTilemap != null
@@ -138,7 +157,7 @@ namespace Godmist.Views.Dungeons
             foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
             {
                 if (hit != null
-                    && hit.GetComponentInParent<DungeonEnemyBodyView>() != null)
+                    && hit.GetComponentInParent<DungeonEnemyBodyView>() is { IsElevationVisible: true })
                 {
                     return true;
                 }
@@ -149,6 +168,8 @@ namespace Godmist.Views.Dungeons
 
         private bool IsPointerOverThisBody()
         {
+            if (!IsElevationVisible) return false;
+            if (floor?.Map?.HasElevatedSurfaces == true && partyController?.CanInteractAt(BodyPosition) != true) return false;
             var worldCamera = Camera.main;
 
             if (worldCamera == null)
