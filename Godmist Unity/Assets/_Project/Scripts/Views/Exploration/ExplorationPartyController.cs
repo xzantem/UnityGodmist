@@ -37,7 +37,7 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { movementDestination = null; traversalPath.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -168,7 +168,7 @@ namespace Godmist.Views.Exploration
         {
             var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
             var terrainView = GetActiveLeaderView()?.TerrainView;
-            if (!IsNoclipEnabled && GetActiveLeaderView()?.UsesLayeredTraversal == true)
+            if (!IsNoclipEnabled && traversalFloor?.Map != null)
             { TrySetTraversalDestination(pointerWorldPosition); return; }
 
             if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
@@ -176,9 +176,8 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            movementDestination = new Vector2(
-                pointerWorldPosition.x,
-                pointerWorldPosition.y);
+            if (!IsNoclipEnabled) { TrySetCityDestination(pointerWorldPosition); return; }
+            movementDestination = new Vector2(pointerWorldPosition.x, pointerWorldPosition.y);
         }
 
         private void FixedUpdate()
@@ -197,7 +196,7 @@ namespace Godmist.Views.Exploration
             var leaderView = GetActiveLeaderView();
 
             if (leaderView == null) return;
-            if (leaderView.UsesLayeredTraversal && !IsNoclipEnabled)
+            if (traversalFloor?.Map != null && !IsNoclipEnabled)
             {
                 TickTraversalMovement(leaderView);
                 MoveFollowers(leaderView);
@@ -248,7 +247,8 @@ namespace Godmist.Views.Exploration
                 if (!viewsById.TryGetValue(characterId, out var followerView)
                     || followerView.RuntimeCharacter?.LifeState != CharacterLifeState.Alive) continue;
 
-                if (followerView.UsesLayeredTraversal && !IsNoclipEnabled) FollowTraversal(followerView, previousView);
+                if (traversalFloor?.Map != null && !IsNoclipEnabled) FollowTraversal(followerView, previousView);
+                else if (!IsNoclipEnabled) FollowCity(followerView, previousView);
                 else followerView.MoveTowards(previousView.Position,
                     movementSpeed * Time.fixedDeltaTime, followerDistance);
 
@@ -326,14 +326,15 @@ namespace Godmist.Views.Exploration
 
                 if (keyboardMovement.sqrMagnitude > 0f)
                 {
-                    movementDestination = null;
+                    movementDestination = null; cityLeaderRoute.Clear();
                     return keyboardMovement;
                 }
             }
 
             if (!movementDestination.HasValue) return Vector2.zero;
 
-            var offset = movementDestination.Value - leaderView.Position;
+            var destination = IsNoclipEnabled ? movementDestination.Value : CityWaypoint(leaderView, cityLeaderRoute, movementDestination.Value);
+            var offset = destination - leaderView.Position;
 
             if (offset.sqrMagnitude <= arrivalDistance * arrivalDistance)
             {

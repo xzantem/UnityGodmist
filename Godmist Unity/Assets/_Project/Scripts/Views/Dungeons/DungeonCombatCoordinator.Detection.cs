@@ -15,6 +15,10 @@ namespace Godmist.Views.Dungeons
     {
         private float detectionElapsed;
         private float nextPreviewTime;
+        private readonly Dictionary<ExplorationCharacterView, (DungeonTraversalPosition Position, Vector2 Facing, float Range, float Angle, List<DungeonTraversalPosition> Cells)> enemyPreviewCache = new();
+        private readonly Dictionary<Vector2Int, List<DungeonTraversalPosition>> previewNodes = new();
+        private DungeonFloorMap previewMap;
+
         private readonly List<(CombatSession First, CombatSession Second)> pendingMerges = new();
         private readonly HashSet<GridPosition> shownFov = new();
         private readonly List<(ExplorationCharacterView Enemy, EncounterTriggerView Source,
@@ -185,7 +189,7 @@ namespace Godmist.Views.Dungeons
                 session.MembershipChangePending = pendingMerges.Any(pair => pair.First == session || pair.Second == session);
         }
 
-        private void InvalidateFovPreview() { previewRevision = -1; fogGeometryDirty = true; }
+        private void InvalidateFovPreview() { previewRevision = -1; fogGeometryDirty = true; enemyPreviewCache.Clear(); }
 
         private void ClearFovPreview()
         {
@@ -199,7 +203,7 @@ namespace Godmist.Views.Dungeons
         {
             if (UIWorkspaceInputRouter.HasFocusedTextInput() || !(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
             { ClearFovPreview(); return; }
-            if (Time.unscaledTime < nextPreviewTime && previewRevision == map.PresentationRevision && previewFocus == focused) return;
+            if (Time.unscaledTime < nextPreviewTime && previewRevision >= 0 && previewFocus == focused) return;
             nextPreviewTime = Time.unscaledTime + .1f;
             var observers = party.ActiveMemberViews.Where(IsLiving).ToArray();
             var livingEnemies = encounters.Triggers.SelectMany(trigger => trigger.EnemyViews).Where(IsLiving).ToArray();
@@ -207,25 +211,51 @@ namespace Godmist.Views.Dungeons
             var geometry = floor.Objects.Select(item => (item.InstanceId, item.IsActive, item is DoorDungeonObjectInstance door && door.IsOpen)).ToArray();
             if (previewActors != null && actors.SequenceEqual(previewActors) && previewObjects != null && geometry.SequenceEqual(previewObjects)
                 && previewRevision == map.PresentationRevision && previewFocus == focused) return;
+            if (previewObjects == null || !geometry.SequenceEqual(previewObjects)) enemyPreviewCache.Clear();
             previewActors = actors; previewObjects = geometry;
-            bool PartySees(DungeonTraversalPosition node) => observers.Any(view => visibility.HasLineOfSight(
-                floor, view.DungeonPosition, node));
-            // Party visibility selects observers, not cells: show their complete threat area for sneaking.
-            var enemies = livingEnemies.Where(view => PartySees(view.DungeonPosition)).ToArray();
-            var cells = new HashSet<GridPosition>();
-            void Add(DungeonTraversalPosition node)
+            if (previewMap != floor.Map)
             {
-                if (!map.IsTraversalSelectable(node)
-                    || !enemies.Any(enemy => visibility.CanDetect(floor, enemy.DungeonPosition,
-                        enemy.FacingDirection, enemy.VisionRange, EnemyObservationAngle(enemy), node))) return;
-                floor.Map.TryGetTraversalCell(node, out var cell);
-                cells.Add(focused != null ? DungeonBattleGridFactory.ToBattleTraversalPosition(focused.DungeonContext, node)
-                    : new GridPosition(cell.x, cell.y));
+                previewMap = floor.Map; previewNodes.Clear(); enemyPreviewCache.Clear();
+                void Index(DungeonTraversalPosition node)
+                {
+                    if (!floor.Map.TryGetTraversalCell(node, out var cell)) return;
+                    if (!previewNodes.TryGetValue(cell, out var nodes)) previewNodes.Add(cell, nodes = new());
+                    nodes.Add(node);
+                }
+                foreach (var surface in floor.Map.Surfaces) Index(new DungeonTraversalPosition(surface));
+                foreach (var stair in floor.Map.Stairs)
+                    if (floor.Map.TryGetStairPath(stair, out var steps))
+                        for (var i = 1; i < steps.Count - 1; i++) Index(new DungeonTraversalPosition(stair, i));
             }
-            foreach (var surface in floor.Map.Surfaces) Add(new DungeonTraversalPosition(surface));
-            foreach (var stairs in floor.Map.Stairs)
-                if (floor.Map.TryGetStairPath(stairs, out var path))
-                    for (var i = 1; i < path.Count - 1; i++) Add(new DungeonTraversalPosition(stairs, i));
+            var cells = new HashSet<GridPosition>();
+            foreach (var enemy in livingEnemies)
+            {
+                if (!map.IsCurrentlySeen(enemy.DungeonPosition)) continue;
+                var position = enemy.DungeonPosition; var facing = enemy.FacingDirection;
+                var range = enemy.VisionRange; var angle = EnemyObservationAngle(enemy);
+                if (!enemyPreviewCache.TryGetValue(enemy, out var cached) || cached.Position != position
+                    || cached.Facing != facing || cached.Range != range || cached.Angle != angle)
+                {
+                    var area = new List<DungeonTraversalPosition>();
+                    if (floor.Map.TryGetTraversalCell(position, out var origin))
+                    {
+                        var radius = Mathf.CeilToInt(range);
+                        for (var y = origin.y - radius; y <= origin.y + radius; y++)
+                        for (var x = origin.x - radius; x <= origin.x + radius; x++)
+                            if (previewNodes.TryGetValue(new Vector2Int(x, y), out var nodes))
+                                foreach (var node in nodes)
+                                    if (visibility.CanDetect(floor, position, facing, range, angle, node)) area.Add(node);
+                    }
+                    cached = (position, facing, range, angle, area); enemyPreviewCache[enemy] = cached;
+                }
+                foreach (var node in cached.Cells)
+                {
+                    if (!map.IsTraversalSelectable(node)) continue;
+                    floor.Map.TryGetTraversalCell(node, out var cell);
+                    cells.Add(focused != null ? DungeonBattleGridFactory.ToBattleTraversalPosition(focused.DungeonContext, node)
+                        : new GridPosition(cell.x, cell.y));
+                }
+            }
             if (shownFov.SetEquals(cells) && previewRevision == map.PresentationRevision && previewFocus == focused) return;
             shownFov.Clear(); shownFov.UnionWith(cells);
             previewRevision = map.PresentationRevision; previewFocus = focused;

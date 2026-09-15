@@ -211,7 +211,8 @@ namespace Godmist.Systems.Dungeons
 
         public static bool TryFindPath(DungeonFloorMap map, DungeonTraversalPosition start,
             DungeonTraversalPosition target, out List<DungeonTraversalPosition> path,
-            System.Func<DungeonTraversalPosition, bool> canEnter = null)
+            System.Func<DungeonTraversalPosition, bool> canEnter = null,
+            System.Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
         {
             path = new List<DungeonTraversalPosition>();
             if (map == null || !map.TryGetTraversalCell(start, out _) || !map.TryGetTraversalCell(target, out _)) return false;
@@ -225,7 +226,7 @@ namespace Godmist.Systems.Dungeons
                     while (current != start) { path.Add(current); current = previous[current]; }
                     path.Add(start); path.Reverse(); return true;
                 }
-                foreach (var next in map.GetTraversalNeighbours(current))
+                foreach (var next in map.GetTraversalNeighbours(current, canOpenDoor))
                 {
                     if (previous.ContainsKey(next) || (canEnter != null && !canEnter(next))) continue;
                     previous.Add(next, current); pending.Enqueue(next);

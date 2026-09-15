@@ -64,8 +64,11 @@ namespace Godmist.Views.Dungeons
             RefreshState();
         }
 
+        private bool renderedOpen;
+
         private void Update()
         {
+            if (door != null && renderedOpen != door.IsOpen) RefreshState();
             if (DevConsoleView.IsOpen) return;
             
             if (!Input.GetKeyDown(interactionKey))
@@ -168,6 +171,7 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
+            renderedOpen = door.IsOpen;
             if (blockingCollider != null)
             {
                 blockingCollider.enabled = !door.IsOpen;

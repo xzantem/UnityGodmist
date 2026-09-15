@@ -15,6 +15,26 @@ namespace Godmist.Tests.EditMode
     public class CombatPresentationV4Tests
     {
         [Test]
+        public void RepeatedFovRenderingReusesSpritesInsteadOfRecreatingObjects()
+        {
+            var root=new GameObject("fov-render-test");var texture=new Texture2D(2,2);var sprite=Sprite.Create(texture,new Rect(0,0,2,2),Vector2.one*.5f);
+            try
+            {
+                var renderer=root.AddComponent<Godmist.Views.Combat.CombatGridFeedbackRenderer>();var so=new SerializedObject(renderer);
+                so.FindProperty("feedbackRoot").objectReferenceValue=root.transform;so.FindProperty("feedbackSprite").objectReferenceValue=sprite;so.ApplyModifiedPropertiesWithoutUndo();
+                var cells=new[]{new Godmist.Runtime.Combat.GridPosition(0,0),new Godmist.Runtime.Combat.GridPosition(1,0)};
+                renderer.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.EnemyFov,cells,Color.red);
+                var first=root.GetComponentsInChildren<SpriteRenderer>();
+                for(var i=0;i<20;i++)renderer.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.EnemyFov,cells,Color.red);
+                CollectionAssert.AreEquivalent(first,root.GetComponentsInChildren<SpriteRenderer>());
+                Assert.That(root.transform.childCount,Is.EqualTo(2));
+                renderer.ClearFill(Godmist.Views.Combat.CombatGridFeedbackLayer.EnemyFov);
+                Assert.That(root.GetComponentsInChildren<SpriteRenderer>(),Is.Empty);
+            }
+            finally{Object.DestroyImmediate(root);Object.DestroyImmediate(sprite);Object.DestroyImmediate(texture);}
+        }
+
+        [Test]
         public void ExplorationDurationUsesRemainingTicksAndCurrentTickProgress()
         {
             var character = new CharacterInstance { ExplorationStatusElapsedSeconds = 2.5f };

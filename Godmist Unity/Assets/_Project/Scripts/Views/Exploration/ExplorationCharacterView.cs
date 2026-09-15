@@ -229,6 +229,17 @@ namespace Godmist.Views.Exploration
                 }
             }
 
+            if (terrainMap == null && !noclipEnabled)
+            {
+                if (!HasClearMovementSegment(Position, Position + offset))
+                {
+                    var horizontal = new Vector2(offset.x, 0);
+                    var vertical = new Vector2(0, offset.y);
+                    offset = HasClearMovementSegment(Position, Position + horizontal) ? horizontal
+                        : HasClearMovementSegment(Position, Position + vertical) ? vertical : Vector2.zero;
+                }
+                if (offset.sqrMagnitude < .000001f) return;
+            }
             SetFacingDirection(offset);
             PlayRunAnimation();
             lastMovementTime = Time.time;
@@ -240,6 +251,25 @@ namespace Godmist.Views.Exploration
             }
 
             transform.position += (Vector3)offset;
+        }
+
+        private readonly List<RaycastHit2D> movementHits = new();
+        public float MovementRadius => movementCollider is CircleCollider2D circle
+            ? circle.radius * Mathf.Max(Mathf.Abs(circle.transform.lossyScale.x), Mathf.Abs(circle.transform.lossyScale.y)) : .2f;
+
+        public bool HasClearMovementSegment(Vector2 from, Vector2 to)
+        {
+            var delta = to - from;
+            var colliderOffset = movementCollider != null ? (Vector2)movementCollider.bounds.center - Position : Vector2.zero;
+            if (movementCollider is CircleCollider2D circle) colliderOffset = (Vector2)circle.transform.TransformPoint(circle.offset) - Position;
+            var filter = new ContactFilter2D { useTriggers = false };
+            filter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+            movementHits.Clear();
+            Physics2D.CircleCast(from + colliderOffset, MovementRadius, delta.sqrMagnitude > 0 ? delta.normalized : Vector2.right,
+                filter, movementHits, delta.magnitude);
+            foreach (var hit in movementHits)
+                if (hit.collider != null && hit.collider.GetComponentInParent<ExplorationCharacterView>() == null) return false;
+            return true;
         }
 
         public void MoveTowards(Vector2 targetPosition, float maximumDistance, float stopDistance)

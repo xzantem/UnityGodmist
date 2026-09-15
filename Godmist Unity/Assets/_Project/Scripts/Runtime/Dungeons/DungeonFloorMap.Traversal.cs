@@ -73,20 +73,20 @@ namespace Godmist.Runtime.Dungeons
             cell = path[position.StairStep]; return true;
         }
 
-        public bool CanTraverseBetweenSurfaces(DungeonSurfacePosition first, DungeonSurfacePosition second)
+        public bool CanTraverseBetweenSurfaces(DungeonSurfacePosition first, DungeonSurfacePosition second, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
             => first.Level == second.Level && IsWalkable(first) && IsWalkable(second)
                 && DungeonStairPathUtility.AreAdjacent(first.Cell, second.Cell)
-                && IsTraversalEdgeOpen(new DungeonSurfaceEdge(first, second));
+                && IsTraversalEdgeOpen(new DungeonSurfaceEdge(first, second), canOpenDoor);
 
-        private bool IsTraversalEdgeOpen(DungeonSurfaceEdge edge)
+        private bool IsTraversalEdgeOpen(DungeonSurfaceEdge edge, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
             => (!wallEdges.Contains(edge) || GetWallType(edge) == DungeonWallType.Low)
-                && !closedDoorEdges.Contains(edge) && !closedProgressionGateEdges.Contains(edge);
+                && (!closedDoorEdges.Contains(edge) || canOpenDoor?.Invoke(edge) == true) && !closedProgressionGateEdges.Contains(edge);
 
-        private bool IsStairStepOpen(DungeonStairConnection stair, IReadOnlyList<Vector2Int> path, int from, int to)
+        private bool IsStairStepOpen(DungeonStairConnection stair, IReadOnlyList<Vector2Int> path, int from, int to, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
         {
-            if ((from == 0 || to == 0) && !IsTraversalEdgeOpen(new DungeonSurfaceEdge(new DungeonCellEdge(path[0], path[1]), stair.First.Level))) return false;
+            if ((from == 0 || to == 0) && !IsTraversalEdgeOpen(new DungeonSurfaceEdge(new DungeonCellEdge(path[0], path[1]), stair.First.Level), canOpenDoor)) return false;
             var last = path.Count - 1;
-            return (from != last && to != last) || IsTraversalEdgeOpen(new DungeonSurfaceEdge(new DungeonCellEdge(path[last - 1], path[last]), stair.Second.Level));
+            return (from != last && to != last) || IsTraversalEdgeOpen(new DungeonSurfaceEdge(new DungeonCellEdge(path[last - 1], path[last]), stair.Second.Level), canOpenDoor);
         }
 
         private static DungeonTraversalPosition StairPosition(DungeonStairConnection stair, int index, int count)
@@ -94,20 +94,20 @@ namespace Godmist.Runtime.Dungeons
                 : index == count - 1 ? new DungeonTraversalPosition(stair.Second) : new DungeonTraversalPosition(stair, index);
 
         /// <summary>Each edge is one ordinary movement step. No implicit transitions between overlapping projections.</summary>
-        public IEnumerable<DungeonTraversalPosition> GetTraversalNeighbours(DungeonTraversalPosition position)
+        public IEnumerable<DungeonTraversalPosition> GetTraversalNeighbours(DungeonTraversalPosition position, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
         {
             if (!TryGetTraversalCell(position, out _)) yield break;
             if (position.IsOnStairs)
             {
                 var path = stairPaths[position.Stair];
                 foreach (var next in new[] { position.StairStep - 1, position.StairStep + 1 })
-                    if (IsStairStepOpen(position.Stair, path, position.StairStep, next)) yield return StairPosition(position.Stair, next, path.Count);
+                    if (IsStairStepOpen(position.Stair, path, position.StairStep, next, canOpenDoor)) yield return StairPosition(position.Stair, next, path.Count);
                 yield break;
             }
             foreach (var direction in traversalDirections)
             {
                 var next = new DungeonSurfacePosition(position.Surface.Cell + direction, position.Surface.Level);
-                if (CanTraverseBetweenSurfaces(position.Surface, next)) yield return new DungeonTraversalPosition(next);
+                if (CanTraverseBetweenSurfaces(position.Surface, next, canOpenDoor)) yield return new DungeonTraversalPosition(next);
             }
             if (!stairsByLanding.TryGetValue(position.Surface, out var routes)) yield break;
             foreach (var stair in routes)
@@ -115,7 +115,7 @@ namespace Godmist.Runtime.Dungeons
                 var path = stairPaths[stair];
                 var from = position.Surface == stair.First ? 0 : path.Count - 1;
                 var to = from == 0 ? 1 : from - 1;
-                if (IsStairStepOpen(stair, path, from, to)) yield return StairPosition(stair, to, path.Count);
+                if (IsStairStepOpen(stair, path, from, to, canOpenDoor)) yield return StairPosition(stair, to, path.Count);
             }
         }
     }

@@ -163,7 +163,7 @@ namespace Godmist.Views.Combat
             if (!outlines.TryGetValue(layer, out var renderers)) return;
             foreach (var renderer in renderers)
             {
-                if (renderer != null) Destroy(renderer.gameObject);
+                if (renderer != null) RecycleSprite(renderer);
             }
 
             outlines.Remove(layer);
@@ -175,7 +175,7 @@ namespace Godmist.Views.Combat
             if (!fills.TryGetValue(layer, out var renderers)) return;
             foreach (var renderer in renderers)
             {
-                if (renderer != null) Destroy(renderer.gameObject);
+                if (renderer != null) RecycleSprite(renderer);
             }
 
             fills.Remove(layer);
@@ -329,9 +329,23 @@ namespace Godmist.Views.Combat
                 feedbackZ);
         }
 
+        private readonly Stack<SpriteRenderer> recycledSprites = new();
+        private void RecycleSprite(SpriteRenderer renderer)
+        {
+            renderer.gameObject.SetActive(false);
+            recycledSprites.Push(renderer);
+        }
+
         private SpriteRenderer CreateSpriteRenderer(string objectName)
         {
-            var feedbackObject = new GameObject(objectName, typeof(SpriteRenderer));
+            SpriteRenderer reused = null;
+            while (recycledSprites.Count > 0 && reused == null) reused = recycledSprites.Pop();
+            var feedbackObject = reused != null ? reused.gameObject : new GameObject(objectName, typeof(SpriteRenderer));
+            feedbackObject.name = objectName;
+            feedbackObject.SetActive(true);
+            feedbackObject.transform.localPosition = Vector3.zero;
+            feedbackObject.transform.localRotation = Quaternion.identity;
+            feedbackObject.transform.localScale = Vector3.one;
             feedbackObject.transform.SetParent(feedbackRoot, false);
 
             var renderer = feedbackObject.GetComponent<SpriteRenderer>();
@@ -366,5 +380,14 @@ namespace Godmist.Views.Combat
         }
 
         private void OnDisable() => ClearAll();
+        private void OnDestroy()
+        {
+            foreach (var renderer in recycledSprites) if (renderer != null)
+            {
+                if (Application.isPlaying) Destroy(renderer.gameObject);
+                else DestroyImmediate(renderer.gameObject);
+            }
+            recycledSprites.Clear();
+        }
     }
 }
