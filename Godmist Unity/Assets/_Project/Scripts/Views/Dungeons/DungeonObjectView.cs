@@ -7,15 +7,39 @@ namespace Godmist.Views.Dungeons
     {
         private DungeonFloorMapView elevationView;
         private Renderer[] elevationRenderers;
+        private readonly System.Collections.Generic.Dictionary<SpriteRenderer, Color> baseColors = new();
         public bool IsElevationVisible => elevationView == null || DungeonObject == null
-            || !elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(DungeonObject.Position));
+            || (!elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(DungeonObject.Position)) && elevationView.IsObjectCurrentlySeen(DungeonObject));
+        protected bool PresentationState(bool current) => elevationView?.FogFloor == null || DungeonObject == null
+            ? current : elevationView.KnownObject(DungeonObject)?.State ?? false;
+        protected virtual void RefreshFogVisual() { }
         public void BindElevationView(DungeonFloorMapView view)
         { elevationView = view; elevationRenderers = GetComponentsInChildren<Renderer>(true); }
         protected virtual void LateUpdate()
         {
             if (elevationRenderers == null) return;
+            foreach (var item in elevationRenderers)
+                if (item is SpriteRenderer sprite)
+                {
+                    if (!baseColors.TryGetValue(sprite, out var color)) baseColors.Add(sprite, color = sprite.color);
+                    sprite.color = color;
+                }
+            RefreshFogVisual();
+            var remembered = elevationView?.FogFloor != null && DungeonObject != null && !elevationView.IsObjectCurrentlySeen(DungeonObject);
+            var known = DungeonObject == null ? null : elevationView?.KnownObject(DungeonObject);
+            var show = elevationView?.FogFloor == null ? IsElevationVisible
+                : DungeonObject != null && known?.Active == true
+                    && (elevationView.IsObjectCurrentlySeen(DungeonObject)
+                        || (DungeonObject is DoorDungeonObjectInstance door
+                            ? elevationView.EdgeKnowledge(new DungeonSurfaceEdge(door.Edge)) != DungeonKnowledge.Unexplored
+                            : elevationView.Knowledge(new DungeonTraversalPosition(new DungeonSurfacePosition(DungeonObject.Position))) != DungeonKnowledge.Unexplored))
+                    && !elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(DungeonObject.Position));
             foreach (var renderer in elevationRenderers)
-                if (renderer != null) renderer.forceRenderingOff = !IsElevationVisible;
+                if (renderer != null)
+                {
+                    renderer.forceRenderingOff = !show;
+                    if (remembered && renderer is SpriteRenderer sprite) sprite.color = DungeonFloorMapView.Dim(sprite.color);
+                }
         }
 
         public string InstanceId { get; private set; } = string.Empty;

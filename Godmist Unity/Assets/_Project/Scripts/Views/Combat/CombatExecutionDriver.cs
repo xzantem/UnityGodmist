@@ -667,6 +667,15 @@ namespace Godmist.Views.Combat
         }
         private void AddBattleLog(string message)
         {
+            if (Session?.IsSeamless == true)
+                foreach (var unit in Session.Units)
+                {
+                    if (host.IsUnitKnown(unit)) continue;
+                    var name = unit.Character?.Definition?.DisplayName;
+                    var id = unit.Character?.CharacterId;
+                    if (unit == Session.ActiveUnit || (!string.IsNullOrEmpty(name) && message?.Contains(name) == true)
+                        || (!string.IsNullOrEmpty(id) && message?.Contains(id) == true)) return;
+                }
             logEntries.Add(message);
             if (logEntries.Count > 300) logEntries.RemoveAt(0);
             if (host.Session == Session) battleLog?.AddEntry(message);

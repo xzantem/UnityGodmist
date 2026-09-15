@@ -29,6 +29,7 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<CombatSession, ViewState> views = new();
         private CombatSession session;
         private Func<BattleUnit, Vector3> unitPosition;
+        public Func<BattleUnit, bool> CanPresentUnit { get; set; }
         private Bounds arenaBounds, floorBounds;
         private ViewState target;
         private bool transitioning, dragging;
@@ -93,13 +94,13 @@ namespace Godmist.Views.Combat
 
         public void FocusActiveUnit()
         {
-            if (session?.ActiveUnit == null || unitPosition == null) return;
+            if (session?.ActiveUnit == null || unitPosition == null || CanPresentUnit?.Invoke(session.ActiveUnit) == false) return;
             MoveTo(new ViewState { Position = Centered(unitPosition(session.ActiveUnit), worldCamera.orthographicSize), Zoom = worldCamera.orthographicSize });
         }
 
         public void NotifyTurnBegan(CombatSession source, BattleUnit unit)
         {
-            if (source != session || unit == null || unitPosition == null) return;
+            if (source != session || unit == null || unitPosition == null || CanPresentUnit?.Invoke(unit) == false) return;
             var state = transitioning ? target : Current;
             var position = unitPosition(unit);
             var x = (position.x - state.Position.x) / (state.Zoom * 2f * Aspect) + 0.5f;

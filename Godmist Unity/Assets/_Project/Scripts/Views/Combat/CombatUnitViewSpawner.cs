@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Runtime.Combat;
 using Godmist.Views.Characters;
 using UnityEngine;
@@ -118,7 +119,17 @@ namespace Godmist.Views.Combat
             if (owners.TryGetValue(unit, out var session)) return IsPositionVisible(session, unit.Position);
             if (ExplorationPresentationVisible != null) return ExplorationPresentationVisible(unit);
             var world = ExplorationWorldPosition?.Invoke(unit);
-            return !world.HasValue || !floorMap.IsSurfaceOccluded(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(floorMap.WorldToCell(world.Value)));
+            return world.HasValue ? floorMap.IsSurfaceVisible(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(floorMap.WorldToCell(world.Value))) : floorMap.FogFloor == null;
+        }
+
+        public bool IsUnitKnown(BattleUnit unit)
+        {
+            if (unit == null) return false;
+            if (unit.IsPlayerSide || floorMap?.FogFloor == null) return true;
+            var session = owners.TryGetValue(unit, out var owner) ? owner
+                : dungeonSession?.Combats.FirstOrDefault(combat => combat.Units.Contains(unit));
+            return session?.DungeonContext != null && floorMap.IsCurrentlySeen(
+                Godmist.Systems.Combat.DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, unit.Position));
         }
 
         public System.Func<BattleUnit, bool> ExplorationPresentationVisible { get; set; }

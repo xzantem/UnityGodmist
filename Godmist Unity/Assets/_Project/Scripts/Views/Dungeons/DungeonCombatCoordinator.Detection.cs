@@ -135,7 +135,7 @@ namespace Godmist.Views.Dungeons
                 session.MembershipChangePending = pendingMerges.Any(pair => pair.First == session || pair.Second == session);
         }
 
-        private void InvalidateFovPreview() => previewRevision = -1;
+        private void InvalidateFovPreview() { previewRevision = -1; fogGeometryDirty = true; }
 
         private void ClearFovPreview()
         {

@@ -103,10 +103,11 @@ namespace Godmist.Views.Dungeons
         {
             if (visualRenderer != null)
             {
-                visualRenderer.color = lever != null && lever.IsActivated
+                visualRenderer.color = PresentationState(lever != null && lever.IsActivated)
                     ? activeColor
                     : inactiveColor;
             }
         }
+        protected override void RefreshFogVisual() => RefreshVisual();
     }
 }

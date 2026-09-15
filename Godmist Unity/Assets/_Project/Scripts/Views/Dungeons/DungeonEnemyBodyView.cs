@@ -18,9 +18,9 @@ namespace Godmist.Views.Dungeons
     {
         private DungeonFloorMapView elevationView;
         private Renderer[] elevationRenderers;
+        private Color? fogBodyColor;
         public bool IsElevationVisible => elevationView == null
-            || (floor?.Map?.HasElevatedSurfaces == true ? elevationView.IsTraversalVisible(BodyPosition)
-                : !elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(elevationView.WorldToCell(transform.position))));
+            || elevationView.IsTraversalVisible(BodyPosition);
         private DungeonTraversalPosition BodyPosition => floor != null && body != null
             && floor.TryGetActorPosition("body:" + body.InstanceId, out var position) ? position
             : new DungeonTraversalPosition(new DungeonSurfacePosition(body?.Position ?? Vector2Int.zero));
@@ -29,7 +29,16 @@ namespace Godmist.Views.Dungeons
         private void LateUpdate()
         {
             if (elevationRenderers == null) return;
-            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !IsElevationVisible;
+            var remembered = elevationView?.FogFloor != null && body != null && elevationView.FogFloor.Fog.Bodies.Contains(body.InstanceId)
+                && elevationView.Knowledge(BodyPosition) != DungeonKnowledge.Unexplored
+                && !elevationView.IsSurfaceOccluded(BodyPosition.IsOnStairs ? BodyPosition.Stair.First : BodyPosition.Surface);
+            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !(IsElevationVisible || remembered);
+            if (bodyRenderer != null)
+            {
+                fogBodyColor ??= bodyRenderer.color;
+                if (!IsElevationVisible) bodyRenderer.color = DungeonFloorMapView.Dim(fogBodyColor.Value);
+                else if (!isPointerHovered) bodyRenderer.color = fogBodyColor.Value;
+            }
         }
 
         [SerializeField] private float interactionRadius = 1.25f;

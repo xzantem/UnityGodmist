@@ -117,7 +117,8 @@ namespace Godmist.Views.Dungeons
 
             foreach (var dungeonObject in floor.Objects)
             {
-                if (dungeonObject == null || !dungeonObject.IsActive)
+                if (dungeonObject == null || (!dungeonObject.IsActive
+                    && (!floor.Fog.Objects.TryGetValue(dungeonObject.InstanceId, out var known) || !known.Active)))
                 {
                     continue;
                 }

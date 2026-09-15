@@ -67,9 +67,7 @@ namespace Godmist.Views.Exploration
             RefreshAwarenessVisibility();
             if (terrainView == null) return;
             elevationRenderers ??= GetComponentsInChildren<Renderer>(true);
-            var visible = !UsesLayeredTraversal
-                ? !terrainView.IsSurfaceOccluded(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(terrainView.WorldToCell(Position)))
-                : terrainView.IsTraversalVisible(DungeonPosition);
+            var visible = terrainView.IsTraversalVisible(DungeonPosition);
             foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !visible;
         }
         private Vector2 crossingStart, crossingEnd;

@@ -175,10 +175,14 @@ namespace Godmist.Views.Dungeons
 
             if (visualRenderer != null)
             {
-                visualRenderer.color = door.IsOpen
+                visualRenderer.color = PresentationState(door.IsOpen)
                     ? openColor
                     : closedColor;
             }
+        }
+        protected override void RefreshFogVisual()
+        {
+            if (visualRenderer != null && door != null) visualRenderer.color = PresentationState(door.IsOpen) ? openColor : closedColor;
         }
     }
 }

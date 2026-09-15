@@ -32,17 +32,16 @@ namespace Godmist.Runtime.Dungeons
             var delta = end - start;
             if (Mathf.Abs(delta.z) > .00001f)
             {
-                foreach (var surface in Surfaces)
+                for (var level = Mathf.FloorToInt(Mathf.Min(start.z, end.z)) + 1;
+                    level < Mathf.Max(start.z, end.z); level++)
                 {
-                    var t = (surface.Level - start.z) / delta.z;
+                    var t = (level - start.z) / delta.z;
                     if (t <= 0 || t >= 1) continue;
                     var point = start + delta * t;
                     // Test the interior of the union, including seams between adjacent floor tiles.
                     const float epsilon = .0001f;
                     bool FloorAt(float x, float y) => IsWalkable(new DungeonSurfacePosition(
-                        new Vector2Int(Mathf.FloorToInt(x), Mathf.FloorToInt(y)), surface.Level));
-                    if (point.x < surface.Cell.x - epsilon || point.x > surface.Cell.x + 1 + epsilon
-                        || point.y < surface.Cell.y - epsilon || point.y > surface.Cell.y + 1 + epsilon) continue;
+                        new Vector2Int(Mathf.FloorToInt(x), Mathf.FloorToInt(y)), level));
                     if (FloorAt(point.x - epsilon, point.y - epsilon) && FloorAt(point.x + epsilon, point.y - epsilon)
                         && FloorAt(point.x - epsilon, point.y + epsilon) && FloorAt(point.x + epsilon, point.y + epsilon)) return true;
                 }
@@ -54,11 +53,33 @@ namespace Godmist.Runtime.Dungeons
         {
             if (BlocksFloorSight(from, to) || !TryGetSightPoint(from, out var start)
                 || !TryGetSightPoint(to, out var end)) return true;
-            foreach (var edge in SurfaceWallEdges)
-                if (GetWallType(edge) == DungeonWallType.Full && SightCrossesEdge(start, end, edge)) return true;
-            foreach (var edge in closedProgressionGateEdges)
-                if (SightCrossesEdge(start, end, edge)) return true;
-            return false;
+            return CrossesBoundaries(true) || CrossesBoundaries(false);
+
+            // Visit only grid boundaries crossed by the ray. At a corner test both
+            // adjoining segments, keeping the closed-endpoint rule of SightCrossesEdge.
+            bool CrossesBoundaries(bool vertical)
+            {
+                var a = vertical ? start.x : start.y;
+                var b = vertical ? end.x : end.y;
+                if (Math.Abs(b - a) < .00001) return false;
+                for (var boundary = Mathf.FloorToInt(Mathf.Min(a, b)) + 1; boundary < Mathf.Max(a, b); boundary++)
+                {
+                    var t = (boundary - (double)a) / ((double)b - a);
+                    var along = vertical ? start.y + ((double)end.y - start.y) * t
+                        : start.x + ((double)end.x - start.x) * t;
+                    var height = start.z + ((double)end.z - start.z) * t;
+                    var level = (int)Math.Floor(height);
+                    for (var segment = (int)Math.Floor(along - .0000001); segment <= (int)Math.Floor(along + .0000001); segment++)
+                    {
+                        var first = vertical ? new Vector2Int(boundary - 1, segment) : new Vector2Int(segment, boundary - 1);
+                        var second = first + (vertical ? Vector2Int.right : Vector2Int.up);
+                        var edge = new DungeonSurfaceEdge(new DungeonCellEdge(first, second), level);
+                        if ((wallEdges.Contains(edge) && GetWallType(edge) == DungeonWallType.Full
+                            || closedProgressionGateEdges.Contains(edge)) && SightCrossesEdge(start, end, edge)) return true;
+                    }
+                }
+                return false;
+            }
         }
 
         public static bool SightCrossesEdge(Vector3 from, Vector3 to, DungeonSurfaceEdge edge)

@@ -22,6 +22,9 @@ namespace Godmist.Views.Combat
     public class CombatGridFeedbackRenderer : MonoBehaviour
     {
         public System.Func<GridPosition, bool> IsPositionVisible { get; set; }
+        public System.Func<GridPosition, bool> IsEnemyFovPositionVisible { get; set; }
+        private bool CanPresent(CombatGridFeedbackLayer layer, GridPosition position) =>
+            (layer == CombatGridFeedbackLayer.EnemyFov ? IsEnemyFovPositionVisible : IsPositionVisible)?.Invoke(position) != false;
         private readonly Dictionary<CombatGridFeedbackLayer, (GridPosition[] Cells, Color Color, System.Func<GridPosition, Color> Tint)> outlineSources = new();
         private readonly Dictionary<CombatGridFeedbackLayer, (GridPosition[] Cells, Color Color, System.Func<GridPosition, Color> Tint)> fillSources = new();
         public void RefreshVisibility()
@@ -82,7 +85,7 @@ namespace Godmist.Views.Combat
 
             var source = positions.ToArray();
             outlineSources[layer] = (source, color, cellColor);
-            var projected = source.Where(p => IsPositionVisible?.Invoke(p) != false)
+            var projected = source.Where(p => CanPresent(layer, p))
                 .GroupBy(p => new GridPosition(p.X, p.Y)).ToDictionary(group => group.Key, group => group.First());
             var cells = new HashSet<GridPosition>(projected.Keys);
             var renderers = new List<SpriteRenderer>();
@@ -141,7 +144,7 @@ namespace Godmist.Views.Combat
             var renderers = new List<SpriteRenderer>();
             var source = positions.ToArray();
             fillSources[layer] = (source, color, cellColor);
-            foreach (var position in source.Where(p => IsPositionVisible?.Invoke(p) != false))
+            foreach (var position in source.Where(p => CanPresent(layer, p)))
             {
                 var renderer = CreateSpriteRenderer("Combat feedback fill");
                 renderer.color = cellColor?.Invoke(position) ?? color;

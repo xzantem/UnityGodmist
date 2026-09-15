@@ -156,6 +156,21 @@ namespace Godmist.Tests.EditMode
         private GameSaveData Snapshot() => new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "persistence");
 
         [Test]
+        public void FullSavePreservesFogMemoryButRecomputesCurrentVisibility()
+        {
+            var position = new DungeonTraversalPosition(new DungeonSurfacePosition(Vector2Int.zero));
+            floor.Fog.SetVisible(new[] { position });
+            floor.Fog.Objects.Add("door.1", new DungeonObjectKnowledge { Active = true, State = false });
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var fog = restored.ActiveDungeon.Floors[0].Fog;
+            Assert.That(fog.Get(position), Is.EqualTo(DungeonKnowledge.Remembered));
+            Assert.That(fog.Objects["door.1"].State, Is.False);
+            Assert.That(fog.Visible, Is.Empty);
+        }
+
+        [Test]
         public void AwarenessRoundTripPreservesProgressAndMissingLegacyStateStartsAtZero()
         {
             floor.GetEnemyAwareness("enemy.1").Advance(1.3f, true, false);

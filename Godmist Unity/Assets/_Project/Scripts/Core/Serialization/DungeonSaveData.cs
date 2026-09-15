@@ -29,6 +29,7 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonFloorDeltaSaveData
     {
+        public DungeonFogSaveData Fog;
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
         public List<DungeonActorPositionSaveData> ActorPositions = new();
@@ -37,6 +38,29 @@ namespace Godmist.Core.Serialization
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
         public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonFogSaveData
+    {
+        public List<string> Bodies = new();
+        public List<DungeonFogGateSaveData> ClosedGates = new();
+        public List<DungeonActorPositionSaveData> Discovered = new();
+        public List<DungeonObjectKnowledgeSaveData> Objects = new();
+    }
+
+    [Serializable]
+    public class DungeonFogGateSaveData
+    {
+        public int X, Y, NextX, NextY, Level;
+    }
+
+    [Serializable]
+    public class DungeonObjectKnowledgeSaveData
+    {
+        public string Id;
+        public bool Active;
+        public bool State;
     }
 
     [Serializable]

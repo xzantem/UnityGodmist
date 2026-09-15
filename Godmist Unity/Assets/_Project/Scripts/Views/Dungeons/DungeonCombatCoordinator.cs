@@ -85,6 +85,7 @@ namespace Godmist.Views.Dungeons
             objects.BindElevationView(map);
             tacticalTooltip?.Bind(floor, map);
             unitViews.ConfigureDungeon(game, map);
+            combatCamera.CanPresentUnit = unitViews.IsUnitVisible;
             unitViews.ExplorationWorldPosition = ResolveExplorationFeedbackPosition;
             unitViews.ExplorationPresentationVisible = unit =>
             {
@@ -117,6 +118,7 @@ namespace Godmist.Views.Dungeons
             trapSystem = new DungeonTrapSystem(floor, game.ActiveDungeon.DungeonLevel,
                 session => session == null ? combatHost.DungeonFeedback : combatHost.GetDriver(session)?.FeedbackBus);
             initialized = true;
+            UpdateFog(true);
             SetFocus(null, true);
             return true;
         }
@@ -219,6 +221,7 @@ namespace Godmist.Views.Dungeons
                 else if (Input.GetKeyDown(KeyCode.PageDown)) { map.StepViewedLevel(-1); gridFeedback.RefreshVisibility(); }
             }
             AdvanceExplorationTraps();
+            UpdateFog();
             UpdateDetection();
             ProcessPendingMerges();
             if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
@@ -487,6 +490,9 @@ namespace Godmist.Views.Dungeons
             gridFeedback.ClearAll();
             previewRevision = -1;
             gridFeedback.IsPositionVisible = next?.DungeonContext == null ? null
+                : position => map.IsTraversalSelectable(DungeonBattleGridFactory.ToDungeonTraversalPosition(next.DungeonContext, position))
+                    && map.IsCurrentlySeen(DungeonBattleGridFactory.ToDungeonTraversalPosition(next.DungeonContext, position));
+            gridFeedback.IsEnemyFovPositionVisible = next?.DungeonContext == null ? null
                 : position => map.IsTraversalSelectable(DungeonBattleGridFactory.ToDungeonTraversalPosition(next.DungeonContext, position));
             inspectInput.IsPositionVisible = gridFeedback.IsPositionVisible;
             focused = next;
@@ -507,7 +513,7 @@ namespace Godmist.Views.Dungeons
                 var origin = map.CellToWorldCenter(context.WorldBounds.min);
                 var cellSize = Vector2.Distance(origin, map.CellToWorldCenter(context.WorldBounds.min + Vector2Int.right));
                 GridPosition? ResolvePointer(Vector3 world) => map.TryGetVisibleTraversal(world, out var position)
-                    ? (map.IsTraversalSelectable(position) ? DungeonBattleGridFactory.ToBattleTraversalPosition(context, position) : null) : null;
+                    ? (map.IsTraversalSelectable(position) && map.IsCurrentlySeen(position) ? DungeonBattleGridFactory.ToBattleTraversalPosition(context, position) : null) : null;
                 targeting.ResolvePointerPosition = ResolvePointer;
                 movementInput.ResolvePointerPosition = ResolvePointer;
                 inspectInput.ResolvePointerPosition = ResolvePointer;
@@ -516,7 +522,7 @@ namespace Godmist.Views.Dungeons
                 inspectInput.SetGridMapping(origin, cellSize);
                 gridFeedback.SetGridMapping(origin, cellSize);
                 var framingCells = next.IsDungeonWide
-                    ? next.Units.Select(unit => DungeonBattleGridFactory.ToWorldPosition(context, unit.Position)).ToArray()
+                    ? next.Units.Where(unitViews.IsUnitVisible).Select(unit => DungeonBattleGridFactory.ToWorldPosition(context, unit.Position)).ToArray()
                     : context.WorldCells.ToArray();
                 var bounds = new Bounds(framingCells.Length > 0 ? map.CellToWorldCenter(framingCells[0]) : origin, Vector3.zero);
                 foreach (var cell in framingCells) bounds.Encapsulate(map.CellToWorldCenter(cell));
@@ -532,6 +538,7 @@ namespace Godmist.Views.Dungeons
 
         private void OnDestroy()
         {
+            if (combatCamera != null) combatCamera.CanPresentUnit = null;
             if (unitViews != null) { unitViews.ExplorationWorldPosition = null; unitViews.ExplorationPresentationVisible = null; }
             if (!initialized) return;
             combatHost.CombatMapObjectChanged -= HandleMapObjectChanged;

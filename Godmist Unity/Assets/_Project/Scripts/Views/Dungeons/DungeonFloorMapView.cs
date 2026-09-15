@@ -44,8 +44,8 @@ namespace Godmist.Views.Dungeons
 
         public bool TryGetVisibleTraversal(Vector3 worldPosition, out DungeonTraversalPosition position)
             => elevation.TryGetVisiblePosition(WorldToCell(worldPosition), out position);
-        public bool IsTraversalVisible(DungeonTraversalPosition position) => elevation.IsVisible(position);
-        public bool IsSurfaceVisible(DungeonSurfacePosition surface) => elevation.IsVisible(surface);
+        public bool IsTraversalVisible(DungeonTraversalPosition position) => elevation.IsVisible(position) && IsCurrentlySeen(position);
+        public bool IsSurfaceVisible(DungeonSurfacePosition surface) => IsTraversalVisible(new DungeonTraversalPosition(surface));
         public bool IsSurfaceOccluded(DungeonSurfacePosition surface) => surface.Level > elevation.ProjectionLevel
             || (elevation.TryGetVisibleSurface(surface.Cell, out var covering) && covering.Level > surface.Level);
 
@@ -58,13 +58,17 @@ namespace Godmist.Views.Dungeons
             if (floorTilemap == null || boundMap == null) return;
             PresentationRevision++;
             visibleFloorCells.Clear();
-            foreach (var surface in elevation.VisibleSurfaces)
+            foreach (var position in elevation.VisiblePositions)
             {
-                var cell = new Vector3Int(surface.Cell.x, surface.Cell.y, 0);
+                var knowledge = Knowledge(position);
+                if (knowledge == DungeonKnowledge.Unexplored) continue;
+                boundMap.TryGetTraversalCell(position, out var worldCell);
+                var cell = new Vector3Int(worldCell.x, worldCell.y, 0);
                 visibleFloorCells.Add(cell);
-                var difficult = surface.Level == 0 && boundMap.IsDifficultTerrain(surface.Cell);
+                var difficult = !position.IsOnStairs && position.Surface.Level == 0 && boundMap.IsDifficultTerrain(worldCell);
                 var tile = difficult && difficultTerrainTile != null ? difficultTerrainTile : floorTile;
                 var color = difficult ? difficultTerrainColor : Color.white;
+                if (knowledge == DungeonKnowledge.Remembered) color = Dim(color);
                 if (presentedFloorCells.TryGetValue(cell, out var previous) && previous.Tile == tile && previous.Color == color) continue;
                 floorTilemap.SetTile(cell, tile);
                 floorTilemap.SetTileFlags(cell, TileFlags.None);
@@ -76,9 +80,18 @@ namespace Godmist.Views.Dungeons
             foreach (var cell in removedFloorCells) { floorTilemap.SetTile(cell, null); presentedFloorCells.Remove(cell); }
             RefreshStairPresentation();
             RefreshCutawayPresentation();
+            var closedGates = new HashSet<DungeonSurfaceEdge>(boundMap.SurfaceClosedProgressionGateEdges);
             foreach (var wall in wallRenderers)
                 foreach (var renderer in wall.Renderers)
-                    if (renderer != null) renderer.forceRenderingOff = !elevation.IsVisible(wall.Edge);
+                    if (renderer != null)
+                    {
+                        var knowledge = EdgeKnowledge(wall.Edge);
+                        renderer.forceRenderingOff = !elevation.IsVisible(wall.Edge) || knowledge == DungeonKnowledge.Unexplored;
+                        if (FogFloor != null && closedGates.Contains(wall.Edge)
+                            && !FogFloor.Fog.ClosedGates.Contains(wall.Edge)) renderer.forceRenderingOff = true;
+                        TintFog(renderer, knowledge);
+                    }
+            RefreshRememberedGates();
         }
 
         private DungeonFloorMap boundMap;
@@ -188,6 +201,8 @@ namespace Godmist.Views.Dungeons
             }
 
             spawnedWalls.Clear();
+            foreach (var gate in rememberedGates.Values) if (gate != null) Destroy(gate.gameObject);
+            rememberedGates.Clear(); fogBaseColors.Clear();
             wallRenderers.Clear();
             hasWorldBounds = false;
         }

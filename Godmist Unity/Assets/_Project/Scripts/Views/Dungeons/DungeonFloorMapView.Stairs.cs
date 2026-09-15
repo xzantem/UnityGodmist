@@ -87,6 +87,7 @@ namespace Godmist.Views.Dungeons
             foreach (var surface in elevation.CutawaySurfaces)
             foreach (var direction in new[] { Vector2.up, Vector2.right, Vector2.down, Vector2.left })
             {
+                if (Knowledge(new DungeonTraversalPosition(surface)) == DungeonKnowledge.Unexplored) continue;
                 var center = CellToWorldCenter(surface.Cell) + direction * (size * .46f);
                 var tangent = new Vector2(-direction.y, direction.x);
                 if (used == cutawayLines.Count)
@@ -109,7 +110,12 @@ namespace Godmist.Views.Dungeons
         private void RefreshStairPresentation()
         {
             foreach (var stripe in stairStripes)
-                if (stripe.Renderer != null) stripe.Renderer.forceRenderingOff = !elevation.IsVisible(stripe.Position);
+                if (stripe.Renderer != null)
+                {
+                    var knowledge = Knowledge(stripe.Position);
+                    stripe.Renderer.forceRenderingOff = !elevation.IsVisible(stripe.Position) || knowledge == DungeonKnowledge.Unexplored;
+                    TintFog(stripe.Renderer, knowledge);
+                }
         }
 
         private void ClearStairPresentation()

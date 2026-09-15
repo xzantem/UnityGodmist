@@ -100,10 +100,11 @@ namespace Godmist.Views.Dungeons
         {
             if (visualRenderer != null)
             {
-                visualRenderer.color = condition != null && condition.IsSatisfied
+                visualRenderer.color = PresentationState(condition != null && condition.IsSatisfied)
                     ? satisfiedColor
                     : unsatisfiedColor;
             }
         }
+        protected override void RefreshFogVisual() => RefreshVisual();
     }
 }

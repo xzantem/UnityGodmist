@@ -15,10 +15,29 @@ namespace Godmist.Runtime.Dungeons
         private bool cutAway;
         private float focusHeight;
         private Vector2Int focusCell;
+        private IReadOnlyCollection<DungeonTraversalPosition> fogVisible;
+        private readonly Dictionary<Vector2Int, float> fogLowest = new();
+        public void SetFogVisibility(IReadOnlyCollection<DungeonTraversalPosition> positions)
+        {
+            fogVisible = positions; fogLowest.Clear();
+            if (map != null && positions != null)
+                foreach (var node in positions)
+                    if (map.TryGetTraversalCell(node, out var cell) && map.TryGetTraversalHeight(node, out var height)
+                        && (!fogLowest.TryGetValue(cell, out var previous) || height < previous)) fogLowest[cell] = height;
+            RebuildProjection();
+        }
         public int ProjectionLevel => IsManual ? Level : levels.LastOrDefault();
         public IEnumerable<DungeonSurfacePosition> CutawaySurfaces => map == null ? System.Array.Empty<DungeonSurfacePosition>() : map.Surfaces.Where(IsCutAway);
-        private bool IsCutAway(DungeonSurfacePosition surface) => focus.HasValue && !IsManual && cutAway
-            && surface.Level > focusHeight && Mathf.Abs(surface.Cell.x - focusCell.x) <= 1 && Mathf.Abs(surface.Cell.y - focusCell.y) <= 1;
+        private bool IsCutAway(DungeonSurfacePosition surface)
+        {
+            if (IsManual) return false;
+            if (fogVisible != null)
+            {
+                return fogLowest.TryGetValue(surface.Cell, out var height) && height < surface.Level;
+            }
+            return focus.HasValue && cutAway && surface.Level > focusHeight
+                && Mathf.Abs(surface.Cell.x - focusCell.x) <= 1 && Mathf.Abs(surface.Cell.y - focusCell.y) <= 1;
+        }
         public bool Focus(DungeonTraversalPosition position, bool resumeFollowing = false)
         {
             if (map == null || !map.TryGetTraversalCell(position, out var cell)) return false;
@@ -53,6 +72,7 @@ namespace Godmist.Runtime.Dungeons
         public int Level { get; private set; }
         public bool IsManual { get; private set; }
         public IEnumerable<DungeonSurfacePosition> VisibleSurfaces => visibleSurfaces.Values;
+        public IEnumerable<DungeonTraversalPosition> VisiblePositions => visiblePositions.Values;
 
         public void Bind(DungeonFloorMap value, int focusLevel = 0)
         {
@@ -136,7 +156,8 @@ namespace Godmist.Runtime.Dungeons
                     var position = new DungeonTraversalPosition(stairs, i);
                     map.TryGetTraversalHeight(position, out var height);
                     if (Mathf.CeilToInt(height) > ProjectionLevel) continue;
-                    if (focus.HasValue && !IsManual && cutAway && height > focusHeight
+                    if (fogVisible != null && !IsManual && fogLowest.TryGetValue(path[i], out var lowest) && height > lowest) continue;
+                    if (fogVisible == null && focus.HasValue && !IsManual && cutAway && height > focusHeight
                         && Mathf.Abs(path[i].x - focusCell.x) <= 1 && Mathf.Abs(path[i].y - focusCell.y) <= 1) continue;
                     if (visiblePositions.TryGetValue(path[i], out var existing))
                     {

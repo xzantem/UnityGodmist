@@ -14,13 +14,14 @@ namespace Godmist.Views.UI
 
         [SerializeField] private Image[] activeEdges;
         [SerializeField] private CombatSimpleTooltipTrigger turnTooltip;
+        [SerializeField] private TMPro.TextMeshProUGUI unknownLabel;
 
         private CombatHudView owner;
         private BattleUnit boundUnit;
         public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData data)=>owner?.SetTimelineHover(this,boundUnit);
         public void OnPointerExit(UnityEngine.EventSystems.PointerEventData data)=>owner?.SetTimelineHover(this,null);
         private void OnDisable()=>owner?.SetTimelineHover(this,null);
-        public void Bind(BattleUnit unit, bool isActive, int occurrence = 1, CombatHudView source = null, bool highlighted = false)
+        public void Bind(BattleUnit unit, bool isActive, int occurrence = 1, CombatHudView source = null, bool highlighted = false, bool known = true)
         {
             if (unit?.Character == null)
             {
@@ -28,16 +29,18 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            if(boundUnit!=unit)owner?.SetTimelineHover(this,null);
-            owner=source;boundUnit=unit;
+            if(boundUnit!=unit || !known)owner?.SetTimelineHover(this,null);
+            owner=source;boundUnit=known ? unit : null;
+            if (!known) { occurrence = 1; highlighted = false; }
             gameObject.SetActive(true);
-            turnTooltip?.Initialize(null, unit.Character.Definition?.DisplayName ?? unit.Character.CharacterId,
+            if (unknownLabel != null) unknownLabel.gameObject.SetActive(!known);
+            turnTooltip?.Initialize(null, known ? unit.Character.Definition?.DisplayName ?? unit.Character.CharacterId : "Nieznany przeciwnik",
                 isActive ? "Aktualna tura" : occurrence > 1 ? "Kolejna tura tej postaci w przewidywanej kolejce." : "Nadchodząca tura");
 
             if (portrait != null)
             {
-                portrait.sprite = unit.Character.Definition?.VisualSprite;
-                var tint=portrait.color;tint.a=occurrence>1&&!highlighted?.35f:1f;portrait.color=tint;
+                portrait.sprite = known ? unit.Character.Definition?.VisualSprite : null;
+                portrait.color = known ? new Color(1, 1, 1, occurrence > 1 && !highlighted ? .35f : 1f) : new Color(.18f, .18f, .18f, 1f);
             }
 
             // The timeline communicates turn sequence, while the party rail

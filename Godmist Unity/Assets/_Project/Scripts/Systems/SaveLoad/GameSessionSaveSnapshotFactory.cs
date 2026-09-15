@@ -333,7 +333,8 @@ namespace Godmist.Systems.SaveLoad
 
                 var floorDelta = new DungeonFloorDeltaSaveData
                 {
-                    FloorIndex = floor.FloorIndex
+                    FloorIndex = floor.FloorIndex,
+                    Fog = DungeonFogPersistence.Capture(floor)
                 };
 
                 foreach (var pair in floor.EnemyAwareness.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))

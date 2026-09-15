@@ -1837,6 +1837,7 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
+                    if (!DungeonFogPersistence.Restore(floor, floorDelta.Fog)) return false;
                     if (floorDelta.EnemyAwareness != null)
                     {
                         var awarenessIds = new HashSet<string>();
