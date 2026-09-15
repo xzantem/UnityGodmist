@@ -141,6 +141,7 @@ namespace Godmist.Views.Combat
                 HandleUnitDied,
                 passiveEffectEventDispatcher);
             Session = suppliedSession ?? CreateInitialSession();
+            if (Session != null) Session.ResumeTurn = ResumeSuspendedTurn;
             usesGameSessionCombat = suppliedSession != null || usesGameSessionCombat;
             Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
             if (!Session.IsSeamless) ScoutKnifeSystem.ResetForCombat(Session);
@@ -249,15 +250,25 @@ namespace Godmist.Views.Combat
             if (!Session.IsSeamless) StartTurns();
         }
 
+        private bool aiActionInProgress;
+        public bool IsActionInProgress => IsPlayerMovementPresentationInProgress || aiActionInProgress;
+        public void ResumeSuspendedTurn(CombatTurnParticipant participant)
+        {
+            if (participant?.Unit != null && !participant.Unit.IsPlayerSide)
+                activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(participant.Unit));
+        }
+
         public void StartTurns()
         {
             ScoutKnifeSystem.ResetForCombat(Session, Session.IsSeamless);
             turnSystem.InitializeTurnOrder(Session);
         }
 
-        public void Dispose()
+        public void Dispose() => Dispose(false);
+
+        public void Dispose(bool preserveCombatState)
         {
-            passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
+            if (!preserveCombatState) passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
             if (Session != null) Session.PassiveEffectEventDispatcher = null;
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
@@ -754,6 +765,7 @@ namespace Godmist.Views.Combat
                 && turnState != null)
             {
                 yield return WaitForAiPresentation(aiDecisionDelay);
+                while (Session.MembershipChangePending) yield return null;
 
                 if (Session.Outcome != CombatOutcomeState.Ongoing
                     || Session.ActiveUnit != unit
@@ -762,6 +774,7 @@ namespace Godmist.Views.Combat
                     break;
                 }
 
+                aiActionInProgress = true;
                 if (!aiSystem.TryExecuteNextAction(
                         Session,
                         unit,
@@ -780,8 +793,11 @@ namespace Godmist.Views.Combat
                     ? aiSkillResultDelay
                     : aiMovementResultDelay;
                 yield return WaitForAiPresentation(resultDelay);
+                aiActionInProgress = false;
             }
 
+            aiActionInProgress = false;
+            while (Session != null && Session.MembershipChangePending) yield return null;
             activeAiTurnCoroutine = null;
             if (Session != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
@@ -912,7 +928,7 @@ namespace Godmist.Views.Combat
                 && Session.ActiveUnit != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && Session.ActiveUnit.IsPlayerSide
-                && !IsPlayerMovementPresentationInProgress;
+                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
         }
 
         public bool CanEscape()
@@ -921,7 +937,7 @@ namespace Godmist.Views.Combat
                 && Session.ActiveUnit.Character != null 
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
                 && Session.Outcome == CombatOutcomeState.Ongoing
-                && !IsPlayerMovementPresentationInProgress;
+                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
         }
 
         public void RequestEscape()
@@ -1016,7 +1032,7 @@ namespace Godmist.Views.Combat
                 || Session.ActiveUnit == null
                 || !Session.ActiveUnit.IsPlayerSide
                 || Session.Outcome != CombatOutcomeState.Ongoing
-                || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }
@@ -1088,7 +1104,7 @@ namespace Godmist.Views.Combat
         {
             if (Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null
-                || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }
@@ -1198,6 +1214,7 @@ namespace Godmist.Views.Combat
 
         public bool TryInteractAt(GridPosition position)
         {
+            if (Session?.MembershipChangePending == true) return false;
             if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
                 || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
@@ -1221,6 +1238,7 @@ namespace Godmist.Views.Combat
 
         public bool TryReviveAt(GridPosition position)
         {
+            if (Session?.MembershipChangePending == true) return false;
             if (Session == null
                 || Session.ActiveUnit == null
                 || reviveSystem == null

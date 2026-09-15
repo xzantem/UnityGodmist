@@ -38,6 +38,36 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void WideVictory_LeavesUnseenEnemies_AndStoresBodiesInDeathRoomWithoutReroll()
+        {
+            var game = CreateSessionWithDungeon(out var dungeon, out _);
+            dungeon.TryGetCurrentFloor(out var floor);
+            floor.TryGetEncounter("encounter.body", out var encounter);
+            var guard = new EncounterEnemyData(); SetAutoProperty(guard, "InstanceId", "guard");
+            var unseen = new EncounterEnemyData(); SetAutoProperty(unseen, "InstanceId", "unseen");
+            SetAutoProperty(encounter.Definition, "Enemies", new List<EncounterEnemyData> { guard, unseen });
+            floor.Map.TryAddFloorCell(Vector2Int.right, "other.room");
+            new DungeonCombatContextFactory().TryCreate(dungeon, encounter, out var context, true);
+            var combat = new CombatSession { CombatId = "runtime.session", DungeonContext = context,
+                IsSeamless = true, IsDungeonWide = true, Outcome = CombatOutcomeState.Victory };
+            var enemy = new BattleUnit { Character = new CharacterInstance { CharacterId = "guard" } };
+            var loot = new CombatRewardResult { EnemyRewards = { new CombatEnemyReward { EnemyInstanceId = "guard", Gold = 17 } } };
+            DungeonCombatMembershipSystem.RegisterEnemy(combat, encounter.InstanceId, "guard", loot, enemy);
+            combat.TryMarkEnemyDefeated(enemy.Character.CharacterId, new GridPosition(1, 0));
+            Assert.That(new DungeonCombatOutcomeSystem().TryApplyOutcome(game, combat), Is.True);
+            Assert.That(dungeon.IsEncounterCleared(encounter.InstanceId), Is.False);
+            Assert.That(encounter.IsEnemyDefeated("guard"), Is.True);
+            Assert.That(encounter.IsEnemyDefeated("unseen"), Is.False);
+            Assert.That(floor.EnemyBodies.Count, Is.EqualTo(1));
+            Assert.That(floor.EnemyBodies[0].Position, Is.EqualTo(Vector2Int.right));
+            Assert.That(floor.EnemyBodies[0].EnemyInstanceId, Is.EqualTo("guard"));
+            Assert.That(floor.EnemyBodies[0].Gold, Is.EqualTo(17));
+            Assert.That(new DungeonCombatOutcomeSystem().TryApplyOutcome(game, combat), Is.True);
+            Assert.That(floor.EnemyBodies.Count, Is.EqualTo(1));
+            Assert.That(loot.EnemyRewards[0].EnemyInstanceId, Is.EqualTo("guard"));
+        }
+
+        [Test]
         public void VictoryCreatesBodiesOnlyForDefeatedEnemyRewards()
         {
             var gameSession = CreateSessionWithDungeon(

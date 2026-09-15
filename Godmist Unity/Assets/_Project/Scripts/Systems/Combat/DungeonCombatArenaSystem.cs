@@ -73,6 +73,7 @@ namespace Godmist.Systems.Combat
                 session.Grid.SetBlockedEdge(combatDoor.Edge.FirstCell, combatDoor.Edge.SecondCell, !door.IsOpen);
             }
             session.OpenExitEdges.Clear();
+            if (session.IsDungeonWide) return;
             var context = session.DungeonContext;
             if (context.SurfaceMap?.HasElevatedSurfaces == true)
             {

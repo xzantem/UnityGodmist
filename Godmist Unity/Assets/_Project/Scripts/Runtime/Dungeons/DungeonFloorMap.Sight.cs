@@ -65,14 +65,19 @@ namespace Godmist.Runtime.Dungeons
         {
             var vertical = edge.FirstCell.x != edge.SecondCell.x;
             var boundary = vertical ? Math.Max(edge.FirstCell.x, edge.SecondCell.x) : Math.Max(edge.FirstCell.y, edge.SecondCell.y);
-            var delta = vertical ? to.x - from.x : to.y - from.y;
-            if (Mathf.Abs(delta) < .00001f) return false;
-            var t = (boundary - (vertical ? from.x : from.y)) / delta;
+            var delta = vertical ? (double)to.x - from.x : (double)to.y - from.y;
+            if (Math.Abs(delta) < .00001) return false;
+            var t = (boundary - (double)(vertical ? from.x : from.y)) / delta;
             if (t <= 0 || t >= 1) return false;
-            var point = Vector3.Lerp(from, to, t);
-            var along = vertical ? point.y : point.x;
+            // Joined wall endpoints are closed. Float interpolation can put a ray
+            // through a shared corner just outside BOTH edges, leaking isolated cells.
+            var along = vertical ? from.y + ((double)to.y - from.y) * t
+                : from.x + ((double)to.x - from.x) * t;
+            var height = from.z + ((double)to.z - from.z) * t;
             var minimum = vertical ? edge.FirstCell.y : edge.FirstCell.x;
-            return along >= minimum && along <= minimum + 1 && point.z > edge.Level && point.z < edge.Level + 1;
+            const double endpointTolerance = .0000001;
+            return along >= minimum - endpointTolerance && along <= minimum + 1 + endpointTolerance
+                && height > edge.Level && height < edge.Level + 1;
         }
 
         public static bool SightCrossesCell(Vector3 from, Vector3 to, DungeonSurfacePosition cell)

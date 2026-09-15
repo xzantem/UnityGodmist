@@ -5,6 +5,191 @@ using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
+    public class DungeonVisibilityModelTests
+    {
+        private readonly Godmist.Systems.Dungeons.DungeonVisibilitySystem system = new();
+        private static DungeonTraversalPosition At(int x, int y = 0, int level = 0)
+            => new(new DungeonSurfacePosition(new Vector2Int(x, y), level));
+        private static DungeonFloorInstance Floor()
+        {
+            var map = new DungeonFloorMap();
+            for (var x = -11; x <= 11; x++) for (var y = -2; y <= 2; y++)
+                map.TryAddFloorCell(new Vector2Int(x, y), x < 0 ? "left" : "right");
+            var floor = new DungeonFloorInstance(0); floor.TrySetMap(map); return floor;
+        }
+
+        [Test]
+        public void UnlimitedPartyVisibilitySeesBeyondEnemyRangeButRespectsOcclusionAndUnion()
+        {
+            var floor = Floor();
+            var visible = new System.Collections.Generic.HashSet<DungeonTraversalPosition>();
+            system.CollectPartyVisible(floor, new[] { At(-11) }, visible);
+            Assert.That(visible, Does.Contain(At(11)));
+            Assert.That(system.CanDetect(floor, At(-11), Vector2.right, 10, 120, At(11)), Is.False);
+            floor.Map.SetWallType(new DungeonSurfaceEdge(new DungeonCellEdge(Vector2Int.zero, Vector2Int.right)),
+                Godmist.Core.Enums.DungeonWallType.Full);
+            system.CollectPartyVisible(floor, new[] { At(-11) }, visible);
+            Assert.That(visible, Has.No.Member(At(11)));
+            system.CollectPartyVisible(floor, new[] { At(-11), At(10) }, visible);
+            Assert.That(visible, Does.Contain(At(11)));
+            system.CollectPartyVisible(floor, System.Array.Empty<DungeonTraversalPosition>(), visible);
+            Assert.That(visible, Is.Empty);
+        }
+
+        [Test]
+        public void SightCannotLeakThroughJoinedWallCornerDueToRounding()
+        {
+            var floor = new DungeonFloorInstance(0);
+            var map = new DungeonFloorMap();
+            for (var x = -12; x <= -1; x++) for (var y = -12; y <= -1; y++)
+                map.TryAddFloorCell(new Vector2Int(x, y), "corner");
+            floor.TrySetMap(map);
+            // Ray passes exactly through (-5,-5), where these two walls meet.
+            map.TryAddWall(new Vector2Int(-6, -5), new Vector2Int(-5, -5));
+            map.TryAddWall(new Vector2Int(-5, -6), new Vector2Int(-5, -5));
+            Assert.That(system.HasLineOfSight(floor, At(-12, -12), At(-1, -1)), Is.False);
+            Assert.That(system.HasLineOfSight(floor, At(-1, -1), At(-12, -12)), Is.False);
+        }
+
+        [TestCase(8, true)]
+        [TestCase(10, true)]
+        [TestCase(11, false)]
+        public void EnemyRangeUsesXYDistanceAndIncludesBoundary(int distance, bool expected)
+            => Assert.That(system.CanDetect(Floor(), At(0), Vector2.right, 10, 120, At(distance)), Is.EqualTo(expected));
+
+        [Test]
+        public void ConeDependsOnFacingAndSeesAcrossRoomBoundary()
+        {
+            var floor = Floor();
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(1, 1)), Is.True);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(1, 2)), Is.False);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(-1)), Is.False);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.left, 10, 120, At(-1)), Is.True);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.up, 10, 120, At(0, 2)), Is.True);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 90, At(1, 1)), Is.True);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 8, 120, At(9)), Is.False);
+        }
+
+        [Test]
+        public void WallsBlockSightButRailingsAndLowWallsDoNot()
+        {
+            var floor = Floor(); var edge = new DungeonSurfaceEdge(new DungeonCellEdge(Vector2Int.zero, Vector2Int.right));
+            floor.Map.SetWallType(edge, Godmist.Core.Enums.DungeonWallType.Full);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.False);
+            foreach (var type in new[] { Godmist.Core.Enums.DungeonWallType.Low, Godmist.Core.Enums.DungeonWallType.Railing })
+            {
+                floor.Map.SetWallType(edge, type);
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.True);
+            }
+        }
+
+        [Test]
+        public void OpeningDoorChangesVisibilityWithoutMovingOrRebuildingMap()
+        {
+            var definition = ScriptableObject.CreateInstance<Godmist.Data.Dungeons.DoorDungeonObjectDefinition>();
+            try
+            {
+                var floor = Floor();
+                var door = new DoorDungeonObjectInstance("door", definition, new DungeonCellEdge(Vector2Int.zero, Vector2Int.right));
+                floor.TryAddObject(door);
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.False);
+                door.TrySetOpen(true);
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.True);
+                door.TrySetOpen(false);
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.False);
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
+        [Test]
+        public void CeilingBlocksSameXYButOpenEdgeAllowsCrossHeightSight()
+        {
+            var floor = Floor(); floor.Map.TryAddFloorCell(new DungeonSurfacePosition(Vector2Int.zero, 1), "upper");
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 360, At(0, 0, 1)), Is.False);
+            Assert.That(system.CanDetect(floor, At(2), Vector2.left, 10, 120, At(0, 0, 1)), Is.True);
+        }
+
+        [Test]
+        public void OccludingObstacleRemainsObservableButHidesCellsBehindIt()
+        {
+            var definition = ScriptableObject.CreateInstance<Godmist.Data.Dungeons.ObstacleDungeonObjectDefinition>();
+            try
+            {
+                typeof(Godmist.Data.Dungeons.ObstacleDungeonObjectDefinition).GetProperty("BlocksLineOfSight").SetValue(definition, true);
+                var floor = Floor(); floor.TryAddObject(new ObstacleDungeonObjectInstance("pillar", definition, Vector2Int.right));
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(1)), Is.True);
+                Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(2)), Is.False);
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
+        [Test]
+        public void PartyVisibilityIncludesIntermediateStairPositions()
+        {
+            var floor = Floor(); var upper = new DungeonSurfacePosition(new Vector2Int(2, 0), 1);
+            floor.Map.TryAddFloorCell(upper, "upper");
+            var first = new DungeonSurfacePosition(Vector2Int.zero);
+            floor.Map.TryAddStairs(first, upper, new[] { Vector2Int.zero, Vector2Int.right, new Vector2Int(2, 0) });
+            var step = new DungeonTraversalPosition(new DungeonStairConnection(first, upper), 1);
+            var visible = new System.Collections.Generic.HashSet<DungeonTraversalPosition>();
+            system.CollectPartyVisible(floor, new[] { At(0) }, 10, visible);
+            Assert.That(visible.Contains(step), Is.True);
+        }
+
+        [Test]
+        public void PartyVisibilityIsOmnidirectionalUnionAndClearsPreviousFrame()
+        {
+            var floor = Floor(); var visible = new System.Collections.Generic.HashSet<DungeonTraversalPosition>();
+            system.CollectPartyVisible(floor, new[] { At(-5), At(5) }, 2, visible);
+            Assert.That(visible.Contains(At(-7)), Is.True);
+            Assert.That(visible.Contains(At(7)), Is.True);
+            Assert.That(visible.Contains(At(0)), Is.False);
+            system.CollectPartyVisible(floor, new[] { At(5) }, 2, visible);
+            Assert.That(visible.Contains(At(-7)), Is.False, "Current visibility is not discovery memory.");
+            Assert.That(visible.Contains(At(5, -2)), Is.True);
+        }
+
+        [Test]
+        public void CameraLayerDoesNotAffectLogicalSight()
+        {
+            var floor = Floor(); floor.Map.TryAddFloorCell(new DungeonSurfacePosition(Vector2Int.zero, 1), "upper");
+            var view = new DungeonElevationViewState(); view.Bind(floor.Map);
+            var before = system.CanDetect(floor, At(-2), Vector2.right, 10, 120, At(0));
+            view.Step(-1); view.Focus(At(0), true); view.Step(1);
+            Assert.That(system.CanDetect(floor, At(-2), Vector2.right, 10, 120, At(0)), Is.EqualTo(before).And.True);
+        }
+
+        [Test]
+        public void InvalidConfigurationCannotRevealTargets()
+        {
+            var floor = Floor();
+            Assert.That(system.CanDetect(floor, At(0), Vector2.zero, 10, 120, At(1)), Is.False);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, float.NaN, 120, At(1)), Is.False);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 361, At(1)), Is.False);
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(99)), Is.False);
+        }
+
+        [Test]
+        public void FacingRetainsVerticalMovementEvenWithoutDirectionalSprite()
+        {
+            var root = new GameObject("Vision direction test");
+            try
+            {
+                var view = root.AddComponent<Godmist.Views.Exploration.ExplorationCharacterView>();
+                var data = new Godmist.Data.Combat.EncounterEnemyData(); view.ConfigureEnemyVision(data);
+                Assert.That(view.VisionRange, Is.EqualTo(10)); Assert.That(view.VisionAngle, Is.EqualTo(120));
+                view.Move(Vector2.up);
+                Assert.That(view.FacingDirection, Is.EqualTo(Vector2.up));
+                view.Move(Vector2.zero);
+                Assert.That(view.FacingDirection, Is.EqualTo(Vector2.up));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+    }
+}
+
+namespace Godmist.Tests.EditMode
+{
     public class DungeonSurfaceFoundationTests
     {
         [Test]

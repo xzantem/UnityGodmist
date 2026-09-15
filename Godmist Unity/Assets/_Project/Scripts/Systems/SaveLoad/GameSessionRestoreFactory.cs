@@ -1837,6 +1837,13 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
+                    if (floorDelta.ActorFacings != null)
+                    {
+                        var facingIds = new HashSet<string>();
+                        foreach (var facing in floorDelta.ActorFacings)
+                            if (facing == null || !facingIds.Add(facing.ActorId)
+                                || !floor.TrySetActorFacing(facing.ActorId, new UnityEngine.Vector2(facing.X, facing.Y))) return false;
+                    }
                     if (floorDelta.ActorPositions != null)
                     {
                         var actorIds = new HashSet<string>();

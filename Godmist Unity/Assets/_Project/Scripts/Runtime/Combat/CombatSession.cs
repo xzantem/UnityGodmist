@@ -20,6 +20,11 @@ namespace Godmist.Runtime.Combat
         public bool IsDebugSession;
         [NonSerialized] public DungeonCombatContext DungeonContext;
         public bool IsSeamless;
+        public bool IsDungeonWide;
+        public bool MembershipChangePending;
+        [NonSerialized] public Action<CombatTurnParticipant> ResumeTurn;
+        public readonly Dictionary<string, (string EncounterId, string EnemyId)> EnemySources = new();
+        public readonly HashSet<CombatTurnParticipant> SuspendedTurns = new();
         [NonSerialized] public Action<BattleUnit> UnitEnteredCell;
         [NonSerialized] public Func<BattleUnit, IReadOnlyList<GridPosition>, float> EvaluateTrapRisk;
         [NonSerialized] public Func<IReadOnlyList<GridPosition>, string> TrapRouteState;

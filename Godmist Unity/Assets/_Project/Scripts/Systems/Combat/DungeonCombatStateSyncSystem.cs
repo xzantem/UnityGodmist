@@ -21,7 +21,7 @@ namespace Godmist.Systems.Combat
 
             var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
-            if (!string.Equals(
+            if (!combatSession.IsDungeonWide && !string.Equals(
                     combatSession.CombatId,
                     context.EncounterInstanceId,
                     StringComparison.Ordinal))
@@ -92,9 +92,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (combatSession.IsDungeonWide)
+            {
+                foreach (var result in DungeonCombatMembershipSystem.EncounterResults(gameSession.ActiveDungeon, combatSession))
+                    if (!TrySyncDefeatedEnemyStates(gameSession, result)) return false;
+                return true;
+            }
+
             var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
-            if (!string.Equals(
+            if (!combatSession.IsDungeonWide && !string.Equals(
                     combatSession.CombatId,
                     context.EncounterInstanceId,
                     StringComparison.Ordinal))

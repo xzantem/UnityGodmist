@@ -125,6 +125,34 @@ namespace Godmist.Tests.EditMode
             Assert.That(rewards.EnemyRewards.Single(r => r.EnemyInstanceId == "enemy.alive").Gold, Is.EqualTo(57));
         }
 
+        [Test]
+        public void FacingRoundTrip_IsIndependentOfElevation_AndOldSavesUseDefaults()
+        {
+            Assert.That(floor.TrySetActorFacing("enemy:encounter.1:enemy.alive", Vector2.left), Is.True);
+            var json = new GameSaveJsonSerializer().Serialize(Snapshot());
+            Assert.That(new GameSaveJsonSerializer().TryDeserialize(json, out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            restored.ActiveDungeon.TryGetCurrentFloor(out var restoredFloor);
+            Assert.That(restoredFloor.TryGetActorFacing("enemy:encounter.1:enemy.alive", out var facing), Is.True);
+            Assert.That(facing, Is.EqualTo(Vector2.left));
+            saved.ActiveDungeon.FloorDeltas[0].ActorFacings = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var legacy), Is.True);
+            legacy.ActiveDungeon.TryGetCurrentFloor(out var legacyFloor);
+            Assert.That(legacyFloor.ActorFacings, Is.Empty);
+        }
+
+        [Test]
+        public void CorruptFacingIsRejected()
+        {
+            Assert.That(floor.TrySetActorFacing("enemy", new Vector2(float.NaN, 1)), Is.False);
+            Assert.That(floor.TrySetActorFacing("enemy", Vector2.zero), Is.False);
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].ActorFacings.Add(new Godmist.Core.Serialization.DungeonActorFacingSaveData
+                { ActorId = "enemy", X = 0, Y = 0 });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
+
         private GameSaveData Snapshot() => new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "persistence");
 
         private void AssertRejected(GameSaveData saved)

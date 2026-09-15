@@ -32,9 +32,18 @@ namespace Godmist.Core.Serialization
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
         public List<DungeonActorPositionSaveData> ActorPositions = new();
+        public List<DungeonActorFacingSaveData> ActorFacings = new();
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
         public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonActorFacingSaveData
+    {
+        public string ActorId;
+        public float X;
+        public float Y;
     }
 
     [Serializable]

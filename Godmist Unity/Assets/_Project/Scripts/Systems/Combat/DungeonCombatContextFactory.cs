@@ -10,7 +10,7 @@ namespace Godmist.Systems.Combat
         public bool TryCreate(
             DungeonInstance dungeon,
             DungeonEncounterInstance encounter,
-            out DungeonCombatContext context)
+            out DungeonCombatContext context, bool wholeFloor = false)
         {
             context = null;
 
@@ -27,7 +27,7 @@ namespace Godmist.Systems.Combat
 
             var combatCells = CollectEncounterRoomCells(
                 floor.Map,
-                encounter.RoomId);
+                wholeFloor ? null : encounter.RoomId);
 
             if (combatCells.Count == 0)
             {
@@ -53,7 +53,7 @@ namespace Godmist.Systems.Combat
                 combatCells,
                 wallEdges,
                 mapObjects,
-                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells, floor.Map);
+                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells, floor.Map, wholeFloor);
 
             return true;
         }
@@ -67,8 +67,8 @@ namespace Godmist.Systems.Combat
             foreach (var surface in map.Surfaces)
             {
                 var cell = surface.Cell;
-                if (!map.TryGetRoomId(surface, out var cellRoomId)
-                    || cellRoomId != roomId)
+                if (roomId != null && (!map.TryGetRoomId(surface, out var cellRoomId)
+                    || cellRoomId != roomId))
                 {
                     continue;
                 }
@@ -76,8 +76,8 @@ namespace Godmist.Systems.Combat
                 if (!cells.Contains(cell)) cells.Add(cell);
             }
             foreach (var stairs in map.Stairs)
-                if (map.TryGetRoomId(stairs.First, out var firstRoom) && firstRoom == roomId
-                    && map.TryGetRoomId(stairs.Second, out var secondRoom) && secondRoom == roomId
+                if ((roomId == null || (map.TryGetRoomId(stairs.First, out var firstRoom) && firstRoom == roomId
+                    && map.TryGetRoomId(stairs.Second, out var secondRoom) && secondRoom == roomId))
                     && map.TryGetStairPath(stairs, out var path))
                     foreach (var cell in path) if (!cells.Contains(cell)) cells.Add(cell);
 

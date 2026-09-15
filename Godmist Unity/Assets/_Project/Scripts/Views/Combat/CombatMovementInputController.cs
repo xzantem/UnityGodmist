@@ -39,6 +39,7 @@ namespace Godmist.Views.Combat
         private int cachedActionPoints;
         private int cachedMovementSteps;
         private bool cacheValid;
+        private int cachedDungeonMovementState;
         private GridPosition? previewedDestination;
         private int previewedPathCost;
         public int PreviewCost => isActiveAndEnabled && previewedDestination.HasValue ? previewedPathCost : 0;
@@ -65,7 +66,16 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
-            if (sandboxBootstrap?.Session?.IsSeamless == true) cacheValid = false;
+            if (sandboxBootstrap?.Session?.IsSeamless == true)
+            {
+                if (!sandboxBootstrap.Session.IsDungeonWide) cacheValid = false;
+                else
+                {
+                    var state = sandboxBootstrap.GetDungeonMovementStateHash();
+                    if (state != cachedDungeonMovementState) cacheValid = false;
+                    cachedDungeonMovementState = state;
+                }
+            }
 
             if (DevConsoleView.IsOpen)
             {
@@ -237,6 +247,7 @@ namespace Godmist.Views.Combat
                 || Input.GetKey(KeyCode.RightControl);
             var inspectedUnit = inspectController?.HoveredUnit;
             if (!isInspectingMovement
+                || sandboxBootstrap?.Session?.IsDungeonWide == true
                 || inspectedUnit == null
                 || sandboxBootstrap?.Session == null)
             {

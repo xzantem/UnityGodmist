@@ -24,6 +24,15 @@ namespace Godmist.Views.Exploration
         private int animationFrameIndex;
         private float lastMovementTime = float.NegativeInfinity;
         private bool noclipEnabled;
+        public Vector2 FacingDirection { get; private set; } = Vector2.right;
+        public float VisionRange { get; private set; } = 10f;
+        public float VisionAngle { get; private set; } = 120f;
+        public void ConfigureEnemyVision(Godmist.Data.Combat.EncounterEnemyData data)
+        {
+            VisionRange = data.VisionRange;
+            VisionAngle = data.VisionAngle;
+            SetFacingDirection(data.InitialFacing.sqrMagnitude > .000001f ? data.InitialFacing : Vector2.right);
+        }
         private Godmist.Runtime.Dungeons.DungeonFloorMap terrainMap;
         private Godmist.Views.Dungeons.DungeonFloorMapView terrainView;
         public Godmist.Views.Dungeons.DungeonFloorMapView TerrainView => terrainView;
@@ -48,6 +57,7 @@ namespace Godmist.Views.Exploration
         {
             terrainMap = map; terrainView = view; terrainFloor = floor; traversalActorKey = actorKey;
             RestoreTraversalPosition();
+            if (floor != null && !string.IsNullOrWhiteSpace(actorKey) && floor.TryGetActorFacing(actorKey, out var facing)) SetFacingDirection(facing);
         }
 
         private void EndWallCrossing()
@@ -303,6 +313,11 @@ namespace Godmist.Views.Exploration
 
         private void SetFacingDirection(Vector2 movementDirection)
         {
+            if (movementDirection.sqrMagnitude > .000001f)
+            {
+                FacingDirection = movementDirection.normalized;
+                terrainFloor?.TrySetActorFacing(TraversalActorId, FacingDirection);
+            }
             if (bodyRenderer == null || Mathf.Abs(movementDirection.x) < 0.0001f) return;
 
             bodyRenderer.transform.localRotation = movementDirection.x > 0f

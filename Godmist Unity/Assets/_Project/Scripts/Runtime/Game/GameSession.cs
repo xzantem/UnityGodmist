@@ -57,7 +57,7 @@ namespace Godmist.Runtime.Game
                 || context.DungeonId != ActiveDungeon.DungeonId
                 || context.FloorIndex != ActiveDungeon.CurrentFloorIndex
                 || combats.Exists(existing => existing.CombatId == combat.CombatId
-                    || existing.DungeonContext?.EncounterRoomId == context.EncounterRoomId)) return false;
+                    || (!combat.IsDungeonWide && existing.DungeonContext?.EncounterRoomId == context.EncounterRoomId))) return false;
             foreach (var unit in combat.Units)
                 if (unit?.IsPlayerSide == true && GetCombatForCharacter(unit.Character?.CharacterId) != null)
                     return false;

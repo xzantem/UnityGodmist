@@ -11,5 +11,8 @@ namespace Godmist.Data.Combat
         [field: SerializeField] public CharacterDefinition CharacterDefinition { get; private set; }
         [field: SerializeField] public CharacterClassData ClassData { get; private set; }
         [field: SerializeField] public Vector2Int SpawnPosition { get; private set; }
+        [field: SerializeField, Min(0f)] public float VisionRange { get; private set; } = 10f;
+        [field: SerializeField, Range(1f, 360f)] public float VisionAngle { get; private set; } = 120f;
+        [field: SerializeField] public Vector2 InitialFacing { get; private set; } = Vector2.right;
     }
 }

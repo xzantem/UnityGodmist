@@ -13,6 +13,7 @@ namespace Godmist.Runtime.Combat
         private readonly List<DungeonCombatMapObjectSnapshot> mapObjects;
 
         public DungeonFloorMap SurfaceMap { get; }
+        public bool IsFloorWide { get; }
         public string DungeonId { get; }
         public int FloorIndex { get; }
         public string EncounterInstanceId { get; }
@@ -42,7 +43,7 @@ namespace Godmist.Runtime.Combat
             int dungeonLevel = 1,
             IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> nextWallTypes = null,
             IEnumerable<Vector2Int> difficultTerrainCells = null,
-            DungeonFloorMap surfaceMap = null)
+            DungeonFloorMap surfaceMap = null, bool isFloorWide = false)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -95,6 +96,7 @@ namespace Godmist.Runtime.Combat
 
             DifficultTerrainCells = new HashSet<Vector2Int>(difficultTerrainCells ?? Array.Empty<Vector2Int>());
             SurfaceMap = surfaceMap;
+            IsFloorWide = isFloorWide;
             DungeonId = dungeonId;
             FloorIndex = floorIndex;
             EncounterInstanceId = encounterInstanceId;

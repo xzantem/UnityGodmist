@@ -146,6 +146,7 @@ namespace Godmist.Views.Dungeons
                 character.CharacterId = enemyData.InstanceId;
                 enemyView.Bind(character);
                 enemyView.SetEnemyInstanceId(enemyData.InstanceId);
+                enemyView.ConfigureEnemyVision(enemyData);
                 enemyView.SetIsActiveLeader(false);
                 enemyView.SetTint(enemyTint);
 

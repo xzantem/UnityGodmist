@@ -15,6 +15,15 @@ namespace Godmist.Runtime.Dungeons
 
         private readonly Dictionary<string, DungeonTraversalPosition> actorPositions = new();
         private readonly Dictionary<string, Vector2> actorOffsets = new();
+        private readonly Dictionary<string, Vector2> actorFacings = new();
+        public IReadOnlyDictionary<string, Vector2> ActorFacings => actorFacings;
+        public bool TryGetActorFacing(string id, out Vector2 facing) => actorFacings.TryGetValue(id, out facing);
+        public bool TrySetActorFacing(string id, Vector2 facing)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !float.IsFinite(facing.x) || !float.IsFinite(facing.y)
+                || facing.sqrMagnitude < .000001f || !float.IsFinite(facing.sqrMagnitude)) return false;
+            actorFacings[id] = facing.normalized; return true;
+        }
         public Vector2 GetActorOffset(string actorId) => actorOffsets.TryGetValue(actorId, out var offset) ? offset : Vector2.zero;
         public void SetActorOffset(string actorId, Vector2 offset) { if (!string.IsNullOrWhiteSpace(actorId)) actorOffsets[actorId] = offset; }
         public IReadOnlyDictionary<string, DungeonTraversalPosition> ActorPositions => actorPositions;
