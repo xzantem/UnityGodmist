@@ -26,6 +26,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private ExplorationCameraFollow explorationCamera;
         [SerializeField] private CombatCameraFramer combatCamera;
         [SerializeField] private DungeonTacticalTooltip tacticalTooltip;
+        [SerializeField] private DungeonMinimapView minimap;
         [SerializeField] private Godmist.Views.UI.CombatPartyRailView partyRail;
         [SerializeField] private GameObject combatHudRoot;
         [SerializeField] private GameObject explorationHudRoot;
@@ -86,6 +87,7 @@ namespace Godmist.Views.Dungeons
             { Debug.LogError("DungeonCombatCoordinator: niekompletny wiring seamless."); return false; }
             game = session; floor = dungeonFloor; map = floorView; party = controller;
             objects = objectSpawner; encounters = encounterSpawner;
+            if (minimap != null) minimap.Bind(floor, map, party, encounters);
             objects.BindElevationView(map);
             tacticalTooltip?.Bind(floor, map);
             unitViews.ConfigureDungeon(game, map);

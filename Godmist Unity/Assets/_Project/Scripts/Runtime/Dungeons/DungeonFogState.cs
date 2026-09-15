@@ -23,6 +23,7 @@ namespace Godmist.Runtime.Dungeons
         // Console overrides are transient and are not part of save data.
         public bool DebugFogDisabled { get; private set; }
         public int DebugRevision { get; private set; }
+        public int Revision { get; private set; }
         public void ToggleDebugFog() { DebugFogDisabled = !DebugFogDisabled; DebugRevision++; }
         public void SetMapDiscovered(bool reveal)
         {
@@ -38,6 +39,7 @@ namespace Godmist.Runtime.Dungeons
             => map != null && map.TryGetTraversalCell(position, out _) && discovered.Add(position);
         public void SetVisible(IEnumerable<DungeonTraversalPosition> positions, IEnumerable<DungeonTraversalPosition> newlyDiscovered = null)
         {
+            Revision++;
             visible.Clear();
             visible.UnionWith(positions);
             discovered.UnionWith(newlyDiscovered ?? visible);
