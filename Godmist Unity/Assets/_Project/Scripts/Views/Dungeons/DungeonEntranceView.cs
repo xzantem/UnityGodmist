@@ -11,12 +11,13 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private ExplorationPartyController partyController;
         [SerializeField] private DungeonDefinition dungeonDefinition;
         [SerializeField] private int seed = 12345;
+        [SerializeField] private Godmist.Views.UI.Workspace.DungeonSelectorWindowView selector;
         [SerializeField] private float interactionRadius = 1.25f;
         [SerializeField] private KeyCode interactionKey = KeyCode.E;
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
+            if (DevConsoleView.IsOpen || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.HasFocusedTextInput()) return;
             
             if (!Input.GetKeyDown(interactionKey)) return;
 
@@ -38,7 +39,8 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            gameBootstrap.TryEnterDungeon(dungeonDefinition, seed);
+            if(selector!=null) selector.Open(gameBootstrap,dungeonDefinition);
+            else gameBootstrap.TryEnterDungeon(dungeonDefinition, seed);
         }
     }
 }

@@ -59,6 +59,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.CampaignId = session.CampaignId;
             saveData.UpdatedAtUtc = DateTime.UtcNow.ToString("O");
             saveData.Gold = session.Gold;
+            saveData.DungeonOffers = DungeonOfferPersistence.Capture(session.DungeonOffers);
             saveData.TrackedQuestId = session.TrackedQuestId;
             saveData.HasExplorationPosition = session.HasExplorationPosition;
             saveData.ExplorationPositionX = session.ExplorationPosition.x;

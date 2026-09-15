@@ -30,6 +30,7 @@ namespace Godmist.Runtime.Game
         public IReadOnlyDictionary<string, QuestInstance> QuestsById => questsById;
         public string TrackedQuestId => trackedQuestId;
         public DungeonInstance ActiveDungeon { get; private set; }
+        public DungeonOfferBoard DungeonOffers { get; } = new();
         public bool HasExplorationPosition { get; private set; }
         public Vector2 ExplorationPosition { get; private set; }
         public CombatSession ActiveCombat { get; private set; }

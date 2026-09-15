@@ -366,7 +366,8 @@ namespace Godmist.Views.Game
             DungeonDefinition definition,
             int seed,
             int targetFloorIndex = 0,
-            string targetRoomId = null)
+            string targetRoomId = null,
+            int? offeredLevel = null)
         {
             if (Session?.HasCombat == true) return false;
             if (definition == null || !definition.IsProcedural)
@@ -413,7 +414,7 @@ namespace Godmist.Views.Game
 
             try
             {
-                var dungeon = dungeonGenerator.Generate(definition, seed);
+                var dungeon = dungeonGenerator.Generate(definition, seed, offeredLevel ?? definition.DungeonLevel);
 
                 encounterPlacementSystem.Place(dungeon);
                 objectPlacementSystem.Place(
@@ -456,6 +457,25 @@ namespace Godmist.Views.Game
                 Debug.LogException(exception);
                 return false;
             }
+        }
+
+        public bool TryAbandonDungeon()
+        {
+            if(Session?.ActiveDungeon==null || Session.HasCombat || SceneManager.GetActiveScene().name!=explorationSceneName) return false;
+            if(!Session.TryClearActiveDungeon()) return false;
+            Session.DungeonOffers.CompleteExpedition();
+            RequestAutosave("Porzucenie wyprawy");return true;
+        }
+
+        public bool TryEnterDungeonOffer(int index, DungeonDefinition configuredDefinition = null)
+        {
+            if(Session==null || Session.HasCombat || Session.ActiveDungeon!=null
+                || index<0 || index>=Session.DungeonOffers.Offers.Count) return false;
+            var offer=Session.DungeonOffers.Offers[index];
+            var definition=configuredDefinition!=null && configuredDefinition.Id==offer.DefinitionId ? configuredDefinition : null;
+            if(definition==null && (contentCatalog==null || !contentCatalog.TryGetDungeon(offer.DefinitionId,out definition))) return false;
+            return TryEnterDungeon(definition,offer.Seed,offeredLevel: Godmist.Systems.Dungeons.DungeonOfferSystem.OfferLevel(
+                Godmist.Systems.Dungeons.DungeonOfferSystem.PartyLevel(Session),offer.LevelOffset));
         }
 
         public bool TryRestartAfterDefeat()
@@ -513,6 +533,7 @@ namespace Godmist.Views.Game
             DungeonExited?.Invoke(dungeon);
 
             Session.TryClearActiveDungeon();
+            Session.DungeonOffers.CompleteExpedition();
             RequestAutosave("Wyjście z lochu");
             return true;
         }

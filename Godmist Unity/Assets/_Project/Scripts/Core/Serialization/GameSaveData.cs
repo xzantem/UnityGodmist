@@ -26,6 +26,7 @@ namespace Godmist.Core.Serialization
         public List<QuestSaveData> Quests = new();
         public List<NpcSaveData> Npcs = new();
         public DungeonSaveData ActiveDungeon;
+        public DungeonOfferBoardSaveData DungeonOffers;
         public bool HasExplorationPosition;
         public float ExplorationPositionX;
         public float ExplorationPositionY;

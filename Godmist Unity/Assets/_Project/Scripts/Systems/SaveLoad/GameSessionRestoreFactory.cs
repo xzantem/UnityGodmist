@@ -231,6 +231,8 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            if (!DungeonOfferPersistence.Restore(saveData.DungeonOffers, restoredSession.DungeonOffers)) return false;
+
             if (!TryRestoreActiveDungeon(
                     restoredSession,
                     saveData.ActiveDungeon,
