@@ -79,14 +79,22 @@ namespace Godmist.Views.Exploration
                 ? new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) : Vector2.zero;
             if (keyboard.sqrMagnitude > 0)
             {
+                destroyTarget = null;
                 traversalPath.Clear(); movementDestination = null; leader.PreferredTraversalDestination = null;
                 leader.Move(Vector2.ClampMagnitude(keyboard, 1) * movementSpeed * Time.fixedDeltaTime);
                 traversalMapView.FocusElevation(leader.DungeonPosition, true);
                 return;
             }
+            TickDestroyObstacle(leader);
             var before = lastLeaderNavigationPosition;
             lastLeaderNavigationPosition = leader.Position;
-            if (!AdvanceRoute(leader, traversalPath, movementDestination, 0)) CancelMovement();
+            if (!AdvanceRoute(leader, traversalPath, movementDestination, 0))
+            {
+                var pending = destroyTarget;
+                var arrived = movementDestination.HasValue && Vector2.Distance(leader.Position, movementDestination.Value) < .1f;
+                CancelMovement();
+                if (arrived) destroyTarget = pending;
+            }
             if (movementDestination.HasValue && traversalPath.Count == 0
                 && Vector2.Distance(leader.Position, movementDestination.Value) <= .03f) movementDestination = null;
             if (movementDestination.HasValue && !leader.IsCrossingLowWall)
@@ -285,6 +293,50 @@ namespace Godmist.Views.Exploration
             if (route.Path.Count == 0) return;
             if (!AdvanceRoute(follower, route.Path, null, 0))
             { route.Path.Clear(); route.Target = null; follower.PreferredTraversalDestination = null; }
+        }
+
+        private ObstacleDungeonObjectInstance destroyTarget;
+        private float nextDestroyHit;
+        public ObstacleDungeonObjectInstance DestructionTarget => destroyTarget;
+
+        public bool CanOrderDestruction => gameSession != null && !gameSession.IsDefeated
+            && gameSession.CurrentMode == Godmist.Core.Enums.GameModeState.Exploration
+            && gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) == null;
+
+        public bool BeginDestroyObstacle(ObstacleDungeonObjectInstance target)
+        {
+            var leader = GetActiveLeaderView();
+            if (!CanOrderDestruction || target == null || !target.IsActive || !target.IsDestructible || leader == null || traversalMapView == null
+                || leader.RuntimeCharacter?.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive
+                || gameSession.GetCombatForCharacter(leader.CharacterId) != null
+                || !traversalMapView.IsCurrentlySeen(new DungeonTraversalPosition(new DungeonSurfacePosition(target.Position)))) return false;
+            List<DungeonTraversalPosition> best = null;
+            var destination = new DungeonTraversalPosition(new DungeonSurfacePosition(target.Position));
+            foreach (var adjacent in traversalFloor.Map.GetTraversalNeighbours(destination))
+                if (CanEnterTraversal(leader, adjacent) && FindTraversalPath(leader, adjacent, out var path)
+                    && (best == null || path.Count < best.Count)) best = path;
+            if (best == null) return false;
+            CancelMovement();
+            traversalFloor.Map.TryGetTraversalCell(best[best.Count - 1], out var cell);
+            movementDestination = traversalMapView.CellToWorldCenter(cell);
+            foreach (var node in best.Skip(1)) traversalPath.Enqueue(node);
+            lastLeaderNavigationPosition = leader.Position; leaderStalledTime = 0;
+            destroyTarget = target; nextDestroyHit = Time.time + .75f;
+            return true;
+        }
+        private void TickDestroyObstacle(ExplorationCharacterView leader)
+        {
+            if (destroyTarget == null) return;
+            if (!destroyTarget.IsActive || leader.RuntimeCharacter?.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive
+                || gameSession.GetCombatForCharacter(leader.CharacterId) != null
+                || !CanInteractWithGroundObjects) { destroyTarget = null; return; }
+            if (movementDestination.HasValue || Time.time < nextDestroyHit) return;
+            var node = new DungeonTraversalPosition(new DungeonSurfacePosition(destroyTarget.Position));
+            if (!traversalMapView.IsCurrentlySeen(node)
+                || !traversalFloor.Map.GetTraversalNeighbours(leader.DungeonPosition).Contains(node)) { destroyTarget = null; return; }
+            leader.FaceTowards(traversalMapView.CellToWorldCenter(destroyTarget.Position));
+            destroyTarget.ApplyHits(1); nextDestroyHit = Time.time + .75f;
+            if (!destroyTarget.IsActive) destroyTarget = null;
         }
     }
 }

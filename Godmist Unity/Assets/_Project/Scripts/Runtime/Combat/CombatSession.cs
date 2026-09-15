@@ -55,6 +55,8 @@ namespace Godmist.Runtime.Combat
         public List<SummonedBattleUnit> Summons = new();
         public HashSet<string> DefeatedEnemyInstanceIds = new();
         private readonly Dictionary<string, GridPosition> enemyDeathPositions = new();
+        [NonSerialized] public CombatObjectDamageAction ObjectDamageAction;
+        [NonSerialized] public Action<CombatMapObject> ObjectDurabilityChanged;
         public List<CombatMapObject> MapObjects = new();
         public List<SummonedCombatMapObject> SummonedObjects = new();
         public List<SummonedCombatMapObject> SummonedObjectTurnOrder = new();
@@ -94,6 +96,7 @@ namespace Godmist.Runtime.Combat
         {
             foreach (var mapObject in MapObjects)
             {
+                if (mapObject is ObstacleCombatMapObject { IsActive: false }) continue;
                 if (mapObject == null || mapObject == ignoredObject)
                 {
                     continue;
@@ -152,6 +155,7 @@ namespace Godmist.Runtime.Combat
         {
             foreach (var mapObject in MapObjects)
             {
+                if (mapObject is ObstacleCombatMapObject { IsActive: false }) continue;
                 if (mapObject != null && mapObject.Position == position)
                 {
                     return mapObject;

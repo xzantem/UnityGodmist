@@ -422,6 +422,13 @@ namespace Godmist.Systems.SaveLoad
                         objectDelta.IsSatisfied = condition.IsSatisfied;
                     }
 
+                    if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
+                    {
+                        objectDelta.HasObstacleDurability = true;
+                        objectDelta.ObstacleDestructible = obstacle.IsDestructible;
+                        objectDelta.ObstacleMaxHits = obstacle.MaxHits;
+                        objectDelta.ObstacleRemainingHits = obstacle.RemainingHits;
+                    }
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 

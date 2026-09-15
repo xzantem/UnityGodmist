@@ -1920,6 +1920,10 @@ namespace Godmist.Systems.SaveLoad
                                 return false;
                             }
 
+                            if (objectDelta.HasObstacleDurability
+                                && (!floor.TryGetObject(objectDelta.ObjectInstanceId, out var restoredObstacle)
+                                    || restoredObstacle is not ObstacleDungeonObjectInstance obstacle
+                                    || !obstacle.RestoreDurability(objectDelta.ObstacleDestructible, objectDelta.ObstacleMaxHits, objectDelta.ObstacleRemainingHits))) return false;
                             if (objectDelta.IsChest
                                 && objectDelta.HasChestLootState)
                             {

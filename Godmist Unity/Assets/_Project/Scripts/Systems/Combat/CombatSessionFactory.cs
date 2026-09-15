@@ -449,6 +449,7 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             DungeonCombatContext context)
         {
+            session.Grid.DynamicBlocked = position => session.MapObjects.Exists(o => o is ObstacleCombatMapObject obstacle && obstacle.Source != null && obstacle.Position == position && obstacle.BlocksMovement);
             foreach (var mapObject in context.MapObjects)
             {
                 if (mapObject.ObjectType
@@ -460,7 +461,7 @@ namespace Godmist.Systems.Combat
                             context,
                             mapObject.WorldPosition),
                         mapObject.BlocksMovement,
-                        mapObject.BlocksLineOfSight));
+                        mapObject.BlocksLineOfSight, mapObject.Obstacle));
 
                     continue;
                 }

@@ -38,6 +38,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (mapObject is ObstacleCombatMapObject { Source: not null }) continue;
                 if (mapObject != null && mapObject.BlocksMovement)
                 {
                     session.Grid.SetBlocked(mapObject.Position, true);

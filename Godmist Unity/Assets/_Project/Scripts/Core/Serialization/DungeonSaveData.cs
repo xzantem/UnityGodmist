@@ -211,6 +211,8 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonObjectDeltaSaveData
     {
+        public bool HasObstacleDurability, ObstacleDestructible;
+        public int ObstacleMaxHits, ObstacleRemainingHits;
         public string ObjectInstanceId = string.Empty;
         public bool IsActive;
         public bool IsChest;

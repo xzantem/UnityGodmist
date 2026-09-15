@@ -243,7 +243,7 @@ namespace Godmist.Views.Combat
         {
             foreach (var marker in pathMarkers)
             {
-                if (marker != null) Destroy(marker.gameObject);
+                if (marker != null) RecycleSprite(marker);
             }
 
             pathMarkers.Clear();
@@ -346,9 +346,9 @@ namespace Godmist.Views.Combat
             feedbackObject.transform.localPosition = Vector3.zero;
             feedbackObject.transform.localRotation = Quaternion.identity;
             feedbackObject.transform.localScale = Vector3.one;
-            feedbackObject.transform.SetParent(feedbackRoot, false);
+            if (feedbackObject.transform.parent != feedbackRoot) feedbackObject.transform.SetParent(feedbackRoot, false);
 
-            var renderer = feedbackObject.GetComponent<SpriteRenderer>();
+            var renderer = reused != null ? reused : feedbackObject.GetComponent<SpriteRenderer>();
             renderer.sprite = feedbackSprite;
             renderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
             renderer.sortingOrder = feedbackSortingOrder;

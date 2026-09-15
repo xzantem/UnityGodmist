@@ -74,7 +74,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (!mapObject.BlocksMovement)
+                if (mapObject.Obstacle != null || !mapObject.BlocksMovement)
                 {
                     continue;
                 }

@@ -133,7 +133,7 @@ namespace Godmist.Views.Combat
             session != null && drivers.TryGetValue(session, out var driver) ? driver : null;
         public void Focus(CombatSession session)
         {
-            if (!seamlessDungeon) floatingFeedback?.Bind(null);
+            if (!seamlessDungeon) if (floatingFeedback != null) floatingFeedback.Bind(null);
             focused = GetDriver(session);
             focused?.BindFeedback();
         }
@@ -143,7 +143,7 @@ namespace Godmist.Views.Combat
             if (driver == null) return;
             if (focused == driver)
             {
-                if (!seamlessDungeon) floatingFeedback?.Bind(null);
+                if (!seamlessDungeon) if (floatingFeedback != null) floatingFeedback.Bind(null);
                 focused = null;
             }
             driver.FeedbackBus.Published -= dungeonFeedback.Publish;
@@ -162,7 +162,7 @@ namespace Godmist.Views.Combat
         }
         private void OnDestroy()
         {
-            floatingFeedback?.Bind(null);
+            if (floatingFeedback != null) floatingFeedback.Bind(null);
             foreach (var driver in drivers.Values)
             {
                 driver.FeedbackBus.Published -= dungeonFeedback.Publish;

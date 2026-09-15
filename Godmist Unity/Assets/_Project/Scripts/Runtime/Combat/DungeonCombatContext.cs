@@ -138,6 +138,7 @@ namespace Godmist.Runtime.Combat
 
     public sealed class DungeonCombatMapObjectSnapshot
     {
+        public ObstacleDungeonObjectInstance Obstacle { get; }
         public string ObjectInstanceId { get; }
         public DungeonObjectType ObjectType { get; }
 
@@ -155,9 +156,10 @@ namespace Godmist.Runtime.Combat
             DungeonObjectType objectType,
             Vector2Int worldPosition,
             bool blocksMovement,
-            bool blocksLineOfSight)
+            bool blocksLineOfSight, ObstacleDungeonObjectInstance obstacle = null)
         {
             ObjectInstanceId = objectInstanceId;
+            Obstacle = obstacle;
             ObjectType = objectType;
             WorldPosition = worldPosition;
             BlocksMovement = blocksMovement;

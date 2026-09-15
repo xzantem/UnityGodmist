@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
@@ -37,7 +38,7 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -161,6 +162,7 @@ namespace Godmist.Views.Exploration
                 if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
                     && (view.TerrainView == null || view.TerrainView.IsTraversalVisible(view.DungeonPosition))
                     && Vector2.Distance(view.Position, point) < .4f && SelectMember(view.CharacterId)) return;
+            destroyTarget = null;
             TryMoveLeaderToPointerPosition();
         }
 
@@ -188,6 +190,7 @@ namespace Godmist.Views.Exploration
                 || gameSession.CurrentMode != GameModeState.Exploration
                 || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
+                destroyTarget = null;
                 return;
             }
 
@@ -205,6 +208,7 @@ namespace Godmist.Views.Exploration
             }
 
             var movement = GetMovementDirection(leaderView);
+            TickDestroyObstacle(leaderView);
 
             if (movement.sqrMagnitude > 0f)
             {
@@ -326,7 +330,7 @@ namespace Godmist.Views.Exploration
 
                 if (keyboardMovement.sqrMagnitude > 0f)
                 {
-                    movementDestination = null; cityLeaderRoute.Clear();
+                    destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
                     return keyboardMovement;
                 }
             }

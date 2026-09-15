@@ -236,6 +236,7 @@ namespace Godmist.Views.Combat
             interactionSystem = new CombatInteractionSystem(
                 AddBattleLog, HandleCombatMapObjectChanged, feedbackBus);
             interactionSystem.InitializeMapObjects(Session);
+            Session.ObjectDurabilityChanged = HandleCombatMapObjectChanged;
             targetingService = new CombatTargetingService();
             aiSystem = new SimpleCombatAiSystem(
                 battleLog: AddBattleLog, 
@@ -269,7 +270,7 @@ namespace Godmist.Views.Combat
         public void Dispose(bool preserveCombatState)
         {
             if (!preserveCombatState) passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
-            if (Session != null) Session.PassiveEffectEventDispatcher = null;
+            if (Session != null) { Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; }
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
@@ -1150,7 +1151,7 @@ namespace Godmist.Views.Combat
                 targetsByModeIndex,
                 teleportDestination,
                 objectPlacementDestination,
-                selectedPositionsByModeIndex);
+                selectedPositionsByModeIndex, rotationsByModeIndex: rotationsByModeIndex);
         }
 
         private bool TryBuildSkillTargetGroups(
@@ -1211,6 +1212,8 @@ namespace Godmist.Views.Combat
                         : 0);
 
                 if (targets.Count == 0
+                    && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
+                        && CombatObjectDamageSystem.Targets(Session, Session.ActiveUnit, skill, targetModeIndex, selectedPosition).Count > 0)
                     && targetMode.TargetType != TargetType.AreaAroundTile
                     && targetMode.TargetType != TargetType.AreaAroundCaster)
                 {
@@ -1378,6 +1381,20 @@ namespace Godmist.Views.Combat
                 targetMode,
                 includeDownedTargets,
                 requiredEnemyTarget);
+
+            if (requiredEnemyTarget == null && CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex))
+            {
+                var expanded = positions.ToList();
+                foreach (var obj in Session.MapObjects)
+                    if (CombatObjectDamageSystem.CanDamage(obj)
+                        && targetMode.TargetType == TargetType.Single
+                        && CombatTargetingService.IsPositionWithinRange(Session.ActiveUnit.Position, obj.Position, targetMode.AbsoluteRange)
+                        && !expanded.Contains(obj.Position)) expanded.Add(obj.Position);
+                if (targetMode.TargetType == TargetType.AreaAroundCaster
+                    && CombatTargetingService.IsDirectionalShape(targetMode.AbsoluteRange?.Shape ?? RangeShape.None)) return expanded;
+                return expanded.Where(p => !skill.RequiresLineOfSight || lineOfSightService.HasLineOfSight(Session,
+                    Session.ActiveUnit.Position, p, CombatObjectDamageSystem.CanDamage(Session.GetMapObjectAt(p)) ? Session.GetMapObjectAt(p) : null)).ToList();
+            }
 
             if (targetMode.TargetType == TargetType.AreaAroundCaster
                 && CombatTargetingService.IsDirectionalShape(

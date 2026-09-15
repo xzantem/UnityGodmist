@@ -31,17 +31,18 @@ namespace Godmist.Systems.Combat
 
         public static bool TrySpendAndDrop(CombatSession session, BattleUnit caster,
             Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets,
-            bool preventConsumption = false)
+            bool preventConsumption = false, GridPosition? fallbackTargetPosition = null)
         {
             if (skill?.KnifeCost <= 0) return true;
             if (preventConsumption) return true;
             if (!CanPay(caster, skill)) return false;
             caster.AvailableKnives -= skill.KnifeCost;
             var target = targets != null && targets.Count > 0 ? targets[0] : null;
-            if (target == null) return true;
+            var targetPosition = target?.Position ?? fallbackTargetPosition;
+            if (!targetPosition.HasValue) return true;
             for (var index = 0; index < skill.KnifeCost; index++)
             {
-                if (!TryFindRandomDropPosition(session, target, out var position)) continue;
+                if (!TryFindRandomDropPosition(session, targetPosition.Value, out var position)) continue;
                 session.MapObjects.Add(new KnifeCombatMapObject(
                     $"knife.{caster.Character.CharacterId}.{Guid.NewGuid():N}", position,
                     caster.Character.CharacterId, 1));
@@ -69,13 +70,13 @@ namespace Godmist.Systems.Combat
         }
 
         private static bool TryFindRandomDropPosition(CombatSession session,
-            BattleUnit target, out GridPosition position)
+            GridPosition target, out GridPosition position)
         {
             var candidates = new List<GridPosition>();
             for (var x = -1; x <= 1; x++) for (var y = -1; y <= 1; y++)
             {
                 if (x == 0 && y == 0) continue;
-                var candidate = session.Grid.GetOffsetPosition(target.Position, x, y);
+                var candidate = session.Grid.GetOffsetPosition(target, x, y);
                 if (!session.Grid.IsWalkable(candidate) || session.Grid.IsBlocked(candidate)
                     || session.IsPositionOccupied(candidate) || session.IsPositionOccupiedByMapObject(candidate)) continue;
                 candidates.Add(candidate);

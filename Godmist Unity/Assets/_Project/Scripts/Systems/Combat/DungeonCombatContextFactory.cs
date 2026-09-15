@@ -149,7 +149,7 @@ namespace Godmist.Systems.Combat
                     dungeonObject.ObjectType,
                     dungeonObject.Position,
                     blocksMovement,
-                    blocksLineOfSight));
+                    blocksLineOfSight, dungeonObject as ObstacleDungeonObjectInstance));
             }
 
             return snapshots;

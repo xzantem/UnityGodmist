@@ -103,6 +103,21 @@ namespace Godmist.Tests.EditMode
             assets.Clear();
         }
 
+        [TestCase(2)] [TestCase(0)]
+        public void ObstacleDurabilityRoundTripsWithoutResetFromChangedDefinition(int hits)
+        {
+            floor.TryGetObject("obstacle.1", out var obj);
+            var obstacle = (ObstacleDungeonObjectInstance)obj;
+            obstacle.RestoreDurability(true,3,hits);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved,catalog,out var restored), Is.True);
+            restored.ActiveDungeon.Floors[0].TryGetObject("obstacle.1",out var next);
+            Assert.That(((ObstacleDungeonObjectInstance)next).RemainingHits, Is.EqualTo(hits));
+            Assert.That(((ObstacleDungeonObjectInstance)next).IsDestructible, Is.True);
+            Assert.That(next.IsActive, Is.EqualTo(hits > 0));
+        }
+
         [Test]
         public void RoundTripRetainsActorOnBalconyStairAndBodyWithoutReroll()
         {

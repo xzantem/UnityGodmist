@@ -165,11 +165,11 @@ namespace Godmist.Views.Combat
                     floatingInspectWindow.Refresh();
                 }
 
-                inspectPanel?.Hide();
+                if (inspectPanel != null) inspectPanel.Hide();
                 return;
             }
 
-            inspectPanel?.Show(unit);
+            if (inspectPanel != null) inspectPanel.Show(unit);
         }
 
         private void OnDisable()
@@ -181,8 +181,8 @@ namespace Godmist.Views.Combat
 
         private void HideInspect()
         {
-            inspectPanel?.Hide();
-            floatingInspectWindow?.Hide();
+            if (inspectPanel != null) inspectPanel.Hide();
+            if (floatingInspectWindow != null) floatingInspectWindow.Hide();
         }
 
         private BattleUnit FindUnitAtPosition(

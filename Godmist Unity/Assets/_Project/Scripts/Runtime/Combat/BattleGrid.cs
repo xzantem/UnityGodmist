@@ -90,10 +90,11 @@ namespace Godmist.Runtime.Combat
                 : position.Level == 0 && !position.IsOnStairs;
         }
 
+        public System.Func<GridPosition, bool> DynamicBlocked { get; set; }
         public bool IsBlocked(GridPosition position)
         {
             return !IsWalkable(position)
-                || blockedPositions.Contains(position);
+                || blockedPositions.Contains(position) || DynamicBlocked?.Invoke(position) == true;
         }
 
         public void SetWalkable(

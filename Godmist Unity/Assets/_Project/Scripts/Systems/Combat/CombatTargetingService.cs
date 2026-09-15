@@ -192,9 +192,11 @@ namespace Godmist.Systems.Combat
                 return positions;
             }
 
-            for (var x = 0; x < session.Grid.Width; x++)
+            for (var x = (int)Math.Max(0L, (long)caster.Position.X - (mode.AbsoluteRange?.MaxRange ?? 0));
+                 x <= Math.Min(session.Grid.Width - 1L, (long)caster.Position.X + (mode.AbsoluteRange?.MaxRange ?? 0)); x++)
             {
-                for (var y = 0; y < session.Grid.Height; y++)
+                for (var y = (int)Math.Max(0L, (long)caster.Position.Y - (mode.AbsoluteRange?.MaxRange ?? 0));
+                     y <= Math.Min(session.Grid.Height - 1L, (long)caster.Position.Y + (mode.AbsoluteRange?.MaxRange ?? 0)); y++)
                 {
                     foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {
@@ -246,9 +248,11 @@ namespace Godmist.Systems.Combat
                         mode.AbsoluteRange);
                 }
 
-                for (var x = 0; x < session.Grid.Width; x++)
+                for (var x = (int)Math.Max(0L, (long)caster.Position.X - (mode.AbsoluteRange?.MaxRange ?? 0));
+                 x <= Math.Min(session.Grid.Width - 1L, (long)caster.Position.X + (mode.AbsoluteRange?.MaxRange ?? 0)); x++)
                 {
-                    for (var y = 0; y < session.Grid.Height; y++)
+                    for (var y = (int)Math.Max(0L, (long)caster.Position.Y - (mode.AbsoluteRange?.MaxRange ?? 0));
+                     y <= Math.Min(session.Grid.Height - 1L, (long)caster.Position.Y + (mode.AbsoluteRange?.MaxRange ?? 0)); y++)
                     {
                         foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {
@@ -272,9 +276,11 @@ namespace Godmist.Systems.Combat
                 return positions;
             }
 
-            for (var x = 0; x < session.Grid.Width; x++)
+            for (var x = (int)Math.Max(0L, (long)caster.Position.X - (mode.AbsoluteRange?.MaxRange ?? 0));
+                 x <= Math.Min(session.Grid.Width - 1L, (long)caster.Position.X + (mode.AbsoluteRange?.MaxRange ?? 0)); x++)
             {
-                for (var y = 0; y < session.Grid.Height; y++)
+                for (var y = (int)Math.Max(0L, (long)caster.Position.Y - (mode.AbsoluteRange?.MaxRange ?? 0));
+                     y <= Math.Min(session.Grid.Height - 1L, (long)caster.Position.Y + (mode.AbsoluteRange?.MaxRange ?? 0)); y++)
                 {
                     foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {

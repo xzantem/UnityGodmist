@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
@@ -57,6 +57,26 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool TryChargeObject(CombatSession session, BattleUnit caster, ObstacleCombatMapObject target,
+            SkillData skill, SkillEffectData effect, int effectIndex)
+        {
+            if (session?.Grid == null || caster?.Character == null || target == null
+                || (!CombatObjectDamageSystem.CanDamage(target) && !CombatObjectDamageSystem.IsCollisionBarrier(session, target.Position))
+                || StatusEffectSystem.IsImmobilized(caster)) return false;
+            foreach (var next in BuildPath(caster.Position, target.Position, Mathf.Max(1, effect.DisplacementDistance)))
+            {
+                if (CombatObjectDamageSystem.IsCollisionBarrier(session, next) || !CanTraverse(session, caster.Position, next))
+                { CombatObjectDamageSystem.Impact(session, caster.Position, next); return true; }
+                var occupant = FindUnitAt(session, next, caster);
+                if (occupant != null) return occupant.IsPlayerSide != caster.IsPlayerSide
+                    && TryCharge(session, caster, occupant, skill, effect, effectIndex);
+                caster.Position = next; session.NotifyUnitEnteredCell(caster);
+                if (caster.Character.LifeState != CharacterLifeState.Alive || StatusEffectSystem.IsHardCrowdControlled(caster)) break;
+                CombatAuraSystem.Refresh(session, statusEffectSystem);
+            }
+            return true;
+        }
+
         public bool TryCharge(
             CombatSession session,
             BattleUnit caster,
@@ -81,8 +101,9 @@ namespace Godmist.Systems.Combat
             {
                 var nextPosition = path[pathIndex];
 
-                if (!CanTraverse(session, caster.Position, nextPosition))
+                if (CombatObjectDamageSystem.IsCollisionBarrier(session, nextPosition) || !CanTraverse(session, caster.Position, nextPosition))
                 {
+                    CombatObjectDamageSystem.Impact(session, caster.Position, nextPosition);
                     battleLog?.Invoke("Charge is stopped by terrain.");
                     return true;
                 }
@@ -179,11 +200,12 @@ namespace Godmist.Systems.Combat
                         frontUnit.Position.X + deltaX,
                         frontUnit.Position.Y + deltaY, frontUnit.Position.Level);
 
-                    if (!CanTraverse(
+                    if (CombatObjectDamageSystem.IsCollisionBarrier(session, frontDestination) || !CanTraverse(
                             session,
                             frontUnit.Position,
                             frontDestination))
                     {
+                        CombatObjectDamageSystem.Impact(session, frontUnit.Position, frontDestination);
                         var stunDuration = remainingDistance - pushStep + 1;
 
                         statusEffectSystem.ApplyGuaranteedStun(

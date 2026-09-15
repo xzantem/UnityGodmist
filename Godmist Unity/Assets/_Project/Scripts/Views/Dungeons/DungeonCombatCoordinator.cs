@@ -392,6 +392,8 @@ namespace Godmist.Views.Dungeons
 
         private void HandleMapObjectChanged(CombatMapObject value)
         {
+            InvalidateFovPreview();
+            if (value is ObstacleCombatMapObject) UpdateFog(true);
             foreach (var session in game.Combats)
                 if (session.MapObjects.Contains(value)) stateSync.TrySyncDoorStates(game, session);
             foreach (var session in game.Combats) RefreshExits(session);
