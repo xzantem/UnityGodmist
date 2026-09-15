@@ -1492,6 +1492,17 @@ namespace Godmist.Systems.SaveLoad
                 }
             }
 
+            if (saveData.GroupsVersion != 0)
+            {
+                if (saveData.GroupsVersion != 1 || saveData.Groups == null) return false;
+                var groups = new List<List<string>>();
+                foreach (var group in saveData.Groups)
+                {
+                    if (group == null) return false;
+                    groups.Add(group.MemberIds);
+                }
+                if (!session.PlayerParty.TryRestoreGroups(groups)) return false;
+            }
             if (string.IsNullOrWhiteSpace(saveData.ActiveLeaderId))
             {
                 return string.IsNullOrWhiteSpace(

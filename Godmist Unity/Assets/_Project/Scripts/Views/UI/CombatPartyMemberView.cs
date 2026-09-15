@@ -20,9 +20,28 @@ namespace Godmist.Views.UI
         [SerializeField] private Image selectedMarker;
         [SerializeField] private Image turnMarker;
 
+        private Godmist.Runtime.Characters.CharacterInstance explorationCharacter;
+
         public void Bind(BattleUnit unit, bool selected = false, bool hasTurn = false)
         {
-            if (unit?.Character == null)
+            explorationCharacter = null;
+            BindPresentation(unit?.Character, selected, hasTurn);
+            if (unit?.Character != null) statusCollection?.Bind(unit);
+        }
+
+        public void BindCharacter(Godmist.Runtime.Characters.CharacterInstance character, bool selected = false, bool hasTurn = false)
+        {
+            BindPresentation(character, selected, hasTurn);
+            if (explorationCharacter != character)
+            {
+                explorationCharacter = character;
+                statusCollection?.BindCharacter(character);
+            }
+        }
+
+        private void BindPresentation(Godmist.Runtime.Characters.CharacterInstance character, bool selected, bool hasTurn)
+        {
+            if (character == null)
             {
                 gameObject.SetActive(false);
                 return;
@@ -31,7 +50,6 @@ namespace Godmist.Views.UI
             gameObject.SetActive(true);
             if (selectedMarker != null) selectedMarker.enabled = selected;
             if (turnMarker != null) turnMarker.enabled = hasTurn;
-            var character = unit.Character;
             var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
             var resource = character.ResourcePool;
             if(healthValueText!=null)healthValueText.text=$"{character.CurrentHealth}/{maxHealth:0}";
@@ -60,8 +78,6 @@ namespace Godmist.Views.UI
                     _ => aliveColor
                 };
             }
-
-            statusCollection?.Bind(unit);
         }
 
         private static void SetSliderVisible(Slider slider, bool visible)

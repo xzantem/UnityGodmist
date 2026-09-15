@@ -92,6 +92,12 @@ namespace Godmist.Views.Combat
             MoveTo(new ViewState { Position = Centered(arenaBounds.center, zoom), Zoom = zoom });
         }
 
+        public void FocusUnit(BattleUnit unit)
+        {
+            if (unit == null || unitPosition == null || CanPresentUnit?.Invoke(unit) == false) return;
+            MoveTo(new ViewState { Position = Centered(unitPosition(unit), worldCamera.orthographicSize), Zoom = worldCamera.orthographicSize });
+        }
+
         public void FocusActiveUnit()
         {
             if (session?.ActiveUnit == null || unitPosition == null || CanPresentUnit?.Invoke(session.ActiveUnit) == false) return;

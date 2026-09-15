@@ -32,7 +32,11 @@ namespace Godmist.Views.Exploration
         public bool IsSeparated { get; private set; }
         public void SetCombatCoordinator(Godmist.Views.Dungeons.DungeonCombatCoordinator value) => combatCoordinator = value;
         public void RejoinAfterCombat() { IsSeparated = false; CancelMovement(); }
-        public void SeparateForCombat() { IsSeparated = true; CancelMovement(); }
+        public void SeparateForCombat()
+        {
+            IsSeparated = true;
+            if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
+        }
         public void CancelMovement() { movementDestination = null; traversalPath.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
@@ -45,6 +49,25 @@ namespace Godmist.Views.Exploration
                 { pair.Value.gameObject.SetActive(false); removed.Add(pair.Key); }
             foreach (var id in removed) viewsById.Remove(id);
             RefreshLeaderVisuals();
+        }
+
+        public bool SelectMember(string id)
+        {
+            if (gameSession == null || gameSession.IsDefeated || !gameSession.TrySetActiveLeader(id)) return false;
+            CancelMovement();
+            combatCoordinator?.RefreshFocus();
+            return true;
+        }
+
+        public void CenterMember(string id)
+        {
+            if (!viewsById.TryGetValue(id, out var view)) return;
+            if (gameSession.GetCombatForCharacter(id) != null && combatCoordinator != null)
+            {
+                SelectMember(id);
+                combatCoordinator.CenterPartyMember(view.CombatUnit);
+            }
+            else cameraController?.CenterOn(view.transform.position, id == gameSession.PlayerParty.ActiveLeaderId);
         }
 
         public bool IsNoclipEnabled { get; private set; }
@@ -63,6 +86,7 @@ namespace Godmist.Views.Exploration
             if (gameSession != null)
             {
                 gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
+                gameSession.PlayerParty.GroupsChanged -= CancelMovement;
             }
 
             gameSession = session;
@@ -77,6 +101,7 @@ namespace Godmist.Views.Exploration
             }
 
             gameSession.PlayerParty.ActiveLeaderChanged += HandleActiveLeaderChanged;
+            gameSession.PlayerParty.GroupsChanged += CancelMovement;
 
             RefreshLeaderVisuals();
         }
@@ -131,6 +156,11 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
+            var point = (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition);
+            foreach (var view in viewsById.Values)
+                if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
+                    && (view.TerrainView == null || view.TerrainView.IsTraversalVisible(view.DungeonPosition))
+                    && Vector2.Distance(view.Position, point) < .4f && SelectMember(view.CharacterId)) return;
             TryMoveLeaderToPointerPosition();
         }
 
@@ -201,18 +231,22 @@ namespace Godmist.Views.Exploration
             if (gameSession == null) return;
 
             gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
+            gameSession.PlayerParty.GroupsChanged -= CancelMovement;
         }
 
         private void MoveFollowers(ExplorationCharacterView leaderView)
         {
-            if (IsSeparated || gameSession.HasCombat) return;
+            if (gameSession.GetCombatForCharacter(leaderView.CharacterId) != null) return;
             var previousView = leaderView;
 
-            foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
+            foreach (var characterId in gameSession.PlayerParty.GetGroup(gameSession.PlayerParty.GetGroupIndex(leaderView.CharacterId)))
             {
-                if (characterId == gameSession.PlayerParty.ActiveLeaderId) continue;
+                if (characterId == gameSession.PlayerParty.ActiveLeaderId
+                    || !gameSession.PlayerParty.AreGrouped(characterId, leaderView.CharacterId)
+                    || gameSession.GetCombatForCharacter(characterId) != null) continue;
 
-                if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
+                if (!viewsById.TryGetValue(characterId, out var followerView)
+                    || followerView.RuntimeCharacter?.LifeState != CharacterLifeState.Alive) continue;
 
                 if (followerView.UsesLayeredTraversal && !IsNoclipEnabled) FollowTraversal(followerView, previousView);
                 else followerView.MoveTowards(previousView.Position,

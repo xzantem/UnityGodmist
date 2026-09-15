@@ -543,6 +543,10 @@ namespace Godmist.Systems.SaveLoad
             partySaveData.ActiveLeaderId = party.ActiveLeaderId;
             partySaveData.ActiveMemberIds = new List<string>(party.ActiveMemberIds);
             partySaveData.BenchMemberIds = new List<string>(party.BenchMemberIds);
+            partySaveData.GroupsVersion = 1;
+            partySaveData.Groups = new List<PartyGroupSaveData>();
+            for (var i = 0; i < party.GroupCount; i++)
+                partySaveData.Groups.Add(new PartyGroupSaveData { MemberIds = new List<string>(party.GetGroup(i)) });
         }
 
         private static bool TryCaptureCharacter(

@@ -68,6 +68,13 @@ namespace Godmist.Views.Exploration
                 worldBounds.size.y);
         }
 
+        public void CenterOn(Vector3 position, bool followLeader = false)
+        {
+            currentMode = followLeader ? CameraMode.FollowLeader : CameraMode.FreeRoam;
+            isPanning = false;
+            transform.position = ClampToBounds(position + cameraOffset);
+        }
+
         public void SnapToLeader()
         {
             if (partyController == null

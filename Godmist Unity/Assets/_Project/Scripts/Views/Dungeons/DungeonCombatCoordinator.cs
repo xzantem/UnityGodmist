@@ -56,6 +56,7 @@ namespace Godmist.Views.Dungeons
         private readonly Dictionary<string, Vector2Int> trapPreviousCells = new();
         private bool initialized;
         private readonly DungeonVisibilitySystem visibility = new();
+        public void CenterPartyMember(BattleUnit unit) => combatCamera.FocusUnit(unit);
 
         // Queries share the same geometry as detection and the transient FOV preview.
         public bool CanEnemyDetect(ExplorationCharacterView observer, ExplorationCharacterView target)
@@ -204,7 +205,6 @@ namespace Godmist.Views.Dungeons
             combatHost.GetDriver(session).StartTurns();
             trigger.MarkTriggered();
             party.SeparateForCombat();
-            party.CancelMovement();
             RefreshFocus();
             QueueRoomAlert(observer, spotted);
             return true;
@@ -513,7 +513,8 @@ namespace Godmist.Views.Dungeons
             combatHost.Focus(next);
             game.TrySetMode(next == null ? GameModeState.Exploration : GameModeState.Combat);
             combatHudRoot.SetActive(next != null);
-            explorationHudRoot.SetActive(next == null);
+            // The shared party rail stays available when changing the focused combat session.
+            explorationHudRoot.SetActive(true);
             targeting.enabled = next != null;
             movementInput.enabled = next != null;
             inspectInput.enabled = next != null;
