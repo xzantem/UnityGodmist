@@ -1,4 +1,5 @@
 using UnityEngine;
+using Godmist.Views.Combat;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 
@@ -27,23 +28,32 @@ namespace Godmist.Views.Exploration
         public bool IsFollowingLeader => currentMode == CameraMode.FollowLeader;
 
         private bool combatSuspended;
-        private float explorationZoom;
-        private bool restoringZoom;
+        private float targetZoom;
+        private bool zooming;
         public void SetCombatSuspended(bool suspended)
         {
             if (combatSuspended == suspended) return;
-            if (worldCamera != null)
-            {
-                if (suspended)
-                {
-                    if (!restoringZoom) explorationZoom = worldCamera.orthographicSize;
-                    restoringZoom = false;
-                }
-                else restoringZoom = true;
-            }
             combatSuspended = suspended;
+            zooming = false;
+            if (worldCamera != null) targetZoom = worldCamera.orthographicSize;
             isPanning = false;
             enabled = !suspended;
+        }
+
+        public void Zoom(float steps)
+        {
+            if (combatSuspended || worldCamera == null || !worldCamera.orthographic || steps == 0f) return;
+            targetZoom = CombatCameraFramer.ScrollZoom(zooming ? targetZoom : worldCamera.orthographicSize, steps);
+            zooming = true;
+        }
+        public void TickZoom(float deltaTime)
+        {
+            if (combatSuspended || !zooming || worldCamera == null) return;
+            var blend = 1f - Mathf.Exp(-CombatCameraFramer.DefaultTransitionSpeed * Mathf.Max(0f, deltaTime));
+            worldCamera.orthographicSize = Mathf.Lerp(worldCamera.orthographicSize, targetZoom, blend);
+            if (Mathf.Abs(worldCamera.orthographicSize-targetZoom) < .01f)
+            { worldCamera.orthographicSize = targetZoom; zooming = false; }
+            transform.position = ClampToBounds(transform.position);
         }
 
         private void Awake()
@@ -91,7 +101,7 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
+            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
@@ -105,18 +115,13 @@ namespace Godmist.Views.Exploration
                     : CameraMode.FollowLeader;
             }
 
+            if (!UIWorkspaceInputRouter.IsPointerOverUi()) Zoom(Input.mouseScrollDelta.y);
             HandleFreeRoamPanning();
         }
 
         private void LateUpdate()
         {
-            if (restoringZoom && worldCamera != null)
-            {
-                worldCamera.orthographicSize = Mathf.Lerp(worldCamera.orthographicSize, explorationZoom,
-                    1f - Mathf.Exp(-followSpeed * Time.unscaledDeltaTime));
-                if (Mathf.Abs(worldCamera.orthographicSize - explorationZoom) < 0.01f)
-                { worldCamera.orthographicSize = explorationZoom; restoringZoom = false; }
-            }
+            TickZoom(Time.unscaledDeltaTime);
             if (currentMode != CameraMode.FollowLeader) return;
             if (partyController == null || partyController.ActiveLeaderTransform == null) return;
 
