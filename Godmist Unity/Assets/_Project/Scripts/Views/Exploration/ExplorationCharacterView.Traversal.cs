@@ -49,7 +49,8 @@ namespace Godmist.Views.Exploration
         private void RestoreTraversalPosition()
         {
             localTraversalPosition = null;
-            if (!UsesLayeredTraversal) return;
+            if (terrainMap == null || terrainView == null
+                || !UsesLayeredTraversal && !TraversalActorId.StartsWith("enemy:", StringComparison.Ordinal)) return;
             if (terrainFloor != null && !string.IsNullOrWhiteSpace(TraversalActorId)
                 && terrainFloor.TryGetActorPosition(TraversalActorId, out var saved))
             {
@@ -65,8 +66,11 @@ namespace Godmist.Views.Exploration
                 var current = DungeonPosition;
                 if (terrainMap.TryGetTraversalCell(current, out _)) StoreTraversalPosition(current);
             }
-            if (body != null) body.simulated = false;
-            if (movementCollider != null) movementCollider.enabled = false;
+            if (UsesLayeredTraversal)
+            {
+                if (body != null) body.simulated = false;
+                if (movementCollider != null) movementCollider.enabled = false;
+            }
         }
 
 

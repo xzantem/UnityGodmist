@@ -7,6 +7,7 @@ namespace Godmist.Runtime.Dungeons
 {
     public class DungeonFloorInstance
     {
+        public Dictionary<string, DungeonPatrolState> Patrols { get; } = new();
         public DungeonFogState Fog { get; } = new();
         private readonly List<DungeonRoomInstance> rooms = new();
         private readonly List<DungeonRoomConnection> connections = new();

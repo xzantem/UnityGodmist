@@ -121,6 +121,7 @@ namespace Godmist.Views.Dungeons
             foreach (var view in party.ActiveMemberViews) previousExplorationPositions[view.CharacterId] = view.Position;
             trapSystem = new DungeonTrapSystem(floor, game.ActiveDungeon.DungeonLevel,
                 session => session == null ? combatHost.DungeonFeedback : combatHost.GetDriver(session)?.FeedbackBus);
+            InitializePatrols();
             initialized = true;
             UpdateFog(true);
             SetFocus(null, true);
@@ -232,6 +233,7 @@ namespace Godmist.Views.Dungeons
                 else if (Input.GetKeyDown(KeyCode.PageDown)) { map.StepViewedLevel(-1); gridFeedback.RefreshVisibility(); }
             }
             AdvanceExplorationTraps();
+            UpdatePatrols();
             UpdateFog();
             UpdateDetection();
             ProcessRoomAlerts();

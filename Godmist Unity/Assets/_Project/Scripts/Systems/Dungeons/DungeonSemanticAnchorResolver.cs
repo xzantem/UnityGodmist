@@ -16,7 +16,8 @@ namespace Godmist.Systems.Dungeons
             DungeonFloorInstance floor,
             DungeonRoomTemplateCatalog catalog,
             DungeonEncounterInstance encounter,
-            bool normalizeLegacyData = true)
+            bool normalizeLegacyData = true,
+            Dictionary<string, Vector2Int> stationaryHomes = null)
         {
             var result = new Dictionary<string, Vector2Int>(
                 StringComparer.Ordinal);
@@ -93,6 +94,9 @@ namespace Godmist.Systems.Dungeons
                         $"Enemy '{enemyId}' ma wiecej niz jeden anchor "
                         + $"w pokoju '{candidate.Room.TemplateId}'.");
                 }
+
+                if (candidate.Anchor.PatrolMode == DungeonEnemyPatrolMode.Stationary)
+                    stationaryHomes?.Add(enemyId, cell);
 
                 if (!usedCells.Add(cell))
                 {

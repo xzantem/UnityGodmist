@@ -210,6 +210,21 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void StationaryHomePersistsSeparatelyFromCurrentPositionAndLegacyDefaultsToPatrol()
+        {
+            floor.Encounters[0].StationaryEnemyHomes.Add("enemy.alive", new Vector2Int(6, 0));
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var encounter = restored.ActiveDungeon.Floors[0].Encounters[0];
+            Assert.That(encounter.StationaryEnemyHomes["enemy.alive"], Is.EqualTo(new Vector2Int(6,0)));
+            Assert.That(encounter.EnemyExplorationPositions["enemy.alive"], Is.EqualTo(new Vector2Int(7,0)));
+            saved.ActiveDungeon.Layout[0].Encounters[0].StationaryHomes = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].Encounters[0].StationaryEnemyHomes, Is.Empty);
+        }
+
+        [Test]
         public void RoundTripRetainsGeometryObjectsStatesAndRewardsAfterPoolReplacement()
         {
             var serializer = new GameSaveJsonSerializer();

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
@@ -108,6 +109,8 @@ namespace Godmist.Systems.SaveLoad
                     };
                     foreach (var pair in encounter.EnemyExplorationPositions)
                         entry.EnemyPositions.Add(new DungeonEnemyPositionSaveData { Id = pair.Key, X = pair.Value.x, Y = pair.Value.y });
+                    entry.StationaryHomes = encounter.StationaryEnemyHomes.OrderBy(p => p.Key, StringComparer.Ordinal)
+                        .Select(p => new DungeonEnemyPositionSaveData { Id = p.Key, X = p.Value.x, Y = p.Value.y }).ToList();
                     entry.EnemyPositions.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
                     data.Encounters.Add(entry);
                 }
@@ -261,6 +264,11 @@ namespace Godmist.Systems.SaveLoad
                     foreach (var enemy in encounter.EnemyPositions)
                         if (enemy == null || string.IsNullOrWhiteSpace(enemy.Id) || !enemyIds.Add(enemy.Id)
                             || !restored.TrySetEnemyExplorationPosition(enemy.Id, new Vector2Int(enemy.X, enemy.Y))) return false;
+                    if (encounter.StationaryHomes != null)
+                        foreach (var home in encounter.StationaryHomes)
+                            if (home == null || string.IsNullOrWhiteSpace(home.Id)
+                                || floor.Map == null || !floor.Map.FloorCells.Contains(new Vector2Int(home.X, home.Y))
+                                || !restored.StationaryEnemyHomes.TryAdd(home.Id, new Vector2Int(home.X, home.Y))) return false;
                     if (!floor.TryAddEncounter(restored)) return false;
                 }
             }

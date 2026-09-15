@@ -17,6 +17,43 @@ namespace Godmist.Tests.EditMode
     public class DungeonFogTests
     {
         [Test]
+        public void ConsoleMapCommandsUseFogMemoryAndToggleDoesNotRevealKnowledge()
+        {
+            var session = new Godmist.Runtime.Game.GameSession();
+            var dungeon = new DungeonInstance("debug", 2);
+            session.TrySetActiveDungeon(dungeon);
+            var floor = new DungeonFloorInstance(0);
+            var map = new DungeonFloorMap();
+            map.TryAddFloorCell(Vector2Int.zero, "room");
+            map.TryAddFloorCell(new DungeonSurfacePosition(Vector2Int.right, 1), "room");
+            floor.TrySetMap(map); dungeon.TryAddFloor(floor);
+            var service = new Godmist.Systems.Debugging.DevConsoleCommandService();
+            Assert.That(service.Execute("revealmap", session, null).Success, Is.True);
+            Assert.That(floor.Fog.Discovered.Count, Is.EqualTo(2));
+            Assert.That(floor.Fog.Visible, Is.Empty);
+            Assert.That(DungeonFogPersistence.Capture(floor).Discovered.Count, Is.EqualTo(2));
+            Assert.That(service.Execute("clearmap", session, null).Success, Is.True);
+            Assert.That(floor.Fog.Discovered, Is.Empty);
+            var revision = floor.Fog.DebugRevision;
+            Assert.That(service.Execute("togglefog", session, null).Success, Is.True);
+            Assert.That(floor.Fog.DebugFogDisabled, Is.True);
+            Assert.That(floor.Fog.DebugRevision, Is.GreaterThan(revision));
+            Assert.That(DungeonFogPersistence.Capture(floor).Discovered, Is.Empty);
+            var go = new GameObject("fog test");
+            try
+            {
+                var view = go.AddComponent<DungeonFloorMapView>();
+                typeof(DungeonFloorMapView).GetProperty("FogFloor").SetValue(view, floor);
+                Assert.That(view.Knowledge(At(0)), Is.EqualTo(DungeonKnowledge.Visible));
+                Assert.That(floor.Fog.IsVisible(At(0)), Is.False);
+                Assert.That(service.Execute("togglefog", session, null).Success, Is.True);
+                Assert.That(view.Knowledge(At(0)), Is.EqualTo(DungeonKnowledge.Unexplored));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(go); }
+            Assert.That(service.Execute("togglefog", new Godmist.Runtime.Game.GameSession(), null).Success, Is.False);
+        }
+
+        [Test]
         public void WallHeavyVisibilityBatchMatchesReferenceAndReportsCost()
         {
             var map = new DungeonFloorMap();

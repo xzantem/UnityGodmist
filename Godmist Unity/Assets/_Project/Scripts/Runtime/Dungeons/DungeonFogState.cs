@@ -20,6 +20,16 @@ namespace Godmist.Runtime.Dungeons
         public Dictionary<string, DungeonObjectKnowledge> Objects { get; } = new();
         public HashSet<string> Bodies { get; } = new();
         public HashSet<DungeonSurfaceEdge> ClosedGates { get; } = new();
+        // Console overrides are transient and are not part of save data.
+        public bool DebugFogDisabled { get; private set; }
+        public int DebugRevision { get; private set; }
+        public void ToggleDebugFog() { DebugFogDisabled = !DebugFogDisabled; DebugRevision++; }
+        public void SetMapDiscovered(bool reveal)
+        {
+            discovered.Clear(); Objects.Clear(); Bodies.Clear(); ClosedGates.Clear();
+            RevealLegacyMap = reveal;
+            DebugRevision++;
+        }
         public bool RevealLegacyMap { get; set; }
         public bool IsVisible(DungeonTraversalPosition position) => visible.Contains(position);
         public DungeonKnowledge Get(DungeonTraversalPosition position) => visible.Contains(position)

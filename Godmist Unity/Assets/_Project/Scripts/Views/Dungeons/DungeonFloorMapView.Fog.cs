@@ -13,12 +13,12 @@ namespace Godmist.Views.Dungeons
         public void ApplyFog(DungeonFloorInstance floor)
         {
             FogFloor = floor;
-            elevation.SetFogVisibility(floor?.Fog.Visible);
+            elevation.SetFogVisibility(floor?.Fog.DebugFogDisabled == true ? null : floor?.Fog.Visible);
             RefreshElevationPresentation();
         }
-        public DungeonKnowledge Knowledge(DungeonTraversalPosition node) => FogFloor?.Fog.Get(node) ?? DungeonKnowledge.Visible;
+        public DungeonKnowledge Knowledge(DungeonTraversalPosition node) => FogFloor?.Fog.DebugFogDisabled == true ? DungeonKnowledge.Visible : FogFloor?.Fog.Get(node) ?? DungeonKnowledge.Visible;
         public bool IsCurrentlySeen(DungeonTraversalPosition node) => Knowledge(node) == DungeonKnowledge.Visible;
-        public bool IsObjectCurrentlySeen(DungeonObjectInstance obj) => FogFloor == null || DungeonFogSystem.IsObjectVisible(FogFloor, obj);
+        public bool IsObjectCurrentlySeen(DungeonObjectInstance obj) => FogFloor == null || FogFloor.Fog.DebugFogDisabled || DungeonFogSystem.IsObjectVisible(FogFloor, obj);
         public DungeonObjectKnowledge KnownObject(DungeonObjectInstance obj) => FogFloor != null
             && FogFloor.Fog.Objects.TryGetValue(obj.InstanceId, out var known) ? known : null;
         public DungeonKnowledge EdgeKnowledge(DungeonSurfaceEdge edge)
@@ -49,7 +49,7 @@ namespace Godmist.Views.Dungeons
             foreach (var pair in rememberedGates)
                 foreach (var renderer in pair.Value.GetComponentsInChildren<Renderer>(true))
                 {
-                    renderer.forceRenderingOff = closed.Contains(pair.Key) || !FogFloor.Fog.ClosedGates.Contains(pair.Key)
+                    renderer.forceRenderingOff = FogFloor.Fog.DebugFogDisabled || closed.Contains(pair.Key) || !FogFloor.Fog.ClosedGates.Contains(pair.Key)
                         || EdgeKnowledge(pair.Key) == DungeonKnowledge.Unexplored || !elevation.IsVisible(pair.Key);
                     TintFog(renderer, DungeonKnowledge.Remembered);
                 }

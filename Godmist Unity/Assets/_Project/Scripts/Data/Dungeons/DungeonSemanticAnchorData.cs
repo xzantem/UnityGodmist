@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Godmist.Data.Dungeons
 {
+    public enum DungeonEnemyPatrolMode { Patrol = 0, Stationary = 1 }
+
     [Serializable]
     public class DungeonSemanticAnchorData
     {
@@ -21,6 +23,9 @@ namespace Godmist.Data.Dungeons
 
         [field: SerializeField]
         public int EncounterEnemyIndex { get; private set; } = -1;
+
+        [field: SerializeField]
+        public DungeonEnemyPatrolMode PatrolMode { get; private set; }
 
         [field: SerializeField, Range(0f, 1f)]
         public float SpawnChance { get; private set; } = 1f;
@@ -57,8 +62,10 @@ namespace Godmist.Data.Dungeons
             string activationGroupId = null,
             int encounterEnemyIndex = -1,
             DungeonObjectDefinition objectDefinition = null,
-            string distributionKey = null)
+            string distributionKey = null,
+            DungeonEnemyPatrolMode patrolMode = DungeonEnemyPatrolMode.Patrol)
         {
+            PatrolMode = patrolMode;
             DistributionKey = distributionKey ?? string.Empty;
             ObjectDefinition = objectDefinition;
             Id = id ?? string.Empty;

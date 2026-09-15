@@ -13,12 +13,15 @@ namespace Godmist.Views.Dungeons
         private (string Id, bool Active, bool State)[] fogObjects;
         private DungeonFloorMap fogMap;
         private float nextFogTime;
+        private int fogDebugRevision = -1;
         private int fogBodyCount = -1;
         private readonly HashSet<DungeonTraversalPosition> previousFogVisible = new();
 
         private void UpdateFog(bool force = false)
         {
+            force |= fogDebugRevision != floor.Fog.DebugRevision;
             if (!force && Time.unscaledTime < nextFogTime) return;
+            fogDebugRevision = floor.Fog.DebugRevision;
             nextFogTime = Time.unscaledTime + .1f;
             var observers = party.ActiveMemberViews.Where(IsLiving).Select(view => view.DungeonPosition).ToArray();
             var objectStates = floor.Objects.Select(obj => (obj.InstanceId, obj.IsActive, DungeonFogSystem.ReadState(obj))).ToArray();

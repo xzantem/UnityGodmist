@@ -367,6 +367,8 @@ namespace Godmist.Views.Exploration
             nextAnimationFrameTime = Time.time + secondsPerAnimationFrame;
         }
 
+        public void FaceTowards(Vector2 worldPosition) => SetFacingDirection(worldPosition - Position);
+
         private void SetFacingDirection(Vector2 movementDirection)
         {
             if (movementDirection.sqrMagnitude > .000001f)

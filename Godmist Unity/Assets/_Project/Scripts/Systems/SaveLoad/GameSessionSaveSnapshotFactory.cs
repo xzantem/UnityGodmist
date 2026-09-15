@@ -334,6 +334,7 @@ namespace Godmist.Systems.SaveLoad
                 var floorDelta = new DungeonFloorDeltaSaveData
                 {
                     FloorIndex = floor.FloorIndex,
+                    Patrols = DungeonPatrolPersistence.Capture(floor),
                     Fog = DungeonFogPersistence.Capture(floor)
                 };
 

@@ -863,6 +863,7 @@ namespace Godmist.Editor
             if (enemy)
             {
                 EditorGUILayout.PropertyField(Field(property, "EncounterEnemyIndex"), new GUIContent("Indeks przeciwnika"));
+                EditorGUILayout.PropertyField(Field(property, "PatrolMode"), new GUIContent("Ruch poza walką"));
                 EditorGUILayout.HelpBox("Indeks na liście Enemies w EncounterDefinition, liczony od 0.", MessageType.Info);
             }
             else
@@ -1306,6 +1307,7 @@ namespace Godmist.Editor
                 "<EncounterEnemyIndex>k__BackingField").intValue = -1;
             element.FindPropertyRelative("<ObjectDefinition>k__BackingField").objectReferenceValue = null;
             Field(element, "DistributionKey").stringValue = string.Empty;
+            Field(element, "PatrolMode").enumValueIndex = 0;
             ClearAnchorSelection();
             selectedSemanticAnchor = newIndex;
             selectedAnchorIds.Add(Field(element, "Id").stringValue);

@@ -12,17 +12,7 @@ namespace Godmist.Systems.Dungeons
         public void Update(DungeonFloorInstance floor, IReadOnlyList<DungeonTraversalPosition> observers)
         {
             if (floor?.Map == null) return;
-            if (floor.Fog.RevealLegacyMap)
-            {
-                foreach (var surface in floor.Map.Surfaces) floor.Fog.RestoreDiscovered(floor.Map, new DungeonTraversalPosition(surface));
-                foreach (var stair in floor.Map.Stairs)
-                    if (floor.Map.TryGetStairPath(stair, out var path))
-                        for (var i = 1; i < path.Count - 1; i++) floor.Fog.RestoreDiscovered(floor.Map, new DungeonTraversalPosition(stair, i));
-                foreach (var obj in floor.Objects) Remember(floor, obj);
-                foreach (var body in floor.EnemyBodies) floor.Fog.Bodies.Add(body.InstanceId);
-                floor.Fog.ClosedGates.UnionWith(floor.Map.SurfaceClosedProgressionGateEdges);
-                floor.Fog.RevealLegacyMap = false;
-            }
+            if (floor.Fog.RevealLegacyMap) RevealMap(floor);
             visibility.CollectPartyVisible(floor, observers, visible);
             discovered.Clear();
             foreach (var position in visible)
@@ -46,6 +36,19 @@ namespace Godmist.Systems.Dungeons
             floor.Fog.ClosedGates.RemoveWhere(edge => !closed.Contains(edge) && EdgeSeen(floor, edge));
             foreach (var edge in closed) if (EdgeSeen(floor, edge)) floor.Fog.ClosedGates.Add(edge);
         }
+        public static void RevealMap(DungeonFloorInstance floor)
+        {
+            if (floor?.Map == null) return;
+            foreach (var surface in floor.Map.Surfaces) floor.Fog.RestoreDiscovered(floor.Map, new DungeonTraversalPosition(surface));
+            foreach (var stair in floor.Map.Stairs)
+                if (floor.Map.TryGetStairPath(stair, out var path))
+                    for (var i = 1; i < path.Count - 1; i++) floor.Fog.RestoreDiscovered(floor.Map, new DungeonTraversalPosition(stair, i));
+            foreach (var obj in floor.Objects) Remember(floor, obj);
+            foreach (var body in floor.EnemyBodies) floor.Fog.Bodies.Add(body.InstanceId);
+            floor.Fog.ClosedGates.UnionWith(floor.Map.SurfaceClosedProgressionGateEdges);
+            floor.Fog.RevealLegacyMap = false;
+        }
+
         private static bool EdgeSeen(DungeonFloorInstance floor, DungeonSurfaceEdge edge)
             => floor.Fog.IsVisible(new DungeonTraversalPosition(edge.First)) || floor.Fog.IsVisible(new DungeonTraversalPosition(edge.Second));
 

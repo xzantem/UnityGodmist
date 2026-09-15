@@ -116,6 +116,7 @@ namespace Godmist.Systems.Debugging
                 "noclip" => SetNoclip(tokens, noclipHandler),
                 "revealmap" => SetMapVisibility(gameSession, true),
                 "clearmap" => SetMapVisibility(gameSession, false),
+                "togglefog" => ToggleFog(gameSession),
                 "goto" => Goto(tokens, gotoHandler, debugSeed),
                 "teleport" => Teleport(tokens, teleportHandler),
                 "advance" => Advance(tokens, advanceHandler),
@@ -287,6 +288,15 @@ namespace Godmist.Systems.Debugging
             return handler == null ? Fail("Noclip jest dostępny tylko w scenie eksploracji.") : handler(enabled);
         }
 
+        private static DevConsoleCommandResult ToggleFog(GameSession session)
+        {
+            var dungeon = session?.ActiveDungeon;
+            if (dungeon == null) return Fail("Brak aktywnego lochu.");
+            foreach (var floor in dungeon.Floors) floor.Fog.ToggleDebugFog();
+            return Success(dungeon.Floors.Count > 0 && dungeon.Floors[0].Fog.DebugFogDisabled
+                ? "Fog of War: wyłączony (debug, bez odkrywania mapy)." : "Fog of War: włączony.");
+        }
+
         private static DevConsoleCommandResult SetMapVisibility(GameSession gameSession, bool visible)
         {
             var dungeon = gameSession?.ActiveDungeon;
@@ -295,6 +305,8 @@ namespace Godmist.Systems.Debugging
             var changed = 0;
             foreach (var floor in dungeon.Floors)
             {
+                floor.Fog.SetMapDiscovered(visible);
+                if (visible) Godmist.Systems.Dungeons.DungeonFogSystem.RevealMap(floor);
                 foreach (var room in floor.Rooms)
                 {
                     if (room != null && room.IsVisited != visible)

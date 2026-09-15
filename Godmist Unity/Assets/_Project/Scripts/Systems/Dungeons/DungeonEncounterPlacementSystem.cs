@@ -213,7 +213,7 @@ namespace Godmist.Systems.Dungeons
             foreach (var anchoredEnemy in enemyAnchorResolver.Resolve(
                          floor,
                          dungeon.Definition.RoomTemplateCatalog,
-                         encounter))
+                         encounter, stationaryHomes: encounter.StationaryEnemyHomes))
             {
                 encounter.TrySetEnemyExplorationPosition(
                     anchoredEnemy.Key,

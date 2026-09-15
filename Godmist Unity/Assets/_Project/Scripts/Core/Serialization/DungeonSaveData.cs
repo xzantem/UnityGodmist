@@ -29,6 +29,7 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonFloorDeltaSaveData
     {
+        public List<DungeonPatrolSaveData> Patrols;
         public DungeonFogSaveData Fog;
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
@@ -38,6 +39,17 @@ namespace Godmist.Core.Serialization
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
         public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonPatrolSaveData
+    {
+        public string EnemyKey;
+        public List<int> StopIndices; // null in legacy per-cell patrol saves
+        public List<DungeonActorPositionSaveData> Route = new();
+        public int NextPoint, Stops;
+        public float WaitRemaining;
+        public string ObservedCharacterId;
     }
 
     [Serializable]
@@ -168,6 +180,7 @@ namespace Godmist.Core.Serialization
         public int PositionX, PositionY, RetreatX, RetreatY;
         public bool HasRetreat;
         public List<DungeonEnemyPositionSaveData> EnemyPositions = new();
+        public List<DungeonEnemyPositionSaveData> StationaryHomes;
     }
 
     [Serializable]
