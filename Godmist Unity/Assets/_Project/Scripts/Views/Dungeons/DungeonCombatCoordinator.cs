@@ -60,7 +60,10 @@ namespace Godmist.Views.Dungeons
         // Queries share the same geometry as detection and the transient FOV preview.
         public bool CanEnemyDetect(ExplorationCharacterView observer, ExplorationCharacterView target)
             => observer != null && target != null && visibility.CanDetect(floor, observer.DungeonPosition,
-                observer.FacingDirection, observer.VisionRange, observer.VisionAngle, target.DungeonPosition);
+                observer.FacingDirection, observer.VisionRange, EnemyObservationAngle(observer), target.DungeonPosition);
+
+        private float EnemyObservationAngle(ExplorationCharacterView observer)
+            => Owner(observer)?.Outcome == CombatOutcomeState.Ongoing ? 360f : observer.VisionAngle;
 
         public void CollectPartyVisibility(HashSet<DungeonTraversalPosition> result)
         {
@@ -176,6 +179,11 @@ namespace Godmist.Views.Dungeons
                 nextBindings.Add(unit, view);
             }
             if (!game.TryRegisterDungeonCombat(session)) return RejectStart();
+            session.Contact = new DungeonContactState((enemy, player) =>
+                bindings.TryGetValue(enemy, out var enemyView) && visibility.CanObserveCombat(floor,
+                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, enemy.Position),
+                    enemyView.VisionRange,
+                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, player.Position)));
             session.CanReceiveReinforcements = DungeonCombatArenaSystem.CanReceiveReinforcements(game, session);
             RefreshExits(session);
             // Start execution only after every participant has a valid, unique view.
@@ -184,7 +192,9 @@ namespace Godmist.Views.Dungeons
             foreach(var trap in floor.Objects.OfType<SpikeTrapDungeonObjectInstance>())
                 if(session.DungeonContext.ContainsWorldCell(trap.Position))
                     session.MapObjects.Add(new TrapCombatMapObject(trap, DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, trap.Position)));
-            session.UnitEnteredCell = unit => { if (unit.Position.Level == 0 && !unit.Position.IsOnStairs) trapSystem.EnterCell(
+            session.UnitEnteredCell = unit => {
+                session.Contact?.Refresh(session);
+                if (unit.Position.Level == 0 && !unit.Position.IsOnStairs) trapSystem.EnterCell(
                 DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, unit.Position), GatherTrapOccupants()); };
             session.TrapRouteState = path => trapSystem.RouteState(path.Where(cell => cell.Level == 0 && !cell.IsOnStairs).Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             session.EvaluateTrapRisk = (unit, path) => trapSystem.EstimateRisk(unit,
@@ -196,6 +206,7 @@ namespace Godmist.Views.Dungeons
             party.SeparateForCombat();
             party.CancelMovement();
             RefreshFocus();
+            QueueRoomAlert(observer, spotted);
             return true;
         }
 
@@ -223,6 +234,7 @@ namespace Godmist.Views.Dungeons
             AdvanceExplorationTraps();
             UpdateFog();
             UpdateDetection();
+            ProcessRoomAlerts();
             ProcessPendingMerges();
             if (CampaignDefeatSystem.ShouldDefeat(game)) { EndCampaign(); return; }
             foreach (var session in game.Combats.ToArray())
@@ -232,9 +244,10 @@ namespace Godmist.Views.Dungeons
                 session.CanReceiveReinforcements = DungeonCombatArenaSystem.CanReceiveReinforcements(game, session);
                 RefreshExits(session);
                 var driver = combatHost.GetDriver(session);
+                session.Contact?.Refresh(session);
                 foreach (var unit in session.Units.ToArray())
                 {
-                    if (!unit.IsPlayerSide || !session.IsExitPosition(unit.Position) || !driver.TryLeave(unit)) continue;
+                    if (!unit.IsPlayerSide || !driver.TryLeave(unit)) continue;
                     retainedPlayers[unit.Character.CharacterId] = unit;
                     session.HasEscapePenaltyEligibleCharacters = true;
                     session.EscapePenaltyEligibleCharacterIds.Add(unit.Character.CharacterId);

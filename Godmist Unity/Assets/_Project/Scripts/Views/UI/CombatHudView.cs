@@ -22,9 +22,9 @@ namespace Godmist.Views.UI
         [SerializeField] private TMPro.TextMeshProUGUI targetName, targetHealth;
         private CombatTurnPortraitView timelineSource;
         private BattleUnit timelineUnit;
-        private BattleUnit Known(BattleUnit unit) => sandboxBootstrap == null || sandboxBootstrap.IsUnitKnown(unit) ? unit : null;
-        public BattleUnit HoveredUnit => Known(timelineUnit ?? targeting?.HoveredUnit ?? inspect?.HoveredUnit);
-        public BattleUnit HighlightedUnit => HoveredUnit ?? Known(inspect?.InspectedUnit);
+        private BattleUnit Visible(BattleUnit unit) => unit?.IsPlayerSide == true || sandboxBootstrap == null || sandboxBootstrap.IsUnitVisible(unit) ? unit : null;
+        public BattleUnit HoveredUnit => Visible(timelineUnit ?? targeting?.HoveredUnit ?? inspect?.HoveredUnit);
+        public BattleUnit HighlightedUnit => HoveredUnit ?? Visible(inspect?.InspectedUnit);
         public void SetTimelineHover(CombatTurnPortraitView source, BattleUnit unit)
         {
             if(unit == null && timelineSource != source)return;
@@ -49,7 +49,7 @@ namespace Godmist.Views.UI
             var cost=unit!=null && unit.IsPlayerSide
                 ? skill!=null ? (skill.IsToggle && unit.ActiveToggleSkillIds.Contains(skill.SkillId) ? 0 : CombatActionCostCalculator.CalculateSkillCost(unit,skill)) : movement?.PreviewCost??0
                 : 0;
-            activeUnitView?.Bind(Known(unit), true, cost);
+            activeUnitView?.Bind(Visible(unit), true, cost);
             var target=HoveredUnit;
             if(targetPanel!=null)targetPanel.SetActive(target?.Character!=null && session.Units.Contains(target));
             if(target?.Character!=null){if(targetName!=null)targetName.text=target.Character.Definition?.DisplayName??target.Character.CharacterId;if(targetHealth!=null)targetHealth.text=$"{target.Character.CurrentHealth}/{target.Character.Stats?.MaxHealth.GetValue():0} HP";}

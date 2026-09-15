@@ -66,6 +66,7 @@ namespace Godmist.Systems.Combat
                 || destination.Units.Any(unit => source.Units.Any(other => other.Character.CharacterId == unit.Character.CharacterId))) return false;
 
             destination.Units.AddRange(source.Units);
+            destination.Contact?.Absorb(source.Contact);
             destination.TurnParticipants.AddRange(source.TurnParticipants);
             destination.Summons.AddRange(source.Summons);
             destination.SummonedObjects.AddRange(source.SummonedObjects);

@@ -37,6 +37,286 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
         }
 
+        [Test]
+        public void ContactEscapeRequiresFullTurnsOfEveryEnemyAndResetsOnReacquisition()
+        {
+            var session = CreateNavigationSession(8, 2, new GridPosition(0, 0), new GridPosition(6, 0));
+            var first = session.Units[0]; var player = session.Units[1];
+            var second = CreateAiCombatUnit("second", false, new GridPosition(0, 1));
+            session.Units.Add(second);
+            var seen = false;
+            session.Contact = new DungeonContactState((e, p) => seen);
+            session.Contact.BeginTurn(session, first); session.Contact.EndTurn(session, first);
+            Assert.That(session.Contact.CanLeave(session, player), Is.False);
+            session.Contact.BeginTurn(session, second);
+            seen = true; session.Contact.Refresh(session);
+            seen = false; session.Contact.EndTurn(session, second);
+            Assert.That(session.Contact.CanLeave(session, player), Is.False);
+            session.Contact.BeginTurn(session, first); session.Contact.EndTurn(session, first);
+            session.Contact.BeginTurn(session, second); session.Contact.EndTurn(session, second);
+            Assert.That(session.Contact.CanLeave(session, player), Is.False);
+            session.Contact.BeginTurn(session, first); session.Contact.EndTurn(session, first);
+            Assert.That(session.Contact.CanLeave(session, player), Is.False);
+            session.Contact.BeginTurn(session, second); session.Contact.EndTurn(session, second);
+            Assert.That(session.Contact.CanLeave(session, player), Is.True);
+            session.IsSeamless = session.IsDungeonWide = true;
+            Assert.That(DungeonCombatParticipationSystem.TryLeave(session, player), Is.True);
+            Assert.That(session.DepartedUnits[player.Character.CharacterId], Is.SameAs(player));
+            Assert.That(session.Units.Contains(player), Is.False);
+            new CombatOutcomeSystem().EvaluateCombatOutcome(session);
+            Assert.That(session.Outcome, Is.EqualTo(CombatOutcomeState.Escaped));
+        }
+
+        [Test]
+        public void ContactDoesNotCountPartialTurnAndWaitsForNewEnemy()
+        {
+            var session = CreateNavigationSession(8, 2, new GridPosition(0, 0), new GridPosition(6, 0));
+            var enemy = session.Units[0]; var player = session.Units[1];
+            var seen = true;
+            var contact = session.Contact = new DungeonContactState((e, p) => seen);
+            contact.BeginTurn(session, enemy);
+            seen = false; contact.EndTurn(session, enemy);
+            Assert.That(contact.CanLeave(session, player), Is.False);
+            contact.BeginTurn(session, enemy); contact.EndTurn(session, enemy);
+            Assert.That(contact.CanLeave(session, player), Is.False);
+            contact.BeginTurn(session, enemy); contact.EndTurn(session, enemy);
+            Assert.That(contact.CanLeave(session, player), Is.True);
+            var reinforcement = CreateAiCombatUnit("reinforcement", false, new GridPosition(0, 1));
+            session.Units.Add(reinforcement); contact.Refresh(session);
+            Assert.That(contact.CanLeave(session, player), Is.False);
+            contact.BeginTurn(session, reinforcement); contact.EndTurn(session, reinforcement);
+            Assert.That(contact.CanLeave(session, player), Is.False);
+            contact.BeginTurn(session, reinforcement); contact.EndTurn(session, reinforcement);
+            Assert.That(contact.CanLeave(session, player), Is.True);
+        }
+
+        [Test]
+        public void ContactIsIndividualAndSearchUsesLastSeenPositionInsteadOfHiddenTarget()
+        {
+            var session = CreateNavigationSession(10, 2, new GridPosition(0, 0), new GridPosition(3, 0));
+            var enemy = session.Units[0]; var player = session.Units[1];
+            var visible = true;
+            var contact = session.Contact = new DungeonContactState((e, p) => visible);
+            contact.Refresh(session);
+            visible = false; player.Position = new GridPosition(8, 0); contact.Refresh(session);
+            Assert.That(contact.TryGetSearchPosition(session, enemy, out var last), Is.True);
+            Assert.That(last, Is.EqualTo(new GridPosition(3, 0)));
+            var otherEnemy = CreateAiCombatUnit("uninformed", false, new GridPosition(0, 1));
+            session.Units.Add(otherEnemy);
+            Assert.That(contact.TryGetSearchPosition(session, otherEnemy, out _), Is.False);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.FindClosestPlayerUnit(session, enemy), Is.Null);
+            Assert.That(ai.TryExecuteNextAction(session, enemy, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Movement));
+            Assert.That(enemy.Position.X, Is.LessThanOrEqualTo(3));
+            Assert.That(player.Position.X, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void ContactOtherVisiblePartyMemberDoesNotPreventIndividualEscape()
+        {
+            var session = CreateNavigationSession(8, 2, new GridPosition(0, 0), new GridPosition(6, 0));
+            var enemy = session.Units[0]; var hidden = session.Units[1];
+            var visible = CreateAiCombatUnit("visible", true, new GridPosition(3, 0));
+            session.Units.Add(visible);
+            session.Contact = new DungeonContactState((e, p) => p == visible);
+            session.Contact.BeginTurn(session, enemy); session.Contact.EndTurn(session, enemy);
+            Assert.That(session.Contact.CanLeave(session, hidden), Is.False);
+            session.Contact.BeginTurn(session, enemy); session.Contact.EndTurn(session, enemy);
+            Assert.That(session.Contact.CanLeave(session, hidden), Is.True);
+            Assert.That(session.Contact.CanLeave(session, visible), Is.False);
+            Assert.That(new SimpleCombatAiSystem().FindClosestPlayerUnit(session, enemy), Is.SameAs(visible));
+        }
+
+        [Test]
+        public void ContactMergePreservesIndividualMemoryButRequiresFreshReactionTurns()
+        {
+            var destination = CreateNavigationSession(10, 2, new GridPosition(0, 0), new GridPosition(3, 0));
+            var source = CreateNavigationSession(10, 2, new GridPosition(0, 1), new GridPosition(3, 1));
+            var seen = true;
+            destination.Contact = new DungeonContactState((e, p) => seen);
+            source.Contact = new DungeonContactState((e, p) => seen);
+            destination.Contact.Refresh(destination); source.Contact.Refresh(source);
+            seen = false;
+            destination.Contact.BeginTurn(destination, destination.Units[0]);
+            destination.Contact.EndTurn(destination, destination.Units[0]);
+            Assert.That(destination.Contact.CanLeave(destination, destination.Units[1]), Is.False);
+            destination.Contact.BeginTurn(destination, destination.Units[0]);
+            destination.Contact.EndTurn(destination, destination.Units[0]);
+            Assert.That(destination.Contact.CanLeave(destination, destination.Units[1]), Is.True);
+            destination.Units.AddRange(source.Units);
+            destination.Contact.Absorb(source.Contact); destination.Contact.Refresh(destination);
+            Assert.That(destination.Contact.CanLeave(destination, destination.Units[1]), Is.False);
+            Assert.That(destination.Contact.TryGetSearchPosition(destination, source.Units[0], out var last), Is.True);
+            Assert.That(last, Is.EqualTo(source.Units[1].Position));
+        }
+
+        [Test]
+        public void UnseenTargetCannotBeChosenEvenBySkillWithoutLineOfSightRequirement()
+        {
+            var session = CreateNavigationSession(10, 1, new GridPosition(0, 0), new GridPosition(8, 0));
+            session.Contact = new DungeonContactState((e, p) => false);
+            session.Contact.Refresh(session);
+            var skill = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            var method = typeof(SimpleCombatAiSystem).GetMethod("FilterTargetsByLineOfSight", BindingFlags.NonPublic | BindingFlags.Instance);
+            var targets = (IReadOnlyList<BattleUnit>)method.Invoke(new SimpleCombatAiSystem(),
+                new object[] { session, session.Units[0], skill, new[] { session.Units[1] } });
+            Assert.That(targets.Count, Is.Zero);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void PursuitCrossesRoomBoundaryToVisibleOrLastSeenTarget(bool remainsVisible)
+        {
+            var map = new Godmist.Runtime.Dungeons.DungeonFloorMap();
+            for (var x = 0; x < 10; x++) map.TryAddFloorCell(new Vector2Int(x, 0), x < 4 ? "one" : "two");
+            var floor = new Godmist.Runtime.Dungeons.DungeonFloorInstance(0); floor.TrySetMap(map);
+            var dungeon = new Godmist.Runtime.Dungeons.DungeonInstance("test", 1); dungeon.TryAddFloor(floor);
+            var definition = ScriptableObject.CreateInstance<Godmist.Data.Combat.EncounterDefinition>();
+            createdAssets.Add(definition);
+            var encounter = new Godmist.Runtime.Dungeons.DungeonEncounterInstance("encounter", definition, "one", new RectInt(0, 0, 4, 1));
+            Assert.That(new DungeonCombatContextFactory().TryCreate(dungeon, encounter, out var context, true), Is.True);
+            Assert.That(new DungeonBattleGridFactory().TryCreate(context, out var grid), Is.True);
+            var session = CreateNavigationSession(10, 1, new GridPosition(0, 0), new GridPosition(6, 0));
+            session.Grid = grid; session.DungeonContext = context; session.IsSeamless = session.IsDungeonWide = true;
+            var enemy = session.Units[0]; var target = session.Units[1];
+            var seen = true;
+            session.Contact = new DungeonContactState((e, p) => seen);
+            session.Contact.Refresh(session);
+            seen = remainsVisible;
+            if (!seen) target.Position = new GridPosition(9, 0);
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, enemy, ai.CreateTurnState(), out _), Is.True);
+            Assert.That(enemy.Position.X, Is.GreaterThanOrEqualTo(4), "Enemy must enter the second room.");
+            Assert.That(enemy.Position.X, Is.LessThanOrEqualTo(6));
+        }
+
+        [Test]
+        public void RoomAlertSeedsPursuitWithoutGivingSightOrFollowingHiddenMovement()
+        {
+            var session = CreateNavigationSession(10, 1, new GridPosition(0, 0), new GridPosition(6, 0));
+            var enemy = session.Units[0]; var player = session.Units[1];
+            var contact = session.Contact = new DungeonContactState((e, p) => false);
+            contact.ReceiveAlert(enemy, player, new GridPosition(4, 0));
+            player.Position = new GridPosition(9, 0); contact.Refresh(session);
+            Assert.That(contact.Sees(enemy, player), Is.False);
+            Assert.That(contact.TryGetSearchPosition(session, enemy, out var last), Is.True);
+            Assert.That(last, Is.EqualTo(new GridPosition(4, 0)));
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, enemy, ai.CreateTurnState(), out _), Is.True);
+            Assert.That(enemy.Position.X, Is.LessThanOrEqualTo(4));
+        }
+
+        [Test]
+        public void DelayedRoomAlertDoesNotOverwritePersonalObservation()
+        {
+            var session = CreateNavigationSession(10, 1, new GridPosition(0, 0), new GridPosition(6, 0));
+            var visible = true;
+            var contact = session.Contact = new DungeonContactState((e, p) => visible);
+            contact.Refresh(session); visible = false; contact.Refresh(session);
+            contact.ReceiveAlert(session.Units[0], session.Units[1], new GridPosition(2, 0));
+            Assert.That(contact.TryGetSearchPosition(session, session.Units[0], out var last), Is.True);
+            Assert.That(last, Is.EqualTo(new GridPosition(6, 0)));
+        }
+
+        [Test]
+        public void PursuitContinuesToOtherKnownPositionAfterCheckingNearestOne()
+        {
+            var session = CreateNavigationSession(10, 1, new GridPosition(2, 0), new GridPosition(8, 0));
+            var enemy = session.Units[0]; var player = session.Units[1];
+            var companion = CreateAiCombatUnit("companion", true, new GridPosition(9, 0)); session.Units.Add(companion);
+            session.Contact = new DungeonContactState((e,p) => false);
+            session.Contact.ReceiveAlert(enemy, companion, enemy.Position);
+            session.Contact.ReceiveAlert(enemy, player, new GridPosition(5, 0));
+            var ai = new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session, enemy, ai.CreateTurnState(), out _), Is.True);
+            Assert.That(enemy.Position.X, Is.GreaterThan(2), "A checked empty location must not mask another observed destination.");
+        }
+
+        [Test]
+        public void MovementThroughDoorRecordsVisibleStepsBeforePlayerHidesBesideWall()
+        {
+            var map = new Godmist.Runtime.Dungeons.DungeonFloorMap();
+            for (var x = 0; x < 7; x++) for (var y = 0; y < 4; y++) map.TryAddFloorCell(new Vector2Int(x,y), x < 3 ? "one" : "two");
+            for (var y = 0; y < 4; y++) if (y != 1) map.TryAddWall(new Vector2Int(2,y), new Vector2Int(3,y));
+            var floor = new Godmist.Runtime.Dungeons.DungeonFloorInstance(0); floor.TrySetMap(map);
+            var dungeon = new Godmist.Runtime.Dungeons.DungeonInstance("d",1); dungeon.TryAddFloor(floor);
+            var definition = ScriptableObject.CreateInstance<Godmist.Data.Combat.EncounterDefinition>(); createdAssets.Add(definition);
+            var encounter = new Godmist.Runtime.Dungeons.DungeonEncounterInstance("e",definition,"one",new RectInt(0,0,3,4));
+            new DungeonCombatContextFactory().TryCreate(dungeon,encounter,out var context,true);
+            new DungeonBattleGridFactory().TryCreate(context,out var grid);
+            var session = CreateNavigationSession(7,4,new GridPosition(1,1),new GridPosition(2,1));
+            session.Grid=grid; session.DungeonContext=context;
+            var enemy=session.Units[0]; var player=session.Units[1];
+            var vision = new Godmist.Systems.Dungeons.DungeonVisibilitySystem();
+            session.Contact=new DungeonContactState((e,p)=>vision.CanObserveCombat(floor,
+                DungeonBattleGridFactory.ToDungeonTraversalPosition(context,e.Position),10,
+                DungeonBattleGridFactory.ToDungeonTraversalPosition(context,p.Position)));
+            session.UnitEnteredCell=unit=>session.Contact.Refresh(session);
+            session.Contact.Refresh(session);
+            new CombatMovementSystem().TryMoveAlongPath(session,player,new[]{new GridPosition(3,1),new GridPosition(4,1),new GridPosition(4,2)});
+            Assert.That(session.Contact.Sees(enemy,player),Is.False);
+            Assert.That(session.Contact.TryGetSearchPosition(session,enemy,out var last),Is.True);
+            Assert.That(last,Is.EqualTo(new GridPosition(4,1)));
+            var ai=new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _),Is.True);
+            Assert.That(enemy.Position.X,Is.EqualTo(2), "From the doorway approach the open edge already reveals the player; stop before crossing it.");
+            Assert.That(enemy.Position.Y,Is.EqualTo(1));
+            Assert.That(session.Contact.Sees(enemy,player),Is.True);
+            Assert.That(ai.FindClosestPlayerUnit(session,enemy),Is.SameAs(player));
+        }
+
+        [TestCase(false, 4)]
+        [TestCase(true, 2)]
+        public void PursuitContinuesTwoCellsInObservedDirectionButNeverThroughWall(bool wall, int expectedX)
+        {
+            var session = CreateNavigationSession(10, 2, new GridPosition(0,0), new GridPosition(1,0));
+            var enemy = session.Units[0]; var player = session.Units[1];
+            var seen = true;
+            session.Contact = new DungeonContactState((e,p)=>seen);
+            session.Contact.Refresh(session);
+            player.Position = new GridPosition(2,0); session.Contact.Refresh(session);
+            seen = false;
+            player.Position = new GridPosition(8,1); // Hidden movement must not redirect the search.
+            session.Contact.Refresh(session);
+            if (wall) session.Grid.SetWallEdge(new GridPosition(2,0),new GridPosition(3,0),DungeonWallType.Full);
+            var ai = new SimpleCombatAiSystem();
+            var steps = 0;
+            while (ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _))
+                Assert.That(++steps,Is.LessThan(5),"Search must terminate after its two forward steps.");
+            Assert.That(enemy.Position,Is.EqualTo(new GridPosition(expectedX,0)));
+        }
+
+        [Test]
+        public void SearchStopsMidRouteOnReacquisitionAndNextActionMovesTowardsVisibleTarget()
+        {
+            var session = CreateNavigationSession(10,3,new GridPosition(0,0),new GridPosition(2,2));
+            var enemy=session.Units[0]; var player=session.Units[1];
+            session.Contact=new DungeonContactState((e,p)=>e.Position.X >= 2);
+            session.Contact.ReceiveAlert(enemy,player,new GridPosition(8,0));
+            var ai=new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _),Is.True);
+            Assert.That(enemy.Position,Is.EqualTo(new GridPosition(2,0)));
+            Assert.That(session.Contact.Sees(enemy,player),Is.True);
+            Assert.That(ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _),Is.True);
+            Assert.That(enemy.Position,Is.EqualTo(new GridPosition(2,1)));
+        }
+
+        [Test]
+        public void ReacquisitionDoesNotInferDirectionFromUnobservedMovement()
+        {
+            var session = CreateNavigationSession(10,2,new GridPosition(0,0),new GridPosition(1,0));
+            var seen=true; var player=session.Units[1]; var enemy=session.Units[0];
+            session.Contact=new DungeonContactState((e,p)=>seen);
+            session.Contact.Refresh(session); seen=false; session.Contact.Refresh(session);
+            player.Position=new GridPosition(4,0); seen=true; session.Contact.Refresh(session);
+            seen=false; player.Position=new GridPosition(9,1); session.Contact.Refresh(session);
+            var ai=new SimpleCombatAiSystem();
+            Assert.That(ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _),Is.True);
+            Assert.That(enemy.Position,Is.EqualTo(new GridPosition(4,0)));
+            Assert.That(ai.TryExecuteNextAction(session,enemy,ai.CreateTurnState(),out _),Is.False);
+        }
+
         [TearDown]
         public void TearDown()
         {

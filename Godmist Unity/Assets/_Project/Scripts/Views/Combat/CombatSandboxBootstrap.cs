@@ -62,6 +62,7 @@ namespace Godmist.Views.Combat
         public CombatFeedbackBus DungeonFeedback => dungeonFeedback;
         public bool SeamlessDungeon => seamlessDungeon;
         public CombatSession Session => focused?.Session;
+        public bool IsUnitVisible(BattleUnit unit) => unit != null && (unitViewSpawner == null || unitViewSpawner.IsUnitVisible(unit));
         public bool IsUnitKnown(BattleUnit unit) => unit != null && (unitViewSpawner == null || unitViewSpawner.IsUnitKnown(unit));
         public bool IsPlayerMovementPresentationInProgress => focused?.IsPlayerMovementPresentationInProgress == true;
         public event Action<CombatMapObject> CombatMapObjectChanged;

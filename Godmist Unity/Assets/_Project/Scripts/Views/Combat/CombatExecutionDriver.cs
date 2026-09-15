@@ -78,7 +78,7 @@ namespace Godmist.Views.Combat
         }
         public bool TryLeave(BattleUnit unit)
         {
-            if (IsPlayerMovementPresentationInProgress) return false;
+            if (IsActionInProgress || Session.MembershipChangePending) return false;
             if (!DungeonCombatParticipationSystem.TryLeave(Session, unit)) return false;
             summonSystem?.RemoveSummonsCreatedBy(Session, unit.Character.CharacterId);
             skillExecutionSystem?.CancelScheduledEffectsByCaster(Session, unit.Character.CharacterId);
@@ -690,6 +690,7 @@ namespace Godmist.Views.Combat
             {
                 return;
             }
+            Session.Contact?.BeginTurn(Session, unit);
             resourceRuleSystem?.ProcessTurnStart(unit);
             skillExecutionSystem?.ProcessToggleUpkeep(Session, unit);
             statusEffectSystem?.ProcessTurnStart(Session, unit);
@@ -872,6 +873,7 @@ namespace Godmist.Views.Combat
             skillExecutionSystem?.ProcessScheduledEffects(Session, unit);
             summonSystem?.AdvanceDurationAtTurnEnd(Session, unit);
             CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
+            Session.Contact?.EndTurn(Session, unit);
         }
 
         private void HandleUnitDied(BattleUnit unit)

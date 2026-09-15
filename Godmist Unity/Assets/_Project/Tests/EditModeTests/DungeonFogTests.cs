@@ -105,6 +105,35 @@ namespace Godmist.Tests.EditMode
             }
         }
         [Test]
+        public void HiddenTimelineHoverCannotExposeCurrentTargetAndRecoversWhenVisible()
+        {
+            var instance = new GameObject("visibility-test");
+            instance.SetActive(false);
+            try
+            {
+                var map = instance.AddComponent<DungeonFloorMapView>();
+                var spawner = instance.AddComponent<Godmist.Views.Combat.CombatUnitViewSpawner>();
+                var bootstrap = instance.AddComponent<Godmist.Views.Combat.CombatSandboxBootstrap>();
+                var hud = instance.AddComponent<Godmist.Views.UI.CombatHudView>();
+                var flags = BindingFlags.NonPublic | BindingFlags.Instance;
+                typeof(Godmist.Views.Combat.CombatUnitViewSpawner).GetField("floorMap", flags).SetValue(spawner, map);
+                typeof(Godmist.Views.Combat.CombatSandboxBootstrap).GetField("unitViewSpawner", flags).SetValue(bootstrap, spawner);
+                typeof(Godmist.Views.UI.CombatHudView).GetField("sandboxBootstrap", flags).SetValue(hud, bootstrap);
+                var unit = new Godmist.Runtime.Combat.BattleUnit();
+                var visible = true;
+                spawner.ExplorationPresentationVisible = _ => visible;
+                hud.SetTimelineHover(null, unit);
+                Assert.That(hud.HoveredUnit, Is.SameAs(unit));
+                visible = false;
+                Assert.That(hud.HoveredUnit, Is.Null);
+                Assert.That(hud.HighlightedUnit, Is.Null);
+                visible = true;
+                Assert.That(hud.HoveredUnit, Is.SameAs(unit));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(instance); }
+        }
+
+        [Test]
         public void UnknownTimelineEntryHasNoUnitReferenceOrPortraitAndRecoversWhenSeen()
         {
             var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/CombatHUD/PF_CombatTurnPortrait.prefab");

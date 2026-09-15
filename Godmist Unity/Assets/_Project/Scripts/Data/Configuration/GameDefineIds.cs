@@ -36,6 +36,7 @@ namespace Godmist.Data.Configuration
         public const string ActionPointsPerSpeed = "combat.action_points_per_speed";
         public const string BaseActionValue = "combat.base_action_value";
         public const string EscapeBaseChancePercent = "combat.escape.base_chance_percent";
+        public const string EscapeContactLossTurns = "combat.escape.contact_loss_turns";
         public const string EscapeChanceIncreasePercent = "combat.escape.chance_increase_percent";
         public const string InteractionActionPointPercent = "combat.interaction.action_point_percent";
         public const string DownedTurnLimit = "combat.downed_turn_limit";

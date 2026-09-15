@@ -39,7 +39,11 @@ namespace Godmist.Systems.Combat
         {
             if (session?.IsSeamless != true || unit?.IsPlayerSide != true
                 || unit.Character?.LifeState != CharacterLifeState.Alive
-                || !session.IsExitPosition(unit.Position) || !session.Units.Contains(unit)) return false;
+                || !session.Units.Contains(unit)) return false;
+            session.Contact?.Refresh(session);
+            if (session.IsDungeonWide ? session.Contact?.CanLeave(session, unit) != true
+                : !session.IsExitPosition(unit.Position)) return false;
+            session.Contact?.Forget(unit);
             unit.CurrentActionValue = Math.Max(unit.CurrentActionValue, CombatTurnSystem.CalculateBaseActionValue(unit));
             session.DepartedUnits[unit.Character.CharacterId] = unit;
             session.Units.Remove(unit);

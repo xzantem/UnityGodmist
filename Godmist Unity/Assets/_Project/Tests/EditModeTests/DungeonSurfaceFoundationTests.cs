@@ -58,6 +58,29 @@ namespace Godmist.Tests.EditMode
             => Assert.That(system.CanDetect(Floor(), At(0), Vector2.right, 10, 120, At(distance)), Is.EqualTo(expected));
 
         [Test]
+        public void CombatObservationSeesBehindObserverButRespectsRangeWallsAndDoors()
+        {
+            var floor = Floor();
+            Assert.That(system.CanDetect(floor, At(0), Vector2.right, 10, 120, At(-2)), Is.False);
+            Assert.That(system.CanObserveCombat(floor, At(0), 10, At(-2)), Is.True);
+            Assert.That(system.CanObserveCombat(floor, At(0), 10, At(-11)), Is.False);
+            var edge = new DungeonCellEdge(new Vector2Int(-1, 0), Vector2Int.zero);
+            floor.Map.SetWallType(new DungeonSurfaceEdge(edge), Godmist.Core.Enums.DungeonWallType.Full);
+            Assert.That(system.CanObserveCombat(floor, At(0), 10, At(-2)), Is.False);
+            floor.Map.SetWallType(new DungeonSurfaceEdge(edge), Godmist.Core.Enums.DungeonWallType.Railing);
+            var definition = ScriptableObject.CreateInstance<Godmist.Data.Dungeons.DoorDungeonObjectDefinition>();
+            try
+            {
+                var door = new DoorDungeonObjectInstance("door", definition, edge);
+                floor.TryAddObject(door);
+                Assert.That(system.CanObserveCombat(floor, At(0), 10, At(-2)), Is.False);
+                door.TrySetOpen(true);
+                Assert.That(system.CanObserveCombat(floor, At(0), 10, At(-2)), Is.True);
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
+        [Test]
         public void ConeDependsOnFacingAndSeesAcrossRoomBoundary()
         {
             var floor = Floor();

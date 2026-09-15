@@ -25,6 +25,11 @@ namespace Godmist.Systems.Dungeons
             return HasLineOfSight(floor, observer, target);
         }
 
+        /// <summary>Alert combatants observe all directions; range and physical occlusion still apply.</summary>
+        public bool CanObserveCombat(DungeonFloorInstance floor, DungeonTraversalPosition observer,
+            float range, DungeonTraversalPosition target)
+            => CanDetect(floor, observer, Vector2.zero, range, 360, target);
+
         public bool HasLineOfSight(DungeonFloorInstance floor, DungeonTraversalPosition observer, DungeonTraversalPosition target)
         {
             var map = floor?.Map;

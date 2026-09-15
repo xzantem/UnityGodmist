@@ -22,6 +22,7 @@ namespace Godmist.Runtime.Combat
         public bool IsSeamless;
         public bool IsDungeonWide;
         public bool MembershipChangePending;
+        [NonSerialized] public DungeonContactState Contact;
         [NonSerialized] public Action<CombatTurnParticipant> ResumeTurn;
         public readonly Dictionary<string, (string EncounterId, string EnemyId)> EnemySources = new();
         public readonly HashSet<CombatTurnParticipant> SuspendedTurns = new();
@@ -221,6 +222,143 @@ namespace Godmist.Runtime.Combat
                 && enemyDeathPositions.TryGetValue(
                     enemyInstanceId,
                     out deathPosition);
+        }
+    }
+}
+
+namespace Godmist.Runtime.Combat
+{
+    // Per-session contact; never serialized as a mid-combat save.
+    public sealed class DungeonContactState
+    {
+        private readonly Func<BattleUnit, BattleUnit, bool> canSee;
+        private sealed class Observation
+        {
+            public GridPosition Position;
+            public UnityEngine.Vector2Int Direction;
+            public GridPosition SearchPosition;
+            public int ForwardSteps;
+            public bool Checked;
+            public Observation(GridPosition position) { Position = SearchPosition = position; }
+        }
+        private readonly Dictionary<(BattleUnit Enemy, BattleUnit Target), Observation> memory = new();
+        private readonly HashSet<(BattleUnit Enemy, BattleUnit Target)> previousVisible = new();
+        private readonly HashSet<(BattleUnit Enemy, BattleUnit Target)> visible = new();
+        public int EscapeReactionTurns { get; } = Math.Max(1, GameDefinesRuntime.GetInt(GameDefineIds.EscapeContactLossTurns, 2));
+        private readonly Dictionary<BattleUnit, Dictionary<BattleUnit, int>> completed = new();
+        private readonly Dictionary<BattleUnit, HashSet<BattleUnit>> started = new();
+        private readonly HashSet<BattleUnit> seenPlayers = new();
+        public DungeonContactState(Func<BattleUnit, BattleUnit, bool> canSee) => this.canSee = canSee;
+        private static bool Alive(BattleUnit unit) => unit?.Character?.LifeState == CharacterLifeState.Alive;
+
+        public void Refresh(CombatSession session)
+        {
+            previousVisible.Clear(); previousVisible.UnionWith(visible);
+            visible.Clear(); seenPlayers.Clear();
+            foreach (var enemy in session.Units)
+            {
+                if (enemy.IsPlayerSide || !Alive(enemy)) continue;
+                foreach (var player in session.Units)
+                {
+                    if (!player.IsPlayerSide || !Alive(player) || !canSee(enemy, player)) continue;
+                    visible.Add((enemy, player)); seenPlayers.Add(player);
+                    var key = (enemy, player);
+                    if (!memory.TryGetValue(key, out var observation))
+                        memory.Add(key, observation = new Observation(player.Position));
+                    if (!previousVisible.Contains(key)) observation.Direction = UnityEngine.Vector2Int.zero;
+                    else if (observation.Position != player.Position)
+                    {
+                        var delta = new UnityEngine.Vector2Int(player.Position.X - observation.Position.X,
+                            player.Position.Y - observation.Position.Y);
+                        // Only observed, adjacent movement supplies a direction; never infer a hidden path or teleport.
+                        observation.Direction = Math.Abs(delta.x) + Math.Abs(delta.y) == 1 ? delta : UnityEngine.Vector2Int.zero;
+                    }
+                    observation.Position = observation.SearchPosition = player.Position;
+                    observation.ForwardSteps = 0; observation.Checked = false;
+                }
+            }
+            foreach (var player in seenPlayers)
+            {
+                completed.Remove(player);
+                foreach (var candidates in started.Values) candidates.Remove(player);
+            }
+        }
+        public bool Sees(BattleUnit enemy, BattleUnit target) => visible.Contains((enemy, target));
+        public void ReceiveAlert(BattleUnit enemy, BattleUnit target, GridPosition lastSeenPosition)
+        {
+            if (Alive(enemy) && Alive(target) && !memory.ContainsKey((enemy, target))) memory[(enemy, target)] = new Observation(lastSeenPosition);
+        }
+        public void BeginTurn(CombatSession session, BattleUnit enemy)
+        {
+            Refresh(session);
+            if (enemy.IsPlayerSide) return;
+            var candidates = new HashSet<BattleUnit>();
+            foreach (var player in session.Units)
+                if (player.IsPlayerSide && Alive(player) && !seenPlayers.Contains(player)) candidates.Add(player);
+            started[enemy] = candidates;
+        }
+        public void EndTurn(CombatSession session, BattleUnit enemy)
+        {
+            Refresh(session);
+            if (!started.TryGetValue(enemy, out var candidates)) return;
+            foreach (var player in candidates)
+            {
+                if (!completed.TryGetValue(player, out var turns)) completed.Add(player, turns = new());
+                turns.TryGetValue(enemy, out var count);
+                turns[enemy] = Math.Min(EscapeReactionTurns, count + 1);
+            }
+            started.Remove(enemy);
+        }
+        public bool CanLeave(CombatSession session, BattleUnit player)
+        {
+            if (!Alive(player) || !player.IsPlayerSide || seenPlayers.Contains(player)
+                || !completed.TryGetValue(player, out var turns)) return false;
+            var hasEnemy = false;
+            foreach (var enemy in session.Units)
+                if (!enemy.IsPlayerSide && Alive(enemy))
+                { hasEnemy = true; if (!turns.TryGetValue(enemy, out var count) || count < EscapeReactionTurns) return false; }
+            return hasEnemy;
+        }
+        public bool TryGetSearchPosition(CombatSession session, BattleUnit enemy, out GridPosition position)
+        {
+            position = default;
+            var best = int.MaxValue;
+            foreach (var target in session.Units)
+            {
+                if (!target.IsPlayerSide || !Alive(target) || !memory.TryGetValue((enemy, target), out var observation)
+                    || observation.Checked) continue;
+                if (enemy.Position == observation.SearchPosition)
+                {
+                    var advanced = false;
+                    if (observation.ForwardSteps < 2 && observation.Direction != UnityEngine.Vector2Int.zero)
+                        foreach (var next in session.Grid.GetNeighbours(observation.SearchPosition))
+                        {
+                            if (next.X - observation.SearchPosition.X != observation.Direction.x
+                                || next.Y - observation.SearchPosition.Y != observation.Direction.y
+                                || !session.Grid.CanMoveBetween(observation.SearchPosition, next)
+                                || session.Grid.IsBlocked(next) || session.DoesObjectBlockMovement(session.GetMapObjectAt(next))) continue;
+                            observation.SearchPosition = next; observation.ForwardSteps++; advanced = true; break;
+                        }
+                    if (!advanced) { observation.Checked = true; continue; }
+                }
+                var last = observation.SearchPosition;
+                var distance = Math.Abs(last.X - enemy.Position.X) + Math.Abs(last.Y - enemy.Position.Y);
+                if (distance >= best) continue;
+                best = distance; position = last;
+            }
+            return best != int.MaxValue;
+        }
+        public void Forget(BattleUnit player)
+        {
+            completed.Remove(player);
+            foreach (var candidates in started.Values) candidates.Remove(player);
+        }
+        public void Absorb(DungeonContactState source)
+        {
+            if (source == null) return;
+            foreach (var pair in source.memory) memory[pair.Key] = pair.Value;
+            // A merged fight gives every newly involved enemy a full opportunity to react.
+            completed.Clear(); started.Clear();
         }
     }
 }

@@ -223,7 +223,8 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit unit,
             IReadOnlyList<GridPosition> path,
-            out List<GridPosition> completedPath)
+            out List<GridPosition> completedPath,
+            Func<bool> stopAfterStep = null)
         {
             completedPath = new List<GridPosition>();
             if (session?.Grid == null
@@ -258,6 +259,11 @@ namespace Godmist.Systems.Combat
 
                 completedPath.Add(targetPosition);
                 totalMovementCost += movementCost;
+                if (stopAfterStep?.Invoke() == true)
+                {
+                    completed = completedPath.Count == path.Count;
+                    break;
+                }
             }
 
             if (totalMovementCost > 0)
