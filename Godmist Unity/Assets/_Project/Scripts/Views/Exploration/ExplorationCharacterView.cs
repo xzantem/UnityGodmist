@@ -11,6 +11,31 @@ namespace Godmist.Views.Exploration
         [SerializeField] private SpriteRenderer bodyRenderer;
         [SerializeField] private Godmist.Views.Combat.CombatUnitVisualStateView combatVisualState;
         [SerializeField] private TextMeshPro nameLabel;
+        [SerializeField] private GameObject awarenessRoot;
+        [SerializeField] private UnityEngine.UI.Image awarenessFill;
+        [SerializeField] private Color awarenessLowColor = new(1f, .8f, .1f, 1f);
+        [SerializeField] private Color awarenessHighColor = new(1f, .12f, .08f, 1f);
+        private bool awarenessVisible;
+
+        public void ShowAwareness(float progress, bool visibleToParty)
+        {
+            awarenessVisible = visibleToParty && progress > 0f;
+            if (awarenessFill != null)
+            {
+                awarenessFill.fillAmount = Mathf.Clamp01(progress);
+                awarenessFill.color = Color.Lerp(awarenessLowColor, awarenessHighColor, awarenessFill.fillAmount);
+            }
+            RefreshAwarenessVisibility();
+        }
+
+        private void RefreshAwarenessVisibility()
+        {
+            if (awarenessRoot == null) return;
+            var visible = awarenessVisible && CombatUnit == null
+                && RuntimeCharacter?.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive
+                && (terrainView == null || terrainView.IsTraversalVisible(DungeonPosition));
+            if (awarenessRoot.activeSelf != visible) awarenessRoot.SetActive(visible);
+        }
         [SerializeField] private Rigidbody2D body;
         [SerializeField] private Collider2D movementCollider;
         [SerializeField] private Color leaderColor = new(0.92f, 0.68f, 0.27f, 1f);
@@ -39,6 +64,7 @@ namespace Godmist.Views.Exploration
         private Renderer[] elevationRenderers;
         private void LateUpdate()
         {
+            RefreshAwarenessVisibility();
             if (terrainView == null) return;
             elevationRenderers ??= GetComponentsInChildren<Renderer>(true);
             var visible = !UsesLayeredTraversal
@@ -106,6 +132,8 @@ namespace Godmist.Views.Exploration
         public void Bind(CharacterInstance character)
         {
             if (character == null) return;
+
+            ShowAwareness(0f, false);
 
             CharacterId = character.CharacterId;
             RuntimeCharacter = character;

@@ -1837,6 +1837,14 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
+                    if (floorDelta.EnemyAwareness != null)
+                    {
+                        var awarenessIds = new HashSet<string>();
+                        foreach (var awareness in floorDelta.EnemyAwareness)
+                            if (awareness == null || string.IsNullOrWhiteSpace(awareness.EnemyKey)
+                                || !awarenessIds.Add(awareness.EnemyKey)
+                                || !floor.GetEnemyAwareness(awareness.EnemyKey).TryRestore(awareness.Progress)) return false;
+                    }
                     if (floorDelta.ActorFacings != null)
                     {
                         var facingIds = new HashSet<string>();

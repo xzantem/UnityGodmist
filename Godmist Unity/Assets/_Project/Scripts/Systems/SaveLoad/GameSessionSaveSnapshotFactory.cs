@@ -336,6 +336,9 @@ namespace Godmist.Systems.SaveLoad
                     FloorIndex = floor.FloorIndex
                 };
 
+                foreach (var pair in floor.EnemyAwareness.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
+                    if (pair.Value.Progress > 0f)
+                        floorDelta.EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = pair.Key, Progress = pair.Value.Progress });
                 foreach (var pair in floor.ActorFacings.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
                     floorDelta.ActorFacings.Add(new DungeonActorFacingSaveData { ActorId = pair.Key, X = pair.Value.x, Y = pair.Value.y });
 

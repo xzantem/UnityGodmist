@@ -155,6 +155,39 @@ namespace Godmist.Tests.EditMode
 
         private GameSaveData Snapshot() => new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "persistence");
 
+        [Test]
+        public void AwarenessRoundTripPreservesProgressAndMissingLegacyStateStartsAtZero()
+        {
+            floor.GetEnemyAwareness("enemy.1").Advance(1.3f, true, false);
+            var saved = Snapshot();
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].GetEnemyAwareness("enemy.1").Progress, Is.EqualTo(.65f).Within(.00001f));
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].EnemyAwareness, Is.Empty);
+        }
+
+        [TestCase(-1f)]
+        [TestCase(2f)]
+        [TestCase(float.NaN)]
+        public void CorruptAwarenessSaveIsRejected(float progress)
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = progress });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void DuplicateAwarenessSaveIsRejected()
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .2f });
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .3f });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
+
         private void AssertRejected(GameSaveData saved)
         {
             LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć aktywnego lochu 'dungeon.persist' (seed: 4205).");

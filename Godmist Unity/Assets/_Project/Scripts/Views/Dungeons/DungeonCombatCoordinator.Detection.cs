@@ -13,7 +13,7 @@ namespace Godmist.Views.Dungeons
 {
     public sealed partial class DungeonCombatCoordinator
     {
-        private float nextDetectionTime;
+        private float detectionElapsed;
         private float nextPreviewTime;
         private readonly List<(CombatSession First, CombatSession Second)> pendingMerges = new();
         private readonly HashSet<GridPosition> shownFov = new();
@@ -30,15 +30,25 @@ namespace Godmist.Views.Dungeons
 
         private void UpdateDetection()
         {
-            if (Time.unscaledTime < nextDetectionTime) return;
-            nextDetectionTime = Time.unscaledTime + .1f;
+            detectionElapsed += Time.deltaTime;
+            if (detectionElapsed < .1f) return;
+            var elapsed = detectionElapsed;
+            detectionElapsed = 0f;
+            var targets = party.ActiveMemberViews.Where(IsLiving).ToArray();
             foreach (var trigger in encounters.Triggers)
             foreach (var enemy in trigger.EnemyViews)
             {
-                if (!IsLiving(enemy) || enemy.IsCrossingLowWall) continue;
-                foreach (var target in party.ActiveMemberViews)
+                if (enemy == null) continue;
+                var state = floor.GetEnemyAwareness(DungeonCombatMembershipSystem.EnemyKey(trigger.Encounter.InstanceId, enemy.EnemyInstanceId));
+                if (!IsLiving(enemy))
+                { state.TryRestore(0f); enemy.ShowAwareness(0f, false); continue; }
+                var seen = targets.Where(target => !enemy.IsCrossingLowWall && !target.IsCrossingLowWall && CanEnemyDetect(enemy, target)).ToArray();
+                var fighting = Owner(enemy) != null;
+                var detected = state.Advance(elapsed, seen.Length > 0, fighting);
+                enemy.ShowAwareness(state.Progress, !fighting && targets.Any(target => visibility.HasLineOfSight(floor, target.DungeonPosition, enemy.DungeonPosition)));
+                if (!detected) continue;
+                foreach (var target in seen)
                 {
-                    if (!IsLiving(target) || target.IsCrossingLowWall || !CanEnemyDetect(enemy, target)) continue;
                     var observerSession = Owner(enemy);
                     var targetSession = Owner(target);
                     if (observerSession != null && targetSession == observerSession) continue;
@@ -54,7 +64,17 @@ namespace Godmist.Views.Dungeons
                         pendingMerges.Add((observerSession, targetSession));
                     }
                 }
+                if (Owner(enemy) != null) { state.TryRestore(0f); enemy.ShowAwareness(0f, false); }
             }
+        }
+
+        private void OnDisable()
+        {
+            detectionElapsed = 0f;
+            if (encounters != null)
+                foreach (var trigger in encounters.Triggers)
+                    foreach (var enemy in trigger.EnemyViews) enemy?.ShowAwareness(0f, false);
+            ClearFovPreview();
         }
 
         private bool TryJoinSpotted(CombatSession session, ExplorationCharacterView view, EncounterTriggerView source)

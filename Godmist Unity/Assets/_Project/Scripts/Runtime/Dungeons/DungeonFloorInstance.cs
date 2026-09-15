@@ -16,6 +16,15 @@ namespace Godmist.Runtime.Dungeons
         private readonly Dictionary<string, DungeonTraversalPosition> actorPositions = new();
         private readonly Dictionary<string, Vector2> actorOffsets = new();
         private readonly Dictionary<string, Vector2> actorFacings = new();
+        private readonly Dictionary<string, DungeonAwarenessState> enemyAwareness = new();
+        public IReadOnlyDictionary<string, DungeonAwarenessState> EnemyAwareness => enemyAwareness;
+        public DungeonAwarenessState GetEnemyAwareness(string enemyKey)
+        {
+            if (string.IsNullOrWhiteSpace(enemyKey)) throw new ArgumentException(nameof(enemyKey));
+            if (!enemyAwareness.TryGetValue(enemyKey, out var state))
+                enemyAwareness.Add(enemyKey, state = new DungeonAwarenessState());
+            return state;
+        }
         public IReadOnlyDictionary<string, Vector2> ActorFacings => actorFacings;
         public bool TryGetActorFacing(string id, out Vector2 facing) => actorFacings.TryGetValue(id, out facing);
         public bool TrySetActorFacing(string id, Vector2 facing)

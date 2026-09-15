@@ -129,7 +129,8 @@ namespace Godmist.Views.Dungeons
             if (!initialized || trigger == null) return false;
             foreach (var enemy in trigger.EnemyViews)
                 foreach (var target in party.ActiveMemberViews)
-                    if (IsLiving(enemy) && IsLiving(target) && CanEnemyDetect(enemy, target))
+                    if (IsLiving(enemy) && IsLiving(target) && CanEnemyDetect(enemy, target)
+                        && floor.GetEnemyAwareness(DungeonCombatMembershipSystem.EnemyKey(trigger.Encounter.InstanceId, enemy.EnemyInstanceId)).IsDetected)
                         return TryStartSpottedEncounter(trigger, enemy, target);
             return false;
         }
@@ -210,7 +211,7 @@ namespace Godmist.Views.Dungeons
         {
             if (placementNotice != null && Time.unscaledTime >= placementNoticeUntil)
                 placementNotice.alpha = 0f;
-            if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) { ClearFovPreview(); return; }
+            if (!initialized || game.IsDefeated || DevConsoleView.IsOpen) { detectionElapsed = 0f; ClearFovPreview(); return; }
             if (!UIWorkspaceInputRouter.HasFocusedTextInput()
                 && (game.CurrentMode == GameModeState.Combat || party.CanAcceptExplorationInput))
             {
