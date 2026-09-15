@@ -20,6 +20,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonFloorMapView floorMapView;
 
         private readonly List<EncounterTriggerView> spawnedTriggers = new();
+        public IReadOnlyList<ExplorationCharacterView> EnemyViews => spawnedEnemyViews;
         public IReadOnlyList<EncounterTriggerView> Triggers => spawnedTriggers;
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 

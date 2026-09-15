@@ -129,6 +129,7 @@ namespace Godmist.Views.Exploration
                 followSpeed * Time.deltaTime);
         }
 
+        [SerializeField] private Godmist.Views.Combat.CombatUnitInspectController unitInteractions;
         private void HandleFreeRoamPanning()
         {
             if (currentMode != CameraMode.FreeRoam || worldCamera == null)
@@ -152,6 +153,7 @@ namespace Godmist.Views.Exploration
                     transform.position + (Vector3)(keyboardDirection * keyboardPanSpeed * Time.deltaTime));
             }
 
+            if (unitInteractions != null && unitInteractions.ConsumedSecondaryClickThisFrame) { isPanning = false; return; }
             if (Input.GetMouseButtonDown(1) && !UIWorkspaceInputRouter.IsPointerOverUi())
             {
                 previousMouseWorldPosition = GetMouseWorldPosition();

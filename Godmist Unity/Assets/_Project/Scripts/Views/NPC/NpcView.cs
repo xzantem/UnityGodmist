@@ -19,6 +19,16 @@ namespace Godmist.Views.NPC
         private ExplorationPartyController partyController;
         private NpcInstance npc;
 
+        private Color originalColor;
+        public float InteractionRadius => interactionRadius;
+        public string DisplayName => npc?.Definition?.DisplayName ?? NpcId;
+        public bool IsPointerHit(Vector2 point) => isActiveAndEnabled && npc != null && bodyRenderer != null
+            && bodyRenderer.enabled && !bodyRenderer.forceRenderingOff
+            && bodyRenderer.bounds.Contains(new Vector3(point.x, point.y, bodyRenderer.bounds.center.z));
+        public void SetInspectionHighlight(bool value)
+        {
+            if (bodyRenderer != null) bodyRenderer.color = value ? new Color(.5f, .86f, 1f, 1f) : originalColor;
+        }
         public string NpcId => npc?.NpcId ?? string.Empty;
 
         public void Initialize(
@@ -62,7 +72,8 @@ namespace Godmist.Views.NPC
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
+            if (DevConsoleView.IsOpen || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.HasFocusedTextInput()
+                || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.IsPointerOverUi()) return;
             
             if (!Input.GetKeyDown(interactionKey)) return;
             if (!CanInteract()) return;
@@ -89,6 +100,8 @@ namespace Godmist.Views.NPC
 
         private void Awake()
         {
+            if (bodyRenderer != null) originalColor = bodyRenderer.color;
+            if (nameLabel != null) nameLabel.gameObject.SetActive(false);
             if (bodyRenderer == null || nameLabel == null) return;
 
             var labelRenderer = nameLabel.GetComponent<MeshRenderer>();

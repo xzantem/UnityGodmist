@@ -258,6 +258,18 @@ namespace Godmist.Views.UI.Workspace
             return $"Pozostało: {Mathf.CeilToInt(seconds)} s · ticki: {ticks}";
         }
 
+        public void ShowCompactText(string title, string body, object source)
+        {
+            QueueShow(source ?? this, () => {
+                SetContent(null, title, body, string.Empty);
+                var titleWidth = titleText != null ? titleText.GetPreferredValues(title, 10000f, 0f).x : 0f;
+                var bodyWidth = bodyText != null ? bodyText.GetPreferredValues(body, 10000f, 0f).x : 0f;
+                SetTooltipWidth(ClampTooltipWidth(Mathf.Clamp(Mathf.Ceil(Mathf.Max(titleWidth, bodyWidth)) + TitleOnlyTooltipHorizontalPadding, 120f, defaultTooltipWidth > 1f ? defaultTooltipWidth : 360f)));
+                ResizeForContent();
+                PlaceAt(Input.mousePosition);
+            });
+        }
+
         public void ShowText(string title, string body, object source)
         {
             ShowText(title, body, source, string.Empty);

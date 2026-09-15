@@ -83,7 +83,7 @@ namespace Godmist.Views.Combat
             var rawPulse = .5f + .5f * Mathf.Sin(Time.unscaledTime * pulseSpeed);
             var pulse = Mathf.Pow(rawPulse, .45f);
             var outlineColor = Color.Lerp(Color.black, accent, pulse);
-            if (StatusEffectSystem.IsHardCrowdControlled(unit))
+            if (unit != null && StatusEffectSystem.IsHardCrowdControlled(unit))
                 outlineColor = Color.Lerp(Color.black, outlineColor, .55f);
             for (var index = 0; index < outlineRenderers.Length; index++)
             {

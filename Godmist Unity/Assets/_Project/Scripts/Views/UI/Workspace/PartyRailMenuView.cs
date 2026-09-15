@@ -11,10 +11,12 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private RectTransform panel;
         [SerializeField] private Transform entryRoot;
         [SerializeField] private Button entryTemplate;
+        [SerializeField] private TMP_Text header;
         private readonly List<Button> entries = new();
         private int openedFrame;
-        public void Show(Vector2 screen, IReadOnlyList<(string Label, Action Action, bool Enabled)> actions)
+        public void Show(Vector2 screen, IReadOnlyList<(string Label, Action Action, bool Enabled)> actions, string title = null)
         {
+            if (header != null) { header.text = title ?? string.Empty; header.gameObject.SetActive(!string.IsNullOrEmpty(title)); }
             gameObject.SetActive(true); transform.SetAsLastSibling(); openedFrame = Time.frameCount;
             while (entries.Count < actions.Count) entries.Add(Instantiate(entryTemplate, entryRoot));
             for (var i = 0; i < entries.Count; i++)

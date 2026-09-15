@@ -20,6 +20,7 @@ namespace Godmist.Views.Exploration
         [SerializeField] private List<NpcSceneBinding> npcBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
         private readonly NpcInstanceFactory npcFactory = new();
+        public IReadOnlyList<NpcSceneBinding> NpcBindings => npcBindings;
         private GameSession boundSession;
 
         private void Start()

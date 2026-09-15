@@ -64,6 +64,7 @@ namespace Godmist.Views.Exploration
         private Renderer[] elevationRenderers;
         private void LateUpdate()
         {
+            if (nameLabel != null && nameLabel.gameObject.activeSelf) nameLabel.gameObject.SetActive(false);
             RefreshAwarenessVisibility();
             if (terrainView == null) return;
             elevationRenderers ??= GetComponentsInChildren<Renderer>(true);
@@ -112,7 +113,7 @@ namespace Godmist.Views.Exploration
             CombatUnit = null;
             combatContext = null;
             if (UsesLayeredTraversal) StoreTraversalPosition(position);
-            if (nameLabel != null) nameLabel.gameObject.SetActive(true);
+            if (nameLabel != null) nameLabel.gameObject.SetActive(false);
             combatVisualState?.ClearHighlight();
             if (body != null) body.position = transform.position;
         }
@@ -124,6 +125,18 @@ namespace Godmist.Views.Exploration
             combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true);
         }
 
+        public bool IsPointerHit(Vector2 point) => isActiveAndEnabled && bodyRenderer != null
+            && bodyRenderer.enabled && !bodyRenderer.forceRenderingOff
+            && bodyRenderer.bounds.Contains(new Vector3(point.x, point.y, bodyRenderer.bounds.center.z))
+            && IsVisibleForInspection;
+        public bool IsVisibleForInspection => isActiveAndEnabled && RuntimeCharacter != null
+            && RuntimeCharacter.LifeState != Godmist.Core.Enums.CharacterLifeState.Dead
+            && (terrainView == null || (terrainView.IsTraversalVisible(DungeonPosition)
+                && terrainView.IsCurrentlySeen(DungeonPosition)));
+        public void SetInspectionHighlight(bool value)
+        {
+            if (CombatUnit == null) combatVisualState?.Refresh(null, false, value, false, true);
+        }
         public string CharacterId { get; private set; } = string.Empty;
         public Vector2 Position => transform.position;
 

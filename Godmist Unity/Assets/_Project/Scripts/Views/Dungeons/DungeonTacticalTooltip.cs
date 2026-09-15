@@ -21,6 +21,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private RectTransform obstacleHealthRoot;
         [SerializeField] private Slider obstacleHealthSlider;
         [SerializeField] private TMP_Text obstacleHealthText;
+        [SerializeField] private Godmist.Views.Combat.CombatUnitInspectController unitInteractions;
         private ObstacleDungeonObjectInstance menuObstacle;
         private DungeonFloorInstance floor;
         private DungeonFloorMapView map;
@@ -34,6 +35,7 @@ namespace Godmist.Views.Dungeons
         private void Update()
         {
             if (floor?.Map == null || map == null || worldCamera == null || tooltip == null) return;
+            if (unitInteractions != null && unitInteractions.HasWorldUnitHover) { HideObstacleUi(); ResetHover(); return; }
             UpdateObstacleUi();
             if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.IsPointerOverUi()
                 || Input.GetMouseButton(0) || Input.GetMouseButton(1) || Input.GetMouseButton(2))

@@ -156,6 +156,41 @@ namespace Godmist.Views.Exploration
             public float NextPlan;
         }
 
+        private Godmist.Views.NPC.NpcView pendingNpc;
+        public bool RequestNpcInteraction(Godmist.Views.NPC.NpcView npc)
+        {
+            if (npc == null || !npc.isActiveAndEnabled || !CanAcceptExplorationInput) return false;
+            CancelMovement();
+            if (npc.CanInteract()) { npc.Interact(); return true; }
+            var actor = GetActiveLeaderView();
+            if (actor == null) return false;
+            var center = (Vector2)npc.transform.position;
+            var angle = Mathf.Atan2(actor.Position.y-center.y, actor.Position.x-center.x);
+            // Try reachable points just inside the interaction radius, not the occupied NPC cell.
+            for (var i=0; i<12; i++)
+            {
+                var turn = i == 0 ? 0 : ((i+1)/2) * (i%2 == 0 ? -1 : 1);
+                var direction = angle + turn * Mathf.PI / 6f;
+                var goal = center + new Vector2(Mathf.Cos(direction), Mathf.Sin(direction)) * Mathf.Max(.1f, npc.InteractionRadius-.15f);
+                if (!TrySetCityDestination(goal)) continue;
+                pendingNpc = npc;
+                return true;
+            }
+            return false;
+        }
+        private bool TickNpcApproach()
+        {
+            if (pendingNpc == null) return false;
+            if (!pendingNpc.isActiveAndEnabled) { CancelMovement(); return false; }
+            if (Input.GetAxisRaw("Horizontal") != 0f || Input.GetAxisRaw("Vertical") != 0f) { CancelMovement(); return false; }
+            if (pendingNpc.CanInteract())
+            {
+                var npc = pendingNpc; CancelMovement(); npc.Interact(); return true;
+            }
+            if (!movementDestination.HasValue) pendingNpc = null;
+            return false;
+        }
+
         private bool TrySetCityDestination(Vector2 goal)
         {
             var actor = GetActiveLeaderView();

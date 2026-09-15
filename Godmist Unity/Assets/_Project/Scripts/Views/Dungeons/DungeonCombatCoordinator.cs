@@ -523,7 +523,7 @@ namespace Godmist.Views.Dungeons
             explorationHudRoot.SetActive(true);
             targeting.enabled = next != null;
             movementInput.enabled = next != null;
-            inspectInput.enabled = next != null;
+            inspectInput.enabled = true;
             if (next == null) combatCamera.Focus(null, default, default, null);
             explorationCamera.SetCombatSuspended(next != null);
             if (next != null)
