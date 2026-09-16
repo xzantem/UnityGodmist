@@ -15,6 +15,26 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<Object> createdObjects = new();
 
+        [Test]
+        public void BodiesCanAppearDuringCombatWithoutDuplicatingAfterVictoryAndRetainHeight()
+        {
+            CreateGameSessionWithDungeon(out var dungeon);
+            dungeon.TryGetFloor(0, out var floor);
+            var upper = new DungeonSurfacePosition(Vector2Int.zero, 1);
+            floor.Map.TryAddFloorCell(upper, "room.test");
+            var context = new DungeonCombatContext("dungeon.test", 0, "encounter.test", "room.test",
+                Vector2Int.zero, Vector2Int.zero, new[] { Vector2Int.zero }, null, null, surfaceMap: floor.Map);
+            var session = new CombatSession { DungeonContext = context, Outcome = CombatOutcomeState.Ongoing };
+            session.TryMarkEnemyDefeated("enemy.dead", new GridPosition(0, 0, 1));
+            Assert.That(DungeonCombatOutcomeSystem.TryCreateEnemyBodies(dungeon, context, session), Is.True);
+            Assert.That(floor.EnemyBodies.Count, Is.EqualTo(1));
+            Assert.That(floor.TryGetActorPosition("body:encounter.test.body.enemy.dead", out var position), Is.True);
+            Assert.That(position.Surface, Is.EqualTo(upper));
+            session.Outcome = CombatOutcomeState.Victory;
+            Assert.That(DungeonCombatOutcomeSystem.TryCreateEnemyBodies(dungeon, context, session), Is.True);
+            Assert.That(floor.EnemyBodies.Count, Is.EqualTo(1));
+        }
+
         [TearDown]
         public void TearDown()
         {

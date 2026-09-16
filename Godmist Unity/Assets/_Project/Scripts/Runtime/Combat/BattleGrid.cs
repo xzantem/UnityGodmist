@@ -9,6 +9,30 @@ namespace Godmist.Runtime.Combat
     {
         public int Width;
         public int Height;
+        [NonSerialized] public Func<GridPosition, IEnumerable<GridPosition>> TraversalNeighbours;
+        public IEnumerable<GridPosition> Positions
+        {
+            get
+            {
+                if (usesExplicitWalkablePositions)
+                { foreach (var position in walkablePositions) yield return position; yield break; }
+                for (var x = 0; x < Width; x++) for (var y = 0; y < Height; y++) yield return new GridPosition(x, y);
+            }
+        }
+        public IEnumerable<GridPosition> GetPositionsAt(int x, int y)
+        {
+            if (TraversalNeighbours == null) { yield return new GridPosition(x, y); yield break; }
+            foreach (var position in walkablePositions) if (position.X == x && position.Y == y) yield return position;
+        }
+        public IEnumerable<GridPosition> GetNeighbours(GridPosition origin)
+        {
+            if (TraversalNeighbours != null)
+            { foreach (var next in TraversalNeighbours(origin)) yield return next; yield break; }
+            yield return GetOffsetPosition(origin, 1, 0);
+            yield return GetOffsetPosition(origin, -1, 0);
+            yield return GetOffsetPosition(origin, 0, 1);
+            yield return GetOffsetPosition(origin, 0, -1);
+        }
 
         private readonly HashSet<GridPosition> walkablePositions = new();
         private readonly HashSet<GridPosition> blockedPositions = new();
@@ -62,14 +86,15 @@ namespace Godmist.Runtime.Combat
         {
             if (!IsWithinBounds(position)) return false;
 
-            return !usesExplicitWalkablePositions
-                || walkablePositions.Contains(position);
+            return usesExplicitWalkablePositions ? walkablePositions.Contains(position)
+                : position.Level == 0 && !position.IsOnStairs;
         }
 
+        public System.Func<GridPosition, bool> DynamicBlocked { get; set; }
         public bool IsBlocked(GridPosition position)
         {
             return !IsWalkable(position)
-                || blockedPositions.Contains(position);
+                || blockedPositions.Contains(position) || DynamicBlocked?.Invoke(position) == true;
         }
 
         public void SetWalkable(
@@ -146,7 +171,7 @@ namespace Godmist.Runtime.Combat
         {
             return new GridPosition(
                 origin.X + deltaX,
-                origin.Y + deltaY);
+                origin.Y + deltaY, origin.Level);
         }
 
         public bool CanMoveBetween(
@@ -160,6 +185,14 @@ namespace Godmist.Runtime.Combat
             {
                 return false;
             }
+
+            if (TraversalNeighbours != null)
+            {
+                var connected = false;
+                foreach (var candidate in TraversalNeighbours(firstCell)) if (candidate == secondCell) { connected = true; break; }
+                if (!connected) return false;
+            }
+            else if (firstCell.Level != secondCell.Level || firstCell.IsOnStairs || secondCell.IsOnStairs) return false;
 
             return IsWalkable(firstCell)
                 && IsWalkable(secondCell)

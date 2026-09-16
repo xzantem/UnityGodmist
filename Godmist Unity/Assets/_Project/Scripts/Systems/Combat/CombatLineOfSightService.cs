@@ -1,5 +1,6 @@
 using System;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Dungeons;
 
 namespace Godmist.Systems.Combat
 {
@@ -8,7 +9,7 @@ namespace Godmist.Systems.Combat
         public bool HasLineOfSight(
             CombatSession session,
             GridPosition origin,
-            GridPosition destination)
+            GridPosition destination, CombatMapObject ignoredObject = null)
         {
             if (session?.Grid == null
                 || !session.Grid.IsWalkable(origin)
@@ -18,6 +19,8 @@ namespace Godmist.Systems.Combat
             }
 
             if (origin == destination) return true;
+            if (session.DungeonContext?.SurfaceMap?.HasElevatedSurfaces == true)
+                return HasLayeredSight(session, origin, destination, ignoredObject);
 
             var currentX = origin.X;
             var currentY = origin.Y;
@@ -49,7 +52,7 @@ namespace Godmist.Systems.Combat
                 if (BlocksLineOfSight(
                         session,
                         previousPosition,
-                        currentPosition))
+                        currentPosition, ignoredObject))
                 {
                     return false;
                 }
@@ -60,10 +63,35 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        private static bool HasLayeredSight(CombatSession session, GridPosition origin, GridPosition destination, CombatMapObject ignoredObject)
+        {
+            var context = session.DungeonContext;
+            var map = context.SurfaceMap;
+            var from = DungeonBattleGridFactory.ToDungeonTraversalPosition(context, origin);
+            var to = DungeonBattleGridFactory.ToDungeonTraversalPosition(context, destination);
+            if (!map.TryGetSightPoint(from, out var start) || !map.TryGetSightPoint(to, out var end)
+                || map.BlocksStructuralSight(from, to)
+                || session.EnvironmentBlocksLineOfSight?.Invoke(origin, destination) == true) return false;
+            foreach (var obj in session.MapObjects)
+            {
+                if (obj == ignoredObject || obj == null || !session.DoesObjectBlockLineOfSight(obj) || obj.Position == origin) continue;
+                if (obj is DoorCombatMapObject door)
+                {
+                    var edge = new DungeonSurfaceEdge(new DungeonCellEdge(
+                        DungeonBattleGridFactory.ToWorldPosition(context, door.Edge.FirstCell),
+                        DungeonBattleGridFactory.ToWorldPosition(context, door.Edge.SecondCell)), door.Edge.FirstCell.Level);
+                    if (DungeonFloorMap.SightCrossesEdge(start, end, edge)) return false;
+                }
+                else if (DungeonFloorMap.SightCrossesCell(start, end, new DungeonSurfacePosition(
+                    DungeonBattleGridFactory.ToWorldPosition(context, obj.Position), obj.Position.Level))) return false;
+            }
+            return true;
+        }
+
         private static bool BlocksLineOfSight(
             CombatSession session,
             GridPosition previousPosition,
-            GridPosition currentPosition)
+            GridPosition currentPosition, CombatMapObject ignoredObject)
         {
             if (session.EnvironmentBlocksLineOfSight?.Invoke(previousPosition, currentPosition) == true)
                 return true;
@@ -76,7 +104,7 @@ namespace Godmist.Systems.Combat
                         return true;
             foreach (var mapObject in session.MapObjects)
             {
-                if (mapObject == null || !session.DoesObjectBlockLineOfSight(mapObject))
+                if (mapObject == ignoredObject || mapObject == null || !session.DoesObjectBlockLineOfSight(mapObject))
                 {
                     continue;
                 }

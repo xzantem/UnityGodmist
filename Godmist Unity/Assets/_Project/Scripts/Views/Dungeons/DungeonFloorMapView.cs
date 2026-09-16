@@ -6,10 +6,11 @@ using UnityEngine.Tilemaps;
 
 namespace Godmist.Views.Dungeons
 {
-    public class DungeonFloorMapView : MonoBehaviour
+    public partial class DungeonFloorMapView : MonoBehaviour
     {
         [SerializeField] private Tilemap floorTilemap;
         [SerializeField] private TileBase floorTile;
+        public float WallHalfThickness => wallSegmentPrefab != null ? wallSegmentPrefab.Thickness * .5f : 0;
         [SerializeField] private TileBase difficultTerrainTile;
         [SerializeField] private DungeonWallSegmentView wallSegmentPrefab;
         [SerializeField] private Transform wallsRoot;
@@ -17,6 +18,81 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private DungeonWallSegmentView railingPrefab;
 
         private readonly List<GameObject> spawnedWalls = new();
+        private readonly List<(DungeonSurfaceEdge Edge, Renderer[] Renderers)> wallRenderers = new();
+        private readonly DungeonElevationViewState elevation = new();
+        public int PresentationRevision { get; private set; }
+        public int ViewedLevel => elevation.Level;
+        public void FocusElevation(DungeonTraversalPosition position, bool resumeFollowing = false)
+        { if (elevation.Focus(position, resumeFollowing)) RefreshElevationPresentation(); }
+        public bool IsTraversalSelectable(DungeonTraversalPosition position) => elevation.IsSelectable(position);
+        public bool IsManualElevation => elevation.IsManual;
+
+        public bool StepViewedLevel(int direction)
+        {
+            if (!elevation.Step(direction)) return false;
+            RefreshElevationPresentation();
+            return true;
+        }
+
+        public void FollowElevation(int level, bool resumeFollowing = false)
+        {
+            if (elevation.Follow(level, resumeFollowing)) RefreshElevationPresentation();
+        }
+
+        public bool TryGetVisibleSurface(Vector3 worldPosition, out DungeonSurfacePosition surface)
+            => elevation.TryGetVisibleSurface(WorldToCell(worldPosition), out surface);
+
+        public bool TryGetVisibleTraversal(Vector3 worldPosition, out DungeonTraversalPosition position)
+            => elevation.TryGetVisiblePosition(WorldToCell(worldPosition), out position);
+        public bool IsTraversalVisible(DungeonTraversalPosition position) => elevation.IsVisible(position) && IsCurrentlySeen(position);
+        public bool IsSurfaceVisible(DungeonSurfacePosition surface) => IsTraversalVisible(new DungeonTraversalPosition(surface));
+        public bool IsSurfaceOccluded(DungeonSurfacePosition surface) => surface.Level > elevation.ProjectionLevel
+            || (elevation.TryGetVisibleSurface(surface.Cell, out var covering) && covering.Level > surface.Level);
+
+        private readonly Dictionary<Vector3Int, (TileBase Tile, Color Color)> presentedFloorCells = new();
+        private readonly HashSet<Vector3Int> visibleFloorCells = new();
+        private readonly List<Vector3Int> removedFloorCells = new();
+
+        private void RefreshElevationPresentation()
+        {
+            if (floorTilemap == null || boundMap == null) return;
+            PresentationRevision++;
+            visibleFloorCells.Clear();
+            foreach (var position in elevation.VisiblePositions)
+            {
+                var knowledge = Knowledge(position);
+                if (knowledge == DungeonKnowledge.Unexplored) continue;
+                boundMap.TryGetTraversalCell(position, out var worldCell);
+                var cell = new Vector3Int(worldCell.x, worldCell.y, 0);
+                visibleFloorCells.Add(cell);
+                var difficult = !position.IsOnStairs && position.Surface.Level == 0 && boundMap.IsDifficultTerrain(worldCell);
+                var tile = difficult && difficultTerrainTile != null ? difficultTerrainTile : floorTile;
+                var color = difficult ? difficultTerrainColor : Color.white;
+                if (knowledge == DungeonKnowledge.Remembered) color = Dim(color);
+                if (presentedFloorCells.TryGetValue(cell, out var previous) && previous.Tile == tile && previous.Color == color) continue;
+                floorTilemap.SetTile(cell, tile);
+                floorTilemap.SetTileFlags(cell, TileFlags.None);
+                floorTilemap.SetColor(cell, color);
+                presentedFloorCells[cell] = (tile, color);
+            }
+            removedFloorCells.Clear();
+            foreach (var cell in presentedFloorCells.Keys) if (!visibleFloorCells.Contains(cell)) removedFloorCells.Add(cell);
+            foreach (var cell in removedFloorCells) { floorTilemap.SetTile(cell, null); presentedFloorCells.Remove(cell); }
+            RefreshStairPresentation();
+            RefreshCutawayPresentation();
+            var closedGates = new HashSet<DungeonSurfaceEdge>(boundMap.SurfaceClosedProgressionGateEdges);
+            foreach (var wall in wallRenderers)
+                foreach (var renderer in wall.Renderers)
+                    if (renderer != null)
+                    {
+                        var knowledge = EdgeKnowledge(wall.Edge);
+                        renderer.forceRenderingOff = !elevation.IsVisible(wall.Edge) || knowledge == DungeonKnowledge.Unexplored;
+                        if (FogFloor != null && closedGates.Contains(wall.Edge)
+                            && !FogFloor.Fog.ClosedGates.Contains(wall.Edge)) renderer.forceRenderingOff = true;
+                        TintFog(renderer, knowledge);
+                    }
+            RefreshRememberedGates();
+        }
 
         private DungeonFloorMap boundMap;
         private Bounds worldBounds;
@@ -43,6 +119,7 @@ namespace Godmist.Views.Dungeons
                 }
             }
 
+            elevation.Bind(map);
             Clear();
 
             if (map == null
@@ -56,31 +133,20 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            foreach (var cell in map.FloorCells)
-            {
-                floorTilemap.SetTile(
-                    new Vector3Int(cell.x, cell.y, 0),
-                    map.IsDifficultTerrain(cell) && difficultTerrainTile != null ? difficultTerrainTile : floorTile);
-                var tileCell = new Vector3Int(cell.x, cell.y, 0);
-                floorTilemap.SetTileFlags(tileCell, TileFlags.None);
-                floorTilemap.SetColor(tileCell, map.IsDifficultTerrain(cell) ? difficultTerrainColor : Color.white);
-            }
-
-            foreach (var wallEdge in map.WallEdges)
-            {
-                SpawnWallSegment(wallEdge, map.GetWallType(wallEdge));
-            }
-
-            foreach (var gateEdge in map.ClosedProgressionGateEdges)
-            {
-                SpawnWallSegment(gateEdge);
-            }
+            foreach (var edge in map.SurfaceWallEdges)
+                SpawnWallSegment(edge, map.GetWallType(edge));
+            foreach (var edge in map.SurfaceClosedProgressionGateEdges)
+                SpawnWallSegment(edge);
+            BuildStairPresentation();
+            BuildLedgePresentation();
+            RefreshElevationPresentation();
 
             RebuildWorldBounds(map);
         }
 
         private void OnDestroy()
         {
+            ReleaseStairSprite();
             if (boundMap != null)
             {
                 boundMap.ProgressionGateStateChanged
@@ -119,9 +185,11 @@ namespace Godmist.Views.Dungeons
 
         private void Clear()
         {
+            ClearStairPresentation();
             if (floorTilemap != null)
             {
                 floorTilemap.ClearAllTiles();
+                presentedFloorCells.Clear();
             }
 
             foreach (var spawnedWall in spawnedWalls)
@@ -133,10 +201,13 @@ namespace Godmist.Views.Dungeons
             }
 
             spawnedWalls.Clear();
+            foreach (var gate in rememberedGates.Values) if (gate != null) Destroy(gate.gameObject);
+            rememberedGates.Clear(); fogBaseColors.Clear();
+            wallRenderers.Clear();
             hasWorldBounds = false;
         }
 
-        private void SpawnWallSegment(DungeonCellEdge edge, DungeonWallType type = DungeonWallType.Full)
+        private void SpawnWallSegment(DungeonSurfaceEdge edge, DungeonWallType type = DungeonWallType.Full)
         {
             var parent = wallsRoot != null ? wallsRoot : transform;
 
@@ -147,8 +218,10 @@ namespace Godmist.Views.Dungeons
                 prefab,
                 parent);
 
-            wallSegment.Bind(edge, floorTilemap, type != DungeonWallType.Low
-                || !boundMap.IsWalkable(edge.FirstCell) || !boundMap.IsWalkable(edge.SecondCell));
+            // Presentation focus never toggles physics: existing ground movement keeps its ground colliders.
+            wallSegment.Bind(edge.CellEdge, floorTilemap, edge.Level == 0 && (type != DungeonWallType.Low
+                || !boundMap.IsWalkable(edge.First) || !boundMap.IsWalkable(edge.Second)));
+            wallRenderers.Add((edge, wallSegment.GetComponentsInChildren<Renderer>(true)));
             spawnedWalls.Add(wallSegment.gameObject);
         }
 
@@ -167,13 +240,18 @@ namespace Godmist.Views.Dungeons
             var maxX = int.MinValue;
             var maxY = int.MinValue;
 
-            foreach (var cell in map.FloorCells)
+            void Include(Vector2Int cell)
             {
                 minX = Mathf.Min(minX, cell.x);
                 minY = Mathf.Min(minY, cell.y);
                 maxX = Mathf.Max(maxX, cell.x);
                 maxY = Mathf.Max(maxY, cell.y);
             }
+
+            foreach (var surface in map.Surfaces) Include(surface.Cell);
+            foreach (var stair in map.Stairs)
+                if (map.TryGetStairPath(stair, out var path))
+                    foreach (var cell in path) Include(cell);
 
             if (minX == int.MaxValue)
             {

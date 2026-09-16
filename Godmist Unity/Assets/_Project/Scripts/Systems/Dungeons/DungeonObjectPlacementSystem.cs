@@ -20,7 +20,31 @@ namespace Godmist.Systems.Dungeons
             DungeonInstance dungeon,
             IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
         {
+            PlaceInternal(dungeon, equipmentParts, false);
+        }
+
+        // Only pre-snapshot saves may execute the historical selection/RNG sequence.
+        public void PlaceLegacySave(DungeonInstance dungeon,
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts = null)
+        {
+            PlaceInternal(dungeon, equipmentParts, true);
+        }
+
+        private void PlaceInternal(DungeonInstance dungeon,
+            IReadOnlyList<EquipmentPartDefinition> equipmentParts, bool legacy)
+        {
             if (dungeon == null || dungeon.Definition == null) return;
+            if (!legacy && dungeon.HasPlacedContent) return;
+            if (!legacy)
+            {
+                var catalog = dungeon.Definition.RoomTemplateCatalog;
+                var usedIds = dungeon.Floors.Where(f => f != null).SelectMany(f => f.Rooms)
+                    .Select(r => r.TemplateId).Distinct(StringComparer.Ordinal).ToList();
+                var templates = usedIds.Select(id => catalog?.Templates.Find(t => t != null && t.Id == id)
+                    ?? throw new InvalidOperationException($"Brak szablonu '{id}'.")).ToList();
+                foreach (var template in templates) DungeonRoomContentPlanner.ValidateTemplate(template);
+                DungeonDistributionValidator.Validate(templates);
+            }
 
             LootTableData themedChestLootTable = null;
             var hasThemedChestLootTable =
@@ -45,6 +69,8 @@ namespace Godmist.Systems.Dungeons
                 equipmentParts,
                 lootLevel: dungeon.DungeonLevel);
 
+            var distribution = legacy ? null : new DungeonContentDistribution(dungeon.Seed);
+
             foreach (var floor in dungeon.Floors)
             {
                 if (floor == null
@@ -63,7 +89,12 @@ namespace Godmist.Systems.Dungeons
                         random);
                 }
 
-                if (objectDefinitions.Count > 0)
+                if (!legacy)
+                {
+                    PlaceCompleteObjects(dungeon, floor, objectDefinitions, lootTableSystem,
+                        random, hasThemedChestLootTable ? themedChestLootTable : null, distribution);
+                }
+                else if (objectDefinitions.Count > 0)
                 {
                     PlaceObjectsOnFloor(
                         dungeon,
@@ -83,6 +114,7 @@ namespace Godmist.Systems.Dungeons
                         + $"na pietrze {floor.FloorIndex}.");
                 }
             }
+            dungeon.MarkContentPlaced();
         }
 
         private static bool BindProgressionObjects(DungeonFloorInstance floor)
@@ -294,6 +326,107 @@ namespace Godmist.Systems.Dungeons
 
             return result;
         }
+
+        public static void ValidateContentDefinitions(DungeonDefinition definition)
+        {
+            if (definition == null || definition.RoomTemplateCatalog == null)
+                throw new InvalidOperationException("Brak definicji lochu lub katalogu szablonow.");
+            LootTableData themedLoot = null;
+            definition.LootTableCatalog?.TryGetChestLootTable(definition.Theme, definition.DungeonLevel, out themedLoot);
+            var valid = GetValidObjectDefinitions(definition.ObjectDefinitions, themedLoot);
+            foreach (var template in definition.RoomTemplateCatalog.Templates)
+            {
+                if (template == null) throw new InvalidOperationException($"Loch '{definition.Id}': pusta referencja szablonu.");
+                DungeonRoomContentPlanner.ValidateTemplate(template);
+                foreach (var anchor in template.SemanticAnchors ?? new())
+                {
+                    if (anchor.Type == DungeonSemanticAnchorType.Enemy) continue;
+                    var matching = GetDefinitionsForAnchorType(valid, anchor.Type);
+                    if (matching.Count == 0 || anchor.ObjectDefinition != null && !matching.Contains(anchor.ObjectDefinition))
+                        throw new InvalidOperationException($"Loch '{definition.Id}', szablon '{template.Id}', kotwa '{anchor.Id}': "
+                            + "brak poprawnej definicji w puli (typ, waga, loot lub klucz).");
+                }
+            }
+            DungeonDistributionValidator.Validate(definition.RoomTemplateCatalog.Templates);
+        }
+
+        private static void PlaceCompleteObjects(DungeonInstance dungeon, DungeonFloorInstance floor,
+            List<DungeonObjectDefinition> definitions, LootTableSystem lootTableSystem,
+            System.Random random, LootTableData themedChestLootTable, DungeonContentDistribution distribution)
+        {
+            var catalog = dungeon.Definition.RoomTemplateCatalog;
+            if (catalog == null)
+                throw new InvalidOperationException($"Pietro {floor.FloorIndex}: brak katalogu szablonow.");
+            foreach (var room in floor.Rooms)
+            {
+                var template = catalog.Templates.Find(t => t != null && t.Id == room.TemplateId);
+                if (template == null)
+                    throw new InvalidOperationException($"Pietro {floor.FloorIndex}, pokoj '{room.RoomId}': brak szablonu '{room.TemplateId}'.");
+                DungeonRoomContentPlanner.ValidateTemplate(template);
+            }
+            var candidates = new DungeonSemanticAnchorResolver().GetCandidates(floor, catalog,
+                new[] { DungeonSemanticAnchorType.Chest, DungeonSemanticAnchorType.Obstacle,
+                    DungeonSemanticAnchorType.Trap, DungeonSemanticAnchorType.Lever,
+                    DungeonSemanticAnchorType.Condition, DungeonSemanticAnchorType.Reward },
+                _ => true, normalizeLegacyData: false);
+            var choices = new Dictionary<DungeonSemanticAnchorPlacement, List<DungeonObjectDefinition>>();
+            foreach (var candidate in candidates)
+            {
+                var matching = GetDefinitionsForAnchorType(definitions, candidate.Anchor.Type);
+                if (candidate.Anchor.ObjectDefinition != null)
+                    matching = matching.FindAll(d => d == candidate.Anchor.ObjectDefinition);
+                if (matching.Count == 0)
+                    throw PlacementError(floor, candidate, "Brak poprawnej definicji w puli lochu (typ, waga, loot lub klucz).");
+                choices.Add(candidate, matching);
+            }
+            var opportunities = DungeonRoomContentPlanner.Build(catalog, candidates);
+            var reserved = new DungeonEnemyAnchorResolver().GetReservedCells(floor, catalog, normalizeLegacyData: false);
+            foreach (var candidate in candidates)
+                foreach (var cell in candidate.Cells)
+                    if (IsOccupiedByDungeonObject(floor, cell)) reserved.Add(cell);
+
+            var selected = opportunities.Where(o => o.IsRequired).ToList();
+            var selectedAnchors = selected.SelectMany(o => o.Anchors).ToList();
+            if (!DungeonRoomContentPlanner.TryAssign(selectedAnchors, reserved, out var positions))
+                throw new InvalidOperationException($"Pietro {floor.FloorIndex}: brak miejsca na komplet wymaganego wyposazenia: "
+                    + string.Join(", ", selected.Select(o => o.Id)) + ". Kotwy: "
+                    + string.Join(", ", selectedAnchors.Select(a => a.Room.TemplateId + "/" + a.Anchor.Id)));
+
+            foreach (var opportunity in opportunities)
+            {
+                if (opportunity.IsRequired || opportunity.Dependencies.Any(d => !selected.Contains(d))) continue;
+                var trial = new List<DungeonSemanticAnchorPlacement>(selectedAnchors);
+                trial.AddRange(opportunity.Anchors);
+                if (!DungeonRoomContentPlanner.TryAssign(trial, reserved, out var trialPositions)) continue;
+                // One draw only after dependencies and the complete group's space qualify.
+                if (!distribution.Roll(opportunity.DistributionKey, opportunity.SpawnChance)) continue;
+                selected.Add(opportunity);
+                selectedAnchors = trial;
+                positions = trialPositions;
+            }
+
+            var instances = new List<DungeonObjectInstance>();
+            for (var index = 0; index < selectedAnchors.Count; index++)
+            {
+                var anchor = selectedAnchors[index];
+                var definition = SelectDefinition(choices[anchor], random);
+                var instance = CreateObjectInstance(
+                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.object_{index:00}", definition,
+                    positions[anchor], lootTableSystem, themedChestLootTable, anchor.Anchor.ActivationGroupId,
+                    anchor.Room.IsRequiredProgressionRoom && (anchor.Anchor.Type == DungeonSemanticAnchorType.Lever
+                        || anchor.Anchor.Type == DungeonSemanticAnchorType.Condition));
+                if (instance == null) throw PlacementError(floor, anchor, "Nieobslugiwany typ definicji.");
+                instances.Add(instance);
+            }
+            foreach (var instance in instances)
+                if (!floor.TryAddObject(instance))
+                    throw new InvalidOperationException($"Pietro {floor.FloorIndex}: nie mozna dodac zaplanowanego obiektu '{instance.InstanceId}'.");
+        }
+
+        private static InvalidOperationException PlacementError(DungeonFloorInstance floor,
+            DungeonSemanticAnchorPlacement candidate, string message)
+            => new($"Pietro {floor.FloorIndex}, pokoj '{candidate.Room.RoomId}', szablon '{candidate.Room.TemplateId}', "
+                + $"kotwa '{candidate.Anchor.Id}': {message}");
 
         private static void PlaceObjectsOnFloor(
             DungeonInstance dungeon,

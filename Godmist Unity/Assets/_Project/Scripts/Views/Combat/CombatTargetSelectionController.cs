@@ -18,6 +18,8 @@ namespace Godmist.Views.Combat
 {
     public class CombatTargetSelectionController : MonoBehaviour
     {
+        public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -304,7 +306,7 @@ namespace Godmist.Views.Combat
             }
 
             ConsumedPrimaryClickThisFrame = true;
-            var targetPosition = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var targetPosition)) return;
 
             if (isSelectingTeleportDestination)
             {
@@ -462,7 +464,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var hoveredPosition = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
 
             if (previewedRelativeCenter.HasValue && previewedRelativeCenter.Value == hoveredPosition) return;
 
@@ -664,7 +666,7 @@ namespace Godmist.Views.Combat
         {
             feedbackRenderer?.ShowOutline(layer, positions, color);
         }
-        private GridPosition GetGridPositionUnderMouse()
+        private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
             var screenPosition = Input.mousePosition;
             screenPosition.z =
@@ -679,7 +681,10 @@ namespace Godmist.Views.Combat
             var gridY = Mathf.RoundToInt(
                 (worldPosition.y - gridOrigin.y) / cellSize);
 
-            return new GridPosition(gridX, gridY);
+            var resolved = ResolvePointerPosition != null
+                ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
+            position = resolved.GetValueOrDefault();
+            return resolved.HasValue;
         }
 
         private void SpendSelectedConsumable()
@@ -716,8 +721,8 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var position = GetGridPositionUnderMouse();
             HoveredUnit = null;
+            if (!TryGetGridPositionUnderMouse(out var position)) return;
             foreach (var unit in session.Units)
             {
                 if (unit != null && unit.Position == position)

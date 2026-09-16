@@ -135,7 +135,7 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if (!hasInitialized || isTriggered || (combatCoordinator != null && combatCoordinator.IsRoomFighting(encounterInstance.RoomId)))
+            if (!hasInitialized || isTriggered || combatCoordinator != null)
             {
                 return;
             }

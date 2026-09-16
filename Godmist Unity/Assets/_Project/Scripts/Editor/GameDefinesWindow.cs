@@ -48,6 +48,12 @@ namespace Godmist.Editor
             EnsureAsset();
         }
 
+        private void OnDisable()
+        {
+            serializedDefinitions?.Dispose();
+            serializedDefinitions = null;
+        }
+
         private void OnGUI()
         {
             EnsureAsset();
@@ -58,10 +64,11 @@ namespace Godmist.Editor
                 return;
             }
 
-            EditorGUILayout.BeginHorizontal();
-            DrawEntryList();
-            DrawEntryDetails();
-            EditorGUILayout.EndHorizontal();
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                DrawEntryList();
+                DrawEntryDetails();
+            }
         }
 
         private void DrawToolbar()
@@ -126,42 +133,44 @@ namespace Godmist.Editor
 
         private void DrawEntryDetails()
         {
-            EditorGUILayout.BeginVertical();
+            using var vertical = new EditorGUILayout.VerticalScope();
             if (selectedIndex < 0 || selectedIndex >= definitions.Entries.Count
                 || definitions.Entries[selectedIndex] == null)
             {
                 EditorGUILayout.HelpBox("Wybierz parametr z listy.", MessageType.Info);
-                EditorGUILayout.EndVertical();
                 return;
             }
 
             var entry = definitions.Entries[selectedIndex];
-            detailsScroll = EditorGUILayout.BeginScrollView(detailsScroll);
-            EditorGUILayout.LabelField("Parametr gameplayowy", EditorStyles.boldLabel);
-            serializedDefinitions.Update();
-            var entriesProperty = serializedDefinitions.FindProperty("entries");
-            var entryProperty = entriesProperty?.GetArrayElementAtIndex(selectedIndex);
-            if (entryProperty != null)
+            using (var scroll = new EditorGUILayout.ScrollViewScope(detailsScroll))
             {
-                EditorGUILayout.PropertyField(entryProperty, GUIContent.none, true);
+                detailsScroll = scroll.scrollPosition;
+                EditorGUILayout.LabelField("Parametr gameplayowy", EditorStyles.boldLabel);
+                serializedDefinitions.Update();
+                var entriesProperty = serializedDefinitions.FindProperty("entries");
+                var entryProperty = entriesProperty != null && selectedIndex < entriesProperty.arraySize
+                    ? entriesProperty.GetArrayElementAtIndex(selectedIndex) : null;
+                if (entryProperty != null)
+                {
+                    EditorGUILayout.PropertyField(entryProperty, GUIContent.none, true);
+                }
+                if (serializedDefinitions.ApplyModifiedProperties())
+                {
+                    entry.Normalize();
+                    EditorUtility.SetDirty(definitions);
+                }
+
+                EditorGUILayout.Space(8f);
+                var entryError = entry.TryValidate(out var error) ? null : error;
+                if (entryError != null) EditorGUILayout.HelpBox(entryError, MessageType.Error);
             }
-            serializedDefinitions.ApplyModifiedProperties();
-            entry.Normalize();
-            EditorUtility.SetDirty(definitions);
 
-            EditorGUILayout.Space(8f);
-            var entryError = entry.TryValidate(out var error) ? null : error;
-            if (entryError != null) EditorGUILayout.HelpBox(entryError, MessageType.Error);
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.BeginHorizontal();
+            using var buttons = new EditorGUILayout.HorizontalScope();
             if (GUILayout.Button("Duplikuj")) DuplicateEntry(entry);
             using (new EditorGUI.DisabledScope(definitions.Entries.Count <= 1))
             {
                 if (GUILayout.Button("Usuń")) RemoveEntry();
             }
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
         }
 
         private List<(int Index, GameDefineEntry Entry)> GetVisibleEntries()
@@ -258,7 +267,17 @@ namespace Godmist.Editor
 
         private void EnsureAsset(bool forceReload = false)
         {
-            if (!forceReload && definitions != null) return;
+            if (!forceReload && definitions != null)
+            {
+                if (serializedDefinitions == null || serializedDefinitions.targetObject != definitions)
+                {
+                    serializedDefinitions?.Dispose();
+                    serializedDefinitions = new SerializedObject(definitions);
+                }
+                return;
+            }
+            serializedDefinitions?.Dispose();
+            serializedDefinitions = null;
             definitions = AssetDatabase.LoadAssetAtPath<GameDefines>(AssetPath);
             if (definitions != null)
             {

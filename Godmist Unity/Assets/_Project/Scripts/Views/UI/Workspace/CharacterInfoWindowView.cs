@@ -97,8 +97,21 @@ namespace Godmist.Views.UI.Workspace
             window?.Focus();
         }
 
+        private void LateUpdate() => RefreshProgressionButtons();
+
+        private void RefreshProgressionButtons()
+        {
+            var visible = session != null && character != null
+                && !session.IsCharacterInCombat(character.CharacterId);
+            if (skillLoadoutButton != null && skillLoadoutButton.gameObject.activeSelf != visible)
+                skillLoadoutButton.gameObject.SetActive(visible);
+            if (skillTreeButton != null && skillTreeButton.gameObject.activeSelf != visible)
+                skillTreeButton.gameObject.SetActive(visible);
+        }
+
         public void Refresh()
         {
+            RefreshProgressionButtons();
             if (character == null) return;
 
             if (portrait != null)

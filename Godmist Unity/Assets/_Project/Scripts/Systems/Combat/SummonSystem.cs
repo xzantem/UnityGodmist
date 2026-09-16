@@ -94,8 +94,10 @@ namespace Godmist.Systems.Combat
 
                     var position = new GridPosition(
                         caster.Position.X + x,
-                        caster.Position.Y + y);
-                    if (!IsValidAdjacentPosition(session, position))
+                        caster.Position.Y + y, caster.Position.Level);
+                    if (!IsValidAdjacentPosition(session, position)
+                        || (session.DungeonContext?.SurfaceMap?.HasElevatedSurfaces == true
+                            && !new CombatLineOfSightService().HasLineOfSight(session, caster.Position, position)))
                         continue;
 
                     RemoveOldestOverLimit(

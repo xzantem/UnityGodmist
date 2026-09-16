@@ -119,8 +119,10 @@ namespace Godmist.Tests.EditMode
         {
             controller.Focus(session, arena, new Bounds(Vector3.zero, floor.size * floorScale), _ => unitPosition);
             controller.Zoom(100);
+            controller.TickTransition(10);
             Assert.That(camera.orthographicSize, Is.EqualTo(2.5f));
             controller.Zoom(-100);
+            controller.TickTransition(10);
             Assert.That(camera.orthographicSize, Is.EqualTo(10f));
         }
         [Test]

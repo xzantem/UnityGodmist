@@ -258,7 +258,8 @@ namespace Godmist.Systems.Combat
                 session.ActiveParticipant = nextParticipant;
                 SyncLegacyState(session);
                 SortTurnParticipants(session);
-                BeginActiveTurn(session, nextParticipant);
+                if (session.SuspendedTurns.Remove(nextParticipant)) session.ResumeTurn?.Invoke(nextParticipant);
+                else BeginActiveTurn(session, nextParticipant);
                 return;
             }
 

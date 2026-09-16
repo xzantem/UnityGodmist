@@ -1,3 +1,4 @@
+﻿using System.Linq;
 using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Skills;
@@ -173,7 +174,8 @@ namespace Godmist.Systems.Combat
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             float executionDamageMultiplier = 1f,
             bool skipCosts = false,
-            bool isPassiveDuplicate = false)
+            bool isPassiveDuplicate = false,
+            IReadOnlyDictionary<int, int> rotationsByModeIndex = null)
         {
             var isToggleDeactivation = IsToggleActive(caster, skill);
             if (!CanExecute(
@@ -184,7 +186,7 @@ namespace Godmist.Systems.Combat
                     teleportDestination,
                     objectPlacementDestination,
                     isToggleDeactivation,
-                    skipCosts))
+                    skipCosts, selectedPositionsByModeIndex))
             {
                 return false;
             }
@@ -200,6 +202,8 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
+            using var objectDamageScope = new CombatObjectDamageAction(session);
+            var objectResults = new Dictionary<int, HashSet<string>>();
             var actionId = Guid.NewGuid().ToString("N");
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
             var actionContext = CreateActionContext(
@@ -223,7 +227,8 @@ namespace Godmist.Systems.Combat
                     caster,
                     skill,
                     knifeTargets,
-                    preventsKnifeConsumption))
+                    preventsKnifeConsumption,
+                    selectedPositionsByModeIndex?.Values.FirstOrDefault(p => p.HasValue)))
             {
                 return false;
             }
@@ -318,6 +323,28 @@ namespace Godmist.Systems.Combat
                     ScheduleEffect(session, caster, skill, effect, effectIndex,
                         targets, selectedPositionsByModeIndex);
                     continue;
+                }
+
+                if (effect.EffectType == EffectType.Charge && targets.Count == 0)
+                {
+                    var selected = selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex, out var position) ? position : null;
+                    var obstacle = CombatObjectDamageSystem.Targets(session, caster, skill, effect.TargetModeIndex, selected).FirstOrDefault()
+                        ?? session.ObjectDamageAction?.Barriers.FirstOrDefault(o => selected.HasValue && o.Position == selected.Value);
+                    if (obstacle != null && ShouldExecuteObjectEffect(session, caster, effect, obstacle, objectResults, resultsByEffectIndex))
+                        chargeSystem.TryChargeObject(session, caster, obstacle, skill, effect, effectIndex);
+                    resultsByEffectIndex[effectIndex] = new();
+                    continue;
+                }
+                if (effect.EffectType == EffectType.DealDamage)
+                {
+                    var selection = selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex, out var selected) ? selected
+                        : targets.Count > 0 ? (GridPosition?)targets[0].Position : null;
+                    var objectTargets = CombatObjectDamageSystem.Targets(session, caster, skill, effect.TargetModeIndex, selection,
+                        rotationsByModeIndex != null && rotationsByModeIndex.TryGetValue(effect.TargetModeIndex, out var rotation) ? rotation : 0);
+                    var succeeded = new HashSet<string>(); objectResults[effectIndex] = succeeded;
+                    foreach (var obj in objectTargets)
+                        if (ShouldExecuteObjectEffect(session, caster, effect, obj, objectResults, resultsByEffectIndex)
+                            && CombatObjectDamageSystem.ApplyDamage(session, obj, effect.DamageHitCount)) succeeded.Add(obj.ObjectId);
                 }
 
                 var resultsForNormalEffect =
@@ -491,7 +518,12 @@ namespace Godmist.Systems.Combat
         private void ExecuteScheduledEffect(CombatSession session, BattleUnit caster,
             ScheduledCombatEffect scheduled)
         {
+            using var damageScope = new CombatObjectDamageAction(session);
             var targets = ResolveScheduledTargets(session, caster, scheduled);
+            if (scheduled.Effect.EffectType == EffectType.DealDamage)
+                foreach (var obj in CombatObjectDamageSystem.Targets(session, caster, scheduled.Skill, scheduled.Effect.TargetModeIndex, scheduled.TargetPosition))
+                    if (ShouldExecuteObjectEffect(session, caster, scheduled.Effect, obj, new(), new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>()))
+                        CombatObjectDamageSystem.ApplyDamage(session, obj, scheduled.Effect.DamageHitCount);
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var results = new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
 
@@ -696,7 +728,7 @@ namespace Godmist.Systems.Combat
                         caster,
                         effect.DisplacementDistance,
                         ForcedDisplacementDirection.AwayFromReference,
-                        "odepchnięty");
+                        "odepchnięty", damageObstacleOnCollision: true);
 
                     return new EffectExecutionResult { Succeeded = wasPushed };
                 }
@@ -935,6 +967,28 @@ namespace Godmist.Systems.Combat
                     Debug.LogWarning($"Nieobslugiwany typ efektu w skillu '{effect.EffectType}'.");
                     return EffectExecutionResult.None;
             }
+        }
+
+        private static bool ShouldExecuteObjectEffect(CombatSession session, BattleUnit caster, SkillEffectData effect,
+            ObstacleCombatMapObject obj, Dictionary<int, HashSet<string>> objectResults,
+            IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>> unitResults)
+        {
+            if (effect.Conditions == null) return true;
+            foreach (var condition in effect.Conditions)
+            {
+                if (condition == null) continue;
+                if (condition.ConditionType == EffectConditionType.ReferencedEffectSucceeded
+                    || condition.ConditionType == EffectConditionType.ReferencedEffectDealtHealthDamage)
+                {
+                    if (!objectResults.TryGetValue(condition.ReferencedEffectIndex, out var prior) || !prior.Contains(obj.ObjectId)) return false;
+                }
+                else if (condition.ConditionType == EffectConditionType.TargetHealthBelowPercent)
+                {
+                    if (obj.Source.RemainingHits * 100f / obj.Source.MaxHits >= condition.HealthPercentThreshold) return false;
+                }
+                else if (!EvaluateCondition(session, condition, caster, null, unitResults)) return false;
+            }
+            return true;
         }
 
         private static bool ShouldExecuteEffect(
@@ -1288,7 +1342,7 @@ namespace Godmist.Systems.Combat
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
             bool isToggleDeactivation,
-            bool skipCosts)
+            bool skipCosts, IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
         {
             if (session == null || caster?.Character == null
                 || skill == null || targetsByModeIndex == null
@@ -1391,7 +1445,10 @@ namespace Godmist.Systems.Combat
                             out var targets)
                         || targets == null
                         || (!CanResolveWithoutUnitTargets(targetMode)
-                            && targets.Count == 0))
+                            && targets.Count == 0
+                            && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
+                                && CombatObjectDamageSystem.Targets(session, caster, skill, targetModeIndex,
+                                    selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(targetModeIndex, out var objectTarget) ? objectTarget : null).Count > 0)))
                     {
                         Debug.LogWarning(
                             $"Skill '{skill.SkillId}' has no targets for target mode {targetModeIndex}.");
@@ -1632,6 +1689,9 @@ namespace Godmist.Systems.Combat
                 {
                     var targets = targetsByModeIndex[effect.TargetModeIndex];
 
+                    if (targets.Count == 0 && !StatusEffectSystem.IsImmobilized(caster)
+                        && CombatObjectDamageSystem.Targets(session, caster, skill, effect.TargetModeIndex,
+                            selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex, out var selectedObject) ? selectedObject : null).Count > 0) continue;
                     if (targets.Count != 1
                         || !chargeSystem.CanStartCharge(
                             session,
@@ -2213,7 +2273,7 @@ namespace Godmist.Systems.Combat
             BattleUnit referenceUnit,
             int displacementDistance,
             ForcedDisplacementDirection direction,
-            string actionDescription)
+            string actionDescription, bool damageObstacleOnCollision = false)
         {
             if (session?.Grid == null || movedUnit == null || referenceUnit == null)
             {
@@ -2268,15 +2328,17 @@ namespace Godmist.Systems.Combat
 
                 var nextPosition = new GridPosition(
                     movedUnit.Position.X + stepX,
-                    movedUnit.Position.Y + stepY);
+                    movedUnit.Position.Y + stepY, movedUnit.Position.Level);
 
-                if (!CanForcedDisplacementMove(
+                if (CombatObjectDamageSystem.IsCollisionBarrier(session, nextPosition) || !CanForcedDisplacementMove(
                         session,
                         movedUnit,
                         nextPosition,
                         stepX,
                         stepY))
                 {
+                    if (damageObstacleOnCollision)
+                        CombatObjectDamageSystem.Impact(session, movedUnit.Position, nextPosition);
                     break;
                 }
 
@@ -2320,8 +2382,8 @@ namespace Godmist.Systems.Combat
                     && !session.IsPositionOccupied(nextPosition, movedUnit);
             }
 
-            var horizontal = new GridPosition(nextPosition.X, currentPosition.Y);
-            var vertical = new GridPosition(currentPosition.X, nextPosition.Y);
+            var horizontal = new GridPosition(nextPosition.X, currentPosition.Y, currentPosition.Level);
+            var vertical = new GridPosition(currentPosition.X, nextPosition.Y, currentPosition.Level);
             return !session.IsPositionOccupied(nextPosition, movedUnit)
                 && ((session.Grid.CanDisplaceBetween(currentPosition, horizontal)
                         && session.Grid.CanDisplaceBetween(horizontal, nextPosition))
@@ -2453,7 +2515,11 @@ namespace Godmist.Systems.Combat
                             || target.Character.LifeState != CharacterLifeState.Alive
                             || !MatchesTargeting(source, target, aura.TargetingType)
                             || (!aura.IncludesCaster && target == source)
-                            || !IsInRange(source.Position, target.Position, aura.Radius))
+                            || !IsInRange(source.Position, target.Position, aura.Radius)
+                            || (session.DungeonContext?.SurfaceMap?.HasElevatedSurfaces == true
+                                && session.DungeonContext.SurfaceMap.BlocksFloorSight(
+                                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, source.Position),
+                                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, target.Position))))
                         {
                             continue;
                         }

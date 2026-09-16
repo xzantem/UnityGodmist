@@ -46,7 +46,16 @@ namespace Godmist.Tests.EditMode
      foreach(var anchor in template.SemanticAnchors)
      {
       var transformed=DungeonRoomTransformUtility.TransformCell(anchor.LocalCell,template.SizeInCells,room.RotationDegrees)+room.LayoutPosition;
-      Assert.That(floor.Objects.Any(o=>o.Position==transformed&&o.Definition==anchor.ObjectDefinition),Is.True,"Pinned anchor "+anchor.Id);
+      var present=floor.Objects.Any(o=>o.Position==transformed&&o.Definition==anchor.ObjectDefinition);
+      var group=template.ContentGroups.FirstOrDefault(g=>g.AnchorIds.Contains(anchor.Id));
+      if ((group?.IsRequired??anchor.IsRequired)||(group?.SpawnChance??anchor.SpawnChance)>=1f)
+       Assert.That(present,Is.True,"Required or certain anchor "+anchor.Id);
+      if(group!=null)
+       foreach(var member in template.SemanticAnchors.Where(a=>group.AnchorIds.Contains(a.Id)))
+       {
+        var memberCell=DungeonRoomTransformUtility.TransformCell(member.LocalCell,template.SizeInCells,room.RotationDegrees)+room.LayoutPosition;
+        Assert.That(floor.Objects.Any(o=>o.Position==memberCell&&o.Definition==member.ObjectDefinition),Is.EqualTo(present),"Complete optional group "+group.Id);
+       }
      }
     }
    }

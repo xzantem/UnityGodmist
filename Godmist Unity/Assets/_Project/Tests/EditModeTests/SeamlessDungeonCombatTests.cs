@@ -47,6 +47,141 @@ namespace Godmist.Tests.EditMode
             }
         };
 
+        [Test]
+        public void WideSessions_CanShareRoomWithoutSharingParticipants()
+        {
+            var game = Game();
+            var first = Combat("a", "same"); first.IsDungeonWide = true; first.Units.Add(Unit("p1"));
+            var second = Combat("b", "same"); second.IsDungeonWide = true; second.Units.Add(Unit("p2"));
+            Assert.That(game.TryRegisterDungeonCombat(first), Is.True);
+            Assert.That(game.TryRegisterDungeonCombat(second), Is.True);
+            var duplicate = Combat("c", "same"); duplicate.IsDungeonWide = true; duplicate.Units.Add(Unit("p1"));
+            Assert.That(game.TryRegisterDungeonCombat(duplicate), Is.False);
+        }
+
+        [Test]
+        public void Merge_PreservesRemainingAV_AP_AndResumesWithoutTurnStart()
+        {
+            var first = Combat("first"); first.IsDungeonWide = true;
+            var second = Combat("second"); second.IsDungeonWide = true;
+            var a = Unit("a"); var b = Unit("b"); var waiting = Unit("waiting");
+            a.CurrentActionValue = b.CurrentActionValue = 0;
+            a.CurrentActionPoints = 2; b.CurrentActionPoints = 3; waiting.CurrentActionValue = 123;
+            first.Units.Add(a); second.Units.AddRange(new[] { b, waiting });
+            var pa = new CombatTurnParticipant(a); var pb = new CombatTurnParticipant(b);
+            first.TurnParticipants.Add(pa); first.ActiveParticipant = pa; first.ActiveUnit = a;
+            second.TurnParticipants.AddRange(new[] { pb, new CombatTurnParticipant(waiting) });
+            second.ActiveParticipant = pb; second.ActiveUnit = b;
+            var delayed = new ScheduledCombatEffect("b", null, null, 0, 2, "a", null);
+            second.ScheduledEffects.Add(delayed);
+            Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.True);
+            Assert.That(first.ActiveUnit, Is.SameAs(a));
+            Assert.That(b.CurrentActionPoints, Is.EqualTo(3));
+            Assert.That(waiting.CurrentActionValue, Is.EqualTo(123));
+            Assert.That(first.ScheduledEffects[0], Is.SameAs(delayed));
+            Assert.That(first.SuspendedTurns, Does.Contain(pb));
+            a.CurrentActionValue = 500;
+            first.ActiveParticipant = null; first.ActiveUnit = null;
+            var starts = 0; var resumes = 0;
+            first.ResumeTurn = participant => { Assert.That(participant, Is.SameAs(pb)); resumes++; };
+            new CombatTurnSystem(onUnitTurnBegan: unit => starts++).AdvanceTurn(first);
+            Assert.That(starts, Is.Zero); Assert.That(resumes, Is.EqualTo(1));
+            Assert.That(b.CurrentActionPoints, Is.EqualTo(3));
+            Assert.That(waiting.CurrentActionValue, Is.EqualTo(123));
+            Assert.That(first.SuspendedTurns, Is.Empty);
+        }
+
+        [Test]
+        public void Merge_RejectsDifferentFloorsAndDuplicateUnitsWithoutMutation()
+        {
+            var first = Combat("first"); first.IsDungeonWide = true; first.Units.Add(Unit("a"));
+            var second = Combat("second"); second.IsDungeonWide = true; second.Units.Add(Unit("a"));
+            Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.False);
+            second.Units[0].Character.CharacterId = "b";
+            second.DungeonContext = new DungeonCombatContext("dungeon", 1, "second", "second", Vector2Int.zero,
+                Vector2Int.zero, first.DungeonContext.WorldCells, null, null);
+            Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.False);
+            Assert.That(first.Units.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EnemyIdentity_QualifiesRepeatedAuthoredIds_WithoutMutatingPrerolledLoot()
+        {
+            var first = Combat("first"); first.IsDungeonWide = true;
+            var second = Combat("second"); second.IsDungeonWide = true;
+            var loot = new CombatRewardResult { EnemyRewards = new List<CombatEnemyReward>
+                { new() { EnemyInstanceId = "guard", Gold = 17, ExperiencePerActiveCharacter = 3 } } };
+            var a = Unit("guard", false); var b = Unit("guard", false);
+            first.Units.Add(a); second.Units.Add(b);
+            DungeonCombatMembershipSystem.RegisterEnemy(first, "one", "guard", loot, a);
+            DungeonCombatMembershipSystem.RegisterEnemy(second, "two", "guard", loot, b);
+            Assert.That(a.Character.CharacterId, Is.Not.EqualTo(b.Character.CharacterId));
+            second.TryMarkEnemyDefeated(b.Character.CharacterId, new GridPosition(1, 1, 2));
+            Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.True);
+            Assert.That(first.Rewards.EnemyRewards.Count, Is.EqualTo(2));
+            Assert.That(first.TryGetEnemyDeathPosition(b.Character.CharacterId, out var death), Is.True);
+            Assert.That(death, Is.EqualTo(new GridPosition(1, 1, 2)));
+            Assert.That(loot.EnemyRewards[0].EnemyInstanceId, Is.EqualTo("guard"));
+            Assert.That(first.EnemySources[b.Character.CharacterId].EncounterId, Is.EqualTo("two"));
+        }
+
+        [Test]
+        public void WholeFloorContext_IncludesOtherRooms_AndHasNoRoomExit()
+        {
+            var definition = ScriptableObject.CreateInstance<EncounterDefinition>();
+            try
+            {
+                var map = new DungeonFloorMap(); map.TryAddFloorCell(Vector2Int.zero, "one"); map.TryAddFloorCell(Vector2Int.right, "two");
+                var floor = new DungeonFloorInstance(0); floor.TrySetMap(map);
+                var dungeon = new DungeonInstance("d", 1); dungeon.TryAddFloor(floor);
+                var encounter = new DungeonEncounterInstance("e", definition, "one", new RectInt(0, 0, 1, 1));
+                Assert.That(new DungeonCombatContextFactory().TryCreate(dungeon, encounter, out var context, true), Is.True);
+                Assert.That(context.WorldCells.Count, Is.EqualTo(2));
+                new DungeonBattleGridFactory().TryCreate(context, out var grid);
+                var combat = new CombatSession { IsSeamless = true, IsDungeonWide = true, Grid = grid, DungeonContext = context };
+                DungeonCombatArenaSystem.RefreshExits(combat, floor, new HashSet<Vector2Int>());
+                Assert.That(combat.OpenExitEdges, Is.Empty);
+                Assert.That(combat.IsExitPosition(new GridPosition(1, 0)), Is.False);
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
+        [Test]
+        public void SpottedFactory_AddsOnlyRequestedEnemyAndPartyMember()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var classData = ScriptableObject.CreateInstance<CharacterClassData>();
+            var encounterDefinition = ScriptableObject.CreateInstance<EncounterDefinition>();
+            try
+            {
+                SetProperty(definition, "Id", "enemy.definition");
+                SetProperty(definition, "BaseStats", new CharacterBaseStatsData());
+                SetProperty(classData, "Id", "class.warrior"); SetProperty(classData, "ResourceType", ResourceType.Rage);
+                var entries = new List<EncounterEnemyData>();
+                foreach (var id in new[] { "guard", "hidden" })
+                {
+                    var data = new EncounterEnemyData(); SetProperty(data, "InstanceId", id);
+                    SetProperty(data, "CharacterDefinition", definition); SetProperty(data, "ClassData", classData); entries.Add(data);
+                }
+                SetProperty(encounterDefinition, "Enemies", entries);
+                var encounter = new DungeonEncounterInstance("one", encounterDefinition, "one", new RectInt(0, 0, 2, 2));
+                var game = Game();
+                foreach (var id in new[] { "spotted", "unseen" })
+                {
+                    var character = Unit(id).Character; character.AvailabilityState = CharacterAvailabilityState.Available;
+                    game.TryRegisterCharacter(character); game.TryAddCharacterToActiveParty(id);
+                }
+                Assert.That(new CombatSessionFactory().TryCreateSeamless(game, encounter, Combat("one").DungeonContext,
+                    new Dictionary<string, Vector2Int> { ["spotted"] = Vector2Int.zero },
+                    new Dictionary<string, Vector2Int> { ["guard"] = Vector2Int.right }, out var session, out _, true), Is.True);
+                Assert.That(session.Units.Count, Is.EqualTo(2));
+                Assert.That(session.Units.Exists(unit => unit.Character.CharacterId == "unseen"), Is.False);
+                Assert.That(session.EnemySources.Count, Is.EqualTo(1));
+                Assert.That(session.Rewards.EnemyRewards.Exists(reward => reward.EnemyInstanceId == "hidden"), Is.False);
+            }
+            finally { Object.DestroyImmediate(definition); Object.DestroyImmediate(classData); Object.DestroyImmediate(encounterDefinition); }
+        }
+
         [TestCase(false, true)]
         [TestCase(true, false)]
         public void RingRoom_SightCrossesOutsideFloor_UnlessRealWallBlocks(bool wall, bool visible)

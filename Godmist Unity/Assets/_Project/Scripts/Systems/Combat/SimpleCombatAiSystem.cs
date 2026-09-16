@@ -112,6 +112,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            session.Contact?.Refresh(session);
             turnState ??= CreateTurnState();
             if (TryExecuteBestSkill(
                     session,
@@ -134,9 +135,18 @@ namespace Godmist.Systems.Combat
                 session,
                 aiUnit,
                 out var taunter);
-            var target = hasTaunter ? taunter : FindClosestPlayerUnit(session, aiUnit);
+            var target = hasTaunter && (session.Contact == null || session.Contact.Sees(aiUnit, taunter))
+                ? taunter : FindClosestPlayerUnit(session, aiUnit);
             if (target == null)
             {
+                if (session.Contact != null && session.Contact.TryGetSearchPosition(session, aiUnit, out var last)
+                    && TryFindPathToPosition(session, aiUnit, last, session.IsPositionOccupied(last, aiUnit), out var searchPath)
+                    && TryExecuteMovementPath(session, aiUnit, searchPath, out var completed, searching: true))
+                {
+                    action = new SimpleCombatAiAction(completed == null ? SimpleCombatAiActionType.Interaction
+                        : SimpleCombatAiActionType.Movement, movementPath: completed);
+                    return true;
+                }
                 evaluateOutcome?.Invoke(session);
                 return false;
             }
@@ -627,10 +637,8 @@ namespace Godmist.Systems.Combat
             GridPosition? bestPosition = null;
             var bestDistance = GetManhattanDistance(aiUnit.Position, target.Position);
 
-            foreach (var direction in MovementDirections)
+            foreach (var candidate in session.Grid.GetNeighbours(aiUnit.Position))
             {
-                var candidate = new GridPosition(aiUnit.Position.X + direction.x,
-                    aiUnit.Position.Y + direction.y);
                 var candidateDistance = GetManhattanDistance(candidate, target.Position);
                 if ((session.EvaluateTrapRisk?.Invoke(aiUnit, new[] { candidate }) ?? 0f) > 0f
                     || candidateDistance <= bestDistance || candidateDistance > desiredRange
@@ -789,6 +797,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if (session.Contact != null && !session.Contact.Sees(aiUnit, unit)) continue;
                 var distance = GetManhattanDistance(aiUnit.Position, unit.Position);
 
                 if (distance < closestDistance)
@@ -823,9 +832,15 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!TryFindPathToTarget(session, aiUnit, target, out var path)
-                || path.Count == 0) return false;
+            if (!TryFindPathToTarget(session, aiUnit, target, out var path)) return false;
+            return TryExecuteMovementPath(session, aiUnit, path, out movementPath);
+        }
 
+        private bool TryExecuteMovementPath(CombatSession session, BattleUnit aiUnit,
+            List<GridPosition> path, out List<GridPosition> movementPath, bool searching = false)
+        {
+            movementPath = null;
+            if (path == null || path.Count == 0) return false;
             // Opening is a separate action so the existing driver presents/synchronizes it
             // before movement. Never toggle an already-open door.
             var firstDoor = FindClosedDirectDoor(session, aiUnit.Position, path[0]);
@@ -843,7 +858,12 @@ namespace Godmist.Systems.Combat
 
             // The movement owner applies real costs/statuses and may stop before the planned
             // endpoint. Present only the completed prefix, retaining its aggregated feedback.
-            movementSystem.TryMoveAlongPath(session, aiUnit, movementSegment, out var completedPath);
+            movementSystem.TryMoveAlongPath(session, aiUnit, movementSegment, out var completedPath,
+                searching ? () =>
+                {
+                    session.Contact?.Refresh(session);
+                    return FindClosestPlayerUnit(session, aiUnit) != null;
+                } : null);
             if (completedPath.Count == 0) return false;
             movementPath = completedPath;
             return true;
@@ -858,30 +878,37 @@ namespace Godmist.Systems.Combat
                 || aiUnit.Character.LifeState != CharacterLifeState.Alive
                 || target.Character.LifeState != CharacterLifeState.Alive) return false;
 
+            return TryFindPathToPosition(session, aiUnit, target.Position, true, out path);
+        }
+
+        private bool TryFindPathToPosition(CombatSession session, BattleUnit aiUnit, GridPosition destination,
+            bool stopAdjacent, out List<GridPosition> path)
+        {
+            path = null;
             var start = aiUnit.Position;
             var pending = new List<(GridPosition cell, List<GridPosition> path, float risk)> { (start, new(), 0f) };
-            var best = new Dictionary<(GridPosition, string, int), (float risk, int cost)> { [(start, "", 0)] = (0f, 0) };
+            var best = new Dictionary<(GridPosition, string), (float risk, int cost)> { [(start, "")] = (0f, 0) };
             while (pending.Count > 0)
             {
                 pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, a.path).CompareTo(CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, b.path)));
                 var node = pending[0]; pending.RemoveAt(0);
                 var current = node.cell;
-                if (IsAdjacent(current, target.Position) && CanPlanAcross(session, aiUnit, current, target.Position))
+                if (stopAdjacent ? IsAdjacent(current, destination) && CanPlanAcross(session, aiUnit, current, destination)
+                    : current == destination)
                 {
                     path = node.path;
-                    if (FindClosedDirectDoor(session, current, target.Position) != null) path.Add(target.Position);
+                    if (stopAdjacent && FindClosedDirectDoor(session, current, destination) != null) path.Add(destination);
                     return true;
                 }
-                foreach (var direction in MovementDirections)
+                foreach (var candidate in PlanningNeighbours(session, current))
                 {
-                    var candidate = new GridPosition(current.X + direction.x, current.Y + direction.y);
                     if (candidate == start || node.path.Contains(candidate) || session.IsPositionOccupied(candidate, aiUnit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))
                         || !CanPlanAcross(session, aiUnit, current, candidate)) continue;
                     var next = new List<GridPosition>(node.path) { candidate };
                     var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
                     if (!float.IsFinite(risk)) continue;
-                    var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "", next.Count);
+                    var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
                     var cost = CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, next);
                     if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.cost <= cost)) continue;
                     best[key] = (risk, cost);
@@ -889,6 +916,17 @@ namespace Godmist.Systems.Combat
                 }
             }
             return false;
+        }
+
+        private static IEnumerable<GridPosition> PlanningNeighbours(CombatSession session, GridPosition current)
+        {
+            var candidates = new HashSet<GridPosition>(session.Grid.GetNeighbours(current));
+            foreach (var door in session.MapObjects.OfType<DoorCombatMapObject>())
+            {
+                if (door.Edge.FirstCell == current) candidates.Add(door.Edge.SecondCell);
+                else if (door.Edge.SecondCell == current) candidates.Add(door.Edge.FirstCell);
+            }
+            return candidates;
         }
 
         private static bool CanPlanAcross(
@@ -951,6 +989,8 @@ namespace Godmist.Systems.Combat
         private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(CombatSession session, BattleUnit caster,
             SkillData skill, IReadOnlyList<BattleUnit> targets)
         {
+            if (targets != null && session.Contact != null && !caster.IsPlayerSide)
+                targets = targets.Where(target => target != null && (!target.IsPlayerSide || session.Contact.Sees(caster, target))).ToList();
             if (targets == null || skill == null || !skill.RequiresLineOfSight)
             {
                 return targets ?? new List<BattleUnit>();

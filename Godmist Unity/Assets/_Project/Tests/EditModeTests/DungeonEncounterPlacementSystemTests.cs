@@ -171,8 +171,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(finalFloor.Encounters[0].InstanceId, Does.EndWith(".boss"));
         }
 
-        [Test]
-        public void EnemyAnchorResolver_UsesEncounterEnemyIndicesAndSkipsDefeatedEnemies()
+        [TestCase(DungeonEnemyPatrolMode.Patrol)]
+        [TestCase(DungeonEnemyPatrolMode.Stationary)]
+        public void EnemyAnchorResolver_UsesEncounterEnemyIndicesAndSkipsDefeatedEnemies(DungeonEnemyPatrolMode mode)
         {
             var catalog = ScriptableObject.CreateInstance<
                 DungeonRoomTemplateCatalog>();
@@ -185,7 +186,7 @@ namespace Godmist.Tests.EditMode
                     DungeonSemanticAnchorType.Enemy,
                     new Vector2Int(1, 1),
                     Vector2Int.one,
-                    encounterEnemyIndex: 0));
+                    encounterEnemyIndex: 0, patrolMode: mode));
             template.SemanticAnchors.Add(
                 new DungeonSemanticAnchorData(
                     "enemy.anchor.02",
@@ -239,8 +240,10 @@ namespace Godmist.Tests.EditMode
             var positions = new DungeonEnemyAnchorResolver().Resolve(
                 floor,
                 catalog,
-                encounter);
+                encounter, stationaryHomes: encounter.StationaryEnemyHomes);
 
+            Assert.That(encounter.StationaryEnemyHomes.ContainsKey("enemy.alpha"), Is.EqualTo(mode == DungeonEnemyPatrolMode.Stationary));
+            Assert.That(encounter.StationaryEnemyHomes.ContainsKey("enemy.beta"), Is.False);
             Assert.That(positions, Has.Count.EqualTo(1));
             Assert.That(
                 positions["enemy.alpha"],

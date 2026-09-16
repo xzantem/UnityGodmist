@@ -32,11 +32,12 @@ namespace Godmist.Views.Dungeons
         {
             if (visualRenderer != null)
             {
-                visualRenderer.color = trap != null && trap.IsTriggered
+                visualRenderer.color = PresentationState(trap != null && trap.IsTriggered)
                     ? triggeredColor
                     : armedColor;
             }
         }
+        protected override void RefreshFogVisual() => RefreshVisual();
 
     }
 }

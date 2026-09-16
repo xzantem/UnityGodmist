@@ -26,6 +26,7 @@ namespace Godmist.Core.Serialization
         public List<QuestSaveData> Quests = new();
         public List<NpcSaveData> Npcs = new();
         public DungeonSaveData ActiveDungeon;
+        public DungeonOfferBoardSaveData DungeonOffers;
         public bool HasExplorationPosition;
         public float ExplorationPositionX;
         public float ExplorationPositionY;
@@ -57,5 +58,13 @@ namespace Godmist.Core.Serialization
         public string ActiveLeaderId = string.Empty;
         public List<string> ActiveMemberIds = new();
         public List<string> BenchMemberIds = new();
+        public int GroupsVersion;
+        public List<PartyGroupSaveData> Groups;
     }
+}
+
+namespace Godmist.Core.Serialization
+{
+    [System.Serializable]
+    public class PartyGroupSaveData { public System.Collections.Generic.List<string> MemberIds = new(); }
 }

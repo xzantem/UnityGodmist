@@ -36,6 +36,7 @@ namespace Godmist.Data.Configuration
                 Float(GameDefineIds.ActionPointsPerSpeed, "AP na punkt Speed", "Ile maksymalnych punktów akcji daje jeden punkt Speed.", GameDefineCategory.Combat, "AP/Speed", .25f, 0f, 10f),
                 Float(GameDefineIds.BaseActionValue, "Bazowa wartość AV", "Stała używana do przeliczania Speed na kolejność tur.", GameDefineCategory.Combat, "AV", 10000f, 1f, 100000f),
                 Integer(GameDefineIds.EscapeBaseChancePercent, "Bazowa szansa ucieczki", "Szansa pierwszej próby ucieczki.", GameDefineCategory.Combat, "%", 60, 0, 100),
+                Integer(GameDefineIds.EscapeContactLossTurns, "Tury bez kontaktu do ucieczki", "Liczba pełnych tur każdego przeciwnika bez ponownego wykrycia postaci w walce seamless. Odczytywana przy rozpoczęciu starcia.", GameDefineCategory.Combat, "tury", 2, 1, 100),
                 Integer(GameDefineIds.EscapeChanceIncreasePercent, "Wzrost szansy ucieczki", "Wzrost szansy po nieudanej próbie ucieczki.", GameDefineCategory.Combat, "%", 10, 0, 100),
                 Integer(GameDefineIds.InteractionActionPointPercent, "Koszt interakcji", "Procent maksymalnych AP zużywany przez interakcję bojową.", GameDefineCategory.Combat, "% AP", 20, 0, 100),
                 Integer(GameDefineIds.DownedTurnLimit, "Limit tur powalenia", "Liczba tur, po których powalona jednostka umiera.", GameDefineCategory.Combat, "tury", 5, 1, 100),

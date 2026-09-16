@@ -10,15 +10,19 @@ namespace Godmist.Views.Combat
     public class CombatCameraFramer : MonoBehaviour
     {
         // Orthographic size is inversely proportional to zoom: 100% = size 5.
-        private const float MinimumZoomSize = 2.5f; // 200%
-        private const float MaximumZoomSize = 10f; // 50%
+        public const float MinimumZoomSize = 2.5f; // 200%
+        public const float MaximumZoomSize = 10f; // 50%
+        public const float DefaultZoomSpeed = .15f;
+        public const float DefaultTransitionSpeed = 8f;
+        public static float ScrollZoom(float size, float steps, float speed = DefaultZoomSpeed) =>
+            Mathf.Clamp(size * Mathf.Exp(-steps * speed), MinimumZoomSize, MaximumZoomSize);
         [SerializeField] private Camera worldCamera;
         [SerializeField, Min(0f)] private float padding = 2f;
         [SerializeField, Min(1f)] private float minimumOrthographicSize = 5f;
         [Header("Controls")]
         [SerializeField, Min(0.1f)] private float keyboardPanSpeed = 15f;
-        [SerializeField, Min(0.01f)] private float zoomSpeed = 0.15f;
-        [SerializeField, Min(0.1f)] private float transitionSpeed = 8f;
+        [SerializeField, Min(0.01f)] private float zoomSpeed = DefaultZoomSpeed;
+        [SerializeField, Min(0.1f)] private float transitionSpeed = DefaultTransitionSpeed;
         [Header("HUD Safe Area")]
         [SerializeField, Range(0f, 0.45f)] private float leftHudFraction;
         [SerializeField, Range(0f, 0.45f)] private float rightHudFraction;
@@ -29,6 +33,7 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<CombatSession, ViewState> views = new();
         private CombatSession session;
         private Func<BattleUnit, Vector3> unitPosition;
+        public Func<BattleUnit, bool> CanPresentUnit { get; set; }
         private Bounds arenaBounds, floorBounds;
         private ViewState target;
         private bool transitioning, dragging;
@@ -74,6 +79,7 @@ namespace Godmist.Views.Combat
             floorBounds = floor;
             lastAspect = Aspect;
             if (views.TryGetValue(next, out var remembered)) MoveTo(remembered);
+            else if (next.IsSeamless) MoveTo(new ViewState { Position = Centered(arena.center, Current.Zoom), Zoom = Current.Zoom });
             else ShowArena();
         }
 
@@ -91,15 +97,21 @@ namespace Godmist.Views.Combat
             MoveTo(new ViewState { Position = Centered(arenaBounds.center, zoom), Zoom = zoom });
         }
 
+        public void FocusUnit(BattleUnit unit)
+        {
+            if (unit == null || unitPosition == null || CanPresentUnit?.Invoke(unit) == false) return;
+            MoveTo(new ViewState { Position = Centered(unitPosition(unit), worldCamera.orthographicSize), Zoom = worldCamera.orthographicSize });
+        }
+
         public void FocusActiveUnit()
         {
-            if (session?.ActiveUnit == null || unitPosition == null) return;
+            if (session?.ActiveUnit == null || unitPosition == null || CanPresentUnit?.Invoke(session.ActiveUnit) == false) return;
             MoveTo(new ViewState { Position = Centered(unitPosition(session.ActiveUnit), worldCamera.orthographicSize), Zoom = worldCamera.orthographicSize });
         }
 
         public void NotifyTurnBegan(CombatSession source, BattleUnit unit)
         {
-            if (source != session || unit == null || unitPosition == null) return;
+            if (source != session || unit == null || unitPosition == null || CanPresentUnit?.Invoke(unit) == false) return;
             var state = transitioning ? target : Current;
             var position = unitPosition(unit);
             var x = (position.x - state.Position.x) / (state.Zoom * 2f * Aspect) + 0.5f;
@@ -139,10 +151,9 @@ namespace Godmist.Views.Combat
         public void Zoom(float steps)
         {
             if (session == null) return;
-            transitioning = false;
             var state = Current;
-            state.Zoom *= Mathf.Exp(-steps * zoomSpeed);
-            Apply(Constrain(state));
+            state.Zoom = ScrollZoom(transitioning ? target.Zoom : state.Zoom, steps, zoomSpeed);
+            MoveTo(state);
         }
         public void TickTransition(float deltaTime)
         {

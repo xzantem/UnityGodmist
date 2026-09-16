@@ -62,9 +62,37 @@ namespace Godmist.Views.Combat
         public CombatFeedbackBus DungeonFeedback => dungeonFeedback;
         public bool SeamlessDungeon => seamlessDungeon;
         public CombatSession Session => focused?.Session;
+        public bool IsUnitVisible(BattleUnit unit) => unit != null && (unitViewSpawner == null || unitViewSpawner.IsUnitVisible(unit));
+        public bool IsUnitKnown(BattleUnit unit) => unit != null && (unitViewSpawner == null || unitViewSpawner.IsUnitKnown(unit));
         public bool IsPlayerMovementPresentationInProgress => focused?.IsPlayerMovementPresentationInProgress == true;
         public event Action<CombatMapObject> CombatMapObjectChanged;
         public IReadOnlyCollection<CombatExecutionDriver> Drivers => drivers.Values;
+        // Cheap cache key: parallel sessions share occupancy, while AP still bounds the path search.
+        public int GetDungeonMovementStateHash()
+        {
+            var state = new HashCode();
+            foreach (var driver in drivers.Values)
+            {
+                var combat = driver.Session;
+                state.Add(combat);
+                foreach (var unit in combat.Units)
+                { state.Add(unit); state.Add(unit.Position); state.Add(unit.Character?.LifeState); }
+                foreach (var item in combat.MapObjects)
+                {
+                    state.Add(item.ObjectId); state.Add(item.Position); state.Add(item.BlocksMovement);
+                    if (item is TrapCombatMapObject trap) state.Add(trap.Trap.IsTriggered);
+                }
+                if (combat.DungeonContext?.SurfaceMap != null)
+                    foreach (var edge in combat.DungeonContext.SurfaceMap.SurfaceClosedProgressionGateEdges) state.Add(edge);
+            }
+            if (Session?.ActiveUnit != null)
+            {
+                state.Add(StatusEffectSystem.IsHardCrowdControlled(Session.ActiveUnit));
+                state.Add(StatusEffectSystem.IsSleeping(Session.ActiveUnit));
+                state.Add(StatusEffectSystem.IsImmobilized(Session.ActiveUnit));
+            }
+            return state.ToHashCode();
+        }
         private CombatExecutionDriver CreateDriver() => new(this, unitViewSpawner, jerzyDefinition, allyDefinition, enemyDefinition, scoutClass, warriorClass, gridWidth, gridHeight, aiDecisionDelay, aiMovementResultDelay, aiSkillResultDelay, battleLog, floatingFeedback, blockedPositions, dungeonAreaView, cameraFramer, scenarioRunner);
         private void Start()
         {
@@ -105,22 +133,22 @@ namespace Godmist.Views.Combat
             session != null && drivers.TryGetValue(session, out var driver) ? driver : null;
         public void Focus(CombatSession session)
         {
-            if (!seamlessDungeon) floatingFeedback?.Bind(null);
+            if (!seamlessDungeon) if (floatingFeedback != null) floatingFeedback.Bind(null);
             focused = GetDriver(session);
             focused?.BindFeedback();
         }
-        public void End(CombatSession session)
+        public void End(CombatSession session, bool preserveCombatState = false)
         {
             var driver = GetDriver(session);
             if (driver == null) return;
             if (focused == driver)
             {
-                if (!seamlessDungeon) floatingFeedback?.Bind(null);
+                if (!seamlessDungeon) if (floatingFeedback != null) floatingFeedback.Bind(null);
                 focused = null;
             }
             driver.FeedbackBus.Published -= dungeonFeedback.Publish;
             driver.CombatMapObjectChanged -= RelayMapObjectChanged;
-            driver.Dispose();
+            driver.Dispose(preserveCombatState);
             drivers.Remove(session);
             // Exploration continues publishing to the same scene-wide bus after the last fight.
         }
@@ -134,7 +162,7 @@ namespace Godmist.Views.Combat
         }
         private void OnDestroy()
         {
-            floatingFeedback?.Bind(null);
+            if (floatingFeedback != null) floatingFeedback.Bind(null);
             foreach (var driver in drivers.Values)
             {
                 driver.FeedbackBus.Published -= dungeonFeedback.Publish;

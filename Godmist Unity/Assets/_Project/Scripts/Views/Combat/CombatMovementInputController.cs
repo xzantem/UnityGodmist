@@ -8,6 +8,8 @@ namespace Godmist.Views.Combat
 {
     public class CombatMovementInputController : MonoBehaviour
     {
+        public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -37,6 +39,7 @@ namespace Godmist.Views.Combat
         private int cachedActionPoints;
         private int cachedMovementSteps;
         private bool cacheValid;
+        private int cachedDungeonMovementState;
         private GridPosition? previewedDestination;
         private int previewedPathCost;
         public int PreviewCost => isActiveAndEnabled && previewedDestination.HasValue ? previewedPathCost : 0;
@@ -63,7 +66,16 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
-            if (sandboxBootstrap?.Session?.IsSeamless == true) cacheValid = false;
+            if (sandboxBootstrap?.Session?.IsSeamless == true)
+            {
+                if (!sandboxBootstrap.Session.IsDungeonWide) cacheValid = false;
+                else
+                {
+                    var state = sandboxBootstrap.GetDungeonMovementStateHash();
+                    if (state != cachedDungeonMovementState) cacheValid = false;
+                    cachedDungeonMovementState = state;
+                }
+            }
 
             if (DevConsoleView.IsOpen)
             {
@@ -110,7 +122,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var destination = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var destination)) return;
 
             if (sandboxBootstrap.TryReviveAt(destination))
             {
@@ -235,6 +247,7 @@ namespace Godmist.Views.Combat
                 || Input.GetKey(KeyCode.RightControl);
             var inspectedUnit = inspectController?.HoveredUnit;
             if (!isInspectingMovement
+                || sandboxBootstrap?.Session?.IsDungeonWide == true
                 || inspectedUnit == null
                 || sandboxBootstrap?.Session == null)
             {
@@ -302,7 +315,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var hoveredPosition = GetGridPositionUnderMouse();
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
             if (!reachablePaths.TryGetValue(hoveredPosition, out var path))
             {
                 feedbackRenderer.ClearMovementPreview();
@@ -325,7 +338,7 @@ namespace Godmist.Views.Combat
             previewedPathCost = pathCost;
         }
 
-        private GridPosition GetGridPositionUnderMouse()
+        private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
             var screenPosition = Input.mousePosition;
             screenPosition.z =
@@ -342,7 +355,10 @@ namespace Godmist.Views.Combat
                 (worldPosition.y - gridOrigin.y)
                 / cellSize);
 
-            return new GridPosition(gridX, gridY);
+            var resolved = ResolvePointerPosition != null
+                ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
+            position = resolved.GetValueOrDefault();
+            return resolved.HasValue;
         }
 
         private Color ShadeForSurcharge(Color baseColor, int surcharge)

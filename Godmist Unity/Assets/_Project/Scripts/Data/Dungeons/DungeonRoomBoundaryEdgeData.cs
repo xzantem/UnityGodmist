@@ -13,15 +13,18 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public DungeonEdgeDirection Direction { get; private set; }
 
+        [field: SerializeField] public int Level { get; private set; }
+
         public DungeonRoomBoundaryEdgeData()
         {
         }
 
         public DungeonRoomBoundaryEdgeData(
             Vector2Int localCell,
-            DungeonEdgeDirection direction)
+            DungeonEdgeDirection direction, int level = 0)
         {
             LocalCell = localCell;
+            Level = level;
             Direction = direction;
         }
 

@@ -78,7 +78,7 @@ namespace Godmist.Views.Combat
         }
         public bool TryLeave(BattleUnit unit)
         {
-            if (IsPlayerMovementPresentationInProgress) return false;
+            if (IsActionInProgress || Session.MembershipChangePending) return false;
             if (!DungeonCombatParticipationSystem.TryLeave(Session, unit)) return false;
             summonSystem?.RemoveSummonsCreatedBy(Session, unit.Character.CharacterId);
             skillExecutionSystem?.CancelScheduledEffectsByCaster(Session, unit.Character.CharacterId);
@@ -141,6 +141,7 @@ namespace Godmist.Views.Combat
                 HandleUnitDied,
                 passiveEffectEventDispatcher);
             Session = suppliedSession ?? CreateInitialSession();
+            if (Session != null) Session.ResumeTurn = ResumeSuspendedTurn;
             usesGameSessionCombat = suppliedSession != null || usesGameSessionCombat;
             Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
             if (!Session.IsSeamless) ScoutKnifeSystem.ResetForCombat(Session);
@@ -235,6 +236,7 @@ namespace Godmist.Views.Combat
             interactionSystem = new CombatInteractionSystem(
                 AddBattleLog, HandleCombatMapObjectChanged, feedbackBus);
             interactionSystem.InitializeMapObjects(Session);
+            Session.ObjectDurabilityChanged = HandleCombatMapObjectChanged;
             targetingService = new CombatTargetingService();
             aiSystem = new SimpleCombatAiSystem(
                 battleLog: AddBattleLog, 
@@ -249,16 +251,26 @@ namespace Godmist.Views.Combat
             if (!Session.IsSeamless) StartTurns();
         }
 
+        private bool aiActionInProgress;
+        public bool IsActionInProgress => IsPlayerMovementPresentationInProgress || aiActionInProgress;
+        public void ResumeSuspendedTurn(CombatTurnParticipant participant)
+        {
+            if (participant?.Unit != null && !participant.Unit.IsPlayerSide)
+                activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(participant.Unit));
+        }
+
         public void StartTurns()
         {
             ScoutKnifeSystem.ResetForCombat(Session, Session.IsSeamless);
             turnSystem.InitializeTurnOrder(Session);
         }
 
-        public void Dispose()
+        public void Dispose() => Dispose(false);
+
+        public void Dispose(bool preserveCombatState)
         {
-            passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
-            if (Session != null) Session.PassiveEffectEventDispatcher = null;
+            if (!preserveCombatState) passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
+            if (Session != null) { Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; }
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
@@ -656,6 +668,15 @@ namespace Godmist.Views.Combat
         }
         private void AddBattleLog(string message)
         {
+            if (Session?.IsSeamless == true)
+                foreach (var unit in Session.Units)
+                {
+                    if (host.IsUnitKnown(unit)) continue;
+                    var name = unit.Character?.Definition?.DisplayName;
+                    var id = unit.Character?.CharacterId;
+                    if (unit == Session.ActiveUnit || (!string.IsNullOrEmpty(name) && message?.Contains(name) == true)
+                        || (!string.IsNullOrEmpty(id) && message?.Contains(id) == true)) return;
+                }
             logEntries.Add(message);
             if (logEntries.Count > 300) logEntries.RemoveAt(0);
             if (host.Session == Session) battleLog?.AddEntry(message);
@@ -670,6 +691,7 @@ namespace Godmist.Views.Combat
             {
                 return;
             }
+            Session.Contact?.BeginTurn(Session, unit);
             resourceRuleSystem?.ProcessTurnStart(unit);
             skillExecutionSystem?.ProcessToggleUpkeep(Session, unit);
             statusEffectSystem?.ProcessTurnStart(Session, unit);
@@ -754,6 +776,7 @@ namespace Godmist.Views.Combat
                 && turnState != null)
             {
                 yield return WaitForAiPresentation(aiDecisionDelay);
+                while (Session.MembershipChangePending) yield return null;
 
                 if (Session.Outcome != CombatOutcomeState.Ongoing
                     || Session.ActiveUnit != unit
@@ -762,6 +785,7 @@ namespace Godmist.Views.Combat
                     break;
                 }
 
+                aiActionInProgress = true;
                 if (!aiSystem.TryExecuteNextAction(
                         Session,
                         unit,
@@ -780,8 +804,11 @@ namespace Godmist.Views.Combat
                     ? aiSkillResultDelay
                     : aiMovementResultDelay;
                 yield return WaitForAiPresentation(resultDelay);
+                aiActionInProgress = false;
             }
 
+            aiActionInProgress = false;
+            while (Session != null && Session.MembershipChangePending) yield return null;
             activeAiTurnCoroutine = null;
             if (Session != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
@@ -847,6 +874,7 @@ namespace Godmist.Views.Combat
             skillExecutionSystem?.ProcessScheduledEffects(Session, unit);
             summonSystem?.AdvanceDurationAtTurnEnd(Session, unit);
             CombatTurnSystem.RefreshMaxActionPoints(Session, unit);
+            Session.Contact?.EndTurn(Session, unit);
         }
 
         private void HandleUnitDied(BattleUnit unit)
@@ -912,7 +940,7 @@ namespace Godmist.Views.Combat
                 && Session.ActiveUnit != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && Session.ActiveUnit.IsPlayerSide
-                && !IsPlayerMovementPresentationInProgress;
+                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
         }
 
         public bool CanEscape()
@@ -921,7 +949,7 @@ namespace Godmist.Views.Combat
                 && Session.ActiveUnit.Character != null 
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
                 && Session.Outcome == CombatOutcomeState.Ongoing
-                && !IsPlayerMovementPresentationInProgress;
+                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
         }
 
         public void RequestEscape()
@@ -1016,7 +1044,7 @@ namespace Godmist.Views.Combat
                 || Session.ActiveUnit == null
                 || !Session.ActiveUnit.IsPlayerSide
                 || Session.Outcome != CombatOutcomeState.Ongoing
-                || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }
@@ -1088,7 +1116,7 @@ namespace Godmist.Views.Combat
         {
             if (Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null
-                || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
             {
                 return false;
             }
@@ -1123,7 +1151,7 @@ namespace Godmist.Views.Combat
                 targetsByModeIndex,
                 teleportDestination,
                 objectPlacementDestination,
-                selectedPositionsByModeIndex);
+                selectedPositionsByModeIndex, rotationsByModeIndex: rotationsByModeIndex);
         }
 
         private bool TryBuildSkillTargetGroups(
@@ -1184,6 +1212,8 @@ namespace Godmist.Views.Combat
                         : 0);
 
                 if (targets.Count == 0
+                    && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
+                        && CombatObjectDamageSystem.Targets(Session, Session.ActiveUnit, skill, targetModeIndex, selectedPosition).Count > 0)
                     && targetMode.TargetType != TargetType.AreaAroundTile
                     && targetMode.TargetType != TargetType.AreaAroundCaster)
                 {
@@ -1198,6 +1228,7 @@ namespace Godmist.Views.Combat
 
         public bool TryInteractAt(GridPosition position)
         {
+            if (Session?.MembershipChangePending == true) return false;
             if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
                 || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
@@ -1221,6 +1252,7 @@ namespace Godmist.Views.Combat
 
         public bool TryReviveAt(GridPosition position)
         {
+            if (Session?.MembershipChangePending == true) return false;
             if (Session == null
                 || Session.ActiveUnit == null
                 || reviveSystem == null
@@ -1349,6 +1381,20 @@ namespace Godmist.Views.Combat
                 targetMode,
                 includeDownedTargets,
                 requiredEnemyTarget);
+
+            if (requiredEnemyTarget == null && CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex))
+            {
+                var expanded = positions.ToList();
+                foreach (var obj in Session.MapObjects)
+                    if (CombatObjectDamageSystem.CanDamage(obj)
+                        && targetMode.TargetType == TargetType.Single
+                        && CombatTargetingService.IsPositionWithinRange(Session.ActiveUnit.Position, obj.Position, targetMode.AbsoluteRange)
+                        && !expanded.Contains(obj.Position)) expanded.Add(obj.Position);
+                if (targetMode.TargetType == TargetType.AreaAroundCaster
+                    && CombatTargetingService.IsDirectionalShape(targetMode.AbsoluteRange?.Shape ?? RangeShape.None)) return expanded;
+                return expanded.Where(p => !skill.RequiresLineOfSight || lineOfSightService.HasLineOfSight(Session,
+                    Session.ActiveUnit.Position, p, CombatObjectDamageSystem.CanDamage(Session.GetMapObjectAt(p)) ? Session.GetMapObjectAt(p) : null)).ToList();
+            }
 
             if (targetMode.TargetType == TargetType.AreaAroundCaster
                 && CombatTargetingService.IsDirectionalShape(

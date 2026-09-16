@@ -16,6 +16,9 @@ namespace Godmist.Runtime.Dungeons
         public int HighestReachedFloorIndex { get; private set; }
         public int GuildProgressCreditedFloorCount { get; private set; }
         public bool IsCompleted { get; private set; }
+        // Generation is a whole-dungeon operation, including floors with zero objects.
+        public bool HasPlacedContent { get; private set; }
+        public void MarkContentPlaced() => HasPlacedContent = true;
 
         private readonly HashSet<string> clearedEncounterIds = new();
         private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();

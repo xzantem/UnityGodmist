@@ -83,6 +83,13 @@ namespace Godmist.Views.Dungeons
         private readonly List<DungeonObjectView> spawnedObjects = new();
         private readonly List<GameObject> spawnedEnemyBodies = new();
         private readonly HashSet<string> spawnedBodyIds = new();
+        private DungeonFloorMapView elevationView;
+        public void BindElevationView(DungeonFloorMapView view)
+        {
+            elevationView = view;
+            foreach (var item in spawnedObjects) item.BindElevationView(view);
+            foreach (var item in spawnedEnemyBodies) if (item != null) item.GetComponent<DungeonEnemyBodyView>()?.BindElevationView(view);
+        }
         public void RefreshDoorViews()
         {
             foreach (var view in spawnedObjects)
@@ -110,7 +117,8 @@ namespace Godmist.Views.Dungeons
 
             foreach (var dungeonObject in floor.Objects)
             {
-                if (dungeonObject == null || !dungeonObject.IsActive)
+                if (dungeonObject == null || (!dungeonObject.IsActive
+                    && (!floor.Fog.Objects.TryGetValue(dungeonObject.InstanceId, out var known) || !known.Active)))
                 {
                     continue;
                 }
@@ -135,6 +143,8 @@ namespace Godmist.Views.Dungeons
                         floor,
                         door,
                         floorTilemap);
+
+                    doorView.BindElevationView(elevationView);
 
                     spawnedObjects.Add(doorView);
                     continue;
@@ -167,6 +177,8 @@ namespace Godmist.Views.Dungeons
                         floorTilemap,
                         dungeonLootWindowPrefab);
 
+                    chestView.BindElevationView(elevationView);
+
                     spawnedObjects.Add(chestView);
                     continue;
                 }
@@ -188,6 +200,8 @@ namespace Godmist.Views.Dungeons
                     obstacleView.Initialize(
                         obstacle,
                         worldPosition);
+
+                    obstacleView.BindElevationView(elevationView);
 
                     spawnedObjects.Add(obstacleView);
                     continue;
@@ -211,6 +225,8 @@ namespace Godmist.Views.Dungeons
                         floorTilemap,
                         worldPosition);
 
+                    spikeTrapView.BindElevationView(elevationView);
+
                     spawnedObjects.Add(spikeTrapView);
                     continue;
                 }
@@ -231,6 +247,8 @@ namespace Godmist.Views.Dungeons
                         worldPosition,
                         floorTilemap);
 
+                    leverView.BindElevationView(elevationView);
+
                     spawnedObjects.Add(leverView);
                     continue;
                 }
@@ -250,6 +268,8 @@ namespace Godmist.Views.Dungeons
                         condition,
                         worldPosition,
                         floorTilemap);
+
+                    conditionView.BindElevationView(elevationView);
 
                     spawnedObjects.Add(conditionView);
                 }
@@ -288,6 +308,7 @@ namespace Godmist.Views.Dungeons
                     dungeonLootWindowPrefab,
                     floorTilemap);
 
+                bodyView.BindElevationView(elevationView);
                 spawnedEnemyBodies.Add(bodyView.gameObject);
                 spawnedBodyIds.Add(body.InstanceId);
             }

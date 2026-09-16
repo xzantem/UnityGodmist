@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Runtime.Combat;
 using Godmist.Views.Characters;
 using UnityEngine;
@@ -47,7 +48,7 @@ namespace Godmist.Views.Combat
         {
             borrowed[unit] = view;
             owners[unit] = session;
-            view.BindCombat(unit);
+            view.BindCombat(unit, session.DungeonContext);
             view.SetPosition(WorldPosition(session, unit.Position));
         }
         public void Release(BattleUnit unit)
@@ -64,6 +65,8 @@ namespace Godmist.Views.Combat
             movementTargets.Remove(unit);
             presentationMovingUnits.Remove(unit);
         }
+        private bool IsPositionVisible(CombatSession session, GridPosition position) => floorMap == null || session.DungeonContext == null
+            || floorMap.IsTraversalVisible(Godmist.Systems.Combat.DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, position));
         private Vector3 WorldPosition(CombatSession session, GridPosition position) =>
             floorMap.CellToWorldCenter(Godmist.Systems.Combat.DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, position));
         private Vector3 UnitWorldPosition(BattleUnit unit, GridPosition position) =>
@@ -87,7 +90,7 @@ namespace Godmist.Views.Combat
             {
                 var unit = pair.Key;
                 var view = pair.Value;
-                if (view == null) continue;
+                if (view == null || !view.gameObject.activeSelf) continue;
                 var target = movementTargets.TryGetValue(unit, out var step) ? step : unit.Position;
                 view.MoveTowards(UnitWorldPosition(unit, target), 6f * deltaTime, 0f);
                 var owner = owners[unit];
@@ -110,6 +113,26 @@ namespace Godmist.Views.Combat
         }
 
 
+        public bool IsUnitVisible(BattleUnit unit)
+        {
+            if (unit == null || floorMap == null) return true;
+            if (owners.TryGetValue(unit, out var session)) return IsPositionVisible(session, unit.Position);
+            if (ExplorationPresentationVisible != null) return ExplorationPresentationVisible(unit);
+            var world = ExplorationWorldPosition?.Invoke(unit);
+            return world.HasValue ? floorMap.IsSurfaceVisible(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(floorMap.WorldToCell(world.Value))) : floorMap.FogFloor == null;
+        }
+
+        public bool IsUnitKnown(BattleUnit unit)
+        {
+            if (unit == null) return false;
+            if (unit.IsPlayerSide || floorMap?.FogFloor == null) return true;
+            var session = owners.TryGetValue(unit, out var owner) ? owner
+                : dungeonSession?.Combats.FirstOrDefault(combat => combat.Units.Contains(unit));
+            return session?.DungeonContext != null && floorMap.IsCurrentlySeen(
+                Godmist.Systems.Combat.DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, unit.Position));
+        }
+
+        public System.Func<BattleUnit, bool> ExplorationPresentationVisible { get; set; }
         public System.Func<BattleUnit, Vector3?> ExplorationWorldPosition { get; set; }
 
         public bool TryGetWorldPosition(BattleUnit unit, out Vector3 position)
@@ -146,7 +169,17 @@ namespace Godmist.Views.Combat
         public bool TryMovePresentationStep(BattleUnit unit, GridPosition targetPosition)
         {
             if (unit != null && borrowed.ContainsKey(unit) && presentationMovingUnits.Contains(unit))
-            { movementTargets[unit] = targetPosition; return true; }
+            {
+                movementTargets[unit] = targetPosition;
+                if (owners.TryGetValue(unit, out var owner) && sandboxBootstrap.Session == owner
+                    && owner.DungeonContext?.SurfaceMap != null)
+                {
+                    var node = Godmist.Systems.Combat.DungeonBattleGridFactory.ToDungeonTraversalPosition(owner.DungeonContext, targetPosition);
+                    if (owner.DungeonContext.SurfaceMap.TryGetTraversalHeight(node, out var height))
+                        floorMap.FollowElevation(Mathf.CeilToInt(height), true);
+                }
+                return true;
+            }
             if (unit == null
                 || !presentationMovingUnits.Contains(unit)
                 || !views.TryGetValue(unit, out var view)
@@ -277,6 +310,7 @@ namespace Godmist.Views.Combat
                 }
                 view.Refresh();
                 view.SetNameLabelVisible(false);
+                view.SetElevationVisible(IsPositionVisible(session, unit.Position));
                 view.GetComponent<CombatUnitVisualStateView>()?.Refresh(
                     unit,
                     session.ActiveUnit == unit,
@@ -385,6 +419,7 @@ namespace Godmist.Views.Combat
                 }
 
                 renderer.transform.position = GridToWorldPosition(summonedObject.Position);
+                renderer.forceRenderingOff = !IsPositionVisible(session, summonedObject.Position);
 
                 var worldSprite = summonedObject.Definition?.WorldSprite;
                 renderer.sprite = worldSprite != null
@@ -444,6 +479,7 @@ namespace Godmist.Views.Combat
                     knifeViews[knife] = renderer;
                 }
                 renderer.transform.position = GridToWorldPosition(knife.Position);
+                renderer.forceRenderingOff = !IsPositionVisible(session, knife.Position);
             }
             if (removeMissing) RemoveMissingKnifeViews(session);
         }

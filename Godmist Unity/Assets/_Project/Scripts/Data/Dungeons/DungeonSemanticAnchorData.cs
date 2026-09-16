@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Godmist.Data.Dungeons
 {
+    public enum DungeonEnemyPatrolMode { Patrol = 0, Stationary = 1 }
+
     [Serializable]
     public class DungeonSemanticAnchorData
     {
@@ -22,11 +24,18 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public int EncounterEnemyIndex { get; private set; } = -1;
 
+        [field: SerializeField]
+        public DungeonEnemyPatrolMode PatrolMode { get; private set; }
+
         [field: SerializeField, Range(0f, 1f)]
         public float SpawnChance { get; private set; } = 1f;
 
         [field: SerializeField]
         public bool IsRequired { get; private set; }
+
+        [field: SerializeField]
+        [field: Tooltip("Wspolna historia opcjonalnej zawartosci w calym lochu. Wymagany dla szansy pomiedzy 0 i 1.")]
+        public string DistributionKey { get; private set; } = string.Empty;
 
         [field: SerializeField]
         public string RequiresAnchorId { get; private set; } = string.Empty;
@@ -52,8 +61,12 @@ namespace Godmist.Data.Dungeons
             string requiresAnchorId = null,
             string activationGroupId = null,
             int encounterEnemyIndex = -1,
-            DungeonObjectDefinition objectDefinition = null)
+            DungeonObjectDefinition objectDefinition = null,
+            string distributionKey = null,
+            DungeonEnemyPatrolMode patrolMode = DungeonEnemyPatrolMode.Patrol)
         {
+            PatrolMode = patrolMode;
+            DistributionKey = distributionKey ?? string.Empty;
             ObjectDefinition = objectDefinition;
             Id = id ?? string.Empty;
             Type = type;

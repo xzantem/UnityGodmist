@@ -12,6 +12,8 @@ namespace Godmist.Runtime.Dungeons
         public string RoomId { get; }
         public RectInt TriggerArea { get; }
 
+        public Dictionary<string, Vector2Int> StationaryEnemyHomes { get; } = new(StringComparer.Ordinal);
+
         public bool IsAlerted { get; private set; }
         public Vector2Int ExplorationPosition { get; private set; }
 

@@ -30,6 +30,7 @@ namespace Godmist.Runtime.Game
         public IReadOnlyDictionary<string, QuestInstance> QuestsById => questsById;
         public string TrackedQuestId => trackedQuestId;
         public DungeonInstance ActiveDungeon { get; private set; }
+        public DungeonOfferBoard DungeonOffers { get; } = new();
         public bool HasExplorationPosition { get; private set; }
         public Vector2 ExplorationPosition { get; private set; }
         public CombatSession ActiveCombat { get; private set; }
@@ -57,7 +58,7 @@ namespace Godmist.Runtime.Game
                 || context.DungeonId != ActiveDungeon.DungeonId
                 || context.FloorIndex != ActiveDungeon.CurrentFloorIndex
                 || combats.Exists(existing => existing.CombatId == combat.CombatId
-                    || existing.DungeonContext?.EncounterRoomId == context.EncounterRoomId)) return false;
+                    || (!combat.IsDungeonWide && existing.DungeonContext?.EncounterRoomId == context.EncounterRoomId))) return false;
             foreach (var unit in combat.Units)
                 if (unit?.IsPlayerSide == true && GetCombatForCharacter(unit.Character?.CharacterId) != null)
                     return false;
@@ -72,11 +73,13 @@ namespace Godmist.Runtime.Game
             var world = new Vector2Int(origin.x + position.X, origin.y + position.Y);
             foreach (var other in combats)
             {
-                if (other == source || other.DungeonContext == null) continue;
+                if (other == source || other.DungeonContext == null || other.DungeonContext.FloorIndex != source.DungeonContext.FloorIndex) continue;
                 var otherOrigin = other.DungeonContext.WorldBounds.min;
                 if (other.Units.Exists(unit => unit != null
                     && otherOrigin.x + unit.Position.X == world.x
-                    && otherOrigin.y + unit.Position.Y == world.y)) return true;
+                    && otherOrigin.y + unit.Position.Y == world.y
+                    && unit.Position.Level == position.Level && unit.Position.StairStep == position.StairStep
+                    && (!position.IsOnStairs || unit.Position.Stair.Equals(position.Stair)))) return true;
             }
             return false;
         }

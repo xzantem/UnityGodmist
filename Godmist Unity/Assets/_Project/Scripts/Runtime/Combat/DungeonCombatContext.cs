@@ -12,6 +12,8 @@ namespace Godmist.Runtime.Combat
         private readonly List<DungeonCellEdge> wallEdges;
         private readonly List<DungeonCombatMapObjectSnapshot> mapObjects;
 
+        public DungeonFloorMap SurfaceMap { get; }
+        public bool IsFloorWide { get; }
         public string DungeonId { get; }
         public int FloorIndex { get; }
         public string EncounterInstanceId { get; }
@@ -40,7 +42,8 @@ namespace Godmist.Runtime.Combat
             IEnumerable<DungeonCombatMapObjectSnapshot> nextMapObjects,
             int dungeonLevel = 1,
             IReadOnlyDictionary<DungeonCellEdge, DungeonWallType> nextWallTypes = null,
-            IEnumerable<Vector2Int> difficultTerrainCells = null)
+            IEnumerable<Vector2Int> difficultTerrainCells = null,
+            DungeonFloorMap surfaceMap = null, bool isFloorWide = false)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -92,6 +95,8 @@ namespace Godmist.Runtime.Combat
                 : new List<DungeonCombatMapObjectSnapshot>();
 
             DifficultTerrainCells = new HashSet<Vector2Int>(difficultTerrainCells ?? Array.Empty<Vector2Int>());
+            SurfaceMap = surfaceMap;
+            IsFloorWide = isFloorWide;
             DungeonId = dungeonId;
             FloorIndex = floorIndex;
             EncounterInstanceId = encounterInstanceId;
@@ -133,6 +138,7 @@ namespace Godmist.Runtime.Combat
 
     public sealed class DungeonCombatMapObjectSnapshot
     {
+        public ObstacleDungeonObjectInstance Obstacle { get; }
         public string ObjectInstanceId { get; }
         public DungeonObjectType ObjectType { get; }
 
@@ -150,9 +156,10 @@ namespace Godmist.Runtime.Combat
             DungeonObjectType objectType,
             Vector2Int worldPosition,
             bool blocksMovement,
-            bool blocksLineOfSight)
+            bool blocksLineOfSight, ObstacleDungeonObjectInstance obstacle = null)
         {
             ObjectInstanceId = objectInstanceId;
+            Obstacle = obstacle;
             ObjectType = objectType;
             WorldPosition = worldPosition;
             BlocksMovement = blocksMovement;

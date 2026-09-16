@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Serialization;
 using Godmist.Core.Types;
@@ -58,6 +59,7 @@ namespace Godmist.Systems.SaveLoad
             saveData.CampaignId = session.CampaignId;
             saveData.UpdatedAtUtc = DateTime.UtcNow.ToString("O");
             saveData.Gold = session.Gold;
+            saveData.DungeonOffers = DungeonOfferPersistence.Capture(session.DungeonOffers);
             saveData.TrackedQuestId = session.TrackedQuestId;
             saveData.HasExplorationPosition = session.HasExplorationPosition;
             saveData.ExplorationPositionX = session.ExplorationPosition.x;
@@ -332,8 +334,31 @@ namespace Godmist.Systems.SaveLoad
 
                 var floorDelta = new DungeonFloorDeltaSaveData
                 {
-                    FloorIndex = floor.FloorIndex
+                    FloorIndex = floor.FloorIndex,
+                    Patrols = DungeonPatrolPersistence.Capture(floor),
+                    Fog = DungeonFogPersistence.Capture(floor)
                 };
+
+                foreach (var pair in floor.EnemyAwareness.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
+                    if (pair.Value.Progress > 0f)
+                        floorDelta.EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = pair.Key, Progress = pair.Value.Progress });
+                foreach (var pair in floor.ActorFacings.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
+                    floorDelta.ActorFacings.Add(new DungeonActorFacingSaveData { ActorId = pair.Key, X = pair.Value.x, Y = pair.Value.y });
+
+                foreach (var pair in floor.ActorPositions.OrderBy(pair => pair.Key, System.StringComparer.Ordinal))
+                {
+                    var position = pair.Value;
+                    if (floor.Map == null || !floor.Map.TryGetTraversalCell(position, out _)) return false;
+                    floorDelta.ActorPositions.Add(new DungeonActorPositionSaveData
+                    {
+                        ActorId = pair.Key, IsOnStairs = position.IsOnStairs,
+                        OffsetX = floor.GetActorOffset(pair.Key).x, OffsetY = floor.GetActorOffset(pair.Key).y,
+                        X = position.Surface.Cell.x, Y = position.Surface.Cell.y, Level = position.Surface.Level,
+                        StairStep = position.StairStep,
+                        FirstX = position.Stair.First.Cell.x, FirstY = position.Stair.First.Cell.y, FirstLevel = position.Stair.First.Level,
+                        SecondX = position.Stair.Second.Cell.x, SecondY = position.Stair.Second.Cell.y, SecondLevel = position.Stair.Second.Level
+                    });
+                }
 
                 foreach (var room in floor.Rooms)
                 {
@@ -398,6 +423,13 @@ namespace Godmist.Systems.SaveLoad
                         objectDelta.IsSatisfied = condition.IsSatisfied;
                     }
 
+                    if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
+                    {
+                        objectDelta.HasObstacleDurability = true;
+                        objectDelta.ObstacleDestructible = obstacle.IsDestructible;
+                        objectDelta.ObstacleMaxHits = obstacle.MaxHits;
+                        objectDelta.ObstacleRemainingHits = obstacle.RemainingHits;
+                    }
                     floorDelta.ObjectDeltas.Add(objectDelta);
                 }
 
@@ -520,6 +552,10 @@ namespace Godmist.Systems.SaveLoad
             partySaveData.ActiveLeaderId = party.ActiveLeaderId;
             partySaveData.ActiveMemberIds = new List<string>(party.ActiveMemberIds);
             partySaveData.BenchMemberIds = new List<string>(party.BenchMemberIds);
+            partySaveData.GroupsVersion = 1;
+            partySaveData.Groups = new List<PartyGroupSaveData>();
+            for (var i = 0; i < party.GroupCount; i++)
+                partySaveData.Groups.Add(new PartyGroupSaveData { MemberIds = new List<string>(party.GetGroup(i)) });
         }
 
         private static bool TryCaptureCharacter(

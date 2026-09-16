@@ -231,6 +231,8 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            if (!DungeonOfferPersistence.Restore(saveData.DungeonOffers, restoredSession.DungeonOffers)) return false;
+
             if (!TryRestoreActiveDungeon(
                     restoredSession,
                     saveData.ActiveDungeon,
@@ -1492,6 +1494,17 @@ namespace Godmist.Systems.SaveLoad
                 }
             }
 
+            if (saveData.GroupsVersion != 0)
+            {
+                if (saveData.GroupsVersion != 1 || saveData.Groups == null) return false;
+                var groups = new List<List<string>>();
+                foreach (var group in saveData.Groups)
+                {
+                    if (group == null) return false;
+                    groups.Add(group.MemberIds);
+                }
+                if (!session.PlayerParty.TryRestoreGroups(groups)) return false;
+            }
             if (string.IsNullOrWhiteSpace(saveData.ActiveLeaderId))
             {
                 return string.IsNullOrWhiteSpace(
@@ -1758,7 +1771,7 @@ namespace Godmist.Systems.SaveLoad
                             : definition.DungeonLevel);
 
                     encounterPlacementSystem.Place(dungeon);
-                    objectPlacementSystem.Place(dungeon, contentCatalog.EquipmentPartDefinitions);
+                    objectPlacementSystem.PlaceLegacySave(dungeon, contentCatalog.EquipmentPartDefinitions);
                     rewardPreparationSystem.Prepare(dungeon, contentCatalog.EquipmentPartDefinitions);
                 }
             }
@@ -1837,6 +1850,48 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
 
+                    if (!DungeonFogPersistence.Restore(floor, floorDelta.Fog)) return false;
+                    if (!DungeonPatrolPersistence.Restore(floor, floorDelta.Patrols)) return false;
+                    if (floorDelta.EnemyAwareness != null)
+                    {
+                        var awarenessIds = new HashSet<string>();
+                        foreach (var awareness in floorDelta.EnemyAwareness)
+                            if (awareness == null || string.IsNullOrWhiteSpace(awareness.EnemyKey)
+                                || !awarenessIds.Add(awareness.EnemyKey)
+                                || !floor.GetEnemyAwareness(awareness.EnemyKey).TryRestore(awareness.Progress)) return false;
+                    }
+                    if (floorDelta.ActorFacings != null)
+                    {
+                        var facingIds = new HashSet<string>();
+                        foreach (var facing in floorDelta.ActorFacings)
+                            if (facing == null || !facingIds.Add(facing.ActorId)
+                                || !floor.TrySetActorFacing(facing.ActorId, new UnityEngine.Vector2(facing.X, facing.Y))) return false;
+                    }
+                    if (floorDelta.ActorPositions != null)
+                    {
+                        var actorIds = new HashSet<string>();
+                        foreach (var saved in floorDelta.ActorPositions)
+                        {
+                            if (saved == null || string.IsNullOrWhiteSpace(saved.ActorId) || !actorIds.Add(saved.ActorId)) return false;
+                            DungeonTraversalPosition position;
+                            if (saved.IsOnStairs)
+                            {
+                                if (saved.StairStep <= 0 || saved.FirstLevel >= saved.SecondLevel) return false;
+                                var stairs = new DungeonStairConnection(
+                                    new DungeonSurfacePosition(new Vector2Int(saved.FirstX, saved.FirstY), saved.FirstLevel),
+                                    new DungeonSurfacePosition(new Vector2Int(saved.SecondX, saved.SecondY), saved.SecondLevel));
+                                position = new DungeonTraversalPosition(stairs, saved.StairStep);
+                            }
+                            else
+                            {
+                                if (saved.StairStep != 0) return false;
+                                position = new DungeonTraversalPosition(new DungeonSurfacePosition(new Vector2Int(saved.X, saved.Y), saved.Level));
+                            }
+                            if (!float.IsFinite(saved.OffsetX) || !float.IsFinite(saved.OffsetY) || !floor.TrySetActorPosition(saved.ActorId, position)) return false;
+                            floor.SetActorOffset(saved.ActorId, new Vector2(saved.OffsetX, saved.OffsetY));
+                        }
+                    }
+
                     if (floorDelta.VisitedRoomIds != null)
                     {
                         foreach (var roomId in floorDelta.VisitedRoomIds)
@@ -1867,6 +1922,10 @@ namespace Godmist.Systems.SaveLoad
                                 return false;
                             }
 
+                            if (objectDelta.HasObstacleDurability
+                                && (!floor.TryGetObject(objectDelta.ObjectInstanceId, out var restoredObstacle)
+                                    || restoredObstacle is not ObstacleDungeonObjectInstance obstacle
+                                    || !obstacle.RestoreDurability(objectDelta.ObstacleDestructible, objectDelta.ObstacleMaxHits, objectDelta.ObstacleRemainingHits))) return false;
                             if (objectDelta.IsChest
                                 && objectDelta.HasChestLootState)
                             {

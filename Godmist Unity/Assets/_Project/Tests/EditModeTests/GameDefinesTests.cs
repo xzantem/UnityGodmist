@@ -19,6 +19,61 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void WindowRecreatesSerializedWrapperWhenAssetSurvivesReload()
+        {
+            System.Type type = null;
+            foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+                if ((type = assembly.GetType("Godmist.Editor.GameDefinesWindow")) != null) break;
+            Assert.That(type, Is.Not.Null);
+            var window = ScriptableObject.CreateInstance(type);
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var wrapperField = type.GetField("serializedDefinitions", flags);
+            var assetField = type.GetField("definitions", flags);
+            try
+            {
+                var asset = assetField.GetValue(window);
+                Assert.That(asset, Is.Not.Null);
+                ((UnityEditor.SerializedObject)wrapperField.GetValue(window))?.Dispose();
+                wrapperField.SetValue(window, null);
+                type.GetMethod("EnsureAsset", flags).Invoke(window, new object[] { false });
+                var restored = (UnityEditor.SerializedObject)wrapperField.GetValue(window);
+                Assert.That(restored, Is.Not.Null);
+                Assert.That(restored.targetObject, Is.SameAs(asset));
+                Assert.DoesNotThrow(() => restored.Update());
+                type.GetMethod("OnDisable", flags).Invoke(window, null);
+                Assert.That(wrapperField.GetValue(window), Is.Null);
+                type.GetMethod("OnEnable", flags).Invoke(window, null);
+                Assert.That(wrapperField.GetValue(window), Is.Not.Null);
+            }
+            finally { Object.DestroyImmediate(window); }
+        }
+
+        [Test]
+        public void ContactEscapeReadsConfiguredTurnsAtCreation()
+        {
+            var before = new Godmist.Runtime.Combat.DungeonContactState((enemy, player) => false);
+            Assert.That(before.EscapeReactionTurns, Is.EqualTo(2));
+            var definitions = ScriptableObject.CreateInstance<GameDefines>();
+            try
+            {
+                while (definitions.Entries.Count > 0) definitions.RemoveEntryAt(definitions.Entries.Count - 1);
+                definitions.AddEntry(new GameDefineEntry
+                {
+                    Id = GameDefineIds.EscapeContactLossTurns,
+                    DisplayName = "Tury bez kontaktu",
+                    Category = GameDefineCategory.Combat,
+                    ValueType = GameDefineValueType.Integer,
+                    CurrentIntegerValue = 3, DefaultIntegerValue = 2,
+                    MinimumIntegerValue = 1, MaximumIntegerValue = 100
+                });
+                GameDefinesRuntime.Configure(definitions);
+                Assert.That(new Godmist.Runtime.Combat.DungeonContactState((enemy, player) => false).EscapeReactionTurns, Is.EqualTo(3));
+                Assert.That(before.EscapeReactionTurns, Is.EqualTo(2), "Existing fights retain their reaction period.");
+            }
+            finally { Object.DestroyImmediate(definitions); }
+        }
+
+        [Test]
         public void MissingAssetUsesCurrentSafeDefaults()
         {
             Assert.That(

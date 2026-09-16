@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Runtime.Combat;
 
 namespace Godmist.Systems.Combat
@@ -50,9 +51,9 @@ namespace Godmist.Systems.Combat
             {
                 var current = queue.Dequeue();
                 if (!occupied.Contains(current)) { result = current; return true; }
-                foreach (var direction in Directions)
+                foreach (var next in grid.TraversalNeighbours != null ? grid.GetNeighbours(current)
+                    : Directions.Select(d => grid.GetOffsetPosition(current, d.X, d.Y)))
                 {
-                    var next = new GridPosition(current.X + direction.X, current.Y + direction.Y);
                     if (grid.CanMoveBetween(current, next) && visited.Add(next)) queue.Enqueue(next);
                 }
             }

@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
 
             var context = combatSession.DungeonContext ?? gameSession.ActiveDungeonCombatContext;
 
-            if (!string.Equals(
+            if (!combatSession.IsDungeonWide && !string.Equals(
                     combatSession.CombatId,
                     context.EncounterInstanceId,
                     StringComparison.Ordinal))
@@ -76,6 +76,18 @@ namespace Godmist.Systems.Combat
             }
 
             var dungeon = gameSession.ActiveDungeon;
+            if (combatSession.IsDungeonWide)
+            {
+                foreach (var result in DungeonCombatMembershipSystem.EncounterResults(dungeon, combatSession))
+                {
+                    if (!dungeon.TryGetFloor(context.FloorIndex, out var floor)
+                        || !floor.TryGetEncounter(result.CombatId, out var encounter)) return false;
+                    if (System.Linq.Enumerable.All(encounter.Definition.Enemies, enemy => encounter.IsEnemyDefeated(enemy.InstanceId))
+                        && !dungeon.IsEncounterCleared(encounter.InstanceId)
+                        && !dungeon.TryMarkEncounterCleared(encounter.InstanceId)) return false;
+                }
+                return true;
+            }
 
             if (!dungeon.IsEncounterCleared(context.EncounterInstanceId)
                 && !dungeon.TryMarkEncounterCleared(
@@ -134,6 +146,12 @@ namespace Godmist.Systems.Combat
             DungeonCombatContext context,
             CombatSession combatSession)
         {
+            if (combatSession?.IsDungeonWide == true && dungeon != null)
+            {
+                foreach (var result in DungeonCombatMembershipSystem.EncounterResults(dungeon, combatSession))
+                    if (!TryCreateEnemyBodies(dungeon, result.DungeonContext, result)) return false;
+                return true;
+            }
             if (dungeon == null
                 || context == null
                 || combatSession == null
@@ -204,10 +222,16 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                DungeonTraversalPosition? deathNode = null;
+                if (floor.Map.HasElevatedSurfaces && combatSession.TryGetEnemyDeathPosition(enemyInstanceId, out var deathCell))
+                {
+                    var node = DungeonBattleGridFactory.ToDungeonTraversalPosition(context, deathCell);
+                    if (floor.Map.TryGetTraversalCell(node, out _)) deathNode = node;
+                }
                 var body = new DungeonEnemyBodyInstance(
                     bodyInstanceId,
                     enemyInstanceId,
-                    ResolveBodyPosition(
+                    deathNode.HasValue && floor.Map.TryGetTraversalCell(deathNode.Value, out var deathWorld) ? deathWorld : ResolveBodyPosition(
                         floor,
                         context,
                         combatSession,
@@ -221,6 +245,7 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
+                if (deathNode.HasValue) floor.TrySetActorPosition("body:" + body.InstanceId, deathNode.Value);
                 occupiedBodyPositions.Add(body.Position);
                 encounter.TryMarkEnemyBodyGenerated(enemyInstanceId);
             }
@@ -389,11 +414,8 @@ namespace Godmist.Systems.Combat
 
             if (map == null
                 || !map.IsWalkable(position)
-                || !map.TryGetRoomId(position, out var roomId)
-                || !string.Equals(
-                    roomId,
-                    context.EncounterRoomId,
-                    StringComparison.Ordinal)
+                || (context.IsFloorWide ? !context.ContainsWorldCell(position)
+                    : !map.TryGetRoomId(position, out var roomId) || !string.Equals(roomId, context.EncounterRoomId, StringComparison.Ordinal))
                 || occupiedBodyPositions.Contains(position))
             {
                 return false;

@@ -64,8 +64,11 @@ namespace Godmist.Views.Dungeons
             RefreshState();
         }
 
+        private bool renderedOpen;
+
         private void Update()
         {
+            if (door != null && renderedOpen != door.IsOpen) RefreshState();
             if (DevConsoleView.IsOpen) return;
             
             if (!Input.GetKeyDown(interactionKey))
@@ -83,6 +86,7 @@ namespace Godmist.Views.Dungeons
 
         public bool CanInteract()
         {
+            if (!IsElevationVisible || partyController?.CanInteractWithGroundObjects != true) return false;
             var gameBootstrap = GameBootstrap.Instance;
 
             if (door == null
@@ -167,6 +171,7 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
+            renderedOpen = door.IsOpen;
             if (blockingCollider != null)
             {
                 blockingCollider.enabled = !door.IsOpen;
@@ -174,10 +179,14 @@ namespace Godmist.Views.Dungeons
 
             if (visualRenderer != null)
             {
-                visualRenderer.color = door.IsOpen
+                visualRenderer.color = PresentationState(door.IsOpen)
                     ? openColor
                     : closedColor;
             }
+        }
+        protected override void RefreshFogVisual()
+        {
+            if (visualRenderer != null && door != null) visualRenderer.color = PresentationState(door.IsOpen) ? openColor : closedColor;
         }
     }
 }

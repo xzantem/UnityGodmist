@@ -15,6 +15,13 @@ namespace Godmist.Views.Characters
         [SerializeField] private Color playerSideColor = new(0.35f, 0.75f, 1f, 1f);
         [SerializeField] private Color enemySideColor = new(1f, 0.4f, 0.4f, 1f);
 
+        private Renderer[] elevationRenderers;
+        public void SetElevationVisible(bool visible)
+        {
+            elevationRenderers ??= GetComponentsInChildren<Renderer>(true);
+            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !visible;
+        }
+
         [Header("Animation")]
         [SerializeField] private float movementSpeed = 6f;
         [SerializeField] private float hitReactionDuration = 0.15f;

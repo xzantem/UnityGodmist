@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
@@ -102,12 +103,140 @@ namespace Godmist.Tests.EditMode
             assets.Clear();
         }
 
+        [TestCase(2)] [TestCase(0)]
+        public void ObstacleDurabilityRoundTripsWithoutResetFromChangedDefinition(int hits)
+        {
+            floor.TryGetObject("obstacle.1", out var obj);
+            var obstacle = (ObstacleDungeonObjectInstance)obj;
+            obstacle.RestoreDurability(true,3,hits);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved,catalog,out var restored), Is.True);
+            restored.ActiveDungeon.Floors[0].TryGetObject("obstacle.1",out var next);
+            Assert.That(((ObstacleDungeonObjectInstance)next).RemainingHits, Is.EqualTo(hits));
+            Assert.That(((ObstacleDungeonObjectInstance)next).IsDestructible, Is.True);
+            Assert.That(next.IsActive, Is.EqualTo(hits > 0));
+        }
+
+        [Test]
+        public void RoundTripRetainsActorOnBalconyStairAndBodyWithoutReroll()
+        {
+            var upper = new DungeonSurfacePosition(new Vector2Int(2, 0), 1);
+            floor.Map.TryAddFloorCell(upper, "room");
+            floor.Map.TryAddStairs(new DungeonSurfacePosition(Vector2Int.zero), upper,
+                new[] { Vector2Int.zero, Vector2Int.right, new Vector2Int(2, 0) });
+            var stair = new DungeonTraversalPosition(floor.Map.Stairs.Single(), 1);
+            floor.TrySetActorPosition("player:p", stair);
+            floor.SetActorOffset("player:p", new Vector2(.17f, -.23f));
+            floor.TrySetActorPosition("enemy:encounter.1:enemy.alive", new DungeonTraversalPosition(upper));
+            floor.TrySetActorPosition("body:body.1", stair);
+            var json = new GameSaveJsonSerializer().Serialize(Snapshot());
+            Assert.That(new GameSaveJsonSerializer().TryDeserialize(json, out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.TryGetCurrentFloor(out var restoredFloor), Is.True);
+            Assert.That(restoredFloor.ActorPositions, Is.EquivalentTo(floor.ActorPositions));
+            Assert.That(restoredFloor.GetActorOffset("player:p"), Is.EqualTo(new Vector2(.17f, -.23f)));
+            Assert.That(restored.ActiveDungeon.TryGetPreRolledRewards("encounter.1", out var rewards), Is.True);
+            Assert.That(rewards.EnemyRewards.Single(r => r.EnemyInstanceId == "enemy.alive").Gold, Is.EqualTo(57));
+        }
+
+        [Test]
+        public void FacingRoundTrip_IsIndependentOfElevation_AndOldSavesUseDefaults()
+        {
+            Assert.That(floor.TrySetActorFacing("enemy:encounter.1:enemy.alive", Vector2.left), Is.True);
+            var json = new GameSaveJsonSerializer().Serialize(Snapshot());
+            Assert.That(new GameSaveJsonSerializer().TryDeserialize(json, out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            restored.ActiveDungeon.TryGetCurrentFloor(out var restoredFloor);
+            Assert.That(restoredFloor.TryGetActorFacing("enemy:encounter.1:enemy.alive", out var facing), Is.True);
+            Assert.That(facing, Is.EqualTo(Vector2.left));
+            saved.ActiveDungeon.FloorDeltas[0].ActorFacings = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var legacy), Is.True);
+            legacy.ActiveDungeon.TryGetCurrentFloor(out var legacyFloor);
+            Assert.That(legacyFloor.ActorFacings, Is.Empty);
+        }
+
+        [Test]
+        public void CorruptFacingIsRejected()
+        {
+            Assert.That(floor.TrySetActorFacing("enemy", new Vector2(float.NaN, 1)), Is.False);
+            Assert.That(floor.TrySetActorFacing("enemy", Vector2.zero), Is.False);
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].ActorFacings.Add(new Godmist.Core.Serialization.DungeonActorFacingSaveData
+                { ActorId = "enemy", X = 0, Y = 0 });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
+
         private GameSaveData Snapshot() => new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "persistence");
+
+        [Test]
+        public void FullSavePreservesFogMemoryButRecomputesCurrentVisibility()
+        {
+            var position = new DungeonTraversalPosition(new DungeonSurfacePosition(Vector2Int.zero));
+            floor.Fog.SetVisible(new[] { position });
+            floor.Fog.Objects.Add("door.1", new DungeonObjectKnowledge { Active = true, State = false });
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var fog = restored.ActiveDungeon.Floors[0].Fog;
+            Assert.That(fog.Get(position), Is.EqualTo(DungeonKnowledge.Remembered));
+            Assert.That(fog.Objects["door.1"].State, Is.False);
+            Assert.That(fog.Visible, Is.Empty);
+        }
+
+        [Test]
+        public void AwarenessRoundTripPreservesProgressAndMissingLegacyStateStartsAtZero()
+        {
+            floor.GetEnemyAwareness("enemy.1").Advance(1.3f, true, false);
+            var saved = Snapshot();
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].GetEnemyAwareness("enemy.1").Progress, Is.EqualTo(.65f).Within(.00001f));
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].EnemyAwareness, Is.Empty);
+        }
+
+        [TestCase(-1f)]
+        [TestCase(2f)]
+        [TestCase(float.NaN)]
+        public void CorruptAwarenessSaveIsRejected(float progress)
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = progress });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void DuplicateAwarenessSaveIsRejected()
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .2f });
+            saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .3f });
+            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
+            AssertRejected(saved);
+        }
 
         private void AssertRejected(GameSaveData saved)
         {
             LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć aktywnego lochu 'dungeon.persist' (seed: 4205).");
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out _), Is.False);
+        }
+
+        [Test]
+        public void StationaryHomePersistsSeparatelyFromCurrentPositionAndLegacyDefaultsToPatrol()
+        {
+            floor.Encounters[0].StationaryEnemyHomes.Add("enemy.alive", new Vector2Int(6, 0));
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var encounter = restored.ActiveDungeon.Floors[0].Encounters[0];
+            Assert.That(encounter.StationaryEnemyHomes["enemy.alive"], Is.EqualTo(new Vector2Int(6,0)));
+            Assert.That(encounter.EnemyExplorationPositions["enemy.alive"], Is.EqualTo(new Vector2Int(7,0)));
+            saved.ActiveDungeon.Layout[0].Encounters[0].StationaryHomes = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].Encounters[0].StationaryEnemyHomes, Is.Empty);
         }
 
         [Test]
@@ -123,6 +252,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(serializer.TryDeserialize(json, out var saved), Is.True);
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             Assert.That(restored.ActiveDungeon.Floors.Count, Is.EqualTo(1));
+            Assert.That(restored.ActiveDungeon.HasPlacedContent, Is.True);
             var restoredFloor = restored.ActiveDungeon.Floors[0];
             Assert.That(restoredFloor.Map.FloorCells, Is.EquivalentTo(floor.Map.FloorCells));
             Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.True);
@@ -143,12 +273,146 @@ namespace Godmist.Tests.EditMode
             Assert.That(twice.ActiveDungeon.Floors[0].Objects.Count, Is.EqualTo(4));
         }
 
-        [TestCase(2)]
+        [TestCase(DungeonLayoutSnapshot.CurrentVersion + 1)]
         [TestCase(-1)]
         public void UnknownLayoutVersionDoesNotFallBackToGeneration(int version)
         {
             var saved = Snapshot();
             saved.ActiveDungeon.LayoutVersion = version;
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void ElevatedSurfacesAndStairsRoundTripWithoutFlattening()
+        {
+            var upper = new DungeonSurfacePosition(new Vector2Int(1, 0), 1);
+            var lower = new DungeonSurfacePosition(Vector2Int.zero);
+            Assert.That(floor.Map.TryAddFloorCell(upper, "room"), Is.True);
+            Assert.That(floor.Map.TryAddStairs(lower, upper), Is.True);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var map = restored.ActiveDungeon.Floors[0].Map;
+            Assert.That(map.Surfaces, Is.EquivalentTo(floor.Map.Surfaces));
+            Assert.That(map.Stairs, Is.EquivalentTo(floor.Map.Stairs));
+            Assert.That(map.FloorCells.Count, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void UpperWallsAndPassageRoundTripWithGateOnCorrectLevel()
+        {
+            floor.TryAddRoom(new DungeonRoomInstance("upper", DungeonRoomType.Normal));
+            var first = new DungeonSurfacePosition(Vector2Int.zero, 1);
+            var second = new DungeonSurfacePosition(Vector2Int.right, 1);
+            floor.Map.TryAddFloorCell(first, "room");
+            floor.Map.TryAddFloorCell(second, "upper");
+            var edge = new DungeonSurfaceEdge(first, second);
+            floor.Map.SetWallType(edge, DungeonWallType.Railing);
+            floor.TryAddConnection("room", "upper");
+            var c = floor.Connections[0];
+            c.TrySetDirectPassage(first, second, 1);
+            c.TrySetProgressionGate("upper.gate", "upper.condition", "upper");
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var f = restored.ActiveDungeon.Floors[0];
+            Assert.That(f.Map.GetWallType(edge), Is.EqualTo(DungeonWallType.Railing));
+            Assert.That(f.Map.WallEdges.Contains(edge.CellEdge), Is.False);
+            Assert.That(f.Connections[0].DoorwayLevel, Is.EqualTo(1));
+            Assert.That(f.Map.ClosedProgressionGateEdges, Is.Empty);
+            Assert.That(f.Map.SurfaceWallEdges, Is.EquivalentTo(floor.Map.SurfaceWallEdges));
+        }
+
+        [Test]
+        public void WallWithoutSurfaceOnItsLevelIsRejected()
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.Layout[0].Walls[0].Level = 8;
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void PassageWithoutSurfaceOnItsLevelIsRejected()
+        {
+            floor.TryAddRoom(new DungeonRoomInstance("other", DungeonRoomType.Normal));
+            floor.TryAddConnection("room", "other");
+            floor.Connections[0].TrySetDirectPassage(Vector2Int.zero, Vector2Int.right, 1);
+            var saved = Snapshot();
+            saved.ActiveDungeon.Layout[0].Connections[0].Level = 8;
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void StairPathRoundTripRetainsInteriorPositions()
+        {
+            var first = new DungeonSurfacePosition(Vector2Int.zero);
+            var second = new DungeonSurfacePosition(new Vector2Int(2, 0), 1);
+            var path = new[] { Vector2Int.zero, Vector2Int.up, Vector2Int.one, new Vector2Int(2, 1), new Vector2Int(2, 0) };
+            floor.Map.TryAddFloorCell(second, "room"); floor.Map.TryAddStairs(first, second, path);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var map = restored.ActiveDungeon.Floors[0].Map;
+            Assert.That(map.TryGetStairPath(new DungeonStairConnection(first, second), out var restoredPath), Is.True);
+            Assert.That(restoredPath, Is.EqualTo(path));
+            Assert.That(map.TryGetTraversalCell(new DungeonTraversalPosition(new DungeonStairConnection(first, second), 2), out var cell), Is.True);
+            Assert.That(cell, Is.EqualTo(Vector2Int.one));
+        }
+
+        [Test]
+        public void InvalidSavedStairPathRejectsWholeSnapshot()
+        {
+            var first = new DungeonSurfacePosition(Vector2Int.zero);
+            var second = new DungeonSurfacePosition(Vector2Int.right, 1);
+            floor.Map.TryAddFloorCell(second, "room"); floor.Map.TryAddStairs(first, second);
+            var saved = Snapshot(); saved.ActiveDungeon.Layout[0].Stairs[0].PathCells[1].X = 9;
+            AssertRejected(saved);
+        }
+
+        [Test]
+        public void VersionTwoShortStairsRestoreWithoutPathField()
+        {
+            var first = new DungeonSurfacePosition(Vector2Int.zero);
+            var second = new DungeonSurfacePosition(Vector2Int.right, 1);
+            floor.Map.TryAddFloorCell(second, "room"); floor.Map.TryAddStairs(first, second);
+            var saved = Snapshot(); saved.ActiveDungeon.LayoutVersion = 2;
+            saved.ActiveDungeon.Layout[0].Stairs[0].PathCells = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].Map.TryGetStairPath(new DungeonStairConnection(first, second), out var path), Is.True);
+            Assert.That(path.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void VersionTwoUnresolvedLongStairsArePreservedWithoutGuessingARoute()
+        {
+            var first = new DungeonSurfacePosition(Vector2Int.zero);
+            var second = new DungeonSurfacePosition(new Vector2Int(3, 0), 1);
+            floor.Map.TryAddFloorCell(second, "room"); floor.Map.TryAddStairs(first, second);
+            var saved = Snapshot(); saved.ActiveDungeon.LayoutVersion = 2;
+            saved.ActiveDungeon.Layout[0].Stairs[0].PathCells = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            var map = restored.ActiveDungeon.Floors[0].Map;
+            Assert.That(map.Stairs.Count(), Is.EqualTo(1));
+            Assert.That(map.TryGetStairPath(new DungeonStairConnection(first, second), out _), Is.False);
+            Assert.That(restored.ActiveDungeon.HasPlacedContent, Is.True);
+        }
+
+        [Test]
+        public void VersionOneLayoutRestoresAtLevelZero()
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.LayoutVersion = 1;
+            saved.ActiveDungeon.Layout[0].Stairs = null;
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].Map.HasElevatedSurfaces, Is.False);
+        }
+
+        [Test]
+        public void StairWithMissingEndpointRejectsWholeSnapshot()
+        {
+            var saved = Snapshot();
+            saved.ActiveDungeon.Layout[0].Stairs.Add(new DungeonStairSaveData
+            { FirstX = 0, FirstY = 0, FirstLevel = 0, SecondX = 1, SecondY = 0, SecondLevel = 1 });
             AssertRejected(saved);
         }
 

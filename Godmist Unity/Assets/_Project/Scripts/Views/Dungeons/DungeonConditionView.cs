@@ -54,6 +54,7 @@ namespace Godmist.Views.Dungeons
 
         public bool CanInteract()
         {
+            if (!IsElevationVisible || partyController?.CanInteractWithGroundObjects != true) return false;
             var session = GameBootstrap.Instance?.Session;
             if (condition == null
                 || condition.IsSatisfied
@@ -99,10 +100,11 @@ namespace Godmist.Views.Dungeons
         {
             if (visualRenderer != null)
             {
-                visualRenderer.color = condition != null && condition.IsSatisfied
+                visualRenderer.color = PresentationState(condition != null && condition.IsSatisfied)
                     ? satisfiedColor
                     : unsatisfiedColor;
             }
         }
+        protected override void RefreshFogVisual() => RefreshVisual();
     }
 }

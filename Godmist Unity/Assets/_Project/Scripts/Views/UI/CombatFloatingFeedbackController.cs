@@ -64,6 +64,13 @@ namespace Godmist.Views.UI
             unitViewSpawner ??= FindAnyObjectByType<CombatUnitViewSpawner>();
         }
 
+        private void LateUpdate()
+        {
+            foreach (var pair in activeFeedbackTargets)
+                if (pair.Key != null && unitViewSpawner != null && !unitViewSpawner.IsUnitVisible(pair.Value))
+                    Destroy(pair.Key.gameObject);
+        }
+
         private void OnDestroy()
         {
             if (feedbackBus != null) feedbackBus.Published -= HandleFeedback;
@@ -94,6 +101,7 @@ namespace Godmist.Views.UI
 
         private bool ShouldShowFeedback(CombatFeedbackEvent feedbackEvent)
         {
+            if (unitViewSpawner != null && !unitViewSpawner.IsUnitVisible(feedbackEvent.Target)) return false;
             return feedbackEvent.Type switch
             {
                 CombatFeedbackType.ResourceGain or CombatFeedbackType.ResourceSpend
@@ -109,7 +117,7 @@ namespace Godmist.Views.UI
             {
                 var pendingEntry = queue.Dequeue();
                 var feedbackEvent = pendingEntry.Event;
-                if (unitViewSpawner != null
+                if (unitViewSpawner != null && unitViewSpawner.IsUnitVisible(feedbackEvent.Target)
                     && (unitViewSpawner.TryGetWorldPosition(
                             feedbackEvent.Target,
                             out var worldPosition)

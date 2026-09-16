@@ -14,6 +14,9 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField]
         public bool BlocksLineOfSight { get; private set; }
 
+        [field: SerializeField] public bool IsDestructible { get; private set; }
+        [field: SerializeField, Min(1)] public int MaxHits { get; private set; } = 3;
+
         public override DungeonObjectType ObjectType => DungeonObjectType.Obstacle;
     }
 }

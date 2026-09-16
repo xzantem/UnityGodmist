@@ -29,11 +29,75 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonFloorDeltaSaveData
     {
+        public List<DungeonPatrolSaveData> Patrols;
+        public DungeonFogSaveData Fog;
         public int FloorIndex;
         public List<string> VisitedRoomIds = new();
+        public List<DungeonActorPositionSaveData> ActorPositions = new();
+        public List<DungeonActorFacingSaveData> ActorFacings = new();
+        public List<DungeonEnemyAwarenessSaveData> EnemyAwareness = new();
         public List<DungeonObjectDeltaSaveData> ObjectDeltas = new();
         public List<DungeonProgressionGateDeltaSaveData> ProgressionGateDeltas = new();
         public List<DungeonEnemyBodySaveData> EnemyBodyDeltas = new();
+    }
+
+    [Serializable]
+    public class DungeonPatrolSaveData
+    {
+        public string EnemyKey;
+        public List<int> StopIndices; // null in legacy per-cell patrol saves
+        public List<DungeonActorPositionSaveData> Route = new();
+        public int NextPoint, Stops;
+        public float WaitRemaining;
+        public string ObservedCharacterId;
+    }
+
+    [Serializable]
+    public class DungeonFogSaveData
+    {
+        public List<string> Bodies = new();
+        public List<DungeonFogGateSaveData> ClosedGates = new();
+        public List<DungeonActorPositionSaveData> Discovered = new();
+        public List<DungeonObjectKnowledgeSaveData> Objects = new();
+    }
+
+    [Serializable]
+    public class DungeonFogGateSaveData
+    {
+        public int X, Y, NextX, NextY, Level;
+    }
+
+    [Serializable]
+    public class DungeonObjectKnowledgeSaveData
+    {
+        public string Id;
+        public bool Active;
+        public bool State;
+    }
+
+    [Serializable]
+    public class DungeonEnemyAwarenessSaveData
+    {
+        public string EnemyKey;
+        public float Progress;
+    }
+
+    [Serializable]
+    public class DungeonActorFacingSaveData
+    {
+        public string ActorId;
+        public float X;
+        public float Y;
+    }
+
+    [Serializable]
+    public class DungeonActorPositionSaveData
+    {
+        public string ActorId;
+        public float OffsetX, OffsetY;
+        public bool IsOnStairs;
+        public int X, Y, Level, StairStep;
+        public int FirstX, FirstY, FirstLevel, SecondX, SecondY, SecondLevel;
     }
 
     [Serializable]
@@ -44,6 +108,7 @@ namespace Godmist.Core.Serialization
         public List<DungeonRoomLayoutSaveData> Rooms = new();
         public List<DungeonConnectionLayoutSaveData> Connections = new();
         public List<DungeonCellSaveData> Cells = new();
+        public List<DungeonStairSaveData> Stairs = new();
         public List<DungeonWallSaveData> Walls = new();
         public List<DungeonObjectLayoutSaveData> Objects = new();
         public List<DungeonEncounterLayoutSaveData> Encounters = new();
@@ -63,6 +128,7 @@ namespace Godmist.Core.Serialization
         public string FirstRoomId, SecondRoomId;
         public bool HasGeometry, HasGate;
         public int FirstX, FirstY, SecondX, SecondY, Width;
+        public int Level;
         public string GateId, ConditionId, BranchRoomId;
         public List<string> RequiredSources = new();
     }
@@ -71,14 +137,30 @@ namespace Godmist.Core.Serialization
     public class DungeonCellSaveData
     {
         public int X, Y;
+        public int Level;
         public string RoomId;
         public bool Difficult;
+    }
+
+    [Serializable]
+    public class DungeonStairSaveData
+    {
+        public int FirstX, FirstY, FirstLevel;
+        public int SecondX, SecondY, SecondLevel;
+        public List<DungeonStairPathCellSaveData> PathCells = new();
+    }
+
+    [Serializable]
+    public class DungeonStairPathCellSaveData
+    {
+        public int X, Y;
     }
 
     [Serializable]
     public class DungeonWallSaveData
     {
         public int FirstX, FirstY, SecondX, SecondY, Type;
+        public int Level;
     }
 
     [Serializable]
@@ -98,6 +180,7 @@ namespace Godmist.Core.Serialization
         public int PositionX, PositionY, RetreatX, RetreatY;
         public bool HasRetreat;
         public List<DungeonEnemyPositionSaveData> EnemyPositions = new();
+        public List<DungeonEnemyPositionSaveData> StationaryHomes;
     }
 
     [Serializable]
@@ -128,6 +211,8 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonObjectDeltaSaveData
     {
+        public bool HasObstacleDurability, ObstacleDestructible;
+        public int ObstacleMaxHits, ObstacleRemainingHits;
         public string ObjectInstanceId = string.Empty;
         public bool IsActive;
         public bool IsChest;

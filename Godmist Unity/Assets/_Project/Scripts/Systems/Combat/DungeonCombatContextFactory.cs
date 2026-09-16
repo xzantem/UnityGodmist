@@ -10,7 +10,7 @@ namespace Godmist.Systems.Combat
         public bool TryCreate(
             DungeonInstance dungeon,
             DungeonEncounterInstance encounter,
-            out DungeonCombatContext context)
+            out DungeonCombatContext context, bool wholeFloor = false)
         {
             context = null;
 
@@ -27,7 +27,7 @@ namespace Godmist.Systems.Combat
 
             var combatCells = CollectEncounterRoomCells(
                 floor.Map,
-                encounter.RoomId);
+                wholeFloor ? null : encounter.RoomId);
 
             if (combatCells.Count == 0)
             {
@@ -53,7 +53,7 @@ namespace Godmist.Systems.Combat
                 combatCells,
                 wallEdges,
                 mapObjects,
-                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells);
+                dungeon.DungeonLevel, floor.Map.WallTypes, floor.Map.DifficultTerrainCells, floor.Map, wholeFloor);
 
             return true;
         }
@@ -64,16 +64,22 @@ namespace Godmist.Systems.Combat
         {
             var cells = new List<Vector2Int>();
 
-            foreach (var cell in map.FloorCells)
+            foreach (var surface in map.Surfaces)
             {
-                if (!map.TryGetRoomId(cell, out var cellRoomId)
-                    || cellRoomId != roomId)
+                var cell = surface.Cell;
+                if (roomId != null && (!map.TryGetRoomId(surface, out var cellRoomId)
+                    || cellRoomId != roomId))
                 {
                     continue;
                 }
 
-                cells.Add(cell);
+                if (!cells.Contains(cell)) cells.Add(cell);
             }
+            foreach (var stairs in map.Stairs)
+                if ((roomId == null || (map.TryGetRoomId(stairs.First, out var firstRoom) && firstRoom == roomId
+                    && map.TryGetRoomId(stairs.Second, out var secondRoom) && secondRoom == roomId))
+                    && map.TryGetStairPath(stairs, out var path))
+                    foreach (var cell in path) if (!cells.Contains(cell)) cells.Add(cell);
 
             return cells;
         }
@@ -143,7 +149,7 @@ namespace Godmist.Systems.Combat
                     dungeonObject.ObjectType,
                     dungeonObject.Position,
                     blocksMovement,
-                    blocksLineOfSight));
+                    blocksLineOfSight, dungeonObject as ObstacleDungeonObjectInstance));
             }
 
             return snapshots;

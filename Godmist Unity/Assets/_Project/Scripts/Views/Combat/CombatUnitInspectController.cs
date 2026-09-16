@@ -6,8 +6,12 @@ using UnityEngine.EventSystems;
 
 namespace Godmist.Views.Combat
 {
-    public class CombatUnitInspectController : MonoBehaviour
+    [DefaultExecutionOrder(-100)]
+    public partial class CombatUnitInspectController : MonoBehaviour
     {
+        public System.Func<GridPosition, bool> IsPositionVisible { get; set; }
+        public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+
         public void SetGridMapping(Vector2 origin, float size)
         {
             gridOrigin = origin;
@@ -33,118 +37,13 @@ namespace Godmist.Views.Combat
         public BattleUnit InspectedUnit => floatingInspectWindow != null && floatingInspectWindow.IsVisible ? selectedUnit : null;
         public BattleUnit HoveredUnit { get; private set; }
 
-        private void Awake()
-        {
-            if (worldCamera == null)
-            {
-                worldCamera = Camera.main;
-            }
-
-            if (targetSelectionController == null)
-            {
-                targetSelectionController =
-                    GetComponent<CombatTargetSelectionController>();
-            }
-
-            if (unitViewSpawner == null)
-            {
-                unitViewSpawner = sandboxBootstrap != null
-                    ? sandboxBootstrap.GetComponent<CombatUnitViewSpawner>()
-                    : GetComponent<CombatUnitViewSpawner>();
-            }
-
-            if (movementInputController == null)
-            {
-                movementInputController =
-                    Object.FindAnyObjectByType<CombatMovementInputController>();
-            }
-        }
-
-        private void Update()
-        {
-            if (DevConsoleView.IsOpen)
-            {
-                HoveredUnit = null;
-                return;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                selectedUnit = null;
-                HideInspect();
-                return;
-            }
-
-            var hoveredUnitOutsideTargeting = GetUnitUnderMouse();
-            HoveredUnit = hoveredUnitOutsideTargeting;
-
-            if (targetSelectionController != null
-                && (targetSelectionController.IsSelectingTarget
-                    || targetSelectionController.ConsumedPrimaryClickThisFrame))
-            {
-                return;
-            }
-
-            if (movementInputController != null
-                && movementInputController.ConsumedPrimaryClickThisFrame)
-            {
-                return;
-            }
-
-            if (!Input.GetMouseButtonDown(0)
-                || worldCamera == null)
-            {
-                return;
-            }
-
-            if (EventSystem.current != null
-                && EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
-
-            var session = sandboxBootstrap?.Session;
-
-            if (session == null)
-            {
-                HideInspect();
-                return;
-            }
-
-            var position = GetGridPositionUnderMouse();
-
-            // Movement and inspection read the same primary click. If the
-            // click targets a reachable destination, it is a movement command,
-            // not a request to inspect the unit after it arrives there.
-            if (movementInputController != null
-                && movementInputController.IsReachableDestination(position))
-            {
-                return;
-            }
-
-            var unit = FindUnitAtPosition(session, position);
-
-            if (unit == null)
-            {
-                selectedUnit = null;
-                HideInspect();
-                return;
-            }
-
-            selectedUnit = unit;
-            ShowUnit(unit);
-
-            if (floatingInspectWindow != null)
-            {
-                floatingInspectWindow.Refresh();
-            }
-        }
+        private void Update() => UpdateWorldInteraction();
 
         private void ShowUnit(BattleUnit unit)
         {
-            var parent = UIWorkspaceTooltipView.ActiveInstance?.transform.parent
-                ?? UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
-            floatingInspectWindow ??= CombatUnitInspectWindowView.Create(
+            var parent = workspaceManager != null ? workspaceManager.WorkspaceRoot
+                : worldTooltip != null ? worldTooltip.transform.parent : null;
+            if (floatingInspectWindow == null) floatingInspectWindow = CombatUnitInspectWindowView.Create(
                 parent,
                 inspectWindowPrefab);
             if (floatingInspectWindow != null)
@@ -154,22 +53,23 @@ namespace Godmist.Views.Combat
                 {
                     floatingInspectWindow.Show(
                         unit,
-                        UIWorkspaceTooltipView.ActiveInstance);
+                        worldTooltip);
                 }
                 else
                 {
                     floatingInspectWindow.Refresh();
                 }
 
-                inspectPanel?.Hide();
+                if (inspectPanel != null) inspectPanel.Hide();
                 return;
             }
 
-            inspectPanel?.Show(unit);
+            if (inspectPanel != null) inspectPanel.Show(unit);
         }
 
         private void OnDisable()
         {
+            ClearWorldInteraction();
             selectedUnit = null;
             HoveredUnit = null;
             HideInspect();
@@ -177,8 +77,8 @@ namespace Godmist.Views.Combat
 
         private void HideInspect()
         {
-            inspectPanel?.Hide();
-            floatingInspectWindow?.Hide();
+            if (inspectPanel != null) inspectPanel.Hide();
+            if (floatingInspectWindow != null) floatingInspectWindow.Hide();
         }
 
         private BattleUnit FindUnitAtPosition(
@@ -187,7 +87,8 @@ namespace Godmist.Views.Combat
         {
             foreach (var unit in session.Units)
             {
-                if (unit != null && unit.Position == position)
+                if (unit != null && unit.Character != null && unit.Character.LifeState != Godmist.Core.Enums.CharacterLifeState.Dead && unit.Position == position
+                    && IsPositionVisible?.Invoke(position) != false)
                 {
                     return unit;
                 }
@@ -206,12 +107,11 @@ namespace Godmist.Views.Combat
             }
 
             var session = sandboxBootstrap?.Session;
-            return session == null
-                ? null
-                : FindUnitAtPosition(session, GetGridPositionUnderMouse());
+            return session != null && TryGetGridPositionUnderMouse(out var position)
+                ? FindUnitAtPosition(session, position) : null;
         }
 
-        private GridPosition GetGridPositionUnderMouse()
+        private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
             var screenPosition = Input.mousePosition;
             screenPosition.z =
@@ -226,7 +126,10 @@ namespace Godmist.Views.Combat
             var gridY = Mathf.RoundToInt(
                 (worldPosition.y - gridOrigin.y) / cellSize);
 
-            return new GridPosition(gridX, gridY);
+            var resolved = ResolvePointerPosition != null
+                ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
+            position = resolved.GetValueOrDefault();
+            return resolved.HasValue;
         }
     }
 }
