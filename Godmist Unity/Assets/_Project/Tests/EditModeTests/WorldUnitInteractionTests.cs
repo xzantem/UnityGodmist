@@ -55,6 +55,15 @@ namespace Godmist.Tests.EditMode
     Assert.That(owners.Length,Is.EqualTo(1));var owner=owners[0];var data=new SerializedObject(owner);
     foreach(var field in new[]{"worldCamera","contextMenu","worldTooltip","inspectWindowPrefab"})
      Assert.That(data.FindProperty(field).objectReferenceValue,Is.Not.Null,field);
+    if(path=="City/Arungard") {
+     var entry=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Godmist.Views.Dungeons.DungeonEntranceView>(true)).Single();
+     var entryData=new SerializedObject(entry);
+     foreach(var field in new[]{"partyController","selector","hoverOutline","tooltip"})
+      Assert.That(entryData.FindProperty(field).objectReferenceValue,Is.Not.Null,field);
+     Assert.That(entry.GetComponent<Collider2D>().enabled,Is.True);
+     var label=entry.transform.Find("ExpeditionsLabel");
+     Assert.That(label,Is.Not.Null);Assert.That(label.gameObject.activeSelf,Is.True);
+    }
     var menu=(PartyRailMenuView)data.FindProperty("contextMenu").objectReferenceValue;
     Assert.That(menu.gameObject.activeSelf,Is.False);
     if(path=="Sandbox/CombatSandbox")
@@ -88,6 +97,56 @@ namespace Godmist.Tests.EditMode
     Assert.That(typeof(ExplorationPartyController).GetField("pendingNpc",flags).GetValue(party),Is.Null);
     Assert.That(typeof(ExplorationPartyController).GetField("movementDestination",flags).GetValue(party),Is.Null);
    } finally {Object.DestroyImmediate(root);Physics2D.SyncTransforms();}
+  }
+  [Test]
+  public void EntranceApproachTargetsInteractionRangeAndCanBeCancelled()
+  {
+   var root=new GameObject("npc-route");
+   try {
+    var party=root.AddComponent<ExplorationPartyController>();
+    var actor=new GameObject("actor").AddComponent<ExplorationCharacterView>();actor.transform.SetParent(root.transform);
+    actor.Bind(new CharacterInstance { CharacterId="a" });
+    var session=new Godmist.Runtime.Game.GameSession(GameModeState.Exploration);
+    session.PlayerParty.TryAddActiveMember("a");session.PlayerParty.TrySetActiveLeader("a");party.Initialize(session,new[]{actor});
+    var npc=new GameObject("npc").AddComponent<Godmist.Views.Dungeons.DungeonEntranceView>();npc.transform.SetParent(root.transform);npc.transform.position=new Vector2(4,0);
+    var collider=npc.gameObject.AddComponent<BoxCollider2D>();collider.size=Vector2.one;Physics2D.SyncTransforms();
+    Assert.That(party.RequestEntranceInteraction(npc),Is.True);
+    var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    var goal=(Vector2)typeof(ExplorationPartyController).GetField("movementDestination",flags).GetValue(party);
+    Assert.That(Vector2.Distance(goal,npc.transform.position),Is.LessThan(npc.InteractionRadius));
+    Assert.That(actor.HasClearMovementSegment(goal,goal),Is.True);
+    Assert.That(typeof(ExplorationPartyController).GetField("pendingEntrance",flags).GetValue(party),Is.SameAs(npc));
+    party.CancelMovement();
+    Assert.That(typeof(ExplorationPartyController).GetField("pendingEntrance",flags).GetValue(party),Is.Null);
+    Assert.That(typeof(ExplorationPartyController).GetField("movementDestination",flags).GetValue(party),Is.Null);
+   } finally {Object.DestroyImmediate(root);Physics2D.SyncTransforms();}
+  }
+  [Test]
+  public void AutomaticEntranceDoesNotRepeatUntilLeaderLeavesRange()
+  {
+   var root=new GameObject("automatic-entrance");
+   try {
+    var party=root.AddComponent<ExplorationPartyController>();
+    var actor=new GameObject("actor").AddComponent<ExplorationCharacterView>();actor.transform.SetParent(root.transform);
+    actor.Bind(new CharacterInstance { CharacterId="a" });
+    var session=new Godmist.Runtime.Game.GameSession(GameModeState.Exploration);
+    session.PlayerParty.TryAddActiveMember("a");session.PlayerParty.TrySetActiveLeader("a");party.Initialize(session,new[]{actor});
+    var entrance=new GameObject("entrance").AddComponent<Godmist.Views.Dungeons.DungeonEntranceView>();entrance.transform.SetParent(root.transform);
+    var data=new SerializedObject(entrance);data.FindProperty("partyController").objectReferenceValue=party;data.ApplyModifiedPropertiesWithoutUndo();
+    var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+    var poll=entrance.GetType().GetMethod("CanAutomaticallyOpen",flags);
+    Assert.That(poll.Invoke(entrance,null),Is.True);
+    entrance.GetType().GetField("openedDuringVisit",flags).SetValue(entrance,true);
+    Assert.That(poll.Invoke(entrance,null),Is.False);
+    actor.transform.position=Vector2.right*(entrance.InteractionRadius+.1f);
+    Assert.That(poll.Invoke(entrance,null),Is.False);
+    actor.transform.position=Vector2.zero;
+    Assert.That(poll.Invoke(entrance,null),Is.False,"Boundary jitter must not rearm entry");
+    actor.transform.position=Vector2.right*(entrance.InteractionRadius+.3f);
+    Assert.That(poll.Invoke(entrance,null),Is.False);
+    actor.transform.position=Vector2.zero;
+    Assert.That(poll.Invoke(entrance,null),Is.True,"Returning after leaving allows another opening");
+   } finally {Object.DestroyImmediate(root);}
   }
   [Test]
   public void ContextMenuHeaderIsAuthoredTextWithoutButtonDecoration()

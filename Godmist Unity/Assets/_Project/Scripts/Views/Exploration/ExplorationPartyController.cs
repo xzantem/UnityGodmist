@@ -21,6 +21,16 @@ namespace Godmist.Views.Exploration
 
         private GameSession gameSession;
         public GameSession Session => gameSession;
+        private int claimedPrimaryFrame = -1;
+        public bool IsWorldPrimaryClickClaimed => claimedPrimaryFrame == Time.frameCount
+            || unitInteractions != null && (unitInteractions.ConsumedPrimaryClickThisFrame || unitInteractions.HasWorldUnitHover);
+        public void ClaimWorldPrimaryClick() => claimedPrimaryFrame = Time.frameCount;
+        public bool TryGetPointerWorldPosition(out Vector2 position)
+        {
+            position = worldCamera != null ? (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition) : default;
+            return worldCamera != null;
+        }
+
         [SerializeField] private Godmist.Views.Combat.CombatUnitInspectController unitInteractions;
 
         [SerializeField] private float arrivalDistance = 0.05f;
@@ -40,7 +50,7 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { pendingNpc = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { pendingNpc = null; pendingEntrance = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -152,7 +162,7 @@ namespace Godmist.Views.Exploration
                 TryCycleLeader();
             }
 
-            if (unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame) return;
+            if (claimedPrimaryFrame == Time.frameCount || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame) return;
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null
                 || UIWorkspaceInputRouter.IsPointerOverUi())
@@ -160,7 +170,7 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            pendingNpc = null;
+            pendingNpc = null; pendingEntrance = null;
             var point = (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition);
             foreach (var view in viewsById.Values)
                 if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
@@ -194,7 +204,7 @@ namespace Godmist.Views.Exploration
                 || gameSession.CurrentMode != GameModeState.Exploration
                 || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
-                destroyTarget = null; pendingNpc = null;
+                destroyTarget = null; pendingNpc = null; pendingEntrance = null;
                 return;
             }
 
@@ -335,7 +345,7 @@ namespace Godmist.Views.Exploration
 
                 if (keyboardMovement.sqrMagnitude > 0f)
                 {
-                    pendingNpc = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
+                    pendingNpc = null; pendingEntrance = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
                     return keyboardMovement;
                 }
             }

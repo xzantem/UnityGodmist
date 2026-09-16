@@ -162,24 +162,45 @@ namespace Godmist.Views.Exploration
             if (npc == null || !npc.isActiveAndEnabled || !CanAcceptExplorationInput) return false;
             CancelMovement();
             if (npc.CanInteract()) { npc.Interact(); return true; }
+            if (!TryApproachPosition(npc.transform.position, npc.InteractionRadius)) return false;
+            pendingNpc = npc;
+            return true;
+        }
+        private DungeonEntranceView pendingEntrance;
+        public bool RequestEntranceInteraction(DungeonEntranceView entrance)
+        {
+            if (entrance == null || !entrance.isActiveAndEnabled || !CanAcceptExplorationInput) return false;
+            CancelMovement();
+            if (entrance.CanInteract()) return entrance.TryInteract();
+            if (!TryApproachPosition(entrance.transform.position, entrance.InteractionRadius)) return false;
+            pendingEntrance = entrance;
+            return true;
+        }
+        private bool TryApproachPosition(Vector2 center, float radius)
+        {
             var actor = GetActiveLeaderView();
             if (actor == null) return false;
-            var center = (Vector2)npc.transform.position;
             var angle = Mathf.Atan2(actor.Position.y-center.y, actor.Position.x-center.x);
-            // Try reachable points just inside the interaction radius, not the occupied NPC cell.
             for (var i=0; i<12; i++)
             {
                 var turn = i == 0 ? 0 : ((i+1)/2) * (i%2 == 0 ? -1 : 1);
                 var direction = angle + turn * Mathf.PI / 6f;
-                var goal = center + new Vector2(Mathf.Cos(direction), Mathf.Sin(direction)) * Mathf.Max(.1f, npc.InteractionRadius-.15f);
-                if (!TrySetCityDestination(goal)) continue;
-                pendingNpc = npc;
-                return true;
+                var goal = center + new Vector2(Mathf.Cos(direction), Mathf.Sin(direction)) * Mathf.Max(.1f, radius-.15f);
+                if (TrySetCityDestination(goal)) return true;
             }
             return false;
         }
         private bool TickNpcApproach()
         {
+            if (pendingEntrance != null)
+            {
+                if (!pendingEntrance.isActiveAndEnabled || Input.GetAxisRaw("Horizontal") != 0f || Input.GetAxisRaw("Vertical") != 0f)
+                { CancelMovement(); return false; }
+                if (pendingEntrance.CanInteract())
+                { var entrance = pendingEntrance; CancelMovement(); entrance.TryInteract(); return true; }
+                if (!movementDestination.HasValue) pendingEntrance = null;
+                return false;
+            }
             if (pendingNpc == null) return false;
             if (!pendingNpc.isActiveAndEnabled) { CancelMovement(); return false; }
             if (Input.GetAxisRaw("Horizontal") != 0f || Input.GetAxisRaw("Vertical") != 0f) { CancelMovement(); return false; }

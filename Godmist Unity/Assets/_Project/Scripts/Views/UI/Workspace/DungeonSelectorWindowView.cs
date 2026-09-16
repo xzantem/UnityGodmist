@@ -26,6 +26,7 @@ namespace Godmist.Views.UI.Workspace
         private bool confirmAbandon, busy;
         private string errorMessage = "";
         private float nextRefresh;
+        public bool IsOpen => window != null && window.IsOpen;
         private void Awake()
         {
             for(int i=0;i<offerButtons.Length;i++) { var slot=i; offerButtons[i].onClick.AddListener(()=>Select(slot)); }
