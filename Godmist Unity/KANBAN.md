@@ -76,6 +76,10 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-01] Ustalić katalog contentu vertical slice’a` - `Design / Systems`, `Content / Data`
+  - DONE — zaakceptowane przez użytkownika 2026-09-22. Katalog: [VS01_CONTENT_CATALOG.md](VS01_CONTENT_CATALOG.md). 20 startowych skilli, 160 węzłów, 7 mobów + boss, materiały/części T1/T2, consumables, biżuteria/galduryty, lootbagi, unikaty i zatwierdzone 16 szablonów Katakumb.
+  - Odczyt 8 arkuszy, indeks istniejących assetów, kontrola liczebności i review dokumentu zakończone. Katalog określa zakres oraz zależności mechaniczne; authoring i runtime acceptance należą do kolejnych kart.
+
 - `[P1] Combat v4 - acceptance, code review i UI pass` - `Combat`, `World / Dungeon / Exploration`, `UI / UX`, `Tools / Editor / Debug`
   - Acceptance całego milestone'u: wiele kolejnych walk bez przeładowania sceny, wejście/wyjście, zwycięstwo/ucieczka/porażka, geometria, targeting, przemieszczenia, pułapki, AI, persistence i kamera.
   - Wykonać szerszy code quality review, regresję oraz osobny wizualny UI acceptance. Kontrolować podwójne subskrypcje/input, duplikację obiektów, utratę stanu i sprzątanie lifecycle.
