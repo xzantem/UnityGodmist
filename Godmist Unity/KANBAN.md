@@ -76,6 +76,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-02] Przeprowadzić review gotowości projektu pod content pass` - `Core / Architecture`, `Tools / Editor / Debug`
+  - DONE — raport zaakceptowany przez użytkownika 2026-09-22. [VS02_CONTENT_READINESS_REVIEW.md](VS02_CONTENT_READINESS_REVIEW.md): 10 znalezisk z dowodami i właścicielami, pokrycie 8 drzewek oraz minimalny zakres VS-03.
+  - VS-03: wspólny resolver kosztów surowca, wymagane operacje reaktywne pasywów, parametry skilli i walidacja obsługi. Pozostałe braki przypisane do kart contentu; bez ogólnego refaktoru.
+  - Weryfikacja statyczna i self-review zakończone; nie zmieniano kodu ani assetów. Build/EditMode/PlayMode NOT RUN. Zamknięcie review nie oznacza naprawienia opisanych braków.
+
 - `[P1] [VS-01] Ustalić katalog contentu vertical slice’a` - `Design / Systems`, `Content / Data`
   - DONE — zaakceptowane przez użytkownika 2026-09-22. Katalog: [VS01_CONTENT_CATALOG.md](VS01_CONTENT_CATALOG.md). 20 startowych skilli, 160 węzłów, 7 mobów + boss, materiały/części T1/T2, consumables, biżuteria/galduryty, lootbagi, unikaty i zatwierdzone 16 szablonów Katakumb.
   - Odczyt 8 arkuszy, indeks istniejących assetów, kontrola liczebności i review dokumentu zakończone. Katalog określa zakres oraz zależności mechaniczne; authoring i runtime acceptance należą do kolejnych kart.
