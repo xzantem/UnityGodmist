@@ -433,6 +433,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if(statusId==StatusEffectIds.Stun && WarriorCombatSystem.AvoidStun(source,target,damageSystem))return false;
             var duration = Mathf.Max(1, durationTurns);
             var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
@@ -479,6 +480,8 @@ namespace Godmist.Systems.Combat
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
 
             target.AddStatusTolerance(statusId);
+            if(statusId==StatusEffectIds.Immobilize && sourceId?.StartsWith("skill.warrior.immobilize")==true && WarriorCombatSystem.C(source,"pinning")>0)
+                ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Dodge,WarriorCombatSystem.C(source,"pinning")==1?-12:-20,duration,"warrior.pinning");
 
             if (publishFeedback)
             {
@@ -543,7 +546,7 @@ namespace Godmist.Systems.Combat
                     out _)) return false;
 
             battleLog?.Invoke(
-                $"{target.Character.Definition.DisplayName} otrzymuje ogłuszenie.");
+                $"{target.Character.Definition.DisplayName} otrzymuje ogÅ‚uszenie.");
 
             PublishEffectFeedback(
                 target,
@@ -843,7 +846,9 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(CombatSession session, BattleUnit unit)
         {
+            if(unit!=null)unit.WarriorState.Session=session;
             ScoutCombatSystem.TurnStart(unit);
+            WarriorCombatSystem.TurnStart(unit);
             passiveEffectLifecycleSystem.ProcessTurnStart(session, unit);
         }
 
@@ -852,6 +857,7 @@ namespace Godmist.Systems.Combat
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
             ScoutCombatSystem.TurnEnd(unit);
+            WarriorCombatSystem.TurnEnd(unit);
             unit?.AdvanceStatusTolerances();
             foreach (var statusId in activeStatusesBefore)
             {
@@ -1135,7 +1141,7 @@ namespace Godmist.Systems.Combat
                 (baseChance - input4) / Mathf.Max(.0001f, 1f - input4));
         }
 
-        private static float GetResistance(
+        internal static float GetResistance(
             BattleUnit target,
             string statusId)
         {

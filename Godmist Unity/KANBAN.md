@@ -76,6 +76,13 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-08] Przygotować drzewka drugiej wybranej klasy` - `Content / Data`, `Combat`, `Skills / Progression`
+  - **DONE — 2026-09-22; użytkownik zaakceptował commit/push.** Wladimir: 5 starterów, Dowódca + Awanturnik, po 20 węzłów w pierwszych 4 tierach. Assety skonfigurowane; aktywne skille, pasywy, rangi, koszty, wymagania, opisy i przydział skilli z drzewek wdrożone.
+  - Uzgodniona i wdrożona wściekłość: pełna pula pozwala zapłacić koszt przekraczający maksimum; kara -2% obrażeń za brakujący PW przez 3 tury, z węzłem Wściekłość -1%. Riposta +50%/+25% priorytetu AI (cap +125%); Pragnienie Śmierci pozostawia 1 HP. Szczegóły VS08_WARRIOR_CONTENT.md.
+  - Testy: pełny EditMode 1331/1331 PASS; końcowe 95/95 PASS, self-review zakończony. Pełny test ręczny odłożony do acceptance; nie oznaczać jako zaliczonego. Smoke w UNITY_HANDOFF.md.
+  - Poprawki UI: pełne podsumowania pasywów czterech drzewek, natychmiastowe odświeżanie postaci/loadoutu po zakupie i ograniczenie pozycji okna drzewka do workspace.
+  - VS-07 zamknięta i wypchnięta osobno (`db70555a`). VS-08 zaakceptowana do commita/pusha; unrelated VS-18 zachowane.
+
 - `[P1] [VS-07] Domknąć content Scouta dla slice’a` - `Content / Data`, `Combat`, `Skills / Progression`
   - **DONE — 2026-09-22; pełny test ręczny odłożony do acceptance na polecenie użytkownika.** Pięć startowych skilli Jerzego, 20 węzłów Skrytobójcy i 20 Tancerza Ostrzy (pierwsze 4 tiery), pasywy drzewek, koszty, wymagania, opisy i odblokowywanie aktywnych skilli.
   - Wdrożone: Rykoszet/łańcuch, niezależne dodatkowe ciosy, Złość, noże/wyjmowanie LPM/PPM, Linka, kierunek i ataki w plecy, Wojownik Cieni z ruchem o 1 pole, efekty obu drzewek; UI/statusy, zapis i odtworzenie skilli z węzłów. Istniejące ID zachowane, Guardian poza ofertą.
@@ -291,6 +298,12 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
   - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
+
+- `[P1] [VS-09] Przygotować drzewka Czarodziejki i Paladyna` - `Content / Data`, `Combat`, `Skills / Progression`
+  - Po decyzji VS-01 zakres obejmuje trzecią i czwartą klasę: Alison (Czarnoksiężnik + Mag Ognia) oraz Reimond (Kapłan + Krzyżowiec), pierwsze 4 tiery. VS-08 obejmuje Wladimira (Dowódca + Awanturnik); VS-07 Jerzego (Skrytobójca + Tancerz Ostrzy).
+  - Analogiczny zakres do VS-08 dla obu zatwierdzonych klas, z odmiennymi rolami drużynowymi; każdą klasę zweryfikować osobno.
+  - Zweryfikować interakcje z pozostałymi klasami, zasoby, opisy i save/load.
+  - **IN PROGRESS — 2026-09-22.** Context pass po zamknięciu VS-08; najpierw Alison, następnie Reimond.
 
 - `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
   - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.

@@ -62,11 +62,13 @@ namespace Godmist.Views.UI.Workspace
         private void OnEnable()
         {
             OpenWindows.Add(this);
+            SubscribeToProgression();
         }
 
         private void OnDisable()
         {
             OpenWindows.Remove(this);
+            if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
         }
 
         private void Awake()
@@ -91,10 +93,24 @@ namespace Godmist.Views.UI.Workspace
 
         public void Initialize(GameSession nextSession, string characterId)
         {
+            if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session = nextSession;
+            SubscribeToProgression();
             session?.CharactersById.TryGetValue(characterId, out character);
             Refresh();
             window?.Focus();
+        }
+
+        private void SubscribeToProgression()
+        {
+            if (session == null || !isActiveAndEnabled) return;
+            session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
+            session.CharacterProgressionChanged += OnCharacterProgressionChanged;
+        }
+
+        private void OnCharacterProgressionChanged(string characterId)
+        {
+            if (isActiveAndEnabled && character?.CharacterId == characterId) Refresh();
         }
 
         private void LateUpdate() => RefreshProgressionButtons();

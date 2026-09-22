@@ -22,6 +22,7 @@ namespace Godmist.Runtime.Combat
     {
         public CharacterInstance Character;
         public readonly ScoutTargetState ScoutState = new();
+        public readonly WarriorCombatState WarriorState = new();
         public GridPosition Position;
 
         public int CurrentActionPoints;

@@ -147,11 +147,12 @@ namespace Godmist.Views.UI
                     && (PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill) <= 0
                         || (resource != null
                             && resource.ResourceType == skill.ResourceType
-                            && resource.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill)));
+                            && (resource.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill)
+                                || WarriorCombatSystem.CanOverspend(activeUnit,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit,skill)))));
                 var canPayKnives = skill.KnifeCost <= 0
                     || activeUnit.AvailableKnives >= skill.KnifeCost;
                 var canUse = activeUnit.IsPlayerSide && (isActiveToggle
-                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives));
+                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives && WarriorCombatSystem.CanActivate(activeUnit,skill)));
                 var reason = !activeUnit.IsPlayerSide ? "Tura przeciwnika."
                     : canUse ? null
                     : wasChangedThisTurn ? "Przełączono już w tej turze."

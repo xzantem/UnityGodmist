@@ -50,6 +50,7 @@ namespace Godmist.Systems.Characters
                 stat.SetEffectiveValue(effectiveValue);
             }
 
+            WarriorCombatSystem.ApplyStats(character);
             SyncDependentRuntimeValues(character);
         }
 

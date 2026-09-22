@@ -312,7 +312,7 @@ namespace Godmist.Systems.Combat
 
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(unit, skill);
 
-            if (unit.CurrentActionPoints < actionCost) return false;
+            if (unit.CurrentActionPoints < actionCost || !WarriorCombatSystem.CanActivate(unit,skill)) return false;
 
             if (PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill) <= 0) return true;
 
@@ -320,7 +320,8 @@ namespace Godmist.Systems.Combat
 
             return resourcePool != null
                 && resourcePool.ResourceType == skill.ResourceType
-                && resourcePool.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill);
+                && (resourcePool.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill)
+                    || WarriorCombatSystem.CanOverspend(unit,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit,skill)));
         }
 
         private bool TryBuildTargets(CombatSession session, BattleUnit caster,
@@ -423,6 +424,7 @@ namespace Godmist.Systems.Combat
                     skill,
                     targetModeIndex,
                     targets);
+                if(mode.TargetingType==TargetingType.Enemies && targets.Count>0)score*=targets.Average(t=>WarriorCombatSystem.TargetPriority(session,t));
 
                 if (!foundPosition || score > bestScore)
                 {

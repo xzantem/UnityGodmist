@@ -269,6 +269,9 @@ namespace Godmist.Editor
                     DrawField(position, ref y, counterattackEffects, true);
                 }
             }
+            else if (selectedEffect == EffectType.HealMissingHealthPercent) DrawField(position,ref y,property.FindPropertyRelative("percentageValue"));
+            else if (selectedEffect == EffectType.MarkForDestruction) {DrawField(position,ref y,baseChance);DrawField(position,ref y,durationTurns);}
+            else if (selectedEffect == EffectType.ProtectAlly) DrawField(position,ref y,durationTurns);
             else if (selectedEffect == EffectType.ModifyActionValue) DrawField(position, ref y, actionValuePercent);
             else if (selectedEffect == EffectType.DrainResource) DrawField(position, ref y, baseValue);
             else if (selectedEffect == EffectType.BlockResourceRegeneration)
@@ -577,6 +580,9 @@ namespace Godmist.Editor
                     AddHeight(ref height, counterattackEffects, true);
                 }
             }
+            else if (selectedEffect == EffectType.HealMissingHealthPercent) AddHeight(ref height,property.FindPropertyRelative("percentageValue"));
+            else if (selectedEffect == EffectType.MarkForDestruction) {AddHeight(ref height,baseChance);AddHeight(ref height,durationTurns);}
+            else if (selectedEffect == EffectType.ProtectAlly) AddHeight(ref height,durationTurns);
             else if (selectedEffect == EffectType.ModifyActionValue) AddHeight(ref height, actionValuePercent);
             else if (selectedEffect == EffectType.DrainResource) AddHeight(ref height, baseValue);
             else if (selectedEffect == EffectType.BlockResourceRegeneration)

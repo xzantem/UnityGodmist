@@ -91,6 +91,9 @@ namespace Godmist.Views.UI
             if (panelRoot != null) panelRoot.SetActive(true);
             workspaceWindow?.Focus();
             Refresh();
+            Canvas.ForceUpdateCanvases();
+            ResizeGlobalPassiveHeader();
+            workspaceWindow?.ClampToWorkspace();
         }
 
         public void Close()
@@ -226,12 +229,39 @@ namespace Godmist.Views.UI
             if (selectedTree == null || character == null) yield break;
 
             Canvas.ForceUpdateCanvases();
+            ResizeGlobalPassiveHeader();
             RefreshTierGates();
             ArrangeTreeVisualLayers();
             RebuildPrerequisiteConnections();
             var treeArea = GetTreeArea();
             if (treeArea != null) lastTreeAreaSize = treeArea.rect.size;
+            workspaceWindow?.ClampToWorkspace();
             treeVisualRefresh = null;
+        }
+
+        private void ResizeGlobalPassiveHeader()
+        {
+            if (globalPassiveText == null || globalPassivePanel == null) return;
+            var row = globalPassivePanel.parent as RectTransform;
+            var layout = row != null ? row.GetComponent<LayoutElement>() : null;
+            if (layout == null) return;
+            var textRect = globalPassiveText.rectTransform;
+            var width = textRect.rect.width;
+            if (width <= 0f) return;
+            var padding = Mathf.Max(0f, globalPassivePanel.rect.height - textRect.rect.height);
+            var height = Mathf.Ceil(globalPassiveText.GetPreferredValues(globalPassiveText.text, width, Mathf.Infinity).y + padding);
+            layout.preferredHeight = Mathf.Max(62f, height);
+            if (row.parent.GetComponent<LayoutGroup>() == null)
+            {
+                // The window body uses anchored regions rather than a vertical layout.
+                var delta = layout.preferredHeight - row.rect.height;
+                row.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, layout.preferredHeight);
+                row.anchoredPosition -= new Vector2(0f, delta * (1f - row.pivot.y));
+                var area = GetTreeArea();
+                if (area != null && area.parent == row.parent)
+                    area.offsetMax -= new Vector2(0f, delta);
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(row.parent as RectTransform);
         }
 
         private RectTransform GetTreeArea() => prerequisiteConnectionRoot?.parent as RectTransform;
@@ -363,7 +393,8 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            progressionSystem.TryInvest(character, tree.Id, node.Id);
+            if (progressionSystem.TryInvest(character, tree.Id, node.Id))
+                session.NotifyCharacterProgressionChanged(character.CharacterId);
             Refresh();
         }
 
@@ -421,12 +452,33 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            var summary = string.Join(", ", SkillTreeProgressionSystem
-                .GetGlobalPassiveModifiers(selectedTree, investedRanks)
-                .Select(FormatModifier));
-            if (string.IsNullOrWhiteSpace(summary)) summary = "brak efektu";
+            var summary = GetGlobalPassiveSummary(selectedTree, investedRanks);
 
             globalPassiveText.text = $"{passive.DisplayName}\nAktualnie: {summary}";
+        }
+
+        public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks)
+        {
+            if (tree == null) return string.Empty;
+            var points = Mathf.Max(0, investedRanks);
+            // These passives contain combat rules as well as ordinary stat modifiers.
+            switch (tree.Id)
+            {
+                case Godmist.Systems.Combat.ScoutCombatSystem.AssassinTree:
+                    return $"+{points * .2f:0.##}% Kryt, +{points * .5f:0.##}% obrażeń wręcz";
+                case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:
+                    return $"{points}% szansy na zachowanie sztyletu, +{points}% siły zatrucia";
+                case Godmist.Systems.Combat.WarriorCombatSystem.Commander:
+                    return $"+{points * .3f:0.##}% Kryt, {points * .002f:0.###}% obrażeń trafienia jako nieuchronne za każdy procent ulepszenia broni";
+                case Godmist.Systems.Combat.WarriorCombatSystem.Brawler:
+                    return $"+{points}% maksymalnej wściekłości, {points * 2}% wydanej wściekłości odzyskiwane jako HP";
+            }
+            var summary = string.Join(", ", SkillTreeProgressionSystem
+                .GetGlobalPassiveModifiers(tree, points).Select(FormatModifier));
+            if (!string.IsNullOrWhiteSpace(summary)) return summary;
+            return points == 0 ? "Nie wydano jeszcze punktów."
+                : string.IsNullOrWhiteSpace(tree.GlobalPassive?.Description)
+                    ? "Brak opisu pasywu." : tree.GlobalPassive.Description;
         }
 
         private static string FormatModifier(StatModifier modifier)

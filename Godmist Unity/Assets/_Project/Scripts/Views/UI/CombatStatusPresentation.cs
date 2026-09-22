@@ -82,6 +82,9 @@ namespace Godmist.Views.UI
 
             if(owner!=null)
             {
+                var warrior=owner.WarriorState;
+                foreach(var entry in new[]{("warrior.order","Rozkaz Unicestwienia",warrior.OrderTurns,CombatStatusKind.Debuff),("warrior.protection","Rozkaz Ochrony",warrior.ProtectionTurns,CombatStatusKind.Buff),("warrior.trauma","Trauma",warrior.TraumaTurns,CombatStatusKind.Debuff),("warrior.strategy","Strategia — darmowe kroki",warrior.FreeMovementTurns,CombatStatusKind.Buff)})
+                    if(entry.Item3>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime{EffectId=entry.Item1,DisplayName=entry.Item2,Stacks=1,RemainingDuration=entry.Item3,Lifetime=PassiveEffectLifetime.Timed},entry.Item4,30,owner:owner));
                 var anger=0;foreach(var entry in owner.ScoutState.AngerBySource)anger=Math.Max(anger,entry.Value);
                 if(anger>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.anger",DisplayName="Złość ("+anger+")",Stacks=anger,Lifetime=PassiveEffectLifetime.CombatScoped},CombatStatusKind.Debuff,30,owner:owner));
                 if(owner.ScoutState.WeakPointTurns>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.weak_point",DisplayName="Słaby Punkt",Stacks=1,RemainingDuration=owner.ScoutState.WeakPointTurns,Lifetime=PassiveEffectLifetime.Timed},CombatStatusKind.Debuff,30,owner:owner));

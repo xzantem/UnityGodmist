@@ -256,6 +256,116 @@ namespace Godmist.Tests.EditMode
                 Does.Contain("Brak dostępnych"));
         }
 
+        [TestCase("tree.scout.assassin", "% Kryt", "obrażeń wręcz")]
+        [TestCase("tree.scout.blade_dancer", "zachowanie sztyletu", "siły zatrucia")]
+        [TestCase("tree.warrior.commander", "% Kryt", "nieuchronne")]
+        [TestCase("tree.warrior.brawler", "wściekłości", "HP")]
+        public void GlobalPassiveSummary_ShowsBothCombatEffects(string id, string first, string second)
+        {
+            var tree = Tree();
+            try
+            {
+                Set(tree, "Id", id);
+                foreach (var points in new[] { 0, 10, 19 })
+                {
+                    var summary = Godmist.Views.UI.SkillTreeProgressionPanelView.GetGlobalPassiveSummary(tree, points);
+                    Assert.That(summary, Does.Contain(first).And.Contain(second));
+                    Assert.That(summary, Does.Not.Contain("brak efektu"));
+                }
+                Assert.That(Godmist.Views.UI.SkillTreeProgressionPanelView.GetGlobalPassiveSummary(tree, 10),
+                    Is.Not.EqualTo(Godmist.Views.UI.SkillTreeProgressionPanelView.GetGlobalPassiveSummary(tree, 19)));
+            }
+            finally { Object.DestroyImmediate(tree); }
+        }
+
+        [UnityEngine.TestTools.UnityTest]
+        public System.Collections.IEnumerator OpenProgressionViews_RefreshAfterInvestment_AndUnsubscribeOnClose()
+        {
+            yield return new UnityEngine.TestTools.EnterPlayMode();
+            var node = Node("node.first", 1, 1);
+            var grantedSkill = ScriptableObject.CreateInstance<SkillData>();
+            Set(grantedSkill, "SkillId", "skill.ui.unlock");
+            Set(node, "GrantedSkill", grantedSkill);
+            var tree = Tree(node);
+            var character = Character(tree, 2);
+            character.CharacterId = "ui.test";
+            character.Level = 1;
+            character.Stats = new CharacterStats();
+            character.Resistances = new ResistanceSet();
+            var session = new Godmist.Runtime.Game.GameSession();
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            var objects = new List<GameObject>();
+            try
+            {
+                var workspace = new GameObject("UI test workspace", typeof(RectTransform));
+                objects.Add(workspace);
+                var bounds = (RectTransform)workspace.transform;
+                bounds.sizeDelta = new Vector2(1920, 1080);
+                workspace.AddComponent<Godmist.Views.UI.Workspace.UIWorkspaceWindowManager>();
+                GameObject View(string name)
+                {
+                    var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                        "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_" + name + " Variant.prefab");
+                    Assert.That(prefab, Is.Not.Null);
+                    var instance = Object.Instantiate(prefab, workspace.transform);
+                    objects.Add(instance);
+                    return instance;
+                }
+                var info = View("CharacterInfoWindow").GetComponent<Godmist.Views.UI.Workspace.CharacterInfoWindowView>();
+                var loadout = View("SkillLoadoutWindow").GetComponent<Godmist.Views.UI.SkillLoadoutModalView>();
+                var panel = View("SkillTreeWindow").GetComponent<Godmist.Views.UI.SkillTreeProgressionPanelView>();
+                info.gameObject.SetActive(true);
+                info.Initialize(session, character.CharacterId);
+                loadout.Open(session, character.CharacterId);
+                ((RectTransform)panel.transform).anchoredPosition = new Vector2(1500, 1000);
+                panel.Open(session, character.CharacterId);
+                var corners = new Vector3[4];
+                ((RectTransform)panel.transform).GetWorldCorners(corners);
+                foreach (var corner in corners)
+                {
+                    var local = bounds.InverseTransformPoint(corner);
+                    Assert.That(local.x, Is.InRange(bounds.rect.xMin - .01f, bounds.rect.xMax + .01f));
+                    Assert.That(local.y, Is.InRange(bounds.rect.yMin - .01f, bounds.rect.yMax + .01f));
+                }
+                var cardsField = typeof(Godmist.Views.UI.SkillLoadoutModalView).GetField("knownCards", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(((System.Collections.IList)cardsField.GetValue(loadout)).Count, Is.Zero);
+                var textField = typeof(Godmist.Views.UI.Workspace.CharacterInfoWindowView).GetField("statsText", BindingFlags.Instance | BindingFlags.NonPublic);
+                var stats = textField.GetValue(info);
+                var textProperty = stats.GetType().GetProperty("text");
+                textProperty.SetValue(stats, "stale");
+                var titleField = typeof(Godmist.Views.UI.SkillLoadoutModalView).GetField("workspaceTitleText", BindingFlags.Instance | BindingFlags.NonPublic);
+                var title = titleField.GetValue(loadout);
+                textProperty.SetValue(title, "stale");
+                var notifications = 0;
+                session.CharacterProgressionChanged += _ => notifications++;
+                var invest = typeof(Godmist.Views.UI.SkillTreeProgressionPanelView).GetMethod("TryInvest", BindingFlags.Instance | BindingFlags.NonPublic);
+                invest.Invoke(panel, new object[] { tree, node });
+                Assert.That(notifications, Is.EqualTo(1));
+                Assert.That(((System.Collections.IList)cardsField.GetValue(loadout)).Count, Is.EqualTo(1));
+                Assert.That(textProperty.GetValue(stats), Is.Not.EqualTo("stale"));
+                Assert.That(textProperty.GetValue(title), Is.Not.EqualTo("stale"));
+                invest.Invoke(panel, new object[] { tree, node });
+                Assert.That(notifications, Is.EqualTo(1), "Failed investment must not publish a change.");
+                loadout.Close();
+                info.gameObject.SetActive(false);
+
+                textProperty.SetValue(title, "closed");
+                textProperty.SetValue(stats, "closed");
+                session.NotifyCharacterProgressionChanged(character.CharacterId);
+                Assert.That(textProperty.GetValue(title), Is.EqualTo("closed"));
+                Assert.That(textProperty.GetValue(stats), Is.EqualTo("closed"));
+            }
+            finally
+            {
+                for (var i = objects.Count - 1; i >= 0; i--) Object.DestroyImmediate(objects[i]);
+                Object.DestroyImmediate(grantedSkill);
+                Object.DestroyImmediate(character.ClassData);
+                Object.DestroyImmediate(tree);
+            }
+            yield return new UnityEngine.TestTools.ExitPlayMode();
+        }
+
         private static CharacterInstance Character(SkillTreeDefinition tree, int points)
         {
             var classData = ScriptableObject.CreateInstance<CharacterClassData>();

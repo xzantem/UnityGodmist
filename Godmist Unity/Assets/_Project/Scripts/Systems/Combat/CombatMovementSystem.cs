@@ -188,7 +188,7 @@ namespace Godmist.Systems.Combat
                         || session.IsPositionOccupied(candidate, unit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
                     var nextPath = new List<GridPosition>(currentPath) { candidate };
-                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath, ScoutCombatSystem.MovementDiscount(unit));
+                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath, ScoutCombatSystem.MovementDiscount(unit), WarriorCombatSystem.FreeSteps(unit));
                     if (cost > availableActionPoints) continue;
                     var risk = session.EvaluateTrapRisk?.Invoke(unit, nextPath) ?? 0f;
                     var turns = CountPathTurns(unit.Position, nextPath);
@@ -348,7 +348,7 @@ namespace Godmist.Systems.Combat
             {
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
-                    "nie może się ruszyć przez status kontroli.");
+                    "nie moÅ¼e siÄ™ ruszyÄ‡ przez status kontroli.");
 
                 return false;
             }
@@ -365,6 +365,7 @@ namespace Godmist.Systems.Combat
 
             var nextCell = requestedPosition ?? session.Grid.GetOffsetPosition(unit.Position, deltaX, deltaY);
             movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell);
+            if(WarriorCombatSystem.FreeStep(unit))movementCost=0;
             if (unit.CurrentActionPoints < movementCost)
             {
                 return false;
@@ -406,6 +407,7 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     unit, CombatFeedbackType.ActionPointSpend, movementCost));
             }
+            WarriorCombatSystem.Moved(unit);
             unit.MovementStepsThisTurn++;
             session.NotifyUnitEnteredCell(unit);
             ScoutCombatSystem.OnMoved(session, unit, statusEffectSystem);
@@ -447,13 +449,14 @@ namespace Godmist.Systems.Combat
         }
 
         public static int CalculatePathCost(CombatSession session, GridPosition origin,
-            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path, int discount = 0)
+            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path, int discount = 0, int freeSteps = 0)
         {
             var cost = 0;
-            for(var i=1;i<=path.Count;i++)cost+=Math.Max(0,movementStepsAlreadyTaken+i-discount)*ActionPointUnits.PerPoint;
+            for(var i=1;i<=path.Count;i++)if(i>freeSteps)cost+=Math.Max(0,movementStepsAlreadyTaken+i-discount)*ActionPointUnits.PerPoint;
+            var stepIndex=0;
             foreach (var cell in path)
             {
-                cost += session.Grid.GetMovementSurcharge(origin, cell);
+                if(++stepIndex>freeSteps)cost += session.Grid.GetMovementSurcharge(origin, cell);
                 origin = cell;
             }
             return cost;
@@ -464,7 +467,7 @@ namespace Godmist.Systems.Combat
             int pathLength)
         {
             var cost=0;
-            for(var i=1;i<=pathLength;i++)cost+=Math.Max(0,(unit?.MovementStepsThisTurn??0)+i-ScoutCombatSystem.MovementDiscount(unit))*ActionPointUnits.PerPoint;
+            for(var i=1;i<=pathLength;i++)if(i>WarriorCombatSystem.FreeSteps(unit))cost+=Math.Max(0,(unit?.MovementStepsThisTurn??0)+i-ScoutCombatSystem.MovementDiscount(unit))*ActionPointUnits.PerPoint;
             return cost;
         }
 

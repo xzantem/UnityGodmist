@@ -37,7 +37,11 @@ namespace Godmist.Core.Enums
         ModifyActionPointsPercent = 28,
         RemoveStatus = 29,
         SwapPositions = 30,
-        MarkWeakPoint = 31
+        MarkWeakPoint = 31,
+        MarkForDestruction = 32,
+        ProtectAlly = 33,
+        GrantFreeMovement = 34,
+        HealMissingHealthPercent = 35
     }
 
     public enum UniqueBuffType

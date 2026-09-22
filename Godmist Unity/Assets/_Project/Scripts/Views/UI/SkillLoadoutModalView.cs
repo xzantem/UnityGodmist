@@ -117,6 +117,7 @@ namespace Godmist.Views.UI
         {
             ResetDrag();
             tooltipView?.Hide();
+            if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session = null;
             character = null;
         }
@@ -135,7 +136,9 @@ namespace Godmist.Views.UI
                 return;
             }
 
+            if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session = gameSession;
+            session.CharacterProgressionChanged += OnCharacterProgressionChanged;
             tooltipView = ResolveTooltipView();
             character = selectedCharacter;
             panelRoot?.SetActive(true);
@@ -149,8 +152,17 @@ namespace Godmist.Views.UI
             ResetDrag();
             tooltipView?.Hide();
             panelRoot?.SetActive(false);
+            if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session = null;
             character = null;
+        }
+
+        private void OnCharacterProgressionChanged(string characterId)
+        {
+            if (!IsOpen || character?.CharacterId != characterId) return;
+            ResetDrag();
+            tooltipView?.Hide();
+            Refresh();
         }
 
         private void Refresh()

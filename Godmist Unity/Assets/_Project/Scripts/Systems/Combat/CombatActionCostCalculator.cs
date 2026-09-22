@@ -46,6 +46,7 @@ namespace Godmist.Systems.Combat
                 return int.MaxValue;
             }
 
+            if(WarriorCombatSystem.FreeStep(unit))return 0;
             return Mathf.Max(0, unit.MovementStepsThisTurn + 1 - ScoutCombatSystem.MovementDiscount(unit)) * ActionPointUnits.PerPoint;
         }
     }

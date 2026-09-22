@@ -186,6 +186,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4e8e7d6c8d7ff0a4ca114cdbad01dddd, type: 2}
   - {fileID: 11400000, guid: 603f9e9a820f566499182a9046587b75, type: 2}
   - {fileID: 11400000, guid: 79657493adcd2d146b0299899587afb0, type: 2}
+  - {fileID: 11400000, guid: 91a3831f8ee75d84dbd4aede7c347668, type: 2}
+  - {fileID: 11400000, guid: 9e3b167b21c2c9641b933174fe4356a2, type: 2}
+  - {fileID: 11400000, guid: 7090fdadf4421c44d898d6d484a9ffe1, type: 2}
+  - {fileID: 11400000, guid: 263506a1878771b47afc13ecacb87d84, type: 2}
+  - {fileID: 11400000, guid: daecd2ff62d522c40b51d6262449fb87, type: 2}
+  - {fileID: 11400000, guid: 596f33f19e53f814990ddf92873fbc12, type: 2}
+  - {fileID: 11400000, guid: eacf3b47a8cc2ba41b55a3633e59cff6, type: 2}
+  - {fileID: 11400000, guid: 92bde3b13c6a1a741a14c3a415313f2f, type: 2}
+  - {fileID: 11400000, guid: b8bd78d8166cd1049aace72cf05dd440, type: 2}
+  - {fileID: 11400000, guid: cf23f6786fea4c24db7d6538d445d5fc, type: 2}
+  - {fileID: 11400000, guid: b686cbbe524543d448ad9bbd058609a2, type: 2}
+  - {fileID: 11400000, guid: 15d4b41dc96b0c64cba48c00ec1bf28b, type: 2}
   <QuestDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 8f50b644b9390bb41902a1beb6bfc986, type: 2}
   <NpcDefinitions>k__BackingField:

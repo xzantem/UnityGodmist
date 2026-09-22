@@ -16,8 +16,8 @@ namespace Godmist.Systems.Combat
         public static int ResolveResourceCost(BattleUnit owner, SkillData skill)
         {
             if (skill == null) return 0;
-            return Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
-                "resource_cost", skill.ResourceCost) - .00001f));
+            return WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
+                "resource_cost", skill.ResourceCost) - .00001f)));
         }
 
         public static SkillEffectData ResolveEffect(BattleUnit owner, SkillData skill, SkillEffectData effect)
@@ -25,7 +25,7 @@ namespace Godmist.Systems.Combat
             if (effect == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.Effects.Count; i++) if (ReferenceEquals(skill.Effects[i], effect)) { index = i; break; }
-            effect = ScoutCombatSystem.ResolveEffect(owner, skill, effect);
+            effect = WarriorCombatSystem.ResolveEffect(owner,skill,ScoutCombatSystem.ResolveEffect(owner, skill, effect));
             return effect.WithRuntimeParameters(
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "hit_count", effect.DamageHitCount, effectIndex: index)),
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "duration_turns", effect.DurationTurns, effectIndex: index)),

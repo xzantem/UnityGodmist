@@ -12,7 +12,7 @@ namespace Godmist.Systems.Combat
         public float GetMultiplier(
             CharacterInstance character,
             GameplayVariableType variableType,
-            string referenceId = null)
+            string referenceId = null, string excludedEffectId = null)
         {
             if (character?.PassiveEffects == null)
             {
@@ -24,7 +24,7 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in character.PassiveEffects)
             {
-                if (!PassiveEffectLifecycleSystem.IsActive(effect))
+                if ((excludedEffectId != null && effect?.EffectId==excludedEffectId) || !PassiveEffectLifecycleSystem.IsActive(effect))
                 {
                     continue;
                 }

@@ -38,6 +38,8 @@ namespace Godmist.Runtime.Game
         public IReadOnlyList<CombatSession> Combats => combats;
         public bool HasCombat => combats.Count > 0;
         public bool IsDefeated { get; private set; }
+        public event Action<string> CharacterProgressionChanged;
+        public void NotifyCharacterProgressionChanged(string characterId) => CharacterProgressionChanged?.Invoke(characterId);
         public event Action PartyRosterChanged;
         public void NotifyPartyRosterChanged() => PartyRosterChanged?.Invoke();
         public void MarkDefeated() { IsDefeated = true; TrySetMode(GameModeState.Menu); }
@@ -134,7 +136,7 @@ namespace Godmist.Runtime.Game
 
         public bool TryRegisterCharacter(CharacterInstance character)
         {
-            if (character == null || string.IsNullOrWhiteSpace(character.CharacterId) 
+            if (character == null || string.IsNullOrWhiteSpace(character.CharacterId)
                 || charactersById.ContainsKey(character.CharacterId)) return false;
 
             charactersById.Add(character.CharacterId, character);
@@ -400,7 +402,7 @@ namespace Godmist.Runtime.Game
         {
             if (!charactersById.TryGetValue(characterId, out var character)) return false;
 
-            return character.AvailabilityState == CharacterAvailabilityState.Available 
+            return character.AvailabilityState == CharacterAvailabilityState.Available
                 && character.LifeState != CharacterLifeState.Dead;
         }
 
@@ -409,7 +411,7 @@ namespace Godmist.Runtime.Game
             if (!charactersById.TryGetValue(characterId, out var character)) return false;
 
             return character.AvailabilityState == CharacterAvailabilityState.Available
-                && character.LifeState == CharacterLifeState.Alive 
+                && character.LifeState == CharacterLifeState.Alive
                 && PlayerParty.IsActiveMember(characterId);
         }
 

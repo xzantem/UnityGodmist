@@ -177,6 +177,7 @@ namespace Godmist.Systems.Combat
             bool isPassiveDuplicate = false,
             IReadOnlyDictionary<int, int> rotationsByModeIndex = null)
         {
+            foreach(var participant in session?.Units ?? new List<BattleUnit>()) participant.WarriorState.Session=session;
             var isToggleDeactivation = IsToggleActive(caster, skill);
             if (!CanExecute(
                     session,
@@ -209,6 +210,7 @@ namespace Godmist.Systems.Combat
             var objectResults = new Dictionary<int, HashSet<string>>();
             var actionId = Guid.NewGuid().ToString("N");
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
+            WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets);
             var actionContext = CreateActionContext(
                 session,
                 caster,
@@ -241,6 +243,7 @@ namespace Godmist.Systems.Combat
                 var actionCost =
                     CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
+                if(WarriorCombatSystem.RefundAp(caster,skill))actionCost=0;
                 caster.CurrentActionPoints -= actionCost;
                 if (actionCost > 0)
                 {
@@ -248,8 +251,10 @@ namespace Godmist.Systems.Combat
                         caster, CombatFeedbackType.ActionPointSpend, actionCost));
                 }
 
-                var spentResource = caster.Character.ResourcePool?.Drain(PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill)) ?? 0;
+                var requestedResource=PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill);
+                var spentResource = caster.Character.ResourcePool?.Drain(requestedResource) ?? 0;
                 caster.LastSkillResourceSpent = spentResource;
+                WarriorCombatSystem.Paid(caster,skill,requestedResource,spentResource,recoverySystem);
                 if (spentResource > 0)
                 {
                     feedbackBus?.Publish(new CombatFeedbackEvent(
@@ -653,6 +658,11 @@ namespace Godmist.Systems.Combat
         {
             switch (effect.EffectType)
             {
+                case EffectType.MarkForDestruction:
+                case EffectType.ProtectAlly:
+                case EffectType.GrantFreeMovement:
+                case EffectType.HealMissingHealthPercent:
+                    return new EffectExecutionResult { Succeeded=WarriorCombatSystem.ExecuteCommand(session,caster,target,skill,effect,recoverySystem) };
                 case EffectType.DealDamage:
                 {
                     var totalHealthDamage = 0;
@@ -930,6 +940,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyActionValue:
                 {
+                    if(skill.SkillId=="skill.warrior.regroup"){target.CurrentActionValue=0;return new EffectExecutionResult{Succeeded=true};}
                     var maximumActionValue = CombatTurnSystem.CalculateBaseActionValue(target);
                     var change = maximumActionValue * Mathf.Abs(effect.ActionValuePercent);
                     target.CurrentActionValue = Mathf.Max(0f,
@@ -1428,6 +1439,7 @@ namespace Godmist.Systems.Combat
             }
 
             if (isToggleDeactivation) return true;
+            if(!WarriorCombatSystem.CanActivate(caster,skill)){battleLog?.Invoke("Za mało wściekłości do podtrzymania Pragnienia Śmierci.");return false;}
 
             if (!isObjectPlacementOnlySkill
                 && (skill.TargetModes == null || skill.TargetModes.Count == 0))
@@ -1594,7 +1606,8 @@ namespace Godmist.Systems.Combat
 
             if (!skipCosts
                 && caster.Character.ResourcePool != null
-                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill))
+                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill)
+                && !WarriorCombatSystem.CanOverspend(caster,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill)))
             {
                 battleLog?.Invoke("Not enough resource.");
                 return false;
@@ -1997,6 +2010,7 @@ namespace Godmist.Systems.Combat
                 if (upkeepCost <= 0) continue;
 
                 var spentResource = resourcePool.Drain(upkeepCost);
+                WarriorCombatSystem.Paid(caster,skill,upkeepCost,spentResource,recoverySystem);
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     caster,
                     CombatFeedbackType.ResourceSpend,

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: wladimir
   <DisplayName>k__BackingField: Wladimir
-  <Tags>k__BackingField: 
+  <Tags>k__BackingField:
   <VisualSprite>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
   <IdleAnimationFrames>k__BackingField:
   - {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
@@ -71,15 +71,13 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 91a3831f8ee75d84dbd4aede7c347668, type: 2}
   <StartingSkills>k__BackingField:
-  - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
-  - {fileID: 11400000, guid: 64476796537f2e2468b46fae9a0ad962, type: 2}
+  - {fileID: 11400000, guid: 91a3831f8ee75d84dbd4aede7c347668, type: 2}
+  - {fileID: 11400000, guid: 9e3b167b21c2c9641b933174fe4356a2, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}
-  - {fileID: 11400000, guid: 7e460c15d4989af40bc79434f56e6519, type: 2}
-  - {fileID: 11400000, guid: c14c208428aa07949be900a800b8b55a, type: 2}
-  - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
-  - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
+  - {fileID: 11400000, guid: 7090fdadf4421c44d898d6d484a9ffe1, type: 2}
+  - {fileID: 11400000, guid: 263506a1878771b47afc13ecacb87d84, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

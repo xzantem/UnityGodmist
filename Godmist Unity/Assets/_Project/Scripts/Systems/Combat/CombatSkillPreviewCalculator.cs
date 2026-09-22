@@ -129,7 +129,7 @@ namespace Godmist.Systems.Combat
                 var distance = Mathf.Abs(caster.Position.X-target.Position.X)+Mathf.Abs(caster.Position.Y-target.Position.Y);
                 var attackType=skill.ResolveAttackType(distance);
                 var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill.SkillId,attackType:attackType,damageType:effect.DamageType,distance:distance);
-                var scoutMultiplier=ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
+                var scoutMultiplier=WarriorCombatSystem.DamageMultiplier(context,true)*ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
                 if(skill.GuaranteedCritical)scoutMultiplier*=Mathf.Max(1f,caster.Character.Stats.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
                 range=new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*scoutMultiplier),Mathf.RoundToInt(range.Maximum*scoutMultiplier),true);
                 var hitCount = Mathf.Max(1, effect.DamageHitCount);
@@ -244,13 +244,14 @@ namespace Godmist.Systems.Combat
             var dealtMultiplier = variableSystem.GetMultiplier(
                 caster?.Character,
                 GameplayVariableType.DamageDealtPercent);
+            dealtMultiplier=WarriorCombatSystem.PreviewDealtMultiplier(caster,skill,dealtMultiplier);
             var receivedMultiplier = variableSystem.GetMultiplier(
                 target?.Character,
                 GameplayVariableType.DamageReceivedPercent);
 
             return Mathf.Max(
                 0,
-                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier * ScoutCombatSystem.ReceivedDamageMultiplier(caster,target)
+                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier * WarriorCombatSystem.Received(null,caster,target,DamageType.Physical) * ScoutCombatSystem.ReceivedDamageMultiplier(caster,target)
                     * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f)));
         }
     }

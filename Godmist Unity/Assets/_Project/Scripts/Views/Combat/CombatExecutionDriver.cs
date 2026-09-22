@@ -1044,7 +1044,7 @@ namespace Godmist.Views.Combat
         {
             if (path == null || Session?.ActiveUnit == null) return 0;
             return CombatMovementSystem.CalculatePathCost(Session, Session.ActiveUnit.Position,
-                Session.ActiveUnit.MovementStepsThisTurn, path, ScoutCombatSystem.MovementDiscount(Session.ActiveUnit));
+                Session.ActiveUnit.MovementStepsThisTurn, path, ScoutCombatSystem.MovementDiscount(Session.ActiveUnit), WarriorCombatSystem.FreeSteps(Session.ActiveUnit));
         }
 
         public bool TryMoveActiveUnitAlongPath(

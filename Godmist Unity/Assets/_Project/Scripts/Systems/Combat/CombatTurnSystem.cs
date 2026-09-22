@@ -359,6 +359,7 @@ namespace Godmist.Systems.Combat
                 return;
             }
 
+            WarriorCombatSystem.Refresh(unit);
             var speed = unit.Character.Stats.Speed.GetValue();
             var maxActionPoints = UnityEngine.Mathf.Max(
                 0,

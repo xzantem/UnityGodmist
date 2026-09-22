@@ -98,7 +98,7 @@ namespace Godmist.Systems.Combat
             }
 
             ScoutCombatSystem.Face(source, target.Position);
-            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -152,6 +152,7 @@ namespace Godmist.Systems.Combat
 
             ScoutCombatSystem.RecordHit(source, target, damageType);
             ScoutCombatSystem.AfterCritical(eventContext, isCritical);
+            WarriorCombatSystem.AfterHit(session,eventContext,isCritical,damageAfterCrit,finalDamage,this);
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
@@ -203,7 +204,7 @@ namespace Godmist.Systems.Combat
             }
 
             ScoutCombatSystem.Face(source, target.Position);
-            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -257,12 +258,13 @@ namespace Godmist.Systems.Combat
 
             ScoutCombatSystem.RecordHit(source, target, damageType);
             ScoutCombatSystem.AfterCritical(eventContext, isCritical);
+            WarriorCombatSystem.AfterHit(session,eventContext,isCritical,damageAfterCrit,finalDamage,this);
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
         public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target,
             int requestedDamage, DamageType damageType, bool allowDamageRedirect = true,
-            PassiveEffectCombatContext passiveContext = null)
+            PassiveEffectCombatContext passiveContext = null, bool allowWarriorProcs = true)
         {
             if (session == null || target?.Character == null)
             {
@@ -279,11 +281,11 @@ namespace Godmist.Systems.Combat
             if (target.Character.DebugIsInvulnerable)
             {
                 battleLog?.Invoke(
-                    $"{target.Character.Definition.DisplayName} ignoruje obrażenia (godmode).");
+                    $"{target.Character.Definition.DisplayName} ignoruje obraÅ¼enia (godmode).");
 
                 return 0;
             }
-            var incomingDamage = combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage);
+            var incomingDamage = Mathf.RoundToInt(combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage)*WarriorCombatSystem.Received(session,source,target,damageType));
             incomingDamage = Mathf.Max(
                 0,
                 Mathf.RoundToInt(
@@ -306,7 +308,7 @@ namespace Godmist.Systems.Combat
                     damageType))
             {
                 battleLog?.Invoke(
-                    $"{GetDisplayName(target)} absorbuje obrażenia magiczne.");
+                    $"{GetDisplayName(target)} absorbuje obraÅ¼enia magiczne.");
                 return 0;
             }
             if (target.Character.LifeState == CharacterLifeState.Downed)
@@ -336,8 +338,10 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     target, CombatFeedbackType.ShieldLoss, shieldDamage));
             }
+            if(WarriorCombatSystem.DeathProtected(target))remainingDamage=Mathf.Min(remainingDamage,Mathf.Max(0,target.Character.CurrentHealth-1));
             var healthDamage = Mathf.Min(target.Character.CurrentHealth, remainingDamage);
             target.Character.CurrentHealth -= healthDamage;
+            WarriorCombatSystem.DamageTaken(target,healthDamage);
 
             if (healthDamage > 0)
             {
@@ -364,9 +368,10 @@ namespace Godmist.Systems.Combat
                     MarkDead(session, target);
                 }
             }
-            if (source != null && !IsDamageOverTime(damageType) && (shieldDamage > 0 || healthDamage > 0))
+            if (allowWarriorProcs && source != null && !IsDamageOverTime(damageType) && (shieldDamage > 0 || healthDamage > 0))
             {
                 resourceRuleSystem?.ProcessDamageDealt(source);
+                WarriorCombatSystem.DamageDealt(source,target,passiveContext);
             }
             if (shieldDamage > 0 || healthDamage > 0)
             {
@@ -484,7 +489,7 @@ namespace Godmist.Systems.Combat
                 context,
                 chance);
 
-            chance += ScoutCombatSystem.CriticalChance(context);
+            chance = (chance+ScoutCombatSystem.CriticalChance(context))*WarriorCombatSystem.CriticalMultiplier(source,context?.Target);
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
         }
 
@@ -521,7 +526,7 @@ namespace Godmist.Systems.Combat
             var penetration = Mathf.Clamp01(
                 GetDefensePenetration(source, damageType)
                 + Mathf.Clamp01(bonusDefensePenetration));
-            defense = Mathf.Max(0f, defense * (1f - penetration));
+            defense = Mathf.Max(0f, defense * WarriorCombatSystem.DefenseMultiplier(target,null) * (1f - penetration));
 
             if (defense <= 0f) return damage;
 
@@ -582,10 +587,10 @@ namespace Godmist.Systems.Combat
         {
             return damageType switch
             {
-                DamageType.Bleed => "obrażeń od krwawienia",
-                DamageType.Poison => "obrażeń od zatrucia",
-                DamageType.Burn => "obrażeń od podpalenia",
-                _ => "obrażeń"
+                DamageType.Bleed => "obraÅ¼eÅ„ od krwawienia",
+                DamageType.Poison => "obraÅ¼eÅ„ od zatrucia",
+                DamageType.Burn => "obraÅ¼eÅ„ od podpalenia",
+                _ => "obraÅ¼eÅ„"
             };
         }
 
@@ -766,7 +771,7 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} traci Freeze. " +
-                $"Uderzenie zadaje {boostedDamage} obrażeń.");
+                $"Uderzenie zadaje {boostedDamage} obraÅ¼eÅ„.");
 
             return boostedDamage;
         }
