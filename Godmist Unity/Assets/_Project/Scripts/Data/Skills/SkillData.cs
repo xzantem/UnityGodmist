@@ -63,7 +63,8 @@ namespace Godmist.Data.Skills
             UniqueBuffType.ActionPointsNextTurn,
             UniqueBuffType.OnHitStatus,
             UniqueBuffType.DamageRedirect,
-            UniqueBuffType.AuraStatus
+            UniqueBuffType.AuraStatus,
+            UniqueBuffType.MageOffering
         };
 
         public static bool SupportsToggle(EffectType effectType)
@@ -87,7 +88,8 @@ namespace Godmist.Data.Skills
             return uniqueBuffType == UniqueBuffType.ActionPointsNextTurn
                 || uniqueBuffType == UniqueBuffType.OnHitStatus
                 || uniqueBuffType == UniqueBuffType.DamageRedirect
-                || uniqueBuffType == UniqueBuffType.AuraStatus;
+                || uniqueBuffType == UniqueBuffType.AuraStatus
+                || uniqueBuffType == UniqueBuffType.MageOffering;
         }
 
         public static bool IsValid(SkillData skill)

@@ -1,0 +1,258 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Mage_Warlock
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.mage.warlock
+  <DisplayName>k__BackingField: "Czarnoksi\u0119\u017Cnik"
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: -1,5% kosztu many, +1% obra\u017Ce\u0144
+      przeciw pojedynczemu celowi."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.mage.warlock.dispersion
+    <DisplayName>k__BackingField: Rozproszenie
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia Kuli Energii o 10%/17.5%/25%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.mastery
+    <DisplayName>k__BackingField: Mistrzostwo Podstaw
+    <Description>k__BackingField: "Zmniejsza koszt many wszystkich umiej\u0119tno\u015Bci
+      o 5"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.defensive_power
+    <DisplayName>k__BackingField: Defensywna Moc
+    <Description>k__BackingField: "Zwi\u0119ksza zdrowie o 0.1/0.3/0.5 za ka\u017Cdy
+      punkt ataku"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.superhuman_offering
+    <DisplayName>k__BackingField: "Nadludzkie Po\u015Bwi\u0119cenie"
+    <Description>k__BackingField: "Zwi\u0119ksza efekt pozytywny oraz negatywny Ofiary
+      do 35%/40%/50%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.offering
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.offering
+    <DisplayName>k__BackingField: Ofiara
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane i przyjmowane
+      o 30%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: b5b555c7e84d2a4408b1431e9889a913, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.magic_saving
+    <DisplayName>k__BackingField: "Magiczna Oszcz\u0119dno\u015B\u0107"
+    <Description>k__BackingField: "Zmniejsza koszty many o 20% poni\u017Cej 50% zdrowia"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.energy_saving
+    <DisplayName>k__BackingField: "Oszcz\u0119dzanie Energii"
+    <Description>k__BackingField: "Zwi\u0119ksza regeneracj\u0119 many o 1%/2% za
+      ka\u017Cdy brakuj\u0105cy % many"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.mastery
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.magic_focus
+    <DisplayName>k__BackingField: Skupienie Magii
+    <Description>k__BackingField: "Przez nast\u0119pne 3 tury zadajesz zawsze najwi\u0119ksze
+      obra\u017Cenia;"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: f34ff8c54fff7e64692a70c149b48171, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.calm
+    <DisplayName>k__BackingField: Nauka Spokoju
+    <Description>k__BackingField: Zmniejsza negatywny efekt Ofiary o 10%/20%
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.superhuman_offering
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.sacrifice
+    <DisplayName>k__BackingField: "Po\u015Bwi\u0119cenie"
+    <Description>k__BackingField: "Zmniejsza obra\u017Cenia wybranego sojusznika
+      o 20%; zwi\u0119kszaj\u0105c swoje obra\u017Cenia o 20% na 3 tury;"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: ab66e381008679b489553bef9c9e18f9, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.energy_sense
+    <DisplayName>k__BackingField: Poczucie Energii
+    <Description>k__BackingField: "Ka\u017Cdy przeciwnik odleg\u0142y o maksymalnie
+      5 p\xF3l daje regeneracj\u0119 zdrowia 0.5%/1% na tur\u0119, maksymalnie do
+      1.5%/3%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.beyond_limits
+    <DisplayName>k__BackingField: Moc poza Granice
+    <Description>k__BackingField: "Pozwala na regeneracj\u0119 many 15%/30% poza
+      maksymaln\u0105 ilo\u015B\u0107"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.energy_saving
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.master_concentration
+    <DisplayName>k__BackingField: Mistrzowska Koncentracja
+    <Description>k__BackingField: "Zwi\u0119ksza czas trwania Skupienia Magii do
+      5 tur"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.magic_focus
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.memory
+    <DisplayName>k__BackingField: "Trening Pami\u0119ciowy"
+    <Description>k__BackingField: "Zwi\u0119ksza ilo\u015B\u0107 maksymalnych umiej\u0119tno\u015Bci
+      o 1/2"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.mass_sacrifice
+    <DisplayName>k__BackingField: "Masowe Po\u015Bwi\u0119cenie"
+    <Description>k__BackingField: "Mo\u017Cesz u\u017Cy\u0107 Po\u015Bwi\u0119cenia
+      na 2/3 sojusznikach"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.sacrifice
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.adaptation
+    <DisplayName>k__BackingField: Adaptacja Energetyczna
+    <Description>k__BackingField: "Otrzymanie obra\u017Ce\u0144 za co najmniej 20%
+      maksymalnego zdrowia zmniejsza obra\u017Cenia 3 nast\u0119pnych atak\xF3w od
+      tego Celu o 10%/20% obra\u017Ce\u0144 zadanych podczas pierwotnego ciosu"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.energy_discharge
+    <DisplayName>k__BackingField: "Wy\u0142adowanie Energii"
+    <Description>k__BackingField: "Je\u015Bli masz powy\u017Cej maksymalnej ilo\u015Bci
+      many, obra\u017Cenia nast\u0119pnego ataku maj\u0105 szans\u0119 na bycie ciosem
+      krytycznym. Szansa wynosi 0.2%/0.6%/1% za ka\u017Cdy nadmierny punkt many i
+      wszystkie s\u0105 zu\u017Cywane"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.beyond_limits
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.energy_split
+    <DisplayName>k__BackingField: Roztrojenie Energii
+    <Description>k__BackingField: "Zadaje 70% losowych obra\u017Ce\u0144 magicznych"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: f2e320b1900e0fa488c8f4ca94a45633, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.power_saving
+    <DisplayName>k__BackingField: "Oszcz\u0119dno\u015B\u0107 Mocy"
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia Roztrojenia Energii
+      do 85%/100%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.warlock.energy_split
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.warlock.ritual
+    <DisplayName>k__BackingField: "Rytua\u0142"
+    <Description>k__BackingField: "Zadaje wszystkim cz\u0142onkom dru\u017Cyny 10%
+      ich maksymalnego zdrowia w zamian za regeneracj\u0119 30% w ci\u0105gu 5 tur;"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 59127d7f10729c34dbfac19a69a156ef, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []

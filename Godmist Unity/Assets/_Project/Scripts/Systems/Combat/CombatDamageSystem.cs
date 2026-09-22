@@ -98,7 +98,8 @@ namespace Godmist.Systems.Combat
             }
 
             ScoutCombatSystem.Face(source, target.Position);
-            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -139,6 +140,7 @@ namespace Godmist.Systems.Combat
                 passiveContext: eventContext.WithOutcome(
                     succeeded: true,
                     isCritical: isCritical));
+            PaladinCombatSystem.AfterAttack(session,source,target,eventContext.WithOutcome(isCritical:isCritical),damageAfterCrit,bonusDefensePenetration,healthDamage,this);
 
             if (target.Character.LifeState == CharacterLifeState.Dead)
             {
@@ -204,7 +206,8 @@ namespace Godmist.Systems.Combat
             }
 
             ScoutCombatSystem.Face(source, target.Position);
-            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext));
+            attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -245,6 +248,7 @@ namespace Godmist.Systems.Combat
                 passiveContext: eventContext.WithOutcome(
                     succeeded: true,
                     isCritical: isCritical));
+            PaladinCombatSystem.AfterAttack(session,source,target,eventContext.WithOutcome(isCritical:isCritical),damageAfterCrit,bonusDefensePenetration,healthDamage,this);
 
             if (target.Character.LifeState == CharacterLifeState.Dead)
             {
@@ -285,7 +289,9 @@ namespace Godmist.Systems.Combat
 
                 return 0;
             }
-            var incomingDamage = Mathf.RoundToInt(combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage)*WarriorCombatSystem.Received(session,source,target,damageType));
+            var incomingDamage = Mathf.RoundToInt(combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
+            if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
+                incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
             incomingDamage = Mathf.Max(
                 0,
                 Mathf.RoundToInt(
@@ -327,6 +333,7 @@ namespace Godmist.Systems.Combat
                 remainingDamage = Mathf.Max(0, incomingDamage - redirectedDamage);
             }
 
+            remainingDamage = MageCombatSystem.AdaptIncoming(source, target, remainingDamage);
             var damageBeforeShield = remainingDamage;
 
             remainingDamage = AbsorbShield(target, remainingDamage);
@@ -342,6 +349,9 @@ namespace Godmist.Systems.Combat
             var healthDamage = Mathf.Min(target.Character.CurrentHealth, remainingDamage);
             target.Character.CurrentHealth -= healthDamage;
             WarriorCombatSystem.DamageTaken(target,healthDamage);
+            MageCombatSystem.DamageTaken(source,target,healthDamage);
+            PaladinCombatSystem.RecordDamage(target,healthDamage);
+            PaladinCombatSystem.RecordDamageDealt(source,healthDamage);
 
             if (healthDamage > 0)
             {
@@ -368,10 +378,13 @@ namespace Godmist.Systems.Combat
                     MarkDead(session, target);
                 }
             }
+            if (target.Character.LifeState != CharacterLifeState.Alive && !IsDamageOverTime(damageType))
+                MageCombatSystem.ExtinguishBurns(session, target);
             if (allowWarriorProcs && source != null && !IsDamageOverTime(damageType) && (shieldDamage > 0 || healthDamage > 0))
             {
                 resourceRuleSystem?.ProcessDamageDealt(source);
                 WarriorCombatSystem.DamageDealt(source,target,passiveContext);
+                MageCombatSystem.AfterHit(session,source,target,healthDamage,this);
             }
             if (shieldDamage > 0 || healthDamage > 0)
             {
@@ -474,8 +487,9 @@ namespace Godmist.Systems.Combat
             DamageType damageType,
             PassiveEffectCombatContext context)
         {
-            if (damageType != DamageType.Physical && damageType != DamageType.Inevitable)
-                return false;
+            if (damageType == DamageType.Magical)
+                return UnityEngine.Random.value < Mathf.Clamp01(MageCombatSystem.MagicCritChance(context));
+            if (damageType != DamageType.Physical && damageType != DamageType.Inevitable) return false;
 
             if (context?.Skill?.GuaranteedCritical == true) return true;
             if (TryConsumeUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit))
@@ -489,7 +503,7 @@ namespace Godmist.Systems.Combat
                 context,
                 chance);
 
-            chance = (chance+ScoutCombatSystem.CriticalChance(context))*WarriorCombatSystem.CriticalMultiplier(source,context?.Target);
+            chance = (chance+ScoutCombatSystem.CriticalChance(context))*WarriorCombatSystem.CriticalMultiplier(source,context?.Target)*MageCombatSystem.CritReceived(session,context?.Target,source)*PaladinCombatSystem.CriticalMultiplier(source,context?.Target);
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
         }
 

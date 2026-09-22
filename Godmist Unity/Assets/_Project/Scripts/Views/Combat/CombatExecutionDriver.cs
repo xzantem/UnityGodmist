@@ -1122,7 +1122,8 @@ namespace Godmist.Views.Combat
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
-            IReadOnlyDictionary<int, int> rotationsByModeIndex = null)
+            IReadOnlyDictionary<int, int> rotationsByModeIndex = null,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = null)
         {
             if (Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null
@@ -1149,7 +1150,7 @@ namespace Godmist.Views.Combat
                     skill,
                     selectedPositionsByModeIndex,
                     rotationsByModeIndex,
-                    out var targetsByModeIndex))
+                    out var targetsByModeIndex, chosenPositionsByModeIndex))
             {
                 return false;
             }
@@ -1168,7 +1169,8 @@ namespace Godmist.Views.Combat
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             IReadOnlyDictionary<int, int> rotationsByModeIndex,
-            out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+            out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = null)
         {
             targetsByModeIndex =
                 new Dictionary<int, IReadOnlyList<BattleUnit>>();
@@ -1221,6 +1223,18 @@ namespace Godmist.Views.Combat
                         ? rotation
                         : 0);
 
+                if (targetMode.TargetType == TargetType.MultipleChosen && chosenPositionsByModeIndex != null
+                    && chosenPositionsByModeIndex.TryGetValue(targetModeIndex, out var chosen))
+                {
+                    var resolved = new List<BattleUnit>();
+                    foreach (var position in chosen)
+                    {
+                        var group = GetSkillTargets(skill, targetMode, targetModeIndex, position, 0);
+                        if (group.Count != 1 || resolved.Contains(group[0])) return false;
+                        resolved.Add(group[0]);
+                    }
+                    targets = resolved;
+                }
                 if (targets.Count == 0
                     && !(targetModeIndex == 0 && ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,selectedPosition)!=null)
                     && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
@@ -1544,7 +1558,7 @@ namespace Godmist.Views.Combat
                     || Session.Grid.IsBlocked(position)
                     || (createObjectEffect.EffectType == EffectType.Summon
                         && Session.IsPositionOccupied(position))
-                    || Session.IsPositionOccupiedByMapObject(position))
+                    || Session.IsPositionOccupiedByMapObject(position, createObjectEffect.SummonedObjectDefinition?.ObjectId==PaladinCombatSystem.FieldId ? Session.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField) : null))
                 {
                     continue;
                 }
@@ -1653,7 +1667,8 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
-                if (effect.EffectType == EffectType.Heal
+                if (effect.EffectType == EffectType.PaladinHeal
+                    || effect.EffectType == EffectType.Heal
                     || effect.EffectType == EffectType.HealPercent
                     || effect.EffectType == EffectType.Teleport)
                 {

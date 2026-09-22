@@ -51,16 +51,8 @@ namespace Godmist.Systems.Characters
             character.Stats.MaxResource.BaseValue = baseStats.MaxResource
                 + growth.MaxResource * multiplier;
 
-            if (character.ResourcePool != null)
-            {
-                character.ResourcePool.MaxValue = Mathf.Max(0, Mathf.RoundToInt(
-                    character.Stats.MaxResource.GetValue()));
-                character.ResourcePool.CurrentValue = Mathf.Clamp(
-                    character.ResourcePool.CurrentValue,
-                    0,
-                    character.ResourcePool.MaxValue);
-            }
-
+            // Refresh computes the effective maximum and progression-derived recovery limit
+            // before clamping. An earlier nominal clamp would discard saved mana overflow.
             statPipeline.Refresh(character);
 
             if (!grantCurrentHealthGrowth) return;

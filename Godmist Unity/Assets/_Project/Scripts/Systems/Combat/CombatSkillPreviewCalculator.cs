@@ -93,6 +93,8 @@ namespace Godmist.Systems.Combat
                 return range;
             }
 
+            var mageMultiplier = MageCombatSystem.DamageMultiplier(new PassiveEffectCombatContext(source:caster, skill:skill, skillId:skill?.SkillId));
+            range = new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum * mageMultiplier), Mathf.RoundToInt(range.Maximum * mageMultiplier), true);
             var hitCount = Mathf.Max(1, effect.DamageHitCount);
             return new CombatSkillDamageRange(
                 ApplyCurrentDamageModifiers(caster, null, range.Minimum, skill) * hitCount,
@@ -129,7 +131,7 @@ namespace Godmist.Systems.Combat
                 var distance = Mathf.Abs(caster.Position.X-target.Position.X)+Mathf.Abs(caster.Position.Y-target.Position.Y);
                 var attackType=skill.ResolveAttackType(distance);
                 var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill.SkillId,attackType:attackType,damageType:effect.DamageType,distance:distance);
-                var scoutMultiplier=WarriorCombatSystem.DamageMultiplier(context,true)*ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
+                var scoutMultiplier=PaladinCombatSystem.DamageMultiplier(context)*MageCombatSystem.DamageMultiplier(context)*WarriorCombatSystem.DamageMultiplier(context,true)*ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
                 if(skill.GuaranteedCritical)scoutMultiplier*=Mathf.Max(1f,caster.Character.Stats.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
                 range=new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*scoutMultiplier),Mathf.RoundToInt(range.Maximum*scoutMultiplier),true);
                 var hitCount = Mathf.Max(1, effect.DamageHitCount);
@@ -198,6 +200,7 @@ namespace Godmist.Systems.Combat
             var maximumAttack = Mathf.Max(minimumAttack,
                 Mathf.RoundToInt(caster.Character.Stats.MaxAttack.GetValue()));
 
+            if (CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage)) minimumAttack = maximumAttack;
             var baseMinimum = effect.DamageValueSource switch
             {
                 DamageValueSource.MinAttack => minimumAttack,

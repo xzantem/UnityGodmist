@@ -1,0 +1,270 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Paladin_Priest
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.paladin.priest
+  <DisplayName>k__BackingField: "Kap\u0142an"
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +1% si\u0142y leczenia; 1% faktycznego
+      leczenia przywraca HP rzucaj\u0105cego."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.paladin.priest.group_heal
+    <DisplayName>k__BackingField: Grupowe Leczenie
+    <Description>k__BackingField: 50% Leczenie
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: ba3b8322014b1014d88e890b14b78da9, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.healing_power
+    <DisplayName>k__BackingField: "Si\u0142a Leczenia"
+    <Description>k__BackingField: "Zwi\u0119ksza si\u0142\u0119 Uzdrowienia oraz
+      Grupowego Leczenia o 15%/30%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.group_heal
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.healing_aura
+    <DisplayName>k__BackingField: Aura Leczenia
+    <Description>k__BackingField: "Zapewnia 7%/15% leczenie przyleg\u0142ym sojusznikom
+      w ka\u017Cdej turze"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.healing_chain
+    <DisplayName>k__BackingField: "\u0141a\u0144cuch Leczenia"
+    <Description>k__BackingField: "Ka\u017Cdy kolejny przyleg\u0142y sojusznik przed\u0142u\u017Ca
+      obszar dzia\u0142ania Aury Leczenia do siebie"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.healing_aura
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.holy_artifacts
+    <DisplayName>k__BackingField: "\u015Awi\u0119te Artefakty"
+    <Description>k__BackingField: "Obiekty stworzone przez gracza (sztylety, runy,
+      obiekty natury, etc.) liczone s\u0105 do \u0141a\u0144cucha Leczenia"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.healing_chain
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.battle_zeal
+    <DisplayName>k__BackingField: "Zapa\u0142 Bitewny"
+    <Description>k__BackingField: "Grupowe Leczenie zwi\u0119ksza szybko\u015B\u0107
+      o 10 na jedn\u0105 tur\u0105, a potem o 5 na jedn\u0105 tur\u0119"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.group_heal
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.universal_grace
+    <DisplayName>k__BackingField: "Wszechstronna \u0141aska"
+    <Description>k__BackingField: "Grupowe Leczenie zwi\u0119ksza obron\u0119 fizyczn\u0105
+      i magiczn\u0105 i unik na 2 tury o 2%/5%/10%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.battle_zeal
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.unexpected_grace
+    <DisplayName>k__BackingField: "Niespodziewana \u0141aska"
+    <Description>k__BackingField: "Daje szans\u0119 na leczenie krytyczne umiej\u0119tno\u015Bciom
+      leczniczym r\xF3wn\u0105 50%/100%/150% szansy krytycznej"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.critical_focus
+    <DisplayName>k__BackingField: Krytyczne Skupienie
+    <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
+      maj\u0105 50%/100% wi\u0119ksz\u0105 szans\u0119 na leczenie krytyczne"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.unexpected_grace
+      <MinimumRanks>k__BackingField: 1
+    - <NodeId>k__BackingField: node.paladin.priest.healer_focus
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.healer_focus
+    <DisplayName>k__BackingField: Skupienie Uzdrowiciela
+    <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
+      maj\u0105 zwi\u0119kszon\u0105 si\u0142\u0119 o 15%/30%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.haste
+    <DisplayName>k__BackingField: "Po\u015Bpiech"
+    <Description>k__BackingField: "Przywraca 15%/25%/40% zdrowia odnawianego przez
+      \u015Awi\u0119t\u0105 Regeneracj\u0119 od razu po u\u017Cyciu"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.holy_regeneration
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.holy_regeneration
+    <DisplayName>k__BackingField: "\u015Awi\u0119ta Regeneracja"
+    <Description>k__BackingField: Regeneruje 40% zdrowia sojusznika przez 4 tury
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 76367caf71018384dbbf446ef55232df, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.anointed_warrior
+    <DisplayName>k__BackingField: Namaszczony Wojownik
+    <Description>k__BackingField: "Ka\u017Cdy leczniczy cios krytyczny zwi\u0119ksza
+      obra\u017Cenia uleczonego celu o 10%/20% na 2 tury"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.unexpected_grace
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.persistent_healer
+    <DisplayName>k__BackingField: "Wytrwa\u0142y Uzdrowiciel"
+    <Description>k__BackingField: "Zmniejsza koszt punkt\xF3w akcji Uzdrowienia o
+      25%/50%/100%, je\u015Bli cel otrzyma\u0142 obra\u017Cenia wi\u0119ksze ni\u017C
+      20% maksymalnego zdrowia w jednej turze. U\u017Cycie Uzdrowienia na tym celu
+      zdejmuje zni\u017Ck\u0119."
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.encouragement
+    <DisplayName>k__BackingField: Pokrzepienie
+    <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
+      przy\u015Bpieszaj\u0105 jej akcj\u0119 o 20%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.lasting_effect
+    <DisplayName>k__BackingField: "Trwa\u0142y Efekt"
+    <Description>k__BackingField: "\u015Awi\u0119ta Regeneracja po up\u0142yni\u0119ciu
+      czasu trwania leczy 25% pocz\u0105tkowej warto\u015Bci przez kolejne 4/2 tury"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.haste
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.salvation
+    <DisplayName>k__BackingField: Zbawienie
+    <Description>k__BackingField: "Rzucaj\u0105cy otrzymuje dodatkowo 50% odnowionego
+      surowca przez \u0141ask\u0119"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.grace_collection
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.grace_collection
+    <DisplayName>k__BackingField: "Kolekcja \u0141ask"
+    <Description>k__BackingField: "Otrzymywanie i zadawanie obra\u017Ce\u0144 pod
+      dzia\u0142aniem B\u0142ogos\u0142awie\u0144stwa daje \u0142adunek \u0141aski
+      (max 6), po up\u0142yni\u0119ciu czasu trwania, cel regeneruje 4/8 surowca
+      za ka\u017Cdy \u0142adunek"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.blessing
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.blessing
+    <DisplayName>k__BackingField: "B\u0142ogos\u0142awie\u0144stwo"
+    <Description>k__BackingField: "Zwi\u0119ksza zadawane obra\u017Cenia o 10%, zmniejsza
+      przyjmowane obra\u017Cenia o 10% na 4 tury"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: ffacda12ff3546945bb4edddfac705ca, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.priest.strong_blessing
+    <DisplayName>k__BackingField: "Silne B\u0142ogos\u0142awie\u0144stwo"
+    <Description>k__BackingField: "Wzmacnia efekt B\u0142ogos\u0142awie\u0144stwa
+      do 15%/20%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.priest.blessing
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

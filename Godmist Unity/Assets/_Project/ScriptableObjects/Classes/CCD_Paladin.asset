@@ -15,3 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: class.paladin
   <ClassName>k__BackingField: Paladin
   <ResourceType>k__BackingField: 3
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}
+  <SkillTrees>k__BackingField:
+  - {fileID: 11400000, guid: ec0abc327fd76fa499bb7be389bbf428, type: 2}
+  - {fileID: 11400000, guid: fb3383d3892656545858aa7ee9077615, type: 2}

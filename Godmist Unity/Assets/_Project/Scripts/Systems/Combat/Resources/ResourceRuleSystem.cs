@@ -21,6 +21,9 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(BattleUnit unit)
         {
+            // Missing-mana regeneration must be recalculated for every tick, including exploration.
+            if (MageCombatSystem.W(unit, "energy_saving") > 0)
+                new Godmist.Systems.Characters.CharacterStatPipelineSystem().Refresh(unit.Character);
             var change = Execute(
                 unit,
                 (rule, pool) => rule.ProcessTurnStart(pool));

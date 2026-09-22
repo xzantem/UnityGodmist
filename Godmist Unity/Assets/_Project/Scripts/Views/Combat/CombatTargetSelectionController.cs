@@ -50,11 +50,13 @@ namespace Godmist.Views.Combat
         private GridPosition? previewedRelativeCenter;
         private int directionalRotationQuarterTurns;
 
+        private string judgementFieldSignature;
         private SkillData selectedSkill;
         private ConsumableItemInstance selectedConsumable;
         private readonly ConsumableService consumableService = new();
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
+        private readonly Dictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = new();
         private int currentTargetModeIndex;
         [System.NonSerialized] private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
@@ -144,6 +146,7 @@ namespace Godmist.Views.Combat
             selectedSkill = skill;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            chosenPositionsByModeIndex.Clear();
             rotationsByModeIndex.Clear();
             directionalRotationQuarterTurns = 0;
 
@@ -208,7 +211,7 @@ namespace Godmist.Views.Combat
                     selectedPositionsByModeIndex,
                     null,
                     null,
-                    rotationsByModeIndex))
+                    rotationsByModeIndex, chosenPositionsByModeIndex))
             {
                 SpendSelectedConsumable();
                 CancelTargetSelection();
@@ -224,6 +227,7 @@ namespace Godmist.Views.Combat
             selectedConsumable = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            chosenPositionsByModeIndex.Clear();
             rotationsByModeIndex.Clear();
             directionalRotationQuarterTurns = 0;
 
@@ -246,6 +250,7 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
+            RefreshJudgementField();
 
             if (DevConsoleView.IsOpen || !IsSelectingTarget)
             {
@@ -293,6 +298,15 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (!isSelectingTeleportDestination && !isSelectingObjectPlacement
+                && Input.GetKeyDown(KeyCode.Return)
+                && CurrentTargetMode.TargetType == TargetType.MultipleChosen
+                && chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var confirmed)
+                && confirmed.Count > 0)
+            {
+                AdvanceTargetMode();
+                return;
+            }
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
             {
@@ -368,6 +382,23 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (targetMode.TargetType == TargetType.MultipleChosen)
+            {
+                var chosen = chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var existing)
+                    ? existing.ToList() : new List<GridPosition>();
+                if (chosen.Contains(targetPosition)) return;
+                chosen.Add(targetPosition);
+                chosenPositionsByModeIndex[currentTargetModeIndex] = chosen;
+                selectedPositionsByModeIndex[currentTargetModeIndex] = chosen[0];
+                var available = sandboxBootstrap.GetEligibleSkillTargetPositions(selectedSkill, targetMode, currentTargetModeIndex).Count;
+                if (chosen.Count < Math.Min(targetMode.ChainTargets, available))
+                {
+                    RebuildTargetHighlights();
+                    return;
+                }
+                AdvanceTargetMode();
+                return;
+            }
             selectedPositionsByModeIndex[currentTargetModeIndex] =
                 IsCursorDirectedCasterArea(targetMode)
                     ? RotateDirectionReference(targetPosition)
@@ -423,7 +454,8 @@ namespace Godmist.Views.Combat
 
             foreach (var position in selectable)
             {
-                selectablePositions.Add(position);
+                if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
+                    selectablePositions.Add(position);
             }
 
             var eligibleTargets =
@@ -437,19 +469,45 @@ namespace Godmist.Views.Combat
                 eligibleTargetPositions.Add(position);
             }
 
+            if (chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var selectedCells))
+            {
+                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.9f));
+                feedbackRenderer.ShowFill(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.4f));
+            }
             if (!usesRedDirectionalFootprintOnly)
             {
                 SpawnHighlights(
-                    selectable,
+                    selectablePositions.ToList(),
                     targetHighlightColor,
                     CombatGridFeedbackLayer.SkillTarget);
                 feedbackRenderer.ShowFill(
                     CombatGridFeedbackLayer.SkillTarget,
-                    selectable,
+                    selectablePositions,
                     WithAlpha(targetHighlightColor, .28f));
             }
         }
 
+        private void RefreshJudgementField()
+        {
+            if(feedbackRenderer==null)return;
+            var session=sandboxBootstrap?.Session;
+            var field=session?.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField);
+            var source=field==null?null:session.Units.FirstOrDefault(u=>u.Character.CharacterId==field.CreatorCharacterId);
+            var radius=source==null?0:2+PaladinCombatSystem.C(source,"field_range");
+            var signature=field==null?string.Empty:$"{session.CombatId}:{field.ObjectId}:{field.Position}:{radius}";
+            if(signature==judgementFieldSignature)return;
+            judgementFieldSignature=signature;
+            feedbackRenderer.ClearOutline(CombatGridFeedbackLayer.JudgementField);
+            feedbackRenderer.ClearFill(CombatGridFeedbackLayer.JudgementField);
+            if(field==null||session.Grid==null)return;
+            var cells=new List<GridPosition>();var sight=new CombatLineOfSightService();
+            for(var x=Math.Max(0,field.Position.X-radius);x<=Math.Min(session.Grid.Width-1,field.Position.X+radius);x++)
+                for(var y=Math.Max(0,field.Position.Y-radius);y<=Math.Min(session.Grid.Height-1,field.Position.Y+radius);y++)
+                    foreach(var cell in session.Grid.GetPositionsAt(x,y))
+                        if(PaladinCombatSystem.FieldContains(session,field,cell))cells.Add(cell);
+            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.8f));
+            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.12f));
+        }
         private void UpdateRelativeRangePreview()
         {
             if (selectedSkill == null || !HasRelativeRangePreview())
@@ -581,6 +639,7 @@ namespace Godmist.Views.Combat
 
                 foreach (var position in destinations)
                 {
+                    if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
                     selectablePositions.Add(position);
                 }
 
@@ -641,6 +700,7 @@ namespace Godmist.Views.Combat
 
                 foreach (var position in placements)
                 {
+                    if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
                     selectablePositions.Add(position);
                 }
 
@@ -808,7 +868,7 @@ namespace Godmist.Views.Combat
                 return RotateDirectionReference(target.Position);
             }
 
-            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain
+            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain
                 || mode.TargetType == TargetType.AreaAroundTile
                 ? target.Position
                 : null;
@@ -816,6 +876,8 @@ namespace Godmist.Views.Combat
 
         private void ClearAllHighlights()
         {
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.ChosenSkillTargets);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.ChosenSkillTargets);
             targetPreview?.Hide();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillRange);
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillTarget);
@@ -844,6 +906,9 @@ namespace Godmist.Views.Combat
 
         private void OnDisable()
         {
+            judgementFieldSignature=null;
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.JudgementField);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.JudgementField);
             ClearAllHighlights();
         }
 
@@ -878,6 +943,7 @@ namespace Godmist.Views.Combat
         {
             return targetType == TargetType.Caster
                 || targetType == TargetType.Chain
+                || targetType == TargetType.MultipleChosen
                 || targetType == TargetType.Single
                 || targetType == TargetType.All
                 || targetType == TargetType.AreaAroundCaster
@@ -887,7 +953,7 @@ namespace Godmist.Views.Combat
         {
             var mode = CurrentTargetMode;
 
-            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain) return eligibleTargetPositions.Contains(position);
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain) return eligibleTargetPositions.Contains(position);
 
             if (mode.TargetType == TargetType.AreaAroundTile) return absoluteRangePositions.Contains(position);
 
@@ -917,6 +983,7 @@ namespace Godmist.Views.Combat
             var shape = mode.AbsoluteRange?.Shape ?? RangeShape.None;
             return shape == RangeShape.Line
                 || shape == RangeShape.Diagonal
+                || shape == RangeShape.ThreeRays
                 || shape == RangeShape.TwoSidedLine;
         }
 

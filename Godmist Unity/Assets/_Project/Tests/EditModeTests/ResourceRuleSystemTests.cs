@@ -10,6 +10,51 @@ namespace Godmist.Tests.EditMode
 {
     public class ResourceRuleSystemTests
     {
+        [TestCase(0, 100)]
+        [TestCase(15, 115)]
+        [TestCase(30, 130)]
+        public void Mana_AllRecoveryUsesOverflowLimit_WithoutChangingNominalMaximum(int overflow, int limit)
+        {
+            var pool = new ResourcePool(ResourceType.Mana, 95, 100, 20) { ManaOverflowPercent = overflow };
+            new ManaResourceRule().ProcessTurnStart(pool);
+            Assert.That(pool.CurrentValue, Is.EqualTo(System.Math.Min(115, limit)));
+            pool.Restore(1000);
+            Assert.That(pool.CurrentValue, Is.EqualTo(limit));
+            Assert.That(pool.MaxValue, Is.EqualTo(100));
+            Assert.That(pool.Restore(1), Is.Zero);
+        }
+
+        [TestCase(ResourceType.Rage)]
+        [TestCase(ResourceType.Momentum)]
+        public void NonMana_DoesNotUseManaOverflow(ResourceType type)
+        {
+            var pool = new ResourcePool(type, 95, 100, 20) { ManaOverflowPercent = 30 };
+            Assert.That(pool.Restore(100), Is.EqualTo(5));
+        }
+
+        [Test]
+        public void Mana_StatRefreshPreservesOverflow_AndRemovingRankRestoresLimit()
+        {
+            var character = new CharacterInstance
+            {
+                Stats = new CharacterStats(), ResourcePool = new ResourcePool(ResourceType.Mana, 125, 100, 20),
+                SkillTreeProgress = new() { new SkillTreeProgress { TreeId = "tree.mage.warlock", NodeInvestments = new()
+                { new SkillTreeNodeInvestment { NodeId = "node.mage.warlock.beyond_limits", Ranks = 2 } } } }
+            };
+            character.Stats.MaxResource = new Godmist.Core.Types.Stat(100);
+            character.Stats.ResourceRegeneration = new Godmist.Core.Types.Stat(20);
+            var pipeline = new Godmist.Systems.Characters.CharacterStatPipelineSystem();
+            pipeline.Refresh(character);
+            Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(125));
+            new ResourceRuleSystem().ProcessTurnStart(new BattleUnit { Character = character });
+            Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(130));
+            pipeline.Refresh(character);
+            Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(130));
+            character.SkillTreeProgress.Clear();
+            pipeline.Refresh(character);
+            Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(100));
+        }
+
         [Test]
         public void Mana_RegeneratesAtTurnStart()
         {

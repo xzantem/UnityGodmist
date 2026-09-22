@@ -22,7 +22,8 @@ namespace Godmist.Runtime.Combat
         public IEnumerable<GridPosition> GetPositionsAt(int x, int y)
         {
             if (TraversalNeighbours == null) { yield return new GridPosition(x, y); yield break; }
-            foreach (var position in walkablePositions) if (position.X == x && position.Y == y) yield return position;
+            if (positionsByColumn.TryGetValue((x, y), out var column))
+                foreach (var position in column) yield return position;
         }
         public IEnumerable<GridPosition> GetNeighbours(GridPosition origin)
         {
@@ -35,6 +36,7 @@ namespace Godmist.Runtime.Combat
         }
 
         private readonly HashSet<GridPosition> walkablePositions = new();
+        private readonly Dictionary<(int X, int Y), HashSet<GridPosition>> positionsByColumn = new();
         private readonly HashSet<GridPosition> blockedPositions = new();
         private readonly Dictionary<BattleCellEdge, DungeonWallType> wallTypes = new();
         public void SetWallEdge(GridPosition from, GridPosition to, DungeonWallType type)
@@ -105,11 +107,22 @@ namespace Godmist.Runtime.Combat
 
             if (isWalkable)
             {
-                walkablePositions.Add(position);
+                if (walkablePositions.Add(position))
+                {
+                    var key = (position.X, position.Y);
+                    if (!positionsByColumn.TryGetValue(key, out var column))
+                        positionsByColumn[key] = column = new HashSet<GridPosition>();
+                    column.Add(position);
+                }
                 return;
             }
 
-            walkablePositions.Remove(position);
+            if (walkablePositions.Remove(position)
+                && positionsByColumn.TryGetValue((position.X, position.Y), out var remainingColumn))
+            {
+                remainingColumn.Remove(position);
+                if (remainingColumn.Count == 0) positionsByColumn.Remove((position.X, position.Y));
+            }
         }
 
         public void SetBlocked(

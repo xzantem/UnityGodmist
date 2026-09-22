@@ -1,0 +1,272 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Paladin_Crusader
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.paladin.crusader
+  <DisplayName>k__BackingField: "Krzy\u017Cowiec"
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +1% obra\u017Ce\u0144 przeciw nieumar\u0142ym
+      i demonom."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.paladin.crusader.judgement_field
+    <DisplayName>k__BackingField: "Pole Os\u0105du"
+    <Description>k__BackingField: "Tworzy na 4 tury obszar, w kt\xF3rym przeciwnicy
+      s\u0105 spowolnieni o 5 i otrzymuj\u0105 50% losowych obra\u017Ce\u0144 magicznych
+      co tur\u0119"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: c04b8e1d0c3573a48832b1f6419eef4c, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.field_range
+    <DisplayName>k__BackingField: "Zasi\u0119g Os\u0105du"
+    <Description>k__BackingField: "Zwi\u0119ksza obszar Pola Os\u0105du o 1/2"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.judgement_field
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.gravedigger
+    <DisplayName>k__BackingField: Grabarz
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane Nieumar\u0142ym
+      o 15%/30%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.hatred
+    <DisplayName>k__BackingField: "Nienawi\u015B\u0107 Przekl\u0119tych"
+    <Description>k__BackingField: "Atakowanie Nieumar\u0142ych i Demon\xF3w ma 50%
+      szansy na na\u0142o\u017Cenie prowokacji na 1 tur\u0119"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.gravedigger
+      <MinimumRanks>k__BackingField: 1
+    - <NodeId>k__BackingField: node.paladin.crusader.exorcist
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.exorcist
+    <DisplayName>k__BackingField: Egzorcysta
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane Demonom
+      o 15%/30%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.judgement_release
+    <DisplayName>k__BackingField: "Wydanie Os\u0105du"
+    <Description>k__BackingField: "Po uko\u0144czeniu czasu dzia\u0142ania Pole Os\u0105du
+      zadaje przeciwnikom w nim 50/100/150% losowych obra\u017Ce\u0144 magicznych"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.judgement_field
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.blinding_light
+    <DisplayName>k__BackingField: "O\u015Blepiaj\u0105ce \u015Awiat\u0142o"
+    <Description>k__BackingField: "Zadaje 60% losowych obra\u017Ce\u0144 magicznych,
+      [85%] Celno\u015B\u0107 -15 3t"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 22dca7e1f71aa5243a7cf4f710352b92, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.expose
+    <DisplayName>k__BackingField: "Ods\u0142oni\u0119cie S\u0142abo\u015Bci"
+    <Description>k__BackingField: "Przeciwnicy obj\u0119ci O\u015Blepiaj\u0105cym
+      \u015Awiat\u0142em otrzymuj\u0105 25%/50% wi\u0119cej obra\u017Ce\u0144 z nast\u0119pnego
+      ataku"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.blinding_light
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.advantage
+    <DisplayName>k__BackingField: Przewaga
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane przeciwnikom
+      o mniejszej ilo\u015Bci maksymalnego zdrowia o 1% za ka\u017Cde 2% r\xF3\u017Cnicy
+      (max 50%)"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.harsh_verdict
+    <DisplayName>k__BackingField: Srogi Wyrok
+    <Description>k__BackingField: "Wyrok ma 20%/40% szansy na odepchni\u0119cie przeciwnika
+      o 1 pole"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.exhaustion
+    <DisplayName>k__BackingField: Wyczerpanie
+    <Description>k__BackingField: "Pole Os\u0105du w przedostatniej turze dzia\u0142ania
+      og\u0142usza na 1/2 tury"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.judgement_release
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.blinding
+    <DisplayName>k__BackingField: "Za\u015Blepienie"
+    <Description>k__BackingField: "O\u015Blepiaj\u0105ce \u015Awiat\u0142o ma 90%
+      szansy na og\u0142uszenie na 3 tury, ka\u017Cdy kolejny cel ma 20% mniejsz\u0105
+      szans\u0119 na zostanie og\u0142uszonym"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.blinding_light
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.torment_max
+    <DisplayName>k__BackingField: "N\u0119kanie"
+    <Description>k__BackingField: "Zwi\u0119ksza maksymaln\u0105 ilo\u015B\u0107
+      Udr\u0119czenia do 6/8/10"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.torment
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.torment
+    <DisplayName>k__BackingField: "Udr\u0119czenie"
+    <Description>k__BackingField: "Ataki nak\u0142adaj\u0105 Udr\u0119czenie, kt\xF3re
+      zmniejsza obron\u0119 o 2% i unik o 2, do 4 razy"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.severe_judge
+    <DisplayName>k__BackingField: "Surowy S\u0119dzia"
+    <Description>k__BackingField: "Ciosy krytyczne zwi\u0119kszaj\u0105 szans\u0119
+      na Srogi Wyrok o 40% i zwi\u0119kszaj\u0105 si\u0142\u0119 odepchni\u0119cia
+      o 1"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.harsh_verdict
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.grounding_wave
+    <DisplayName>k__BackingField: Fala Uziemienia
+    <Description>k__BackingField: "Przyci\u0105ga o 1 w kierunku \u015Brodku obszaru
+      dzia\u0142ania"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: aa4adfc68560fe1489a66193f62751ab, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.destruction_wave
+    <DisplayName>k__BackingField: Fala Zniszczenia
+    <Description>k__BackingField: "Zwi\u0119ksza si\u0142\u0119 przyci\u0105gni\u0119cia
+      Fali Uziemienia o 1"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.grounding_wave
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.kicking_downed
+    <DisplayName>k__BackingField: "Kopanie Le\u017C\u0105cego"
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane og\u0142uszonym
+      przeciwnikom o 15%/30%/50%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.torment_damage
+    <DisplayName>k__BackingField: "Zadr\u0119czenie"
+    <Description>k__BackingField: "Na\u0142o\u017Cenie co najmniej 4 Udr\u0119czenia
+      sprawia \u017Ce przeciwnik otrzymuje dodatkowe obra\u017Cenia nieuchronne o
+      warto\u015Bci 30%/60%/100% obra\u017Ce\u0144 kt\xF3re zmitygowa\u0142aby zabrana
+      obrona"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.torment
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.paladin.crusader.control
+    <DisplayName>k__BackingField: Kontrola
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na cios krytyczny o
+      50%/100%[p] je\u015Bli przeciwnik ma mniej aktualnego zdrowia"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.paladin.crusader.severe_judge
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

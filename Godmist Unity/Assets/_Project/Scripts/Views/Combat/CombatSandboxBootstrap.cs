@@ -198,7 +198,8 @@ namespace Godmist.Views.Combat
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
-            IReadOnlyDictionary<int, int> rotationsByModeIndex = null) => focused?.TryExecuteSkill(skill, selectedPositionsByModeIndex, teleportDestination, objectPlacementDestination, rotationsByModeIndex) ?? false;
+            IReadOnlyDictionary<int, int> rotationsByModeIndex = null,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = null) => focused?.TryExecuteSkill(skill, selectedPositionsByModeIndex, teleportDestination, objectPlacementDestination, rotationsByModeIndex, chosenPositionsByModeIndex) ?? false;
         public bool TryInteractAt(GridPosition position) => focused?.TryInteractAt(position) ?? false;
         public CombatMapObject GetCombatMapObject(string objectId) => focused?.GetCombatMapObject(objectId);
         public bool TryReviveAt(GridPosition position) => focused?.TryReviveAt(position) ?? false;

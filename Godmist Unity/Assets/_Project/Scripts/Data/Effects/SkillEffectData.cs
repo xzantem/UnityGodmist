@@ -141,6 +141,12 @@ namespace Godmist.Data.Effects
             copy.durationTurns = turns;
             return copy;
         }
+        public SkillEffectData WithBonusPenetration(float value)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.bonusPenetration = Mathf.Max(0, value);
+            return copy;
+        }
         public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
         public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
         public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);
@@ -151,6 +157,8 @@ namespace Godmist.Data.Effects
         public float ResourceDrainPercent => Mathf.Clamp01(resourceDrainPercent);
         public int DelayCasterTurns => Mathf.Max(0, delayCasterTurns);
         public int DisplacementDistance => displacementDistance;
+        public SkillEffectData WithDisplacementDistance(int value)
+        { var copy=(SkillEffectData)MemberwiseClone();copy.displacementDistance=value;return copy; }
         public SkillRangeData TeleportDestinationRange => teleportDestinationRange;
         public SummonedObjectDefinition SummonedObjectDefinition =>
             summonedObjectDefinition;
@@ -174,6 +182,12 @@ namespace Godmist.Data.Effects
         public float StatusDamageMultiplier => statusDamageMultiplier;
         public float StatusHealPercent => statusHealPercent;
         public float PercentageValue => Mathf.Clamp01(percentageValue);
+        public SkillEffectData WithPercentageValue(float value)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.percentageValue = Mathf.Clamp01(value);
+            return copy;
+        }
         public SkillRangeData CounterattackRange => counterattackRange;
         public IReadOnlyList<SkillEffectData> CounterattackEffects =>
             counterattackEffects;

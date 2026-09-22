@@ -69,6 +69,11 @@ namespace Godmist.Systems.Combat
                 return;
             }
 
+            if (PaladinCombatSystem.IsField(summonedObject))
+            {
+                PaladinCombatSystem.FieldEffects(session,summonedObject,includeTriggeredEffects,damageSystem,statusEffectSystem);
+                return;
+            }
             var source = session.Units.FirstOrDefault(unit =>
                 unit?.Character != null
                 && string.Equals(

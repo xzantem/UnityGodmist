@@ -907,7 +907,9 @@ namespace Godmist.Systems.SaveLoad
                         {
                             Type = payload.Type,
                             HealthPercent = periodicRecovery.HealthPercent,
-                            ResourcePercent = periodicRecovery.ResourcePercent
+                            ResourcePercent = periodicRecovery.ResourcePercent,
+                            HealthRoundingCarry = periodicRecovery.HealthRoundingCarry,
+                            ResourceRoundingCarry = periodicRecovery.ResourceRoundingCarry
                         });
                         break;
                 }

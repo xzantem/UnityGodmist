@@ -1150,7 +1150,9 @@ namespace Godmist.Systems.SaveLoad
                         });
                         break;
                     case PassiveEffectPayloadType.PeriodicRecovery:
-                        if (saveData.HealthPercent < 0f
+                        if (float.IsNaN(saveData.HealthRoundingCarry) || saveData.HealthRoundingCarry < -1f || saveData.HealthRoundingCarry > 0f
+                            || float.IsNaN(saveData.ResourceRoundingCarry) || saveData.ResourceRoundingCarry < -1f || saveData.ResourceRoundingCarry > 0f
+                            || saveData.HealthPercent < 0f
                             || saveData.HealthPercent > 1f
                             || saveData.ResourcePercent < 0f
                             || saveData.ResourcePercent > 1f)
@@ -1160,7 +1162,9 @@ namespace Godmist.Systems.SaveLoad
                         payloads.Add(new PeriodicRecoveryPayload
                         {
                             HealthPercent = saveData.HealthPercent,
-                            ResourcePercent = saveData.ResourcePercent
+                            ResourcePercent = saveData.ResourcePercent,
+                            HealthRoundingCarry = saveData.HealthRoundingCarry,
+                            ResourceRoundingCarry = saveData.ResourceRoundingCarry
                         });
                         break;
                 }

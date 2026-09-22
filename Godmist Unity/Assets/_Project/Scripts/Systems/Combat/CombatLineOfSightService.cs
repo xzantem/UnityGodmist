@@ -96,12 +96,24 @@ namespace Godmist.Systems.Combat
             if (session.EnvironmentBlocksLineOfSight?.Invoke(previousPosition, currentPosition) == true)
                 return true;
             if (session.DungeonContext != null)
-                foreach (var wall in session.DungeonContext.WallEdges)
-                    if (session.DungeonContext.GetWallType(wall) == Godmist.Core.Enums.DungeonWallType.Full
-                        && CrossesEdge(previousPosition, currentPosition, new BattleCellEdge(
-                        DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.FirstCell),
-                        DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.SecondCell))))
-                        return true;
+            {
+                var context = session.DungeonContext;
+                var from = DungeonBattleGridFactory.ToWorldPosition(context, previousPosition);
+                var to = DungeonBattleGridFactory.ToWorldPosition(context, currentPosition);
+                if (from.x == to.x || from.y == to.y)
+                {
+                    if (from != to && context.HasFullWall(new DungeonCellEdge(from, to))) return true;
+                }
+                else
+                {
+                    var horizontal = new UnityEngine.Vector2Int(to.x, from.y);
+                    var vertical = new UnityEngine.Vector2Int(from.x, to.y);
+                    if (context.HasFullWall(new DungeonCellEdge(from, horizontal))
+                        || context.HasFullWall(new DungeonCellEdge(horizontal, to))
+                        || context.HasFullWall(new DungeonCellEdge(from, vertical))
+                        || context.HasFullWall(new DungeonCellEdge(vertical, to))) return true;
+                }
+            }
             foreach (var mapObject in session.MapObjects)
             {
                 if (mapObject == ignoredObject || mapObject == null || !session.DoesObjectBlockLineOfSight(mapObject))

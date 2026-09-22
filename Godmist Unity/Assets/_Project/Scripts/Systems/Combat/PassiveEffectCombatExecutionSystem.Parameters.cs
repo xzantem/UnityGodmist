@@ -16,8 +16,8 @@ namespace Godmist.Systems.Combat
         public static int ResolveResourceCost(BattleUnit owner, SkillData skill)
         {
             if (skill == null) return 0;
-            return WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
-                "resource_cost", skill.ResourceCost) - .00001f)));
+            return MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
+                "resource_cost", skill.ResourceCost) - .00001f))));
         }
 
         public static SkillEffectData ResolveEffect(BattleUnit owner, SkillData skill, SkillEffectData effect)
@@ -25,7 +25,8 @@ namespace Godmist.Systems.Combat
             if (effect == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.Effects.Count; i++) if (ReferenceEquals(skill.Effects[i], effect)) { index = i; break; }
-            effect = WarriorCombatSystem.ResolveEffect(owner,skill,ScoutCombatSystem.ResolveEffect(owner, skill, effect));
+            effect = MageCombatSystem.ResolveEffect(owner,skill,WarriorCombatSystem.ResolveEffect(owner,skill,ScoutCombatSystem.ResolveEffect(owner, skill, effect)));
+            if(skill?.SkillId=="skill.paladin.grounding_wave")effect=effect.WithDisplacementDistance(1+PaladinCombatSystem.C(owner,"destruction_wave"));
             return effect.WithRuntimeParameters(
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "hit_count", effect.DamageHitCount, effectIndex: index)),
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "duration_turns", effect.DurationTurns, effectIndex: index)),
@@ -39,6 +40,7 @@ namespace Godmist.Systems.Combat
             var index = -1;
             for (var i = 0; skill != null && i < skill.TargetModes.Count; i++) if (ReferenceEquals(skill.TargetModes[i], mode)) { index = i; break; }
             var extra = skill?.SkillId == "skill.scout.ricochet" ? ScoutCombatSystem.AssassinRank(owner,"farsight") switch {1=>1,2=>3,_=>0} : 0;
+            if (skill?.SkillId == "skill.mage.sacrifice") mode = mode.WithChainTargets(1 + MageCombatSystem.W(owner, "mass_sacrifice"));
             return mode.WithChainTargets(mode.ChainTargets+(skill?.SkillId == "skill.scout.ricochet" ? 2*ScoutCombatSystem.AssassinRank(owner,"knife_bounce") : 0)).WithRuntimeRanges(
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "range", mode.AbsoluteRange.MaxRange + extra, modeIndex: index)),
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "area_range", mode.RelativeRange.MaxRange + extra, modeIndex: index)));

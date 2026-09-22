@@ -51,6 +51,7 @@ namespace Godmist.Systems.Characters
             }
 
             WarriorCombatSystem.ApplyStats(character);
+            MageCombatSystem.ApplyStats(character);
             SyncDependentRuntimeValues(character);
         }
 
@@ -126,10 +127,19 @@ namespace Godmist.Systems.Characters
             character.ResourcePool.MaxValue = Mathf.Max(
                 0,
                 Mathf.RoundToInt(character.Stats.MaxResource.GetValue()));
+            var overflowRanks = 0;
+            foreach (var tree in character.SkillTreeProgress ?? new())
+            {
+                if (tree?.TreeId != "tree.mage.warlock") continue;
+                foreach (var investment in tree.NodeInvestments ?? new())
+                    if (investment?.NodeId == "node.mage.warlock.beyond_limits")
+                        overflowRanks = Mathf.Clamp(investment.Ranks, 0, 2);
+            }
+            character.ResourcePool.ManaOverflowPercent = 15 * overflowRanks;
             character.ResourcePool.CurrentValue = Mathf.Clamp(
                 character.ResourcePool.CurrentValue,
                 0,
-                character.ResourcePool.MaxValue);
+                character.ResourcePool.RecoveryLimit);
         }
 
         private static void RefreshResistances(CharacterInstance character)

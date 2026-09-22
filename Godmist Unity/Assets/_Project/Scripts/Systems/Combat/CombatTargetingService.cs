@@ -39,6 +39,7 @@ namespace Godmist.Systems.Combat
             switch (mode.TargetType)
             {
                 case TargetType.Chain:
+                case TargetType.MultipleChosen:
                 case TargetType.Single:
                     if (!selectedPosition.HasValue
                         || (!IsValidTargetPosition(session, caster, mode, selectedPosition.Value)
@@ -344,7 +345,7 @@ namespace Godmist.Systems.Combat
         {
             var positions = new List<GridPosition>();
 
-            if (session?.Grid == null || caster?.Character == null || range == null)
+            if (session?.Grid == null || caster?.Character == null || range == null || range.Shape == RangeShape.None)
             {
                 return positions;
             }
@@ -360,9 +361,9 @@ namespace Godmist.Systems.Combat
                     rotationQuarterTurns);
             }
 
-            for (var x = 0; x < session.Grid.Width; x++)
+            for (var x = (int)Math.Max(0L, (long)center.X - range.MaxRange); x <= Math.Min(session.Grid.Width - 1L, (long)center.X + range.MaxRange); x++)
             {
-                for (var y = 0; y < session.Grid.Height; y++)
+                for (var y = (int)Math.Max(0L, (long)center.Y - range.MaxRange); y <= Math.Min(session.Grid.Height - 1L, (long)center.Y + range.MaxRange); y++)
                 {
                     foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {
@@ -390,14 +391,14 @@ namespace Godmist.Systems.Combat
         {
             var positions = new List<GridPosition>();
 
-            if (session?.Grid == null || range == null)
+            if (session?.Grid == null || range == null || range.Shape == RangeShape.None)
             {
                 return positions;
             }
 
-            for (var x = 0; x < session.Grid.Width; x++)
+            for (var x = (int)Math.Max(0L, (long)center.X - range.MaxRange); x <= Math.Min(session.Grid.Width - 1L, (long)center.X + range.MaxRange); x++)
             {
-                for (var y = 0; y < session.Grid.Height; y++)
+                for (var y = (int)Math.Max(0L, (long)center.Y - range.MaxRange); y <= Math.Min(session.Grid.Height - 1L, (long)center.Y + range.MaxRange); y++)
                 {
                     foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {
@@ -447,7 +448,7 @@ namespace Godmist.Systems.Combat
                 return positions;
             }
 
-            if (range.Shape == RangeShape.Diagonal
+            if ((range.Shape == RangeShape.Diagonal || range.Shape == RangeShape.ThreeRays)
                 && directionX != 0
                 && directionY != 0)
             {
@@ -472,6 +473,11 @@ namespace Godmist.Systems.Combat
             {
                 case RangeShape.Line:
                     AddRay(candidates, origin, directionX, directionY, range);
+                    break;
+
+                case RangeShape.ThreeRays:
+                    AddRay(candidates, origin, directionX, directionY, range);
+                    AddDiagonalRays(candidates, origin, directionX, directionY, range);
                     break;
 
                 case RangeShape.TwoSidedLine:
@@ -527,14 +533,10 @@ namespace Godmist.Systems.Combat
                 case RangeShape.Radial:
                 case RangeShape.Ring:
                 {
-                    var squaredDistance =
-                        distanceX * distanceX
-                        + distanceY * distanceY;
-
-                    return squaredDistance
-                            >= range.MinRange * range.MinRange
-                        && squaredDistance
-                            <= range.MaxRange * range.MaxRange;
+                    var roundedDistance = Math.Floor(Math.Sqrt(
+                        (double)distanceX * distanceX + (double)distanceY * distanceY) + 0.5d);
+                    return roundedDistance >= range.MinRange
+                        && roundedDistance <= range.MaxRange;
                 }
 
                 case RangeShape.XShape:
@@ -624,7 +626,7 @@ namespace Godmist.Systems.Combat
 
         public static bool IsDirectionalShape(RangeShape shape)
         {
-            return shape == RangeShape.Line
+            return shape == RangeShape.ThreeRays || shape == RangeShape.Line
                 || shape == RangeShape.Diagonal
                 || shape == RangeShape.TwoSidedLine
                 || shape == RangeShape.Rectangle;
@@ -905,7 +907,7 @@ namespace Godmist.Systems.Combat
         private static bool RequiresTileSelection(
             SkillTargetModeData mode)
         {
-            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain
+            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain
                 || mode.TargetType == TargetType.AreaAroundTile;
         }
         public IReadOnlyList<GridPosition> GetEligibleTargetPositions(
@@ -951,7 +953,7 @@ namespace Godmist.Systems.Combat
                 return new List<GridPosition>();
             }
 
-            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain)
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain)
             {
                 foreach (var unit in session.Units)
                 {

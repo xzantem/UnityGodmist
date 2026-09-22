@@ -138,7 +138,8 @@ namespace Godmist.Systems.Combat
 
             incomingEffect.Stacks = Math.Max(1, incomingEffect.Stacks);
 
-            var existingEffect = FindEffect(
+            // Fire generations must retain independent lifetimes, damage and first-tick state.
+            var existingEffect = incomingEffect.GetStateValue("mage.burn.generation") != null ? null : FindEffect(
                 character.PassiveEffects,
                 incomingEffect.EffectId);
 
@@ -339,7 +340,9 @@ namespace Godmist.Systems.Combat
                         copied.Add(new PeriodicRecoveryPayload
                         {
                             HealthPercent = value.HealthPercent,
-                            ResourcePercent = value.ResourcePercent
+                            ResourcePercent = value.ResourcePercent,
+                            HealthRoundingCarry = value.HealthRoundingCarry,
+                            ResourceRoundingCarry = value.ResourceRoundingCarry
                         });
                         break;
                 }

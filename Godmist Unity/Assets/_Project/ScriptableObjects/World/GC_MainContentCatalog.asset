@@ -198,6 +198,29 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cf23f6786fea4c24db7d6538d445d5fc, type: 2}
   - {fileID: 11400000, guid: b686cbbe524543d448ad9bbd058609a2, type: 2}
   - {fileID: 11400000, guid: 15d4b41dc96b0c64cba48c00ec1bf28b, type: 2}
+  - {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
+  - {fileID: 11400000, guid: 32caa44ec27ebfb47a3dbecab2f8a007, type: 2}
+  - {fileID: 11400000, guid: 862ba81cbc158ff42bea7e9a3dc84b0d, type: 2}
+  - {fileID: 11400000, guid: 77944366a93a6d8468a805ff40de1a2a, type: 2}
+  - {fileID: 11400000, guid: 9d0b1b9de781aed41983e8ebb4649d2f, type: 2}
+  - {fileID: 11400000, guid: b5b555c7e84d2a4408b1431e9889a913, type: 2}
+  - {fileID: 11400000, guid: f34ff8c54fff7e64692a70c149b48171, type: 2}
+  - {fileID: 11400000, guid: ab66e381008679b489553bef9c9e18f9, type: 2}
+  - {fileID: 11400000, guid: f2e320b1900e0fa488c8f4ca94a45633, type: 2}
+  - {fileID: 11400000, guid: 59127d7f10729c34dbfac19a69a156ef, type: 2}
+  - {fileID: 11400000, guid: a9a49360504c85248bbef856a4a23179, type: 2}
+  - {fileID: 11400000, guid: d884c71c676f2774781f64dd2cb8c1fa, type: 2}
+  - {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}
+  - {fileID: 11400000, guid: 52e154cf9e0615e46bb3d5d24f216813, type: 2}
+  - {fileID: 11400000, guid: 8cdd20ae12e7a6747bb541c27edd6a35, type: 2}
+  - {fileID: 11400000, guid: 855057cf3664b6c49b30143389637e8d, type: 2}
+  - {fileID: 11400000, guid: 6d48434436eb3a84ea1946da02eaab13, type: 2}
+  - {fileID: 11400000, guid: ba3b8322014b1014d88e890b14b78da9, type: 2}
+  - {fileID: 11400000, guid: 76367caf71018384dbbf446ef55232df, type: 2}
+  - {fileID: 11400000, guid: ffacda12ff3546945bb4edddfac705ca, type: 2}
+  - {fileID: 11400000, guid: c04b8e1d0c3573a48832b1f6419eef4c, type: 2}
+  - {fileID: 11400000, guid: 22dca7e1f71aa5243a7cf4f710352b92, type: 2}
+  - {fileID: 11400000, guid: aa4adfc68560fe1489a66193f62751ab, type: 2}
   <QuestDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 8f50b644b9390bb41902a1beb6bfc986, type: 2}
   <NpcDefinitions>k__BackingField:

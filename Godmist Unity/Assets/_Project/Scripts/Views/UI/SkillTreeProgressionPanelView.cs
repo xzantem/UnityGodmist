@@ -464,6 +464,14 @@ namespace Godmist.Views.UI
             // These passives contain combat rules as well as ordinary stat modifiers.
             switch (tree.Id)
             {
+                case Godmist.Systems.Combat.PaladinCombatSystem.Priest:
+                    return $"+{points}% siły leczenia, {points}% faktycznego leczenia przywraca HP rzucającego";
+                case Godmist.Systems.Combat.PaladinCombatSystem.Crusader:
+                    return $"+{points}% obrażeń przeciw nieumarłym i demonom";
+                case Godmist.Systems.Combat.MageCombatSystem.Warlock:
+                    return $"-{points * 1.5f:0.##}% kosztów many, +{points}% obrażeń przy jednym celu";
+                case Godmist.Systems.Combat.MageCombatSystem.Fire:
+                    return $"+{points * 2}% obrażeń podpalenia, Kuli Ognia i Ognistej Strzały, +{points}% odporności na ogień";
                 case Godmist.Systems.Combat.ScoutCombatSystem.AssassinTree:
                     return $"+{points * .2f:0.##}% Kryt, +{points * .5f:0.##}% obrażeń wręcz";
                 case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:

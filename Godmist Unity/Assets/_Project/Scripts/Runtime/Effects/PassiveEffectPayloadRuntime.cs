@@ -103,6 +103,8 @@ namespace Godmist.Runtime.Effects
     {
         public float HealthPercent;
         public float ResourcePercent;
+        public float HealthRoundingCarry;
+        public float ResourceRoundingCarry;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.PeriodicRecovery;
     }
 }

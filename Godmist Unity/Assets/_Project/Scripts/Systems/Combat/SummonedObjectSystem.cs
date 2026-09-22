@@ -51,11 +51,13 @@ namespace Godmist.Systems.Combat
 
             if (!session.Grid.IsWalkable(position)
                 || session.Grid.IsBlocked(position)
-                || session.IsPositionOccupiedByMapObject(position))
+                || session.IsPositionOccupiedByMapObject(position, effect.SummonedObjectDefinition.ObjectId==PaladinCombatSystem.FieldId ? session.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField) : null))
             {
                 return false;
             }
 
+            if(effect.SummonedObjectDefinition.ObjectId==PaladinCombatSystem.FieldId)
+                foreach(var previous in session.SummonedObjects.Where(PaladinCombatSystem.IsField).ToArray())Remove(session,previous);
             RemoveOldestObjectsOverLimit(
                 session,
                 creator.Character.CharacterId,
@@ -143,6 +145,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if(PaladinCombatSystem.IsField(summonedObject))PaladinCombatSystem.RemoveFieldEffects(session,summonedObject);
             effectExecutor?.RemovePersistentEffects(session, summonedObject);
 
             var wasRemoved = session.SummonedObjects.Remove(summonedObject);

@@ -103,6 +103,7 @@ namespace Godmist.Systems.Combat
             }
 
             var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
+            MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
 
             if (!TryApplySkillRuntimeEffect(
                     target.Character,
@@ -117,6 +118,7 @@ namespace Godmist.Systems.Combat
                 $"otrzymuje status {effect.StatusId}.");
 
             target.AddStatusTolerance(effect.StatusId);
+            if (effect.StatusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
 
             PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
             PublishStatusEvent(source, target, skill?.SkillId, effect.StatusId,
@@ -320,7 +322,7 @@ namespace Godmist.Systems.Combat
             }
 
             var appliedCount = 0;
-            foreach (var effect in source.Character.PassiveEffects)
+            foreach (var effect in source.Character.PassiveEffects.ToArray())
             {
                 var payload = effect.GetPayload<OnHitStatusPayload>();
                 if (!PassiveEffectLifecycleSystem.IsActive(effect)
@@ -461,6 +463,7 @@ namespace Godmist.Systems.Combat
                 ResolveTickPhase(statusId),
                 statusHealPercent);
 
+            MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
             if (!string.IsNullOrWhiteSpace(feedbackLabel)
                 && feedbackType == CombatFeedbackType.AuraApplied)
             {
@@ -480,6 +483,7 @@ namespace Godmist.Systems.Combat
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
 
             target.AddStatusTolerance(statusId);
+            if (statusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
             if(statusId==StatusEffectIds.Immobilize && sourceId?.StartsWith("skill.warrior.immobilize")==true && WarriorCombatSystem.C(source,"pinning")>0)
                 ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Dodge,WarriorCombatSystem.C(source,"pinning")==1?-12:-20,duration,"warrior.pinning");
 
@@ -563,12 +567,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (statusId == StatusEffectIds.Burn) MageCombatSystem.ExtinguishBurns(target.WarriorState.Session, target);
             var wasRemoved = passiveEffectLifecycleSystem.RemoveEffect(
                 target.Character,
                 statusId);
+            if (wasRemoved && statusId == StatusEffectIds.Burn)
+                while (passiveEffectLifecycleSystem.RemoveEffect(target.Character, statusId)) { }
 
             if (wasRemoved)
             {
+                if (statusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
                 battleLog?.Invoke(
                     $"{target.Character.Definition.DisplayName} " +
                     $"traci status {statusId}.");
@@ -604,6 +612,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                MageCombatSystem.AfterBurnTick(target.WarriorState.Session, effect, 0, true);
                 target.Character.PassiveEffects.RemoveAt(index);
                 removed++;
             }
@@ -849,15 +858,19 @@ namespace Godmist.Systems.Combat
             if(unit!=null)unit.WarriorState.Session=session;
             ScoutCombatSystem.TurnStart(unit);
             WarriorCombatSystem.TurnStart(unit);
+            MageCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
+            if(unit?.Character!=null)PaladinCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             passiveEffectLifecycleSystem.ProcessTurnStart(session, unit);
         }
 
         public void ProcessTurnEnd(BattleUnit unit)
         {
+            if(unit?.Character?.LifeState==CharacterLifeState.Alive)PaladinCombatSystem.BeforeTurnEnd(unit.WarriorState.Session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
             ScoutCombatSystem.TurnEnd(unit);
             WarriorCombatSystem.TurnEnd(unit);
+            MageCombatSystem.TurnEnd(unit);
             unit?.AdvanceStatusTolerances();
             foreach (var statusId in activeStatusesBefore)
             {

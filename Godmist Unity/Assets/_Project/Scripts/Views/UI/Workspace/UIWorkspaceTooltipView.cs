@@ -1193,6 +1193,12 @@ namespace Godmist.Views.UI.Workspace
         {
             var description = effect.EffectType switch
             {
+                EffectType.PaladinHeal => $"Przywraca {FormatPercent(effect.DamageMultiplier)} siły leczenia (średniego ataku), z premiami Kapłana.",
+                EffectType.PaladinRegeneration => "Przywraca łącznie 40% maksymalnego HP w ciągu 4 tur; Pośpiech oddaje część tej samej sumy wcześniej.",
+                EffectType.PaladinBlessing => "Przez 4 tury zwiększa zadawane i zmniejsza otrzymywane obrażenia o 10/15/20%, zależnie od rangi Silnego Błogosławieństwa.",
+                EffectType.MageSacrifice => "Wybrani sojusznicy zadają o 20% mniej obrażeń przez 3 tury; rzucający otrzymuje +20% obrażeń za każdego z nich. Ponowne użycie zastępuje poprzednie poświęcenie. Wskaż cele osobno; Enter zatwierdza mniejszą liczbę, Esc anuluje.",
+                EffectType.MageRitual => "Poświęca 10% maksymalnego HP każdego sojusznika (pozostawia co najmniej 1 HP), następnie regeneruje łącznie 30% jego maksymalnego HP przez 5 tur.",
+                EffectType.MageFireAura => "Przez 3 tury utrzymuje wokół celu aurę ognia o zasięgu 1. " + DescribeStatus(caster, effect),
                 EffectType.DealDamage => DescribeDamage(skill, caster, effect),
                 EffectType.Heal => effect.BaseValue > 0
                     ? $"Przywraca {effect.BaseValue} zdrowia."
@@ -1498,6 +1504,8 @@ namespace Godmist.Views.UI.Workspace
                     $"Gwarantuje trafienie krytyczne przy następnym ataku{duration}.",
                 UniqueBuffType.GuaranteedDodge =>
                     $"Gwarantuje unik przed następnym atakiem{duration}.",
+                UniqueBuffType.MageMaximumDamage => $"Ataki zadają maksymalne obrażenia{duration}.",
+                UniqueBuffType.MageOffering => $"Zwiększa obrażenia zadawane o {FormatPercent(MageCombatSystem.OfferingBonus(caster))} i otrzymywane o {FormatPercent(MageCombatSystem.OfferingBonus(caster) * (1 - .1f * MageCombatSystem.W(caster, "calm")))}{duration}.",
                 UniqueBuffType.MaximumDamage =>
                     $"Następne obrażenia będą maksymalne{duration}.",
                 UniqueBuffType.ActionPointsNextTurn =>
@@ -2192,6 +2200,8 @@ namespace Godmist.Views.UI.Workspace
                         "Następny atak zawsze trafia krytycznie.",
                     UniqueBuffType.GuaranteedDodge =>
                         "Następny atak przeciwko tej postaci zawsze chybia.",
+                    UniqueBuffType.MageMaximumDamage => "Ataki zadają maksymalne obrażenia przez czas działania efektu.",
+                    UniqueBuffType.MageOffering => "Zwiększa obrażenia zadawane i otrzymywane podczas aktywnego Ofiarowania.",
                     UniqueBuffType.MaximumDamage =>
                         "Następny atak zada maksymalne obrażenia.",
                     UniqueBuffType.ActionPointsNextTurn =>

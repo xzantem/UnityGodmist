@@ -41,7 +41,13 @@ namespace Godmist.Core.Enums
         MarkForDestruction = 32,
         ProtectAlly = 33,
         GrantFreeMovement = 34,
-        HealMissingHealthPercent = 35
+        HealMissingHealthPercent = 35,
+        MageSacrifice = 36,
+        MageRitual = 37,
+        MageFireAura = 38,
+        PaladinHeal = 39,
+        PaladinRegeneration = 40,
+        PaladinBlessing = 41
     }
 
     public enum UniqueBuffType
@@ -52,7 +58,9 @@ namespace Godmist.Core.Enums
         ActionPointsNextTurn = 3,
         OnHitStatus = 4,
         DamageRedirect = 5,
-        AuraStatus = 6
+        AuraStatus = 6,
+        MageOffering = 7,
+        MageMaximumDamage = 8
     }
 
     public enum ResistanceType

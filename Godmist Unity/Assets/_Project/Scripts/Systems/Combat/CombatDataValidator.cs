@@ -455,7 +455,7 @@ namespace Godmist.Systems.Combat
                     || effect.EffectType == EffectType.RestoreResource
                     || effect.EffectType == EffectType.Shield)
                 {
-                    if (effect.BaseValue <= 0)
+                    if (effect.BaseValue <= 0 && !(effect.EffectType == EffectType.Shield && effect.ShieldAverageAttackMultiplier > 0))
                     {
                         report.AddError(
                             $"{prefix}: Base Value must be greater than zero.");

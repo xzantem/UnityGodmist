@@ -135,7 +135,7 @@ namespace Godmist.Views.UI
                     continue;
                 }
 
-                var actionCost = CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill);
+                var actionCost = PaladinCombatSystem.PreviewHealCost(sandboxBootstrap?.Session,activeUnit,skill,null,CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill));
                 var resource = activeUnit.Character.ResourcePool;
                 var isActiveToggle = skill.IsToggle
                     && activeUnit.ActiveToggleSkillIds != null

@@ -10,6 +10,8 @@ namespace Godmist.Runtime.Combat
     {
         private readonly List<Vector2Int> worldCells;
         private readonly List<DungeonCellEdge> wallEdges;
+        private readonly HashSet<DungeonCellEdge> fullWallEdges;
+        public bool HasFullWall(DungeonCellEdge edge) => fullWallEdges.Contains(edge);
         private readonly List<DungeonCombatMapObjectSnapshot> mapObjects;
 
         public DungeonFloorMap SurfaceMap { get; }
@@ -89,6 +91,10 @@ namespace Godmist.Runtime.Combat
             wallTypes = new Dictionary<DungeonCellEdge, DungeonWallType>();
             foreach (var edge in wallEdges)
                 if (nextWallTypes != null && nextWallTypes.TryGetValue(edge, out var type)) wallTypes[edge] = type;
+
+            fullWallEdges = new HashSet<DungeonCellEdge>();
+            foreach (var edge in wallEdges)
+                if (GetWallType(edge) == DungeonWallType.Full) fullWallEdges.Add(edge);
 
             mapObjects = nextMapObjects != null
                 ? new List<DungeonCombatMapObjectSnapshot>(nextMapObjects)

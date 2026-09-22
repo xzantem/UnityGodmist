@@ -61,21 +61,25 @@ namespace Godmist.Systems.Combat
             var rawDamage = Mathf.CeilToInt(
                 payload.RemainingTotalDamage / (float)remainingTurns);
 
+            var adjustedDamage = MageCombatSystem.BeforeBurnTick(session, unit, effect, rawDamage);
             payload.RemainingTotalDamage = Mathf.Max(
                 0,
                 payload.RemainingTotalDamage - rawDamage);
 
-            var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, rawDamage);
+            var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, adjustedDamage);
 
-            damageSystem.ApplyDamage(
+            var actualDamage = damageSystem.ApplyDamage(
                 session,
                 source: null,
                 target: unit,
                 requestedDamage: finalDamage,
                 damageType: GetDamageType(effect.EffectId));
 
+            PaladinCombatSystem.RecordDamageDealt(MageCombatSystem.BurnSource(session,effect),actualDamage);
             shouldExpire = payload.RemainingTotalDamage <= 0;
+            MageCombatSystem.AfterBurnTick(session, effect, actualDamage, shouldExpire || effect.RemainingDuration <= 1);
 
+            if (unit.Character.LifeState != CharacterLifeState.Alive) MageCombatSystem.ExtinguishBurns(session, unit);
             return unit.Character.LifeState == CharacterLifeState.Alive;
         }
 

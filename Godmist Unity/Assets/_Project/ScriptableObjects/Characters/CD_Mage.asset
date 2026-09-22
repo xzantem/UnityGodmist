@@ -71,8 +71,13 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <BasicAttackSkill>k__BackingField: {fileID: 0}
-  <StartingSkills>k__BackingField: []
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
+  - {fileID: 11400000, guid: 32caa44ec27ebfb47a3dbecab2f8a007, type: 2}
+  - {fileID: 11400000, guid: 862ba81cbc158ff42bea7e9a3dc84b0d, type: 2}
+  - {fileID: 11400000, guid: 77944366a93a6d8468a805ff40de1a2a, type: 2}
+  - {fileID: 11400000, guid: 9d0b1b9de781aed41983e8ebb4649d2f, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

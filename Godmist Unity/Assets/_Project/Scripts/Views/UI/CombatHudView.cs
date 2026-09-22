@@ -47,7 +47,7 @@ namespace Godmist.Views.UI
             var skill=skills?.HoveredSkill ?? targeting?.SelectedSkill;
             var unit=session.ActiveUnit;
             var cost=unit!=null && unit.IsPlayerSide
-                ? skill!=null ? (skill.IsToggle && unit.ActiveToggleSkillIds.Contains(skill.SkillId) ? 0 : CombatActionCostCalculator.CalculateSkillCost(unit,skill)) : movement?.PreviewCost??0
+                ? skill!=null ? (skill.IsToggle && unit.ActiveToggleSkillIds.Contains(skill.SkillId) ? 0 : PaladinCombatSystem.PreviewHealCost(session,unit,skill,targeting?.HoveredUnit,CombatActionCostCalculator.CalculateSkillCost(unit,skill))) : movement?.PreviewCost??0
                 : 0;
             activeUnitView?.Bind(Visible(unit), true, cost);
             var target=HoveredUnit;

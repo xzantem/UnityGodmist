@@ -241,7 +241,7 @@ namespace Godmist.Systems.Combat
             if (!skipCosts)
             {
                 var actionCost =
-                    CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+                    PaladinCombatSystem.HealCost(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),CombatActionCostCalculator.CalculateSkillCost(caster, skill));
 
                 if(WarriorCombatSystem.RefundAp(caster,skill))actionCost=0;
                 caster.CurrentActionPoints -= actionCost;
@@ -277,6 +277,7 @@ namespace Godmist.Systems.Combat
 
             if(skill.SkillId=="skill.scout.tonic")
                 session.ScheduledEffects.RemoveAll(e=>e.CasterCharacterId==caster.Character.CharacterId && e.Skill.SkillId==skill.SkillId);
+            if (!isPassiveDuplicate) MageCombatSystem.BeginSkill(caster,skill,actionId,session);
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
                 new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
@@ -413,7 +414,8 @@ namespace Godmist.Systems.Combat
                         executionDamageMultiplier,
                         targetsByModeIndex,
                         actionId,
-                        isPassiveDuplicate);
+                        isPassiveDuplicate,
+                        selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex,out var aimedPosition) ? aimedPosition : null);
                 }
 
                 resultsByEffectIndex[effectIndex] =
@@ -654,10 +656,22 @@ namespace Godmist.Systems.Combat
             float executionDamageMultiplier = 1f,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex = null,
             string actionId = null,
-            bool isPassiveDuplicate = false)
+            bool isPassiveDuplicate = false,
+            GridPosition? selectedTargetPosition = null)
         {
+            if ((skill.SkillId == "skill.paladin.blinding_light" && effect.EffectType == EffectType.ModifyStat
+                || skill.SkillId == "skill.paladin.crushing_blow" && effect.EffectType == EffectType.ModifyResistance)
+                && UnityEngine.Random.value > effect.BaseChance) return EffectExecutionResult.None;
             switch (effect.EffectType)
             {
+                case EffectType.PaladinHeal:
+                case EffectType.PaladinRegeneration:
+                case EffectType.PaladinBlessing:
+                    return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem) };
+                case EffectType.MageSacrifice:
+                case EffectType.MageRitual:
+                case EffectType.MageFireAura:
+                    return new EffectExecutionResult { Succeeded = MageCombatSystem.ExecuteSkill(session,caster,target,skill,effect,statusEffectSystem) };
                 case EffectType.MarkForDestruction:
                 case EffectType.ProtectAlly:
                 case EffectType.GrantFreeMovement:
@@ -682,7 +696,7 @@ namespace Godmist.Systems.Combat
 
                         var forceMaximumDamage = CombatDamageSystem.HasUniqueBuff(
                             caster, UniqueBuffType.MaximumDamage);
-                        var valueSource = forceMaximumDamage
+                        var valueSource = (forceMaximumDamage || CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage))
                             ? DamageValueSource.MaxAttack
                             : effect.DamageValueSource;
 
@@ -797,7 +811,7 @@ namespace Godmist.Systems.Combat
                         caster,
                         effect.DisplacementDistance,
                         ForcedDisplacementDirection.TowardsReference,
-                        "przyciągnięty");
+                        "przyciągnięty", referencePosition: skill.SkillId=="skill.paladin.grounding_wave" ? selectedTargetPosition : null);
 
                     return new EffectExecutionResult { Succeeded = wasPulled };
                 }
@@ -1503,6 +1517,13 @@ namespace Godmist.Systems.Combat
                             skill,
                             targetModeIndex);
 
+                    if (targetMode.TargetType == TargetType.MultipleChosen)
+                    {
+                        if (targets.Count > targetMode.ChainTargets || targets.Distinct().Count() != targets.Count) return false;
+                        var targeting = new CombatTargetingService();
+                        foreach (var chosen in targets)
+                            if (chosen == null || !targeting.GetTargets(session, caster, targetMode, chosen.Position, canTargetDowned).Contains(chosen)) return false;
+                    }
                     if(targetMode.TargetType==TargetType.Chain)
                     {
                         if(targets.Count>targetMode.ChainTargets || targets.Distinct().Count()!=targets.Count)return false;
@@ -1578,7 +1599,7 @@ namespace Godmist.Systems.Combat
             }
 
             var actionCost =
-                CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+                PaladinCombatSystem.HealCost(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),CombatActionCostCalculator.CalculateSkillCost(caster, skill));
 
             if (!skipCosts && caster.CurrentActionPoints < actionCost)
             {
@@ -1821,7 +1842,7 @@ namespace Godmist.Systems.Combat
 
             if (!session.Grid.IsWalkable(position)
                 || session.Grid.IsBlocked(position)
-                || session.IsPositionOccupiedByMapObject(position))
+                || session.IsPositionOccupiedByMapObject(position, effect.SummonedObjectDefinition?.ObjectId==PaladinCombatSystem.FieldId ? session.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField) : null))
             {
                 return false;
             }
@@ -2301,7 +2322,8 @@ namespace Godmist.Systems.Combat
             {
                 if (effect == null || effect.TargetModeIndex != targetModeIndex) continue;
 
-                if (effect.EffectType == EffectType.Heal
+                if (effect.EffectType == EffectType.PaladinHeal
+                    || effect.EffectType == EffectType.Heal
                     || effect.EffectType == EffectType.Teleport) return true;
             }
 
@@ -2319,15 +2341,15 @@ namespace Godmist.Systems.Combat
             BattleUnit referenceUnit,
             int displacementDistance,
             ForcedDisplacementDirection direction,
-            string actionDescription, bool damageObstacleOnCollision = false)
+            string actionDescription, bool damageObstacleOnCollision = false, GridPosition? referencePosition = null)
         {
             if (session?.Grid == null || movedUnit == null || referenceUnit == null)
             {
                 return false;
             }
 
-            var directionX = movedUnit.Position.X - referenceUnit.Position.X;
-            var directionY = movedUnit.Position.Y - referenceUnit.Position.Y;
+            var directionX = movedUnit.Position.X - (referencePosition ?? referenceUnit.Position).X;
+            var directionY = movedUnit.Position.Y - (referencePosition ?? referenceUnit.Position).Y;
 
             if (direction == ForcedDisplacementDirection.TowardsReference)
             {
@@ -2487,7 +2509,7 @@ namespace Godmist.Systems.Combat
             }
 
             caster.ActiveAuras ??= new List<CombatAuraRuntime>();
-            var auraId = $"{skill?.SkillId ?? "aura"}.aura.{effectIndex}";
+            var auraId = $"{skill?.SkillId ?? "aura"}.aura.{effectIndex}.{caster.Character.CharacterId}";
             caster.ActiveAuras.RemoveAll(aura => string.Equals(aura?.AuraId,
                 auraId, StringComparison.OrdinalIgnoreCase));
             var statusDamageMultiplier = StatusEffectSystem.IsDamageOverTimeStatus(
@@ -2522,6 +2544,8 @@ namespace Godmist.Systems.Combat
         {
             if (session?.Units == null || statusEffectSystem == null) return;
 
+            foreach (var field in session.SummonedObjects.Where(PaladinCombatSystem.IsField).ToArray())
+                PaladinCombatSystem.FieldEffects(session,field,false,null,statusEffectSystem);
             foreach (var source in session.Units)
             {
                 if (source?.Character == null || source.ActiveAuras == null) continue;
@@ -2535,7 +2559,7 @@ namespace Godmist.Systems.Combat
                     // aura statuses in sync after temporary stat changes.
                     aura.StatusDamagePerTurn = aura.StatusDamageMultiplier > 0f
                         ? CombatDamageValueCalculator.CalculateDamageValue(
-                            source,
+                            aura.Creator ?? source,
                             DamageValueSource.AverageAttack,
                             aura.StatusDamageMultiplier)
                         : 0;
@@ -2549,11 +2573,15 @@ namespace Godmist.Systems.Combat
                             hadAuraTargets.Add(candidate);
                         }
 
-                        StatusEffectSystem.RemoveStatusAppliedBySource(
-                            candidate, aura.StatusId, aura.AuraId);
+                        if (aura.StatusId != StatusEffectIds.Burn)
+                            StatusEffectSystem.RemoveStatusAppliedBySource(candidate, aura.StatusId, aura.AuraId);
                     }
 
-                    if (source.Character.LifeState != CharacterLifeState.Alive) continue;
+                    if (source.Character.LifeState != CharacterLifeState.Alive)
+                    {
+                        foreach (var affected in hadAuraTargets) StatusEffectSystem.RemoveStatusAppliedBySource(affected, aura.StatusId, aura.AuraId);
+                        continue;
+                    }
 
                     foreach (var target in session.Units)
                     {
@@ -2567,11 +2595,13 @@ namespace Godmist.Systems.Combat
                                     DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, source.Position),
                                     DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, target.Position))))
                         {
+                            StatusEffectSystem.RemoveStatusAppliedBySource(target, aura.StatusId, aura.AuraId);
                             continue;
                         }
 
                         var hadAuraStatus = hadAuraTargets.Contains(target);
-                        statusEffectSystem.ApplyStatus(source, target, aura.StatusId,
+                        if (hadAuraStatus && aura.StatusId == StatusEffectIds.Burn) continue;
+                        statusEffectSystem.ApplyStatus(aura.Creator ?? source, target, aura.StatusId,
                             aura.Chance,
                             aura.DurationTurns,
                             1,

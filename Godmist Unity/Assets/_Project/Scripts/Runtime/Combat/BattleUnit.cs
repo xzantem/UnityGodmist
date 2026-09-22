@@ -23,6 +23,8 @@ namespace Godmist.Runtime.Combat
         public CharacterInstance Character;
         public readonly ScoutTargetState ScoutState = new();
         public readonly WarriorCombatState WarriorState = new();
+        public readonly MageCombatState MageState = new();
+        public readonly PaladinCombatState PaladinState = new();
         public GridPosition Position;
 
         public int CurrentActionPoints;
@@ -106,6 +108,8 @@ namespace Godmist.Runtime.Combat
         public string AuraId = string.Empty;
         public string DisplayName = string.Empty;
         public string StatusId = string.Empty;
+        public BattleUnit Creator;
+        public int RemainingTurns;
         public int Radius;
         public bool IncludesCaster;
         public TargetingType TargetingType;

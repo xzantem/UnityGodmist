@@ -16,7 +16,9 @@ namespace Godmist.Views.Combat
         AffectedArea,
         MovementPreview,
         ActiveMovementUnit,
-        EnemyFov
+        EnemyFov,
+        ChosenSkillTargets,
+        JudgementField
     }
 
     public class CombatGridFeedbackRenderer : MonoBehaviour

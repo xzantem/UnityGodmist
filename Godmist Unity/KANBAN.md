@@ -76,6 +76,14 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-09] Przygotować drzewka Czarodziejki i Paladyna` - `Content / Data`, `Combat`, `Skills / Progression`
+  - Po decyzji VS-01 zakres obejmuje trzecią i czwartą klasę: Alison (Czarnoksiężnik + Mag Ognia) oraz Reimond (Kapłan + Krzyżowiec), pierwsze 4 tiery. VS-08 obejmuje Wladimira (Dowódca + Awanturnik); VS-07 Jerzego (Skrytobójca + Tancerz Ostrzy).
+  - Analogiczny zakres do VS-08 dla obu zatwierdzonych klas, z odmiennymi rolami drużynowymi; każdą klasę zweryfikować osobno.
+  - Zweryfikować interakcje z pozostałymi klasami, zasoby, opisy i save/load.
+  - **DONE — 2026-09-22.** Smoke zaakceptowany; użytkownik zlecił commit/push oraz przejście do VS-10.
+  - Poprawki po smoke: jednolite zaokrąglanie odległości euklidesowej dla zasięgów radialnych/pierścieni (bez wyjątku dla 1) oraz indeksowanie siatki/ścian i lokalne wyliczanie highlightów; 103/103 EditMode PASS (`.codex/vs09-radial.xml`). Targetowanie zaakceptowane przez użytkownika.
+  - 10 starterów, 4 drzewka po 20 węzłów w pierwszych 4 tierach, ręczny wybór celów Masowego Poświęcenia, Pole Osądu we własnej kolejce AV i zastępowanie istniejącego pola. Assety skonfigurowane w głównym projekcie. 153/153 EditMode PASS (`.codex/vs09-acceptance.xml`); fundament many/save wcześniej 43/43 PASS. Uzgodnienia: VS09_MAGE_PALADIN_CONTENT.md; smoke: UNITY_HANDOFF.md.
+
 - `[P1] [VS-08] Przygotować drzewka drugiej wybranej klasy` - `Content / Data`, `Combat`, `Skills / Progression`
   - **DONE — 2026-09-22; użytkownik zaakceptował commit/push.** Wladimir: 5 starterów, Dowódca + Awanturnik, po 20 węzłów w pierwszych 4 tierach. Assety skonfigurowane; aktywne skille, pasywy, rangi, koszty, wymagania, opisy i przydział skilli z drzewek wdrożone.
   - Uzgodniona i wdrożona wściekłość: pełna pula pozwala zapłacić koszt przekraczający maksimum; kara -2% obrażeń za brakujący PW przez 3 tury, z węzłem Wściekłość -1%. Riposta +50%/+25% priorytetu AI (cap +125%); Pragnienie Śmierci pozostawia 1 HP. Szczegóły VS08_WARRIOR_CONTENT.md.
@@ -299,11 +307,12 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
 
 ## In Progress
 
-- `[P1] [VS-09] Przygotować drzewka Czarodziejki i Paladyna` - `Content / Data`, `Combat`, `Skills / Progression`
-  - Po decyzji VS-01 zakres obejmuje trzecią i czwartą klasę: Alison (Czarnoksiężnik + Mag Ognia) oraz Reimond (Kapłan + Krzyżowiec), pierwsze 4 tiery. VS-08 obejmuje Wladimira (Dowódca + Awanturnik); VS-07 Jerzego (Skrytobójca + Tancerz Ostrzy).
-  - Analogiczny zakres do VS-08 dla obu zatwierdzonych klas, z odmiennymi rolami drużynowymi; każdą klasę zweryfikować osobno.
-  - Zweryfikować interakcje z pozostałymi klasami, zasoby, opisy i save/load.
-  - **IN PROGRESS — 2026-09-22.** Context pass po zamknięciu VS-08; najpierw Alison, następnie Reimond.
+- `[P1] [VS-10] Przygotować materiały i części wyposażenia` - `Items / Inventory / Economy`, `Content / Data`
+  - Według VS-01: ograniczona pula materiałów i części broni/pancerzy dla klas slice’a, progi progresji, wymagania i zastosowania.
+  - Powiązać źródła dropu/zakupu z recepturami; żadnych materiałów bez zastosowania ani receptur bez osiągalnego źródła zasobów. Liczby i nazwy ustalić przed authoringiem.
+  - **IN PROGRESS — 2026-09-22.** Otwarta po akceptacji VS-09; context pass materiałów i części wyposażenia.
+
+
 
 - `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
   - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.
