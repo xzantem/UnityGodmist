@@ -808,7 +808,7 @@ namespace Godmist.Views.Combat
                 return RotateDirectionReference(target.Position);
             }
 
-            return mode.TargetType == TargetType.Single
+            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain
                 || mode.TargetType == TargetType.AreaAroundTile
                 ? target.Position
                 : null;
@@ -877,6 +877,7 @@ namespace Godmist.Views.Combat
             TargetType targetType)
         {
             return targetType == TargetType.Caster
+                || targetType == TargetType.Chain
                 || targetType == TargetType.Single
                 || targetType == TargetType.All
                 || targetType == TargetType.AreaAroundCaster
@@ -886,7 +887,7 @@ namespace Godmist.Views.Combat
         {
             var mode = CurrentTargetMode;
 
-            if (mode.TargetType == TargetType.Single) return eligibleTargetPositions.Contains(position);
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain) return eligibleTargetPositions.Contains(position);
 
             if (mode.TargetType == TargetType.AreaAroundTile) return absoluteRangePositions.Contains(position);
 

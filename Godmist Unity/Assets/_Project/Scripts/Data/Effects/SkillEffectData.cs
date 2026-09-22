@@ -31,6 +31,8 @@ namespace Godmist.Data.Effects
             DamageValueSource.AttackRange;
         [SerializeField, Min(0f)] private float damageMultiplier = 1f;
         [SerializeField, Min(1)] private int damageHitCount = 1;
+        [SerializeField, Min(0)] private int additionalHitTrials;
+        [SerializeField, Range(0f, 1f)] private float additionalHitChance = .5f;
         [SerializeField, Range(0f, 1f)] private float bonusPenetration;
         [SerializeField, Range(0f, 1f)] private float bonusDamageMultiplierChance;
         [SerializeField, Min(1f)] private float bonusDamageMultiplier = 1f;
@@ -117,6 +119,28 @@ namespace Godmist.Data.Effects
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
         public int DamageHitCount => Mathf.Max(1, damageHitCount);
+        public int AdditionalHitTrials => Mathf.Max(0, additionalHitTrials);
+        public float AdditionalHitChance => Mathf.Clamp01(additionalHitChance);
+        public float ExpectedHitCount => DamageHitCount + AdditionalHitTrials * AdditionalHitChance;
+        public int MaximumHitCount => DamageHitCount + (AdditionalHitChance > 0f ? AdditionalHitTrials : 0);
+
+        public SkillEffectData WithAdditionalHitTrials(int trials)
+        {
+            if (trials == additionalHitTrials) return this;
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.additionalHitTrials = Mathf.Max(0, trials);
+            return copy;
+        }
+        public SkillEffectData WithScoutParameters(int extraHits, float doubleChance, float dotMultiplier, float statValue, int turns)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.additionalHitTrials = Mathf.Max(0, extraHits);
+            copy.bonusDamageMultiplierChance = Mathf.Clamp01(doubleChance);
+            copy.statusDamageMultiplier = dotMultiplier;
+            copy.modifierValue = statValue;
+            copy.durationTurns = turns;
+            return copy;
+        }
         public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
         public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
         public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);

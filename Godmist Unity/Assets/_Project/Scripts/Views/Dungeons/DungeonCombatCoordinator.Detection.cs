@@ -138,6 +138,7 @@ namespace Godmist.Views.Dungeons
             var position = DungeonBattleGridFactory.ToBattleTraversalPosition(session.DungeonContext, view.DungeonPosition);
             var unit = source == null && retainedPlayers.TryGetValue(view.CharacterId, out var retained)
                 ? retained : sessionFactory.CreateJoiningUnit(view.RuntimeCharacter, position, source == null);
+            if(source!=null)unit.IsBoss=ScoutCombatSystem.IsBoss(game.ActiveDungeon,source.Encounter.Definition,view.EnemyInstanceId);
             if (!driver.TryJoin(unit, position)) return false;
             if (source != null)
             {

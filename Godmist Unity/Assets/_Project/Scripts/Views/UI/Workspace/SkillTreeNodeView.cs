@@ -115,6 +115,14 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildTooltip(SkillTreeNodeDefinition node, int ranks, string blockReason)
         {
             var text = node?.Description ?? string.Empty;
+            if(node?.GrantedSkill != null)
+            {
+                var skill=node.GrantedSkill;
+                var resource=skill.ResourceType switch {ResourceType.Momentum=>"PP",ResourceType.Mana=>"MP",ResourceType.Rage=>"PW",_=>""};
+                text += $"\nOdblokowuje umiejętność: {skill.DisplayName}.\nKoszt: {skill.ResourceCost} {resource}, {skill.ActionCost}% PA";
+                if(skill.KnifeCost>0)text += $", {skill.KnifeCost} sztyletów";
+                text += ".\nPo odblokowaniu przypisz ją w zestawie umiejętności.";
+            }
             AppendPassiveMetadata(ref text, node?.PassiveEffects);
             if (!string.IsNullOrWhiteSpace(text)) text += "\n\n";
             text += $"Ranga: {ranks}/{node?.EffectiveMaxRanks ?? 0}";

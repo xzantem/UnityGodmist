@@ -17,7 +17,7 @@ namespace Godmist.Runtime.Characters
     public class CharacterInstance
     {
         public string CharacterId = string.Empty;
-        
+
         public CharacterDefinition Definition;
         public CharacterClassData ClassData;
 
@@ -30,7 +30,7 @@ namespace Godmist.Runtime.Characters
         public ResistanceSet Resistances;
         public ResistanceSet BaseResistances;
         public ShieldPool ShieldPool;
-        
+
         public Inventory Inventory = new();
         public EquipmentSet Equipment = new();
 
@@ -71,6 +71,24 @@ namespace Godmist.Runtime.Characters
             return ClassData?.BasicAttackSkill;
         }
 
+        // Tree grants are derived from investments, never persisted as permanent skills.
+        public IReadOnlyList<SkillData> GetKnownSkills()
+        {
+            var result = new List<SkillData>();
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var skill in Skills ?? new List<SkillData>())
+                if (skill != null && ids.Add(skill.SkillId)) result.Add(skill);
+            foreach (var tree in ClassData?.SkillTrees ?? new List<SkillTreeDefinition>())
+            {
+                if (tree == null) continue;
+                var progress = SkillTreeProgress?.Find(p => p.TreeId == tree.Id);
+                foreach (var node in tree.Nodes)
+                    if (node?.GrantedSkill != null && progress?.NodeInvestments?.Exists(i => i.NodeId == node.Id && i.Ranks > 0) == true
+                        && ids.Add(node.GrantedSkill.SkillId)) result.Add(node.GrantedSkill);
+            }
+            return result;
+        }
+
         public IReadOnlyList<SkillData> GetActiveSkills()
         {
             // Classes without the new explicit basic-attack reference are still
@@ -78,10 +96,10 @@ namespace Godmist.Runtime.Characters
             // serialized class configuration is completed in the Editor.
             if (ActiveSkillLoadout == null || !ActiveSkillLoadout.IsInitialized)
             {
-                return Skills ?? new List<SkillData>();
+                return GetKnownSkills();
             }
 
-            return ActiveSkillLoadout.ResolveSkills(Skills);
+            return ActiveSkillLoadout.ResolveSkills(GetKnownSkills());
         }
 
     }

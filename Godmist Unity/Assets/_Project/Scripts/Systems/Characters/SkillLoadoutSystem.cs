@@ -193,7 +193,7 @@ namespace Godmist.Systems.Characters
             var knownSkillIds = new List<string>();
             var seen = new HashSet<string>(System.StringComparer.Ordinal);
 
-            foreach (var skill in character?.Skills ?? new List<SkillData>())
+            foreach (var skill in character?.GetKnownSkills() ?? new List<SkillData>())
             {
                 if (skill != null
                     && !string.IsNullOrWhiteSpace(skill.SkillId)

@@ -35,7 +35,9 @@ namespace Godmist.Core.Enums
         HealOverTimePercent = 26,
         RestoreResourceOverTimePercent = 27,
         ModifyActionPointsPercent = 28,
-        RemoveStatus = 29
+        RemoveStatus = 29,
+        SwapPositions = 30,
+        MarkWeakPoint = 31
     }
 
     public enum UniqueBuffType

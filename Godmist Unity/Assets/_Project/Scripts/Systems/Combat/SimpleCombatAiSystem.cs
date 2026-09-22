@@ -323,12 +323,12 @@ namespace Godmist.Systems.Combat
                 && resourcePool.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill);
         }
 
-        private bool TryBuildTargets(CombatSession session, BattleUnit caster, 
+        private bool TryBuildTargets(CombatSession session, BattleUnit caster,
             SkillData skill, out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
             targetsByModeIndex = new Dictionary<int, IReadOnlyList<BattleUnit>>();
 
-            if (skill?.TargetModes == null || skill.TargetModes.Count == 0 
+            if (skill?.TargetModes == null || skill.TargetModes.Count == 0
                 || skill.Effects == null || skill.Effects.Count == 0) return false;
 
             for (var index = 0; index < skill.TargetModes.Count; index++)
@@ -401,7 +401,7 @@ namespace Godmist.Systems.Combat
                     caster,
                     mode,
                     requiredEnemyTarget: requiredEnemyTarget)
-                .Where(position => !skill.RequiresLineOfSight 
+                .Where(position => !skill.RequiresLineOfSight
                 || lineOfSightService.HasLineOfSight(session, caster.Position, position));
 
             var bestScore = float.MinValue;
@@ -690,7 +690,7 @@ namespace Godmist.Systems.Combat
                     {
                         case EffectType.DealDamage:
                         {
-                            var expectedDamage = CalculateExpectedDamage(caster, effect) * Mathf.Max(1, effect.DamageHitCount)
+                            var expectedDamage = CalculateExpectedDamage(caster, effect) * effect.ExpectedHitCount
                                 * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f);
                             score += expectedDamage;
                             if (expectedDamage >= target.Character.CurrentHealth)
@@ -1011,7 +1011,7 @@ namespace Godmist.Systems.Combat
                 return targets ?? new List<BattleUnit>();
             }
 
-            return targets.Where(target => target != null 
+            return targets.Where(target => target != null
                 && lineOfSightService.HasLineOfSight(session, caster.Position, target.Position)).ToList();
         }
 

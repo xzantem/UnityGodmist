@@ -18,10 +18,15 @@ namespace Godmist.Systems.Combat
             {
                 if (unit == null || (preserveInitialized && unit.HasInitializedCombatResources)) continue;
                 unit.HasInitializedCombatResources = true;
+                if(unit.ScoutState.Facing==Vector2Int.zero)
+                    foreach(var opponent in session.Units)
+                        if(opponent!=null && opponent.IsPlayerSide!=unit.IsPlayerSide) {ScoutCombatSystem.Face(unit,opponent.Position);break;}
                 if (unit.Character?.ClassData?.Id != "class.scout") continue;
                 unit.MaxKnives = Math.Max(0, unit.MaxKnives <= 0
                     ? GameDefinesRuntime.GetInt(GameDefineIds.DefaultMaxKnives, 5)
-                    : unit.MaxKnives);
+                    : unit.MaxKnives - unit.ScoutState.ExtraKnifeCapacity);
+                unit.ScoutState.ExtraKnifeCapacity = ScoutCombatSystem.BladeRank(unit, "spare_daggers");
+                unit.MaxKnives += unit.ScoutState.ExtraKnifeCapacity;
                 unit.AvailableKnives = unit.MaxKnives;
             }
         }
@@ -31,15 +36,23 @@ namespace Godmist.Systems.Combat
 
         public static bool TrySpendAndDrop(CombatSession session, BattleUnit caster,
             Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets,
-            bool preventConsumption = false, GridPosition? fallbackTargetPosition = null)
+            bool preventConsumption = false, GridPosition? fallbackTargetPosition = null, string actionId = null)
         {
             if (skill?.KnifeCost <= 0) return true;
-            if (preventConsumption) return true;
+            var meleeTarget = targets != null && targets.Count > 0 ? targets[0] : null;
+            if (skill.FreeKnivesInMelee && meleeTarget != null
+                && Math.Abs(caster.Position.X-meleeTarget.Position.X)+Math.Abs(caster.Position.Y-meleeTarget.Position.Y) == 1) return true;
             if (!CanPay(caster, skill)) return false;
+            if (preventConsumption || UnityEngine.Random.value < ScoutCombatSystem.Points(caster, ScoutCombatSystem.BladeTree) * .01f) return true;
             caster.AvailableKnives -= skill.KnifeCost;
             var target = targets != null && targets.Count > 0 ? targets[0] : null;
             var targetPosition = target?.Position ?? fallbackTargetPosition;
             if (!targetPosition.HasValue) return true;
+            if (!string.IsNullOrEmpty(actionId))
+            {
+                session.PendingScoutKnifeActions[actionId] = new PendingScoutKnives { Owner = caster, DropPosition = targetPosition.Value, Count = skill.KnifeCost };
+                return true;
+            }
             for (var index = 0; index < skill.KnifeCost; index++)
             {
                 if (!TryFindRandomDropPosition(session, targetPosition.Value, out var position)) continue;
@@ -69,7 +82,7 @@ namespace Godmist.Systems.Combat
             return recovered;
         }
 
-        private static bool TryFindRandomDropPosition(CombatSession session,
+        internal static bool TryFindRandomDropPosition(CombatSession session,
             GridPosition target, out GridPosition position)
         {
             var candidates = new List<GridPosition>();
@@ -118,7 +131,7 @@ namespace Godmist.Systems.Combat
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
-            CombatSession session, 
+            CombatSession session,
             BattleUnit unit)
         {
             return CalculateReachablePaths(
@@ -147,10 +160,10 @@ namespace Godmist.Systems.Combat
             int movementStepsAlreadyTaken)
         {
             var reachablePaths = new Dictionary<
-                GridPosition, 
+                GridPosition,
                 List<GridPosition>>();
 
-            if (session?.Grid == null || unit?.Character == null 
+            if (session?.Grid == null || unit?.Character == null
                 || unit.Character.LifeState != CharacterLifeState.Alive) return reachablePaths;
 
             if ((StatusEffectSystem.IsHardCrowdControlled(unit)
@@ -175,7 +188,7 @@ namespace Godmist.Systems.Combat
                         || session.IsPositionOccupied(candidate, unit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
                     var nextPath = new List<GridPosition>(currentPath) { candidate };
-                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath);
+                    var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath, ScoutCombatSystem.MovementDiscount(unit));
                     if (cost > availableActionPoints) continue;
                     var risk = session.EvaluateTrapRisk?.Invoke(unit, nextPath) ?? 0f;
                     var turns = CountPathTurns(unit.Position, nextPath);
@@ -201,7 +214,7 @@ namespace Godmist.Systems.Combat
 
         public bool TryMoveAlongPath(
             CombatSession session,
-            BattleUnit unit, 
+            BattleUnit unit,
             IReadOnlyList<GridPosition> path)
         {
             return TryMoveAlongPath(session, unit, path, out _);
@@ -244,9 +257,9 @@ namespace Godmist.Systems.Combat
                 var deltaY = targetPosition.Y - unit.Position.Y;
 
                 if (!TryMoveOneStepInternal(
-                        session, 
-                        unit, 
-                        deltaX, 
+                        session,
+                        unit,
+                        deltaX,
                         deltaY,
                         publishFeedback: false,
                         processResource: false,
@@ -385,6 +398,7 @@ namespace Godmist.Systems.Combat
                 statusEffectSystem.RemoveStatus(unit, StatusEffectIds.Sleep);
             }
 
+            ScoutCombatSystem.Face(unit, targetPosition);
             unit.Position = targetPosition;
             unit.CurrentActionPoints -= movementCost;
             if (publishFeedback && movementCost > 0)
@@ -394,6 +408,7 @@ namespace Godmist.Systems.Combat
             }
             unit.MovementStepsThisTurn++;
             session.NotifyUnitEnteredCell(unit);
+            ScoutCombatSystem.OnMoved(session, unit, statusEffectSystem);
 
             if (processResource)
             {
@@ -432,9 +447,10 @@ namespace Godmist.Systems.Combat
         }
 
         public static int CalculatePathCost(CombatSession session, GridPosition origin,
-            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path)
+            int movementStepsAlreadyTaken, IReadOnlyList<GridPosition> path, int discount = 0)
         {
-            var cost = CalculatePathCost(movementStepsAlreadyTaken, path.Count);
+            var cost = 0;
+            for(var i=1;i<=path.Count;i++)cost+=Math.Max(0,movementStepsAlreadyTaken+i-discount)*ActionPointUnits.PerPoint;
             foreach (var cell in path)
             {
                 cost += session.Grid.GetMovementSurcharge(origin, cell);
@@ -444,10 +460,12 @@ namespace Godmist.Systems.Combat
         }
 
         public static int CalculatePathCost(
-            BattleUnit unit, 
+            BattleUnit unit,
             int pathLength)
         {
-            return CalculatePathCost(unit?.MovementStepsThisTurn ?? 0, pathLength);
+            var cost=0;
+            for(var i=1;i<=pathLength;i++)cost+=Math.Max(0,(unit?.MovementStepsThisTurn??0)+i-ScoutCombatSystem.MovementDiscount(unit))*ActionPointUnits.PerPoint;
+            return cost;
         }
 
         public static int CalculatePathCost(
@@ -457,8 +475,8 @@ namespace Godmist.Systems.Combat
             var firstStepCost = movementStepsAlreadyTaken + 1;
 
             return pathLength
-                * (2 * firstStepCost + pathLength - 1) 
+                * (2 * firstStepCost + pathLength - 1)
                 / 2;
-        } 
+        }
     }
 }

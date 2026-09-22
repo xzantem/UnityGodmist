@@ -68,6 +68,8 @@ namespace Godmist.Systems.Combat
             this.feedbackBus = feedbackBus;
         }
 
+        internal CombatDamageSystem DamageSystem => damageSystem;
+
         public bool ApplyStatus(
             BattleUnit source,
             BattleUnit target,
@@ -830,7 +832,7 @@ namespace Godmist.Systems.Combat
 
             return null;
         }
-        
+
         public static bool HasStatus(BattleUnit unit, string statusId)
         {
             return unit?.Character != null
@@ -841,6 +843,7 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(CombatSession session, BattleUnit unit)
         {
+            ScoutCombatSystem.TurnStart(unit);
             passiveEffectLifecycleSystem.ProcessTurnStart(session, unit);
         }
 
@@ -848,6 +851,7 @@ namespace Godmist.Systems.Combat
         {
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
+            ScoutCombatSystem.TurnEnd(unit);
             unit?.AdvanceStatusTolerances();
             foreach (var statusId in activeStatusesBefore)
             {
@@ -1266,7 +1270,7 @@ namespace Godmist.Systems.Combat
             var damage = CombatDamageValueCalculator.CalculateDamageValue(
                 source,
                 DamageValueSource.AverageAttack,
-                statusDamageMultiplier);
+                statusDamageMultiplier * (statusId == StatusEffectIds.Poison ? ScoutCombatSystem.PoisonMultiplier(source) : 1f));
             return HasStatus(source, StatusEffectIds.Weakening) ? Mathf.CeilToInt(damage * .8f) : damage;
         }
     }

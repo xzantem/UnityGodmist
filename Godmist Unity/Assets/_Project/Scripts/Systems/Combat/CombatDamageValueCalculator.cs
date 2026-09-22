@@ -25,7 +25,8 @@ namespace Godmist.Systems.Combat
                 _ => Random.Range(minAttack,maxAttack + 1)
             };
 
-            return Mathf.CeilToInt(baseDamage * Mathf.Max(0f, multiplier));
+            // Avoid promoting an exact integer (e.g. 100 * 0.6f) by floating-point noise.
+            return Mathf.CeilToInt(baseDamage * Mathf.Max(0f, multiplier) - .00001f);
         }
     }
 }

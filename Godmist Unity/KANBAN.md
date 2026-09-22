@@ -76,6 +76,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-07] Domknąć content Scouta dla slice’a` - `Content / Data`, `Combat`, `Skills / Progression`
+  - **DONE — 2026-09-22; pełny test ręczny odłożony do acceptance na polecenie użytkownika.** Pięć startowych skilli Jerzego, 20 węzłów Skrytobójcy i 20 Tancerza Ostrzy (pierwsze 4 tiery), pasywy drzewek, koszty, wymagania, opisy i odblokowywanie aktywnych skilli.
+  - Wdrożone: Rykoszet/łańcuch, niezależne dodatkowe ciosy, Złość, noże/wyjmowanie LPM/PPM, Linka, kierunek i ataki w plecy, Wojownik Cieni z ruchem o 1 pole, efekty obu drzewek; UI/statusy, zapis i odtworzenie skilli z węzłów. Istniejące ID zachowane, Guardian poza ofertą.
+  - Testy: pełny EditMode 1302/1302 PASS; końcowe 72/72 PASS. Assety skonfigurowane przez Unity API. Szczegóły VS07_SCOUT_CONTENT.md; smoke UNITY_HANDOFF.md.
+  - Użytkownik autoryzował commit/push i przejście do VS-08. Nie oznacza to zaliczenia manualnego smoke; unrelated VS-18 zachowane.
+
 - `[P1] [VS-06] Przygotować drużynę vertical slice’a` - `Content / Data`, `NPC / Quest / Dialogue`
   - Po VS-01/03: wybrane postacie z rolami, statystykami, zasobami, portretami i startowym wyposażeniem. Ustalić początkowy skład oraz dostępność/rekrutację przez istniejące mechanizmy.
   - Sprawdzić wybór lidera, grupy, inventory, rozwój i save/load dla każdej postaci. Nie wprowadzać nowego systemu relacji/rekrutacji bez potrzeby slice’a.

@@ -96,7 +96,7 @@ namespace Godmist.Systems.Combat
             var hitCount = Mathf.Max(1, effect.DamageHitCount);
             return new CombatSkillDamageRange(
                 ApplyCurrentDamageModifiers(caster, null, range.Minimum, skill) * hitCount,
-                ApplyCurrentDamageModifiers(caster, null, range.Maximum, skill) * hitCount,
+                ApplyCurrentDamageModifiers(caster, null, range.Maximum, skill) * effect.MaximumHitCount,
                 true);
         }
 
@@ -126,8 +126,14 @@ namespace Godmist.Systems.Combat
                 }
 
                 var range = CalculateEffectDamageRange(caster, effect);
+                var distance = Mathf.Abs(caster.Position.X-target.Position.X)+Mathf.Abs(caster.Position.Y-target.Position.Y);
+                var attackType=skill.ResolveAttackType(distance);
+                var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill.SkillId,attackType:attackType,damageType:effect.DamageType,distance:distance);
+                var scoutMultiplier=ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
+                if(skill.GuaranteedCritical)scoutMultiplier*=Mathf.Max(1f,caster.Character.Stats.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
+                range=new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*scoutMultiplier),Mathf.RoundToInt(range.Maximum*scoutMultiplier),true);
                 var hitCount = Mathf.Max(1, effect.DamageHitCount);
-                for (var hitIndex = 0; hitIndex < hitCount; hitIndex++)
+                for (var hitIndex = 0; hitIndex < effect.MaximumHitCount; hitIndex++)
                 {
                     var minimumAfterDefense = CombatDamageSystem.ApplyDefense(
                         caster,
@@ -141,7 +147,7 @@ namespace Godmist.Systems.Combat
                         range.Maximum,
                         effect.DamageType,
                         effect.BonusPenetration);
-                    minimum += ApplyCurrentDamageModifiers(
+                    if (hitIndex < hitCount) minimum += ApplyCurrentDamageModifiers(
                         caster,
                         target,
                         minimumAfterDefense, skill);
@@ -244,7 +250,7 @@ namespace Godmist.Systems.Combat
 
             return Mathf.Max(
                 0,
-                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier
+                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier * ScoutCombatSystem.ReceivedDamageMultiplier(caster,target)
                     * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f)));
         }
     }

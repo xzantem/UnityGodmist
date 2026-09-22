@@ -34,6 +34,7 @@ namespace Godmist.Data.Skills
         [field: SerializeField, Range(1, 7)] public int Tier { get; private set; } = 1;
         [field: SerializeField, Range(1, 5)] public int Column { get; private set; } = 1;
         [field: SerializeField, Range(1, 3)] public int MaxRanks { get; private set; } = 1;
+        [field: SerializeField] public SkillData GrantedSkill { get; private set; }
         public int EffectiveMaxRanks => Mathf.Clamp(MaxRanks, 1, 3);
         [field: SerializeField] public List<SkillTreeNodeRequirement> Requirements { get; private set; } = new();
         [field: SerializeField] public List<PassiveEffectDefinition> PassiveEffects { get; private set; } = new();

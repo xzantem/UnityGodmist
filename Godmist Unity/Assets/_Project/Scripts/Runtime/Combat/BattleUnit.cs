@@ -21,6 +21,7 @@ namespace Godmist.Runtime.Combat
     public class BattleUnit
     {
         public CharacterInstance Character;
+        public readonly ScoutTargetState ScoutState = new();
         public GridPosition Position;
 
         public int CurrentActionPoints;
@@ -50,6 +51,7 @@ namespace Godmist.Runtime.Combat
         public bool HasReacted;
         public bool IsReadyToEscape;
         public bool IsPlayerSide;
+        public bool IsBoss;
         public int DownedTurnsRemaining;
 
         public void AddStatusTolerance(string statusId, int durationTurns = 2)

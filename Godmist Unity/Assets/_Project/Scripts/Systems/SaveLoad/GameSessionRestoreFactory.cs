@@ -704,7 +704,7 @@ namespace Godmist.Systems.SaveLoad
             CharacterInstance character,
             CharacterSaveData saveData)
         {
-            var knownSkillIds = GetSkillIds(character.Skills);
+            var knownSkillIds = GetSkillIds(character.GetKnownSkills());
             var basicAttackSkillId = ResolveRestoredBasicAttackSkillId(
                 character,
                 saveData,
@@ -813,7 +813,7 @@ namespace Godmist.Systems.SaveLoad
         }
 
         private static List<string> GetSkillIds(
-            List<SkillData> skills)
+            IReadOnlyList<SkillData> skills)
         {
             var result = new List<string>();
             var seen = new HashSet<string>(StringComparer.Ordinal);

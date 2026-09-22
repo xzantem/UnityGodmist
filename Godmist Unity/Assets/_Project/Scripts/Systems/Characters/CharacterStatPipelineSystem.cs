@@ -16,6 +16,13 @@ namespace Godmist.Systems.Characters
         {
             if (character?.Stats == null) return;
 
+            if(character.ActiveSkillLoadout.IsInitialized)
+            {
+                var known=new HashSet<string>();
+                foreach(var skill in character.GetKnownSkills())known.Add(skill.SkillId);
+                foreach(var id in character.ActiveSkillLoadout.ActiveSkillIds)
+                    if(!known.Contains(id))character.ActiveSkillLoadout.TryRemoveSkill(id);
+            }
             new PassiveEffectReconciliationSystem().Reconcile(character);
             var accumulators = new Dictionary<CharacterStatType, StatModifierAccumulator>();
 

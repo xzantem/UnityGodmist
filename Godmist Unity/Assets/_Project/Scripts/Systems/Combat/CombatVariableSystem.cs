@@ -97,6 +97,7 @@ namespace Godmist.Systems.Combat
                 source?.Character,
                 GameplayVariableType.DamageDealtPercent);
 
+            var angerMultiplier = ScoutCombatSystem.ReceivedDamageMultiplier(source, target);
             var receivedMultiplier = GetMultiplier(
                 target?.Character,
                 GameplayVariableType.DamageReceivedPercent);
@@ -104,7 +105,7 @@ namespace Godmist.Systems.Combat
             return Mathf.Max(
                 0,
                 Mathf.RoundToInt(
-                    requestedDamage * dealtMultiplier * receivedMultiplier));
+                    requestedDamage * dealtMultiplier * receivedMultiplier * angerMultiplier));
         }
     }
 }

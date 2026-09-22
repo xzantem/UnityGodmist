@@ -80,6 +80,14 @@ namespace Godmist.Views.UI
                     owner: owner));
             }
 
+            if(owner!=null)
+            {
+                var anger=0;foreach(var entry in owner.ScoutState.AngerBySource)anger=Math.Max(anger,entry.Value);
+                if(anger>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.anger",DisplayName="Złość ("+anger+")",Stacks=anger,Lifetime=PassiveEffectLifetime.CombatScoped},CombatStatusKind.Debuff,30,owner:owner));
+                if(owner.ScoutState.WeakPointTurns>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.weak_point",DisplayName="Słaby Punkt",Stacks=1,RemainingDuration=owner.ScoutState.WeakPointTurns,Lifetime=PassiveEffectLifetime.Timed},CombatStatusKind.Debuff,30,owner:owner));
+                if(owner.ScoutState.Knives.Count>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.embedded_knives",DisplayName="Wbite sztylety ("+owner.ScoutState.Knives.Count+")",Stacks=owner.ScoutState.Knives.Count,Lifetime=PassiveEffectLifetime.CombatScoped},CombatStatusKind.Debuff,30,owner:owner));
+                if(owner.ScoutState.AnalysisTurns>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.analysis",DisplayName="Dogłębna Analiza",Stacks=1,RemainingDuration=owner.ScoutState.AnalysisTurns,Lifetime=PassiveEffectLifetime.Timed},CombatStatusKind.Buff,30,owner:owner));
+            }
             foreach (var aura in auraList)
             {
                 if (aura == null || string.IsNullOrWhiteSpace(aura.AuraId)

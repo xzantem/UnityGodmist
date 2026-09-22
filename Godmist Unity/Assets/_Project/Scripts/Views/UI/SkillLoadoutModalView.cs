@@ -274,7 +274,7 @@ namespace Godmist.Views.UI
                 loadout.ActiveSkillIds,
                 StringComparer.Ordinal);
             var knownSkillIds = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var skill in character.Skills ?? new List<SkillData>())
+            foreach (var skill in character.GetKnownSkills())
             {
                 if (skill == null
                     || string.IsNullOrWhiteSpace(skill.SkillId)
@@ -912,7 +912,7 @@ namespace Godmist.Views.UI
 
         private SkillData FindKnownSkill(string skillId)
         {
-            foreach (var skill in character?.Skills ?? new List<SkillData>())
+            foreach (var skill in character?.GetKnownSkills() ?? new List<SkillData>())
             {
                 if (skill != null
                     && string.Equals(

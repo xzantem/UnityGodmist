@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Skills;
@@ -111,7 +111,7 @@ namespace Godmist.Systems.Combat
             return TryExecute(session, caster, skill, targetsByModeIndex);
         }
 
-        public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill, 
+        public bool TryExecute(CombatSession session, BattleUnit caster, SkillData skill,
             IReadOnlyList<BattleUnit> targets)
         {
             if (targets == null || skill?.TargetModes == null || skill.TargetModes.Count != 1) return false;
@@ -202,6 +202,9 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
+            var recoverKnifePosition = selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(0,out var knifeSelection) ? knifeSelection : null;
+            var recoveringKnife = ScoutCombatSystem.RecoverableKnife(session,caster,skill,recoverKnifePosition) != null
+                && targetsByModeIndex.TryGetValue(0,out var knifeModeTargets) && knifeModeTargets.Count == 0;
             using var objectDamageScope = new CombatObjectDamageAction(session);
             var objectResults = new Dictionary<int, HashSet<string>>();
             var actionId = Guid.NewGuid().ToString("N");
@@ -228,7 +231,7 @@ namespace Godmist.Systems.Combat
                     skill,
                     knifeTargets,
                     preventsKnifeConsumption,
-                    selectedPositionsByModeIndex?.Values.FirstOrDefault(p => p.HasValue)))
+                    selectedPositionsByModeIndex?.Values.FirstOrDefault(p => p.HasValue), actionId))
             {
                 return false;
             }
@@ -267,6 +270,8 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{caster.Character.Definition.DisplayName} używa {skill.DisplayName}.");
 
+            if(skill.SkillId=="skill.scout.tonic")
+                session.ScheduledEffects.RemoveAll(e=>e.CasterCharacterId==caster.Character.CharacterId && e.Skill.SkillId==skill.SkillId);
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var resultsByEffectIndex =
                 new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
@@ -417,6 +422,7 @@ namespace Godmist.Systems.Combat
                     StatusEffectIds.Invisibility);
             }
 
+            if (recoveringKnife) ScoutCombatSystem.RecoverKnife(session,caster,skill,recoverKnifePosition);
             CombatAuraSystem.Refresh(session, statusEffectSystem);
             if (skill.IsToggle)
             {
@@ -425,6 +431,7 @@ namespace Godmist.Systems.Combat
                 caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
             }
             CombatTurnSystem.RefreshMaxActionPoints(session);
+            ScoutCombatSystem.FinishKnifeAction(session, actionId);
             PassiveActionResolved?.Invoke(actionContext);
             return true;
         }
@@ -511,7 +518,7 @@ namespace Godmist.Systems.Combat
             session.ScheduledEffects ??= new List<ScheduledCombatEffect>();
             session.ScheduledEffects.Add(new ScheduledCombatEffect(
                 caster.Character.CharacterId, skill, effect, effectIndex,
-                effect.DelayCasterTurns + 1, target?.Character?.CharacterId, position));
+                effect.DelayCasterTurns + (skill.SkillId == "skill.scout.tonic" ? 0 : 1), target?.Character?.CharacterId, position));
             battleLog?.Invoke($"{caster.Character.Definition.DisplayName} planuje efekt za {effect.DelayCasterTurns} tur.");
         }
 
@@ -651,9 +658,15 @@ namespace Godmist.Systems.Combat
                     var totalHealthDamage = 0;
                     var hit = false;
                     var critical = false;
-                    for (var hitIndex = 0; hitIndex < effect.DamageHitCount; hitIndex++)
+                    var hitCount = CombatHitSequence.RollHitCount(effect.DamageHitCount,
+                        effect.AdditionalHitTrials, effect.AdditionalHitChance, () => UnityEngine.Random.value);
+                    var combo = ScoutCombatSystem.RollCombo(caster,skill,isPassiveDuplicate);
+                    if(combo) hitCount++;
+                    for (var hitIndex = 0; hitIndex < hitCount; hitIndex++)
                     {
                         var multiplier = effect.DamageMultiplier;
+                        if (skill.ResolveAttackType(Mathf.Abs(caster.Position.X-target.Position.X)+Mathf.Abs(caster.Position.Y-target.Position.Y)) == AttackType.Melee)
+                            multiplier *= skill.PointBlankDamageMultiplier;
                         if (UnityEngine.Random.value <= effect.BonusDamageMultiplierChance)
                             multiplier *= effect.BonusDamageMultiplier;
 
@@ -701,11 +714,13 @@ namespace Godmist.Systems.Combat
                         totalHealthDamage += damageResult.HealthDamage;
 
                         if (!damageResult.Hit) continue;
+                        ScoutCombatSystem.TryEmbedKnife(session, actionId, caster, target, passiveContext.AttackType, () => UnityEngine.Random.value);
                         if (forceMaximumDamage)
                         {
                             CombatDamageSystem.TryConsumeUniqueBuff(
                                 caster, UniqueBuffType.MaximumDamage);
                         }
+                        ScoutCombatSystem.AfterSkillHit(session, caster, target, skill, isPassiveDuplicate || combo && hitIndex==hitCount-1, statusEffectSystem);
                         ApplyDamageFollowUps(session, caster, target, skill, effect, effectIndex,
                             damageResult.HealthDamage);
                         statusEffectSystem?.ApplyActiveOnHitStatuses(caster, target);
@@ -733,6 +748,26 @@ namespace Godmist.Systems.Combat
                     return new EffectExecutionResult { Succeeded = wasPushed };
                 }
 
+                case EffectType.MarkWeakPoint:
+                {
+                    if (UnityEngine.Random.value > effect.BaseChance) return EffectExecutionResult.None;
+                    target.ScoutState.WeakPointTurns = effect.DurationTurns;
+                    target.ScoutState.WeakPointCritDamage = .2f + .05f * ScoutCombatSystem.AssassinRank(caster, "critical_point");
+                    return new EffectExecutionResult { Succeeded = true };
+                }
+                case EffectType.SwapPositions:
+                {
+                    if (session?.Grid == null || caster == target || StatusEffectSystem.IsImmobilized(caster)
+                        || !session.Grid.CanMoveBetween(caster.Position, target.Position)
+                        || !statusEffectSystem.PassesMovementEffectChance(target, effect.BaseChance))
+                        return EffectExecutionResult.None;
+                    ScoutCombatSystem.Face(caster,target.Position);ScoutCombatSystem.Face(target,caster.Position);
+                    (caster.Position, target.Position) = (target.Position, caster.Position);
+                    session.NotifyUnitEnteredCell(caster);
+                    session.NotifyUnitEnteredCell(target);
+                    CombatAuraSystem.Refresh(session, statusEffectSystem);
+                    return new EffectExecutionResult { Succeeded = true };
+                }
                 case EffectType.Pull:
                 {
                     if (statusEffectSystem == null
@@ -790,6 +825,7 @@ namespace Godmist.Systems.Combat
                         return EffectExecutionResult.None;
                     }
 
+                    if(skill.SkillId=="skill.scout.shadow")ScoutCombatSystem.Face(caster,teleportDestination.Value);
                     var teleported = teleportSystem != null
                         && teleportSystem.TryTeleport(
                             session,
@@ -802,7 +838,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ApplyStatus:
                 {
-                    var wasApplied = statusEffectSystem != null && 
+                    var wasApplied = statusEffectSystem != null &&
                         statusEffectSystem.ApplyStatus(caster, target, skill, effect, effectIndex);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
@@ -818,13 +854,13 @@ namespace Godmist.Systems.Combat
                     var restoredHealth = recoverySystem.Heal(target, effect.BaseValue, new PassiveEffectCombatContext(
                         session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
                         targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
-                    return new EffectExecutionResult 
+                    return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
                 case EffectType.RestoreResource:
                 {
                     var restoredResource = recoverySystem.RestoreResource(target, effect.BaseValue);
-                    return new EffectExecutionResult 
+                    return new EffectExecutionResult
                         { Succeeded = restoredResource > 0, ResourceRestored = restoredResource };
                 }
                 case EffectType.HealPercent:
@@ -878,13 +914,14 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyStat:
                 {
+                    if (UnityEngine.Random.value > effect.BaseChance) return EffectExecutionResult.None;
                     var wasApplied = modifyStatSystem != null && modifyStatSystem.Apply(caster, target, skill, effect, effectIndex);
                     if (wasApplied) PublishModifierFeedback(target, skill, effect);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ModifyVar:
                 {
-                    var wasApplied = modifyVarSystem != null 
+                    var wasApplied = modifyVarSystem != null
                         && modifyVarSystem.Apply(caster, target, skill, effect, effectIndex);
 
                     if (wasApplied) PublishModifierFeedback(target, skill, effect);
@@ -1177,7 +1214,7 @@ namespace Godmist.Systems.Combat
         private static bool ConditionRequiresStatusId(
             EffectConditionType conditionType)
         {
-            return conditionType == EffectConditionType.TargetHasStatus 
+            return conditionType == EffectConditionType.TargetHasStatus
                 || conditionType == EffectConditionType.CasterHasStatus;
         }
 
@@ -1329,8 +1366,10 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (skill.SkillId == "skill.scout.shadow" && (!teleportDestination.HasValue
+                || !session.Grid.CanMoveBetween(caster.Position,teleportDestination.Value))) return false;
             if (StatusEffectSystem.IsImmobilized(caster)
-                && ContainsMobilityEffect(skill))
+                && (ContainsMobilityEffect(skill) || skill.Effects.Any(e=>e.EffectType==EffectType.SwapPositions)))
             {
                 battleLog?.Invoke(
                     $"{caster.Character.Definition.DisplayName} cannot use a mobility skill while immobilized.");
@@ -1424,6 +1463,8 @@ namespace Godmist.Systems.Combat
                         || targets == null
                         || (!CanResolveWithoutUnitTargets(targetMode)
                             && targets.Count == 0
+                            && !(targetModeIndex == 0 && ScoutCombatSystem.RecoverableKnife(session,caster,skill,
+                                selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(0,out var knifePosition) ? knifePosition : null) != null)
                             && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
                                 && CombatObjectDamageSystem.Targets(session, caster, skill, targetModeIndex,
                                     selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(targetModeIndex, out var objectTarget) ? objectTarget : null).Count > 0)))
@@ -1450,6 +1491,18 @@ namespace Godmist.Systems.Combat
                             skill,
                             targetModeIndex);
 
+                    if(targetMode.TargetType==TargetType.Chain)
+                    {
+                        if(targets.Count>targetMode.ChainTargets || targets.Distinct().Count()!=targets.Count)return false;
+                        var previous=caster.Position;
+                        for(var i=0;i<targets.Count;i++)
+                        {
+                            if(targets[i]==null || !CombatTargetingService.IsPositionWithinRange(previous,targets[i].Position,
+                                i==0 ? targetMode.AbsoluteRange : targetMode.RelativeRange))return false;
+                            previous=targets[i].Position;
+                        }
+                    }
+                    var sightOrigin = caster.Position;
                     foreach (var target in targets)
                     {
                         if (target?.Character == null
@@ -1459,7 +1512,7 @@ namespace Godmist.Systems.Combat
                             return false;
                         }
 
-                        if (targetMode.TargetType == TargetType.Single
+                        if ((targetMode.TargetType == TargetType.Single || targetMode.TargetType == TargetType.Chain)
                             && StatusEffectSystem.IsInvisible(target)
                             && target.IsPlayerSide != caster.IsPlayerSide)
                         {
@@ -1483,13 +1536,14 @@ namespace Godmist.Systems.Combat
                         if (skill.RequiresLineOfSight
                             && !lineOfSightService.HasLineOfSight(
                                 session,
-                                caster.Position,
+                                sightOrigin,
                                 target.Position))
                         {
                             battleLog?.Invoke("No line of sight to target.");
                             return false;
                         }
 
+                        if (targetMode.TargetType == TargetType.Chain) sightOrigin=target.Position;
                         if (target.Character.LifeState == CharacterLifeState.Downed
                             && !canTargetDowned)
                         {
@@ -2222,7 +2276,7 @@ namespace Godmist.Systems.Combat
 
             return false;
         }
-        
+
         private static bool CanTargetModeIncludeDownedTargets(
             SkillData skill,
             int targetModeIndex)

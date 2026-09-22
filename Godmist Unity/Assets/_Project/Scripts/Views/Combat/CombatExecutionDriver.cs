@@ -94,6 +94,13 @@ namespace Godmist.Views.Combat
         private SimpleCombatAiSystem aiSystem;
         private SkillExecutionSystem skillExecutionSystem;
         private StatusEffectSystem statusEffectSystem;
+
+        public bool TryExtractScoutKnife(BattleUnit owner, BattleUnit target)
+        {
+            return Session != null && !IsActionInProgress && !Session.MembershipChangePending
+                && ScoutCombatSystem.TryExtractKnife(Session, owner, target, statusEffectSystem);
+        }
+
         private CombatMovementSystem movementSystem;
         private CombatDamageSystem damageSystem;
         private CombatShieldSystem shieldSystem;
@@ -241,8 +248,8 @@ namespace Godmist.Views.Combat
             Session.ObjectDurabilityChanged = HandleCombatMapObjectChanged;
             targetingService = new CombatTargetingService();
             aiSystem = new SimpleCombatAiSystem(
-                battleLog: AddBattleLog, 
-                endTurn: session => turnSystem.EndActiveTurn(session), 
+                battleLog: AddBattleLog,
+                endTurn: session => turnSystem.EndActiveTurn(session),
                 evaluateOutcome: session => outcomeSystem.EvaluateCombatOutcome(session),
                 skillExecutionSystem: skillExecutionSystem, targetingService: targetingService,
                 movementSystem: movementSystem, lineOfSightService: lineOfSightService,
@@ -303,7 +310,7 @@ namespace Godmist.Views.Combat
                 RequestEndTurn();
                 return;
             }
-            
+
             if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.K))
             {
                 RemoveFirstEnemyForDebug();
@@ -362,7 +369,7 @@ namespace Godmist.Views.Combat
                 90, 0, 50, ResourceType.Rage, 48f, false);
             var enemyB = CreateUnit(enemyDefinition, warriorClass, new GridPosition(6, 2),
                 90, 0, 50, ResourceType.Rage, 48f, false);
-                
+
             session.Units.Add(jerzy);
             session.Units.Add(ally);
             session.Units.Add(enemyA);
@@ -948,8 +955,8 @@ namespace Godmist.Views.Combat
 
         public bool CanEscape()
         {
-            return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerSide 
-                && Session.ActiveUnit.Character != null 
+            return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerSide
+                && Session.ActiveUnit.Character != null
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
@@ -1037,7 +1044,7 @@ namespace Godmist.Views.Combat
         {
             if (path == null || Session?.ActiveUnit == null) return 0;
             return CombatMovementSystem.CalculatePathCost(Session, Session.ActiveUnit.Position,
-                Session.ActiveUnit.MovementStepsThisTurn, path);
+                Session.ActiveUnit.MovementStepsThisTurn, path, ScoutCombatSystem.MovementDiscount(Session.ActiveUnit));
         }
 
         public bool TryMoveActiveUnitAlongPath(
@@ -1215,6 +1222,7 @@ namespace Godmist.Views.Combat
                         : 0);
 
                 if (targets.Count == 0
+                    && !(targetModeIndex == 0 && ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,selectedPosition)!=null)
                     && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
                         && CombatObjectDamageSystem.Targets(Session, Session.ActiveUnit, skill, targetModeIndex, selectedPosition).Count > 0)
                     && targetMode.TargetType != TargetType.AreaAroundTile
@@ -1232,7 +1240,7 @@ namespace Godmist.Views.Combat
         public bool TryInteractAt(GridPosition position)
         {
             if (Session?.MembershipChangePending == true) return false;
-            if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
+            if (Session == null || Session.ActiveUnit == null || interactionSystem == null
                 || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
             if (IsActiveUnitHardCrowdControlled())
@@ -1356,6 +1364,9 @@ namespace Godmist.Views.Combat
                 requiredEnemyTarget,
                 rotationQuarterTurns);
 
+            if(targetMode.TargetType==TargetType.Chain)
+                return targets.Count>0 && skill.RequiresLineOfSight && !lineOfSightService.HasLineOfSight(Session,Session.ActiveUnit.Position,targets[0].Position)
+                    ? Array.Empty<BattleUnit>() : targets;
             return FilterTargetsByLineOfSight(skill, targets);
         }
         public IReadOnlyList<GridPosition> GetSelectableSkillPositions(
@@ -1384,6 +1395,10 @@ namespace Godmist.Views.Combat
                 targetMode,
                 includeDownedTargets,
                 requiredEnemyTarget);
+            if (requiredEnemyTarget == null && targetModeIndex == 0 && skill.CanRecoverKnives)
+                positions = positions.Concat(Session.MapObjects.OfType<KnifeCombatMapObject>()
+                    .Where(k=>ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,k.Position)!=null)
+                    .Select(k=>k.Position)).Distinct().ToList();
 
             if (requiredEnemyTarget == null && CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex))
             {
@@ -1408,7 +1423,7 @@ namespace Godmist.Views.Combat
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
-        public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill, 
+        public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill,
             SkillTargetModeData targetMode)
         {
             if (Session == null || Session.ActiveUnit == null || skill == null
@@ -1419,13 +1434,13 @@ namespace Godmist.Views.Combat
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
-        public IReadOnlyList<GridPosition> GetRelativeSkillRangePositions(SkillData skill, 
+        public IReadOnlyList<GridPosition> GetRelativeSkillRangePositions(SkillData skill,
             SkillTargetModeData targetMode, GridPosition center, int rotationQuarterTurns = 0)
         {
             if (Session == null || Session.ActiveUnit == null || skill == null
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
-            var positions = targetingService.GetRelativeRangePositions(Session, Session.ActiveUnit, 
+            var positions = targetingService.GetRelativeRangePositions(Session, Session.ActiveUnit,
                 targetMode, center, rotationQuarterTurns);
 
             return FilterPositionsByLineOfSight(skill, positions);
@@ -1491,6 +1506,7 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
+                if(skill.SkillId=="skill.scout.shadow" && !Session.Grid.CanMoveBetween(selectedTargetPosition,position))continue;
                 validPositions.Add(position);
             }
 
@@ -1613,6 +1629,10 @@ namespace Godmist.Views.Combat
                 includeDownedTargets,
                 requiredEnemyTarget);
 
+            if (requiredEnemyTarget == null && targetModeIndex == 0 && skill.CanRecoverKnives)
+                positions = positions.Concat(Session.MapObjects.OfType<KnifeCombatMapObject>()
+                    .Where(k=>ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,k.Position)!=null)
+                    .Select(k=>k.Position)).Distinct().ToList();
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
@@ -1660,12 +1680,12 @@ namespace Godmist.Views.Combat
                 : null;
         }
 
-        private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(SkillData skill, 
+        private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(SkillData skill,
             IReadOnlyList<BattleUnit> targets)
         {
             if (skill == null || !skill.RequiresLineOfSight || Session?.ActiveUnit == null) return targets;
 
-            return targets.Where(target => target != null && 
+            return targets.Where(target => target != null &&
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, target.Position)).ToList();
         }
 
@@ -1674,7 +1694,7 @@ namespace Godmist.Views.Combat
         {
             if (skill == null || !skill.RequiresLineOfSight || Session?.ActiveUnit == null) return positions;
 
-            return positions.Where(position => 
+            return positions.Where(position =>
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, position)).ToList();
         }
 

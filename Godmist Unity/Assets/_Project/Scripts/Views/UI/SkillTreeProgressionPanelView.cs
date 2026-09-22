@@ -177,6 +177,9 @@ namespace Godmist.Views.UI
             {
                 var root = tierRoots[tier - 1];
                 if (root == null) continue;
+                var hasNodes = selectedTree.Nodes.Any(n=>n!=null && n.Tier==tier);
+                root.gameObject.SetActive(hasNodes);
+                if(!hasNodes)continue;
                 for (var column = 1; column <= 5; column++)
                 {
                     var node = selectedTree?.Nodes?.FirstOrDefault(value => value?.Tier == tier && value.Column == column);
@@ -271,7 +274,7 @@ namespace Godmist.Views.UI
             if (gate == null) return;
 
             var invested = SkillTreeProgressionSystem.GetInvestedRanks(character, selectedTree.Id);
-            var locked = invested < threshold;
+            var locked = invested < threshold && selectedTree.Nodes.Any(n=>n!=null && n.Tier>=firstTierIndex+1 && n.Tier<=lastTierIndex+1);
             gate.gameObject.SetActive(locked);
             if (!locked) return;
 

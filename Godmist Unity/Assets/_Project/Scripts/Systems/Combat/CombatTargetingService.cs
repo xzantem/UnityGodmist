@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Skills;
@@ -37,6 +38,7 @@ namespace Godmist.Systems.Combat
 
             switch (mode.TargetType)
             {
+                case TargetType.Chain:
                 case TargetType.Single:
                     if (!selectedPosition.HasValue
                         || (!IsValidTargetPosition(session, caster, mode, selectedPosition.Value)
@@ -54,7 +56,7 @@ namespace Godmist.Systems.Combat
                     if (referenceTarget == null)
                         break;
 
-                    if (mode.UseRelativeRange) AddAreaTargets(session, caster, mode.TargetingType, 
+                    if (mode.UseRelativeRange && mode.TargetType != TargetType.Chain) AddAreaTargets(session, caster, mode.TargetingType,
                         referenceTarget.Position, mode.RelativeRange, true, targets, includeDownedTargets,
                         rotationQuarterTurns);
                     else targets.Add(referenceTarget);
@@ -109,7 +111,7 @@ namespace Godmist.Systems.Combat
                     {
                         if (mode.UseRelativeRange)
                         {
-                            AddAreaTargets(session, caster, mode.TargetingType, selectedPosition.Value, 
+                            AddAreaTargets(session, caster, mode.TargetingType, selectedPosition.Value,
                                 mode.RelativeRange, true, targets, includeDownedTargets,
                                 rotationQuarterTurns);
                         }
@@ -136,6 +138,20 @@ namespace Godmist.Systems.Combat
                     break;
             }
 
+            if (mode.TargetType == TargetType.Chain && targets.Count == 1)
+            {
+                while(targets.Count < mode.ChainTargets)
+                {
+                    var previous = targets[targets.Count-1];
+                    var next = session.Units.Where(u => !targets.Contains(u) && IsEligibleTarget(caster,u,mode.TargetingType,includeDownedTargets)
+                        && !StatusEffectSystem.IsInvisible(u) && IsPositionWithinRange(previous.Position,u.Position,mode.RelativeRange)
+                        && new CombatLineOfSightService().HasLineOfSight(session,previous.Position,u.Position))
+                        .OrderBy(u => Math.Abs(u.Position.X-previous.Position.X)+Math.Abs(u.Position.Y-previous.Position.Y))
+                        .ThenBy(u => u.Character.CharacterId,StringComparer.Ordinal).FirstOrDefault();
+                    if(next==null)break;
+                    targets.Add(next);
+                }
+            }
             var context = session.DungeonContext;
             if (context?.SurfaceMap?.HasElevatedSurfaces == true)
             {
@@ -864,7 +880,7 @@ namespace Godmist.Systems.Combat
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return false;
 
-            if (target.Character.LifeState != CharacterLifeState.Alive && 
+            if (target.Character.LifeState != CharacterLifeState.Alive &&
                 (!includeDownedTargets || target.Character.LifeState != CharacterLifeState.Downed)) return false;
 
             if (StatusEffectSystem.IsParalyzed(target)) return false;
@@ -889,7 +905,7 @@ namespace Godmist.Systems.Combat
         private static bool RequiresTileSelection(
             SkillTargetModeData mode)
         {
-            return mode.TargetType == TargetType.Single
+            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain
                 || mode.TargetType == TargetType.AreaAroundTile;
         }
         public IReadOnlyList<GridPosition> GetEligibleTargetPositions(
@@ -935,7 +951,7 @@ namespace Godmist.Systems.Combat
                 return new List<GridPosition>();
             }
 
-            if (mode.TargetType == TargetType.Single)
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain)
             {
                 foreach (var unit in session.Units)
                 {

@@ -204,7 +204,7 @@ namespace Godmist.Systems.Combat
             if (operation.Type == PassiveEffectOperationType.ModifySkillParameter)
             {
                 var key = operation.ReferenceId?.ToLowerInvariant();
-                if (key is not ("resource_cost" or "accuracy" or "hit_count" or "duration_turns"
+                if (key is not ("resource_cost" or "accuracy" or "hit_count" or "additional_hit_trials" or "duration_turns"
                     or "status_chance" or "range" or "area_range" or "damage_multiplier"))
                     errors.Add($"Nieobsługiwany parametr skilla: {operation.ReferenceId}.");
             }

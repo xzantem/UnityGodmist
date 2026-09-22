@@ -15,12 +15,13 @@ MonoBehaviour:
   <Id>k__BackingField: tree.scout.assassin
   <DisplayName>k__BackingField: "Skrytob\xF3jca"
   <GlobalPassive>k__BackingField:
-    <DisplayName>k__BackingField: Instynkt Zabojcy
-    <Description>k__BackingField: +0.2% szansy krytycznej za kazdy wydany punkt.
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +0.2% szansy krytycznej, +0.5% obra\u017Ce\u0144
+      wr\u0119cz."
     <PassivesPerPoint>k__BackingField:
     - <Id>k__BackingField: tree.scout.assassin.global.critical_chance
-      <DisplayName>k__BackingField: Instynkt Zabojcy
-      <Description>k__BackingField: +0.2% szansy krytycznej za kazdy wydany punkt.
+      <DisplayName>k__BackingField: "Instynkt Zab\xF3jcy"
+      <Description>k__BackingField:
       <Lifetime>k__BackingField: 0
       <DefaultDurationTurns>k__BackingField: 0
       <TickPhase>k__BackingField: 0
@@ -41,6 +42,7 @@ MonoBehaviour:
         <Value>k__BackingField:
           <Source>k__BackingField: 0
           <NumberValue>k__BackingField: 0.002
+          <RankValues>k__BackingField: []
           <ReferenceId>k__BackingField:
           <StateKey>k__BackingField:
           <Scale>k__BackingField: 1
@@ -52,553 +54,257 @@ MonoBehaviour:
         <DescriptionOverride>k__BackingField:
         <ConditionText>k__BackingField:
         <TriggerText>k__BackingField:
-        <ShowRuntimeState>k__BackingField: 1
+        <ShowRuntimeState>k__BackingField: 0
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.scout.assassin.backstab
     <DisplayName>k__BackingField: Cios w Plecy
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane od ty\u0142u
       o 10%/20%"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.ricochet
     <DisplayName>k__BackingField: Rykoszet
     <Description>k__BackingField: "Zadaje losowe obra\u017Cenia fizyczne, ka\u017Cde
-      kolejne trafienie ma 10% wi\u0119ksz\u0105 szans\u0119 krytyczn\u0105 Celno\u015B\u0107:
-      81 Cel: Ci\u0105g wrog\xF3w [3] Zasi\u0119g: b4w2"
-    <Icon>k__BackingField: {fileID: 0}
+      kolejne trafienie ma 10% wi\u0119ksz\u0105 szans\u0119 krytyczn\u0105"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: e5a19073b307dbf45b06579f2634fc13, type: 2}
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.farsight
     <DisplayName>k__BackingField: Dalekie Widzenie
     <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g bezwzgl\u0119dny i wzgl\u0119dny
       Rykoszetu o 1/3"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.ricochet
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.critical_point
     <DisplayName>k__BackingField: Krytyczny Punkt
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia krytyczne zyskane
       ze S\u0142abego Punktu o 5%/10%/15%"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.weak_point
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.weak_point
     <DisplayName>k__BackingField: "S\u0142aby Punkt"
     <Description>k__BackingField: "[95%] Zwi\u0119ksza szans\u0119 krytyczn\u0105
-      o 10% i obra\u017Cenia krytyczne o 20% na 5 tur wobec wroga Cel: Jeden wr\xF3g
-      Zasi\u0119g: 8"
-    <Icon>k__BackingField: {fileID: 0}
+      o 10% i obra\u017Cenia krytyczne o 20% na 5 tur wobec wroga"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 28972db26d8f12743accde0dad697be8, type: 2}
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.leg_sweep
     <DisplayName>k__BackingField: "Podci\u0119cie N\xF3g"
     <Description>k__BackingField: "Atakowanie przeciwnik\xF3w od ty\u0142u po poruszaniu
       si\u0119 ma 25%/50% szansy na og\u0142uszenie na 1 tur\u0119"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.backstab
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.throw_power
     <DisplayName>k__BackingField: "Si\u0142a Rzutu"
     <Description>k__BackingField: "Ka\u017Cdy kolejny przeciwnik trafiony Rykoszetem
       otrzymuje 10%/20% wi\u0119cej obra\u017Ce\u0144"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.ricochet
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.knife_bounce
     <DisplayName>k__BackingField: Odbicie Sztyletu
     <Description>k__BackingField: "Zwi\u0119ksza ilo\u015B\u0107 cel\xF3w trafianych
       przez Rykoszet o 2"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.throw_power
       <MinimumRanks>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.karambit_style
-    <DisplayName>k__BackingField: Styl Karambitowy
-    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz
-      o 25%/60%/100%"
-    <Icon>k__BackingField: {fileID: 0}
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.rapid_strikes
+    <DisplayName>k__BackingField: "Gwa\u0142towne Uderzenia"
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 krytyczn\u0105 w walce
+      wr\u0119cz o 5%/10%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 4
-    <MaxRanks>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField: []
-    <PassiveEffects>k__BackingField:
-    - <Id>k__BackingField: passive.node.scout.assassin.karambit_style
-      <DisplayName>k__BackingField: Styl Karambitowy
-      <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz o 25%/60%/100%"
-      <Lifetime>k__BackingField: 0
-      <DefaultDurationTurns>k__BackingField: 0
-      <TickPhase>k__BackingField: 0
-      <StackingRule>k__BackingField: 1
-      <ConditionCombination>k__BackingField: 0
-      <Conditions>k__BackingField:
-      - <Type>k__BackingField: 9
-        <Comparison>k__BackingField: 0
-        <ReferenceId>k__BackingField: Melee
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField: []
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <Negated>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Triggers>k__BackingField:
-      - <Type>k__BackingField: 2
-        <EventId>k__BackingField:
-        <Parameters>k__BackingField: []
-      <Operations>k__BackingField:
-      - <Id>k__BackingField: modify-melee-damage
-        <Type>k__BackingField: 2
-        <Target>k__BackingField: 0
-        <ReferenceId>k__BackingField:
-        <StatType>k__BackingField: 0
-        <VariableType>k__BackingField: 0
-        <ResistanceType>k__BackingField: 0
-        <ModifierOperation>k__BackingField: 1
-        <ModifierStacking>k__BackingField: 0
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField:
-          - 0.25
-          - 0.6
-          - 1
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <DurationTurns>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField: Tylko dla ataków wręcz.
-        <TriggerText>k__BackingField: Przy ataku.
-        <ShowRuntimeState>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.deep_analysis
     <DisplayName>k__BackingField: "Dog\u0142\u0119bna Analiza"
     <Description>k__BackingField: "Ciosy krytyczne podczas dzia\u0142ania S\u0142abego
       Punktu daj\u0105 20%/30% penetracji fizycznej wobec ka\u017Cdego przeciwnika
       na 3 tury"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.weak_point
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.running_attack
     <DisplayName>k__BackingField: Atak w Biegu
     <Description>k__BackingField: "Przechodzenie obok przeciwnik\xF3w zadaje im 25%/50%
-      losowych obra\u017Ce\u0144 fizycznych z celno\u015Bci\u0105 77"
-    <Icon>k__BackingField: {fileID: 0}
+      losowych obra\u017Ce\u0144 fizycznych z celno\u015Bci\u0105 77 (raz na tur\u0119)"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.leg_sweep
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.surprise
     <DisplayName>k__BackingField: Zaskoczenie
     <Description>k__BackingField: "Atak wyprowadzony podczas trwania Wojownika Cieni
       ma 30%/60% wi\u0119ksze obra\u017Cenia"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.shadow_warrior
       <MinimumRanks>k__BackingField: 1
-    <PassiveEffects>k__BackingField:
-    - <Id>k__BackingField: passive.node.scout.assassin.surprise
-      <DisplayName>k__BackingField: Zaskoczenie
-      <Description>k__BackingField: "Atak podczas niewidzialno\u015Bci zadaje 30%/60% wi\u0119cej obra\u017Ce\u0144"
-      <Lifetime>k__BackingField: 0
-      <DefaultDurationTurns>k__BackingField: 0
-      <TickPhase>k__BackingField: 0
-      <StackingRule>k__BackingField: 1
-      <ConditionCombination>k__BackingField: 0
-      <Conditions>k__BackingField:
-      - <Type>k__BackingField: 12
-        <Comparison>k__BackingField: 0
-        <ReferenceId>k__BackingField: invisibility
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField: []
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <Negated>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Triggers>k__BackingField:
-      - <Type>k__BackingField: 2
-        <EventId>k__BackingField:
-        <Parameters>k__BackingField: []
-      <Operations>k__BackingField:
-      - <Id>k__BackingField: modify-surprise-damage
-        <Type>k__BackingField: 2
-        <Target>k__BackingField: 0
-        <ReferenceId>k__BackingField:
-        <StatType>k__BackingField: 0
-        <VariableType>k__BackingField: 0
-        <ResistanceType>k__BackingField: 0
-        <ModifierOperation>k__BackingField: 1
-        <ModifierStacking>k__BackingField: 0
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField:
-          - 0.3
-          - 0.6
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <DurationTurns>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField: Podczas niewidzialności.
-        <TriggerText>k__BackingField: Przy ataku.
-        <ShowRuntimeState>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.shadow_warrior
     <DisplayName>k__BackingField: Wojownik Cieni
-    <Description>k__BackingField: "Daje niewidzialno\u015B\u0107 na 3 tury, Wycofanie
-      1\nCel: Rzucaj\u0105cy"
-    <Icon>k__BackingField: {fileID: 0}
+    <Description>k__BackingField: "Daje niewidzialno\u015B\u0107 na 3 tury, Szar\u017Ca
+      1"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 8aa048993c5fb5e4d90565333996fa70, type: 2}
     <Requirements>k__BackingField: []
-  - <Id>k__BackingField: node.scout.assassin.rapid_strikes
-    <DisplayName>k__BackingField: "Gwa\u0142towne Uderzenia"
-    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 krytyczn\u0105 w walce
-      wr\u0119cz o 5%/10%"
-    <Icon>k__BackingField: {fileID: 0}
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.karambit_style
+    <DisplayName>k__BackingField: Styl Karambitowy
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz
+      o 25%/60%/100%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 4
-    <MaxRanks>k__BackingField: 2
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.assassin.karambit_style
+    - <NodeId>k__BackingField: node.scout.assassin.rapid_strikes
       <MinimumRanks>k__BackingField: 1
-    <PassiveEffects>k__BackingField:
-    - <Id>k__BackingField: passive.node.scout.assassin.rapid_strikes
-      <DisplayName>k__BackingField: Gwałtowne Uderzenia
-      <Description>k__BackingField: Zwiększa szansę krytyczną w walce wręcz o 5%/10%.
-      <Lifetime>k__BackingField: 0
-      <DefaultDurationTurns>k__BackingField: 0
-      <TickPhase>k__BackingField: 0
-      <StackingRule>k__BackingField: 1
-      <ConditionCombination>k__BackingField: 0
-      <Conditions>k__BackingField:
-      - <Type>k__BackingField: 9
-        <Comparison>k__BackingField: 0
-        <ReferenceId>k__BackingField: Melee
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField: []
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <Negated>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Triggers>k__BackingField:
-      - <Type>k__BackingField: 2
-        <EventId>k__BackingField:
-        <Parameters>k__BackingField: []
-      <Operations>k__BackingField:
-      - <Id>k__BackingField: modify-melee-critical-chance
-        <Type>k__BackingField: 0
-        <Target>k__BackingField: 0
-        <ReferenceId>k__BackingField:
-        <StatType>k__BackingField: 6
-        <VariableType>k__BackingField: 0
-        <ResistanceType>k__BackingField: 0
-        <ModifierOperation>k__BackingField: 2
-        <ModifierStacking>k__BackingField: 0
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField:
-          - 0.05
-          - 0.1
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <DurationTurns>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField: Tylko dla ataków wręcz.
-        <TriggerText>k__BackingField: Przy ataku.
-        <ShowRuntimeState>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.throat_cut
     <DisplayName>k__BackingField: "Podci\u0119cie Gard\u0142a"
     <Description>k__BackingField: "Daje 4%/7%/10% szansy na natychmiastowe zabicie
       ciosem wr\u0119cz przeciwnika, kt\xF3rego zabi\u0142aby pi\u0119ciokrotno\u015B\u0107
-      zadanych obra\u017Ce\u0144"
-    <Icon>k__BackingField: {fileID: 0}
+      zadanych obra\u017Ce\u0144. Bossy zamiast tego otrzymuj\u0105 100% obra\u017Ce\u0144
+      wi\u0119cej"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.assassin.rapid_strikes
+    - <NodeId>k__BackingField: node.scout.assassin.karambit_style
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.keen_eye
     <DisplayName>k__BackingField: Celny Wzrok
     <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na Ostry N\xF3\u017C
-      o 5%/15%"
-    <Icon>k__BackingField: {fileID: 0}
+      o 5%/10%"
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.sharp_knife
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.sharp_knife
     <DisplayName>k__BackingField: "Ostry N\xF3\u017C"
-    <Description>k__BackingField: "Rzucone no\u017Ce maj\u0105 10% szansy na wbicie
-      si\u0119 w przeciwnika. Klikni\u0119cie wyjmuje go rzucaj\u0105c [60%] krwawienie
+    <Description>k__BackingField: "Rzucone no\u017Ce maj\u0105 15% szansy na wbicie
+      si\u0119 w przeciwnika. Klikni\u0119cie wyjmuje go rzucaj\u0105c [90%] krwawienie
       60%/90% na 3 tury"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.light_step
     <DisplayName>k__BackingField: Lekki Krok
     <Description>k__BackingField: Zmniejsza wymagania ruchowe podczas trwania Wojownika
       Cieni o 1/3 punkty akcji
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.shadow_warrior
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.precise_strike
     <DisplayName>k__BackingField: Trafny Cios
     <Description>k__BackingField: "Zwi\u0119ksza czas trwania og\u0142uszenia Uderzenia
       G\u0142owic\u0105 do 2 tur"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.pommel_strike
       <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.pommel_strike
     <DisplayName>k__BackingField: "Uderzenie G\u0142owic\u0105"
     <Description>k__BackingField: "Daje 15%/30% na og\u0142uszenie przeciwnika na
       1 tur\u0119, je\u015Bli Podci\u0119cie Gard\u0142a nie powiedzie si\u0119"
-    <Icon>k__BackingField: {fileID: 0}
+    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.throat_cut
       <MinimumRanks>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.conditioning
-    <DisplayName>k__BackingField: Kondycja
-    <Description>k__BackingField: "Przewr\xF3t w Prz\xF3d zu\u017Cywa 40% PA"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 5
-    <Column>k__BackingField: 1
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.assassin.forward_roll
-      <MinimumRanks>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.forward_roll
-    <DisplayName>k__BackingField: "Przewr\xF3t w Prz\xF3d"
-    <Description>k__BackingField: "Nast\u0119pny atak jest gwarantowanym ciosem krytycznym,
-      nast\u0119pna obrona jest gwarantowanym unikiem, Dash 2\nCel: Rzucaj\u0105cy"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 5
-    <Column>k__BackingField: 2
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField: []
-  - <Id>k__BackingField: node.scout.assassin.foresight
-    <DisplayName>k__BackingField: Przewidywanie
-    <Description>k__BackingField: Daje 20%/40% na zamienienie chybienia w trafienie
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 5
-    <Column>k__BackingField: 3
-    <MaxRanks>k__BackingField: 2
-    <Requirements>k__BackingField: []
-    <PassiveEffects>k__BackingField:
-    - <Id>k__BackingField: passive.node.scout.assassin.foresight
-      <DisplayName>k__BackingField: Przewidywanie
-      <Description>k__BackingField: Daje 20%/40% szansy na zamienienie chybienia w trafienie.
-      <Lifetime>k__BackingField: 0
-      <DefaultDurationTurns>k__BackingField: 0
-      <TickPhase>k__BackingField: 0
-      <StackingRule>k__BackingField: 1
-      <ConditionCombination>k__BackingField: 0
-      <Conditions>k__BackingField: []
-      <Triggers>k__BackingField:
-      - <Type>k__BackingField: 5
-        <EventId>k__BackingField:
-        <Parameters>k__BackingField: []
-      <Operations>k__BackingField:
-      - <Id>k__BackingField: convert-miss-to-hit
-        <Type>k__BackingField: 17
-        <Target>k__BackingField: 0
-        <ReferenceId>k__BackingField: miss-to-hit
-        <StatType>k__BackingField: 0
-        <VariableType>k__BackingField: 0
-        <ResistanceType>k__BackingField: 0
-        <ModifierOperation>k__BackingField: 1
-        <ModifierStacking>k__BackingField: 0
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField:
-          - 0.2
-          - 0.4
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <DurationTurns>k__BackingField: 0
-        <Parameters>k__BackingField: []
-      <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField:
-        <TriggerText>k__BackingField: Po chybieniu.
-        <ShowRuntimeState>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.low_blow
-    <DisplayName>k__BackingField: "Cios Poni\u017Cej Pasa"
-    <Description>k__BackingField: "Ciosy krytyczne maj\u0105 30% szansy na og\u0142uszenie
-      na 1 tur\u0119"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 5
-    <Column>k__BackingField: 4
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField: []
-    <PassiveEffects>k__BackingField:
-    - <Id>k__BackingField: passive.node.scout.assassin.low_blow
-      <DisplayName>k__BackingField: Cios Poniżej Pasa
-      <Description>k__BackingField: Cios krytyczny ma 30% szansy na ogłuszenie na 1 turę.
-      <Lifetime>k__BackingField: 0
-      <DefaultDurationTurns>k__BackingField: 0
-      <TickPhase>k__BackingField: 0
-      <StackingRule>k__BackingField: 1
-      <ConditionCombination>k__BackingField: 0
-      <Conditions>k__BackingField: []
-      <Triggers>k__BackingField:
-      - <Type>k__BackingField: 4
-        <EventId>k__BackingField:
-        <Parameters>k__BackingField: []
-      <Operations>k__BackingField:
-      - <Id>k__BackingField: apply-stun
-        <Type>k__BackingField: 6
-        <Target>k__BackingField: 2
-        <ReferenceId>k__BackingField: stun
-        <StatType>k__BackingField: 0
-        <VariableType>k__BackingField: 0
-        <ResistanceType>k__BackingField: 0
-        <ModifierOperation>k__BackingField: 1
-        <ModifierStacking>k__BackingField: 0
-        <Value>k__BackingField:
-          <Source>k__BackingField: 0
-          <NumberValue>k__BackingField: 0
-          <RankValues>k__BackingField:
-          - 0.3
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
-          <Scale>k__BackingField: 1
-          <Offset>k__BackingField: 0
-        <DurationTurns>k__BackingField: 1
-        <Parameters>k__BackingField: []
-      <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField:
-        <TriggerText>k__BackingField: Po trafieniu krytycznym.
-        <ShowRuntimeState>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.dishonorable_cut
-    <DisplayName>k__BackingField: "Ci\u0119cie bez Honoru"
-    <Description>k__BackingField: "Podci\u0119cie Gard\u0142a ma dwukrotnie wi\u0119ksz\u0105
-      szanse na powodzenie przeciwko przeciwnikom og\u0142uszonym"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 5
-    <Column>k__BackingField: 5
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.assassin.pommel_strike
-      <MinimumRanks>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.shoulder_leap
-    <DisplayName>k__BackingField: Skok na Barkach
-    <Description>k__BackingField: "Przewr\xF3t w Prz\xF3d mo\u017Cna u\u017Cy\u0107
-      przez przeciwnika lub przeszkod\u0119"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 6
-    <Column>k__BackingField: 2
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.assassin.forward_roll
-      <MinimumRanks>k__BackingField: 1
-  - <Id>k__BackingField: node.scout.assassin.agility
-    <DisplayName>k__BackingField: "Zwinno\u015B\u0107"
-    <Description>k__BackingField: "Daje 0.04%/0.1% szansy na ponowny ruch pod koniec
-      tury za ka\u017Cdy punkt szybko\u015Bci"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 6
-    <Column>k__BackingField: 3
-    <MaxRanks>k__BackingField: 2
-    <Requirements>k__BackingField: []
-  - <Id>k__BackingField: node.scout.assassin.vengeance
-    <DisplayName>k__BackingField: Zemsta
-    <Description>k__BackingField: "Szansa na cios krytyczny na przeciwniku, kt\xF3ry
-      unikn\u0105\u0142 ataku wzrasta o 50%/100% na 2 tury"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 6
-    <Column>k__BackingField: 4
-    <MaxRanks>k__BackingField: 2
-    <Requirements>k__BackingField: []
-  - <Id>k__BackingField: node.scout.assassin.intense_focus
-    <DisplayName>k__BackingField: Niesamowite Skupienie
-    <Description>k__BackingField: "Przez 3 tury szansa na bycie trafionym spada do
-      0%, po tym czasie zwi\u0119ksza obra\u017Cenia o 10% (maksymalnie 60%) za ka\u017Cdy
-      unikni\u0119ty atak na 5 tur Cel: Rzucaj\u0105cy"
-    <Icon>k__BackingField: {fileID: 0}
-    <Tier>k__BackingField: 7
-    <Column>k__BackingField: 3
-    <MaxRanks>k__BackingField: 1
-    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []

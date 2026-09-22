@@ -178,6 +178,8 @@ namespace Godmist.Editor
                 DrawField(position, ref y, damageValueSource);
                 DrawField(position, ref y, damageMultiplier);
                 DrawField(position, ref y, damageHitCount);
+                DrawField(position, ref y, property.FindPropertyRelative("additionalHitTrials"));
+                DrawField(position, ref y, property.FindPropertyRelative("additionalHitChance"));
                 DrawField(position, ref y, bonusPenetration);
                 DrawField(position, ref y, bonusDamageMultiplierChance);
                 if (bonusDamageMultiplierChance.floatValue > 0f) DrawField(position, ref y, bonusDamageMultiplier);
@@ -335,6 +337,11 @@ namespace Godmist.Editor
             }
 
             if (!isToggleSkill) DrawField(position, ref y, conditions, true);
+            if(selectedEffect==EffectType.SwapPositions || selectedEffect==EffectType.MarkWeakPoint)
+            {
+                DrawField(position,ref y,baseChance);
+                if(selectedEffect==EffectType.MarkWeakPoint)DrawField(position,ref y,durationTurns);
+            }
             EditorGUI.EndProperty();
         }
 
@@ -484,6 +491,8 @@ namespace Godmist.Editor
                 AddHeight(ref height, damageValueSource);
                 AddHeight(ref height, damageMultiplier);
                 AddHeight(ref height, damageHitCount);
+                AddHeight(ref height, property.FindPropertyRelative("additionalHitTrials"));
+                AddHeight(ref height, property.FindPropertyRelative("additionalHitChance"));
                 AddHeight(ref height, bonusPenetration);
                 AddHeight(ref height, bonusDamageMultiplierChance);
                 if (bonusDamageMultiplierChance.floatValue > 0f) AddHeight(ref height, bonusDamageMultiplier);
@@ -636,6 +645,11 @@ namespace Godmist.Editor
             }
 
             if (!isToggleSkill) AddHeight(ref height, conditions, true);
+            if(selectedEffect==EffectType.SwapPositions || selectedEffect==EffectType.MarkWeakPoint)
+            {
+                AddHeight(ref height,baseChance);
+                if(selectedEffect==EffectType.MarkWeakPoint)AddHeight(ref height,durationTurns);
+            }
             return height;
         }
 

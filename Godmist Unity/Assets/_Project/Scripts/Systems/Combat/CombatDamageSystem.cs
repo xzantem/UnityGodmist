@@ -97,6 +97,8 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
+            ScoutCombatSystem.Face(source, target.Position);
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -109,7 +111,7 @@ namespace Godmist.Systems.Combat
             var damageAfterCrit = ApplyCriticalDamage(
                 source,
                 damageAfterFreeze,
-                isCritical);
+                isCritical, target);
             damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
             if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
@@ -119,7 +121,7 @@ namespace Godmist.Systems.Combat
                 target,
                 damageAfterCrit,
                 damageType,
-                bonusDefensePenetration);
+                bonusDefensePenetration + (damageType == DamageType.Physical ? ScoutCombatSystem.AnalysisPenetration(source) : 0f));
 
             if (isCritical)
             {
@@ -127,6 +129,7 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
+            finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
             var healthDamage = ApplyDamage(
                 session,
                 source,
@@ -147,6 +150,8 @@ namespace Godmist.Systems.Combat
                         eventValue: healthDamage));
             }
 
+            ScoutCombatSystem.RecordHit(source, target, damageType);
+            ScoutCombatSystem.AfterCritical(eventContext, isCritical);
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
@@ -197,6 +202,8 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
+            ScoutCombatSystem.Face(source, target.Position);
+            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
             var isCritical = RollCritical(session, source, damageType, eventContext);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -209,7 +216,7 @@ namespace Godmist.Systems.Combat
             var damageAfterCrit = ApplyCriticalDamage(
                 source,
                 damageAfterFreeze,
-                isCritical);
+                isCritical, target);
             damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
 
             if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
@@ -219,7 +226,7 @@ namespace Godmist.Systems.Combat
                 target,
                 damageAfterCrit,
                 damageType,
-                bonusDefensePenetration);
+                bonusDefensePenetration + (damageType == DamageType.Physical ? ScoutCombatSystem.AnalysisPenetration(source) : 0f));
 
             if (isCritical)
             {
@@ -227,6 +234,7 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
+            finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
             var healthDamage = ApplyDamage(
                 session,
                 source,
@@ -247,10 +255,12 @@ namespace Godmist.Systems.Combat
                         eventValue: healthDamage));
             }
 
+            ScoutCombatSystem.RecordHit(source, target, damageType);
+            ScoutCombatSystem.AfterCritical(eventContext, isCritical);
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
-        public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target, 
+        public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target,
             int requestedDamage, DamageType damageType, bool allowDamageRedirect = true,
             PassiveEffectCombatContext passiveContext = null)
         {
@@ -320,7 +330,7 @@ namespace Godmist.Systems.Combat
             remainingDamage = AbsorbShield(target, remainingDamage);
 
             var shieldDamage = damageBeforeShield - remainingDamage;
-            if (shieldDamage > 0) 
+            if (shieldDamage > 0)
             {
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(
@@ -360,6 +370,7 @@ namespace Godmist.Systems.Combat
             }
             if (shieldDamage > 0 || healthDamage > 0)
             {
+                ScoutCombatSystem.RecordDamageTaken(source, target, damageType);
                 Publish(session, PassiveEffectTriggerType.OnDamageTaken,
                     damageContext.WithOutcome(
                         succeeded: true,
@@ -461,6 +472,7 @@ namespace Godmist.Systems.Combat
             if (damageType != DamageType.Physical && damageType != DamageType.Inevitable)
                 return false;
 
+            if (context?.Skill?.GuaranteedCritical == true) return true;
             if (TryConsumeUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit))
             {
                 return true;
@@ -472,15 +484,17 @@ namespace Godmist.Systems.Combat
                 context,
                 chance);
 
+            chance += ScoutCombatSystem.CriticalChance(context);
             return UnityEngine.Random.value <= Mathf.Clamp01(chance);
         }
 
-        private static int ApplyCriticalDamage(BattleUnit source, int damage, bool isCritical)
+        private static int ApplyCriticalDamage(BattleUnit source, int damage, bool isCritical, BattleUnit target)
         {
             if (!isCritical) return damage;
 
             var multiplier = source.Character.Stats == null ? 0f : source.Character.Stats.CritDamage.GetValue();
 
+            multiplier += ScoutCombatSystem.WeakPointCriticalDamage(target);
             return Mathf.CeilToInt(damage * Mathf.Max(1f, multiplier));
         }
 
@@ -717,6 +731,7 @@ namespace Godmist.Systems.Combat
 
         private void MarkDead(CombatSession session, BattleUnit target)
         {
+            ScoutCombatSystem.ReleaseKnivesOnDeath(session, target);
             target.Character.CurrentHealth = 0;
             target.Character.LifeState = CharacterLifeState.Dead;
             StatusEffectSystem.RemoveTauntsAppliedBy(

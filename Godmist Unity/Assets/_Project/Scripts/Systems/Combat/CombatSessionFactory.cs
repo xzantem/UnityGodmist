@@ -145,6 +145,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            foreach(var enemy in session.Units.Where(u=>!u.IsPlayerSide))
+                enemy.IsBoss=ScoutCombatSystem.IsBoss(gameSession.ActiveDungeon,encounter,enemy.Character.CharacterId);
             combatSession = session;
             return true;
         }
@@ -218,6 +220,8 @@ namespace Godmist.Systems.Combat
                 foreach (var unit in session.Units.Where(unit => !unit.IsPlayerSide))
                     DungeonCombatMembershipSystem.RegisterEnemy(session, encounter.InstanceId, unit.Character.CharacterId,
                         ResolveRewards(gameSession, encounter.Definition, encounter.InstanceId), unit);
+            foreach(var enemy in session.Units.Where(u=>!u.IsPlayerSide))
+                enemy.IsBoss=ScoutCombatSystem.IsBoss(gameSession.ActiveDungeon,encounter.Definition,enemy.Character.CharacterId);
             result = session;
             return true;
         }

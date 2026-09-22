@@ -25,10 +25,12 @@ namespace Godmist.Systems.Combat
             if (effect == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.Effects.Count; i++) if (ReferenceEquals(skill.Effects[i], effect)) { index = i; break; }
+            effect = ScoutCombatSystem.ResolveEffect(owner, skill, effect);
             return effect.WithRuntimeParameters(
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "hit_count", effect.DamageHitCount, effectIndex: index)),
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "duration_turns", effect.DurationTurns, effectIndex: index)),
-                ResolveParameter(owner, skill, "status_chance", effect.BaseChance, effectIndex: index));
+                ResolveParameter(owner, skill, "status_chance", effect.BaseChance, effectIndex: index))
+                .WithAdditionalHitTrials(Mathf.RoundToInt(ResolveParameter(owner, skill, "additional_hit_trials", effect.AdditionalHitTrials, effectIndex: index)));
         }
 
         public static SkillTargetModeData ResolveMode(BattleUnit owner, SkillData skill, SkillTargetModeData mode)
@@ -36,9 +38,10 @@ namespace Godmist.Systems.Combat
             if (mode == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.TargetModes.Count; i++) if (ReferenceEquals(skill.TargetModes[i], mode)) { index = i; break; }
-            return mode.WithRuntimeRanges(
-                Mathf.RoundToInt(ResolveParameter(owner, skill, "range", mode.AbsoluteRange.MaxRange, modeIndex: index)),
-                Mathf.RoundToInt(ResolveParameter(owner, skill, "area_range", mode.RelativeRange.MaxRange, modeIndex: index)));
+            var extra = skill?.SkillId == "skill.scout.ricochet" ? ScoutCombatSystem.AssassinRank(owner,"farsight") switch {1=>1,2=>3,_=>0} : 0;
+            return mode.WithChainTargets(mode.ChainTargets+(skill?.SkillId == "skill.scout.ricochet" ? 2*ScoutCombatSystem.AssassinRank(owner,"knife_bounce") : 0)).WithRuntimeRanges(
+                Mathf.RoundToInt(ResolveParameter(owner, skill, "range", mode.AbsoluteRange.MaxRange + extra, modeIndex: index)),
+                Mathf.RoundToInt(ResolveParameter(owner, skill, "area_range", mode.RelativeRange.MaxRange + extra, modeIndex: index)));
         }
 
         public static float ResolveParameter(BattleUnit owner, SkillData skill,

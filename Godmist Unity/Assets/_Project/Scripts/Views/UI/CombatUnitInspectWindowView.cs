@@ -348,7 +348,7 @@ namespace Godmist.Views.UI
         {
             DestroyRows(skillRows);
             if (skillRoot == null || skillTemplate == null) return;
-            var skills = character.Skills;
+            var skills = character.GetKnownSkills();
             if (skills == null || skills.Count == 0) skills = new List<Godmist.Data.Skills.SkillData>(character.GetActiveSkills());
             foreach (var skill in skills)
             {
@@ -398,7 +398,7 @@ namespace Godmist.Views.UI
         private static string BuildSkillSignature(CharacterInstance character)
         {
             var result = new StringBuilder();
-            var skills = character?.Skills;
+            var skills = character?.GetKnownSkills();
             if (skills == null || skills.Count == 0)
             {
                 skills = character == null

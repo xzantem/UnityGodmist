@@ -87,6 +87,14 @@ namespace Godmist.Views.Combat
                 RequestNpc(hoveredNpc);
                 return;
             }
+            if (Input.GetMouseButtonDown(0) && HoveredUnit != null
+                && (targetSelectionController == null || !targetSelectionController.IsSelectingTarget)
+                && Godmist.Systems.Combat.ScoutCombatSystem.CanExtractKnife(combat, combat?.ActiveUnit, HoveredUnit))
+            {
+                primaryFrame = Time.frameCount;
+                sandboxBootstrap.GetDriver(combat)?.TryExtractScoutKnife(combat.ActiveUnit, HoveredUnit);
+                return;
+            }
             // Right-click during targeting retains cancellation, never opens inspect.
             if (!Input.GetMouseButtonDown(1) || targetSelectionController != null && targetSelectionController.IsSelectingTarget) return;
             if (contextMenu == null || character == null && hoveredNpc == null) return;
@@ -102,8 +110,14 @@ namespace Godmist.Views.Combat
             else
             {
                 var view = menuView; var unit = menuUnit;
-                contextMenu.Show(Input.mousePosition, new[] {
-                    ("Inspektuj", (System.Action)(() => InspectWorldTarget(view, unit)), true) }, character.Definition?.DisplayName ?? character.CharacterId);
+                var actions = new System.Collections.Generic.List<(string, System.Action, bool)> {
+                    ("Inspektuj", () => InspectWorldTarget(view, unit), true) };
+                if (Godmist.Systems.Combat.ScoutCombatSystem.CanExtractKnife(combat, combat?.ActiveUnit, unit))
+                {
+                    var actor = combat.ActiveUnit;
+                    actions.Add(("Wyjmij sztylet", () => sandboxBootstrap.GetDriver(combat)?.TryExtractScoutKnife(actor, unit), true));
+                }
+                contextMenu.Show(Input.mousePosition, actions, character.Definition?.DisplayName ?? character.CharacterId);
             }
         }
 

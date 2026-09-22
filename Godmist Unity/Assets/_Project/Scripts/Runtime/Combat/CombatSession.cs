@@ -50,6 +50,7 @@ namespace Godmist.Runtime.Combat
         public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
             GameDefineIds.ActionPointsPerSpeed, 0.25f);
         public BattleGrid Grid;
+        public readonly Dictionary<string, PendingScoutKnives> PendingScoutKnifeActions = new();
         public List<BattleUnit> Units = new();
         public List<ScheduledCombatEffect> ScheduledEffects = new();
         public List<SummonedBattleUnit> Summons = new();
