@@ -76,6 +76,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-03] Przeprowadzić uzgodniony refaktor klas pod content slice’a` - `Core / Architecture`, `Combat`, `Skills / Progression`
+  - DONE — smoke zaakceptowany i commit/push zlecone 2026-09-22. Wspólny resolver kosztów/parametrów, reakcje pasywne i OnHeal, walidacja, ochrona przed rekurencją i wielokrotnymi procami. Poprawki smoke: punktacja kosztu AI oraz wydajność wyszukiwania drogi na piętrach. Kontrakt: VS03_RUNTIME_CONTRACT.md.
+  - Weryfikacja workspace: 155/155 głównej regresji, 70/70 po poprawce ataków, 63/63 po poprawce wysokości. Katalog assetów/drzewek pozostaje w kartach contentowych.
+
+
 - `[P1] [VS-02] Przeprowadzić review gotowości projektu pod content pass` - `Core / Architecture`, `Tools / Editor / Debug`
   - DONE — raport zaakceptowany przez użytkownika 2026-09-22. [VS02_CONTENT_READINESS_REVIEW.md](VS02_CONTENT_READINESS_REVIEW.md): 10 znalezisk z dowodami i właścicielami, pokrycie 8 drzewek oraz minimalny zakres VS-03.
   - VS-03: wspólny resolver kosztów surowca, wymagane operacje reaktywne pasywów, parametry skilli i walidacja obsługi. Pozostałe braki przypisane do kart contentu; bez ogólnego refaktoru.

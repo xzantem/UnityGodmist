@@ -245,7 +245,7 @@ namespace Godmist.Systems.Combat
                         caster, CombatFeedbackType.ActionPointSpend, actionCost));
                 }
 
-                var spentResource = caster.Character.ResourcePool?.Drain(skill.ResourceCost) ?? 0;
+                var spentResource = caster.Character.ResourcePool?.Drain(PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill)) ?? 0;
                 caster.LastSkillResourceSpent = spentResource;
                 if (spentResource > 0)
                 {
@@ -275,7 +275,7 @@ namespace Godmist.Systems.Combat
                 effectIndex < skill.Effects.Count;
                 effectIndex++)
             {
-                var effect = skill.Effects[effectIndex];
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, skill.Effects[effectIndex]);
 
                 if (effect.EffectType == EffectType.CreateObject)
                 {
@@ -693,7 +693,7 @@ namespace Godmist.Systems.Combat
                                 passiveContext: passiveContext)
                             : damageSystem.ResolveAndApplyDamage(
                                 session, caster, target, attackValue, effect.DamageType,
-                                skill.SkillAccuracy,
+                                PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "accuracy", skill.SkillAccuracy),
                                 effect.BonusPenetration,
                                 passiveContext);
                         hit |= damageResult.Hit;
@@ -815,7 +815,9 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Heal:
                 {
-                    var restoredHealth = recoverySystem.Heal(target, effect.BaseValue);
+                    var restoredHealth = recoverySystem.Heal(target, effect.BaseValue, new PassiveEffectCombatContext(
+                        session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
+                        targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
                     return new EffectExecutionResult 
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -832,7 +834,9 @@ namespace Godmist.Systems.Combat
                         : Mathf.Max(0, Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
                     var restoredHealth = recoverySystem.Heal(
                         target,
-                        Mathf.CeilToInt(maximumHealth * effect.PercentageValue));
+                        Mathf.CeilToInt(maximumHealth * effect.PercentageValue), new PassiveEffectCombatContext(
+                            session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
+                            targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
                     return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -1216,7 +1220,7 @@ namespace Godmist.Systems.Combat
             wasHit = CombatDamageSystem.RollHit(
                 caster,
                 target,
-                skill.SkillAccuracy);
+                PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "accuracy", skill.SkillAccuracy));
 
             hitByTarget.Add(target, wasHit);
 
@@ -1265,34 +1269,8 @@ namespace Godmist.Systems.Combat
             public int ShieldGranted;
         }
 
-        private static bool IsOffensiveSkill(SkillData skill)
-        {
-            if (skill?.TargetModes == null || skill.Effects == null)
-            {
-                return false;
-            }
-
-            foreach (var effect in skill.Effects)
-            {
-                if (effect == null
-                    || effect.TargetModeIndex < 0
-                    || effect.TargetModeIndex >= skill.TargetModes.Count)
-                {
-                    continue;
-                }
-
-                var targetMode = skill.TargetModes[effect.TargetModeIndex];
-
-                if (targetMode != null
-                    && targetMode.TargetType != TargetType.Caster
-                    && targetMode.TargetingType == TargetingType.Enemies)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        private static bool IsOffensiveSkill(SkillData skill) =>
+            PassiveEffectCombatExecutionSystem.IsOffensiveSkill(skill);
 
         private static bool ContainsMobilityEffect(SkillData skill)
         {
@@ -1430,7 +1408,7 @@ namespace Godmist.Systems.Combat
                     targetModeIndex < skill.TargetModes.Count;
                     targetModeIndex++)
                 {
-                    var targetMode = skill.TargetModes[targetModeIndex];
+                    var targetMode = PassiveEffectCombatExecutionSystem.ResolveMode(caster, skill, skill.TargetModes[targetModeIndex]);
 
                     if (targetMode == null)
                     {
@@ -1542,7 +1520,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!skipCosts && skill.ResourceCost > 0
+            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill) > 0
                 && caster.Character.ResourcePool == null)
             {
                 Debug.LogWarning(
@@ -1551,7 +1529,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!skipCosts && skill.ResourceCost > 0
+            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill) > 0
                 && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
             {
                 Debug.LogWarning(
@@ -1562,7 +1540,7 @@ namespace Godmist.Systems.Combat
 
             if (!skipCosts
                 && caster.Character.ResourcePool != null
-                && caster.Character.ResourcePool.CurrentValue < skill.ResourceCost)
+                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill))
             {
                 battleLog?.Invoke("Not enough resource.");
                 return false;
@@ -1572,7 +1550,7 @@ namespace Godmist.Systems.Combat
                 effectIndex < skill.Effects.Count;
                 effectIndex++)
             {
-                var effect = skill.Effects[effectIndex];
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, skill.Effects[effectIndex]);
 
                 if (effect == null)
                 {

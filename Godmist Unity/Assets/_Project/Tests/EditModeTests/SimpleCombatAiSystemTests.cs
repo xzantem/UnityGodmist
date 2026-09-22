@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
+using Godmist.Runtime.Dungeons;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
@@ -35,6 +37,44 @@ namespace Godmist.Tests.EditMode
             session.Grid = grid;
             Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
+        }
+
+        [Test]
+        public void Navigation_EnemyOnUpperFloorDescendsThroughActualStairNodes()
+        {
+            var session = CreateNavigationSession(4, 1, new GridPosition(3, 0, 1), new GridPosition(0, 0));
+            var map = new DungeonFloorMap();
+            for (var x = 0; x < 4; x++) map.TryAddFloorCell(new Vector2Int(x, 0), "room");
+            var upper = new DungeonSurfacePosition(new Vector2Int(3, 0), 1);
+            map.TryAddFloorCell(upper, "room");
+            Assert.That(map.TryAddStairs(new DungeonSurfacePosition(Vector2Int.zero), upper,
+                Enumerable.Range(0, 4).Select(x => new Vector2Int(x, 0)).ToArray()), Is.True);
+            var context = new DungeonCombatContext("d", 0, "enc", "room", Vector2Int.zero, Vector2Int.right,
+                map.Surfaces.Select(s => s.Cell).Distinct(), null, null, surfaceMap: map);
+            Assert.That(new DungeonBattleGridFactory().TryCreate(context, out var grid), Is.True);
+            session.Grid = grid;
+            session.DungeonContext = context;
+            Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.True);
+            Assert.That(session.ActiveUnit.Position.IsOnStairs, Is.True);
+            Assert.That(session.ActiveUnit.Position.StairStep, Is.EqualTo(1));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(ActionPointUnits.FromPoints(7)));
+        }
+
+        [Test]
+        public void Navigation_DisconnectedLargeUpperRoomCompletesSearchPromptly()
+        {
+            const int size = 48;
+            var session = CreateNavigationSession(size, size, new GridPosition(0, 0, 1), new GridPosition(size - 1, size - 1));
+            var grid = new BattleGrid(size, size, nextUsesExplicitWalkablePositions: true);
+            for (var x = 0; x < size; x++) for (var y = 0; y < size; y++) grid.SetWalkable(new GridPosition(x, y, 1));
+            grid.SetWalkable(session.Units[1].Position);
+            grid.TraversalNeighbours = p => new[] { new GridPosition(p.X + 1, p.Y, p.Level),
+                new GridPosition(p.X - 1, p.Y, p.Level), new GridPosition(p.X, p.Y + 1, p.Level), new GridPosition(p.X, p.Y - 1, p.Level) };
+            session.Grid = grid;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.False);
+            TestContext.WriteLine($"Disconnected upper room search: {watch.ElapsedMilliseconds} ms");
+            Assert.That(watch.ElapsedMilliseconds, Is.LessThan(2000), "Unreachable upper rooms must not block the main thread for seconds.");
         }
 
         [Test]
@@ -409,6 +449,27 @@ namespace Godmist.Tests.EditMode
             target.Position = new GridPosition(7, 6);
 
             Assert.That(feedback.Position, Is.EqualTo(new GridPosition(2, 3)));
+        }
+
+        [TestCase(30)]
+        [TestCase(35)]
+        public void TryExecuteNextAction_PaidAttackUsesPointUnitsForUtility(int costPercent)
+        {
+            var attacker = CreateAiCombatUnit("ai", false, new GridPosition(0, 0));
+            var target = CreateAiCombatUnit("target", true, new GridPosition(1, 0));
+            var skill = CreateZeroCostDamageSkill("skill.paid");
+            SetAutoProperty(skill, "ActionCost", costPercent);
+            SetField(skill.Effects[0], "damageMultiplier", 1f);
+            attacker.Character.Skills.Add(skill);
+            var remaining = attacker.CurrentActionPoints - CombatActionCostCalculator.CalculateSkillCost(attacker, skill);
+            var session = CreateAiSession(attacker, target);
+            session.ActionPointsPerSpeed = 1f; // Keep the fixture budget consistent with Speed = 10.
+            var ai = CreateExecutableAiSystem();
+
+            Assert.That(ai.TryExecuteNextAction(session, attacker, ai.CreateTurnState(), out var action), Is.True);
+            Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Skill));
+            Assert.That(target.Character.CurrentHealth, Is.EqualTo(90));
+            Assert.That(attacker.CurrentActionPoints, Is.EqualTo(remaining));
         }
 
         [Test]

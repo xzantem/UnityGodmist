@@ -19,7 +19,7 @@ namespace Godmist.Systems.Combat
             this.feedbackBus = feedbackBus;
         }
 
-        public int Heal(BattleUnit target, int requestedAmount)
+        public int Heal(BattleUnit target, int requestedAmount, PassiveEffectCombatContext context = null)
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead || requestedAmount <= 0) return 0;
 
@@ -47,12 +47,16 @@ namespace Godmist.Systems.Combat
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} zostaje podniesiony i odzyskuje {restoredHealth} HP.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Heal, restoredHealth));
 
+                context?.Session?.PassiveEffectEventDispatcher?.Publish(PassiveEffectTriggerType.OnHeal,
+                    context.WithOutcome(succeeded: true, eventValue: restoredHealth));
                 return restoredHealth;
             }
 
             battleLog?.Invoke($"{target.Character.Definition.DisplayName} odzyskuje {restoredHealth} HP.");
             feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Heal, restoredHealth));
 
+            context?.Session?.PassiveEffectEventDispatcher?.Publish(PassiveEffectTriggerType.OnHeal,
+                context.WithOutcome(succeeded: true, eventValue: restoredHealth));
             return restoredHealth;
         }
 

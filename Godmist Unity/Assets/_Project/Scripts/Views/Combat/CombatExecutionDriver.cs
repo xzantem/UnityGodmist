@@ -197,6 +197,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 passiveEffectLifecycleSystem,
                 AddBattleLog);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -226,6 +227,7 @@ namespace Godmist.Views.Combat
                 feedbackBus: feedbackBus,
                 modifyResistanceSystem: modifyResistanceSystem,
                 passiveEffectEventDispatcher: passiveEffectEventDispatcher);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             ConfigurePassiveEffectExecutionCallbacks();
             movementSystem = new CombatMovementSystem(
                 AddBattleLog,
@@ -487,6 +489,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 passiveEffectLifecycleSystem,
                 AddBattleLog);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             ConfigurePassiveEffectExecutionCallbacks();
             ScoutKnifeSystem.ResetForCombat(Session, Session.IsSeamless);
             hasClearedCombatScopedEffects = false;
@@ -1182,7 +1185,7 @@ namespace Godmist.Views.Combat
                 targetModeIndex < skill.TargetModes.Count;
                 targetModeIndex++)
             {
-                var targetMode = skill.TargetModes[targetModeIndex];
+                var targetMode = PassiveEffectCombatExecutionSystem.ResolveMode(Session.ActiveUnit, skill, skill.TargetModes[targetModeIndex]);
 
                 if (targetMode == null)
                 {

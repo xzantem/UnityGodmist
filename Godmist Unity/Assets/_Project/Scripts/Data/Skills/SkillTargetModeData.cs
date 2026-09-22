@@ -33,6 +33,15 @@ namespace Godmist.Data.Skills
         public bool UseRelativeRange => SupportsRelativeRange(TargetType);
         public SkillRangeData RelativeRange => relativeRange;
 
+        public SkillTargetModeData WithRuntimeRanges(int absoluteMaximum, int relativeMaximum)
+        {
+            if (absoluteMaximum == absoluteRange.MaxRange && relativeMaximum == relativeRange.MaxRange) return this;
+            var copy = (SkillTargetModeData)MemberwiseClone();
+            copy.absoluteRange = new SkillRangeData(absoluteRange.Shape, absoluteRange.MinRange, absoluteMaximum, absoluteRange.RectangleWidth);
+            copy.relativeRange = new SkillRangeData(relativeRange.Shape, relativeRange.MinRange, relativeMaximum, relativeRange.RectangleWidth);
+            return copy;
+        }
+
         public static bool SupportsRelativeRange(TargetType targetType)
         {
             return targetType == TargetType.AreaAroundTile;

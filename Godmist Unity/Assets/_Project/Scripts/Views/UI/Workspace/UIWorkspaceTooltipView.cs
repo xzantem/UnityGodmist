@@ -224,7 +224,7 @@ namespace Godmist.Views.UI.Workspace
                     ? "Przedmiot użytkowy"
                     : skill.DisplayName,
                 BuildSkillDescription(skill, caster),
-                BuildSkillMeta(skill, actionCost) + (string.IsNullOrEmpty(availabilityReason) ? string.Empty : "\n" + availabilityReason)));
+                BuildSkillMeta(skill, actionCost, caster) + (string.IsNullOrEmpty(availabilityReason) ? string.Empty : "\n" + availabilityReason)));
         }
 
         public void ShowStatus(CombatStatusPresentation presentation, object source)
@@ -1084,13 +1084,13 @@ namespace Godmist.Views.UI.Workspace
             // picker. Showing it in the item tooltip is noisy and misleading.
             if (!IsRuntimeConsumable(skill))
             {
-                AppendSkillTargetingSummary(generated, skill);
+                AppendSkillTargetingSummary(generated, skill, caster);
             }
 
             foreach (var effect in skill.Effects ?? Array.Empty<SkillEffectData>())
             {
                 if (effect == null) continue;
-                Append(generated, DescribeEffect(skill, caster, effect));
+                Append(generated, DescribeEffect(skill, caster, PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, effect)));
             }
 
             if (generated.Length > 0)
@@ -1113,10 +1113,11 @@ namespace Godmist.Views.UI.Workspace
                     StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string BuildSkillMeta(SkillData skill, int actionCost)
+        private static string BuildSkillMeta(SkillData skill, int actionCost, BattleUnit caster)
         {
             var result = $"Koszt: {actionCost} AP";
-            if (skill.ResourceCost > 0) result += $"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {skill.ResourceCost}";
+            var resourceCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill);
+            if (resourceCost > 0) result += $"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {resourceCost}";
             if (skill.KnifeCost > 0) result += $"  •  SZTYLETY {skill.KnifeCost}";
             if (!skill.IsToggle) return result;
 
@@ -1132,7 +1133,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void AppendSkillTargetingSummary(
             StringBuilder result,
-            SkillData skill)
+            SkillData skill, BattleUnit caster)
         {
             if (skill?.TargetModes == null || skill.TargetModes.Count == 0)
             {
@@ -1144,8 +1145,9 @@ namespace Godmist.Views.UI.Workspace
             var hasTarget = false;
             var hasAreaTarget = false;
 
-            foreach (var mode in skill.TargetModes)
+            foreach (var authoredMode in skill.TargetModes)
             {
+                var mode = PassiveEffectCombatExecutionSystem.ResolveMode(caster, skill, authoredMode);
                 if (mode == null
                     || mode.TargetType == TargetType.Caster
                     || mode.TargetType == TargetType.All)
@@ -1191,7 +1193,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var description = effect.EffectType switch
             {
-                EffectType.DealDamage => DescribeDamage(caster, effect),
+                EffectType.DealDamage => DescribeDamage(skill, caster, effect),
                 EffectType.Heal => effect.BaseValue > 0
                     ? $"Przywraca {effect.BaseValue} zdrowia."
                     : "Przywraca zdrowie.",
@@ -1250,10 +1252,10 @@ namespace Godmist.Views.UI.Workspace
                 : AddEffectContext(description, skill, effect);
         }
 
-        private string DescribeDamage(BattleUnit caster, SkillEffectData effect)
+        private string DescribeDamage(SkillData skill, BattleUnit caster, SkillEffectData effect)
         {
             var range = Godmist.Systems.Combat.CombatSkillPreviewCalculator
-                .CalculateDamageRange(caster, effect);
+                .CalculateDamageRange(caster, effect, skill);
             var damageText = range.HasDamage
                 ? $"{range.Minimum}–{range.Maximum}"
                 : "";

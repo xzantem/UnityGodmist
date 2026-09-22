@@ -21,6 +21,7 @@ namespace Godmist.Runtime.Combat
         public IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> TargetsByModeIndex { get; }
         public string ActionId { get; }
         public bool IsPassiveDuplicate { get; }
+        public bool IsPassiveReaction { get; }
         public AttackType AttackType { get; }
         public AttackPosition AttackPosition { get; }
         public DamageType? DamageType { get; }
@@ -72,7 +73,8 @@ namespace Godmist.Runtime.Combat
             IReadOnlyCollection<string> targetTags = null,
             bool? referencedEffectSucceeded = null,
             bool? referencedEffectCrit = null,
-            bool? referencedEffectDodged = null)
+            bool? referencedEffectDodged = null,
+            bool isPassiveReaction = false)
         {
             Session = session;
             Source = source;
@@ -82,6 +84,7 @@ namespace Godmist.Runtime.Combat
             TargetsByModeIndex = targetsByModeIndex;
             ActionId = actionId ?? string.Empty;
             IsPassiveDuplicate = isPassiveDuplicate;
+            IsPassiveReaction = isPassiveReaction;
             AttackType = attackType;
             AttackPosition = attackPosition;
             DamageType = damageType;
@@ -144,7 +147,7 @@ namespace Godmist.Runtime.Combat
                 TargetTags,
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,
-                ReferencedEffectDodged);
+                ReferencedEffectDodged, IsPassiveReaction);
         }
 
         public PassiveEffectCombatContext AsPassiveDuplicate()
@@ -178,7 +181,7 @@ namespace Godmist.Runtime.Combat
                 TargetTags,
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,
-                ReferencedEffectDodged);
+                ReferencedEffectDodged, IsPassiveReaction);
         }
 
         private static IReadOnlyCollection<string> ResolveTargetTags(BattleUnit target)

@@ -17,7 +17,7 @@ using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
-    public sealed class PassiveEffectCombatExecutionSystemTests
+    public sealed partial class PassiveEffectCombatExecutionSystemTests
     {
         [Test]
         public void PreventDamage_OnlyAbsorbsMagicalDamage()

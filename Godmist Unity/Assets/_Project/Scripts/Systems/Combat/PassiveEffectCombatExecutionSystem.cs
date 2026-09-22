@@ -17,7 +17,7 @@ namespace Godmist.Systems.Combat
     /// stats. Persistent always-active definitions are still handled by the stat
     /// pipeline; this system handles definitions that depend on a combat event.
     /// </summary>
-    public sealed class PassiveEffectCombatExecutionSystem : IDisposable
+    public sealed partial class PassiveEffectCombatExecutionSystem : IDisposable
     {
         private readonly CombatSession session;
         private readonly StatusEffectSystem statusEffectSystem;
@@ -59,7 +59,7 @@ namespace Godmist.Systems.Combat
             if (damage <= 0f || context?.Source == null)
                 return damage;
 
-            var multiplier = 1f;
+            var multiplier = ResolveParameter(context.Source, context.Skill, "damage_multiplier", 1f);
             foreach (var match in FindMatches(
                          session,
                          PassiveEffectTriggerType.OnAttack,
@@ -80,6 +80,7 @@ namespace Godmist.Systems.Combat
                             operation.ModifierStacking);
                     }
                     else if (operation.Type == PassiveEffectOperationType.ModifySkillParameter
+                        && !string.Equals(operation.ReferenceId, "damage_multiplier", StringComparison.OrdinalIgnoreCase)
                         && TryGetParameter(operation, "damage_multiplier", out var value))
                     {
                         multiplier = ApplyStacking(
@@ -300,7 +301,7 @@ namespace Godmist.Systems.Combat
 
         private void HandlePublishedEvent(PassiveEffectCombatEvent combatEvent)
         {
-            if (combatEvent?.Context == null || session?.Units == null)
+            if (combatEvent?.Context == null || session?.Units == null || combatEvent.Context.IsPassiveReaction)
                 return;
 
             var units = new List<BattleUnit>(session.Units);
@@ -359,6 +360,14 @@ namespace Godmist.Systems.Combat
 
             switch (operation.Type)
             {
+                case PassiveEffectOperationType.ModifyActionValue:
+                case PassiveEffectOperationType.GrantShield:
+                case PassiveEffectOperationType.GrantActionPoints:
+                case PassiveEffectOperationType.Heal:
+                case PassiveEffectOperationType.RestoreResource:
+                case PassiveEffectOperationType.DealDamage:
+                    ExecuteReaction(owner, runtime, operation, context);
+                    break;
                 case PassiveEffectOperationType.ApplyStatus:
                     ApplyStatus(owner, runtime, operation, context);
                     break;

@@ -314,13 +314,13 @@ namespace Godmist.Systems.Combat
 
             if (unit.CurrentActionPoints < actionCost) return false;
 
-            if (skill.ResourceCost <= 0) return true;
+            if (PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill) <= 0) return true;
 
             var resourcePool = unit.Character.ResourcePool;
 
             return resourcePool != null
                 && resourcePool.ResourceType == skill.ResourceType
-                && resourcePool.CurrentValue >= skill.ResourceCost;
+                && resourcePool.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill);
         }
 
         private bool TryBuildTargets(CombatSession session, BattleUnit caster, 
@@ -333,7 +333,7 @@ namespace Godmist.Systems.Combat
 
             for (var index = 0; index < skill.TargetModes.Count; index++)
             {
-                var mode = skill.TargetModes[index];
+                var mode = PassiveEffectCombatExecutionSystem.ResolveMode(caster, skill, skill.TargetModes[index]);
 
                 if (mode == null) return false;
 
@@ -474,8 +474,8 @@ namespace Godmist.Systems.Combat
 
             return score + CalculateRoleBonus(caster, skill, targetsByModeIndex)
                 + CalculatePersonalityBonus(caster, skill, targetsByModeIndex)
-                - actionCost * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f)
-                - skill.ResourceCost * Ai(GameDefineIds.AiResourceCostPenaltyPerPoint, .1f);
+                - ActionPointUnits.ToPoints(actionCost) * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f)
+                - PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill) * Ai(GameDefineIds.AiResourceCostPenaltyPerPoint, .1f);
         }
 
         private static float CalculatePersonalityBonus(
@@ -611,7 +611,7 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    var mode = skill.TargetModes[effect.TargetModeIndex];
+                    var mode = PassiveEffectCombatExecutionSystem.ResolveMode(unit, skill, skill.TargetModes[effect.TargetModeIndex]);
                     if (mode?.TargetingType == TargetingType.Enemies
                         && mode.TargetType != TargetType.Caster
                         && mode.AbsoluteRange != null)
@@ -673,14 +673,15 @@ namespace Godmist.Systems.Combat
         {
             var score = 0f;
 
-            foreach (var effect in skill.Effects)
+            foreach (var authoredEffect in skill.Effects)
             {
-                if (effect == null || effect.TargetModeIndex != targetModeIndex
-                    || singleEffect != null && effect != singleEffect)
+                if (authoredEffect == null || authoredEffect.TargetModeIndex != targetModeIndex
+                    || singleEffect != null && authoredEffect != singleEffect)
                 {
                     continue;
                 }
 
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, authoredEffect);
                 foreach (var target in targets)
                 {
                     if (target?.Character == null) continue;
@@ -689,7 +690,8 @@ namespace Godmist.Systems.Combat
                     {
                         case EffectType.DealDamage:
                         {
-                            var expectedDamage = CalculateExpectedDamage(caster, effect);
+                            var expectedDamage = CalculateExpectedDamage(caster, effect) * Mathf.Max(1, effect.DamageHitCount)
+                                * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f);
                             score += expectedDamage;
                             if (expectedDamage >= target.Character.CurrentHealth)
                             {
@@ -886,13 +888,25 @@ namespace Godmist.Systems.Combat
         {
             path = null;
             var start = aiUnit.Position;
-            var pending = new List<(GridPosition cell, List<GridPosition> path, float risk)> { (start, new(), 0f) };
+            // Cache route costs and order incrementally: sorting every frontier while
+            // recalculating every full path stalls large/disconnected layered rooms.
+            var order = Comparer<(GridPosition cell, List<GridPosition> path, float risk, int cost, string traps, int serial)>.Create((a, b) =>
+            {
+                var result = a.risk.CompareTo(b.risk);
+                if (result == 0) result = a.cost.CompareTo(b.cost);
+                return result != 0 ? result : a.serial.CompareTo(b.serial);
+            });
+            var pending = new SortedSet<(GridPosition cell, List<GridPosition> path, float risk, int cost, string traps, int serial)>(order);
+            var serial = 0;
+            pending.Add((start, new List<GridPosition>(), 0f, 0, "", serial++));
             var best = new Dictionary<(GridPosition, string), (float risk, int cost)> { [(start, "")] = (0f, 0) };
             while (pending.Count > 0)
             {
-                pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, a.path).CompareTo(CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, b.path)));
-                var node = pending[0]; pending.RemoveAt(0);
+                var node = pending.Min;
+                pending.Remove(node);
                 var current = node.cell;
+                if (best.TryGetValue((current, node.traps), out var known)
+                    && (known.risk < node.risk || known.risk == node.risk && known.cost < node.cost)) continue;
                 if (stopAdjacent ? IsAdjacent(current, destination) && CanPlanAcross(session, aiUnit, current, destination)
                     : current == destination)
                 {
@@ -909,10 +923,11 @@ namespace Godmist.Systems.Combat
                     var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
                     if (!float.IsFinite(risk)) continue;
                     var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
-                    var cost = CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, next);
+                    var cost = node.cost + (aiUnit.MovementStepsThisTurn + next.Count
+                        + session.Grid.GetMovementSurcharge(current, candidate)) * ActionPointUnits.PerPoint;
                     if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.cost <= cost)) continue;
                     best[key] = (risk, cost);
-                    pending.Add((candidate, next, risk));
+                    pending.Add((candidate, next, risk, cost, key.Item2, serial++));
                 }
             }
             return false;

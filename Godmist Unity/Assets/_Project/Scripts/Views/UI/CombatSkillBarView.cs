@@ -144,10 +144,10 @@ namespace Godmist.Views.UI
                     && activeUnit.ToggleSkillIdsUsedThisTurn != null
                     && activeUnit.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId);
                 var canPayActivationCost = activeUnit.CurrentActionPoints >= actionCost
-                    && (skill.ResourceCost <= 0
+                    && (PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill) <= 0
                         || (resource != null
                             && resource.ResourceType == skill.ResourceType
-                            && resource.CurrentValue >= skill.ResourceCost));
+                            && resource.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill)));
                 var canPayKnives = skill.KnifeCost <= 0
                     || activeUnit.AvailableKnives >= skill.KnifeCost;
                 var canUse = activeUnit.IsPlayerSide && (isActiveToggle

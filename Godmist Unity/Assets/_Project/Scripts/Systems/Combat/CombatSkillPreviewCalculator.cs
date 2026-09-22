@@ -55,14 +55,15 @@ namespace Godmist.Systems.Combat
             var maximum = 0;
             var hasDamage = false;
 
-            foreach (var effect in skill?.Effects ?? Array.Empty<SkillEffectData>())
+            foreach (var baseEffect in skill?.Effects ?? Array.Empty<SkillEffectData>())
             {
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, baseEffect);
                 if (effect?.EffectType != EffectType.DealDamage)
                 {
                     continue;
                 }
 
-                var effectRange = CalculateDamageRange(caster, effect);
+                var effectRange = CalculateDamageRange(caster, effect, skill);
                 minimum += effectRange.Minimum;
                 maximum += effectRange.Maximum;
                 hasDamage |= effectRange.HasDamage;
@@ -79,7 +80,7 @@ namespace Godmist.Systems.Combat
         /// </summary>
         public static CombatSkillDamageRange CalculateDamageRange(
             BattleUnit caster,
-            SkillEffectData effect)
+            SkillEffectData effect, SkillData skill = null)
         {
             if (effect?.EffectType != EffectType.DealDamage)
             {
@@ -94,8 +95,8 @@ namespace Godmist.Systems.Combat
 
             var hitCount = Mathf.Max(1, effect.DamageHitCount);
             return new CombatSkillDamageRange(
-                ApplyCurrentDamageModifiers(caster, null, range.Minimum) * hitCount,
-                ApplyCurrentDamageModifiers(caster, null, range.Maximum) * hitCount,
+                ApplyCurrentDamageModifiers(caster, null, range.Minimum, skill) * hitCount,
+                ApplyCurrentDamageModifiers(caster, null, range.Maximum, skill) * hitCount,
                 true);
         }
 
@@ -110,8 +111,9 @@ namespace Godmist.Systems.Combat
             var hasDamage = false;
             var hasGuaranteedHit = true;
 
-            foreach (var effect in skill?.Effects ?? Array.Empty<SkillEffectData>())
+            foreach (var baseEffect in skill?.Effects ?? Array.Empty<SkillEffectData>())
             {
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, baseEffect);
                 if (effect?.EffectType != EffectType.DealDamage)
                 {
                     continue;
@@ -142,11 +144,11 @@ namespace Godmist.Systems.Combat
                     minimum += ApplyCurrentDamageModifiers(
                         caster,
                         target,
-                        minimumAfterDefense);
+                        minimumAfterDefense, skill);
                     maximum += ApplyCurrentDamageModifiers(
                         caster,
                         target,
-                        maximumAfterDefense);
+                        maximumAfterDefense, skill);
                 }
                 hasDamage = true;
 
@@ -165,7 +167,7 @@ namespace Godmist.Systems.Combat
                     : target.Character.Stats.Dodge.GetValue();
                 hitChance = CombatDamageSystem.CalculateHitChance(
                     caster?.Character?.WeaponAccuracy ?? 0f,
-                    skill?.SkillAccuracy ?? 0f,
+                    PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "accuracy", skill?.SkillAccuracy ?? 0f),
                     dodge);
                 hitChance = CombatDamageSystem.ApplyHitChanceBonus(caster?.Character, hitChance);
             }
@@ -225,7 +227,7 @@ namespace Godmist.Systems.Combat
         private static int ApplyCurrentDamageModifiers(
             BattleUnit caster,
             BattleUnit target,
-            int damage)
+            int damage, SkillData skill = null)
         {
             if (damage <= 0)
             {
@@ -242,7 +244,8 @@ namespace Godmist.Systems.Combat
 
             return Mathf.Max(
                 0,
-                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier));
+                Mathf.RoundToInt(damage * dealtMultiplier * receivedMultiplier
+                    * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f)));
         }
     }
 }

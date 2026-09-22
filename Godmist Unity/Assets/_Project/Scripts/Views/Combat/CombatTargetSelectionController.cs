@@ -62,7 +62,7 @@ namespace Godmist.Views.Combat
         private SkillEffectData selectedCreateObjectEffect;
         private bool isSelectingObjectPlacement;
         private CombatTargetPreviewView targetPreview;
-        private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
+        private SkillTargetModeData CurrentTargetMode => PassiveEffectCombatExecutionSystem.ResolveMode(sandboxBootstrap.Session?.ActiveUnit, selectedSkill, selectedSkill.TargetModes[currentTargetModeIndex]);
 
         public bool IsSelectingTarget => selectedSkill != null;
         public bool ConsumedPrimaryClickThisFrame { get; private set; }

@@ -12,6 +12,16 @@ namespace Godmist.Data.Effects
     [Serializable]
     public class SkillEffectData
     {
+        public SkillEffectData WithRuntimeParameters(int hits, int duration, float chance)
+        {
+            if (hits == damageHitCount && duration == durationTurns && Mathf.Approximately(chance, baseChance)) return this;
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.damageHitCount = Mathf.Max(1, hits);
+            copy.durationTurns = Mathf.Max(0, duration);
+            copy.baseChance = Mathf.Clamp01(chance);
+            return copy;
+        }
+
         [SerializeField] private EffectType effectType = EffectType.DealDamage;
         [SerializeField] private EffectPolarity polarity = EffectPolarity.Negative;
         [SerializeField] private bool alwaysHits;

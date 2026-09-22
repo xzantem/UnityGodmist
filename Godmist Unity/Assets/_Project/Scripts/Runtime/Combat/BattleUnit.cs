@@ -7,6 +7,16 @@ using UnityEngine;
 
 namespace Godmist.Runtime.Combat
 {
+    public static class ActionPointUnits
+    {
+        public const int PerPoint = 1;
+        public static int FromPoints(float points) => Mathf.RoundToInt(points * PerPoint);
+        public static float ToPoints(int units) => units / (float)PerPoint;
+        public static string Format(int units) => ToPoints(units).ToString("0.##");
+        public static int PipCount(int units) => Mathf.CeilToInt(Mathf.Max(0, units) / (float)PerPoint);
+        public static float PipFill(int units, int index) => Mathf.Clamp01(ToPoints(units) - index);
+    }
+
     [Serializable]
     public class BattleUnit
     {
