@@ -76,6 +76,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-06] Przygotować drużynę vertical slice’a` - `Content / Data`, `NPC / Quest / Dialogue`
+  - Po VS-01/03: wybrane postacie z rolami, statystykami, zasobami, portretami i startowym wyposażeniem. Ustalić początkowy skład oraz dostępność/rekrutację przez istniejące mechanizmy.
+  - Sprawdzić wybór lidera, grupy, inventory, rozwój i save/load dla każdej postaci. Nie wprowadzać nowego systemu relacji/rekrutacji bez potrzeby slice’a.
+  - 2026-09-22: otwarta po zaakceptowanym smoke i commit/push VS-05 (`d2f4d1c4`). Skład, dostępność, wyposażenie L1 i start kampanii gotowe. Context pass: Statystyki Postaci.xlsx; istniejące CharacterDefinition i fabryka. Do uzupełnienia odporności, zasoby (Wladimir nadal 200 zamiast 50), bazowy kryt Alison/Reimonda oraz prezentacja; sprawdzić lidera/grupy/inventory/progresję/save-load. Startowe skille wdrażane w kartach klas VS-07–09.
+  - 2026-09-22: użytkownik zatwierdził Alison 20/Reimond 15 MP/t i istniejące sprite’y do VS-22. DONE — smoke zaakceptowany przez użytkownika: dane i sprite’y skonfigurowane. 37/37 EditMode PASS; końcowy retest karty 10/10 PASS, Play Mode i kontrola obrazu PASS. Sprawdzone lider/grupy/ekwipunek/awans/save-load. Self-review zakończony. Odbiór w UNITY_HANDOFF.md, szczegóły VS06_PARTY.md. Commit/push autoryzowane.
+
 - `[P1] [VS-05] Przygotować początek gry w Arungardzie` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
   - Po katalogu i w integracji z VS-04/06: stan nowej kampanii, startowe zasoby/wyposażenie, przedstawiony cel i czytelne skierowanie do pierwszej wyprawy.
   - Bez debugowego rozdawania testowego contentu w ścieżce gracza. Uzgodnić krótkie wprowadzenie i dostępność usług; sprawdzić nową grę oraz zapis/wczytanie początku.

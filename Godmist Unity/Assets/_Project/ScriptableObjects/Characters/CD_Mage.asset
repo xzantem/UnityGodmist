@@ -15,12 +15,20 @@ MonoBehaviour:
   <Id>k__BackingField: character.mage
   <DisplayName>k__BackingField: Alison
   <Tags>k__BackingField: 
-  <VisualSprite>k__BackingField: {fileID: 0}
-  <IdleAnimationFrames>k__BackingField: []
+  <VisualSprite>k__BackingField: {fileID: -4721042436042700792, guid: 47376fdb3167f1c47b5651276ab37f2b, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: -4721042436042700792, guid: 47376fdb3167f1c47b5651276ab37f2b, type: 3}
+  - {fileID: 1153904409268785697, guid: 52448f7ebcf9b5944abf4021a6b3cc2f, type: 3}
+  - {fileID: 2964344851528821143, guid: 820078f21c416b7469f9dbfc9602144e, type: 3}
+  - {fileID: 7987645740995342739, guid: a0da443d110b1164e8b6980c84cd7c95, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
-  <RunAnimationFrames>k__BackingField: []
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: -4212091769728385042, guid: b49cc7d979935194ba44b513b3129d4b, type: 3}
+  - {fileID: 3077049074205977423, guid: 5916118c7c53817439c5d01952ccf180, type: 3}
+  - {fileID: -4613522765444141153, guid: 93d7093a8f5ef424397f33e29b5dda68, type: 3}
+  - {fileID: -4380341352178467005, guid: 9a1581653ce7f094abe175245f1dd3bb, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 0}
+  <HitSprite>k__BackingField: {fileID: -3060388575861523639, guid: 04cad7a238a910445aef3deda352cfb5, type: 3}
   <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
@@ -36,20 +44,20 @@ MonoBehaviour:
     <PhysicalDefensePenetration>k__BackingField: 0
     <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 6
-    <CritChance>k__BackingField: 0.25
-    <CritDamage>k__BackingField: 1.5
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 1
     <Speed>k__BackingField: 45
-    <WeaponAccuracy>k__BackingField: 100
+    <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 100
-    <ResourceRegeneration>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 20
     <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
-    <BleedResistance>k__BackingField: 0
-    <PoisonResistance>k__BackingField: 0
-    <FireResistance>k__BackingField: 0
-    <WeakeningResistance>k__BackingField: 0
-    <SuppressionResistance>k__BackingField: 0
-    <MoveResistance>k__BackingField: 0
+    <BleedResistance>k__BackingField: 0.25
+    <PoisonResistance>k__BackingField: 0.25
+    <FireResistance>k__BackingField: 0.8
+    <WeakeningResistance>k__BackingField: 0.7
+    <SuppressionResistance>k__BackingField: 0.3
+    <MoveResistance>k__BackingField: 0.3
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 7.5
     <MinAttack>k__BackingField: 1

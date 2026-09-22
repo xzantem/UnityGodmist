@@ -36,35 +36,35 @@ MonoBehaviour:
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
   <ClassData>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 300
-    <MinAttack>k__BackingField: 18
-    <MaxAttack>k__BackingField: 36
-    <PhysicalDefense>k__BackingField: 8
-    <MagicalDefense>k__BackingField: 4
+    <MaxHealth>k__BackingField: 375
+    <MinAttack>k__BackingField: 24
+    <MaxAttack>k__BackingField: 32
+    <PhysicalDefense>k__BackingField: 12
+    <MagicalDefense>k__BackingField: 8
     <PhysicalDefensePenetration>k__BackingField: 0
     <MagicalDefensePenetration>k__BackingField: 0
-    <Dodge>k__BackingField: 17
+    <Dodge>k__BackingField: 10
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 1
-    <Speed>k__BackingField: 55
+    <Speed>k__BackingField: 40
     <WeaponAccuracy>k__BackingField: 0
-    <MaxResource>k__BackingField: 200
+    <MaxResource>k__BackingField: 50
     <ResourceRegeneration>k__BackingField: 0
     <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
-    <BleedResistance>k__BackingField: 0.5
-    <PoisonResistance>k__BackingField: 0.7
+    <BleedResistance>k__BackingField: 0.7
+    <PoisonResistance>k__BackingField: 0.5
     <FireResistance>k__BackingField: 0.4
-    <WeakeningResistance>k__BackingField: 0.5
-    <SuppressionResistance>k__BackingField: 0.35
-    <MoveResistance>k__BackingField: 0.35
+    <WeakeningResistance>k__BackingField: 0.6
+    <SuppressionResistance>k__BackingField: 0.6
+    <MoveResistance>k__BackingField: 0.6
   <GrowthData>k__BackingField:
-    <MaxHealth>k__BackingField: 10
-    <MinAttack>k__BackingField: 0.8
-    <MaxAttack>k__BackingField: 1.1
-    <PhysicalDefense>k__BackingField: 0.33
-    <MagicalDefense>k__BackingField: 0.2
-    <Dodge>k__BackingField: 0.08
+    <MaxHealth>k__BackingField: 12.5
+    <MinAttack>k__BackingField: 0.7
+    <MaxAttack>k__BackingField: 0.95
+    <PhysicalDefense>k__BackingField: 0.45
+    <MagicalDefense>k__BackingField: 0.3
+    <Dodge>k__BackingField: 0.05
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 0
     <Speed>k__BackingField: 0
