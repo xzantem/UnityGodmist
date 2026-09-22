@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.wielka_sztabka_niklu
   <DisplayName>k__BackingField: Wielka sztabka niklu
-  <Description>k__BackingField: 6x Ruda niklu -> 1x Wielka sztabka niklu
+  <Description>k__BackingField: "Du\u017Ca porcja przetopionego metalu do wyrobu
+    ci\u0119\u017Ckich cz\u0119\u015Bci wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

@@ -241,7 +241,10 @@ namespace Godmist.Editor
             }
 
             if (equipment is UniqueEquipmentDefinition unique)
+            {
                 ValidatePassives(unique.Effects, "Effects", errors, warnings);
+                ValidatePassives(unique.EffectsLevel20, "EffectsLevel20", errors, warnings);
+            }
         }
 
         private static void ValidatePart(

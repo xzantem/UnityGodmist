@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.onyks
   <DisplayName>k__BackingField: Onyks
-  <Description>k__BackingField: "Demoniczna torba zasob\xF3w"
+  <Description>k__BackingField: "Czarny kamie\u0144 szlachetny, kt\xF3ry mo\u017Cna
+    rozdrobni\u0107 na magiczny proszek."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

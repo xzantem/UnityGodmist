@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Items;
@@ -15,6 +16,7 @@ namespace Godmist.Systems.Items
         private readonly EquipmentGenerationService equipmentGenerationService;
         private readonly IReadOnlyList<EquipmentPartDefinition> equipmentParts;
         private readonly int lootLevel;
+        private readonly float dropChanceBonus;
         private readonly JewelryGenerationService jewelryGenerationService;
 
         public LootTableSystem(
@@ -22,13 +24,14 @@ namespace Godmist.Systems.Items
             ItemInstanceFactory itemInstanceFactory = null,
             EquipmentGenerationService equipmentGenerationService = null,
             IReadOnlyList<EquipmentPartDefinition> equipmentParts = null,
-            int lootLevel = 1)
+            int lootLevel = 1, float dropChanceBonus = 0)
         {
             this.randomValue = randomValue ?? (() => UnityEngine.Random.value);
             this.itemInstanceFactory = itemInstanceFactory ?? new ItemInstanceFactory();
             this.equipmentGenerationService = equipmentGenerationService;
             this.equipmentParts = equipmentParts;
             this.lootLevel = Mathf.Clamp(lootLevel, 1, 50);
+            this.dropChanceBonus = Mathf.Clamp01(dropChanceBonus);
             jewelryGenerationService = new JewelryGenerationService(this.randomValue, this.itemInstanceFactory);
         }
 
@@ -36,13 +39,13 @@ namespace Godmist.Systems.Items
             System.Random random,
             IReadOnlyList<EquipmentPartDefinition> equipmentParts,
             ItemInstanceFactory itemInstanceFactory = null,
-            int lootLevel = 1)
+            int lootLevel = 1, float dropChanceBonus = 0)
             : this(
                 () => (float)(random ?? throw new ArgumentNullException(nameof(random))).NextDouble(),
                 itemInstanceFactory,
                 new EquipmentGenerationService(random, itemInstanceFactory),
                 equipmentParts,
-                lootLevel)
+                lootLevel, dropChanceBonus)
         {
         }
 
@@ -56,9 +59,9 @@ namespace Godmist.Systems.Items
             {
                 if (entry?.ItemDefinition == null) continue;
 
-                var chance = Mathf.Clamp01(entry.DropChance);
-
-                if (randomValue() > chance) continue;
+                var chance = Mathf.Clamp01(entry.DropChance + (entry.DropChance > 0 ? dropChanceBonus : 0));
+                var roll = randomValue();
+                if (chance <= 0f || (chance < 1f && roll >= chance)) continue;
 
                 var minAmount = Mathf.Max(0, entry.Amount.Min);
                 var maxAmount = Mathf.Max(minAmount, entry.Amount.Max);
@@ -120,7 +123,7 @@ namespace Godmist.Systems.Items
 
             return equipmentGenerationService.Generate(
                 equipmentDefinition,
-                equipmentParts);
+                equipmentParts.Where(p => p != null && (int)p.LevelBracket == Mathf.Min(45, ((lootLevel - 1) / 10) * 10 + 5)).ToList());
         }
 
         private List<ItemInstance> RollLootBagContents(
@@ -137,11 +140,14 @@ namespace Godmist.Systems.Items
 
             foreach (var pool in bracketData.Pools)
             {
-                if (pool == null
-                    || randomValue() > Mathf.Clamp01(pool.DropChance))
+                if (pool == null)
                 {
                     continue;
                 }
+
+                var chance = Mathf.Clamp01(pool.DropChance + (pool.DropChance > 0 ? dropChanceBonus : 0));
+                var roll = randomValue();
+                if (chance <= 0f || (chance < 1f && roll >= chance)) continue;
 
                 var entries = new List<LootBagPoolEntryData>();
 
@@ -194,8 +200,9 @@ namespace Godmist.Systems.Items
                 return null;
             }
 
-            var chance = Mathf.Clamp01(data.DropChance);
-            if (randomValue() >= chance) return null;
+            var chance = Mathf.Clamp01(data.DropChance + (data.DropChance > 0 ? dropChanceBonus : 0));
+            var roll = randomValue();
+            if (chance <= 0f || (chance < 1f && roll >= chance)) return null;
 
             var candidates = new List<EquipmentItemDefinition>();
             foreach (var definition in data.EquipmentDefinitions)
@@ -226,7 +233,7 @@ namespace Godmist.Systems.Items
 
             return equipmentGenerationService.GenerateUnique(
                 candidates[selectedIndex],
-                equipmentParts);
+                equipmentParts.Where(p => p != null && (int)p.LevelBracket == (lootLevel >= 20 ? 15 : 5)).ToList());
         }
     }
 }

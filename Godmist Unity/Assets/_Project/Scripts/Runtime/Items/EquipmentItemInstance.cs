@@ -35,6 +35,8 @@ namespace Godmist.Runtime.Items
             0,
             GameDefinesRuntime.GetInt(GameDefineIds.SocketCapacityAtFullUpgrade, 5));
 
+        public bool IsSocketActive(int index) => index >= 0 && index < SocketCapacity;
+
         public EquipmentItemDefinition EquipmentDefinition =>
             Definition is UniqueEquipmentDefinition unique && unique.BaseDefinition != null
                 ? unique.BaseDefinition

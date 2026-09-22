@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.puffball
   <DisplayName>k__BackingField: Purchawka
-  <Description>k__BackingField: Katakumby
+  <Description>k__BackingField: "Grzyb, kt\xF3rego zarodniki nadaj\u0105 si\u0119
+    do alchemicznych mieszanin."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

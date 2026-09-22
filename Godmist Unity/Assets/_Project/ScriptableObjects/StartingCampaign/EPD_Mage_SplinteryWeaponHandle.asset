@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.start.mage.weaponhandle
   <DisplayName>k__BackingField: "Drzazgowata r\xF3\u017Cd\u017Cka"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Trzon kostura przenosz\u0105cy energi\u0119 zakl\u0119cia."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   <IsStarterOnly>k__BackingField: 1

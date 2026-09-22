@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.granat
   <DisplayName>k__BackingField: Granat
-  <Description>k__BackingField: "Ko\u015Bcista torba zasob\xF3w"
+  <Description>k__BackingField: "Czerwony kamie\u0144 szlachetny u\u017Cywany do
+    zdobienia bi\u017Cuterii i wyrobu proszku."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.mage.wand
   <DisplayName>k__BackingField: "R\xF3\u017Cd\u017Cka"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "R\xF3\u017Cd\u017Cka s\u0142u\u017C\u0105ca magowi
+    do kierowania zakl\u0119ciami."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
@@ -22,6 +23,5 @@ MonoBehaviour:
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 2
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
-  <JewelrySlot>k__BackingField: 0
-  <PassiveEffects>k__BackingField: []

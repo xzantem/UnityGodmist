@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
   <Id>k__BackingField: unique.deadking.sword.warrior
   <DisplayName>k__BackingField: "Miecz Legionu Szkielet\xF3w"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Miecz niegdy\u015B noszony przez \u017Co\u0142nierzy
+    nieumar\u0142ego legionu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
@@ -22,23 +23,89 @@ MonoBehaviour:
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 2
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <BaseDefinition>k__BackingField: {fileID: 11400000, guid: ea659bcfb2cf0b84f81cbe67e37a2e33, type: 2}
   <Effects>k__BackingField:
   - <Id>k__BackingField: unique.deadking.sword.duplicate-attack
-    <DisplayName>k__BackingField: "Duch Legionu Szkieletów"
-    <Description>k__BackingField: "30% szansy podczas ataku na stworzenie ducha, który duplikuje atak z obrażeniami zmniejszonymi o 40%."
+    <DisplayName>k__BackingField: "Duch Legionu Szkielet\xF3w"
+    <Description>k__BackingField: "30% szansy podczas ataku na stworzenie ducha,
+      kt\xF3ry duplikuje atak z obra\u017Ceniami zmniejszonymi o 40%."
     <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
     <Triggers>k__BackingField:
     - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
       <Parameters>k__BackingField: []
     <Operations>k__BackingField:
     - <Id>k__BackingField: operation.duplicate-attack
       <Type>k__BackingField: 15
       <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 1
+      <ModifierStacking>k__BackingField: 0
       <Value>k__BackingField:
         <Source>k__BackingField: 0
         <NumberValue>k__BackingField: 0.3
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
     <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: 
+      <ConditionText>k__BackingField: 
       <TriggerText>k__BackingField: Podczas ataku.
       <ShowRuntimeState>k__BackingField: 1
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: unique.deadking.sword.duplicate-attack
+    <DisplayName>k__BackingField: "Duch Legionu Szkielet\xF3w"
+    <Description>k__BackingField: "35% szansy przy ataku na powt\xF3rzenie umiej\u0119tno\u015Bci
+      z 65% obra\u017Ce\u0144. Raz na u\u017Cycie, bez rekurencji."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.duplicate-attack
+      <Type>k__BackingField: 15
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 1
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.35
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: 
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: Podczas ataku.
+      <ShowRuntimeState>k__BackingField: 1
+  <SummonPool>k__BackingField: []

@@ -20,12 +20,13 @@ namespace Godmist.Runtime.Combat
             CreatorCharacterId = creatorCharacterId ?? string.Empty;
             SourceSkillId = sourceSkillId ?? string.Empty;
             SourceEffectIndex = sourceEffectIndex;
-            RemainingDurationTurns = Math.Max(1, remainingDurationTurns);
+            RemainingDurationTurns = remainingDurationTurns < 0 ? -1 : Math.Max(1, remainingDurationTurns);
             CreationOrder = creationOrder;
         }
 
         public bool AdvanceDuration()
         {
+            if (RemainingDurationTurns < 0) return false;
             RemainingDurationTurns = Math.Max(0, RemainingDurationTurns - 1);
             return RemainingDurationTurns == 0;
         }

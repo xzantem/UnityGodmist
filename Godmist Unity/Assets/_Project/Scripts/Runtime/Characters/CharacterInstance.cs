@@ -35,6 +35,7 @@ namespace Godmist.Runtime.Characters
         public EquipmentSet Equipment = new();
 
         public int CurrentHealth;
+        public float EquipmentHealthCarry, EquipmentResourceCarry, EquipmentGenerationCarry;
         [NonSerialized] public float ExplorationStatusElapsedSeconds;
         public int Honor;
         // Temporary effective value, equipment will calculate it later.

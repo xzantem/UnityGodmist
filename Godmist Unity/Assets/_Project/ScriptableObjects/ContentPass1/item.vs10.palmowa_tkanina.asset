@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.palmowa_tkanina
   <DisplayName>k__BackingField: Palmowa tkanina
-  <Description>k__BackingField: "8x Palmowa nitka + 1x Ig\u0142a od nici -> 3x Palmowa
-    tkanina"
+  <Description>k__BackingField: "Tkany materia\u0142 do szycia lekkiego wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

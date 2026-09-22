@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.larch_plank
   <DisplayName>k__BackingField: Modrzewiowa deska
-  <Description>k__BackingField: 1x Drewno modrzewiowe -> 2x Modrzewiowa deska
+  <Description>k__BackingField: "Obrobiona deska u\u017Cywana do wyrobu drewnianych
+    cz\u0119\u015Bci wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

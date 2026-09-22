@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.aloe_meda
   <DisplayName>k__BackingField: Aloe meda
-  <Description>k__BackingField: Pustynie
+  <Description>k__BackingField: "Mi\u0119siste li\u015Bcie ro\u015Bliny wykorzystywanej
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

@@ -12,6 +12,7 @@ namespace Godmist.Runtime.Dungeons
         public string DungeonId { get; }
         public int Seed { get; }
         public int DungeonLevel { get; }
+        public float ItemDropChanceBonus;
         public int CurrentFloorIndex { get; private set; }
         public int HighestReachedFloorIndex { get; private set; }
         public int GuildProgressCreditedFloorCount { get; private set; }

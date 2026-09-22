@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.alchemy.herbal_powder_normal
   <DisplayName>k__BackingField: "Proch zio\u0142owy: Zwyk\u0142y"
-  <Description>k__BackingField: "1x S\u0142aby alkohol + 1x Kosarz pospolity + 1x
-    Kwitn\u0105ca wi\u015Bnia + 1x Kwiat byliny -> 1x"
+  <Description>k__BackingField: "Mieszanina rozdrobnionych sk\u0142adnik\xF3w u\u017Cywana
+    do warzenia mikstur."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

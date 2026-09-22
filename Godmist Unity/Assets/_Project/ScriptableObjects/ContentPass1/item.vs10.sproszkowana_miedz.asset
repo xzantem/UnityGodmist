@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.sproszkowana_miedz
   <DisplayName>k__BackingField: "Sproszkowana mied\u017A"
-  <Description>k__BackingField: "1x Sztabka miedzi -> 2x Sproszkowana mied\u017A"
+  <Description>k__BackingField: "Drobno zmielony metal u\u017Cywany w rzemio\u015Ble
+    runicznym."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

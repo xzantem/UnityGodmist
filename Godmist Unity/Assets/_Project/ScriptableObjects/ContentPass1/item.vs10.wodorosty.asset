@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.wodorosty
   <DisplayName>k__BackingField: Wodorosty
-  <Description>k__BackingField: Zatoki
+  <Description>k__BackingField: "Ro\u015Bliny wodne u\u017Cywane w alchemicznych
+    mieszaninach."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

@@ -209,6 +209,7 @@ namespace Godmist.Systems.Combat
             using var objectDamageScope = new CombatObjectDamageAction(session);
             var objectResults = new Dictionary<int, HashSet<string>>();
             var actionId = Guid.NewGuid().ToString("N");
+            using var equipmentAction = new EquipmentActionScope(session, caster, actionId, !isPassiveDuplicate);
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
             WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets);
             var actionContext = CreateActionContext(
@@ -332,7 +333,7 @@ namespace Godmist.Systems.Combat
                 if (effect.DelayCasterTurns > 0)
                 {
                     ScheduleEffect(session, caster, skill, effect, effectIndex,
-                        targets, selectedPositionsByModeIndex);
+                        targets, selectedPositionsByModeIndex, actionId);
                     continue;
                 }
 
@@ -439,6 +440,7 @@ namespace Godmist.Systems.Combat
             }
             CombatTurnSystem.RefreshMaxActionPoints(session);
             ScoutCombatSystem.FinishKnifeAction(session, actionId);
+            equipmentAction.Resolve(statusEffectSystem, recoverySystem);
             PassiveActionResolved?.Invoke(actionContext);
             return true;
         }
@@ -461,7 +463,7 @@ namespace Godmist.Systems.Combat
                 teleportDestination: null,
                 objectPlacementDestination: null,
                 selectedPositionsByModeIndex: null,
-                executionDamageMultiplier: .6f,
+                executionDamageMultiplier: context.Source.Character.Equipment.GetEquippedItems().Any(i => i?.Definition is Godmist.Data.Items.UniqueEquipmentDefinition && i.Definition.Id == "unique.deadking.sword.warrior" && i.ItemLevel >= 20) ? .65f : .6f,
                 skipCosts: true,
                 isPassiveDuplicate: true);
         }
@@ -513,7 +515,7 @@ namespace Godmist.Systems.Combat
             CombatSession session, BattleUnit caster, SkillData skill,
             SkillEffectData effect, int effectIndex,
             IReadOnlyList<BattleUnit> targets,
-            IReadOnlyDictionary<int, GridPosition?> selectedPositions)
+            IReadOnlyDictionary<int, GridPosition?> selectedPositions, string actionId)
         {
             var target = targets != null && targets.Count > 0 ? targets[0] : null;
             GridPosition? position = target?.Position;
@@ -525,7 +527,7 @@ namespace Godmist.Systems.Combat
             session.ScheduledEffects ??= new List<ScheduledCombatEffect>();
             session.ScheduledEffects.Add(new ScheduledCombatEffect(
                 caster.Character.CharacterId, skill, effect, effectIndex,
-                effect.DelayCasterTurns + (skill.SkillId == "skill.scout.tonic" ? 0 : 1), target?.Character?.CharacterId, position));
+                effect.DelayCasterTurns + (skill.SkillId == "skill.scout.tonic" ? 0 : 1), target?.Character?.CharacterId, position) { ActionId = actionId });
             battleLog?.Invoke($"{caster.Character.Definition.DisplayName} planuje efekt za {effect.DelayCasterTurns} tur.");
         }
 
@@ -533,6 +535,8 @@ namespace Godmist.Systems.Combat
             ScheduledCombatEffect scheduled)
         {
             using var damageScope = new CombatObjectDamageAction(session);
+            var actionId = string.IsNullOrEmpty(scheduled.ActionId) ? Guid.NewGuid().ToString("N") : scheduled.ActionId;
+            using var equipmentAction = new EquipmentActionScope(session, caster, actionId, true);
             var targets = ResolveScheduledTargets(session, caster, scheduled);
             if (scheduled.Effect.EffectType == EffectType.DealDamage)
                 foreach (var obj in CombatObjectDamageSystem.Targets(session, caster, scheduled.Skill, scheduled.Effect.TargetModeIndex, scheduled.TargetPosition))
@@ -553,9 +557,10 @@ namespace Godmist.Systems.Combat
                     || ResolveTargetHit(caster, target, scheduled.Skill, hitByTarget);
                 if (wasHit)
                     ExecuteEffect(session, caster, target, scheduled.Skill,
-                        scheduled.Effect, scheduled.EffectIndex, true, null);
+                        scheduled.Effect, scheduled.EffectIndex, true, null, false, actionId: actionId);
             }
 
+            equipmentAction.Resolve(statusEffectSystem, recoverySystem);
             battleLog?.Invoke($"Wykonuje sie opozniony efekt {scheduled.Skill.DisplayName}.");
         }
 
@@ -738,6 +743,7 @@ namespace Godmist.Systems.Combat
                         totalHealthDamage += damageResult.HealthDamage;
 
                         if (!damageResult.Hit) continue;
+                        if (!isReactionExecution && !isPassiveDuplicate) EquipmentActionScope.Record(session, actionId, target, damageResult.HealthDamage);
                         ScoutCombatSystem.TryEmbedKnife(session, actionId, caster, target, passiveContext.AttackType, () => UnityEngine.Random.value);
                         if (forceMaximumDamage)
                         {

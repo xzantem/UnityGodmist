@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.vs10.mage.4.15.paski_ze_skory_warana
   <DisplayName>k__BackingField: "Szata \u2014 Pas (Paski ze sk\xF3ry warana)"
-  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 89"
+  <Description>k__BackingField: "Pas spinaj\u0105cy warstwy szaty."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   <IsStarterOnly>k__BackingField: 0

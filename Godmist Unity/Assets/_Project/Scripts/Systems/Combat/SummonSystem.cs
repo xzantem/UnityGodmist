@@ -74,7 +74,7 @@ namespace Godmist.Systems.Combat
             int durationTurns,
             int maxActiveSummons,
             float maxHealthPercent,
-            out BattleUnit summonedUnit)
+            out BattleUnit summonedUnit, int level = 1)
         {
             summonedUnit = null;
             if (session?.Grid == null
@@ -84,6 +84,13 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
+
+            var existing = session.Summons.Where(item => item != null
+                && item.CreatorCharacterId == caster.Character.CharacterId
+                && item.SourceSkillId == sourceSkillId)
+                .OrderBy(item => item.CreationOrder).ToList();
+            var replaceable = existing.Count >= Mathf.Max(1, maxActiveSummons)
+                ? existing[0].Unit : null;
 
             for (var x = -1; x <= 1; x++)
             {
@@ -95,7 +102,7 @@ namespace Godmist.Systems.Combat
                     var position = new GridPosition(
                         caster.Position.X + x,
                         caster.Position.Y + y, caster.Position.Level);
-                    if (!IsValidAdjacentPosition(session, position)
+                    if (!IsValidAdjacentPosition(session, position, replaceable)
                         || (session.DungeonContext?.SurfaceMap?.HasElevatedSurfaces == true
                             && !new CombatLineOfSightService().HasLineOfSight(session, caster.Position, position)))
                         continue;
@@ -108,12 +115,12 @@ namespace Godmist.Systems.Combat
 
                     var character = characterFactory.Create(
                         characterDefinition,
-                        classData);
+                        classData, level);
                     character.CharacterId =
                         $"summon.{caster.Character.CharacterId}.{sourceSkillId}.{++nextCreationOrder}";
+                    ApplySummonHealth(character, maxHealthPercent);
                     character.CurrentHealth = Mathf.Max(1, Mathf.CeilToInt(
-                        character.Stats.MaxHealth.GetValue()
-                        * Mathf.Clamp01(maxHealthPercent)));
+                        character.Stats.MaxHealth.GetValue()));
 
                     var speed = Mathf.Max(.01f, character.Stats.Speed.GetValue());
                     var maxAp = Mathf.Max(0, Mathf.RoundToInt(
@@ -123,6 +130,7 @@ namespace Godmist.Systems.Combat
                         Character = character,
                         Position = position,
                         IsPlayerSide = caster.IsPlayerSide,
+                        IsAiControlledSummon = true,
                         CurrentActionPoints = maxAp,
                         MaxActionPoints = maxAp,
                         CurrentActionValue = CombatTurnSystem.BaseActionValue / speed
@@ -135,7 +143,7 @@ namespace Godmist.Systems.Combat
                         caster.Character.CharacterId,
                         sourceSkillId,
                         -1,
-                        Mathf.Max(1, durationTurns),
+                        durationTurns < 0 ? -1 : Mathf.Max(1, durationTurns),
                         nextCreationOrder));
                     session.TurnParticipants ??= new();
                     session.TurnParticipants.Add(
@@ -148,6 +156,19 @@ namespace Godmist.Systems.Combat
             }
 
             return false;
+        }
+
+        private static void ApplySummonHealth(Godmist.Runtime.Characters.CharacterInstance character, float fraction)
+        {
+            character.PassiveEffects.Add(new Godmist.Runtime.Effects.PassiveEffectRuntime {
+                EffectId = "summon.health", DefinitionId = "summon.health",
+                Lifetime = Godmist.Core.Enums.PassiveEffectLifetime.CombatScoped,
+                StatModifiers = new System.Collections.Generic.List<Godmist.Core.Types.StatModifier> { new() {
+                    StatType = Godmist.Core.Enums.CharacterStatType.MaxHealth,
+                    Operation = Godmist.Core.Enums.StatModifierOperation.Percent,
+                    Stacking = Godmist.Core.Enums.StatModifierStacking.Additive,
+                    Value = Mathf.Clamp01(fraction) - 1 } } });
+            new Godmist.Systems.Characters.CharacterStatPipelineSystem().Refresh(character);
         }
 
         public bool AdvanceDurationAtTurnEnd(CombatSession session, BattleUnit unit)
@@ -196,12 +217,12 @@ namespace Godmist.Systems.Combat
 
         private static bool IsValidAdjacentPosition(
             CombatSession session,
-            GridPosition position)
+            GridPosition position, BattleUnit replaceable = null)
         {
             return session.Grid.IsWithinBounds(position)
                 && session.Grid.IsWalkable(position)
                 && !session.Grid.IsBlocked(position)
-                && !session.IsPositionOccupied(position)
+                && !session.IsPositionOccupied(position, replaceable)
                 && !session.IsPositionOccupiedByMapObject(position);
         }
 

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.runic.galduryte_stone.marble
   <DisplayName>k__BackingField: "Marmurowy kamie\u0144 galdurytu"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Obrobiony kamie\u0144 gotowy do zakl\u0119cia i
+    osadzenia w wyposa\u017Ceniu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
@@ -27,3 +28,4 @@ MonoBehaviour:
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 14b2de71c1f903a4ea1d669c036c1026, type: 2}
     <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

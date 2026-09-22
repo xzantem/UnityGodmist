@@ -14,6 +14,7 @@ namespace Godmist.Core.Serialization
         public int CurrentExperience;
         public int AvailableSkillPoints;
         public int CurrentHealth;
+        public float EquipmentHealthCarry, EquipmentResourceCarry, EquipmentGenerationCarry;
         public int Honor;
         public float WeaponAccuracy;
 

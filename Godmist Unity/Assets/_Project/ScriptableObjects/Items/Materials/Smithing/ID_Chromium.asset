@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.chromium
   <DisplayName>k__BackingField: Chrom
-  <Description>k__BackingField: Rotacja oferty kowala
+  <Description>k__BackingField: "Twardy metal dodawany do stop\xF3w kowalskich."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

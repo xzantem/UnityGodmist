@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.start.scout.weaponhandle
   <DisplayName>k__BackingField: "Zardzewia\u0142a bro\u0144"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "R\u0119koje\u015Bci u\u0142atwiaj\u0105ce szybkie
+    prowadzenie obu ostrzy."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <IsStarterOnly>k__BackingField: 1

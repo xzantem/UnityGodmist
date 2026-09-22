@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.GalduryteItemDefinition
   <Id>k__BackingField: item.galduryte.generic
   <DisplayName>k__BackingField: Galduryt
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Kamie\u0144 runiczny, kt\xF3ry mo\u017Cna osadzi\u0107
+    w wyposa\u017Ceniu, aby nada\u0107 mu dodatkowe w\u0142a\u015Bciwo\u015Bci."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 5
   <MaterialDiscipline>k__BackingField: 3

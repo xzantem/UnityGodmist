@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.diament
   <DisplayName>k__BackingField: Diament
-  <Description>k__BackingField: "G\xF3rska torba zasob\xF3w"
+  <Description>k__BackingField: "Twardy, przejrzysty kamie\u0144 szlachetny u\u017Cywany
+    w rzemio\u015Ble."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

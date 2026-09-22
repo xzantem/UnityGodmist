@@ -9,6 +9,7 @@ namespace Godmist.Core.Serialization
         public string DungeonId = string.Empty;
         public int Seed;
         public int DungeonLevel = 1;
+        public float ItemDropChanceBonus;
         // Zero means the legacy seed-only format. Never fall back for a damaged snapshot.
         public int LayoutVersion;
         public List<DungeonFloorLayoutSaveData> Layout = new();

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.palmowa_nitka
   <DisplayName>k__BackingField: Palmowa nitka
-  <Description>k__BackingField: "1x W\u0142\xF3kno palmy -> 2x Palmowa nitka"
+  <Description>k__BackingField: "Skr\u0119cone w\u0142\xF3kna do zszywania i tkania."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

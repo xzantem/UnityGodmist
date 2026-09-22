@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.mucha_zwyczajna
   <DisplayName>k__BackingField: Mucha zwyczajna
-  <Description>k__BackingField: Bagna
+  <Description>k__BackingField: "Pospolity owad u\u017Cywany jako sk\u0142adnik alchemiczny."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

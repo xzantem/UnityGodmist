@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.rog_demona
   <DisplayName>k__BackingField: "R\xF3g demona"
-  <Description>k__BackingField: "1 Demoniczny Zbrojny (10%), 1 Demoniczny Czarownik
-    (10%), 1 Demoniczny Bandyta (10%), 1 Demoniczny Iluzjonista (10%), Demoniczna
-    torba zasob\xF3w"
+  <Description>k__BackingField: "Twardy fragment rogu demona, u\u017Cywany w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

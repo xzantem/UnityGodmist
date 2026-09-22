@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.miedziana_blacha
   <DisplayName>k__BackingField: Miedziana blacha
-  <Description>k__BackingField: 2x Sztabka miedzi -> 1x Miedziana blacha
+  <Description>k__BackingField: "Cienka p\u0142yta metalu, z kt\xF3rej powstaj\u0105
+    os\u0142ony i cz\u0119\u015Bci pancerza."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

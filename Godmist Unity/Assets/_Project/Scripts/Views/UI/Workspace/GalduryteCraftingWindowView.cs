@@ -404,8 +404,8 @@ namespace Godmist.Views.UI.Workspace
                         effect.EffectType, GalduryteEffectGrade.D);
                     var maximum = GalduryteRuntimeRules.GetEffectValue(
                         effect.EffectType, GalduryteEffectGrade.S);
-                    return $"• {GalduryteRuntimeText.GetEffectName(effect.EffectType)}: "
-                        + $"+{GalduryteRuntimeText.FormatPercent(minimum)}–+{GalduryteRuntimeText.FormatPercent(maximum)}";
+                    return "• " + GalduryteRuntimeText.FormatEffectRange(
+                        effect.EffectType, minimum, maximum);
                 })
                 .ToList();
 

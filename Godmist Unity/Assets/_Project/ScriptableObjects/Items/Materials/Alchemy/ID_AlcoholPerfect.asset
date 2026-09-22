@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.perfect_alcohol
   <DisplayName>k__BackingField: Perfekcyjny alkohol
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Alkohol stanowi\u0105cy baz\u0119 do przygotowania
+    mikstur."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

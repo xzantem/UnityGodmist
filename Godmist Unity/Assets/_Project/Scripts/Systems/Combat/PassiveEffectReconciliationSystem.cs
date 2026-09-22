@@ -104,7 +104,7 @@ namespace Godmist.Systems.Combat
             var sourceId = BuildEquipmentSourceId(item);
             AddDefinitions(
                 character,
-                (item.Definition as UniqueEquipmentDefinition)?.Effects,
+                (item.Definition as UniqueEquipmentDefinition)?.GetEffects(item.ItemLevel),
                 sourceId,
                 PassiveEffectSourceType.Equipment,
                 item.DisplayName);
@@ -146,6 +146,34 @@ namespace Godmist.Systems.Combat
                     if (effect == null) continue;
                     switch (effect.EffectType)
                     {
+                        case GalduryteEffectType.CriticalDamageFlat:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.CritDamage, effect.Value, StatModifierOperation.FlatAbsolute));
+                            break;
+                        case GalduryteEffectType.DodgePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.Dodge, effect.Value, StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.MagicDefensePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.MagicalDefense, effect.Value, StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.MaxResourcePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.MaxResource, effect.Value, StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.PhysicalPenetration:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.PhysicalDefensePenetration, effect.Value, StatModifierOperation.FlatAbsolute));
+                            break;
+                        case GalduryteEffectType.MagicPenetration:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.MagicalDefensePenetration, effect.Value, StatModifierOperation.FlatAbsolute));
+                            break;
+                        case GalduryteEffectType.AllDefensePercent:
+                            stats.Add(CreateGalduryteStat(CharacterStatType.PhysicalDefense, effect.Value, StatModifierOperation.Percent));
+                            stats.Add(CreateGalduryteStat(CharacterStatType.MagicalDefense, effect.Value, StatModifierOperation.Percent));
+                            break;
+                        case GalduryteEffectType.ExperiencePercent:
+                            variables.Add(new GameplayVariableModifier { VariableType = GameplayVariableType.ExperienceGainPercent, Stacking = StatModifierStacking.Additive, Value = effect.Value });
+                            break;
+                        case GalduryteEffectType.GoldPercent:
+                            variables.Add(new GameplayVariableModifier { VariableType = GameplayVariableType.GoldGainPercent, Stacking = StatModifierStacking.Additive, Value = effect.Value });
+                            break;
                         case GalduryteEffectType.GeneralDamagePercent:
                             variables.Add(new GameplayVariableModifier
                             {

@@ -110,6 +110,7 @@ namespace Godmist.Systems.Combat
                 CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
                 ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonDefinition = gameSession.ActiveDungeon?.Definition,
                 DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story,
                 Grid = battleGrid,
                 Units = new List<BattleUnit>(),
@@ -170,6 +171,7 @@ namespace Godmist.Systems.Combat
                 CombatId = spottedOnly ? Guid.NewGuid().ToString("N") : encounter.InstanceId, DungeonContext = context, IsSeamless = true,
                 IsDungeonWide = spottedOnly,
                 Grid = grid, ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonDefinition = gameSession.ActiveDungeon?.Definition,
                 DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story
             };
             AddDungeonMapObjects(session, context);

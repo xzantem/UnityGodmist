@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.wild_dog_skin
   <DisplayName>k__BackingField: "Sk\xF3ra dzikiego psa"
-  <Description>k__BackingField: "Kowale, Morska torba zasob\xF3w, Le\u015Bna torba
-    zasob\xF3w"
+  <Description>k__BackingField: "Surowa sk\xF3ra zwierz\u0119ca wymagaj\u0105ca wyprawienia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

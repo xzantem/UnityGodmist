@@ -264,7 +264,7 @@ namespace Godmist.Views.Combat
         public bool IsActionInProgress => IsPlayerMovementPresentationInProgress || aiActionInProgress;
         public void ResumeSuspendedTurn(CombatTurnParticipant participant)
         {
-            if (participant?.Unit != null && !participant.Unit.IsPlayerSide)
+            if (participant?.Unit != null && !participant.Unit.IsPlayerControlled)
                 activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(participant.Unit));
         }
 
@@ -408,7 +408,7 @@ namespace Godmist.Views.Combat
         public void SyncDebugConsumablesToActiveUnit()
         {
             if (Session?.IsSeamless == true) return;
-            if (Session?.ActiveUnit?.IsPlayerSide == true)
+            if (Session?.ActiveUnit?.IsPlayerControlled == true)
             {
                 CopyDebugConsumablesFromGameSession(Session.ActiveUnit.Character);
             }
@@ -543,29 +543,23 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var skeletonDefinition = GameBootstrap.Instance?.ContentCatalog
-                ?.CharacterDefinitions?
-                .FirstOrDefault(definition => string.Equals(
-                    definition?.Id,
-                    "skeleton.test",
-                    System.StringComparison.OrdinalIgnoreCase));
-            if (skeletonDefinition == null)
-            {
-                Debug.LogWarning(
-                    "Nie znaleziono definicji skeleton.test dla pasywki summon.random-skeleton.");
-                return;
-            }
+            var staff = owner.Character.Equipment.GetEquippedItems().FirstOrDefault(i =>
+                i?.Definition is Godmist.Data.Items.UniqueEquipmentDefinition unique && unique.Id == "unique.deadking.staff.mage");
+            var definition = staff?.Definition as Godmist.Data.Items.UniqueEquipmentDefinition;
+            var pool = definition?.SummonPool?.Where(d => d != null && d.ClassData != null).ToList();
+            if (pool == null || pool.Count == 0) { AddBattleLog("Kostur Umarłych: pula szkieletów nie jest jeszcze skonfigurowana."); return; }
+            var skeletonDefinition = pool[UnityEngine.Random.Range(0, pool.Count)];
 
             if (!summonSystem.TrySummonAdjacent(
                     Session,
                     owner,
                     skeletonDefinition,
-                    owner.Character.ClassData,
-                    context?.SkillId ?? "passive-summon",
-                    durationTurns: 3,
+                    skeletonDefinition.ClassData,
+                    "unique.deadking.staff.skeleton",
+                    durationTurns: -1,
                     maxActiveSummons: 1,
-                    maxHealthPercent: .25f,
-                    out _))
+                    maxHealthPercent: staff.ItemLevel >= 20 ? .28f : .25f,
+                    out _, level: owner.Character.Level))
             {
                 AddBattleLog("Nie ma wolnego pola na przyzwanie szkieletu.");
             }
@@ -598,7 +592,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!Session.ActiveUnit.IsPlayerSide)
+            if (!Session.ActiveUnit.IsPlayerControlled)
             {
                 Debug.Log("Debug remove skipped: active unit is not on player side.");
                 return;
@@ -737,7 +731,7 @@ namespace Godmist.Views.Combat
             }
 
             cameraFramer?.NotifyTurnBegan(Session, unit);
-            if (!unit.IsPlayerSide)
+            if (!unit.IsPlayerControlled)
             {
                 activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(unit));
             }
@@ -949,13 +943,13 @@ namespace Godmist.Views.Combat
             return Session != null
                 && Session.ActiveUnit != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
-                && Session.ActiveUnit.IsPlayerSide
+                && Session.ActiveUnit.IsPlayerControlled
                 && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
         }
 
         public bool CanEscape()
         {
-            return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerSide
+            return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerControlled
                 && Session.ActiveUnit.Character != null
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
                 && Session.Outcome == CombatOutcomeState.Ongoing
@@ -1013,7 +1007,7 @@ namespace Godmist.Views.Combat
         {
             if (Session == null
                 || Session.ActiveUnit == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return new Dictionary<
@@ -1052,7 +1046,7 @@ namespace Godmist.Views.Combat
         {
             if (Session == null
                 || Session.ActiveUnit == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing
                 || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
             {
@@ -1255,7 +1249,7 @@ namespace Godmist.Views.Combat
         {
             if (Session?.MembershipChangePending == true) return false;
             if (Session == null || Session.ActiveUnit == null || interactionSystem == null
-                || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
+                || !Session.ActiveUnit.IsPlayerControlled || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
             if (IsActiveUnitHardCrowdControlled())
             {
@@ -1281,7 +1275,7 @@ namespace Godmist.Views.Combat
             if (Session == null
                 || Session.ActiveUnit == null
                 || reviveSystem == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return false;

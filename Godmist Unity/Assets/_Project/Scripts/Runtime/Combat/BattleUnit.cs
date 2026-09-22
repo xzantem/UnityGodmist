@@ -54,6 +54,9 @@ namespace Godmist.Runtime.Combat
         public bool HasReacted;
         public bool IsReadyToEscape;
         public bool IsPlayerSide;
+        public bool IsAiControlledSummon;
+        public float PendingEquipmentActionValueReduction;
+        public bool IsPlayerControlled => IsPlayerSide && !IsAiControlledSummon;
         public bool IsBoss;
         public int DownedTurnsRemaining;
 

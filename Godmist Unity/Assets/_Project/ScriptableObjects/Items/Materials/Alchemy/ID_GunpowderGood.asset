@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.good_gunpowder
   <DisplayName>k__BackingField: Dobry proch strzelniczy
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "\u0141atwopalna mieszanina u\u017Cywana do przygotowania
+    bomb."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.runic.solid_limestone
   <DisplayName>k__BackingField: "Lity wapie\u0144"
-  <Description>k__BackingField: "Wszystkie torby zasob\xF3w"
+  <Description>k__BackingField: "Twardy blok wapienia, z kt\xF3rego wyrabia si\u0119
+    kamienie galdurytu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

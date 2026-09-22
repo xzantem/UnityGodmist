@@ -28,6 +28,9 @@ namespace Godmist.Systems.SaveLoad
 {
     public class GameSessionRestoreFactory
     {
+        private static float SafeEquipmentCarry(float value) =>
+            float.IsNaN(value) || float.IsInfinity(value) ? 0 : Mathf.Clamp(value, -1, 0);
+
         private readonly CharacterInstanceFactory characterFactory;
         private readonly ItemInstanceFactory itemFactory;
         private readonly NpcInstanceFactory npcFactory;
@@ -650,6 +653,9 @@ namespace Godmist.Systems.SaveLoad
                 classData);
             CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character);
             character.CurrentHealth = saveData.CurrentHealth;
+            character.EquipmentHealthCarry = SafeEquipmentCarry(saveData.EquipmentHealthCarry);
+            character.EquipmentResourceCarry = SafeEquipmentCarry(saveData.EquipmentResourceCarry);
+            character.EquipmentGenerationCarry = SafeEquipmentCarry(saveData.EquipmentGenerationCarry);
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
             character.LifeState = saveData.LifeState;
@@ -1785,6 +1791,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            dungeon.ItemDropChanceBonus = float.IsNaN(saveData.ItemDropChanceBonus) || float.IsInfinity(saveData.ItemDropChanceBonus) ? 0 : Mathf.Clamp01(saveData.ItemDropChanceBonus);
             if (!dungeon.TryRestoreState(
                     saveData.CurrentFloorIndex,
                     saveData.IsCompleted,

@@ -76,6 +76,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-11] Przygotować wyposażenie, biżuterię i nagrody specjalne` - `Items / Inventory / Economy`, `Content / Data`
+  - **DONE — 2026-09-23.** Smoke zaakceptowany przez użytkownika. Cztery sloty biżuterii × osiem metali, 11 klejnotów, 53 efekty galdurytów T1, cztery unikaty bossa w wariantach L10/L20 oraz 435 opisów przedmiotów i części w wersjonowanym katalogu. Runtime, zapis i loot gotowe.
+  - Kostur Umarłych ma mechanikę przywołania; produkcyjna pula szkieletów zostanie przypięta w VS-15. EditMode: 156/156, 36/36, 21/21 oraz 12/12 PASS po korekcie tooltipów. Szczegóły: VS11_EQUIPMENT_JEWELRY_REWARDS.md.
+
+
+
 - `[P1] [VS-10] Przygotować materiały i części wyposażenia` - `Items / Inventory / Economy`, `Content / Data`
   - Według VS-01: ograniczona pula materiałów i części broni/pancerzy dla klas slice’a, progi progresji, wymagania i zastosowania.
   - Powiązać źródła dropu/zakupu z recepturami; żadnych materiałów bez zastosowania ani receptur bez osiągalnego źródła zasobów. Liczby i nazwy ustalić przed authoringiem.
@@ -311,17 +317,6 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
   - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
-
-- `[P1] [VS-11] Przygotować wyposażenie, biżuterię i nagrody specjalne` - `Items / Inventory / Economy`, `Content / Data`
-  - Przygotowane w ramach VS-18: model rzadkości i upgrade, sloty oraz wyłączanie galdurytów po utracie slotu, nowa penetracja. Katalog/authoring biżuterii, puli efektów i unikatów nadal do wykonania; nie powtarzać implementacji mechanik.
-  - Jawnie rozszerzony zakres VS-01: więcej klejnotów biżuterii, około 50–70% docelowej puli efektów galdurytów i specjalny unikat Ducha Umarłego Króla. Konkretną listę i zależności mechaniczne ustalić przed authoringiem; nie dołączać całej zaległej karty unikatów wszystkich bossów.
-  - Po VS-10: spójne pule generowanego/dostępnego wyposażenia, biżuteria i wybrane nagrody dla wszystkich klas slice’a. Używać istniejących slotów, jakości, wymagań i pasywek.
-  - Wybrane unikaty bossów i efekty galdurytów według VS-01; nie rozszerzać poza zatwierdzony katalog. Sprawdzić wyposażanie, statystyki, tooltipy i zapis.
-  - **IN PROGRESS — 2026-09-22.** Context pass: biżuteria, galduryty, unikaty bossa i pule sprzętu.
-
-
-
-
 
 - `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
   - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.

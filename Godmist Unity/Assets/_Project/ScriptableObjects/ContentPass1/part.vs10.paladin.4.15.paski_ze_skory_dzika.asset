@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.vs10.paladin.4.15.paski_ze_skory_dzika
   <DisplayName>k__BackingField: "Kirys \u2014 Rzemienie (Paski ze sk\xF3ry dzika)"
-  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 124"
+  <Description>k__BackingField: "Rzemienie \u0142\u0105cz\u0105ce p\u0142yty kirysu."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
   <IsStarterOnly>k__BackingField: 0

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.coal
   <DisplayName>k__BackingField: "W\u0119giel"
-  <Description>k__BackingField: Rotacja oferty kowala
+  <Description>k__BackingField: "Paliwo do pieca kowalskiego i sk\u0142adnik wyrobu
+    stali."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

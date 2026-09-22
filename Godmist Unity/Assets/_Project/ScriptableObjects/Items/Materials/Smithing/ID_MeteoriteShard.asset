@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.meteorite_shard
   <DisplayName>k__BackingField: "Od\u0142amek meteorytu"
-  <Description>k__BackingField: Rotacja oferty kowala
+  <Description>k__BackingField: "Fragment meteorytu zawieraj\u0105cy metal do wyrobu
+    specjalnych stop\xF3w."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

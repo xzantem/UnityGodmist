@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.lipowy_patyk
   <DisplayName>k__BackingField: Lipowy patyk
-  <Description>k__BackingField: 3x Lipowa deska -> 8x Lipowy patyk
+  <Description>k__BackingField: "Przyci\u0119ty kawa\u0142ek drewna na trzon lub
+    r\u0119koje\u015B\u0107 broni."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

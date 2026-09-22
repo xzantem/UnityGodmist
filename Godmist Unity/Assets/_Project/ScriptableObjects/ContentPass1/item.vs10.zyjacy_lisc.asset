@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.zyjacy_lisc
   <DisplayName>k__BackingField: "\u017Byj\u0105cy li\u015B\u0107"
-  <Description>k__BackingField: "1-3 Mi\u0119so\u017Cerna Ro\u015Blina (15%), 1-3
-    Paso\u017Cytnicza Ro\u015Blina (15%), 1-3 Pluj\u0105ca Ro\u015Blina (15%), Bagienna
-    torba zasob\xF3w"
+  <Description>k__BackingField: "Li\u015B\u0107 zachowuj\u0105cy oznaki \u017Cycia
+    po zerwaniu, u\u017Cywany w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

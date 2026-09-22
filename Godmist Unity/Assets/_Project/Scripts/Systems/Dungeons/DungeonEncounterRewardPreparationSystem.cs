@@ -22,7 +22,7 @@ namespace Godmist.Systems.Dungeons
             var lootTableSystem = new LootTableSystem(
                 random,
                 equipmentParts,
-                lootLevel: dungeon.DungeonLevel);
+                lootLevel: dungeon.DungeonLevel, dropChanceBonus: dungeon.ItemDropChanceBonus);
 
             var lootCatalog = dungeon.Definition?.LootTableCatalog;
             var bossDefinition = dungeon.Definition?.BossEncounterDefinition;

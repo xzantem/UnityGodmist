@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.start.warrior.armor
   <DisplayName>k__BackingField: Porysowany pancerz
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Porysowany pancerz zapewniaj\u0105cy podstawow\u0105
+    ochron\u0119."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0

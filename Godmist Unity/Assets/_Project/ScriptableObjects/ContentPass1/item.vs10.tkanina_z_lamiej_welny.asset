@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.tkanina_z_lamiej_welny
   <DisplayName>k__BackingField: "Tkanina z lamiej we\u0142ny"
-  <Description>k__BackingField: "8x Nitka z lamiej we\u0142ny + 1x Ig\u0142a od nici
-    -> 3x Tkanina z lamiej we\u0142ny"
+  <Description>k__BackingField: "Tkany materia\u0142 do szycia lekkiego wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

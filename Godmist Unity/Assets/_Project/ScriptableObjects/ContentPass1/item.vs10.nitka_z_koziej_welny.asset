@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.nitka_z_koziej_welny
   <DisplayName>k__BackingField: "Nitka z koziej we\u0142ny"
-  <Description>k__BackingField: "1x W\u0142\xF3kno koziej we\u0142ny -> 2x Nitka
-    z koziej we\u0142ny"
+  <Description>k__BackingField: "Skr\u0119cone w\u0142\xF3kna do zszywania i tkania."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

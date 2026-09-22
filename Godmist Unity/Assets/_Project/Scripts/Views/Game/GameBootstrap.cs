@@ -441,6 +441,11 @@ namespace Godmist.Views.Game
             try
             {
                 var dungeon = dungeonGenerator.Generate(definition, seed, offeredLevel ?? definition.DungeonLevel);
+                var dropBonus = 0f; var dropMembers = 0;
+                foreach (var memberId in Session.PlayerParty.ActiveMemberIds)
+                    if (Session.CharactersById.TryGetValue(memberId, out var member))
+                    { dropBonus += Godmist.Systems.Combat.EquipmentEffectSystem.Sum(member, Godmist.Core.Enums.GalduryteEffectType.ItemDropChance); dropMembers++; }
+                dungeon.ItemDropChanceBonus = dropMembers == 0 ? 0 : UnityEngine.Mathf.Clamp01(dropBonus / dropMembers);
 
                 encounterPlacementSystem.Place(dungeon);
                 objectPlacementSystem.Place(

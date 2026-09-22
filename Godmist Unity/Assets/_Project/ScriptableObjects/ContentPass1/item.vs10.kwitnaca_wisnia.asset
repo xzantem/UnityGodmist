@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.kwitnaca_wisnia
   <DisplayName>k__BackingField: "Kwitn\u0105ca wi\u015Bnia"
-  <Description>k__BackingField: Zatoki
+  <Description>k__BackingField: "Kwiaty wi\u015Bni wykorzystywane w alchemicznych
+    mieszaninach."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

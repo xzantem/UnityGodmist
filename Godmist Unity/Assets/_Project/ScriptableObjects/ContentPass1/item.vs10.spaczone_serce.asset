@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.spaczone_serce
   <DisplayName>k__BackingField: Spaczone serce
-  <Description>k__BackingField: "1 Kap\u0142an Malada (8%), 1 Czarny Rycerz Malada
-    (8%), 1 Plugawiciel Malada (8%), 1 Stra\u017Cnik \u015Awi\u0105tynny (8%), 1
-    Nekromanta Malada (8%), \u015Awi\u0105tynna torba zasob\xF3w"
+  <Description>k__BackingField: "Serce ska\u017Cone mroczn\u0105 energi\u0105, u\u017Cywane
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

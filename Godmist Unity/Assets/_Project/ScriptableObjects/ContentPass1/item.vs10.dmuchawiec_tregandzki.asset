@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.dmuchawiec_tregandzki
   <DisplayName>k__BackingField: Dmuchawiec tregandzki
-  <Description>k__BackingField: "G\xF3ry"
+  <Description>k__BackingField: Polny kwiat zbierany do alchemicznych mieszanek.
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

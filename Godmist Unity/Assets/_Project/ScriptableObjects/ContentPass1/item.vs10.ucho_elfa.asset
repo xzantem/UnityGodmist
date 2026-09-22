@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.ucho_elfa
   <DisplayName>k__BackingField: Ucho elfa
-  <Description>k__BackingField: "1-2 Elfi \u0141ucznik (15%), 1-2 Elfi \u0141upie\u017Cca
-    (15%), 1-2 Elfi Druid (15%), Le\u015Bna torba zasob\xF3w"
+  <Description>k__BackingField: "Osobliwy sk\u0142adnik pochodz\u0105cy od elfa,
+    u\u017Cywany w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

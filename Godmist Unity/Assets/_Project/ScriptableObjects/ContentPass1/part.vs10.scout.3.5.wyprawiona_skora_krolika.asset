@@ -15,7 +15,8 @@ MonoBehaviour:
   <Id>k__BackingField: part.vs10.scout.3.5.wyprawiona_skora_krolika
   <DisplayName>k__BackingField: "Tunika \u2014 Materia\u0142 (Wyprawiona sk\xF3ra
     kr\xF3lika)"
-  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 40"
+  <Description>k__BackingField: "Zewn\u0119trzna warstwa tuniki os\u0142aniaj\u0105ca
+    przed ciosami."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <IsStarterOnly>k__BackingField: 0

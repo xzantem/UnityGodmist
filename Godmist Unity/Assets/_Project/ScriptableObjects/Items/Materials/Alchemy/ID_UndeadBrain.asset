@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.undead_brain
   <DisplayName>k__BackingField: "M\xF3zg umarlaka"
-  <Description>k__BackingField: "1 Umarlak (30%), 1 Ghul (30%), Ko\u015Bcista torba
-    zasob\xF3w"
+  <Description>k__BackingField: "Tkanka pozyskana z nieumar\u0142ego, u\u017Cywana
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

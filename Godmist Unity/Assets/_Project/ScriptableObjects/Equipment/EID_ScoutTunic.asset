@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.scout.tunic
   <DisplayName>k__BackingField: Tunika
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Lekka tunika pozwalaj\u0105ca na swobodne uniki."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
@@ -22,6 +22,5 @@ MonoBehaviour:
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 5
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
-  <JewelrySlot>k__BackingField: 0
-  <PassiveEffects>k__BackingField: []

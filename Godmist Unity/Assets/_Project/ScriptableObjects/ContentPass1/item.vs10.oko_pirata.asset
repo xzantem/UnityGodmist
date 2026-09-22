@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.oko_pirata
   <DisplayName>k__BackingField: Oko pirata
-  <Description>k__BackingField: "1 Pirat Kombatant (10%), 1 Pirat Harpuniarz (10%),
-    1 Pirat Konsyliarz (10%), 1 Pirat Kanonier (10%), Morska torba zasob\xF3w"
+  <Description>k__BackingField: "Makabryczny sk\u0142adnik pochodz\u0105cy od pirata,
+    u\u017Cywany w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

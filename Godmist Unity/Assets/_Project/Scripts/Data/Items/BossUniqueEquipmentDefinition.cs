@@ -12,6 +12,10 @@ namespace Godmist.Data.Items
         [field: SerializeField] public EquipmentItemDefinition BaseDefinition { get; private set; }
         [field: SerializeField] public List<PassiveEffectDefinition> Effects { get; private set; } = new();
 
+        [field: SerializeField] public List<PassiveEffectDefinition> EffectsLevel20 { get; private set; } = new();
+        [field: SerializeField] public List<Godmist.Data.Characters.CharacterDefinition> SummonPool { get; private set; } = new();
+        public List<PassiveEffectDefinition> GetEffects(int level) => level >= 20 && EffectsLevel20?.Count > 0 ? EffectsLevel20 : Effects;
+
         public EquipmentItemDefinition EffectiveDefinition => BaseDefinition != null
             ? BaseDefinition
             : this;

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.vs10.warrior.4.15.inwarowy_lancuch
   <DisplayName>k__BackingField: "Kolczuga \u2014 Kolcza (Inwarowy \u0142a\u0144cuch)"
-  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 15"
+  <Description>k__BackingField: "Splot metalowych ogniw chroni\u0105cy cia\u0142o
+    wojownika."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <IsStarterOnly>k__BackingField: 0

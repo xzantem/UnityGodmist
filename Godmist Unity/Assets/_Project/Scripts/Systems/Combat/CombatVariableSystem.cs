@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
                 {
                     if (modifier == null
                         || modifier.VariableType != variableType
-                        || (variableType == GameplayVariableType.DamageDealtPercentInDungeonTheme
+                        || ((variableType == GameplayVariableType.DamageDealtPercentInDungeonTheme || variableType == GameplayVariableType.DamageAgainstTag || variableType == GameplayVariableType.DamageInEnvironment)
                             && !string.Equals(
                                 modifier.ReferenceId,
                                 referenceId,

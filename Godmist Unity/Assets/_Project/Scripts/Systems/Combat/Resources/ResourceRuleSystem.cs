@@ -21,6 +21,7 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(BattleUnit unit)
         {
+            EquipmentEffectSystem.Tick(unit);
             // Missing-mana regeneration must be recalculated for every tick, including exploration.
             if (MageCombatSystem.W(unit, "energy_saving") > 0)
                 new Godmist.Systems.Characters.CharacterStatPipelineSystem().Refresh(unit.Character);
@@ -96,6 +97,8 @@ namespace Godmist.Systems.Combat
                 pool.HasGainedResourceSinceLastTurn;
             var previousFractionalGainRemainder = pool.FractionalGainRemainder;
             var change = action(rule, pool);
+            if (change > 0 && !IsResourceGainBlocked(unit))
+                change += pool.Restore(PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount(change * (EquipmentEffectSystem.ResourceMultiplier(unit.Character) - 1), ref unit.Character.EquipmentGenerationCarry));
 
             if (change <= 0 || !IsResourceGainBlocked(unit))
             {

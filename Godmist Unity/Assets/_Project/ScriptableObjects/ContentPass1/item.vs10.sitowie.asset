@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.sitowie
   <DisplayName>k__BackingField: Sitowie
-  <Description>k__BackingField: Bagna
+  <Description>k__BackingField: "\u0141odygi ro\u015Bliny rosn\u0105cej przy wodzie,
+    u\u017Cywane w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

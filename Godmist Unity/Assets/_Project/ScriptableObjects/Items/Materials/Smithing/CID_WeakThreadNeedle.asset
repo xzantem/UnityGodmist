@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.weak_thread_needle
   <DisplayName>k__BackingField: "S\u0142aba ig\u0142a do nici"
-  <Description>k__BackingField: "1x Sztabka \u017Celaza -> 3x S\u0142aba ig\u0142a
-    od nici / 1x Sztabka niklu -> 3x S\u0142aba ig\u0142a od nici / 1x Sztabka miedzi
-    -> 3x S\u0142aba ig\u0142a od nici / 1x Sztabka cyny -> 3x S\u0142aba ig\u0142a
-    od nici"
+  <Description>k__BackingField: "Prosta metalowa ig\u0142a do zszywania tkanin i
+    sk\xF3r."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

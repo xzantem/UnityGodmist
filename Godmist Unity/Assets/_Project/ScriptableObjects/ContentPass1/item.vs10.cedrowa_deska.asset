@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.cedrowa_deska
   <DisplayName>k__BackingField: Cedrowa deska
-  <Description>k__BackingField: 1x Drewno cedrowe -> 2x Cedrowa deska
+  <Description>k__BackingField: "Obrobiona deska u\u017Cywana do wyrobu drewnianych
+    cz\u0119\u015Bci wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.start.warrior.weaponhandle
   <DisplayName>k__BackingField: "Z\u0142amana bro\u0144"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "R\u0119koje\u015B\u0107 pozwalaj\u0105ca pewnie
+    prowadzi\u0107 d\u0142ugi miecz."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <IsStarterOnly>k__BackingField: 1

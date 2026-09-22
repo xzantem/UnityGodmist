@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.owoc_kaktusa
   <DisplayName>k__BackingField: Owoc kaktusa
-  <Description>k__BackingField: "1-2 Awazar Bu\u0142awnik (10%), 1-2 Awazar \u0141ucznik
-    (10%), 1-2 Awazar Medyk (10%), 1-2 Awazar Weteran (10%), Pustynna torba zasob\xF3w"
+  <Description>k__BackingField: "Mi\u0119sisty owoc pustynnej ro\u015Bliny u\u017Cywany
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

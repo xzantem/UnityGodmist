@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.pioro_ptaka
   <DisplayName>k__BackingField: "Pi\xF3ro ptaka"
-  <Description>k__BackingField: "1-3 Piaszczysty Feniks (20%), 1-3 Papuga (20%),
-    Morska torba zasob\xF3w"
+  <Description>k__BackingField: "Pi\xF3ro wykorzystywane jako lekki sk\u0142adnik
+    alchemiczny."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

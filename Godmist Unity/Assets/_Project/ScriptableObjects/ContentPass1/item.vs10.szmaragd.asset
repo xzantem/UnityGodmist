@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.szmaragd
   <DisplayName>k__BackingField: Szmaragd
-  <Description>k__BackingField: "Le\u015Bna torba zasob\xF3w"
+  <Description>k__BackingField: "Zielony kamie\u0144 szlachetny, kt\xF3ry mo\u017Cna
+    rozdrobni\u0107 na magiczny proszek."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

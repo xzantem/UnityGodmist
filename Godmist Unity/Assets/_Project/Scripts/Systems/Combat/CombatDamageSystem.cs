@@ -101,7 +101,8 @@ namespace Godmist.Systems.Combat
             attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext));
             attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(session, source, damageType, eventContext);
+            var isCritical = RollCritical(session, source, damageType, eventContext)
+                && !EquipmentEffectSystem.AvoidCritical(target.Character);
             Publish(session, PassiveEffectTriggerType.OnHit,
                 eventContext.WithOutcome(succeeded: true));
             if (isCritical)
@@ -209,7 +210,8 @@ namespace Godmist.Systems.Combat
             attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext));
             attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
             var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(session, source, damageType, eventContext);
+            var isCritical = RollCritical(session, source, damageType, eventContext)
+                && !EquipmentEffectSystem.AvoidCritical(target.Character);
             Publish(session, PassiveEffectTriggerType.OnHit,
                 eventContext.WithOutcome(succeeded: true));
             if (isCritical)
@@ -289,7 +291,7 @@ namespace Godmist.Systems.Combat
 
                 return 0;
             }
-            var incomingDamage = Mathf.RoundToInt(combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
+            var incomingDamage = Mathf.RoundToInt(combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage) * EquipmentEffectSystem.Outgoing(source, target, damageType, session) * EquipmentEffectSystem.Incoming(target.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
             if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
                 incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
             incomingDamage = Mathf.Max(

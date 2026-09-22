@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.runic.galduryte_stone.limestone
   <DisplayName>k__BackingField: "Wapienny kamie\u0144 galdurytu"
-  <Description>k__BackingField: "1x Lity wapie\u0144 -> 2x Wapienny kamie\u0144 galdurytu"
+  <Description>k__BackingField: "Obrobiony kamie\u0144 gotowy do zakl\u0119cia i
+    osadzenia w wyposa\u017Ceniu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.bialy_proszek
   <DisplayName>k__BackingField: "Bia\u0142y proszek"
-  <Description>k__BackingField: "1x Diament -> 2x Bia\u0142y proszek"
+  <Description>k__BackingField: "Drobny barwny py\u0142 uzyskany ze zmielonego kamienia
+    szlachetnego."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

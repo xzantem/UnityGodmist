@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.start.warrior.weapon
   <DisplayName>k__BackingField: "Z\u0142amana bro\u0144"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Uszkodzona bro\u0144 do walki wr\u0119cz."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0

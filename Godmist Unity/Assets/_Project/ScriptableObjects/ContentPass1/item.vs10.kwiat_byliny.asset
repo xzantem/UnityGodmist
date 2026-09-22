@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.kwiat_byliny
   <DisplayName>k__BackingField: Kwiat byliny
-  <Description>k__BackingField: "G\xF3ry"
+  <Description>k__BackingField: "Kwiat wieloletniej ro\u015Bliny u\u017Cywany przez
+    alchemik\xF3w."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

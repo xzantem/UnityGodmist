@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.cytrynowy_proszek
   <DisplayName>k__BackingField: Cytrynowy proszek
-  <Description>k__BackingField: 1x Cytryn -> 2x Cytrynowy proszek
+  <Description>k__BackingField: "Drobny barwny py\u0142 uzyskany ze zmielonego kamienia
+    szlachetnego."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3

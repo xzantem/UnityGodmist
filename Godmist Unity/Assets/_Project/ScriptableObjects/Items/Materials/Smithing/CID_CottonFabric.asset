@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.cotton_fabric
   <DisplayName>k__BackingField: "Bawe\u0142niana tkanina"
-  <Description>k__BackingField: "8x Bawe\u0142niana nitka + 1x S\u0142aba ig\u0142a
-    od nici -> 3x Bawe\u0142niana tkanina"
+  <Description>k__BackingField: "Tkany materia\u0142 do szycia lekkiego wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

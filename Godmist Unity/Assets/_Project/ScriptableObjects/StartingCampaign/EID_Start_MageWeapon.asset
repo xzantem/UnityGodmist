@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.start.mage.weapon
   <DisplayName>k__BackingField: "Drzazgowata r\xF3\u017Cd\u017Cka"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Drzazgowata r\xF3\u017Cd\u017Cka do kierowania prostymi
+    zakl\u0119ciami."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.meteorytowy_lancuch
   <DisplayName>k__BackingField: "Meteorytowy \u0142a\u0144cuch"
-  <Description>k__BackingField: "1x Sztabka \u017Celaza meteorytowego -> 1x Meteorytowy
-    \u0142a\u0144cuch"
+  <Description>k__BackingField: "Po\u0142\u0105czone metalowe ogniwa u\u017Cywane
+    do wyrobu kolczug."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

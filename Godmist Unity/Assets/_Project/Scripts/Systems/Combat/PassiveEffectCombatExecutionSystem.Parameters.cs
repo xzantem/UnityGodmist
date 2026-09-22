@@ -16,8 +16,8 @@ namespace Godmist.Systems.Combat
         public static int ResolveResourceCost(BattleUnit owner, SkillData skill)
         {
             if (skill == null) return 0;
-            return MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
-                "resource_cost", skill.ResourceCost) - .00001f))));
+            return Mathf.CeilToInt((1 - Mathf.Clamp01(EquipmentEffectSystem.Sum(owner?.Character, GalduryteEffectType.ResourceCostReduction))) * MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
+                "resource_cost", skill.ResourceCost) - .00001f)))));
         }
 
         public static SkillEffectData ResolveEffect(BattleUnit owner, SkillData skill, SkillEffectData effect)

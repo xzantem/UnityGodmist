@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.pnacza_alzif
   <DisplayName>k__BackingField: "Pn\u0105cza alzif"
-  <Description>k__BackingField: "\u015Awi\u0105tynie"
+  <Description>k__BackingField: "Gi\u0119tkie pn\u0105cza ro\u015Bliny u\u017Cywanej
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

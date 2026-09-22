@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.sproszkowany_braz
   <DisplayName>k__BackingField: "Sproszkowany br\u0105z"
-  <Description>k__BackingField: "1x Sztabka br\u0105zu -> 2x Sproszkowany br\u0105z"
+  <Description>k__BackingField: "Drobno zmielony metal u\u017Cywany w rzemio\u015Ble
+    runicznym."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

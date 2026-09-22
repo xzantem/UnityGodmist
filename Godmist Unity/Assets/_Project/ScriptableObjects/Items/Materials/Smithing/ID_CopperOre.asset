@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.copper_ore
   <DisplayName>k__BackingField: Ruda miedzi
-  <Description>k__BackingField: Rotacja oferty kowala
+  <Description>k__BackingField: "Surowa bry\u0142a metalu przeznaczona do przetopienia
+    w ku\u017Ani."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.wyprawiona_skora_dzika
   <DisplayName>k__BackingField: "Wyprawiona sk\xF3ra dzika"
-  <Description>k__BackingField: "1x Sk\xF3ra dzika -> 2x Wyprawiona sk\xF3ra dzika"
+  <Description>k__BackingField: "Oczyszczona i utrwalona sk\xF3ra gotowa do szycia
+    wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

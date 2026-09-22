@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.paski_ze_skory_dzika
   <DisplayName>k__BackingField: "Paski ze sk\xF3ry dzika"
-  <Description>k__BackingField: "1x Wyprawiona sk\xF3ra dzika -> 2x Paski ze sk\xF3ry
-    dzika"
+  <Description>k__BackingField: "W\u0105skie paski wyprawionej sk\xF3ry do \u0142\u0105czenia
+    cz\u0119\u015Bci wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

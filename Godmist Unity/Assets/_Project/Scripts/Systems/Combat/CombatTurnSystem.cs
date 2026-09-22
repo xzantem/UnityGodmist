@@ -166,8 +166,9 @@ namespace Godmist.Systems.Combat
                             source: participant.Unit,
                             target: participant.Unit,
                             turnNumber: session.ActiveTurnIndex));
-                participant.CurrentActionValue =
-                    CalculateBaseActionValue(participant);
+                participant.CurrentActionValue = UnityEngine.Mathf.Max(0,
+                    CalculateBaseActionValue(participant) - participant.Unit.PendingEquipmentActionValueReduction);
+                participant.Unit.PendingEquipmentActionValueReduction = 0;
             }
             else if (participant.IsSummonedObject)
             {
@@ -364,7 +365,7 @@ namespace Godmist.Systems.Combat
             var maxActionPoints = UnityEngine.Mathf.Max(
                 0,
                 UnityEngine.Mathf.RoundToInt(
-                    speed * session.ActionPointsPerSpeed));
+                    speed * session.ActionPointsPerSpeed * (1 + EquipmentEffectSystem.Sum(unit.Character, GalduryteEffectType.ActionPointsPercent))));
 
             unit.MaxActionPoints = maxActionPoints;
             var nextTurnBonus = refillCurrentActionPoints

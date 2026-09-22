@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.warrior.longsword
   <DisplayName>k__BackingField: "D\u0142ugi Miecz"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "D\u0142ugi miecz do walki w zwarciu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
@@ -22,4 +22,5 @@ MonoBehaviour:
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 2
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}

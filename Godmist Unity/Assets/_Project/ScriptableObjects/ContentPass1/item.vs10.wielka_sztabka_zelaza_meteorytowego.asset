@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.wielka_sztabka_zelaza_meteorytowego
   <DisplayName>k__BackingField: "Wielka sztabka \u017Celaza meteorytowego"
-  <Description>k__BackingField: "6x Ruda \u017Celaza + 3x Od\u0142amek meteorytu
-    -> 1x Wielka sztabka \u017Celaza meteorytowego"
+  <Description>k__BackingField: "Du\u017Ca porcja przetopionego metalu do wyrobu
+    ci\u0119\u017Ckich cz\u0119\u015Bci wyposa\u017Cenia."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

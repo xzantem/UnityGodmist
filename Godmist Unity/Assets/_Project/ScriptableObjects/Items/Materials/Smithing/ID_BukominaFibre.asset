@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.bukomina_fibre
   <DisplayName>k__BackingField: "W\u0142\xF3kno bukominy"
-  <Description>k__BackingField: "Kowale, Morska torba zasob\xF3w, Le\u015Bna torba
-    zasob\xF3w"
+  <Description>k__BackingField: "Surowe w\u0142\xF3kna do prz\u0119dzenia nici i
+    wyrobu tkanin."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

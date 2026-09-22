@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.nerka_trolla
   <DisplayName>k__BackingField: Nerka trolla
-  <Description>k__BackingField: "1 Troll G\xF3rski (40%), G\xF3rska torba zasob\xF3w"
+  <Description>k__BackingField: Organ trolla wykorzystywany w alchemicznych mieszaninach.
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

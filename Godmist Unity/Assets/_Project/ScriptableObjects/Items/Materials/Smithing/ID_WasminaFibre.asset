@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.wasmina_fibre
   <DisplayName>k__BackingField: "W\u0142\xF3kno wasminy"
-  <Description>k__BackingField: "Kowale, \u015Awi\u0105tynna torba zasob\xF3w, G\xF3rska
-    torba zasob\xF3w"
+  <Description>k__BackingField: "Surowe w\u0142\xF3kna do prz\u0119dzenia nici i
+    wyrobu tkanin."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.linden_wood
   <DisplayName>k__BackingField: Drewno lipowe
-  <Description>k__BackingField: "Kowale, Morska torba zasob\xF3w, Le\u015Bna torba
-    zasob\xF3w"
+  <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

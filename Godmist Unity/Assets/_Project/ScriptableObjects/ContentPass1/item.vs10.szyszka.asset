@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.szyszka
   <DisplayName>k__BackingField: Szyszka
-  <Description>k__BackingField: Lasy
+  <Description>k__BackingField: "Dojrza\u0142a szyszka z nasionami, u\u017Cywana
+    w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

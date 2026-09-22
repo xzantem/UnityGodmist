@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.sztabka_cyny
   <DisplayName>k__BackingField: Sztabka cyny
-  <Description>k__BackingField: 2x Ruda cyny -> 1x Sztabka cyny
+  <Description>k__BackingField: "Przetopiony metal gotowy do dalszej obr\xF3bki w
+    ku\u017Ani."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

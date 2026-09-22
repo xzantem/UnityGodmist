@@ -93,7 +93,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!PassesEffectChance(target, effect))
+            if (!PassesEffectChance(target, effect, source))
             {
                 battleLog?.Invoke(
                     $"{target.Character.Definition.DisplayName} " +
@@ -417,7 +417,7 @@ namespace Godmist.Systems.Combat
             CombatFeedbackType feedbackType = CombatFeedbackType.StatusApplied,
             string feedbackLabel = null,
             bool publishFeedback = true,
-            int statusDamagePerTurnOverride = 0)
+            int statusDamagePerTurnOverride = 0, float? sharedRoll = null)
         {
             if (target?.Character == null
                 || target.Character.LifeState != CharacterLifeState.Alive
@@ -426,11 +426,11 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var clampedChance = Mathf.Clamp01(baseChance);
+            var clampedChance = Mathf.Clamp01(baseChance + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
             var resistance = GetResistance(target, statusId);
             var chance = CalculateEffectChance(clampedChance, resistance);
 
-            if (chance <= 0f || UnityEngine.Random.value > chance)
+            if (chance <= 0f || (sharedRoll ?? UnityEngine.Random.value) > chance)
             {
                 return false;
             }
@@ -464,6 +464,10 @@ namespace Godmist.Systems.Combat
                 statusHealPercent);
 
             MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
+            if (statusId == StatusEffectIds.Slow)
+                runtimeEffect.StatModifiers = new List<StatModifier> { new() {
+                    StatType = CharacterStatType.Speed, Operation = StatModifierOperation.Percent,
+                    Stacking = StatModifierStacking.Additive, Value = -.2f } };
             if (!string.IsNullOrWhiteSpace(feedbackLabel)
                 && feedbackType == CombatFeedbackType.AuraApplied)
             {
@@ -1043,7 +1047,9 @@ namespace Godmist.Systems.Combat
             var modifier = ModifyResistanceSystem.GetModifier(
                 target,
                 ResistanceType.Move);
-            var resistance = Mathf.Clamp01(baseResistance + modifier);
+            var resistance = Mathf.Clamp01(baseResistance
+                + EquipmentEffectSystem.Resistance(target?.Character, ResistanceType.Move)
+                + modifier);
             var finalChance = CalculateEffectChance(clampedChance, resistance);
 
             return UnityEngine.Random.value <= finalChance;
@@ -1051,9 +1057,9 @@ namespace Godmist.Systems.Combat
 
         private bool PassesEffectChance(
             BattleUnit target,
-            SkillEffectData effect)
+            SkillEffectData effect, BattleUnit source)
         {
-            var baseChance = Mathf.Clamp01(effect.BaseChance);
+            var baseChance = Mathf.Clamp01(effect.BaseChance + EquipmentEffectSystem.StatusChance(source?.Character, effect.StatusId));
 
             if (baseChance <= 0f)
             {
@@ -1177,6 +1183,7 @@ namespace Godmist.Systems.Combat
                 StatusEffectIds.Chill => ResistanceType.Suppression,
                 StatusEffectIds.Sleep => ResistanceType.Suppression,
                 StatusEffectIds.Paralysis => ResistanceType.Suppression,
+                StatusEffectIds.Slow => ResistanceType.Move,
                 _ => (ResistanceType?)null
             };
 
@@ -1197,6 +1204,7 @@ namespace Godmist.Systems.Combat
                 resistanceType.Value);
             return Mathf.Clamp01(
                 baseResistance
+                + EquipmentEffectSystem.Resistance(target.Character, resistanceType.Value)
                 + modifier
                 + target.GetStatusTolerance(statusId));
         }

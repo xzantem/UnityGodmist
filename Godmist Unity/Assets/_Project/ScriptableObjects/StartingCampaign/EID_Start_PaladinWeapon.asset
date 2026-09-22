@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.start.paladin.weapon
   <DisplayName>k__BackingField: "Zniekszta\u0142cony m\u0142ot"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Zniekszta\u0142cony m\u0142ot, kt\xF3rym nadal mo\u017Cna
+    walczy\u0107."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0

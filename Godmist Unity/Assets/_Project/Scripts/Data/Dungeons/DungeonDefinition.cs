@@ -11,6 +11,11 @@ namespace Godmist.Data.Dungeons
         menuName = "Godmist/Dungeons/Dungeon Definition")]
     public class DungeonDefinition : ScriptableObject, IIdentifiable
     {
+        [field: SerializeField] public bool EnvironmentConfigured { get; private set; }
+        [field: SerializeField] public bool IsIndoor { get; private set; }
+        [field: SerializeField] public bool IsCold { get; private set; }
+        [field: SerializeField] public bool IsWarm { get; private set; }
+
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public DungeonTheme Theme { get; private set; }

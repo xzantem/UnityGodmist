@@ -1900,6 +1900,9 @@ namespace Godmist.Views.UI.Workspace
                 GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
                 GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
                 GameplayVariableType.GoldGainPercent => "zdobywane złoto",
+                GameplayVariableType.ResourceGenerationPercent => "generacji surowca",
+                GameplayVariableType.DamageAgainstTag => "obrażeń przeciwko " + (referenceId switch { "Undead" => "nieumarłym", "Human" => "humanoidom", "Beast" => "bestiom", "Demon" => "demonom", _ => referenceId }),
+                GameplayVariableType.DamageInEnvironment => "obrażeń w terenie " + (referenceId switch { "Indoor" => "zamkniętym", "Outdoor" => "otwartym", "Warm" => "ciepłym", "Cold" => "zimnym", _ => referenceId }),
                 GameplayVariableType.DamageDealtPercentInDungeonTheme =>
                     string.IsNullOrWhiteSpace(referenceId)
                         ? "obrażenia zadawane w theme lochu"
@@ -2321,6 +2324,7 @@ namespace Godmist.Views.UI.Workspace
                     "Nie może się poruszać ani używać umiejętności przemieszczających.",
                 StatusEffectIds.Chill =>
                     "Ogranicza szybkość postaci.",
+                StatusEffectIds.Slow => "Zmniejsza szybkość o 20%.",
                 StatusEffectIds.Taunt =>
                     "Umiejętności ofensywne mogą celować wyłącznie w postać, która nałożyła Prowokację.",
                 StatusEffectIds.Invisibility =>
@@ -2386,7 +2390,7 @@ namespace Godmist.Views.UI.Workspace
                     ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
                 AppendPassiveDescriptions(
                     result,
-                    (equipment.Definition as UniqueEquipmentDefinition)?.Effects);
+                    (equipment.Definition as UniqueEquipmentDefinition)?.GetEffects(equipment.ItemLevel));
                 AppendSocketedGalduryteEffects(result, equipment);
 
                 if (equipment is JewelryItemInstance jewelry
@@ -2767,6 +2771,9 @@ namespace Godmist.Views.UI.Workspace
                 GameplayVariableType.DamageReceivedPercent => "otrzymywanych obrażeń",
                 GameplayVariableType.ExperienceGainPercent => "zdobywanego doświadczenia",
                 GameplayVariableType.GoldGainPercent => "zdobywanego złota",
+                GameplayVariableType.ResourceGenerationPercent => "generacji surowca",
+                GameplayVariableType.DamageAgainstTag => "obrażeń przeciwko " + (referenceId switch { "Undead" => "nieumarłym", "Human" => "humanoidom", "Beast" => "bestiom", "Demon" => "demonom", _ => referenceId }),
+                GameplayVariableType.DamageInEnvironment => "obrażeń w terenie " + (referenceId switch { "Indoor" => "zamkniętym", "Outdoor" => "otwartym", "Warm" => "ciepłym", "Cold" => "zimnym", _ => referenceId }),
                 GameplayVariableType.DamageDealtPercentInDungeonTheme =>
                     string.IsNullOrWhiteSpace(referenceId)
                         ? "zadawanych obrażeń w lochu"

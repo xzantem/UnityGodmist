@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.start.scout.armor
   <DisplayName>k__BackingField: Dziurawy pancerz
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Dziurawy pancerz pozwalaj\u0105cy zachowa\u0107
+    swobod\u0119 ruchu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0

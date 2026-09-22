@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.vs10.trawa_dusicielska
   <DisplayName>k__BackingField: Trawa dusicielska
-  <Description>k__BackingField: Elfie Ruiny
+  <Description>k__BackingField: "Spl\u0105tane \u017Ad\u017Ab\u0142a ro\u015Bliny
+    u\u017Cywanej w alchemii."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

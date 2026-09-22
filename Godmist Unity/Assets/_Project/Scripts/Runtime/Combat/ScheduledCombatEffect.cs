@@ -8,6 +8,7 @@ namespace Godmist.Runtime.Combat
     public sealed class ScheduledCombatEffect
     {
         public string CasterCharacterId = string.Empty;
+        public string ActionId = string.Empty;
         public SkillData Skill;
         public SkillEffectData Effect;
         public int EffectIndex;

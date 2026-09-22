@@ -14,9 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.igla_do_nici
   <DisplayName>k__BackingField: "Ig\u0142a do nici"
-  <Description>k__BackingField: "1x Sztabka stali -> 3x Ig\u0142a od nici / 1x Sztabka
-    inwaru -> 3x Ig\u0142a od nici / 1x Sztabka \u017Celaza meteorytowego -> 3x Ig\u0142a
-    od nici / 1x Sztabka br\u0105zu -> 3x Ig\u0142a od nici"
+  <Description>k__BackingField: "Cienka metalowa ig\u0142a do zszywania tkanin i
+    sk\xF3r."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1

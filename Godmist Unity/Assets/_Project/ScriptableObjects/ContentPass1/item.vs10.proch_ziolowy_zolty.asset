@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.proch_ziolowy_zolty
   <DisplayName>k__BackingField: "Proch zio\u0142owy: \u017B\xF3\u0142ty"
-  <Description>k__BackingField: 2x Alkohol + 1x Kosarz pospolity + 1x Mucha zwyczajna
-    + Dmuchawiec tregandzki -> 1x
+  <Description>k__BackingField: "Mieszanina rozdrobnionych sk\u0142adnik\xF3w u\u017Cywana
+    do warzenia mikstur."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

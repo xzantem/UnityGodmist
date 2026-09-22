@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccca2633228553c44864ed1c20223033, type: 3}
   m_Name: DD_Catacombs_Traps_Demo
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonDefinition
+  <EnvironmentConfigured>k__BackingField: 1
+  <IsIndoor>k__BackingField: 1
+  <IsCold>k__BackingField: 1
+  <IsWarm>k__BackingField: 0
   <Id>k__BackingField: dungeon.catacombs.traps_demo
   <DisplayName>k__BackingField: "Katakumby \u2014 pu\u0142apki demo"
   <Theme>k__BackingField: 0

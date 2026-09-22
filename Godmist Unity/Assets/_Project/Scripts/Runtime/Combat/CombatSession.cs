@@ -9,6 +9,7 @@ namespace Godmist.Runtime.Combat
     public class CombatSession
     {
         public string CombatId = string.Empty;
+        [NonSerialized] public readonly Dictionary<string, Dictionary<BattleUnit, int>> EquipmentActionHits = new();
         public CombatOutcomeState Outcome = CombatOutcomeState.Ongoing;
         public int CurrentEscapeChancePercent = GameDefinesRuntime.GetInt(
             GameDefineIds.EscapeBaseChancePercent, 60);
@@ -47,6 +48,7 @@ namespace Godmist.Runtime.Combat
                 && OpenExitEdges.Contains(new BattleCellEdge(from, to));
         }
         public DungeonTheme DungeonTheme = DungeonTheme.Story;
+        public Godmist.Data.Dungeons.DungeonDefinition DungeonDefinition;
         public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
             GameDefineIds.ActionPointsPerSpeed, 0.25f);
         public BattleGrid Grid;

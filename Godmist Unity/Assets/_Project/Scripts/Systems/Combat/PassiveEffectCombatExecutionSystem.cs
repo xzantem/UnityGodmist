@@ -279,6 +279,7 @@ namespace Godmist.Systems.Combat
             if (context == null || string.IsNullOrWhiteSpace(context.ActionId))
                 return;
 
+            queuedDuplicateKeys.RemoveWhere(key => key.EndsWith("|" + context.ActionId, StringComparison.Ordinal));
             for (var index = pendingDuplicateActions.Count - 1;
                 index >= 0;
                 index--)
@@ -400,7 +401,6 @@ namespace Godmist.Systems.Combat
             var chance = Mathf.Clamp01(ResolveValue(operation.Value, runtime));
             if (UnityEngine.Random.value > chance)
             {
-                queuedDuplicateKeys.Remove(key);
                 return;
             }
 
@@ -418,6 +418,12 @@ namespace Godmist.Systems.Combat
             if (runtime == null || string.IsNullOrWhiteSpace(operation.ReferenceId))
                 return;
 
+            if (operation.ReferenceId == "summon.random-skeleton")
+            {
+                if (context == null || context.IsPassiveDuplicate || string.IsNullOrEmpty(context.ActionId)
+                    || !queuedDuplicateKeys.Add(runtime.EffectId + "|" + context.ActionId)
+                    || UnityEngine.Random.value >= Mathf.Clamp01(ResolveValue(operation.Value, runtime))) return;
+            }
             runtime.SetStateValue(
                 PassiveEffectRuntimeStateValue.Boolean(
                     operation.ReferenceId,
@@ -704,7 +710,7 @@ namespace Godmist.Systems.Combat
             foreach (var item in owner?.Character?.Equipment?.GetEquippedItems()
                          ?? Array.Empty<EquipmentItemInstance>())
             {
-                foreach (var definition in (item?.Definition as UniqueEquipmentDefinition)?.Effects
+                foreach (var definition in (item?.Definition as UniqueEquipmentDefinition)?.GetEffects(item.ItemLevel)
                              ?? new List<PassiveEffectDefinition>())
                     yield return definition;
 

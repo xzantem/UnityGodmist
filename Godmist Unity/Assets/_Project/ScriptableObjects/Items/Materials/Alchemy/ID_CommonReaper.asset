@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.common_reaper
   <DisplayName>k__BackingField: Kosarz pospolity
-  <Description>k__BackingField: Katakumby
+  <Description>k__BackingField: "Niewielki paj\u0119czak u\u017Cywany jako sk\u0142adnik
+    alchemiczny."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

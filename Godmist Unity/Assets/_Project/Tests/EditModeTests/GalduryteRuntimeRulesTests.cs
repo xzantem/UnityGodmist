@@ -67,7 +67,7 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(success, Is.False);
             Assert.That(effects, Is.Empty);
-            Assert.That(failureReason, Does.Contain("unikalne efekty"));
+            Assert.That(failureReason, Does.Contain("Poziom galdurytu"));
         }
 
         [Test]

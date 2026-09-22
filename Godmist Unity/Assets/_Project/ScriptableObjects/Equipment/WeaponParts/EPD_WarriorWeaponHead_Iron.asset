@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.warrior.weapon.head.common.iron
   <DisplayName>k__BackingField: "D\u0142ugi Miecz \u2014 G\u0142ownia (Sztabka \u017Celaza)"
-  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 2"
+  <Description>k__BackingField: "Ostrze d\u0142ugiego miecza przenosz\u0105ce si\u0142\u0119
+    ci\u0119cia."
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <IsStarterOnly>k__BackingField: 0

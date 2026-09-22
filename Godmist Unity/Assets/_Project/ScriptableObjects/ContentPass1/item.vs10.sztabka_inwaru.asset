@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.vs10.sztabka_inwaru
   <DisplayName>k__BackingField: Sztabka inwaru
-  <Description>k__BackingField: "1x Ruda \u017Celaza + 1x Ruda niklu + 1x Chrom ->
-    1x Sztabka inwaru"
+  <Description>k__BackingField: "Przetopiony metal gotowy do dalszej obr\xF3bki w
+    ku\u017Ani."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
