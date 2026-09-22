@@ -40,6 +40,7 @@ namespace Godmist.Views.UI
         [SerializeField] private Button deleteButton;
 
         private readonly List<GameSaveSummary> saveSummaries = new();
+        private readonly List<SaveListEntryView> saveEntries = new();
 
         private SaveLoadPanelMode currentMode;
         private GameSaveSummary selectedSave;
@@ -62,6 +63,7 @@ namespace Godmist.Views.UI
         {
             currentMode = mode;
             selectedSave = null;
+            SetMessage(string.Empty);
 
             if (currentMode == SaveLoadPanelMode.Save)
             {
@@ -164,7 +166,10 @@ namespace Godmist.Views.UI
         private void SelectSave(GameSaveSummary summary)
         {
             selectedSave = summary;
-            RefreshAll();
+            for (var index = 0; index < saveEntries.Count; index++)
+                saveEntries[index].SetSelected(saveSummaries[index] == selectedSave);
+            RefreshDetails();
+            RefreshActions();
         }
 
         private void RefreshAll()
@@ -188,6 +193,7 @@ namespace Godmist.Views.UI
         {
             ClearContent(saveListContent);
             saveSummaries.Clear();
+            saveEntries.Clear();
 
             var saveManager = GameBootstrap.Instance?.SaveManager;
 
@@ -216,6 +222,7 @@ namespace Godmist.Views.UI
                 saveSummaries.Add(summary);
 
                 var entry = Instantiate(saveEntryPrefab, saveListContent);
+                saveEntries.Add(entry);
 
                 entry.Bind(
                     summary,
@@ -255,6 +262,7 @@ namespace Godmist.Views.UI
 
         private void RefreshActions()
         {
+            saveButton.gameObject.SetActive(currentMode == SaveLoadPanelMode.Save);
             saveButton.interactable = currentMode == SaveLoadPanelMode.Save;
 
             loadButton.gameObject.SetActive(

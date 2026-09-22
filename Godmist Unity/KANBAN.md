@@ -76,6 +76,14 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-04] Wprowadzić produkcyjne menu i start gry` - `UI / UX`, `Core / Architecture`
+  - DONE — 2026-09-22. Kod menu/ustawień, nowa kampania i kontynuacja gotowe; 39/39 testów PASS (vs04-menu-verified.xml), self-review zakończony. Konfiguracja Bootstrap wykonana za zgodą użytkownika: referencje, przyciski, panele, aktywny suwak i układ. 42/42 EditMode PASS (vs04-ui-verified.xml), automatyczny Play Mode smoke menu i Nowa gra → Arungard PASS; podglądy 1080p/720p sprawdzone. Odbiór użytkownika zatwierdzony poleceniem commit/push; ustawienia ekranu/Wyjdź nie były automatycznie testowane w buildzie.
+  - Poprawka opóźnień: cache podsumowań zapisów, brak odczytu przy zamykaniu ustawień, wybór zapisu bez przebudowy listy. 44/44 EditMode i Play Mode smoke PASS; na 268 zapisach ponowny odczyt ~33 ms zamiast ~4,6 s, wybór ~1 ms. Pierwsze indeksowanie pozostaje synchroniczne.
+  - Context pass po zamknięciu VS-03. Context pass: obecne BootstrapMenuView uruchamia sandboxy; zachować istniejący SaveManager/SceneLoader. Użytkownik zatwierdził pionowe menu po lewej, osobny panel zapisów, głośność/rozdzielczość/pełny ekran; nową kampanię bez usuwania starych, kontynuację najnowszego poprawnego zapisu i powrót do menu przy błędzie.
+  - Nowa gra, kontynuacja, wczytanie, podstawowe ustawienia i wyjście. Produkcyjny przepływ bez „Launch Sandbox”; sandboxy mogą pozostać narzędziami developerskimi.
+  - Przed implementacją uzgodnić layout, zakres ustawień, zachowanie przy istniejącym zapisie oraz błędach wczytania. Korzystać z istniejącego save/scene flow i UIW; statyczny UI w prefabach/scenach.
+  - Smoke od uruchomienia gry, bez ręcznego otwierania sceny rozgrywki.
+
 - `[P1] [VS-03] Przeprowadzić uzgodniony refaktor klas pod content slice’a` - `Core / Architecture`, `Combat`, `Skills / Progression`
   - DONE — smoke zaakceptowany i commit/push zlecone 2026-09-22. Wspólny resolver kosztów/parametrów, reakcje pasywne i OnHeal, walidacja, ochrona przed rekurencją i wielokrotnymi procami. Poprawki smoke: punktacja kosztu AI oraz wydajność wyszukiwania drogi na piętrach. Kontrakt: VS03_RUNTIME_CONTRACT.md.
   - Weryfikacja workspace: 155/155 głównej regresji, 70/70 po poprawce ataków, 63/63 po poprawce wysokości. Katalog assetów/drzewek pozostaje w kartach contentowych.

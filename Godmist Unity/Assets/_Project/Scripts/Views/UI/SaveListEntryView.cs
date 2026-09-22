@@ -28,15 +28,15 @@ namespace Godmist.Views.UI
             titleText.text = summary.DisplayName;
             detailsText.text = BuildDetailsText(summary);
 
-            if (background != null)
-            {
-                background.color = isSelected
-                    ? selectedColor
-                    : normalColor;
-            }
+            SetSelected(isSelected);
 
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => selectionCallback?.Invoke(summary));
+        }
+
+        public void SetSelected(bool isSelected)
+        {
+            if (background != null) background.color = isSelected ? selectedColor : normalColor;
         }
 
         private static string BuildDetailsText(GameSaveSummary summary)

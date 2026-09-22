@@ -25,6 +25,9 @@ namespace Godmist.Systems.SaveLoad
         private readonly GameSessionSaveSnapshotFactory snapshotFactory = new();
         private readonly GameSessionRestoreFactory restoreFactory = new();
 
+        // Cache only summaries, never restored game state. File metadata detects external changes.
+        private readonly Dictionary<string, (long Length, DateTime Modified, GameSaveSummary Summary)> summaryCache = new();
+
         public string SaveDirectoryPath => saveDirectoryPath;
 
         public SaveManager(string customSaveDirectoryPath = null)
@@ -125,6 +128,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            summaryCache.Remove(destinationPath);
             if (!TryWriteText(destinationPath, json, out message))
             {
                 return false;
@@ -161,18 +165,25 @@ namespace Godmist.Systems.SaveLoad
 
                 foreach (var path in paths)
                 {
-                    if (!TryReadSaveData(path, out var saveData, out _))
+                    var file = new FileInfo(path);
+                    if (!summaryCache.TryGetValue(path, out var cached)
+                        || cached.Length != file.Length || cached.Modified != file.LastWriteTimeUtc)
                     {
-                        continue;
+                        GameSaveSummary freshSummary = null;
+                        if (TryReadSaveData(path, out var saveData, out _))
+                            TryCreateSummary(path, saveData, out freshSummary);
+                        cached = (file.Length, file.LastWriteTimeUtc, freshSummary);
+                        summaryCache[path] = cached;
                     }
-
-                    if (!TryCreateSummary(path, saveData, out var summary))
-                    {
-                        continue;
-                    }
+                    var summary = cached.Summary;
+                    if (summary == null) continue;
 
                     results.Add(summary);
                 }
+
+                var existingPaths = new HashSet<string>(paths);
+                foreach (var cachedPath in new List<string>(summaryCache.Keys))
+                    if (!existingPaths.Contains(cachedPath)) summaryCache.Remove(cachedPath);
 
                 results.Sort((left, right) =>
                     right.UpdatedAtUtc.CompareTo(left.UpdatedAtUtc));
@@ -184,6 +195,22 @@ namespace Godmist.Systems.SaveLoad
                 message = exception.Message;
                 return false;
             }
+        }
+
+        public bool TryLoadLatestValid(GameContentCatalog catalog, out GameSession session, out string message)
+        {
+            session = null;
+            if (catalog == null) { message = "Brak katalogu zawartości gry."; return false; }
+            if (!TryGetSaveSummaries(out var summaries, out message)) return false;
+            foreach (var summary in summaries)
+                if (TryLoadSave(summary, catalog, out var candidate, out _) && !candidate.IsDefeated)
+                {
+                    session = candidate;
+                    message = "Wczytano ostatni poprawny zapis.";
+                    return true;
+                }
+            message = "Brak poprawnego zapisu do kontynuowania. Możesz rozpocząć nową grę.";
+            return false;
         }
 
         public bool TryLoadQuick(
@@ -388,6 +415,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            summaryCache.Remove(destinationPath);
             if (!TryWriteText(destinationPath, json, out message))
             {
                 return false;

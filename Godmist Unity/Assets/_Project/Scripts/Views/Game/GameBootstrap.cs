@@ -47,6 +47,8 @@ namespace Godmist.Views.Game
         public GameDefines GameDefines => gameDefines;
         public bool IsDungeonScene => SceneManager.GetActiveScene().name == dungeonSceneName;
 
+        public bool IsSceneLoading => sceneLoader?.IsLoading == true;
+
         public event Action<DungeonInstance> DungeonExited;
 
         private SceneLoader sceneLoader;
@@ -95,6 +97,7 @@ namespace Godmist.Views.Game
                         contentCatalog?.EquipmentPartDefinitions)));
 
             InitializeRuntimeServices();
+            Godmist.Views.UI.MainMenuSettingsView.ApplySavedSettings();
         }
 
         private readonly ExplorationStatusEffectSystem cityStatusEffects = new();
@@ -144,6 +147,27 @@ namespace Godmist.Views.Game
             {
                 Instance = null;
             }
+        }
+
+        public bool TryStartNewGame(out string message)
+        {
+            if (Session?.CurrentMode != GameModeState.Menu || IsSceneLoading || Session.HasCombat)
+            { message = "Nową grę można rozpocząć z menu głównego."; return false; }
+            // Fresh campaign ID; the existing Arungard owner initializes its content.
+            // No save files are deleted or overwritten by starting another campaign.
+            if (!TryReplaceSession(new GameSession(GameModeState.Menu), out message)) return false;
+            message = "Rozpoczynanie nowej gry…";
+            return true;
+        }
+
+        public bool TryContinueGame(out string message)
+        {
+            if (Session?.CurrentMode != GameModeState.Menu || IsSceneLoading || Session.HasCombat)
+            { message = "Kontynuacja jest dostępna z menu głównego."; return false; }
+            if (SaveManager == null)
+            { message = "Nie udało się otworzyć zapisów gry."; return false; }
+            return SaveManager.TryLoadLatestValid(contentCatalog, out var restored, out message)
+                && TryReplaceSession(restored, out message);
         }
 
         public bool StartCombat()
@@ -649,6 +673,8 @@ namespace Godmist.Views.Game
             out string message)
         {
             message = string.Empty;
+            if (sceneLoader?.IsLoading == true)
+            { message = "Trwa już wczytywanie gry."; return false; }
             autosaveRequested = false;
             pendingAutosaveReason = string.Empty;
 
