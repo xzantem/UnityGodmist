@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: EPD_MageArmorPlate_Cotton
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.armor.plate.common.cotton
-  <DisplayName>k__BackingField: "Tkanina z bawe\u0142ny"
-  <Description>k__BackingField: 
+  <DisplayName>k__BackingField: "Szata \u2014 Materia\u0142 (Bawe\u0142niana tkanina)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 74"
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 3
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:

@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: EPD_PaladinWeaponHandle_Larch
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.paladin.weapon.handle.common.larch
-  <DisplayName>k__BackingField: "R\u0119koje\u015B\u0107 z modrzewia"
-  <Description>k__BackingField: 
+  <DisplayName>k__BackingField: "M\u0142ot \u2014 R\u0119koje\u015B\u0107 (Modrzewiowy
+    patyk)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 126"
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 2
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:
@@ -25,7 +27,7 @@ MonoBehaviour:
     CritChanceBase: 0
     CritDamageBase: 0
     WeaponAccuracyBase: 65
-    MaxResourceBase: 15
+    MaxResourceBase: 0
     ResourceRegenerationBase: 0
     MaxHealthBase: 0
     DodgeBase: 0
@@ -37,7 +39,7 @@ MonoBehaviour:
     CritDamagePercent: 0.2
     WeaponAccuracyPercent: 0
     MaxResourcePercent: 0
-    ResourceRegenerationPercent: -0.2
+    ResourceRegenerationPercent: 0
     MaxHealthPercent: 0
     DodgePercent: 0
     PhysicalDefensePercent: 0

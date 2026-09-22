@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb82b87d42d94e4192692d17f69ed0c, type: 3}
+  m_Name: item.vs10.brzozowa_deska
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
+  <Id>k__BackingField: item.vs10.brzozowa_deska
+  <DisplayName>k__BackingField: Brzozowa deska
+  <Description>k__BackingField: 1x Drewno brzozowe -> 2x Brzozowa deska
+  <Icon>k__BackingField: {fileID: 0}
+  <ItemType>k__BackingField: 3
+  <MaterialDiscipline>k__BackingField: 1
+  <BaseRarity>k__BackingField: 4
+  <BaseValue>k__BackingField: 152
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
+  <OutputAmount>k__BackingField: 2
+  <Ingredients>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+    <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

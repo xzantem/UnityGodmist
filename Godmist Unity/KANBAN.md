@@ -76,6 +76,11 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-10] Przygotować materiały i części wyposażenia` - `Items / Inventory / Economy`, `Content / Data`
+  - Według VS-01: ograniczona pula materiałów i części broni/pancerzy dla klas slice’a, progi progresji, wymagania i zastosowania.
+  - Powiązać źródła dropu/zakupu z recepturami; żadnych materiałów bez zastosowania ani receptur bez osiągalnego źródła zasobów. Liczby i nazwy ustalić przed authoringiem.
+  - **DONE — 2026-09-22.** Smoke zaakceptowany. 180 materiałów, 115 wariantów receptur i 192 części; wybór metalu igieł oraz minimalna wycena. Poprawiona inicjalizacja podglądu kowala. Szczegóły: VS10_MATERIALS_AND_PARTS.md.
+
 - `[P1] [VS-09] Przygotować drzewka Czarodziejki i Paladyna` - `Content / Data`, `Combat`, `Skills / Progression`
   - Po decyzji VS-01 zakres obejmuje trzecią i czwartą klasę: Alison (Czarnoksiężnik + Mag Ognia) oraz Reimond (Kapłan + Krzyżowiec), pierwsze 4 tiery. VS-08 obejmuje Wladimira (Dowódca + Awanturnik); VS-07 Jerzego (Skrytobójca + Tancerz Ostrzy).
   - Analogiczny zakres do VS-08 dla obu zatwierdzonych klas, z odmiennymi rolami drużynowymi; każdą klasę zweryfikować osobno.
@@ -307,10 +312,14 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
 
 ## In Progress
 
-- `[P1] [VS-10] Przygotować materiały i części wyposażenia` - `Items / Inventory / Economy`, `Content / Data`
-  - Według VS-01: ograniczona pula materiałów i części broni/pancerzy dla klas slice’a, progi progresji, wymagania i zastosowania.
-  - Powiązać źródła dropu/zakupu z recepturami; żadnych materiałów bez zastosowania ani receptur bez osiągalnego źródła zasobów. Liczby i nazwy ustalić przed authoringiem.
-  - **IN PROGRESS — 2026-09-22.** Otwarta po akceptacji VS-09; context pass materiałów i części wyposażenia.
+- `[P1] [VS-11] Przygotować wyposażenie, biżuterię i nagrody specjalne` - `Items / Inventory / Economy`, `Content / Data`
+  - Przygotowane w ramach VS-18: model rzadkości i upgrade, sloty oraz wyłączanie galdurytów po utracie slotu, nowa penetracja. Katalog/authoring biżuterii, puli efektów i unikatów nadal do wykonania; nie powtarzać implementacji mechanik.
+  - Jawnie rozszerzony zakres VS-01: więcej klejnotów biżuterii, około 50–70% docelowej puli efektów galdurytów i specjalny unikat Ducha Umarłego Króla. Konkretną listę i zależności mechaniczne ustalić przed authoringiem; nie dołączać całej zaległej karty unikatów wszystkich bossów.
+  - Po VS-10: spójne pule generowanego/dostępnego wyposażenia, biżuteria i wybrane nagrody dla wszystkich klas slice’a. Używać istniejących slotów, jakości, wymagań i pasywek.
+  - Wybrane unikaty bossów i efekty galdurytów według VS-01; nie rozszerzać poza zatwierdzony katalog. Sprawdzić wyposażanie, statystyki, tooltipy i zapis.
+  - **IN PROGRESS — 2026-09-22.** Context pass: biżuteria, galduryty, unikaty bossa i pule sprzętu.
+
+
 
 
 

@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: EPD_MageArmorBase_GoatLeather
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.armor.base.common.goat_leather
-  <DisplayName>k__BackingField: "Sk\xF3ra z kozy"
-  <Description>k__BackingField: 
+  <DisplayName>k__BackingField: "Szata \u2014 Koszula (Wyprawiona sk\xF3ra kozy)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 90"
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 5
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:

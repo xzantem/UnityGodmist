@@ -111,7 +111,7 @@ namespace Godmist.Views.UI.Workspace
             qualityDropdown.ClearOptions();
             qualityDropdown.AddOptions(new List<string> { "Kiepska", "Normalna", "Doskonała" });
             selectedQuality = EquipmentQuality.Normal;
-            qualityDropdown.value = 1;
+            qualityDropdown.SetValueWithoutNotify(1);
         }
 
         private void PopulateEquipmentChoices()

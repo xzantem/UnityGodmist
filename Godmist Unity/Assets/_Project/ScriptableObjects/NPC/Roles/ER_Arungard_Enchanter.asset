@@ -21,6 +21,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9923b396fe627f14991a33eea836dfec, type: 2}
   - {fileID: 11400000, guid: 152e7034cd735a346b2f053d7270c763, type: 2}
   - {fileID: 11400000, guid: 104b884a8b6f7e14eae1d37c9fad497f, type: 2}
+  - {fileID: 11400000, guid: 4256ca8a6b0304e48b13433792b7978b, type: 2}
+  - {fileID: 11400000, guid: b21483e50f78219478fc15693e67b687, type: 2}
+  - {fileID: 11400000, guid: 5df0bf92d9129fe4e8bb915ad75a5ca0, type: 2}
+  - {fileID: 11400000, guid: 25e0374f7d60e234ea87be763de58665, type: 2}
+  - {fileID: 11400000, guid: 9718e4c398fab7c4bb4d40b34780efaa, type: 2}
+  - {fileID: 11400000, guid: 50d4ca06f46dc3548ae3b73e0b9aeac4, type: 2}
+  - {fileID: 11400000, guid: 51ffb1e512005874cbfaba0b1e41b51d, type: 2}
+  - {fileID: 11400000, guid: b484b6a0128df48489f98f54f3ce6628, type: 2}
+  - {fileID: 11400000, guid: bf579ff65372e0046b8c5818bcadd2a5, type: 2}
+  - {fileID: 11400000, guid: 56caef74cb34ec34abfb0bf1a17df3c5, type: 2}
   <GalduryteStones>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 9923b396fe627f14991a33eea836dfec, type: 2}
     <Tier>k__BackingField: 1

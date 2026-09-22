@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: EPD_MageWeaponHandle_Larch
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.weapon.handle.common.larch
-  <DisplayName>k__BackingField: Trzon z modrzewia
-  <Description>k__BackingField: 
+  <DisplayName>k__BackingField: "Kostur \u2014 Trzon (Modrzewiowy patyk)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 90"
   <Icon>k__BackingField: {fileID: 0}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 2
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:
@@ -24,7 +25,7 @@ MonoBehaviour:
     MaxAttackBase: 0
     CritChanceBase: 0
     CritDamageBase: 0
-    WeaponAccuracyBase: 69
+    WeaponAccuracyBase: 0
     MaxResourceBase: 15
     ResourceRegenerationBase: 0
     MaxHealthBase: 0
@@ -33,7 +34,7 @@ MonoBehaviour:
     MagicalDefenseBase: 0
     MinAttackPercent: 0.2
     MaxAttackPercent: 0.2
-    CritChancePercent: -0.2
+    CritChancePercent: 0
     CritDamagePercent: 0.2
     WeaponAccuracyPercent: 0
     MaxResourcePercent: 0

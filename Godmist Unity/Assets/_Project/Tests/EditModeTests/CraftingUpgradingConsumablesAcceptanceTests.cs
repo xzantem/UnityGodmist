@@ -23,6 +23,65 @@ namespace Godmist.Tests.EditMode
     public sealed class CraftingUpgradingConsumablesAcceptanceTests
     {
         [Test]
+        public void BlacksmithPreviewBeforeEquipmentSelectionReturnsFailureWithoutMutation()
+        {
+            var npc=CreateBlacksmith();var character=new CharacterInstance{CharacterId="preview.owner"};
+            var session=new GameSession(GameModeState.Exploration,"preview.empty");
+            session.TryRegisterCharacter(character);session.TryAddCharacterToActiveParty(character.CharacterId);
+            var service=new BlacksmithCraftingService();
+            var request=new EquipmentCraftRequest{RecipientCharacterId=character.CharacterId,Quality=EquipmentQuality.Normal};
+            var preview=service.CreatePreview(session,npc,request);
+            Assert.That(preview.CanCraft,Is.False);Assert.That(preview.Result,Is.Null);
+            Assert.That(preview.FailureReason,Is.Not.Empty);Assert.That(preview.Materials,Is.Empty);
+            Assert.That(service.TryCraft(session,npc,request,out var result,out var reason),Is.False);
+            Assert.That(result,Is.Null);Assert.That(character.Inventory.Items,Is.Empty);
+            Assert.That(service.CreatePreview(session,npc,null).CanCraft,Is.False);
+        }
+
+        [Test]
+        public void QualityInitializationDoesNotInvokePreviewCallback()
+        {
+            var go=new GameObject("quality.init",typeof(RectTransform));
+            try
+            {
+                var dropdown=go.AddComponent(System.Type.GetType("TMPro.TMP_Dropdown, Unity.TextMeshPro",true));
+                var value=dropdown.GetType().GetProperty("value");
+                var changed=(UnityEngine.Events.UnityEvent<int>)dropdown.GetType().GetProperty("onValueChanged").GetValue(dropdown);
+                var view=go.AddComponent<Godmist.Views.UI.Workspace.BlacksmithCraftingWindowView>();
+                typeof(Godmist.Views.UI.Workspace.BlacksmithCraftingWindowView).GetField("qualityDropdown",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(view,dropdown);
+                var callbacks=0;changed.AddListener(_=>callbacks++);
+                var populate=view.GetType().GetMethod("PopulateQualityOptions",BindingFlags.Instance|BindingFlags.NonPublic);
+                populate.Invoke(view,null);populate.Invoke(view,null);
+                Assert.That(value.GetValue(dropdown),Is.EqualTo(1));Assert.That(callbacks,Is.Zero);
+                value.SetValue(dropdown,2);Assert.That(callbacks,Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
+        public void MaterialVariantsConsumeChosenMetalAndShareCheapestOutputValue()
+        {
+            var cheap=CreateItem("cheap",ItemType.Material,14);var costly=CreateItem("costly",ItemType.Material,20);
+            var recipe=CreateRecipe("needle",3,(cheap,1));
+            recipe.AlternativeRecipes.Add(new CraftableItemDefinition.RecipeVariant{Label="costly",Ingredients=new List<CraftingMaterialRequirement>{new(costly,1)}});
+            Assert.That(recipe.CalculatedBaseValue,Is.EqualTo(4));
+            var npc=CreateBlacksmith(recipe);var character=new CharacterInstance{CharacterId="variant.crafter"};
+            var session=new GameSession(GameModeState.Exploration,"variants");session.TryRegisterCharacter(character);session.TryAddCharacterToActiveParty(character.CharacterId);
+            character.Inventory.Items.Add(new ItemInstance(cheap,"cheap.one"));character.Inventory.Items.Add(new ItemInstance(costly,"costly.one"));
+            var service=new MaterialCraftingService();
+            var request=new MaterialCraftRequest{Recipe=recipe,RecipeVariantIndex=1,RecipientCharacterId=character.CharacterId};
+            Assert.That(service.TryCraft(session,npc,request,out var items,out var failure),Is.True,failure);
+            Assert.That(items.Count,Is.EqualTo(3));Assert.That(items.All(item=>item.Definition==recipe),Is.True);
+            Assert.That(character.Inventory.Items.Any(item=>item.Definition==cheap),Is.True);
+            Assert.That(character.Inventory.Items.Any(item=>item.Definition==costly),Is.False);
+            request.RecipeVariantIndex=99;Assert.That(service.CreatePreview(session,npc,request).CanCraft,Is.False);
+            request.RecipeVariantIndex=-1;Assert.That(service.CreatePreview(session,npc,request).CanCraft,Is.False);
+            request.RecipeVariantIndex=0;Assert.That(service.TryCraft(session,npc,request,out items,out failure),Is.True,failure);
+            Assert.That(character.Inventory.Items.Count(item=>item.Definition==recipe),Is.EqualTo(6));
+        }
+
+        [Test]
+
         public void CraftableItemDefinition_CalculatesRecursiveUnitValue()
         {
             var ore = CreateItem("material.ore", ItemType.Material, 8);

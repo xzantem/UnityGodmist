@@ -14,16 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.weak_thread_needle
   <DisplayName>k__BackingField: "S\u0142aba ig\u0142a do nici"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "1x Sztabka \u017Celaza -> 3x S\u0142aba ig\u0142a
+    od nici / 1x Sztabka niklu -> 3x S\u0142aba ig\u0142a od nici / 1x Sztabka miedzi
+    -> 3x S\u0142aba ig\u0142a od nici / 1x Sztabka cyny -> 3x S\u0142aba ig\u0142a
+    od nici"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 4
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 3
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
     <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField:
+  - Label: Sztabka niklu
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8c62958fe5c4eff44a68f4f99dc61b5e, type: 2}
+      <Amount>k__BackingField: 1
+  - Label: Sztabka miedzi
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: ff95c6fce5a60c545be90ffe7561299e, type: 2}
+      <Amount>k__BackingField: 1
+  - Label: Sztabka cyny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 9a4453b23cf1a6047980898f7088c49b, type: 2}
+      <Amount>k__BackingField: 1

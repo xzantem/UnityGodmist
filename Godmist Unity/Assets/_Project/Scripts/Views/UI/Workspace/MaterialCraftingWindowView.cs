@@ -39,6 +39,7 @@ namespace Godmist.Views.UI.Workspace
         private TMP_InputField previewNameInput;
         private string recipientCharacterId = string.Empty;
         private CraftableItemDefinition selectedRecipe;
+        private int selectedVariant;
         private bool isVisible;
 
         private void Awake()
@@ -97,24 +98,27 @@ namespace Godmist.Views.UI.Workspace
                 ?.Where(recipe => recipe != null)
                 .OrderBy(recipe => recipe.DisplayName)
                 .ToList() ?? new List<CraftableItemDefinition>();
-            if (!recipes.Contains(selectedRecipe)) selectedRecipe = recipes.FirstOrDefault();
+            if (!recipes.Contains(selectedRecipe)) { selectedRecipe = recipes.FirstOrDefault(); selectedVariant = 0; }
 
             foreach (var recipe in recipes)
+            for (var variant = 0; variant < recipe.RecipeVariantCount; variant++)
             {
+                var variantIndex = variant;
                 var slot = CreateSlot(
                     recipeSlotTemplate,
                     recipeGrid,
                     recipe.Icon,
                     string.IsNullOrWhiteSpace(recipe.DisplayName)
                         ? recipe.DisplayName ?? recipe.Id
-                        : recipe.DisplayName,
-                    BuildRecipeTooltip(recipe),
+                        : recipe.DisplayName + (recipe.RecipeVariantCount > 1 ? " — " + recipe.GetVariantLabel(variantIndex) : string.Empty),
+                    BuildRecipeTooltip(recipe, variantIndex),
                     $"×{recipe.OutputAmount}",
-                    ReferenceEquals(recipe, selectedRecipe),
+                    ReferenceEquals(recipe, selectedRecipe) && selectedVariant == variantIndex,
                     false,
                     () =>
                     {
                         selectedRecipe = recipe;
+                        selectedVariant = variantIndex;
                         PopulateRecipes();
                         RefreshPreview();
                     });
@@ -198,6 +202,7 @@ namespace Godmist.Views.UI.Workspace
         private MaterialCraftRequest BuildRequest() => new()
         {
             Recipe = selectedRecipe,
+            RecipeVariantIndex = selectedVariant,
             RecipientCharacterId = recipientCharacterId
         };
 
@@ -240,12 +245,12 @@ namespace Godmist.Views.UI.Workspace
                 : "Wynik craftingu";
         }
 
-        private static string BuildRecipeTooltip(CraftableItemDefinition recipe)
+        private static string BuildRecipeTooltip(CraftableItemDefinition recipe, int variantIndex = 0)
         {
             if (recipe == null) return string.Empty;
-            var ingredients = recipe.Ingredients == null
+            var ingredients = recipe.GetIngredients(variantIndex) == null
                 ? string.Empty
-                : string.Join("\n", recipe.Ingredients
+                : string.Join("\n", recipe.GetIngredients(variantIndex)
                     .Where(ingredient => ingredient?.Material != null)
                     .Select(ingredient => $"{ingredient.Amount}× {ingredient.Material.DisplayName}"));
             return $"Wynik: {recipe.OutputAmount}× {recipe.DisplayName}\n"

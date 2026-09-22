@@ -14,16 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.larch_plank
   <DisplayName>k__BackingField: Modrzewiowa deska
-  <Description>k__BackingField: 
+  <Description>k__BackingField: 1x Drewno modrzewiowe -> 2x Modrzewiowa deska
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 37
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
     <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

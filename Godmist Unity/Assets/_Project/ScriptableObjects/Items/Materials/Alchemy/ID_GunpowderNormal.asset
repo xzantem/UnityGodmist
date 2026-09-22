@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.gunpowder
   <DisplayName>k__BackingField: Proch strzelniczy
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Wszystkie torby zasob\xF3w"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

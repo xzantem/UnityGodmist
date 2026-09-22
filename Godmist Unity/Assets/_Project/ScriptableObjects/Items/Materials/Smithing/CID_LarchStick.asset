@@ -14,16 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.larch_stick
   <DisplayName>k__BackingField: Modrzewiowy patyk
-  <Description>k__BackingField: 
+  <Description>k__BackingField: 3x Modrzewiowa deska -> 8x Modrzewiowy patyk
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 13
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 8
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 985f287d1c302b148a64d20ebbebba7b, type: 2}
     <Amount>k__BackingField: 3
+  <AlternativeRecipes>k__BackingField: []

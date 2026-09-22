@@ -14,16 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.goat_hide
   <DisplayName>k__BackingField: "Wyprawiona sk\xF3ra kozy"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "1x Sk\xF3ra kozy -> 1x Wyprawiona sk\xF3ra kozy"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 50
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
     <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

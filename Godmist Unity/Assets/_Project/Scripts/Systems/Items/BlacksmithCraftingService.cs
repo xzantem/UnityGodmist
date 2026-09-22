@@ -95,6 +95,12 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (request.Definition == null)
+            {
+                preview.FailureReason = "Wybierz wyposażenie do wytworzenia.";
+                return preview;
+            }
+
             if (request.Definition.IsStarterEquipment)
             { preview.FailureReason = "Wyposażenie startowe nie jest dostępne w rzemiośle."; return preview; }
 

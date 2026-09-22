@@ -14,16 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.iron_ingot
   <DisplayName>k__BackingField: "Sztabka \u017Celaza"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "2x Ruda \u017Celaza -> 1x Sztabka \u017Celaza"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 14
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
     <Amount>k__BackingField: 2
+  <AlternativeRecipes>k__BackingField: []

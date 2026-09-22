@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.alchemy.herbal_powder_normal
   <DisplayName>k__BackingField: "Proch zio\u0142owy: Zwyk\u0142y"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "1x S\u0142aby alkohol + 1x Kosarz pospolity + 1x
+    Kwitn\u0105ca wi\u015Bnia + 1x Kwiat byliny -> 1x"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
@@ -28,4 +29,9 @@ MonoBehaviour:
   - <Material>k__BackingField: {fileID: 11400000, guid: d4e6f8a0b2c94375a1d3e5f7b9c0a2d4, type: 2}
     <Amount>k__BackingField: 1
   - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
-    <Amount>k__BackingField: 3
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+    <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

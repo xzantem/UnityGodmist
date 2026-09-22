@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bed854cba69ff047a20780c3ff79586, type: 3}
+  m_Name: part.vs10.warrior.4.5.niklowy_lancuch
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
+  <Id>k__BackingField: part.vs10.warrior.4.5.niklowy_lancuch
+  <DisplayName>k__BackingField: "Kolczuga \u2014 Kolcza (Niklowy \u0142a\u0144cuch)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 11"
+  <Icon>k__BackingField: {fileID: 0}
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+  <IsStarterOnly>k__BackingField: 0
+  <Kind>k__BackingField: 4
+  <LevelBracket>k__BackingField: 5
+  <Stats>k__BackingField:
+    MinAttackBase: 0
+    MaxAttackBase: 0
+    CritChanceBase: 0
+    CritDamageBase: 0
+    WeaponAccuracyBase: 0
+    MaxResourceBase: 0
+    ResourceRegenerationBase: 0
+    MaxHealthBase: 180
+    DodgeBase: 0
+    PhysicalDefenseBase: 0
+    MagicalDefenseBase: 0
+    MinAttackPercent: 0
+    MaxAttackPercent: 0
+    CritChancePercent: 0
+    CritDamagePercent: 0
+    WeaponAccuracyPercent: 0
+    MaxResourcePercent: 0
+    ResourceRegenerationPercent: 0
+    MaxHealthPercent: 0
+    DodgePercent: -0.2
+    PhysicalDefensePercent: -0.2
+    MagicalDefensePercent: 0.2
+  <CraftingMaterials>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: e231dedaae43eff49b71711ebd50fb80, type: 2}
+    <Amount>k__BackingField: 10

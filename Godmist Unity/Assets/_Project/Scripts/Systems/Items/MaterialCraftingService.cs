@@ -16,6 +16,7 @@ namespace Godmist.Systems.Items
     public sealed class MaterialCraftRequest
     {
         public CraftableItemDefinition Recipe;
+        public int RecipeVariantIndex;
         public string RecipientCharacterId = string.Empty;
     }
 
@@ -80,9 +81,14 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (!IsValidVariant(request))
+            {
+                preview.FailureReason = "Niepoprawny wariant receptury.";
+                return preview;
+            }
             preview.Result = request.Recipe;
             preview.ResultAmount = request.Recipe.OutputAmount;
-            preview.Materials = BuildMaterialCosts(session, blacksmith, request.Recipe);
+            preview.Materials = BuildMaterialCosts(session, blacksmith, request.Recipe, request.RecipeVariantIndex);
             if (preview.Materials.Count == 0)
             {
                 preview.FailureReason = "Recepta nie ma poprawnie skonfigurowanych składników.";
@@ -174,13 +180,14 @@ namespace Godmist.Systems.Items
                 || blacksmith.ShopInventory?.Items == null
                 || string.IsNullOrWhiteSpace(materialId)
                 || !IsValidRecipe(blacksmith, request?.Recipe)
+                || !IsValidVariant(request)
                 || !TryGetRecipient(session, request.RecipientCharacterId, out var recipient))
             {
                 failureReason = "Nie można kupić tego materiału u wybranego specjalisty.";
                 return false;
             }
 
-            var cost = BuildMaterialCosts(session, blacksmith, request.Recipe)
+            var cost = BuildMaterialCosts(session, blacksmith, request.Recipe, request.RecipeVariantIndex)
                 .FirstOrDefault(candidate => candidate.Material.Id == materialId);
             if (cost == null || cost.MissingAmount < 1)
             {
@@ -342,13 +349,20 @@ namespace Godmist.Systems.Items
                 : item?.MaterialDiscipline ?? MaterialDiscipline.None;
         }
 
+        private static bool IsValidVariant(MaterialCraftRequest request)
+        {
+            var ingredients = request?.Recipe?.GetIngredients(request.RecipeVariantIndex);
+            return ingredients != null && ingredients.Count > 0 && ingredients.All(i => i?.Material != null
+                && i.Amount > 0 && i.Material.ItemType == ItemType.Material && GetMaterialDiscipline(i.Material) == request.Recipe.CraftingDiscipline);
+        }
+
         private List<CraftingMaterialCost> BuildMaterialCosts(
             GameSession session,
             NpcInstance blacksmith,
-            CraftableItemDefinition recipe)
+            CraftableItemDefinition recipe, int variantIndex = 0)
         {
             var requirements = new Dictionary<ItemDefinition, int>();
-            foreach (var ingredient in recipe.Ingredients)
+            foreach (var ingredient in recipe.GetIngredients(variantIndex))
             {
                 requirements.TryGetValue(ingredient.Material, out var amount);
                 requirements[ingredient.Material] = amount + ingredient.Amount;

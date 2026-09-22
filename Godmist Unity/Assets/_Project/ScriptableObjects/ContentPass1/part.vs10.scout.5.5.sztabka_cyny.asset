@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bed854cba69ff047a20780c3ff79586, type: 3}
+  m_Name: part.vs10.scout.5.5.sztabka_cyny
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
+  <Id>k__BackingField: part.vs10.scout.5.5.sztabka_cyny
+  <DisplayName>k__BackingField: "Tunika \u2014 Umocnienia (Sztabka cyny)"
+  <Description>k__BackingField: "content_pass_1.xlsx / Wyposa\u017Cenie, wiersz 57"
+  <Icon>k__BackingField: {fileID: 0}
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
+  <IsStarterOnly>k__BackingField: 0
+  <Kind>k__BackingField: 5
+  <LevelBracket>k__BackingField: 5
+  <Stats>k__BackingField:
+    MinAttackBase: 0
+    MaxAttackBase: 0
+    CritChanceBase: 0
+    CritDamageBase: 0
+    WeaponAccuracyBase: 0
+    MaxResourceBase: 0
+    ResourceRegenerationBase: 0
+    MaxHealthBase: 0
+    DodgeBase: 18
+    PhysicalDefenseBase: 0
+    MagicalDefenseBase: 0
+    MinAttackPercent: 0
+    MaxAttackPercent: 0
+    CritChancePercent: 0
+    CritDamagePercent: 0
+    WeaponAccuracyPercent: 0
+    MaxResourcePercent: 0
+    ResourceRegenerationPercent: 0
+    MaxHealthPercent: 0.2
+    DodgePercent: 0
+    PhysicalDefensePercent: -0.2
+    MagicalDefensePercent: 0.2
+  <CraftingMaterials>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 9a4453b23cf1a6047980898f7088c49b, type: 2}
+    <Amount>k__BackingField: 4

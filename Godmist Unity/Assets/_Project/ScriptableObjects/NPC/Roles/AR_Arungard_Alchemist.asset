@@ -14,6 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.AlchemistRoleData
   <MaterialRecipes>k__BackingField:
   - {fileID: 11400000, guid: e5f7a9c1b3d64820a4c6e8f0b2d4a6c8, type: 2}
+  - {fileID: 11400000, guid: 4c00211b6e1cdfe49804c122ff800d43, type: 2}
+  - {fileID: 11400000, guid: 2e70460071196cb409c4250d560ff8e8, type: 2}
+  - {fileID: 11400000, guid: 5e09b50d2ebf5b649b2f0bce1ed1c571, type: 2}
+  - {fileID: 11400000, guid: 76197cb88eac5bd47a99b36b65463ebc, type: 2}
+  - {fileID: 11400000, guid: c5751b59bf2194745a9158cb4ce951f4, type: 2}
+  - {fileID: 11400000, guid: 99b69e5b8bc02494aa7fd55ae1e6c179, type: 2}
+  - {fileID: 11400000, guid: 026bd3a7a113d044c895d89131fc05c7, type: 2}
   <IngredientOptions>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
     <PotionEffect>k__BackingField:

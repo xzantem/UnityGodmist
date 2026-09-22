@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.cotton_thread
   <DisplayName>k__BackingField: "Bawe\u0142niana nitka"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "1x W\u0142\xF3kno bawe\u0142ny -> 2x Bawe\u0142niana
+    nitka"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 6
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
@@ -27,3 +28,4 @@ MonoBehaviour:
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
     <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: ID_SkeletonBone
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.skeleton_bone
-  <DisplayName>k__BackingField: Kość szkieleta
-  <Description>k__BackingField: 
+  <DisplayName>k__BackingField: "Ko\u015B\u0107 szkieleta"
+  <Description>k__BackingField: "1-2 Szkielet Miecznik (10%), 1-2 Szkielet \u0141ucznik
+    (10%), 1-2 Szkielet Okultysta (10%), 1-2 Szkielet Obro\u0144ca (10%), Ko\u015Bcista
+    torba zasob\xF3w"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2

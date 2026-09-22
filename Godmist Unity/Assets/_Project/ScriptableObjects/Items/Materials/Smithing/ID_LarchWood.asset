@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.larch_wood
   <DisplayName>k__BackingField: Drewno modrzewiowe
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Kowale, Ko\u015Bcista torba zasob\xF3w, Pustynna
+    torba zasob\xF3w"
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
