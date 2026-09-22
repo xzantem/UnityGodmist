@@ -74,7 +74,7 @@ namespace Godmist.Systems.NPC
             }
 
             normalPrice = GetPriceWhenSellingToTrader(trader, item);
-            if (normalPrice <= 0)
+            if (normalPrice <= 0 && !IsFreeStarter(item))
             {
                 failureReason = "Nie można ustalić poprawnej ceny sprzedaży.";
                 return false;
@@ -186,8 +186,12 @@ namespace Godmist.Systems.NPC
             return true;
         }
 
+        public static bool IsFreeStarter(ItemInstance item) =>
+            item?.Definition is EquipmentItemDefinition { IsStarterEquipment: true };
+
         private static int GetBaseValue(ItemInstance item)
         {
+            if (IsFreeStarter(item)) return 0;
             var runtimeValue = Mathf.Max(0, item?.BaseValue ?? 0);
             if (runtimeValue > 0)
             {
@@ -219,7 +223,7 @@ namespace Godmist.Systems.NPC
             var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
             var price = GetPriceFromBuyback(trader, entry);
 
-            if (entry == null || price <= 0 || session.Gold < price) return false;
+            if (entry == null || price <= 0 && !IsFreeStarter(entry.Item) || session.Gold < price) return false;
 
             trader.ShopInventory.BuybackStock.Remove(entry);
 
@@ -229,7 +233,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            if (!session.TrySpendGold(price))
+            if (price > 0 && !session.TrySpendGold(price))
             {
                 inventoryService.TryRemoveItem(
                     buyer.Inventory,
@@ -282,7 +286,7 @@ namespace Godmist.Systems.NPC
             var item = FindItem(seller.Inventory, itemInstanceId);
             var price = GetPriceWhenSellingToTrader(trader, item);
 
-            if (price <= 0
+            if (price <= 0 && !IsFreeStarter(item)
                 || !acceptPartialPayment && trader.GoldBalance < price)
             {
                 return false;

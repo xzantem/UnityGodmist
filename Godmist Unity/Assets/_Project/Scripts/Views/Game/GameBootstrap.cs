@@ -46,6 +46,7 @@ namespace Godmist.Views.Game
         public GameContentCatalog ContentCatalog => contentCatalog;
         public GameDefines GameDefines => gameDefines;
         public bool IsDungeonScene => SceneManager.GetActiveScene().name == dungeonSceneName;
+        [SerializeField] private Godmist.Data.World.NewCampaignDefinition newCampaign;
 
         public bool IsSceneLoading => sceneLoader?.IsLoading == true;
 
@@ -153,9 +154,10 @@ namespace Godmist.Views.Game
         {
             if (Session?.CurrentMode != GameModeState.Menu || IsSceneLoading || Session.HasCombat)
             { message = "Nową grę można rozpocząć z menu głównego."; return false; }
-            // Fresh campaign ID; the existing Arungard owner initializes its content.
+            // Prepare the complete starting party before switching away from the menu.
             // No save files are deleted or overwritten by starting another campaign.
-            if (!TryReplaceSession(new GameSession(GameModeState.Menu), out message)) return false;
+            if (!new Godmist.Systems.Characters.NewCampaignService().TryCreate(newCampaign, out var fresh, out message)) return false;
+            if (!TryReplaceSession(fresh, out message)) return false;
             message = "Rozpoczynanie nowej gry…";
             return true;
         }

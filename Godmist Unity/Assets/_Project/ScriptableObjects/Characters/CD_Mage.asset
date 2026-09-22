@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: CD_Mage
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: character.mage
-  <DisplayName>k__BackingField: Mage
+  <DisplayName>k__BackingField: Alison
+  <Tags>k__BackingField: 
   <VisualSprite>k__BackingField: {fileID: 0}
   <IdleAnimationFrames>k__BackingField: []
   <IdleAnimationFramesPerSecond>k__BackingField: 4
   <RunAnimationFrames>k__BackingField: []
   <RunAnimationFramesPerSecond>k__BackingField: 8
   <HitSprite>k__BackingField: {fileID: 0}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
   <AiPersonality>k__BackingField: 0
@@ -31,6 +33,8 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 36
     <PhysicalDefense>k__BackingField: 6
     <MagicalDefense>k__BackingField: 12
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 6
     <CritChance>k__BackingField: 0.25
     <CritDamage>k__BackingField: 1.5
@@ -38,6 +42,14 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 100
     <MaxResource>k__BackingField: 100
     <ResourceRegeneration>k__BackingField: 0
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0
+    <PoisonResistance>k__BackingField: 0
+    <FireResistance>k__BackingField: 0
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0
+    <MoveResistance>k__BackingField: 0
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 7.5
     <MinAttack>k__BackingField: 1
@@ -51,6 +63,7 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 0}
   <StartingSkills>k__BackingField: []
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0

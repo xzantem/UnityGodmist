@@ -6313,6 +6313,7 @@ MonoBehaviour:
   dungeonSceneName: DungeonSandbox
   contentCatalog: {fileID: 11400000, guid: e05c1227040d7fe41a9e69923aa9efcd, type: 2}
   gameDefines: {fileID: 0}
+  newCampaign: {fileID: 11400000, guid: a2ac44007defc61468bb9fbcbdf63162, type: 2}
 --- !u!114 &1465567936
 MonoBehaviour:
   m_ObjectHideFlags: 0

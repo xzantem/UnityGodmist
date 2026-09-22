@@ -58,6 +58,11 @@ namespace Godmist.Views.UI.Workspace
             selectAction = nextSelectAction;
         }
 
+        public void SetAvailable(bool available)
+        {
+            if (button != null) button.interactable = available;
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (!string.IsNullOrWhiteSpace(tooltipTitle))

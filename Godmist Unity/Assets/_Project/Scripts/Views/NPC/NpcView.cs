@@ -19,6 +19,9 @@ namespace Godmist.Views.NPC
         private ExplorationPartyController partyController;
         private NpcInstance npc;
 
+        [SerializeField] private GameObject questMarker;
+        private float nextQuestMarkerUpdate;
+        private MeshRenderer questMarkerRenderer;
         private Color originalColor;
         public float InteractionRadius => interactionRadius;
         public string DisplayName => npc?.Definition?.DisplayName ?? NpcId;
@@ -72,6 +75,17 @@ namespace Godmist.Views.NPC
 
         private void Update()
         {
+            if (questMarker != null && Time.unscaledTime >= nextQuestMarkerUpdate)
+            {
+                nextQuestMarkerUpdate = Time.unscaledTime + .25f;
+                if (questMarkerRenderer != null && bodyRenderer != null)
+                {
+                    questMarkerRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
+                    questMarkerRenderer.sortingOrder = bodyRenderer.sortingOrder + 2;
+                }
+                var show = Godmist.Systems.NPC.QuestOfferAvailability.HasOffer(GameBootstrap.Instance?.Session, npc?.Definition?.BaseDialogue);
+                if (questMarker.activeSelf != show) questMarker.SetActive(show);
+            }
             if (DevConsoleView.IsOpen || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.HasFocusedTextInput()
                 || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.IsPointerOverUi()) return;
             
@@ -100,6 +114,7 @@ namespace Godmist.Views.NPC
 
         private void Awake()
         {
+            if (questMarker != null) questMarkerRenderer = questMarker.GetComponent<MeshRenderer>();
             if (bodyRenderer != null) originalColor = bodyRenderer.color;
             if (nameLabel != null) nameLabel.gameObject.SetActive(false);
             if (bodyRenderer == null || nameLabel == null) return;

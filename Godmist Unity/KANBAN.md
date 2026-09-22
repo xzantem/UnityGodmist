@@ -76,6 +76,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-05] Przygotować początek gry w Arungardzie` - `NPC / Quest / Dialogue`, `Content / Data`, `UI / UX`
+  - Po katalogu i w integracji z VS-04/06: stan nowej kampanii, startowe zasoby/wyposażenie, przedstawiony cel i czytelne skierowanie do pierwszej wyprawy.
+  - Bez debugowego rozdawania testowego contentu w ścieżce gracza. Uzgodnić krótkie wprowadzenie i dostępność usług; sprawdzić nową grę oraz zapis/wczytanie początku.
+  - 2026-09-22: otwarta po commit/push VS-04 (`d7c8d8e6`). Context pass: ExplorationSandboxBootstrap tworzy roster z bindingów Arungardu (obecnie 2); CharacterInstanceFactory daje L1 i puste inventory; QuestContentBootstrap rejestruje zadania jako Unavailable. Usługi i quest strażnika istnieją. Zachować wcześniejsze ustalenie czterech postaci dostępnych od początku; docelowy authoring postaci należy do VS-06.
+  - DONE — smoke zaakceptowany przez użytkownika (git): zatwierdzone 500 złota, zero mikstur, broń/pancerz L1 czterech klas według przekazanego JSON. Sprzęt startowy: sprzedaż 0, brak ulepszania i reforgowania. Pierwszy cel prowadzi do strażnika; marker dostępnego zadania. Wszystkie usługi od początku, galduryty od L11 dowolnej postaci (także rezerwy). Profil kampanii i konfiguracja Bootstrap/Arungardu gotowe; 104/104 EditMode oraz Play Mode PASS. Brak ponownego przydziału na wczytaniu/powrocie. Self-review zakończony; odbiór w UNITY_HANDOFF.md. Commit i push autoryzowane.
+
 - `[P1] [VS-04] Wprowadzić produkcyjne menu i start gry` - `UI / UX`, `Core / Architecture`
   - DONE — 2026-09-22. Kod menu/ustawień, nowa kampania i kontynuacja gotowe; 39/39 testów PASS (vs04-menu-verified.xml), self-review zakończony. Konfiguracja Bootstrap wykonana za zgodą użytkownika: referencje, przyciski, panele, aktywny suwak i układ. 42/42 EditMode PASS (vs04-ui-verified.xml), automatyczny Play Mode smoke menu i Nowa gra → Arungard PASS; podglądy 1080p/720p sprawdzone. Odbiór użytkownika zatwierdzony poleceniem commit/push; ustawienia ekranu/Wyjdź nie były automatycznie testowane w buildzie.
   - Poprawka opóźnień: cache podsumowań zapisów, brak odczytu przy zamykaniu ustawień, wybór zapisu bez przebudowy listy. 44/44 EditMode i Play Mode smoke PASS; na 268 zapisach ponowny odczyt ~33 ms zamiast ~4,6 s, wybór ~1 ms. Pierwsze indeksowanie pozostaje synchroniczne.

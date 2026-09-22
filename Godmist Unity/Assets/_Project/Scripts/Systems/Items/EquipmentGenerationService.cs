@@ -45,13 +45,14 @@ namespace Godmist.Systems.Items
                 return null;
             }
 
+            if (definition.IsStarterEquipment) return null;
             var kinds = GetRequiredKinds(definition);
             if (kinds == null) return null;
 
             var selected = new List<EquipmentPartDefinition>(3);
             foreach (var kind in kinds)
             {
-                var candidates = availableParts.Where(part => part != null
+                var candidates = availableParts.Where(part => part != null && !part.IsStarterOnly
                     && part.Kind == kind
                     && part.RequiredClass == definition.RequiredClass
                     && !string.IsNullOrWhiteSpace(part.Id)

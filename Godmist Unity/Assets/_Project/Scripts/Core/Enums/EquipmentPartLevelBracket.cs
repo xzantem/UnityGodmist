@@ -2,6 +2,7 @@ namespace Godmist.Core.Enums
 {
     public enum EquipmentPartLevelBracket
     {
+        Level1 = 1,
         Level5 = 5,
         Level15 = 15,
         Level25 = 25,

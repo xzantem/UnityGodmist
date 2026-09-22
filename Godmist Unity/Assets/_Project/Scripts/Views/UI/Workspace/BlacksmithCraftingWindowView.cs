@@ -173,7 +173,7 @@ namespace Godmist.Views.UI.Workspace
 
                 foreach (var part in catalog?.EquipmentPartDefinitions
                              ?.Where(part => part != null
-                                 && part.RequiredClass == selectedDefinition.RequiredClass
+                                 && !part.IsStarterOnly && part.RequiredClass == selectedDefinition.RequiredClass
                                  && part.Kind == selection.Kind)
                              .OrderBy(part => part.Id)
                          ?? Enumerable.Empty<EquipmentPartDefinition>())

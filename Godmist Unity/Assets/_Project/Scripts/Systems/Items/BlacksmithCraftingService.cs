@@ -95,6 +95,9 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (request.Definition.IsStarterEquipment)
+            { preview.FailureReason = "Wyposażenie startowe nie jest dostępne w rzemiośle."; return preview; }
+
             if (request.Definition is UniqueEquipmentDefinition)
             {
                 preview.FailureReason = "Unikatowego wyposażenia bossa nie można wytworzyć u kowala.";
@@ -106,6 +109,9 @@ namespace Godmist.Systems.Items
                 preview.FailureReason = "Wybierz jakość: kiepska, normalna albo doskonała.";
                 return preview;
             }
+
+            if (request.Parts?.Any(part => part != null && part.IsStarterOnly) == true)
+            { preview.FailureReason = "Części startowe nie są dostępne w rzemiośle."; return preview; }
 
             var result = equipmentGeneration.GenerateFromSelectedParts(
                 request.Definition,

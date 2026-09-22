@@ -78,6 +78,8 @@ namespace Godmist.Systems.Items
             GalduryteCraftRequest request)
         {
             var preview = new GalduryteCraftPreview();
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { preview.FailureReason = GalduryteServiceAccess.LockedMessage; return preview; }
             if (!TryGetRole(enchanter, out var role))
             {
                 preview.FailureReason = "Wybrany NPC nie oferuje usług galdurytowych.";
@@ -173,6 +175,9 @@ namespace Godmist.Systems.Items
             paidGold = 0;
             failureReason = string.Empty;
 
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { failureReason = GalduryteServiceAccess.LockedMessage; return false; }
+
             if (!TryGetRole(enchanter, out var role)
                 || enchanter.Definition.GetRole<TraderRoleData>() == null
                 || enchanter.ShopInventory?.Items == null
@@ -255,6 +260,8 @@ namespace Godmist.Systems.Items
             GalduryteIdentificationRequest request)
         {
             var preview = new GalduryteIdentificationPreview();
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { preview.FailureReason = GalduryteServiceAccess.LockedMessage; return preview; }
             if (!TryGetRole(enchanter, out _))
             {
                 preview.FailureReason = "Wybrany NPC nie oferuje identyfikowania galdurytów.";

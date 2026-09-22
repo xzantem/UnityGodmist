@@ -139,9 +139,10 @@ namespace Godmist.Views.UI.Workspace
                 tab.gameObject.SetActive(true);
                 tab.Bind(
                     GetTabDefinition(kind)?.Icon,
-                    GetServiceDisplayName(kind),
+                    GetServiceDisplayName(kind) + (IsServiceUnlocked(kind) ? string.Empty : " — " + GalduryteServiceAccess.LockedMessage),
                     selectedService == kind,
                     () => SelectService(kind));
+                tab.SetAvailable(IsServiceUnlocked(kind));
                 spawnedTabs.Add(tab);
             }
         }
@@ -188,8 +189,13 @@ namespace Godmist.Views.UI.Workspace
             return NpcServiceKind.EquipmentCrafting;
         }
 
+        private bool IsServiceUnlocked(NpcServiceKind kind) => kind != NpcServiceKind.GalduryteCrafting
+            && kind != NpcServiceKind.GalduryteIdentification && kind != NpcServiceKind.GalduryteSocketing
+            && kind != NpcServiceKind.GalduryteExtraction || GalduryteServiceAccess.IsUnlocked(session);
+
         private void SelectService(NpcServiceKind kind)
         {
+            if (!IsServiceUnlocked(kind)) return;
             HideSelectedService();
             selectedService = kind;
 
@@ -293,7 +299,7 @@ namespace Godmist.Views.UI.Workspace
                 var kind = GetAvailableServiceAt(index);
                 spawnedTabs[index].Bind(
                     GetTabDefinition(kind)?.Icon,
-                    GetServiceDisplayName(kind),
+                    GetServiceDisplayName(kind) + (IsServiceUnlocked(kind) ? string.Empty : " — " + GalduryteServiceAccess.LockedMessage),
                     selectedService == kind,
                     () => SelectService(kind));
             }

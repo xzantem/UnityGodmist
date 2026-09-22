@@ -16,6 +16,7 @@ namespace Godmist.Views.Exploration
     public class ExplorationSandboxBootstrap : MonoBehaviour
     {
         [SerializeField] private ExplorationPartyController partyController;
+        [SerializeField] private bool createMissingCharacters = true;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
         [SerializeField] private List<NpcSceneBinding> npcBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
@@ -40,7 +41,8 @@ namespace Godmist.Views.Exploration
             {
                 var character = GetOrCreateCharacter(session, binding);
 
-                if (character == null) continue;
+                if (character == null)
+                { if (binding?.CharacterView != null) binding.CharacterView.gameObject.SetActive(false); continue; }
 
                 if (!session.PlayerParty.ContainsMember(character.CharacterId))
                 {
@@ -130,6 +132,8 @@ namespace Godmist.Views.Exploration
 
             if (session.CharactersById
                 .TryGetValue(characterId, out var existingCharacter)) return existingCharacter;
+
+            if (!createMissingCharacters) return null;
 
             if (binding.ClassData == null)
             {

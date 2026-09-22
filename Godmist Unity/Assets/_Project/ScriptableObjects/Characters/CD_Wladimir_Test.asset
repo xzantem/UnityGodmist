@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: wladimir
   <DisplayName>k__BackingField: Wladimir
+  <Tags>k__BackingField: 
   <VisualSprite>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
   <IdleAnimationFrames>k__BackingField:
   - {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
@@ -33,7 +34,7 @@ MonoBehaviour:
   <AiRole>k__BackingField: 0
   <AiPersonality>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
-  <ClassData>k__BackingField: {fileID: 0}
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 300
     <MinAttack>k__BackingField: 18

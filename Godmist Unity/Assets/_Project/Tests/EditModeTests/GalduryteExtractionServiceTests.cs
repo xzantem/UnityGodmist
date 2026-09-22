@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
+using Godmist.Data.Characters;
 using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Data.World;
@@ -22,6 +23,8 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<ScriptableObject> assets = new();
         private GameSession session;
+        private CharacterDefinition unlockerDefinition;
+        private CharacterClassData unlockerClass;
         private NpcInstance npc;
         private EquipmentItemInstance equipment;
         private GalduryteItemInstance galduryte;
@@ -37,6 +40,11 @@ namespace Godmist.Tests.EditMode
         public void SetUp()
         {
             session = new GameSession();
+            unlockerDefinition = Asset<CharacterDefinition>();
+            unlockerClass = Asset<CharacterClassData>();
+            typeof(CharacterDefinition).GetField("<Id>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unlockerDefinition,"unlocked.reserve");
+            typeof(CharacterClassData).GetField("<Id>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unlockerClass,"class.test");
+            session.TryRegisterCharacter(new CharacterInstanceFactory().Create(unlockerDefinition,unlockerClass,11));
             session.TryAddGold(10000);
             var definition = Asset<NpcDefinition>();
             definition.Roles.Add(Asset<EnchanterRoleData>());
@@ -170,6 +178,8 @@ namespace Godmist.Tests.EditMode
         {
             galduryte.IsDestroyed = destroyed;
             var catalog = Asset<GameContentCatalog>();
+            catalog.CharacterDefinitions.Add(unlockerDefinition);
+            catalog.CharacterClasses.Add(unlockerClass);
             catalog.ItemDefinitions.Add(equipment.Definition);
             catalog.ItemDefinitions.Add(galduryte.Definition);
             var snapshot = new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "extraction");

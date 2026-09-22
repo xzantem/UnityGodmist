@@ -220,6 +220,8 @@ namespace Godmist.Systems.Items
             if (session == null || blacksmith?.Definition?.GetRole<BlacksmithRoleData>() == null || item?.EquipmentDefinition == null || catalog == null)
             { error = "Nieprawidłowa usługa kowala lub wyposażenie."; return false; }
             if (item.Definition.ItemType is not (ItemType.Weapon or ItemType.Armor)) { error = "Ulepszać i reforgować można tylko broń oraz pancerz."; return false; }
+            if (item.EquipmentDefinition.IsStarterEquipment)
+            { error = "Wyposażenia startowego nie można ulepszać ani reforgować."; return false; }
             var parts = (item.PartIds ?? new()).Select(id => catalog.EquipmentPartDefinitions.FirstOrDefault(part => part != null && part.Id == id)).ToList();
             if (parts.Count == 0 || parts.Any(part => part == null)) { error = "Wyposażenie ma brakujące dane części."; return false; }
             baseValue = parts.Sum(part => (part.CraftingMaterials ?? new()).Where(requirement => requirement?.Material != null).Sum(requirement => requirement.Amount * GetDefinitionValue(requirement.Material)));

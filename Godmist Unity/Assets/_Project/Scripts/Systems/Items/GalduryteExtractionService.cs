@@ -56,6 +56,8 @@ namespace Godmist.Systems.Items
             EquipmentItemInstance equipment, GalduryteItemInstance galduryte)
         {
             var preview = new GalduryteExtractionPreview { GoldCost = GetGoldCost(galduryte), SuccessChance = GetSuccessChance(npc) };
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { preview.FailureReason = GalduryteServiceAccess.LockedMessage; return preview; }
             if (session == null || npc?.Definition?.GetRole<EnchanterRoleData>() == null)
                 preview.FailureReason = "Brak aktywnej usługi Zaklinacza.";
             else if (!TryFindOwner(session, equipment, out var destination, out _))

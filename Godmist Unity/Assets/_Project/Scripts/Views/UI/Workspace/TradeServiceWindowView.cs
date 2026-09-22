@@ -356,7 +356,7 @@ namespace Godmist.Views.UI.Workspace
                     stack.Count,
                     TradeItemSlotSource.PlayerInventory,
                     BuildSellPriceTooltip(stack.Representative, price),
-                    price <= 0,
+                    price <= 0 && !TradeService.IsFreeStarter(stack.Representative),
                     tradingCharacter,
                     null,
                     price);
@@ -389,7 +389,7 @@ namespace Godmist.Views.UI.Workspace
                     1,
                     TradeItemSlotSource.Buyback,
                     BuildBuyPriceTooltip(entry.Item, price),
-                    price <= 0 || session != null && session.Gold < price,
+                    price <= 0 && !TradeService.IsFreeStarter(entry.Item) || session != null && session.Gold < price,
                     null,
                     entry,
                     price);
@@ -452,6 +452,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildBuyPriceTooltip(ItemInstance item, int price)
         {
+            if (TradeService.IsFreeStarter(item)) return "Odkup wyposażenia startowego: 0 złota.";
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
                 : string.Empty;
@@ -466,6 +467,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildSellPriceTooltip(ItemInstance item, int price)
         {
+            if (TradeService.IsFreeStarter(item)) return "Wyposażenie startowe — sprzedaż za 0 złota.";
             var result = string.Empty;
             if (price <= 0)
             {
@@ -530,7 +532,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildBuyFailureMessage(ItemInstance item, int price)
         {
-            if (price <= 0)
+            if (price <= 0 && !TradeService.IsFreeStarter(item))
                 return GetBuyRestrictionReason(item);
             if (session == null || session.Gold < price)
                 return "Brakuje złota na ten zakup.";

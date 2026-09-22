@@ -140,6 +140,8 @@ namespace Godmist.Systems.Items
             GalduryteSocketingPreview preview,
             out string reason)
         {
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { reason = GalduryteServiceAccess.LockedMessage; return false; }
             if (session == null || enchanter?.Definition?.GetRole<EnchanterRoleData>() == null)
             {
                 reason = "Brak aktywnej usługi Zaklinacza.";
