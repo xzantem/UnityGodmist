@@ -28,7 +28,13 @@ namespace Godmist.Data.Items
     {
         [field: SerializeField] public ItemDefinition Material { get; private set; }
         [field: SerializeField] public ConsumableCatalystType CatalystType { get; private set; }
+        [field: SerializeField] public ConsumableCatalystType BombCatalystType { get; private set; }
+        [field: SerializeField] public bool HasBombCatalystOverride { get; private set; }
         [field: SerializeField, Range(1, 5)] public int Tier { get; private set; } = 1;
+
+        public ConsumableCatalystType GetTypeFor(ConsumableUseType useType) =>
+            useType == ConsumableUseType.Bomb && HasBombCatalystOverride
+                ? BombCatalystType : CatalystType;
     }
 
     [Serializable]

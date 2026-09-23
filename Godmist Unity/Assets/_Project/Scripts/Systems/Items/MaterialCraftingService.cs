@@ -86,7 +86,7 @@ namespace Godmist.Systems.Items
                 preview.FailureReason = "Niepoprawny wariant receptury.";
                 return preview;
             }
-            preview.Result = request.Recipe;
+            preview.Result = request.Recipe.ResultDefinition;
             preview.ResultAmount = request.Recipe.OutputAmount;
             preview.Materials = BuildMaterialCosts(session, blacksmith, request.Recipe, request.RecipeVariantIndex);
             if (preview.Materials.Count == 0)
@@ -101,7 +101,7 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
-            if (!CanReceiveAll(recipient.Inventory, request.Recipe, request.Recipe.OutputAmount))
+            if (!CanReceiveAll(recipient.Inventory, preview.Result, request.Recipe.OutputAmount))
             {
                 preview.FailureReason = "Postać nie ma wystarczającego udźwigu na wynik craftingu.";
                 return preview;
@@ -138,7 +138,15 @@ namespace Godmist.Systems.Items
             var created = new List<ItemInstance>(request.Recipe.OutputAmount);
             for (var index = 0; index < request.Recipe.OutputAmount; index++)
             {
-                created.Add(itemFactory.Create(request.Recipe));
+                var item = itemFactory.Create(preview.Result);
+                if (item is ConsumableItemInstance consumable && request.Recipe.CraftedResult != null)
+                {
+                    // Use the cheapest valid variant as the base value. Buying
+                    // expensive ingredients must never make resale profitable.
+                    consumable.CraftedBaseValue = request.Recipe.CalculatedBaseValue;
+                    consumable.ItemLevel = request.Recipe.ResultLevel;
+                }
+                created.Add(item);
             }
 
             foreach (var item in consumed) item.Inventory.Items.Remove(item.Item);
@@ -271,6 +279,7 @@ namespace Godmist.Systems.Items
             if (recipe == null
                 || craftingRole == null
                 || recipe.CraftingDiscipline != craftingRole.CraftingDiscipline
+                || recipe.ResultDefinition == null
                 || recipe.OutputAmount < 1
                 || recipe.Ingredients == null
                 || recipe.Ingredients.Count == 0)
@@ -287,11 +296,7 @@ namespace Godmist.Systems.Items
             }
 
             return recipe.Ingredients.All(requirement =>
-                requirement?.Material != null
-                && requirement.Material.ItemType == ItemType.Material
-                && GetMaterialDiscipline(requirement.Material)
-                    == craftingRole.CraftingDiscipline
-                && requirement.Amount > 0);
+                IsValidIngredient(recipe, requirement));
         }
 
         private static string GetRecipeFailureReason(
@@ -330,10 +335,9 @@ namespace Godmist.Systems.Items
                     return "Każdy składnik CID musi wskazywać Item Definition.";
                 if (ingredient.Material.ItemType != ItemType.Material)
                     return "Składnik CID musi mieć Item Type = Material.";
-                if (GetMaterialDiscipline(ingredient.Material)
-                    != craftingRole.CraftingDiscipline)
+                if (!IsValidIngredient(recipe, ingredient))
                 {
-                    return $"Każdy składnik CID musi mieć kategorię {craftingRole.CraftingDiscipline}.";
+                    return "Składnik recepty ma niepoprawną kategorię lub ilość.";
                 }
                 if (ingredient.Amount < 1)
                     return "Ilość każdego składnika CID musi być większa od zera.";
@@ -349,11 +353,24 @@ namespace Godmist.Systems.Items
                 : item?.MaterialDiscipline ?? MaterialDiscipline.None;
         }
 
+        private static bool IsValidIngredient(
+            CraftableItemDefinition recipe,
+            CraftingMaterialRequirement requirement)
+        {
+            if (requirement?.Material == null || requirement.Amount < 1
+                || requirement.Material.ItemType != ItemType.Material) return false;
+            var discipline = GetMaterialDiscipline(requirement.Material);
+            return discipline == recipe.CraftingDiscipline
+                || recipe.CraftedResult is ConsumableItemDefinition { UseType: ConsumableUseType.Utility }
+                && recipe.CraftingDiscipline == MaterialDiscipline.Alchemy
+                && discipline == MaterialDiscipline.Smithing;
+        }
+
         private static bool IsValidVariant(MaterialCraftRequest request)
         {
             var ingredients = request?.Recipe?.GetIngredients(request.RecipeVariantIndex);
-            return ingredients != null && ingredients.Count > 0 && ingredients.All(i => i?.Material != null
-                && i.Amount > 0 && i.Material.ItemType == ItemType.Material && GetMaterialDiscipline(i.Material) == request.Recipe.CraftingDiscipline);
+            return ingredients != null && ingredients.Count > 0
+                && ingredients.All(i => IsValidIngredient(request.Recipe, i));
         }
 
         private List<CraftingMaterialCost> BuildMaterialCosts(

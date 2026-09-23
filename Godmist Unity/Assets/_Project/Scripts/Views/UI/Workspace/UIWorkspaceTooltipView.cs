@@ -464,6 +464,8 @@ namespace Godmist.Views.UI.Workspace
             if (icon != null)
             {
                 icon.sprite = sprite;
+                // Unauthored icons should not render Unity's white default image.
+                icon.enabled = sprite != null;
                 // The icon lives in a horizontal layout group with the title.
                 // Disabling only its Image still left its LayoutElement active and
                 // reserved a 40 px blank column for iconless tooltips.

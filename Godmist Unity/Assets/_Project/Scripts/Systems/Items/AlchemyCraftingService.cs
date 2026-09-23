@@ -494,7 +494,7 @@ namespace Godmist.Systems.Items
 
             if (configuration.Catalyst != null)
             {
-                result.ApplyCatalyst(configuration.Catalyst.CatalystType, configuration.Catalyst.Tier);
+                result.ApplyCatalyst(configuration.Catalyst.GetTypeFor(request.UseType), configuration.Catalyst.Tier);
                 result.CatalystDisplayName = GetCatalystShortName(configuration.Catalyst.Material?.DisplayName);
             }
 
@@ -530,7 +530,7 @@ namespace Godmist.Systems.Items
                 .Select(option => new { Option = option, Effect = option.GetEffect(useType) })
                 .Where(pair => pair.Effect != null)
                 .Select(pair => string.IsNullOrWhiteSpace(pair.Option.EffectAdjective)
-                    ? AlchemyRuntimeRules.GetFallbackEffectAdjective(pair.Effect.EffectType)
+                    ? AlchemyRuntimeRules.GetFallbackEffectAdjective(pair.Effect.EffectType, useType)
                     : pair.Option.EffectAdjective.Trim())
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .Distinct(StringComparer.OrdinalIgnoreCase)

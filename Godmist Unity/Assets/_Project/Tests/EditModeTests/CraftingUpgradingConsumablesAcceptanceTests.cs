@@ -10,6 +10,7 @@ using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
@@ -264,6 +265,173 @@ namespace Godmist.Tests.EditMode
             Assert.That(effect, Is.EqualTo(ExplorationConsumableEffect.ReturnToArungard));
             Assert.That(character.Inventory.Items, Is.Empty);
             Assert.That(returnScroll.CurrentCharges, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Vs12UtilityItems_RemoveStatusAndGrantThreeTurnTypedResistance()
+        {
+            var cases = new[]
+            {
+                ("item.consumable.bandage", Godmist.Core.Constants.StatusEffectIds.Bleed, ResistanceType.Bleed),
+                ("item.consumable.antidote", Godmist.Core.Constants.StatusEffectIds.Poison, ResistanceType.Poison),
+                ("item.consumable.damp_towel", Godmist.Core.Constants.StatusEffectIds.Burn, ResistanceType.Fire)
+            };
+            foreach (var (id, statusId, resistanceType) in cases)
+            {
+                var definition = CreateConsumable(id, ConsumableUseType.Utility, 1);
+                var effects = ConsumableRuntimeRules.GetImpliedUtilityEffects(definition);
+                Assert.That(effects.Count, Is.EqualTo(2), id);
+                Assert.That(effects[0].EffectType, Is.EqualTo(ConsumableRuntimeEffectType.RemoveStatus), id);
+                Assert.That(effects[0].StatusId, Is.EqualTo(statusId), id);
+                Assert.That(effects[1].EffectType, Is.EqualTo(ConsumableRuntimeEffectType.ModifyResistance), id);
+                Assert.That(effects[1].ResistanceType, Is.EqualTo(resistanceType), id);
+                Assert.That(effects[1].Value, Is.EqualTo(.30f).Within(.0001f), id);
+                var skill = ConsumableRuntimeActionBuilder.Build(new ConsumableItemInstance(definition));
+                Assert.That(skill.Effects, Has.Count.EqualTo(2), id);
+                Assert.That(skill.Effects[1].DurationTurns, Is.EqualTo(3), id);
+                Assert.That(skill.Effects[1].ResistanceType, Is.EqualTo(resistanceType), id);
+            }
+        }
+
+        [Test]
+        public void Vs12ExplorationRegeneration_KeepsTotalRecoveryAcrossCondensedDuration()
+        {
+            var definition = CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 1);
+            var potion = new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.RegenHealth,
+                Value = .25f,
+                DurationTurns = 10
+            });
+            potion.CatalystDurationModifier = -2;
+            var character = new CharacterInstance { CharacterId = "vs12.regen" };
+            character.Inventory.Items.Add(potion);
+
+            Assert.That(new ConsumableService().TryUseInExploration(
+                character, potion, out var result), Is.True);
+            Assert.That(result, Is.EqualTo(ExplorationConsumableEffect.ApplyModifier));
+            Assert.That(character.PassiveEffects, Has.Count.EqualTo(1));
+            Assert.That(character.PassiveEffects[0].RemainingDuration, Is.EqualTo(8));
+            Assert.That(character.PassiveEffects[0].GetPayload<PeriodicRecoveryPayload>()
+                .HealthPercent * 8f, Is.EqualTo(.25f).Within(.0001f));
+            Assert.That(character.Inventory.Items, Is.Empty);
+
+            var cityPotion = new ConsumableItemInstance(definition);
+            cityPotion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.RegenHealth,
+                Value = .25f,
+                DurationTurns = 10
+            });
+            var cityCharacter = new CharacterInstance
+            {
+                CharacterId = "vs12.city.regen",
+                Stats = new CharacterStats { MaxHealth = new Stat(100) },
+                CurrentHealth = 50
+            };
+            cityCharacter.Inventory.Items.Add(cityPotion);
+            Assert.That(new ConsumableService().TryUseInExploration(
+                cityCharacter, cityPotion, out var cityResult,
+                returnTransition: null, passiveTicksActive: false), Is.True);
+            Assert.That(cityResult, Is.EqualTo(ExplorationConsumableEffect.RestoreHealthPercent));
+            Assert.That(cityCharacter.CurrentHealth, Is.EqualTo(75));
+            Assert.That(cityCharacter.PassiveEffects, Is.Empty);
+        }
+
+        [Test]
+        public void Vs12MaterialRecipe_ProducesUsableConsumableFromAlchemyAndFabric()
+        {
+            var alcohol = CreateItem("alcohol", ItemType.Material, 10);
+            SetAutoProperty(alcohol, "MaterialDiscipline", MaterialDiscipline.Alchemy);
+            var fabric = CreateItem("fabric", ItemType.Material, 5);
+            var product = CreateConsumable("item.consumable.bandage", ConsumableUseType.Utility, 1);
+            SetAutoProperty(product, "ItemType", ItemType.Tool);
+            var recipe = CreateRecipe("recipe.vs12.bandage", 1, (alcohol, 1), (fabric, 2));
+            SetAutoProperty(recipe, "CraftingDiscipline", MaterialDiscipline.Alchemy);
+            SetAutoProperty(recipe, "CraftedResult", product);
+            SetAutoProperty(recipe, "ResultLevel", 11);
+            SetAutoProperty(recipe, "PrimaryVariantLabel", "Jutowa tkanina");
+            Assert.That(recipe.GetVariantLabel(), Is.EqualTo("Jutowa tkanina"));
+            var role = ScriptableObject.CreateInstance<AlchemistRoleData>();
+            SetAutoProperty(role, "MaterialRecipes", new List<CraftableItemDefinition> { recipe });
+            var definition = ScriptableObject.CreateInstance<NpcDefinition>();
+            SetAutoProperty(definition, "Id", "npc.vs12.alchemist");
+            SetAutoProperty(definition, "Roles", new List<NpcRoleData> { role });
+            var npc = new NpcInstance { NpcId = definition.Id, Definition = definition, ShopInventory = new ShopInventory() };
+            var character = new CharacterInstance { CharacterId = "vs12.crafter" };
+            var session = new GameSession(GameModeState.Exploration, "vs12.crafting");
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            character.Inventory.Items.Add(new ItemInstance(alcohol));
+            character.Inventory.Items.Add(new ItemInstance(fabric));
+            character.Inventory.Items.Add(new ItemInstance(fabric));
+            var request = new MaterialCraftRequest { Recipe = recipe, RecipientCharacterId = character.CharacterId };
+            var service = new MaterialCraftingService();
+            Assert.That(service.CreatePreview(session, npc, request).Result, Is.SameAs(product));
+            Assert.That(service.TryCraft(session, npc, request, out var items, out var failure), Is.True, failure);
+            Assert.That(items, Has.Count.EqualTo(1));
+            Assert.That(items[0], Is.TypeOf<ConsumableItemInstance>());
+            Assert.That(items[0].Definition, Is.SameAs(product));
+            Assert.That(items[0].ItemLevel, Is.EqualTo(11));
+            Assert.That(items[0].BaseValue, Is.EqualTo(20));
+            Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void Vs12SharedIngredientsExpandDefenseAndAllResistances()
+        {
+            var potion = new ConsumableItemInstance(
+                CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 5));
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDefense,
+                Value = .1f,
+                DurationTurns = 8
+            });
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyAllResistances,
+                Value = .1f,
+                DurationTurns = 8,
+                ResistanceType = ResistanceType.Bleed
+            });
+            var skill = ConsumableRuntimeActionBuilder.Build(potion);
+            Assert.That(skill.Effects.Count(effect => effect.EffectType == EffectType.ModifyStat), Is.EqualTo(2));
+            Assert.That(skill.Effects.Where(effect => effect.EffectType == EffectType.ModifyStat)
+                .Select(effect => effect.ModifierStatType),
+                Is.EquivalentTo(new[] { CharacterStatType.PhysicalDefense, CharacterStatType.MagicalDefense }));
+            Assert.That(skill.Effects.Where(effect => effect.EffectType == EffectType.ModifyResistance)
+                .Select(effect => effect.ResistanceType),
+                Is.EquivalentTo(System.Enum.GetValues(typeof(ResistanceType)).Cast<ResistanceType>()));
+
+            var bomb = new ConsumableItemInstance(
+                CreateConsumable("item.consumable.bomb", ConsumableUseType.Bomb, 5));
+            bomb.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDodge,
+                Value = .1f,
+                DurationTurns = 3
+            });
+            var weakening = ConsumableRuntimeActionBuilder.Build(bomb).Effects.Single();
+            Assert.That(weakening.ModifierStatType, Is.EqualTo(CharacterStatType.Dodge));
+            Assert.That(weakening.ModifierOperation, Is.EqualTo(StatModifierOperation.Percent));
+            Assert.That(weakening.ModifierValue, Is.EqualTo(-.1f).Within(.0001f));
+        }
+
+        [Test]
+        public void Vs12Catalyst_PreservesLegacyBombTypeUntilConfigured()
+        {
+            var catalyst = new AlchemyCatalystData();
+            SetAutoProperty(catalyst, "CatalystType", ConsumableCatalystType.Strength);
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Bomb),
+                Is.EqualTo(ConsumableCatalystType.Strength));
+            SetAutoProperty(catalyst, "BombCatalystType", ConsumableCatalystType.Range);
+            SetAutoProperty(catalyst, "HasBombCatalystOverride", true);
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Bomb),
+                Is.EqualTo(ConsumableCatalystType.Range));
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Potion),
+                Is.EqualTo(ConsumableCatalystType.Strength));
         }
 
         [Test]

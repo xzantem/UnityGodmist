@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d317a5c94f4f7e896c21b0a57e3d42, type: 3}
   m_Name: CID_Potion
   m_EditorClassIdentifier: Data::Godmist.Data.Items.AlchemyConsumableDefinition
-  <Id>k__BackingField: item.alchemy.potion
+  <Id>k__BackingField: item.consumable.potion
   <DisplayName>k__BackingField: Mikstura
   <Description>k__BackingField: 
   <Icon>k__BackingField: {fileID: 0}

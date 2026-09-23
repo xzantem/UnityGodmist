@@ -66,12 +66,25 @@ namespace Godmist.Views.UI.Workspace
             enchanter = nextEnchanter;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
+            EnsureIngredientViewportClip(metalContent);
+            EnsureIngredientViewportClip(gemContent);
             HideTemplates();
             PopulateJewelry();
             return selectedDefinition != null;
         }
 
         public void Hide() => serviceRoot?.SetActive(false);
+
+        private static void EnsureIngredientViewportClip(Transform content)
+        {
+            if (content?.parent is not RectTransform viewport) return;
+            // These two serialized viewports have Mask but no Graphic. Unity's
+            // stencil Mask therefore does not clip the rows below the section.
+            var mask = viewport.GetComponent<Mask>();
+            if (mask != null) mask.enabled = false;
+            if (viewport.GetComponent<RectMask2D>() == null)
+                viewport.gameObject.AddComponent<RectMask2D>();
+        }
 
         private void HandleNameChanged(string _) => RefreshPreview();
 

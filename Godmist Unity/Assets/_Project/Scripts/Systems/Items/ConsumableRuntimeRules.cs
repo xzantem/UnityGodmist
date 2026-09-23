@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
 using Godmist.Data.Configuration;
@@ -18,44 +19,63 @@ namespace Godmist.Systems.Items
             ConsumableItemDefinition definition,
             out ConsumableEffectRuntime runtimeEffect)
         {
-            runtimeEffect = null;
+            var effects = GetImpliedUtilityEffects(definition);
+            runtimeEffect = effects.Count > 0 ? effects[0] : null;
+            return runtimeEffect != null;
+        }
+
+        public static IReadOnlyList<ConsumableEffectRuntime> GetImpliedUtilityEffects(
+            ConsumableItemDefinition definition)
+        {
             if (definition == null || definition.UseType != ConsumableUseType.Utility)
             {
-                return false;
+                return Array.Empty<ConsumableEffectRuntime>();
             }
 
-            var identity = $"{definition.Id} {definition.DisplayName}";
-            if (identity.Contains("return", StringComparison.OrdinalIgnoreCase))
+            // IDs remain stable when a player renames an item or its localized
+            // display name changes. Older saves can still rely on these definitions.
+            var identity = definition.Id ?? string.Empty;
+            if (identity.Contains("return_scroll", StringComparison.OrdinalIgnoreCase))
             {
-                runtimeEffect = new ConsumableEffectRuntime
+                return new[] { new ConsumableEffectRuntime
                 {
                     EffectType = ConsumableRuntimeEffectType.ReturnToArungard,
                     TargetType = TargetType.Caster,
                     TargetingType = TargetingType.Allies
-                };
-                return true;
+                } };
             }
 
-            var statusId = identity.Contains("bandage", StringComparison.OrdinalIgnoreCase)
-                ? StatusEffectIds.Bleed
-                : identity.Contains("antidote", StringComparison.OrdinalIgnoreCase)
-                    ? StatusEffectIds.Poison
-                    : identity.Contains("damp", StringComparison.OrdinalIgnoreCase)
-                        || identity.Contains("dry", StringComparison.OrdinalIgnoreCase)
-                        || identity.Contains("towel", StringComparison.OrdinalIgnoreCase)
-                        || identity.Contains("cloth", StringComparison.OrdinalIgnoreCase)
-                            ? StatusEffectIds.Burn
-                            : string.Empty;
-            if (string.IsNullOrEmpty(statusId)) return false;
-
-            runtimeEffect = new ConsumableEffectRuntime
+            var (statusId, resistanceType) = identity switch
             {
-                EffectType = ConsumableRuntimeEffectType.RemoveStatus,
-                StatusId = statusId,
-                TargetType = TargetType.Caster,
-                TargetingType = TargetingType.Allies
+                var id when id.Contains("bandage", StringComparison.OrdinalIgnoreCase)
+                    => (StatusEffectIds.Bleed, ResistanceType.Bleed),
+                var id when id.Contains("antidote", StringComparison.OrdinalIgnoreCase)
+                    => (StatusEffectIds.Poison, ResistanceType.Poison),
+                var id when id.Contains("damp_towel", StringComparison.OrdinalIgnoreCase)
+                    => (StatusEffectIds.Burn, ResistanceType.Fire),
+                _ => (string.Empty, ResistanceType.Weakening)
             };
-            return true;
+            if (string.IsNullOrEmpty(statusId)) return Array.Empty<ConsumableEffectRuntime>();
+
+            return new[]
+            {
+                new ConsumableEffectRuntime
+                {
+                    EffectType = ConsumableRuntimeEffectType.RemoveStatus,
+                    StatusId = statusId,
+                    TargetType = TargetType.Single,
+                    TargetingType = TargetingType.Allies
+                },
+                new ConsumableEffectRuntime
+                {
+                    EffectType = ConsumableRuntimeEffectType.ModifyResistance,
+                    Value = .30f,
+                    DurationTurns = 3,
+                    ResistanceType = resistanceType,
+                    TargetType = TargetType.Single,
+                    TargetingType = TargetingType.Allies
+                }
+            };
         }
 
         public static bool CanCombineEffects(
@@ -135,8 +155,8 @@ namespace Godmist.Systems.Items
                 return effectType switch
                 {
                     ConsumableRuntimeEffectType.RegenHealth
-                        or ConsumableRuntimeEffectType.RegenResource
-                        or ConsumableRuntimeEffectType.ModifyMaxResource => GameDefinesRuntime.GetInt(
+                        or ConsumableRuntimeEffectType.RegenResource => 10,
+                    ConsumableRuntimeEffectType.ModifyMaxResource => GameDefinesRuntime.GetInt(
                             GameDefineIds.ConsumablePotionLongDuration, 6),
                     ConsumableRuntimeEffectType.ModifyDamage
                         or ConsumableRuntimeEffectType.ModifyDefense

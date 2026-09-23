@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ConsumableItemDefinition
   <Id>k__BackingField: item.consumable.return_scroll
   <DisplayName>k__BackingField: "Zw\xF3j powrotu"
-  <Description>k__BackingField: 
+  <Description>k__BackingField: "Jednorazowy zw\xF3j przenosz\u0105cy dru\u017Cyn\u0119
+    z wyprawy do Arungardu."
   <Icon>k__BackingField: {fileID: 0}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0

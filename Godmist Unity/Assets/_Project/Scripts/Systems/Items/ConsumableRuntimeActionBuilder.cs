@@ -17,12 +17,9 @@ namespace Godmist.Systems.Items
         {
             if (item == null) return null;
             var runtimeEffects = new List<ConsumableEffectRuntime>(item.RuntimeEffects ?? new List<ConsumableEffectRuntime>());
-            if (runtimeEffects.Count == 0
-                && ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                    item.ConsumableDefinition,
-                    out var impliedUtilityEffect))
+            if (runtimeEffects.Count == 0)
             {
-                runtimeEffects.Add(impliedUtilityEffect);
+                runtimeEffects.AddRange(ConsumableRuntimeRules.GetImpliedUtilityEffects(item.ConsumableDefinition));
             }
             if (runtimeEffects.Count == 0) return null;
 
@@ -116,6 +113,7 @@ namespace Godmist.Systems.Items
                     ConsumableRuntimeEffectType.RegenResource => EffectType.RestoreResourceOverTimePercent,
                     ConsumableRuntimeEffectType.ModifyActionPoints => EffectType.ModifyActionPointsPercent,
                     ConsumableRuntimeEffectType.ModifyDamage => EffectType.ModifyVar,
+                    ConsumableRuntimeEffectType.ModifyAllResistances => EffectType.ModifyResistance,
                     ConsumableRuntimeEffectType.DealPhysicalDamage
                         or ConsumableRuntimeEffectType.DealMagicalDamage
                         or ConsumableRuntimeEffectType.DealInevitableDamage => EffectType.DealDamage,
@@ -160,19 +158,11 @@ namespace Godmist.Systems.Items
                     duration = Mathf.Max(1, duration + item.CatalystDurationModifier);
                 }
 
-                // A duration catalyst is intentionally not a dilution mechanic for
-                // health regeneration: extending 6 turns to 7 raises 25% to
-                // 25% * 7 / 6 = 29.17%, as defined for alchemical regeneration.
-                if (runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth
-                    && baseDuration > 0
-                    && duration > 0)
-                {
-                    effectiveValue *= duration / (float)baseDuration;
-                }
-                // Regeneration values describe the total recovery over the full
-                // duration. Combat consumes the percentage once per turn, so it
-                // must receive the per-turn amount here.
-                var appliedValue = runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth && duration > 0
+                // Ingredient regeneration strength is the TOTAL, for either resource.
+                // Duration catalysts redistribute that total rather than creating/removing recovery.
+                var isRegeneration = runtime.EffectType is ConsumableRuntimeEffectType.RegenHealth
+                    or ConsumableRuntimeEffectType.RegenResource;
+                var appliedValue = isRegeneration && duration > 0
                     ? effectiveValue / duration
                     : effectiveValue;
                 Set(effect, "baseValue", Mathf.CeilToInt(Mathf.Max(0f, appliedValue)));
@@ -192,7 +182,10 @@ namespace Godmist.Systems.Items
                 if (skillEffectType == EffectType.ModifyStat)
                 {
                     Set(effect, "modifierStatType", GetModifierStat(runtime.EffectType));
-                    Set(effect, "modifierOperation", runtime.EffectType == ConsumableRuntimeEffectType.ModifyDodge
+                    Set(effect, "modifierOperation", runtime.EffectType is
+                        ConsumableRuntimeEffectType.ModifyAccuracy
+                        or ConsumableRuntimeEffectType.Slow
+                        || runtime.EffectType == ConsumableRuntimeEffectType.ModifyDodge && !item.IsBomb
                         ? StatModifierOperation.FlatAbsolute
                         : StatModifierOperation.Percent);
                     Set(effect, "modifierValue", GetSignedModifierValue(
@@ -220,6 +213,37 @@ namespace Godmist.Systems.Items
                     Set(effect, "statusDamageMultiplier", Mathf.Max(0f, effectiveValue));
                 }
                 effects.Add(effect);
+                if (runtime.EffectType == ConsumableRuntimeEffectType.ModifyDefense)
+                {
+                    var magicalDefense = new SkillEffectData();
+                    Set(magicalDefense, "effectType", EffectType.ModifyStat);
+                    Set(magicalDefense, "alwaysHits", true);
+                    Set(magicalDefense, "polarity", EffectPolarity.Positive);
+                    Set(magicalDefense, "targetModeIndex", Mathf.Max(0, runtime.TargetModeIndex));
+                    Set(magicalDefense, "durationTurns", duration);
+                    Set(magicalDefense, "baseChance", Mathf.Clamp01(runtime.Chance));
+                    Set(magicalDefense, "modifierStatType", CharacterStatType.MagicalDefense);
+                    Set(magicalDefense, "modifierOperation", StatModifierOperation.Percent);
+                    Set(magicalDefense, "modifierValue", effectiveValue);
+                    effects.Add(magicalDefense);
+                }
+                if (runtime.EffectType == ConsumableRuntimeEffectType.ModifyAllResistances)
+                {
+                    foreach (ResistanceType resistanceType in Enum.GetValues(typeof(ResistanceType)))
+                    {
+                        if (resistanceType == runtime.ResistanceType) continue;
+                        var resistance = new SkillEffectData();
+                        Set(resistance, "effectType", EffectType.ModifyResistance);
+                        Set(resistance, "alwaysHits", true);
+                        Set(resistance, "polarity", EffectPolarity.Positive);
+                        Set(resistance, "targetModeIndex", Mathf.Max(0, runtime.TargetModeIndex));
+                        Set(resistance, "durationTurns", duration);
+                        Set(resistance, "baseChance", Mathf.Clamp01(runtime.Chance));
+                        Set(resistance, "resistanceType", resistanceType);
+                        Set(resistance, "modifierValue", effectiveValue);
+                        effects.Add(resistance);
+                    }
+                }
             }
             Set(skill, "effects", effects);
             return skill;

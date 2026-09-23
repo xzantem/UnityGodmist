@@ -29,7 +29,8 @@ namespace Godmist.Systems.Items
             CharacterInstance character,
             ConsumableItemInstance item,
             out ExplorationConsumableEffect effect,
-            System.Func<bool> returnTransition)
+            System.Func<bool> returnTransition,
+            bool passiveTicksActive = true)
         {
             effect = ExplorationConsumableEffect.None;
             var definition = item?.ConsumableDefinition;
@@ -43,15 +44,10 @@ namespace Godmist.Systems.Items
             }
             var applied = false;
             var runtimeEffects = item.RuntimeEffects ?? new System.Collections.Generic.List<ConsumableEffectRuntime>();
-            if (runtimeEffects.Count == 0
-                && ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                    definition,
-                    out var impliedUtilityEffect))
+            if (runtimeEffects.Count == 0)
             {
-                runtimeEffects = new System.Collections.Generic.List<ConsumableEffectRuntime>
-                {
-                    impliedUtilityEffect
-                };
+                runtimeEffects = new System.Collections.Generic.List<ConsumableEffectRuntime>(
+                    ConsumableRuntimeRules.GetImpliedUtilityEffects(definition));
             }
             var processed = new System.Collections.Generic.HashSet<ConsumableEffectRuntime>();
             for (var runtimeIndex = 0; runtimeIndex < runtimeEffects.Count; runtimeIndex++)
@@ -86,6 +82,9 @@ namespace Godmist.Systems.Items
                         combinedEffect,
                         occurrenceCount,
                         item.CatalystEffectMultiplier,
+                        item.CatalystDurationModifier,
+                        definition.UseType,
+                        passiveTicksActive,
                         runtimeIndex,
                         item.InstanceId,
                         out var appliedEffect)) continue;
@@ -141,6 +140,9 @@ namespace Godmist.Systems.Items
             ConsumableEffectRuntime runtimeEffect,
             int occurrenceCount,
             float catalystEffectMultiplier,
+            int catalystDurationModifier,
+            ConsumableUseType useType,
+            bool passiveTicksActive,
             int runtimeIndex,
             string sourceItemId,
             out ExplorationConsumableEffect result)
@@ -152,19 +154,60 @@ namespace Godmist.Systems.Items
             switch (runtimeEffect.EffectType)
             {
                 case ConsumableRuntimeEffectType.RestoreHealth:
-                case ConsumableRuntimeEffectType.RegenHealth:
                     var maxHealth = Mathf.Max(0, Mathf.RoundToInt(character.Stats?.MaxHealth.GetValue() ?? 0f));
                     if (character.CurrentHealth >= maxHealth) return false;
                     character.CurrentHealth = Mathf.Min(maxHealth, character.CurrentHealth + Mathf.CeilToInt(maxHealth * effectiveValue));
                     result = ExplorationConsumableEffect.RestoreHealthPercent;
                     return true;
                 case ConsumableRuntimeEffectType.RestoreResource:
-                case ConsumableRuntimeEffectType.RegenResource:
                     if (character.ResourcePool == null
                         || character.ResourcePool.Restore(
                             Mathf.CeilToInt(character.ResourcePool.MaxValue * effectiveValue)) <= 0)
                         return false;
                     result = ExplorationConsumableEffect.RestoreResourcePercent;
+                    return true;
+                case ConsumableRuntimeEffectType.RegenHealth:
+                case ConsumableRuntimeEffectType.RegenResource:
+                    // The city has no exploration tick runner. Resolve the same
+                    // total there immediately so using a potion never wastes it.
+                    if (!passiveTicksActive)
+                    {
+                        if (runtimeEffect.EffectType == ConsumableRuntimeEffectType.RegenHealth)
+                        {
+                            var maximum = Mathf.Max(0, Mathf.RoundToInt(character.Stats?.MaxHealth.GetValue() ?? 0f));
+                            if (character.CurrentHealth >= maximum) return false;
+                            character.CurrentHealth = Mathf.Min(maximum,
+                                character.CurrentHealth + Mathf.CeilToInt(maximum * effectiveValue));
+                            result = ExplorationConsumableEffect.RestoreHealthPercent;
+                            return true;
+                        }
+                        if (character.ResourcePool == null || character.ResourcePool.Restore(
+                            Mathf.CeilToInt(character.ResourcePool.MaxValue * effectiveValue)) <= 0)
+                            return false;
+                        result = ExplorationConsumableEffect.RestoreResourcePercent;
+                        return true;
+                    }
+                    var duration = Mathf.Max(1, ConsumableRuntimeRules.GetDuration(
+                        useType, runtimeEffect.EffectType, runtimeEffect.DurationTurns)
+                        + catalystDurationModifier);
+                    var recovery = new PassiveEffectRuntime(
+                        $"consumable.{sourceItemId}.periodic_recovery.{runtimeIndex}",
+                        new System.Collections.Generic.List<PassiveEffectSourceRuntime>(),
+                        1, duration, 0, PassiveEffectLifetime.Timed,
+                        PassiveEffectTickPhase.TurnEnd)
+                    {
+                        DisplayName = "Regeneracja"
+                    };
+                    recovery.SetPayload(new PeriodicRecoveryPayload
+                    {
+                        HealthPercent = runtimeEffect.EffectType == ConsumableRuntimeEffectType.RegenHealth
+                            ? effectiveValue / duration : 0f,
+                        ResourcePercent = runtimeEffect.EffectType == ConsumableRuntimeEffectType.RegenResource
+                            ? effectiveValue / duration : 0f
+                    });
+                    if (!passiveEffectLifecycle.TryApplyTimedEffect(character, recovery,
+                        PassiveEffectStackingMode.ReplaceDurationAndValues, out _)) return false;
+                    result = ExplorationConsumableEffect.ApplyModifier;
                     return true;
                 case ConsumableRuntimeEffectType.RemoveStatus:
                     if (string.IsNullOrWhiteSpace(runtimeEffect.StatusId)
@@ -181,14 +224,38 @@ namespace Godmist.Systems.Items
                 case ConsumableRuntimeEffectType.ReturnToArungard:
                     result = ExplorationConsumableEffect.ReturnToArungard;
                     return true;
+                case ConsumableRuntimeEffectType.ModifyAllResistances:
+                    var allApplied = false;
+                    var resistanceIndex = 0;
+                    foreach (ResistanceType resistanceType in System.Enum.GetValues(typeof(ResistanceType)))
+                    {
+                        var typedEffect = new ConsumableEffectRuntime
+                        {
+                            EffectType = ConsumableRuntimeEffectType.ModifyResistance,
+                            Value = runtimeEffect.Value,
+                            DurationTurns = runtimeEffect.DurationTurns,
+                            ResistanceType = resistanceType
+                        };
+                        allApplied |= TryApplyExplorationModifier(
+                            character, typedEffect, occurrenceCount, catalystEffectMultiplier,
+                            catalystDurationModifier, useType,
+                            runtimeIndex * 10 + resistanceIndex++, sourceItemId);
+                    }
+                    if (!allApplied) return false;
+                    result = ExplorationConsumableEffect.ApplyModifier;
+                    return true;
                 default:
-                    return TryApplyExplorationModifier(
+                    if (!TryApplyExplorationModifier(
                         character,
                         runtimeEffect,
                         occurrenceCount,
                         catalystEffectMultiplier,
+                        catalystDurationModifier,
+                        useType,
                         runtimeIndex,
-                        sourceItemId);
+                        sourceItemId)) return false;
+                    result = ExplorationConsumableEffect.ApplyModifier;
+                    return true;
             }
         }
 
@@ -197,6 +264,8 @@ namespace Godmist.Systems.Items
             ConsumableEffectRuntime runtimeEffect,
             int occurrenceCount,
             float catalystEffectMultiplier,
+            int catalystDurationModifier,
+            ConsumableUseType useType,
             int runtimeIndex,
             string sourceItemId)
         {
@@ -204,7 +273,9 @@ namespace Godmist.Systems.Items
             var value = runtimeEffect.Value
                 * ConsumableRuntimeRules.GetDuplicateMultiplier(occurrenceCount)
                 * Mathf.Max(0f, catalystEffectMultiplier);
-            var duration = Mathf.Max(1, runtimeEffect.DurationTurns);
+            var duration = Mathf.Max(1, ConsumableRuntimeRules.GetDuration(
+                useType, runtimeEffect.EffectType, runtimeEffect.DurationTurns)
+                + catalystDurationModifier);
             var effect = new PassiveEffectRuntime(
                 $"consumable.{sourceItemId}.{runtimeEffect.EffectType}.{runtimeIndex}",
                 new System.Collections.Generic.List<PassiveEffectSourceRuntime>(),
@@ -222,6 +293,7 @@ namespace Godmist.Systems.Items
                 case ConsumableRuntimeEffectType.ModifyMaxResource:
                 case ConsumableRuntimeEffectType.ModifyPhysicalDefense:
                 case ConsumableRuntimeEffectType.ModifyMagicalDefense:
+                case ConsumableRuntimeEffectType.ModifyDefense:
                 case ConsumableRuntimeEffectType.ModifySpeed:
                 case ConsumableRuntimeEffectType.ModifyCritChance:
                 case ConsumableRuntimeEffectType.ModifyDodge:
@@ -236,6 +308,7 @@ namespace Godmist.Systems.Items
                                     ConsumableRuntimeEffectType.ModifyMaxResource => CharacterStatType.MaxResource,
                                     ConsumableRuntimeEffectType.ModifyPhysicalDefense => CharacterStatType.PhysicalDefense,
                                     ConsumableRuntimeEffectType.ModifyMagicalDefense => CharacterStatType.MagicalDefense,
+                                    ConsumableRuntimeEffectType.ModifyDefense => CharacterStatType.PhysicalDefense,
                                     ConsumableRuntimeEffectType.ModifySpeed => CharacterStatType.Speed,
                                     ConsumableRuntimeEffectType.ModifyCritChance => CharacterStatType.CritChance,
                                     _ => CharacterStatType.Dodge
@@ -248,6 +321,16 @@ namespace Godmist.Systems.Items
                             }
                         }
                     });
+                    if (runtimeEffect.EffectType == ConsumableRuntimeEffectType.ModifyDefense)
+                    {
+                        effect.GetPayload<StatModifiersPayload>().Modifiers.Add(new StatModifier
+                        {
+                            StatType = CharacterStatType.MagicalDefense,
+                            Operation = StatModifierOperation.Percent,
+                            Stacking = StatModifierStacking.Additive,
+                            Value = value
+                        });
+                    }
                     break;
                 case ConsumableRuntimeEffectType.ModifyDamage:
                     effect.SetPayload(new VariableModifiersPayload

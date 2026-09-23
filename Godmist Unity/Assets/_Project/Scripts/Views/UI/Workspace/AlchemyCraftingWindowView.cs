@@ -88,6 +88,7 @@ namespace Godmist.Views.UI.Workspace
             customName = string.Empty;
             isVisible = true;
             serviceRoot?.SetActive(true);
+            ConfigureIngredientScroll();
             BindStaticInputs();
             SetCustomNameInput(string.Empty);
             Refresh();
@@ -99,6 +100,41 @@ namespace Godmist.Views.UI.Workspace
             isVisible = false;
             ClearRuntimeSlots();
             serviceRoot?.SetActive(false);
+        }
+
+        private void ConfigureIngredientScroll()
+        {
+            if (ingredientContent is not RectTransform grid ||
+                grid.parent is not RectTransform viewport) return;
+
+            // The existing alchemy prefab has a fixed-height ingredient section
+            // but no viewport. Its grid grows behind the selector and name fields.
+            viewport.gameObject.TryGetComponent<RectMask2D>(out var mask);
+            if (mask == null) viewport.gameObject.AddComponent<RectMask2D>();
+            viewport.gameObject.TryGetComponent<Image>(out var background);
+            if (background == null) background = viewport.gameObject.AddComponent<Image>();
+            background.color = Color.clear;
+            background.raycastTarget = true;
+
+            var fitter = grid.GetComponent<ContentSizeFitter>();
+            if (fitter == null) fitter = grid.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            grid.anchorMin = new Vector2(0f, 1f);
+            grid.anchorMax = Vector2.one;
+            grid.pivot = new Vector2(.5f, 1f);
+            grid.anchoredPosition = Vector2.zero;
+            grid.sizeDelta = Vector2.zero;
+
+            var scroll = viewport.GetComponent<ScrollRect>();
+            if (scroll == null) scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.content = grid;
+            scroll.viewport = viewport;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 20f;
+            scroll.verticalNormalizedPosition = 1f;
         }
 
         private void BindStaticInputs()
