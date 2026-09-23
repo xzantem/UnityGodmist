@@ -16,5 +16,8 @@ namespace Godmist.Runtime.NPC
         public long TotalGoldSpent;
         public float GuildPayoutProgress;
         public ShopInventory ShopInventory;
+        public System.Collections.Generic.List<string> RotatingStockItemIds = new();
+        // Tracks exact generated instances, not their shared ItemDefinition Id.
+        public System.Collections.Generic.List<string> CraftedStockInstanceIds = new();
     }
 }

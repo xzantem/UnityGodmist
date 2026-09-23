@@ -1637,6 +1637,12 @@ namespace Godmist.Systems.SaveLoad
                 npc.TotalGoldReceived = npcSaveData.TotalGoldReceived;
                 npc.TotalGoldSpent = npcSaveData.TotalGoldSpent;
                 npc.GuildPayoutProgress = npcSaveData.GuildPayoutProgress;
+                npc.RotatingStockItemIds = npcSaveData.RotatingStockItemIds == null
+                    ? new List<string>()
+                    : new List<string>(npcSaveData.RotatingStockItemIds);
+                npc.CraftedStockInstanceIds = npcSaveData.CraftedStockInstanceIds == null
+                    ? new List<string>()
+                    : new List<string>(npcSaveData.CraftedStockInstanceIds);
 
                 if (npc.ShopInventory == null)
                 {
@@ -1809,6 +1815,8 @@ namespace Godmist.Systems.SaveLoad
                     + $"{saveData.CurrentFloorIndex}.");
                 return false;
             }
+
+            if (saveData.TraderStockRefreshed) dungeon.MarkTraderStockRefreshed();
 
             if (!TryRestoreDungeonFloorDeltas(
                     dungeon,

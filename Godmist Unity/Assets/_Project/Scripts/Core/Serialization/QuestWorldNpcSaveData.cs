@@ -44,6 +44,8 @@ namespace Godmist.Core.Serialization
         public long TotalGoldSpent;
         public float GuildPayoutProgress;
 
+        public List<string> RotatingStockItemIds = new();
+        public List<string> CraftedStockInstanceIds = new();
         public List<string> ShopItemInstanceIds = new();
         public List<BuybackEntrySaveData> BuybackEntries = new();
     }

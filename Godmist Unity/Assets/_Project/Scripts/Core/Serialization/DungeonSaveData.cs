@@ -17,6 +17,7 @@ namespace Godmist.Core.Serialization
         public int HighestReachedFloorIndex = -1;
         public int GuildProgressCreditedFloorCount;
         public bool IsCompleted;
+        public bool TraderStockRefreshed;
 
         public bool HasPlayerPosition;
         public float PlayerPositionX;

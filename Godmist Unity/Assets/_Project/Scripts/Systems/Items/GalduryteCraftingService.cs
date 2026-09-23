@@ -123,6 +123,20 @@ namespace Godmist.Systems.Items
             return preview;
         }
 
+        // Produce an actual crafted result for an NPC offer. Service access is
+        // gated by the caller's campaign level; no player inventory is spent.
+        public GalduryteItemInstance CreateForMerchantStock(
+            NpcInstance enchanter, GalduryteCraftRequest request)
+        {
+            if (!TryGetRole(enchanter, out var role)
+                || !TryResolveInputs(role, request, out var stone, out var powder,
+                    out var tier, out _)
+                || !TryBuildResult(role, stone, powder, tier,
+                    request.TargetType, out var result, out _))
+                return null;
+            return result;
+        }
+
         public bool TryCraft(
             GameSession session,
             NpcInstance enchanter,

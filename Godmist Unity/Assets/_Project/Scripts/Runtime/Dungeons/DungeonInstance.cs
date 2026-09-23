@@ -15,6 +15,8 @@ namespace Godmist.Runtime.Dungeons
         public float ItemDropChanceBonus;
         public int CurrentFloorIndex { get; private set; }
         public int HighestReachedFloorIndex { get; private set; }
+        public bool TraderStockRefreshed { get; private set; }
+        public void MarkTraderStockRefreshed() => TraderStockRefreshed = true;
         public int GuildProgressCreditedFloorCount { get; private set; }
         public bool IsCompleted { get; private set; }
         // Generation is a whole-dungeon operation, including floors with zero objects.

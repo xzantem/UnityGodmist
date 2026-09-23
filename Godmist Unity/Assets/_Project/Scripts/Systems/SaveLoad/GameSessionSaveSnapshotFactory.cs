@@ -250,6 +250,9 @@ namespace Godmist.Systems.SaveLoad
                     GoldBalance = npc.GoldBalance,
                     TotalGoldReceived = npc.TotalGoldReceived,
                     TotalGoldSpent = npc.TotalGoldSpent,
+                    RotatingStockItemIds = new List<string>(npc.RotatingStockItemIds),
+                    CraftedStockInstanceIds = new List<string>(
+                        npc.CraftedStockInstanceIds ?? new List<string>()),
                     GuildPayoutProgress = npc.GuildPayoutProgress
                 };
 
@@ -319,6 +322,7 @@ namespace Godmist.Systems.SaveLoad
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
                 HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
                 GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
+                TraderStockRefreshed = dungeon.TraderStockRefreshed,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
                 PlayerPositionX = dungeon.PlayerPosition.x,

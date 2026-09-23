@@ -163,7 +163,38 @@ namespace Godmist.Runtime.Items
         }
         public override bool CanStackWith(ItemInstance other)
         {
-            return MaxCharges == 1 && base.CanStackWith(other);
+            var effects = RuntimeEffects ?? new List<ConsumableEffectRuntime>();
+            if (MaxCharges != 1 || !base.CanStackWith(other)
+                || other is not ConsumableItemInstance consumable
+                || !string.Equals(CustomName, consumable.CustomName, StringComparison.Ordinal)
+                || CurrentCharges != consumable.CurrentCharges
+                || BlastRange != consumable.BlastRange
+                || BlastAreaSize != consumable.BlastAreaSize
+                || CatalystDurationModifier != consumable.CatalystDurationModifier
+                || CatalystEffectMultiplier != consumable.CatalystEffectMultiplier
+                || CatalystChargeBonus != consumable.CatalystChargeBonus
+                || CatalystDisplayName != consumable.CatalystDisplayName
+                || CraftedBaseValue != consumable.CraftedBaseValue
+                || effects.Count != (consumable.RuntimeEffects?.Count ?? 0))
+                return false;
+
+            for (var index = 0; index < effects.Count; index++)
+            {
+                var left = effects[index];
+                var right = consumable.RuntimeEffects[index];
+                if (left == null || right == null)
+                {
+                    if (left != right) return false;
+                    continue;
+                }
+                if (left.EffectType != right.EffectType || left.Value != right.Value
+                    || left.DurationTurns != right.DurationTurns || left.Chance != right.Chance
+                    || left.TargetModeIndex != right.TargetModeIndex || left.StatusId != right.StatusId
+                    || left.ResistanceType != right.ResistanceType || left.TargetType != right.TargetType
+                    || left.TargetingType != right.TargetingType)
+                    return false;
+            }
+            return true;
         }
     }
 }

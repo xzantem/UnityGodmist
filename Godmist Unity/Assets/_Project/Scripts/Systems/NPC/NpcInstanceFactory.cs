@@ -1,5 +1,6 @@
 using System;
 using Godmist.Data.NPC;
+using Godmist.Data.World;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.Items;
 
@@ -24,7 +25,8 @@ namespace Godmist.Systems.NPC
 
         public NpcInstance Create(
             NpcDefinition definition,
-            int campaignLevel = 1)
+            int campaignLevel = 1,
+            GameContentCatalog catalog = null)
         {
             if (definition == null)
             {
@@ -53,6 +55,8 @@ namespace Godmist.Systems.NPC
                 campaignLevel);
 
             CreateShopInventory(npc);
+            new TraderStockService().Refresh(npc, campaignLevel,
+                rotate: false, catalog: catalog);
 
             return npc;
         }

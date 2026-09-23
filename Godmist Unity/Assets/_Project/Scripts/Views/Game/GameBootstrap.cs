@@ -552,6 +552,7 @@ namespace Godmist.Views.Game
             }
 
             dungeon.TryMarkCompleted();
+            new TraderStockService().TryRefreshAfterReturn(Session, dungeon, contentCatalog);
             NpcEconomyService?.TryApplyDungeonProgress(
                 Session,
                 dungeon,
@@ -609,6 +610,8 @@ namespace Godmist.Views.Game
 
             if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
 
+            new TraderStockService().TryRefreshAfterReturn(Session, Session.ActiveDungeon,
+                contentCatalog);
             NpcEconomyService?.TryApplyDungeonProgress(
                 Session,
                 Session.ActiveDungeon,
