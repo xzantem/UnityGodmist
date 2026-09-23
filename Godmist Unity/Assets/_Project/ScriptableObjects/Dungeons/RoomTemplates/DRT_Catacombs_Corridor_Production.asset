@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc410525305dd84a8f71c3d39096c80, type: 3}
+  m_Name: DRT_Catacombs_Corridor_Production
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateDefinition
+  <Id>k__BackingField: room.catacombs.corridor.production
+  <DisplayName>k__BackingField: Odetchnienie
+  <RoomType>k__BackingField: 3
+  <ExcludeFromRandomEncounters>k__BackingField: 1
+  <CanBeRequiredProgressionBranch>k__BackingField: 0
+  <SizeInCells>k__BackingField: {x: 13, y: 9}
+  <AllowedRotationDegrees>k__BackingField: 000000005a000000b40000000e010000
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField:
+    - {x: 0, y: 4}
+    - {x: 0, y: 5}
+    - {x: 1, y: 1}
+    - {x: 1, y: 2}
+    - {x: 1, y: 3}
+    - {x: 1, y: 4}
+    - {x: 1, y: 5}
+    - {x: 1, y: 6}
+    - {x: 1, y: 7}
+    - {x: 2, y: 1}
+    - {x: 2, y: 2}
+    - {x: 2, y: 3}
+    - {x: 2, y: 7}
+    - {x: 3, y: 1}
+    - {x: 3, y: 2}
+    - {x: 3, y: 3}
+    - {x: 3, y: 7}
+    - {x: 4, y: 1}
+    - {x: 4, y: 2}
+    - {x: 4, y: 3}
+    - {x: 4, y: 7}
+    - {x: 5, y: 1}
+    - {x: 5, y: 2}
+    - {x: 5, y: 3}
+    - {x: 5, y: 7}
+    - {x: 5, y: 8}
+    - {x: 6, y: 1}
+    - {x: 6, y: 2}
+    - {x: 6, y: 3}
+    - {x: 6, y: 7}
+    - {x: 6, y: 8}
+    - {x: 7, y: 1}
+    - {x: 7, y: 2}
+    - {x: 7, y: 3}
+    - {x: 7, y: 7}
+    - {x: 8, y: 1}
+    - {x: 8, y: 2}
+    - {x: 8, y: 3}
+    - {x: 8, y: 4}
+    - {x: 8, y: 5}
+    - {x: 8, y: 6}
+    - {x: 8, y: 7}
+    - {x: 9, y: 1}
+    - {x: 9, y: 2}
+    - {x: 9, y: 3}
+    - {x: 9, y: 4}
+    - {x: 9, y: 5}
+    - {x: 9, y: 6}
+    - {x: 9, y: 7}
+    - {x: 10, y: 1}
+    - {x: 10, y: 2}
+    - {x: 10, y: 3}
+    - {x: 10, y: 4}
+    - {x: 10, y: 5}
+    - {x: 10, y: 6}
+    - {x: 10, y: 7}
+    - {x: 11, y: 1}
+    - {x: 11, y: 2}
+    - {x: 11, y: 3}
+    - {x: 11, y: 4}
+    - {x: 11, y: 5}
+    - {x: 11, y: 6}
+    - {x: 11, y: 7}
+    - {x: 12, y: 4}
+    - {x: 12, y: 5}
+  <Surfaces>k__BackingField: []
+  <Stairs>k__BackingField: []
+  <AllowedBoundaryEdges>k__BackingField:
+  - <LocalCell>k__BackingField: {x: 0, y: 4}
+    <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 0, y: 5}
+    <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 5, y: 8}
+    <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 6, y: 8}
+    <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 12, y: 4}
+    <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 12, y: 5}
+    <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
+  <BoundaryEdgesConfigured>k__BackingField: 1
+  <StructuralAnchors>k__BackingField: []
+  <SemanticAnchors>k__BackingField: []
+  <ContentGroups>k__BackingField: []
+  <DifficultTerrainCells>k__BackingField: []

@@ -67,6 +67,14 @@ namespace Godmist.Views.Combat
 
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> outlines = new();
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> fills = new();
+        private sealed class FillBatch
+        {
+            public GameObject GameObject;
+            public Mesh Mesh;
+            public MeshRenderer Renderer;
+        }
+        private readonly Dictionary<CombatGridFeedbackLayer, FillBatch> fillBatches = new();
+        private Material fillBatchMaterial;
         private readonly List<SpriteRenderer> pathMarkers = new();
         private TMP_Text pathCost;
         private GridPosition pathCostPosition;
@@ -146,6 +154,8 @@ namespace Godmist.Views.Combat
             var renderers = new List<SpriteRenderer>();
             var source = positions.ToArray();
             fillSources[layer] = (source, color, cellColor);
+            if (cellColor == null && source.Length >= 48 && TryShowFillBatch(layer, source, color))
+                return;
             foreach (var position in source.Where(p => CanPresent(layer, p)))
             {
                 var renderer = CreateSpriteRenderer("Combat feedback fill");
@@ -157,6 +167,68 @@ namespace Godmist.Views.Combat
             }
 
             fills[layer] = renderers;
+        }
+
+        private bool TryShowFillBatch(CombatGridFeedbackLayer layer, GridPosition[] source, Color color)
+        {
+            if (feedbackSprite?.texture == null) return false;
+            if (fillBatchMaterial == null)
+            {
+                var shader = Shader.Find("Sprites/Default");
+                if (shader == null) return false;
+                fillBatchMaterial = new Material(shader) { mainTexture = feedbackSprite.texture };
+            }
+            if (!fillBatches.TryGetValue(layer, out var batch))
+            {
+                var gameObject = new GameObject("Combat feedback fill batch", typeof(MeshFilter), typeof(MeshRenderer));
+                gameObject.transform.SetParent(feedbackRoot, false);
+                var mesh = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+                gameObject.GetComponent<MeshFilter>().sharedMesh = mesh;
+                var renderer = gameObject.GetComponent<MeshRenderer>();
+                renderer.sharedMaterial = fillBatchMaterial;
+                renderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
+                renderer.sortingOrder = feedbackSortingOrder;
+                fillBatches.Add(layer, batch = new FillBatch
+                {
+                    GameObject = gameObject, Mesh = mesh, Renderer = renderer
+                });
+            }
+
+            var uv = feedbackSprite.uv;
+            var left = uv.Min(value => value.x);
+            var right = uv.Max(value => value.x);
+            var bottom = uv.Min(value => value.y);
+            var top = uv.Max(value => value.y);
+            var vertices = new List<Vector3>(source.Length * 4);
+            var colors = new List<Color32>(source.Length * 4);
+            var uvs = new List<Vector2>(source.Length * 4);
+            var triangles = new List<int>(source.Length * 6);
+            var half = cellSize * .5f;
+            foreach (var position in source)
+            {
+                if (!CanPresent(layer, position)) continue;
+                var center = GridToLocal(position) + Vector3.back * .01f;
+                var index = vertices.Count;
+                vertices.Add(center + new Vector3(-half, -half));
+                vertices.Add(center + new Vector3(-half, half));
+                vertices.Add(center + new Vector3(half, half));
+                vertices.Add(center + new Vector3(half, -half));
+                for (var i = 0; i < 4; i++) colors.Add(color);
+                uvs.Add(new Vector2(left, bottom));
+                uvs.Add(new Vector2(left, top));
+                uvs.Add(new Vector2(right, top));
+                uvs.Add(new Vector2(right, bottom));
+                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+            }
+            batch.Mesh.Clear();
+            batch.Mesh.SetVertices(vertices);
+            batch.Mesh.SetColors(colors);
+            batch.Mesh.SetUVs(0, uvs);
+            batch.Mesh.SetTriangles(triangles, 0);
+            batch.Mesh.RecalculateBounds();
+            batch.Renderer.enabled = vertices.Count > 0;
+            return true;
         }
 
         public void ClearOutline(CombatGridFeedbackLayer layer)
@@ -174,6 +246,7 @@ namespace Godmist.Views.Combat
         public void ClearFill(CombatGridFeedbackLayer layer)
         {
             fillSources.Remove(layer);
+            if (fillBatches.TryGetValue(layer, out var batch)) batch.Renderer.enabled = false;
             if (!fills.TryGetValue(layer, out var renderers)) return;
             foreach (var renderer in renderers)
             {
@@ -384,6 +457,17 @@ namespace Godmist.Views.Combat
         private void OnDisable() => ClearAll();
         private void OnDestroy()
         {
+            foreach (var batch in fillBatches.Values)
+            {
+                if (Application.isPlaying) { Destroy(batch.GameObject); Destroy(batch.Mesh); }
+                else { DestroyImmediate(batch.GameObject); DestroyImmediate(batch.Mesh); }
+            }
+            fillBatches.Clear();
+            if (fillBatchMaterial != null)
+            {
+                if (Application.isPlaying) Destroy(fillBatchMaterial);
+                else DestroyImmediate(fillBatchMaterial);
+            }
             foreach (var renderer in recycledSprites) if (renderer != null)
             {
                 if (Application.isPlaying) Destroy(renderer.gameObject);

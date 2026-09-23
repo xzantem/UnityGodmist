@@ -458,15 +458,11 @@ namespace Godmist.Views.Combat
                     selectablePositions.Add(position);
             }
 
-            var eligibleTargets =
-                sandboxBootstrap.GetEligibleSkillTargetPositions(
-                    selectedSkill,
-                    CurrentTargetMode,
-                    currentTargetModeIndex);
-
-            foreach (var position in eligibleTargets)
+            if (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain)
             {
-                eligibleTargetPositions.Add(position);
+                foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
+                             selectedSkill, CurrentTargetMode, currentTargetModeIndex))
+                    eligibleTargetPositions.Add(position);
             }
 
             if (chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var selectedCells))

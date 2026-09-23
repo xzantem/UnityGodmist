@@ -54,6 +54,47 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ToggleFogShowsCurrentObjectStateWithoutRevealingItsKnowledge()
+        {
+            var floor = new DungeonFloorInstance(0);
+            var map = new DungeonFloorMap();
+            map.TryAddFloorCell(Vector2Int.zero, "room");
+            floor.TrySetMap(map);
+            var definition = ScriptableObject.CreateInstance<SpikeTrapDungeonObjectDefinition>();
+            var trap = new SpikeTrapDungeonObjectInstance("trap", definition, Vector2Int.zero);
+            var mapObject = new GameObject("map view");
+            var trapObject = new GameObject("trap view");
+            try
+            {
+                var mapView = mapObject.AddComponent<DungeonFloorMapView>();
+                typeof(DungeonFloorMapView).GetProperty("FogFloor").SetValue(mapView, floor);
+                var renderer = trapObject.AddComponent<SpriteRenderer>();
+                var trapView = trapObject.AddComponent<DungeonSpikeTrapView>();
+                trapView.Initialize(null, floor, trap, null, Vector3.zero);
+                trapView.BindElevationView(mapView);
+                var presentation = typeof(DungeonObjectView).GetMethod("PresentationState",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                var refresh = typeof(DungeonObjectView).GetMethod("LateUpdate",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That((bool)presentation.Invoke(trapView, new object[] { true }), Is.False);
+                refresh.Invoke(trapView, null);
+                Assert.That(renderer.forceRenderingOff, Is.True);
+                floor.Fog.ToggleDebugFog();
+                Assert.That(mapView.IsObjectCurrentlySeen(trap), Is.True);
+                Assert.That((bool)presentation.Invoke(trapView, new object[] { true }), Is.True);
+                refresh.Invoke(trapView, null);
+                Assert.That(renderer.forceRenderingOff, Is.False);
+                Assert.That(floor.Fog.Objects, Is.Empty);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(trapObject);
+                UnityEngine.Object.DestroyImmediate(mapObject);
+                UnityEngine.Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
         public void WallHeavyVisibilityBatchMatchesReferenceAndReportsCost()
         {
             var map = new DungeonFloorMap();

@@ -35,6 +35,40 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void LargeUniformSkillFillUsesOneReusableMesh()
+        {
+            var root = new GameObject("skill-fill-test");
+            var texture = new Texture2D(2, 2);
+            var sprite = Sprite.Create(texture, new Rect(0, 0, 2, 2), Vector2.one * .5f);
+            try
+            {
+                var renderer = root.AddComponent<Godmist.Views.Combat.CombatGridFeedbackRenderer>();
+                var settings = new SerializedObject(renderer);
+                settings.FindProperty("feedbackRoot").objectReferenceValue = root.transform;
+                settings.FindProperty("feedbackSprite").objectReferenceValue = sprite;
+                settings.ApplyModifiedPropertiesWithoutUndo();
+                var cells = new System.Collections.Generic.List<Godmist.Runtime.Combat.GridPosition>();
+                for (var x = 0; x < 12; x++) for (var y = 0; y < 12; y++)
+                    cells.Add(new Godmist.Runtime.Combat.GridPosition(x, y));
+                renderer.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillRange, cells, Color.blue);
+                var mesh = root.GetComponentInChildren<MeshFilter>();
+                Assert.That(mesh, Is.Not.Null);
+                Assert.That(mesh.sharedMesh.vertexCount, Is.EqualTo(cells.Count * 4));
+                Assert.That(root.GetComponentsInChildren<SpriteRenderer>(), Is.Empty);
+                renderer.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillRange, cells, Color.red);
+                Assert.That(root.GetComponentsInChildren<MeshFilter>().Length, Is.EqualTo(1));
+                renderer.ClearFill(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillRange);
+                Assert.That(mesh.GetComponent<MeshRenderer>().enabled, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                Object.DestroyImmediate(sprite);
+                Object.DestroyImmediate(texture);
+            }
+        }
+
+        [Test]
         public void ExplorationDurationUsesRemainingTicksAndCurrentTickProgress()
         {
             var character = new CharacterInstance { ExplorationStatusElapsedSeconds = 2.5f };

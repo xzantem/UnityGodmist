@@ -21,7 +21,7 @@ namespace Godmist.Tests.EditMode
  public class DungeonOfferTests
  {
   DungeonDefinition definition;
-  [SetUp] public void Setup(){definition=ScriptableObject.CreateInstance<DungeonDefinition>();Set(definition,"Id","test.dungeon");Set(definition,"IsProcedural",true);}
+  [SetUp] public void Setup(){definition=ScriptableObject.CreateInstance<DungeonDefinition>();Set(definition,"Id","test.dungeon");Set(definition,"IsProcedural",true);Set(definition,"IsAvailableAsOffer",true);}
   [TearDown] public void Cleanup()=>UnityEngine.Object.DestroyImmediate(definition);
   static void Set(object obj,string property,object value)=>obj.GetType().GetField("<"+property+">k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(obj,value);
   GameSession Session()=>new(campaignId:"offers.campaign");
@@ -92,6 +92,30 @@ namespace Godmist.Tests.EditMode
    Set(definition,"IsStoryDungeon",true);Assert.That(DungeonOfferSystem.EnsureOffers(Session(),new[]{definition}),Is.False);
    Set(definition,"IsStoryDungeon",false);Set(definition,"IsProcedural",false);Assert.That(DungeonOfferSystem.EnsureOffers(Session(),new[]{definition}),Is.False);
   }
+  [Test] public void DemoDefinitionsDoNotEnterOfferPool()
+  {
+   var demo=ScriptableObject.CreateInstance<DungeonDefinition>();
+   try{
+    Set(demo,"Id","demo.dungeon");Set(demo,"IsProcedural",true);
+    var session=Session();
+    Assert.That(DungeonOfferSystem.EnsureOffers(session,new[]{demo}),Is.False);
+    Assert.That(DungeonOfferSystem.EnsureOffers(session,new[]{demo,definition}),Is.True);
+    Assert.That(session.DungeonOffers.Offers.All(offer=>offer.DefinitionId==definition.Id),Is.True);
+   }finally{UnityEngine.Object.DestroyImmediate(demo);}
+  }
+  [Test] public void TwoProductionVariantsBothAppearOnTheOfferBoard()
+  {
+   var bossless=ScriptableObject.CreateInstance<DungeonDefinition>();
+   try{
+    Set(bossless,"Id","catacombs.bossless");Set(bossless,"IsProcedural",true);
+    Set(bossless,"IsAvailableAsOffer",true);
+    var session=Session();
+    Assert.That(DungeonOfferSystem.EnsureOffers(session,new[]{definition,bossless}),Is.True);
+    var ids=session.DungeonOffers.Offers.Select(offer=>offer.DefinitionId).ToArray();
+    Assert.That(ids,Does.Contain(definition.Id));
+    Assert.That(ids,Does.Contain(bossless.Id));
+   }finally{UnityEngine.Object.DestroyImmediate(bossless);}
+  }
   [Test] public void PrefabAndCityHaveExplicitSixOfferWiring()
   {
    var prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_DungeonSelector.prefab");Assert.That(prefab,Is.Not.Null);
@@ -105,6 +129,37 @@ namespace Godmist.Tests.EditMode
     var entries=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<DungeonEntranceView>(true)).ToArray();Assert.That(entries,Is.Not.Empty);
     foreach(var entry in entries)Assert.That(new SerializedObject(entry).FindProperty("selector").objectReferenceValue,Is.Not.Null);
    }finally{if(setup.Any(s=>s.isLoaded&&s.isActive))EditorSceneManager.RestoreSceneManagerSetup(setup);else EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);}
+  }
+  [Test] public void CityEntranceOffersCatalogExpeditionsWhenItsLegacyDefinitionIsNotOfferable()
+  {
+   var catalog=AssetDatabase.LoadAssetAtPath<GameContentCatalog>(
+    "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset");
+   var legacy=AssetDatabase.LoadAssetAtPath<DungeonDefinition>(
+    "Assets/_Project/ScriptableObjects/Dungeons/DD_Catacombs_Procedural.asset");
+   var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(
+    "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_DungeonSelector.prefab");
+   Assert.That(catalog,Is.Not.Null);Assert.That(legacy,Is.Not.Null);
+   Assert.That(legacy.IsAvailableAsOffer,Is.False);
+   var ownerObject=new GameObject("Offer test bootstrap");
+   ownerObject.SetActive(false);
+   var selectorObject=UnityEngine.Object.Instantiate(prefab);
+   try
+   {
+    var owner=ownerObject.AddComponent<Godmist.Views.Game.GameBootstrap>();
+    typeof(Godmist.Views.Game.GameBootstrap).GetField("contentCatalog",
+     BindingFlags.Instance|BindingFlags.NonPublic).SetValue(owner,catalog);
+    var session=Session();Set(owner,"Session",session);
+    selectorObject.GetComponent<DungeonSelectorWindowView>().Open(owner,legacy);
+    Assert.That(session.DungeonOffers.Offers.Count,Is.EqualTo(6));
+    var ids=session.DungeonOffers.Offers.Select(offer=>offer.DefinitionId).ToArray();
+    Assert.That(ids,Does.Contain("dungeon.catacombs.expedition"));
+    Assert.That(ids,Does.Contain("dungeon.catacombs.boss_expedition"));
+   }
+   finally
+   {
+    UnityEngine.Object.DestroyImmediate(selectorObject);
+    UnityEngine.Object.DestroyImmediate(ownerObject);
+   }
   }
  }
 }

@@ -1,5 +1,35 @@
 # Unity handoff
 
+Karta: `VS-14 — produkcyjne pokoje Katakumb` (`DONE`, smoke wejścia zaakceptowany 2026-09-23)
+
+2026-09-23: 16 autorskich szablonów jest zapisanych w produkcyjnym katalogu. Poprawiono też pustą tablicę: selektor czerpie dostępne wyprawy z katalogu gry, więc stara definicja przypięta do wejścia w Arungardzie nie blokuje ofert. Po zgłoszeniu rozbieżności ze szkicami ponownie wygenerowano wszystkie 16 assetów tą samą regułą rozszerzania siatki co wizualizacja. Obramowane pokoje zachowują ściany szkicu, z dwupolowymi otworami tam, gdzie wymagają tego drzwi. Po kolejnym review dodano cztery jawne kotwy w 11 pokojach przeznaczonych dla większych składów oraz pełne ściany, niskie murki i balustrady jako `StructuralAnchors` w 11 pokojach. Profil Katakumb wybiera teraz zwarte ułożenie głównej trasy spośród legalnych obrotów i kierunków, a cztery pokoje dostały możliwość bocznego połączenia. Ocena czytelności decyzji taktycznych wymaga smoke Play Mode.
+
+Użytkownik potwierdził w Play Mode poprawę kształtu piętra i zaakceptował obecną jakość pokojów na pierwszy content pass. Pełne sprawdzenie przejść, pułapek i wymaganych obiektów z listy poniżej nie zostało jeszcze potwierdzone; późniejszy polish pokojów pozostaje poza VS-14.
+
+Po tym smoke poprawiono cztery zgłoszenia. Na **nowo wygenerowanej** wyprawie sprawdź, że Skarbiec z pułapką i Odetchnienie nie mają encounterów; zapis już wygenerowanego piętra zachowuje jego dotychczasowy układ. Obserwuj patrol w pokoju z pułapką, również po zapisie i wczytaniu: trasa powinna ją omijać. `togglefog` powinno natychmiast pokazać aktywne pułapki i inne obiekty wraz z aktualnym stanem, a po ponownym włączeniu mgły nie ujawniać ich w pamięci mapy. Sprawdź odczuwalny czas wyboru dalekosiężnej umiejętności obszarowej (np. Kula Ognia) i pojedynczego celu (np. Uzdrowienie); wynik Play Mode pozostaje do potwierdzenia. Duże jednokolorowe podświetlenia skilli mają teraz jedną siatkę renderowania zamiast osobnego renderera na pole. Testy w izolowanej kopii Unity: 61/61 zawartości, 7/7 rozmieszczania encounterów, 9/9 patrolu, 18/18 mgły, 7/7 targetowania i 9/9 prezentacji walki (`.codex/vs14-smoke-fixes-*.xml`).
+
+Naprawiono też błąd generacji, który dla niektórych seedów uniemożliwiał wejście do Katakumb po 32 próbach. Skróty są dopinane dopiero po rezerwacji drzwi głównej trasy i tylko wtedy, gdy mają własne legalne przejście. Seed 15 zwykłej wyprawy, który wcześniej reprodukował wyjątek, teraz generuje oba piętra. Testy w izolowanej kopii Unity: 62/62 zawartości (`.codex/vs14-content-fixed.xml`), 16/16 generatora (`.codex/vs14-generator-fixed.xml`) oraz 40/40 seedów zwykłych i 40/40 z bossem (`.codex/vs14-seed-sweep-fixed.log`). W Play Mode sprawdź ponownie wyruszenie na oba warianty wyprawy.
+
+## Konfiguracja Unity
+
+Konfigurator `Godmist > Content > Configure VS-14 Catacombs` został uruchomiony w izolowanej kopii Unity. Wszystkie 16 zapisanych szablonów, katalog i definicje wypraw przeniesiono do głównego projektu; ich referencje są spójne. Nie ma ręcznej konfiguracji Editora. Komenda pozostaje dostępna i jest idempotentna.
+
+Konfiguracja obejmuje przedsionek, dziewięć różnych pokojów walki, trzy odnogi opcjonalne, dwa korytarze i komnatę finałową. Są tu między innymi klepsydra z pułapkami, rozdzielona nawa, pokój L, krzyż z sarkofagami, płaski pierścień z pustym środkiem, skarbiec z pułapką na każdej drodze do skrzyni i łamany korytarz. Trasy, osłony, pułapki oraz wejścia zapisano w assetach. Generator dobiera pozycję pokoju z uwzględnieniem jego dozwolonych drzwi, także po obrocie. Wszystkie pokoje są płaskie, do czterech wrogów. Pełne role i ograniczenia opisuje `VS14_ROOM_DESIGN.md`.
+
+Są dwie definicje wypraw: zwykła bez bossa i z bossem. Obie mają dwa piętra, 11–14 pokojów i 4–6 zwykłych walk na piętro; tablica oferuje oba warianty, a definicje demo pozostają poza ofertą. Testowe definicje pozostają w katalogu do obsługi starych zapisów i scenariuszy testowych. Encountery i boss są tymczasowymi definicjami z `DD_Catacombs_Procedural`; produkcyjne pule przeciwników należą do VS-15.
+
+## Smoke test
+
+1. W nowej kampanii otwórz tablicę wypraw. Musi pokazać przynajmniej jedną wyprawę `Katakumby - wyprawa` i jedną `Katakumby - wyprawa z bossem`; żaden `Demo` ani `test` nie powinien wejść do sześciu ofert.
+2. Wejdź do każdego wariantu. Sprawdź dwa piętra, brak balkonów/podestów, przechodnie przejścia, skrzynie i finał. Wariant zwykły kończy się bez walki z bossem, wariant z bossem wymaga jej ukończenia. Kilka różnych ofert powinno zmienić układ pomieszczeń. Zwróć uwagę na kształt całego piętra: główna droga powinna kilkakrotnie zakręcać, a pokoje zajmować przestrzeń w obu osiach zamiast tworzyć bardzo długi pas z pustymi bokami.
+3. Zagraj przynajmniej skarbiec, pierścień i dwa inne pokoje taktyczne. Oceń, czy droga do nagrody rzeczywiście wymaga minięcia pułapki, czy w walce widać sensowne obejścia i osłony oraz czy drzwi nie pozwalają ominąć wyzwania.
+   W edytorze porównaj też `DRT_Catacombs_Normal_Small_Production` (Wąskie gardło), `DRT_Catacombs_L_Production` (Zakręt krypty), `DRT_Catacombs_Tactical_Pillars_Production` (Galeria łuczników) i `DRT_Catacombs_Tactical_Ritual_Production` (Krąg rytualny) z wizualizacją. Obrys, luki, pułapki, osłony, dodatkowe kotwy wrogów i krawędzie strukturalne powinny odpowiadać szkicom; w pokojach z obwodową ścianą dochodzą otwory drzwiowe. Litera `E` w edytorze Unity oznacza kotwę wroga, a w szkicu wejście. W Play Mode sprawdź też niski murek w Galerii łuczników (+2 AP za przejście), pełne ściany w Labiryncie cel oraz balustrady wokół pustego centrum Kręgu rytualnego.
+4. Wyjdź i wczytaj zapis rozpoczętej wyprawy; układ i wybrany wariant mają pozostać te same. Docelowy czas 20–30 minut wymaga ręcznego pomiaru po dodaniu siedmiu produkcyjnych przeciwników i bossa w VS-15.
+
+Automatycznie, w izolowanej kopii Unity: 61/61 testów pokojów i wygenerowanych wypraw (`.codex/vs14-compact-content-tests.xml`) oraz 16/16 regresji generatora (`.codex/vs14-compact-generator-tests.xml`). Obejmują zgodność 16 footprintów ze szkicami, kotwy wrogów, typy ścian, przejścia, wymagane obiekty, 12 seedów obu wariantów wyprawy i zwartość układu. Pomiar 40 wygenerowanych pięter (`.codex/vs14-compact-v3-audit40.log`) dał średnio 4,48 zakrętu głównej trasy, dłuższy bok 73 pola i zajęcie obrysu 48% wobec odpowiednio 1,4 zakrętu, 101 pól i 36% przed zmianą. Wcześniej 16/16 testów tablicy ofert (`.codex/vs14-offer-ui-integration.xml`) potwierdziło sześć ofert, w tym oba warianty Katakumb. Ponowny smoke Play Mode oraz pomiar czasu wyprawy: NOT RUN.
+
+---
+
 Karta: `Dodac crafting bizuterii v1`
 
 ## Dane do wprowadzenia w Editorze

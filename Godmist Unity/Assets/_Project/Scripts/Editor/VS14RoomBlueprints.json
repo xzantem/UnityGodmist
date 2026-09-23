@@ -1,0 +1,335 @@
+{
+  "rooms": [
+    {
+      "suffix": "Start",
+      "displayName": "Przedsionek",
+      "rows": [
+        "#############",
+        "#....X......#",
+        "#...........#",
+        "#...■■......#",
+        "#...........#",
+        "#......■■...#",
+        "#...........#",
+        "#.....E.....#",
+        "#############"
+      ],
+      "doors": "all",
+      "obstacle": "Pillar",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Normal_Small",
+      "displayName": "Wąskie gardło",
+      "rows": [
+        "····..X..····",
+        "··..W...W..··",
+        "·..W.....W..·",
+        "····.....····",
+        "····.!!!.····",
+        "····.....····",
+        "·...........·",
+        "··.........··",
+        "····..E..····"
+      ],
+      "doors": "up,down",
+      "structuralEdges": ["Low 4 7 Up", "Low 10 7 Up"],
+      "obstacle": "",
+      "trap": "Spikes",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Normal_Large",
+      "displayName": "Rozdzielona nawa",
+      "rows": [
+        "#############",
+        "#...........#",
+        "#.W■.....W..#",
+        "#....···....#",
+        "#E...···...X#",
+        "#....···....#",
+        "#.W■.....W..#",
+        "#...........#",
+        "#############"
+      ],
+      "doors": "left,right,up",
+      "structuralEdges": ["Railing 5 4 Right", "Railing 5 5 Right", "Railing 5 6 Right", "Railing 9 4 Left", "Railing 9 5 Left", "Railing 9 6 Left"],
+      "obstacle": "Rubble",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "L",
+      "displayName": "Zakręt krypty",
+      "rows": [
+        "#############",
+        "#....W...X..#",
+        "#..W.....W..#",
+        "#...#########",
+        "#...#########",
+        "#...#########",
+        "#...#########",
+        "#.E.#########",
+        "#############"
+      ],
+      "doors": "up,down,right",
+      "structuralEdges": ["Full 6 8 Up", "Full 7 8 Up"],
+      "obstacle": "",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Tactical_CryptL",
+      "displayName": "Grobowce",
+      "rows": [
+        "····.....····",
+        "····..X..····",
+        "··.........··",
+        "W..■■...■■..W",
+        "......■......",
+        "W..■■...■■..W",
+        "··.........··",
+        "····..E..····",
+        "····.....····"
+      ],
+      "doors": "all",
+      "obstacle": "Sarcophagus",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Tactical_Pillars",
+      "displayName": "Galeria łuczników",
+      "rows": [
+        "#############",
+        "#...W.X.W...#",
+        "#...........#",
+        "#..■.....■..#",
+        "#...........#",
+        "#..■.W.W.■..#",
+        "#...........#",
+        "#.....E.....#",
+        "#############"
+      ],
+      "doors": "all",
+      "structuralEdges": ["Low 2 3 Up", "Low 3 3 Up", "Low 11 3 Up", "Low 12 3 Up", "Low 6 5 Up", "Low 7 5 Up", "Low 8 5 Up"],
+      "obstacle": "Pillar",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Tactical_Passages",
+      "displayName": "Labirynt cel",
+      "rows": [
+        "#############",
+        "#.........X.#",
+        "#..W..#..W..#",
+        "#.....#.....#",
+        "###.###!#####",
+        "#..W..#..W..#",
+        "#.....#.....#",
+        "#.E.........#",
+        "#############"
+      ],
+      "doors": "up,down",
+      "structuralEdges": ["Full 2 7 Up", "Full 3 7 Up", "Full 11 7 Up", "Full 12 7 Up"],
+      "obstacle": "",
+      "trap": "Spikes",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Tactical_Ritual",
+      "displayName": "Krąg rytualny",
+      "rows": [
+        "····..!..····",
+        "··....!....··",
+        "·.W...!...W.·",
+        "......!......",
+        "....·····....",
+        "E...·····...X",
+        "....·····....",
+        ".............",
+        "·.W.......W.·",
+        "··.........··",
+        "····.....····"
+      ],
+      "doors": "left,right,down",
+      "structuralEdges": ["Railing 4 5 Right", "Railing 4 6 Right", "Railing 4 7 Right", "Railing 10 5 Left", "Railing 10 6 Left", "Railing 10 7 Left", "Railing 5 8 Down", "Railing 6 8 Down", "Railing 7 8 Down", "Railing 8 8 Down", "Railing 9 8 Down", "Railing 5 4 Up", "Railing 6 4 Up", "Railing 7 4 Up", "Railing 8 4 Up", "Railing 9 4 Up"],
+      "obstacle": "",
+      "trap": "GraveSeal",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Ossuary",
+      "displayName": "Kostnica",
+      "rows": [
+        "#############",
+        "#.....X.....#",
+        "#..W.....W..#",
+        "#..■..■..■..#",
+        "#...........#",
+        "#..■..■..■..#",
+        "#..W.....W..#",
+        "#.....E.....#",
+        "#############"
+      ],
+      "doors": "all",
+      "structuralEdges": ["Full 5 5 Up", "Full 6 5 Up", "Full 8 5 Up", "Full 9 5 Up"],
+      "obstacle": "Sarcophagus",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "SarcophagusHall",
+      "displayName": "Sala sarkofagów",
+      "rows": [
+        "#############",
+        "#X..........#",
+        "#..W......W.#",
+        "#.■■■■■■....#",
+        "#.■■■■■■....#",
+        "#.....■..W..#",
+        "#..W........#",
+        "#..........E#",
+        "#############"
+      ],
+      "doors": "all",
+      "structuralEdges": ["Low 2 7 Up", "Low 3 7 Up", "Low 11 7 Up", "Low 12 7 Up"],
+      "obstacle": "Sarcophagus",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Optional",
+      "nonCombat": true,
+      "displayName": "Skarbiec z pułapką",
+      "rows": [
+        "···.......···",
+        "··.........··",
+        "·....S......·",
+        "··.........··",
+        "·····!!!·····",
+        "·····...·····",
+        "·····...·····",
+        "·····.E.·····",
+        "·····...·····"
+      ],
+      "doors": "bottom-marker",
+      "obstacle": "",
+      "trap": "Spikes",
+      "target": "Chest",
+      "progression": false
+    },
+    {
+      "suffix": "Optional_Lever",
+      "displayName": "Mechanizm grobowca",
+      "rows": [
+        "#############",
+        "#........S..#",
+        "##########..#",
+        "#.W.#...W...#",
+        "#...#.......#",
+        "#...###.#####",
+        "#...W.....W.#",
+        "#E..........#",
+        "#############"
+      ],
+      "doors": "left-marker",
+      "structuralEdges": ["Full 2 5 Up", "Full 3 5 Up"],
+      "obstacle": "",
+      "trap": "",
+      "target": "Lever",
+      "progression": true
+    },
+    {
+      "suffix": "Optional_Condition",
+      "displayName": "Krypta warunku",
+      "rows": [
+        "#############",
+        "#.....S.....#",
+        "#..W.....W..#",
+        "#..■■...■■..#",
+        "#...........#",
+        "#...#####...#",
+        "#..W.....W..#",
+        "#.....E.....#",
+        "#############"
+      ],
+      "doors": "bottom-marker",
+      "structuralEdges": ["Low 2 3 Up", "Low 3 3 Up", "Low 11 3 Up", "Low 12 3 Up"],
+      "obstacle": "Sarcophagus",
+      "trap": "",
+      "target": "Condition",
+      "progression": true
+    },
+    {
+      "suffix": "Corridor",
+      "nonCombat": true,
+      "displayName": "Odetchnienie",
+      "rows": [
+        "###########",
+        "#........X#",
+        "#.#####...#",
+        "#.#####...#",
+        "#.........#",
+        "#E........#",
+        "###########"
+      ],
+      "doors": "left,right,up",
+      "obstacle": "",
+      "trap": "",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Tactical_Corridor_Production",
+      "displayName": "Przełamanie",
+      "rows": [
+        "····...X···",
+        "····..W..··",
+        "····W....··",
+        "····!!.····",
+        "··.....····",
+        "··.....····",
+        "··E....····"
+      ],
+      "doors": "up,down",
+      "obstacle": "",
+      "trap": "Spikes",
+      "target": "",
+      "progression": false
+    },
+    {
+      "suffix": "Final",
+      "displayName": "Komnata nekromanty",
+      "rows": [
+        "#############",
+        "#.........X.#",
+        "#..■.....■..#",
+        "#.....W.....#",
+        "#....W.W....#",
+        "#.....B.....#",
+        "#..■.....■..#",
+        "#E..........#",
+        "#############"
+      ],
+      "doors": "left-marker",
+      "structuralEdges": ["Low 6 2 Up", "Low 7 2 Up", "Low 8 2 Up"],
+      "obstacle": "Pillar",
+      "trap": "",
+      "target": "",
+      "progression": false
+    }
+  ]
+}

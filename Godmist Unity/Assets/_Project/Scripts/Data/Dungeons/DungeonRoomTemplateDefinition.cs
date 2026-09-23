@@ -16,6 +16,11 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public DungeonRoomType RoomType { get; private set; }
 
+        [field: Header("Encounter placement")]
+        [field: Tooltip("Wyklucza ten szablon z losowania zwykłych encounterów.")]
+        [field: SerializeField]
+        public bool ExcludeFromRandomEncounters { get; private set; }
+
         [field: Header("Progression branch")]
         [field: Tooltip("Szablon moze zostac wybrany jako wymagany pokoj odblokowujacy dalsza trase lochu.")]
         [field: SerializeField]

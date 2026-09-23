@@ -51,7 +51,14 @@ namespace Godmist.Views.UI.Workspace
         private void Refresh()
         {
             var session=bootstrap.Session;
-            var pool=definitionPool.Length>0 ? definitionPool : new[]{fallback};
+            // The entrance's serialized definition may be a legacy non-offer dungeon.
+            // Production expeditions are registered in the shared content catalog.
+            System.Collections.Generic.IEnumerable<DungeonDefinition> pool=
+                bootstrap.ContentCatalog!=null
+                    ? bootstrap.ContentCatalog.DungeonDefinitions
+                    : Enumerable.Empty<DungeonDefinition>();
+            if(definitionPool!=null) pool=pool.Concat(definitionPool);
+            if(fallback!=null) pool=pool.Append(fallback);
             if(session.ActiveDungeon==null) DungeonOfferSystem.EnsureOffers(session,pool);
             var board=session.DungeonOffers; var average=DungeonOfferSystem.PartyLevel(session);
             var active=session.ActiveDungeon;

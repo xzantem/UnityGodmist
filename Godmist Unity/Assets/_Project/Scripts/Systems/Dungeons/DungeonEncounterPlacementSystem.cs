@@ -345,7 +345,8 @@ namespace Godmist.Systems.Dungeons
             {
                 if (!IsEligibleRoomType(room.RoomType)) continue;
 
-                if (!TryGetTemplate(catalog, room.TemplateId, out _)) continue;
+                if (!TryGetTemplate(catalog, room.TemplateId, out var template)
+                    || template.ExcludeFromRandomEncounters) continue;
 
                 candidates.Add(room);
             }

@@ -11,6 +11,7 @@ namespace Godmist.Views.Dungeons
         public bool IsElevationVisible => elevationView == null || DungeonObject == null
             || (!elevationView.IsSurfaceOccluded(new DungeonSurfacePosition(DungeonObject.Position)) && elevationView.IsObjectCurrentlySeen(DungeonObject));
         protected bool PresentationState(bool current) => elevationView?.FogFloor == null || DungeonObject == null
+            || elevationView.FogFloor.Fog.DebugFogDisabled
             ? current : elevationView.KnownObject(DungeonObject)?.State ?? false;
         protected virtual void RefreshFogVisual() { }
         public void BindElevationView(DungeonFloorMapView view)
@@ -27,7 +28,8 @@ namespace Godmist.Views.Dungeons
             RefreshFogVisual();
             var remembered = elevationView?.FogFloor != null && DungeonObject != null && !elevationView.IsObjectCurrentlySeen(DungeonObject);
             var known = DungeonObject == null ? null : elevationView?.KnownObject(DungeonObject);
-            var show = elevationView?.FogFloor == null ? IsElevationVisible
+            var show = elevationView?.FogFloor == null || elevationView.FogFloor.Fog.DebugFogDisabled
+                ? DungeonObject?.IsActive == true && IsElevationVisible
                 : DungeonObject != null && known?.Active == true
                     && (elevationView.IsObjectCurrentlySeen(DungeonObject)
                         || (DungeonObject is DoorDungeonObjectInstance door

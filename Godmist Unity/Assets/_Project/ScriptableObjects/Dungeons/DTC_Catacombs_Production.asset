@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98f1774ae40b044b953f05665485a2a, type: 3}
+  m_Name: DTC_Catacombs_Production
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateCatalog
+  <Id>k__BackingField: dungeon.catacombs.templates.production
+  <Templates>k__BackingField:
+  - {fileID: 11400000, guid: c81e0daa8c37f0343b9235f013a856ce, type: 2}
+  - {fileID: 11400000, guid: 2b80e1b67a42fe143b97f7d627529651, type: 2}
+  - {fileID: 11400000, guid: 99f7c8a27d8fe514faf077bebcd5a1dd, type: 2}
+  - {fileID: 11400000, guid: e06f2f0d02317e047bf9138544a0ff26, type: 2}
+  - {fileID: 11400000, guid: 6d9ce2a276ab364419418c0cc2f276ef, type: 2}
+  - {fileID: 11400000, guid: 23760b8e902b0b84ba77f2a2df4cf087, type: 2}
+  - {fileID: 11400000, guid: 0ebec1086d817fa44998f811dc224c12, type: 2}
+  - {fileID: 11400000, guid: 71e7ca74992e6ac4581713f585b33140, type: 2}
+  - {fileID: 11400000, guid: ee92d433222851543a8f363a1159b063, type: 2}
+  - {fileID: 11400000, guid: ec4c8e6cfd1951e4082d0c678ea3eb14, type: 2}
+  - {fileID: 11400000, guid: f0070c5157ddf144dadf9fa15e579e18, type: 2}
+  - {fileID: 11400000, guid: e1b5809907913f84f9a0f36567a89a78, type: 2}
+  - {fileID: 11400000, guid: 2a8d8daa9c5ebff458cdd6abbf3a2339, type: 2}
+  - {fileID: 11400000, guid: 96adbba2d2c51b344b82f973beca8fbd, type: 2}
+  - {fileID: 11400000, guid: 02649487b25555e48943223aacabaf63, type: 2}
+  - {fileID: 11400000, guid: 2440976a18b56b44684594aced47c9b3, type: 2}

@@ -16,12 +16,16 @@ namespace Godmist.Views.Dungeons
             public float RetryAfter;
         }
         private readonly Dictionary<string, PatrolNavigation> patrolNavigation = new();
+        private readonly HashSet<Vector2Int> patrolTrapCells = new();
         private float nextPatrolSense, patrolElapsed;
         private const float PatrolSpeed = 2f;
 
         private void InitializePatrols()
         {
             patrolNavigation.Clear();
+            patrolTrapCells.Clear();
+            foreach (var trap in floor.Objects.OfType<SpikeTrapDungeonObjectInstance>())
+                if (trap.IsActive && !trap.IsTriggered) patrolTrapCells.Add(trap.Position);
             foreach (var trigger in encounters.Triggers)
             {
                 foreach (var enemy in trigger.EnemyViews.Where(IsLiving))
@@ -36,18 +40,22 @@ namespace Godmist.Views.Dungeons
                 }
                 var enemies = trigger.EnemyViews.Where(v => IsLiving(v)
                     && !trigger.Encounter.StationaryEnemyHomes.ContainsKey(v.EnemyInstanceId)).OrderBy(v => v.EnemyInstanceId, System.StringComparer.Ordinal).ToArray();
-                if (enemies.Length == 0 || enemies.All(v => floor.Patrols.TryGetValue(PatrolKey(trigger, v), out var saved) && saved.StopIndices.Count > 0)) continue;
+                if (enemies.Length == 0 || enemies.All(v => floor.Patrols.TryGetValue(PatrolKey(trigger, v), out var saved)
+                    && saved.StopIndices.Count > 0 && saved.Route.All(IsSafePatrolPosition))) continue;
                 var paths = DungeonPatrolPlanner.Build(floor.Map, trigger.Encounter.RoomId,
-                    enemies.Select(v => PatrolOrigin(trigger, v)).ToArray(), p => party.CanEnterTraversal(enemies[0], p), out var stops);
+                    enemies.Select(v => PatrolOrigin(trigger, v)).ToArray(),
+                    p => IsSafePatrolPosition(p) && party.CanEnterTraversal(enemies[0], p), out var stops);
                 for (var i = 0; i < enemies.Length; i++)
                 {
                     var key = PatrolKey(trigger, enemies[i]);
                     floor.Patrols.TryGetValue(key, out var old);
-                    if (old?.StopIndices.Count > 0) continue;
+                    if (old?.StopIndices.Count > 0 && old.Route.All(IsSafePatrolPosition)) continue;
                     if (paths[i].Count == 0)
                     {
                         // An old guard outside its room keeps its return route until it gets home.
-                        if (old != null) for (var n = 0; n < old.Route.Count; n++) old.StopIndices.Add(n);
+                        if (old != null && old.Route.All(IsSafePatrolPosition))
+                            for (var n = 0; n < old.Route.Count; n++) old.StopIndices.Add(n);
+                        else floor.Patrols.Remove(key);
                         continue;
                     }
                     var state = new DungeonPatrolState
@@ -63,11 +71,16 @@ namespace Godmist.Views.Dungeons
             }
         }
 
+        private bool IsSafePatrolPosition(DungeonTraversalPosition position)
+            => floor.Map.TryGetTraversalCell(position, out var cell)
+                && !patrolTrapCells.Contains(cell);
+
         private DungeonTraversalPosition PatrolOrigin(EncounterTriggerView trigger, ExplorationCharacterView enemy)
         {
             bool InRoom(DungeonTraversalPosition position) => floor.Map.TryGetRoomId(
                 position.IsOnStairs ? position.Stair.First : position.Surface, out var room)
-                && room == trigger.Encounter.RoomId && party.CanEnterTraversal(enemy, position);
+                && room == trigger.Encounter.RoomId && IsSafePatrolPosition(position)
+                && party.CanEnterTraversal(enemy, position);
             if (InRoom(enemy.DungeonPosition)) return enemy.DungeonPosition;
             // Legacy saves can leave a survivor outside its home room after combat.
             // Plan in its original room, then walk back from the actual saved position.
@@ -120,7 +133,7 @@ namespace Godmist.Views.Dungeons
                     if (Time.time < navigation.RetryAfter) continue;
                     navigation.RetryAfter = Time.time + 1f;navigation.Target = goal;navigation.Path.Clear();
                     if (!DungeonExplorationPathfinder.TryFindPath(floor.Map, enemy.DungeonPosition, goal, out var path,
-                        p => party.CanEnterTraversal(enemy, p))) continue;
+                        p => IsSafePatrolPosition(p) && party.CanEnterTraversal(enemy, p))) continue;
                     foreach (var point in path) navigation.Path.Enqueue(point);
                 }
                 while (navigation.Path.Count > 0)
@@ -129,7 +142,7 @@ namespace Godmist.Views.Dungeons
                     floor.Map.TryGetTraversalCell(next, out var cell);
                     if (enemy.DungeonPosition == next && Vector2.Distance(enemy.Position, map.CellToWorldCenter(cell)) < .035f)
                     { navigation.Path.Dequeue();continue; }
-                    if (!party.CanEnterTraversal(enemy, next) || enemy.DungeonPosition != next
+                    if (!IsSafePatrolPosition(next) || !party.CanEnterTraversal(enemy, next) || enemy.DungeonPosition != next
                         && !floor.Map.GetTraversalNeighbours(enemy.DungeonPosition).Contains(next))
                     { navigation.Path.Clear();enemy.PreferredTraversalDestination = null;break; }
                     enemy.PreferredTraversalDestination = next;

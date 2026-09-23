@@ -21,6 +21,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public DungeonTheme Theme { get; private set; }
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
+        [field: Tooltip("Only authored expedition definitions appear on the city offer board. Test and demo dungeons remain loadable by ID.")]
+        [field: SerializeField] public bool IsAvailableAsOffer { get; private set; }
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
         [field: Header("Rewards")]

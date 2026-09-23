@@ -224,13 +224,11 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    var targets =
-                        GetTargets(session, caster, mode, position, includeDownedTargets, requiredEnemyTarget);
-
                     var canTargetEmptyTile = mode.TargetType == TargetType.AreaAroundTile
                         && requiredEnemyTarget == null;
 
-                    if (canTargetEmptyTile || targets.Count > 0)
+                    if (canTargetEmptyTile || GetTargets(session, caster, mode, position,
+                            includeDownedTargets, requiredEnemyTarget).Count > 0)
                     {
                         positions.Add(position);
                     }
