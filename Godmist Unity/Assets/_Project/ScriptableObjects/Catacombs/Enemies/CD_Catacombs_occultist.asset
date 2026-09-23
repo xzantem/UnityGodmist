@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dee6cd9b98d0fa545a9ab04727ca3174, type: 3}
+  m_Name: CD_Catacombs_occultist
+  m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
+  <Id>k__BackingField: enemy.catacombs.occultist
+  <DisplayName>k__BackingField: Szkielet Okultysta
+  <Tags>k__BackingField: 02000000
+  <VisualSprite>k__BackingField: {fileID: -8424996936303349370, guid: 066a75470ef6f394d9cec60db24a7f18, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: -8424996936303349370, guid: 066a75470ef6f394d9cec60db24a7f18, type: 3}
+  - {fileID: -5193753968476227784, guid: 3de16ec1beeb8154598fa6a78dbc75f9, type: 3}
+  - {fileID: -1867910492397715140, guid: c3679edd1241aa84fb042a96e5e9a279, type: 3}
+  - {fileID: -6876587952967492228, guid: 1330063939e36fb419318fd4a2272b07, type: 3}
+  <IdleAnimationFramesPerSecond>k__BackingField: 4
+  <RunAnimationFrames>k__BackingField: []
+  <RunAnimationFramesPerSecond>k__BackingField: 8
+  <HitSprite>k__BackingField: {fileID: 0}
+  <DeadSprite>k__BackingField: {fileID: 0}
+  <IsMainCharacter>k__BackingField: 0
+  <AiRole>k__BackingField: 4
+  <AiPersonality>k__BackingField: 2
+  <RecruitmentQuestId>k__BackingField: 
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+  <BaseStats>k__BackingField:
+    <MaxHealth>k__BackingField: 250
+    <MinAttack>k__BackingField: 55
+    <MaxAttack>k__BackingField: 80
+    <PhysicalDefense>k__BackingField: 4
+    <MagicalDefense>k__BackingField: 14
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
+    <Dodge>k__BackingField: 11
+    <CritChance>k__BackingField: 0.06
+    <CritDamage>k__BackingField: 1.85
+    <Speed>k__BackingField: 50
+    <WeaponAccuracy>k__BackingField: 100
+    <MaxResource>k__BackingField: 100
+    <ResourceRegeneration>k__BackingField: 15
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 1
+    <PoisonResistance>k__BackingField: 0.2
+    <FireResistance>k__BackingField: 0.4
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0.35
+    <MoveResistance>k__BackingField: 0
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 17
+    <MinAttack>k__BackingField: 3.58
+    <MaxAttack>k__BackingField: 5.2
+    <PhysicalDefense>k__BackingField: 0.8
+    <MagicalDefense>k__BackingField: 2.8
+    <Dodge>k__BackingField: 0.0825
+    <CritChance>k__BackingField: 0.00015
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: fee57c6da885c454282a2e7626ccc00f, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: fee57c6da885c454282a2e7626ccc00f, type: 2}
+  - {fileID: 11400000, guid: eec98b45ae34e1e4d86d1918b54530c1, type: 2}
+  - {fileID: 11400000, guid: a639639944577374da20e2f0c0fcc90d, type: 2}
+  <ExperienceReward>k__BackingField: 0
+  <GoldReward>k__BackingField: 0
+  <LootTable>k__BackingField: {fileID: 11400000, guid: a1756857439c83f498d93de4ab09c0fa, type: 2}

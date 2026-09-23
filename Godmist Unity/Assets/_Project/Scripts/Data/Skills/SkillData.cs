@@ -25,6 +25,7 @@ namespace Godmist.Data.Skills
         [field: SerializeField, Min(0)] public int ToggleUpkeepFlatResourceCost { get; private set; }
         [field: SerializeField, Range(0f, 1f)] public float ToggleUpkeepMaxResourcePercent { get; private set; }
         [field: SerializeField] public bool RequiresLineOfSight { get; private set; }
+        [field: SerializeField] public string RequiredCasterStatusId { get; private set; } = string.Empty;
         [field: SerializeField] public bool CanRecoverKnives { get; private set; }
         [field: SerializeField] public bool GuaranteedCritical { get; private set; }
         [field: SerializeField] public bool FreeKnivesInMelee { get; private set; }

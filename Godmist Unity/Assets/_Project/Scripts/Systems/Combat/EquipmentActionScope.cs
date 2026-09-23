@@ -53,7 +53,8 @@ namespace Godmist.Systems.Combat
                     statuses?.ApplyStatus(source, target, status, Mathf.Clamp01(group.Sum(e => e.Value)),
                         3, 1, .6f, 0, "equipment.galduryte." + group.Key, sharedRoll: roll);
             }
-            CombatTurnSystem.ReorderParticipants(session);
+            if (session.TurnParticipants.Count > 0)
+                CombatTurnSystem.ReorderParticipants(session);
         }
         public void Dispose()
         {

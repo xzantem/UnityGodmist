@@ -1,0 +1,350 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Catacombs_Resources
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.catacombs.resources
+  <DisplayName>k__BackingField: "Ko\u015Bcista torba zasob\xF3w"
+  <Description>k__BackingField: "Worek z materia\u0142ami zebranymi w katakumbach."
+  <Icon>k__BackingField: {fileID: 0}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d4e6f8a0b2c94375a1d3e5f7b9c0a2d4, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: a1b2c3d4e5f6478890ab1c2d3e4f5678, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 0.7
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: herbs
+    - <DropChance>k__BackingField: 0.4
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: herbs
+    - <DropChance>k__BackingField: 0.4
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 07a8b9c0d1e2435678fa9b0c1d2e3456, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3f47d6f1a2e84b478a8c1c1a5b2d6e34, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 0.7
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 4
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: staples
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 2
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: herbs
+    - <DropChance>k__BackingField: 0.4
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: herbs
+    - <DropChance>k__BackingField: 0.6
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 76cd906d69c790f438f4ea525786807c, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 6c3a52b4fd3ade94c836ef5a97d86181, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.15
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2cb9d84ffaee40b44ab318adff4484ef, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.4
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 07a8b9c0d1e2435678fa9b0c1d2e3456, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField: []

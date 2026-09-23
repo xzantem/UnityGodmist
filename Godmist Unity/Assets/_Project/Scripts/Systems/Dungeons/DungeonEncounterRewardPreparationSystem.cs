@@ -71,6 +71,19 @@ namespace Godmist.Systems.Dungeons
                             encounterInstance,
                             enemyData), dungeon.DungeonLevel);
 
+                    // Pre-roll species drops with the common dungeon loot so a reload
+                    // cannot change the reward for this encounter.
+                    foreach (var enemyReward in rewards.EnemyRewards)
+                    {
+                        var enemy = encounterInstance.Definition.Enemies.Find(data =>
+                            data != null && data.InstanceId == enemyReward.EnemyInstanceId);
+                        var speciesLoot = enemy?.CharacterDefinition?.LootTable;
+                        if (speciesLoot != null
+                            && lootCatalog != null
+                            && lootCatalog.TryGetEnemyLootTable(dungeon.Definition.Theme,
+                                dungeon.DungeonLevel, out _))
+                            enemyReward.Items.AddRange(lootTableSystem.RollLoot(speciesLoot));
+                    }
                     dungeon.TryStorePreRolledRewards(
                         encounterInstance.InstanceId,
                         rewards);

@@ -107,4 +107,8 @@ MonoBehaviour:
       <ConditionText>k__BackingField: 
       <TriggerText>k__BackingField: Podczas ataku.
       <ShowRuntimeState>k__BackingField: 1
-  <SummonPool>k__BackingField: []
+  <SummonPool>k__BackingField:
+  - {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
+  - {fileID: 11400000, guid: f2523f7760928ea489000fa70ed11b92, type: 2}
+  - {fileID: 11400000, guid: 32de042677ab0424b969626af8cc7c96, type: 2}
+  - {fileID: 11400000, guid: a4dbfe861e4138146953b384e6c0ace4, type: 2}

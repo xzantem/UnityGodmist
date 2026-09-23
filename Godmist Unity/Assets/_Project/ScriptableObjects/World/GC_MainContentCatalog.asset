@@ -13,6 +13,13 @@ MonoBehaviour:
   m_Name: GC_MainContentCatalog
   m_EditorClassIdentifier: Data::Godmist.Data.World.GameContentCatalog
   <CharacterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
+  - {fileID: 11400000, guid: 3e097cd34ef21f844aa9bac5ee3ea41b, type: 2}
+  - {fileID: 11400000, guid: 123fe561f70443c478907fd04d0268e7, type: 2}
+  - {fileID: 11400000, guid: 32de042677ab0424b969626af8cc7c96, type: 2}
+  - {fileID: 11400000, guid: f2523f7760928ea489000fa70ed11b92, type: 2}
+  - {fileID: 11400000, guid: ba9ef817cab8c7c4d879a09c31065592, type: 2}
+  - {fileID: 11400000, guid: a4dbfe861e4138146953b384e6c0ace4, type: 2}
   - {fileID: 11400000, guid: de6e9e26cd986e144b254dcc7b76b803, type: 2}
   - {fileID: 11400000, guid: 28eba9f7a64e2ff45859b802054c5de2, type: 2}
   - {fileID: 11400000, guid: 53cc60ce4d17f0f4286723077e4226d9, type: 2}
@@ -20,11 +27,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a3f95d0951df4754a81093cab24afd04, type: 2}
   - {fileID: 11400000, guid: 518f98ec8bf36724eb3b57b3250a7cdf, type: 2}
   <CharacterClasses>k__BackingField:
+  - {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
   - {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   - {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   - {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   - {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
   <ItemDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 1f094b2aed548d44fb4d01b152f96507, type: 2}
+  - {fileID: 11400000, guid: f53f6d28a7d0b024087384f6f7edb567, type: 2}
+  - {fileID: 11400000, guid: eb712b0cd78b9f54cb2f113031b92750, type: 2}
+  - {fileID: 11400000, guid: 0a2940372a948dd449cc3465ee7769be, type: 2}
   - {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
   - {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
   - {fileID: 11400000, guid: 7c8f8fc5cbb9452b8cb0f6d8e31745b1, type: 2}
@@ -477,6 +489,27 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f05f76d88dfde6b489470e856e496d6d, type: 2}
   - {fileID: 11400000, guid: f818557a5ad2a6c439de8d5c5a51a1ba, type: 2}
   <SkillDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: fee57c6da885c454282a2e7626ccc00f, type: 2}
+  - {fileID: 11400000, guid: a639639944577374da20e2f0c0fcc90d, type: 2}
+  - {fileID: 11400000, guid: 56ba1d3da38eb3b48b033d668a7c0eb5, type: 2}
+  - {fileID: 11400000, guid: 06c8f16aa09be0a4dacb8270940c9421, type: 2}
+  - {fileID: 11400000, guid: d879168809721274cbf1dddeb5e809a1, type: 2}
+  - {fileID: 11400000, guid: 2e44c2b649d0d9343a63477649e8b9ff, type: 2}
+  - {fileID: 11400000, guid: 3f2301fa8f8a9004ab1c29ab18d88620, type: 2}
+  - {fileID: 11400000, guid: 740b771ce4c1d8745b935aa7b900e3ff, type: 2}
+  - {fileID: 11400000, guid: 3c76a92453c85784abaab377ebaf31b2, type: 2}
+  - {fileID: 11400000, guid: 80bba7a540703214fba10e3784eb9a62, type: 2}
+  - {fileID: 11400000, guid: 140b4ca0ed86b994cbc396163a1c8b43, type: 2}
+  - {fileID: 11400000, guid: 866598d1b6cc64c4fa9e5c68dbbd7322, type: 2}
+  - {fileID: 11400000, guid: 345ad261878823844a14bd77e070b79c, type: 2}
+  - {fileID: 11400000, guid: 17010d82592137a4a8c59183a663af77, type: 2}
+  - {fileID: 11400000, guid: eec98b45ae34e1e4d86d1918b54530c1, type: 2}
+  - {fileID: 11400000, guid: 24a12bdc523e0c94f902c3fec9b0c0f3, type: 2}
+  - {fileID: 11400000, guid: f42d97aaba67f0445bf0f746f03e7c98, type: 2}
+  - {fileID: 11400000, guid: d3d0f99b16b4d4c4b88dcfb3aee15667, type: 2}
+  - {fileID: 11400000, guid: 7d4980172c6351840a1ffaf92c37d211, type: 2}
+  - {fileID: 11400000, guid: 276e75ade69d4124b86e076b8207f2a2, type: 2}
+  - {fileID: 11400000, guid: 133ccd3c0c972e542937161b4064e19e, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}
   - {fileID: 11400000, guid: 74b4ba1f033aeb04ea168622d95aacc6, type: 2}
   - {fileID: 11400000, guid: 9d62a095a2b1ff646a499275dbf81bee, type: 2}
@@ -562,5 +595,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 811d9f96d1234ca3ae7017bdcb149f3c, type: 2}
   - {fileID: 11400000, guid: 00e7788b5ebc481ab1315150cf44349c, type: 2}
   <EncounterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: 5146082f01d206e4c912c2cf4a26a295, type: 2}
+  - {fileID: 11400000, guid: 3865e5c984132a6418e09af1700e17da, type: 2}
+  - {fileID: 11400000, guid: 065884c03d72c1a43a00fbdea4a2316f, type: 2}
+  - {fileID: 11400000, guid: 4a188154cdc8ead4d80c0691b84d88ba, type: 2}
+  - {fileID: 11400000, guid: 8b833a21a8823c344944e7b817cf181c, type: 2}
+  - {fileID: 11400000, guid: f01ad714c8942aa4c904d52fa814bdb6, type: 2}
+  - {fileID: 11400000, guid: 462852c45a9f73e4cbc474a8321a8714, type: 2}
+  - {fileID: 11400000, guid: 7dec33e8aa04d684faeae218b335b96d, type: 2}
   - {fileID: 11400000, guid: f75344cd0e63cbe4db0ef60441fba08e, type: 2}
   <DungeonObjectDefinitions>k__BackingField: []

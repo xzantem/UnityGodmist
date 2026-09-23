@@ -21,7 +21,7 @@ MonoBehaviour:
   <Theme>k__BackingField: 0
   <IsProcedural>k__BackingField: 1
   <IsStoryDungeon>k__BackingField: 0
-  <IsAvailableAsOffer>k__BackingField: 1
+  <IsAvailableAsOffer>k__BackingField: 0
   <LayoutProfile>k__BackingField: {fileID: 11400000, guid: a069f73bf4317e7468c58e51242852ea, type: 2}
   <DungeonLevel>k__BackingField: 1
   <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: b3d7f5a9c2e46810a6c4e8f1d5b7a290, type: 2}
@@ -37,7 +37,14 @@ MonoBehaviour:
   <MaxProgressionGateCount>k__BackingField: 2
   <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 0ffde764ce2914546963a605d7c87412, type: 2}
   <EncounterDefinitions>k__BackingField:
-  - {fileID: 11400000, guid: f70fadf3a76a46141837274e5f0228b1, type: 2}
+  - {fileID: 11400000, guid: 462852c45a9f73e4cbc474a8321a8714, type: 2}
+  - {fileID: 11400000, guid: 065884c03d72c1a43a00fbdea4a2316f, type: 2}
+  - {fileID: 11400000, guid: f01ad714c8942aa4c904d52fa814bdb6, type: 2}
+  - {fileID: 11400000, guid: 8b833a21a8823c344944e7b817cf181c, type: 2}
+  - {fileID: 11400000, guid: 4a188154cdc8ead4d80c0691b84d88ba, type: 2}
+  - {fileID: 11400000, guid: 5146082f01d206e4c912c2cf4a26a295, type: 2}
+  - {fileID: 11400000, guid: 3865e5c984132a6418e09af1700e17da, type: 2}
+  - {fileID: 11400000, guid: 7dec33e8aa04d684faeae218b335b96d, type: 2}
   <BossEncounterDefinition>k__BackingField: {fileID: 11400000, guid: 8a58e4408557e7f4ebf463711f269fb9, type: 2}
   <MinEncounterCountPerFloor>k__BackingField: 4
   <MaxEncounterCountPerFloor>k__BackingField: 6

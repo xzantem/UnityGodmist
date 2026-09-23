@@ -76,6 +76,10 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-15] Przygotować przeciwników i encountery Katakumb` - `Combat`, `Content / Data` - `DONE`
+  - Siedmiu przeciwników, 21 umiejętności, osiem składów po 2–4 wrogów, produkcyjna pula Kostura Umarłych oraz lootbagi i tabele dla poziomów 1–10 i 11–20. Boss należy do VS-16.
+  - Sprite’y z osobnych klatek: Point, 16 PPU, bez kompresji. 100/100 testów powiązanych systemów i 7/7 testów zawartości VS-15 PASS; użytkownik potwierdził prezentację w grze i zlecił commit/push.
+
 - `[P1] [VS-14] Przygotować produkcyjny zestaw pokojów Katakumb` - `World / Dungeon / Exploration`, `Content / Data` - `DONE`
   - 16 produkcyjnych szablonów: 1 startowy, 9 zwykłych, 3 opcjonalne, 2 korytarze i 1 finałowy; bez podestów/balkonów. Dwa warianty zwykłych pokoi trzeba dodać, pozostałe wybrać i zweryfikować.
   - Pełna konfiguracja Layout Profile i definicji Katakumb; wyprawy z bossem i bez, docelowo 20–30 minut. Sprawdzić stałe wyposażenie, opcjonalne grupy, kilka seedów oraz osiągalność celu i nagród.

@@ -95,3 +95,9 @@ Kod obsługuje już runtime, save/load, crafting i identyfikowanie. Nie zmieniaj
 3. Wykonaj `creategalduryte 1 weapon` oraz `creategalduryte 1 armor unidentified`; sprawdź tooltip `Niezidentyfikowany`, identyfikację w drugiej zakładce za złoto i zachowanie efektów.
 4. Wykonaj `creategalduryte 2 weapon`. Oczekiwany jest kontrolowany błąd o zbyt małej puli efektów, nie duplikat i nie częściowy item.
 5. Zapisz grę z niezidentyfikowanym galdurytem, wczytaj zapis i sprawdź, że po identyfikacji pokazuje te same efekty.
+
+## VS-15 — przeciwnicy i łupy Katakumb, 2026-09-23
+
+Zapisano siedmiu przeciwników, 21 umiejętności, osiem składów po 2–4 wrogów oraz tabele łupów dla poziomów 1–10 i 11–20. Kostur Umarłych przywołuje produkcyjne szkielety; wariant wyprawy z bossem pozostaje wyłączony do VS-16. Sprite’y mają osobne klatki z importem Point/16 PPU/bez kompresji. Docelowe grafiki należą do VS-22.
+
+Kompilacja i 100/100 testów powiązanych systemów EditMode PASS; po konfiguracji sprite’ów 7/7 testów zawartości VS-15 PASS. Użytkownik potwierdził poprawioną prezentację w Play Mode i zlecił commit/push.

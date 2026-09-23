@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dee6cd9b98d0fa545a9ab04727ca3174, type: 3}
+  m_Name: CD_Catacombs_undead
+  m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
+  <Id>k__BackingField: enemy.catacombs.undead
+  <DisplayName>k__BackingField: Umarlak
+  <Tags>k__BackingField: 02000000
+  <VisualSprite>k__BackingField: {fileID: -6292866019085129150, guid: a77accba6ca53754ca267a7211a1136a, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: -6292866019085129150, guid: a77accba6ca53754ca267a7211a1136a, type: 3}
+  - {fileID: 8324343579358036858, guid: 85f25164dcd774a4588175ecbb6016bb, type: 3}
+  - {fileID: -1916557216387785803, guid: 5d15461e2d3fb4b43bd5f0f96be063b7, type: 3}
+  - {fileID: 4293694599071962449, guid: 049cb93b022c238409381dc026516f67, type: 3}
+  <IdleAnimationFramesPerSecond>k__BackingField: 4
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: -2386536363059612362, guid: 181501134fcd43549afe77d18062831c, type: 3}
+  - {fileID: 2338957276390684705, guid: 57ef4590b9fcc8c42a8fae62b6bc5582, type: 3}
+  - {fileID: -8503402342355442397, guid: 62422dda93f29ce4bb4574a59501c255, type: 3}
+  - {fileID: -5541200194630355007, guid: bff5d09edf455c745a2c9460fc4856c4, type: 3}
+  <RunAnimationFramesPerSecond>k__BackingField: 8
+  <HitSprite>k__BackingField: {fileID: 0}
+  <DeadSprite>k__BackingField: {fileID: 0}
+  <IsMainCharacter>k__BackingField: 0
+  <AiRole>k__BackingField: 2
+  <AiPersonality>k__BackingField: 0
+  <RecruitmentQuestId>k__BackingField: 
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+  <BaseStats>k__BackingField:
+    <MaxHealth>k__BackingField: 500
+    <MinAttack>k__BackingField: 30
+    <MaxAttack>k__BackingField: 48
+    <PhysicalDefense>k__BackingField: 13
+    <MagicalDefense>k__BackingField: 11
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
+    <Dodge>k__BackingField: 4
+    <CritChance>k__BackingField: 0.09
+    <CritDamage>k__BackingField: 1.7
+    <Speed>k__BackingField: 32
+    <WeaponAccuracy>k__BackingField: 100
+    <MaxResource>k__BackingField: 100
+    <ResourceRegeneration>k__BackingField: 15
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0.65
+    <PoisonResistance>k__BackingField: 0.6
+    <FireResistance>k__BackingField: 0.1
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0.4
+    <MoveResistance>k__BackingField: 0
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 33
+    <MinAttack>k__BackingField: 1.95
+    <MaxAttack>k__BackingField: 3.12
+    <PhysicalDefense>k__BackingField: 2.6
+    <MagicalDefense>k__BackingField: 2.2
+    <Dodge>k__BackingField: 0.03
+    <CritChance>k__BackingField: 0.000225
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 24a12bdc523e0c94f902c3fec9b0c0f3, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: 24a12bdc523e0c94f902c3fec9b0c0f3, type: 2}
+  - {fileID: 11400000, guid: 133ccd3c0c972e542937161b4064e19e, type: 2}
+  - {fileID: 11400000, guid: 06c8f16aa09be0a4dacb8270940c9421, type: 2}
+  <ExperienceReward>k__BackingField: 0
+  <GoldReward>k__BackingField: 0
+  <LootTable>k__BackingField: {fileID: 11400000, guid: ad5c19d3c9b01d847acd8bbb5ccf63a3, type: 2}

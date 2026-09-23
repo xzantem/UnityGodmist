@@ -18,6 +18,7 @@ namespace Godmist.Systems.Items
         private readonly int lootLevel;
         private readonly float dropChanceBonus;
         private readonly JewelryGenerationService jewelryGenerationService;
+        private System.Random galduryteRandom;
 
         public LootTableSystem(
             Func<float> randomValue = null,
@@ -47,6 +48,7 @@ namespace Godmist.Systems.Items
                 equipmentParts,
                 lootLevel, dropChanceBonus)
         {
+            galduryteRandom = random;
         }
 
         public List<ItemInstance> RollLoot(LootTableData lootTable)
@@ -96,8 +98,14 @@ namespace Godmist.Systems.Items
             return minAmount + Mathf.Min(randomIndex, rangeSize - 1);
         }
 
-        private ItemInstance CreateItem(ItemDefinition definition)
+        private ItemInstance CreateItem(ItemDefinition definition,
+            EquipmentQuality? fixedEquipmentQuality = null)
         {
+            if (definition is GalduryteItemDefinition galduryteDefinition)
+            {
+                return CreateGalduryte(galduryteDefinition);
+            }
+
             if (definition is JewelryItemDefinition jewelryDefinition)
             {
                 return jewelryGenerationService.Generate(jewelryDefinition, lootLevel);
@@ -121,15 +129,52 @@ namespace Godmist.Systems.Items
                 return itemInstanceFactory.Create(definition);
             }
 
-            return equipmentGenerationService.Generate(
-                equipmentDefinition,
-                equipmentParts.Where(p => p != null && (int)p.LevelBracket == Mathf.Min(45, ((lootLevel - 1) / 10) * 10 + 5)).ToList());
+            var availableParts = equipmentParts.Where(p => p != null
+                && (int)p.LevelBracket == Mathf.Min(45, ((lootLevel - 1) / 10) * 10 + 5)).ToList();
+            return fixedEquipmentQuality.HasValue
+                ? equipmentGenerationService.Generate(equipmentDefinition,
+                    availableParts, fixedEquipmentQuality.Value)
+                : equipmentGenerationService.Generate(equipmentDefinition,
+                    availableParts);
+        }
+
+        private GalduryteItemInstance CreateGalduryte(GalduryteItemDefinition definition)
+        {
+            if (lootLevel < 11 || lootLevel > 20) return null;
+            var random = galduryteRandom ??= new System.Random(
+                Mathf.FloorToInt(randomValue() * int.MaxValue));
+            var targetType = random.Next(2) == 0
+                ? GalduryteTargetType.Weapon : GalduryteTargetType.Armor;
+            var colors = new[] { GaldurytePowderColor.Red,
+                GaldurytePowderColor.Blue, GaldurytePowderColor.Purple };
+            if (!GalduryteRuntimeRules.TryRollRarity(random, out var rarity))
+                return null;
+            var color = colors[random.Next(colors.Length)];
+            const int itemLevel = 11;
+            if (!GalduryteRuntimeRules.TryRollEffects(targetType, color,
+                    rarity, itemLevel, random, out var effects, out _))
+                return null;
+            var item = itemInstanceFactory.Create(definition) as GalduryteItemInstance;
+            if (item == null) return null;
+            item.TargetType = targetType;
+            item.Tier = GalduryteTier.Limestone;
+            item.ItemLevel = itemLevel;
+            item.CurrentRarity = rarity;
+            item.GuaranteedPowderColor = color;
+            item.StoneDefinitionId = "item.runic.galduryte_stone.limestone";
+            item.PowderDefinitionId = "item.runic.galduryte_powder." + color.ToString().ToLowerInvariant();
+            item.StoneDisplayName = GalduryteRuntimeRules.GetStoneName(item.Tier);
+            item.CraftedBaseValue = Mathf.Max(1, definition.BaseValue);
+            item.Effects = effects;
+            item.IsIdentified = false;
+            return item;
         }
 
         private List<ItemInstance> RollLootBagContents(
             LootBagItemDefinition definition)
         {
             var contents = new List<ItemInstance>();
+            var selectedByGroup = new Dictionary<string, HashSet<string>>();
             var bracket = LootLevelBracketResolver.Resolve(lootLevel);
 
             if (!definition.TryGetBracket(bracket, out var bracketData)
@@ -162,6 +207,16 @@ namespace Godmist.Systems.Items
                     }
                 }
 
+                if (!string.IsNullOrWhiteSpace(pool.DistinctSelectionGroup))
+                {
+                    if (!selectedByGroup.TryGetValue(pool.DistinctSelectionGroup, out var selected))
+                    {
+                        selected = new HashSet<string>(StringComparer.Ordinal);
+                        selectedByGroup.Add(pool.DistinctSelectionGroup, selected);
+                    }
+                    entries.RemoveAll(entry => selected.Contains(entry.ItemDefinition.Id));
+                }
+
                 if (entries.Count == 0) continue;
 
                 var selectedIndex = Mathf.FloorToInt(
@@ -169,13 +224,17 @@ namespace Godmist.Systems.Items
                 selectedIndex = Mathf.Min(selectedIndex, entries.Count - 1);
 
                 var selectedEntry = entries[selectedIndex];
+                if (!string.IsNullOrWhiteSpace(pool.DistinctSelectionGroup))
+                    selectedByGroup[pool.DistinctSelectionGroup].Add(selectedEntry.ItemDefinition.Id);
                 var minAmount = Mathf.Max(0, selectedEntry.Amount.Min);
                 var maxAmount = Mathf.Max(minAmount, selectedEntry.Amount.Max);
                 var amount = RollAmount(minAmount, maxAmount);
 
                 for (var index = 0; index < amount; index++)
                 {
-                    var item = CreateItem(selectedEntry.ItemDefinition);
+                    var item = CreateItem(selectedEntry.ItemDefinition,
+                        selectedEntry.HasFixedEquipmentQuality
+                            ? selectedEntry.EquipmentQuality : null);
                     if (item != null) contents.Add(item);
                 }
             }

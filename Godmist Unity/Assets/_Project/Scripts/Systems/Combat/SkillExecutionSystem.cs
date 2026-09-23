@@ -1153,6 +1153,18 @@ namespace Godmist.Systems.Combat
                 case EffectConditionType.TargetHasActiveShield:
                     return target?.Character?.ShieldPool?.TotalShield > 0;
 
+                case EffectConditionType.AnyOpponentHasStatus:
+                    return session?.Units != null && session.Units.Any(unit =>
+                        unit != null && caster != null
+                        && unit.IsPlayerSide != caster.IsPlayerSide
+                        && HasStatus(unit, condition.StatusId));
+
+                case EffectConditionType.NoOpponentHasStatus:
+                    return session?.Units != null && !session.Units.Any(unit =>
+                        unit != null && caster != null
+                        && unit.IsPlayerSide != caster.IsPlayerSide
+                        && HasStatus(unit, condition.StatusId));
+
                 default:
                     return false;
             }
@@ -1396,6 +1408,10 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
+
+            if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId)
+                && !StatusEffectSystem.HasStatus(caster, skill.RequiredCasterStatusId))
+                return false;
 
             if (skill.SkillId == "skill.scout.shadow" && (!teleportDestination.HasValue
                 || !session.Grid.CanMoveBetween(caster.Position,teleportDestination.Value))) return false;

@@ -310,6 +310,9 @@ namespace Godmist.Systems.Combat
         {
             if (unit?.Character == null || skill == null) return false;
 
+            if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId)
+                && !StatusEffectSystem.HasStatus(unit, skill.RequiredCasterStatusId)) return false;
+
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(unit, skill);
 
             if (unit.CurrentActionPoints < actionCost || !WarriorCombatSystem.CanActivate(unit,skill)) return false;
