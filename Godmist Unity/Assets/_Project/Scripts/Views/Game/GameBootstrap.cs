@@ -506,7 +506,7 @@ namespace Godmist.Views.Game
             var definition=configuredDefinition!=null && configuredDefinition.Id==offer.DefinitionId ? configuredDefinition : null;
             if(definition==null && (contentCatalog==null || !contentCatalog.TryGetDungeon(offer.DefinitionId,out definition))) return false;
             return TryEnterDungeon(definition,offer.Seed,offeredLevel: Godmist.Systems.Dungeons.DungeonOfferSystem.OfferLevel(
-                Godmist.Systems.Dungeons.DungeonOfferSystem.PartyLevel(Session),offer.LevelOffset));
+                Godmist.Systems.Dungeons.DungeonOfferSystem.PartyLevel(Session),offer));
         }
 
         public bool TryRestartAfterDefeat()
@@ -565,7 +565,8 @@ namespace Godmist.Views.Game
             DungeonExited?.Invoke(dungeon);
 
             Session.TryClearActiveDungeon();
-            Session.DungeonOffers.CompleteExpedition();
+            Godmist.Systems.Dungeons.DungeonOfferSystem.CompleteExpedition(
+                Session, dungeon, contentCatalog?.DungeonDefinitions);
             RequestAutosave("Wyjście z lochu");
             return true;
         }

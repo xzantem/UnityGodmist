@@ -184,10 +184,7 @@ namespace Godmist.Views.Dungeons
             }
             if (!game.TryRegisterDungeonCombat(session)) return RejectStart();
             session.Contact = new DungeonContactState((enemy, player) =>
-                bindings.TryGetValue(enemy, out var enemyView) && visibility.CanObserveCombat(floor,
-                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, enemy.Position),
-                    enemyView.VisionRange,
-                    DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, player.Position)));
+                CanEnemySeeCombatTarget(session, enemy, player));
             session.CanReceiveReinforcements = DungeonCombatArenaSystem.CanReceiveReinforcements(game, session);
             RefreshExits(session);
             // Start execution only after every participant has a valid, unique view.
@@ -211,6 +208,27 @@ namespace Godmist.Views.Dungeons
             RefreshFocus();
             QueueRoomAlert(observer, spotted);
             return true;
+        }
+
+        private bool CanEnemySeeCombatTarget(CombatSession session, BattleUnit enemy, BattleUnit player)
+        {
+            var visionRange = ResolveCombatVisionRange(session, enemy);
+            return visionRange.HasValue && visibility.CanObserveCombat(floor,
+                DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, enemy.Position),
+                visionRange.Value,
+                DungeonBattleGridFactory.ToDungeonTraversalPosition(session.DungeonContext, player.Position));
+        }
+
+        private float? ResolveCombatVisionRange(CombatSession session, BattleUnit enemy)
+        {
+            if (bindings.TryGetValue(enemy, out var enemyView)) return enemyView.VisionRange;
+
+            // Summons are created during combat and have no borrowed exploration view.
+            // Give them the same default range as encounter enemies while preserving
+            // the existing requirement for ordinary enemies to have a bound view.
+            return session?.Summons?.Any(summon => summon?.Unit == enemy) == true
+                ? 10f
+                : null;
         }
 
         private void ShowPlacementNotice(string message)

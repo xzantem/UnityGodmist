@@ -270,6 +270,21 @@ namespace Godmist.Views.Exploration
         public float MovementRadius => movementCollider is CircleCollider2D circle
             ? circle.radius * Mathf.Max(Mathf.Abs(circle.transform.lossyScale.x), Mathf.Abs(circle.transform.lossyScale.y)) : .2f;
 
+        public bool CanStandAt(Vector2 position)
+        {
+            var offset = movementCollider is CircleCollider2D circle
+                ? (Vector2)circle.transform.TransformPoint(circle.offset) - Position
+                : Vector2.zero;
+            var layerMask = Physics2D.GetLayerCollisionMask(gameObject.layer);
+            foreach (var hit in Physics2D.OverlapCircleAll(
+                         position + offset, MovementRadius, layerMask))
+            {
+                if (!hit.isTrigger && hit.GetComponentInParent<ExplorationCharacterView>() == null)
+                    return false;
+            }
+            return true;
+        }
+
         public bool HasClearMovementSegment(Vector2 from, Vector2 to)
         {
             var delta = to - from;

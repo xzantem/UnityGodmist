@@ -371,21 +371,50 @@ namespace Godmist.Views.Exploration
             if (leaderView == null) return;
 
             leaderView.SetPosition(leaderPosition);
+            Physics2D.SyncTransforms();
 
             var previousView = leaderView;
+            var placed = new List<Vector2> { leaderPosition };
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
                 if (characterId == gameSession.PlayerParty.ActiveLeaderId) continue;
                 if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
 
-                var followerPosition = previousView.Position + Vector2.left * followerDistance;
+                var followerPosition = GameBootstrap.Instance?.IsDungeonScene == true
+                    ? previousView.Position + Vector2.left * followerDistance
+                    : FindOpenCityFormationPosition(followerView, previousView.Position, placed);
 
                 followerView.SetPosition(followerPosition);
+                placed.Add(followerPosition);
                 previousView = followerView;
             }
 
             Physics2D.SyncTransforms();
+        }
+
+        private Vector2 FindOpenCityFormationPosition(
+            ExplorationCharacterView follower, Vector2 anchor, IReadOnlyList<Vector2> placed)
+        {
+            var directions = new[]
+            {
+                Vector2.left, Vector2.down, Vector2.up, Vector2.right,
+                new Vector2(-1f, -1f).normalized, new Vector2(-1f, 1f).normalized,
+                new Vector2(1f, -1f).normalized, new Vector2(1f, 1f).normalized
+            };
+            for (var ring = 1; ring <= 4; ring++)
+            {
+                foreach (var direction in directions)
+                {
+                    var candidate = anchor + direction * followerDistance * ring;
+                    if (placed.Any(position => Vector2.Distance(position, candidate) < followerDistance * .7f)
+                        || !follower.CanStandAt(candidate)
+                        || !follower.HasClearMovementSegment(anchor, candidate)) continue;
+                    return candidate;
+                }
+            }
+
+            return anchor;
         }
 
         public IReadOnlyCollection<ExplorationCharacterView> ActiveMemberViews =>

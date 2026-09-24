@@ -17,9 +17,9 @@ MonoBehaviour:
     <Bracket>k__BackingField: 0
     <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: e4a919d79e912784eb382df47499e346, type: 2}
     <ChestLootTable>k__BackingField: {fileID: 11400000, guid: a60787b84649920449f735937582b41a, type: 2}
-    <BossLootTable>k__BackingField: {fileID: 11400000, guid: b76e5e5e1dccf1d4da5f0352bbbd5789, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 1b2870c673de0354eb5939198eef3000, type: 2}
   - <Theme>k__BackingField: 0
     <Bracket>k__BackingField: 1
     <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: b36a91387e780bc438dbca88cee6691c, type: 2}
     <ChestLootTable>k__BackingField: {fileID: 11400000, guid: e5765b67518b1df4a9a606bdbb52784e, type: 2}
-    <BossLootTable>k__BackingField: {fileID: 0}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 543009a24ba52c948a8e69af604b6afd, type: 2}

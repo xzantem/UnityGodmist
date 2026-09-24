@@ -29,6 +29,7 @@ namespace Godmist.Views.UI.Workspace
     public sealed class UIWorkspaceTooltipView : MonoBehaviour
     {
         public static UIWorkspaceTooltipView ActiveInstance { get; private set; }
+        private static readonly List<UIWorkspaceTooltipView> enabledInstances = new();
 
         [SerializeField] private RectTransform tooltipRect;
         [SerializeField] private Image icon;
@@ -98,7 +99,9 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
-            ActiveInstance = this;
+            // Windows are created later under another canvas child. Keep the
+            // tooltip layer above them in every scene, including DungeonSandbox.
+            transform.parent?.SetAsLastSibling();
             defaultTooltipWidth = tooltipRect != null ? tooltipRect.rect.width : 0f;
             defaultTitleAlignment = titleText != null
                 ? titleText.alignment
@@ -112,6 +115,39 @@ namespace Godmist.Views.UI.Workspace
             EnsureNpcLoyaltyProgression();
             CacheDefaultAccentColor();
             Hide();
+        }
+
+        private void OnEnable()
+        {
+            if (!enabledInstances.Contains(this)) enabledInstances.Add(this);
+            if (!isNested) ActiveInstance = this;
+        }
+
+        private void OnDisable()
+        {
+            Hide();
+            enabledInstances.Remove(this);
+            if (ActiveInstance == this) RestoreActiveInstance();
+        }
+
+        private static void RestoreActiveInstance()
+        {
+            ActiveInstance = null;
+            for (var index = enabledInstances.Count - 1; index >= 0; index--)
+            {
+                var candidate = enabledInstances[index];
+                if (candidate == null)
+                {
+                    enabledInstances.RemoveAt(index);
+                    continue;
+                }
+
+                if (candidate.isActiveAndEnabled && !candidate.isNested)
+                {
+                    ActiveInstance = candidate;
+                    return;
+                }
+            }
         }
 
         private static void ConfigureTextLayout(TextMeshProUGUI text)
@@ -134,7 +170,8 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDestroy()
         {
-            if (ActiveInstance == this) ActiveInstance = null;
+            enabledInstances.Remove(this);
+            if (ActiveInstance == this) RestoreActiveInstance();
         }
 
         private void Update()
@@ -456,6 +493,7 @@ namespace Godmist.Views.UI.Workspace
             shownAt = Time.unscaledTime;
             lockedAt = -1f;
             hoveredLinkId = null;
+            transform.parent?.SetAsLastSibling();
             transform.SetAsLastSibling();
             EnsureCanvasGroup().alpha = 1f;
             ApplyPointerInteraction();

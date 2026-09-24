@@ -63,6 +63,7 @@ namespace Godmist.Data.Effects
         [Header("Summon")]
         [SerializeField] private CharacterDefinition summonedCharacterDefinition;
         [SerializeField] private CharacterClassData summonedClassData;
+        [SerializeField] private List<CharacterDefinition> summonPool = new();
         [SerializeField] private SkillRangeData summonPlacementRange =
             new SkillRangeData(RangeShape.Square, 1, 2);
         [SerializeField, Min(1)] private int summonDurationTurns = 1;
@@ -170,6 +171,7 @@ namespace Godmist.Data.Effects
         public CharacterDefinition SummonedCharacterDefinition => summonedCharacterDefinition;
         public CharacterClassData SummonedClassData => summonedClassData;
         public SkillRangeData SummonPlacementRange => summonPlacementRange;
+        public IReadOnlyList<CharacterDefinition> SummonPool => summonPool;
         public int SummonDurationTurns => Mathf.Max(1, summonDurationTurns);
         public int MaxActiveSummons => Mathf.Max(1, maxActiveSummons);
         public float SummonPercentMaxHealth =>

@@ -20,7 +20,8 @@ namespace Godmist.Runtime.Combat
         AuraApplied,
         DamageRedirected,
         ResourceRegenerationBlocked,
-        TurnSkipped
+        TurnSkipped,
+        SkillUsed
     }
 
     public readonly struct CombatFeedbackEvent

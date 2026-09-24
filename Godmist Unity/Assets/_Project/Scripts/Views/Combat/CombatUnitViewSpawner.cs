@@ -288,6 +288,14 @@ namespace Godmist.Views.Combat
 
                 var view = Instantiate(battleUnitPrefab, unitsRoot);
                 view.Bind(unit);
+                if (dungeonSession != null)
+                {
+                    // Existing combatants borrow exploration views (order 10).
+                    // Fresh summons use PF_BattleUnit (order 0), which can be
+                    // covered by the dungeon floor tilemap at the same order.
+                    foreach (var renderer in view.GetComponentsInChildren<SpriteRenderer>(true))
+                        renderer.sortingOrder = Mathf.Max(renderer.sortingOrder, 10);
+                }
                 if (view.GetComponent<CombatUnitVisualStateView>() == null)
                     view.gameObject.AddComponent<CombatUnitVisualStateView>();
                 view.SetWorldPosition(UnitWorldPosition(unit, unit.Position), true);

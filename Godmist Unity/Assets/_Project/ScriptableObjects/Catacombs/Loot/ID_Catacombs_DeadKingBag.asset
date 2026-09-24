@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Catacombs_DeadKingBag
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.catacombs.dead_king
+  <DisplayName>k__BackingField: "Torba Ducha Umar\u0142ego Kr\xF3la"
+  <Description>k__BackingField: "\u0141upy wyniesione z komnaty Umar\u0142ego Kr\xF3la."
+  <Icon>k__BackingField: {fileID: 0}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField: []
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.5
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: a949194f00ce2b948888f84e3397bcb3, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.6
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 6c3a52b4fd3ade94c836ef5a97d86181, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2cb9d84ffaee40b44ab318adff4484ef, type: 2}
+        <Amount>k__BackingField:
+          Min: 2
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 5
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField:
+    - {fileID: 11400000, guid: 31c5b2d9e7a441608f3b6c2d9a5e7f10, type: 2}
+    - {fileID: 11400000, guid: 42d6c3e8f8b55271904c7d3eab6f8011, type: 2}
+    - {fileID: 11400000, guid: 53e7d4f9a9c66382a15d8e4fbc709122, type: 2}
+    - {fileID: 11400000, guid: 64f8e5a0bad77493b26e9f50cd810233, type: 2}

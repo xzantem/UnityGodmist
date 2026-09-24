@@ -348,8 +348,11 @@ namespace Godmist.Systems.Combat
                     target, CombatFeedbackType.ShieldLoss, shieldDamage));
             }
             if(WarriorCombatSystem.DeathProtected(target))remainingDamage=Mathf.Min(remainingDamage,Mathf.Max(0,target.Character.CurrentHealth-1));
-            var healthDamage = Mathf.Min(target.Character.CurrentHealth, remainingDamage);
+            var healthBeforeDamage = target.Character.CurrentHealth;
+            var healthDamage = Mathf.Min(healthBeforeDamage, remainingDamage);
             target.Character.CurrentHealth -= healthDamage;
+            if (healthDamage > 0 && !target.IsPlayerSide)
+                session.EnemyHealthChanged?.Invoke(target, healthBeforeDamage);
             WarriorCombatSystem.DamageTaken(target,healthDamage);
             MageCombatSystem.DamageTaken(source,target,healthDamage);
             PaladinCombatSystem.RecordDamage(target,healthDamage);

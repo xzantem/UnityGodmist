@@ -68,17 +68,22 @@ namespace Godmist.Views.UI.Workspace
                 offerButtons[i].gameObject.SetActive(active==null && exists);
                 if(!exists) continue;
                 var offer=board.Offers[i];var definition=Resolve(offer.DefinitionId);
-                offerLabels[i].text=$"{(definition!=null ? definition.DisplayName : "Niedostepny loch")}\nPoziom {DungeonOfferSystem.OfferLevel(average,offer.LevelOffset)}";
+                offerLabels[i].text=$"{(definition!=null ? definition.DisplayName : "Niedostepny loch")}\nPoziom {DungeonOfferSystem.OfferLevel(average,offer)}";
                 offerBorders[i].color=i==board.SelectedIndex ? selectedColor : normalColor;
                 offerButtons[i].interactable=active==null && definition!=null && !busy;
             }
             var selected=board.Offers.Count>board.SelectedIndex ? board.Offers[board.SelectedIndex] : null;
             var chosen=active!=null ? active.Definition ?? Resolve(active.DungeonId) : selected==null ? null : Resolve(selected.DefinitionId);
-            var level=active!=null ? active.DungeonLevel : selected==null ? 0 : DungeonOfferSystem.OfferLevel(average,selected.LevelOffset);
+            var level=active!=null ? active.DungeonLevel : selected==null ? 0 : DungeonOfferSystem.OfferLevel(average,selected);
             var difference=level-average;
             var relativeLevel=difference>0 ? $"+{difference}" : difference.ToString();
             details.text=chosen==null ? "Brak dostepnych wypraw." : $"{chosen.DisplayName}\n\nRegion: {ThemeName(chosen.Theme)}\nPoziom {level} · {relativeLevel} względem drużyny"+
                 (active!=null ? "\n\nWyprawa w toku. Mozesz ja wznowic lub porzucic. Porzucenie usuwa postep w tym lochu." : "");
+            if(chosen!=null && chosen.Theme!=Godmist.Core.Enums.DungeonTheme.Story)
+            {
+                var danger=board.GetDanger(chosen.Theme);
+                details.text+=$"\nZagrożenie: {danger}% ({DungeonOfferSystem.DangerBand(danger)})";
+            }
             if(!string.IsNullOrEmpty(errorMessage)) details.text+="\n\n"+errorMessage;
             departLabel.text=active==null ? "Wyrusz" : "Wznow";
             depart.interactable=!busy && chosen!=null && session.PlayerParty.ActiveMemberIds.Count>0;

@@ -113,6 +113,7 @@ namespace Godmist.Views.Combat
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
         private SummonedObjectSystem summonedObjectSystem;
+        private CatacombsBossSystem catacombsBossSystem;
         private SummonSystem summonSystem;
         private CharacterStatPipelineSystem statPipeline;
         private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
@@ -217,6 +218,12 @@ namespace Godmist.Views.Combat
                     statusEffectSystem,
                     modifyStatSystem,
                     modifyVarSystem));
+            catacombsBossSystem = new CatacombsBossSystem(
+                summonedObjectSystem, damageSystem, AddBattleLog, feedbackBus);
+            Session.EnemyHealthChanged = (enemy, previousHealth) =>
+                catacombsBossSystem.OnEnemyHealthChanged(Session, enemy, previousHealth);
+            Session.BossRuneEnteredCell = unit =>
+                catacombsBossSystem.OnUnitEnteredCell(Session, unit);
             summonSystem = new SummonSystem(AddBattleLog);
             skillExecutionSystem = new SkillExecutionSystem(
                 AddBattleLog,
@@ -253,7 +260,7 @@ namespace Godmist.Views.Combat
                 evaluateOutcome: session => outcomeSystem.EvaluateCombatOutcome(session),
                 skillExecutionSystem: skillExecutionSystem, targetingService: targetingService,
                 movementSystem: movementSystem, lineOfSightService: lineOfSightService,
-                interactionSystem: interactionSystem);
+                interactionSystem: interactionSystem, catacombsBossSystem: catacombsBossSystem);
             if (!Session.IsSeamless) battleLog?.ClearLog();
             AddBattleLog("Walka rozpoczęta.");
 
@@ -279,7 +286,7 @@ namespace Godmist.Views.Combat
         public void Dispose(bool preserveCombatState)
         {
             if (!preserveCombatState) passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
-            if (Session != null) { Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; }
+            if (Session != null) { Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; Session.EnemyHealthChanged = null; Session.BossRuneEnteredCell = null; }
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
@@ -614,6 +621,7 @@ namespace Godmist.Views.Combat
 
             if (removedUnit.Character?.LifeState == CharacterLifeState.Dead)
             {
+                catacombsBossSystem?.OnBossDied(Session, removedUnit);
                 summonSystem?.RemoveSummonsCreatedBy(
                     Session,
                     removedUnit.Character.CharacterId);
@@ -776,7 +784,8 @@ namespace Godmist.Views.Combat
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && Session.ActiveUnit == unit
                 && unit?.Character?.LifeState == CharacterLifeState.Alive
-                && unit.CurrentActionPoints > 0
+                && (unit.CurrentActionPoints > 0
+                    || catacombsBossSystem?.CanCastVengeance(Session, unit) == true)
                 && turnState != null)
             {
                 yield return WaitForAiPresentation(aiDecisionDelay);
@@ -887,6 +896,7 @@ namespace Godmist.Views.Combat
             {
                 return;
             }
+            catacombsBossSystem?.OnBossDied(Session, unit);
 
             summonSystem?.RemoveSummonsCreatedBy(
                 Session,
@@ -909,9 +919,10 @@ namespace Godmist.Views.Combat
                 $"{summonedObject.Definition?.DisplayName ?? summonedObject.ObjectId} " +
                 "wykonuje automatyczna ture.");
 
-            summonedObjectSystem.ExecuteTurnEffects(
-                Session,
-                summonedObject);
+            if (CatacombsBossSystem.IsRune(summonedObject))
+                catacombsBossSystem.ExecuteRuneTurn(Session, summonedObject);
+            else
+                summonedObjectSystem.ExecuteTurnEffects(Session, summonedObject);
 
             turnSystem.EndActiveTurn(Session);
         }

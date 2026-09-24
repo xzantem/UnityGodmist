@@ -13,6 +13,9 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatTurnPortraitView turnOrderEntryPrefab;
         [SerializeField, Min(1)] private int displayedTurnCount = 8;
         [SerializeField] private CombatActiveUnitView activeUnitView;
+        [SerializeField] private GameObject skillCastBanner;
+        [SerializeField] private TMPro.TextMeshProUGUI skillCastText;
+        [SerializeField, Min(0.1f)] private float skillCastDuration = 1.6f;
 
         [SerializeField] private CombatMovementInputController movement;
         [SerializeField] private CombatTargetSelectionController targeting;
@@ -22,6 +25,8 @@ namespace Godmist.Views.UI
         [SerializeField] private TMPro.TextMeshProUGUI targetName, targetHealth;
         private CombatTurnPortraitView timelineSource;
         private BattleUnit timelineUnit;
+        private CombatFeedbackBus skillFeedbackBus;
+        private float skillCastExpiresAt;
         private BattleUnit Visible(BattleUnit unit) => unit?.IsPlayerSide == true || sandboxBootstrap == null || sandboxBootstrap.IsUnitVisible(unit) ? unit : null;
         public BattleUnit HoveredUnit => Visible(timelineUnit ?? targeting?.HoveredUnit ?? inspect?.HoveredUnit);
         public BattleUnit HighlightedUnit => HoveredUnit ?? Visible(inspect?.InspectedUnit);
@@ -30,14 +35,27 @@ namespace Godmist.Views.UI
             if(unit == null && timelineSource != source)return;
             timelineSource=unit==null?null:source;timelineUnit=unit;
         }
-        private void OnDisable(){timelineSource=null;timelineUnit=null;if(targetPanel!=null)targetPanel.SetActive(false);}
+        private void OnDisable()
+        {
+            BindSkillFeedback(null);
+            HideSkillCast();
+            timelineSource = null;
+            timelineUnit = null;
+            if (targetPanel != null) targetPanel.SetActive(false);
+        }
         private readonly List<CombatTurnPortraitView> turnEntries = new();
 
         private void LateUpdate()
         {
             var session = sandboxBootstrap?.Session;
+            BindSkillFeedback(session == null ? null
+                : sandboxBootstrap.GetDriver(session)?.FeedbackBus);
+            if (skillCastBanner != null && skillCastBanner.activeSelf
+                && Time.unscaledTime >= skillCastExpiresAt)
+                HideSkillCast();
             if (session == null)
             {
+                HideSkillCast();
                 SetVisible(false);
                 return;
             }
@@ -53,6 +71,37 @@ namespace Godmist.Views.UI
             var target=HoveredUnit;
             if(targetPanel!=null)targetPanel.SetActive(target?.Character!=null && session.Units.Contains(target));
             if(target?.Character!=null){if(targetName!=null)targetName.text=target.Character.Definition?.DisplayName??target.Character.CharacterId;if(targetHealth!=null)targetHealth.text=$"{target.Character.CurrentHealth}/{target.Character.Stats?.MaxHealth.GetValue():0} HP";}
+        }
+
+        private void BindSkillFeedback(CombatFeedbackBus nextBus)
+        {
+            if (skillFeedbackBus == nextBus) return;
+            if (skillFeedbackBus != null)
+                skillFeedbackBus.Published -= HandleSkillFeedback;
+            skillFeedbackBus = nextBus;
+            if (skillFeedbackBus != null)
+                skillFeedbackBus.Published += HandleSkillFeedback;
+            HideSkillCast();
+        }
+
+        private void HandleSkillFeedback(CombatFeedbackEvent feedback)
+        {
+            if (feedback.Type != CombatFeedbackType.SkillUsed
+                || skillCastBanner == null || skillCastText == null
+                || feedback.Target?.Character == null
+                || sandboxBootstrap?.Session?.Units.Contains(feedback.Target) != true
+                || !sandboxBootstrap.IsUnitVisible(feedback.Target)) return;
+
+            var casterName = feedback.Target.Character.Definition?.DisplayName
+                ?? feedback.Target.Character.CharacterId;
+            skillCastText.text = $"{casterName}:\n{feedback.EffectName}";
+            skillCastExpiresAt = Time.unscaledTime + skillCastDuration;
+            skillCastBanner.SetActive(true);
+        }
+
+        private void HideSkillCast()
+        {
+            if (skillCastBanner != null) skillCastBanner.SetActive(false);
         }
 
         private void SetVisible(bool visible)

@@ -19,5 +19,8 @@ namespace Godmist.Data.Items
 
         [field: SerializeField]
         public EquipmentQuality EquipmentQuality { get; private set; } = EquipmentQuality.Normal;
+
+        [field: SerializeField]
+        public RarityTier MinimumGalduryteRarity { get; private set; } = RarityTier.Common;
     }
 }

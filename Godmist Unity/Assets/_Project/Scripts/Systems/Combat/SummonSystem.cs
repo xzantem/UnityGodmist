@@ -35,8 +35,12 @@ namespace Godmist.Systems.Combat
             RemoveOldestOverLimit(session, caster, skill, effectIndex,
                 effect.MaxActiveSummons);
 
-            var character = characterFactory.Create(effect.SummonedCharacterDefinition,
-                effect.SummonedClassData);
+            var candidates = effect.SummonPool?.Where(item => item != null).ToArray();
+            var definition = candidates != null && candidates.Length > 0
+                ? candidates[UnityEngine.Random.Range(0, candidates.Length)]
+                : effect.SummonedCharacterDefinition;
+            var character = characterFactory.Create(definition,
+                effect.SummonedClassData, caster.Character.Level);
             character.CharacterId = $"summon.{caster.Character.CharacterId}.{skill.SkillId}.{effectIndex}.{++nextCreationOrder}";
             character.CurrentHealth = Mathf.Max(1, Mathf.CeilToInt(
                 character.Stats.MaxHealth.GetValue() * effect.SummonPercentMaxHealth));

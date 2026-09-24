@@ -23,6 +23,8 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
         [field: Tooltip("Only authored expedition definitions appear on the city offer board. Test and demo dungeons remain loadable by ID.")]
         [field: SerializeField] public bool IsAvailableAsOffer { get; private set; }
+        [field: Tooltip("Optional fixed levels for offers of this expedition. Empty uses the party level.")]
+        [field: SerializeField] public List<int> FixedOfferLevels { get; private set; } = new();
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
 
         [field: Header("Rewards")]

@@ -15,7 +15,6 @@ namespace Godmist.Views.Dungeons
         [Header("Visible Enemies")]
         [SerializeField] private ExplorationCharacterView enemyViewPrefab;
         [SerializeField] private Transform enemyViewsRoot;
-        [SerializeField] private Color enemyTint = new(0.85f, 0.35f, 0.35f, 1f);
 
         [SerializeField] private DungeonFloorMapView floorMapView;
 
@@ -149,7 +148,7 @@ namespace Godmist.Views.Dungeons
                 enemyView.SetEnemyInstanceId(enemyData.InstanceId);
                 enemyView.ConfigureEnemyVision(enemyData);
                 enemyView.SetIsActiveLeader(false);
-                enemyView.SetTint(enemyTint);
+                enemyView.SetTint(Color.white);
 
                 var cell = encounterInstance.TryGetEnemyExplorationPosition(
                     enemyData.InstanceId,

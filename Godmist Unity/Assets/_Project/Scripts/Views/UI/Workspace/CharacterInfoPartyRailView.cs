@@ -5,6 +5,8 @@ using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
 using Godmist.Views.Exploration;
+using Godmist.Views.UI;
+using Godmist.Core.Enums;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -50,6 +52,10 @@ namespace Godmist.Views.UI.Workspace
                 dirty = true;
             }
             if (dragged != null && Input.GetKeyDown(KeyCode.Escape)) CancelDrag();
+            if (session != null && session.CurrentMode == GameModeState.Exploration
+                && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput()
+                && Input.GetKeyDown(KeyCode.I))
+                ToggleActiveCharacterInfo();
             if (dirty && dragged == null) Rebuild();
             foreach (var portrait in portraits)
             {
@@ -202,6 +208,22 @@ namespace Godmist.Views.UI.Workspace
             var view = Instantiate(characterInfoWindowPrefab, manager.WorkspaceRoot);
             windows[character.CharacterId] = view; view.Initialize(session, character.CharacterId);
             manager.CascadeAndFocus(view.GetComponent<UIWorkspaceWindow>(), previousWindow);
+        }
+        private void ToggleActiveCharacterInfo()
+        {
+            var leaderId = session?.PlayerParty.ActiveLeaderId;
+            if (string.IsNullOrEmpty(leaderId)
+                || !session.CharactersById.TryGetValue(leaderId, out var character)
+                || session.IsCharacterInCombat(leaderId)) return;
+
+            if (windows.TryGetValue(leaderId, out var existing)
+                && existing != null && existing.gameObject.activeInHierarchy)
+            {
+                existing.GetComponent<UIWorkspaceWindow>()?.Close();
+                return;
+            }
+
+            OpenCharacterInfo(character);
         }
     }
 }

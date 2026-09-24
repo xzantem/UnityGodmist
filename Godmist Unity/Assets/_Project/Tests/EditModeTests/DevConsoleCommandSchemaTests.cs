@@ -20,6 +20,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(help, Does.Contain("removeitem <characterId> <instanceId>"));
             Assert.That(help, Does.Contain("clearinventory [characterId]"));
             Assert.That(help, Does.Contain("setlevel <characterId> <level>"));
+            Assert.That(help, Does.Contain("setdanger <theme> <0-100>"));
             Assert.That(help, Does.Contain("setloyalty <npcId> <level>"));
             Assert.That(help, Does.Contain("spawnobject <objectId> <x> <y> [instanceId]"));
             Assert.That(help, Does.Contain("help [command]"));

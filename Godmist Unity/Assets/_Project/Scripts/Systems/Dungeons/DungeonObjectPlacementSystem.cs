@@ -791,7 +791,7 @@ namespace Godmist.Systems.Dungeons
         {
             if (definition is ChestDungeonObjectDefinition chest)
             {
-                var items = lootTableSystem.RollLoot(
+                var items = lootTableSystem.RollChestLoot(
                     themedChestLootTable ?? chest.LootTable);
 
                 return new ChestDungeonObjectInstance(

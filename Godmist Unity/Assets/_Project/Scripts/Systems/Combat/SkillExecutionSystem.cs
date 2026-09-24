@@ -275,6 +275,9 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{caster.Character.Definition.DisplayName} używa {skill.DisplayName}.");
+            if (!isPassiveDuplicate)
+                feedbackBus?.Publish(new CombatFeedbackEvent(caster,
+                    CombatFeedbackType.SkillUsed, effectName: skill.DisplayName));
 
             if(skill.SkillId=="skill.scout.tonic")
                 session.ScheduledEffects.RemoveAll(e=>e.CasterCharacterId==caster.Character.CharacterId && e.Skill.SkillId==skill.SkillId);

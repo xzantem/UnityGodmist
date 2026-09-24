@@ -104,6 +104,7 @@ namespace Godmist.Views.UI
             if (unitViewSpawner != null && !unitViewSpawner.IsUnitVisible(feedbackEvent.Target)) return false;
             return feedbackEvent.Type switch
             {
+                CombatFeedbackType.SkillUsed => false,
                 CombatFeedbackType.ResourceGain or CombatFeedbackType.ResourceSpend
                     => showResourceFloatingText,
                 CombatFeedbackType.ActionPointSpend => showActionPointFloatingText,

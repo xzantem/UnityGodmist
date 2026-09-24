@@ -76,6 +76,23 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-16] Przygotować bossa Katakumb` - `Combat`, `Content / Data`, `World / Dungeon / Exploration` - `DONE`
+  - Duch Umarłego Króla, powtarzalny w wariantach poziomu 10 i 20; specjalny unikat w zakresie. Boss występuje w wybranych wyprawach, nie w każdej. Nowa wyprawa pozwala ponownie zdobywać nagrody; wczytanie tej samej ukończonej walki nie może ich dublować.
+  - Arena, zatwierdzony zestaw umiejętności/zachowań, statystyki, nagrody i poprawne zakończenie wyprawy. Sprawdzić porażkę, wygraną, loot i brak ponownego przyznawania nagród po wczytaniu.
+  - 2026-09-23: boss, trzy umiejętności, runy z własnymi turami AV, warianty ofert L10/L20, łup i bossowy materiał są skonfigurowane. Pokój finałowy ma nazwę „Komnata Umarłego Króla”. EditMode 96/96 testów walki/ofert/łupu oraz 27/27 testów zakończenia walki/nagród/generatora PASS; końcowy test generacji wyprawy i rozmieszczenia bossa 5/5 PASS. Play Mode smoke, w tym zapis/wczytanie i brak podwójnych nagród, pozostaje do wykonania. Bez commita/pusha.
+  - 2026-09-24: po smoke poprawiono rozmieszczenie drużyny przy powrocie do miasta, odrzucanie pustych toreb bossa i usuwanie takich toreb ze starszego stanu, czerwony tint przeciwników, warstwę tooltipów w lochu oraz skrót I dla okna aktywnej postaci. Kompilacja Views/Systems/EditModeTests PASS; 21/21 testów bossa i lootbagów PASS w izolowanej kopii Unity. Ponowny smoke Play Mode pozostaje do wykonania. Bez commita/pusha.
+  - 2026-09-24: ofertę bossa oparto na Danger motywu (0–100%) zamiast okna poziomów ±2. Od poziomu 8 ukończona wyprawa zmienia Danger: −30 dla własnego motywu, +10–20 dla innych. Co 10 poziomów najwyższej postaci losowy dostępny motyw osiąga 100%; każde 100% odblokowuje trwałą do ukończenia wyprawę bossową. Ukończenie bossa resetuje Danger motywu. Stan i stały poziom wariantu 10/20 są zapisywane. Docelowa tablica będzie pokazywać jedną wyprawę na motyw; obecne sześć slotów pozostaje w VS-16. EditMode ofert, bossa i save/load 61/61 PASS; smoke Play Mode pozostaje. Bez commita/pusha.
+  - 2026-09-24: dodano komendę debugową `setdanger <theme> <0-100>` do szybkiego smoke Danger i oferty bossa bez zmiany poziomu postaci. Kompilacja PASS, testy konsoli i ofert 42/42 PASS w izolowanej kopii Unity.
+  - 2026-09-24: poprawiono cykl aktywnej referencji tooltipu przy wyłączeniu HUD-u walki; ekwipunek i łupy po walce korzystają ponownie z tooltipu eksploracji. Kompilacja PASS, testy UI 27/27 PASS; użytkownik potwierdził działanie tooltipów w Play Mode. Bez commita/pusha.
+  - 2026-09-23: smoke wykazał, że boss nie atakuje po niektórych stronach drużyny. AI punktowało prostokątne Królewskie Cięcie zawsze w kierunku +X. Teraz ocenia cztery obroty i przekazuje cele z wybranego kierunku do wykonania skilla. Test bossa 7/7 PASS, regresja AI 50/50 PASS. Ponowny smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: przywołane szkielety miały poprawne sprite’y, lecz prefab walki używał rzędu renderowania 0, tego samego co posadzka; zwykłe jednostki korzystały z widoku eksploracji na rzędzie 10. Dynamiczne widoki jednostek w lochu dostają co najmniej rząd 10. Test bossa 8/8, widoków lochu 56/56 i mgły 18/18 PASS. Ponowny smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: przywołany szkielet bez widoku eksploracji nie był uwzględniany przez system widoczności walki. Gdy kończyła mu się mana na aurę, AI nie widziało bohaterów, więc kończyło turę zamiast użyć tańszego ataku. Przywołania otrzymują teraz standardowy zasięg obserwacji 10 pól z zachowaniem ścian i przeszkód. Testy niskiej many 4/4, integracja widoczność→atak 1/1, zestaw bossa 13/13 i regresja walki lochowej 56/56 PASS; kompilacja EditModeTests PASS. Ponowny smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: Zemsta Zaświatów nie odpala już run natychmiast po przekroczeniu 75/50/25% HP. Każdy próg zapisuje jedno użycie; boss w swojej turze rzuca skill przed innymi akcjami za 0 PA/MP, również gdy ma już 0 PA. Przy przekroczeniu kilku progów naraz używa skilla osobno dla każdego. Dotychczasowy czas AV, rozbrajanie i limit miejsc run pozostają. Kompilacja EditModeTests PASS; testy bossa i AI 64/64 PASS. Ponowny smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: skrzynie otrzymują bezpośrednie przedmioty z losowanych toreb, a runy Zemsty Zaświatów ograniczono do bieżącego pokoju bossa. W HUD-zie walki skonfigurowano za zgodą użytkownika górny baner pokazujący użycie skilla, także specjalnego skilla bossa. Kompilacja PASS; testy bossa/prefabu 16/16, tabel łupu 14/14, AI 50/50 i walki lochowej 56/56 PASS. Smoke Play Mode pozostaje do wykonania; bez commita/pusha.
+  - 2026-09-24: po zgłoszeniu nakładania się banera na portrety przeniesiono go pod kolejkę tur i nad panel celu. Zmiana obejmuje wyłącznie pozycję, rozmiar i czcionkę w prefabie HUD-u. Ponowny smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: zgodnie z kolejną korektą użytkownika baner jest teraz 8 jednostek pod panelem celu, 560×80 z czcionką 36; tekst dzieli nazwę rzucającego i skilla na dwie linie. Kompilacja Views PASS, smoke Play Mode pozostaje; bez commita/pusha.
+  - 2026-09-24: użytkownik zaakceptował commit/push po korekcie położenia banera; szczegółowy smoke końcowy pozostaje częścią acceptance passa.
+
 - `[P1] [VS-15] Przygotować przeciwników i encountery Katakumb` - `Combat`, `Content / Data` - `DONE`
   - Siedmiu przeciwników, 21 umiejętności, osiem składów po 2–4 wrogów, produkcyjna pula Kostura Umarłych oraz lootbagi i tabele dla poziomów 1–10 i 11–20. Boss należy do VS-16.
   - Sprite’y z osobnych klatek: Point, 16 PPU, bez kompresji. 100/100 testów powiązanych systemów i 7/7 testów zawartości VS-15 PASS; użytkownik potwierdził prezentację w grze i zlecił commit/push.
@@ -339,6 +356,13 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
   - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
+
+- `[P1] [VS-17] Dodać podstawowe powtarzalne misje` - `IN_PROGRESS` - `NPC / Quest / Dialogue`, `Content / Data`, `Persistence`
+  - Przygotowane w ramach VS-18: nagroda Experience z Standard Experience Level (1–50) daje równowartość 20 przeciwników poziomu misji; 0 zachowuje stałe Amount. Testy naliczania dokładnie raz PASS. Nie wdrożono tym samym produkcyjnego zestawu powtarzalnych misji ani przepływu ich przyjmowania/oddawania.
+  - Uwzględnić proponowaną misję ukończenia wyprawy z Duchem Umarłego Króla na końcu, z rozróżnieniem wariantów poziomu 10 i 20 oraz wypraw bez bossa. Szczegółowe warunki i nagrody nadal wymagają ustalenia.
+  - Przykłady zatwierdzonego kierunku: zabij X przeciwników w lochach, ukończ Katakumby. Wykorzystać istniejący system questów, bez równoległego właściciela postępu.
+  - Przed implementacją uzgodnić miejsce przyjmowania/oddawania, liczenie postępu od przyjęcia, zakres kwalifikujących się przeciwników i definicję ukończenia lochu, odnawianie, jednoczesne misje oraz nagrody.
+  - Testy braku podwójnego zaliczania zabójstw/ukończeń, odbioru nagrody dokładnie raz, ponownej dostępności i save/load. UI przedstawić przed implementacją.
 
 - `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
   - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.

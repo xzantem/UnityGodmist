@@ -19,6 +19,7 @@ using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Dungeons;
 using Godmist.Systems.NPC;
 using UnityEngine;
 
@@ -112,6 +113,7 @@ namespace Godmist.Systems.Debugging
                 "removeitem" => RemoveItem(tokens, gameSession),
                 "clearinventory" => ClearInventory(tokens, gameSession),
                 "setlevel" => SetLevel(tokens, gameSession),
+                "setdanger" => SetDanger(tokens, gameSession, contentCatalog),
                 "setloyalty" => SetLoyalty(tokens, gameSession),
                 "noclip" => SetNoclip(tokens, noclipHandler),
                 "revealmap" => SetMapVisibility(gameSession, true),
@@ -244,6 +246,30 @@ namespace Godmist.Systems.Debugging
                 return Fail($"level musi mieścić się w zakresie {CharacterProgressionSystem.MinimumLevel}-{CharacterProgressionSystem.MaximumLevel}.");
 
             return Success($"Ustawiono poziom {GetCharacterName(character)}: {previousLevel} -> {character.Level}.");
+        }
+
+        private static DevConsoleCommandResult SetDanger(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: setdanger <theme> <0-100>");
+            if (gameSession == null) return Fail("Brak aktywnej kampanii.");
+            if (!Enum.TryParse(tokens[1], true, out DungeonTheme theme)
+                || !Enum.IsDefined(typeof(DungeonTheme), theme) || theme == DungeonTheme.Story)
+                return Fail($"Nieznany motyw lochu: {tokens[1]}.");
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)
+                || value < 0 || value > 100)
+                return Fail("Danger musi być liczbą całkowitą od 0 do 100.");
+
+            var board = gameSession.DungeonOffers;
+            var previous = board.GetDanger(theme);
+            board.SetDanger(theme, value);
+            if (value == 100 && contentCatalog != null)
+                DungeonOfferSystem.EnsureOffers(gameSession, contentCatalog.DungeonDefinitions);
+
+            return Success($"Danger {theme}: {previous}% -> {board.GetDanger(theme)}% "
+                + $"({DungeonOfferSystem.DangerBand(board.GetDanger(theme))}).");
         }
 
         private DevConsoleCommandResult SetLoyalty(

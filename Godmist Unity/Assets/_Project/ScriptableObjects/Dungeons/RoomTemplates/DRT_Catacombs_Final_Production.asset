@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DRT_Catacombs_Final_Production
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateDefinition
   <Id>k__BackingField: room.catacombs.final.production
-  <DisplayName>k__BackingField: Komnata nekromanty
+  <DisplayName>k__BackingField: "Komnata Umar\u0142ego Kr\xF3la"
   <RoomType>k__BackingField: 4
   <ExcludeFromRandomEncounters>k__BackingField: 0
   <CanBeRequiredProgressionBranch>k__BackingField: 0

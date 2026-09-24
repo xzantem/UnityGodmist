@@ -51,6 +51,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatMovementSystem movementSystem;
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly CombatInteractionSystem interactionSystem;
+        private readonly CatacombsBossSystem catacombsBossSystem;
         private static readonly Vector2Int[] MovementDirections =
         {
             new(1, 0),
@@ -67,7 +68,8 @@ namespace Godmist.Systems.Combat
             CombatTargetingService targetingService = null,
             CombatMovementSystem movementSystem = null,
             CombatLineOfSightService lineOfSightService = null,
-            CombatInteractionSystem interactionSystem = null)
+            CombatInteractionSystem interactionSystem = null,
+            CatacombsBossSystem catacombsBossSystem = null)
         {
             this.battleLog = battleLog;
             this.endTurn = endTurn;
@@ -77,6 +79,7 @@ namespace Godmist.Systems.Combat
             this.movementSystem = movementSystem ?? new CombatMovementSystem(battleLog);
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
             this.interactionSystem = interactionSystem ?? new CombatInteractionSystem(battleLog);
+            this.catacombsBossSystem = catacombsBossSystem;
         }
 
         public void ExecuteSimpleAiTurn(CombatSession session, BattleUnit aiUnit)
@@ -106,14 +109,21 @@ namespace Godmist.Systems.Combat
             action = default;
             if (session == null || session.Outcome != CombatOutcomeState.Ongoing
                 || aiUnit?.Character == null
-                || aiUnit.Character.LifeState != CharacterLifeState.Alive
-                || aiUnit.CurrentActionPoints <= 0)
+                || aiUnit.Character.LifeState != CharacterLifeState.Alive)
             {
                 return false;
             }
 
             session.Contact?.Refresh(session);
             turnState ??= CreateTurnState();
+            if (catacombsBossSystem?.TryExecuteVengeance(session, aiUnit,
+                    out var vengeanceSkill) == true)
+            {
+                action = new SimpleCombatAiAction(SimpleCombatAiActionType.Skill,
+                    vengeanceSkill);
+                return true;
+            }
+            if (aiUnit.CurrentActionPoints <= 0) return false;
             if (TryExecuteBestSkill(
                     session,
                     aiUnit,
@@ -204,6 +214,13 @@ namespace Godmist.Systems.Combat
 
             foreach (var skill in activeSkills)
             {
+                // Threshold charges are executed before ordinary skill selection.
+                if (skill?.SkillId == CatacombsBossSystem.VengeanceSkillId) continue;
+                if (skill?.SkillId == CatacombsBossSystem.GuardSkillId
+                    && session.Summons.Count(item => item?.CreatorCharacterId
+                        == aiUnit.Character.CharacterId
+                        && item.SourceSkillId == CatacombsBossSystem.GuardSkillId) >= 3)
+                    continue;
                 if (!CanAffordSkill(aiUnit, skill)) continue;
 
                 if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, skill) == 0
@@ -309,7 +326,6 @@ namespace Godmist.Systems.Combat
         private bool CanAffordSkill(BattleUnit unit, SkillData skill)
         {
             if (unit?.Character == null || skill == null) return false;
-
             if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId)
                 && !StatusEffectSystem.HasStatus(unit, skill.RequiredCasterStatusId)) return false;
 
@@ -351,7 +367,10 @@ namespace Godmist.Systems.Combat
 
                 IReadOnlyList<BattleUnit> targets;
 
-                if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.AreaAroundTile)
+                if (mode.TargetType == TargetType.Single
+                    || mode.TargetType == TargetType.AreaAroundTile
+                    || (mode.TargetType == TargetType.AreaAroundCaster
+                        && CombatTargetingService.IsDirectionalShape(mode.AbsoluteRange.Shape)))
                 {
                     if (!TryFindBestTargetPosition(
                             session,
@@ -360,14 +379,16 @@ namespace Godmist.Systems.Combat
                             mode,
                             index,
                             requiredEnemyTarget,
-                            out var selectedPosition)) return false;
+                            out var selectedPosition,
+                            out var selectedRotation)) return false;
 
                     targets = targetingService.GetTargets(
                         session,
                         caster,
                         mode,
                         selectedPosition,
-                        requiredEnemyTarget: requiredEnemyTarget);
+                        requiredEnemyTarget: requiredEnemyTarget,
+                        rotationQuarterTurns: selectedRotation);
                 }
                 else
                 {
@@ -396,29 +417,51 @@ namespace Godmist.Systems.Combat
             SkillTargetModeData mode,
             int targetModeIndex,
             BattleUnit requiredEnemyTarget,
-            out GridPosition selectedPosition)
+            out GridPosition selectedPosition,
+            out int selectedRotation)
         {
             selectedPosition = default;
+            selectedRotation = 0;
 
-            var selectablePositions = targetingService.GetSelectablePositions(
-                    session,
-                    caster,
-                    mode,
-                    requiredEnemyTarget: requiredEnemyTarget)
-                .Where(position => !skill.RequiresLineOfSight
-                || lineOfSightService.HasLineOfSight(session, caster.Position, position));
+            // A rectangle is authored facing +X; choosing a tile alone does not
+            // rotate it. Evaluate its four actual orientations instead of
+            // repeatedly scoring the same +X area for every tile on the grid.
+            var isRectangle = mode.TargetType == TargetType.AreaAroundCaster
+                && mode.AbsoluteRange.Shape == RangeShape.Rectangle;
+            IEnumerable<(GridPosition position, int rotation)> choices;
+            if (isRectangle)
+            {
+                var origin = caster.Position;
+                choices = new[]
+                {
+                    (new GridPosition(origin.X + 1, origin.Y, origin.Level), 0),
+                    (new GridPosition(origin.X, origin.Y + 1, origin.Level), 1),
+                    (new GridPosition(origin.X - 1, origin.Y, origin.Level), 2),
+                    (new GridPosition(origin.X, origin.Y - 1, origin.Level), 3)
+                }.Where(choice => session.Grid.IsWithinBounds(choice.Item1));
+            }
+            else
+            {
+                choices = targetingService.GetSelectablePositions(session, caster,
+                        mode, requiredEnemyTarget: requiredEnemyTarget)
+                    .Select(position => (position, 0));
+            }
 
             var bestScore = float.MinValue;
             var foundPosition = false;
 
-            foreach (var position in selectablePositions)
+            foreach (var (position, rotation) in choices)
             {
+                if (skill.RequiresLineOfSight
+                    && !lineOfSightService.HasLineOfSight(
+                        session, caster.Position, position)) continue;
                 var targets = targetingService.GetTargets(
                     session,
                     caster,
                     mode,
                     position,
-                    requiredEnemyTarget: requiredEnemyTarget);
+                    requiredEnemyTarget: requiredEnemyTarget,
+                    rotationQuarterTurns: rotation);
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
 
@@ -432,6 +475,7 @@ namespace Godmist.Systems.Combat
                 if (!foundPosition || score > bestScore)
                 {
                     selectedPosition = position;
+                    selectedRotation = rotation;
                     bestScore = score;
                     foundPosition = true;
                 }

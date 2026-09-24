@@ -28,9 +28,15 @@ namespace Godmist.Runtime.Combat
         public readonly Dictionary<string, (string EncounterId, string EnemyId)> EnemySources = new();
         public readonly HashSet<CombatTurnParticipant> SuspendedTurns = new();
         [NonSerialized] public Action<BattleUnit> UnitEnteredCell;
+        [NonSerialized] public Action<BattleUnit> BossRuneEnteredCell;
+        [NonSerialized] public Action<BattleUnit, int> EnemyHealthChanged;
         [NonSerialized] public Func<BattleUnit, IReadOnlyList<GridPosition>, float> EvaluateTrapRisk;
         [NonSerialized] public Func<IReadOnlyList<GridPosition>, string> TrapRouteState;
-        public void NotifyUnitEnteredCell(BattleUnit unit) => UnitEnteredCell?.Invoke(unit);
+        public void NotifyUnitEnteredCell(BattleUnit unit)
+        {
+            UnitEnteredCell?.Invoke(unit);
+            BossRuneEnteredCell?.Invoke(unit);
+        }
         // Rescue eligibility is supplied by the dungeon owner, independent of UI focus.
         public bool CanReceiveReinforcements;
         public readonly Dictionary<string, BattleUnit> DepartedUnits = new();

@@ -72,11 +72,26 @@ namespace Godmist.Systems.Items
                 for (var index = 0; index < amount; index++)
                 {
                     var item = CreateItem(entry.ItemDefinition);
-                    if (item != null) items.Add(item);
+                    if (item != null && (item is not LootBagItemInstance bag || !bag.IsEmpty))
+                        items.Add(item);
                 }
             }
 
             return items;
+        }
+
+        public List<ItemInstance> RollChestLoot(LootTableData lootTable)
+        {
+            var contents = new List<ItemInstance>();
+            foreach (var item in RollLoot(lootTable))
+            {
+                if (item is LootBagItemInstance bag)
+                    contents.AddRange(bag.Contents);
+                else
+                    contents.Add(item);
+            }
+
+            return contents;
         }
 
         public LootBagItemInstance CreateLootBag(
@@ -99,11 +114,12 @@ namespace Godmist.Systems.Items
         }
 
         private ItemInstance CreateItem(ItemDefinition definition,
-            EquipmentQuality? fixedEquipmentQuality = null)
+            EquipmentQuality? fixedEquipmentQuality = null,
+            RarityTier minimumGalduryteRarity = RarityTier.Common)
         {
             if (definition is GalduryteItemDefinition galduryteDefinition)
             {
-                return CreateGalduryte(galduryteDefinition);
+                return CreateGalduryte(galduryteDefinition, minimumGalduryteRarity);
             }
 
             if (definition is JewelryItemDefinition jewelryDefinition)
@@ -138,7 +154,8 @@ namespace Godmist.Systems.Items
                     availableParts);
         }
 
-        private GalduryteItemInstance CreateGalduryte(GalduryteItemDefinition definition)
+        private GalduryteItemInstance CreateGalduryte(GalduryteItemDefinition definition,
+            RarityTier minimumRarity)
         {
             if (lootLevel < 11 || lootLevel > 20) return null;
             var random = galduryteRandom ??= new System.Random(
@@ -149,6 +166,7 @@ namespace Godmist.Systems.Items
                 GaldurytePowderColor.Blue, GaldurytePowderColor.Purple };
             if (!GalduryteRuntimeRules.TryRollRarity(random, out var rarity))
                 return null;
+            if (rarity < minimumRarity) rarity = minimumRarity;
             var color = colors[random.Next(colors.Length)];
             const int itemLevel = 11;
             if (!GalduryteRuntimeRules.TryRollEffects(targetType, color,
@@ -234,7 +252,8 @@ namespace Godmist.Systems.Items
                 {
                     var item = CreateItem(selectedEntry.ItemDefinition,
                         selectedEntry.HasFixedEquipmentQuality
-                            ? selectedEntry.EquipmentQuality : null);
+                            ? selectedEntry.EquipmentQuality : null,
+                        selectedEntry.MinimumGalduryteRarity);
                     if (item != null) contents.Add(item);
                 }
             }

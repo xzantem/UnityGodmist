@@ -137,6 +137,44 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void Tooltip_DisablingCombatHudRestoresExplorationTooltip()
+        {
+            var explorationObject = new GameObject("Exploration Tooltip");
+            var combatHud = new GameObject("Combat HUD");
+            combatHud.SetActive(false);
+            var combatObject = new GameObject("Combat Tooltip");
+            combatObject.transform.SetParent(combatHud.transform, false);
+            try
+            {
+                var exploration = explorationObject.AddComponent<UIWorkspaceTooltipView>();
+                var combat = combatObject.AddComponent<UIWorkspaceTooltipView>();
+                var onEnable = typeof(UIWorkspaceTooltipView).GetMethod(
+                    "OnEnable", BindingFlags.Instance | BindingFlags.NonPublic);
+                var onDisable = typeof(UIWorkspaceTooltipView).GetMethod(
+                    "OnDisable", BindingFlags.Instance | BindingFlags.NonPublic);
+                onEnable.Invoke(exploration, null);
+                Assert.That(UIWorkspaceTooltipView.ActiveInstance, Is.SameAs(exploration));
+
+                combatHud.SetActive(true);
+                onEnable.Invoke(combat, null);
+                Assert.That(UIWorkspaceTooltipView.ActiveInstance, Is.SameAs(combat));
+
+                combatHud.SetActive(false);
+                onDisable.Invoke(combat, null);
+                Assert.That(UIWorkspaceTooltipView.ActiveInstance, Is.SameAs(exploration));
+
+                explorationObject.SetActive(false);
+                onDisable.Invoke(exploration, null);
+                Assert.That(UIWorkspaceTooltipView.ActiveInstance, Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(combatHud);
+                Object.DestroyImmediate(explorationObject);
+            }
+        }
+
+        [Test]
         public void Tooltip_InvalidateSource_HidesTooltipImmediately()
         {
             var tooltipObject = new GameObject("Tooltip");
