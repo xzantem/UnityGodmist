@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8b5d3e068985d54f9b8fc5905709e1a, type: 3}
+  m_Name: QD_Catacombs_Radiant_Boss
+  m_EditorClassIdentifier: Data::Godmist.Data.Quests.QuestDefinition
+  <Id>k__BackingField: quest.catacombs.radiant.boss
+  <DisplayName>k__BackingField: "Pokonaj Ducha Umar\u0142ego Kr\xF3la"
+  <Description>k__BackingField: "Zabij Ducha Umar\u0142ego Kr\xF3la i opu\u015B\u0107
+    wypraw\u0119. Zlecenie dotyczy poziomu wyprawy dost\u0119pnego w chwili przyj\u0119cia."
+  <QuestType>k__BackingField: 4
+  <StartStageId>k__BackingField: stage.contract
+  <Stages>k__BackingField:
+  - <StageId>k__BackingField: stage.contract
+    <Description>k__BackingField: "Pokonaj bossa i uko\u0144cz wypraw\u0119."
+    <Objectives>k__BackingField:
+    - <ObjectiveId>k__BackingField: objective.contract
+      <Description>k__BackingField: "Pokonaj bossa i uko\u0144cz wypraw\u0119."
+      <ObjectiveType>k__BackingField: 5
+      <TargetId>k__BackingField: dungeon.catacombs.boss_expedition
+      <RequiredAmount>k__BackingField: 1
+      <IsOptional>k__BackingField: 0
+    <CompletionRewards>k__BackingField: []
+    <Transitions>k__BackingField: []

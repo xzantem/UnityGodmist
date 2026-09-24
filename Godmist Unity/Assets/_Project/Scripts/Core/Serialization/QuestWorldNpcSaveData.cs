@@ -23,6 +23,11 @@ namespace Godmist.Core.Serialization
         public List<KeyValueSaveData> QuestFlags = new();
         public List<string> ChosenBranchIds = new();
         public List<string> ClaimedRewardKeys = new();
+        public int RadiantRewardLevel;
+        public int RadiantRewardExperience;
+        public int RadiantRewardGold;
+        public int RadiantRewardHonor;
+        public string RadiantBonusItemInstanceId = string.Empty;
     }
 
     [Serializable]

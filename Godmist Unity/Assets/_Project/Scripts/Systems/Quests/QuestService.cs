@@ -3,6 +3,8 @@ using Godmist.Core.Enums;
 using Godmist.Data.Quests;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Quests;
+using Godmist.Data.World;
+using Godmist.Systems.Dungeons;
 
 namespace Godmist.Systems.Quests
 {
@@ -10,6 +12,7 @@ namespace Godmist.Systems.Quests
     {
         private readonly GameSession gameSession;
         private readonly QuestRewardSystem questRewardSystem;
+        private readonly Random random;
 
         public event Action<QuestInstance> QuestRegistered;
         public event Action<QuestInstance> QuestBecameAvailable;
@@ -23,13 +26,17 @@ namespace Godmist.Systems.Quests
 
         public QuestService(
             GameSession nextGameSession,
-            QuestRewardSystem nextQuestRewardSystem = null)
+            QuestRewardSystem nextQuestRewardSystem = null,
+            GameContentCatalog nextContentCatalog = null,
+            Random nextRandom = null)
         {
             gameSession = nextGameSession
                 ?? throw new ArgumentNullException(nameof(nextGameSession));
 
+            random = nextRandom ?? new Random();
             questRewardSystem = nextQuestRewardSystem
-                ?? new QuestRewardSystem();
+                ?? new QuestRewardSystem(nextContentCatalog: nextContentCatalog,
+                    nextRandom: random);
         }
 
         public bool TryRegisterQuest(
@@ -49,6 +56,9 @@ namespace Godmist.Systems.Quests
             {
                 return false;
             }
+
+            if (definition.QuestType == QuestType.Radiant)
+                EnsureRadiantRewardOffer(definition.Id);
 
             QuestRegistered?.Invoke(quest);
             return true;
@@ -71,13 +81,49 @@ namespace Godmist.Systems.Quests
         {
             if (!gameSession.TryGetQuest(questId, out var quest)
                 || quest.Status != QuestStatus.Available
+                || (questId == CatacombsMissionBoard.BossQuestId
+                    && !CatacombsMissionBoard.HasBossOffer(gameSession))
+                || (quest.Definition.QuestType == QuestType.Radiant
+                    && !EnsureRadiantRewardOffer(questId))
                 || !quest.TrySetStatus(QuestStatus.Active))
             {
                 return false;
             }
 
+            if (questId == CatacombsMissionBoard.BossQuestId)
+                quest.TrySetQuestFlag("radiant.boss_level",
+                    CatacombsMissionBoard.BossOfferLevel(gameSession).ToString());
+
             QuestStarted?.Invoke(quest);
             return true;
+        }
+
+        public bool EnsureRadiantRewardOffer(string questId)
+        {
+            if (!gameSession.TryGetQuest(questId, out var quest)
+                || quest.Definition.QuestType != QuestType.Radiant) return false;
+            if (quest.RadiantRewardOffer != null) return true;
+
+            var isBoss = questId == CatacombsMissionBoard.BossQuestId;
+            var level = 0;
+            if (quest.QuestFlags.TryGetValue("radiant.reward_level", out var legacyLevel)
+                && int.TryParse(legacyLevel, out var parsedLegacyLevel)) level = parsedLegacyLevel;
+            if (level == 0 && isBoss
+                && quest.QuestFlags.TryGetValue("radiant.boss_level", out var bossLevel)
+                && int.TryParse(bossLevel, out var parsedBossLevel)) level = parsedBossLevel;
+            if (level == 0) level = isBoss
+                ? CatacombsMissionBoard.BossOfferLevel(gameSession)
+                : DungeonOfferSystem.PartyLevel(gameSession);
+            if (level < 1 || level > 50) return false;
+
+            if (!quest.QuestFlags.TryGetValue("radiant.reward_variant", out var variant))
+            {
+                var roll = random.Next(10);
+                variant = roll < 3 ? "experience" : roll < 6 ? "gold" : "mix";
+                quest.TrySetQuestFlag("radiant.reward_variant", variant);
+            }
+            return quest.TrySetRadiantRewardOffer(
+                questRewardSystem.CreateRadiantRewardOffer(level, isBoss, variant));
         }
 
         public bool TryAddObjectiveProgress(
@@ -131,7 +177,8 @@ namespace Godmist.Systems.Quests
 
             if (quest.TryAdvanceStage(selectedBranchId))
             {
-                GrantStageCompletionRewards(quest, completedStage);
+                if (quest.Definition.QuestType != QuestType.Radiant)
+                    GrantStageCompletionRewards(quest, completedStage);
                 QuestStageAdvanced?.Invoke(
                     quest,
                     previousStageId,
@@ -146,10 +193,28 @@ namespace Godmist.Systems.Quests
             {
                 return false;
             }
-            GrantStageCompletionRewards(quest, completedStage);
+            if (quest.Definition.QuestType != QuestType.Radiant)
+                GrantStageCompletionRewards(quest, completedStage);
             gameSession.TryClearTrackedQuest(quest.QuestId);
 
             QuestCompleted?.Invoke(quest);
+            return true;
+        }
+
+        public bool TryTurnInRadiantQuest(string questId)
+        {
+            if (!gameSession.TryGetQuest(questId, out var quest)
+                || quest.Definition.QuestType != QuestType.Radiant
+                || quest.Status != QuestStatus.Completed
+                || !EnsureRadiantRewardOffer(questId))
+                return false;
+
+            var rewards = questRewardSystem.GrantRadiantRewards(
+                gameSession, quest.RadiantRewardOffer);
+            if (!quest.TryResetRadiantQuest()) return false;
+            EnsureRadiantRewardOffer(questId);
+            QuestRewardsGranted?.Invoke(quest, rewards);
+            QuestBecameAvailable?.Invoke(quest);
             return true;
         }
 

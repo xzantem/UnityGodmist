@@ -2,9 +2,31 @@ using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.Quests;
+using Godmist.Runtime.Items;
 
 namespace Godmist.Runtime.Quests
 {
+    public sealed class RadiantRewardOffer
+    {
+        public int Level { get; }
+        public int Experience { get; }
+        public int Gold { get; }
+        public int Honor { get; }
+        public ItemInstance BonusItem { get; }
+
+        public RadiantRewardOffer(int level, int experience, int gold, int honor,
+            ItemInstance bonusItem)
+        {
+            if (level < 1 || level > 50 || experience < 0 || gold < 0 || honor < 0)
+                throw new ArgumentOutOfRangeException(nameof(level));
+            Level = level;
+            Experience = experience;
+            Gold = gold;
+            Honor = honor;
+            BonusItem = bonusItem;
+        }
+    }
+
     public class QuestInstance
     {
         private readonly Dictionary<string, QuestObjectiveProgress>
@@ -19,6 +41,7 @@ namespace Godmist.Runtime.Quests
         public QuestStatus Status { get; private set; }
         public string CurrentStageId { get; private set; }
         public bool IsHidden { get; private set; }
+        public RadiantRewardOffer RadiantRewardOffer { get; private set; }
 
         public IReadOnlyDictionary<string, QuestObjectiveProgress>
             ProgressByObjectiveId => progressByObjectiveId;
@@ -97,6 +120,36 @@ namespace Godmist.Runtime.Quests
             }
 
             questFlags[flagId] = value ?? string.Empty;
+            return true;
+        }
+
+        public bool TrySetRadiantRewardOffer(RadiantRewardOffer offer)
+        {
+            if (Definition.QuestType != QuestType.Radiant || offer == null
+                || RadiantRewardOffer != null) return false;
+            RadiantRewardOffer = offer;
+            return true;
+        }
+
+        public bool TryResetRadiantQuest()
+        {
+            if (Definition.QuestType != QuestType.Radiant
+                || Status != QuestStatus.Completed)
+            {
+                return false;
+            }
+
+            foreach (var progress in progressByObjectiveId.Values)
+            {
+                progress.TryRestoreState(0, FindRequiredAmount(progress.ObjectiveId));
+            }
+
+            questFlags.Remove("radiant.reward_level");
+            questFlags.Remove("radiant.reward_variant");
+            questFlags.Remove("radiant.boss_level");
+            RadiantRewardOffer = null;
+            CurrentStageId = Definition.StartStageId;
+            Status = QuestStatus.Available;
             return true;
         }
 

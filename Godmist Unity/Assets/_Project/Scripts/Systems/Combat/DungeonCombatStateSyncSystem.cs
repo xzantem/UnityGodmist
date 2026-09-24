@@ -2,6 +2,7 @@ using System;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Systems.Combat
 {
@@ -9,7 +10,8 @@ namespace Godmist.Systems.Combat
     {
         public bool TrySyncDoorStates(
             GameSession gameSession,
-            CombatSession combatSession)
+            CombatSession combatSession,
+            QuestObjectiveProgressSystem questProgress = null)
         {
             if (gameSession == null
                 || combatSession == null
@@ -82,7 +84,8 @@ namespace Godmist.Systems.Combat
 
         public bool TrySyncDefeatedEnemyStates(
             GameSession gameSession,
-            CombatSession combatSession)
+            CombatSession combatSession,
+            QuestObjectiveProgressSystem questProgress = null)
         {
             if (gameSession == null
                 || combatSession == null
@@ -95,7 +98,7 @@ namespace Godmist.Systems.Combat
             if (combatSession.IsDungeonWide)
             {
                 foreach (var result in DungeonCombatMembershipSystem.EncounterResults(gameSession.ActiveDungeon, combatSession))
-                    if (!TrySyncDefeatedEnemyStates(gameSession, result)) return false;
+                    if (!TrySyncDefeatedEnemyStates(gameSession, result, questProgress)) return false;
                 return true;
             }
 
@@ -130,6 +133,20 @@ namespace Godmist.Systems.Combat
                 if (!encounter.TryMarkEnemyDefeated(enemyInstanceId))
                 {
                     return false;
+                }
+
+                foreach (var enemy in encounter.Definition.Enemies)
+                {
+                    if (enemy?.InstanceId != enemyInstanceId
+                        || enemy.CharacterDefinition == null) continue;
+                    (questProgress ??= new QuestObjectiveProgressSystem(
+                        gameSession, new QuestService(gameSession)))
+                        .ReportEnemyDefeated(
+                            gameSession.ActiveDungeon.DungeonId,
+                            gameSession.ActiveDungeon.DungeonLevel,
+                            enemy.CharacterDefinition.Id,
+                            false);
+                    break;
                 }
             }
 

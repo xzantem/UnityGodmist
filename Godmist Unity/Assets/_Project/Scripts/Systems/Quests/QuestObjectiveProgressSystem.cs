@@ -2,6 +2,7 @@ using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Quests;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Dungeons;
 
 namespace Godmist.Systems.Quests
 {
@@ -34,12 +35,43 @@ namespace Godmist.Systems.Quests
         {
             ReportMatchingObjectives(
                 QuestObjectiveType.ExitDungeon,
-                dungeonId);
+                dungeonId,
+                0);
+        }
+
+        public void ReportDungeonExited(DungeonInstance dungeon)
+        {
+            if (dungeon == null) return;
+            if (dungeon.DungeonId == CatacombsMissionBoard.BossDungeonId)
+            {
+                var boss = dungeon.Definition?.BossEncounterDefinition;
+                var bossDefeated = false;
+                if (boss != null)
+                    foreach (var floor in dungeon.Floors)
+                        foreach (var encounter in floor.Encounters)
+                            if (encounter?.Definition == boss
+                                && dungeon.IsEncounterCleared(encounter.InstanceId))
+                                bossDefeated = true;
+                if (!bossDefeated) return;
+            }
+            ReportMatchingObjectives(QuestObjectiveType.ExitDungeon, dungeon.DungeonId, dungeon.DungeonLevel);
+        }
+
+        public void ReportEnemyDefeated(
+            string dungeonId,
+            int dungeonLevel,
+            string enemyDefinitionId,
+            bool isReinforcement)
+        {
+            if (isReinforcement || string.IsNullOrWhiteSpace(enemyDefinitionId)) return;
+            ReportMatchingObjectives(QuestObjectiveType.KillEnemy, enemyDefinitionId, dungeonLevel, dungeonId);
         }
 
         private void ReportMatchingObjectives(
             QuestObjectiveType objectiveType,
-            string targetId)
+            string targetId,
+            int dungeonLevel = 0,
+            string dungeonId = null)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -54,6 +86,12 @@ namespace Godmist.Systems.Quests
                     continue;
                 }
 
+                if (quest.Definition.QuestType == QuestType.Radiant
+                    && (dungeonLevel < 1
+                        || !questService.EnsureRadiantRewardOffer(quest.QuestId)
+                        || dungeonLevel < quest.RadiantRewardOffer.Level))
+                    continue;
+
                 var progressedQuest = false;
 
                 foreach (var objective in quest.CurrentStage.Objectives)
@@ -61,7 +99,8 @@ namespace Godmist.Systems.Quests
                     if (!MatchesObjective(
                         objective,
                         objectiveType,
-                        targetId))
+                        targetId,
+                        dungeonId))
                     {
                         continue;
                     }
@@ -84,11 +123,21 @@ namespace Godmist.Systems.Quests
         private static bool MatchesObjective(
             QuestObjectiveDefinition objective,
             QuestObjectiveType expectedType,
-            string expectedTargetId)
+            string expectedTargetId,
+            string dungeonId)
         {
             return objective != null
                 && objective.ObjectiveType == expectedType
-                && objective.TargetId == expectedTargetId;
+                && (objective.TargetId == expectedTargetId
+                    || expectedType == QuestObjectiveType.ExitDungeon
+                       && objective.TargetId == "dungeon.catacombs.expedition"
+                       && expectedTargetId == CatacombsMissionBoard.BossDungeonId
+                    || expectedType == QuestObjectiveType.KillEnemy
+                       && objective.TargetId == "dungeon.catacombs"
+                       && (dungeonId == "dungeon.catacombs.expedition"
+                           || dungeonId == "dungeon.catacombs.boss_expedition")
+                       && expectedTargetId.StartsWith("enemy.catacombs.", StringComparison.Ordinal)
+                       && expectedTargetId != "enemy.catacombs.dead_king");
         }
     }
 }

@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Systems.Combat
 {
@@ -20,7 +21,8 @@ namespace Godmist.Systems.Combat
 
         public bool TryApplyOutcome(
             GameSession gameSession,
-            CombatSession combatSession)
+            CombatSession combatSession,
+            QuestObjectiveProgressSystem questProgress = null)
         {
             if (combatSession == null
                 || (combatSession.Outcome != CombatOutcomeState.Victory
@@ -48,7 +50,8 @@ namespace Godmist.Systems.Combat
             }
 
             if (!stateSyncSystem.TrySyncDoorStates(gameSession, combatSession)
-                || !stateSyncSystem.TrySyncDefeatedEnemyStates(gameSession, combatSession))
+                || !stateSyncSystem.TrySyncDefeatedEnemyStates(
+                    gameSession, combatSession, questProgress))
             {
                 return false;
             }

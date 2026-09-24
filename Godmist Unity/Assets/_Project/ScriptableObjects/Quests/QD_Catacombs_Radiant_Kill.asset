@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8b5d3e068985d54f9b8fc5905709e1a, type: 3}
+  m_Name: QD_Catacombs_Radiant_Kill
+  m_EditorClassIdentifier: Data::Godmist.Data.Quests.QuestDefinition
+  <Id>k__BackingField: quest.catacombs.radiant.kill
+  <DisplayName>k__BackingField: "Oczy\u015B\u0107 Katakumby"
+  <Description>k__BackingField: "Pokonaj 12 zwyk\u0142ych nieumar\u0142ych w Katakumbach.
+    Posi\u0142ki i przywo\u0142ania nie licz\u0105 si\u0119 do zlecenia."
+  <QuestType>k__BackingField: 4
+  <StartStageId>k__BackingField: stage.contract
+  <Stages>k__BackingField:
+  - <StageId>k__BackingField: stage.contract
+    <Description>k__BackingField: "Pokonaj 12 zwyk\u0142ych przeciwnik\xF3w Katakumb."
+    <Objectives>k__BackingField:
+    - <ObjectiveId>k__BackingField: objective.contract
+      <Description>k__BackingField: "Pokonaj 12 zwyk\u0142ych przeciwnik\xF3w Katakumb."
+      <ObjectiveType>k__BackingField: 2
+      <TargetId>k__BackingField: dungeon.catacombs
+      <RequiredAmount>k__BackingField: 12
+      <IsOptional>k__BackingField: 0
+    <CompletionRewards>k__BackingField: []
+    <Transitions>k__BackingField: []

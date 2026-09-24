@@ -207,7 +207,9 @@ namespace Godmist.Systems.SaveLoad
             if (!TryRestoreQuests(
                     restoredSession,
                     saveData.Quests,
-                    contentCatalog))
+                    contentCatalog,
+                    itemsById,
+                    assignedItemIds))
             {
                 Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu questów.");
                 return false;
@@ -1551,7 +1553,9 @@ namespace Godmist.Systems.SaveLoad
         private static bool TryRestoreQuests(
             GameSession session,
             List<QuestSaveData> questSaveDataList,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds)
         {
             if (questSaveDataList == null)
             {
@@ -1579,6 +1583,27 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 var quest = new QuestInstance(definition);
+
+                if (questSaveData.RadiantRewardLevel != 0)
+                {
+                    if (questSaveData.RadiantRewardLevel < 1
+                        || questSaveData.RadiantRewardLevel > 50
+                        || questSaveData.RadiantRewardExperience < 0
+                        || questSaveData.RadiantRewardGold < 0
+                        || questSaveData.RadiantRewardHonor < 0) return false;
+                    ItemInstance bonusItem = null;
+                    if (!string.IsNullOrWhiteSpace(questSaveData.RadiantBonusItemInstanceId)
+                        && !TryTakeItem(questSaveData.RadiantBonusItemInstanceId,
+                            itemsById, assignedItemIds, out bonusItem)) return false;
+                    if (!quest.TrySetRadiantRewardOffer(new RadiantRewardOffer(
+                        questSaveData.RadiantRewardLevel,
+                        questSaveData.RadiantRewardExperience,
+                        questSaveData.RadiantRewardGold,
+                        questSaveData.RadiantRewardHonor,
+                        bonusItem))) return false;
+                }
+                else if (!string.IsNullOrWhiteSpace(questSaveData.RadiantBonusItemInstanceId))
+                    return false;
 
                 if (!quest.TryRestoreState(
                         questSaveData.Status,

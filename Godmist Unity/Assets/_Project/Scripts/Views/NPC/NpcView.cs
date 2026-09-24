@@ -83,7 +83,10 @@ namespace Godmist.Views.NPC
                     questMarkerRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
                     questMarkerRenderer.sortingOrder = bodyRenderer.sortingOrder + 2;
                 }
-                var show = Godmist.Systems.NPC.QuestOfferAvailability.HasOffer(GameBootstrap.Instance?.Session, npc?.Definition?.BaseDialogue);
+                var currentSession = GameBootstrap.Instance?.Session;
+                var show = Godmist.Systems.NPC.QuestOfferAvailability.HasOffer(currentSession, npc?.Definition?.BaseDialogue)
+                    || npc?.NpcId == "npc.arungard.questgiver_01"
+                        && Godmist.Systems.Quests.CatacombsMissionBoard.HasAction(currentSession);
                 if (questMarker.activeSelf != show) questMarker.SetActive(show);
             }
             if (DevConsoleView.IsOpen || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.HasFocusedTextInput()

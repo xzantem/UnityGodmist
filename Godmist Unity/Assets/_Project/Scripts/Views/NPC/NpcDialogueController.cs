@@ -28,10 +28,13 @@ namespace Godmist.Views.NPC
         [SerializeField] private TradePanelView tradePanel;
         [SerializeField] private Button servicesButton;
         [SerializeField] private NpcServicesWindowView servicesWindowPrefab;
+        [SerializeField] private Button missionBoardButton;
+        [SerializeField] private CatacombsMissionBoardView missionBoardPrefab;
 
         private DialogueService dialogueService;
         private GameSession gameSession;
         private NpcServicesWindowView servicesWindow;
+        private CatacombsMissionBoardView missionBoard;
 
         private void Start()
         {
@@ -62,6 +65,12 @@ namespace Godmist.Views.NPC
                 servicesButton.gameObject.SetActive(false);
             }
 
+            if (missionBoardButton != null)
+            {
+                missionBoardButton.onClick.AddListener(TryOpenMissionBoard);
+                missionBoardButton.gameObject.SetActive(false);
+            }
+
             if (tradeButton != null) tradeButton.gameObject.SetActive(false);
             if (tradePanel != null) tradePanel.gameObject.SetActive(false);
 
@@ -87,6 +96,8 @@ namespace Godmist.Views.NPC
             {
                 servicesButton.onClick.RemoveListener(TryOpenServices);
             }
+            if (missionBoardButton != null)
+                missionBoardButton.onClick.RemoveListener(TryOpenMissionBoard);
         }
 
         private void HandleNpcInteractionRequested(NpcInstance npc)
@@ -120,6 +131,7 @@ namespace Godmist.Views.NPC
             ClearChoices();
             panelRoot.SetActive(false);
             SetServicesButtonVisible(false);
+            SetMissionBoardButtonVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -143,6 +155,7 @@ namespace Godmist.Views.NPC
             {
                 panelRoot.SetActive(false);
                 SetServicesButtonVisible(false);
+                SetMissionBoardButtonVisible(false);
                 return;
             }
 
@@ -157,6 +170,8 @@ namespace Godmist.Views.NPC
                 || definition?.GetRole<AlchemistRoleData>() != null
                 || definition?.GetRole<PriestRoleData>() != null;
             SetServicesButtonVisible(shouldShowDialogue && hasServices);
+            SetMissionBoardButtonVisible(shouldShowDialogue
+                && dialogue.Npc?.NpcId == "npc.arungard.questgiver_01");
 
             if (shouldShowDialogue)
             {
@@ -214,6 +229,28 @@ namespace Godmist.Views.NPC
 
             servicesWindow = Instantiate(servicesWindowPrefab, workspaceRoot);
             return servicesWindow != null;
+        }
+
+        private void TryOpenMissionBoard()
+        {
+            var dialogue = dialogueService.ActiveDialogue;
+            if (dialogue == null || !EnsureMissionBoard()) return;
+            if (!missionBoard.Open(dialogue.Npc)) return;
+            dialogueService.TryEndDialogue();
+        }
+
+        private bool EnsureMissionBoard()
+        {
+            if (missionBoard != null) return true;
+            var workspaceRoot = UIWorkspaceWindowManager.Instance?.WorkspaceRoot;
+            if (missionBoardPrefab == null || workspaceRoot == null) return false;
+            missionBoard = Instantiate(missionBoardPrefab, workspaceRoot);
+            return missionBoard != null;
+        }
+
+        private void SetMissionBoardButtonVisible(bool isVisible)
+        {
+            if (missionBoardButton != null) missionBoardButton.gameObject.SetActive(isVisible);
         }
 
         private void SetServicesButtonVisible(bool isVisible)

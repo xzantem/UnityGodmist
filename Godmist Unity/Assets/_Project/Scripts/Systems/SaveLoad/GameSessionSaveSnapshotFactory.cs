@@ -110,7 +110,7 @@ namespace Godmist.Systems.SaveLoad
             }
 
             if (!TryCaptureWorldFlags(session, saveData)
-                || !TryCaptureQuests(session, saveData)
+                || !TryCaptureQuests(session, saveData, capturedItemIds)
                 || !TryCaptureNpcs(session, saveData, capturedItemIds))
             {
                 ClearRuntimePayload(saveData);
@@ -168,7 +168,8 @@ namespace Godmist.Systems.SaveLoad
 
         private static bool TryCaptureQuests(
             GameSession session,
-            GameSaveData saveData)
+            GameSaveData saveData,
+            HashSet<string> capturedItemIds)
         {
             var questIds = new List<string>(session.QuestsById.Keys);
             questIds.Sort(StringComparer.Ordinal);
@@ -191,6 +192,21 @@ namespace Godmist.Systems.SaveLoad
                     ChosenBranchIds = new List<string>(quest.ChosenBranchIds),
                     ClaimedRewardKeys = new List<string>(quest.ClaimedRewardKeys)
                 };
+
+                if (quest.RadiantRewardOffer != null)
+                {
+                    var offer = quest.RadiantRewardOffer;
+                    questSaveData.RadiantRewardLevel = offer.Level;
+                    questSaveData.RadiantRewardExperience = offer.Experience;
+                    questSaveData.RadiantRewardGold = offer.Gold;
+                    questSaveData.RadiantRewardHonor = offer.Honor;
+                    if (offer.BonusItem != null)
+                    {
+                        if (!TryCaptureItem(offer.BonusItem, saveData, capturedItemIds))
+                            return false;
+                        questSaveData.RadiantBonusItemInstanceId = offer.BonusItem.InstanceId;
+                    }
+                }
 
                 foreach (var pair in quest.QuestFlags)
                 {

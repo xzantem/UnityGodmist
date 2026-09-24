@@ -76,6 +76,12 @@ Planowany po `Combat v4 — Arena, Obstacles and Transition v1`. Dodaje aktywne 
 
 ## Done
 
+- `[P1] [VS-17] Dodać podstawowe powtarzalne misje` - `NPC / Quest / Dialogue`, `Content / Data`, `Persistence` - `DONE`
+  - Trzy równoczesne, odnawialne zlecenia u strażnika Arungardu: 12 zwykłych przeciwników Katakumb, ukończenie wyprawy oraz pokonanie Ducha Umarłego Króla i oficjalne wyjście. Postęp liczy się od przyjęcia; ukończona wyprawa musi mieć poziom co najmniej równy poziomowi misji. Zlecenie bossa jest dostępne tylko z ofertą wyprawy bossowej.
+  - Poziom zwykłych zleceń wynika ze średniej aktywnej drużyny, poziom zlecenia bossa z oferty. Nagrody i ewentualny przedmiot są losowane przy generacji zlecenia, widoczne z góry i utrwalane w zapisie. Warianty: 30% XP 125% / złoto 75%, 30% złoto 125% / XP 75%, 40% oba 100%; 2/3 honoru i 10% szansy na przedmiot.
+  - UIW tablicy zleceń i przycisk u strażnika, dostęp do dziennika również w lochu. Kod, prefab i sceny skonfigurowane. 43/43 celowanych testów EditMode oraz kompilacja PASS; użytkownik potwierdził poprawne działanie misji w Play Mode 2026-09-24 i zlecił commit/push.
+
+
 - `[P1] [VS-16] Przygotować bossa Katakumb` - `Combat`, `Content / Data`, `World / Dungeon / Exploration` - `DONE`
   - Duch Umarłego Króla, powtarzalny w wariantach poziomu 10 i 20; specjalny unikat w zakresie. Boss występuje w wybranych wyprawach, nie w każdej. Nowa wyprawa pozwala ponownie zdobywać nagrody; wczytanie tej samej ukończonej walki nie może ich dublować.
   - Arena, zatwierdzony zestaw umiejętności/zachowań, statystyki, nagrody i poprawne zakończenie wyprawy. Sprawdzić porażkę, wygraną, loot i brak ponownego przyznawania nagród po wczytaniu.
@@ -356,13 +362,6 @@ Docelowy rozwój po Combat v4, powiązany z eksploracją lochu. Walka seamless n
   - Regresja persistence, brak duplikacji jednostek i subskrypcji; osobny UI pass, raport PASS/FAIL/NOT RUN i smoke użytkownika.
 
 ## In Progress
-
-- `[P1] [VS-17] Dodać podstawowe powtarzalne misje` - `IN_PROGRESS` - `NPC / Quest / Dialogue`, `Content / Data`, `Persistence`
-  - Przygotowane w ramach VS-18: nagroda Experience z Standard Experience Level (1–50) daje równowartość 20 przeciwników poziomu misji; 0 zachowuje stałe Amount. Testy naliczania dokładnie raz PASS. Nie wdrożono tym samym produkcyjnego zestawu powtarzalnych misji ani przepływu ich przyjmowania/oddawania.
-  - Uwzględnić proponowaną misję ukończenia wyprawy z Duchem Umarłego Króla na końcu, z rozróżnieniem wariantów poziomu 10 i 20 oraz wypraw bez bossa. Szczegółowe warunki i nagrody nadal wymagają ustalenia.
-  - Przykłady zatwierdzonego kierunku: zabij X przeciwników w lochach, ukończ Katakumby. Wykorzystać istniejący system questów, bez równoległego właściciela postępu.
-  - Przed implementacją uzgodnić miejsce przyjmowania/oddawania, liczenie postępu od przyjęcia, zakres kwalifikujących się przeciwników i definicję ukończenia lochu, odnawianie, jednoczesne misje oraz nagrody.
-  - Testy braku podwójnego zaliczania zabójstw/ukończeń, odbioru nagrody dokładnie raz, ponownej dostępności i save/load. UI przedstawić przed implementacją.
 
 - `[P1] City Progression and Specialist Services v1 - UI acceptance pass` - `UI / UX`, `Bug` - `DONE`
   - Poprawki na podstawie dziewieciu screenow: podglady, materialy alchemii, lokalizacja, stany puste i zaznaczenia, prog gniazda przy 20% ulepszenia.

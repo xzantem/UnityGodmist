@@ -559,8 +559,7 @@ namespace Godmist.Views.Game
                 out _,
                 out _);
 
-            questObjectiveProgressSystem?.ReportDungeonExited(
-                dungeon.DungeonId);
+            questObjectiveProgressSystem?.ReportDungeonExited(dungeon);
 
             DungeonExited?.Invoke(dungeon);
 
@@ -727,7 +726,7 @@ namespace Godmist.Views.Game
         private void InitializeRuntimeServices()
         {
             DialogueService = new DialogueService();
-            QuestService = new QuestService(Session);
+            QuestService = new QuestService(Session, nextContentCatalog: contentCatalog);
             NpcEconomyService = new NpcEconomyService();
             TradeService = new TradeService(NpcEconomyService);
 
@@ -789,7 +788,7 @@ namespace Godmist.Views.Game
             return true;
         }
 
-        private void RequestAutosave(string reason)
+        public void RequestAutosave(string reason)
         {
             autosaveRequested = true;
             pendingAutosaveReason = reason ?? string.Empty;

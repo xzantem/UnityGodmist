@@ -6,8 +6,10 @@ using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
+using Godmist.Systems.Quests;
 using Godmist.Views.Combat;
 using Godmist.Views.Exploration;
+using Godmist.Views.Game;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using UnityEngine;
@@ -56,6 +58,9 @@ namespace Godmist.Views.Dungeons
         private readonly Dictionary<string, BattleUnit> exploringEnemies = new();
         private readonly Dictionary<string, Vector2Int> trapPreviousCells = new();
         private bool initialized;
+
+        private QuestObjectiveProgressSystem CreateQuestProgress() =>
+            new(game, GameBootstrap.Instance?.QuestService ?? new QuestService(game));
         private readonly DungeonVisibilitySystem visibility = new();
         public void CenterPartyMember(BattleUnit unit) => combatCamera.FocusUnit(unit);
 
@@ -352,7 +357,19 @@ namespace Godmist.Views.Dungeons
                 if(game.ActiveDungeon.TryGetPreRolledRewards(trigger.Encounter.InstanceId, out var loot)) result.Rewards = loot;
                 foreach(var view in dead)
                 {
-                    trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId);
+                    if (trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId))
+                    {
+                        foreach (var enemy in trigger.Encounter.Definition.Enemies)
+                            if (enemy?.InstanceId == view.EnemyInstanceId
+                                && enemy.CharacterDefinition != null)
+                            {
+                                CreateQuestProgress()
+                                    .ReportEnemyDefeated(game.ActiveDungeon.DungeonId,
+                                        game.ActiveDungeon.DungeonLevel,
+                                        enemy.CharacterDefinition.Id, false);
+                                break;
+                            }
+                    }
                     result.TryMarkEnemyDefeated(view.EnemyInstanceId, DungeonBattleGridFactory.ToBattleTraversalPosition(context, view.DungeonPosition));
                     view.gameObject.SetActive(false);
                 }
@@ -432,14 +449,14 @@ namespace Godmist.Views.Dungeons
                 changed = true;
             }
             if (!changed) return;
-            stateSync.TrySyncDefeatedEnemyStates(game, session);
+            stateSync.TrySyncDefeatedEnemyStates(game, session, CreateQuestProgress());
             DungeonCombatOutcomeSystem.TryCreateEnemyBodies(game.ActiveDungeon, session.DungeonContext, session);
             objects.RefreshBodies(floor, party);
         }
 
         private void Finish(CombatSession session)
         {
-            if (!outcomes.TryApplyOutcome(game, session))
+            if (!outcomes.TryApplyOutcome(game, session, CreateQuestProgress()))
             { Debug.LogError("Nie udało się zastosować wyniku walki " + session.CombatId); return; }
             if (session.Outcome == CombatOutcomeState.Victory) rewards.TryGrantVictoryRewards(game, session);
             if (session.EscapePenaltyEligibleCharacterIds.Count > 0) rewards.TryApplyEscapePenalty(game, session);
