@@ -11,22 +11,26 @@ namespace Godmist.Runtime.Dungeons
     {
         private readonly List<ItemInstance> items = new();
         private bool isUnlocked;
+        private int gold;
 
         public IReadOnlyList<ItemInstance> Items => items;
         public ChestLockType LockType { get; }
         public ItemDefinition RequiredKey { get; }
         public bool IsUnlocked => isUnlocked;
+        public int Gold => gold;
 
         public ChestDungeonObjectInstance(
             string instanceId,
             ChestDungeonObjectDefinition definition,
             Vector2Int position,
-            IEnumerable<ItemInstance> initialItems)
+            IEnumerable<ItemInstance> initialItems,
+            int initialGold = 0)
             : base(instanceId, definition, position)
         {
             LockType = definition.LockType;
             RequiredKey = definition.RequiredKey;
             isUnlocked = LockType == ChestLockType.Unlocked;
+            gold = Mathf.Max(0, initialGold);
 
             if (initialItems == null) return;
 
@@ -94,6 +98,22 @@ namespace Godmist.Runtime.Dungeons
                 items.Add(item);
             }
 
+            return true;
+        }
+
+        public bool TryRestoreGold(int restoredGold)
+        {
+            if (restoredGold < 0) return false;
+            gold = restoredGold;
+            return true;
+        }
+
+        public bool TryClaimGold(out int claimedGold)
+        {
+            claimedGold = 0;
+            if (!isUnlocked || gold <= 0) return false;
+            claimedGold = gold;
+            gold = 0;
             return true;
         }
 

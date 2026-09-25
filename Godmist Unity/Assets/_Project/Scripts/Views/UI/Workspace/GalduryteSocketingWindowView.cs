@@ -138,9 +138,11 @@ namespace Godmist.Views.UI.Workspace
             if (statusText != null) statusText.gameObject.SetActive(!string.IsNullOrEmpty(statusText.text));
 
             if (selectedEquipment == null) return;
+            var socketIndex = 0;
             foreach (var galduryte in selectedEquipment.SocketedGaldurytes ?? new List<GalduryteItemInstance>())
             {
                 var row = CreateSocketRow(galduryte, false);
+                row?.SetInactive(!selectedEquipment.IsSocketActive(socketIndex++));
                 if (row != null) socketRows.Add(row);
             }
             for (var index = selectedEquipment.SocketedGaldurytes?.Count ?? 0;

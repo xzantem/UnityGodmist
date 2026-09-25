@@ -82,7 +82,36 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void BlacksmithRejectsMixedTiersWithoutConsumingMaterials()
+        {
+            var ore = CreateItem("material.ore", ItemType.Material, 8);
+            var scout = CreateClass("class.scout");
+            var definition = CreateEquipmentDefinition("equipment.scout.weapon", scout);
+            var head = CreatePart("head", scout, ore, EquipmentPartKind.WeaponHead);
+            var binder = CreatePart("binder", scout, ore, EquipmentPartKind.WeaponBinder);
+            var handle = CreatePart("handle", scout, ore, EquipmentPartKind.WeaponHandle);
+            SetAutoProperty(head, "LevelBracket", EquipmentPartLevelBracket.Level15);
+            var character = new CharacterInstance { CharacterId = "crafter" };
+            var session = new GameSession(GameModeState.Exploration, "mixed.tiers");
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            var material = new ItemInstance(ore, "ore.01");
+            character.Inventory.Items.Add(material);
+            var request = new EquipmentCraftRequest { Definition = definition,
+                Parts = new[] { head, binder, handle }, Quality = EquipmentQuality.Normal,
+                RecipientCharacterId = character.CharacterId };
+            var service = new BlacksmithCraftingService();
+            var blacksmith = CreateBlacksmith();
+            var preview = service.CreatePreview(session, blacksmith, request);
+            Assert.That(preview.CanCraft, Is.False);
+            Assert.That(preview.FailureReason, Does.Contain("tego samego tieru"));
+            Assert.That(service.TryCraft(session, blacksmith, request, out var item, out var reason), Is.False);
+            Assert.That(item, Is.Null);
+            Assert.That(reason, Is.EqualTo(preview.FailureReason));
+            Assert.That(character.Inventory.Items, Is.EqualTo(new[] { material }));
+        }
 
+        [Test]
         public void CraftableItemDefinition_CalculatesRecursiveUnitValue()
         {
             var ore = CreateItem("material.ore", ItemType.Material, 8);
@@ -150,35 +179,75 @@ namespace Godmist.Tests.EditMode
             var session = new GameSession(GameModeState.Exploration, "upgrade.acceptance");
             session.TryAddGold(100000);
 
-            var preview = new EquipmentUpgradeService().CreateUpgradePreview(
-                session,
-                blacksmith,
-                item,
-                1f,
-                .5f,
-                catalog);
-
+            var service = new EquipmentUpgradeService();
+            Assert.That(service.CreateUpgradePreview(session, blacksmith, item, 1f, .7f, catalog).CanExecute, Is.False);
+            Assert.That(service.CreateUpgradePreview(session, blacksmith, item, float.NaN, .7f, catalog).CanExecute, Is.False);
+            var preview = service.CreateUpgradePreview(session, blacksmith, item, .2f, .7f, catalog);
             Assert.That(preview.CanExecute, Is.True);
-            Assert.That(preview.SocketCapacity, Is.EqualTo(5));
-            var expectedGoldCost = Mathf.CeilToInt((float)(
-                EquipmentUpgradeService.UpgradeCost(30f, 1f, .5f)
-                - EquipmentUpgradeService.UpgradeCost(30f, 0f, .5f)));
-            Assert.That(preview.GoldCost, Is.EqualTo(expectedGoldCost));
-            foreach (var progress in new[] { .19f, .2f, .4f, .6f, .8f, 1f })
+            Assert.That(preview.GoldCost, Is.EqualTo(7));
+            item.CurrentRarity = RarityTier.Legendary;
+            item.UpgradeProgress = .4f;
+            var enhanced = service.CreateUpgradePreview(session, blacksmith, item, .6f, .7f, catalog);
+            Assert.That(enhanced.CurrentValue, Is.EqualTo(136.5f).Within(.001f));
+            var before = session.Gold;
+            Assert.That(new EquipmentUpgradeService(new AlwaysFailRandom()).TryUpgrade(
+                session, blacksmith, null, item, .6f, .7f, catalog, out var success, out var paid, out _), Is.True);
+            Assert.That(success, Is.False);
+            Assert.That(paid, Is.EqualTo(enhanced.GoldCost));
+            Assert.That(session.Gold, Is.EqualTo(before - paid));
+            Assert.That(item.UpgradeProgress, Is.InRange(.2f, .3f));
+            item.CurrentRarity = RarityTier.Common;
+            item.UpgradeProgress = 0f;
+            var total = 0;
+            for (var step = 1; step <= 5; step++)
             {
-                var boundary = new EquipmentUpgradeService().CreateUpgradePreview(
-                    session, blacksmith, item, progress, .5f, catalog);
-                var projected = new EquipmentItemInstance { UpgradeProgress = progress };
-                Assert.That(boundary.SocketCapacity, Is.EqualTo(projected.SocketCapacity));
-                Assert.That(boundary.SocketCapacity, Is.EqualTo(Mathf.FloorToInt(progress * 5f + .0001f)));
+                var target = step / 5f;
+                var next = service.CreateUpgradePreview(session, blacksmith, item, target, .7f, catalog);
+                Assert.That(next.CanExecute, Is.True);
+                total += next.GoldCost;
+                item.UpgradeProgress = target;
+                Assert.That(item.SocketCapacity, Is.EqualTo(step));
             }
-            item.UpgradeProgress = .8f;
-            var failed = new EquipmentUpgradeService(new AlwaysFailRandom());
-            Assert.That(failed.TryUpgrade(session, blacksmith, null, item, 1f, .5f, catalog,
-                out var succeeded, out _, out _), Is.True);
-            Assert.That(succeeded, Is.False);
-            Assert.That(item.UpgradeProgress, Is.EqualTo(.8f));
-            Assert.That(item.SocketCapacity, Is.EqualTo(4));
+            Assert.That(total, Is.EqualTo(System.Math.Ceiling(EquipmentUpgradeService.UpgradeCost(30, 1, .7f))));
+            item.UpgradeProgress = 0;
+            var commonCost = service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost;
+            Assert.That(commonCost, Is.EqualTo(8));
+            var rarities = new[] { RarityTier.Common, RarityTier.Uncommon, RarityTier.Rare, RarityTier.Ancient, RarityTier.Legendary, RarityTier.Mythic };
+            var costs = new[] { 8, 14, 21, 31, 45, 65 };
+            for (var index = 0; index < rarities.Length; index++)
+            {
+                item.CurrentRarity = rarities[index];
+                Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost, Is.EqualTo(costs[index]), rarities[index].ToString());
+            }
+            item.CurrentRarity = RarityTier.Mythic;
+            Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost, Is.EqualTo(65));
+            item.Quality = EquipmentQuality.Excellent;
+            Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).CurrentValue, Is.EqualTo(item.BaseValue).Within(1));
+        }
+
+        [Test]
+        public void EquipmentRarity_RebuildsFromBaselineWithoutCompounding()
+        {
+            var definition = CreateEquipmentDefinition("equipment.rarity", CreateClass("class.scout"));
+            var item = new EquipmentItemInstance(definition)
+            {
+                CurrentRarity = RarityTier.Godly, UpgradeProgress = .4f,
+                BaseStatModifiers = new List<StatModifier>
+                {
+                    new() { StatType = CharacterStatType.MinAttack, Value = 100 },
+                    new() { StatType = CharacterStatType.CritChance, Value = .1f },
+                    new() { StatType = CharacterStatType.CritDamage, Value = .5f },
+                    new() { StatType = CharacterStatType.WeaponAccuracy, Value = 100 },
+                    new() { StatType = CharacterStatType.MaxResource, Value = 100 }
+                }
+            };
+            item.RecalculateStatModifiers();
+            item.RecalculateStatModifiers();
+            Assert.That(item.StatModifiers.Select(x => x.Value), Is.EqualTo(new[] { 140f, .27f, 1.35f, 151f, 202f }).Within(.001f));
+            item.CurrentRarity = RarityTier.Common;
+            item.RecalculateStatModifiers();
+            Assert.That(item.StatModifiers[1].Value, Is.EqualTo(.1f).Within(.0001f));
+            Assert.That(item.BaseStatModifiers[0].Value, Is.EqualTo(100));
         }
 
         private sealed class AlwaysFailRandom : System.Random

@@ -368,6 +368,7 @@ GameObject:
   - component: {fileID: 5916553754153727679}
   - component: {fileID: 4480781430802131186}
   - component: {fileID: 1703961955774828507}
+  - component: {fileID: 8462743915028716401}
   m_Layer: 0
   m_Name: ActionPointPipTemplate
   m_TagString: Untagged
@@ -1640,3 +1641,15 @@ MonoBehaviour:
   tooltip: {fileID: 0}
   title: "Zas\xF3b klasowy"
   description: "Aktualna i maksymalna ilo\u015B\u0107 zasobu umiej\u0119tno\u015Bci."
+--- !u!114 &8462743915028716401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2337418811366032285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 310784306d550774abd87ea441523e96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

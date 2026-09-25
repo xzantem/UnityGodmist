@@ -207,6 +207,7 @@ namespace Godmist.Views.UI.Workspace
             var previousWindow = manager.FocusedWindow;
             var view = Instantiate(characterInfoWindowPrefab, manager.WorkspaceRoot);
             windows[character.CharacterId] = view; view.Initialize(session, character.CharacterId);
+            view.CampAction = (ownerId, itemId) => partyController != null ? partyController.TryCamp(ownerId, itemId) : "Brak aktywnej drużyny.";
             manager.CascadeAndFocus(view.GetComponent<UIWorkspaceWindow>(), previousWindow);
         }
         private void ToggleActiveCharacterInfo()

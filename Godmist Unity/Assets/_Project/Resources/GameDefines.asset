@@ -1848,8 +1848,8 @@ MonoBehaviour:
     CurrentIntegerValue: 0
     MinimumIntegerValue: 0
     MaximumIntegerValue: 0
-    DefaultFloatValue: 12
-    CurrentFloatValue: 12
+    DefaultFloatValue: 1200
+    CurrentFloatValue: 1200
     MinimumFloatValue: 0
     MaximumFloatValue: 100000
     DefaultBooleanValue: 0
@@ -1884,8 +1884,8 @@ MonoBehaviour:
     CurrentIntegerValue: 0
     MinimumIntegerValue: 0
     MaximumIntegerValue: 0
-    DefaultFloatValue: 12
-    CurrentFloatValue: 12
+    DefaultFloatValue: 1200
+    CurrentFloatValue: 1200
     MinimumFloatValue: 0
     MaximumFloatValue: 100000
     DefaultBooleanValue: 0
@@ -3461,8 +3461,9 @@ MonoBehaviour:
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: economy.npc.guild_payout.growth_base
-    DisplayName: Baza wzrostu wypłat gildii
-    Description: Podstawa potęgowania wypłaty gildii NPC względem poziomu kampanii.
+    DisplayName: "Baza wzrostu wyp\u0142at gildii"
+    Description: "Podstawa pot\u0119gowania wyp\u0142aty gildii NPC wzgl\u0119dem
+      poziomu kampanii."
     Category: 0
     Unit: x
     ValueType: 1
@@ -3479,8 +3480,9 @@ MonoBehaviour:
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: economy.npc.guild_payout.campaign_exponent
-    DisplayName: Wykładnik poziomu wypłaty gildii
-    Description: Wykładnik poziomu kampanii używany przy skalowaniu wypłaty gildii NPC.
+    DisplayName: "Wyk\u0142adnik poziomu wyp\u0142aty gildii"
+    Description: "Wyk\u0142adnik poziomu kampanii u\u017Cywany przy skalowaniu wyp\u0142aty
+      gildii NPC."
     Category: 0
     Unit: x/level
     ValueType: 1
@@ -3497,8 +3499,9 @@ MonoBehaviour:
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: economy.npc.guild_payout.progress_per_dungeon
-    DisplayName: Postęp wypłaty za loch
-    Description: Część postępu do wypłaty przy pełnym lochu.
+    DisplayName: "Post\u0119p wyp\u0142aty za loch"
+    Description: "Cz\u0119\u015B\u0107 post\u0119pu do wyp\u0142aty przy pe\u0142nym
+      lochu."
     Category: 0
     Unit: '%'
     ValueType: 1
@@ -3515,10 +3518,11 @@ MonoBehaviour:
     DefaultStringValue: 
     CurrentStringValue: 
   - Id: items.alchemy.ingredient_count
-    DisplayName: Liczba składników alchemicznych
-    Description: Liczba ziół lub części potworów wymaganych do craftingu potionu albo bomby.
+    DisplayName: "Liczba sk\u0142adnik\xF3w alchemicznych"
+    Description: "Liczba zi\xF3\u0142 lub cz\u0119\u015Bci potwor\xF3w wymaganych
+      do craftingu potionu albo bomby."
     Category: 3
-    Unit: składniki
+    Unit: "sk\u0142adniki"
     ValueType: 0
     DefaultIntegerValue: 3
     CurrentIntegerValue: 3
@@ -3534,7 +3538,8 @@ MonoBehaviour:
     CurrentStringValue: 
   - Id: items.alchemy.level.tier_1
     DisplayName: Poziom alchemii tieru 1
-    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 1.
+    Description: "Poziom wynikowego consumabla przy efekcie najwy\u017Cszego tieru
+      1."
     Category: 3
     Unit: level
     ValueType: 0
@@ -3552,7 +3557,8 @@ MonoBehaviour:
     CurrentStringValue: 
   - Id: items.alchemy.level.tier_2
     DisplayName: Poziom alchemii tieru 2
-    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 2.
+    Description: "Poziom wynikowego consumabla przy efekcie najwy\u017Cszego tieru
+      2."
     Category: 3
     Unit: level
     ValueType: 0
@@ -3570,7 +3576,8 @@ MonoBehaviour:
     CurrentStringValue: 
   - Id: items.alchemy.level.tier_3
     DisplayName: Poziom alchemii tieru 3
-    Description: Poziom wynikowego consumabla przy efekcie najwyższego tieru 3.
+    Description: "Poziom wynikowego consumabla przy efekcie najwy\u017Cszego tieru
+      3."
     Category: 3
     Unit: level
     ValueType: 0
@@ -3639,7 +3646,7 @@ MonoBehaviour:
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
     DefaultStringValue: 
-    CurrentStringValue:
+    CurrentStringValue: 
   - Id: economy.enemy.gold_base
     DisplayName: "Z\u0142oto przeciwnika"
     Description: Nagroda na poziomie 1.
@@ -4068,6 +4075,156 @@ MonoBehaviour:
     CurrentFloatValue: 20
     MinimumFloatValue: -1000
     MaximumFloatValue: 1000
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: items.galduryte.identification_cost_percent
+    DisplayName: Koszt identyfikacji galdurytu
+    Description: "Cz\u0119\u015B\u0107 warto\u015Bci galdurytu pobierana za jego
+      identyfikacj\u0119 u Zaklinacza."
+    Category: 3
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.3
+    CurrentFloatValue: 0.3
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.socketing_cost_percent
+    DisplayName: Koszt osadzenia galdurytu
+    Description: "Cz\u0119\u015B\u0107 warto\u015Bci galdurytu pobierana za osadzenie
+      go w wyposa\u017Ceniu u Zaklinacza."
+    Category: 3
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.5
+    CurrentFloatValue: 0.5
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.extraction_cost_percent
+    DisplayName: "Koszt wyci\u0105gania galdurytu"
+    Description: "Cz\u0119\u015B\u0107 warto\u015Bci galdurytu pobierana przy ka\u017Cdej
+      pr\xF3bie wyci\u0105gni\u0119cia."
+    Category: 3
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.7
+    CurrentFloatValue: 0.7
+    MinimumFloatValue: 0
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.destroyed_extraction_multiplier
+    DisplayName: "Wyci\u0105ganie zniszczonego galdurytu"
+    Description: "Mno\u017Cnik kosztu dla zniszczonego galdurytu. Nie kumuluje si\u0119
+      przy kolejnych pr\xF3bach."
+    Category: 3
+    Unit: x
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 1.5
+    CurrentFloatValue: 1.5
+    MinimumFloatValue: 1
+    MaximumFloatValue: 100
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.extraction_success_chance
+    DisplayName: "Szansa wyci\u0105gni\u0119cia galdurytu"
+    Description: "Bazowa szansa powodzenia wyci\u0105gania."
+    Category: 3
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.7
+    CurrentFloatValue: 0.7
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.extraction_loyalty_threshold
+    DisplayName: "Lojalno\u015B\u0107 a wyci\u0105ganie galdurytu"
+    Description: "Poziom lojalno\u015Bci odblokowuj\u0105cy premi\u0119 do wyci\u0105gania."
+    Category: 3
+    Unit: poziom
+    ValueType: 0
+    DefaultIntegerValue: 6
+    CurrentIntegerValue: 6
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: crafting.galduryte.extraction_loyalty_bonus
+    DisplayName: "Premia do wyci\u0105gania galdurytu"
+    Description: "Jednorazowa premia do szansy powodzenia po osi\u0105gni\u0119ciu
+      progu lojalno\u015Bci."
+    Category: 3
+    Unit: '%'
+    ValueType: 1
+    DefaultIntegerValue: 0
+    CurrentIntegerValue: 0
+    MinimumIntegerValue: 0
+    MaximumIntegerValue: 0
+    DefaultFloatValue: 0.1
+    CurrentFloatValue: 0.1
+    MinimumFloatValue: 0
+    MaximumFloatValue: 1
+    DefaultBooleanValue: 0
+    CurrentBooleanValue: 0
+    DefaultStringValue: 
+    CurrentStringValue: 
+  - Id: combat.escape.contact_loss_turns
+    DisplayName: Tury bez kontaktu do ucieczki
+    Description: "Liczba pe\u0142nych tur ka\u017Cdego przeciwnika bez ponownego
+      wykrycia postaci w walce seamless. Odczytywana przy rozpocz\u0119ciu starcia."
+    Category: 1
+    Unit: tury
+    ValueType: 0
+    DefaultIntegerValue: 2
+    CurrentIntegerValue: 3
+    MinimumIntegerValue: 1
+    MaximumIntegerValue: 100
+    DefaultFloatValue: 0
+    CurrentFloatValue: 0
+    MinimumFloatValue: 0
+    MaximumFloatValue: 0
     DefaultBooleanValue: 0
     CurrentBooleanValue: 0
     DefaultStringValue: 

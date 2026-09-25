@@ -111,7 +111,7 @@ namespace Godmist.Systems.Debugging
             output.AppendLine(
                 $"Walka: {(battleUnit.IsPlayerSide ? "sojusznik" : "wróg")} | " +
                 $"Pozycja: {battleUnit.Position.X}, {battleUnit.Position.Y} | " +
-                $"AP: {battleUnit.CurrentActionPoints}/{battleUnit.MaxActionPoints}");
+                $"AP: {Godmist.Runtime.Combat.ActionPointUnits.Format(battleUnit.CurrentActionPoints)}/{Godmist.Runtime.Combat.ActionPointUnits.Format(battleUnit.MaxActionPoints)}");
 
             output.AppendLine(
                 $"AV: {battleUnit.CurrentActionValue} | " +

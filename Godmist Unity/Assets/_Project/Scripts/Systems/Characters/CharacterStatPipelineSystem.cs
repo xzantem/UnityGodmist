@@ -43,9 +43,7 @@ namespace Godmist.Systems.Characters
 
                 effectiveValue = statType == CharacterStatType.MaxHealth
                     ? Mathf.Max(1f, effectiveValue)
-                    : IsDefensePenetration(statType)
-                        ? Mathf.Clamp01(effectiveValue)
-                        : Mathf.Max(0f, effectiveValue);
+                    : Mathf.Max(0f, effectiveValue);
 
                 stat.SetEffectiveValue(effectiveValue);
             }
@@ -178,12 +176,6 @@ namespace Godmist.Systems.Characters
             character.Resistances.WeakeningResistance = Mathf.Clamp01(character.Resistances.WeakeningResistance);
             character.Resistances.SuppressionResistance = Mathf.Clamp01(character.Resistances.SuppressionResistance);
             character.Resistances.MoveResistance = Mathf.Clamp01(character.Resistances.MoveResistance);
-        }
-
-        private static bool IsDefensePenetration(CharacterStatType statType)
-        {
-            return statType == CharacterStatType.PhysicalDefensePenetration
-                || statType == CharacterStatType.MagicalDefensePenetration;
         }
 
         private struct StatModifierAccumulator

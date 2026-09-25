@@ -10,8 +10,7 @@ namespace Godmist.Systems.Combat
     {
         public bool TrySyncDoorStates(
             GameSession gameSession,
-            CombatSession combatSession,
-            QuestObjectiveProgressSystem questProgress = null)
+            CombatSession combatSession)
         {
             if (gameSession == null
                 || combatSession == null
@@ -135,18 +134,21 @@ namespace Godmist.Systems.Combat
                     return false;
                 }
 
-                foreach (var enemy in encounter.Definition.Enemies)
+                if (!encounter.IsReinforcement)
                 {
-                    if (enemy?.InstanceId != enemyInstanceId
-                        || enemy.CharacterDefinition == null) continue;
-                    (questProgress ??= new QuestObjectiveProgressSystem(
-                        gameSession, new QuestService(gameSession)))
-                        .ReportEnemyDefeated(
-                            gameSession.ActiveDungeon.DungeonId,
-                            gameSession.ActiveDungeon.DungeonLevel,
-                            enemy.CharacterDefinition.Id,
-                            false);
-                    break;
+                    foreach (var enemy in encounter.Enemies)
+                    {
+                        if (enemy?.InstanceId != enemyInstanceId
+                            || enemy.CharacterDefinition == null) continue;
+                        (questProgress ??= new QuestObjectiveProgressSystem(
+                            gameSession, new QuestService(gameSession)))
+                            .ReportEnemyDefeated(
+                                gameSession.ActiveDungeon.DungeonId,
+                                gameSession.ActiveDungeon.DungeonLevel,
+                                enemy.CharacterDefinition.Id,
+                                false);
+                        break;
+                    }
                 }
             }
 

@@ -55,27 +55,29 @@ namespace Godmist.Systems.Items
                 preview.FailureReason = error;
                 return preview;
             }
-            if (targetProgress <= item.UpgradeProgress || targetProgress > 1f || targetProgress < 0f)
+            if (targetProgress <= item.UpgradeProgress || targetProgress > 1f || targetProgress < 0f || float.IsNaN(targetProgress)
+                || targetProgress - item.UpgradeProgress > .20001f)
             {
-                preview.FailureReason = "Wybierz docelowy postęp większy od obecnego i nie większy niż 100%.";
+                preview.FailureReason = "Wybierz przyrost od ponad 0 do 20 punktów procentowych, maksymalnie do 100%.";
                 return preview;
             }
             var maximumSuccessChance = GameDefinesRuntime.GetFloat(
                 GameDefineIds.UpgradeSuccessChanceMax, .99f);
-            if (successChance < 0f || successChance > maximumSuccessChance)
+            if (float.IsNaN(successChance) || successChance < 0f || successChance > maximumSuccessChance)
             {
                 preview.FailureReason = "Szansa powodzenia musi mieścić się między 0% a 99%.";
                 return preview;
             }
-            var baseGoldCost = Mathf.Max(1, Mathf.CeilToInt((float)(UpgradeCost(
-                baseValue,
-                targetProgress,
-                successChance)
-                - UpgradeCost(baseValue, item.UpgradeProgress, successChance))));
+            preview.CurrentValue = item.CurrentEquipmentValue(baseValue);
+            var baselineValue = baseValue * EquipmentItemInstance.QualityValueMultiplier(item.Quality)
+                * EquipmentItemInstance.RarityMultiplier(item.CurrentRarity);
+            // Round endpoints before subtraction: successful partitions telescope exactly.
+            var baseGoldCost = Math.Max(1, (int)Math.Min(int.MaxValue,
+                Math.Ceiling(UpgradeCost(baselineValue, targetProgress, successChance))
+                - Math.Ceiling(UpgradeCost(baselineValue, item.UpgradeProgress, successChance))));
             preview.GoldCost = npcLoyaltyService.GetDiscountedGoldCost(
                 blacksmith,
                 baseGoldCost);
-            preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
             preview.CanExecute = session.Gold >= preview.GoldCost;
             preview.FailureReason = preview.CanExecute ? string.Empty : "Brakuje złota.";
             return preview;
@@ -89,6 +91,7 @@ namespace Godmist.Systems.Items
             var preview = CreateUpgradePreview(session, blacksmith, item, targetProgress, successChance, catalog);
             if (!preview.CanExecute) { failureReason = preview.FailureReason; return false; }
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
+            item.RecalculateStatModifiers(); // Capture legacy baseline before changing progress or rarity.
             paidGold = preview.GoldCost;
             npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
@@ -100,7 +103,9 @@ namespace Godmist.Systems.Items
             }
             else
             {
-                failureReason = "Ulepszenie nie powiodło się; postęp pozostał bez zmian.";
+                var loss = (10 + Math.Min(10, (int)(random.NextDouble() * 11))) / 100f;
+                item.UpgradeProgress = Mathf.Max(0f, item.UpgradeProgress - loss);
+                failureReason = $"Ulepszenie nie powiodło się; utrata {loss:P0} postępu. Nadmiarowe gniazda są nieaktywne.";
             }
             ApplyUpgradeStats(item);
             if (owner != null && owner.Equipment.GetEquippedItems().Any(equipped => ReferenceEquals(equipped, item))) statPipeline.Refresh(owner);
@@ -118,9 +123,8 @@ namespace Godmist.Systems.Items
             preview.IncreaseChance = (float)up;
             preview.UnchangedChance = (float)unchanged;
             preview.DecreaseChance = 1f - preview.IncreaseChance - preview.UnchangedChance;
-            preview.CurrentValue = GetCurrentValue(baseValue, item.CurrentRarity, item.UpgradeProgress);
-            var baseGoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * GameDefinesRuntime.GetFloat(
-                GameDefineIds.ReforgeCostMultiplier, .25f)));
+            preview.CurrentValue = item.CurrentEquipmentValue(baseValue);
+            var baseGoldCost = Mathf.Max(1, Mathf.CeilToInt(preview.CurrentValue * (.25f + .15f * Mathf.Max(0, (int)item.CurrentRarity - (int)RarityTier.Common))));
             preview.GoldCost = npcLoyaltyService.GetDiscountedGoldCost(
                 blacksmith,
                 baseGoldCost);
@@ -136,6 +140,7 @@ namespace Godmist.Systems.Items
             var preview = CreateReforgePreview(session, blacksmith, item, catalog);
             if (!preview.CanExecute) { failureReason = preview.FailureReason; return false; }
             if (!session.TrySpendGold(preview.GoldCost)) { failureReason = "Nie udało się pobrać złota."; return false; }
+            item.RecalculateStatModifiers(); // Capture legacy baseline before changing progress or rarity.
             paidGold = preview.GoldCost;
             npcLoyaltyService.TryRecordGoldSpent(blacksmith, paidGold);
             new NpcEconomyService().TryReceiveGold(blacksmith, paidGold);
@@ -144,39 +149,25 @@ namespace Godmist.Systems.Items
             result = roll < up ? (RarityTier)((int)item.CurrentRarity + 1)
                 : roll < up + unchanged ? item.CurrentRarity : (RarityTier)((int)item.CurrentRarity - 1);
             item.CurrentRarity = result;
+            ApplyUpgradeStats(item);
+            if (owner != null && owner.Equipment.GetEquippedItems().Any(equipped => ReferenceEquals(equipped, item)))
+                statPipeline.Refresh(owner);
             failureReason = string.Empty;
             return true;
         }
 
         public static float GetCurrentValue(float baseValue, RarityTier rarity, float progress) =>
-            GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueBaseMultiplier, .25f)
-            * (GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueRarityBase, 3f)
-                + GetRarityValue(rarity))
-            * (1f + GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeValueProgressMultiplier, 4f)
-                * Mathf.Clamp01(progress)) * baseValue;
+            baseValue * EquipmentItemInstance.RarityMultiplier(rarity)
+            * (1f + 4f * Mathf.Clamp01(progress));
 
+        // baseValue is the quality/rarity-adjusted value at zero upgrade progress.
         public static double UpgradeCost(float baseValue, float progress, float chance)
         {
-            var m = Mathf.Clamp01(progress);
-            var c = Mathf.Clamp(chance, 0f, GameDefinesRuntime.GetFloat(
-                GameDefineIds.UpgradeSuccessChanceMax, .99f));
-            var progressBase = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostProgressBase, 3f);
-            var progressSlope = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostProgressSlope, 7f);
-            var progressDenominatorBase = GameDefinesRuntime.GetFloat(
-                GameDefineIds.UpgradeCostProgressDenominatorBase, 12f);
-            var progressDenominatorSlope = GameDefinesRuntime.GetFloat(
-                GameDefineIds.UpgradeCostProgressDenominatorSlope, 11f);
-            var chanceBase = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostChanceBase, 57f);
-            var chanceSlope = GameDefinesRuntime.GetFloat(GameDefineIds.UpgradeCostChanceSlope, 37f);
-            var chanceDenominatorBase = GameDefinesRuntime.GetFloat(
-                GameDefineIds.UpgradeCostChanceDenominatorBase, 76f);
-            var chanceDenominatorSlope = GameDefinesRuntime.GetFloat(
-                GameDefineIds.UpgradeCostChanceDenominatorSlope, 75f);
-            return ((1d + baseValue) / 2d)
-                * ((progressSlope * m + progressBase)
-                    / (progressDenominatorBase - progressDenominatorSlope * m))
-                * ((chanceBase - chanceSlope * c)
-                    / (chanceDenominatorBase - chanceDenominatorSlope * c));
+            var p = Math.Round(Mathf.Clamp01(progress), 6);
+            var c = Math.Round(Mathf.Clamp(chance, 0f, .99f), 6);
+            var chanceFactor = (57d - 37d * c) / (76d - 75d * c);
+            var referenceFactor = (57d - 37d * .6d) / (76d - 75d * .6d);
+            return baseValue * (.6d * p + 6.4d * p * p * p) * chanceFactor / referenceFactor;
         }
 
         public static int GetRarityValue(RarityTier rarity) => (int)rarity - 2;
@@ -225,28 +216,13 @@ namespace Godmist.Systems.Items
             var parts = (item.PartIds ?? new()).Select(id => catalog.EquipmentPartDefinitions.FirstOrDefault(part => part != null && part.Id == id)).ToList();
             if (parts.Count == 0 || parts.Any(part => part == null)) { error = "Wyposażenie ma brakujące dane części."; return false; }
             baseValue = parts.Sum(part => (part.CraftingMaterials ?? new()).Where(requirement => requirement?.Material != null).Sum(requirement => requirement.Amount * GetDefinitionValue(requirement.Material)));
+            if (item.CraftedBaseValue > 0) baseValue = item.CraftedBaseValue;
             if (baseValue <= 0) { error = "Części wyposażenia muszą mieć dodatnią wartość materiałów."; return false; }
             return true;
         }
 
         private static float GetDefinitionValue(ItemDefinition definition) => definition is CraftableItemDefinition craftable ? craftable.CalculatedBaseValue : Mathf.Max(0, definition.BaseValue);
 
-        private static void ApplyUpgradeStats(EquipmentItemInstance item)
-        {
-            item.BaseStatModifiers ??= new();
-            if (item.BaseStatModifiers.Count == 0 && item.StatModifiers != null) item.BaseStatModifiers = item.StatModifiers.Select(Copy).ToList();
-            var multiplier = 1f + item.UpgradeProgress;
-            item.StatModifiers = item.BaseStatModifiers.Select(modifier =>
-            {
-                var result = Copy(modifier);
-                var applies = item.Definition.ItemType == ItemType.Weapon
-                    ? result.StatType is CharacterStatType.MinAttack or CharacterStatType.MaxAttack
-                    : result.StatType is CharacterStatType.PhysicalDefense or CharacterStatType.MagicalDefense;
-                if (applies) result.Value *= multiplier;
-                return result;
-            }).ToList();
-        }
-
-        private static StatModifier Copy(StatModifier modifier) => new() { StatType = modifier.StatType, Operation = modifier.Operation, Stacking = modifier.Stacking, Value = modifier.Value };
+        private static void ApplyUpgradeStats(EquipmentItemInstance item) => item.RecalculateStatModifiers();
     }
 }

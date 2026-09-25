@@ -23,6 +23,11 @@ namespace Godmist.Runtime.Combat
         public bool IsSeamless;
         public bool IsDungeonWide;
         public bool MembershipChangePending;
+        [NonSerialized] public BattleUnit StallTrackedEnemy;
+        [NonSerialized] public int EnemyTurnsWithoutDamage;
+        [NonSerialized] public bool StallEnemyInvisibleAtTurnStart;
+        [NonSerialized] public bool EnemyDamagedSinceLastTurn;
+        [NonSerialized] public Func<bool> TrySpawnReinforcements;
         [NonSerialized] public DungeonContactState Contact;
         [NonSerialized] public Action<CombatTurnParticipant> ResumeTurn;
         public readonly Dictionary<string, (string EncounterId, string EnemyId)> EnemySources = new();

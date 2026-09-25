@@ -112,7 +112,7 @@ namespace Godmist.Systems.Combat
                     {
                         if (mode.UseRelativeRange)
                         {
-                            AddAreaTargets(session, caster, mode.TargetingType, selectedPosition.Value,
+                            AddAreaTargets(session, caster, mode.TargetingType, selectedPosition.Value, 
                                 mode.RelativeRange, true, targets, includeDownedTargets,
                                 rotationQuarterTurns);
                         }
@@ -880,7 +880,7 @@ namespace Godmist.Systems.Combat
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return false;
 
-            if (target.Character.LifeState != CharacterLifeState.Alive &&
+            if (target.Character.LifeState != CharacterLifeState.Alive && 
                 (!includeDownedTargets || target.Character.LifeState != CharacterLifeState.Downed)) return false;
 
             if (StatusEffectSystem.IsParalyzed(target)) return false;

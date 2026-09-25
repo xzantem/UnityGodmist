@@ -266,9 +266,9 @@ namespace Godmist.Systems.SaveLoad
                     GoldBalance = npc.GoldBalance,
                     TotalGoldReceived = npc.TotalGoldReceived,
                     TotalGoldSpent = npc.TotalGoldSpent,
-                    RotatingStockItemIds = new List<string>(npc.RotatingStockItemIds),
-                    CraftedStockInstanceIds = new List<string>(
-                        npc.CraftedStockInstanceIds ?? new List<string>()),
+                    RotatingStockItemIds = new System.Collections.Generic.List<string>(npc.RotatingStockItemIds),
+                    CraftedStockInstanceIds = new System.Collections.Generic.List<string>(
+                        npc.CraftedStockInstanceIds ?? new System.Collections.Generic.List<string>()),
                     GuildPayoutProgress = npc.GuildPayoutProgress
                 };
 
@@ -339,6 +339,7 @@ namespace Godmist.Systems.SaveLoad
                 HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
                 GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
                 TraderStockRefreshed = dungeon.TraderStockRefreshed,
+                CampSuppliesIssued = dungeon.CampSuppliesIssued,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
                 PlayerPositionX = dungeon.PlayerPosition.x,
@@ -407,6 +408,8 @@ namespace Godmist.Systems.SaveLoad
                         objectDelta.IsChest = true;
                         objectDelta.IsUnlocked = chest.IsUnlocked;
                         objectDelta.HasChestLootState = true;
+                        objectDelta.HasChestGoldState = true;
+                        objectDelta.ChestGold = chest.Gold;
 
                         foreach (var item in chest.Items)
                         {
@@ -537,7 +540,7 @@ namespace Godmist.Systems.SaveLoad
                                 if (encounter.IsEnemyDefeated(reward.EnemyInstanceId)
                                     || encounter.IsEnemyBodyGenerated(reward.EnemyInstanceId)) continue;
                                 if (!TryCaptureDungeonReward(encounterDelta, reward.EnemyInstanceId, reward.ExperiencePerActiveCharacter,
-                                    reward.Gold, reward.Items, saveData, capturedItemIds)) return false;
+                                    reward.Gold, reward.Items, saveData, capturedItemIds, reward.ExperienceLevel)) return false;
                             }
                         }
                     }
@@ -552,10 +555,11 @@ namespace Godmist.Systems.SaveLoad
         }
 
         private static bool TryCaptureDungeonReward(DungeonEncounterDeltaSaveData encounter, string enemyId,
-            int experience, int gold, List<ItemInstance> items, GameSaveData saveData, HashSet<string> capturedItemIds)
+            int experience, int gold, List<ItemInstance> items, GameSaveData saveData, HashSet<string> capturedItemIds, int experienceLevel = 0)
         {
+            if (experienceLevel < 0 || experienceLevel > 50) return false;
             if (experience < 0 || gold < 0 || items == null) return false;
-            var reward = new DungeonEnemyRewardSaveData { EnemyId = enemyId, Experience = experience, Gold = gold };
+            var reward = new DungeonEnemyRewardSaveData { EnemyId = enemyId, Experience = experience, Gold = gold, ExperienceLevel = experienceLevel };
             foreach (var item in items)
             {
                 if (!TryCaptureItem(item, saveData, capturedItemIds)) return false;

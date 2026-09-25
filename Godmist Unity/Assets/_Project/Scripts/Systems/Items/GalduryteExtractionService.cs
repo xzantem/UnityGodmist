@@ -37,10 +37,10 @@ namespace Godmist.Systems.Items
         public int GetGoldCost(GalduryteItemInstance galduryte)
         {
             if (galduryte == null) return 0;
-            var multiplier = Mathf.Max(0, GameDefinesRuntime.GetFloat(GameDefineIds.GalduryteExtractionCostPercent, 1.2f));
+            var multiplier = Mathf.Max(0, GameDefinesRuntime.GetFloat(GameDefineIds.GalduryteExtractionCostPercent, .7f));
             if (galduryte.IsDestroyed)
                 multiplier *= Mathf.Max(1, GameDefinesRuntime.GetFloat(GameDefineIds.GalduryteDestroyedExtractionMultiplier, 1.5f));
-            // Decimal arithmetic avoids charging an extra gold due to float representation of 1.2.
+            // Decimal arithmetic avoids charging an extra gold due to float representation.
             return (int)Math.Min(int.MaxValue, Math.Max(1m, Math.Ceiling(Math.Max(0, galduryte.BaseValue) * (decimal)multiplier)));
         }
 
@@ -99,7 +99,11 @@ namespace Godmist.Systems.Items
                 }
                 equipment.SocketedGaldurytes.Remove(galduryte);
             }
-            else galduryte.IsDestroyed = true;
+            else
+            {
+                galduryte.IsDestroyed = true;
+                equipment.SocketedGaldurytes.Remove(galduryte);
+            }
 
             new NpcLoyaltyService().TryRecordGoldSpent(npc, preview.GoldCost);
             new NpcEconomyService().TryReceiveGold(npc, preview.GoldCost);
@@ -107,7 +111,7 @@ namespace Godmist.Systems.Items
             result = new GalduryteExtractionResult
             {
                 Succeeded = succeeded,
-                RemovedDestroyedGalduryte = succeeded && wasDestroyed,
+                RemovedDestroyedGalduryte = wasDestroyed,
                 PaidGold = preview.GoldCost
             };
             failureReason = string.Empty;

@@ -62,6 +62,12 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
+                    if (encounterInstance.IsReinforcement)
+                    {
+                        dungeon.TryStorePreRolledRewards(encounterInstance.InstanceId, new Godmist.Runtime.Combat.CombatRewardResult());
+                        continue;
+                    }
+
                     var rewards = rewardSystem.RollEncounterRewards(
                         encounterInstance.Definition,
                         enemyData => ResolveLootTable(
@@ -71,8 +77,9 @@ namespace Godmist.Systems.Dungeons
                             encounterInstance,
                             enemyData), dungeon.DungeonLevel);
 
-                    // Pre-roll species drops with the common dungeon loot so a reload
-                    // cannot change the reward for this encounter.
+                    // Theme bags are common to the dungeon, while bones and brains
+                    // belong to specific enemy species. Both must be pre-rolled so
+                    // saving and reloading cannot change the reward.
                     foreach (var enemyReward in rewards.EnemyRewards)
                     {
                         var enemy = encounterInstance.Definition.Enemies.Find(data =>
@@ -84,6 +91,7 @@ namespace Godmist.Systems.Dungeons
                                 dungeon.DungeonLevel, out _))
                             enemyReward.Items.AddRange(lootTableSystem.RollLoot(speciesLoot));
                     }
+
                     dungeon.TryStorePreRolledRewards(
                         encounterInstance.InstanceId,
                         rewards);

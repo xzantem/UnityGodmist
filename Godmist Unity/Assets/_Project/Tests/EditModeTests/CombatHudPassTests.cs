@@ -9,6 +9,93 @@ namespace Godmist.Tests.EditMode
 {
  public class CombatHudPassTests
  {
+  [TestCase("PF_UIW_CombatVitals", typeof(CombatVitalsView))]
+  [TestCase("PF_UIW_CombatActionPanel", typeof(CombatActiveUnitView))]
+  [TestCase("PF_UIW_CombatUnitInspectPanel", typeof(CombatUnitInspectWindowView))]
+  public void ActionPointTemplateHasInheritedFillComponent(string prefabName, System.Type viewType)
+  {
+   var root = PrefabUtility.LoadPrefabContents("Assets/_Project/Prefabs/UI/Workspace/" + prefabName + ".prefab");
+   try
+   {
+    var view = root.GetComponentInChildren(viewType, true);
+    Assert.That(view, Is.Not.Null);
+    var reference = new SerializedObject(view).FindProperty("actionPointPipTemplate").objectReferenceValue;
+    var template = reference is GameObject go ? go : ((Component)reference).gameObject;
+    Assert.That(template.GetComponents<ActionPointPipFill>(), Has.Length.EqualTo(1));
+    Assert.That(template.GetComponent<ActionPointPipFill>().enabled, Is.True);
+    Assert.That(template.GetComponent<Image>(), Is.Not.Null);
+    Assert.That(template.activeSelf, Is.False);
+   }
+   finally { PrefabUtility.UnloadPrefabContents(root); }
+  }
+
+  [Test] public void FractionalApPreservesSixtyPercentCostAndMovementBudget()
+  {
+   var unit = new Godmist.Runtime.Combat.BattleUnit { CurrentActionPoints = 600, MaxActionPoints = 600 };
+   var cost = Godmist.Systems.Combat.CombatActionCostCalculator.CalculatePercentageCost(unit.MaxActionPoints, 60);
+   Assert.That(cost, Is.EqualTo(360));
+   unit.CurrentActionPoints -= cost;
+   Assert.That(unit.CurrentActionPoints, Is.EqualTo(240));
+   Assert.That(unit.CurrentActionPoints, Is.LessThan(cost));
+   Assert.That(Godmist.Systems.Combat.CombatActionCostCalculator.CalculateMovementCost(unit), Is.EqualTo(100));
+   Assert.That(Godmist.Systems.Combat.CombatMovementSystem.CalculatePathCost(unit, 2), Is.EqualTo(300));
+   Assert.That(Godmist.Systems.Combat.CombatActionCostCalculator.CalculatePercentageCost(1, 1), Is.EqualTo(1));
+   Assert.That(Godmist.Systems.Combat.CombatActionCostCalculator.CalculatePercentageCost(600, 0), Is.Zero);
+   Assert.That(Godmist.Runtime.Combat.ActionPointUnits.PipCount(240), Is.EqualTo(3));
+   Assert.That(Godmist.Runtime.Combat.ActionPointUnits.PipFill(240, 2), Is.EqualTo(.4f).Within(.00001f));
+  }
+
+  [Test] public void FractionalSpeedAndMomentumKeepTheirOriginalScale()
+  {
+   var character = new Godmist.Runtime.Characters.CharacterInstance { Stats = new Godmist.Runtime.Characters.CharacterStats() };
+   character.Stats.Speed.BaseValue = 21;
+   Assert.That(new Godmist.Systems.Combat.CombatTurnSystem().CalculateMaxActionPoints(character, .25f), Is.EqualTo(525));
+   var pool = new ResourcePool(Godmist.Core.Enums.ResourceType.Momentum, 0, 200, 0);
+   var rule = new Godmist.Systems.Combat.MomentumResourceRule();
+   Assert.That(rule.ProcessMovement(pool, 25), Is.Zero);
+   Assert.That(rule.ProcessMovement(pool, 25), Is.EqualTo(1));
+   Assert.That(rule.ProcessMovement(pool, 100), Is.EqualTo(2));
+  }
+
+  [Test] public void PipMeshSeparatesRemainingPreviewAndSpentIncludingSpriteLessImages()
+  {
+   var go = new GameObject("pip", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(ActionPointPipFill));
+   try
+   {
+    var image = go.GetComponent<Image>();
+    ActionPointPipPresentation.Apply(image, 260, 2, Color.green, Color.gray, 240, Color.yellow);
+    Assert.That(image.type, Is.EqualTo(Image.Type.Simple));
+    using var mesh = new VertexHelper();
+    var vertices = new UIVertex[4];
+    for (var i = 0; i < 4; i++) vertices[i] = UIVertex.simpleVert;
+    vertices[0].position = new Vector3(0,0); vertices[1].position = new Vector3(0,10);
+    vertices[2].position = new Vector3(10,10); vertices[3].position = new Vector3(10,0);
+    mesh.AddUIVertexQuad(vertices);
+    go.GetComponent<ActionPointPipFill>().ModifyMesh(mesh);
+    var stream = new System.Collections.Generic.List<UIVertex>(); mesh.GetUIVertexStream(stream);
+    float Area(Color color)
+    {
+     var area=0f;
+     for(var i=0;i<stream.Count;i+=3) if(stream[i].color.Equals((Color32)color))
+      area += Vector3.Cross(stream[i+1].position-stream[i].position, stream[i+2].position-stream[i].position).magnitude / 2;
+     return area;
+    }
+    Assert.That(Area(Color.green), Is.EqualTo(40).Within(.001));
+    Assert.That(Area(Color.yellow), Is.EqualTo(20).Within(.001));
+    Assert.That(Area(Color.gray), Is.EqualTo(40).Within(.001));
+   }
+   finally { Object.DestroyImmediate(go); }
+  }
+
+  [Test] public void SavedActionPointBonusKeepsWholePointMeaningAndFractions()
+  {
+   var legacy = JsonUtility.FromJson<Godmist.Core.Serialization.PassiveEffectPayloadSaveData>("{\"ActionPointModifier\":2}");
+   Assert.That(legacy.ActionPointModifier, Is.EqualTo(2f));
+   legacy.ActionPointModifier = .6f;
+   var restored = JsonUtility.FromJson<Godmist.Core.Serialization.PassiveEffectPayloadSaveData>(JsonUtility.ToJson(legacy));
+   Assert.That(restored.ActionPointModifier, Is.EqualTo(.6f));
+  }
+
   [Test] public void TimelineTooltipRebindPreservesExitAndInvalidatesChangedContent()
   {
    var go=new GameObject("Tooltip",typeof(RectTransform),typeof(Godmist.Views.UI.Workspace.UIWorkspaceTooltipView));
@@ -89,14 +176,14 @@ namespace Godmist.Tests.EditMode
     var view=root.GetComponent<CombatVitalsView>();
     var character=new Godmist.Runtime.Characters.CharacterInstance{CurrentHealth=70,Stats=new Godmist.Runtime.Characters.CharacterStats(),ResourcePool=new ResourcePool(Godmist.Core.Enums.ResourceType.Mana,20,50,0)};
     character.Stats.MaxHealth.BaseValue=100;
-    var unit=new Godmist.Runtime.Combat.BattleUnit{Character=character,CurrentActionPoints=12,MaxActionPoints=12};
-    view.Bind(unit,8);
+    var unit=new Godmist.Runtime.Combat.BattleUnit{Character=character,CurrentActionPoints=1200,MaxActionPoints=1200};
+    view.Bind(unit,800);
     var label=new SerializedObject(view).FindProperty("actionValueText").objectReferenceValue;
     string ReadLabel()=>new SerializedObject(label).FindProperty("m_text").stringValue;
     Assert.That(ReadLabel(),Is.EqualTo("12 → 4 AP"));
-    Assert.That(unit.CurrentActionPoints,Is.EqualTo(12));Assert.That(character.CurrentHealth,Is.EqualTo(70));Assert.That(character.ResourcePool.CurrentValue,Is.EqualTo(20));
+    Assert.That(unit.CurrentActionPoints,Is.EqualTo(1200));Assert.That(character.CurrentHealth,Is.EqualTo(70));Assert.That(character.ResourcePool.CurrentValue,Is.EqualTo(20));
     view.Bind(unit);Assert.That(ReadLabel(),Is.EqualTo("12/12 AP"));
-    view.Bind(unit,20);Assert.That(ReadLabel(),Does.Contain("potrzeba 20"));
+    view.Bind(unit,2000);Assert.That(ReadLabel(),Does.Contain("potrzeba 20"));
    }finally{PrefabUtility.UnloadPrefabContents(root);}
   }
   [Test] public void TimelineHoverClearsOnDisableNotification()

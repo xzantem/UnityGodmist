@@ -398,12 +398,12 @@ namespace Godmist.Views.Dungeons
 
             foreach (var encounter in floor.Encounters)
             {
-                if (encounter?.Definition?.Enemies == null)
+                if (encounter?.Enemies == null)
                 {
                     continue;
                 }
 
-                foreach (var enemy in encounter.Definition.Enemies)
+                foreach (var enemy in encounter.Enemies)
                 {
                     if (enemy != null
                         && enemy.InstanceId == body.EnemyInstanceId)

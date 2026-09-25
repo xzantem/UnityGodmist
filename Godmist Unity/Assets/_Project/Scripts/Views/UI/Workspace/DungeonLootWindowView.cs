@@ -151,8 +151,8 @@ namespace Godmist.Views.UI.Workspace
                     chest.Items,
                     "Łup ze skrzyni",
                     "Skrzynia jest pusta.",
-                    gold: 0,
-                    showGold: false);
+                    chest.Gold,
+                    showGold: true);
                 return;
             }
 
@@ -299,18 +299,17 @@ namespace Godmist.Views.UI.Workspace
 
         public bool TryClaimGold()
         {
-            if (isChestSource
-                || !CanCollect()
-                || !lootCollectionService.TryClaimDungeonBodyGold(
-                    session,
-                    bodyInstanceId,
-                    out var claimedGold))
-            {
-                return false;
-            }
+            if (!CanCollect()) return false;
+            var claimed = isChestSource
+                ? lootCollectionService.TryClaimDungeonChestGold(session, chestInstanceId,
+                    out var claimedGoldFromChest)
+                : lootCollectionService.TryClaimDungeonBodyGold(session, bodyInstanceId,
+                    out claimedGoldFromChest);
+            if (!claimed) return false;
 
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            LootClaimed?.Invoke(bodyInstanceId, $"+ {claimedGold}");
+            LootClaimed?.Invoke(isChestSource ? chestInstanceId : bodyInstanceId,
+                $"+ {claimedGoldFromChest}");
             CharacterInfoWindowView.RefreshOpenWindows(session);
             Refresh();
             return true;

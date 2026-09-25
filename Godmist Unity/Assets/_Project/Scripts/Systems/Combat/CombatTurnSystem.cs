@@ -79,10 +79,28 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             int maxTurnCount)
         {
-            var upcomingUnits = new List<BattleUnit>();
+            return ProjectUpcomingTurns(session, maxTurnCount, includeObjects: false)
+                .Select(participant => participant.Unit)
+                .ToList();
+        }
+
+        /// <summary>Projects turns for units and AV objects without changing the session.</summary>
+        public static IReadOnlyList<CombatTurnParticipant> GetUpcomingTurns(
+            CombatSession session,
+            int maxTurnCount)
+        {
+            return ProjectUpcomingTurns(session, maxTurnCount, includeObjects: true);
+        }
+
+        private static IReadOnlyList<CombatTurnParticipant> ProjectUpcomingTurns(
+            CombatSession session,
+            int maxTurnCount,
+            bool includeObjects)
+        {
+            var upcoming = new List<CombatTurnParticipant>();
             if (session?.TurnParticipants == null || maxTurnCount <= 0)
             {
-                return upcomingUnits;
+                return upcoming;
             }
 
             var previewParticipants = session.TurnParticipants
@@ -94,10 +112,11 @@ namespace Godmist.Systems.Combat
                 .ToList();
 
             var simulatedEventCount = 0;
+            var projectedObjectTurns = new Dictionary<SummonedCombatMapObject, int>();
             var maxSimulatedEventCount = maxTurnCount
                 * Math.Max(1, previewParticipants.Count)
                 * 4;
-            while (upcomingUnits.Count < maxTurnCount
+            while (upcoming.Count < maxTurnCount
                 && previewParticipants.Count > 0
                 && simulatedEventCount < maxSimulatedEventCount)
             {
@@ -115,9 +134,21 @@ namespace Godmist.Systems.Combat
                         participant.ActionValue - elapsedActionValue);
                 }
 
-                if (nextParticipant.Participant.IsUnit)
+                if (includeObjects || nextParticipant.Participant.IsUnit)
                 {
-                    upcomingUnits.Add(nextParticipant.Participant.Unit);
+                    upcoming.Add(nextParticipant.Participant);
+                }
+
+                if (nextParticipant.Participant.IsSummonedObject)
+                {
+                    var summonedObject = nextParticipant.Participant.SummonedObject;
+                    projectedObjectTurns.TryGetValue(summonedObject, out var turns);
+                    projectedObjectTurns[summonedObject] = ++turns;
+                    if (turns >= summonedObject.RemainingDurationTurns)
+                    {
+                        previewParticipants.Remove(nextParticipant);
+                        continue;
+                    }
                 }
 
                 // This mirrors EndActiveTurn: the selected participant receives its
@@ -126,7 +157,7 @@ namespace Godmist.Systems.Combat
                     nextParticipant.Participant);
             }
 
-            return upcomingUnits;
+            return upcoming;
         }
 
         public void EndActiveTurn(CombatSession session)
@@ -166,6 +197,7 @@ namespace Godmist.Systems.Combat
                             source: participant.Unit,
                             target: participant.Unit,
                             turnNumber: session.ActiveTurnIndex));
+                CombatStallWarningSystem.EndUnitTurn(session, participant.Unit, battleLog);
                 participant.CurrentActionValue = UnityEngine.Mathf.Max(0,
                     CalculateBaseActionValue(participant) - participant.Unit.PendingEquipmentActionValueReduction);
                 participant.Unit.PendingEquipmentActionValueReduction = 0;
@@ -281,9 +313,11 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             CombatTurnParticipant participant)
         {
+            CombatStallWarningSystem.Synchronize(session);
             if (participant.IsUnit)
             {
                 var unit = participant.Unit;
+                CombatStallWarningSystem.BeginUnitTurn(session, unit);
 
                 battleLog?.Invoke(
                     $"Tura: {unit.Character.Definition.DisplayName}");
@@ -335,7 +369,7 @@ namespace Godmist.Systems.Combat
             return UnityEngine.Mathf.Max(
                 0,
                 UnityEngine.Mathf.RoundToInt(
-                    speed * actionPointsPerSpeed));
+                    speed * actionPointsPerSpeed * ActionPointUnits.PerPoint));
         }
 
         public static float CalculateBaseActionValue(BattleUnit unit)
@@ -365,7 +399,7 @@ namespace Godmist.Systems.Combat
             var maxActionPoints = UnityEngine.Mathf.Max(
                 0,
                 UnityEngine.Mathf.RoundToInt(
-                    speed * session.ActionPointsPerSpeed * (1 + EquipmentEffectSystem.Sum(unit.Character, GalduryteEffectType.ActionPointsPercent))));
+                    speed * session.ActionPointsPerSpeed * ActionPointUnits.PerPoint * (1 + EquipmentEffectSystem.Sum(unit.Character, GalduryteEffectType.ActionPointsPercent))));
 
             unit.MaxActionPoints = maxActionPoints;
             var nextTurnBonus = refillCurrentActionPoints
@@ -412,9 +446,9 @@ namespace Godmist.Systems.Combat
             {
                 if (PassiveEffectLifecycleSystem.IsActive(effect))
                 {
-                    total += effect
+                    total += ActionPointUnits.FromPoints(effect
                         .GetPayload<UniqueCombatBuffPayload>()
-                        ?.ActionPointModifier ?? 0;
+                        ?.ActionPointModifier ?? 0);
                 }
             }
             return total;

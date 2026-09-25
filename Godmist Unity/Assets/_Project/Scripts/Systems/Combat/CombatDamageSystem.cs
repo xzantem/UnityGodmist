@@ -268,7 +268,7 @@ namespace Godmist.Systems.Combat
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
 
-        public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target,
+        public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target, 
             int requestedDamage, DamageType damageType, bool allowDamageRedirect = true,
             PassiveEffectCombatContext passiveContext = null, bool allowWarriorProcs = true)
         {
@@ -276,6 +276,7 @@ namespace Godmist.Systems.Combat
             {
                 return 0;
             }
+            CombatStallWarningSystem.Synchronize(session);
             if (target.Character.LifeState == CharacterLifeState.Dead)
             {
                 return 0;
@@ -287,7 +288,7 @@ namespace Godmist.Systems.Combat
             if (target.Character.DebugIsInvulnerable)
             {
                 battleLog?.Invoke(
-                    $"{target.Character.Definition.DisplayName} ignoruje obraÅ¼enia (godmode).");
+                    $"{target.Character.Definition.DisplayName} ignoruje obrażenia (godmode).");
 
                 return 0;
             }
@@ -316,7 +317,7 @@ namespace Godmist.Systems.Combat
                     damageType))
             {
                 battleLog?.Invoke(
-                    $"{GetDisplayName(target)} absorbuje obraÅ¼enia magiczne.");
+                    $"{GetDisplayName(target)} absorbuje obrażenia magiczne.");
                 return 0;
             }
             if (target.Character.LifeState == CharacterLifeState.Downed)
@@ -341,7 +342,7 @@ namespace Godmist.Systems.Combat
             remainingDamage = AbsorbShield(target, remainingDamage);
 
             var shieldDamage = damageBeforeShield - remainingDamage;
-            if (shieldDamage > 0)
+            if (shieldDamage > 0) 
             {
                 battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci {shieldDamage} tarczy.");
                 feedbackBus?.Publish(new CombatFeedbackEvent(
@@ -385,6 +386,7 @@ namespace Godmist.Systems.Combat
             }
             if (target.Character.LifeState != CharacterLifeState.Alive && !IsDamageOverTime(damageType))
                 MageCombatSystem.ExtinguishBurns(session, target);
+            CombatStallWarningSystem.RecordDamage(session, target, healthDamage + shieldDamage);
             if (allowWarriorProcs && source != null && !IsDamageOverTime(damageType) && (shieldDamage > 0 || healthDamage > 0))
             {
                 resourceRuleSystem?.ProcessDamageDealt(source);
@@ -542,14 +544,13 @@ namespace Godmist.Systems.Combat
                 };
             }
 
-            var penetration = Mathf.Clamp01(
-                GetDefensePenetration(source, damageType)
-                + Mathf.Clamp01(bonusDefensePenetration));
-            defense = Mathf.Max(0f, defense * WarriorCombatSystem.DefenseMultiplier(target,null) * (1f - penetration));
+            var penetration = GetDefensePenetration(source, damageType)
+                + Mathf.Max(0f, bonusDefensePenetration);
+            defense = Mathf.Max(0f, defense) * WarriorCombatSystem.DefenseMultiplier(target,null) / (1f + penetration);
 
             if (defense <= 0f) return damage;
 
-            return Mathf.CeilToInt(damage * damage / (damage + defense));
+            return Mathf.CeilToInt((float)damage * damage / (damage + defense));
         }
 
         private static int ApplyJewelryDamagePassive(
@@ -587,9 +588,9 @@ namespace Godmist.Systems.Combat
 
             return damageType switch
             {
-                DamageType.Physical => Mathf.Clamp01(
+                DamageType.Physical => Mathf.Max(0f,
                     stats.PhysicalDefensePenetration.GetValue()),
-                DamageType.Magical => Mathf.Clamp01(
+                DamageType.Magical => Mathf.Max(0f,
                     stats.MagicalDefensePenetration.GetValue()),
                 _ => 0f
             };
@@ -606,10 +607,10 @@ namespace Godmist.Systems.Combat
         {
             return damageType switch
             {
-                DamageType.Bleed => "obraÅ¼eÅ„ od krwawienia",
-                DamageType.Poison => "obraÅ¼eÅ„ od zatrucia",
-                DamageType.Burn => "obraÅ¼eÅ„ od podpalenia",
-                _ => "obraÅ¼eÅ„"
+                DamageType.Bleed => "obrażeń od krwawienia",
+                DamageType.Poison => "obrażeń od zatrucia",
+                DamageType.Burn => "obrażeń od podpalenia",
+                _ => "obrażeń"
             };
         }
 
@@ -790,7 +791,7 @@ namespace Godmist.Systems.Combat
 
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} traci Freeze. " +
-                $"Uderzenie zadaje {boostedDamage} obraÅ¼eÅ„.");
+                $"Uderzenie zadaje {boostedDamage} obrażeń.");
 
             return boostedDamage;
         }

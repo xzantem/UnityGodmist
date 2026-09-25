@@ -704,7 +704,7 @@ namespace Godmist.Systems.Combat
 
                         var forceMaximumDamage = CombatDamageSystem.HasUniqueBuff(
                             caster, UniqueBuffType.MaximumDamage);
-                        var valueSource = (forceMaximumDamage || CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage))
+                        var valueSource = (forceMaximumDamage || CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage)) && effect.DamageValueSource != DamageValueSource.AlchemicalPower
                             ? DamageValueSource.MaxAttack
                             : effect.DamageValueSource;
 
@@ -756,6 +756,12 @@ namespace Godmist.Systems.Combat
                         ScoutCombatSystem.AfterSkillHit(session, caster, target, skill, isPassiveDuplicate || combo && hitIndex==hitCount-1, statusEffectSystem);
                         ApplyDamageFollowUps(session, caster, target, skill, effect, effectIndex,
                             damageResult.HealthDamage);
+                        if (!string.IsNullOrWhiteSpace(effect.OnHitStatusId))
+                            statusEffectSystem?.ApplyStatus(caster, target,
+                                effect.OnHitStatusId, effect.OnHitStatusChance,
+                                effect.OnHitStatusDurationTurns, 1,
+                                effect.StatusDamageMultiplier, 0f,
+                                skill.SkillId + ".on_hit");
                         statusEffectSystem?.ApplyActiveOnHitStatuses(caster, target);
                         if (!isReactionExecution)
                             TryExecuteCounterattack(session, target, caster);
@@ -1899,6 +1905,14 @@ namespace Godmist.Systems.Combat
             if (healthDamage <= 0) return;
             if (effect.LifeStealPercent > 0f)
                 recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
+            if (effect.AllyLifeStealPercent > 0f && session?.Units != null)
+            {
+                var amount = Mathf.FloorToInt(healthDamage * effect.AllyLifeStealPercent);
+                if (amount > 0)
+                    foreach (var ally in session.Units)
+                        if (ally != null && ally.IsPlayerSide == caster.IsPlayerSide)
+                            recoverySystem.Heal(ally, amount);
+            }
             if (effect.ResourceDrainPercent > 0f)
             {
                 var resourcePool = target.Character.ResourcePool;

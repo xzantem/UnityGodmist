@@ -33,6 +33,158 @@ namespace Godmist.Tests.EditMode
             createdDefinitions.Clear();
         }
 
+        [TestCase(StatusEffectIds.Stun)]
+        [TestCase(StatusEffectIds.Freeze)]
+        [TestCase(StatusEffectIds.Sleep)]
+        [TestCase(StatusEffectIds.Paralysis)]
+        [TestCase(StatusEffectIds.Immobilize)]
+        [TestCase(StatusEffectIds.Chill)]
+        [TestCase(StatusEffectIds.Taunt)]
+        public void SuppressionToleranceIsSharedAndExpires(string appliedStatus)
+        {
+            var unit = CreateUnit(100, false);
+            unit.AddStatusTolerance(appliedStatus.ToUpperInvariant(), 3);
+            Assert.That(unit.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(5));
+            foreach (var status in new[] { StatusEffectIds.Stun, StatusEffectIds.Freeze,
+                StatusEffectIds.Sleep, StatusEffectIds.Paralysis, StatusEffectIds.Immobilize,
+                StatusEffectIds.Chill, StatusEffectIds.Taunt })
+                Assert.That(unit.GetStatusTolerance(status), Is.EqualTo(.25f));
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Bleed), Is.Zero);
+            unit.AdvanceStatusTolerances();
+            unit.AddStatusTolerance(StatusEffectIds.Stun, 2);
+            Assert.That(unit.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(6));
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Sleep), Is.EqualTo(.5f));
+            unit.AdvanceStatusTolerances();
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Sleep), Is.EqualTo(.5f));
+            for (var turn = 0; turn < 5; turn++) unit.AdvanceStatusTolerances();
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Sleep), Is.Zero);
+            unit.AddStatusTolerance(appliedStatus, 2);
+            Assert.That(unit.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(4));
+            Assert.That(unit.GetStatusTolerance(appliedStatus), Is.EqualTo(.25f));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SuccessfulCcAddsItsDurationAndOneStack(bool useSkill)
+        {
+            var source = CreateUnit(100, true);
+            var target = CreateUnit(100, false);
+            var system = new StatusEffectSystem();
+            Assert.That(system.ApplyStatus(source, target, StatusEffectIds.Stun, 1f, 3, 1,
+                0f, 0f, "test"), Is.True);
+            Assert.That(target.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(5));
+            system.ProcessTurnEnd(target);
+            if (useSkill)
+            {
+                var effect = new SkillEffectData();
+                SetPrivateField(effect, "statusId", StatusEffectIds.Freeze);
+                SetPrivateField(effect, "baseChance", 1f);
+                SetPrivateField(effect, "durationTurns", 2);
+                var skill = CreateSkill("test.freeze.duration");
+                try
+                {
+                    var applied = false;
+                    for (var attempt = 0; attempt < 64 && !applied; attempt++)
+                        applied = system.ApplyStatus(source, target, skill, effect, 0);
+                    Assert.That(applied, Is.True);
+                }
+                finally { Object.DestroyImmediate(skill); }
+            }
+            else
+                Assert.That(system.ApplyStatus(source, target, StatusEffectIds.Freeze, 1f, 2, 1,
+                    0f, 0f, "test", sharedRoll: 0f), Is.True);
+            Assert.That(target.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(6));
+            Assert.That(target.StatusTolerances["suppression"].Stacks, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void NonSuppressionToleranceRemainsSeparate()
+        {
+            var unit = CreateUnit(100, false);
+            unit.AddStatusTolerance(StatusEffectIds.Bleed);
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Bleed), Is.EqualTo(.25f));
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Poison), Is.Zero);
+            Assert.That(unit.GetStatusTolerance(StatusEffectIds.Stun), Is.Zero);
+        }
+
+        [Test]
+        public void SuppressionChanceDecreasesAtEveryStackEvenForCertainBaseChance()
+        {
+            var source = CreateUnit(100, true);
+            var target = CreateUnit(100, false);
+            var baseline = StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Stun, 1f);
+            Assert.That(baseline, Is.EqualTo(1f).Within(.0001f));
+
+            target.AddStatusTolerance(StatusEffectIds.Stun);
+            var oneStack = StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Freeze, 1f);
+            Assert.That(oneStack, Is.EqualTo(.75f).Within(.0001f));
+
+            target.AddStatusTolerance(StatusEffectIds.Sleep);
+            var twoStacks = StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Stun, 1f);
+            Assert.That(twoStacks, Is.EqualTo(.5f).Within(.0001f));
+
+            target.AddStatusTolerance(StatusEffectIds.Paralysis);
+            target.AddStatusTolerance(StatusEffectIds.Taunt);
+            Assert.That(StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Stun, 1f), Is.Zero);
+        }
+
+        [Test]
+        public void SuppressionToleranceNeverRaisesChanceAboveNaturalResistance()
+        {
+            var source = CreateUnit(100, true);
+            var target = CreateUnit(100, false);
+            target.Character.Resistances.SuppressionResistance = .8f;
+            var baseline = StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Stun, .7f);
+            target.AddStatusTolerance(StatusEffectIds.Freeze);
+            var tolerant = StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Stun, .7f);
+            Assert.That(tolerant, Is.LessThanOrEqualTo(baseline));
+
+            target.AddStatusTolerance(StatusEffectIds.Bleed);
+            Assert.That(StatusEffectSystem.CalculateStatusApplicationChance(
+                source, target, StatusEffectIds.Poison, .7f),
+                Is.EqualTo(StatusEffectSystem.CalculateEffectChance(.7f, 0f)).Within(.0001f));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SharedToleranceBlocksOtherStatusThroughBothApplicationPaths(bool useSkill)
+        {
+            var source = CreateUnit(100, true);
+            var target = CreateUnit(100, false);
+            var system = new StatusEffectSystem();
+            Assert.That(system.ApplyStatus(source, target, StatusEffectIds.Stun, 1f, 3, 1,
+                0f, 0f, "test"), Is.True);
+            Assert.That(target.GetStatusTolerance(StatusEffectIds.Freeze), Is.EqualTo(.25f));
+            target.AddStatusTolerance(StatusEffectIds.Sleep);
+            target.AddStatusTolerance(StatusEffectIds.Taunt);
+            target.AddStatusTolerance(StatusEffectIds.Paralysis);
+            bool applied;
+            if (useSkill)
+            {
+                var effect = new SkillEffectData();
+                SetPrivateField(effect, "statusId", StatusEffectIds.Freeze);
+                SetPrivateField(effect, "baseChance", 1f);
+                var skill = CreateSkill("test.freeze");
+                try { applied = system.ApplyStatus(source, target, skill, effect, 0); }
+                finally { Object.DestroyImmediate(skill); }
+            }
+            else
+                applied = system.ApplyStatus(source, target, StatusEffectIds.Freeze, 1f, 3, 1,
+                    0f, 0f, "test");
+            Assert.That(applied, Is.False);
+            Assert.That(StatusEffectSystem.HasStatus(target, StatusEffectIds.Freeze), Is.False);
+            Assert.That(target.StatusTolerances["suppression"].Stacks, Is.EqualTo(4));
+            Assert.That(target.StatusTolerances["suppression"].RemainingTurns, Is.EqualTo(8));
+            for (var turn = 0; turn < 8; turn++) system.ProcessTurnEnd(target);
+            Assert.That(target.GetStatusTolerance(StatusEffectIds.Freeze), Is.Zero);
+        }
+
         [Test]
         public void ApplyBleed_CreatesRuntimeEffect()
         {

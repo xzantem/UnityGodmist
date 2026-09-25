@@ -178,6 +178,10 @@ namespace Godmist.Systems.Items
                 {
                     Set(effect, "damageType", GetDamageType(runtime.EffectType));
                     Set(effect, "damageMultiplier", Mathf.Max(0f, effectiveValue));
+                    if (item.IsBomb)
+                    {
+                        Set(effect, "damageValueSource", DamageValueSource.AlchemicalPower);
+                    }
                 }
                 if (skillEffectType == EffectType.ModifyStat)
                 {

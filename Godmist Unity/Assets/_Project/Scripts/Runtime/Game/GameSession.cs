@@ -136,7 +136,7 @@ namespace Godmist.Runtime.Game
 
         public bool TryRegisterCharacter(CharacterInstance character)
         {
-            if (character == null || string.IsNullOrWhiteSpace(character.CharacterId)
+            if (character == null || string.IsNullOrWhiteSpace(character.CharacterId) 
                 || charactersById.ContainsKey(character.CharacterId)) return false;
 
             charactersById.Add(character.CharacterId, character);
@@ -402,7 +402,7 @@ namespace Godmist.Runtime.Game
         {
             if (!charactersById.TryGetValue(characterId, out var character)) return false;
 
-            return character.AvailabilityState == CharacterAvailabilityState.Available
+            return character.AvailabilityState == CharacterAvailabilityState.Available 
                 && character.LifeState != CharacterLifeState.Dead;
         }
 
@@ -411,7 +411,7 @@ namespace Godmist.Runtime.Game
             if (!charactersById.TryGetValue(characterId, out var character)) return false;
 
             return character.AvailabilityState == CharacterAvailabilityState.Available
-                && character.LifeState == CharacterLifeState.Alive
+                && character.LifeState == CharacterLifeState.Alive 
                 && PlayerParty.IsActiveMember(characterId);
         }
 

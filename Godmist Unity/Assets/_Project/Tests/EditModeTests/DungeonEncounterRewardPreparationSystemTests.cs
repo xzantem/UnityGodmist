@@ -139,6 +139,9 @@ namespace Godmist.Tests.EditMode
                     out var rewards),
                 Is.True);
             Assert.That(rewards.EnemyRewards, Has.Count.EqualTo(1));
+            Assert.That(rewards.EnemyRewards[0].ExperienceLevel, Is.EqualTo(dungeon.DungeonLevel));
+            Assert.That(rewards.EnemyRewards[0].ExperiencePerActiveCharacter,
+                Is.EqualTo(Godmist.Systems.Characters.CharacterProgressionSystem.GetEnemyExperience(dungeon.DungeonLevel, dungeon.DungeonLevel)));
             Assert.That(rewards.EnemyRewards[0].Items, Has.Count.EqualTo(1));
             Assert.That(
                 rewards.EnemyRewards[0].Items[0].Definition,

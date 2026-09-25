@@ -105,12 +105,6 @@ namespace Godmist.Views.Dungeons
                 return view == null || map.IsTraversalVisible(view.DungeonPosition);
             };
             combatHost.BindDungeonFeedback();
-            void ConfigureView(ExplorationCharacterView view, string key)
-            {
-                view.ConfigureTerrain(floor.Map, map, floor, key);
-                view.CanCrossTo = cell => !floor.Objects.OfType<ObstacleDungeonObjectInstance>()
-                    .Any(obstacle => obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell);
-            }
             foreach (var view in party.ActiveMemberViews) ConfigureView(view, "player:" + view.CharacterId);
             foreach (var trigger in encounters.Triggers)
                 foreach (var view in trigger.EnemyViews)
@@ -133,6 +127,13 @@ namespace Godmist.Views.Dungeons
             UpdateFog(true);
             SetFocus(null, true);
             return true;
+        }
+
+        private void ConfigureView(ExplorationCharacterView view, string key)
+        {
+            view.ConfigureTerrain(floor.Map, map, floor, key);
+            view.CanCrossTo = cell => !floor.Objects.OfType<ObstacleDungeonObjectInstance>()
+                .Any(obstacle => obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell);
         }
 
         public bool IsRoomFighting(string roomId) => game != null
@@ -207,6 +208,7 @@ namespace Godmist.Views.Dungeons
                 path.Where(cell => cell.Level == 0 && !cell.IsOnStairs).Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             foreach (var pair in nextBindings)
             { bindings.Add(pair.Key, pair.Value); bindingSessions[pair.Key] = session; unitViews.Borrow(session, pair.Key, pair.Value); }
+            session.TrySpawnReinforcements = () => TrySpawnReinforcements(session);
             combatHost.GetDriver(session).StartTurns();
             trigger.MarkTriggered();
             party.SeparateForCombat();
@@ -357,9 +359,10 @@ namespace Godmist.Views.Dungeons
                 if(game.ActiveDungeon.TryGetPreRolledRewards(trigger.Encounter.InstanceId, out var loot)) result.Rewards = loot;
                 foreach(var view in dead)
                 {
-                    if (trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId))
+                    if (trigger.Encounter.TryMarkEnemyDefeated(view.EnemyInstanceId)
+                        && !trigger.Encounter.IsReinforcement)
                     {
-                        foreach (var enemy in trigger.Encounter.Definition.Enemies)
+                        foreach (var enemy in trigger.Encounter.Enemies)
                             if (enemy?.InstanceId == view.EnemyInstanceId
                                 && enemy.CharacterDefinition != null)
                             {
@@ -473,7 +476,7 @@ namespace Godmist.Views.Dungeons
             foreach (var trigger in encounters.Triggers)
                 if (session.EnemySources.Values.Any(source => source.EncounterId == trigger.Encounter.InstanceId)) trigger.ReleaseEncounter();
             sources.Remove(session);
-            session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
+            session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
             combatHost.End(session);
             combatCamera.Forget(session);
             game.TryRemoveCombat(session);
@@ -488,7 +491,7 @@ namespace Godmist.Views.Dungeons
             game.MarkDefeated();
             foreach (var session in sources.Keys.ToArray())
             {
-                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
+                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
                 combatHost.End(session);
                 combatCamera.Forget(session);
                 game.TryRemoveCombat(session);
@@ -600,7 +603,7 @@ namespace Godmist.Views.Dungeons
             floor.Map.ProgressionGateStateChanged -= InvalidateFovPreview;
             foreach (var session in sources.Keys.ToArray())
             {
-                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null;
+                session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
                 if (combatCamera != null) combatCamera.Forget(session);
                 combatHost.End(session); game.TryRemoveCombat(session);
             }

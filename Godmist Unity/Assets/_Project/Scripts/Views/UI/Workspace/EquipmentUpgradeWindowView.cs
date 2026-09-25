@@ -99,8 +99,8 @@ namespace Godmist.Views.UI.Workspace
             targetProgressSlider.interactable = true;
             targetProgressSlider.wholeNumbers = false;
             targetProgressSlider.minValue = currentProgress;
-            targetProgressSlider.maxValue = 1f;
-            targetProgressSlider.SetValueWithoutNotify(Mathf.Clamp(retainedTarget ?? currentProgress, currentProgress, 1f));
+            targetProgressSlider.maxValue = Mathf.Min(1f, currentProgress + .2f);
+            targetProgressSlider.SetValueWithoutNotify(Mathf.Clamp(retainedTarget ?? currentProgress, currentProgress, targetProgressSlider.maxValue));
         }
 
         private static IEnumerable<EquipmentItemInstance> Enumerate(CharacterInstance owner) =>
@@ -133,7 +133,7 @@ namespace Godmist.Views.UI.Workspace
                           $"Zwiększenie: {preview.IncreaseChance:P0}  •  Bez zmian: {preview.UnchangedChance:P0}  •  Spadek: {preview.DecreaseChance:P0}"
                         : $"Ulepszenie: {selected.UpgradeProgress:P0} → {preview.TargetProgress:P0}\n" +
                           $"Szansa powodzenia: {preview.SuccessChance:P0}\n" +
-                          $"Gniazda: {selected.SocketCapacity} → {preview.SocketCapacity}";
+                          $"Gniazda: {selected.SocketCapacity} → {preview.SocketCapacity}\nPorażka: −10–20 pkt proc.; nadmiarowe galduryty pozostają nieaktywne.";
             }
             if (costText != null)
             {
@@ -160,7 +160,8 @@ namespace Godmist.Views.UI.Workspace
                 : selected.CurrentRarity;
             var upgradeFactor = (1f + projectedProgress) / (1f + selected.UpgradeProgress);
 
-            return new EquipmentItemInstance
+            selected.RecalculateStatModifiers();
+            var result = new EquipmentItemInstance
             {
                 InstanceId = selected.InstanceId,
                 Definition = selected.Definition,
@@ -170,6 +171,8 @@ namespace Godmist.Views.UI.Workspace
                 RequiredClassId = selected.RequiredClassId,
                 RequiredLevel = selected.RequiredLevel,
                 Quality = selected.Quality,
+                CraftedBaseValue = selected.CraftedBaseValue,
+                SocketedGaldurytes = new List<GalduryteItemInstance>(selected.SocketedGaldurytes ?? new()),
                 PartIds = new List<string>(selected.PartIds ?? new()),
                 UpgradeProgress = projectedProgress,
                 BaseStatModifiers = CopyModifiers(selected.BaseStatModifiers),
@@ -180,6 +183,8 @@ namespace Godmist.Views.UI.Workspace
                     return copy;
                 }).ToList()
             };
+            result.RecalculateStatModifiers();
+            return result;
         }
 
         private bool IsUpgradeStat(CharacterStatType stat) => selected.Definition.ItemType == ItemType.Weapon

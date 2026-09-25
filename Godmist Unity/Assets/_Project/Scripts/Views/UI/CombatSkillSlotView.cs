@@ -65,7 +65,7 @@ namespace Godmist.Views.UI
         {
             actionCost = calculatedActionCost;
             unavailableReason = reason;
-            if (actionCostText != null) actionCostText.text = $"{actionCost} AP";
+            if (actionCostText != null) actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP";
             if (selectedFrame != null) selectedFrame.enabled = selected;
             if (button != null)
             {

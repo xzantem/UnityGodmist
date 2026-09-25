@@ -301,8 +301,59 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.Inventory.Items.Count(item => item.Definition == alcohol), Is.EqualTo(0));
         }
 
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestCase(15)]
+        [TestCase(50)]
+        public void BombDamage_IsWeaponIndependentAndPreviewMatches(int level)
+        {
+            var definition = CreateConsumable("alchemy.level_bomb", ConsumableUseType.Bomb);
+            var bomb = new ConsumableItemInstance(definition, "bomb.level");
+            bomb.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.DealPhysicalDamage, Value = .15f, Chance = 1f
+            });
+            var skill = ConsumableRuntimeActionBuilder.Build(bomb);
+            try
+            {
+                var caster = new Godmist.Runtime.Combat.BattleUnit
+                {
+                    Character = new CharacterInstance { Level = level, Stats = new CharacterStats() }
+                };
+                caster.Character.Stats.MinAttack = new Stat(1);
+                caster.Character.Stats.MaxAttack = new Stat(2);
+                var effect = skill.Effects[0];
+                Assert.That(effect.DamageValueSource, Is.EqualTo(DamageValueSource.AlchemicalPower));
+                var first = Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateDamageValue(caster, effect.DamageValueSource, effect.DamageMultiplier);
+                caster.Character.Stats.MinAttack = new Stat(10000);
+                caster.Character.Stats.MaxAttack = new Stat(20000);
+                var second = Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateDamageValue(caster, effect.DamageValueSource, effect.DamageMultiplier);
+                var preview = Godmist.Systems.Combat.CombatSkillPreviewCalculator.CalculateDamageRange(caster, skill);
+                Assert.That(second, Is.EqualTo(first));
+                Assert.That(preview.Minimum, Is.EqualTo(first));
+                Assert.That(preview.Maximum, Is.EqualTo(first));
+            }
+            finally { Object.DestroyImmediate(skill); Object.DestroyImmediate(definition); }
+        }
+
+        [TestCase(.15f, .4f)]
+        [TestCase(.225f, .6f)]
+        public void BombDamage_MatchesReferenceMitigatedHitAcrossLevels(float strength, float expectedRatio)
+        {
+            var previous = 0;
+            for (var level = 1; level <= 50; level++)
+            {
+                var reference = Godmist.Systems.Combat.CombatDamageValueCalculator.GetAlchemicalReferenceAttack(level);
+                var raw = Godmist.Systems.Combat.CombatDamageValueCalculator.CalculateAlchemicalDamage(level, strength);
+                var mitigated = (float)raw * raw / (raw + reference);
+                Assert.That(mitigated / (reference / 2), Is.EqualTo(expectedRatio).Within(.05f));
+                Assert.That(raw, Is.GreaterThanOrEqualTo(previous));
+                previous = raw;
+            }
+        }
+
         [Test]
-        public void DurationCatalyst_ExtendsRegenerationAndPreservesTotalRegenerationProportionally()
+        public void DurationCatalyst_ExtendsRegenerationAndPreservesTotal()
         {
             var definition = CreateConsumable("alchemy.duration_potion", ConsumableUseType.Potion);
             var potion = new ConsumableItemInstance(definition, "alchemy.duration.01");
@@ -319,7 +370,33 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(skill.Effects, Has.Count.EqualTo(1));
             Assert.That(skill.Effects[0].DurationTurns, Is.EqualTo(7));
-            Assert.That(skill.Effects[0].PercentageValue, Is.EqualTo(.25f / 6f).Within(.0001f));
+            Assert.That(skill.Effects[0].PercentageValue, Is.EqualTo(.25f / 7f).Within(.0001f));
+        }
+
+        [TestCase(ConsumableRuntimeEffectType.RegenHealth, -7)]
+        [TestCase(ConsumableRuntimeEffectType.RegenHealth, 0)]
+        [TestCase(ConsumableRuntimeEffectType.RegenResource, -7)]
+        [TestCase(ConsumableRuntimeEffectType.RegenResource, 0)]
+        public void Regeneration_TotalIsPreservedAcrossDurationAndIntegerTicks(ConsumableRuntimeEffectType type, int durationModifier)
+        {
+            var potion = new ConsumableItemInstance(CreateConsumable("alchemy.total", ConsumableUseType.Potion), "total")
+            {
+                CatalystDurationModifier = durationModifier
+            };
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime { EffectType = type, Value = .25f, DurationTurns = 10 });
+            var skill = ConsumableRuntimeActionBuilder.Build(potion);
+            try
+            {
+                var effect = skill.Effects[0];
+                Assert.That(effect.DurationTurns, Is.EqualTo(10 + durationModifier));
+                Assert.That(effect.PercentageValue * effect.DurationTurns, Is.EqualTo(.25f).Within(.00001f));
+                var carry = 0f;
+                var total = 0;
+                for (var tick = 0; tick < effect.DurationTurns; tick++)
+                    total += Godmist.Systems.Combat.PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount(100 * effect.PercentageValue, ref carry);
+                Assert.That(total, Is.EqualTo(25));
+            }
+            finally { Object.DestroyImmediate(skill); }
         }
 
         [Test]

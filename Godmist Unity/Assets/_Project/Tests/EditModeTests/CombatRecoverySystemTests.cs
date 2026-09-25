@@ -477,8 +477,8 @@ namespace Godmist.Tests.EditMode
                         MaxHealth = new Stat(maxHealth)
                     }
                 },
-                CurrentActionPoints = 100,
-                MaxActionPoints = 100,
+                CurrentActionPoints = 10000,
+                MaxActionPoints = 10000,
                 IsPlayerSide = isPlayerSide
             };
         }

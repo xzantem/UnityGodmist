@@ -15,6 +15,26 @@ namespace Godmist.Tests.EditMode
     public class CombatRewardSystemTests
     {
         [Test]
+        public void VictoryExperience_UsesEachCharactersLevelAndGrantsOnlyOnce()
+        {
+            var session = new GameSession();
+            var low = CreateCharacter("low");
+            var high = CreateCharacter("high");
+            high.Level = 7;
+            session.TryRegisterCharacter(low); session.TryRegisterCharacter(high);
+            session.TryAddCharacterToActiveParty(low.CharacterId); session.TryAddCharacterToActiveParty(high.CharacterId);
+            var combat = new CombatSession { Outcome = CombatOutcomeState.Victory };
+            combat.Rewards.EnemyRewards.Add(new CombatEnemyReward { EnemyInstanceId = "enemy", ExperienceLevel = 1, ExperiencePerActiveCharacter = 60 });
+            combat.TryMarkEnemyDefeated("enemy");
+            var system = new CombatRewardSystem();
+            Assert.That(system.TryGrantVictoryRewards(session, combat), Is.True);
+            Assert.That(low.CurrentExperience, Is.EqualTo(60));
+            Assert.That(high.CurrentExperience, Is.EqualTo(6));
+            Assert.That(system.TryGrantVictoryRewards(session, combat), Is.False);
+            Assert.That(high.CurrentExperience, Is.EqualTo(6));
+        }
+
+        [Test]
         public void TryGrantVictoryRewards_RewardsOnlyLivingAndDownedActivePartyForDefeatedEnemies()
         {
             var gameSession = new GameSession();
@@ -52,14 +72,14 @@ namespace Godmist.Tests.EditMode
                         new CombatEnemyReward
                         {
                             EnemyInstanceId = "enemy.defeated",
-                            ExperiencePerActiveCharacter = 24,
+                            ExperiencePerActiveCharacter = 2400,
                             Gold = 15,
                             Items = { droppedItem }
                         },
                         new CombatEnemyReward
                         {
                             EnemyInstanceId = "enemy.not_defeated",
-                            ExperiencePerActiveCharacter = 24,
+                            ExperiencePerActiveCharacter = 2400,
                             Gold = 15
                         }
                     }
@@ -121,7 +141,7 @@ namespace Godmist.Tests.EditMode
                 Outcome = CombatOutcomeState.Escaped,
                 Rewards = new CombatRewardResult
                 {
-                    ExperiencePerActiveCharacter = 24,
+                    ExperiencePerActiveCharacter = 2400,
                     Gold = 15
                 }
             };

@@ -15,12 +15,41 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void RequiredExperience_MatchesFormulaThroughLevel49_AndStopsAt50()
+        {
+            for (var level = 1; level < 50; level++)
+                Assert.That(progressionSystem.GetExperienceRequiredForNextLevel(level),
+                    Is.EqualTo((int)System.Math.Round(1200d * System.Math.Pow(level, 1.5d) + 1200d)));
+            Assert.That(progressionSystem.GetExperienceRequiredForNextLevel(50), Is.Zero);
+        }
+
+        [TestCase(1, 1, 60)]
+        [TestCase(1, 2, 51)]
+        [TestCase(1, 7, 6)]
+        [TestCase(1, 50, 6)]
+        [TestCase(2, 1, 114)]
+        public void EnemyExperience_AppliesCappedPenaltyOnlyForWeakerEnemies(int enemy, int player, int expected)
+        {
+            Assert.That(CharacterProgressionSystem.GetEnemyExperience(enemy, player), Is.EqualTo(expected));
+        }
+
+        [TestCase(1, .025, .5)]
+        [TestCase(25, .0201020408163, .4020408163265)]
+        [TestCase(50, .015, .3)]
+        public void ExperienceCurve_HasAgreedRewardShares(int level, double enemyShare, double missionShare)
+        {
+            var threshold = 1200d * (System.Math.Pow(level, 1.5d) + 1d);
+            Assert.That(CharacterProgressionSystem.GetEnemyExperienceBase(level) / threshold, Is.EqualTo(enemyShare).Within(.000001));
+            Assert.That(CharacterProgressionSystem.GetStandardMissionExperience(level) / threshold, Is.EqualTo(missionShare).Within(.00001));
+        }
+
+        [Test]
         public void GetExperienceRequiredForNextLevel_ReturnsExpectedValueForLevelOne()
         {
             var requiredExperience =
                 progressionSystem.GetExperienceRequiredForNextLevel(1);
 
-            Assert.That(requiredExperience, Is.EqualTo(24));
+            Assert.That(requiredExperience, Is.EqualTo(2400));
         }
 
         [Test]
@@ -41,7 +70,7 @@ namespace Godmist.Tests.EditMode
         {
             var character = CreateLevelOneCharacter();
 
-            var levelsGained = progressionSystem.AddExperience(character, 24);
+            var levelsGained = progressionSystem.AddExperience(character, 2400);
 
             Assert.That(levelsGained, Is.EqualTo(1));
             Assert.That(character.Level, Is.EqualTo(2));
@@ -54,7 +83,7 @@ namespace Godmist.Tests.EditMode
         {
             var character = CreateLevelOneCharacter();
 
-            var levelsGained = progressionSystem.AddExperience(character, 75);
+            var levelsGained = progressionSystem.AddExperience(character, 6999);
 
             Assert.That(levelsGained, Is.EqualTo(2));
             Assert.That(character.Level, Is.EqualTo(3));

@@ -25,7 +25,7 @@ namespace Godmist.Systems.Combat
         private static CombatEnemyReward CopyReward(CombatEnemyReward source, string id) => new()
         {
             EnemyInstanceId = id, ExperiencePerActiveCharacter = source.ExperiencePerActiveCharacter,
-            Gold = source.Gold, Items = new(source.Items)
+            ExperienceLevel = source.ExperienceLevel, Gold = source.Gold, Items = new(source.Items)
         };
 
         // Projection is only for the existing persistence/body owner, never another running battle.

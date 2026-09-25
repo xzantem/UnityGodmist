@@ -17,7 +17,7 @@ namespace Godmist.Runtime.Characters
     public class CharacterInstance
     {
         public string CharacterId = string.Empty;
-
+        
         public CharacterDefinition Definition;
         public CharacterClassData ClassData;
 
@@ -30,7 +30,7 @@ namespace Godmist.Runtime.Characters
         public ResistanceSet Resistances;
         public ResistanceSet BaseResistances;
         public ShieldPool ShieldPool;
-
+        
         public Inventory Inventory = new();
         public EquipmentSet Equipment = new();
 

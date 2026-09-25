@@ -101,6 +101,8 @@ namespace Godmist.Systems.SaveLoad
                     var entry = new DungeonEncounterLayoutSaveData
                     {
                         Id = encounter.InstanceId, DefinitionId = encounter.Definition.Id, RoomId = encounter.RoomId,
+                        IsReinforcement = encounter.IsReinforcement,
+                        ReinforcementEnemyIds = encounter.IsReinforcement ? encounter.Enemies.Select(enemy => enemy.InstanceId).ToList() : null,
                         X = encounter.TriggerArea.x, Y = encounter.TriggerArea.y,
                         Width = encounter.TriggerArea.width, Height = encounter.TriggerArea.height,
                         PositionX = encounter.ExplorationPosition.x, PositionY = encounter.ExplorationPosition.y,
@@ -258,6 +260,9 @@ namespace Godmist.Systems.SaveLoad
                     if (encounterDefinition == null && !catalog.TryGetEncounter(encounter.DefinitionId, out encounterDefinition)) return false;
                     var restored = new DungeonEncounterInstance(encounter.Id, encounterDefinition, encounter.RoomId,
                         new RectInt(encounter.X, encounter.Y, encounter.Width, encounter.Height));
+                    // Unity JSON materializes null lists as empty lists. Identity needs an explicit flag.
+                    if (encounter.IsReinforcement && !restored.TryConfigureReinforcements(encounter.ReinforcementEnemyIds)) return false;
+                    if (!encounter.IsReinforcement && encounter.ReinforcementEnemyIds?.Count > 0) return false;
                     restored.TrySetExplorationPosition(new Vector2Int(encounter.PositionX, encounter.PositionY));
                     if (encounter.HasRetreat) restored.TrySetRetreatPosition(new Vector2Int(encounter.RetreatX, encounter.RetreatY));
                     var enemyIds = new HashSet<string>(StringComparer.Ordinal);

@@ -119,6 +119,12 @@ namespace Godmist.Systems.Items
             if (request.Parts?.Any(part => part != null && part.IsStarterOnly) == true)
             { preview.FailureReason = "Części startowe nie są dostępne w rzemiośle."; return preview; }
 
+            if (EquipmentGenerationService.HasMixedPartTiers(request.Parts))
+            {
+                preview.FailureReason = "Wszystkie części wyposażenia muszą pochodzić z tego samego tieru.";
+                return preview;
+            }
+
             var result = equipmentGeneration.GenerateFromSelectedParts(
                 request.Definition,
                 request.Parts,

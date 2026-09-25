@@ -176,7 +176,7 @@ namespace Godmist.Views.Dungeons
                 game.TryRemoveCombat(source);
                 sources.Remove(source);
                 source.UnitEnteredCell = null; source.EvaluateTrapRisk = null; source.TrapRouteState = null;
-                source.ResumeTurn = null;
+                source.ResumeTurn = null; source.TrySpawnReinforcements = null;
                 pendingMerges.Remove(pair);
                 for (var i = 0; i < pendingMerges.Count; i++)
                 {

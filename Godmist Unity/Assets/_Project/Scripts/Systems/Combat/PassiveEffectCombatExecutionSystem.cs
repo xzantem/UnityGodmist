@@ -142,7 +142,7 @@ namespace Godmist.Systems.Combat
                 source: unit,
                 target: unit,
                 movementSteps: unit.MovementStepsThisTurn,
-                movementCost: baseCost);
+                movementCost: ActionPointUnits.ToPoints(baseCost));
             var result = baseCost;
 
             foreach (var match in FindMatches(
@@ -167,7 +167,7 @@ namespace Godmist.Systems.Combat
                     }
                     else
                     {
-                        result += Mathf.RoundToInt(value);
+                        result += ActionPointUnits.FromPoints(value);
                     }
                 }
             }

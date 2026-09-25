@@ -46,7 +46,7 @@ namespace Godmist.Tests.EditMode
             var pipeline = new Godmist.Systems.Characters.CharacterStatPipelineSystem();
             pipeline.Refresh(character);
             Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(125));
-            new ResourceRuleSystem().ProcessTurnStart(new BattleUnit { Character = character });
+            new ResourceRuleSystem().ProcessExplorationTick(new BattleUnit { Character = character });
             Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(130));
             pipeline.Refresh(character);
             Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(130));
@@ -85,7 +85,7 @@ namespace Godmist.Tests.EditMode
 
             system.ProcessUnitMoved(
                 unit,
-                spentActionPoints: 3);
+                spentActionPoints: 300);
 
             Assert.That(
                 unit.Character.ResourcePool.CurrentValue,
@@ -104,7 +104,7 @@ namespace Godmist.Tests.EditMode
 
             system.ProcessUnitMoved(
                 unit,
-                spentActionPoints: 3);
+                spentActionPoints: 300);
 
             Assert.That(
                 unit.Character.ResourcePool.CurrentValue,
@@ -217,7 +217,7 @@ namespace Godmist.Tests.EditMode
 
             var system = new ResourceRuleSystem();
             system.ProcessTurnStart(manaUnit);
-            system.ProcessUnitMoved(momentumUnit, spentActionPoints: 3);
+            system.ProcessUnitMoved(momentumUnit, spentActionPoints: 300);
             system.ProcessDamageDealt(rageUnit);
 
             Assert.That(manaUnit.Character.ResourcePool.CurrentValue, Is.EqualTo(4));

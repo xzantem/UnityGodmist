@@ -131,7 +131,7 @@ namespace Godmist.Systems.Combat
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
-            CombatSession session,
+            CombatSession session, 
             BattleUnit unit)
         {
             return CalculateReachablePaths(
@@ -160,10 +160,10 @@ namespace Godmist.Systems.Combat
             int movementStepsAlreadyTaken)
         {
             var reachablePaths = new Dictionary<
-                GridPosition,
+                GridPosition, 
                 List<GridPosition>>();
 
-            if (session?.Grid == null || unit?.Character == null
+            if (session?.Grid == null || unit?.Character == null 
                 || unit.Character.LifeState != CharacterLifeState.Alive) return reachablePaths;
 
             if ((StatusEffectSystem.IsHardCrowdControlled(unit)
@@ -214,7 +214,7 @@ namespace Godmist.Systems.Combat
 
         public bool TryMoveAlongPath(
             CombatSession session,
-            BattleUnit unit,
+            BattleUnit unit, 
             IReadOnlyList<GridPosition> path)
         {
             return TryMoveAlongPath(session, unit, path, out _);
@@ -257,9 +257,9 @@ namespace Godmist.Systems.Combat
                 var deltaY = targetPosition.Y - unit.Position.Y;
 
                 if (!TryMoveOneStepInternal(
-                        session,
-                        unit,
-                        deltaX,
+                        session, 
+                        unit, 
+                        deltaX, 
                         deltaY,
                         publishFeedback: false,
                         processResource: false,
@@ -293,13 +293,13 @@ namespace Godmist.Systems.Combat
                         new PassiveEffectCombatContext(
                             session: session,
                             source: unit,
-                            movementCost: totalMovementCost,
+                            movementCost: ActionPointUnits.ToPoints(totalMovementCost),
                             movementSteps: unit.MovementStepsThisTurn,
                             distance: completedPath.Count,
-                            eventValue: totalMovementCost));
+                            eventValue: ActionPointUnits.ToPoints(totalMovementCost)));
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
-                    $"moves along a path for {totalMovementCost} AP.");
+                    $"moves along a path for {ActionPointUnits.Format(totalMovementCost)} AP.");
             }
 
             return completed;
@@ -348,7 +348,7 @@ namespace Godmist.Systems.Combat
             {
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
-                    "nie moÅ¼e siÄ™ ruszyÄ‡ przez status kontroli.");
+                    "nie może się ruszyć przez status kontroli.");
 
                 return false;
             }
@@ -364,7 +364,7 @@ namespace Godmist.Systems.Combat
                 CombatActionCostCalculator.CalculateMovementCost(unit));
 
             var nextCell = requestedPosition ?? session.Grid.GetOffsetPosition(unit.Position, deltaX, deltaY);
-            movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell);
+            movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell) * ActionPointUnits.PerPoint;
             if(WarriorCombatSystem.FreeStep(unit))movementCost=0;
             if (unit.CurrentActionPoints < movementCost)
             {
@@ -431,10 +431,10 @@ namespace Godmist.Systems.Combat
                         new PassiveEffectCombatContext(
                             session: session,
                             source: unit,
-                            movementCost: movementCost,
+                            movementCost: ActionPointUnits.ToPoints(movementCost),
                             movementSteps: unit.MovementStepsThisTurn,
                             distance: 1,
-                            eventValue: movementCost));
+                            eventValue: ActionPointUnits.ToPoints(movementCost)));
             }
 
             if (writeBattleLog)
@@ -442,7 +442,7 @@ namespace Godmist.Systems.Combat
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
                     $"moves to [{unit.Position.X}, {unit.Position.Y}] " +
-                    $"for {movementCost} AP.");
+                    $"for {ActionPointUnits.Format(movementCost)} AP.");
             }
 
             return true;
@@ -456,14 +456,14 @@ namespace Godmist.Systems.Combat
             var stepIndex=0;
             foreach (var cell in path)
             {
-                if(++stepIndex>freeSteps)cost += session.Grid.GetMovementSurcharge(origin, cell);
+                if(++stepIndex>freeSteps)cost += session.Grid.GetMovementSurcharge(origin, cell) * ActionPointUnits.PerPoint;
                 origin = cell;
             }
             return cost;
         }
 
         public static int CalculatePathCost(
-            BattleUnit unit,
+            BattleUnit unit, 
             int pathLength)
         {
             var cost=0;
@@ -478,8 +478,8 @@ namespace Godmist.Systems.Combat
             var firstStepCost = movementStepsAlreadyTaken + 1;
 
             return pathLength
-                * (2 * firstStepCost + pathLength - 1)
-                / 2;
-        }
+                * (2 * firstStepCost + pathLength - 1) 
+                / 2 * ActionPointUnits.PerPoint;
+        } 
     }
 }

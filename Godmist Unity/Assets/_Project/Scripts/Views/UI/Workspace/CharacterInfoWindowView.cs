@@ -54,6 +54,17 @@ namespace Godmist.Views.UI.Workspace
         private SkillTreeProgressionPanelView skillTreeWindow;
 
         public string CharacterId => character?.CharacterId;
+        public Func<string, string, string> CampAction { private get; set; }
+
+        public void TryUseCampingKit(ItemInstance item)
+        {
+            if (!Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item)
+                || character?.Inventory.Items.Contains(item) != true) return;
+            var reason = CampAction?.Invoke(character.CharacterId, item.InstanceId) ?? "Obóz można rozbić tylko w lochu.";
+            UIWorkspaceTooltipView.ActiveInstance?.ShowCompactText("Obóz",
+                string.IsNullOrEmpty(reason) ? "Drużyna odpoczęła. Zużyto jeden zestaw obozowy." : reason, this);
+            Refresh();
+        }
         public CharacterInstance Character => character;
 
         public bool MeetsEquipmentRequirements(EquipmentItemInstance item) =>
@@ -226,7 +237,8 @@ namespace Godmist.Views.UI.Workspace
                     out _,
                     returnTransition: () =>
                         Godmist.Views.Game.GameBootstrap.Instance
-                            ?.TryReturnToArungardFromDungeon() ?? false)) return;
+                            ?.TryReturnToArungardFromDungeon() ?? false,
+                    passiveTicksActive: Godmist.Views.Game.GameBootstrap.Instance?.IsDungeonScene == true)) return;
             Refresh();
         }
 

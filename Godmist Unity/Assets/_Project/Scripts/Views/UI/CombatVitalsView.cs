@@ -5,6 +5,29 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace Godmist.Views.UI
 {
+    public static class ActionPointPipPresentation
+    {
+        public static void Apply(Image image, int currentUnits, int index, Color available, Color spent, int remainingUnits = -1, Color? preview = null)
+        {
+            var fill = ActionPointUnits.PipFill(currentUnits, index);
+            var meshFill = image.GetComponent<ActionPointPipFill>();
+            if (meshFill != null)
+            {
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+                meshFill.SetFill(fill, remainingUnits < 0 ? fill : ActionPointUnits.PipFill(remainingUnits, index),
+                    available, preview ?? available, spent);
+                return;
+            }
+            image.type = Image.Type.Filled;
+            image.fillMethod = Image.FillMethod.Horizontal;
+            image.fillOrigin = (int)Image.OriginHorizontal.Left;
+            // Empty pips stay visible in the existing spent color.
+            image.fillAmount = fill > 0f ? fill : 1f;
+            image.color = fill > 0f ? available : spent;
+        }
+    }
+
     public sealed class CombatVitalsView : MonoBehaviour
     {
         [SerializeField] private Slider healthSlider, shieldSlider, resourceSlider;
@@ -30,11 +53,17 @@ namespace Godmist.Views.UI
             if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.Initialize(null,CombatResourceColors.ResourceName(resource.ResourceType),$"{resource.CurrentValue}/{resource.MaxValue}");}
             if(resourceValueText!=null)resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";
             var remaining=RemainingAfterPreview(unit.CurrentActionPoints,previewCost);
-            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{unit.CurrentActionPoints}/{unit.MaxActionPoints} AP · potrzeba {previewCost}":previewCost>0?$"{unit.CurrentActionPoints} → {remaining} AP":$"{unit.CurrentActionPoints}/{unit.MaxActionPoints} AP";
+            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} AP":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP";
             if(actionPointPipTemplate==null||actionPointPipRoot==null)return;
             actionPointPipTemplate.gameObject.SetActive(false);
-            while(pips.Count<unit.MaxActionPoints)pips.Add(Instantiate(actionPointPipTemplate,actionPointPipRoot));
-            for(var i=0;i<pips.Count;i++){pips[i].gameObject.SetActive(i<unit.MaxActionPoints);pips[i].color=i>=unit.CurrentActionPoints?spentColor:i>=remaining?previewColor:availableColor;}
+            var count = ActionPointUnits.PipCount(Mathf.Max(unit.MaxActionPoints, unit.CurrentActionPoints));
+            while (pips.Count < count) pips.Add(Instantiate(actionPointPipTemplate, actionPointPipRoot));
+            for (var i = 0; i < pips.Count; i++)
+            {
+                pips[i].gameObject.SetActive(i < count);
+                ActionPointPipPresentation.Apply(pips[i], unit.CurrentActionPoints, i,
+                    availableColor, spentColor, remaining, previewColor);
+            }
         }
         private static void Set(Slider slider,float value,float maximum){if(slider==null)return;slider.minValue=0;slider.maxValue=Mathf.Max(1,maximum);slider.SetValueWithoutNotify(value);}
     }

@@ -102,6 +102,9 @@ namespace Godmist.Systems.Items
                 : CreateItem(definition) as LootBagItemInstance;
         }
 
+        public ItemInstance GenerateSingleItem(ItemDefinition definition) =>
+            definition == null ? null : CreateItem(definition);
+
         private int RollAmount(int minAmount, int maxAmount)
         {
             if (minAmount >= maxAmount) return minAmount;

@@ -56,7 +56,8 @@ namespace Godmist.Systems.Combat
                 rewards.EnemyRewards.Add(new CombatEnemyReward
                 {
                     EnemyInstanceId = enemyData.InstanceId,
-                    ExperiencePerActiveCharacter = definition.ExperienceReward,
+                    ExperienceLevel = Math.Clamp(enemyLevel, 1, 50),
+                    ExperiencePerActiveCharacter = CharacterProgressionSystem.GetEnemyExperience(enemyLevel, enemyLevel),
                     Gold = CombatEconomyScaling.RollEnemyGold(enemyLevel, goldRandom()),
                     Items = lootTableSystem.RollLoot(
                         encounterEnemyLootTableResolver?.Invoke(enemyData)
@@ -81,13 +82,6 @@ namespace Godmist.Systems.Combat
                 rewards,
                 combatSession.DefeatedEnemyInstanceIds);
 
-            var experiencePerCharacter = 0;
-
-            foreach (var enemyReward in defeatedEnemyRewards)
-            {
-                experiencePerCharacter += enemyReward.ExperiencePerActiveCharacter;
-            }
-
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
                 if (!gameSession.CharactersById.TryGetValue(
@@ -100,6 +94,15 @@ namespace Godmist.Systems.Combat
                 if (character.LifeState == CharacterLifeState.Dead)
                 {
                     continue;
+                }
+
+                // Evaluate every reward against the same pre-award level.
+                var experiencePerCharacter = 0;
+                foreach (var enemyReward in defeatedEnemyRewards)
+                {
+                    experiencePerCharacter += enemyReward.ExperienceLevel > 0
+                        ? CharacterProgressionSystem.GetEnemyExperience(enemyReward.ExperienceLevel, character.Level)
+                        : enemyReward.ExperiencePerActiveCharacter;
                 }
 
                 progressionSystem.AddExperience(

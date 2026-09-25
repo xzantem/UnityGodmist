@@ -26,7 +26,7 @@ namespace Godmist.Systems.Dungeons
                 || floor.Map == null
                 || catalog == null
                 || encounter == null
-                || encounter.Definition?.Enemies == null)
+                || encounter.Enemies == null)
             {
                 return result;
             }
@@ -34,10 +34,10 @@ namespace Godmist.Systems.Dungeons
             var liveEnemyIdsByIndex = new Dictionary<int, string>();
 
             for (var enemyIndex = 0;
-                enemyIndex < encounter.Definition.Enemies.Count;
+                enemyIndex < encounter.Enemies.Count;
                 enemyIndex++)
             {
-                var enemy = encounter.Definition.Enemies[enemyIndex];
+                var enemy = encounter.Enemies[enemyIndex];
 
                 if (enemy == null
                     || string.IsNullOrWhiteSpace(enemy.InstanceId)

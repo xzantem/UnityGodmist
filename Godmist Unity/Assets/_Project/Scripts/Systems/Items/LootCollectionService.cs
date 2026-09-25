@@ -290,6 +290,27 @@ namespace Godmist.Systems.Items
                 itemInstanceId);
         }
 
+        public bool TryClaimDungeonChestGold(
+            GameSession gameSession,
+            string chestInstanceId,
+            out int claimedGold)
+        {
+            claimedGold = 0;
+            if (!TryGetActiveFloorChest(gameSession, chestInstanceId, out var chest)
+                || chest.Gold <= 0)
+            {
+                return false;
+            }
+
+            var grantedGold = ApplyActiveLeaderJewelryGoldBonus(gameSession, chest.Gold);
+            if (!gameSession.TryAddGold(grantedGold)) return false;
+            if (chest.TryClaimGold(out claimedGold)) return true;
+
+            gameSession.TrySpendGold(grantedGold);
+            claimedGold = 0;
+            return false;
+        }
+
         public bool TryClaimDungeonChestItem(
             GameSession gameSession,
             string chestInstanceId,

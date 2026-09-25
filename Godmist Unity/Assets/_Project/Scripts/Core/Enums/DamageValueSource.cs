@@ -5,6 +5,7 @@ namespace Godmist.Core.Enums
         AttackRange = 0,
         MinAttack = 1,
         MaxAttack = 2,
-        AverageAttack = 3
+        AverageAttack = 3,
+        AlchemicalPower = 4
     }
 }

@@ -81,6 +81,7 @@ namespace Godmist.Views.UI.Workspace
             socketsSection.SetActive(selectedEquipment != null);
             var socketed = selectedEquipment?.SocketedGaldurytes;
             if (socketed?.Contains(selectedGalduryte) != true) selectedGalduryte = socketed?.FirstOrDefault();
+            var socketIndex = 0;
             foreach (var item in socketed ?? new List<GalduryteItemInstance>())
             {
                 var captured = item;
@@ -91,6 +92,7 @@ namespace Godmist.Views.UI.Workspace
                     selectedGalduryte = captured;
                     RefreshPreview();
                 });
+                row.SetInactive(!selectedEquipment.IsSocketActive(socketIndex++));
                 rows.Add(row);
             }
             previewSlot.SetIcon(selectedEquipment?.Definition?.Icon);
@@ -108,8 +110,8 @@ namespace Godmist.Views.UI.Workspace
                 : $"Szansa powodzenia: {preview.SuccessChance * 100f:0}%";
             warningText.text = selectedGalduryte == null ? string.Empty
                 : (selectedGalduryte.IsDestroyed
-                        ? "Powodzenie usunie zniszczony galduryt. Opłata jest pobierana za każdą próbę."
-                        : "Niepowodzenie niszczy galduryt, ale pozostawia go w wyposażeniu. Opłata jest pobierana za każdą próbę.");
+                        ? "Usunięcie zniszczonego galdurytu zwolni slot. Opłata jest pobierana za próbę."
+                        : "Niepowodzenie niszczy galduryt i zwalnia slot. Opłata jest pobierana za próbę.");
             extractButton.interactable = preview.CanExtract;
             statusText.text = preview.CanExtract ? string.Empty : preview.FailureReason;
             statusText.gameObject.SetActive(!string.IsNullOrEmpty(statusText.text));
@@ -129,7 +131,7 @@ namespace Godmist.Views.UI.Workspace
             RefreshPreview();
             statusText.text = result.Succeeded
                 ? result.RemovedDestroyedGalduryte ? "Usunięto zniszczony galduryt." : "Wyciągnięto galduryt."
-                : "Niepowodzenie — galduryt jest zniszczony.";
+                : "Niepowodzenie — galduryt został zniszczony, slot jest wolny.";
             statusText.gameObject.SetActive(true);
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }

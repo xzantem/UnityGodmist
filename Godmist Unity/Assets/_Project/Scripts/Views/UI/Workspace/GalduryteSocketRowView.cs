@@ -30,6 +30,11 @@ namespace Godmist.Views.UI.Workspace
             }
         }
 
+        public void SetInactive(bool inactive)
+        {
+            if (inactive && titleText != null) titleText.text += " (nieaktywne gniazdo)";
+        }
+
         public void BindForExtraction(GalduryteItemInstance galduryte, bool selected, System.Action onClick)
         {
             Bind(galduryte, false);

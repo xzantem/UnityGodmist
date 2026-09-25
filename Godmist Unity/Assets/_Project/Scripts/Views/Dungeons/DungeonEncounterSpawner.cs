@@ -23,6 +23,32 @@ namespace Godmist.Views.Dungeons
         public IReadOnlyList<EncounterTriggerView> Triggers => spawnedTriggers;
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
 
+        public EncounterTriggerView SpawnAdditionalEncounter(DungeonEncounterInstance encounter,
+            DungeonFloorInstance floor, ExplorationPartyController party, int level)
+        {
+            if (enemyViewPrefab == null || encounterTriggerPrefab == null || floorMapView == null) return null;
+            var views = SpawnEnemyViews(encounter, floor.Map, level);
+            var trigger = Instantiate(encounterTriggerPrefab, encountersRoot != null ? encountersRoot : transform);
+            trigger.name = "Reinforcements_" + encounter.InstanceId;
+            trigger.Initialize(party, floor.Map, floorMapView, encounter, views);
+            spawnedTriggers.Add(trigger);
+            return trigger;
+        }
+
+        public void RemoveAdditionalEncounter(EncounterTriggerView trigger)
+        {
+            if (trigger == null) return;
+            spawnedTriggers.Remove(trigger);
+            foreach (var view in trigger.EnemyViews)
+            {
+                spawnedEnemyViews.Remove(view);
+                view.gameObject.SetActive(false);
+                Destroy(view.gameObject);
+            }
+            trigger.gameObject.SetActive(false);
+            Destroy(trigger.gameObject);
+        }
+
         public bool Rebuild(
             DungeonFloorInstance floor,
             ExplorationPartyController partyController, int dungeonLevel = 1)
@@ -94,7 +120,7 @@ namespace Godmist.Views.Dungeons
             DungeonFloorMap floorMap, int dungeonLevel)
         {
             var result = new List<ExplorationCharacterView>();
-            var enemies = encounterInstance.Definition?.Enemies;
+            var enemies = encounterInstance.Enemies;
 
             if (enemies == null || enemies.Count == 0)
             {

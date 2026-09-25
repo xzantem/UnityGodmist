@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: f18da7bdcfa811747adadd104b16c26a, type: 3}
   worldSprite: {fileID: 21300000, guid: f18da7bdcfa811747adadd104b16c26a, type: 3}
   maxHits: 1
-  defaultDurationTurns: 2
+  defaultDurationTurns: 3
   turnSpeed: 80
   blocksMovement: 0
   blocksLineOfSight: 0

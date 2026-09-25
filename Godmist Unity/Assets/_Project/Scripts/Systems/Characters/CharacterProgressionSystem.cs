@@ -30,12 +30,30 @@ namespace Godmist.Systems.Characters
             if (currentLevel == MaximumLevel) return 0;
 
             var coefficient = GameDefinesRuntime.GetFloat(
-                GameDefineIds.ExperienceFormulaCoefficient, 12f);
+                GameDefineIds.ExperienceFormulaCoefficient, 1200f);
             var exponent = GameDefinesRuntime.GetFloat(
                 GameDefineIds.ExperienceFormulaExponent, 1.5f);
             var constant = GameDefinesRuntime.GetFloat(
-                GameDefineIds.ExperienceFormulaConstant, 12f);
-            return Mathf.RoundToInt(coefficient * Mathf.Pow(currentLevel, exponent) + constant);
+                GameDefineIds.ExperienceFormulaConstant, 1200f);
+            return (int)Math.Round(coefficient * Math.Pow(currentLevel, exponent) + constant);
+        }
+
+        public static double GetEnemyExperienceBase(int enemyLevel)
+        {
+            var level = Math.Clamp(enemyLevel, 1, 50);
+            return 6d * (247 - 2 * level) * (Math.Pow(level, 1.5d) + 1d) / 49d;
+        }
+
+        public static int GetEnemyExperience(int enemyLevel, int characterLevel)
+        {
+            var difference = Math.Clamp(characterLevel - enemyLevel, 0, 6);
+            return (int)Math.Round(GetEnemyExperienceBase(enemyLevel) * (1d - .15d * difference));
+        }
+
+        public static int GetStandardMissionExperience(int missionLevel)
+        {
+            // Round once, after multiplying the unrounded enemy reward.
+            return (int)Math.Round(20d * GetEnemyExperienceBase(missionLevel));
         }
 
         public int AddExperience(CharacterInstance character, int experienceAmount)

@@ -27,6 +27,7 @@ namespace Godmist.Systems.Combat
             foreach (var item in character.Equipment?.GetEquippedItems()
                          ?? Array.Empty<EquipmentItemInstance>())
             {
+                item?.RecalculateStatModifiers();
                 AddEquipmentStatEffect(character, item);
                 AddEquipmentDefinitions(character, item);
                 AddSocketedGaldurytes(character, item);
@@ -134,9 +135,11 @@ namespace Godmist.Systems.Combat
             CharacterInstance character,
             EquipmentItemInstance equipment)
         {
+            var socketIndex = 0;
             foreach (var galduryte in equipment?.SocketedGaldurytes
                          ?? new List<GalduryteItemInstance>())
             {
+                if (!equipment.IsSocketActive(socketIndex++)) continue;
                 if (galduryte?.IsIdentified != true || galduryte.IsDestroyed) continue;
                 var sourceId = $"{BuildEquipmentSourceId(equipment)}.galduryte.{galduryte.InstanceId}";
                 var stats = new List<StatModifier>();

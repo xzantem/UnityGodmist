@@ -20,7 +20,7 @@ MonoBehaviour:
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0
-  <ActionCost>k__BackingField: 40
+  <ActionCost>k__BackingField: 30
   <ResourceCost>k__BackingField: 65
   <ResourceType>k__BackingField: 3
   <KnifeCost>k__BackingField: 0

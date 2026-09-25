@@ -75,7 +75,8 @@ namespace Godmist.Views.UI.Workspace
         {
             if (eventData.button == PointerEventData.InputButton.Right)
             {
-                if (item is LootBagItemInstance) owner?.TryOpenLootBag(item);
+                if (Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item)) owner?.TryUseCampingKit(item);
+                else if (item is LootBagItemInstance) owner?.TryOpenLootBag(item);
                 else if (item is ConsumableItemInstance) owner?.TryUseConsumable(item);
                 else CampaignStorageWindowView.Active?.TryDeposit(
                     owner,

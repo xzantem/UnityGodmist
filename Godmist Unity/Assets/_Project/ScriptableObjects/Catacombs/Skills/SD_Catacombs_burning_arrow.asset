@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Podpalona Strza\u0142a"
   <Icon>k__BackingField: {fileID: 0}
   <TooltipDescription>k__BackingField: "Zadaje losowe obra\u017Cenia i ma 90% szansy
-    na podpalenie o sile 100% przez 3 tury."
+    na podpalenie o sile 50% przez 3 tury."
   <SkillAccuracy>k__BackingField: 92
   <AttackType>k__BackingField: 2
   <PointBlankAttackType>k__BackingField: 0
@@ -173,7 +173,7 @@ MonoBehaviour:
     statusId: burn
     durationTurns: 3
     stacks: 1
-    statusDamageMultiplier: 1
+    statusDamageMultiplier: 0.5
     statusHealPercent: 0
     percentageValue: 0
     counterattackRange:

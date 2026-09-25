@@ -18,6 +18,7 @@ namespace Godmist.Core.Serialization
         public int GuildProgressCreditedFloorCount;
         public bool IsCompleted;
         public bool TraderStockRefreshed;
+        public bool CampSuppliesIssued;
 
         public bool HasPlayerPosition;
         public float PlayerPositionX;
@@ -177,6 +178,8 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonEncounterLayoutSaveData
     {
+        public bool IsReinforcement;
+        public List<string> ReinforcementEnemyIds;
         public string Id, DefinitionId, RoomId;
         public int X, Y, Width, Height;
         public int PositionX, PositionY, RetreatX, RetreatY;
@@ -221,6 +224,8 @@ namespace Godmist.Core.Serialization
         public bool IsUnlocked;
         public bool HasChestLootState;
         public List<string> ChestItemInstanceIds = new();
+        public bool HasChestGoldState;
+        public int ChestGold;
         public bool IsDoor;
         public bool IsOpen;
         public bool IsTriggered;
@@ -244,6 +249,7 @@ namespace Godmist.Core.Serialization
         // Empty id denotes the legacy aggregate reward.
         public string EnemyId;
         public int Experience, Gold;
+        public int ExperienceLevel;
         public List<string> ItemIds = new();
     }
 }

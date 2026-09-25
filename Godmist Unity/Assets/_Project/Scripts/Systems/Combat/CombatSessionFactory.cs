@@ -163,7 +163,7 @@ namespace Godmist.Systems.Combat
         {
             result = null;
             placementFailed = false;
-            if (gameSession == null || encounter?.Definition?.Enemies == null || context == null
+            if (gameSession == null || encounter?.Enemies == null || context == null
                 || playerCells == null || enemyCells == null
                 || !dungeonBattleGridFactory.TryCreate(context, out var grid)) return false;
             var session = new CombatSession
@@ -198,7 +198,7 @@ namespace Godmist.Systems.Combat
                     ActorPosition("player:" + id, cell), true));
             }
             if (session.Units.Count == 0) return false;
-            foreach (var data in encounter.Definition.Enemies)
+            foreach (var data in encounter.Enemies)
             {
                 if (data == null || string.IsNullOrWhiteSpace(data.InstanceId)) return false;
                 if (encounter.IsEnemyDefeated(data.InstanceId) || (spottedOnly && !enemyCells.ContainsKey(data.InstanceId))) continue;
@@ -519,7 +519,7 @@ namespace Godmist.Systems.Combat
 
             var maxActionPoints = Mathf.Max(
                 0,
-                Mathf.RoundToInt(speed * actionPointsPerSpeed));
+                Mathf.RoundToInt(speed * actionPointsPerSpeed * ActionPointUnits.PerPoint));
 
             return new BattleUnit
             {
@@ -548,6 +548,16 @@ namespace Godmist.Systems.Combat
             {
                 return rewards;
             }
+
+            // Reinforcement identity, not a missing reward cache, decides whether rewards exist.
+            if (dungeon != null)
+                foreach (var floor in dungeon.Floors)
+                    if (floor.TryGetEncounter(combatId, out var runtimeEncounter) && runtimeEncounter.IsReinforcement)
+                    {
+                        var empty = new CombatRewardResult();
+                        dungeon.TryStorePreRolledRewards(combatId, empty);
+                        return empty;
+                    }
 
             var rolledRewards = rewardSystem.RollEncounterRewards(
                 encounter, null, dungeon?.DungeonLevel ?? 1);

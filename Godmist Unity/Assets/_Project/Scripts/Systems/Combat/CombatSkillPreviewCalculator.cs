@@ -26,17 +26,24 @@ namespace Godmist.Systems.Combat
         public CombatSkillTargetPreview(
             CombatSkillDamageRange damage,
             float hitChance,
-            bool hasHitChance)
+            bool hasHitChance,
+            string statusId = null,
+            float statusChance = 0f)
         {
             Damage = damage;
             HitChance = Mathf.Clamp01(hitChance);
             HasHitChance = hasHitChance;
+            StatusId = statusId;
+            StatusChance = Mathf.Clamp01(statusChance);
         }
 
         public CombatSkillDamageRange Damage { get; }
         public float HitChance { get; }
         public bool HasHitChance { get; }
-        public bool IsValid => Damage.HasDamage;
+        public string StatusId { get; }
+        public float StatusChance { get; }
+        public bool HasStatusChance => !string.IsNullOrWhiteSpace(StatusId);
+        public bool IsValid => Damage.HasDamage || HasStatusChance;
     }
 
     /// <summary>
@@ -112,6 +119,8 @@ namespace Godmist.Systems.Combat
             var maximum = 0;
             var hasDamage = false;
             var hasGuaranteedHit = true;
+            string statusId = null;
+            var statusChance = 0f;
 
             foreach (var baseEffect in skill?.Effects ?? Array.Empty<SkillEffectData>())
             {
@@ -180,10 +189,108 @@ namespace Godmist.Systems.Combat
                 hitChance = CombatDamageSystem.ApplyHitChanceBonus(caster?.Character, hitChance);
             }
 
+            // Show only a status whose trigger can be estimated from the current
+            // target. Conditional effects with other dependencies are omitted.
+            var effects = skill?.Effects;
+            if (effects != null)
+            {
+                for (var index = 0; index < effects.Count; index++)
+                {
+                    var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, effects[index]);
+                    if (effect == null || caster == null || target == null
+                        || caster.IsPlayerSide == target.IsPlayerSide
+                        || effect.Polarity != EffectPolarity.Negative
+                        || targetModeIndex >= 0 && effect.TargetModeIndex != targetModeIndex)
+                        continue;
+
+                    var id = effect.EffectType == EffectType.ApplyStatus
+                        ? effect.StatusId
+                        : effect.EffectType == EffectType.DealDamage ? effect.OnHitStatusId : null;
+                    if (string.IsNullOrWhiteSpace(id)) continue;
+
+                    if (effect.EffectType == EffectType.DealDamage && effect.Conditions != null)
+                    {
+                        var conditional = false;
+                        foreach (var condition in effect.Conditions)
+                            conditional |= condition != null
+                                && condition.ConditionType != EffectConditionType.Always;
+                        if (conditional) continue;
+                    }
+
+                    var triggerChance = 1f;
+                    if (effect.EffectType == EffectType.ApplyStatus)
+                    {
+                        if (effect.Conditions != null)
+                        {
+                            var unsupported = false;
+                            foreach (var condition in effect.Conditions)
+                            {
+                                if (condition == null || condition.ConditionType == EffectConditionType.Always) continue;
+                                if (condition.ConditionType != EffectConditionType.ReferencedEffectSucceeded
+                                    || condition.ReferencedEffectIndex < 0
+                                    || condition.ReferencedEffectIndex >= index)
+                                {
+                                    unsupported = true;
+                                    break;
+                                }
+
+                                var prior = PassiveEffectCombatExecutionSystem.ResolveEffect(
+                                    caster, skill, effects[condition.ReferencedEffectIndex]);
+                                if (prior?.EffectType != EffectType.DealDamage)
+                                {
+                                    unsupported = true;
+                                    break;
+                                }
+                                var priorHit = prior.AlwaysHits
+                                    || CombatDamageSystem.IsGuaranteedHitDamageType(prior.DamageType)
+                                    ? 1f : CalculateHitChance(caster, target, skill);
+                                triggerChance *= 1f - Mathf.Pow(1f - priorHit, prior.DamageHitCount)
+                                    * Mathf.Pow(1f - prior.AdditionalHitChance * priorHit,
+                                        prior.AdditionalHitTrials);
+                            }
+                            if (unsupported) continue;
+                        }
+                        if (!effect.AlwaysHits && effect.Polarity == EffectPolarity.Negative)
+                            triggerChance *= CalculateHitChance(caster, target, skill);
+                    }
+                    else
+                    {
+                        var perHit = effect.AlwaysHits
+                            || CombatDamageSystem.IsGuaranteedHitDamageType(effect.DamageType)
+                            ? 1f : CalculateHitChance(caster, target, skill);
+                        var application = StatusEffectSystem.CalculateStatusApplicationChance(
+                            caster, target, id, effect.OnHitStatusChance);
+                        statusId = id;
+                        statusChance = 1f - Mathf.Pow(1f - perHit * application,
+                                effect.DamageHitCount)
+                            * Mathf.Pow(1f - effect.AdditionalHitChance * perHit * application,
+                                effect.AdditionalHitTrials);
+                        break;
+                    }
+
+                    statusId = id;
+                    statusChance = triggerChance * StatusEffectSystem.CalculateStatusApplicationChance(
+                        caster, target, id, effect.BaseChance);
+                    break;
+                }
+            }
+
             return new CombatSkillTargetPreview(
                 new CombatSkillDamageRange(minimum, maximum, hasDamage),
                 hitChance,
-                hasDamage);
+                hasDamage,
+                statusId,
+                statusChance);
+        }
+
+        private static float CalculateHitChance(BattleUnit caster, BattleUnit target, SkillData skill)
+        {
+            var dodge = target?.Character?.Stats?.Dodge.GetValue() ?? 0f;
+            var chance = CombatDamageSystem.CalculateHitChance(
+                caster?.Character?.WeaponAccuracy ?? 0f,
+                PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill,
+                    "accuracy", skill?.SkillAccuracy ?? 0f), dodge);
+            return CombatDamageSystem.ApplyHitChanceBonus(caster?.Character, chance);
         }
 
         private static CombatSkillDamageRange CalculateEffectDamageRange(
@@ -193,6 +300,16 @@ namespace Godmist.Systems.Combat
             if (caster?.Character?.Stats == null || effect == null)
             {
                 return new CombatSkillDamageRange(0, 0, false);
+            }
+
+            if (effect.DamageValueSource == DamageValueSource.AlchemicalPower)
+            {
+                var strength = Mathf.Max(0f, effect.DamageMultiplier);
+                var maximumStrength = effect.BonusDamageMultiplierChance > 0f
+                    ? strength * effect.BonusDamageMultiplier : strength;
+                return new CombatSkillDamageRange(
+                    CombatDamageValueCalculator.CalculateAlchemicalDamage(caster.Character.Level, strength),
+                    CombatDamageValueCalculator.CalculateAlchemicalDamage(caster.Character.Level, maximumStrength), true);
             }
 
             var minimumAttack = Mathf.Max(0,

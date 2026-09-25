@@ -18,6 +18,7 @@ using Godmist.Views.Game;
 using UnityEngine;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Views.Combat
 {
@@ -255,8 +256,8 @@ namespace Godmist.Views.Combat
             Session.ObjectDurabilityChanged = HandleCombatMapObjectChanged;
             targetingService = new CombatTargetingService();
             aiSystem = new SimpleCombatAiSystem(
-                battleLog: AddBattleLog,
-                endTurn: session => turnSystem.EndActiveTurn(session),
+                battleLog: AddBattleLog, 
+                endTurn: session => turnSystem.EndActiveTurn(session), 
                 evaluateOutcome: session => outcomeSystem.EvaluateCombatOutcome(session),
                 skillExecutionSystem: skillExecutionSystem, targetingService: targetingService,
                 movementSystem: movementSystem, lineOfSightService: lineOfSightService,
@@ -317,7 +318,7 @@ namespace Godmist.Views.Combat
                 RequestEndTurn();
                 return;
             }
-
+            
             if (!usesGameSessionCombat && Input.GetKeyDown(KeyCode.K))
             {
                 RemoveFirstEnemyForDebug();
@@ -376,7 +377,7 @@ namespace Godmist.Views.Combat
                 90, 0, 50, ResourceType.Rage, 48f, false);
             var enemyB = CreateUnit(enemyDefinition, warriorClass, new GridPosition(6, 2),
                 90, 0, 50, ResourceType.Rage, 48f, false);
-
+                
             session.Units.Add(jerzy);
             session.Units.Add(ally);
             session.Units.Add(enemyA);
@@ -961,7 +962,7 @@ namespace Godmist.Views.Combat
         public bool CanEscape()
         {
             return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerControlled
-                && Session.ActiveUnit.Character != null
+                && Session.ActiveUnit.Character != null 
                 && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
@@ -1259,7 +1260,7 @@ namespace Godmist.Views.Combat
         public bool TryInteractAt(GridPosition position)
         {
             if (Session?.MembershipChangePending == true) return false;
-            if (Session == null || Session.ActiveUnit == null || interactionSystem == null
+            if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
                 || !Session.ActiveUnit.IsPlayerControlled || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
             if (IsActiveUnitHardCrowdControlled())
@@ -1442,7 +1443,7 @@ namespace Godmist.Views.Combat
 
             return FilterPositionsByLineOfSight(skill, positions);
         }
-        public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill,
+        public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill, 
             SkillTargetModeData targetMode)
         {
             if (Session == null || Session.ActiveUnit == null || skill == null
@@ -1453,13 +1454,13 @@ namespace Godmist.Views.Combat
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
-        public IReadOnlyList<GridPosition> GetRelativeSkillRangePositions(SkillData skill,
+        public IReadOnlyList<GridPosition> GetRelativeSkillRangePositions(SkillData skill, 
             SkillTargetModeData targetMode, GridPosition center, int rotationQuarterTurns = 0)
         {
             if (Session == null || Session.ActiveUnit == null || skill == null
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
-            var positions = targetingService.GetRelativeRangePositions(Session, Session.ActiveUnit,
+            var positions = targetingService.GetRelativeRangePositions(Session, Session.ActiveUnit, 
                 targetMode, center, rotationQuarterTurns);
 
             return FilterPositionsByLineOfSight(skill, positions);
@@ -1700,12 +1701,12 @@ namespace Godmist.Views.Combat
                 : null;
         }
 
-        private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(SkillData skill,
+        private IReadOnlyList<BattleUnit> FilterTargetsByLineOfSight(SkillData skill, 
             IReadOnlyList<BattleUnit> targets)
         {
             if (skill == null || !skill.RequiresLineOfSight || Session?.ActiveUnit == null) return targets;
 
-            return targets.Where(target => target != null &&
+            return targets.Where(target => target != null && 
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, target.Position)).ToList();
         }
 
@@ -1714,7 +1715,7 @@ namespace Godmist.Views.Combat
         {
             if (skill == null || !skill.RequiresLineOfSight || Session?.ActiveUnit == null) return positions;
 
-            return positions.Where(position =>
+            return positions.Where(position => 
                 lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, position)).ToList();
         }
 
@@ -1830,7 +1831,9 @@ namespace Godmist.Views.Combat
 
             if (!dungeonCombatOutcomeSystem.TryApplyOutcome(
                     gameSession,
-                    Session))
+                    Session,
+                    gameBootstrap?.QuestService == null ? null
+                        : new QuestObjectiveProgressSystem(gameSession, gameBootstrap.QuestService)))
             {
                 Debug.LogError(
                     "CombatSandboxBootstrap: nie udalo sie zapisac wyniku walki w stanie lochu.");

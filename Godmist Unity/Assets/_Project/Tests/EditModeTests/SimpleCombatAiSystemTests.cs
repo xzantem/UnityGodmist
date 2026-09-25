@@ -4,12 +4,14 @@ using System.Reflection;
 using System.Linq;
 using Godmist.Runtime.Dungeons;
 using Godmist.Core.Enums;
+using Godmist.Core.Constants;
 using Godmist.Core.Types;
 using Godmist.Data.Characters;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Combat;
 using NUnit.Framework;
 using UnityEngine;
@@ -417,6 +419,142 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void AiSkipsActiveNonstackingBuffButAllowsItAfterExpiration()
+        {
+            var caster = CreateUnit("archer", 100, 10, 10);
+            var buff = CreateSkill(CreateEffect(EffectType.ModifyStat, 1f));
+            SetAutoProperty(buff, "SkillId", "archer.quiver");
+            var active = new PassiveEffectRuntime
+            {
+                EffectId = "archer.quiver.modify_stat.0",
+                Lifetime = PassiveEffectLifetime.Timed,
+                RemainingDuration = 3
+            };
+            caster.Character.PassiveEffects.Add(active);
+            var targets = new Dictionary<int, IReadOnlyList<BattleUnit>> { [0] = new[] { caster } };
+            var method = typeof(SimpleCombatAiSystem).GetMethod("IsRedundantBuff",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            Assert.That(method.Invoke(null, new object[] { caster, buff, targets }), Is.True);
+            active.RemainingDuration = 0;
+            Assert.That(method.Invoke(null, new object[] { caster, buff, targets }), Is.False);
+        }
+
+        [Test]
+        public void ArcherSelectsAttackAfterQuiverIsActive()
+        {
+            var archer = CreateAiCombatUnit("archer", false, new GridPosition(0, 0));
+            var enemy = CreateAiCombatUnit("enemy", true, new GridPosition(1, 0));
+            var session = CreateAiSession(archer, enemy);
+            var quiver = CreateSkill(CreateEffect(EffectType.ModifyStat, 1f));
+            SetAutoProperty(quiver, "SkillId", "archer.quiver");
+            SetAutoProperty(quiver, "ActionCost", 40);
+            SetField(quiver.TargetModes[0], "targetType", TargetType.Caster);
+            SetField(quiver.TargetModes[0], "targetingType", TargetingType.Allies);
+            var attack = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            SetAutoProperty(attack, "SkillId", "archer.attack");
+            ConfigureTargetMode(attack, TargetingType.Enemies, 1);
+            archer.Character.Skills.Add(quiver);
+            archer.Character.Skills.Add(attack);
+            var find = typeof(SimpleCombatAiSystem).GetMethod("FindBestSkillSelection",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var ai = new SimpleCombatAiSystem();
+            SkillData Chosen()
+            {
+                var selected = find.Invoke(ai, new object[] { session, archer, new HashSet<SkillData>() });
+                return (SkillData)selected.GetType().GetField("Skill").GetValue(selected);
+            }
+
+            Assert.That(Chosen(), Is.SameAs(quiver));
+            archer.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                EffectId = "archer.quiver.modify_stat.0",
+                Lifetime = PassiveEffectLifetime.Timed,
+                RemainingDuration = 3
+            });
+            Assert.That(Chosen(), Is.SameAs(attack));
+        }
+
+        [Test]
+        public void AiDoesNotRepeatActiveControlOrAttemptFullyResistedControl()
+        {
+            var caster = CreateAiCombatUnit("caster", false, new GridPosition(0, 0));
+            var target = CreateAiCombatUnit("target", true, new GridPosition(1, 0));
+            var session = CreateAiSession(caster, target);
+            var controlEffect = CreateEffect(EffectType.ApplyStatus, 1f);
+            SetField(controlEffect, "statusId", StatusEffectIds.Stun);
+            SetField(controlEffect, "baseChance", 1f);
+            var control = CreateSkill(controlEffect);
+            SetAutoProperty(control, "SkillId", "ai.control");
+            ConfigureTargetMode(control, TargetingType.Enemies, 1);
+            var attack = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            SetAutoProperty(attack, "SkillId", "ai.attack");
+            ConfigureTargetMode(attack, TargetingType.Enemies, 1);
+            caster.Character.Skills.Add(control);
+            caster.Character.Skills.Add(attack);
+            var find = typeof(SimpleCombatAiSystem).GetMethod("FindBestSkillSelection",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var ai = new SimpleCombatAiSystem();
+            SkillData Chosen()
+            {
+                var selected = find.Invoke(ai, new object[] { session, caster, new HashSet<SkillData>() });
+                return (SkillData)selected.GetType().GetField("Skill").GetValue(selected);
+            }
+
+            Assert.That(Chosen(), Is.SameAs(control));
+            target.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                EffectId = StatusEffectIds.Stun,
+                Lifetime = PassiveEffectLifetime.Timed,
+                RemainingDuration = 2
+            });
+            Assert.That(Chosen(), Is.SameAs(attack));
+            target.Character.PassiveEffects.Clear();
+            target.Character.Resistances = new ResistanceSet { SuppressionResistance = 1f };
+            Assert.That(Chosen(), Is.SameAs(attack));
+        }
+
+        [Test]
+        public void AiSelectsDematerializationThenMaterializationCombo()
+        {
+            var caster = CreateAiCombatUnit("wraith", false, new GridPosition(0, 0));
+            var enemy = CreateAiCombatUnit("enemy", true, new GridPosition(1, 0));
+            var session = CreateAiSession(caster, enemy);
+            var setupEffect = CreateEffect(EffectType.ApplyStatus, 1f);
+            SetField(setupEffect, "statusId", "invisibility");
+            var setup = CreateSkill(setupEffect);
+            SetAutoProperty(setup, "SkillId", "wraith.dematerialize");
+            SetField(setup.TargetModes[0], "targetType", TargetType.Caster);
+            SetField(setup.TargetModes[0], "targetingType", TargetingType.Allies);
+            var followUp = CreateSkill(CreateEffect(EffectType.ModifyStat, 1f));
+            SetAutoProperty(followUp, "SkillId", "wraith.materialize");
+            SetAutoProperty(followUp, "RequiredCasterStatusId", "invisibility");
+            SetField(followUp.TargetModes[0], "targetType", TargetType.Caster);
+            SetField(followUp.TargetModes[0], "targetingType", TargetingType.Allies);
+            var attack = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            SetAutoProperty(attack, "SkillId", "wraith.attack");
+            ConfigureTargetMode(attack, TargetingType.Enemies, 1);
+            caster.Character.Skills.Add(attack);
+            caster.Character.Skills.Add(setup);
+            caster.Character.Skills.Add(followUp);
+            var find = typeof(SimpleCombatAiSystem).GetMethod("FindBestSkillSelection",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var ai = new SimpleCombatAiSystem();
+            SkillData Chosen()
+            {
+                var selected = find.Invoke(ai, new object[] { session, caster, new HashSet<SkillData>() });
+                return (SkillData)selected.GetType().GetField("Skill").GetValue(selected);
+            }
+
+            Assert.That(Chosen(), Is.SameAs(setup));
+            caster.Character.PassiveEffects.Add(new PassiveEffectRuntime
+            {
+                EffectId = "invisibility", Lifetime = PassiveEffectLifetime.Timed, RemainingDuration = 3
+            });
+            Assert.That(Chosen(), Is.SameAs(followUp));
+        }
+
+        [Test]
         public void GetPreferredCombatRange_IgnoresLongRangeHealForMeleeDps()
         {
             var meleeAttack = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
@@ -596,7 +734,7 @@ namespace Godmist.Tests.EditMode
                 Has.Count.EqualTo(1));
             Assert.That(
                 feedbackEvents.Find(e => e.Type == CombatFeedbackType.ActionPointSpend).Amount,
-                Is.EqualTo(3));
+                Is.EqualTo(300));
             Assert.That(
                 feedbackEvents.Find(e => e.Type == CombatFeedbackType.ResourceGain).Amount,
                 Is.EqualTo(6));
@@ -610,7 +748,7 @@ namespace Godmist.Tests.EditMode
                 isPlayerSide: false,
                 position: new GridPosition(0, 0));
             unit.CurrentActionPoints = 0;
-            unit.MaxActionPoints = 3;
+            unit.MaxActionPoints = 300;
             unit.MovementStepsThisTurn = 4;
             var session = new CombatSession
             {
@@ -786,7 +924,7 @@ namespace Godmist.Tests.EditMode
                 "ai",
                 isPlayerSide: false,
                 position: new GridPosition(0, 0));
-            aiUnit.CurrentActionPoints = 3;
+            aiUnit.CurrentActionPoints = 300;
             var target = CreateAiCombatUnit(
                 "target",
                 isPlayerSide: true,
@@ -830,7 +968,7 @@ namespace Godmist.Tests.EditMode
             var visited = new List<GridPosition>();
             for (var turn = 0; turn < 8; turn++)
             {
-                unit.CurrentActionPoints = 1;
+                unit.CurrentActionPoints = 100;
                 unit.MovementStepsThisTurn = 0;
                 var before = unit.Position;
                 if (!ai.TryExecuteNextAction(session, unit, ai.CreateTurnState(), out var action)) break;
@@ -861,19 +999,19 @@ namespace Godmist.Tests.EditMode
 
             Assert.That(ai.TryExecuteNextAction(session, unit, state, out var approach), Is.True);
             Assert.That(approach.MovementPath, Is.EqualTo(new[] { new GridPosition(1, 0), new GridPosition(2, 0) }));
-            Assert.That(unit.CurrentActionPoints, Is.EqualTo(7));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(700));
             Assert.That(door.IsOpen, Is.False);
             Assert.That(ai.TryExecuteNextAction(session, unit, state, out var opening), Is.True);
             Assert.That(opening.Type, Is.EqualTo(SimpleCombatAiActionType.Interaction));
             Assert.That(opening.MovementPath, Is.Null);
             Assert.That(unit.Position, Is.EqualTo(new GridPosition(2, 0)));
-            Assert.That(unit.CurrentActionPoints, Is.EqualTo(5));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(500));
             Assert.That(changed, Is.EqualTo(1));
             Assert.That(door.IsOpen, Is.True);
             Assert.That(session.Grid.CanMoveBetween(new GridPosition(2, 0), new GridPosition(3, 0)), Is.True);
             Assert.That(ai.TryExecuteNextAction(session, unit, state, out var crossing), Is.True);
             Assert.That(crossing.MovementPath, Is.EqualTo(new[] { new GridPosition(3, 0) }));
-            Assert.That(unit.CurrentActionPoints, Is.EqualTo(2));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(200));
             Assert.That(ai.TryExecuteNextAction(session, unit, state, out _), Is.False);
             Assert.That(door.IsOpen, Is.True);
         }
@@ -896,13 +1034,13 @@ namespace Godmist.Tests.EditMode
         {
             var session = CreateNavigationSession(3, 1, new GridPosition(0, 0), new GridPosition(2, 0));
             var door = AddNavigationDoor(session, 0, DoorInteractionMode.DirectOnly);
-            session.ActiveUnit.CurrentActionPoints = 1;
+            session.ActiveUnit.CurrentActionPoints = 100;
             var ended = 0;
             var ai = new SimpleCombatAiSystem(endTurn: _ => ended++);
             ai.ExecuteSimpleAiTurn(session, session.ActiveUnit);
             Assert.That(ended, Is.EqualTo(1));
             Assert.That(door.IsOpen, Is.False);
-            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(1));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(100));
         }
 
         [TestCase(false)]
@@ -932,7 +1070,7 @@ namespace Godmist.Tests.EditMode
             new CombatInteractionSystem().InitializeMapObjects(session);
             Assert.That(ai.TryMoveAiTowardsTarget(session, session.ActiveUnit, session.Units[1]), Is.True);
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(3, 0)));
-            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(4));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(400));
         }
 
         [Test]
@@ -954,7 +1092,7 @@ namespace Godmist.Tests.EditMode
             var ai = new SimpleCombatAiSystem();
             Assert.That(ai.TryExecuteNextAction(session, session.ActiveUnit, ai.CreateTurnState(), out var action), Is.True);
             Assert.That(action.MovementPath, Is.EqualTo(new[] { new GridPosition(0, 1), new GridPosition(1, 1) }));
-            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(7));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(700));
         }
 
         [Test]
@@ -966,7 +1104,7 @@ namespace Godmist.Tests.EditMode
             new SimpleCombatAiSystem(endTurn: _ => ended++).ExecuteSimpleAiTurn(session, session.ActiveUnit);
             Assert.That(ended, Is.EqualTo(1));
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
-            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(10));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(1000));
         }
 
         [Test]
@@ -988,10 +1126,10 @@ namespace Godmist.Tests.EditMode
         {
             var session = CreateNavigationSession(4, 1, new GridPosition(0, 0), new GridPosition(3, 0));
             session.ActiveUnit.MovementStepsThisTurn = 2;
-            session.ActiveUnit.CurrentActionPoints = 2;
+            session.ActiveUnit.CurrentActionPoints = 200;
             Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(
                 session, session.ActiveUnit, session.Units[1]), Is.False);
-            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(2));
+            Assert.That(session.ActiveUnit.CurrentActionPoints, Is.EqualTo(200));
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(0, 0)));
         }
 
@@ -1002,6 +1140,7 @@ namespace Godmist.Tests.EditMode
             var unit = session.ActiveUnit;
             SetAutoProperty(unit.Character.Definition, "AiRole", CombatAiRole.Dps);
             var skill = CreateSkill(CreateEffect(EffectType.DealDamage, 1f));
+            SetAutoProperty(skill, "RequiresLineOfSight", true);
             ConfigureTargetMode(skill, TargetingType.Enemies, 3);
             unit.Character.Skills.Add(skill);
             var wall = new BattleCellEdge(new GridPosition(1, 0), new GridPosition(2, 0));
@@ -1034,7 +1173,7 @@ namespace Godmist.Tests.EditMode
         public void Navigation_PartialMovementPublishesOneAggregatedApEvent()
         {
             var session = CreateNavigationSession(7, 1, new GridPosition(0, 0), new GridPosition(6, 0));
-            session.ActiveUnit.CurrentActionPoints = 3;
+            session.ActiveUnit.CurrentActionPoints = 300;
             var bus = new CombatFeedbackBus();
             var events = new List<CombatFeedbackEvent>();
             bus.Published += events.Add;
@@ -1043,7 +1182,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(action.MovementPath.Count, Is.EqualTo(2));
             Assert.That(events.Count, Is.EqualTo(1));
             Assert.That(events[0].Type, Is.EqualTo(CombatFeedbackType.ActionPointSpend));
-            Assert.That(events[0].Amount, Is.EqualTo(3));
+            Assert.That(events[0].Amount, Is.EqualTo(300));
         }
 
         private CombatSession CreateNavigationSession(int width, int height, GridPosition start, GridPosition target)
@@ -1178,8 +1317,8 @@ namespace Godmist.Tests.EditMode
                     }
                 },
                 Position = position,
-                CurrentActionPoints = 10,
-                MaxActionPoints = 10,
+                CurrentActionPoints = 1000,
+                MaxActionPoints = 1000,
                 IsPlayerSide = isPlayerSide
             };
         }

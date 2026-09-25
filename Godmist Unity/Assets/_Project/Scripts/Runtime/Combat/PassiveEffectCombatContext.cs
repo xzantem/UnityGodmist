@@ -26,7 +26,7 @@ namespace Godmist.Runtime.Combat
         public AttackPosition AttackPosition { get; }
         public DamageType? DamageType { get; }
         public int Distance { get; }
-        public int MovementCost { get; }
+        public float MovementCost { get; }
         public int MovementSteps { get; }
         public ResourceType ResourceType { get; }
         public int ResourceAmount { get; }
@@ -57,7 +57,7 @@ namespace Godmist.Runtime.Combat
             AttackPosition attackPosition = AttackPosition.Unknown,
             DamageType? damageType = null,
             int distance = -1,
-            int movementCost = 0,
+            float movementCost = 0f,
             int movementSteps = 0,
             ResourceType resourceType = ResourceType.None,
             int resourceAmount = 0,

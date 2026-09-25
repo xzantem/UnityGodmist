@@ -19,6 +19,8 @@ namespace Godmist.Runtime.Combat
     public class CombatEnemyReward
     {
         public string EnemyInstanceId = string.Empty;
+        // Zero denotes legacy fixed XP. Positive levels use the shared reward curve.
+        public int ExperienceLevel;
         public int ExperiencePerActiveCharacter;
         public int Gold;
         public List<ItemInstance> Items = new();

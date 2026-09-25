@@ -841,13 +841,22 @@ namespace Godmist.Views.Combat
                 gridOrigin.y + HoveredUnit.Position.Y * cellSize,
                 0f);
             var screenPosition = worldCamera.WorldToScreenPoint(worldPosition);
-            var hitText = preview.HasHitChance
+            var hitText = preview.HasHitChance && preview.Damage.HasDamage
                 ? $"Trafienie: {preview.HitChance * 100f:0.#}%\n"
                 : string.Empty;
+            var damageText = preview.Damage.HasDamage
+                ? $"{hitText}Obrażenia: {preview.Damage.Minimum}–{preview.Damage.Maximum}"
+                : string.Empty;
+            var statusSprite = preview.HasStatusChance
+                ? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon(preview.StatusId)
+                    ?? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon("debuff")
+                : null;
             targetPreview.Show(
                 screenPosition,
-                $"{hitText}Obrażenia: {preview.Damage.Minimum}–{preview.Damage.Maximum}",
-                new Color(1f, 0.86f, 0.45f));
+                damageText,
+                new Color(1f, 0.86f, 0.45f),
+                statusSprite,
+                preview.StatusChance);
         }
 
         private GridPosition? GetPreviewSelectedPosition(

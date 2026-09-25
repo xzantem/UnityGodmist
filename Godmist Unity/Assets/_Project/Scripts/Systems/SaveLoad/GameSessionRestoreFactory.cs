@@ -339,7 +339,7 @@ namespace Godmist.Systems.SaveLoad
                     if (!TryTakeItem(id, itemsById, assignedItemIds, out var socketed)
                         || socketed is not GalduryteItemInstance galduryte
                         || !galduryte.IsIdentified
-                        || equipment.SocketedGaldurytes.Count >= equipment.SocketCapacity)
+                        || equipment.SocketedGaldurytes.Count >= EquipmentItemInstance.GetSocketCapacity(1f))
                         return false;
                     equipment.SocketedGaldurytes.Add(galduryte);
                 }
@@ -556,11 +556,10 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.PrimaryPartDisplayName = itemSaveData.PrimaryPartDisplayName ?? string.Empty;
                     equipmentItem.PrimaryMaterialId = itemSaveData.PrimaryMaterialId ?? string.Empty;
                     equipmentItem.CraftedBaseValue = itemSaveData.EquipmentCraftedBaseValue;
-                    equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
-                        ? baseModifiers
-                        : new List<StatModifier>(modifiers);
+                    equipmentItem.BaseStatModifiers = baseModifiers;
                     equipmentItem.StatModifiers = modifiers;
                     equipmentItem.UpgradeProgress = itemSaveData.UpgradeProgress;
+                    equipmentItem.RecalculateStatModifiers();
 
                     if (equipmentItem is JewelryItemInstance jewelryItem)
                     {
@@ -1663,11 +1662,11 @@ namespace Godmist.Systems.SaveLoad
                 npc.TotalGoldSpent = npcSaveData.TotalGoldSpent;
                 npc.GuildPayoutProgress = npcSaveData.GuildPayoutProgress;
                 npc.RotatingStockItemIds = npcSaveData.RotatingStockItemIds == null
-                    ? new List<string>()
-                    : new List<string>(npcSaveData.RotatingStockItemIds);
+                    ? new System.Collections.Generic.List<string>()
+                    : new System.Collections.Generic.List<string>(npcSaveData.RotatingStockItemIds);
                 npc.CraftedStockInstanceIds = npcSaveData.CraftedStockInstanceIds == null
-                    ? new List<string>()
-                    : new List<string>(npcSaveData.CraftedStockInstanceIds);
+                    ? new System.Collections.Generic.List<string>()
+                    : new System.Collections.Generic.List<string>(npcSaveData.CraftedStockInstanceIds);
 
                 if (npc.ShopInventory == null)
                 {
@@ -1842,6 +1841,7 @@ namespace Godmist.Systems.SaveLoad
             }
 
             if (saveData.TraderStockRefreshed) dungeon.MarkTraderStockRefreshed();
+            if (saveData.CampSuppliesIssued) dungeon.MarkCampSuppliesIssued();
 
             if (!TryRestoreDungeonFloorDeltas(
                     dungeon,
@@ -1998,6 +1998,13 @@ namespace Godmist.Systems.SaveLoad
                                     return false;
                                 }
                             }
+                            if (objectDelta.IsChest && objectDelta.HasChestGoldState
+                                && (!floor.TryGetObject(objectDelta.ObjectInstanceId, out var restoredGoldObject)
+                                    || restoredGoldObject is not ChestDungeonObjectInstance restoredGoldChest
+                                    || !restoredGoldChest.TryRestoreGold(objectDelta.ChestGold)))
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -2078,6 +2085,7 @@ namespace Godmist.Systems.SaveLoad
                         foreach (var savedReward in encounterDelta.Rewards)
                         {
                             if (savedReward == null || savedReward.Gold < 0 || savedReward.Experience < 0
+                                || savedReward.ExperienceLevel < 0 || savedReward.ExperienceLevel > 50
                                 || savedReward.ItemIds == null || !rewardIds.Add(savedReward.EnemyId ?? string.Empty)) return false;
                             var rewardItems = new List<ItemInstance>();
                             foreach (var itemId in savedReward.ItemIds)
@@ -2099,7 +2107,7 @@ namespace Godmist.Systems.SaveLoad
                                 rewards.EnemyRewards.Add(new CombatEnemyReward
                                 {
                                     EnemyInstanceId = savedReward.EnemyId, Gold = savedReward.Gold,
-                                    ExperiencePerActiveCharacter = savedReward.Experience, Items = rewardItems
+                                    ExperiencePerActiveCharacter = savedReward.Experience, ExperienceLevel = savedReward.ExperienceLevel, Items = rewardItems
                                 });
                             }
                         }

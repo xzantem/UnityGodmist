@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
+using Godmist.Core.Constants;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
@@ -66,6 +67,29 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void CalculateTargetPreview_ShowsFinalStatusChanceWithoutDamage()
+        {
+            var caster = CreateUnit(8, 12, 0f);
+            caster.IsPlayerSide = true;
+            var target = CreateUnit(1, 1, 0f);
+            target.Character.Resistances.SuppressionResistance = .5f;
+            target.AddStatusTolerance(StatusEffectIds.Stun);
+            var effect = new SkillEffectData();
+            SetField(effect, "effectType", EffectType.ApplyStatus);
+            SetField(effect, "statusId", StatusEffectIds.Stun);
+            SetField(effect, "baseChance", .8f);
+            SetField(effect, "alwaysHits", true);
+
+            var preview = CombatSkillPreviewCalculator.CalculateTargetPreview(
+                caster, target, CreateSkill(effect));
+
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(preview.Damage.HasDamage, Is.False);
+            Assert.That(preview.StatusId, Is.EqualTo(StatusEffectIds.Stun));
+            Assert.That(preview.StatusChance, Is.EqualTo(.4f).Within(.0001f));
+        }
+
+        [Test]
         public void CombatFeedbackEvent_CarriesEffectName()
         {
             var target = CreateUnit(1, 1, critChance: 0f);
@@ -114,6 +138,7 @@ namespace Godmist.Tests.EditMode
                 {
                     WeaponAccuracy = 100f,
                     LifeState = CharacterLifeState.Alive,
+                    Resistances = new ResistanceSet(),
                     Stats = new CharacterStats
                     {
                         MinAttack = new Stat(minAttack),

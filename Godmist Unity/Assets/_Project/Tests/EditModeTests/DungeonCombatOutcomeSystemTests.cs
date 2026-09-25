@@ -109,6 +109,29 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void VictoryStandsUpAllDownedAlliesWithoutRevivingDeadCharacters()
+        {
+            var downed = new BattleUnit { IsPlayerSide = true, DownedTurnsRemaining = 2,
+                Character = new CharacterInstance { CharacterId = "downed", LifeState = CharacterLifeState.Downed } };
+            var second = new BattleUnit { IsPlayerSide = true, DownedTurnsRemaining = 1,
+                Character = new CharacterInstance { CharacterId = "second", LifeState = CharacterLifeState.Downed } };
+            var dead = new BattleUnit { IsPlayerSide = true,
+                Character = new CharacterInstance { CharacterId = "dead", LifeState = CharacterLifeState.Dead } };
+            var session = new CombatSession { Outcome = CombatOutcomeState.Ongoing,
+                Units = new List<BattleUnit> { downed, second, dead } };
+
+            new CombatOutcomeSystem().EvaluateCombatOutcome(session);
+
+            Assert.That(session.Outcome, Is.EqualTo(CombatOutcomeState.Victory));
+            Assert.That(downed.Character.LifeState, Is.EqualTo(CharacterLifeState.Alive));
+            Assert.That(second.Character.LifeState, Is.EqualTo(CharacterLifeState.Alive));
+            Assert.That(downed.Character.CurrentHealth, Is.GreaterThan(0));
+            Assert.That(downed.DownedTurnsRemaining, Is.Zero);
+            Assert.That(second.DownedTurnsRemaining, Is.Zero);
+            Assert.That(dead.Character.LifeState, Is.EqualTo(CharacterLifeState.Dead));
+        }
+
+        [Test]
         public void TryApplyOutcome_VictoryStoresPlayerBattlePositions()
         {
             var gameSession = CreateGameSessionWithDungeon(

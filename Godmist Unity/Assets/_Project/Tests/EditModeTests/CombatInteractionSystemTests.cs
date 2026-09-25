@@ -55,7 +55,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.False);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(80));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(8000));
 
             var closed = system.TryInteract(
                 session,
@@ -69,7 +69,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.True);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(60));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(6000));
         }
 
         [Test]
@@ -106,7 +106,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.False);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(80));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(8000));
 
             var closed = system.TryInteract(
                 session,
@@ -121,7 +121,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.True);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(60));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(6000));
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.True);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(100));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(10000));
         }
 
         [Test]
@@ -189,7 +189,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.True);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(100));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(10000));
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace Godmist.Tests.EditMode
                     door.Edge.FirstCell,
                     door.Edge.SecondCell),
                 Is.True);
-            Assert.That(actor.CurrentActionPoints, Is.EqualTo(19));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(1900));
         }
 
         private CombatSession CreateSession(
@@ -260,8 +260,8 @@ namespace Godmist.Tests.EditMode
                     LifeState = CharacterLifeState.Alive
                 },
                 Position = new GridPosition(1, 1),
-                CurrentActionPoints = currentActionPoints,
-                MaxActionPoints = maxActionPoints,
+                CurrentActionPoints = currentActionPoints * 100,
+                MaxActionPoints = maxActionPoints * 100,
                 IsPlayerSide = true
             };
         }

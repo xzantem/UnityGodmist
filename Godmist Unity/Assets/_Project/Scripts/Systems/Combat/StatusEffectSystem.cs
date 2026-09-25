@@ -117,7 +117,7 @@ namespace Godmist.Systems.Combat
                 $"{target.Character.Definition.DisplayName} " +
                 $"otrzymuje status {effect.StatusId}.");
 
-            target.AddStatusTolerance(effect.StatusId);
+            target.AddStatusTolerance(effect.StatusId, effect.DurationTurns);
             if (effect.StatusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
 
             PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
@@ -215,14 +215,14 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var modifier = Mathf.CeilToInt(target.MaxActionPoints * effect.PercentageValue);
+            var modifier = ActionPointUnits.ToPoints(Mathf.RoundToInt(target.MaxActionPoints * effect.PercentageValue));
             return modifier > 0
                 && ApplyActionPointBuffInternal(
                     source, target, skill, effect, effectIndex, modifier);
         }
 
         private bool ApplyActionPointBuffInternal(BattleUnit source, BattleUnit target,
-            SkillData skill, SkillEffectData effect, int effectIndex, int modifier)
+            SkillData skill, SkillEffectData effect, int effectIndex, float modifier)
         {
             if (target?.Character == null || effect == null || modifier == 0) return false;
 
@@ -426,9 +426,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var clampedChance = Mathf.Clamp01(baseChance + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
-            var resistance = GetResistance(target, statusId);
-            var chance = CalculateEffectChance(clampedChance, resistance);
+            var chance = CalculateStatusApplicationChance(source, target, statusId, baseChance);
 
             if (chance <= 0f || (sharedRoll ?? UnityEngine.Random.value) > chance)
             {
@@ -486,7 +484,7 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
 
-            target.AddStatusTolerance(statusId);
+            target.AddStatusTolerance(statusId, duration);
             if (statusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
             if(statusId==StatusEffectIds.Immobilize && sourceId?.StartsWith("skill.warrior.immobilize")==true && WarriorCombatSystem.C(source,"pinning")>0)
                 ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Dodge,WarriorCombatSystem.C(source,"pinning")==1?-12:-20,duration,"warrior.pinning");
@@ -554,7 +552,7 @@ namespace Godmist.Systems.Combat
                     out _)) return false;
 
             battleLog?.Invoke(
-                $"{target.Character.Definition.DisplayName} otrzymuje ogÅ‚uszenie.");
+                $"{target.Character.Definition.DisplayName} otrzymuje ogłuszenie.");
 
             PublishEffectFeedback(
                 target,
@@ -1059,17 +1057,9 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             SkillEffectData effect, BattleUnit source)
         {
-            var baseChance = Mathf.Clamp01(effect.BaseChance + EquipmentEffectSystem.StatusChance(source?.Character, effect.StatusId));
+            var chance = CalculateStatusApplicationChance(source, target, effect.StatusId, effect.BaseChance);
 
-            if (baseChance <= 0f)
-            {
-                return false;
-            }
-
-            var resistance = GetResistance(target, effect.StatusId);
-            var chance = CalculateEffectChance(baseChance, resistance);
-
-            return UnityEngine.Random.value <= chance;
+            return chance > 0f && UnityEngine.Random.value <= chance;
         }
 
         public static float CalculateEffectChance(
@@ -1099,6 +1089,24 @@ namespace Godmist.Systems.Combat
             }
 
             return Mathf.Clamp01(resistanceMultiplier * (1f - r) * s);
+        }
+
+        public static float CalculateStatusApplicationChance(
+            BattleUnit source, BattleUnit target, string statusId, float baseChance)
+        {
+            if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
+
+            var chance = Mathf.Clamp01(baseChance
+                + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
+            var naturalResistance = GetResistance(target, statusId, includeTolerance: false);
+            var naturalChance = CalculateEffectChance(chance, naturalResistance);
+            var tolerance = target.GetStatusTolerance(statusId);
+            if (!StatusEffectIds.UsesSuppressionResistance(statusId))
+                return CalculateEffectChance(chance, GetResistance(target, statusId));
+
+            return Mathf.Min(
+                CalculateEffectChance(chance, Mathf.Clamp01(naturalResistance + tolerance)),
+                naturalChance * (1f - tolerance));
         }
 
         private static float EvaluateChanceBonus(float baseChance)
@@ -1162,7 +1170,8 @@ namespace Godmist.Systems.Combat
 
         internal static float GetResistance(
             BattleUnit target,
-            string statusId)
+            string statusId,
+            bool includeTolerance = true)
         {
             if (target?.Character == null)
             {
@@ -1170,19 +1179,14 @@ namespace Godmist.Systems.Combat
             }
 
             var resistances = target.Character.Resistances;
-            var resistanceType = statusId.ToLowerInvariant() switch
+            var resistanceType = StatusEffectIds.UsesSuppressionResistance(statusId)
+                ? ResistanceType.Suppression
+                : statusId.ToLowerInvariant() switch
             {
                 StatusEffectIds.Weakening => ResistanceType.Weakening,
                 StatusEffectIds.Bleed => ResistanceType.Bleed,
                 StatusEffectIds.Poison => ResistanceType.Poison,
                 StatusEffectIds.Burn => ResistanceType.Fire,
-                StunId => ResistanceType.Suppression,
-                ImmobilizeId => ResistanceType.Suppression,
-                StatusEffectIds.Taunt => ResistanceType.Suppression,
-                StatusEffectIds.Freeze => ResistanceType.Suppression,
-                StatusEffectIds.Chill => ResistanceType.Suppression,
-                StatusEffectIds.Sleep => ResistanceType.Suppression,
-                StatusEffectIds.Paralysis => ResistanceType.Suppression,
                 StatusEffectIds.Slow => ResistanceType.Move,
                 _ => (ResistanceType?)null
             };
@@ -1206,7 +1210,7 @@ namespace Godmist.Systems.Combat
                 baseResistance
                 + EquipmentEffectSystem.Resistance(target.Character, resistanceType.Value)
                 + modifier
-                + target.GetStatusTolerance(statusId));
+                + (includeTolerance ? target.GetStatusTolerance(statusId) : 0f));
         }
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)

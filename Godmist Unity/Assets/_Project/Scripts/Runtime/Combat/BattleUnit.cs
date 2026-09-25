@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Core.Constants;
 using Godmist.Data.Configuration;
 using Godmist.Runtime.Characters;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Godmist.Runtime.Combat
 {
     public static class ActionPointUnits
     {
-        public const int PerPoint = 1;
+        public const int PerPoint = 100;
         public static int FromPoints(float points) => Mathf.RoundToInt(points * PerPoint);
         public static float ToPoints(int units) => units / (float)PerPoint;
         public static string Format(int units) => ToPoints(units).ToString("0.##");
@@ -27,6 +28,7 @@ namespace Godmist.Runtime.Combat
         public readonly PaladinCombatState PaladinState = new();
         public GridPosition Position;
 
+        // AP amounts are stored in hundredths. Speed multipliers and authored flat costs remain in whole AP.
         public int CurrentActionPoints;
         public int MaxActionPoints;
         public int MovementStepsThisTurn;
@@ -60,31 +62,42 @@ namespace Godmist.Runtime.Combat
         public bool IsBoss;
         public int DownedTurnsRemaining;
 
-        public void AddStatusTolerance(string statusId, int durationTurns = 2)
+        // Suppression statuses share one combat-local adaptation pool.
+        private static string GetToleranceKey(string statusId) =>
+            StatusEffectIds.UsesSuppressionResistance(statusId)
+                ? "suppression" : statusId?.ToLowerInvariant();
+
+        public void AddStatusTolerance(string statusId, int statusDurationTurns = 1)
         {
             if (string.IsNullOrWhiteSpace(statusId)) return;
+            var isSuppression = StatusEffectIds.UsesSuppressionResistance(statusId);
+            statusId = GetToleranceKey(statusId);
             StatusTolerances ??= new Dictionary<string, StatusToleranceRuntime>();
-            if (!StatusTolerances.TryGetValue(statusId, out var tolerance))
+            if (!StatusTolerances.TryGetValue(statusId, out var tolerance)
+                || tolerance == null || tolerance.RemainingTurns <= 0)
             {
-                tolerance = new StatusToleranceRuntime();
+                tolerance = new StatusToleranceRuntime { RemainingTurns = 2 };
                 StatusTolerances[statusId] = tolerance;
             }
 
             tolerance.Stacks = Math.Max(1, tolerance.Stacks + 1);
-            tolerance.RemainingTurns = Math.Max(
-                tolerance.RemainingTurns,
-                Math.Max(1, durationTurns));
+            // The two-turn base is granted once; later CC adds only its own duration.
+            tolerance.RemainingTurns = isSuppression
+                ? tolerance.RemainingTurns + Math.Max(1, statusDurationTurns)
+                : Math.Max(tolerance.RemainingTurns, 2);
         }
 
         public float GetStatusTolerance(string statusId)
         {
+            statusId = GetToleranceKey(statusId);
             return string.IsNullOrWhiteSpace(statusId)
                 || StatusTolerances == null
                 || !StatusTolerances.TryGetValue(statusId, out var tolerance)
                 || tolerance == null
                 || tolerance.RemainingTurns <= 0
                 ? 0f
-                : Mathf.Clamp01(tolerance.Stacks * 0.25f);
+                : Mathf.Clamp01(tolerance.Stacks * GameDefinesRuntime.GetFloat(
+                    GameDefineIds.StatusTolerancePerStack, .25f));
         }
 
         public void AdvanceStatusTolerances()

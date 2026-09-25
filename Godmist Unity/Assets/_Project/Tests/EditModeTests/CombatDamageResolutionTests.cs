@@ -148,7 +148,7 @@ namespace Godmist.Tests.EditMode
                 skillAccuracy: 100f);
 
             Assert.That(result.Hit, Is.True);
-            Assert.That(result.HealthDamage, Is.EqualTo(58));
+            Assert.That(result.HealthDamage, Is.EqualTo(56));
         }
 
         [Test]
@@ -169,7 +169,7 @@ namespace Godmist.Tests.EditMode
                 skillAccuracy: 0f);
 
             Assert.That(result.Hit, Is.True);
-            Assert.That(result.HealthDamage, Is.EqualTo(67));
+            Assert.That(result.HealthDamage, Is.EqualTo(60));
         }
 
         [Test]
@@ -188,11 +188,11 @@ namespace Godmist.Tests.EditMode
                 skillAccuracy: 100f,
                 bonusDefensePenetration: 0.25f);
 
-            Assert.That(result.HealthDamage, Is.EqualTo(67));
+            Assert.That(result.HealthDamage, Is.EqualTo(60));
         }
 
         [Test]
-        public void ApplyDefense_DefensePenetrationAboveOne_IsClampedToZeroEffectiveDefense()
+        public void ApplyDefense_DefensePenetrationAboveOne_HasDiminishingReturnsWithoutRemovingAllDefense()
         {
             var source = CreateUnit(isPlayerSide: true);
             var target = CreateUnit(isPlayerSide: false);
@@ -205,7 +205,7 @@ namespace Godmist.Tests.EditMode
                 damage: 100,
                 damageType: DamageType.Physical);
 
-            Assert.That(damage, Is.EqualTo(100));
+            Assert.That(damage, Is.EqualTo(75));
         }
 
         [Test]

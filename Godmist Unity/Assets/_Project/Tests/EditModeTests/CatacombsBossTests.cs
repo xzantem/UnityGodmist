@@ -87,7 +87,7 @@ namespace Godmist.Tests.EditMode
             var runeDefinition = Asset<SummonedObjectDefinition>();
             Set(runeDefinition, "objectId", CatacombsBossSystem.RuneObjectId);
             Set(runeDefinition, "blocksMovement", false);
-            Set(runeDefinition, "defaultDurationTurns", 2);
+            Set(runeDefinition, "defaultDurationTurns", 3);
             var effect = new SkillEffectData();
             Set(effect, "effectType", EffectType.CreateObject);
             Set(effect, "summonedObjectDefinition", runeDefinition);
@@ -133,9 +133,12 @@ namespace Godmist.Tests.EditMode
             boss.Character.CurrentHealth = 49;
             system.OnEnemyHealthChanged(session, boss, 70);
             Assert.That(session.SummonedObjects.Count, Is.EqualTo(4));
+            Assert.That(system.CanCastVengeance(session, boss), Is.False,
+                "Nowa fala czeka, aż wszystkie wcześniejsze runy znikną.");
+            foreach (var rune in session.SummonedObjects.ToArray()) objects.Remove(session, rune);
             Assert.That(ai.TryExecuteNextAction(session, boss, turn, out var secondCast), Is.True);
             Assert.That(secondCast.Skill, Is.SameAs(skill));
-            Assert.That(session.SummonedObjects.Count, Is.EqualTo(9));
+            Assert.That(session.SummonedObjects.Count, Is.EqualTo(5));
         }
 
         [Test]
@@ -214,7 +217,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void BossPrioritizesThreeFreeVengeanceCastsAfterOneHitCrossesAllThresholds()
+        public void BossQueuesThreeFreeVengeanceCastsButWaitsForEarlierRunesToDisappear()
         {
             var definition = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(
                 "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king.asset");
@@ -234,7 +237,8 @@ namespace Godmist.Tests.EditMode
                 Outcome = CombatOutcomeState.Ongoing
             };
             session.Units.AddRange(new[] { boss, hero });
-            var system = new CatacombsBossSystem(new SummonedObjectSystem(),
+            var objects = new SummonedObjectSystem();
+            var system = new CatacombsBossSystem(objects,
                 new CombatDamageSystem());
             var ai = new SimpleCombatAiSystem(skillExecutionSystem: new SkillExecutionSystem(),
                 catacombsBossSystem: system);
@@ -252,7 +256,10 @@ namespace Godmist.Tests.EditMode
                 Assert.That(ai.TryExecuteNextAction(session, boss, turn, out var action), Is.True);
                 Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Skill));
                 Assert.That(action.Skill.SkillId, Is.EqualTo(CatacombsBossSystem.VengeanceSkillId));
-                Assert.That(session.SummonedObjects.Count, Is.EqualTo(cast * 5));
+                Assert.That(session.SummonedObjects.Count, Is.EqualTo(5));
+                Assert.That(system.CanCastVengeance(session, boss), Is.False);
+                if (cast < 3)
+                    foreach (var rune in session.SummonedObjects.ToArray()) objects.Remove(session, rune);
             }
 
             Assert.That(system.TryExecuteVengeance(session, boss, out _), Is.False);
@@ -261,11 +268,11 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void RuneWarnsOnFirstAvTurnAndHitsNearestHeroOnSecond()
+        public void RuneWaitsThreeAvTurnsAndHitsNearestHeroOnThird()
         {
             var runeDefinition = Asset<SummonedObjectDefinition>();
             Set(runeDefinition, "objectId", CatacombsBossSystem.RuneObjectId);
-            Set(runeDefinition, "defaultDurationTurns", 2);
+            Set(runeDefinition, "defaultDurationTurns", 3);
             var boss = Unit(CatacombsBossSystem.BossId, false, 100,
                 new GridPosition(4, 4));
             var near = Unit("near", true, 300, new GridPosition(1, 2));
@@ -283,8 +290,20 @@ namespace Godmist.Tests.EditMode
             Assert.That(near.Character.CurrentHealth, Is.EqualTo(300));
             rune.AdvanceDuration();
             system.ExecuteRuneTurn(session, rune);
+            Assert.That(near.Character.CurrentHealth, Is.EqualTo(300));
+            rune.AdvanceDuration();
+            system.ExecuteRuneTurn(session, rune);
             Assert.That(near.Character.CurrentHealth, Is.LessThan(300));
             Assert.That(far.Character.CurrentHealth, Is.EqualTo(300));
+        }
+
+        [Test]
+        public void ProductionRuneUsesThreeAvTurns()
+        {
+            var definition = AssetDatabase.LoadAssetAtPath<SummonedObjectDefinition>(
+                "Assets/_Project/ScriptableObjects/Catacombs/Objects/SO_DeadKingRune.asset");
+            Assert.That(definition, Is.Not.Null);
+            Assert.That(definition.DefaultDurationTurns, Is.EqualTo(3));
         }
 
         [Test]

@@ -1,4 +1,5 @@
 using Godmist.Runtime.Combat;
+using Godmist.Systems.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,7 +34,11 @@ namespace Godmist.Views.UI
             owner=source;boundUnit=known ? unit : null;
             if (!known) { occurrence = 1; highlighted = false; }
             gameObject.SetActive(true);
-            if (unknownLabel != null) unknownLabel.gameObject.SetActive(!known);
+            if (unknownLabel != null)
+            {
+                unknownLabel.text = "?";
+                unknownLabel.gameObject.SetActive(!known);
+            }
             turnTooltip?.Initialize(null, known ? unit.Character.Definition?.DisplayName ?? unit.Character.CharacterId : "Nieznany przeciwnik",
                 isActive ? "Aktualna tura" : occurrence > 1 ? "Kolejna tura tej postaci w przewidywanej kolejce." : "Nadchodząca tura");
 
@@ -62,6 +67,52 @@ namespace Godmist.Views.UI
                 activeHighlight.color = highlighted ? Color.white : unit.IsPlayerSide
                     ? playerActiveColor
                     : enemyActiveColor;
+            }
+        }
+
+        public void BindObject(SummonedCombatMapObject summonedObject, bool isActive,
+            int occurrence, CombatHudView source)
+        {
+            if (summonedObject?.Definition == null)
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            owner?.SetTimelineHover(this, null);
+            owner = source;
+            boundUnit = null;
+            gameObject.SetActive(true);
+
+            var turnsUntilExpiry = Mathf.Max(1, summonedObject.RemainingDurationTurns - occurrence + 1);
+            var isRune = CatacombsBossSystem.IsRune(summonedObject);
+            if (unknownLabel != null)
+            {
+                unknownLabel.text = isRune ? turnsUntilExpiry.ToString() : string.Empty;
+                unknownLabel.gameObject.SetActive(isRune);
+            }
+            turnTooltip?.Initialize(null, summonedObject.Definition.DisplayName,
+                isRune
+                    ? turnsUntilExpiry == 1 ? "Wybuch w tej turze runy"
+                        : $"Wybuch za {turnsUntilExpiry - 1} "
+                          + (turnsUntilExpiry == 2 ? "turę runy" : "tury runy")
+                    : $"Pozostałe tury obiektu: {turnsUntilExpiry}");
+            if (portrait != null)
+            {
+                portrait.sprite = summonedObject.Definition.Icon;
+                portrait.color = new Color(1f, 1f, 1f, occurrence > 1 ? .5f : 1f);
+            }
+            if (healthSlider != null) healthSlider.gameObject.SetActive(false);
+            foreach (var edge in activeEdges ?? System.Array.Empty<Image>())
+            {
+                if (edge == null) continue;
+                edge.enabled = isActive;
+                edge.color = enemyActiveColor;
+            }
+            if (activeHighlight != null)
+            {
+                activeHighlight.enabled = isActive;
+                activeHighlight.color = enemyActiveColor;
             }
         }
 

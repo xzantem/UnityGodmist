@@ -15,6 +15,8 @@ namespace Godmist.Views.UI
         private TextMeshProUGUI label;
         private CanvasGroup canvasGroup;
         private RectTransform parentRect;
+        private Image statusIcon;
+        private TextMeshProUGUI statusChanceLabel;
 
         public static CombatTargetPreviewView Create(Transform parent)
         {
@@ -33,7 +35,8 @@ namespace Godmist.Views.UI
             return view;
         }
 
-        public void Show(Vector2 screenPosition, string text, Color color)
+        public void Show(Vector2 screenPosition, string text, Color color,
+            Sprite statusSprite = null, float statusChance = 0f)
         {
             if (rectTransform == null) Initialize();
             if (parentRect == null || label == null || canvasGroup == null)
@@ -50,9 +53,27 @@ namespace Godmist.Views.UI
                 return;
             }
 
+            var hasStatus = statusSprite != null;
+            var hasText = !string.IsNullOrEmpty(text);
+            rectTransform.sizeDelta = new Vector2(hasStatus ? hasText ? 262f : 72f : 190f, 42f);
             rectTransform.anchoredPosition = localPosition + new Vector2(0f, 44f);
             label.text = text ?? string.Empty;
             label.color = color;
+            if (statusIcon != null)
+            {
+                statusIcon.gameObject.SetActive(hasStatus);
+                statusIcon.sprite = statusSprite;
+            }
+            if (statusChanceLabel != null)
+            {
+                statusChanceLabel.gameObject.SetActive(hasStatus);
+                statusChanceLabel.text = $"{Mathf.RoundToInt(statusChance * 100f)}%";
+            }
+            var labelRect = label.rectTransform;
+            labelRect.anchorMin = Vector2.zero;
+            labelRect.anchorMax = Vector2.one;
+            labelRect.offsetMin = new Vector2(8f, 4f);
+            labelRect.offsetMax = new Vector2(hasStatus && hasText ? -72f : -8f, -4f);
             canvasGroup.alpha = 1f;
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
@@ -99,6 +120,36 @@ namespace Godmist.Views.UI
                 labelRect.anchorMax = Vector2.one;
                 labelRect.offsetMin = new Vector2(8f, 4f);
                 labelRect.offsetMax = new Vector2(-8f, -4f);
+            }
+
+            if (statusIcon == null)
+            {
+                var iconObject = new GameObject("Status Icon", typeof(RectTransform), typeof(Image));
+                iconObject.transform.SetParent(transform, false);
+                statusIcon = iconObject.GetComponent<Image>();
+                statusIcon.raycastTarget = false;
+                statusIcon.preserveAspect = true;
+                var iconRect = statusIcon.rectTransform;
+                iconRect.anchorMin = iconRect.anchorMax = new Vector2(1f, 0.5f);
+                iconRect.pivot = new Vector2(1f, 0.5f);
+                iconRect.anchoredPosition = new Vector2(-42f, 0f);
+                iconRect.sizeDelta = new Vector2(24f, 24f);
+
+                var chanceObject = new GameObject("Status Chance", typeof(RectTransform),
+                    typeof(TextMeshProUGUI));
+                chanceObject.transform.SetParent(transform, false);
+                statusChanceLabel = chanceObject.GetComponent<TextMeshProUGUI>();
+                statusChanceLabel.font = TMP_Settings.defaultFontAsset;
+                statusChanceLabel.fontSize = 14f;
+                statusChanceLabel.fontStyle = FontStyles.Bold;
+                statusChanceLabel.alignment = TextAlignmentOptions.MidlineRight;
+                statusChanceLabel.raycastTarget = false;
+                statusChanceLabel.color = Color.white;
+                var chanceRect = statusChanceLabel.rectTransform;
+                chanceRect.anchorMin = chanceRect.anchorMax = new Vector2(1f, 0.5f);
+                chanceRect.pivot = new Vector2(1f, 0.5f);
+                chanceRect.anchoredPosition = new Vector2(-6f, 0f);
+                chanceRect.sizeDelta = new Vector2(38f, 26f);
             }
 
             rectTransform.anchorMin = new Vector2(0.5f, 0.5f);

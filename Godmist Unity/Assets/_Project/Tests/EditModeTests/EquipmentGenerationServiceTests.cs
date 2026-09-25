@@ -24,9 +24,9 @@ namespace Godmist.Tests.EditMode
             var definition = CreateDefinition("equipment.scout.weapon", ItemType.Weapon, scout);
             var head = CreatePart("head", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level15,
                 stats => { stats.MinAttackBase = 100; stats.MaxAttackBase = 200; });
-            var binder = CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5,
+            var binder = CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level15,
                 stats => { stats.MinAttackPercent = .2f; stats.MaxAttackPercent = .2f; });
-            var handle = CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5,
+            var handle = CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level15,
                 stats => { stats.MinAttackPercent = .2f; stats.MaxAttackPercent = .2f; });
 
             var item = new EquipmentGenerationService(new System.Random(2)).Generate(
@@ -199,12 +199,37 @@ namespace Godmist.Tests.EditMode
             var parts = new[]
             {
                 CreatePart("head", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level5, _ => { }),
-                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5, _ => { }),
+                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level15, _ => { }),
                 CreatePart("handle", warrior, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5, _ => { })
             };
 
             Assert.That(new EquipmentGenerationService().Generate(
                 definition, parts, EquipmentQuality.Normal, RarityTier.Common), Is.Null);
+        }
+
+        [Test]
+        public void MixedTiersAreRejectedAndRandomGenerationUsesOnlyCompleteTiers()
+        {
+            var scout = CreateClass("class.scout");
+            var definition = CreateDefinition("equipment.scout.weapon", ItemType.Weapon, scout);
+            var head = CreatePart("head.t1", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level5, _ => { });
+            var binder = CreatePart("binder.t2", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level15, _ => { });
+            var handle = CreatePart("handle.t2", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level15, _ => { });
+            var generator = new EquipmentGenerationService(new System.Random(17));
+            Assert.That(generator.GenerateFromSelectedParts(definition, new[] { head, binder, handle },
+                EquipmentQuality.Normal, RarityTier.Common), Is.Null);
+            Assert.That(generator.Generate(definition, new[] { head, binder, handle },
+                EquipmentQuality.Normal, RarityTier.Common), Is.Null);
+            var matchingHead = CreatePart("head.t2", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level15, _ => { });
+            for (var attempt = 0; attempt < 20; attempt++)
+            {
+                var item = generator.Generate(definition, new[] { head, binder, handle, matchingHead },
+                    EquipmentQuality.Normal, RarityTier.Common);
+                Assert.That(item, Is.Not.Null);
+                Assert.That(item.PartIds, Does.Contain("head.t2"));
+                Assert.That(item.PartIds, Does.Not.Contain("head.t1"));
+                Assert.That(item.ItemLevel, Is.EqualTo(15));
+            }
         }
 
         [Test]
@@ -235,15 +260,15 @@ namespace Godmist.Tests.EditMode
         [TestCase(EquipmentQuality.Normal, 15)]
         [TestCase(EquipmentQuality.Excellent, 18)]
         [TestCase(EquipmentQuality.Masterpiece, 20)]
-        public void Generate_DerivesItemLevelFromHighestPartBracket(EquipmentQuality quality, int expectedLevel)
+        public void Generate_DerivesItemLevelFromSharedPartBracket(EquipmentQuality quality, int expectedLevel)
         {
             var scout = CreateClass("class.scout");
             var definition = CreateDefinition("equipment.scout.weapon", ItemType.Weapon, scout);
             var parts = new[]
             {
                 CreatePart("head", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level15, _ => { }),
-                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5, _ => { }),
-                CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5, _ => { })
+                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level15, _ => { }),
+                CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level15, _ => { })
             };
 
             var item = new EquipmentGenerationService().Generate(definition, parts, quality, RarityTier.Common);
@@ -261,8 +286,8 @@ namespace Godmist.Tests.EditMode
             var item = new EquipmentGenerationService().Generate(definition, new[]
             {
                 CreatePart("head", scout, EquipmentPartKind.WeaponHead, EquipmentPartLevelBracket.Level15, s => s.MaxAttackBase = 200),
-                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level5, s => s.MaxAttackPercent = .2f),
-                CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level5, s => s.MaxAttackPercent = .2f)
+                CreatePart("binder", scout, EquipmentPartKind.WeaponBinder, EquipmentPartLevelBracket.Level15, s => s.MaxAttackPercent = .2f),
+                CreatePart("handle", scout, EquipmentPartKind.WeaponHandle, EquipmentPartLevelBracket.Level15, s => s.MaxAttackPercent = .2f)
             }, EquipmentQuality.Excellent, RarityTier.Rare);
             item.CustomName = "Mój wykuty miecz";
             var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();

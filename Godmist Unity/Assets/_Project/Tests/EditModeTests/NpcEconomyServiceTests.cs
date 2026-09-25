@@ -183,6 +183,145 @@ namespace Godmist.Tests.EditMode
             Assert.That(npc.TotalGoldSpent, Is.EqualTo(70));
         }
 
+        [Test]
+        public void StockTopUpRotationAndBuybackHaveSeparateLifecycles()
+        {
+            var definition = CreateNpcDefinition("npc.stock");
+            var role = ScriptableObject.CreateInstance<TraderRoleData>();
+            createdObjects.Add(role);
+            definition.Roles.Add(role);
+            var ore = StockItem("ore");
+            role.LocalStock.Add(new TraderStockEntry { Item = ore, Limit = 20 });
+            var group = new TraderStockGroup { Id = "ores", Slots = 2 };
+            for (var i = 0; i < 4; i++) group.Candidates.Add(new TraderStockEntry { Item = StockItem("other" + i), Limit = 3 });
+            role.RotatingStock.Add(group);
+            var npc = new NpcInstanceFactory().Create(definition);
+            var service = new TraderStockService(new System.Random(7));
+            Assert.That(npc.ShopInventory.Items.FindAll(i => i.Definition == ore).Count, Is.EqualTo(20));
+            var previous = new List<string>(npc.RotatingStockItemIds);
+            // Sold-out entries must still count as positions in the rotation.
+            npc.ShopInventory.Items.Clear();
+            var buyback = new Godmist.Runtime.NPC.BuybackEntry(
+                new Godmist.Runtime.Items.ItemInstance(ore, "buyback"), 7);
+            npc.ShopInventory.BuybackStock.Add(buyback);
+            service.Refresh(npc, 1);
+            Assert.That(npc.RotatingStockItemIds.FindAll(id => previous.Contains(id)).Count, Is.EqualTo(1));
+            Assert.That(npc.ShopInventory.Items.Count, Is.EqualTo(26));
+            Assert.That(npc.ShopInventory.BuybackStock[0], Is.SameAs(buyback));
+            service.Refresh(npc, 1);
+            Assert.That(npc.ShopInventory.Items.Count, Is.EqualTo(26));
+        }
+
+        [Test]
+        public void ReturnRestocksOncePerDungeonOnlyAfterCompletedFloor()
+        {
+            var session = new GameSession();
+            var definition = CreateNpcDefinition("npc.stock.return");
+            var role = ScriptableObject.CreateInstance<TraderRoleData>();
+            createdObjects.Add(role); definition.Roles.Add(role);
+            var ore = StockItem("ore");
+            role.LocalStock.Add(new TraderStockEntry { Item = ore, Limit = 20 });
+            var npc = new NpcInstanceFactory().Create(definition);
+            session.TryRegisterNpc(npc);
+            npc.ShopInventory.Items.Clear();
+            var dungeon = CreateDungeon("stock.dungeon", 3);
+            var service = new TraderStockService();
+            Assert.That(service.TryRefreshAfterReturn(session, dungeon), Is.False);
+            dungeon.TrySetCurrentFloorIndex(1);
+            Assert.That(service.TryRefreshAfterReturn(session, dungeon), Is.True);
+            Assert.That(npc.ShopInventory.Items.Count, Is.EqualTo(20));
+            npc.ShopInventory.Items.Clear();
+            dungeon.TrySetCurrentFloorIndex(2);
+            Assert.That(service.TryRefreshAfterReturn(session, dungeon), Is.False);
+            Assert.That(npc.ShopInventory.Items, Is.Empty);
+            var next = CreateDungeon("stock.dungeon", 2);
+            next.TrySetCurrentFloorIndex(1);
+            Assert.That(service.TryRefreshAfterReturn(session, next), Is.True);
+            Assert.That(npc.ShopInventory.Items.Count, Is.EqualTo(20));
+        }
+
+        [Test]
+        public void StockLevelGateAndExhaustedRotationPoolDoNotDuplicateItems()
+        {
+            var definition = CreateNpcDefinition("npc.stock.level");
+            var role = ScriptableObject.CreateInstance<TraderRoleData>();
+            createdObjects.Add(role); definition.Roles.Add(role);
+            var group = new TraderStockGroup { Id = "rare", Slots = 2 };
+            group.Candidates.Add(new TraderStockEntry { Item = StockItem("coal"), Limit = 10, MinimumLevel = 11 });
+            role.RotatingStock.Add(group);
+            var npc = new NpcInstanceFactory().Create(definition);
+            Assert.That(npc.ShopInventory.Items, Is.Empty);
+            var service = new TraderStockService();
+            service.Refresh(npc, 11);
+            service.Refresh(npc, 11);
+            Assert.That(npc.ShopInventory.Items.Count, Is.EqualTo(10));
+            Assert.That(npc.RotatingStockItemIds.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SoldOutRotationPositionsSurviveJsonRestoreWithoutRefill()
+        {
+            var definition = CreateNpcDefinition("npc.stock.save");
+            var role = ScriptableObject.CreateInstance<TraderRoleData>();
+            createdObjects.Add(role); definition.Roles.Add(role);
+            var item = StockItem("saved.material");
+            var group = new TraderStockGroup { Id = "ore", Slots = 1 };
+            group.Candidates.Add(new TraderStockEntry { Item = item, Limit = 5 });
+            role.RotatingStock.Add(group);
+            var npc = new NpcInstanceFactory().Create(definition);
+            npc.ShopInventory.Items.Clear();
+            var session = new GameSession(); session.TryRegisterNpc(npc);
+            var catalog = ScriptableObject.CreateInstance<Godmist.Data.World.GameContentCatalog>();
+            createdObjects.Add(catalog);
+            catalog.NpcDefinitions.Add(definition); catalog.ItemDefinitions.Add(item);
+            var snapshot = new Godmist.Systems.SaveLoad.GameSessionSaveSnapshotFactory().CreateSnapshot(session, "stock");
+            var serializer = new Godmist.Systems.SaveLoad.GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(snapshot), out var data), Is.True);
+            Assert.That(new Godmist.Systems.SaveLoad.GameSessionRestoreFactory().TryCreate(data, catalog, out var restored), Is.True);
+            var restoredNpc = restored.NpcsById[npc.NpcId];
+            Assert.That(restoredNpc.ShopInventory.Items, Is.Empty);
+            Assert.That(restoredNpc.RotatingStockItemIds, Is.EqualTo(new[] { item.Id }));
+        }
+
+        [TestCase(1, 5)]
+        [TestCase(11, 6)]
+        [TestCase(20, 6)]
+        public void AuthoredBlacksmithStockImportsAndResolvesInCatalog(int level, int slots)
+        {
+            var role = UnityEditor.AssetDatabase.LoadAssetAtPath<TraderRoleData>(
+                "Assets/_Project/ScriptableObjects/NPC/Roles/TRD_Arungard_Blacksmith.asset");
+            var catalog = UnityEditor.AssetDatabase.LoadAssetAtPath<Godmist.Data.World.GameContentCatalog>(
+                "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset");
+            Assert.That(role.LocalStock.Count, Is.EqualTo(8));
+            Assert.That(role.RotatingStock.Count, Is.EqualTo(5));
+            var definition = CreateNpcDefinition("npc.authoring.test");
+            definition.Roles.Add(role);
+            var npc = new NpcInstanceFactory().Create(definition, level);
+            Assert.That(npc.RotatingStockItemIds.Count, Is.EqualTo(slots));
+            var entries = new List<TraderStockEntry>(role.LocalStock);
+            foreach (var group in role.RotatingStock) entries.AddRange(group.Candidates);
+            foreach (var entry in entries)
+            {
+                Assert.That(entry.Item, Is.Not.Null);
+                Assert.That(catalog.ItemDefinitions.Contains(entry.Item), Is.True, entry.Item.Id);
+                if (entry.IsAvailable(level) && (role.LocalStock.Contains(entry)
+                    || npc.RotatingStockItemIds.Contains(entry.Item.Id)))
+                    Assert.That(npc.ShopInventory.Items.FindAll(i => i.Definition == entry.Item).Count,
+                        Is.EqualTo(entry.Limit), entry.Item.Id);
+            }
+            new TraderStockService(new System.Random(12)).Refresh(npc, level);
+            Assert.That(npc.RotatingStockItemIds.Count, Is.EqualTo(slots));
+        }
+
+        private Godmist.Data.Items.ItemDefinition StockItem(string id)
+        {
+            var item = ScriptableObject.CreateInstance<Godmist.Data.Items.ItemDefinition>();
+            createdObjects.Add(item);
+            SetAutoProperty(item, "Id", id);
+            SetAutoProperty(item, "ItemType", Godmist.Core.Enums.ItemType.Material);
+            return item;
+        }
+
         private NpcDefinition CreateNpcDefinition(string id)
         {
             var definition = ScriptableObject.CreateInstance<NpcDefinition>();

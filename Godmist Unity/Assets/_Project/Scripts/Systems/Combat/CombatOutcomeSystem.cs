@@ -1,6 +1,7 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
+using Godmist.Data.Configuration;
 
 namespace Godmist.Systems.Combat
 {
@@ -40,6 +41,16 @@ namespace Godmist.Systems.Combat
             if (!anyEnemiesLeft)
             {
                 session.Outcome = CombatOutcomeState.Victory;
+                var standingHealth = Math.Max(1, GameDefinesRuntime.GetInt(
+                    GameDefineIds.ReviveHealth, 1));
+                foreach (var unit in session.Units)
+                {
+                    if (unit?.IsPlayerSide != true
+                        || unit.Character?.LifeState != CharacterLifeState.Downed) continue;
+                    unit.Character.LifeState = CharacterLifeState.Alive;
+                    unit.Character.CurrentHealth = standingHealth;
+                    unit.DownedTurnsRemaining = 0;
+                }
                 battleLog?.Invoke("Zwyciestwo.");
             }
         }

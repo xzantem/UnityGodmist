@@ -85,7 +85,7 @@ namespace Godmist.Systems.Combat
                 {
                     if (!dungeon.TryGetFloor(context.FloorIndex, out var floor)
                         || !floor.TryGetEncounter(result.CombatId, out var encounter)) return false;
-                    if (System.Linq.Enumerable.All(encounter.Definition.Enemies, enemy => encounter.IsEnemyDefeated(enemy.InstanceId))
+                    if (System.Linq.Enumerable.All(encounter.Enemies, enemy => encounter.IsEnemyDefeated(enemy.InstanceId))
                         && !dungeon.IsEncounterCleared(encounter.InstanceId)
                         && !dungeon.TryMarkEncounterCleared(encounter.InstanceId)) return false;
                 }

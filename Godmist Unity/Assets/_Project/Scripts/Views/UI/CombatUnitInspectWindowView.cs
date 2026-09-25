@@ -231,7 +231,7 @@ namespace Godmist.Views.UI
 
         private void RefreshActionPointPips(BattleUnit unit)
         {
-            var maximum = Mathf.Max(0, unit?.MaxActionPoints ?? 0);
+            var maximum = ActionPointUnits.PipCount(Mathf.Max(unit?.MaxActionPoints ?? 0, unit?.CurrentActionPoints ?? 0));
             EnsureActionPointPipCount(maximum);
 
             if (actionPointPipRoot != null)
@@ -248,9 +248,8 @@ namespace Godmist.Views.UI
                 pip.gameObject.SetActive(isVisible);
                 if (isVisible)
                 {
-                    pip.color = index < unit.CurrentActionPoints
-                        ? Color.white
-                        : new Color(.12f, .15f, .19f, .95f);
+                    ActionPointPipPresentation.Apply(pip, unit.CurrentActionPoints, index,
+                        Color.white, new Color(.12f, .15f, .19f, .95f));
                 }
             }
         }

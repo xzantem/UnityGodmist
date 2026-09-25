@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Zemsta Za\u015Bwiat\xF3w"
   <Icon>k__BackingField: {fileID: 0}
   <TooltipDescription>k__BackingField: "Przy 75%, 50% i 25% HP stawia pi\u0119\u0107
-    run. Wej\u015Bcie na run\u0119 j\u0105 rozbraja; w drugiej w\u0142asnej turze
+    run, gdy poprzednie znikn\u0119\u0142y. Wej\u015Bcie na run\u0119 j\u0105 rozbraja; w trzeciej w\u0142asnej turze
     runa uderza najbli\u017Cszego wroga za 150% losowych obra\u017Ce\u0144 magicznych."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0

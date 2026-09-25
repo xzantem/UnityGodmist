@@ -7,6 +7,7 @@ using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Items;
+using Godmist.Systems.Combat;
 using UnityEngine;
 
 namespace Godmist.Systems.Dungeons
@@ -414,7 +415,7 @@ namespace Godmist.Systems.Dungeons
                     $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.object_{index:00}", definition,
                     positions[anchor], lootTableSystem, themedChestLootTable, anchor.Anchor.ActivationGroupId,
                     anchor.Room.IsRequiredProgressionRoom && (anchor.Anchor.Type == DungeonSemanticAnchorType.Lever
-                        || anchor.Anchor.Type == DungeonSemanticAnchorType.Condition));
+                        || anchor.Anchor.Type == DungeonSemanticAnchorType.Condition), dungeon, floor, index);
                 if (instance == null) throw PlacementError(floor, anchor, "Nieobslugiwany typ definicji.");
                 instances.Add(instance);
             }
@@ -567,7 +568,8 @@ namespace Godmist.Systems.Dungeons
                     && (selectedAnchor.Anchor.Type
                         == DungeonSemanticAnchorType.Lever
                         || selectedAnchor.Anchor.Type
-                           == DungeonSemanticAnchorType.Condition));
+                           == DungeonSemanticAnchorType.Condition),
+                    dungeon, floor, index);
 
                 if (dungeonObject != null)
                 {
@@ -787,7 +789,10 @@ namespace Godmist.Systems.Dungeons
             LootTableSystem lootTableSystem,
             LootTableData themedChestLootTable,
             string activationGroupId,
-            bool isProgressionRequirement = false)
+            bool isProgressionRequirement,
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            int objectIndex)
         {
             if (definition is ChestDungeonObjectDefinition chest)
             {
@@ -798,7 +803,8 @@ namespace Godmist.Systems.Dungeons
                     instanceId,
                     chest,
                     position,
-                    items);
+                    items,
+                    RollChestGold(dungeon, floor, objectIndex));
             }
 
             if (definition is ObstacleDungeonObjectDefinition obstacle)
@@ -837,6 +843,34 @@ namespace Godmist.Systems.Dungeons
             }
 
             return null;
+        }
+
+        private static int RollChestGold(DungeonInstance dungeon, DungeonFloorInstance floor, int objectIndex)
+        {
+            var ordinaryEncounters = floor.Encounters.Where(encounter => encounter != null
+                && !encounter.IsReinforcement
+                && encounter.Definition != dungeon.Definition.BossEncounterDefinition).ToList();
+            if (ordinaryEncounters.Count == 0) return 0;
+
+            // Keep the currency roll independent of object/loot selection so an extra
+            // chest does not shift the contents or positions of other objects.
+            var seed = unchecked(dungeon.Seed ^ ObjectPlacementSeedSalt
+                ^ (floor.FloorIndex + 1) * 73856093 ^ (objectIndex + 1) * 19349663);
+            var goldRandom = new System.Random(seed);
+            var encounterCount = 2 + goldRandom.Next(2);
+            long gold = 0;
+            for (var encounterIndex = 0; encounterIndex < encounterCount; encounterIndex++)
+            {
+                var encounter = ordinaryEncounters[goldRandom.Next(ordinaryEncounters.Count)];
+                foreach (var enemy in encounter.Enemies)
+                {
+                    if (enemy?.CharacterDefinition == null) continue;
+                    gold += CombatEconomyScaling.RollEnemyGold(dungeon.DungeonLevel,
+                        goldRandom.NextDouble());
+                }
+            }
+
+            return (int)Math.Min(gold, int.MaxValue);
         }
 
         private static int ComparePositions(

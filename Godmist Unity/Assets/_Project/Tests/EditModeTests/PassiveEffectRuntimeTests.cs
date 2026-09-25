@@ -12,6 +12,32 @@ namespace Godmist.Tests.EditMode
     public class PassiveEffectRuntimeTests
     {
         [Test]
+        public void RecoveryTicks_PreserveFractionalRemainderThroughJsonSavePayload()
+        {
+            var payload = new PeriodicRecoveryPayload { HealthPercent = .025f, ResourcePercent = .025f };
+            var unit = new BattleUnit { Character = new CharacterInstance
+            {
+                CurrentHealth = 1, LifeState = CharacterLifeState.Alive,
+                Stats = new CharacterStats { MaxHealth = new Stat(100) },
+                ResourcePool = new ResourcePool(ResourceType.Mana, 0, 100, 0)
+            }};
+            var effect = new PassiveEffectRuntime();
+            effect.SetPayload(payload);
+            var processor = new PeriodicRecoveryPassiveEffectProcessor(new CombatRecoverySystem());
+            processor.ProcessTurn(null, unit, effect, out _);
+            Assert.That(unit.Character.CurrentHealth, Is.EqualTo(4));
+            var json = UnityEngine.JsonUtility.ToJson(payload);
+            var restored = UnityEngine.JsonUtility.FromJson<PeriodicRecoveryPayload>(json);
+            Assert.That(restored.HealthRoundingCarry, Is.EqualTo(-.5f));
+            Assert.That(restored.ResourceRoundingCarry, Is.EqualTo(-.5f));
+            payload.HealthRoundingCarry = restored.HealthRoundingCarry;
+            payload.ResourceRoundingCarry = restored.ResourceRoundingCarry;
+            for (var turn = 1; turn < 10; turn++) processor.ProcessTurn(null, unit, effect, out _);
+            Assert.That(unit.Character.CurrentHealth, Is.EqualTo(26));
+            Assert.That(unit.Character.ResourcePool.CurrentValue, Is.EqualTo(25));
+        }
+
+        [Test]
         public void Constructor_WithTimedLifetime_KeepsDuration()
         {
             var effect = new PassiveEffectRuntime(

@@ -47,7 +47,7 @@ namespace Godmist.Systems.Combat
 
             var speed = Mathf.Max(0.01f, character.Stats.Speed.GetValue());
             var maxAp = Mathf.Max(0, Mathf.RoundToInt(
-                speed * session.ActionPointsPerSpeed));
+                speed * session.ActionPointsPerSpeed * ActionPointUnits.PerPoint));
             summonedUnit = new BattleUnit
             {
                 Character = character,
@@ -128,7 +128,7 @@ namespace Godmist.Systems.Combat
 
                     var speed = Mathf.Max(.01f, character.Stats.Speed.GetValue());
                     var maxAp = Mathf.Max(0, Mathf.RoundToInt(
-                        speed * session.ActionPointsPerSpeed));
+                        speed * session.ActionPointsPerSpeed * ActionPointUnits.PerPoint));
                     summonedUnit = new BattleUnit
                     {
                         Character = character,

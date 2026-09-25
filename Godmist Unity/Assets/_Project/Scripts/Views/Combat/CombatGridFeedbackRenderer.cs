@@ -302,7 +302,7 @@ namespace Godmist.Views.Combat
                 pathCostPosition = destination;
                 pathCost = CreatePathCost();
                 pathCost.gameObject.SetActive(IsPositionVisible?.Invoke(destination) != false);
-                pathCost.text = actionPointCost + (danger ? " !" : "");
+                pathCost.text = ActionPointUnits.Format(actionPointCost) + (danger ? " !" : "");
                 pathCost.color = color;
                 // GridToLocal returns the cell centre. Keep the label inside the
                 // destination cell, near its upper-right corner; the old vertical

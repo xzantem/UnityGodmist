@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Dziki Ryk
   <Icon>k__BackingField: {fileID: 0}
   <TooltipDescription>k__BackingField: "Wrogowie w zasi\u0119gu 6: 40% szansy na
-    og\u0142uszenie na 1 tur\u0119 i 90% szansy na krwawienie o sile 80% przez 3
+    og\u0142uszenie na 1 tur\u0119 i 90% szansy na krwawienie o sile 50% przez 3
     tury."
   <SkillAccuracy>k__BackingField: 70
   <AttackType>k__BackingField: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
     statusId: bleed
     durationTurns: 3
     stacks: 1
-    statusDamageMultiplier: 0.8
+    statusDamageMultiplier: 0.5
     statusHealPercent: 0
     percentageValue: 0
     counterattackRange:

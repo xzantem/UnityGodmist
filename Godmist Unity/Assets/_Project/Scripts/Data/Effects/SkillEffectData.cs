@@ -33,13 +33,14 @@ namespace Godmist.Data.Effects
         [SerializeField, Min(1)] private int damageHitCount = 1;
         [SerializeField, Min(0)] private int additionalHitTrials;
         [SerializeField, Range(0f, 1f)] private float additionalHitChance = .5f;
-        [SerializeField, Range(0f, 1f)] private float bonusPenetration;
+        [SerializeField, Min(0f)] private float bonusPenetration;
         [SerializeField, Range(0f, 1f)] private float bonusDamageMultiplierChance;
         [SerializeField, Min(1f)] private float bonusDamageMultiplier = 1f;
         [SerializeField] private string onHitStatusId = string.Empty;
         [SerializeField, Range(0f, 1f)] private float onHitStatusChance = 1f;
         [SerializeField, Min(1)] private int onHitStatusDurationTurns = 1;
         [SerializeField, Range(0f, 1f)] private float lifeStealPercent;
+        [SerializeField, Range(0f, 1f)] private float allyLifeStealPercent;
         [SerializeField, Range(0f, 1f)] private float resourceDrainPercent;
         [SerializeField] private DamageType damageType = DamageType.Physical;
 
@@ -62,8 +63,8 @@ namespace Godmist.Data.Effects
 
         [Header("Summon")]
         [SerializeField] private CharacterDefinition summonedCharacterDefinition;
-        [SerializeField] private CharacterClassData summonedClassData;
         [SerializeField] private List<CharacterDefinition> summonPool = new();
+        [SerializeField] private CharacterClassData summonedClassData;
         [SerializeField] private SkillRangeData summonPlacementRange =
             new SkillRangeData(RangeShape.Square, 1, 2);
         [SerializeField, Min(1)] private int summonDurationTurns = 1;
@@ -148,13 +149,14 @@ namespace Godmist.Data.Effects
             copy.bonusPenetration = Mathf.Max(0, value);
             return copy;
         }
-        public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
+        public float BonusPenetration => Mathf.Max(0f, bonusPenetration);
         public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
         public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);
         public string OnHitStatusId => onHitStatusId;
         public float OnHitStatusChance => Mathf.Clamp01(onHitStatusChance);
         public int OnHitStatusDurationTurns => Mathf.Max(1, onHitStatusDurationTurns);
         public float LifeStealPercent => Mathf.Clamp01(lifeStealPercent);
+        public float AllyLifeStealPercent => Mathf.Clamp01(allyLifeStealPercent);
         public float ResourceDrainPercent => Mathf.Clamp01(resourceDrainPercent);
         public int DelayCasterTurns => Mathf.Max(0, delayCasterTurns);
         public int DisplacementDistance => displacementDistance;
@@ -169,9 +171,9 @@ namespace Godmist.Data.Effects
 
         public int MaxActiveObjects => Mathf.Max(1, maxActiveObjects);
         public CharacterDefinition SummonedCharacterDefinition => summonedCharacterDefinition;
+        public IReadOnlyList<CharacterDefinition> SummonPool => summonPool;
         public CharacterClassData SummonedClassData => summonedClassData;
         public SkillRangeData SummonPlacementRange => summonPlacementRange;
-        public IReadOnlyList<CharacterDefinition> SummonPool => summonPool;
         public int SummonDurationTurns => Mathf.Max(1, summonDurationTurns);
         public int MaxActiveSummons => Mathf.Max(1, maxActiveSummons);
         public float SummonPercentMaxHealth =>

@@ -92,9 +92,8 @@ namespace Godmist.Views.UI
                 || sandboxBootstrap?.Session?.Units.Contains(feedback.Target) != true
                 || !sandboxBootstrap.IsUnitVisible(feedback.Target)) return;
 
-            var casterName = feedback.Target.Character.Definition?.DisplayName
-                ?? feedback.Target.Character.CharacterId;
-            skillCastText.text = $"{casterName}:\n{feedback.EffectName}";
+            if (string.IsNullOrWhiteSpace(feedback.EffectName)) return;
+            skillCastText.text = feedback.EffectName;
             skillCastExpiresAt = Time.unscaledTime + skillCastDuration;
             skillCastBanner.SetActive(true);
         }
@@ -135,7 +134,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            var upcomingTurns = CombatTurnSystem.GetUpcomingUnitTurns(
+            var upcomingTurns = CombatTurnSystem.GetUpcomingTurns(
                 session,
                 displayedTurnCount);
             var count = upcomingTurns.Count;
@@ -145,18 +144,32 @@ namespace Godmist.Views.UI
             }
 
             var occurrences = new Dictionary<BattleUnit, int>();
+            var objectOccurrences = new Dictionary<SummonedCombatMapObject, int>();
             for (var index = 0; index < turnEntries.Count; index++)
             {
                 var visible = index < count;
                 turnEntries[index].gameObject.SetActive(visible);
                 if (visible)
                 {
-                    occurrences.TryGetValue(upcomingTurns[index], out var occurrence);
-                    occurrences[upcomingTurns[index]] = ++occurrence;
-                    turnEntries[index].Bind(
-                        upcomingTurns[index],
-                        index == 0 && upcomingTurns[index] == session.ActiveUnit, occurrence, this, upcomingTurns[index]==HighlightedUnit,
-                        sandboxBootstrap.IsUnitKnown(upcomingTurns[index]));
+                    var participant = upcomingTurns[index];
+                    if (participant.IsUnit)
+                    {
+                        occurrences.TryGetValue(participant.Unit, out var occurrence);
+                        occurrences[participant.Unit] = ++occurrence;
+                        turnEntries[index].Bind(
+                            participant.Unit,
+                            index == 0 && participant.Unit == session.ActiveUnit,
+                            occurrence, this, participant.Unit == HighlightedUnit,
+                            sandboxBootstrap.IsUnitKnown(participant.Unit));
+                    }
+                    else if (participant.IsSummonedObject)
+                    {
+                        objectOccurrences.TryGetValue(participant.SummonedObject, out var occurrence);
+                        objectOccurrences[participant.SummonedObject] = ++occurrence;
+                        turnEntries[index].BindObject(participant.SummonedObject,
+                            index == 0 && session.ActiveSummonedObject == participant.SummonedObject,
+                            occurrence, this);
+                    }
                 }
             }
         }

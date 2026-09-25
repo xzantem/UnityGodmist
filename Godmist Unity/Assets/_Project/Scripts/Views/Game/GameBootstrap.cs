@@ -106,7 +106,7 @@ namespace Godmist.Views.Game
         private void Update()
         {
             // Dungeon occupants are ticked by their scene owner; the persistent owner covers city exploration.
-            if (Session != null && Session.ActiveDungeon == null && !Session.IsDefeated
+            if (Session != null && !IsDungeonScene && sceneLoader?.IsLoading == false && !Session.IsDefeated
                 && Session.CurrentMode == GameModeState.Exploration
                 && !Godmist.Views.UI.DevConsoleView.IsOpen)
             {
@@ -476,6 +476,8 @@ namespace Godmist.Views.Game
                         dungeonSceneName,
                         GameModeState.Exploration))
                 {
+                    if (!new DungeonCampService().TryIssueSupplies(Session, contentCatalog))
+                        Debug.LogWarning("Nie przydzielono zestawów obozowych: sprawdź CampingKit w katalogu zawartości.");
                     RequestAutosave("Wejście do lochu");
                     return true;
                 }
@@ -493,6 +495,7 @@ namespace Godmist.Views.Game
         public bool TryAbandonDungeon()
         {
             if(Session?.ActiveDungeon==null || Session.HasCombat || SceneManager.GetActiveScene().name!=explorationSceneName) return false;
+            new DungeonCampService().RemoveSupplies(Session);
             if(!Session.TryClearActiveDungeon()) return false;
             Session.DungeonOffers.CompleteExpedition();
             RequestAutosave("Porzucenie wyprawy");return true;
@@ -552,6 +555,7 @@ namespace Godmist.Views.Game
             }
 
             dungeon.TryMarkCompleted();
+            new DungeonCampService().RemoveSupplies(Session);
             new TraderStockService().TryRefreshAfterReturn(Session, dungeon, contentCatalog);
             NpcEconomyService?.TryApplyDungeonProgress(
                 Session,
@@ -610,6 +614,7 @@ namespace Godmist.Views.Game
 
             if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
 
+            new DungeonCampService().RemoveSupplies(Session);
             new TraderStockService().TryRefreshAfterReturn(Session, Session.ActiveDungeon,
                 contentCatalog);
             NpcEconomyService?.TryApplyDungeonProgress(

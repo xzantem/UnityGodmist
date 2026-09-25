@@ -130,7 +130,7 @@ namespace Godmist.Core.Serialization
         public float HealthRoundingCarry;
         public float ResourceRoundingCarry;
         public UniqueBuffType UniqueBuffType;
-        public int ActionPointModifier;
+        public float ActionPointModifier;
         public float DamageRedirectPercent;
         public string ProtectorCharacterId = string.Empty;
         public string ProtectorDisplayName = string.Empty;

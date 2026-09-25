@@ -1,4 +1,5 @@
 using System;
+using Godmist.Runtime.Combat;
 using Godmist.Runtime.Characters;
 using Godmist.Data.Configuration;
 using UnityEngine;
@@ -26,10 +27,10 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            var rawGain = spentActionPoints
+            var rawGain = ActionPointUnits.ToPoints(spentActionPoints)
                 * MomentumPerSpentActionPoint;
 
-            var normalGain = 0;
+            var normalGain = 0f;
 
             if (pool.CurrentValue < HighMomentumThreshold)
             {

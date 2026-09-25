@@ -62,7 +62,8 @@ namespace Godmist.Systems.Combat
             && session.ActiveUnit == boss
             && session.Outcome == CombatOutcomeState.Ongoing
             && boss?.Character?.LifeState == CharacterLifeState.Alive
-            && boss.Character.Definition?.Id == BossId;
+            && boss.Character.Definition?.Id == BossId
+            && !session.SummonedObjects.Any(IsRune);
 
         public bool TryExecuteVengeance(CombatSession session, BattleUnit boss,
             out SkillData executedSkill)
@@ -148,7 +149,8 @@ namespace Godmist.Systems.Combat
             if (session == null || !IsRune(rune)) return;
             if (rune.RemainingDurationTurns > 1)
             {
-                battleLog?.Invoke("Runa Zemsty Zaświatów pulsuje. Eksploduje w swojej następnej turze.");
+                battleLog?.Invoke($"Runa Zemsty Zaświatów pulsuje. Wybuch za {rune.RemainingDurationTurns - 1} "
+                    + (rune.RemainingDurationTurns == 2 ? "turę runy." : "tury runy."));
                 return;
             }
 

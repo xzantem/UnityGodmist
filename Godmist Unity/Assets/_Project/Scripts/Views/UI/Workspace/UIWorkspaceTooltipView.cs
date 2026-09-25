@@ -502,7 +502,9 @@ namespace Godmist.Views.UI.Workspace
             if (icon != null)
             {
                 icon.sprite = sprite;
-                // Unauthored icons should not render Unity's white default image.
+                // Many authored item definitions do not have an icon yet. Keep
+                // the header's optional spacing without drawing Unity's white
+                // default Image in the empty icon slot.
                 icon.enabled = sprite != null;
                 // The icon lives in a horizontal layout group with the title.
                 // Disabling only its Image still left its LayoutElement active and
@@ -1155,7 +1157,7 @@ namespace Godmist.Views.UI.Workspace
 
         private static string BuildSkillMeta(SkillData skill, int actionCost, BattleUnit caster)
         {
-            var result = $"Koszt: {actionCost} AP";
+            var result = caster != null ? $"Koszt: {Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP" : $"Koszt: {skill.ActionCost}% AP";
             var resourceCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill);
             if (resourceCost > 0) result += $"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {resourceCost}";
             if (skill.KnifeCost > 0) result += $"  •  SZTYLETY {skill.KnifeCost}";
@@ -1328,7 +1330,7 @@ namespace Godmist.Views.UI.Workspace
                 var resistance = effect.DamageType == DamageType.Magical
                     ? "obrony magicznej"
                     : "obrony fizycznej";
-                description += $" Ignoruje dodatkowe {FormatPercent(effect.BonusPenetration)} {resistance}.";
+                description += $" Dodaje {FormatPercent(effect.BonusPenetration)} penetracji {resistance}; obrona jest dzielona przez 1 + łączna penetracja.";
             }
 
             if (effect.LifeStealPercent > 0f)
@@ -2248,7 +2250,7 @@ namespace Godmist.Views.UI.Workspace
                     UniqueBuffType.MaximumDamage =>
                         "Następny atak zada maksymalne obrażenia.",
                     UniqueBuffType.ActionPointsNextTurn =>
-                        $"Zapewnia {uniqueBuff.ActionPointModifier:+#;-#;0} AP w następnej turze.",
+                        $"Zapewnia {uniqueBuff.ActionPointModifier:+0.##;-0.##;0} AP w następnej turze.",
                     UniqueBuffType.AuraStatus =>
                         "Utrzymuje aurę nakładającą status na jednostki w jej zasięgu.",
                     _ => "Nadaje unikalny efekt bojowy."
@@ -2513,15 +2515,17 @@ namespace Godmist.Views.UI.Workspace
             result.AppendLine();
             Append(result, $"Galduryty: {equipment.SocketedGaldurytes?.Count ?? 0}/{equipment.SocketCapacity}");
             var hasDisplayedGalduryte = false;
+            var socketIndex = 0;
             foreach (var galduryte in equipment?.SocketedGaldurytes
                          ?? new List<GalduryteItemInstance>())
             {
+                var inactive = !equipment.IsSocketActive(socketIndex++);
                 if (galduryte?.IsIdentified != true) continue;
                 var effects = galduryte.GetEffectSummary();
                 if (!string.IsNullOrWhiteSpace(effects))
                 {
                     if (hasDisplayedGalduryte) result.AppendLine();
-                    Append(result, $"<b>{galduryte.DisplayName}</b>");
+                    Append(result, $"<b>{galduryte.DisplayName}</b>" + (inactive ? " — nieaktywne gniazdo" : string.Empty));
                     Append(result, effects);
                     hasDisplayedGalduryte = true;
                 }

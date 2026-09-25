@@ -39,6 +39,23 @@ namespace Godmist.Systems.Combat
             }
         }
 
+        public void ProcessExplorationTick(BattleUnit unit)
+        {
+            if (unit?.Character?.LifeState != Core.Enums.CharacterLifeState.Alive) return;
+            var pool = unit.Character.ResourcePool;
+            if (pool == null) return;
+            if (pool.ResourceType == Core.Enums.ResourceType.Mana)
+                ProcessTurnStart(unit);
+            else if (pool.ResourceType == Core.Enums.ResourceType.Rage)
+            {
+                var lost = pool.Drain(Godmist.Data.Configuration.GameDefinesRuntime.GetInt(
+                    Godmist.Data.Configuration.GameDefineIds.RageDecayPerMissedTurn, 10));
+                pool.HasGainedResourceSinceLastTurn = false;
+                if (lost > 0) LogChange(unit, -lost, "traci");
+                WarriorCombatSystem.Refresh(unit);
+            }
+        }
+
         public void ProcessUnitMoved(
             BattleUnit unit,
             int spentActionPoints)

@@ -57,7 +57,7 @@ namespace Godmist.Tests.EditMode
             var character = CreateCharacter(level: 1, currentHealth: 70, maxHealthGrowth: 10f);
             var progressionSystem = new CharacterProgressionSystem(growthSystem);
 
-            var levelsGained = progressionSystem.AddExperience(character, 24);
+            var levelsGained = progressionSystem.AddExperience(character, progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
 
             Assert.That(levelsGained, Is.EqualTo(1));
             Assert.That(character.Stats.MaxHealth.BaseValue, Is.EqualTo(110f));

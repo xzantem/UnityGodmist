@@ -8,7 +8,7 @@ namespace Godmist.Systems.Combat
     public static class CombatActionCostCalculator
     {
         public static int CalculateSkillCost(
-            BattleUnit unit,
+            BattleUnit unit, 
             SkillData skill)
         {
             if (unit == null || skill == null)
@@ -16,11 +16,11 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
             return CalculatePercentageCost(
-                unit.MaxActionPoints,
+                unit.MaxActionPoints, 
                 skill.ActionCost);
         }
         public static int CalculatePercentageCost(
-            int maxActionPoints,
+            int maxActionPoints, 
             int percentage)
         {
             if (maxActionPoints <= 0 || percentage <= 0)
@@ -29,14 +29,14 @@ namespace Godmist.Systems.Combat
             }
 
             var clampedPercentage = Mathf.Clamp(
-                percentage,
-                0,
+                percentage, 
+                0, 
                 100);
 
-            return Mathf.CeilToInt(
-                maxActionPoints
-                * clampedPercentage
-                / 100f);
+            return Mathf.Max(1, Mathf.RoundToInt(
+                maxActionPoints 
+                * clampedPercentage 
+                / 100f));
         }
         public static int CalculateMovementCost(
             BattleUnit unit)
