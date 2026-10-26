@@ -46,6 +46,14 @@ namespace Godmist.Views.UI
 
         public bool IsExpanded => isExpanded;
 
+        public void SetAvailable(bool available)
+        {
+            if (drawerRect != null && drawerRect.gameObject.activeSelf != available)
+                drawerRect.gameObject.SetActive(available);
+            if (toggleButton != null && toggleButton.gameObject.activeSelf != available)
+                toggleButton.gameObject.SetActive(available);
+        }
+
         private void Awake()
         {
             EnsureInitialized();

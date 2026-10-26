@@ -15,10 +15,12 @@ namespace Godmist.Views.UI.Workspace
         {
             var title = galduryte == null
                 ? "Pusty socket"
-                : targeted ? $"Do osadzenia: {galduryte.DisplayName}" : galduryte.DisplayName;
+                : targeted ? $"Do osadzenia: {ItemRarityPresentation.Name(galduryte)}" : ItemRarityPresentation.Name(galduryte);
             var effects = galduryte == null ? string.Empty : galduryte.GetEffectSummary();
+            if (galduryte?.IsIdentified == true && !galduryte.IsDestroyed)
+                effects = "• " + effects.Replace("\n", "\n• ");
 
-            iconSlot?.SetIcon(galduryte?.Definition?.Icon);
+            iconSlot?.SetIcon(ItemIconPresentation.GetIcon(galduryte));
             iconSlot?.SetSelected(targeted);
             if (galduryte != null) iconSlot?.SetItemTooltip(galduryte, null);
             else iconSlot?.SetTooltip("Pusty socket", string.Empty);
@@ -35,10 +37,20 @@ namespace Godmist.Views.UI.Workspace
             if (inactive && titleText != null) titleText.text += " (nieaktywne gniazdo)";
         }
 
+        public void BindForSocketing(GalduryteItemInstance galduryte, int socketNumber = 0)
+        {
+            Bind(galduryte, false);
+            if (socketNumber > 0 && titleText != null)
+                titleText.text = $"<size=80%><color=#B7B09B>Gniazdo {socketNumber}</color></size>\n" + titleText.text;
+            iconSlot?.Bind(ItemIconPresentation.GetIcon(galduryte), string.Empty, string.Empty,
+                string.Empty, false, false, null);
+            if (galduryte != null) iconSlot?.SetItemTooltip(galduryte, null);
+        }
+
         public void BindForExtraction(GalduryteItemInstance galduryte, bool selected, System.Action onClick)
         {
             Bind(galduryte, false);
-            iconSlot?.Bind(galduryte?.Definition?.Icon, galduryte?.DisplayName,
+            iconSlot?.Bind(ItemIconPresentation.GetIcon(galduryte), ItemRarityPresentation.Name(galduryte),
                 galduryte?.GetEffectSummary(), string.Empty, selected, false, onClick);
             if (galduryte != null) iconSlot?.SetItemTooltip(galduryte, null);
         }

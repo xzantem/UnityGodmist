@@ -25,6 +25,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Transform ingredientContent;
         [SerializeField] private BlacksmithCraftingSlotView ingredientSlotTemplate;
         [SerializeField] private List<BlacksmithCraftingSlotView> selectedIngredientSlots = new();
+        [SerializeField] private ScrollRect ingredientScroll;
+        [SerializeField] private TextMeshProUGUI ingredientCountText;
         [Header("Selectors")]
         [SerializeField] private TMP_Dropdown mediumDropdown;
         [SerializeField] private TMP_Dropdown catalystDropdown;
@@ -35,6 +37,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private BlacksmithCraftingSlotView previewTooltipSlot;
         [SerializeField] private TextMeshProUGUI previewNameText;
         [SerializeField] private TextMeshProUGUI previewSummaryText;
+        [SerializeField] private TextMeshProUGUI previewEffectsText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private Button craftButton;
         [SerializeField] private ConsumableUseType craftingType = ConsumableUseType.Potion;
@@ -53,6 +56,7 @@ namespace Godmist.Views.UI.Workspace
         private string customName = string.Empty;
         private bool isVisible;
         private bool suppressInputEvents;
+        private string materialRequirementKey;
 
         private void Awake()
         {
@@ -85,6 +89,7 @@ namespace Godmist.Views.UI.Workspace
             selectedIngredients.Clear();
             selectedMedium = null;
             selectedCatalyst = null;
+            materialRequirementKey = null;
             customName = string.Empty;
             isVisible = true;
             serviceRoot?.SetActive(true);
@@ -104,6 +109,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void ConfigureIngredientScroll()
         {
+            if (ingredientScroll != null) { ingredientScroll.verticalNormalizedPosition = 1; return; }
             if (ingredientContent is not RectTransform grid ||
                 grid.parent is not RectTransform viewport) return;
 
@@ -168,6 +174,8 @@ namespace Godmist.Views.UI.Workspace
             if (!isVisible) return;
             RefreshIngredients();
             RefreshSelectedIngredients();
+            if (ingredientCountText != null)
+                ingredientCountText.text = $"{selectedIngredients.Count}/{AlchemyRuntimeRules.RequiredIngredientCount}";
             RefreshSelectors();
             RefreshPreview();
         }
@@ -178,16 +186,20 @@ namespace Godmist.Views.UI.Workspace
             var activeIds = new HashSet<string>();
             foreach (var option in craftingService.GetIngredientOptions(alchemist)
                          .Where(option => option?.Material != null)
-                         .OrderBy(option => option.Material.DisplayName))
+                         .OrderBy(option => AlchemyRuntimeRules.GetEffectTier(option.Material))
+                         .ThenBy(option => option.Material.DisplayName))
             {
                 var material = option.Material;
                 activeIds.Add(material.Id);
                 var slot = GetOrCreateSlot(ingredientSlotTemplate, ingredientContent, material.Id, ingredientSlots);
                 slot?.Bind(material.Icon, material.DisplayName, BuildIngredientTooltip(option),
-                    $"x{CountPartyItems(material.Id)}",
+                    CountPartyItems(material.Id).ToString(),
                     selectedIngredients.Any(item => item?.Id == material.Id), false,
                     () => ToggleIngredient(material));
                 slot?.SetDefinitionTooltip(material, BuildIngredientTooltip(option));
+                slot?.SetSelectionInteractable(selectedIngredients.Any(item => item?.Id == material.Id)
+                    || selectedIngredients.Count < AlchemyRuntimeRules.RequiredIngredientCount,
+                    ingredientScroll != null ? .65f : .4f);
             }
             HideUnusedSlots(ingredientSlots, activeIds);
         }
@@ -233,14 +245,15 @@ namespace Godmist.Views.UI.Workspace
                     .Where(option => option?.Material != null && AlchemyRuntimeRules.IsMediumCompatible(level, option.Tier))
                     .OrderBy(option => option.Tier).Select(option => option.Material));
             }
-            if (!displayedMediums.Any(item => item?.Id == selectedMedium?.Id)) selectedMedium = null;
+            if (!displayedMediums.Any(item => item?.Id == selectedMedium?.Id))
+                selectedMedium = ingredientScroll != null ? displayedMediums.FirstOrDefault() : null;
 
             suppressInputEvents = true;
             mediumDropdown.ClearOptions();
             var mediumLabel = craftingType == ConsumableUseType.Bomb
                 ? "Wybierz proch strzelniczy"
                 : "Wybierz alkohol";
-            var labels = new List<string> { hasRecipe ? mediumLabel : "Wybierz 3 składniki" };
+            var labels = new List<string> { ingredientScroll != null ? "—" : hasRecipe ? mediumLabel : "Wybierz 3 składniki" };
             labels.AddRange(displayedMediums.Select(item => item.DisplayName));
             mediumDropdown.AddOptions(labels);
             mediumDropdown.interactable = hasRecipe && displayedMediums.Count > 0;
@@ -289,6 +302,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var request = BuildRequest();
             var preview = craftingService.CreatePreview(session, alchemist, request);
+            session.CharactersById.TryGetValue(recipientCharacterId, out var recipient);
             var materialCosts = preview.Materials?.Count > 0
                 ? preview.Materials
                 : craftingService.GetDraftMaterialCosts(session, alchemist, request);
@@ -296,28 +310,48 @@ namespace Godmist.Views.UI.Workspace
             RefreshMaterialRequirements(materialCosts, true);
             if (previewTooltipSlot != null)
             {
-                previewTooltipSlot.SetIcon(preview.Result?.Definition?.Icon);
+                previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(preview.Result));
                 if (preview.Result != null)
-                    previewTooltipSlot.SetItemTooltip(preview.Result, null);
+                    previewTooltipSlot.SetItemTooltip(preview.Result, recipient);
                 else
-                    previewTooltipSlot.SetTooltip(
-                        "Wynik craftingu",
-                        "Wybierz trzy różne składniki i właściwy alkohol lub proch.");
+                    previewTooltipSlot.SetTooltip("Podgląd", string.Empty);
             }
-            if (previewNameText != null) previewNameText.text = preview.Result?.DisplayName ?? "Wybierz składniki";
+            if (previewNameText != null) previewNameText.text = preview.Result == null ? "—" : ItemRarityPresentation.Name(preview.Result);
             if (previewSummaryText != null)
                 previewSummaryText.text = preview.Result == null
-                    ? $"Wybierz {AlchemyRuntimeRules.RequiredIngredientCount} różne składniki."
-                    : $"Poziom {preview.ResultLevel} • tier efektu {preview.ResultEffectTier} • ładunki {preview.Result.MaxCharges}";
+                    ? string.Empty
+                    : $"Poziom {preview.ResultLevel} • Ładunki: {preview.Result.MaxCharges}"
+                        + (craftingType == ConsumableUseType.Bomb
+                            ? $"\nZasięg: {preview.Result.BlastRange} • Obszar: {preview.Result.BlastAreaSize}×{preview.Result.BlastAreaSize}"
+                            : string.Empty);
+            if (previewEffectsText != null)
+            {
+                previewEffectsText.text = (craftingType == ConsumableUseType.Bomb
+                    ? UIWorkspaceTooltipView.BuildBombEffectSummary(preview.Result, recipient)
+                    : UIWorkspaceTooltipView.BuildPotionEffectSummary(preview.Result)) ?? string.Empty;
+            }
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
-            SetStatus(preview.CanCraft ? "Gotowe do wytworzenia." : preview.FailureReason);
+            SetStatus(preview.CanCraft || selectedIngredients.Count < AlchemyRuntimeRules.RequiredIngredientCount
+                ? null : materialCosts?.Any(cost => cost.MissingAmount > 0) == true
+                    ? "Brak materiałów." : preview.FailureReason);
         }
 
         private void RefreshMaterialRequirements(IReadOnlyList<AlchemyMaterialCost> materialCosts, bool canPurchase)
         {
             if (materialRequirementsContent == null || materialSlotTemplate == null || materialCosts == null) return;
+            var orderedCosts = ingredientScroll != null
+                ? materialCosts.OrderBy(cost => MaterialRequirementOrder(cost?.Material)).ToArray()
+                : materialCosts;
+            var nextKey = string.Join("|", orderedCosts.Where(cost => cost?.Material != null)
+                .Select(cost => $"{cost.Material.Id}:{cost.RequiredAmount}"));
+            // The scroll belongs to this view's material grid. A new recipe starts
+            // at the top; buying ingredients or renaming keeps the current position.
+            var scroll = ingredientScroll != null
+                ? materialRequirementsContent.GetComponentInParent<ScrollRect>() : null;
+            var position = nextKey == materialRequirementKey && scroll != null
+                ? scroll.verticalNormalizedPosition : 1f;
             ClearRequirementSlots();
-            foreach (var cost in materialCosts)
+            foreach (var cost in orderedCosts)
             {
                 if (cost?.Material == null) continue;
                 // Match Blacksmith crafting: stock availability decides whether the
@@ -330,12 +364,28 @@ namespace Godmist.Views.UI.Workspace
                 slot.gameObject.SetActive(true);
                 slot?.Bind(cost.Material.Icon, cost.Material.DisplayName, BuildMaterialDescription(cost),
                     $"{cost.OwnedAmount}/{cost.RequiredAmount}", cost.MissingAmount <= 0, cost.MissingAmount > 0,
-                    null, canOfferPurchase ? $"{cost.PurchasableAmount}× • {cost.PurchasePrice}g" : null,
+                    null, canOfferPurchase ? cost.PurchasePrice.ToString("N0") : null,
                     canOfferPurchase ? () => TryBuyMissingMaterial(cost.Material.Id) : null,
                     cost.PurchaseState, cost.PurchaseState == CraftingMaterialPurchaseState.Available);
                 slot?.SetDefinitionTooltip(cost.Material, BuildMaterialDescription(cost),
                     cost.PurchasePrice > 0 ? cost.PurchasePrice : (int?)null);
             }
+            if (scroll != null && materialRequirementsContent is RectTransform content)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+                scroll.StopMovement();
+                scroll.verticalNormalizedPosition = position;
+            }
+            materialRequirementKey = nextKey;
+        }
+
+        private int MaterialRequirementOrder(ItemDefinition material)
+        {
+            var index = selectedIngredients.FindIndex(ingredient => ingredient?.Id == material?.Id);
+            if (index >= 0) return index;
+            if (material?.Id == selectedMedium?.Id) return selectedIngredients.Count;
+            if (material?.Id == selectedCatalyst?.Id) return selectedIngredients.Count + 1;
+            return int.MaxValue;
         }
 
         private void ToggleIngredient(ItemDefinition material)
@@ -383,9 +433,12 @@ namespace Godmist.Views.UI.Workspace
                 SetStatus(failureReason);
                 return;
             }
-            SetStatus($"Wytworzono: {items[0].DisplayName}.");
-            selectedIngredients.Clear(); selectedMedium = null; selectedCatalyst = null; customName = string.Empty;
-            SetCustomNameInput(string.Empty);
+            SetStatus(null);
+            if (ingredientScroll == null)
+            {
+                selectedIngredients.Clear(); selectedMedium = null; selectedCatalyst = null; customName = string.Empty;
+                SetCustomNameInput(string.Empty);
+            }
             Refresh();
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
@@ -416,7 +469,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void ClearRequirementSlots()
         {
-            foreach (var slot in requirementSlots.Where(slot => slot != null)) Destroy(slot.gameObject);
+            foreach (var slot in requirementSlots.Where(slot => slot != null)) { slot.gameObject.SetActive(false); Destroy(slot.gameObject); }
             requirementSlots.Clear();
         }
 
@@ -469,15 +522,17 @@ namespace Godmist.Views.UI.Workspace
 
         private void SetStatus(string value)
         {
-            if (statusText != null) statusText.text = value ?? string.Empty;
+            if (statusText == null) return;
+            statusText.text = value ?? string.Empty;
+            statusText.gameObject.SetActive(!string.IsNullOrEmpty(value));
         }
 
         private string BuildIngredientTooltip(AlchemyIngredientData option)
         {
-            var effect = option?.GetEffect(craftingType);
-            if (effect == null) return "Brak skonfigurowanego efektu.";
-            var duration = effect.DurationTurns > 0 ? $" przez {effect.DurationTurns} tur" : string.Empty;
-            return $"{FormatEffectType(effect.EffectType)}: {FormatEffectValue(effect.Value)}{duration}\nTier efektu: {AlchemyRuntimeRules.GetEffectTier(option.Material)}";
+            var role = alchemist?.Definition?.GetRole<Godmist.Data.NPC.AlchemistRoleData>();
+            var definition = craftingType == ConsumableUseType.Bomb ? role?.BombBaseDefinition : role?.PotionBaseDefinition;
+            return UIWorkspaceTooltipView.BuildAlchemyIngredientEffects(option?.GetEffect(craftingType), definition)
+                + $"\nPoziom: {AlchemyRuntimeRules.GetConsumableLevel(AlchemyRuntimeRules.GetEffectTier(option?.Material))}";
         }
 
         private static string BuildMaterialDescription(AlchemyMaterialCost cost)
@@ -487,17 +542,6 @@ namespace Godmist.Views.UI.Workspace
             return cost.HasPurchasableStock ? $"Brakuje: {cost.MissingAmount}. Materiał dostępny u Alchemika."
                 : $"Brakuje: {cost.MissingAmount}. Alchemik nie ma zapasu.";
         }
-
-        private static string FormatEffectType(ConsumableRuntimeEffectType effectType) => effectType switch
-        {
-            ConsumableRuntimeEffectType.RestoreHealth => "Odzyskanie HP",
-            ConsumableRuntimeEffectType.RegenHealth => "Regeneracja HP",
-            ConsumableRuntimeEffectType.DealPhysicalDamage => "Obrażenia fizyczne",
-            ConsumableRuntimeEffectType.DealMagicalDamage => "Obrażenia magiczne",
-            _ => effectType.ToString()
-        };
-
-        private static string FormatEffectValue(float value) => $"{value * 100f:0.##}%";
 
     }
 }

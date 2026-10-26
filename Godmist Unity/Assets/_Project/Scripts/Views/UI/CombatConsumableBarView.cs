@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Godmist.Views.UI
 {
-    /// <summary>Combat-only strip for consumables carried by the active character.</summary>
+    /// <summary>Combat-only strip for consumables carried by player participants.</summary>
     public sealed class CombatConsumableBarView : MonoBehaviour
     {
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
@@ -40,7 +40,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            var signature = BuildSignature(activeUnit);
+            var signature = ConsumableService.CombatInventorySignature(sandboxBootstrap?.Session);
             if (cachedUnit != activeUnit || cachedSignature != signature) Rebuild(activeUnit, signature);
             Refresh(activeUnit);
         }
@@ -49,17 +49,13 @@ namespace Godmist.Views.UI
         {
             Clear();
             if (slotRoot == null || slotTemplate == null) return;
-            foreach (var item in activeUnit.Character?.Inventory?.Items ?? new List<ItemInstance>())
+            foreach (var consumable in ConsumableService.GetCombatItems(sandboxBootstrap?.Session))
             {
-                if (item is not ConsumableItemInstance consumable) continue;
-                if (!IsCombatUsable(consumable)) continue;
-                var skill = ConsumableRuntimeActionBuilder.Build(consumable);
-                if (skill == null) continue;
                 items.Add(consumable);
                 var captured = consumable;
                 var slot = Instantiate(slotTemplate, slotRoot);
                 slot.gameObject.SetActive(true);
-                slot.Initialize(skill, tooltipView,
+                slot.InitializeConsumable(consumable, tooltipView,
                     () => targetSelectionController?.BeginConsumableTargetSelection(captured),
                     () => sandboxBootstrap?.Session?.ActiveUnit);
                 slots.Add(slot);
@@ -68,47 +64,20 @@ namespace Godmist.Views.UI
             cachedSignature = signature;
         }
 
-        private static bool IsCombatUsable(ConsumableItemInstance item)
-        {
-            if (item == null) return false;
-            if (item.RuntimeEffects == null || item.RuntimeEffects.Count == 0)
-            {
-                return ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                    item.ConsumableDefinition,
-                    out var impliedEffect)
-                    && impliedEffect.EffectType != ConsumableRuntimeEffectType.ReturnToArungard;
-            }
-            foreach (var effect in item.RuntimeEffects)
-            {
-                if (effect?.EffectType != ConsumableRuntimeEffectType.ReturnToArungard)
-                    return true;
-            }
-
-            return false;
-        }
-
         private void Refresh(BattleUnit activeUnit)
         {
             for (var index = 0; index < slots.Count && index < items.Count; index++)
             {
                 var item = items[index];
                 var definition = item.ConsumableDefinition;
-                var cost = 0;
-                var available = item.HasCharges
-                    && !activeUnit.ConsumableUseTypesUsedThisTurn.Contains(definition.UseType)
-                    && activeUnit.CurrentActionPoints >= cost;
+                var cost = CombatActionCostCalculator.CalculatePercentageCost(activeUnit.MaxActionPoints, ConsumableRuntimeActionBuilder.ActionCostPercent);
+                var available = ConsumableService.CanUseInCombat(sandboxBootstrap?.Session, activeUnit, item);
                 slots[index].RefreshAvailability(available, cost, false,
-                    $"{item.CurrentCharges}/{item.MaxCharges}");
+                    $"{item.CurrentCharges}/{item.MaxCharges}", reason:
+                    activeUnit.ConsumableUseTypesUsedThisTurn.Contains(definition.UseType)
+                        ? "Ten typ przedmiotu został już użyty w tej turze."
+                        : activeUnit.CurrentActionPoints < cost ? "Za mało punktów akcji." : null);
             }
-        }
-
-        private string BuildSignature(BattleUnit unit)
-        {
-            var value = string.Empty;
-            foreach (var item in unit.Character?.Inventory?.Items ?? new List<ItemInstance>())
-                if (item is ConsumableItemInstance consumable)
-                    value += $"|{consumable.InstanceId}:{consumable.CurrentCharges}";
-            return value;
         }
 
         private void Clear()

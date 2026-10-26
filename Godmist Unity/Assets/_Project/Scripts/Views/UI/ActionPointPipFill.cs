@@ -9,6 +9,7 @@ namespace Godmist.Views.UI
     [RequireComponent(typeof(Image))]
     public sealed class ActionPointPipFill : BaseMeshEffect
     {
+        [SerializeField] private bool facetedGem;
         private float current = 1f, remaining = 1f;
         private Color available = Color.white, preview = Color.white, spent = Color.gray;
 
@@ -27,6 +28,7 @@ namespace Godmist.Views.UI
         public override void ModifyMesh(VertexHelper helper)
         {
             if (!IsActive()) return;
+            if (facetedGem) PopulateGem(helper);
             var vertices = new List<UIVertex>();
             helper.GetUIVertexStream(vertices);
             if (vertices.Count == 0) return;
@@ -42,6 +44,54 @@ namespace Godmist.Views.UI
                 AddRegion(helper, triangle, first, second, preview);
                 AddRegion(helper, triangle, second, max, spent);
             }
+        }
+
+        // Same stepped silhouette and faces as the development-tree rank gems.
+        // The existing region clipping below keeps fractional AP and cost previews exact.
+        private void PopulateGem(VertexHelper helper)
+        {
+            helper.Clear();
+            var rect = ((RectTransform)transform).rect;
+            var size = Mathf.Min(rect.width, rect.height) - 2f;
+            if (size <= 0f) return;
+            var step = size / 7f;
+            var left = rect.center.x - size * .5f;
+            var bottom = rect.center.y - size * .5f;
+            for (var row = 0; row < 7; row++)
+            {
+                var inset = Mathf.Abs(3 - row) * step;
+                var y = bottom + row * step;
+                Quad(helper, left + inset - 1, left + size - inset + 1, y - 1, y + step + 1, Color.black);
+            }
+            for (var row = 0; row < 7; row++)
+            {
+                var inset = Mathf.Abs(3 - row) * step;
+                var l = left + inset; var r = left + size - inset;
+                var y = bottom + row * step;
+                if (r - l <= step * 2f)
+                    Face(l, r, row > 3 ? .95f : .6f);
+                else
+                {
+                    var middle = (l + r) * .5f;
+                    Face(l, l + step, .65f);
+                    Face(l + step, middle, row < 3 ? .85f : 1f);
+                    Face(middle, r - step, row < 3 ? .6f : .8f);
+                    Face(r - step, r, .5f);
+                }
+                void Face(float x1, float x2, float shade) =>
+                    Quad(helper, x1, x2, y, y + step, new Color(shade, shade, shade, 1f));
+            }
+        }
+
+        private static void Quad(VertexHelper helper, float l, float r, float b, float t, Color color)
+        {
+            var start = helper.currentVertCount;
+            helper.AddVert(new Vector3(l, b), color, Vector2.zero);
+            helper.AddVert(new Vector3(l, t), color, Vector2.zero);
+            helper.AddVert(new Vector3(r, t), color, Vector2.zero);
+            helper.AddVert(new Vector3(r, b), color, Vector2.zero);
+            helper.AddTriangle(start, start + 1, start + 2);
+            helper.AddTriangle(start, start + 2, start + 3);
         }
 
         private static void AddRegion(VertexHelper helper, List<UIVertex> triangle, float left, float right, Color color)

@@ -1,6 +1,7 @@
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Godmist.Views.UI
@@ -15,6 +16,8 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private SaveLoadPanelView savePanel;
         [SerializeField] private MainMenuSettingsView settingsPanel;
+        [SerializeField] private Image loadSelectionFrame;
+        [SerializeField] private Image settingsSelectionFrame;
         private bool wasBusy;
         private bool hasSaves;
 
@@ -30,7 +33,7 @@ namespace Godmist.Views.UI
             settingsButton.onClick.AddListener(OpenSettings);
             exitButton.onClick.AddListener(Exit);
             savePanel.Closed += RefreshSaveAvailability;
-            settingsPanel.Closed += Refresh;
+            settingsPanel.Closed += SettingsClosed;
         }
 
         private void Start() { if (enabled) RefreshSaveAvailability(); }
@@ -47,6 +50,8 @@ namespace Godmist.Views.UI
             newGameButton.interactable = settingsButton.interactable = exitButton.interactable = available;
             // Continue revalidates full content on click, including fallback past broken saves.
             continueButton.interactable = loadButton.interactable = available && hasSaves;
+            if (loadSelectionFrame != null) loadSelectionFrame.enabled = savePanel.IsOpen;
+            if (settingsSelectionFrame != null) settingsSelectionFrame.enabled = settingsPanel.IsOpen;
         }
         private void RefreshSaveAvailability()
         {
@@ -58,6 +63,12 @@ namespace Godmist.Views.UI
                 else messageText.text = error;
             }
             Refresh();
+        }
+        private void SettingsClosed()
+        {
+            Refresh();
+            if (settingsButton != null && settingsButton.interactable && settingsButton.gameObject.activeInHierarchy
+                && EventSystem.current != null) settingsButton.Select();
         }
         private void Continue()
         {
@@ -84,7 +95,7 @@ namespace Godmist.Views.UI
             if (settingsButton != null) settingsButton.onClick.RemoveListener(OpenSettings);
             if (exitButton != null) exitButton.onClick.RemoveListener(Exit);
             if (savePanel != null) savePanel.Closed -= RefreshSaveAvailability;
-            if (settingsPanel != null) settingsPanel.Closed -= Refresh;
+            if (settingsPanel != null) settingsPanel.Closed -= SettingsClosed;
         }
     }
 }

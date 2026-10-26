@@ -16,6 +16,8 @@ namespace Godmist.Views.UI
         [SerializeField] private bool showCounters = true;
         private CombatStatusPresentation presentation;
         private UIWorkspaceTooltipView tooltip;
+        private Image tickShade;
+        private bool hasExplorationTick;
 
         public void Bind(
             CombatStatusPresentation source,
@@ -32,8 +34,46 @@ namespace Godmist.Views.UI
                 icon.enabled = icon.sprite != null;
             }
 
-            SetCounter(stackText, showCounters ? effect.Stacks : 0);
-            SetCounter(durationText, showCounters ? effect.RemainingDuration : 0);
+            SetCounter(stackText, showCounters ? source.StackCount : 0);
+            SetCounter(durationText, showCounters ? source.Duration : 0);
+            hasExplorationTick = false;
+            if (source.ExplorationCharacter != null)
+                foreach (var active in source.Effects)
+                    if (active?.Lifetime == Godmist.Core.Enums.PassiveEffectLifetime.Timed && active.RemainingDuration > 0)
+                    { hasExplorationTick = true; break; }
+            RefreshTickShade();
+        }
+
+        private void Update() => RefreshTickShade();
+
+        private void RefreshTickShade()
+        {
+            var show = hasExplorationTick && icon != null && icon.enabled && icon.sprite != null;
+            if (show && tickShade == null)
+            {
+                var overlay = new GameObject("StatusTickShade", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                overlay.layer = icon.gameObject.layer;
+                overlay.transform.SetParent(icon.transform, false);
+                overlay.transform.SetAsFirstSibling();
+                var rect = (RectTransform)overlay.transform;
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                tickShade = overlay.GetComponent<Image>();
+                tickShade.color = new Color(0f, 0f, 0f, .55f);
+                tickShade.raycastTarget = false;
+                tickShade.type = Image.Type.Filled;
+                tickShade.fillMethod = Image.FillMethod.Radial360;
+                tickShade.fillOrigin = (int)Image.Origin360.Top;
+                // A shrinking counterclockwise filled region reveals clockwise from twelve o'clock.
+                tickShade.fillClockwise = false;
+            }
+            if (tickShade == null) return;
+            if (tickShade.gameObject.activeSelf != show) tickShade.gameObject.SetActive(show);
+            if (!show) return;
+            if (tickShade.sprite != icon.sprite) tickShade.sprite = icon.sprite;
+            tickShade.preserveAspect = icon.preserveAspect;
+            tickShade.fillAmount = 1f - Mathf.Clamp01(presentation.ExplorationCharacter.ExplorationStatusElapsedSeconds
+                / Godmist.Systems.Combat.ExplorationStatusEffectSystem.ExplorationTickSeconds);
         }
 
         public void OnPointerEnter(PointerEventData eventData)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Game;
@@ -35,6 +36,16 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI emptyAvailableState;
         [SerializeField] private TextMeshProUGUI availableCountText;
 
+        [Header("Selected skill")]
+        [SerializeField] private Image detailsIcon;
+        [SerializeField] private TextMeshProUGUI detailsTitle, detailsBody, detailsCost, detailsState;
+        [SerializeField] private Button assignButton, removeButton;
+        [SerializeField] private TextMeshProUGUI assignButtonText;
+        [SerializeField] private ScrollRect detailsScroll;
+        private string selectedSkillId = string.Empty;
+        private int assignmentSlot = -1;
+        private string hoveredDetailsLink;
+
         [Header("Tooltip and drag")]
         [SerializeField] private UIWorkspaceTooltipView tooltipView;
         [SerializeField] private RectTransform dragLayerRect;
@@ -62,6 +73,8 @@ namespace Godmist.Views.UI
         private void Awake()
         {
             closeButton?.onClick.AddListener(Close);
+            assignButton?.onClick.AddListener(AssignSelectedSkill);
+            removeButton?.onClick.AddListener(RemoveSelectedSkill);
             backdropCloseButton?.onClick.AddListener(Close);
 
             activeSlotTemplate?.gameObject.SetActive(false);
@@ -95,7 +108,9 @@ namespace Godmist.Views.UI
             if (session == null || session.IsCharacterInCombat(character?.CharacterId))
             {
                 Close();
+                return;
             }
+            UpdateDetailsLinkHover();
         }
 
         private void LateUpdate()
@@ -110,6 +125,8 @@ namespace Godmist.Views.UI
         {
             ResetDrag();
             closeButton?.onClick.RemoveListener(Close);
+            assignButton?.onClick.RemoveListener(AssignSelectedSkill);
+            removeButton?.onClick.RemoveListener(RemoveSelectedSkill);
             backdropCloseButton?.onClick.RemoveListener(Close);
         }
 
@@ -141,6 +158,8 @@ namespace Godmist.Views.UI
             session.CharacterProgressionChanged += OnCharacterProgressionChanged;
             tooltipView = ResolveTooltipView();
             character = selectedCharacter;
+            selectedSkillId = string.Empty;
+            assignmentSlot = -1;
             panelRoot?.SetActive(true);
             workspaceWindow?.Focus();
             ResetScrollPositions();
@@ -155,6 +174,8 @@ namespace Godmist.Views.UI
             if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session = null;
             character = null;
+            selectedSkillId = string.Empty;
+            hoveredDetailsLink = null;
         }
 
         private void OnCharacterProgressionChanged(string characterId)
@@ -181,7 +202,7 @@ namespace Godmist.Views.UI
             if (workspaceTitleText != null)
             {
                 var name = character.Definition?.DisplayName ?? character.CharacterId;
-                workspaceTitleText.text = $"Umiejętności — {name}";
+                workspaceTitleText.text = $"{name} — Umiejętności";
             }
 
             if (capacityText != null)
@@ -195,6 +216,9 @@ namespace Godmist.Views.UI
             RebuildActiveSlots();
             RebuildAvailableSkills();
             ConfigureAvailableDropSurface();
+            if (FindKnownSkill(selectedSkillId) == null)
+                selectedSkillId = character.GetKnownSkills().FirstOrDefault(skill => skill != null)?.SkillId ?? string.Empty;
+            RefreshSelectedSkill();
         }
 
         private void RebuildActiveSlots()
@@ -217,6 +241,7 @@ namespace Godmist.Views.UI
 
             for (var slotIndex = 1; slotIndex < loadout.Capacity; slotIndex++)
             {
+                var capturedIndex = slotIndex;
                 var button = Instantiate(activeSlotTemplate, activeSlotsRoot);
                 button.gameObject.SetActive(true);
 
@@ -231,7 +256,8 @@ namespace Godmist.Views.UI
                     isBasic: false,
                     isEmpty: !hasSkill,
                     tooltipView,
-                    hasSkill ? () => HandleActiveCardClick(skillId, false, card) : null);
+                    () => SelectActiveSlot(capturedIndex, skillId));
+                card.SetPresentation(character, FormatSlotLabel(slotIndex), false);
                 activeCards.Add(card);
 
                 ConfigureSurface(
@@ -265,9 +291,10 @@ namespace Godmist.Views.UI
                 isBasic: true,
                 isEmpty: skill == null,
                 tooltipView,
-                onClick: null);
-            basicSlotCard.interactable = false;
-            // Basic attack is intentionally not a drag surface. It is locked and non-interactable.
+                onClick: () => SelectSkill(skillId));
+            basicSlotCard.interactable = true;
+            card.SetPresentation(character, FormatSlotLabel(0), false);
+            // The basic attack can be inspected but never moved or removed.
         }
 
         private void RebuildAvailableSkills()
@@ -295,11 +322,6 @@ namespace Godmist.Views.UI
                     continue;
                 }
 
-                if (activeSkillIds.Contains(skill.SkillId))
-                {
-                    continue;
-                }
-
                 var isBasic = string.Equals(
                     skill.SkillId,
                     loadout.BasicAttackSkillId,
@@ -309,18 +331,20 @@ namespace Godmist.Views.UI
                 var card = EnsureCard(button);
                 card.Configure(
                     skill,
-                    isActive: false,
-                    isBasic: false,
+                    isActive: activeSkillIds.Contains(skill.SkillId),
+                    isBasic: isBasic,
                     isEmpty: false,
                     tooltipView,
-                    () => HandleKnownCardClick(skill.SkillId, false, false, card));
+                    () => SelectSkill(skill.SkillId));
+                var slotIndex = FindActiveIndex(skill.SkillId);
+                card.SetPresentation(character, slotIndex >= 0 ? FormatSlotLabel(slotIndex) : "", false);
                 knownCards.Add(card);
 
                 ConfigureSurface(
                     button.gameObject,
                     skill.SkillId,
-                    isSource: true,
-                    sourceIsActive: false,
+                    isSource: !isBasic,
+                    sourceIsActive: activeSkillIds.Contains(skill.SkillId),
                     isActiveSlot: false,
                     activeIndex: -1,
                     isAvailableArea: true);
@@ -333,7 +357,7 @@ namespace Godmist.Views.UI
 
             if (availableCountText != null)
             {
-                availableCountText.text = $"Dostępne {knownCards.Count}";
+                availableCountText.text = $"Poznane umiejętności ({knownCards.Count})";
             }
         }
 
@@ -376,7 +400,7 @@ namespace Godmist.Views.UI
 
         private UIWorkspaceTooltipView ResolveTooltipView()
         {
-            return tooltipView != null && tooltipView.isActiveAndEnabled
+            return tooltipView != null && tooltipView.gameObject.scene.IsValid() && tooltipView.isActiveAndEnabled
                 ? tooltipView
                 : UIWorkspaceTooltipView.ActiveInstance;
         }
@@ -411,64 +435,95 @@ namespace Godmist.Views.UI
                 isAvailableArea);
         }
 
-        private void HandleActiveCardClick(
-            string skillId,
-            bool isBasic,
-            SkillLoadoutCardView card)
+        private static string FormatSlotLabel(int index)
         {
-            if (isBasic
-                || session == null
-                || character == null
-                || session.IsCharacterInCombat(character?.CharacterId))
-            {
-                card?.FlashInvalid();
-                return;
-            }
-
-            if (loadoutSystem.TryRemoveSkill(
-                    session,
-                    character.CharacterId,
-                    skillId))
-            {
-                Refresh();
-            }
-            else
-            {
-                card?.FlashInvalid();
-            }
+            var shortcut = CombatSkillSlotView.GetShortcutLabel(index);
+            return string.IsNullOrEmpty(shortcut) ? (index + 1).ToString() : shortcut;
         }
 
-        private void HandleKnownCardClick(
-            string skillId,
-            bool isActive,
-            bool isBasic,
-            SkillLoadoutCardView card)
+        private int FindActiveIndex(string skillId)
         {
-            if (session == null
-                || character == null
-                || session.IsCharacterInCombat(character?.CharacterId)
-                || isBasic)
-            {
-                card?.FlashInvalid();
-                return;
-            }
+            var slots = character?.ActiveSkillLoadout?.ActiveSkillSlotIds;
+            if (slots == null || string.IsNullOrWhiteSpace(skillId)) return -1;
+            for (var i = 0; i < slots.Count; i++) if (slots[i] == skillId) return i;
+            return -1;
+        }
 
-            var success = isActive
-                ? loadoutSystem.TryRemoveSkill(
-                    session,
-                    character.CharacterId,
-                    skillId)
-                : loadoutSystem.TryAddSkill(
-                    session,
-                    character.CharacterId,
-                    skillId);
-            if (success)
+        private void SelectActiveSlot(int index, string skillId)
+        {
+            assignmentSlot = index;
+            selectedSkillId = skillId ?? string.Empty;
+            RefreshSelectedSkill();
+        }
+
+        private void SelectSkill(string skillId)
+        {
+            if (FindKnownSkill(skillId) == null) return;
+            selectedSkillId = skillId;
+            if (FindActiveIndex(skillId) >= 0) assignmentSlot = -1;
+            RefreshSelectedSkill();
+        }
+
+        private void RefreshSelectedSkill()
+        {
+            var skill = FindKnownSkill(selectedSkillId);
+            var index = FindActiveIndex(selectedSkillId);
+            foreach (var card in knownCards) card.SetSelected(card.SkillId == selectedSkillId && skill != null);
+            for (var i = 0; i < activeCards.Count; i++)
+                activeCards[i].SetSelected(assignmentSlot > 0 ? i + 1 == assignmentSlot : skill != null && activeCards[i].SkillId == selectedSkillId);
+            basicSlotCard?.GetComponent<SkillLoadoutCardView>()?.SetSelected(index == 0);
+            tooltipView = ResolveTooltipView();
+            tooltipView?.InvalidateSource(detailsBody);
+            hoveredDetailsLink = null;
+            if (detailsTitle != null) detailsTitle.text = skill?.DisplayName ?? "Wybierz umiejętność";
+            if (detailsIcon != null) { detailsIcon.sprite = skill?.Icon; detailsIcon.enabled = skill?.Icon != null; }
+            if (detailsBody != null) detailsBody.text = skill == null ? "Wybierz umiejętność z biblioteki, a następnie przypisz ją do wybranego slotu." : tooltipView?.BuildLoadoutSkillDetails(skill, character) ?? skill.TooltipDescription;
+            if (detailsCost != null) detailsCost.text = skill == null ? "" : UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, character);
+            var slots = character?.ActiveSkillLoadout?.ActiveSkillSlotIds;
+            if (assignmentSlot >= (slots?.Count ?? 0)) assignmentSlot = -1;
+            var targetSelected = assignmentSlot > 0;
+            var freeSlot = slots != null && slots.Skip(1).Any(string.IsNullOrWhiteSpace);
+            var canChange = session != null && character != null && !session.IsCharacterInCombat(character.CharacterId);
+            if (assignButton != null) { assignButton.gameObject.SetActive(skill != null && index < 0); assignButton.interactable = canChange && (targetSelected || freeSlot); }
+            if (removeButton != null) { removeButton.gameObject.SetActive(skill != null && index > 0); removeButton.interactable = canChange; }
+            if (assignButtonText != null) assignButtonText.text = targetSelected ? (string.IsNullOrWhiteSpace(slots[assignmentSlot]) ? $"Przypisz do slotu {FormatSlotLabel(assignmentSlot)}" : $"Zastąp slot {FormatSlotLabel(assignmentSlot)}") : "Przypisz";
+            if (detailsState != null) detailsState.text = index == 0 ? "Atak podstawowy • stały • 1" : index > 0 ? $"Aktywna • slot {FormatSlotLabel(index)}" : targetSelected ? $"Wybrany slot: {FormatSlotLabel(assignmentSlot)}" : freeSlot ? "Poza aktywnym zestawem" : "Zestaw pełny — wybierz slot do zastąpienia";
+            if (detailsScroll != null) detailsScroll.verticalNormalizedPosition = 1;
+        }
+
+        private void AssignSelectedSkill()
+        {
+            if (session == null || character == null || FindKnownSkill(selectedSkillId) == null || FindActiveIndex(selectedSkillId) >= 0) return;
+            var success = assignmentSlot > 0
+                ? loadoutSystem.TryAddSkillAtSlot(session, character.CharacterId, selectedSkillId, assignmentSlot)
+                : loadoutSystem.TryAddSkill(session, character.CharacterId, selectedSkillId);
+            // Occupied targets require the existing replacement operation.
+            if (!success && assignmentSlot > 0 && assignmentSlot < character.ActiveSkillLoadout.Capacity)
+                success = loadoutSystem.TryReplaceSkill(session, character.CharacterId, character.ActiveSkillLoadout.ActiveSkillSlotIds[assignmentSlot], selectedSkillId);
+            if (success) { assignmentSlot = -1; Refresh(); }
+        }
+
+        private void RemoveSelectedSkill()
+        {
+            if (session == null || character == null || FindActiveIndex(selectedSkillId) <= 0) return;
+            if (loadoutSystem.TryRemoveSkill(session, character.CharacterId, selectedSkillId)) { assignmentSlot = -1; Refresh(); }
+        }
+
+        private void UpdateDetailsLinkHover()
+        {
+            if (detailsBody == null || tooltipView == null || tooltipView.IsSkillTooltipSuppressed) return;
+            var canvas = detailsBody.canvas;
+            var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            var inside = detailsScroll?.viewport == null || RectTransformUtility.RectangleContainsScreenPoint(detailsScroll.viewport, Input.mousePosition, camera);
+            var hit = inside ? TMP_TextUtilities.FindIntersectingLink(detailsBody, Input.mousePosition, camera) : -1;
+            var id = hit < 0 ? null : detailsBody.textInfo.linkInfo[hit].GetLinkID();
+            if (id == hoveredDetailsLink) return;
+            tooltipView.NotifySourceExit(detailsBody);
+            hoveredDetailsLink = id;
+            if (id != null)
             {
-                Refresh();
-            }
-            else
-            {
-                card?.FlashInvalid();
+                tooltipView.InvalidateSource(detailsBody);
+                tooltipView.ShowGlossaryEntry(id, detailsBody);
             }
         }
 
@@ -543,10 +598,7 @@ namespace Godmist.Views.UI
             {
                 dragGhostRect = dragGhost.AddComponent<RectTransform>();
             }
-            var sourceRect = draggedCard?.GetComponent<RectTransform>();
-            dragGhostRect.sizeDelta = sourceRect != null
-                ? sourceRect.rect.size
-                : new Vector2(72f, 72f);
+            dragGhostRect.sizeDelta = new Vector2(72f, 72f);
             dragGhostRect.anchorMin = new Vector2(0.5f, 0.5f);
             dragGhostRect.anchorMax = new Vector2(0.5f, 0.5f);
             dragGhostRect.pivot = new Vector2(0.5f, 0.5f);
@@ -566,7 +618,7 @@ namespace Godmist.Views.UI
             background.type = background.sprite != null
                 ? Image.Type.Sliced
                 : Image.Type.Simple;
-            background.color = new Color32(0x1B, 0x27, 0x33, 0xF0);
+            background.color = Color.white;
             background.preserveAspect = false;
             background.raycastTarget = false;
 
@@ -689,6 +741,7 @@ namespace Godmist.Views.UI
 
             if (success)
             {
+                assignmentSlot = -1;
                 ResetDrag();
                 Refresh();
             }
@@ -722,6 +775,7 @@ namespace Godmist.Views.UI
                     draggedSkillId);
             if (success)
             {
+                assignmentSlot = -1;
                 ResetDrag();
                 Refresh();
             }
@@ -973,6 +1027,10 @@ namespace Godmist.Views.UI
                 if (root.GetChild(index) != template)
                 {
                     var child = root.GetChild(index).gameObject;
+                    var events = EventSystem.current;
+                    var selected = events != null ? events.currentSelectedGameObject : null;
+                    if (selected != null && selected.transform.IsChildOf(child.transform))
+                        events.SetSelectedGameObject(null);
                     child.SetActive(false);
                     Destroy(child);
                 }
@@ -1097,19 +1155,37 @@ namespace Godmist.Views.UI
         IPointerEnterHandler,
         IPointerExitHandler
     {
-        private static readonly Color ValidDropColor = new(0.24f, 0.62f, 0.39f, 0.9f);
-        private static readonly Color InvalidDropColor = new(0.78f, 0.29f, 0.27f, 0.9f);
+        private static readonly Color ValidDropColor = new(0.35f, 1f, 0.55f, 1f);
+        private static readonly Color InvalidDropColor = new(1f, 0.3f, 0.25f, 1f);
         private static readonly Color ActiveBorderColor = new(0.32f, 0.40f, 0.48f, 1f);
-        private static readonly Color HoverBorderColor = new(0.49f, 0.65f, 0.78f, 1f);
+        private static readonly Color HoverBorderColor = new(0.7f, 0.9f, 1f, 1f);
 
         [SerializeField] private Button button;
         [SerializeField] private Image background;
         [SerializeField] private Image borderImage;
         [SerializeField] private Image icon;
+        [SerializeField] private SkillIconShapeMask iconMask;
         [SerializeField] private TextMeshProUGUI fallbackGlyph;
         [SerializeField] private GameObject lockIcon;
         [SerializeField] private Image feedbackBorder;
         [SerializeField] private CanvasGroup sourceCanvasGroup;
+        [SerializeField] private TextMeshProUGUI slotStateText;
+        [SerializeField] private Image selectionBorder;
+        [SerializeField] private bool compactHover;
+        private CharacterInstance previewCharacter;
+        private bool selected;
+        public string SkillId => skill?.SkillId ?? string.Empty;
+        public void SetPresentation(CharacterInstance owner, string state, bool isSelected)
+        {
+            previewCharacter = owner;
+            if (slotStateText != null)
+            {
+                slotStateText.text = state ?? "";
+                slotStateText.transform.SetAsLastSibling();
+            }
+            SetSelected(isSelected);
+        }
+        public void SetSelected(bool value) { selected = value; if (selectionBorder != null) selectionBorder.enabled = value; }
         private Image basicSeparator;
         private Color defaultBackgroundColor;
         private SkillData skill;
@@ -1119,6 +1195,9 @@ namespace Godmist.Views.UI
         private bool isActive;
         private bool isBasic;
         private bool isEmpty;
+        private bool hovered;
+        private bool dropPreview;
+        private bool validDrop;
 
         public void Configure(
             SkillData sourceSkill,
@@ -1133,6 +1212,7 @@ namespace Godmist.Views.UI
             this.isActive = isActive;
             this.isBasic = isBasic;
             this.isEmpty = isEmpty;
+            hovered = dropPreview = false;
             tooltipView = sourceTooltipView != null && sourceTooltipView.isActiveAndEnabled
                 ? sourceTooltipView
                 : UIWorkspaceTooltipView.ActiveInstance;
@@ -1141,7 +1221,7 @@ namespace Godmist.Views.UI
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
-                button.interactable = !isBasic;
+                button.interactable = clickAction != null || !isBasic;
                 if (clickAction != null)
                 {
                     button.onClick.AddListener(() => clickAction.Invoke());
@@ -1152,13 +1232,13 @@ namespace Godmist.Views.UI
             {
                 icon.sprite = skill?.Icon;
                 icon.enabled = skill?.Icon != null && !isEmpty;
-                icon.preserveAspect = true;
+                icon.preserveAspect = iconMask == null;
             }
 
             if (fallbackGlyph != null)
             {
                 fallbackGlyph.gameObject.SetActive(
-                    isEmpty || (!isBasic && skill?.Icon == null));
+                    isEmpty || skill?.Icon == null);
                 fallbackGlyph.text = isEmpty ? "+" : "?";
             }
 
@@ -1181,10 +1261,8 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isEmpty)
-            {
-                SetFeedback(true, HoverBorderColor);
-            }
+            hovered = true;
+            RefreshFeedback();
 
             if (skill == null)
             {
@@ -1200,16 +1278,16 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            tooltipView.ShowSkill(skill, skill.ActionCost, this);
+            if (compactHover)
+                tooltipView.ShowText(skill.DisplayName, UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, previewCharacter), this);
+            else tooltipView.ShowSkill(skill, skill.ActionCost, this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             tooltipView?.NotifySourceExit(this);
-            if (!isEmpty)
-            {
-                ApplyBaseVisual();
-            }
+            hovered = false;
+            RefreshFeedback();
         }
 
         public void SetDragSource(bool isSource)
@@ -1223,13 +1301,9 @@ namespace Godmist.Views.UI
 
         public void SetDropPreview(bool isPreview, bool isValid)
         {
-            if (!isPreview)
-            {
-                ApplyBaseVisual();
-                return;
-            }
-
-            SetFeedback(true, isValid ? ValidDropColor : InvalidDropColor);
+            dropPreview = isPreview;
+            validDrop = isValid;
+            RefreshFeedback();
         }
 
         public void FlashInvalid()
@@ -1267,7 +1341,7 @@ namespace Godmist.Views.UI
         {
             if (background != null)
             {
-                background.color = defaultBackgroundColor;
+                background.color = compactHover && isEmpty ? new Color(.6f, .65f, .65f, 1f) : defaultBackgroundColor;
             }
 
             if (icon != null)
@@ -1277,14 +1351,13 @@ namespace Godmist.Views.UI
 
             if (borderImage != null)
             {
-                borderImage.color = ActiveBorderColor;
+                borderImage.color = compactHover ? (isEmpty ? new Color(.6f, .65f, .65f, 1f) : Color.white) : ActiveBorderColor;
                 borderImage.enabled = true;
             }
 
-            if (feedbackBorder != null)
-            {
-                feedbackBorder.enabled = false;
-            }
+            if (selectionBorder != null) selectionBorder.enabled = selected;
+            RefreshFeedback();
+            if (compactHover && fallbackGlyph != null) fallbackGlyph.color = isEmpty ? new Color(.6f, .63f, .58f, 1f) : Color.white;
             if (lockIcon != null)
             {
                 lockIcon.SetActive(isBasic && !isEmpty);
@@ -1304,6 +1377,13 @@ namespace Godmist.Views.UI
                 feedbackBorder.enabled = enabled;
             }
 
+        }
+
+        private void RefreshFeedback()
+        {
+            SetFeedback(dropPreview || hovered, dropPreview
+                ? validDrop ? ValidDropColor : InvalidDropColor
+                : HoverBorderColor);
         }
 
         private void ConfigureFeedbackBorder()

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.NPC;
@@ -18,7 +19,17 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button questButtonTemplate;
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TextMeshProUGUI detailsText;
-        [SerializeField] private TextMeshProUGUI rewardText;
+        [SerializeField] private TextMeshProUGUI windowTitleText;
+        [SerializeField] private TextMeshProUGUI metadataText;
+        [SerializeField] private TextMeshProUGUI objectiveText;
+        [SerializeField] private TextMeshProUGUI progressText;
+        [SerializeField] private GameObject progressRoot;
+        [SerializeField] private Image progressFill;
+        [SerializeField] private GameObject rewardsRoot;
+        [SerializeField] private TextMeshProUGUI experienceText;
+        [SerializeField] private TextMeshProUGUI goldText;
+        [SerializeField] private TextMeshProUGUI honorText;
+        [SerializeField] private MissionRewardItemView rewardItem;
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private Button actionButton;
         [SerializeField] private TextMeshProUGUI actionButtonText;
@@ -54,7 +65,9 @@ namespace Godmist.Views.UI.Workspace
                 || !session.TrySetMode(GameModeState.Menu)) return false;
 
             selectedQuestId = CatacombsMissionBoard.KillQuestId;
+            service.EnsureMissionBoard();
             messageText.text = string.Empty;
+            if (windowTitleText != null) windowTitleText.text = "Zlecenia";
             window.Open();
             Refresh();
             return true;
@@ -62,44 +75,44 @@ namespace Godmist.Views.UI.Workspace
 
         private void Refresh()
         {
+            if (windowTitleText != null) windowTitleText.text = "Zlecenia";
             for (var i = questList.childCount - 1; i >= 0; i--)
             {
                 var child = questList.GetChild(i);
                 if (child == questButtonTemplate.transform) continue;
-                Destroy(child.gameObject);
+                child.gameObject.SetActive(false);
+                if (Application.isPlaying) Destroy(child.gameObject);
+                else DestroyImmediate(child.gameObject);
             }
 
             QuestInstance firstVisible = null;
+            if (!session.TryGetQuest(selectedQuestId, out var selected) || !IsVisible(selected))
+                selectedQuestId = null;
             foreach (var questId in CatacombsMissionBoard.QuestIds)
             {
                 if (!session.TryGetQuest(questId, out var quest)
                     || !IsVisible(quest)) continue;
                 service.EnsureRadiantRewardOffer(questId);
                 firstVisible ??= quest;
+                selectedQuestId ??= questId;
                 var row = Instantiate(questButtonTemplate, questList);
                 row.gameObject.SetActive(true);
                 var rowTitle = row.transform.Find("TextRoot/Title")?.GetComponent<TextMeshProUGUI>();
                 var rowDetail = row.transform.Find("TextRoot/Detail")?.GetComponent<TextMeshProUGUI>();
                 var rowBorder = row.transform.Find("Border")?.GetComponent<Image>();
-                if (rowTitle != null) rowTitle.text = quest.Definition.DisplayName;
-                if (rowDetail != null) rowDetail.text = $"Poziom {quest.RadiantRewardOffer?.Level ?? 0} · "
-                    + (quest.Status switch
-                    {
-                        QuestStatus.Active => "W trakcie",
-                        QuestStatus.Completed => "Odbierz nagrodę",
-                        _ => "Dostępne"
-                    });
+                if (rowTitle != null) rowTitle.text = quest.DisplayName;
+                if (rowDetail != null) rowDetail.text = Metadata(quest);
                 if (rowBorder != null && questId == selectedQuestId)
                 {
                     var palette = row.GetComponent<UIWorkspaceStyleApplier>()?.Palette;
                     if (palette != null)
-                        rowBorder.color = palette.GetAccentColor(UIWorkspaceAccentStyle.Selected);
+                        palette.ApplyFrameAccent(rowBorder, UIWorkspaceAccentStyle.Selected);
                 }
                 var capturedId = questId;
                 row.onClick.AddListener(() => Select(capturedId));
             }
 
-            if (!session.TryGetQuest(selectedQuestId, out var selected)
+            if (!session.TryGetQuest(selectedQuestId, out selected)
                 || !IsVisible(selected))
             {
                 selected = firstVisible;
@@ -124,39 +137,49 @@ namespace Godmist.Views.UI.Workspace
             if (quest == null)
             {
                 titleText.text = "Brak dostępnych zleceń";
-                detailsText.text = "Wróć, gdy pojawią się nowe wyprawy.";
-                rewardText.text = string.Empty;
+                detailsText.text = string.Empty;
+                metadataText.text = objectiveText.text = string.Empty;
+                progressRoot.SetActive(false);
+                rewardsRoot.SetActive(false);
+                rewardItem.Bind(null);
                 actionButton.interactable = false;
                 actionButtonText.text = "Brak zlecenia";
                 return;
             }
 
-            titleText.text = quest.Definition.DisplayName;
-            var offer = quest.RadiantRewardOffer;
-            detailsText.text = quest.Definition.Description;
+            titleText.text = quest.DisplayName;
+            var offer = quest.EffectiveRadiantRewardOffer;
+            metadataText.text = Metadata(quest);
+            var description = quest.Description ?? string.Empty;
+            var sentenceEnd = description.IndexOf('.');
+            objectiveText.text = sentenceEnd >= 0 ? description.Substring(0, sentenceEnd + 1) : description;
+            detailsText.text = sentenceEnd >= 0 ? description.Substring(sentenceEnd + 1).Trim() : string.Empty;
             if (offer != null)
-                detailsText.text += $"\nPoziom zlecenia: {offer.Level}. "
-                    + "Liczą się wyprawy na tym lub wyższym poziomie.";
-            if (quest.QuestId == CatacombsMissionBoard.BossQuestId)
+                detailsText.text += (detailsText.text.Length > 0 ? "\n" : string.Empty)
+                    + $"Poziom wyprawy: {offer.Level} lub wyższy.";
+            progressRoot.SetActive(quest.Status is QuestStatus.Active or QuestStatus.Completed);
+            var progressLines = new StringBuilder();
+            var current = 0;
+            var required = 0;
+            foreach (var objective in quest.CurrentStage.Objectives)
             {
-                var level = offer?.Level ?? CatacombsMissionBoard.BossOfferLevel(session);
-                if (level > 0) detailsText.text += $"\nWyprawa z bossem: poziom {level}.";
+                if (objective == null) continue;
+                quest.TryGetObjectiveProgress(objective.ObjectiveId, out var progress);
+                var amount = Math.Clamp(progress?.CurrentAmount ?? 0, 0, objective.RequiredAmount);
+                if (progressLines.Length > 0) progressLines.AppendLine();
+                progressLines.Append($"{objective.Description.TrimEnd('.')}  {amount}/{objective.RequiredAmount}");
+                current += amount;
+                required += objective.RequiredAmount;
             }
-            if (quest.Status == QuestStatus.Active)
-            {
-                foreach (var objective in quest.CurrentStage.Objectives)
-                {
-                    if (objective == null) continue;
-                    quest.TryGetObjectiveProgress(objective.ObjectiveId, out var progress);
-                    detailsText.text += $"\n{objective.Description}: {progress?.CurrentAmount ?? 0}/{objective.RequiredAmount}";
-                }
-            }
-
-            rewardText.text = offer == null ? "Nagroda niedostępna." :
-                $"Nagroda: {offer.Experience:N0} doświadczenia, {offer.Gold:N0} złota\n"
-                + $"{offer.Honor} honoru"
-                + (offer.BonusItem == null ? "\nBez dodatkowego przedmiotu"
-                    : $"\nPrzedmiot: {offer.BonusItem.DisplayName}");
+            progressText.text = progressLines.ToString();
+            progressFill.fillAmount = required > 0 ? (float)current / required : 0;
+            progressFill.color = quest.Status == QuestStatus.Completed
+                ? new Color32(112, 202, 91, 255) : new Color32(93, 183, 210, 255);
+            rewardsRoot.SetActive(offer != null);
+            experienceText.text = offer?.Experience.ToString("N0") ?? string.Empty;
+            goldText.text = offer?.Gold.ToString("N0") ?? string.Empty;
+            honorText.text = offer?.Honor.ToString() ?? string.Empty;
+            rewardItem.Bind(offer?.BonusItem);
 
             actionButton.interactable = quest.Status is QuestStatus.Unavailable
                 or QuestStatus.Available or QuestStatus.Completed;
@@ -166,6 +189,17 @@ namespace Godmist.Views.UI.Workspace
                 QuestStatus.Active => "W trakcie",
                 _ => "Przyjmij zlecenie"
             };
+        }
+
+        private static string Metadata(QuestInstance quest)
+        {
+            var status = quest.Status switch
+            {
+                QuestStatus.Active => "<color=#70C9DF>W trakcie</color>",
+                QuestStatus.Completed => "<color=#70CA5B>Do odebrania</color>",
+                _ => "Dostępne"
+            };
+            return $"Poziom {quest.RadiantRewardOffer?.Level ?? 0} • {status}";
         }
 
         private void Act()
@@ -181,8 +215,8 @@ namespace Godmist.Views.UI.Workspace
                     && service.TryStartQuest(quest.QuestId),
                 _ => false
             };
-            messageText.text = success ? "Zapisano zlecenie." : "Nie można teraz wykonać tej czynności.";
-            if (success) GameBootstrap.Instance?.RequestAutosave("Zlecenie Katakumb");
+            messageText.text = success ? string.Empty : "Nie można teraz wykonać tej czynności.";
+            if (success) GameBootstrap.Instance?.RequestAutosave("Zlecenie");
             Refresh();
         }
     }

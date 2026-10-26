@@ -19,7 +19,7 @@ namespace Godmist.Views.UI.Workspace
     /// <summary>
     /// UIW item slot used by the trade service. The slot deliberately has no
     /// permanent transaction button: left click and drag-and-drop are the two
-    /// transaction affordances, while the tooltip carries the price.
+    /// transaction affordances (double click / Shift for a stack), while the tooltip carries the price.
     /// </summary>
     public sealed class TradeItemSlotView : MonoBehaviour,
         IPointerClickHandler,
@@ -30,12 +30,14 @@ namespace Godmist.Views.UI.Workspace
         IPointerExitHandler
     {
         [SerializeField] private Button button;
+        private ItemRarityBorderGraphic rarityBorder;
         [SerializeField] private Image icon;
         [SerializeField] private Image border;
         [SerializeField] private Image unavailableOverlay;
         [SerializeField] private TextMeshProUGUI countText;
 
         [SerializeField] private Image countBackground;
+        [SerializeField] private Image saleProtectionBadge;
 
         private TradeServiceWindowView owner;
         private string tooltipExtra;
@@ -71,15 +73,17 @@ namespace Godmist.Views.UI.Workspace
             AutoWire();
             owner = nextOwner;
             Item = item;
+            ItemRarityPresentation.ApplyBorder(ref rarityBorder, transform as RectTransform, item);
             BuybackEntry = buybackEntry;
             Source = source;
+            if (saleProtectionBadge != null) saleProtectionBadge.gameObject.SetActive(item?.IsSaleProtected == true);
             tooltipOwner = nextTooltipOwner;
             tooltipExtra = priceLabel ?? string.Empty;
             tooltipPrice = nextTooltipPrice;
 
             if (icon != null)
             {
-                icon.sprite = item?.Definition?.Icon;
+                icon.sprite = ItemIconPresentation.GetIcon(item);
                 icon.enabled = icon.sprite != null;
                 icon.preserveAspect = true;
             }
@@ -105,9 +109,9 @@ namespace Godmist.Views.UI.Workspace
                     ?? GetComponentInChildren<UIWorkspaceStyleApplier>()?.Palette;
                 if (palette != null)
                 {
-                    border.color = unavailable
-                        ? palette.GetAccentColor(UIWorkspaceAccentStyle.Negative)
-                        : palette.GetAccentColor(UIWorkspaceAccentStyle.Neutral);
+                    palette.ApplyFrameAccent(border, unavailable
+                        ? UIWorkspaceAccentStyle.Negative
+                        : UIWorkspaceAccentStyle.Neutral);
                 }
             }
 
@@ -125,15 +129,19 @@ namespace Godmist.Views.UI.Workspace
         {
             if (eventData?.button == PointerEventData.InputButton.Left)
             {
-                owner?.TryHandleClick(this);
+                owner?.TryHandleClick(this, eventData);
             }
+            else if (eventData?.button == PointerEventData.InputButton.Right) owner?.ShowItemMenu(this, eventData.position);
         }
 
-        public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(this, eventData);
+        public void OnBeginDrag(PointerEventData eventData)
+        { if (eventData.button == PointerEventData.InputButton.Left) owner?.BeginDrag(this, eventData); }
 
-        public void OnDrag(PointerEventData eventData) => owner?.UpdateDrag(eventData);
+        public void OnDrag(PointerEventData eventData)
+        { if (eventData.button == PointerEventData.InputButton.Left) owner?.UpdateDrag(eventData); }
 
-        public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag(this, eventData);
+        public void OnEndDrag(PointerEventData eventData)
+        { if (eventData.button == PointerEventData.InputButton.Left) owner?.EndDrag(this, eventData); }
 
         public void OnPointerEnter(PointerEventData eventData)
         {

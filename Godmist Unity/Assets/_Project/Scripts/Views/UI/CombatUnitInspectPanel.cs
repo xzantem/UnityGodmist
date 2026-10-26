@@ -39,7 +39,7 @@ namespace Godmist.Views.UI
 
             if (portrait != null)
             {
-                portrait.sprite = character.Definition.VisualSprite;
+                portrait.sprite = character.Definition.UiPortraitSprite;
             }
 
             SetSliderValue(healthSlider, character.CurrentHealth, maxHealth);
@@ -50,6 +50,7 @@ namespace Godmist.Views.UI
             if (resource != null)
             {
                 CombatResourceColors.ApplyToFill(resourceSlider, resource.ResourceType);
+                resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);
             }
 
             if (healthValueText != null)
@@ -127,8 +128,7 @@ namespace Godmist.Views.UI
 
         private static string FormatHealthValue(float health, float maximumHealth, int shield)
         {
-            var value = $"{health:0}/{maximumHealth:0}";
-            return shield > 0 ? $"{value} (+{shield})" : value;
+            return CombatHealthPresentation.Format(health, maximumHealth, shield);
         }
     }
 }

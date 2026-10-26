@@ -38,7 +38,10 @@ namespace Godmist.Views.UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
-            tooltip?.ShowSkill(skill, actionCost, this, caster);
+            if(Mathf.Max(caster?.MaxActionPoints??0,caster?.CurrentActionPoints??0)>0)
+                tooltip?.ShowSkill(skill, actionCost, this, caster);
+            else
+                tooltip?.ShowLoadoutSkillDetails(skill,caster?.Character,this,null);
         }
 
         public void OnPointerExit(PointerEventData eventData)

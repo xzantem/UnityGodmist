@@ -21,6 +21,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button buyButton;
         [SerializeField] private TextMeshProUGUI buyPriceText;
 
+        private ItemRarityBorderGraphic rarityBorder;
         private string tooltipTitle;
         private string tooltipBody;
         private ItemInstance tooltipItem;
@@ -30,6 +31,8 @@ namespace Godmist.Views.UI.Workspace
         private string tooltipMeta;
         private bool selectedState;
         private bool missingState;
+        private bool hoveredState;
+        private bool selectionInteractable = true;
         private CraftingMaterialPurchaseState purchaseState;
 
         public void SetIcon(Sprite nextIcon)
@@ -49,6 +52,7 @@ namespace Godmist.Views.UI.Workspace
         public void SetTooltip(string nextTooltipTitle, string nextTooltipBody, string nextTooltipMeta)
         {
             tooltipItem = null;
+            SetRarity(null);
             tooltipOwner = null;
             tooltipExtraBody = string.Empty;
             tooltipPrice = null;
@@ -65,7 +69,7 @@ namespace Godmist.Views.UI.Workspace
         /// <summary>Uses the normal inventory/trade tooltip for a catalog item.</summary>
         public void SetDefinitionTooltip(ItemDefinition definition, string extraBody = "", int? contextPrice = null)
         {
-            if (definition == null) return;
+            if (definition == null) { SetItemTooltip(null, null); return; }
             SetItemTooltip(new ItemInstance(definition), null, extraBody, contextPrice);
         }
 
@@ -76,15 +80,39 @@ namespace Godmist.Views.UI.Workspace
             int? contextPrice = null)
         {
             tooltipItem = item;
+            SetRarity(item?.CurrentRarity);
             tooltipOwner = owner;
             tooltipExtraBody = extraBody ?? string.Empty;
             tooltipPrice = contextPrice;
             tooltipMeta = string.Empty;
         }
 
+        public void SetRarity(Godmist.Core.Enums.RarityTier? rarity)
+        {
+            ItemRarityPresentation.ApplyBorder(ref rarityBorder,
+                button != null ? button.transform as RectTransform : transform as RectTransform, rarity);
+        }
+
         public void SetSelected(bool selected)
         {
             selectedState = selected;
+            RefreshBorderColor();
+        }
+
+        public void SetSelectionInteractable(bool interactable, float disabledBrightness = .4f)
+        {
+            selectionInteractable = interactable;
+            var rootButton = GetComponent<Button>();
+            if (rootButton != null) rootButton.interactable = interactable;
+            disabledBrightness = Mathf.Clamp01(disabledBrightness);
+            if (icon != null) icon.color = interactable ? Color.white
+                : new Color(disabledBrightness, disabledBrightness, disabledBrightness, 1f);
+            if (countText != null)
+            {
+                var color = countText.color;
+                color.a = interactable ? 1f : Mathf.Clamp01(disabledBrightness + .05f);
+                countText.color = color;
+            }
             RefreshBorderColor();
         }
 
@@ -112,6 +140,9 @@ namespace Godmist.Views.UI.Workspace
             {
                 countText.gameObject.SetActive(!string.IsNullOrWhiteSpace(countLabel));
                 countText.text = countLabel ?? string.Empty;
+                countText.color = buyButton != null
+                    ? missing ? new Color32(230, 163, 111, 255) : new Color32(112, 199, 135, 255)
+                    : new Color32(223, 215, 184, 255);
             }
 
             RefreshBorderColor();
@@ -150,9 +181,6 @@ namespace Godmist.Views.UI.Workspace
             if (buyPriceText != null)
             {
                 buyPriceText.text = buyLabel ?? string.Empty;
-                var priceRect = buyPriceText.rectTransform;
-                priceRect.offsetMin = new Vector2(2f, priceRect.offsetMin.y);
-                priceRect.offsetMax = new Vector2(-2f, priceRect.offsetMax.y);
                 buyPriceText.alignment = TextAlignmentOptions.Center;
                 buyPriceText.verticalAlignment = VerticalAlignmentOptions.Middle;
                 buyPriceText.textWrappingMode = TextWrappingModes.NoWrap;
@@ -173,15 +201,28 @@ namespace Godmist.Views.UI.Workspace
                 or CraftingMaterialPurchaseState.OutOfStock
                 ? UIWorkspaceAccentStyle.Negative
                 : UIWorkspaceAccentStyle.Warning;
-            border.color = missingState
-                ? palette.GetAccentColor(missingAccent)
+            var accent = missingState
+                ? missingAccent
                 : selectedState
-                    ? palette.GetAccentColor(UIWorkspaceAccentStyle.Selected)
-                    : palette.GetAccentColor(UIWorkspaceAccentStyle.Neutral);
+                    ? UIWorkspaceAccentStyle.Selected
+                    : buyButton != null
+                        ? UIWorkspaceAccentStyle.Positive
+                        : hoveredState ? UIWorkspaceAccentStyle.Hover : UIWorkspaceAccentStyle.Neutral;
+            palette.ApplyFrameAccent(border, accent, !selectionInteractable);
+            // Other services still use a plain surface with their frame on this layer.
+            if (accent == UIWorkspaceAccentStyle.Neutral
+                && button != null && button.targetGraphic is Image surface
+                && surface.sprite != palette.GetArtwork("item_frame")) border.enabled = true;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            hoveredState = true;
+            RefreshBorderColor();
+            // Pointer-enter also visits ancestors. Keep the fraction explanation
+            // when entering a material card directly through its counter.
+            if (eventData?.pointerEnter != null
+                && eventData.pointerEnter.GetComponent<MaterialCraftingCountTooltipView>() != null) return;
             if (tooltipItem != null)
             {
                 if (string.IsNullOrWhiteSpace(tooltipExtraBody))
@@ -196,7 +237,11 @@ namespace Godmist.Views.UI.Workspace
                 tooltipTitle, tooltipBody, this, tooltipMeta);
         }
 
-        public void OnPointerExit(PointerEventData eventData) =>
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            hoveredState = false;
+            RefreshBorderColor();
             UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(this);
+        }
     }
 }

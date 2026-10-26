@@ -18,6 +18,16 @@ namespace Godmist.Views.UI.Workspace
 
         public UIWorkspaceStylePalette Palette => palette;
 
+        /// <summary>
+        /// Allows runtime-composed panels to reuse the authored slider prefab
+        /// with the same palette treatment as serialized workspace sliders.
+        /// </summary>
+        public void SetStyle(UIWorkspaceSliderStyle style)
+        {
+            sliderStyle = style;
+            Apply();
+        }
+
         private void OnEnable()
         {
             Apply();
@@ -38,12 +48,14 @@ namespace Godmist.Views.UI.Workspace
 
             if (backgroundImage != null)
             {
-                backgroundImage.color = palette.GetSurfaceColor(UIWorkspaceSurfaceStyle.Raised);
+                backgroundImage.color = palette.IsArtwork(backgroundImage.sprite)
+                    ? Color.white : palette.GetSurfaceColor(UIWorkspaceSurfaceStyle.Raised);
             }
 
             if (fillImage != null)
             {
-                fillImage.color = palette.GetAccentColor(GetFillAccentStyle(sliderStyle));
+                fillImage.color = palette.IsArtwork(fillImage.sprite) && fillImage.sprite.name == "fill_gold"
+                    ? Color.white : palette.GetAccentColor(GetFillAccentStyle(sliderStyle));
             }
         }
 

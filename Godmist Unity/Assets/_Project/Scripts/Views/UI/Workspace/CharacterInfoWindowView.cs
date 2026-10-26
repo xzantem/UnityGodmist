@@ -7,6 +7,7 @@ using Godmist.Runtime.Items;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 using Godmist.Views.UI;
+using Godmist.Views.Characters;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -23,6 +24,9 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Image portrait;
         [SerializeField] private TextMeshProUGUI identityText;
         [SerializeField] private TextMeshProUGUI progressionText;
+        [SerializeField] private TextMeshProUGUI experienceValueText;
+        [SerializeField] private TextMeshProUGUI honorValueText;
+        [SerializeField] private TextMeshProUGUI goldValueText;
         [SerializeField] private TextMeshProUGUI healthResourceText;
         [SerializeField] private TextMeshProUGUI statsText;
         [SerializeField] private TextMeshProUGUI resistancesText;
@@ -37,6 +41,24 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private SkillLoadoutModalView skillLoadoutWindowPrefab;
         [SerializeField] private Button skillTreeButton;
         [SerializeField] private SkillTreeProgressionPanelView skillTreeWindowPrefab;
+        [SerializeField] private Image experienceFill;
+        [SerializeField] private Image healthFill;
+        private Image shieldOverlay;
+        [SerializeField] private Image resourceFill;
+        [SerializeField] private TMP_Text inventoryEmptyText;
+        [SerializeField] private Button clearSearchButton;
+        [SerializeField] private PartyRailMenuView equipmentMenuPrefab;
+        [SerializeField] private ItemActionPopupView itemActionPopupPrefab;
+        private ItemActionPopupView itemActionPopup;
+        [SerializeField] private GameObject itemDetailsPanel;
+        [SerializeField] private RectTransform inventoryScrollRect;
+        [SerializeField] private TMP_Text itemDetailsTitle, itemDetailsBody, itemDetailsMeta;
+        [SerializeField] private Image itemDetailsIcon;
+        [SerializeField] private Button closeItemDetailsButton;
+        [SerializeField] private ScrollRect itemDetailsScroll;
+        private CharacterInfoEquipmentSlotView selectedEquipmentSlot;
+        private EquipmentItemInstance pinnedItem;
+        private PartyRailMenuView equipmentMenu;
 
         private readonly InventoryService inventoryService = new();
         private readonly EquipmentService equipmentService = new();
@@ -47,6 +69,9 @@ namespace Godmist.Views.UI.Workspace
 
         private GameSession session;
         private CharacterInstance character;
+        private CharacterInstance experienceSource;
+        private TMP_Text developmentButtonLabel;
+        private int displayedDevelopmentPoints = int.MinValue;
         private ItemInstance draggedItem;
         private CharacterInfoEquipmentSlotView draggedEquipmentSlot;
         private GameObject dragGhost;
@@ -60,12 +85,19 @@ namespace Godmist.Views.UI.Workspace
         {
             if (!Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item)
                 || character?.Inventory.Items.Contains(item) != true) return;
+            UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             var reason = CampAction?.Invoke(character.CharacterId, item.InstanceId) ?? "Obóz można rozbić tylko w lochu.";
-            UIWorkspaceTooltipView.ActiveInstance?.ShowCompactText("Obóz",
-                string.IsNullOrEmpty(reason) ? "Drużyna odpoczęła. Zużyto jeden zestaw obozowy." : reason, this);
             Refresh();
+            if (!string.IsNullOrEmpty(reason))
+            {
+                var root = window?.Manager?.WorkspaceRoot;
+                if (itemActionPopup == null && root != null && itemActionPopupPrefab != null)
+                    itemActionPopup = Instantiate(itemActionPopupPrefab, root);
+                itemActionPopup?.ShowNotice(reason);
+            }
         }
         public CharacterInstance Character => character;
+        public SkillTreeProgressionPanelView DevelopmentWindowPrefab => skillTreeWindowPrefab;
 
         public bool MeetsEquipmentRequirements(EquipmentItemInstance item) =>
             character != null && EquipmentService.MeetsRequirements(character, item);
@@ -78,6 +110,13 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDisable()
         {
+            if (experienceSource != null) experienceSource.ExperienceGained -= OnExperienceGained;
+            experienceSource = null;
+            UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
+            itemActionPopup?.HideAll();
+            equipmentMenu?.Hide();
+            CloseItemDetails();
+            if (draggedItem != null || draggedEquipmentSlot != null || dragGhost != null) EndDrag();
             OpenWindows.Remove(this);
             if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
         }
@@ -88,6 +127,9 @@ namespace Godmist.Views.UI.Workspace
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.AddListener(_ => RefreshInventory());
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.AddListener(OpenSkillLoadout);
             if (skillTreeButton != null) skillTreeButton.onClick.AddListener(OpenSkillTree);
+            if (clearSearchButton != null) clearSearchButton.onClick.AddListener(ClearInventorySearch);
+            if (closeItemDetailsButton != null) closeItemDetailsButton.onClick.AddListener(CloseItemDetails);
+            if (itemDetailsPanel != null) itemDetailsPanel.SetActive(false);
 
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
             {
@@ -97,6 +139,10 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDestroy()
         {
+            if (itemActionPopup != null) DestroyView(itemActionPopup.gameObject);
+            if (equipmentMenu != null) DestroyView(equipmentMenu.gameObject);
+            if (clearSearchButton != null) clearSearchButton.onClick.RemoveListener(ClearInventorySearch);
+            if (closeItemDetailsButton != null) closeItemDetailsButton.onClick.RemoveListener(CloseItemDetails);
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.RemoveAllListeners();
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.RemoveListener(OpenSkillLoadout);
             if (skillTreeButton != null) skillTreeButton.onClick.RemoveListener(OpenSkillTree);
@@ -104,16 +150,23 @@ namespace Godmist.Views.UI.Workspace
 
         public void Initialize(GameSession nextSession, string characterId)
         {
+            UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
+            itemActionPopup?.HideAll();
             if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
+            CloseItemDetails();
             session = nextSession;
-            SubscribeToProgression();
+            character = null;
             session?.CharactersById.TryGetValue(characterId, out character);
+            SubscribeToProgression();
             Refresh();
             window?.Focus();
         }
 
         private void SubscribeToProgression()
         {
+            if (experienceSource != null) experienceSource.ExperienceGained -= OnExperienceGained;
+            experienceSource = isActiveAndEnabled ? character : null;
+            if (experienceSource != null) experienceSource.ExperienceGained += OnExperienceGained;
             if (session == null || !isActiveAndEnabled) return;
             session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
             session.CharacterProgressionChanged += OnCharacterProgressionChanged;
@@ -123,11 +176,134 @@ namespace Godmist.Views.UI.Workspace
         {
             if (isActiveAndEnabled && character?.CharacterId == characterId) Refresh();
         }
+        private void OnExperienceGained(int amount, int levels) { if (isActiveAndEnabled) Refresh(); }
 
-        private void LateUpdate() => RefreshProgressionButtons();
+        private void LateUpdate()
+        {
+            RefreshProgressionButtons();
+            if (character != null) RefreshVitals();
+        }
+
+        public void ClearInventorySearch()
+        {
+            if (inventorySearchInput != null) inventorySearchInput.text = string.Empty;
+        }
+
+        public void SelectEquipmentSlot(CharacterInfoEquipmentSlotView slot)
+        {
+            selectedEquipmentSlot = slot;
+            pinnedItem = slot?.Item;
+            foreach (var entry in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
+                entry?.SetSelected(entry == slot);
+            RefreshItemDetails();
+            UIWorkspaceTooltipView.ActiveInstance?.Hide();
+        }
+
+        public void CloseItemDetails()
+        {
+            selectedEquipmentSlot = null;
+            pinnedItem = null;
+            foreach (var entry in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) entry?.SetSelected(false);
+            if (itemDetailsPanel != null) itemDetailsPanel.SetActive(false);
+            SetInventoryDetailsInset(false);
+        }
+
+        private void SetInventoryDetailsInset(bool visible)
+        {
+            if (inventoryScrollRect != null)
+                inventoryScrollRect.offsetMin = new Vector2(inventoryScrollRect.offsetMin.x, visible ? 406 : 86);
+        }
+
+        private ItemRarityBorderGraphic itemDetailsRarityBorder;
+
+        private void RefreshItemDetails()
+        {
+            if (itemDetailsPanel == null) return;
+            if (pinnedItem?.Definition == null || selectedEquipmentSlot == null
+                || !ReferenceEquals(character?.Equipment?.GetItem(selectedEquipmentSlot.Slot), pinnedItem))
+            { CloseItemDetails(); return; }
+            itemDetailsPanel.SetActive(true);
+            SetInventoryDetailsInset(true);
+            itemDetailsTitle.text = ItemRarityPresentation.Name(pinnedItem);
+            itemDetailsIcon.sprite = ItemIconPresentation.GetIcon(pinnedItem);
+            ItemRarityPresentation.ApplyBorder(ref itemDetailsRarityBorder, itemDetailsIcon.rectTransform, pinnedItem, 0f);
+            itemDetailsIcon.enabled = itemDetailsIcon.sprite != null;
+            itemDetailsBody.text = UIWorkspaceTooltipView.BuildEquipmentDetails(pinnedItem, character);
+            itemDetailsMeta.text = UIWorkspaceTooltipView.BuildItemMeta(pinnedItem);
+            if (itemDetailsScroll != null) itemDetailsScroll.verticalNormalizedPosition = 1;
+        }
+
+        public void ShowEquipmentMenu(CharacterInfoEquipmentSlotView slot, Vector2 screenPosition)
+        {
+            if (slot?.Item != null) ShowItemMenu(slot.Item, screenPosition);
+        }
+
+        public void ShowItemMenu(ItemInstance item, Vector2 position)
+        {
+            if (session == null || !ItemOwnershipActions.Owns(character, item)) return;
+            var root = window?.Manager?.WorkspaceRoot;
+            if (root == null || itemActionPopupPrefab == null) return;
+            if (itemActionPopup == null) itemActionPopup = Instantiate(itemActionPopupPrefab, root);
+            var entries = new List<PartyRailMenuView.Entry>();
+            var free = !session.IsCharacterInCombat(character.CharacterId);
+            string hint = null;
+            if (item is EquipmentItemInstance equipment)
+            {
+                var equipped = ReferenceEquals(character.Equipment?.GetItem(equipment.EquipmentSlot), equipment);
+                var canStore = !equipped || inventoryService.CanAddItem(character.Inventory, item);
+                if (free && !canStore) hint = "Brak miejsca w plecaku.";
+                entries.Add(new PartyRailMenuView.Entry(equipped ? "Zdejmij" : "Załóż", () =>
+                {
+                    if (!ItemOwnershipActions.Owns(character, item) || session.IsCharacterInCombat(character.CharacterId)) return;
+                    var success = equipped ? ReferenceEquals(character.Equipment.GetItem(equipment.EquipmentSlot), item)
+                        && equipmentService.TryUnequip(character, equipment.EquipmentSlot)
+                        : equipmentService.TryEquip(character, item.InstanceId);
+                    if (success) itemActionPopup.RefreshOwners(session);
+                    else itemActionPopup.ShowNotice("Nie można zmienić wyposażenia. Sprawdź wymagania i miejsce w plecaku.");
+                }, free && canStore && (equipped || EquipmentService.MeetsRequirements(character, equipment))));
+            }
+            else if (Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item))
+                entries.Add(new PartyRailMenuView.Entry("Rozbij obóz", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseCampingKit(item); }, free));
+            else if (item is LootBagItemInstance)
+                entries.Add(new PartyRailMenuView.Entry("Otwórz", () => { if (ItemOwnershipActions.Owns(character, item)) TryOpenLootBag(item); }, free));
+            else if (item is ConsumableItemInstance consumable)
+                entries.Add(new PartyRailMenuView.Entry(consumable.IsFood ? "Zjedz" : "Użyj", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseConsumable(item); }, free));
+            itemActionPopup.AddOwnedEntries(entries, session, character, item, null);
+            itemActionPopup.ShowMenu(position, entries, item, hint);
+        }
+
+        private void RefreshVitals()
+        {
+            var maximum = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+            var resource = character.ResourcePool;
+            healthResourceText.text = $"<line-height=44>Zdrowie<pos=180>{CombatHealthPresentation.Format(character)}"
+                + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{resource.CurrentValue}/{resource.MaxValue}") + "</line-height>";
+            if (healthFill != null) healthFill.fillAmount = maximum > 0 ? Mathf.Clamp01((float)character.CurrentHealth / maximum) : 0;
+            CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthFill,
+                character.ShieldPool?.TotalShield ?? 0, maximum);
+            if (resourceFill != null)
+            {
+                resourceFill.gameObject.SetActive(resource != null);
+                resourceFill.color = resource == null ? Color.clear : CombatResourceColors.Get(resource.ResourceType);
+                resourceFill.fillAmount = resource?.MaxValue > 0 ? Mathf.Clamp01((float)resource.CurrentValue / resource.MaxValue) : 0;
+            }
+        }
+        private static void DestroyView(GameObject node)
+        {
+            if (Application.isPlaying) Destroy(node);
+            else DestroyImmediate(node);
+        }
 
         private void RefreshProgressionButtons()
         {
+            if (developmentButtonLabel == null && skillTreeButton != null)
+                developmentButtonLabel = skillTreeButton.GetComponentInChildren<TMP_Text>(true);
+            var points = Mathf.Max(0, character?.AvailableSkillPoints ?? 0);
+            if (developmentButtonLabel != null && displayedDevelopmentPoints != points)
+            {
+                displayedDevelopmentPoints = points;
+                developmentButtonLabel.text = points > 0 ? $"Rozwój (+{points})" : "Rozwój";
+            }
             var visible = session != null && character != null
                 && !session.IsCharacterInCombat(character.CharacterId);
             if (skillLoadoutButton != null && skillLoadoutButton.gameObject.activeSelf != visible)
@@ -143,26 +319,35 @@ namespace Godmist.Views.UI.Workspace
 
             if (portrait != null)
             {
-                portrait.sprite = character.Definition?.VisualSprite;
+                var definition = character.Definition;
+                portrait.sprite = CharacterAnimationResolver.TryResolveCharacter(definition?.Id, Vector2.down,
+                    CharacterAnimationState.Idle, out var idle) && idle.FrameCount > 0
+                    ? idle.Frames[0]
+                    : definition?.IdleAnimationFrames?.Find(frame => frame != null) ?? definition?.VisualSprite;
+                portrait.preserveAspect = true;
                 portrait.enabled = portrait.sprite != null;
             }
 
             var name = character.Definition?.DisplayName ?? character.CharacterId;
-            var className = character.ClassData?.ClassName ?? "-";
+            var className = LocalizeClass(character.ClassData?.ClassName);
             if (headerTitleText != null) headerTitleText.text = name;
             identityText.text = $"Klasa: {className}";
-            progressionText.text = character.Level >= CharacterProgressionSystem.MaximumLevel
-                ? $"Poziom {character.Level} | XP: maks."
-                : $"Poziom {character.Level} | XP: {character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
+            var experience = character.Level >= CharacterProgressionSystem.MaximumLevel
+                ? "maksimum"
+                : $"{character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
+            progressionText.text = experienceValueText != null ? $"Poziom {character.Level}" : character.Level >= CharacterProgressionSystem.MaximumLevel
+                ? $"Poziom {character.Level}\nDoświadczenie: maksimum"
+                : $"Poziom {character.Level}\nXP: {character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
+            if (experienceValueText != null) experienceValueText.text = experience;
+            if (experienceFill != null) experienceFill.fillAmount = character.Level >= CharacterProgressionSystem.MaximumLevel
+                ? 1 : Mathf.Clamp01((float)character.CurrentExperience / progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
 
-            var maxHealth = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
-            var resource = character.ResourcePool;
-            healthResourceText.text = resource == null
-                ? $"HP: {character.CurrentHealth}/{maxHealth}"
-                : $"HP: {character.CurrentHealth}/{maxHealth}\n{resource.ResourceType}: {resource.CurrentValue}/{resource.MaxValue}";
-            statsText.text = BuildStats(character);
-            resistancesText.text = BuildResistances(character.Resistances);
-            honorAvailabilityText.text = $"Honor: {character.Honor}\nStan: {character.LifeState} | {character.AvailabilityState}";
+            RefreshVitals();
+            statsText.text = "<line-height=22>" + BuildStats(character) + "</line-height>";
+            resistancesText.text = "<line-height=22>" + BuildResistances(character.Resistances) + "</line-height>";
+            honorAvailabilityText.text = (honorValueText == null ? $"Honor<pos=180>{character.Honor}\n" : string.Empty)
+                + $"Stan: {LifeStateName(character.LifeState)}\n{AvailabilityName(character.AvailabilityState)}";
+            if (honorValueText != null) honorValueText.text = character.Honor.ToString();
 
             RefreshInventory();
             RefreshEquipment();
@@ -192,6 +377,21 @@ namespace Godmist.Views.UI.Workspace
             }
 
             skillTreeWindow.Open(session, character.CharacterId);
+        }
+
+        public void TryActivateItem(ItemInstance item)
+        {
+            if (!isActiveAndEnabled || session == null || !ItemOwnershipActions.Owns(character, item)
+                || session.IsCharacterInCombat(character.CharacterId)) return;
+            if (item is EquipmentItemInstance equipment)
+            {
+                if (ReferenceEquals(character.Equipment?.GetItem(equipment.EquipmentSlot), equipment))
+                    TryUnequip(equipment.EquipmentSlot);
+                else TryEquip(item);
+            }
+            else if (Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item)) TryUseCampingKit(item);
+            else if (item is LootBagItemInstance) TryOpenLootBag(item);
+            else if (item is ConsumableItemInstance) TryUseConsumable(item);
         }
 
         public void TryEquip(ItemInstance item)
@@ -250,7 +450,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void BeginDrag(ItemInstance item, PointerEventData eventData)
         {
-            if (item == null || character == null) return;
+            if (item == null || character == null || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             draggedItem = item;
             UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = null;
@@ -265,7 +465,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void BeginUnequipDrag(CharacterInfoEquipmentSlotView sourceSlot, PointerEventData eventData)
         {
-            if (sourceSlot?.Item == null || character == null) return;
+            if (sourceSlot?.Item == null || character == null || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             draggedItem = sourceSlot.Item;
             UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = sourceSlot;
@@ -283,7 +483,7 @@ namespace Godmist.Views.UI.Workspace
             var icon = dragGhost.transform.Find("Icon")?.GetComponent<Image>();
             if (icon != null)
             {
-                icon.sprite = item.Definition?.Icon;
+                icon.sprite = ItemIconPresentation.GetIcon(item);
                 icon.enabled = icon.sprite != null;
             }
             var countLabel = dragGhost.transform.Find("CountLabel");
@@ -350,6 +550,8 @@ namespace Godmist.Views.UI.Workspace
                 || sourceWindow.session != session
                 || sourceWindow.character?.Inventory == null
                 || character?.Inventory == null
+                || session?.IsCharacterInCombat(character.CharacterId) == true
+                || session?.IsCharacterInCombat(sourceWindow.character.CharacterId) == true
                 || item == null)
             {
                 return;
@@ -375,7 +577,8 @@ namespace Godmist.Views.UI.Workspace
             if (sourceWindow == null
                 || item == null
                 || session == null
-                || character == null)
+                || character == null
+                || session.IsCharacterInCombat(character.CharacterId))
             {
                 sourceWindow?.EndDrag();
                 return;
@@ -405,11 +608,16 @@ namespace Godmist.Views.UI.Workspace
 
         private void RefreshInventory()
         {
-            foreach (var view in inventoryViews) if (view != null) Destroy(view.gameObject);
+            foreach (var view in inventoryViews) if (view != null)
+            {
+                view.gameObject.SetActive(false);
+                DestroyView(view.gameObject);
+            }
             inventoryViews.Clear();
             if (character?.Inventory?.Items == null || inventoryItemTemplate == null || inventoryRoot == null) return;
 
             var filter = inventorySearchInput?.text?.Trim();
+            if (clearSearchButton != null) clearSearchButton.gameObject.SetActive(!string.IsNullOrEmpty(filter));
             foreach (var stack in BuildItemStacks(character.Inventory.Items))
             {
                 var item = stack.Representative;
@@ -422,13 +630,23 @@ namespace Godmist.Views.UI.Workspace
 
             var currentWeight = inventoryService.GetCurrentWeight(character.Inventory);
             var maxWeight = character.Inventory.MaxWeight;
-            inventoryFooterText.text = $"Waga: {currentWeight:0.##}/{(maxWeight.HasValue ? maxWeight.Value.ToString("0.##") : "∞")} kg | Złoto: {session?.Gold ?? 0}";
+            inventoryFooterText.text = maxWeight.HasValue
+                ? $"Waga: {currentWeight:0.##}/{maxWeight.Value:0.##} kg"
+                : $"Waga: {currentWeight:0.##} kg (bez limitu)";
+            if (goldValueText != null) goldValueText.text = (session?.Gold ?? 0).ToString();
+            else inventoryFooterText.text += $"\nZłoto drużyny: {session?.Gold ?? 0}";
+            if (inventoryEmptyText != null)
+            {
+                inventoryEmptyText.gameObject.SetActive(inventoryViews.Count == 0);
+                inventoryEmptyText.text = character.Inventory.Items.Count == 0 ? "Plecak jest pusty" : "Brak pasujących przedmiotów";
+            }
         }
 
         private void RefreshEquipment()
         {
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
                 slot?.Bind(character?.Equipment?.GetItem(slot.Slot));
+            RefreshItemDetails();
         }
 
         private static List<ItemStackEntry> BuildItemStacks(IEnumerable<ItemInstance> items)
@@ -478,13 +696,20 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildStats(CharacterInstance value)
         {
             var stats = value.Stats;
-            return $"Atak: {stats.MinAttack.GetValue():0}-{stats.MaxAttack.GetValue():0}\nObrona fiz.: {stats.PhysicalDefense.GetValue():0}\nObrona mag.: {stats.MagicalDefense.GetValue():0}\nUnik: {stats.Dodge.GetValue():0} | Kryt: {stats.CritChance.GetValue() * 100f:0.#}%\nObr. kryt.: {stats.CritDamage.GetValue():0.00} | Szybkość: {stats.Speed.GetValue():0}\nCelność: {stats.WeaponAccuracy.GetValue():0}";
+            return $"Atak<pos=180>{stats.MinAttack.GetValue():0}–{stats.MaxAttack.GetValue():0}\nObrona fizyczna<pos=180>{stats.PhysicalDefense.GetValue():0}\nObrona magiczna<pos=180>{stats.MagicalDefense.GetValue():0}\nUnik<pos=180>{stats.Dodge.GetValue():0}\nSzansa krytyczna<pos=180>{stats.CritChance.GetValue() * 100f:0.#}%\nObrażenia krytyczne<pos=180>×{stats.CritDamage.GetValue():0.##}\nSzybkość<pos=180>{stats.Speed.GetValue():0}\nCelność<pos=180>{stats.WeaponAccuracy.GetValue():0}";
         }
 
         private static string BuildResistances(ResistanceSet value)
         {
             if (value == null) return "Odporności: -";
-            return $"Krwawienie: {value.BleedResistance * 100f:0.#}% | Trucizna: {value.PoisonResistance * 100f:0.#}%\nOgień: {value.FireResistance * 100f:0.#}% | Osłabienie: {value.WeakeningResistance * 100f:0.#}%\nEOR: {value.SuppressionResistance * 100f:0.#}% | Ruch: {value.MoveResistance * 100f:0.#}%";
+            return $"Krwawienie<pos=180>{value.BleedResistance * 100f:0.#}%\nTrucizna<pos=180>{value.PoisonResistance * 100f:0.#}%\nOgień<pos=180>{value.FireResistance * 100f:0.#}%\nOsłabienie<pos=180>{value.WeakeningResistance * 100f:0.#}%\nKontrola<pos=180>{value.SuppressionResistance * 100f:0.#}%\nPrzemieszczenie<pos=180>{value.MoveResistance * 100f:0.#}%";
         }
+        private static string LocalizeClass(string name) => name switch
+        { "Scout" => "Zwiadowca", "Warrior" => "Wojownik", "Mage" => "Mag", "Paladin" => "Paladyn", _ => name ?? "—" };
+        private static string LifeStateName(CharacterLifeState state) => state switch
+        { CharacterLifeState.Alive => "Żywy", CharacterLifeState.Downed => "Powalony", CharacterLifeState.Dead => "Martwy", _ => "Nieznany stan" };
+        private static string AvailabilityName(CharacterAvailabilityState state) => state switch
+        { CharacterAvailabilityState.Available => "Dostępny", CharacterAvailabilityState.Abandoned => "Opuścił drużynę",
+            CharacterAvailabilityState.StoryLocked => "Niedostępny fabularnie", CharacterAvailabilityState.Recoverable => "Możliwy do odzyskania", _ => "Niedostępny" };
     }
 }

@@ -69,12 +69,15 @@ namespace Godmist.Views.UI.Workspace
 
             if (surfaceImage != null && surfaceStyle != UIWorkspaceSurfaceStyle.None)
             {
-                surfaceImage.color = palette.GetSurfaceColor(surfaceStyle);
+                surfaceImage.color = palette.IsArtwork(surfaceImage.sprite)
+                    ? new Color(1, 1, 1, surfaceStyle == UIWorkspaceSurfaceStyle.Scrim ? palette.GetSurfaceColor(surfaceStyle).a : 1)
+                    : palette.GetSurfaceColor(surfaceStyle);
             }
 
             if (borderImage != null && borderStyle != UIWorkspaceAccentStyle.None)
             {
-                borderImage.color = palette.GetAccentColor(borderStyle);
+                borderImage.color = palette.IsArtwork(borderImage.sprite)
+                    ? Color.white : palette.GetAccentColor(borderStyle);
             }
 
             if (text != null)
@@ -93,15 +96,17 @@ namespace Godmist.Views.UI.Workspace
             if (selectable != null && interactionStyle != UIWorkspaceAccentStyle.None)
             {
                 var colors = selectable.colors;
-                var normalColor = surfaceStyle == UIWorkspaceSurfaceStyle.None
+                var artworkTarget = selectable.targetGraphic is Image image && palette.IsArtwork(image.sprite);
+                if (artworkTarget) selectable.targetGraphic.CrossFadeColor(Color.white, 0, true, true);
+                var normalColor = artworkTarget || surfaceStyle == UIWorkspaceSurfaceStyle.None
                     ? Color.white
                     : palette.GetSurfaceColor(surfaceStyle);
-                var interactionColor = palette.GetAccentColor(interactionStyle);
+                var interactionColor = artworkTarget ? Color.white : palette.GetAccentColor(interactionStyle);
                 colors.normalColor = normalColor;
                 colors.highlightedColor = interactionColor;
-                colors.pressedColor = Color.Lerp(interactionColor, Color.black, 0.2f);
+                colors.pressedColor = artworkTarget ? Color.white : Color.Lerp(interactionColor, Color.black, 0.2f);
                 colors.selectedColor = interactionColor;
-                colors.disabledColor = palette.GetTextColor(UIWorkspaceTextStyle.Disabled);
+                colors.disabledColor = artworkTarget ? Color.white : palette.GetTextColor(UIWorkspaceTextStyle.Disabled);
                 colors.colorMultiplier = 1f;
                 selectable.colors = colors;
             }

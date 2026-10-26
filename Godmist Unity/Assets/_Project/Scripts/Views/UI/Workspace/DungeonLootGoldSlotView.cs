@@ -30,12 +30,18 @@ namespace Godmist.Views.UI.Workspace
             owner = nextOwner;
             icon ??= transform.Find("Icon")?.GetComponent<Image>();
             countText ??= transform.Find("CountLabel")?.GetComponent<TextMeshProUGUI>();
-            if (countText != null) countText.text = gold.ToString();
+            if (icon != null) icon.preserveAspect = true;
+            if (countText != null)
+            {
+                countText.text = gold.ToString();
+                countText.gameObject.SetActive(gold > 0);
+            }
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (gold > 0 && eventData != null && eventData.clickCount >= 1)
+            if (gold > 0 && eventData != null
+                && eventData.button == PointerEventData.InputButton.Left)
             {
                 owner?.TryClaimGold();
             }
@@ -43,9 +49,10 @@ namespace Godmist.Views.UI.Workspace
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            UIWorkspaceTooltipView.ActiveInstance?.ShowText(
-                "Nagroda",
-                $"Odbierz nagrodę: {gold}.",
+            if (gold <= 0) return;
+            UIWorkspaceTooltipView.ActiveInstance?.ShowCompactText(
+                "Złoto",
+                gold.ToString(),
                 this);
         }
 

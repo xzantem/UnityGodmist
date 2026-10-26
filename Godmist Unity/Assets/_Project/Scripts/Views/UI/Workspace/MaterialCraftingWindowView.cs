@@ -32,6 +32,10 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button craftButton;
         [SerializeField] private TextMeshProUGUI recipeSectionLabel;
         [SerializeField] private TextMeshProUGUI materialsSectionLabel;
+        [SerializeField] private MaterialRecipeGroupView recipeGroupTemplate;
+        [SerializeField] private TMP_InputField recipeSearchInput;
+        [SerializeField] private TextMeshProUGUI recipeCountText;
+        [SerializeField] private TextMeshProUGUI previewDescriptionText;
         [SerializeField] private GameObject variantSection;
         [SerializeField] private TMP_Dropdown firstVariantDropdown;
         [SerializeField] private TMP_Dropdown secondVariantDropdown;
@@ -58,6 +62,7 @@ namespace Godmist.Views.UI.Workspace
             if (previewNameText != null) previewNameText.raycastTarget = false;
             HideTemplates();
             if (craftButton != null) craftButton.onClick.AddListener(TryCraft);
+            if (recipeSearchInput != null) recipeSearchInput.onValueChanged.AddListener(HandleRecipeSearch);
             if (firstVariantDropdown != null)
                 firstVariantDropdown.onValueChanged.AddListener(HandleVariantChanged);
             if (secondVariantDropdown != null)
@@ -71,6 +76,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDestroy()
         {
             if (craftButton != null) craftButton.onClick.RemoveListener(TryCraft);
+            if (recipeSearchInput != null) recipeSearchInput.onValueChanged.RemoveListener(HandleRecipeSearch);
             if (firstVariantDropdown != null)
                 firstVariantDropdown.onValueChanged.RemoveListener(HandleVariantChanged);
             if (secondVariantDropdown != null)
@@ -100,7 +106,8 @@ namespace Godmist.Views.UI.Workspace
             }
             HideTemplates();
             if (recipeSectionLabel != null) recipeSectionLabel.text = "Receptury";
-            if (materialsSectionLabel != null) materialsSectionLabel.text = "Materiały";
+            if (materialsSectionLabel != null) materialsSectionLabel.text = "Wymagane materiały";
+            recipeSearchInput?.SetTextWithoutNotify(string.Empty);
             PopulateRecipes();
             RefreshVariantSelectors();
             RefreshPreview();
@@ -115,39 +122,81 @@ namespace Godmist.Views.UI.Workspace
 
         private void PopulateRecipes()
         {
-            ClearSlots(recipeGrid);
+            ClearRecipeGroups();
             recipeSlots.Clear();
             var recipes = specialist?.Definition?.Roles?.OfType<IMaterialCraftingSpecialist>()
                 .FirstOrDefault()?.MaterialRecipes
                 ?.Where(recipe => recipe != null)
-                .OrderBy(recipe => recipe.DisplayName)
+                .OrderBy(MaterialRecipePresentation.GroupIndex)
+                .ThenBy(recipe => recipe.DisplayName)
                 .ToList() ?? new List<CraftableItemDefinition>();
             if (!recipes.Contains(selectedRecipe)) { selectedRecipe = recipes.FirstOrDefault(); selectedVariant = 0; }
 
-            foreach (var recipe in recipes)
+            var query = recipeSearchInput?.text?.Trim() ?? string.Empty;
+            var filtered = recipes.Where(recipe => query.Length == 0
+                || (recipe.DisplayName?.IndexOf(query, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (recipe.ResultDefinition?.DisplayName?.IndexOf(query, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0).ToList();
+            if (recipeCountText != null) recipeCountText.text = filtered.Count == 0 ? "Brak wyników" : $"{filtered.Count}/{recipes.Count}";
+            foreach (var group in filtered.GroupBy(MaterialRecipePresentation.GroupIndex).OrderBy(group => group.Key))
             {
-                var slot = CreateSlot(
-                    recipeSlotTemplate,
-                    recipeGrid,
-                    recipe.ResultDefinition?.Icon,
-                    string.IsNullOrWhiteSpace(recipe.DisplayName)
-                        ? recipe.DisplayName ?? recipe.Id : recipe.DisplayName,
-                    BuildRecipeTooltip(recipe),
-                    $"×{recipe.OutputAmount}",
-                    ReferenceEquals(recipe, selectedRecipe),
-                    false,
-                    () =>
-                    {
-                        selectedRecipe = recipe;
-                        selectedVariant = 0;
-                        foreach (var entry in recipeSlots)
-                            entry.Value.SetSelected(ReferenceEquals(entry.Key, recipe));
-                        RefreshVariantSelectors();
-                        RefreshPreview();
-                    });
-                slot?.SetDefinitionTooltip(recipe.ResultDefinition,
-                    recipe.RecipeVariantCount > 1 ? "Składniki wybierz po prawej stronie." : string.Empty);
-                if (slot != null) recipeSlots[recipe] = slot;
+                var parent = recipeGrid;
+                if (recipeGroupTemplate != null)
+                {
+                    var groupView = Instantiate(recipeGroupTemplate, recipeGrid);
+                    groupView.gameObject.SetActive(true);
+                    groupView.SetHeading(MaterialRecipePresentation.GroupLabel(group.Key));
+                    parent = groupView.Content;
+                }
+                foreach (var recipe in group)
+                {
+                    var slot = CreateSlot(
+                        recipeSlotTemplate,
+                        parent,
+                        recipe.ResultDefinition?.Icon,
+                        string.IsNullOrWhiteSpace(recipe.DisplayName)
+                            ? recipe.DisplayName ?? recipe.Id : recipe.DisplayName,
+                        BuildRecipeTooltip(recipe),
+                        $"×{recipe.OutputAmount}",
+                        ReferenceEquals(recipe, selectedRecipe),
+                        false,
+                        () =>
+                        {
+                            selectedRecipe = recipe;
+                            selectedVariant = 0;
+                            foreach (var entry in recipeSlots)
+                                entry.Value.SetSelected(ReferenceEquals(entry.Key, recipe));
+                            RefreshVariantSelectors();
+                            RefreshPreview();
+                        });
+                    slot?.SetDefinitionTooltip(recipe.ResultDefinition,
+                        recipe.RecipeVariantCount > 1 ? "Składniki wybierz po prawej stronie." : string.Empty);
+                    if (slot != null) recipeSlots[recipe] = slot;
+                }
+            }
+        }
+
+        private void ClearRecipeGroups()
+        {
+            foreach (var slot in recipeSlots.Values)
+                if (slot != null) UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(slot);
+            if (recipeGroupTemplate == null) { ClearSlots(recipeGrid); return; }
+            for (var i = recipeGrid.childCount - 1; i >= 0; i--)
+            {
+                var group = recipeGrid.GetChild(i).GetComponent<MaterialRecipeGroupView>();
+                if (group == null || group == recipeGroupTemplate) continue;
+                group.gameObject.SetActive(false);
+                Destroy(group.gameObject);
+            }
+        }
+
+        private void HandleRecipeSearch(string _)
+        {
+            if (!isVisible) return;
+            PopulateRecipes();
+            if (recipeGrid is RectTransform content)
+            {
+                content.GetComponentInParent<ScrollRect>()?.StopMovement();
+                content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0);
             }
         }
 
@@ -228,7 +277,7 @@ namespace Godmist.Views.UI.Workspace
                     false,
                     material.MissingAmount > 0,
                     null,
-                    canOfferPurchase ? $"{material.PurchasableAmount} ({material.PurchasePrice}g)" : null,
+                    canOfferPurchase ? $"{material.PurchasePrice}" : null,
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
@@ -252,8 +301,8 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
+            SetStatus($"Kupiono materiały za {paidGold} złota.");
         }
 
         private void TryCraft()
@@ -268,8 +317,8 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Wytworzono: {items.Count}× {selectedRecipe.DisplayName}.");
             RefreshPreview();
+            SetStatus($"Wytworzono: {items.Count}× {GetResultDisplayName(selectedRecipe.ResultDefinition)}.");
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
 
@@ -286,11 +335,8 @@ namespace Godmist.Views.UI.Workspace
             if (previewTooltipSlot != null)
             {
                 previewTooltipSlot.SetIcon(result?.Icon);
-                previewTooltipSlot.SetTooltip(
-                    resultName,
-                    result == null
-                        ? "Wybierz receptę, aby zobaczyć wynik."
-                        : $"{resultName}\nWynik recepty: {amount}×\n{result.Description}");
+                if (result != null) previewTooltipSlot.SetDefinitionTooltip(result, $"Otrzymasz: {amount} szt.");
+                else previewTooltipSlot.SetTooltip(resultName, "Wybierz recepturę, aby zobaczyć wynik.");
             }
 
             if (previewNameText != null)
@@ -303,7 +349,13 @@ namespace Godmist.Views.UI.Workspace
             {
                 previewSummaryText.text = result == null
                     ? "Wybierz receptę."
-                    : $"Wynik recepty • {amount}×";
+                    : $"{amount} szt. na wytworzenie";
+            }
+            if (previewDescriptionText != null) previewDescriptionText.text = result?.Description ?? string.Empty;
+            if (craftButton != null)
+            {
+                var label = craftButton.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null) label.text = amount > 0 ? $"Wytwórz ×{amount}" : "Wytwórz";
             }
         }
 
@@ -363,6 +415,8 @@ namespace Godmist.Views.UI.Workspace
             {
                 var child = parent.GetChild(index).GetComponent<BlacksmithCraftingSlotView>();
                 if (child == null || child == recipeSlotTemplate || child == materialSlotTemplate) continue;
+                UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(child);
+                child.gameObject.SetActive(false);
                 Destroy(child.gameObject);
             }
         }
@@ -374,6 +428,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void HideTemplates()
         {
+            if (recipeGroupTemplate != null) recipeGroupTemplate.gameObject.SetActive(false);
             if (recipeSlotTemplate != null) recipeSlotTemplate.gameObject.SetActive(false);
             if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
         }
@@ -381,11 +436,16 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildMaterialDescription(CraftingMaterialCost material)
         {
             if (material == null) return string.Empty;
-            if (string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
-                return material.Material?.Description ?? string.Empty;
-
-            return (material.Material?.Description ?? string.Empty)
-                + $"\n<color=#E06C75>{material.PurchaseFailureReason}</color>";
+            var lines = new List<string> { $"Posiadane: {material.OwnedAmount}/{material.RequiredAmount}" };
+            if (material.MissingAmount > 0)
+            {
+                lines.Add($"Brakuje: {material.MissingAmount} • W ofercie: {material.AvailableFromBlacksmith}");
+                if (material.PurchasableAmount > 0 && material.PurchasePrice > 0)
+                    lines.Add($"Zakup {material.PurchasableAmount} szt.: {material.PurchasePrice} złota");
+            }
+            if (!string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
+                lines.Add($"<color=#E06C75>{material.PurchaseFailureReason}</color>");
+            return string.Join("\n", lines);
         }
 
         // Existing assets enumerate legal variants for pricing and crafting.

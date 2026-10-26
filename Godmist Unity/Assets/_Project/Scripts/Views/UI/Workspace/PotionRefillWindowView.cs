@@ -4,6 +4,7 @@ using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Items;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.Items;
@@ -26,6 +27,14 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI previewSummaryText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private TextMeshProUGUI mediumEmptyText;
+        [SerializeField] private TextMeshProUGUI consumableCountText;
+        [SerializeField] private TextMeshProUGUI consumableEmptyText;
+        [SerializeField] private TextMeshProUGUI previewEffectsText;
+        [SerializeField] private ScrollRect consumableScroll;
+        [SerializeField] private GameObject previewSection;
+        [SerializeField] private GameObject effectsSection;
+        [SerializeField] private GameObject mediumSection;
+        [SerializeField] private GameObject emptySummarySpacer;
         [SerializeField] private Button craftButton;
         [SerializeField] private ConsumableUseType refillType = ConsumableUseType.Potion;
 
@@ -61,11 +70,14 @@ namespace Godmist.Views.UI.Workspace
 
             alchemist = nextAlchemist;
             recipientCharacterId = nextRecipientCharacterId;
+            selectedConsumable = null;
+            selectedMedium = null;
             isVisible = true;
             ClearRuntimeSlots();
             serviceRoot?.SetActive(true);
             HideTemplates();
             PopulateConsumables();
+            if (consumableScroll != null) consumableScroll.verticalNormalizedPosition = 1;
             RefreshPreview();
             return true;
         }
@@ -82,11 +94,19 @@ namespace Godmist.Views.UI.Workspace
             var targetGrid = GetRecipeGrid();
             ClearSlots(consumableSlots);
             var consumables = refillService.GetPartyConsumables(session, refillType)
+                .Where(consumable => consumable.CurrentCharges < consumable.MaxCharges)
                 .GroupBy(consumable => consumable.InstanceId)
                 .Select(group => group.First())
                 .ToList();
             if (!consumables.Contains(selectedConsumable)) selectedConsumable = consumables.FirstOrDefault();
             if (selectedConsumable == null) selectedMedium = null;
+            if (consumableCountText != null) consumableCountText.text = consumables.Count.ToString();
+            if (consumableEmptyText != null)
+            {
+                consumableEmptyText.text = refillType == ConsumableUseType.Bomb
+                    ? "Brak bomb do napełnienia." : "Brak mikstur do napełnienia.";
+                consumableEmptyText.gameObject.SetActive(consumables.Count == 0);
+            }
 
             foreach (var consumable in consumables)
             {
@@ -94,7 +114,7 @@ namespace Godmist.Views.UI.Workspace
                 slot = CreateSlot(
                     recipeSlotTemplate,
                     targetGrid,
-                    consumable.Definition?.Icon,
+                    ItemIconPresentation.GetIcon(consumable),
                     consumable.DisplayName,
                     $"Ładunki: {consumable.CurrentCharges}/{consumable.MaxCharges}",
                     $"{consumable.CurrentCharges}/{consumable.MaxCharges}",
@@ -109,7 +129,11 @@ namespace Godmist.Views.UI.Workspace
                         slot?.SetSelected(true);
                         RefreshPreview();
                     });
-                if (slot != null) consumableSlots.Add(slot);
+                if (slot != null)
+                {
+                    slot.SetItemTooltip(consumable, FindOwner(consumable));
+                    consumableSlots.Add(slot);
+                }
             }
 
         }
@@ -118,21 +142,26 @@ namespace Godmist.Views.UI.Workspace
         {
             var targetGrid = GetMaterialsGrid();
             ClearSlots(mediumSlots);
+            var hasSelection = selectedConsumable != null;
+            previewSection?.SetActive(hasSelection);
+            effectsSection?.SetActive(hasSelection);
+            mediumSection?.SetActive(hasSelection);
+            emptySummarySpacer?.SetActive(!hasSelection);
             var preview = refillService.CreatePreview(session, alchemist, BuildRequest());
+            var options = preview.MediumOptions ?? Array.Empty<RefillMediumOption>();
+            if (!options.Any(option => option.Medium?.Id == selectedMedium?.Id))
+            {
+                selectedMedium = (options.FirstOrDefault(option => option.Cost?.MissingAmount == 0)
+                    ?? options.FirstOrDefault())?.Medium;
+                preview = refillService.CreatePreview(session, alchemist, BuildRequest());
+            }
             if (mediumEmptyText != null)
             {
-                mediumEmptyText.gameObject.SetActive(preview.MediumOptions == null || !preview.MediumOptions.Any());
-                mediumEmptyText.text = selectedConsumable == null
-                    ? "Wybierz przedmiot do napełnienia."
-                    : selectedConsumable.CurrentCharges >= selectedConsumable.MaxCharges
-                        ? "Napełnianie nie jest potrzebne."
-                        : "Brak dostępnych materiałów do napełnienia.";
+                mediumEmptyText.gameObject.SetActive(selectedConsumable != null && options.Count == 0);
+                mediumEmptyText.text = refillType == ConsumableUseType.Bomb
+                    ? "Brak odpowiedniego prochu strzelniczego." : "Brak alkoholu lub składnika alchemicznego.";
             }
-            var visibleOptions = selectedMedium == null
-                ? preview.MediumOptions ?? Enumerable.Empty<RefillMediumOption>()
-                : (preview.MediumOptions ?? Enumerable.Empty<RefillMediumOption>())
-                    .Where(option => option?.Medium?.Id == selectedMedium.Id);
-            foreach (var option in visibleOptions)
+            foreach (var option in options)
             {
                 if (option?.Medium == null) continue;
                 var cost = option.Cost;
@@ -148,11 +177,10 @@ namespace Godmist.Views.UI.Workspace
                     cost?.MissingAmount > 0,
                     () =>
                     {
-                        if (cost?.MissingAmount > 0) return;
-                        selectedMedium = selectedMedium?.Id == option.Medium.Id ? null : option.Medium;
+                        selectedMedium = option.Medium;
                         RefreshPreview();
                     },
-                    canOfferPurchase ? $"{cost.PurchasableAmount} ({cost.PurchasePrice}g)" : null,
+                    canOfferPurchase ? cost.PurchasePrice.ToString() : null,
                     canOfferPurchase ? () => TryBuyMedium(option.Medium) : null,
                     cost?.PurchaseState ?? CraftingMaterialPurchaseState.OutOfStock,
                     cost?.PurchaseState == CraftingMaterialPurchaseState.Available);
@@ -164,24 +192,31 @@ namespace Godmist.Views.UI.Workspace
 
             if (previewTooltipSlot != null)
             {
-                previewTooltipSlot.SetIcon(preview.Consumable?.Definition?.Icon);
+                previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(preview.Consumable));
                 if (preview.Consumable != null)
                     previewTooltipSlot.SetItemTooltip(
                         preview.Consumable,
-                        null,
+                        FindOwner(preview.Consumable),
                         $"Po napełnieniu: {preview.MaxCharges}/{preview.MaxCharges}");
                 else
-                    previewTooltipSlot.SetTooltip(
-                        GetOperationName(),
-                        $"Wybierz {GetConsumableName()}.");
+                    previewTooltipSlot.SetTooltip(string.Empty, string.Empty);
             }
             if (previewNameText != null) previewNameText.text = preview.Consumable?.DisplayName ?? string.Empty;
             if (previewSummaryText != null)
                 previewSummaryText.text = preview.Consumable == null
-                    ? $"Wybierz {GetConsumableName()}."
-                    : $"Ładunki: {preview.CurrentCharges}/{preview.MaxCharges} → {preview.MaxCharges}/{preview.MaxCharges}";
+                    ? string.Empty
+                    : $"Ładunki: {preview.CurrentCharges}/{preview.MaxCharges} → {preview.MaxCharges}/{preview.MaxCharges}"
+                        + $"\nOdzyskane ładunki: {preview.MaxCharges - preview.CurrentCharges}";
+            if (previewEffectsText != null)
+                previewEffectsText.text = preview.Consumable == null ? string.Empty
+                    : refillType == ConsumableUseType.Bomb
+                        ? UIWorkspaceTooltipView.BuildBombEffectSummary(preview.Consumable, FindOwner(preview.Consumable))
+                        : UIWorkspaceTooltipView.BuildPotionEffectSummary(preview.Consumable);
             if (craftButton != null) craftButton.interactable = preview.CanRefill;
-            SetStatus(preview.CanRefill ? "Gotowe do napełnienia." : preview.FailureReason);
+            SetStatus(preview.CanRefill || selectedConsumable == null || options.Count == 0 ? string.Empty
+                : options.FirstOrDefault(option => option.Medium?.Id == selectedMedium?.Id)?.Cost?.MissingAmount > 0
+                    ? refillType == ConsumableUseType.Bomb ? "Brak prochu strzelniczego." : "Brak wybranego materiału."
+                    : preview.FailureReason);
         }
 
         private void TryRefill()
@@ -194,9 +229,6 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus(refillType == ConsumableUseType.Bomb
-                ? "Bomba została napełniona do pełna."
-                : "Mikstura została napełniona do pełna.");
             PopulateConsumables();
             RefreshPreview();
             CharacterInfoWindowView.RefreshOpenWindows(session);
@@ -208,6 +240,7 @@ namespace Godmist.Views.UI.Workspace
             selectedMedium = medium;
             if (!refillService.TryBuyMedium(session, alchemist, BuildRequest(), out _, out var failureReason))
             {
+                RefreshPreview();
                 SetStatus(failureReason);
                 return;
             }
@@ -225,9 +258,10 @@ namespace Godmist.Views.UI.Workspace
 
         private string GetConsumableName() => refillType == ConsumableUseType.Bomb ? "bombę" : "miksturę";
 
-        private string GetOperationName() => refillType == ConsumableUseType.Bomb
-            ? "Napełnianie bomby"
-            : "Napełnianie mikstury";
+        private CharacterInstance FindOwner(ConsumableItemInstance item) => item == null ? null
+            : session.PlayerParty.ActiveMemberIds.Where(session.CharactersById.ContainsKey)
+                .Select(id => session.CharactersById[id])
+                .FirstOrDefault(character => character.Inventory?.Items.Contains(item) == true);
 
         private Transform GetRecipeGrid() => recipeGrid;
 
@@ -258,7 +292,11 @@ namespace Godmist.Views.UI.Workspace
 
         private static void ClearSlots(List<BlacksmithCraftingSlotView> slots)
         {
-            foreach (var slot in slots.Where(slot => slot != null)) Destroy(slot.gameObject);
+            foreach (var slot in slots.Where(slot => slot != null))
+            {
+                slot.gameObject.SetActive(false);
+                Destroy(slot.gameObject);
+            }
             slots.Clear();
         }
 
@@ -289,13 +327,14 @@ namespace Godmist.Views.UI.Workspace
 
         private void SetStatus(string message)
         {
-            if (statusText != null) statusText.text = message ?? string.Empty;
+            if (statusText == null) return;
+            statusText.text = message ?? string.Empty;
+            statusText.gameObject.SetActive(!string.IsNullOrWhiteSpace(message));
         }
 
         private string BuildMediumTooltip(RefillMediumOption option)
         {
-            var kind = refillType == ConsumableUseType.Bomb ? "prochu strzelniczego" : "alkoholu";
-            return $"Tier {option.Tier}. Jedna jednostka {kind} napełnia {GetConsumableName()} do pełna.";
+            return $"{option.Medium.DisplayName}: 1 szt. → pełne ładunki.";
         }
     }
 }

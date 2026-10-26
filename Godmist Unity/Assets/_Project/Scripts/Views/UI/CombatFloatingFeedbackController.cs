@@ -40,6 +40,8 @@ namespace Godmist.Views.UI
         private readonly Dictionary<CombatFloatingFeedbackView, Vector2>
             activeFeedbackSizes = new();
         private CombatFeedbackBus feedbackBus;
+        private readonly HashSet<(BattleUnit Target, string Name)> namedNotifications = new();
+        private int notificationFrame = -1;
 
         public void Bind(CombatFeedbackBus nextFeedbackBus)
         {
@@ -49,6 +51,7 @@ namespace Godmist.Views.UI
             foreach (var view in activeFeedbackViews)
                 if (view != null) Destroy(view.gameObject);
             pendingEntries.Clear();
+            namedNotifications.Clear(); notificationFrame = -1;
             activeQueues.Clear();
             activeFeedbackViews.Clear();
             activeFeedbackTargets.Clear();
@@ -78,6 +81,8 @@ namespace Godmist.Views.UI
 
         private void HandleFeedback(CombatFeedbackEvent feedbackEvent)
         {
+            if (feedbackEvent.Type == CombatFeedbackType.SkillUsed)
+            { TryAcceptNamedNotification(feedbackEvent, Time.frameCount); return; }
             if (!ShouldShowFeedback(feedbackEvent))
             {
                 return;
@@ -85,6 +90,7 @@ namespace Godmist.Views.UI
 
             if (feedbackRoot == null || feedbackTemplate == null || unitViewSpawner == null
                 || worldCamera == null) return;
+            if (!TryAcceptNamedNotification(feedbackEvent, Time.frameCount)) return;
 
             if (!pendingEntries.TryGetValue(feedbackEvent.Target, out var queue))
             {
@@ -99,12 +105,25 @@ namespace Godmist.Views.UI
             }
         }
 
+        private bool TryAcceptNamedNotification(CombatFeedbackEvent feedback, int frame)
+        {
+            // A modifier bundle publishes one event per mechanical effect.
+            // Coalesce only the identical named notification in this application
+            // burst; damage/healing/critical amounts must remain separate.
+            if (notificationFrame != frame || feedback.Type == CombatFeedbackType.SkillUsed)
+            { notificationFrame = frame; namedNotifications.Clear(); }
+            if (feedback.Type is not (CombatFeedbackType.BuffApplied or CombatFeedbackType.DebuffApplied
+                or CombatFeedbackType.AuraApplied or CombatFeedbackType.StatusApplied)
+                || string.IsNullOrWhiteSpace(feedback.EffectName)) return true;
+            return namedNotifications.Add((feedback.Target, feedback.EffectName.Trim()));
+        }
+
         private bool ShouldShowFeedback(CombatFeedbackEvent feedbackEvent)
         {
             if (unitViewSpawner != null && !unitViewSpawner.IsUnitVisible(feedbackEvent.Target)) return false;
             return feedbackEvent.Type switch
             {
-                CombatFeedbackType.SkillUsed => false,
+                CombatFeedbackType.Downed or CombatFeedbackType.SkillUsed or CombatFeedbackType.MapObjectTriggered or CombatFeedbackType.VisualCue or CombatFeedbackType.TargetEffect => false,
                 CombatFeedbackType.ResourceGain or CombatFeedbackType.ResourceSpend
                     => showResourceFloatingText,
                 CombatFeedbackType.ActionPointSpend => showActionPointFloatingText,
@@ -138,7 +157,7 @@ namespace Godmist.Views.UI
                     if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                             feedbackRoot, screenPosition, uiCamera, out var localPosition))
                     {
-                        var emphasized = feedbackEvent.Type == CombatFeedbackType.Critical;
+                        var emphasized = feedbackEvent.Type is CombatFeedbackType.Critical or CombatFeedbackType.Downed || feedbackEvent.IsCritical;
                         var text = GetText(feedbackEvent);
                         var textSize = feedbackTemplate.GetLayoutSize(text, emphasized);
                         var anchorPosition = localPosition;
@@ -288,7 +307,8 @@ namespace Godmist.Views.UI
         private static string GetText(CombatFeedbackEvent feedbackEvent) => feedbackEvent.Type switch
         {
             CombatFeedbackType.Damage => $"-{feedbackEvent.Amount}",
-            CombatFeedbackType.Heal => $"+{feedbackEvent.Amount}",
+            CombatFeedbackType.Downed => string.Empty,
+            CombatFeedbackType.Heal => feedbackEvent.IsCritical ? $"+{feedbackEvent.Amount} (kryt)" : $"+{feedbackEvent.Amount}",
             CombatFeedbackType.ShieldGain => $"+{feedbackEvent.Amount}",
             CombatFeedbackType.ShieldLoss => $"-{feedbackEvent.Amount}",
             CombatFeedbackType.ResourceGain => $"+{feedbackEvent.Amount}",
@@ -319,6 +339,7 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ResourceGain or CombatFeedbackType.ResourceSpend => CombatResourceColors.Get(feedbackEvent.ResourceType ?? ResourceType.None),
             CombatFeedbackType.ActionPointSpend => new Color(0.86f, 0.88f, 0.92f),
             CombatFeedbackType.Critical => new Color(1f, 0.76f, 0.23f),
+            CombatFeedbackType.Downed => new Color(1f, .35f, .25f),
             CombatFeedbackType.Miss => new Color(0.78f, 0.69f, 0.54f),
             CombatFeedbackType.StatusApplied => new Color(0.86f, 0.86f, 0.96f),
             CombatFeedbackType.BuffApplied or CombatFeedbackType.AuraApplied

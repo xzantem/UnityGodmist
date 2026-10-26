@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
@@ -98,7 +99,7 @@ namespace Godmist.Views.UI
                 SetContent(
                     glossaryEntry?.Icon,
                     $"<link=\"{effect.EffectId}\"><color=#7EDBFF>{title}</color></link>",
-                    BuildStatusPayload(effect),
+                    BuildPresentedStatusPayload(presentation),
                     string.Empty,
                     compact: true);
             });
@@ -517,42 +518,56 @@ namespace Godmist.Views.UI
                 EffectType.Teleport => "Teleportuje na wybrane pole.",
                 EffectType.CreateObject => "Tworzy obiekt na polu.",
                 EffectType.Summon => "Przyzywa jednostkę.",
-                EffectType.ModifyStat => $"Modyfikuje: {effect.ModifierStatType} {FormatStatModifier(effect.ModifierStatType, effect.ModifierValue)}.",
-                EffectType.ModifyVar => $"Modyfikuje: {effect.ModifierVariableType} {effect.ModifierValue:+#;-#;0}.",
+                EffectType.ModifyStat => Workspace.UIWorkspaceTooltipView.FormatStatusStatModifier(effect.ModifierStatType, effect.ModifierOperation, effect.ModifierValue) + ".",
+                EffectType.ModifyVar => Workspace.UIWorkspaceTooltipView.FormatStatusVariableModifier(effect.ModifierVariableType, effect.ModifierValue) + ".",
                 _ => "Wywołuje dodatkowy efekt."
             };
         }
 
-        private static string BuildStatusPayload(PassiveEffectRuntime effect)
+        private static string BuildPresentedStatusPayload(CombatStatusPresentation presentation)
         {
             var result = new StringBuilder();
-            if (IsDamageOverTime(effect.EffectId) && effect.TotalDamage > 0)
+            var combined = presentation.IsDamageOverTimeGroup && presentation.Effects.Count > 1
+                && presentation.Aura == null
+                && presentation.Effects.All(effect => effect?.GetPayload<DamageOverTimePayload>()?.RemainingTotalDamage > 0);
+            if (combined)
+            {
+                Append(result, $"Łącznie: {presentation.NextTickDamage} obrażeń na początku następnej tury.");
+                Append(result, $"Stosy: {presentation.StackCount}");
+                Append(result, "Czas stosów: " + string.Join(" • ", presentation.Effects
+                    .GroupBy(effect => new { effect.RemainingDuration, effect.Lifetime })
+                    .OrderBy(group => group.Key.RemainingDuration)
+                    .Select(group => $"{group.Key.RemainingDuration} t. ({group.Sum(effect => Mathf.Max(1, effect.Stacks))} stos.)")));
+            }
+            foreach (var effect in presentation.Effects)
+            {
+                if (effect == null) continue;
+                var body = BuildStatusPayload(effect, combined);
+                if (!string.IsNullOrWhiteSpace(body)) Append(result, body);
+            }
+            return result.ToString();
+        }
+
+        private static string BuildStatusPayload(PassiveEffectRuntime effect, bool omitDamageAndDuration = false)
+        {
+            var result = new StringBuilder();
+            if (!omitDamageAndDuration && IsDamageOverTime(effect.EffectId) && effect.TotalDamage > 0)
                 Append(result, $"Obrażenia: {effect.TotalDamage}");
             if (effect.StatusHealPercent > 0f)
                 Append(result, $"Leczenie: {effect.StatusHealPercent * 100f:0.#}% maks. zdrowia");
-            if (effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
-            if (effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
+            if (!omitDamageAndDuration && effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
+            if (!omitDamageAndDuration && effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
             foreach (var modifier in effect.StatModifiers)
             {
                 if (modifier != null)
                 {
-                    Append(result, $"{modifier.StatType} {FormatStatModifier(modifier.StatType, modifier.Value)}");
+                      Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value));
                 }
             }
             foreach (var modifier in effect.VariableModifiers)
             {
                 if (modifier == null) continue;
-                var variableName = modifier.VariableType switch
-                {
-                    GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
-                    GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
-                    GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
-                    GameplayVariableType.GoldGainPercent => "zdobywane złoto",
-                    GameplayVariableType.DamageDealtPercentInDungeonTheme =>
-                        $"obrażenia zadawane w theme lochu {modifier.ReferenceId}",
-                    _ => modifier.VariableType.ToString()
-                };
-                Append(result, $"{variableName}: {modifier.Value * 100f:+0.##;-0.##;0}%");
+                Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusVariableModifier(modifier.VariableType, modifier.Value, modifier.ReferenceId));
             }
             if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
             return result.ToString();

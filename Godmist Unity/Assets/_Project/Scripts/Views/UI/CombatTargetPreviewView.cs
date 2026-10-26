@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Godmist.Views.UI.Workspace;
+using Godmist.Runtime.Combat;
 
 namespace Godmist.Views.UI
 {
@@ -12,15 +13,22 @@ namespace Godmist.Views.UI
     public sealed class CombatTargetPreviewView : MonoBehaviour
     {
         private RectTransform rectTransform;
-        private TextMeshProUGUI label;
+        [SerializeField] private TextMeshProUGUI label;
+        [SerializeField] private TextMeshProUGUI titleText;
         private CanvasGroup canvasGroup;
         private RectTransform parentRect;
-        private Image statusIcon;
-        private TextMeshProUGUI statusChanceLabel;
+        [SerializeField] private Image statusIcon;
+        [SerializeField] private TextMeshProUGUI statusChanceLabel;
 
-        public static CombatTargetPreviewView Create(Transform parent)
+        public static CombatTargetPreviewView Create(Transform parent, CombatTargetPreviewView template = null)
         {
             if (parent == null) return null;
+            if (template != null)
+            {
+                var clone = Instantiate(template, parent, false);
+                clone.Initialize();
+                return clone;
+            }
 
             var gameObject = new GameObject(
                 "Combat Target Preview",
@@ -36,7 +44,7 @@ namespace Godmist.Views.UI
         }
 
         public void Show(Vector2 screenPosition, string text, Color color,
-            Sprite statusSprite = null, float statusChance = 0f)
+            Sprite statusSprite = null, float statusChance = 0f, BattleUnit target = null)
         {
             if (rectTransform == null) Initialize();
             if (parentRect == null || label == null || canvasGroup == null)
@@ -55,10 +63,24 @@ namespace Godmist.Views.UI
 
             var hasStatus = statusSprite != null;
             var hasText = !string.IsNullOrEmpty(text);
-            rectTransform.sizeDelta = new Vector2(hasStatus ? hasText ? 262f : 72f : 190f, 42f);
-            rectTransform.anchoredPosition = localPosition + new Vector2(0f, 44f);
-            label.text = text ?? string.Empty;
-            label.color = color;
+            var authored = titleText != null;
+            rectTransform.sizeDelta = authored ? new Vector2(300f, hasStatus ? 136f : 112f)
+                : new Vector2(hasStatus ? hasText ? 262f : 72f : 190f, 42f);
+            var half = rectTransform.sizeDelta * .5f;
+            // Match ordinary hover tooltips: top-left beside the pointer, then
+            // flip at the screen edge instead of anchoring to the target's tile.
+            var position = localPosition + new Vector2(half.x + 8f, -half.y - 8f);
+            if (position.x + half.x > parentRect.rect.xMax)
+                position.x = localPosition.x - half.x - 8f;
+            if (position.y - half.y < parentRect.rect.yMin)
+                position.y = localPosition.y + half.y + 8f;
+            position.x = Mathf.Clamp(position.x, parentRect.rect.xMin + half.x, parentRect.rect.xMax - half.x);
+            position.y = Mathf.Clamp(position.y, parentRect.rect.yMin + half.y, parentRect.rect.yMax - half.y);
+            rectTransform.anchoredPosition = position;
+            if (titleText != null) titleText.text = target?.Character?.Definition?.DisplayName ?? target?.Character?.CharacterId ?? string.Empty;
+            var health = authored && target?.Character != null ? $"HP: {CombatHealthPresentation.Format(target.Character)}\n" : string.Empty;
+            label.text = health + (text ?? string.Empty);
+            label.color = authored ? new Color(.91f,.875f,.78f) : color;
             if (statusIcon != null)
             {
                 statusIcon.gameObject.SetActive(hasStatus);
@@ -72,8 +94,8 @@ namespace Godmist.Views.UI
             var labelRect = label.rectTransform;
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = new Vector2(8f, 4f);
-            labelRect.offsetMax = new Vector2(hasStatus && hasText ? -72f : -8f, -4f);
+            labelRect.offsetMin = authored ? new Vector2(16f, hasStatus ? 40f : 12f) : new Vector2(8f, 4f);
+            labelRect.offsetMax = authored ? new Vector2(-16f, -44f) : new Vector2(hasStatus && hasText ? -72f : -8f, -4f);
             canvasGroup.alpha = 1f;
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
@@ -81,6 +103,8 @@ namespace Godmist.Views.UI
 
         public void Hide()
         {
+            // The HUD can be destroyed before the world targeting controller on scene exit.
+            if (this == null) return;
             if (canvasGroup != null) canvasGroup.alpha = 0f;
             else gameObject.SetActive(false);
         }
@@ -90,6 +114,14 @@ namespace Godmist.Views.UI
             rectTransform ??= transform as RectTransform;
             parentRect ??= transform.parent as RectTransform;
             canvasGroup ??= GetComponent<CanvasGroup>();
+
+            if (label != null)
+            {
+                canvasGroup.alpha = 0f;
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+                return;
+            }
 
             var background = GetComponent<Image>();
             if (background != null)

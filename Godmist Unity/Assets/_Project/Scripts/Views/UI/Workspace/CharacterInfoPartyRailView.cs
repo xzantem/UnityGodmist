@@ -31,11 +31,13 @@ namespace Godmist.Views.UI.Workspace
         private GameSession session;
         private PartyRailMenuView menu;
         private CombatUnitInspectWindowView inspectWindow;
+        private SkillTreeProgressionPanelView developmentWindow;
         private bool dirty;
         private CharacterInfoPartyPortraitView dragged;
         private string destinationMember;
         private int destinationIndex, newGroupIndex;
         private bool validDrop;
+        private UIWorkspaceTooltipView dragTooltip;
 
         private void Awake()
         {
@@ -47,12 +49,12 @@ namespace Godmist.Views.UI.Workspace
             var next = Godmist.Views.Game.GameBootstrap.Instance?.Session;
             if (next != session)
             {
-                Unsubscribe(); CancelDrag(); menu?.Hide(); session = next;
+                Unsubscribe(); CancelDrag(); menu?.Hide(); developmentWindow?.Close(); session = next;
                 if (session != null) { session.PartyRosterChanged += Refresh; session.PlayerParty.GroupsChanged += Refresh; }
                 dirty = true;
             }
             if (dragged != null && Input.GetKeyDown(KeyCode.Escape)) CancelDrag();
-            if (session != null && session.CurrentMode == GameModeState.Exploration
+            if (session != null && (session.CurrentMode == GameModeState.Exploration || session.CurrentMode == GameModeState.Combat)
                 && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput()
                 && Input.GetKeyDown(KeyCode.I))
                 ToggleActiveCharacterInfo();
@@ -76,12 +78,14 @@ namespace Godmist.Views.UI.Workspace
             Unsubscribe();
             if (menu != null) Destroy(menu.gameObject);
             if (inspectWindow != null) Destroy(inspectWindow.gameObject);
+            if (developmentWindow != null) Destroy(developmentWindow.gameObject);
             foreach (var window in windows.Values) if (window != null) Destroy(window.gameObject);
         }
-        public void Refresh() => dirty = true;
+        public void Refresh() { menu?.Hide(); dirty = true; }
         private void Rebuild()
         {
             dirty = false;
+            foreach (var portrait in portraits) if (portrait != null) portrait.FlushProgressionFeedback();
             foreach (var group in groupViews) if (group != null) { group.gameObject.SetActive(false); Destroy(group.gameObject); }
             groupViews.Clear(); portraits.Clear();
             if (session == null || portraitTemplate == null || portraitRoot == null || groupTemplate == null) return;
@@ -99,6 +103,7 @@ namespace Godmist.Views.UI.Workspace
                     portrait.ConfigureRail(this, j == 0, j == members.Count - 1);
                     portraits.Add(portrait);
                 }
+                group.ConfigurePresentation(members.Count, i > 0);
             }
         }
         private void Select(string id) { menu?.Hide(); partyController?.SelectMember(id); }
@@ -106,25 +111,29 @@ namespace Godmist.Views.UI.Workspace
         public void ShowMenu(CharacterInfoPartyPortraitView portrait, Vector2 position)
         {
             if (session == null || dragged != null || menuTemplate == null || workspaceManager?.WorkspaceRoot == null) return;
+            UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(portrait.transform);
             menu ??= Instantiate(menuTemplate, workspaceManager.WorkspaceRoot);
             var id = portrait.CharacterId;
             if (!session.CharactersById.TryGetValue(id, out var character)) return;
             var party = session.PlayerParty; var groupIndex = party.GetGroupIndex(id);
             if (groupIndex < 0) return;
-            var actions = new List<(string, Action, bool)> {
-                ("Odłącz", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1)
+            var actions = new List<PartyRailMenuView.Entry> {
+                new("Karta postaci", () => OpenCharacterInfo(character), characterInfoWindowPrefab != null),
+                new("Statystyki i efekty", () => Inspect(character), inspectTemplate != null),
+                new("Wycentruj kamerę", () => Center(id), partyController != null),
+                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true)
             };
+            var groups = new List<PartyRailMenuView.Entry>();
             for (var i = 0; i < party.GroupCount; i++)
             {
                 if (i == groupIndex) continue;
                 var target = party.GetGroup(i)[0];
                 var name = session.CharactersById[target].Definition?.DisplayName ?? target;
-                actions.Add(($"Dołącz do grupy: {name}", () => party.TryJoinGroup(id, target), true));
+                groups.Add(new(name, () => party.TryJoinGroup(id, target)));
             }
-            actions.Add(("Wycentruj", () => Center(id), partyController != null));
-            actions.Add(("Inspektuj", () => Inspect(character), inspectTemplate != null));
-            actions.Add(("Okno postaci", () => OpenCharacterInfo(character), characterInfoWindowPrefab != null));
-            menu.Show(position, actions);
+            if (groups.Count > 0) actions.Add(new("Dołącz do grupy →", children: groups));
+            var hint = party.GetGroup(groupIndex).Count == 1 ? "Postać porusza się samodzielnie." : null;
+            menu.Show(position, actions, character.Definition?.DisplayName ?? id, hint);
         }
         private void Inspect(CharacterInstance character)
         {
@@ -138,12 +147,17 @@ namespace Godmist.Views.UI.Workspace
         {
             if (session == null) return;
             menu?.Hide(); dragged = portrait;
+            dragTooltip = UIWorkspaceTooltipView.ActiveInstance;
+            dragTooltip?.BeginDragSuppression();
             if (dragGhost != null) { dragGhost.sprite = portrait.PortraitSprite; dragGhost.gameObject.SetActive(true); dragGhost.transform.SetAsLastSibling(); }
             Drag(e);
         }
         public void Drag(PointerEventData e)
         {
             if (dragged == null) return;
+            // Status icons and other hover sources may queue a tooltip as the
+            // pointer crosses them. The drag preview owns this interaction.
+            dragTooltip?.Hide();
             foreach (var row in portraits) row.MarkInsertion(false, false);
             foreach (var group in groupViews) group.Highlight(false);
             if (newGroupMarker != null) newGroupMarker.enabled = false;
@@ -189,11 +203,57 @@ namespace Godmist.Views.UI.Workspace
         }
         public void CancelDrag()
         {
+            dragTooltip?.EndDragSuppression();
+            dragTooltip = null;
             dragged = null; validDrop = false;
             if (dragGhost != null) dragGhost.gameObject.SetActive(false);
             if (newGroupMarker != null) newGroupMarker.enabled = false;
             foreach (var row in portraits) if (row != null) row.MarkInsertion(false, false);
             foreach (var group in groupViews) if (group != null) group.Highlight(false);
+        }
+        public bool CanOpenDevelopment(CharacterInstance character) => character != null && session != null
+            && session.CharactersById.TryGetValue(character.CharacterId, out var registered) && ReferenceEquals(registered, character)
+            && character.AvailableSkillPoints > 0 && !session.IsCharacterInCombat(character.CharacterId);
+        public void OpenCharacterDevelopment(CharacterInstance character)
+        {
+            if (!CanOpenDevelopment(character)) return;
+            var manager = workspaceManager ?? UIWorkspaceWindowManager.Instance;
+            if (manager?.WorkspaceRoot == null || characterInfoWindowPrefab?.DevelopmentWindowPrefab == null) return;
+            menu?.Hide(); UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
+            if (developmentWindow == null)
+                developmentWindow = Instantiate(characterInfoWindowPrefab.DevelopmentWindowPrefab, manager.WorkspaceRoot);
+            developmentWindow.Open(session, character.CharacterId);
+        }
+        public void ShowProgressionFeedback(CharacterInstance character, int amount, int levels, RectTransform portrait, TMPro.TMP_Text fontSource)
+        {
+            if (!isActiveAndEnabled || character == null || amount <= 0) return;
+            var root = workspaceManager?.WorkspaceRoot ?? GetComponentInParent<Canvas>()?.transform as RectTransform;
+            if (root == null) return;
+            var canvas = root.GetComponentInParent<Canvas>();
+            var uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            var screen = RectTransformUtility.WorldToScreenPoint(uiCamera, portrait.TransformPoint(new Vector2(portrait.rect.center.x, portrait.rect.yMax)));
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(root, screen, uiCamera, out var local);
+            local.y += levels > 0 ? 74 : 50;
+            if (local.y > root.rect.yMax - 80)
+                local.x += portrait.rect.width * .5f + 226;
+            local.x = Mathf.Clamp(local.x, root.rect.xMin + 210, root.rect.xMax - 210);
+            local.y = Mathf.Clamp(local.y, root.rect.yMin + 55, root.rect.yMax - 80);
+            var text = $"+{amount} XP" + (levels > 0 ? "\nZdobyto poziom!" + (levels > 1 ? $" ×{levels}" : "") : "");
+            var view = CombatFloatingFeedbackView.Create(root, fontSource);
+            view.Show(text, levels > 0 ? new Color(1, .82f, .35f) : new Color(.55f, .85f, 1f), local, 0, levels > 0);
+            var world = partyController?.ActiveMemberViews.FirstOrDefault(v => v != null && v.CharacterId == character.CharacterId && v.gameObject.activeInHierarchy);
+            var camera = Camera.main;
+            if (world != null && camera != null)
+            {
+                Vector3? Anchor() => world != null ? world.BodyRenderer != null
+                    ? new Vector3(world.BodyRenderer.bounds.center.x, world.BodyRenderer.bounds.max.y, 0)
+                    : world.transform.position + Vector3.up : null;
+                var anchor = Anchor().Value;
+                var viewport = camera.WorldToViewportPoint(anchor);
+                if (viewport.z > 0 && viewport.x >= 0 && viewport.x <= 1 && viewport.y >= 0 && viewport.y <= 1
+                    && (world.BodyRenderer == null || world.BodyRenderer.enabled && !world.BodyRenderer.forceRenderingOff))
+                    view.BindWorldAnchor(camera, root, Anchor, anchor, new Vector2(0, levels > 0 ? 64 : 40));
+            }
         }
         private void OpenCharacterInfo(CharacterInstance character)
         {
@@ -214,8 +274,9 @@ namespace Godmist.Views.UI.Workspace
         {
             var leaderId = session?.PlayerParty.ActiveLeaderId;
             if (string.IsNullOrEmpty(leaderId)
-                || !session.CharactersById.TryGetValue(leaderId, out var character)
-                || session.IsCharacterInCombat(leaderId)) return;
+                || !session.CharactersById.TryGetValue(leaderId, out var character)) return;
+
+            menu?.Hide();
 
             if (windows.TryGetValue(leaderId, out var existing)
                 && existing != null && existing.gameObject.activeInHierarchy)

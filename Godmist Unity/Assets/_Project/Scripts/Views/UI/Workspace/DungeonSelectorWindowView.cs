@@ -15,6 +15,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TMP_Text[] offerLabels;
         [SerializeField] private Image[] offerBorders;
         [SerializeField] private TMP_Text details, partySummary, departLabel, abandonLabel;
+        [SerializeField] private TMP_Text selectionHeading, selectionState;
         [SerializeField] private Button depart, abandon;
         [SerializeField] private Transform partyRoot;
         [SerializeField] private Godmist.Views.UI.CombatPartyMemberView partyTemplate;
@@ -39,7 +40,7 @@ namespace Godmist.Views.UI.Workspace
         }
         private void Update()
         {
-            if(bootstrap==null) return;
+            if(bootstrap==null || !IsOpen) return;
             if(bootstrap.Session==null || bootstrap.Session.HasCombat) { window.Close(); return; }
             if(Time.unscaledTime>=nextRefresh) { nextRefresh=Time.unscaledTime+.2f; Refresh(); }
         }
@@ -68,8 +69,18 @@ namespace Godmist.Views.UI.Workspace
                 offerButtons[i].gameObject.SetActive(active==null && exists);
                 if(!exists) continue;
                 var offer=board.Offers[i];var definition=Resolve(offer.DefinitionId);
-                offerLabels[i].text=$"{(definition!=null ? definition.DisplayName : "Niedostepny loch")}\nPoziom {DungeonOfferSystem.OfferLevel(average,offer)}";
-                offerBorders[i].color=i==board.SelectedIndex ? selectedColor : normalColor;
+                offerLabels[i].text=OfferCaption(definition, offer.Length, DungeonOfferSystem.OfferLevel(average,offer));
+                var palette=offerButtons[i].GetComponent<UIWorkspaceStyleApplier>()?.Palette;
+                if(palette!=null && palette.IsArtwork(offerBorders[i].sprite))
+                {
+                    palette.ApplyFrameAccent(offerBorders[i],i==board.SelectedIndex ? UIWorkspaceAccentStyle.Selected : UIWorkspaceAccentStyle.Neutral);
+                    var selectedMarker = i == board.SelectedIndex;
+                    if (offerButtons[i].targetGraphic is Image background)
+                        background.sprite = palette.GetArtwork(selectedMarker ? "button_selected" : "button_normal") ?? background.sprite;
+                    offerLabels[i].color = selectedMarker ? palette.GetAccentColor(UIWorkspaceAccentStyle.Selected)
+                        : palette.GetTextColor(UIWorkspaceTextStyle.Body);
+                }
+                else offerBorders[i].color=i==board.SelectedIndex ? selectedColor : normalColor;
                 offerButtons[i].interactable=active==null && definition!=null && !busy;
             }
             var selected=board.Offers.Count>board.SelectedIndex ? board.Offers[board.SelectedIndex] : null;
@@ -77,19 +88,26 @@ namespace Godmist.Views.UI.Workspace
             var level=active!=null ? active.DungeonLevel : selected==null ? 0 : DungeonOfferSystem.OfferLevel(average,selected);
             var difference=level-average;
             var relativeLevel=difference>0 ? $"+{difference}" : difference.ToString();
-            details.text=chosen==null ? "Brak dostepnych wypraw." : $"{chosen.DisplayName}\n\nRegion: {ThemeName(chosen.Theme)}\nPoziom {level} · {relativeLevel} względem drużyny"+
-                (active!=null ? "\n\nWyprawa w toku. Mozesz ja wznowic lub porzucic. Porzucenie usuwa postep w tym lochu." : "");
+            var heading = chosen == null ? "Brak dostępnych wypraw" : chosen.DisplayName;
+            details.text = chosen == null ? "" : $"Poziom: {level}\nDrużyna: {average} · różnica {relativeLevel}";
+            var length = active?.Length ?? selected?.Length ?? Godmist.Core.Enums.DungeonLength.Unspecified;
+            if (chosen != null && length != Godmist.Core.Enums.DungeonLength.Unspecified)
+                details.text += $"\n{DungeonLengthPresentation.Name(length)} · Zestawy obozowe: {(int)length-1} · Quest ukończenia ×{(int)length}";
+            if (selectionHeading != null) selectionHeading.text = heading;
+            else details.text = heading + "\n\n" + details.text;
             if(chosen!=null && chosen.Theme!=Godmist.Core.Enums.DungeonTheme.Story)
             {
                 var danger=board.GetDanger(chosen.Theme);
-                details.text+=$"\nZagrożenie: {danger}% ({DungeonOfferSystem.DangerBand(danger)})";
+                details.text+=$"\n\nZagrożenie: {danger}% · {DangerLabel(danger)}";
             }
-            if(!string.IsNullOrEmpty(errorMessage)) details.text+="\n\n"+errorMessage;
-            departLabel.text=active==null ? "Wyrusz" : "Wznow";
+            var state = !string.IsNullOrEmpty(errorMessage) ? errorMessage : active != null ? "Wyprawa w toku" : "";
+            if (selectionState != null) selectionState.text = state;
+            else if (!string.IsNullOrEmpty(state)) details.text += "\n\n" + state;
+            departLabel.text=active==null ? "Wyrusz" : "Wznów";
             depart.interactable=!busy && chosen!=null && session.PlayerParty.ActiveMemberIds.Count>0;
             abandon.gameObject.SetActive(active!=null);abandon.interactable=!busy;
-            abandonLabel.text=confirmAbandon ? "Potwierdz porzucenie" : "Porzuc wyprawe";
-            partySummary.text=$"Aktywna druzyna - sredni poziom: {average}";
+            abandonLabel.text=confirmAbandon ? "Potwierdź porzucenie" : "Porzuć wyprawę";
+            partySummary.text=$"Aktywna drużyna · średni poziom: {average}";
             int count=0;
             foreach(var id in session.PlayerParty.ActiveMemberIds)
             {
@@ -106,6 +124,15 @@ namespace Godmist.Views.UI.Workspace
             if(bootstrap.ContentCatalog!=null && bootstrap.ContentCatalog.TryGetDungeon(id,out var found)) return found;
             return fallback!=null && fallback.Id==id ? fallback : null;
         }
+        public static string OfferCaption(DungeonDefinition definition, Godmist.Core.Enums.DungeonLength length, int level)
+            => $"{(definition != null ? MarkerName(definition) : "Niedostępny loch")}\n{DungeonLengthPresentation.Name(length)} · Poz. {level}";
+
+        private static string MarkerName(DungeonDefinition definition) => definition.IsStoryDungeon
+            ? definition.DisplayName : ThemeName(definition.Theme) + (definition.BossEncounterDefinition != null ? " · Boss" : "");
+        private static string DangerLabel(int danger) => DungeonOfferSystem.DangerBand(danger) switch
+        {
+            "Low" => "Niskie", "Medium" => "Średnie", "High" => "Wysokie", _ => "Maksymalne"
+        };
         private static string ThemeName(Godmist.Core.Enums.DungeonTheme theme) => theme switch
         {
             Godmist.Core.Enums.DungeonTheme.Catacombs => "Katakumby",
@@ -113,8 +140,8 @@ namespace Godmist.Views.UI.Workspace
             Godmist.Core.Enums.DungeonTheme.ElvenRuins => "Elfie ruiny",
             Godmist.Core.Enums.DungeonTheme.Docks => "Doki",
             Godmist.Core.Enums.DungeonTheme.Desert => "Pustynia",
-            Godmist.Core.Enums.DungeonTheme.Temple => "Swiatynia",
-            Godmist.Core.Enums.DungeonTheme.Mountains => "Gory",
+            Godmist.Core.Enums.DungeonTheme.Temple => "Świątynia",
+            Godmist.Core.Enums.DungeonTheme.Mountains => "Góry",
             Godmist.Core.Enums.DungeonTheme.Swamp => "Bagna",
             _ => "Wyprawa fabularna"
         };
@@ -124,7 +151,7 @@ namespace Godmist.Views.UI.Workspace
             var session=bootstrap.Session;var active=session.ActiveDungeon;
             bool success=active!=null ? bootstrap.TryEnterDungeon(active.Definition ?? Resolve(active.DungeonId),active.Seed)
                 : bootstrap.TryEnterDungeonOffer(session.DungeonOffers.SelectedIndex, Resolve(session.DungeonOffers.Offers[session.DungeonOffers.SelectedIndex].DefinitionId));
-            if(success) window.Close();else { busy=false;errorMessage="Nie udalo sie rozpoczac wyprawy.";Refresh(); }
+            if(success) window.Close();else { busy=false;errorMessage="Nie udało się rozpocząć wyprawy.";Refresh(); }
         }
         private void Abandon()
         {

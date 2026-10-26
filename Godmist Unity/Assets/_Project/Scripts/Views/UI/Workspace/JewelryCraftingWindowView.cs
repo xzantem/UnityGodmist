@@ -30,6 +30,9 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private BlacksmithCraftingSlotView previewTooltipSlot;
         [SerializeField] private TextMeshProUGUI previewNameText;
         [SerializeField] private TextMeshProUGUI previewSummaryText;
+        [SerializeField] private TextMeshProUGUI previewEffectsText;
+        [SerializeField] private ScrollRect metalScroll;
+        [SerializeField] private ScrollRect gemScroll;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private Button craftButton;
 
@@ -66,25 +69,13 @@ namespace Godmist.Views.UI.Workspace
             enchanter = nextEnchanter;
             recipientCharacterId = nextRecipientCharacterId;
             serviceRoot?.SetActive(true);
-            EnsureIngredientViewportClip(metalContent);
-            EnsureIngredientViewportClip(gemContent);
+
             HideTemplates();
             PopulateJewelry();
             return selectedDefinition != null;
         }
 
         public void Hide() => serviceRoot?.SetActive(false);
-
-        private static void EnsureIngredientViewportClip(Transform content)
-        {
-            if (content?.parent is not RectTransform viewport) return;
-            // These two serialized viewports have Mask but no Graphic. Unity's
-            // stencil Mask therefore does not clip the rows below the section.
-            var mask = viewport.GetComponent<Mask>();
-            if (mask != null) mask.enabled = false;
-            if (viewport.GetComponent<RectMask2D>() == null)
-                viewport.gameObject.AddComponent<RectMask2D>();
-        }
 
         private void HandleNameChanged(string _) => RefreshPreview();
 
@@ -103,15 +94,18 @@ namespace Godmist.Views.UI.Workspace
                         selectedDefinition = definition;
                         selectedMetal = null;
                         selectedGem = null;
+                        if (metalScroll != null) metalScroll.verticalNormalizedPosition = 1f;
+                        if (gemScroll != null) gemScroll.verticalNormalizedPosition = 1f;
                         PopulateJewelry();
                     });
             }
-            ConfigureJewelrySectionHeight(offers.Count);
             PopulateIngredients();
         }
 
         private void PopulateIngredients()
         {
+            var metalPosition = metalScroll != null ? metalScroll.verticalNormalizedPosition : 1f;
+            var gemPosition = gemScroll != null ? gemScroll.verticalNormalizedPosition : 1f;
             ClearSlots(metalContent);
             ClearSlots(gemContent);
             if (selectedDefinition == null) { RefreshPreview(); return; }
@@ -121,21 +115,26 @@ namespace Godmist.Views.UI.Workspace
             if (!gems.Contains(selectedGem)) selectedGem = gems.FirstOrDefault();
             foreach (var metal in metals)
             {
-                CreateSlot(ingredientSlotTemplate, metalContent, null, JewelryGenerationService.GetMetalDisplayName(metal),
+                var slot = CreateSlot(ingredientSlotTemplate, metalContent, metal.Material?.Icon, JewelryGenerationService.GetMetalDisplayName(metal),
                     BuildMetalTooltip(metal), string.Empty, ReferenceEquals(metal, selectedMetal), false,
                     () => { selectedMetal = metal; PopulateIngredients(); },
-                    tooltipMeta: UIWorkspaceTooltipView.GetRarityDisplayName(
+                    tooltipMeta: UIWorkspaceTooltipView.GetColoredRarityDisplayName(
                         JewelryGenerationService.GetMaterialRarity(metal.Material)));
+                slot?.SetRarity(JewelryGenerationService.GetMaterialRarity(metal.Material));
             }
             foreach (var gem in gems)
             {
-                CreateSlot(ingredientSlotTemplate, gemContent, gem.CraftingMaterial?.Icon, gem.CraftingMaterial?.DisplayName,
+                var slot = CreateSlot(ingredientSlotTemplate, gemContent, gem.CraftingMaterial?.Icon, gem.CraftingMaterial?.DisplayName,
                     BuildGemTooltip(gem), string.Empty,
                     ReferenceEquals(gem, selectedGem), false,
                     () => { selectedGem = gem; PopulateIngredients(); },
-                    tooltipMeta: UIWorkspaceTooltipView.GetRarityDisplayName(
+                    tooltipMeta: UIWorkspaceTooltipView.GetColoredRarityDisplayName(
                         gem.CraftingMaterial?.BaseRarity ?? RarityTier.Common));
+                slot?.SetRarity(gem.CraftingMaterial?.BaseRarity);
             }
+            Canvas.ForceUpdateCanvases();
+            if (metalScroll != null) metalScroll.verticalNormalizedPosition = metalPosition;
+            if (gemScroll != null) gemScroll.verticalNormalizedPosition = gemPosition;
             RefreshPreview();
         }
 
@@ -143,14 +142,15 @@ namespace Godmist.Views.UI.Workspace
         {
             ClearSlots(materialsContent);
             var preview = service.CreatePreview(session, enchanter, BuildRequest());
-            foreach (var material in preview.Materials ?? Array.Empty<CraftingMaterialCost>())
+            foreach (var material in (preview.Materials ?? Array.Empty<CraftingMaterialCost>())
+                .OrderBy(cost => cost.Material == selectedMetal?.Material ? 0 : 1))
             {
                 var id = material.Material?.Id;
                 var canBuy = material.HasPurchasableStock && material.PurchasePrice > 0;
                 var materialSlot = CreateSlot(materialSlotTemplate, materialsContent, material.Material?.Icon,
                     material.Material?.DisplayName, string.Empty, $"{material.OwnedAmount}/{material.RequiredAmount}", false,
                     material.MissingAmount > 0, null,
-                    canBuy ? $"{material.PurchasableAmount}× • {material.PurchasePrice}g" : null,
+                    canBuy ? material.PurchasePrice.ToString("N0") : null,
                     canBuy ? () => BuyMaterial(id) : null, material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
                 materialSlot?.SetItemTooltip(
@@ -161,7 +161,7 @@ namespace Godmist.Views.UI.Workspace
             }
             if (previewTooltipSlot != null)
             {
-                previewTooltipSlot.SetIcon(preview.Result?.Definition?.Icon);
+                previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(preview.Result));
                 if (preview.Result != null)
                     previewTooltipSlot.SetItemTooltip(preview.Result, null);
                 else
@@ -172,28 +172,31 @@ namespace Godmist.Views.UI.Workspace
             SetLabel(previewNameText, preview.Result?.DisplayName);
             var jewelryDefinition = preview.Result?.EquipmentDefinition as JewelryItemDefinition;
             SetLabel(previewSummaryText, preview.Result == null ? string.Empty
-                : $"{jewelryDefinition?.JewelryTypeDisplayName ?? "Biżuteria"} • Poziom {preview.Result.ItemLevel}");
+                : $"{jewelryDefinition?.JewelryTypeDisplayName ?? "Biżuteria"} • Poziom {preview.Result.ItemLevel}\n"
+                    + UIWorkspaceTooltipView.GetColoredRarityDisplayName(preview.Result.CurrentRarity));
+            SetLabel(previewEffectsText, preview.Result == null ? string.Empty
+                : UIWorkspaceTooltipView.BuildJewelryCraftingSummary(preview.Result));
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
-            SetStatus(preview.CanCraft ? "Gotowe do craftingu." : preview.FailureReason);
+            SetStatus(preview.CanCraft ? string.Empty
+                : (preview.Materials?.Any(cost => cost.MissingAmount > 0) == true
+                    ? "Brak materiałów." : preview.FailureReason));
         }
 
         private void BuyMaterial(string id)
         {
-            if (!service.TryBuyMissingMaterial(session, enchanter, BuildRequest(), id, out var paid, out var failure))
+            if (!service.TryBuyMissingMaterial(session, enchanter, BuildRequest(), id, out _, out var failure))
             {
                 SetStatus(failure); return;
             }
-            SetStatus($"Kupiono materiały za {paid}.");
             RefreshPreview();
         }
 
         private void TryCraft()
         {
-            if (!service.TryCraft(session, enchanter, BuildRequest(), out var item, out var failure))
+            if (!service.TryCraft(session, enchanter, BuildRequest(), out _, out var failure))
             {
                 SetStatus(failure); return;
             }
-            SetStatus($"Wytworzono: {item.DisplayName}.");
             RefreshPreview();
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
@@ -225,6 +228,7 @@ namespace Godmist.Views.UI.Workspace
             {
                 var slot = parent.GetChild(index).GetComponent<BlacksmithCraftingSlotView>();
                 if (slot == null || slot == jewelrySlotTemplate || slot == ingredientSlotTemplate || slot == materialSlotTemplate) continue;
+                slot.gameObject.SetActive(false);
                 Destroy(slot.gameObject);
             }
         }
@@ -236,32 +240,7 @@ namespace Godmist.Views.UI.Workspace
             if (materialSlotTemplate != null) materialSlotTemplate.gameObject.SetActive(false);
         }
 
-        private void ConfigureJewelrySectionHeight(int itemCount)
-        {
-            if (jewelryContent == null) return;
-
-            var grid = jewelryContent.GetComponent<GridLayoutGroup>();
-            var section = jewelryContent.parent?.parent as RectTransform;
-            var sectionLayout = section?.GetComponent<LayoutElement>();
-            if (grid == null || sectionLayout == null) return;
-
-            var columns = grid.constraint == GridLayoutGroup.Constraint.FixedColumnCount
-                ? Mathf.Max(1, grid.constraintCount)
-                : Mathf.Max(1, itemCount);
-            var rows = Mathf.Max(1, Mathf.CeilToInt(Mathf.Max(1, itemCount) / (float)columns));
-            var gridHeight = grid.padding.vertical
-                + rows * grid.cellSize.y
-                + Mathf.Max(0, rows - 1) * grid.spacing.y;
-
-            // BaseSection's content rect has a fixed 52 px vertical inset. Keep
-            // only a compact title/content gap and a small bottom breathing room
-            // instead of retaining the equipment panel's 256 px height.
-            sectionLayout.minHeight = -1f;
-            sectionLayout.preferredHeight = Mathf.Ceil(gridHeight + 64f);
-            LayoutRebuilder.MarkLayoutForRebuild(section);
-        }
-
-        private void SetStatus(string value) { if (statusText != null) statusText.text = value ?? string.Empty; }
+        private void SetStatus(string value) => SetLabel(statusText, value);
         private static void SetLabel(TextMeshProUGUI label, string value)
         {
             if (label == null) return;
@@ -269,18 +248,14 @@ namespace Godmist.Views.UI.Workspace
             label.gameObject.SetActive(!string.IsNullOrWhiteSpace(value));
         }
         private static string BuildMetalTooltip(JewelryMetalData metal) => metal == null ? string.Empty
-            : $"Poziom wynikowego przedmiotu: {JewelryGenerationService.GetItemLevel(metal)}\n"
+            : $"Poziom: {JewelryGenerationService.GetItemLevel(metal)}\n"
                 + UIWorkspaceTooltipView.BuildJewelryIngredientEffects(metal.Modifiers);
         private static string BuildGemTooltip(JewelryGemDefinition gem)
         {
             var effects = UIWorkspaceTooltipView.BuildJewelryIngredientEffects(gem?.Modifiers);
-            if (string.IsNullOrWhiteSpace(effects)) return "Po osadzeniu: brak dodatkowych efektów";
+            if (string.IsNullOrWhiteSpace(effects)) return "Brak dodatkowych efektów.";
 
-            return string.Join(
-                "\n",
-                effects.Split('\n')
-                    .Where(effect => !string.IsNullOrWhiteSpace(effect))
-                    .Select(effect => $"Po osadzeniu: {effect}"));
+            return effects;
         }
         private static string BuildMaterialContextTooltip(CraftingMaterialCost material)
         {

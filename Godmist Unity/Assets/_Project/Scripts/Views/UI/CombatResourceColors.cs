@@ -36,6 +36,7 @@ namespace Godmist.Views.UI
 
         public static void ApplyToFill(Slider slider, ResourceType resourceType)
         {
+            CombatBarPresentation.FitFrame(slider);
             if (slider?.fillRect == null)
             {
                 return;

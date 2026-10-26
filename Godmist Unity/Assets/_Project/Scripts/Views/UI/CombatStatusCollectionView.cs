@@ -70,7 +70,7 @@ namespace Godmist.Views.UI
                 {
                     var status = statuses[i];
                     statuses[i] = new CombatStatusPresentation(status.Effect, status.Kind, status.Priority,
-                        explorationCharacter: boundCharacter);
+                        explorationCharacter: boundCharacter, groupedEffects: status.Effects);
                 }
             currentStatuses = statuses;
             var visibleCount = Mathf.Min(statuses.Count, maximumVisibleIcons);
@@ -83,8 +83,7 @@ namespace Godmist.Views.UI
                 iconView.gameObject.SetActive(visible);
                 if (visible)
                 {
-                    var effectId = statuses[index].Effect?.EffectId;
-                    var statusIcon = tooltipView?.GetGlossaryIcon(effectId) ?? tooltipView?.GetGlossaryIcon("buff");
+                    var statusIcon = tooltipView?.GetStatusIcon(statuses[index]);
                     iconView.Bind(statuses[index], tooltipView, statusIcon);
                 }
             }

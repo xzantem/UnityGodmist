@@ -21,7 +21,7 @@ namespace Godmist.Views.UI.Workspace
         {
             title.text = character.Definition?.DisplayName ?? character.CharacterId;
             levelText.text = $"Poziom {character.Level}";
-            portrait.sprite = character.Definition?.VisualSprite;
+            portrait.sprite = character.Definition?.UiPortraitSprite;
             portrait.enabled = portrait.sprite != null;
             var state = character.LifeState == CharacterLifeState.Dead ? "Nie żyje" : "Porzucony";
             statusText.text = state + (activeSlot ? " · Wróci do drużyny" : " · Trafi do rezerwy");
@@ -29,9 +29,11 @@ namespace Godmist.Views.UI.Workspace
             price.text = $"{cost:N0}";
             price.color = canAfford ? palette.GetTextColor(UIWorkspaceTextStyle.Body)
                 : palette.GetAccentColor(UIWorkspaceAccentStyle.Negative);
-            buttonGroup.alpha = canAfford ? 1f : .4f;
+            buttonGroup.alpha = 1f;
             priceTooltip.Bind(breakdown + (canAfford ? string.Empty : $"\nBrakuje {cost - gold:N0} złota."));
             recoverButton.interactable = canAfford;
+            recoverButton.GetComponentInChildren<TMP_Text>(true).text = character.LifeState == CharacterLifeState.Dead
+                ? "Wskrześ" : "Odzyskaj";
             recoverButton.onClick.RemoveAllListeners();
             recoverButton.onClick.AddListener(() => recover());
         }

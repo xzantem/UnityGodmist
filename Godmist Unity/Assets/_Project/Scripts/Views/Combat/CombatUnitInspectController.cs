@@ -88,6 +88,7 @@ namespace Godmist.Views.Combat
             foreach (var unit in session.Units)
             {
                 if (unit != null && unit.Character != null && unit.Character.LifeState != Godmist.Core.Enums.CharacterLifeState.Dead && unit.Position == position
+                    && !Godmist.Systems.Combat.StatusEffectSystem.IsInvisibleToPlayer(unit)
                     && IsPositionVisible?.Invoke(position) != false)
                 {
                     return unit;

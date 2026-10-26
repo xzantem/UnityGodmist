@@ -6,7 +6,7 @@ namespace Godmist.Views.UI.Workspace
 {
     /// <summary>
     /// Owns presentation order and focused-window routing for one workspace layer.
-    /// It deliberately does not pause or otherwise block gameplay input.
+    /// It does not pause gameplay; context menus can claim input for one frame.
     /// </summary>
     public sealed class UIWorkspaceWindowManager : MonoBehaviour
     {
@@ -23,6 +23,9 @@ namespace Godmist.Views.UI.Workspace
             : transform as RectTransform;
         public UIWorkspaceWindow FocusedWindow { get; private set; }
         public bool HasOpenWindows => openWindows.Count > 0;
+        private int contextMenuInputFrame = -1;
+        public bool ConsumedContextMenuInputThisFrame => contextMenuInputFrame == Time.frameCount;
+        public void ConsumeContextMenuInput() => contextMenuInputFrame = Time.frameCount;
 
         private void Awake()
         {
@@ -47,6 +50,7 @@ namespace Godmist.Views.UI.Workspace
             if (DevConsoleView.IsOpen
                 || closeFocusedWindowKey == KeyCode.None
                 || !Input.GetKeyDown(closeFocusedWindowKey)
+                || UIWorkspaceInputRouter.HasFocusedContextMenu()
                 || UIWorkspaceInputRouter.HasFocusedTextInput())
             {
                 return;

@@ -10,6 +10,7 @@ using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace Godmist.Views.UI.Workspace
 {
@@ -25,6 +26,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private DungeonLootItemView itemTemplate;
         [SerializeField] private DungeonLootGoldSlotView goldSlot;
         [SerializeField] private TextMeshProUGUI emptyText;
+        [SerializeField] private Button collectAllButton;
 
         private readonly LootCollectionService lootCollectionService = new();
         private readonly List<DungeonLootItemView> itemViews = new();
@@ -45,6 +47,7 @@ namespace Godmist.Views.UI.Workspace
         private void Awake()
         {
             ActiveInstance = this;
+            collectAllButton?.onClick.AddListener(CollectAll);
         }
 
         private void Update()
@@ -53,7 +56,13 @@ namespace Godmist.Views.UI.Workspace
             {
                 EndDrag();
                 window.Close();
+                return;
             }
+            var selected = EventSystem.current?.currentSelectedGameObject;
+            if (Input.GetKeyDown(KeyCode.B) && window?.IsOpen == true
+                && window.Manager?.FocusedWindow == window && !DevConsoleView.IsOpen
+                && (selected == null || (selected.GetComponent<TMP_InputField>() == null
+                    && selected.GetComponent<InputField>() == null))) CollectAll();
         }
 
         private void OnDisable()
@@ -64,6 +73,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDestroy()
         {
             if (ActiveInstance == this) ActiveInstance = null;
+            collectAllButton?.onClick.RemoveListener(CollectAll);
         }
 
         public static DungeonLootWindowView OpenOrReuse(
@@ -147,6 +157,12 @@ namespace Godmist.Views.UI.Workspace
                     return;
                 }
 
+                if (chest.Items.Count == 0 && chest.Gold <= 0)
+                {
+                    Close();
+                    return;
+                }
+
                 RefreshItems(
                     chest.Items,
                     "Łup ze skrzyni",
@@ -160,6 +176,12 @@ namespace Godmist.Views.UI.Workspace
             {
                 EndDrag();
                 window?.Close();
+                return;
+            }
+
+            if (body.IsEmpty)
+            {
+                Close();
                 return;
             }
 
@@ -203,6 +225,19 @@ namespace Godmist.Views.UI.Workspace
             }
 
             window?.Focus();
+            if (collectAllButton != null) collectAllButton.interactable = items.Count > 0 || gold > 0;
+        }
+
+        public void CollectAll()
+        {
+            if (!CanCollect()) return;
+            var sourceId = isChestSource ? chestInstanceId : bodyInstanceId;
+            if (lootCollectionService.ClaimAllDungeonLoot(session, sourceId, isChestSource) == 0) return;
+            EndDrag();
+            UIWorkspaceTooltipView.ActiveInstance?.Hide();
+            LootClaimed?.Invoke(sourceId, "Zebrano łup");
+            CharacterInfoWindowView.RefreshOpenWindows(session);
+            Refresh();
         }
 
         public bool TryClaimItem(string itemInstanceId)
@@ -339,7 +374,7 @@ namespace Godmist.Views.UI.Workspace
             var ghostRect = dragGhost.GetComponent<RectTransform>();
             ghostRect.sizeDelta = new Vector2(56f, 56f);
             var ghostImage = dragGhost.GetComponent<Image>();
-            ghostImage.sprite = source.Item.Definition?.Icon;
+            ghostImage.sprite = ItemIconPresentation.GetIcon(source.Item);
             ghostImage.preserveAspect = true;
             ghostImage.raycastTarget = false;
             var group = dragGhost.AddComponent<CanvasGroup>();
@@ -452,7 +487,11 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var view in itemViews)
             {
-                if (view != null) Destroy(view.gameObject);
+                if (view != null)
+                {
+                    if (Application.isPlaying) Destroy(view.gameObject);
+                    else DestroyImmediate(view.gameObject);
+                }
             }
 
             itemViews.Clear();
@@ -715,6 +754,17 @@ namespace Godmist.Views.UI.Workspace
             goldLabel.rectTransform.offsetMin = Vector2.zero;
             goldLabel.rectTransform.offsetMax = Vector2.zero;
             goldSlot.ConfigureRuntime(goldIcon, goldLabel);
+
+            var allObject = new GameObject("CollectAll", typeof(RectTransform), typeof(Image), typeof(Button));
+            allObject.transform.SetParent(footer, false);
+            var allRect = allObject.GetComponent<RectTransform>();
+            allRect.anchorMin = Vector2.zero; allRect.anchorMax = Vector2.one;
+            allRect.offsetMin = Vector2.zero; allRect.offsetMax = Vector2.zero;
+            var allLabel = CreateText(allObject.transform, "Label", "Zbierz wszystko [B]", TextAlignmentOptions.Center, 16f);
+            allLabel.rectTransform.anchorMin = Vector2.zero; allLabel.rectTransform.anchorMax = Vector2.one;
+            allLabel.rectTransform.offsetMin = Vector2.zero; allLabel.rectTransform.offsetMax = Vector2.zero;
+            collectAllButton = allObject.GetComponent<Button>();
+            collectAllButton.onClick.AddListener(CollectAll);
         }
 
         private static RectTransform CreateRect(

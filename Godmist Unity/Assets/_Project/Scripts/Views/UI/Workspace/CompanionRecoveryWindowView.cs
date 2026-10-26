@@ -7,6 +7,7 @@ using Godmist.Systems.NPC;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 namespace Godmist.Views.UI.Workspace
 {
     public sealed class CompanionRecoveryWindowView : MonoBehaviour
@@ -16,6 +17,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private CompanionRecoveryRowView rowTemplate;
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private TextMeshProUGUI walletText;
+        [SerializeField] private TextMeshProUGUI countText;
+        [SerializeField] private ScrollRect rowsScroll;
         private readonly List<CompanionRecoveryRowView> rows = new();
         private readonly CompanionRecoveryService service = new();
         private GameSession game;
@@ -28,7 +31,9 @@ namespace Godmist.Views.UI.Workspace
             if (game == null || npc == null || !game.CharactersById.ContainsKey(recipient)) return false;
             priest = npc; speakerId = recipient;
             serviceRoot.SetActive(true); rowTemplate.gameObject.SetActive(false);
-            Refresh(); return true;
+            Refresh();
+            if (rowsScroll != null) rowsScroll.verticalNormalizedPosition = 1;
+            return true;
         }
         public void Hide() { Clear(); serviceRoot.SetActive(false); }
         private void OnDisable() => Clear();
@@ -36,7 +41,16 @@ namespace Godmist.Views.UI.Workspace
         {
             if (game != null && serviceRoot.activeSelf && (game.Gold != lastGold || game.CharactersById[speakerId].Honor != lastHonor)) Refresh();
         }
-        private void Clear() { foreach (var row in rows) if (row != null) Destroy(row.gameObject); rows.Clear(); }
+        private void Clear()
+        {
+            foreach (var row in rows)
+            {
+                if (row == null) continue;
+                row.gameObject.SetActive(false);
+                Destroy(row.gameObject);
+            }
+            rows.Clear();
+        }
         private void Refresh()
         {
             Clear();
@@ -57,13 +71,20 @@ namespace Godmist.Views.UI.Workspace
                 row.Bind(character, cost, game.Gold, game.PlayerParty.IsActiveMember(id) || game.PlayerParty.ActiveMemberIds.Count < game.PlayerParty.MaxActiveMembers, breakdown, () => Recover(id));
                 rows.Add(row);
             }
+            if (countText != null) countText.text = rows.Count.ToString();
             messageText.gameObject.SetActive(rows.Count == 0);
             messageText.text = rows.Count == 0 ? "Brak towarzyszy do odzyskania." : string.Empty;
         }
         private void Recover(string id)
         {
-            service.TryRecover(game, priest, speakerId, id, out var message);
-            Refresh(); messageText.gameObject.SetActive(true); messageText.text = message;
+            var recovered = service.TryRecover(game, priest, speakerId, id, out var message);
+            Refresh();
+            if (!recovered)
+            {
+                messageText.gameObject.SetActive(true);
+                messageText.text = message;
+            }
+            else CharacterInfoWindowView.RefreshOpenWindows(game);
         }
     }
 }

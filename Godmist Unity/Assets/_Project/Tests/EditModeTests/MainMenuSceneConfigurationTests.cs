@@ -44,6 +44,17 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void ContinueHasPrimaryArtworkAndLargerLabelThanSecondaryActions()
+        {
+            var menu=new SerializedObject(canvas.Find("MainMenuRoot").GetComponent<MainMenuView>());
+            var primary=(UnityEngine.UI.Button)menu.FindProperty("continueButton").objectReferenceValue;
+            var secondary=(UnityEngine.UI.Button)menu.FindProperty("newGameButton").objectReferenceValue;
+            Assert.That(((UnityEngine.UI.Image)primary.targetGraphic).sprite.name,Is.EqualTo("button_selected"));
+            Assert.That(((UnityEngine.UI.Image)secondary.targetGraphic).sprite.name,Is.EqualTo("list_row_normal"));
+            Assert.That(primary.GetComponentInChildren<TMPro.TMP_Text>(true).fontSize,Is.GreaterThan(secondary.GetComponentInChildren<TMPro.TMP_Text>(true).fontSize));
+        }
+
+        [Test]
         public void VolumeControlHasInteractiveHandleRatherThanDisplayOnlyBar()
         {
             var settings = new SerializedObject(canvas.Find("MainMenuRoot").GetComponent<MainMenuSettingsView>());
@@ -53,6 +64,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(slider.FindProperty("m_TargetGraphic").objectReferenceValue, Is.Not.Null);
             Assert.That(slider.FindProperty("m_MinValue").floatValue, Is.Zero);
             Assert.That(slider.FindProperty("m_MaxValue").floatValue, Is.EqualTo(1));
+            var control=(UnityEngine.UI.Slider)settings.FindProperty("volumeSlider").objectReferenceValue;
+            control.value=.3f;
+            Assert.That(control.handleRect.rect.height,Is.EqualTo(32).Within(.1f),"Handle must keep its height when Slider updates driven anchors.");
         }
 
         [Test]

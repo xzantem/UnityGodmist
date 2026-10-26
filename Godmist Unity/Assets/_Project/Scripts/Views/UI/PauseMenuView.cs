@@ -3,6 +3,7 @@ using Godmist.Runtime.Game;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Godmist.Views.UI
@@ -14,6 +15,7 @@ namespace Godmist.Views.UI
         [SerializeField] private GameObject menuPanelRoot;
         [SerializeField] private SaveLoadPanelView saveLoadPanel;
         [SerializeField] private GameObject gameTitleRoot;
+        [SerializeField] private MainMenuSettingsView settingsPanel;
 
         [Header("Buttons")]
         [SerializeField] private Button resumeButton;
@@ -25,6 +27,10 @@ namespace Godmist.Views.UI
 
         private GameSession gameSession;
         private GameModeState modeBeforeOpen;
+        private int childClosedFrame = -1;
+        private Button saveLoadReturnButton;
+        private float timeScaleBeforeOpen = 1f;
+        private bool ownsTimePause;
 
         public bool IsOpen => overlayRoot != null && overlayRoot.activeSelf;
 
@@ -33,16 +39,25 @@ namespace Godmist.Views.UI
             resumeButton.onClick.AddListener(Close);
             saveGameButton.onClick.AddListener(OpenSavePanel);
             loadGameButton.onClick.AddListener(OpenLoadPanel);
-            settingsButton.onClick.AddListener(ShowSettingsPlaceholder);
+            settingsButton.onClick.AddListener(OpenSettings);
+            settingsButton.interactable = settingsPanel != null;
             quitGameButton.onClick.AddListener(QuitGame);
 
             saveLoadPanel.Closed += HandleSaveLoadPanelClosed;
+            if (settingsPanel != null) settingsPanel.Closed += HandleSettingsClosed;
 
             overlayRoot.SetActive(false);
         }
 
         private void OnDestroy()
         {
+            RestoreTime();
+            resumeButton?.onClick.RemoveListener(Close);
+            saveGameButton?.onClick.RemoveListener(OpenSavePanel);
+            loadGameButton?.onClick.RemoveListener(OpenLoadPanel);
+            settingsButton?.onClick.RemoveListener(OpenSettings);
+            quitGameButton?.onClick.RemoveListener(QuitGame);
+            if (settingsPanel != null) settingsPanel.Closed -= HandleSettingsClosed;
             if (saveLoadPanel != null)
             {
                 saveLoadPanel.Closed -= HandleSaveLoadPanelClosed;
@@ -56,11 +71,25 @@ namespace Godmist.Views.UI
             var session = GameBootstrap.Instance?.Session;
 
             if (session == null || session.IsDefeated) return;
+            // Settings owns Escape, including its dropdown and display confirmation.
+            if (settingsPanel?.IsOpen == true || childClosedFrame == Time.frameCount
+                || (saveLoadPanel?.IsOpen == true && saveLoadPanel.HandlesKeyboardNavigation)) return;
             if (!Input.GetKeyDown(KeyCode.Escape)) return;
+
+            HandleEscape();
+        }
+
+        public void HandleEscape()
+        {
+            if (settingsPanel?.IsOpen == true)
+            {
+                settingsPanel.HandleEscape();
+                return;
+            }
 
             if (saveLoadPanel != null && saveLoadPanel.IsOpen)
             {
-                saveLoadPanel.Close();
+                saveLoadPanel.HandleEscape();
                 return;
             }
 
@@ -87,49 +116,70 @@ namespace Godmist.Views.UI
         {
             gameSession = GameBootstrap.Instance?.Session;
 
-            if (gameSession == null
-                || gameSession.CurrentMode != GameModeState.Exploration)
+            if (IsOpen || gameSession == null
+                || gameSession.CurrentMode is not (GameModeState.Exploration or GameModeState.Combat))
             {
                 return;
             }
 
             modeBeforeOpen = gameSession.CurrentMode;
+            timeScaleBeforeOpen = Time.timeScale;
+            ownsTimePause = true;
+            Time.timeScale = 0f;
             gameSession.TrySetMode(GameModeState.Menu);
+            saveGameButton.interactable = !gameSession.HasCombat;
 
             menuPanelRoot.SetActive(true);
             overlayRoot.SetActive(true);
             SetGameTitleVisible(true);
-            SetMessage(string.Empty);
+            SetMessage(gameSession.HasCombat ? "Nie można zapisać gry podczas walki." : string.Empty);
+            Focus(resumeButton);
         }
 
         public void Close()
         {
             if (!IsOpen) return;
 
+            // Hide first so child Closed events cannot reopen the menu during teardown.
+            overlayRoot.SetActive(false);
+            RestoreTime();
+            if (settingsPanel?.IsOpen == true) settingsPanel.Close();
+
             if (saveLoadPanel != null && saveLoadPanel.IsOpen)
             {
                 saveLoadPanel.Close();
             }
 
-            overlayRoot.SetActive(false);
-
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Menu
-                && modeBeforeOpen == GameModeState.Exploration)
+                && ReferenceEquals(gameSession, GameBootstrap.Instance?.Session)
+                && modeBeforeOpen is GameModeState.Exploration or GameModeState.Combat)
             {
-                gameSession.TrySetMode(GameModeState.Exploration);
+                gameSession.TrySetMode(modeBeforeOpen);
             }
         }
 
         private void OpenSavePanel()
         {
+            if (gameSession?.HasCombat == true) return;
+            saveLoadReturnButton = saveGameButton;
             menuPanelRoot.SetActive(false);
             SetGameTitleVisible(false);
             saveLoadPanel.Open(SaveLoadPanelMode.Save);
         }
 
+        private void RestoreTime()
+        {
+            if (!ownsTimePause) return;
+            Time.timeScale = timeScaleBeforeOpen;
+            ownsTimePause = false;
+        }
+
+        private void OnDisable() => RestoreTime();
+
         private void OpenLoadPanel()
         {
+            saveLoadReturnButton = loadGameButton;
             menuPanelRoot.SetActive(false);
             SetGameTitleVisible(false);
             saveLoadPanel.Open(SaveLoadPanelMode.Load);
@@ -137,16 +187,36 @@ namespace Godmist.Views.UI
 
         private void HandleSaveLoadPanelClosed()
         {
+            childClosedFrame = Time.frameCount;
             if (gameSession?.IsDefeated == true) { overlayRoot.SetActive(false); return; }
             if (!IsOpen) return;
 
             menuPanelRoot.SetActive(true);
             SetGameTitleVisible(true);
+            Focus(saveLoadReturnButton ?? resumeButton);
         }
 
-        private void ShowSettingsPlaceholder()
+        private void OpenSettings()
         {
-            SetMessage("Ustawienia zostaną dodane w kolejnym milestone.");
+            if (settingsPanel == null || !IsOpen) return;
+            menuPanelRoot.SetActive(false);
+            SetGameTitleVisible(false);
+            settingsPanel.Open();
+        }
+
+        private void HandleSettingsClosed()
+        {
+            childClosedFrame = Time.frameCount;
+            if (!IsOpen) return;
+            menuPanelRoot.SetActive(true);
+            SetGameTitleVisible(true);
+            Focus(settingsButton);
+        }
+
+        private static void Focus(Button button)
+        {
+            if (EventSystem.current != null && button != null && button.gameObject.activeInHierarchy)
+                EventSystem.current.SetSelectedGameObject(button.gameObject);
         }
 
         private static void QuitGame()
@@ -173,6 +243,7 @@ namespace Godmist.Views.UI
             if (messageText != null)
             {
                 messageText.text = message;
+                messageText.gameObject.SetActive(!string.IsNullOrWhiteSpace(message));
             }
         }
     }

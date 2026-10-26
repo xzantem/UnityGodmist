@@ -26,8 +26,10 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI unitNameText;
 
         private readonly List<Image> actionPointPips = new();
+        private CombatScoutKnifeCounterView knifeCounter;
+        public BattleUnit KnifeHighlightOwner => knifeCounter?.HighlightOwner;
 
-        public void Bind(BattleUnit unit, bool isActive, int previewCost = 0)
+        public void Bind(BattleUnit unit, bool isActive, int previewCost = 0, bool known = true)
         {
             if (unit?.Character == null)
             {
@@ -36,6 +38,18 @@ namespace Godmist.Views.UI
             }
 
             gameObject.SetActive(true);
+            SetKnownPresentation(known);
+            if (knifeCounter == null && known && unit.IsPlayerSide && unit.Character.ClassData?.Id == "class.scout")
+                knifeCounter = CombatScoutKnifeCounterView.Create(transform, unitNameText);
+            knifeCounter?.Bind(unit, known);
+
+            if (!known)
+            {
+                if (unitNameText != null) unitNameText.text = "Nieznany przeciwnik";
+                if (portrait != null) { portrait.sprite = null; portrait.color = new Color(.18f, .18f, .18f, 1f); }
+                if (sideFrame != null) { sideFrame.color = enemyAccentColor; sideFrame.enabled = isActive; }
+                return;
+            }
 
             var character = unit.Character;
             if (unitNameText != null) unitNameText.text = character.Definition?.DisplayName ?? character.CharacterId;
@@ -46,7 +60,8 @@ namespace Godmist.Views.UI
 
             if (portrait != null)
             {
-                portrait.sprite = character.Definition?.VisualSprite;
+                portrait.sprite = character.Definition?.UiPortraitSprite;
+                portrait.color = Color.white;
             }
 
             if (sideFrame != null)
@@ -65,8 +80,7 @@ namespace Godmist.Views.UI
             if (resource != null)
             {
                 CombatResourceColors.ApplyToFill(resourceSlider, resource.ResourceType);
-                resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.Initialize(null,
-                    CombatResourceColors.ResourceName(resource.ResourceType), $"{resource.CurrentValue}/{resource.MaxValue}");
+                resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);
             }
 
             if (healthValueText != null)
@@ -85,6 +99,20 @@ namespace Godmist.Views.UI
 
             RefreshActionPointPips(unit);
             statusCollection?.Bind(unit);
+        }
+
+        private void SetKnownPresentation(bool known)
+        {
+            // Keep the authored panel and its LayoutElement alive during hidden
+            // enemy turns; only conceal information, not the panel's footprint.
+            if (vitals != null) vitals.gameObject.SetActive(known);
+            if (statusCollection != null) statusCollection.gameObject.SetActive(known);
+            SetSliderVisible(healthSlider, known);
+            SetSliderVisible(shieldSlider, known);
+            SetSliderVisible(resourceSlider, known);
+            SetValueTextVisible(healthValueText, known);
+            SetValueTextVisible(resourceValueText, known);
+            if (actionPointPipRoot != null) actionPointPipRoot.gameObject.SetActive(known);
         }
 
         private void RefreshActionPointPips(BattleUnit unit)
@@ -170,8 +198,7 @@ namespace Godmist.Views.UI
 
         private static string FormatHealthValue(float health, float maximumHealth, int shield)
         {
-            var value = $"{health:0}/{maximumHealth:0}";
-            return shield > 0 ? $"{value} (+{shield})" : value;
+            return CombatHealthPresentation.Format(health, maximumHealth, shield);
         }
     }
 }

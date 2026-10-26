@@ -33,6 +33,10 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI previewNameText;
         [SerializeField] private TextMeshProUGUI previewSummaryText;
         [SerializeField] private TextMeshProUGUI statusText;
+        [SerializeField] private TextMeshProUGUI previewEffectsText;
+        [SerializeField] private ScrollRect powderScroll;
+        [SerializeField] private ScrollRect effectsScroll;
+        [SerializeField] private LayoutElement effectsSectionLayout;
         [SerializeField] private Button craftButton;
         [SerializeField] private Button weaponButton;
         [SerializeField] private Button armorButton;
@@ -58,6 +62,37 @@ namespace Godmist.Views.UI.Workspace
             weaponButton?.onClick.AddListener(SelectWeapon);
             armorButton?.onClick.AddListener(SelectArmor);
             HideTemplates();
+        }
+
+        private void LateUpdate()
+        {
+            if (!isVisible || effectsSectionLayout == null || effectsScroll == null
+                || previewEffectsText == null) return;
+
+            var column = effectsSectionLayout.transform.parent as RectTransform;
+            var layout = column != null ? column.GetComponent<VerticalLayoutGroup>() : null;
+            if (layout == null || effectsScroll.viewport.rect.width <= 0) return;
+
+            // Give the description its preferred height, keeping room for costs and the action.
+            // A small window can still scroll descriptions that exceed the remaining space.
+            var availableHeight = column.rect.height - layout.padding.vertical;
+            var childCount = 0;
+            foreach (Transform child in column)
+            {
+                if (!child.gameObject.activeInHierarchy) continue;
+                var element = child.GetComponent<LayoutElement>();
+                if (element != null && element.ignoreLayout) continue;
+                childCount++;
+                if (child != effectsSectionLayout.transform)
+                    availableHeight -= LayoutUtility.GetMinHeight((RectTransform)child);
+            }
+            availableHeight -= layout.spacing * Mathf.Max(0, childCount - 1);
+            var minimum = effectsSectionLayout.minHeight;
+            var desiredHeight = Mathf.Ceil(previewEffectsText.GetPreferredValues(
+                previewEffectsText.text, effectsScroll.viewport.rect.width, Mathf.Infinity).y) + 36f;
+            var height = Mathf.Clamp(desiredHeight, minimum, Mathf.Max(minimum, availableHeight));
+            if (!Mathf.Approximately(effectsSectionLayout.preferredHeight, height))
+                effectsSectionLayout.preferredHeight = height;
         }
 
         private void OnDestroy()
@@ -130,6 +165,7 @@ namespace Godmist.Views.UI.Workspace
                         PopulateStoneOptions();
                         RefreshCraftPreview();
                     });
+                slot?.SetRarity(captured.BaseRarity);
                 if (slot != null) stoneSlots.Add(slot);
             }
 
@@ -162,10 +198,14 @@ namespace Godmist.Views.UI.Workspace
                     false,
                     () =>
                     {
+                        var position = powderScroll != null ? powderScroll.verticalNormalizedPosition : 1f;
                         selectedPowder = captured;
                         PopulatePowderOptions();
+                        Canvas.ForceUpdateCanvases();
+                        if (powderScroll != null) powderScroll.verticalNormalizedPosition = position;
                         RefreshCraftPreview();
                     });
+                slot?.SetRarity(captured.BaseRarity);
                 if (slot != null) powderSlots.Add(slot);
             }
 
@@ -192,10 +232,11 @@ namespace Godmist.Views.UI.Workspace
             {
                 if (preview.Result != null)
                 {
-                    previewTooltipSlot.SetIcon(preview.Result.Definition?.Icon);
+                    previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(preview.Result));
                     previewTooltipSlot.SetTooltip(
-                        preview.Result.DisplayName,
+                        ItemRarityPresentation.Name(preview.Result),
                         BuildPreviewTooltip(preview.Result));
+                    previewTooltipSlot.SetRarity(preview.Result.CurrentRarity);
                 }
                 else
                 {
@@ -209,15 +250,25 @@ namespace Godmist.Views.UI.Workspace
             }
 
             if (previewNameText != null)
-                previewNameText.text = preview.Result?.DisplayName ?? "Wynik galdurytu";
+                previewNameText.text = preview.Result == null ? "Wynik galdurytu" : ItemRarityPresentation.Name(preview.Result);
             if (previewSummaryText != null)
                 previewSummaryText.text = preview.Result == null
                     ? string.IsNullOrWhiteSpace(preview.FailureReason)
                         ? "Wybierz kamień i proszek."
                         : preview.FailureReason
                     : BuildPreviewSummary(preview.Result);
+            if (previewEffectsText != null)
+            {
+                var effects = BuildPossibleEffects(preview.Result);
+                if (previewEffectsText.text != effects && effectsScroll != null)
+                {
+                    effectsScroll.StopMovement();
+                    effectsScroll.verticalNormalizedPosition = 1f;
+                }
+                previewEffectsText.text = effects;
+            }
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
-            SetStatus(preview.CanCraft ? "Gotowe do wytworzenia." : preview.FailureReason);
+            SetStatus(preview.CanCraft ? string.Empty : preview.Materials.Any(cost => cost.MissingAmount > 0) ? "Brak materiałów." : preview.FailureReason);
         }
 
         private void PopulateMaterials(GalduryteCraftPreview preview)
@@ -240,7 +291,7 @@ namespace Godmist.Views.UI.Workspace
                     false,
                     material.MissingAmount > 0,
                     null,
-                    canBuy ? $"{material.PurchasableAmount}× • {material.PurchasePrice}g" : null,
+                    canBuy ? material.PurchasePrice.ToString("N0") : null,
                     canBuy ? () => BuyMaterial(materialId) : null,
                     material.PurchaseState,
                     material.PurchaseState == CraftingMaterialPurchaseState.Available);
@@ -274,7 +325,6 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiał za {paidGold}g.");
             RefreshCraftPreview();
         }
 
@@ -298,7 +348,6 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Wytworzono: {crafted.DisplayName}.");
             RefreshCraftPreview();
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
@@ -329,10 +378,10 @@ namespace Godmist.Views.UI.Workspace
 
         private void RefreshTargetButtons()
         {
-            if (weaponLabel != null) weaponLabel.text = "Broń";
-            if (armorLabel != null) armorLabel.text = "Pancerz";
-            if (weaponButton != null) weaponButton.interactable = targetType != GalduryteTargetType.Weapon;
-            if (armorButton != null) armorButton.interactable = targetType != GalduryteTargetType.Armor;
+            if (weaponLabel != null) { weaponLabel.text = "Broń"; weaponLabel.color = targetType == GalduryteTargetType.Weapon ? new Color32(226,184,78,255) : new Color32(223,215,184,255); }
+            if (armorLabel != null) { armorLabel.text = "Pancerz"; armorLabel.color = targetType == GalduryteTargetType.Armor ? new Color32(226,184,78,255) : new Color32(223,215,184,255); }
+            if (weaponButton != null) weaponButton.interactable = true;
+            if (armorButton != null) armorButton.interactable = true;
         }
 
         private BlacksmithCraftingSlotView CreateSlot(
@@ -370,7 +419,7 @@ namespace Godmist.Views.UI.Workspace
 
         private static void ClearSlots(List<BlacksmithCraftingSlotView> slots)
         {
-            foreach (var slot in slots.Where(slot => slot != null)) Destroy(slot.gameObject);
+            foreach (var slot in slots.Where(slot => slot != null)) { slot.gameObject.SetActive(false); Destroy(slot.gameObject); }
             slots.Clear();
         }
 
@@ -383,7 +432,9 @@ namespace Godmist.Views.UI.Workspace
 
         private void SetStatus(string message)
         {
-            if (statusText != null) statusText.text = message ?? string.Empty;
+            if (statusText == null) return;
+            statusText.text = message ?? string.Empty;
+            statusText.gameObject.SetActive(!string.IsNullOrWhiteSpace(message));
         }
 
         private static string BuildStoneDescription(GalduryteTier tier)
@@ -424,6 +475,19 @@ namespace Godmist.Views.UI.Workspace
             return $"Brakuje: {material.MissingAmount}";
         }
 
+        public static string BuildPossibleEffects(GalduryteItemInstance result)
+        {
+            if (result == null) return string.Empty;
+            var effects = GalduryteRuntimeRules.GetEffectPool(result.TargetType)
+                .Where(effect => effect.PowderColor == result.GuaranteedPowderColor)
+                .Select(effect => "• " + GalduryteRuntimeText.FormatEffectRange(effect.EffectType,
+                    GalduryteRuntimeRules.GetEffectValue(effect.EffectType, GalduryteEffectGrade.D),
+                    GalduryteRuntimeRules.GetEffectValue(effect.EffectType, GalduryteEffectGrade.S)));
+            return "Jeden z efektów proszku:\n" + string.Join("\n", effects)
+                + "\n\nPozostałe efekty: losowe z puli "
+                + (result.TargetType == GalduryteTargetType.Weapon ? "broni." : "pancerza.");
+        }
+
         private static string BuildPreviewSummary(GalduryteItemInstance result)
         {
             if (result == null) return string.Empty;
@@ -435,7 +499,7 @@ namespace Godmist.Views.UI.Workspace
             $"Typ: {FormatTarget(result.TargetType)}\n"
             + $"Poziom galdurytu: {result.ItemLevel}\n"
             + "Rzadkość: losowana\n"
-            + $"Efekty: {GetEffectCountRange(result.ItemLevel)} losowane przy wytworzeniu.";
+            + $"Efekty: {GetEffectCountRange(result.ItemLevel)}\n\n" + BuildPossibleEffects(result);
 
         private static string GetEffectCountRange(int level) =>
             GalduryteRuntimeRules.TryGetEffectCountRange(level, out var minimum, out var maximum)

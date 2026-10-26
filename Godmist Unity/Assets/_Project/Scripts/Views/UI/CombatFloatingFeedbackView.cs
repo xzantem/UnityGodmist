@@ -28,6 +28,25 @@ namespace Godmist.Views.UI
         private System.Func<Vector3?> resolveWorldAnchor;
         private Vector3 lastWorldAnchor;
         private Vector2 layoutOffset;
+        public static CombatFloatingFeedbackView Create(Transform parent, TMP_Text fontSource)
+        {
+            var node = new GameObject("Character progression feedback", typeof(RectTransform), typeof(CanvasGroup));
+            node.layer = parent.gameObject.layer; node.transform.SetParent(parent, false);
+            ((RectTransform)node.transform).sizeDelta = new Vector2(420, 110);
+            var labelNode = new GameObject("Label", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            labelNode.layer = node.layer; labelNode.transform.SetParent(node.transform, false);
+            var text = labelNode.GetComponent<TextMeshProUGUI>();
+            text.font = fontSource?.font ?? TMP_Settings.defaultFontAsset;
+            text.fontSharedMaterial = fontSource?.fontSharedMaterial != null ? fontSource.fontSharedMaterial : text.font?.material;
+            text.alignment = TextAlignmentOptions.Center; text.raycastTarget = false;
+            text.rectTransform.anchorMin = Vector2.zero; text.rectTransform.anchorMax = Vector2.one;
+            text.rectTransform.offsetMin = text.rectTransform.offsetMax = Vector2.zero;
+            var view = node.AddComponent<CombatFloatingFeedbackView>();
+            view.label = text; view.canvasGroup = node.GetComponent<CanvasGroup>();
+            view.canvasGroup.blocksRaycasts = false; view.canvasGroup.interactable = false;
+            view.ConfigureLifetime(1.4f, 1f);
+            return view;
+        }
 
         public void BindWorldAnchor(Camera camera, RectTransform root,
             System.Func<Vector3?> resolvePosition, Vector3 initialWorldPosition, Vector2 offset)
@@ -136,7 +155,7 @@ namespace Godmist.Views.UI
         {
             if (runtimeFontMaterial != null)
             {
-                Destroy(runtimeFontMaterial);
+                if (Application.isPlaying) Destroy(runtimeFontMaterial); else DestroyImmediate(runtimeFontMaterial);
             }
         }
 
@@ -211,7 +230,10 @@ namespace Godmist.Views.UI
             effectiveTravel.y = Mathf.Max(72f, effectiveTravel.y);
             rectTransform.anchoredPosition = startPosition + effectiveTravel * progress;
             canvasGroup.alpha = 1f - progress;
-            if (progress >= 1f) Destroy(gameObject);
+            if (progress >= 1f)
+            {
+                if (Application.isPlaying) Destroy(gameObject); else DestroyImmediate(gameObject);
+            }
         }
     }
 }
