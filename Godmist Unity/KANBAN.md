@@ -2185,16 +2185,18 @@ Decyzja użytkownika 2026-09-16: poniższe mechaniki przeniesione z v3. Szczegó
   - Przed implementacją przedstawić układ UI i uzgodnić liczbę slotów, przypisywanie/drag/drop, skróty klawiszowe, przypisanie per postać lub drużyna, obsługę stosów/ładunków i pustych slotów oraz save/load konfiguracji. Docelowy model nie jest jeszcze zatwierdzony.
   - Pokazywać dostępność i koszt użycia spójnie z inventory; ten sam przebieg wyboru celu, anulowania i zużycia. Statyczny layout i referencje zapisane w prefabach UIW. Acceptance funkcjonalne i osobny smoke UI.
 
-### Kontrolowany RNG — po pierwszym content passie
+### Kontrolowany RNG — odłożony do content passu 2
+
+Decyzja użytkownika 2026-10-27: odłożyć cały poniższy pakiet; wstępnie zaplanować jako część content passu 2. Nie jest bieżącym następnym zadaniem po wydaniu 0.1.0. Szczegóły mechanik i końcowy zakres passu 2 wymagają ustalenia przed implementacją. Istniejący RNG opcjonalnej zawartości lochów pozostaje bez zmian.
 
 - `[P2] Zintegrować kontrolowany RNG z trafieniami i krytami` - `Combat`, `Core / Architecture`
-  - Po pierwszym content passie. Osobne historie trafienia/kryta i jednostek; ustalić trwałość historii, tolerancję odchylenia ogólnej średniej i wpływ buffów zależnych od wyników. k=2 to punkt wyjścia, nie gwarancja poprawności wszystkich zależności. UI pokazuje nominalne statystyki. Nie dodawać zapisu w środku walki.
+  - W ramach planowanego content passu 2. Osobne historie trafienia/kryta i jednostek; ustalić trwałość historii, tolerancję odchylenia ogólnej średniej i wpływ buffów zależnych od wyników. k=2 to punkt wyjścia, nie gwarancja poprawności wszystkich zależności. UI pokazuje nominalne statystyki. Nie dodawać zapisu w środku walki.
 - `[P2] Zintegrować kontrolowany RNG z efektami umiejętności i pasywek` - `Combat`
-  - Po pierwszym content passie, po trafieniach/krytach. Ustalić kwalifikację, niezależność źródeł, multi-hit/AOE i efekty zależne; brak zużycia historii przy odporności lub niewykonanej próbie.
+  - W ramach planowanego content passu 2, po trafieniach/krytach. Ustalić kwalifikację, niezależność źródeł, multi-hit/AOE i efekty zależne; brak zużycia historii przy odporności lub niewykonanej próbie.
 - `[P2] Zintegrować kontrolowany RNG z lootbagami i nagrodami` - `Items / Inventory / Economy`, `Persistence`
-  - Po pierwszym content passie. Ustalić źródła/kategorie, historię i checkpointy; zapisany loot bez przelosowania. Nie przenosić automatycznie każdego losowania ilości i statystyk.
+  - W ramach planowanego content passu 2. Ustalić źródła/kategorie, historię i checkpointy; zapisany loot bez przelosowania. Nie przenosić automatycznie każdego losowania ilości i statystyk.
 - `[P2] Zintegrować kontrolowany RNG z ulepszaniem` - `Items / Inventory / Economy`
-  - Po pierwszym content passie, po audycie zmiennych szans, kosztów i przygotowywania sukcesów tanimi próbami. Osobno zaprojektować wyniki wielowariantowe. Wymagana weryfikacja wartości ekonomicznej, nie tylko liczby sukcesów.
+  - W ramach planowanego content passu 2, po audycie zmiennych szans, kosztów i przygotowywania sukcesów tanimi próbami. Osobno zaprojektować wyniki wielowariantowe. Wymagana weryfikacja wartości ekonomicznej, nie tylko liczby sukcesów.
 
 - `[P2] Zaprojektować i wdrożyć scouting eksploracyjny w Dungeon Exploration v4` - `World / Dungeon / Exploration`, `Design / Systems`
   - Na polecenie użytkownika przenieść scouting z Dungeon v3 do Dungeon v4. Przed implementacją uzgodnić konkretne mechaniki; wykorzystać istniejący model widoczności i pamięci mapy, bez równoległego systemu.
