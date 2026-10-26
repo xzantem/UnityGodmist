@@ -14,15 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.cross_cut
   <DisplayName>k__BackingField: "Ci\u0119cie Krzy\u017Cowe"
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: e84cf72d39b9e7f44a768b24026ca94b, type: 3}
   <TooltipDescription>k__BackingField: "Dwa ciosy po 60% obra\u017Ce\u0144. Ka\u017Cde
-    trafienie osobno ma 60% szansy na krwawienie o sile 85% przez 3 tury."
+    trafienie osobno ma 60% szansy na krwawienie 30% \u015Bredniego ataku na tur\u0119
+    przez 3 tury."
   <SkillAccuracy>k__BackingField: 72
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 60
-  <ResourceCost>k__BackingField: 50
-  <ResourceType>k__BackingField: 3
+  <ResourceCost>k__BackingField: 25
+  <ResourceType>k__BackingField: 1
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -30,6 +31,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 1
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,14 +50,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 0.6
+    rearAttackDamageBonus: 0
     damageHitCount: 2
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -84,6 +89,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -97,7 +103,7 @@ MonoBehaviour:
     statusId: 
     durationTurns: 1
     stacks: 1
-    statusDamageMultiplier: 0.85
+    statusDamageMultiplier: 0.3
     statusHealPercent: 0
     percentageValue: 0
     counterattackRange:
@@ -125,3 +131,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

@@ -89,6 +89,7 @@ namespace Godmist.Systems.Combat
                         && !dungeon.IsEncounterCleared(encounter.InstanceId)
                         && !dungeon.TryMarkEncounterCleared(encounter.InstanceId)) return false;
                 }
+                CombatOutcomeSystem.StandUpDownedAllies(combatSession);
                 return true;
             }
 
@@ -99,6 +100,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            CombatOutcomeSystem.StandUpDownedAllies(combatSession);
             return true;
         }
 
@@ -428,7 +430,7 @@ namespace Godmist.Systems.Combat
             {
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle
                     && obstacle.IsActive
-                    && obstacle.Position == position)
+                    && obstacle.OccupiesCell(position))
                 {
                     return false;
                 }

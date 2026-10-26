@@ -30,6 +30,25 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void HealingPreviewCapsAtMissingHealthAndDoesNotMutateOrConsumeRandom()
+        {
+            var caster = CreateUnit(8, 12, 1f);
+            var target = CreateUnit(1, 1, 0f);
+            target.Character.Stats.MaxHealth = new Stat(100);
+            target.Character.CurrentHealth = 75;
+            var effect = new SkillEffectData();
+            SetField(effect, "effectType", EffectType.Heal);
+            SetField(effect, "baseValue", 40);
+            var skill = CreateSkill(effect);
+            var random = Random.state;
+            var preview = CombatSkillPreviewCalculator.CalculateTargetPreview(caster, target, skill);
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(preview.Healing, Is.EqualTo(25));
+            Assert.That(target.Character.CurrentHealth, Is.EqualTo(75));
+            Assert.That(Random.state, Is.EqualTo(random));
+        }
+
+        [Test]
         public void CalculateDamageRange_SumsHitsAndIncludesOptionalBestCase()
         {
             var caster = CreateUnit(8, 12, critChance: 0.25f);

@@ -73,7 +73,9 @@ namespace Godmist.Systems.Combat
             s.MinAttack.SetEffectiveValue(s.MinAttack.GetValue()+attack);s.MaxAttack.SetEffectiveValue(s.MaxAttack.GetValue()+attack);
             s.Speed.SetEffectiveValue(s.Speed.GetValue()+4*(rage/25)*Rank(c,Brawler,"adrenaline"));
         }
-        public static bool CanActivate(BattleUnit u,SkillData skill)=>skill?.SkillId!=DeathWish || IsRage(u) && u.Character.ResourcePool.CurrentValue>=ToggleSkillUpkeepCalculator.Calculate(skill,u.Character.ResourcePool);
+        public static bool CanActivate(BattleUnit u,SkillData skill)=>skill?.SkillId == WarriorDischargeRules.SkillId
+            ? IsRage(u) && WarriorDischargeRules.Cost(u) >= WarriorDischargeRules.MinimumRage
+            : skill?.SkillId!=DeathWish || IsRage(u) && u.Character.ResourcePool.CurrentValue>=ToggleSkillUpkeepCalculator.Calculate(skill,u.Character.ResourcePool);
         public static bool DeathProtected(BattleUnit u)=>u?.ActiveToggleSkillIds?.Contains(DeathWish)==true;
         public static int Adjacent(CombatSession s,BattleUnit u)=>s?.Units?.Count(a=>a!=u && a.IsPlayerSide==u.IsPlayerSide && a.Character.LifeState==CharacterLifeState.Alive
             && Math.Abs(a.Position.X-u.Position.X)+Math.Abs(a.Position.Y-u.Position.Y)==1 && s.Grid.CanMoveBetween(a.Position,u.Position))??0;
@@ -82,6 +84,7 @@ namespace Godmist.Systems.Combat
         public static float DamageMultiplier(PassiveEffectCombatContext ctx,bool preview=false)
         {
             if(ctx?.Source==null || ctx.Target?.Character==null)return 1;
+            if (ctx.SkillId == WarriorDischargeRules.SkillId) return WarriorDischargeRules.Multiplier(preview ? WarriorDischargeRules.Cost(ctx.Source) : ctx.DischargeCast?.RageSpent ?? WarriorDischargeRules.Cost(ctx.Source));
             var bonus=0f;
             var cuts=ctx.Source.WarriorState.ConsecutiveCuts;
             if(preview)cuts=ctx.Source.WarriorState.LastCutTarget==ctx.Target.Character.CharacterId?cuts+1:1;

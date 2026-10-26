@@ -19,5 +19,8 @@ namespace Godmist.Runtime.Combat
         public float RevengeRemainder;
         public float HealingRemainder;
         public float TrueDamageRemainder;
+        // Combat-local grace: 0 after offense, 1 free idle turn, 2 recurring decay.
+        public int RageIdleTurns;
+        public bool RageOffensiveActionUsed, RageHadOffensiveOpportunity, RageControlBlocked;
     }
 }

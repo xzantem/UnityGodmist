@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SD_MageSacrifice
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.mage.sacrifice
-  <DisplayName>k__BackingField: "Po\u015Bwi\u0119cenie"
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <DisplayName>k__BackingField: "Przej\u0119cie Mocy"
+  <Icon>k__BackingField: {fileID: 21300000, guid: 47b71a96437253a40b59dc6acd4a9c66, type: 3}
   <TooltipDescription>k__BackingField: "Sojusznik zadaje o 20% mniej obra\u017Ce\u0144,
     rzucaj\u0105cy o 20% wi\u0119cej przez 3 tury."
   <SkillAccuracy>k__BackingField: 100
@@ -28,6 +28,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -65,6 +66,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

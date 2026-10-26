@@ -1,7 +1,6 @@
 using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
-using Godmist.Data.Configuration;
 
 namespace Godmist.Systems.Combat
 {
@@ -16,10 +15,12 @@ namespace Godmist.Systems.Combat
 
         public void EvaluateCombatOutcome(CombatSession session)
         {
-            if (session == null || session.Outcome != CombatOutcomeState.Ongoing)
+            if (session?.Outcome == CombatOutcomeState.Victory)
             {
+                StandUpDownedAllies(session);
                 return;
             }
+            if (session == null || session.Outcome != CombatOutcomeState.Ongoing) return;
 
             EvaluateVictoryCondition(session);
             EvaluateDefeatCondition(session);
@@ -41,18 +42,17 @@ namespace Godmist.Systems.Combat
             if (!anyEnemiesLeft)
             {
                 session.Outcome = CombatOutcomeState.Victory;
-                var standingHealth = Math.Max(1, GameDefinesRuntime.GetInt(
-                    GameDefineIds.ReviveHealth, 1));
-                foreach (var unit in session.Units)
-                {
-                    if (unit?.IsPlayerSide != true
-                        || unit.Character?.LifeState != CharacterLifeState.Downed) continue;
-                    unit.Character.LifeState = CharacterLifeState.Alive;
-                    unit.Character.CurrentHealth = standingHealth;
-                    unit.DownedTurnsRemaining = 0;
-                }
+                StandUpDownedAllies(session);
                 battleLog?.Invoke("Zwyciestwo.");
             }
+        }
+
+        public static void StandUpDownedAllies(CombatSession session)
+        {
+            if (session?.Outcome != CombatOutcomeState.Victory) return;
+            foreach (var unit in session.Units)
+                if (unit?.IsPlayerSide == true && CombatReviveSystem.StandUp(unit.Character))
+                    unit.DownedTurnsRemaining = 0;
         }
 
         public void EvaluateDefeatCondition(CombatSession session)

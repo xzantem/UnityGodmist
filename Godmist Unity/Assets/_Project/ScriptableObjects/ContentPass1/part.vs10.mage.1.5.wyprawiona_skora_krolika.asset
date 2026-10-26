@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Kostur \u2014 Os\u0142ona (Wyprawiona sk\xF3ra kr\xF3lika)"
   <Description>k__BackingField: "Os\u0142ona stabilizuj\u0105ca po\u0142\u0105czenie
     katalizatora z trzonem kostura."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6759e4b8582426c4aacd220d45e948d5, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 1

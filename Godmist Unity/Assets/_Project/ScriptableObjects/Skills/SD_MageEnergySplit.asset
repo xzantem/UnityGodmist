@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.mage.energy_split
   <DisplayName>k__BackingField: Roztrojenie Energii
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4863f10acc5aef848b06f8c5105699bc, type: 3}
   <TooltipDescription>k__BackingField: "Trzy promienie: prosto i dwa uko\u015Bne;
     70% losowych obra\u017Ce\u0144 magicznych."
   <SkillAccuracy>k__BackingField: 100
@@ -28,6 +28,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -65,6 +66,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 1
     delayCasterTurns: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Miecz i Sztylet \u2014 G\u0142ownia (Sztabka br\u0105zu)"
   <Description>k__BackingField: "Ostrza miecza i sztyletu s\u0142u\u017C\u0105ce
     do szybkich ci\u0119\u0107."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 644bbf508a33ba94cb733b91cdf630aa, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 0

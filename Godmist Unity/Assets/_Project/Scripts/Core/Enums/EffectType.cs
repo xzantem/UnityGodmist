@@ -47,7 +47,8 @@ namespace Godmist.Core.Enums
         MageFireAura = 38,
         PaladinHeal = 39,
         PaladinRegeneration = 40,
-        PaladinBlessing = 41
+        PaladinBlessing = 41,
+        ExtendStatusDuration = 42
     }
 
     public enum UniqueBuffType
@@ -60,7 +61,8 @@ namespace Godmist.Core.Enums
         DamageRedirect = 5,
         AuraStatus = 6,
         MageOffering = 7,
-        MageMaximumDamage = 8
+        MageMaximumDamage = 8,
+        Hawkeye = 9
     }
 
     public enum ResistanceType
@@ -70,6 +72,7 @@ namespace Godmist.Core.Enums
         Fire = 2,
         Weakening = 3,
         Suppression = 4,
-        Move = 5
+        Move = 5,
+        All = 6
     }
 }

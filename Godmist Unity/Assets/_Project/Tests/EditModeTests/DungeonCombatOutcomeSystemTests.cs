@@ -15,6 +15,29 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<Object> createdObjects = new();
 
+        [TestCase(CombatOutcomeState.Victory, CharacterLifeState.Alive)]
+        [TestCase(CombatOutcomeState.Ongoing, CharacterLifeState.Downed)]
+        [TestCase(CombatOutcomeState.Escaped, CharacterLifeState.Downed)]
+        [TestCase(CombatOutcomeState.Defeat, CharacterLifeState.Downed)]
+        public void FinalizedVictoryRecoversDownedAlliesOnly(CombatOutcomeState outcome, CharacterLifeState expected)
+        {
+            var player = new BattleUnit { IsPlayerSide = true, DownedTurnsRemaining = 2,
+                Character = new CharacterInstance { LifeState = CharacterLifeState.Downed } };
+            var enemy = new BattleUnit { IsPlayerSide = false,
+                Character = new CharacterInstance { LifeState = CharacterLifeState.Downed } };
+            var session = new CombatSession { Outcome = outcome, Units = new List<BattleUnit> { player, enemy } };
+            CombatOutcomeSystem.StandUpDownedAllies(session);
+            Assert.That(player.Character.LifeState, Is.EqualTo(expected));
+            Assert.That(enemy.Character.LifeState, Is.EqualTo(CharacterLifeState.Downed));
+            if (outcome == CombatOutcomeState.Victory)
+            {
+                Assert.That(player.DownedTurnsRemaining, Is.Zero);
+                player.Character.CurrentHealth = 5;
+                CombatOutcomeSystem.StandUpDownedAllies(session);
+                Assert.That(player.Character.CurrentHealth, Is.EqualTo(5), "Repeated completion cannot heal living members.");
+            }
+        }
+
         [Test]
         public void BodiesCanAppearDuringCombatWithoutDuplicatingAfterVictoryAndRetainHeight()
         {
@@ -142,7 +165,7 @@ namespace Godmist.Tests.EditMode
             };
             var companion = new CharacterInstance
             {
-                CharacterId = "character.companion"
+                CharacterId = "character.companion", LifeState = CharacterLifeState.Downed, CurrentHealth = 0
             };
 
             Assert.That(gameSession.TryRegisterCharacter(leader), Is.True);
@@ -187,6 +210,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 dungeon.PendingPlayerPartyPositions[companion.CharacterId],
                 Is.EqualTo(new Vector2(1.5f, 3.5f)));
+            Assert.That(companion.LifeState, Is.EqualTo(CharacterLifeState.Alive));
+            Assert.That(companion.CurrentHealth, Is.GreaterThan(0));
             Assert.That(dungeon.PlayerPosition, Is.EqualTo(new Vector2(2.5f, 3.5f)));
         }
 

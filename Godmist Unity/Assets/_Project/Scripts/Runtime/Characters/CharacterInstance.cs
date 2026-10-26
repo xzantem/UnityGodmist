@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Godmist.Core.Enums;
@@ -24,6 +24,8 @@ namespace Godmist.Runtime.Characters
         public int Level;
         public int CurrentExperience;
         public int AvailableSkillPoints;
+        [field: NonSerialized] public event Action<int, int> ExperienceGained;
+        internal void NotifyExperienceGained(int amount, int levels) => ExperienceGained?.Invoke(amount, levels);
 
         public CharacterStats Stats;
         public ResourcePool ResourcePool;
@@ -35,8 +37,16 @@ namespace Godmist.Runtime.Characters
         public EquipmentSet Equipment = new();
 
         public int CurrentHealth;
+        // Observation only: actual HP restored, optional origin, feedback availability.
+        // Per-instance and transient; consumers must unsubscribe at combat end.
+        [field: NonSerialized] public event Action<int,string,bool> HealingReceived;
+        internal void NotifyHealingReceived(int amount,string origin,bool publishedFeedback)
+            => HealingReceived?.Invoke(amount,origin,publishedFeedback);
         public float EquipmentHealthCarry, EquipmentResourceCarry, EquipmentGenerationCarry;
         [NonSerialized] public float ExplorationStatusElapsedSeconds;
+        [NonSerialized] public float ExplorationMomentumIdleSeconds;
+        [NonSerialized] public float ExplorationMomentumDistanceRemainder;
+        [NonSerialized] public int ExplorationMomentumSteps;
         public int Honor;
         // Temporary effective value, equipment will calculate it later.
         public float WeaponAccuracy = GameDefinesRuntime.GetFloat(

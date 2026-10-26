@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Tunika \u2014 Rzemienie (Paski ze sk\xF3ry kr\xF3lika)"
   <Description>k__BackingField: "Rzemienie utrzymuj\u0105ce tunik\u0119 na miejscu
     podczas ruchu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9f974de090e215442852ca7e61b1d975, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 4

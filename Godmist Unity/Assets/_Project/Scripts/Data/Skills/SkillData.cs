@@ -27,6 +27,7 @@ namespace Godmist.Data.Skills
         [field: SerializeField] public bool RequiresLineOfSight { get; private set; }
         [field: SerializeField] public string RequiredCasterStatusId { get; private set; } = string.Empty;
         [field: SerializeField] public bool CanRecoverKnives { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float KnifeRecoveryCostMultiplier { get; private set; } = 1f;
         [field: SerializeField] public bool GuaranteedCritical { get; private set; }
         [field: SerializeField] public bool FreeKnivesInMelee { get; private set; }
         [field: SerializeField] public float PointBlankDamageMultiplier { get; private set; } = 1f;
@@ -35,6 +36,13 @@ namespace Godmist.Data.Skills
 
         public IReadOnlyList<SkillTargetModeData> TargetModes => targetModes;
         public IReadOnlyList<SkillEffectData> Effects => effects;
+
+        // Point-blank combat includes all eight neighboring grid cells.
+        public static bool IsPointBlank(int offsetX, int offsetY) =>
+            Mathf.Max(Mathf.Abs(offsetX), Mathf.Abs(offsetY)) == 1;
+
+        public AttackType ResolveAttackType(int offsetX, int offsetY) =>
+            ResolveAttackType(IsPointBlank(offsetX, offsetY) ? 1 : -1);
 
         public AttackType ResolveAttackType(int distance)
         {

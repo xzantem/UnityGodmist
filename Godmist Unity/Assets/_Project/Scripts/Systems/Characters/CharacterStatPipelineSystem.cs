@@ -12,6 +12,24 @@ namespace Godmist.Systems.Characters
 {
     public class CharacterStatPipelineSystem
     {
+        // The planner uses the same arithmetic without reconciliation, lifecycle
+        // or mutation of any CharacterInstance.
+        public static float EvaluateModifiers(float baseValue, CharacterStatType type,
+            IEnumerable<PassiveEffectRuntime> effects)
+        {
+            var accumulator = StatModifierAccumulator.Create();
+            foreach (var effect in effects)
+            {
+                if (!PassiveEffectLifecycleSystem.IsActive(effect)) continue;
+                var modifiers = effect.GetPayload<StatModifiersPayload>()?.Modifiers;
+                if (modifiers == null) continue;
+                foreach (var modifier in modifiers)
+                    if (modifier != null && modifier.StatType == type) accumulator.Add(modifier);
+            }
+            var value = CalculateEffectiveValue(baseValue, accumulator);
+            return type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
+        }
+
         public void Refresh(CharacterInstance character)
         {
             if (character?.Stats == null) return;
@@ -50,7 +68,13 @@ namespace Godmist.Systems.Characters
 
             WarriorCombatSystem.ApplyStats(character);
             MageCombatSystem.ApplyStats(character);
+            UniqueEquipmentCombatRules.ApplyDerivedStats(character);
+            var attackMultiplier = Mathf.Max(0f, character.Definition?.AttackMultiplier ?? 1f);
+            character.Stats.MinAttack.SetEffectiveValue(character.Stats.MinAttack.GetValue() * attackMultiplier);
+            character.Stats.MaxAttack.SetEffectiveValue(character.Stats.MaxAttack.GetValue() * attackMultiplier);
             SyncDependentRuntimeValues(character);
+            character.Stats.Speed.SetEffectiveValue(character.Stats.Speed.GetValue()
+                + MomentumResourceRule.SpeedBonus(character.ResourcePool, character.ResourcePool?.CurrentValue ?? 0));
         }
 
         private static float CalculateEffectiveValue(
@@ -114,14 +138,12 @@ namespace Godmist.Systems.Characters
 
             character.CurrentHealth = Mathf.Clamp(character.CurrentHealth, 0, maxHealth);
 
+            character.WeaponAccuracy = Mathf.Max(0f, character.Stats.WeaponAccuracy.GetValue());
             if (character.ResourcePool == null) return;
 
             character.ResourcePool.Regeneration = Mathf.Max(
                 0,
                 Mathf.RoundToInt(character.Stats.ResourceRegeneration.GetValue()));
-            character.WeaponAccuracy = Mathf.Max(
-                0f,
-                character.Stats.WeaponAccuracy.GetValue());
             character.ResourcePool.MaxValue = Mathf.Max(
                 0,
                 Mathf.RoundToInt(character.Stats.MaxResource.GetValue()));
@@ -143,39 +165,20 @@ namespace Godmist.Systems.Characters
         private static void RefreshResistances(CharacterInstance character)
         {
             character.Resistances ??= new ResistanceSet();
-            var baseValue = character.BaseResistances ?? new ResistanceSet();
-            character.Resistances.BleedResistance = baseValue.BleedResistance;
-            character.Resistances.PoisonResistance = baseValue.PoisonResistance;
-            character.Resistances.FireResistance = baseValue.FireResistance;
-            character.Resistances.WeakeningResistance = baseValue.WeakeningResistance;
-            character.Resistances.SuppressionResistance = baseValue.SuppressionResistance;
-            character.Resistances.MoveResistance = baseValue.MoveResistance;
-
-            foreach (var passiveEffect in character.PassiveEffects
-                         ?? new List<PassiveEffectRuntime>())
-            {
-                if (!PassiveEffectLifecycleSystem.IsActive(passiveEffect)) continue;
-
-                var modifier = passiveEffect.GetPayload<ResistanceModifierPayload>();
-                if (modifier == null || modifier.Value == 0f) continue;
-
-                switch (modifier.ResistanceType)
-                {
-                    case ResistanceType.Bleed: character.Resistances.BleedResistance += modifier.Value; break;
-                    case ResistanceType.Poison: character.Resistances.PoisonResistance += modifier.Value; break;
-                    case ResistanceType.Fire: character.Resistances.FireResistance += modifier.Value; break;
-                    case ResistanceType.Weakening: character.Resistances.WeakeningResistance += modifier.Value; break;
-                    case ResistanceType.Suppression: character.Resistances.SuppressionResistance += modifier.Value; break;
-                    case ResistanceType.Move: character.Resistances.MoveResistance += modifier.Value; break;
-                }
-            }
-
-            character.Resistances.BleedResistance = Mathf.Clamp01(character.Resistances.BleedResistance);
-            character.Resistances.PoisonResistance = Mathf.Clamp01(character.Resistances.PoisonResistance);
-            character.Resistances.FireResistance = Mathf.Clamp01(character.Resistances.FireResistance);
-            character.Resistances.WeakeningResistance = Mathf.Clamp01(character.Resistances.WeakeningResistance);
-            character.Resistances.SuppressionResistance = Mathf.Clamp01(character.Resistances.SuppressionResistance);
-            character.Resistances.MoveResistance = Mathf.Clamp01(character.Resistances.MoveResistance);
+            // Capture legacy/runtime-only base data once before deriving it.
+            character.BaseResistances ??= new ResistanceSet {
+                BleedResistance = character.Resistances.BleedResistance,
+                PoisonResistance = character.Resistances.PoisonResistance,
+                FireResistance = character.Resistances.FireResistance,
+                WeakeningResistance = character.Resistances.WeakeningResistance,
+                SuppressionResistance = character.Resistances.SuppressionResistance,
+                MoveResistance = character.Resistances.MoveResistance };
+            character.Resistances.BleedResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Bleed);
+            character.Resistances.PoisonResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Poison);
+            character.Resistances.FireResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Fire);
+            character.Resistances.WeakeningResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Weakening);
+            character.Resistances.SuppressionResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Suppression);
+            character.Resistances.MoveResistance = ModifyResistanceSystem.CalculateResistance(character, ResistanceType.Move);
         }
 
         private struct StatModifierAccumulator

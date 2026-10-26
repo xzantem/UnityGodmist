@@ -8,6 +8,7 @@ using Godmist.Data.Characters;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Effects;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Combat;
 using NUnit.Framework;
@@ -89,7 +90,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(CombatActionCostCalculator.CalculateMovementCost(u),Is.EqualTo(3*ActionPointUnits.PerPoint));
             WarriorCombatSystem.TurnStart(u);Assert.That(WarriorCombatSystem.FreeSteps(u),Is.EqualTo(2));
         }
-        [TestCase(49,1)][TestCase(50,3)] public void ShoutUsesActualSpentRage(int spent,int turns)
+        [TestCase(49,1)][TestCase(50,2)] public void ShoutUsesActualSpentRage(int spent,int turns)
         {
             var u=Unit();u.LastSkillResourceSpent=spent;u.Character.ResourcePool.CurrentValue=0;var skill=Skill("Shout");
             Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(u,skill,skill.Effects[0]).DurationTurns,Is.EqualTo(turns));
@@ -138,6 +139,17 @@ namespace Godmist.Tests.EditMode
         {
             var u=Unit();u.Character.ResourcePool.CurrentValue=0;var s=Session(u);
             Assert.That(new SkillExecutionSystem().TryExecute(s,u,Skill("DeathWish"),u),Is.False);Assert.That(WarriorCombatSystem.DeathProtected(u),Is.False);
+        }
+        [Test] public void DodgedCutGrantsBaseRageWithoutOnHitTalentBonus()
+        {
+            var warrior=Unit();Rank(warrior,false,"rage",1);warrior.Character.ResourcePool.CurrentValue=0;
+            var enemy=Unit(false,2);enemy.Character.PassiveEffects.Add(new PassiveEffectRuntime { UniqueBuffType=UniqueBuffType.GuaranteedDodge });
+            var session=Session(warrior,enemy);var health=enemy.Character.CurrentHealth;
+            var execution=new SkillExecutionSystem(resourceRuleSystem:new ResourceRuleSystem());
+            Assert.That(execution.TryExecute(session,warrior,Skill("Cut"),enemy),Is.True);
+            Assert.That(enemy.Character.CurrentHealth,Is.EqualTo(health));
+            Assert.That(warrior.Character.ResourcePool.CurrentValue,Is.EqualTo(10),"A miss earns base Rage, without the damage-triggered +5 talent bonus.");
+            Assert.That(warrior.Character.ResourcePool.HasGainedResourceSinceLastTurn,Is.True);
         }
         [Test] public void AdrenalineUpdatesAfterExternalResourceDrain()
         {

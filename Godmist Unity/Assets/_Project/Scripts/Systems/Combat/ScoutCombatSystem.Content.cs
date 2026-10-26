@@ -89,7 +89,7 @@ namespace Godmist.Systems.Combat
                 case "skill.scout.poisoned_dagger":dot*=1f+.1f*BladeRank(source,"venom");if(effect.EffectType==EffectType.ModifyResistance)value=-.15f*BladeRank(source,"viruses");break;
                 case "skill.scout.tonic":
                     if(value>0)value+=10*BladeRank(source,"brew_strength");
-                    else {value-=5*BladeRank(source,"brew_strength");turns-=BladeRank(source,"strong_liver");}break;
+                    else value-=5*BladeRank(source,"brew_strength");break;
             }
             return effect.WithScoutParameters(trials,chance,dot,value,turns);
         }
@@ -105,12 +105,13 @@ namespace Godmist.Systems.Combat
             if (Behind(source,target) && source.MovementStepsThisTurn>0)
                 statuses.ApplyStatus(source,target,StatusEffectIds.Stun,.25f*AssassinRank(source,"leg_sweep"),1,1,0,0,"scout.leg_sweep");
         }
-        public static void TimedStat(BattleUnit source,BattleUnit target,CharacterStatType stat,float value,int turns,string id)
+        public static bool TimedStat(BattleUnit source,BattleUnit target,CharacterStatType stat,float value,int turns,string id,
+            string displayName = null, string sourceSkillId = null)
         {
-            var effect=new PassiveEffectRuntime(id,new(){PassiveEffectSourceFactory.FromRuntimeSystem(source,id)},1,turns,0,
+            var effect=new PassiveEffectRuntime(id,new(){PassiveEffectSourceFactory.FromRuntimeSystem(source,sourceSkillId??id)},1,turns,0,
                 PassiveEffectLifetime.Timed,PassiveEffectTickPhase.TurnEnd)
-            { DisplayName=id,StatModifiers=new(){new StatModifier{StatType=stat,Operation=StatModifierOperation.FlatAbsolute,Value=value}} };
-            new PassiveEffectLifecycleSystem().TryApplyTimedEffect(target.Character,effect,PassiveEffectStackingMode.ReplaceDurationAndValues,out _);
+            { DisplayName=displayName??id,StatModifiers=new(){new StatModifier{StatType=stat,Operation=StatModifierOperation.FlatAbsolute,Value=value}} };
+            return new PassiveEffectLifecycleSystem().TryApplyTimedEffect(target.Character,effect,PassiveEffectStackingMode.ReplaceDurationAndValues,out _);
         }
         public static void OnMoved(CombatSession session,BattleUnit source,StatusEffectSystem statuses)
         {

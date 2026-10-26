@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.paladin.verdict
   <DisplayName>k__BackingField: Wyrok
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: cc7d1c60ea9892047887b6feec5bf03a, type: 3}
   <TooltipDescription>k__BackingField: "Losowe obra\u017Cenia fizyczne."
   <SkillAccuracy>k__BackingField: 83
   <AttackType>k__BackingField: 1
@@ -27,6 +27,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -64,6 +65,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -81,6 +83,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

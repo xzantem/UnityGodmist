@@ -8,6 +8,13 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class CombatSession
     {
+        [NonSerialized] public Action<BattleUnit, BattleUnit, int, DamageType, string> DamageApplied;
+        [NonSerialized] public Action<BattleUnit, Godmist.Data.Skills.SkillData, string> SkillResolved;
+        [NonSerialized] public Func<BattleUnit, Godmist.Data.Skills.SkillData, bool> CanUseBossSkill;
+        [NonSerialized] public int SkillResolutionDepth;
+        [NonSerialized] public BattleUnit EntryActionCaster;
+        [NonSerialized] public CombatDiagnosticRecorder Diagnostics;
+        [NonSerialized] public Action SkillsFinished;
         public string CombatId = string.Empty;
         [NonSerialized] public readonly Dictionary<string, Dictionary<BattleUnit, int>> EquipmentActionHits = new();
         public CombatOutcomeState Outcome = CombatOutcomeState.Ongoing;
@@ -34,6 +41,7 @@ namespace Godmist.Runtime.Combat
         public readonly HashSet<CombatTurnParticipant> SuspendedTurns = new();
         [NonSerialized] public Action<BattleUnit> UnitEnteredCell;
         [NonSerialized] public Action<BattleUnit> BossRuneEnteredCell;
+        [NonSerialized] public Action<BattleUnit> SummonedObjectEnteredCell;
         [NonSerialized] public Action<BattleUnit, int> EnemyHealthChanged;
         [NonSerialized] public Func<BattleUnit, IReadOnlyList<GridPosition>, float> EvaluateTrapRisk;
         [NonSerialized] public Func<IReadOnlyList<GridPosition>, string> TrapRouteState;
@@ -41,23 +49,67 @@ namespace Godmist.Runtime.Combat
         {
             UnitEnteredCell?.Invoke(unit);
             BossRuneEnteredCell?.Invoke(unit);
+            SummonedObjectEnteredCell?.Invoke(unit);
         }
         // Rescue eligibility is supplied by the dungeon owner, independent of UI focus.
         public bool CanReceiveReinforcements;
         public readonly Dictionary<string, BattleUnit> DepartedUnits = new();
         public readonly HashSet<BattleCellEdge> OpenExitEdges = new();
         [NonSerialized] public Func<GridPosition, bool> ExternalPositionOccupied;
+        [NonSerialized] public Func<GridPosition, bool> ExternalPreviewPositionOccupied;
+        [NonSerialized] public Func<BattleUnit, bool> IsUnitKnownForMovementPreview;
         [NonSerialized] public Func<GridPosition, GridPosition, bool> EnvironmentBlocksLineOfSight;
         public bool IsExitPosition(GridPosition position) => IsSeamless && !Grid.IsWalkable(position);
-        public bool CanMoveBetween(BattleUnit unit, GridPosition from, GridPosition to)
+        public bool CanOccupyEnvironment(BattleUnit unit, GridPosition to)
         {
-            if (ExternalPositionOccupied?.Invoke(to) == true) return false;
+            if (unit != null && !unit.IsPlayerSide && DungeonContext?.SurfaceMap != null && DungeonContext.DungeonId?.StartsWith("dungeon.forest.", StringComparison.Ordinal) == true
+                && Godmist.Runtime.Dungeons.ForestEnemyNavigation.IsEnt(unit.Character?.Definition?.Id)
+                && !Godmist.Runtime.Dungeons.ForestEnemyNavigation.CanOccupy(DungeonContext.SurfaceMap,
+                    new UnityEngine.Vector2Int(to.X + DungeonContext.WorldBounds.xMin,to.Y + DungeonContext.WorldBounds.yMin), unit.ForestEntState?.ArenaRoomId ?? DungeonContext.EncounterRoomId,true)) return false;
+            return true;
+        }
+        public bool CanMoveBetween(BattleUnit unit, GridPosition from, GridPosition to, bool forPlayerPreview = false)
+        {
+            if (!CanOccupyEnvironment(unit,to)) return false;
+            if ((forPlayerPreview ? ExternalPreviewPositionOccupied ?? ExternalPositionOccupied : ExternalPositionOccupied)?.Invoke(to) == true) return false;
             if (Grid.CanMoveBetween(from, to)) return true;
             return IsSeamless && unit?.IsPlayerSide == true && Grid.IsWalkable(from)
                 && !Grid.IsBlocked(from) && IsExitPosition(to)
                 && Math.Abs(from.X - to.X) + Math.Abs(from.Y - to.Y) == 1
                 && OpenExitEdges.Contains(new BattleCellEdge(from, to));
         }
+        // Planning includes direct doors; execution still opens them as a paid,
+        // separate interaction before the movement owner can cross the edge.
+        public IEnumerable<GridPosition> GetNavigationNeighbours(GridPosition current)
+        {
+            var candidates = new HashSet<GridPosition>(Grid.GetNeighbours(current));
+            foreach (var item in MapObjects)
+                if (item is DoorCombatMapObject door)
+                {
+                    if (door.Edge.FirstCell == current) candidates.Add(door.Edge.SecondCell);
+                    else if (door.Edge.SecondCell == current) candidates.Add(door.Edge.FirstCell);
+                }
+            return candidates;
+        }
+
+        public DoorCombatMapObject FindClosedDirectDoor(GridPosition from, GridPosition to)
+        {
+            var edge = new BattleCellEdge(from, to);
+            if (Grid.HasWallEdge(from, to)) return null;
+            if (DungeonContext != null)
+                foreach (var wall in DungeonContext.WallEdges)
+                {
+                    var bounds = DungeonContext.WorldBounds;
+                    if (new BattleCellEdge(
+                        new GridPosition(wall.FirstCell.x - bounds.xMin, wall.FirstCell.y - bounds.yMin),
+                        new GridPosition(wall.SecondCell.x - bounds.xMin, wall.SecondCell.y - bounds.yMin)).Equals(edge)) return null;
+                }
+            foreach (var item in MapObjects)
+                if (item is DoorCombatMapObject door && !door.IsOpen && door.CanInteract() && door.Edge.Equals(edge))
+                    return door;
+            return null;
+        }
+
         public DungeonTheme DungeonTheme = DungeonTheme.Story;
         public Godmist.Data.Dungeons.DungeonDefinition DungeonDefinition;
         public float ActionPointsPerSpeed = GameDefinesRuntime.GetFloat(
@@ -68,6 +120,8 @@ namespace Godmist.Runtime.Combat
         public List<ScheduledCombatEffect> ScheduledEffects = new();
         public List<SummonedBattleUnit> Summons = new();
         public HashSet<string> DefeatedEnemyInstanceIds = new();
+        public readonly HashSet<string> ExperienceGrantedEnemyIds = new();
+        public System.Action<string> EnemyDefeated;
         private readonly Dictionary<string, GridPosition> enemyDeathPositions = new();
         [NonSerialized] public CombatObjectDamageAction ObjectDamageAction;
         [NonSerialized] public Action<CombatMapObject> ObjectDurabilityChanged;
@@ -116,7 +170,9 @@ namespace Godmist.Runtime.Combat
                     continue;
                 }
 
-                if (mapObject.Position == position)
+                if (mapObject is ObstacleCombatMapObject obstacle
+                    ? obstacle.Occupies(position)
+                    : mapObject.Position == position)
                 {
                     return true;
                 }
@@ -170,7 +226,10 @@ namespace Godmist.Runtime.Combat
             foreach (var mapObject in MapObjects)
             {
                 if (mapObject is ObstacleCombatMapObject { IsActive: false }) continue;
-                if (mapObject != null && mapObject.Position == position)
+                if (mapObject != null
+                    && (mapObject is ObstacleCombatMapObject obstacle
+                        ? obstacle.Occupies(position)
+                        : mapObject.Position == position))
                 {
                     return mapObject;
                 }
@@ -214,7 +273,9 @@ namespace Godmist.Runtime.Combat
                 return false;
             }
 
-            return DefeatedEnemyInstanceIds.Add(enemyInstanceId);
+            if (!DefeatedEnemyInstanceIds.Add(enemyInstanceId)) return false;
+            EnemyDefeated?.Invoke(enemyInstanceId);
+            return true;
         }
 
         public bool TryMarkEnemyDefeated(
@@ -349,11 +410,13 @@ namespace Godmist.Runtime.Combat
                 {
                     var advanced = false;
                     if (observation.ForwardSteps < 2 && observation.Direction != UnityEngine.Vector2Int.zero)
-                        foreach (var next in session.Grid.GetNeighbours(observation.SearchPosition))
+                        foreach (var next in session.GetNavigationNeighbours(observation.SearchPosition))
                         {
                             if (next.X - observation.SearchPosition.X != observation.Direction.x
                                 || next.Y - observation.SearchPosition.Y != observation.Direction.y
-                                || !session.Grid.CanMoveBetween(observation.SearchPosition, next)
+                                || !session.Grid.IsWalkable(next)
+                                || (!session.Grid.CanMoveBetween(observation.SearchPosition, next)
+                                    && session.FindClosedDirectDoor(observation.SearchPosition, next) == null)
                                 || session.Grid.IsBlocked(next) || session.DoesObjectBlockMovement(session.GetMapObjectAt(next))) continue;
                             observation.SearchPosition = next; observation.ForwardSteps++; advanced = true; break;
                         }

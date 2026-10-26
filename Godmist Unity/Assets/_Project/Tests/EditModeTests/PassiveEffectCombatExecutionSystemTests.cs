@@ -546,14 +546,7 @@ namespace Godmist.Tests.EditMode
             var node = CreateNode("node.tooltip", definition);
             Set(node, nameof(SkillTreeNodeDefinition.Description), "Bonus obrażeń.");
 
-            var method = typeof(SkillTreeNodeView).GetMethod(
-                "BuildTooltip",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.That(method, Is.Not.Null);
-
-            var text = (string)method.Invoke(
-                null,
-                new object[] { node, 1, string.Empty });
+            var text = SkillTreeNodeView.BuildTooltip(node, 1, string.Empty);
 
             Assert.That(text, Does.Contain("Warunek: Tylko dla ataków wręcz."));
             Assert.That(text, Does.Contain("Aktywacja: Przy ataku."));

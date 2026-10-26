@@ -41,6 +41,18 @@ namespace Godmist.Tests.EditMode
         static CombatSession Session(params BattleUnit[] units)
         {var s=new CombatSession{Grid=new BattleGrid(14,12),Units=units.ToList(),ActiveUnit=units[0]};foreach(var u in units)u.WarriorState.Session=s;return s;}
         static SkillExecutionSystem Execution()=>new(statusEffectSystem:new StatusEffectSystem());
+        [TestCase(0, 100)]
+        [TestCase(1, 75)]
+        [TestCase(2, 50)]
+        [TestCase(3, 0)]
+        public void HealPreviewPreservesDiscountForEveryPassiveRank(int rank, int expected)
+        {
+            var caster = Unit(); var ally = Unit(true, 2); var session = Session(caster, ally);
+            Rank(caster, false, "persistent_healer", rank);
+            ally.PaladinState.HealingDiscount = true;
+            Assert.That(PaladinCombatSystem.PreviewHealCost(session, caster, Skill("Heal"), ally, 100), Is.EqualTo(expected));
+            Assert.That(PaladinCombatSystem.PreviewHealCost(session, caster, Skill("Heal"), null, 100), Is.EqualTo(expected));
+        }
         [Test] public void ProductionContentHasFiveStartersAndFortyNodes()
         {
             var u=Unit();Assert.That(u.Character.Skills.Count,Is.EqualTo(5));Assert.That(u.Character.GetBasicAttackSkill(),Is.EqualTo(Skill("Verdict")));

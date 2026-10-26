@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.blood_scent
   <DisplayName>k__BackingField: Zapach Krwi
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: bc2cb02fb27f9bf4cab97539bef7d69e, type: 3}
   <TooltipDescription>k__BackingField: "Zwi\u0119ksza szybko\u015B\u0107 o 16 na
     2 tury, je\u015Bli kt\xF3rykolwiek wr\xF3g krwawi; w przeciwnym razie o 4."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 35
-  <ResourceCost>k__BackingField: 20
-  <ResourceType>k__BackingField: 3
+  <ResourceCost>k__BackingField: 10
+  <ResourceType>k__BackingField: 1
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -30,6 +30,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 0
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,14 +49,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -84,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -130,13 +135,20 @@ MonoBehaviour:
       statusId: bleed
       healthPercentThreshold: 0
       integerThreshold: 0
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -165,6 +177,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -211,3 +224,8 @@ MonoBehaviour:
       statusId: bleed
       healthPercentThreshold: 0
       integerThreshold: 0
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

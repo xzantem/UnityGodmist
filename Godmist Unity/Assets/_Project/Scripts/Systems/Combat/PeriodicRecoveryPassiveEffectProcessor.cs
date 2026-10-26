@@ -49,7 +49,9 @@ namespace Godmist.Systems.Combat
                     unit.Character.Stats?.MaxHealth.GetValue() ?? 0f));
                 recoverySystem?.Heal(
                     unit,
-                    GetRecoveryAmount(maxHealth * payload.HealthPercent, ref payload.HealthRoundingCarry));
+                    GetRecoveryAmount(maxHealth * payload.HealthPercent, ref payload.HealthRoundingCarry),
+                    targetVfx: effect.EffectId?.StartsWith("skill.mage.ritual.periodic_recovery.", System.StringComparison.Ordinal) == true
+                        ? CombatTargetVfxKind.Heal : null);
             }
 
             if (payload.ResourcePercent > 0f && unit.Character.ResourcePool != null)

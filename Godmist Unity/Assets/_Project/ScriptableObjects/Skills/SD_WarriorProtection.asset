@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.warrior.protection
   <DisplayName>k__BackingField: Rozkaz Ochrony
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: f594762a7e56840439fe342ea86682a7, type: 3}
   <TooltipDescription>k__BackingField: "Ochrona na 3 tury: -30% przyjmowanych obra\u017Ce\u0144
     oraz -10% za ka\u017Cdego s\u0105siaduj\u0105cego sojusznika, do -60%."
   <SkillAccuracy>k__BackingField: 100
@@ -28,6 +28,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -61,10 +62,11 @@ MonoBehaviour:
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -92,7 +95,7 @@ MonoBehaviour:
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 1
-    statusId:
+    statusId: 
     durationTurns: 3
     stacks: 1
     statusDamageMultiplier: 0

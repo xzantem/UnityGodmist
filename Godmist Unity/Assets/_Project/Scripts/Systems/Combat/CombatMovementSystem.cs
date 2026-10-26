@@ -17,6 +17,20 @@ namespace Godmist.Systems.Combat
             foreach (var unit in session?.Units ?? new List<BattleUnit>())
             {
                 if (unit == null || (preserveInitialized && unit.HasInitializedCombatResources)) continue;
+                if (!unit.HasInitializedCombatResources && !unit.IsPlayerSide
+                    && unit.Character?.Definition?.Id?.StartsWith("enemy.", StringComparison.Ordinal) == true
+                    && unit.Character.ClassData?.StartingResourcePercent >= 0
+                    && unit.Character.ResourcePool is { } pool)
+                {
+                    // Exploration can drain Momentum or regenerate Mana before
+                    // contact. Apply the opening profile once on combat admission.
+                    var previousResource = pool.CurrentValue;
+                    pool.CurrentValue = Mathf.FloorToInt(pool.MaxValue
+                        * Mathf.Clamp(unit.Character.ClassData.StartingResourcePercent, 0, 100) / 100f);
+                    pool.HasStartedTurn = pool.HasGainedResourceSinceLastTurn = false;
+                    pool.FractionalGainRemainder = 0f;
+                    MomentumResourceRule.RefreshSpeedAfterChange(unit.Character, previousResource);
+                }
                 unit.HasInitializedCombatResources = true;
                 if(unit.ScoutState.Facing==Vector2Int.zero)
                     foreach(var opponent in session.Units)
@@ -31,8 +45,15 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        public static bool CanPay(BattleUnit caster, Godmist.Data.Skills.SkillData skill) =>
-            skill == null || skill.KnifeCost <= 0 || caster?.AvailableKnives >= skill.KnifeCost;
+        public static bool CanPay(BattleUnit caster, Godmist.Data.Skills.SkillData skill, BattleUnit target = null) =>
+            skill == null || skill.KnifeCost <= 0 || caster?.AvailableKnives >= skill.KnifeCost
+            || skill.FreeKnivesInMelee && caster != null && target != null && caster.Position.Level == target.Position.Level
+                && Godmist.Data.Skills.SkillData.IsPointBlank(caster.Position.X-target.Position.X,caster.Position.Y-target.Position.Y);
+
+        public static bool CanTargetPosition(BattleUnit caster, Godmist.Data.Skills.SkillData skill, GridPosition target) =>
+            skill == null || skill.KnifeCost <= 0 || caster?.AvailableKnives >= skill.KnifeCost
+            || skill.FreeKnivesInMelee && caster != null && caster.Position.Level == target.Level
+                && Godmist.Data.Skills.SkillData.IsPointBlank(caster.Position.X-target.X,caster.Position.Y-target.Y);
 
         public static bool TrySpendAndDrop(CombatSession session, BattleUnit caster,
             Godmist.Data.Skills.SkillData skill, IReadOnlyList<BattleUnit> targets,
@@ -40,8 +61,9 @@ namespace Godmist.Systems.Combat
         {
             if (skill?.KnifeCost <= 0) return true;
             var meleeTarget = targets != null && targets.Count > 0 ? targets[0] : null;
-            if (skill.FreeKnivesInMelee && meleeTarget != null
-                && Math.Abs(caster.Position.X-meleeTarget.Position.X)+Math.Abs(caster.Position.Y-meleeTarget.Position.Y) == 1) return true;
+            if (skill.FreeKnivesInMelee && meleeTarget != null && caster.Position.Level == meleeTarget.Position.Level
+                && Godmist.Data.Skills.SkillData.IsPointBlank(
+                    caster.Position.X - meleeTarget.Position.X, caster.Position.Y - meleeTarget.Position.Y)) return true;
             if (!CanPay(caster, skill)) return false;
             if (preventConsumption || UnityEngine.Random.value < ScoutCombatSystem.Points(caster, ScoutCombatSystem.BladeTree) * .01f) return true;
             caster.AvailableKnives -= skill.KnifeCost;
@@ -58,12 +80,12 @@ namespace Godmist.Systems.Combat
                 if (!TryFindRandomDropPosition(session, targetPosition.Value, out var position)) continue;
                 session.MapObjects.Add(new KnifeCombatMapObject(
                     $"knife.{caster.Character.CharacterId}.{Guid.NewGuid():N}", position,
-                    caster.Character.CharacterId, 1));
+                    caster.Character.CharacterId, 1) { LandingOrigin = targetPosition.Value });
             }
             return true;
         }
 
-        public static int RecoverAtPosition(CombatSession session, BattleUnit unit)
+        public static int RecoverAtPosition(CombatSession session, BattleUnit unit, CombatRecoverySystem recoverySystem = null)
         {
             if (session?.MapObjects == null || unit?.Character == null) return 0;
             var recovered = 0;
@@ -77,8 +99,10 @@ namespace Godmist.Systems.Combat
                 if (amount <= 0) continue;
                 unit.AvailableKnives += amount;
                 recovered += amount;
-                session.MapObjects.RemoveAt(index);
+                knife.KnifeCount -= amount;
+                if (knife.KnifeCount == 0) session.MapObjects.RemoveAt(index);
             }
+            ScoutCombatSystem.RewardKnifeRecovery(unit, recovered, recoverySystem);
             return recovered;
         }
 
@@ -114,6 +138,7 @@ namespace Godmist.Systems.Combat
         private readonly ResourceRuleSystem resourceRuleSystem;
         private readonly StatusEffectSystem statusEffectSystem;
         private readonly CombatFeedbackBus feedbackBus;
+        private readonly CombatRecoverySystem recoverySystem;
         private readonly PassiveEffectCombatEventDispatcher passiveEffectEventDispatcher;
 
         public CombatMovementSystem(
@@ -127,37 +152,39 @@ namespace Godmist.Systems.Combat
             this.resourceRuleSystem = resourceRuleSystem;
             this.statusEffectSystem = statusEffectSystem;
             this.feedbackBus = feedbackBus;
+            recoverySystem = new CombatRecoverySystem(battleLog, feedbackBus);
             this.passiveEffectEventDispatcher = passiveEffectEventDispatcher;
         }
 
         public Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
             CombatSession session, 
-            BattleUnit unit)
+            BattleUnit unit, bool forPlayerPreview = false)
         {
             return CalculateReachablePaths(
                 session,
                 unit,
                 unit?.CurrentActionPoints ?? 0,
-                unit?.MovementStepsThisTurn ?? 0);
+                unit?.MovementStepsThisTurn ?? 0, forPlayerPreview);
         }
 
         public Dictionary<GridPosition, List<GridPosition>>
             CalculateReachablePathsForNextTurn(
                 CombatSession session,
-                BattleUnit unit)
+                BattleUnit unit, bool forPlayerPreview = false)
         {
+            var resume = unit?.HasUnfinishedCombatTurn == true && session?.ActiveUnit != unit;
             return CalculateReachablePaths(
                 session,
                 unit,
-                unit?.MaxActionPoints ?? 0,
-                movementStepsAlreadyTaken: 0);
+                resume ? unit.CurrentActionPoints : unit?.MaxActionPoints ?? 0,
+                movementStepsAlreadyTaken: resume ? unit.MovementStepsThisTurn : 0, forPlayerPreview: forPlayerPreview);
         }
 
         private Dictionary<GridPosition, List<GridPosition>> CalculateReachablePaths(
             CombatSession session,
             BattleUnit unit,
             int availableActionPoints,
-            int movementStepsAlreadyTaken)
+            int movementStepsAlreadyTaken, bool forPlayerPreview = false)
         {
             var reachablePaths = new Dictionary<
                 GridPosition, 
@@ -168,7 +195,7 @@ namespace Godmist.Systems.Combat
 
             if ((StatusEffectSystem.IsHardCrowdControlled(unit)
                     && !StatusEffectSystem.IsSleeping(unit))
-                || StatusEffectSystem.IsImmobilized(unit))
+                || StatusEffectSystem.IsImmobilized(unit) || unit.IsStationarySummon || SkeletonSlayerBossSystem.BlocksMovement(unit))
             {
                 return reachablePaths;
             }
@@ -184,8 +211,8 @@ namespace Godmist.Systems.Combat
                 {
                     var direction = (x: candidate.X - current.X, y: candidate.Y - current.Y);
                     if (candidate == unit.Position || currentPath.Contains(candidate)
-                        || !session.CanMoveBetween(unit, current, candidate)
-                        || session.IsPositionOccupied(candidate, unit)
+                        || !session.CanMoveBetween(unit, current, candidate, forPlayerPreview)
+                        || (forPlayerPreview ? IsKnownPositionOccupied(session, candidate, unit) : session.IsPositionOccupied(candidate, unit))
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))) continue;
                     var nextPath = new List<GridPosition>(currentPath) { candidate };
                     var cost = CalculatePathCost(session, unit.Position, movementStepsAlreadyTaken, nextPath, ScoutCombatSystem.MovementDiscount(unit), WarriorCombatSystem.FreeSteps(unit));
@@ -210,6 +237,15 @@ namespace Godmist.Systems.Combat
             }
 
             return reachablePaths;
+        }
+
+        private static bool IsKnownPositionOccupied(CombatSession session, GridPosition position, BattleUnit ignored)
+        {
+            if ((session.ExternalPreviewPositionOccupied ?? session.ExternalPositionOccupied)?.Invoke(position) == true) return true;
+            foreach (var unit in session.Units)
+                if (unit != null && unit != ignored && unit.Position == position
+                    && (session.IsUnitKnownForMovementPreview?.Invoke(unit) ?? !StatusEffectSystem.IsInvisibleToPlayer(unit))) return true;
+            return false;
         }
 
         public bool TryMoveAlongPath(
@@ -280,13 +316,14 @@ namespace Godmist.Systems.Combat
                 }
             }
 
+            if (completedPath.Count > 0)
+                resourceRuleSystem?.ProcessUnitMoved(unit, totalMovementCost, completedPath.Count);
             if (totalMovementCost > 0)
             {
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     unit,
                     CombatFeedbackType.ActionPointSpend,
                     totalMovementCost));
-                resourceRuleSystem?.ProcessUnitMoved(unit, totalMovementCost);
                 (passiveEffectEventDispatcher ?? session.PassiveEffectEventDispatcher)
                     ?.Publish(
                         PassiveEffectTriggerType.OnMove,
@@ -344,7 +381,7 @@ namespace Godmist.Systems.Combat
 
             if ((StatusEffectSystem.IsHardCrowdControlled(unit)
                     && !StatusEffectSystem.IsSleeping(unit))
-                || StatusEffectSystem.IsImmobilized(unit))
+                || StatusEffectSystem.IsImmobilized(unit) || unit.IsStationarySummon || SkeletonSlayerBossSystem.BlocksMovement(unit))
             {
                 battleLog?.Invoke(
                     $"{unit.Character.Definition.DisplayName} " +
@@ -416,7 +453,7 @@ namespace Godmist.Systems.Combat
             {
                 resourceRuleSystem?.ProcessUnitMoved(unit, movementCost);
             }
-            var recoveredKnives = ScoutKnifeSystem.RecoverAtPosition(session, unit);
+            var recoveredKnives = ScoutKnifeSystem.RecoverAtPosition(session, unit, recoverySystem);
             if (recoveredKnives > 0)
             {
                 battleLog?.Invoke($"{unit.Character.Definition.DisplayName} odzyskuje {recoveredKnives} sztylet.");

@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: SD_Catacombs_bone_guardian
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.bone_guardian
-  <DisplayName>k__BackingField: "Ko\u015Bciany Obro\u0144ca"
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Ko\u015Bciana Os\u0142ona"
+  <Icon>k__BackingField: {fileID: 21300000, guid: 94176acaa2557a54582511d34cb9a3ba, type: 3}
   <TooltipDescription>k__BackingField: "Przez 3 tury przejmuje 70% obra\u017Ce\u0144
     otrzymanych przez przyleg\u0142ych sojusznik\xF3w."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 50
-  <ResourceCost>k__BackingField: 40
-  <ResourceType>k__BackingField: 3
+  <ResourceCost>k__BackingField: 20
+  <ResourceType>k__BackingField: 1
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -30,6 +30,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 0
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,14 +49,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 19
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -84,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -125,3 +130,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

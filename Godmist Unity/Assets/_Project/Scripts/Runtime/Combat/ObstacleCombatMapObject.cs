@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godmist.Core.Enums;
 
 namespace Godmist.Runtime.Combat
@@ -15,18 +16,46 @@ namespace Godmist.Runtime.Combat
 
         private readonly bool blocksMovement;
         private readonly bool blocksLineOfSight;
+        private readonly HashSet<GridPosition> occupiedPositions;
 
         public ObstacleCombatMapObject(string objectId, GridPosition position, bool blocksMovement,
-            bool blocksLineOfSight, Godmist.Runtime.Dungeons.ObstacleDungeonObjectInstance source = null) : base(objectId, position)
+            bool blocksLineOfSight, Godmist.Runtime.Dungeons.ObstacleDungeonObjectInstance source = null,
+            IEnumerable<GridPosition> occupiedPositions = null) : base(objectId, position)
         {
             Source = source;
             this.blocksMovement = blocksMovement;
             this.blocksLineOfSight = blocksLineOfSight;
+            this.occupiedPositions = occupiedPositions == null
+                ? null
+                : new HashSet<GridPosition>(occupiedPositions);
         }
 
         public override bool CanInteract() => false;
 
         public override void Interact() {}
+
+        public bool Occupies(GridPosition position)
+        {
+            if (!IsActive)
+                return false;
+
+            if (occupiedPositions != null)
+                return !position.IsOnStairs && occupiedPositions.Contains(position);
+
+            return Position == position;
+        }
+
+        public IEnumerable<GridPosition> EnumerateOccupiedPositions()
+        {
+            if (occupiedPositions == null)
+            {
+                yield return Position;
+                yield break;
+            }
+
+            foreach (var occupiedPosition in occupiedPositions)
+                yield return occupiedPosition;
+        }
     }
     public sealed class CombatObjectDamageAction : IDisposable
     {

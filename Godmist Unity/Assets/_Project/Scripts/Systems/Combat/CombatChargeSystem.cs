@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godmist.Core.Enums;
@@ -13,12 +13,15 @@ namespace Godmist.Systems.Combat
     {
         private readonly Action<string> battleLog;
         private readonly StatusEffectSystem statusEffectSystem;
+        private readonly CombatRecoverySystem recoverySystem;
 
         public CombatChargeSystem(
             Action<string> battleLog = null,
-            StatusEffectSystem statusEffectSystem = null)
+            StatusEffectSystem statusEffectSystem = null,
+            CombatRecoverySystem recoverySystem = null)
         {
             this.battleLog = battleLog;
+            this.recoverySystem = recoverySystem;
             this.statusEffectSystem = statusEffectSystem ?? new StatusEffectSystem(battleLog);
         }
 
@@ -27,6 +30,15 @@ namespace Godmist.Systems.Combat
             BattleUnit caster,
             BattleUnit selectedTarget,
             SkillEffectData effect)
+            => CanStartCharge(session, caster, selectedTarget, effect, caster?.Position ?? default);
+
+        // Read-only origin override for planning a position before moving there.
+        public bool CanStartCharge(
+            CombatSession session,
+            BattleUnit caster,
+            BattleUnit selectedTarget,
+            SkillEffectData effect,
+            GridPosition origin)
         {
             if (session?.Grid == null || caster?.Character == null
                 || selectedTarget?.Character == null || effect == null) return false;
@@ -37,7 +49,7 @@ namespace Godmist.Systems.Combat
                 || StatusEffectSystem.IsImmobilized(caster)) return false;
 
             var path = BuildPath(
-                caster.Position,
+                origin,
                 selectedTarget.Position,
                 Mathf.Max(1, effect.DisplacementDistance));
 
@@ -70,10 +82,66 @@ namespace Godmist.Systems.Combat
                 var occupant = FindUnitAt(session, next, caster);
                 if (occupant != null) return occupant.IsPlayerSide != caster.IsPlayerSide
                     && TryCharge(session, caster, occupant, skill, effect, effectIndex);
-                caster.Position = next; session.NotifyUnitEnteredCell(caster);
+                caster.Position = next; CombatCellEntrySystem.Notify(session, caster, recoverySystem);
                 if (caster.Character.LifeState != CharacterLifeState.Alive || StatusEffectSystem.IsHardCrowdControlled(caster)) break;
                 CombatAuraSystem.Refresh(session, statusEffectSystem);
             }
+            return true;
+        }
+
+        // Read-only geometry forecast. It shares the execution path/traversal
+        // rules, never rolls resistance or invokes cell/aura/collision callbacks.
+        // An uncertain contact or an impact ends the forecast at its guaranteed
+        // prefix; callers must replan after executing that charge.
+        public bool TryPreviewCharge(CombatSession session, BattleUnit caster, BattleUnit target, SkillEffectData effect,
+            out Dictionary<BattleUnit, GridPosition> positions, out List<GridPosition> enteredCells, out bool complete)
+        {
+            positions = new Dictionary<BattleUnit, GridPosition>();
+            var projectedPositions = positions;
+            enteredCells = new List<GridPosition>();
+            complete = false;
+            if (!CanStartCharge(session, caster, target, effect)) return false;
+            GridPosition Position(BattleUnit unit) => projectedPositions.TryGetValue(unit, out var position) ? position : unit.Position;
+            BattleUnit Occupant(GridPosition cell, IReadOnlyCollection<BattleUnit> ignored) => session.Units.FirstOrDefault(unit =>
+                unit?.Character != null && unit.Character.LifeState != CharacterLifeState.Dead
+                && !ignored.Contains(unit) && Position(unit) == cell);
+            var origin = caster.Position;
+            var path = BuildPath(origin, target.Position, Mathf.Max(1, effect.DisplacementDistance));
+            var chain = new List<BattleUnit> { caster };
+            for (var index = 0; index < path.Count; index++)
+            {
+                var previous = index == 0 ? origin : path[index - 1];
+                var dx = path[index].X - previous.X; var dy = path[index].Y - previous.Y;
+                if (chain.Count == 1)
+                {
+                    if (CombatObjectDamageSystem.IsCollisionBarrier(session, path[index]) || !CanTraverse(session, Position(caster), path[index])) return true;
+                    var contact = Occupant(path[index], chain);
+                    if (contact == null)
+                    { positions[caster] = path[index]; enteredCells.Add(path[index]); continue; }
+                    if (contact.IsPlayerSide == caster.IsPlayerSide) return true;
+                    var chance = StatusEffectSystem.CalculateMovementEffectChance(contact, effect.BaseChance);
+                    if (chance < 1f) return true;
+                    chain.Add(contact);
+                }
+                while (true)
+                {
+                    var front = chain[chain.Count - 1]; var from = Position(front);
+                    var destination = new GridPosition(from.X + dx, from.Y + dy, from.Level);
+                    if (CombatObjectDamageSystem.IsCollisionBarrier(session, destination) || !CanTraverse(session, from, destination)) return true;
+                    var contact = Occupant(destination, chain);
+                    if (contact == null) break;
+                    if (contact.IsPlayerSide == caster.IsPlayerSide
+                        || StatusEffectSystem.CalculateMovementEffectChance(contact, effect.BaseChance) < 1f) return true;
+                    chain.Add(contact);
+                }
+                foreach (var member in chain)
+                {
+                    var from = Position(member);
+                    positions[member] = new GridPosition(from.X + dx, from.Y + dy, from.Level);
+                    enteredCells.Add(positions[member]);
+                }
+            }
+            complete = true;
             return true;
         }
 
@@ -113,7 +181,7 @@ namespace Godmist.Systems.Combat
                 if (occupant == null)
                 {
                     caster.Position = nextPosition;
-                    session.NotifyUnitEnteredCell(caster);
+                    CombatCellEntrySystem.Notify(session, caster, recoverySystem);
                     if (caster.Character.LifeState != CharacterLifeState.Alive
                         || StatusEffectSystem.IsHardCrowdControlled(caster)) return true;
                     CombatAuraSystem.Refresh(session, statusEffectSystem);
@@ -206,7 +274,7 @@ namespace Godmist.Systems.Combat
                             frontDestination))
                     {
                         CombatObjectDamageSystem.Impact(session, frontUnit.Position, frontDestination);
-                        var stunDuration = remainingDistance - pushStep + 1;
+                        var stunDuration = StatusEffectSystem.CollisionStunDuration;
 
                         statusEffectSystem.ApplyGuaranteedStun(
                             caster,
@@ -261,7 +329,7 @@ namespace Godmist.Systems.Combat
                         unit.Position.X + deltaX,
                         unit.Position.Y + deltaY, unit.Position.Level);
                 }
-                foreach (var moved in chain) session.NotifyUnitEnteredCell(moved);
+                foreach (var moved in chain) CombatCellEntrySystem.Notify(session, moved, recoverySystem);
                 if (chain.Exists(member => member.Character.LifeState != CharacterLifeState.Alive
                     || StatusEffectSystem.IsHardCrowdControlled(member))) return true;
             }

@@ -21,9 +21,9 @@ MonoBehaviour:
     <PassivesPerPoint>k__BackingField: []
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.paladin.priest.group_heal
-    <DisplayName>k__BackingField: Grupowe Leczenie
+    <DisplayName>k__BackingField: Grupowe Uzdrowienie
     <Description>k__BackingField: 50% Leczenie
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 46703850630808c4c84acbe0bd3153e4, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 1
@@ -33,8 +33,8 @@ MonoBehaviour:
   - <Id>k__BackingField: node.paladin.priest.healing_power
     <DisplayName>k__BackingField: "Si\u0142a Leczenia"
     <Description>k__BackingField: "Zwi\u0119ksza si\u0142\u0119 Uzdrowienia oraz
-      Grupowego Leczenia o 15%/30%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+      Grupowego Uzdrowienia o 15%/30%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 1f5106d80d7737d4a8d623ae200ab410, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -47,7 +47,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Aura Leczenia
     <Description>k__BackingField: "Zapewnia 7%/15% leczenie przyleg\u0142ym sojusznikom
       w ka\u017Cdej turze"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: ba8104a46743f564787c061799298fba, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -58,7 +58,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "\u0141a\u0144cuch Leczenia"
     <Description>k__BackingField: "Ka\u017Cdy kolejny przyleg\u0142y sojusznik przed\u0142u\u017Ca
       obszar dzia\u0142ania Aury Leczenia do siebie"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b2684979baaa0b542b95f9c2fde04ce8, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
@@ -68,10 +68,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.holy_artifacts
-    <DisplayName>k__BackingField: "\u015Awi\u0119te Artefakty"
+    <DisplayName>k__BackingField: "Przewodniki \u0141aski"
     <Description>k__BackingField: "Obiekty stworzone przez gracza (sztylety, runy,
       obiekty natury, etc.) liczone s\u0105 do \u0141a\u0144cucha Leczenia"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: de270150df8ca1243a6d098d69df925b, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
@@ -81,10 +81,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.battle_zeal
-    <DisplayName>k__BackingField: "Zapa\u0142 Bitewny"
-    <Description>k__BackingField: "Grupowe Leczenie zwi\u0119ksza szybko\u015B\u0107
+    <DisplayName>k__BackingField: "O\u017Cywcza \u0141aska"
+    <Description>k__BackingField: "Grupowe Uzdrowienie zwi\u0119ksza szybko\u015B\u0107
       o 10 na jedn\u0105 tur\u0105, a potem o 5 na jedn\u0105 tur\u0119"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 5e814835f984b044d8a7b5e19fb694ff, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 1
@@ -95,9 +95,9 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.universal_grace
     <DisplayName>k__BackingField: "Wszechstronna \u0141aska"
-    <Description>k__BackingField: "Grupowe Leczenie zwi\u0119ksza obron\u0119 fizyczn\u0105
-      i magiczn\u0105 i unik na 2 tury o 2%/5%/10%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Description>k__BackingField: "Grupowe Uzdrowienie zwi\u0119ksza obron\u0119
+      fizyczn\u0105 i magiczn\u0105 i unik na 2 tury o 2%/5%/10%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 68fda06d3953b7c4b9a2ff92501557f3, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 3
@@ -110,7 +110,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Niespodziewana \u0141aska"
     <Description>k__BackingField: "Daje szans\u0119 na leczenie krytyczne umiej\u0119tno\u015Bciom
       leczniczym r\xF3wn\u0105 50%/100%/150% szansy krytycznej"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 3dcac98dee7eb5e479c60ef031b18728, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 3
@@ -118,10 +118,10 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.critical_focus
-    <DisplayName>k__BackingField: Krytyczne Skupienie
+    <DisplayName>k__BackingField: Precyzja Uzdrowiciela
     <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
       maj\u0105 50%/100% wi\u0119ksz\u0105 szans\u0119 na leczenie krytyczne"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9e7c32f2d1f681b46b34d66ac2cbbc95, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -136,7 +136,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Skupienie Uzdrowiciela
     <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
       maj\u0105 zwi\u0119kszon\u0105 si\u0142\u0119 o 15%/30%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: a1784ef7d35b84b4491ba58d6b35fa2f, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2
@@ -144,10 +144,10 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.haste
-    <DisplayName>k__BackingField: "Po\u015Bpiech"
+    <DisplayName>k__BackingField: Natychmiastowa Ulga
     <Description>k__BackingField: "Przywraca 15%/25%/40% zdrowia odnawianego przez
       \u015Awi\u0119t\u0105 Regeneracj\u0119 od razu po u\u017Cyciu"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: a7ecf3cb58eabbd4d885015ff1d08e01, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 3
@@ -159,7 +159,7 @@ MonoBehaviour:
   - <Id>k__BackingField: node.paladin.priest.holy_regeneration
     <DisplayName>k__BackingField: "\u015Awi\u0119ta Regeneracja"
     <Description>k__BackingField: Regeneruje 40% zdrowia sojusznika przez 4 tury
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 29ea0a0986889d34d9619cfb598b311d, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
@@ -170,7 +170,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Namaszczony Wojownik
     <Description>k__BackingField: "Ka\u017Cdy leczniczy cios krytyczny zwi\u0119ksza
       obra\u017Cenia uleczonego celu o 10%/20% na 2 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: f35552bbea460bf46a0814ee5d6d2da2, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -180,12 +180,12 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.persistent_healer
-    <DisplayName>k__BackingField: "Wytrwa\u0142y Uzdrowiciel"
+    <DisplayName>k__BackingField: Ratunek w Potrzebie
     <Description>k__BackingField: "Zmniejsza koszt punkt\xF3w akcji Uzdrowienia o
       25%/50%/100%, je\u015Bli cel otrzyma\u0142 obra\u017Cenia wi\u0119ksze ni\u017C
       20% maksymalnego zdrowia w jednej turze. U\u017Cycie Uzdrowienia na tym celu
       zdejmuje zni\u017Ck\u0119."
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 2634b786e5b9ce6409d4a72db84419ed, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 3
@@ -196,7 +196,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Pokrzepienie
     <Description>k__BackingField: "Leczenia obejmuj\u0105ce tylko jedn\u0105 osob\u0119
       przy\u015Bpieszaj\u0105 jej akcj\u0119 o 20%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0f9f8ddda8383ba44a49dbf122fea191, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
@@ -204,10 +204,10 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.lasting_effect
-    <DisplayName>k__BackingField: "Trwa\u0142y Efekt"
+    <DisplayName>k__BackingField: "Trwa\u0142a Regeneracja"
     <Description>k__BackingField: "\u015Awi\u0119ta Regeneracja po up\u0142yni\u0119ciu
       czasu trwania leczy 25% pocz\u0105tkowej warto\u015Bci przez kolejne 4/2 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 207018f04eeb64a43988097533562b86, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -217,10 +217,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.salvation
-    <DisplayName>k__BackingField: Zbawienie
+    <DisplayName>k__BackingField: "\u0141aska Zwrotna"
     <Description>k__BackingField: "Rzucaj\u0105cy otrzymuje dodatkowo 50% odnowionego
       surowca przez \u0141ask\u0119"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: e946f91bd4d93dd4c9471a9c5eac5dd4, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
@@ -230,12 +230,12 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.paladin.priest.grace_collection
-    <DisplayName>k__BackingField: "Kolekcja \u0141ask"
+    <DisplayName>k__BackingField: "Gromadzenie \u0141aski"
     <Description>k__BackingField: "Otrzymywanie i zadawanie obra\u017Ce\u0144 pod
       dzia\u0142aniem B\u0142ogos\u0142awie\u0144stwa daje \u0142adunek \u0141aski
       (max 6), po up\u0142yni\u0119ciu czasu trwania, cel regeneruje 4/8 surowca
       za ka\u017Cdy \u0142adunek"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: a8522af6b8793a642ab8f3d3aa595415, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -248,7 +248,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "B\u0142ogos\u0142awie\u0144stwo"
     <Description>k__BackingField: "Zwi\u0119ksza zadawane obra\u017Cenia o 10%, zmniejsza
       przyjmowane obra\u017Cenia o 10% na 4 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 883928b713a5a244d95fee8ffb05e193, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
@@ -259,7 +259,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Silne B\u0142ogos\u0142awie\u0144stwo"
     <Description>k__BackingField: "Wzmacnia efekt B\u0142ogos\u0142awie\u0144stwa
       do 15%/20%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: a1fba0c75150ead41b179ea5bd69657b, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2

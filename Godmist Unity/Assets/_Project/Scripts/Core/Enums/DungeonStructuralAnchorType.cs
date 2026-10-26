@@ -1,6 +1,6 @@
 namespace Godmist.Core.Enums
 {
-    public enum DungeonWallType { Full, Low, Railing }
+    public enum DungeonWallType { Full, Low, Railing, TreeTrunk }
 
     public enum DungeonStructuralAnchorType
     {

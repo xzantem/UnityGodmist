@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: SD_Catacombs_dead_king_guard
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.dead_king_guard
-  <DisplayName>k__BackingField: "Stra\u017C Przyboczna"
-  <Icon>k__BackingField: {fileID: 0}
-  <TooltipDescription>k__BackingField: "Przywo\u0142uje losowego szkieleta obok siebie.
-    Mo\u017Ce utrzymywa\u0107 do trzech stra\u017Cnik\xF3w."
+  <DisplayName>k__BackingField: "Stra\u017C!"
+  <Icon>k__BackingField: {fileID: 21300000, guid: a12d8cb558028524fae64b54b15cde2a, type: 3}
+  <TooltipDescription>k__BackingField: "Przywo\u0142uje do 3 Widmowych Rycerzy. Ka\u017Cdy
+    ginie po 3 trafieniach; obra\u017Cenia okresowe nie licz\u0105 si\u0119."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0
-  <ActionCost>k__BackingField: 20
+  <ActionCost>k__BackingField: 30
   <ResourceCost>k__BackingField: 60
   <ResourceType>k__BackingField: 3
   <KnifeCost>k__BackingField: 0
@@ -28,8 +28,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
-  <RequiredCasterStatusId>k__BackingField: 
+  <RequiredCasterStatusId>k__BackingField:
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,21 +49,24 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId:
   effects:
   - effectType: 13
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 0
-    onHitStatusId: 
+    onHitStatusId:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
@@ -83,23 +87,19 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     maxActiveObjects: 0
-    summonedCharacterDefinition: {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
-    summonPool:
-    - {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
-    - {fileID: 11400000, guid: f2523f7760928ea489000fa70ed11b92, type: 2}
-    - {fileID: 11400000, guid: 32de042677ab0424b969626af8cc7c96, type: 2}
-    - {fileID: 11400000, guid: a4dbfe861e4138146953b384e6c0ace4, type: 2}
+    summonedCharacterDefinition: {fileID: 11400000, guid: 850ba02edfcc4fd429bfb0738601bed3, type: 2}
+    summonPool: []
     summonedClassData: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
     summonPlacementRange:
       shape: 2
       minRange: 1
-      maxRange: 1
+      maxRange: 9
       rectangleWidth: 0
     summonDurationTurns: 99
     maxActiveSummons: 3
     summonPercentMaxHealth: 1
     baseChance: 1
-    statusId: 
+    statusId:
     durationTurns: 0
     stacks: 0
     statusDamageMultiplier: 0
@@ -130,3 +130,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 1
+    summonGroupId:
+    damagePerOwnedSummonGroup:

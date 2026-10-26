@@ -16,6 +16,9 @@ namespace Godmist.Systems.Combat
     public static partial class MageCombatSystem
     {
         public const string Warlock = "tree.mage.warlock", Fire = "tree.mage.fire";
+        public const float ManaCostReductionPerPoint = .005f;
+        public const float MissingManaRegenerationPerRank = .25f;
+        public const int BaseManaRegeneration = 15;
         public static int Rank(CharacterInstance c, string tree, string node) => Mathf.Clamp(c?.SkillTreeProgress?
             .FirstOrDefault(p => p.TreeId == tree)?.NodeInvestments?
             .FirstOrDefault(n => n.NodeId == "node.mage." + (tree == Warlock ? "warlock." : "fire.") + node)?.Ranks ?? 0, 0, 3);
@@ -34,10 +37,10 @@ namespace Godmist.Systems.Combat
             var defense = Rank(c, Warlock, "defensive_power");
             s.MaxHealth.SetEffectiveValue(s.MaxHealth.GetValue() + (s.MinAttack.GetValue() + s.MaxAttack.GetValue()) * .5f * (defense switch { 1 => .1f, 2 => .3f, 3 => .5f, _ => 0f }));
             var pool = c.ResourcePool;
-            var missing = pool == null || pool.MaxValue <= 0 ? 0f : Mathf.Clamp01(1f - pool.CurrentValue / (float)pool.MaxValue);
-            s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * Rank(c, Warlock, "energy_saving")));
+            var maximumMana = Mathf.Max(0, Mathf.RoundToInt(s.MaxResource.GetValue()));
+            var missing = pool == null || maximumMana <= 0 ? 0f : Mathf.Clamp01(1f - pool.CurrentValue / (float)maximumMana);
+            s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * MissingManaRegenerationPerRank * Rank(c, Warlock, "energy_saving")));
             c.ActiveSkillLoadout.TrySetCapacityModifier("mage.memory", Rank(c, Warlock, "memory"));
-            if (c.Resistances != null) c.Resistances.FireResistance = Mathf.Clamp01(c.Resistances.FireResistance + .01f * Points(c, Fire));
             if (!PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn)) return;
             s.Speed.SetEffectiveValue(s.Speed.GetValue() + 15 * Rank(c, Fire, "adrenaline"));
             var protection = Rank(c, Fire, "protection") switch { 1 => .2f, 2 => .5f, _ => 0f };
@@ -47,7 +50,7 @@ namespace Godmist.Systems.Combat
         public static int Cost(BattleUnit u, SkillData skill, int cost)
         {
             if (skill?.ResourceType != ResourceType.Mana || u?.Character == null) return cost;
-            var multiplier = Mathf.Max(0, 1 - .015f * Points(u.Character, Warlock));
+            var multiplier = Mathf.Max(0, 1 - ManaCostReductionPerPoint * Points(u.Character, Warlock));
             if (W(u, "magic_saving") > 0 && u.Character.CurrentHealth < u.Character.Stats.MaxHealth.GetValue() * .5f) multiplier *= .8f;
             return Mathf.Max(0, Mathf.CeilToInt(Mathf.Max(0, cost - 5 * W(u, "mastery")) * multiplier - .00001f));
         }

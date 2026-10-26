@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: part.vs10.mage.4.15.paski_ze_skory_warana
   <DisplayName>k__BackingField: "Szata \u2014 Pas (Paski ze sk\xF3ry warana)"
   <Description>k__BackingField: "Pas spinaj\u0105cy warstwy szaty."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c9bd799f3728de84f86f5cb51daca2dc, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
   <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 4

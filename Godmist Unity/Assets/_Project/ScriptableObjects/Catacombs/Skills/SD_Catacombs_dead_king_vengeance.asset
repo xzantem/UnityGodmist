@@ -13,11 +13,12 @@ MonoBehaviour:
   m_Name: SD_Catacombs_dead_king_vengeance
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.dead_king_vengeance
-  <DisplayName>k__BackingField: "Zemsta Za\u015Bwiat\xF3w"
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Runy Zemsty"
+  <Icon>k__BackingField: {fileID: 21300000, guid: 46c92c672bcf07145baed23f384ca516, type: 3}
   <TooltipDescription>k__BackingField: "Przy 75%, 50% i 25% HP stawia pi\u0119\u0107
-    run, gdy poprzednie znikn\u0119\u0142y. Wej\u015Bcie na run\u0119 j\u0105 rozbraja; w trzeciej w\u0142asnej turze
-    runa uderza najbli\u017Cszego wroga za 150% losowych obra\u017Ce\u0144 magicznych."
+    run, gdy poprzednie znikn\u0119\u0142y. Wej\u015Bcie na run\u0119 j\u0105 rozbraja;
+    w trzeciej w\u0142asnej turze runa uderza najbli\u017Cszego wroga za 150% losowych
+    obra\u017Ce\u0144 magicznych."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0

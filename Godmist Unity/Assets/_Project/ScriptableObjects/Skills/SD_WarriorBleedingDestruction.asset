@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: SD_WarriorBleedingDestruction
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.warrior.bleeding_destruction
-  <DisplayName>k__BackingField: "Krwawi\u0105ce Zniszczenie"
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <DisplayName>k__BackingField: "Rozcinaj\u0105cy Cios"
+  <Icon>k__BackingField: {fileID: 21300000, guid: 2e5698abb65732243aded628e30d8a09, type: 3}
   <TooltipDescription>k__BackingField: "Najmniejsze obra\u017Cenia fizyczne; 75%
-    szansy na krwawienie 90% przez 4 tury."
+    szansy na krwawienie 40% \u015Bredniego ataku na tur\u0119 przez 4 tury."
   <SkillAccuracy>k__BackingField: 75
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
@@ -28,7 +28,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -47,24 +49,28 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 1
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -92,7 +99,7 @@ MonoBehaviour:
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 1
-    statusId:
+    statusId: 
     durationTurns: 1
     stacks: 1
     statusDamageMultiplier: 0
@@ -123,23 +130,31 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 2
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 1
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -157,6 +172,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -170,7 +186,7 @@ MonoBehaviour:
     statusId: bleed
     durationTurns: 4
     stacks: 1
-    statusDamageMultiplier: 0.9
+    statusDamageMultiplier: 0.4
     statusHealPercent: 0
     percentageValue: 0
     counterattackRange:
@@ -200,6 +216,11 @@ MonoBehaviour:
     conditions:
     - conditionType: 1
       referencedEffectIndex: 0
-      statusId:
+      statusId: 
       healthPercentThreshold: 0
       integerThreshold: 0
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

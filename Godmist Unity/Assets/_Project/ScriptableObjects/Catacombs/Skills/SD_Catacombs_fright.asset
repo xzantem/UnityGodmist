@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SD_Catacombs_fright
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.fright
-  <DisplayName>k__BackingField: Nastraszenie
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: Upiorny Doskok
+  <Icon>k__BackingField: {fileID: 21300000, guid: 188ff135e804785488051b431989f06a, type: 3}
   <TooltipDescription>k__BackingField: "Doskok o 2 pola i losowe obra\u017Cenia magiczne."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 2
@@ -83,6 +83,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -159,6 +160,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

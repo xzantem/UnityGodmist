@@ -77,13 +77,17 @@ namespace Godmist.Systems.Combat
                 && item.SummonedObjectDefinition?.ObjectId == RuneObjectId);
             if (runeEffect == null || skill.ActionCost != 0 || skill.ResourceCost != 0) return false;
 
-            var placed = PlaceRunes(session, boss, skill, runeEffect);
+            var runes = new List<SummonedCombatMapObject>();
+            var placed = PlaceRunes(session, boss, skill, runeEffect, runes);
             if (placed == 0) return false;
 
             pendingVengeanceCasts--;
             executedSkill = skill;
+            var presentation = Guid.NewGuid().ToString("N");
             feedbackBus?.Publish(new CombatFeedbackEvent(boss,
-                CombatFeedbackType.SkillUsed, effectName: skill.DisplayName));
+                CombatFeedbackType.SkillUsed, effectName: skill.DisplayName,
+                skillPresentation: new CombatSkillPresentation(boss, skill), actionId: presentation));
+            foreach (var rune in runes) CombatBossVfxFeedback.PublishRune(feedbackBus, boss, rune, presentation);
             battleLog?.Invoke($"{boss.Character.Definition.DisplayName} używa Zemsty Zaświatów: "
                 + $"{placed} run. Wejdź na runę, aby ją rozbroić.");
             return true;
@@ -94,7 +98,7 @@ namespace Godmist.Systems.Combat
                 item?.SkillId == VengeanceSkillId);
 
         private int PlaceRunes(CombatSession session, BattleUnit boss,
-            SkillData skill, SkillEffectData effect)
+            SkillData skill, SkillEffectData effect, List<SummonedCombatMapObject> runes)
         {
             var context = session.DungeonContext;
             string bossRoomId = null;
@@ -128,7 +132,7 @@ namespace Godmist.Systems.Combat
             {
                 if (placed == 5) break;
                 if (objectSystem.TryCreate(session, boss, skill, effect, 0,
-                    position, out _)) placed++;
+                    position, out var rune)) { placed++; runes.Add(rune); }
             }
             return placed;
         }
@@ -140,6 +144,7 @@ namespace Godmist.Systems.Combat
                 IsRune(item) && item.Position == unit.Position);
             if (rune == null) return;
             objectSystem.Remove(session, rune);
+            CombatBossVfxFeedback.PublishRune(feedbackBus, unit, rune);
             battleLog?.Invoke($"{unit.Character.Definition.DisplayName} rozbraja runę Zemsty Zaświatów.");
         }
 
@@ -168,8 +173,11 @@ namespace Godmist.Systems.Combat
             var damage = CombatDamageValueCalculator.CalculateDamageValue(
                 boss, DamageValueSource.AttackRange, 1.5f);
             battleLog?.Invoke($"Runa Zemsty Zaświatów uderza w {target.Character.Definition.DisplayName}.");
+            var impactPosition = target.Position;
             damageSystem.ApplySummonedObjectDamage(session, target, damage,
                 DamageType.Magical);
+            if (damage > 0) feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect, position: impactPosition,
+                source: boss, targetVfx: CombatTargetVfxKind.SpectralContact));
         }
 
         public void OnBossDied(CombatSession session, BattleUnit unit)

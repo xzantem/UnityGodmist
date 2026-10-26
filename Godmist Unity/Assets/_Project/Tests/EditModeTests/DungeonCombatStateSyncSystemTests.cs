@@ -12,6 +12,39 @@ namespace Godmist.Tests.EditMode
     public class DungeonCombatStateSyncSystemTests
     {
         [Test]
+        public void ParallelCombatRefreshesDoorAndBlockedEdgeAfterExplorationToggle()
+        {
+            var first = new Vector2Int(-4, 7); var second = new Vector2Int(-3, 7);
+            var map = new DungeonFloorMap();
+            map.TryAddFloorCell(first, "room"); map.TryAddFloorCell(second, "room");
+            map.TryAddFloorCell(new DungeonSurfacePosition(first, 1), "room");
+            var floor = new DungeonFloorInstance(0); floor.TrySetMap(map);
+            var definition = ScriptableObject.CreateInstance<DoorDungeonObjectDefinition>();
+            try
+            {
+                floor.TryAddObject(new DoorDungeonObjectInstance("shared", definition, new DungeonCellEdge(first, second)));
+                var context = new DungeonCombatContext("dungeon", 0, "combat", "room", first, second,
+                    new[] { first, second }, null, null, surfaceMap: map);
+                Assert.That(new DungeonBattleGridFactory().TryCreate(context, out var grid), Is.True);
+                var runtimeDoor = new DoorCombatMapObject("shared", new GridPosition(0, 0), new GridPosition(1, 0), DoorInteractionMode.DirectOnly);
+                var session = new CombatSession { DungeonContext = context, Grid = grid };
+                session.MapObjects.Add(runtimeDoor);
+                new CombatInteractionSystem().InitializeMapObjects(session);
+                var sync = new DungeonCombatStateSyncSystem();
+                Assert.That(grid.CanMoveBetween(runtimeDoor.Edge.FirstCell, runtimeDoor.Edge.SecondCell), Is.False);
+                foreach (var open in new[] { true, false, true })
+                {
+                    Assert.That(floor.TrySetDoorOpen("shared", open), Is.True);
+                    sync.RefreshDoorsFromFloor(floor, session);
+                    Assert.That(runtimeDoor.IsOpen, Is.EqualTo(open));
+                    Assert.That(grid.CanMoveBetween(runtimeDoor.Edge.FirstCell, runtimeDoor.Edge.SecondCell), Is.EqualTo(open));
+                    Assert.That(grid.HasBlockedEdge(runtimeDoor.Edge.FirstCell, runtimeDoor.Edge.SecondCell), Is.EqualTo(!open));
+                }
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
+        [Test]
         public void TrySyncDoorStates_OpenCombatDoor_UpdatesDungeonDoor()
         {
             var firstCell = new Vector2Int(0, 0);

@@ -116,27 +116,27 @@ namespace Godmist.Tests.EditMode
         {
             var u=Unit();Rank(u,false,"mastery",1);Rank(u,false,"magic_saving",1);u.Character.CurrentHealth=100;
             Assert.That(PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,Skill("EnergyOrb")),Is.Zero);
-            Assert.That(PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,Skill("Fireball")),Is.EqualTo(Mathf.CeilToInt(35*.97f*.8f)));
+            Assert.That(PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,Skill("Fireball")),Is.EqualTo(Mathf.CeilToInt(35*.99f*.8f)));
         }
         [Test] public void StatsAndMemoryRefreshWithoutStacking()
         {
             var u=Unit();Rank(u,false,"defensive_power",3);Rank(u,false,"memory",2);Rank(u,false,"energy_saving",2);u.Character.ResourcePool.CurrentValue=50;
             var pipeline=new CharacterStatPipelineSystem();pipeline.Refresh(u.Character);pipeline.Refresh(u.Character);
-            Assert.That(u.Character.Stats.MaxHealth.GetValue(),Is.EqualTo(1050));Assert.That(u.Character.ResourcePool.Regeneration,Is.EqualTo(40));Assert.That(u.Character.ActiveSkillLoadout.Capacity,Is.EqualTo(7));
+            Assert.That(u.Character.Stats.MaxHealth.GetValue(),Is.EqualTo(1050));Assert.That(u.Character.ResourcePool.Regeneration,Is.EqualTo(25));Assert.That(u.Character.ActiveSkillLoadout.Capacity,Is.EqualTo(7));
         }
-        [Test] public void TurnRegenerationRecalculatesMissingManaEveryTick()
+        [Test] public void ExplorationRegenerationRecalculatesMissingManaEveryTick()
         {
             var unit=Unit();Rank(unit,false,"energy_saving",2);unit.Character.ResourcePool.CurrentValue=0;
-            var rules=new ResourceRuleSystem();rules.ProcessTurnStart(unit);
-            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(60));
-            rules.ProcessTurnStart(unit);
-            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(96));
+            var rules=new ResourceRuleSystem();rules.ProcessExplorationTick(unit);
+            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(30));
+            rules.ProcessExplorationTick(unit);
+            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(57));
         }
         [Test] public void ShieldUsesAverageAttack_AndFocusPaysActualHealth()
         {
             var u=Unit();var ally=Unit(true,2);var s=Session(u,ally);var exec=new SkillExecutionSystem(statusEffectSystem:new StatusEffectSystem());
             Assert.That(exec.TryExecute(s,u,Skill("Shield"),ally),Is.True);
-            Assert.That(ally.Character.ShieldPool.TotalShield,Is.EqualTo(400));
+            Assert.That(ally.Character.ShieldPool.TotalShield,Is.EqualTo(250));
             u.Character.ResourcePool.CurrentValue=0;u.Character.CurrentHealth=51;
             Assert.That(exec.TryExecute(s,u,Skill("Focus"),u),Is.True);
             Assert.That(u.Character.CurrentHealth,Is.EqualTo(1));Assert.That(u.Character.ResourcePool.CurrentValue,Is.EqualTo(100));

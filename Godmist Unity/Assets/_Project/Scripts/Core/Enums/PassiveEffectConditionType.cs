@@ -22,6 +22,7 @@ namespace Godmist.Core.Enums
         Turn = 17,
         ReferencedEffectSucceeded = 18,
         ReferencedEffectCrit = 19,
-        ReferencedEffectDodged = 20
+        ReferencedEffectDodged = 20,
+        TargetHasMoreMaxHealth = 21
     }
 }

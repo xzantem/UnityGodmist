@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
@@ -89,7 +89,7 @@ namespace Godmist.Systems.Combat
             {
                 var rank = F(mage, "fire_feeding");
                 if (rank > 0 && mage.Character.LifeState == CharacterLifeState.Alive)
-                    new CombatRecoverySystem().Heal(mage, Mathf.FloorToInt(total * .1f * rank));
+                    new CombatRecoverySystem().Heal(mage, Mathf.FloorToInt(total * .1f * rank), reportingSourceId: "mage.fire_feeding");
             }
         }
         public static void ExtinguishBurns(CombatSession session, BattleUnit unit)
@@ -103,11 +103,14 @@ namespace Godmist.Systems.Combat
             var rank = session?.Units?.Where(u => u.IsPlayerSide != source.IsPlayerSide).Select(u => F(u, "distracting_fire")).DefaultIfEmpty(0).Max() ?? 0;
             return 1 - .1f * rank;
         }
-        public static void AfterHit(CombatSession session, BattleUnit source, BattleUnit target, int dealt, CombatDamageSystem damage)
+        public static void AfterHit(CombatSession session, BattleUnit source, BattleUnit target, int dealt, CombatDamageSystem damage,
+            CombatFeedbackBus feedback = null, PassiveEffectCombatContext context = null)
         {
             if (source?.Character == null || target?.Character == null || dealt <= 0) return;
-            if (source.ActiveToggleSkillIds.Contains("skill.mage.tiring") && UnityEngine.Random.value < StatusEffectSystem.CalculateEffectChance(.7f, StatusEffectSystem.GetResistance(target,StatusEffectIds.Weakening)))
-                ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Speed,-3,3,"mage.tiring");
+            if (MageTiringSpellSystem.TryApply(source, target, context))
+                feedback?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect, source: source,
+                    targetVfx: CombatTargetVfxKind.Fatigue, actionId: context?.PresentationActionId,
+                    cueDelaySeconds: context?.PresentationDelaySeconds ?? 0));
             var erosion = F(source, "erosion");
             if (erosion > 0)
             {

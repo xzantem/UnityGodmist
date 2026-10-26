@@ -8,6 +8,43 @@ namespace Godmist.Systems.Combat
 {
     public static partial class ScoutCombatSystem
     {
+        public const string EfficientRecoveryNode = "efficient_recovery";
+        public const int KnifeRecoveryMomentum = 8;
+        public static bool CanPayHookCost(BattleUnit owner, Godmist.Data.Skills.SkillData skill, bool knifeRecovery=false)
+        {
+            if(skill?.SkillId!="skill.scout.hook")return true;
+            var cost=PassiveEffectCombatExecutionSystem.ResolveResourceCost(owner,skill,knifeRecovery);
+            return cost<=0 || owner?.Character?.ResourcePool is {} pool
+                &&pool.ResourceType==skill.ResourceType&&pool.CurrentValue>=cost;
+        }
+
+        internal static int RewardKnifeRecovery(BattleUnit owner, int recovered, CombatRecoverySystem recoverySystem)
+        {
+            if (recovered <= 0 || owner?.Character?.ResourcePool?.ResourceType != ResourceType.Momentum) return 0;
+            // A flat reward once per successful recovery, not once per knife.
+            // Reuse normal recovery for the cap, gain blockers and feedback.
+            return (recoverySystem ?? new CombatRecoverySystem()).RestoreResource(owner, KnifeRecoveryMomentum);
+        }
+
+        public static int KnifeRecoveryCost(BattleUnit owner, Godmist.Data.Skills.SkillData skill, int cost, bool recoveringKnife)
+        {
+            if (!recoveringKnife || skill?.CanRecoverKnives != true) return cost;
+            var baseMultiplier = skill.SkillId == "skill.scout.hook" && BladeRank(owner, EfficientRecoveryNode) > 0
+                ? .4f : skill.KnifeRecoveryCostMultiplier;
+            var multiplier = PassiveEffectCombatExecutionSystem.ResolveParameter(owner, skill,
+                "knife_recovery_cost_multiplier", baseMultiplier);
+            return Mathf.Max(0, Mathf.CeilToInt(cost * Mathf.Clamp01(multiplier) - .00001f));
+        }
+
+        public static bool IsKnifeRecovery(CombatSession session, BattleUnit owner, Godmist.Data.Skills.SkillData skill,
+            System.Collections.Generic.IReadOnlyDictionary<int, System.Collections.Generic.IReadOnlyList<BattleUnit>> targets,
+            System.Collections.Generic.IReadOnlyDictionary<int, GridPosition?> positions)
+        {
+            return targets != null && targets.TryGetValue(0, out var units) && units != null && units.Count == 0
+                && positions != null && positions.TryGetValue(0, out var position)
+                && RecoverableKnife(session, owner, skill, position) != null;
+        }
+
         public static KnifeCombatMapObject RecoverableKnife(CombatSession session, BattleUnit owner, Godmist.Data.Skills.SkillData skill, GridPosition? position)
         {
             if (session?.Grid == null || owner?.Character == null || skill?.CanRecoverKnives != true
@@ -17,15 +54,18 @@ namespace Godmist.Systems.Combat
                 || skill.RequiresLineOfSight && !new CombatLineOfSightService().HasLineOfSight(session,owner.Position,position.Value)) return null;
             return session.MapObjects.OfType<KnifeCombatMapObject>().FirstOrDefault(k=>k.Position==position.Value && k.OwnerCharacterId==owner.Character.CharacterId);
         }
-        public static bool RecoverKnife(CombatSession session, BattleUnit owner, Godmist.Data.Skills.SkillData skill, GridPosition? position)
+        public static bool RecoverKnife(CombatSession session, BattleUnit owner, Godmist.Data.Skills.SkillData skill, GridPosition? position,
+            CombatRecoverySystem recoverySystem = null)
         {
             var knife=RecoverableKnife(session,owner,skill,position);
             if(knife==null)return false;
             // One physical map entry is recovered once; no accuracy/status roll.
             var recovered = Math.Min(owner.MaxKnives - owner.AvailableKnives, knife.KnifeCount);
+            if (recovered <= 0) return false;
             owner.AvailableKnives += recovered;
             knife.KnifeCount -= recovered;
             if (knife.KnifeCount == 0) session.MapObjects.Remove(knife);
+            RewardKnifeRecovery(owner, recovered, recoverySystem);
             return recovered > 0;
         }
         public const string AssassinTree = "tree.scout.assassin";
@@ -43,15 +83,16 @@ namespace Godmist.Systems.Combat
             target.ScoutState.Knives.Add(new EmbeddedScoutKnife { Owner = owner, BleedMultiplier = rank == 1 ? .6f : .9f });
             return true;
         }
-        public static void FinishKnifeAction(CombatSession session, string actionId)
+        public static void FinishKnifeAction(CombatSession session, string actionId, bool hit = false)
         {
             if (session == null || !session.PendingScoutKnifeActions.Remove(actionId, out var pending)) return;
-            for(var i=0;i<pending.Count;i++) DropKnife(session,pending.Owner,pending.DropPosition);
+            for(var i=0;i<pending.Count;i++) DropKnife(session,pending.Owner,pending.DropPosition, hit);
         }
-        static void DropKnife(CombatSession session, BattleUnit owner, GridPosition position)
+        static void DropKnife(CombatSession session, BattleUnit owner, GridPosition position, bool hit = true)
         {
             if (!ScoutKnifeSystem.TryFindRandomDropPosition(session, position, out var drop)) drop = position;
-            session.MapObjects.Add(new KnifeCombatMapObject("knife."+Guid.NewGuid().ToString("N"),drop,owner.Character.CharacterId,1));
+            session.MapObjects.Add(new KnifeCombatMapObject("knife."+Guid.NewGuid().ToString("N"),drop,owner.Character.CharacterId,1)
+                { LandingOrigin = position, LandingFromHit = hit });
         }
         public static void ReleaseKnivesOnDeath(CombatSession session, BattleUnit target)
         {
@@ -69,12 +110,14 @@ namespace Godmist.Systems.Combat
                 && session.Grid.CanMoveBetween(owner.Position,target.Position)
                 && owner.AvailableKnives < owner.MaxKnives && target.ScoutState.Knives.Any(k=>k.Owner==owner);
         }
-        public static bool TryExtractKnife(CombatSession session, BattleUnit owner, BattleUnit target, StatusEffectSystem statuses)
+        public static bool TryExtractKnife(CombatSession session, BattleUnit owner, BattleUnit target, StatusEffectSystem statuses,
+            CombatRecoverySystem recoverySystem = null)
         {
             if (!CanExtractKnife(session,owner,target) || statuses == null) return false;
             var knife=target.ScoutState.Knives.First(k=>k.Owner==owner);
             target.ScoutState.Knives.Remove(knife);owner.AvailableKnives++;
             statuses.ApplyStatus(owner,target,Godmist.Core.Constants.StatusEffectIds.Bleed,.9f,3,1,knife.BleedMultiplier,0f,"scout.sharp_knife");
+            RewardKnifeRecovery(owner, 1, recoverySystem);
             return true;
         }
         public const string BladeTree = "tree.scout.blade_dancer";

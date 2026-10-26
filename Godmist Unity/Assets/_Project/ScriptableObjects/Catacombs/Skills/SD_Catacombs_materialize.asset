@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.materialize
   <DisplayName>k__BackingField: Materializacja
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: a1aeaf6af61739a4f87e1262c9a2f0bf, type: 3}
   <TooltipDescription>k__BackingField: "Gdy jest niewidzialny, ujawnia si\u0119,
     leczy 15% maksymalnego HP i zwi\u0119ksza obra\u017Cenia o 50% na 1 tur\u0119."
   <SkillAccuracy>k__BackingField: 100
@@ -84,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -160,6 +161,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -236,6 +238,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

@@ -10,6 +10,24 @@ using UnityEngine;
 
 public static partial class VS07ScoutSetup
 {
+    static Sprite NodeIcon(string treeName, string nodeId, SkillData grantedSkill, Sprite fallback)
+    {
+        if (treeName == "assassin")
+        {
+            if (grantedSkill != null && grantedSkill.Icon != null) return grantedSkill.Icon;
+            var imported = VS22ScoutAssassinPassiveSetup.TryLoadPassiveIcon("node.scout.assassin." + nodeId);
+            if (imported != null) return imported;
+        }
+        if (treeName == "blade_dancer")
+        {
+            if (nodeId == "efficient_recovery") return Load<SkillData>("Skills/SD_ScoutHook.asset")?.Icon ?? fallback;
+            if (grantedSkill != null && grantedSkill.Icon != null) return grantedSkill.Icon;
+            var imported = VS22RemainingPassiveSetup.TryLoadPassiveIcon("node.scout.blade_dancer." + nodeId);
+            if (imported != null) return imported;
+        }
+        return fallback;
+    }
+
     sealed class Node
     {
         public readonly string Tree,Id,Name,Description,Requirement,Skill;
@@ -20,42 +38,42 @@ public static partial class VS07ScoutSetup
     static readonly Node[] Nodes = {
         new Node("assassin","backstab","Cios w Plecy","Zwiększa obrażenia zadawane od tyłu o 10%/20%","","",1,1,2),
         new Node("assassin","ricochet","Rykoszet","Zadaje losowe obrażenia fizyczne, każde kolejne trafienie ma 10% większą szansę krytyczną","","ricochet",1,2,1),
-        new Node("assassin","farsight","Dalekie Widzenie","Zwiększa zasięg bezwzględny i względny Rykoszetu o 1/3","ricochet","",1,3,2),
-        new Node("assassin","critical_point","Krytyczny Punkt","Zwiększa obrażenia krytyczne zyskane ze Słabego Punktu o 5%/10%/15%","weak_point","",1,4,3),
+        new Node("assassin","farsight","Daleki Rykoszet","Zwiększa zasięg bezwzględny i względny Rykoszetu o 1/3","ricochet","",1,3,2),
+        new Node("assassin","critical_point","Wykorzystanie Słabości","Zwiększa obrażenia krytyczne zyskane ze Słabego Punktu o 5%/10%/15%","weak_point","",1,4,3),
         new Node("assassin","weak_point","Słaby Punkt","[95%] Zwiększa szansę krytyczną o 10% i obrażenia krytyczne o 20% na 5 tur wobec wroga","","weak_point",1,5,1),
         new Node("assassin","leg_sweep","Podcięcie Nóg","Atakowanie przeciwników od tyłu po poruszaniu się ma 25%/50% szansy na ogłuszenie na 1 turę","backstab","",2,1,2),
-        new Node("assassin","throw_power","Siła Rzutu","Każdy kolejny przeciwnik trafiony Rykoszetem otrzymuje 10%/20% więcej obrażeń","ricochet","",2,2,2),
-        new Node("assassin","knife_bounce","Odbicie Sztyletu","Zwiększa ilość celów trafianych przez Rykoszet o 2","throw_power","",2,3,1),
-        new Node("assassin","rapid_strikes","Gwałtowne Uderzenia","Zwiększa szansę krytyczną w walce wręcz o 5%/10%","","",2,4,2),
+        new Node("assassin","throw_power","Narastający Impet","Każdy kolejny przeciwnik trafiony Rykoszetem otrzymuje 10%/20% więcej obrażeń","ricochet","",2,2,2),
+        new Node("assassin","knife_bounce","Kolejne Odbicia","Zwiększa ilość celów trafianych przez Rykoszet o 2","throw_power","",2,3,1),
+        new Node("assassin","rapid_strikes","Precyzja w Zwarciu","Zwiększa szansę krytyczną w walce wręcz o 5%/10%","","",2,4,2),
         new Node("assassin","deep_analysis","Dogłębna Analiza","Ciosy krytyczne podczas działania Słabego Punktu dają 20%/30% penetracji fizycznej wobec każdego przeciwnika na 3 tury","weak_point","",2,5,2),
         new Node("assassin","running_attack","Atak w Biegu","Przechodzenie obok przeciwników zadaje im 25%/50% losowych obrażeń fizycznych z celnością 77 (raz na turę)","leg_sweep","",3,1,2),
-        new Node("assassin","surprise","Zaskoczenie","Atak wyprowadzony podczas trwania Wojownika Cieni ma 30%/60% większe obrażenia","shadow_warrior","",3,2,2),
-        new Node("assassin","shadow_warrior","Wojownik Cieni","Daje niewidzialność na 3 tury, Szarża 1","","shadow",3,3,1),
-        new Node("assassin","karambit_style","Styl Karambitowy","Zwiększa obrażenia w walce wręcz o 25%/60%/100%","rapid_strikes","",3,4,3),
+        new Node("assassin","surprise","Zaskoczenie","Atak wyprowadzony podczas trwania Kroku w Cień ma 30%/60% większe obrażenia","shadow_warrior","",3,2,2),
+        new Node("assassin","shadow_warrior","Krok w Cie\u0144","Daje niewidzialność na 3 tury, Szarża 1","","shadow",3,3,1),
+        new Node("assassin","karambit_style","Mistrzostwo Zwarcia","Zwiększa obrażenia w walce wręcz o 25%/60%/100%","rapid_strikes","",3,4,3),
         new Node("assassin","throat_cut","Podcięcie Gardła","Daje 4%/7%/10% szansy na natychmiastowe zabicie ciosem wręcz przeciwnika, którego zabiłaby pięciokrotność zadanych obrażeń. Bossy zamiast tego otrzymują 100% obrażeń więcej","karambit_style","",3,5,3),
-        new Node("assassin","keen_eye","Celny Wzrok","Zwiększa szansę na Ostry Nóż o 5%/10%","sharp_knife","",4,1,2),
-        new Node("assassin","sharp_knife","Ostry Nóż","Rzucone noże mają 15% szansy na wbicie się w przeciwnika. Kliknięcie wyjmuje go rzucając [90%] krwawienie 60%/90% na 3 tury","","",4,2,2),
-        new Node("assassin","light_step","Lekki Krok","Zmniejsza wymagania ruchowe podczas trwania Wojownika Cieni o 1/3 punkty akcji","shadow_warrior","",4,3,2),
-        new Node("assassin","precise_strike","Trafny Cios","Zwiększa czas trwania ogłuszenia Uderzenia Głowicą do 2 tur","pommel_strike","",4,4,1),
+        new Node("assassin","keen_eye","Pewna Ręka","Zwiększa szansę na Głębokie Wbicie o 5%/10%","sharp_knife","",4,1,2),
+        new Node("assassin","sharp_knife","Głębokie Wbicie","Rzucone noże mają 15% szansy na wbicie się w przeciwnika. Kliknięcie wyjmuje go rzucając [90%] krwawienie 60%/90% na 3 tury","","",4,2,2),
+        new Node("assassin","light_step","Lekki Krok","Zmniejsza wymagania ruchowe podczas trwania Kroku w Cień o 1/3 punkty akcji","shadow_warrior","",4,3,2),
+        new Node("assassin","precise_strike","Ogłuszająca Głowica","Zwiększa czas trwania ogłuszenia Uderzenia Głowicą do 2 tur","pommel_strike","",4,4,1),
         new Node("assassin","pommel_strike","Uderzenie Głowicą","Daje 15%/30% na ogłuszenie przeciwnika na 1 turę, jeśli Podcięcie Gardła nie powiedzie się","throat_cut","",4,5,2),
-        new Node("blade_dancer","viruses","Wirusy Osłabiające","Zatruty Sztylet zmniejsza odporność na zatrucie o 15%/30% na 3 tury","poisoned_dagger","",1,1,2),
-        new Node("blade_dancer","poisoned_dagger","Zatruty Sztylet","Zadaje najmniejsze obrażenia fizyczne, [65%] zatrucie 90% na 3 tury","","poisoned_dagger",1,2,1),
+        new Node("blade_dancer","viruses","Przełamująca Toksyna","Zatruty Sztylet zmniejsza odporność na zatrucie o 15%/30% na 3 tury","poisoned_dagger","",1,1,2),
+        new Node("blade_dancer","poisoned_dagger","Zatruty Sztylet","Zadaje najmniejsze obrażenia fizyczne, [65%] zatrucie 40% na 3 tury","","poisoned_dagger",1,2,1),
         new Node("blade_dancer","venom","Jad","Zwiększa obrażenia zatrucia Zatrutego Sztyletu o 10%/20%/30%","poisoned_dagger","",1,3,3),
         new Node("blade_dancer","strong_insult","Silna Zniewaga","Zwiększa bonus obrażeń za każdy punkt Złości o 0.05%/0.1%","anger","",1,4,2),
-        new Node("blade_dancer","anger","Złość","Zadawanie obrażeń nakłada na przeciwnika 10 punktów Złości (max 100), każdy punkt zwiększa otrzymywane obrażenia o 0.15%","","",1,5,1),
+        new Node("blade_dancer","anger","Rozdrażnienie","Zadawanie obrażeń nakłada na przeciwnika 10 punktów Złości (max 100), każdy punkt zwiększa otrzymywane obrażenia o 0.15%","","",1,5,1),
         new Node("blade_dancer","knee_throw","Rzut w Kolano","Rzut Sztyletem ma 10%/20%/30% na spowolnienie przeciwnika o 15 na 3 tury","","",2,1,3),
-        new Node("blade_dancer","combo","Kombo","Daje 5%/10% szansy na podwojenie Rzutu Sztyletem","","",2,2,2),
+        new Node("blade_dancer","combo","Podwójny Rzut","Daje 5%/10% szansy na podwojenie Rzutu Sztyletem","","",2,2,2),
         new Node("blade_dancer","quick_strikes","Szybkie Ciosy","Zadaje 50% losowych obrażeń fizycznych 3 razy, każdy cios ma 35% na podwójne obrażenia","","quick_strikes",2,3,1),
         new Node("blade_dancer","series","Seria Ciosów","Po 3 bazowych ciosach Szybkich Ciosów osobno losuje 50% na każdy z 1/2 dodatkowych ciosów. Porażka nie przerywa kolejnych losowań.","quick_strikes","",2,4,2),
         new Node("blade_dancer","revenge","Zemsta","Otrzymywanie obrażeń od przeciwników nakłada na nich 10 punktów Złości","anger","",2,5,1),
         new Node("blade_dancer","stimulating_tonic","Tonik Pobudzający","Przyspieszenie o 20 na 5 tur, po tym spowolnienie o 10 na 3 tury","","tonic",3,1,1),
-        new Node("blade_dancer","combo_master","Mistrz Kombo","Kombo narzuca [80%] krwawienie 100%/120% na 3 tury","combo","",3,2,2),
-        new Node("blade_dancer","fine_thrusts","Finezyjne Pchnięcia","Zwiększa szanse na podwójne obrażenia Szybkich Ciosów o 10%/20%","quick_strikes","",3,3,2),
+        new Node("blade_dancer","combo_master","Krwawa Seria","Podwójny Rzut narzuca [80%] krwawienie 100%/120% na 3 tury","combo","",3,2,2),
+        new Node("blade_dancer","fine_thrusts","Finezyjne Trafienia","Zwiększa szanse na podwójne obrażenia Szybkich Ciosów o 10%/20%","quick_strikes","",3,3,2),
         new Node("blade_dancer","dance_of_doom","Taniec Zagłady","Zwiększa maksymalną ilość dodatkowych ciosów z Serii Ciosów o 1/2","series","",3,4,2),
-        new Node("blade_dancer","mental_control","Kontrola Psychiczna","Zwiększa przyrost Złości o 1/3/5","revenge","",3,5,3),
+        new Node("blade_dancer","mental_control","Gra na Nerwach","Zwiększa przyrost Złości o 1/3/5","revenge","",3,5,3),
         new Node("blade_dancer","brew_strength","Siła Naparu","Zwiększa przyspieszenie Toniku Pobudzającego o 10 i spowolnienie o 5","stimulating_tonic","",4,1,1),
-        new Node("blade_dancer","strong_liver","Mocna Wątroba","Skraca spowolnienie Toniku Pobudzającego o 1 turę","brew_strength","",4,2,1),
-        new Node("blade_dancer","accurate_throw","Celny Rzut","Zwiększa obrażenia o 2%/4% za każde pole odległości od celu","","",4,3,2),
+        new Node("blade_dancer","efficient_recovery","Sprawny Odzysk","Zwiększa zniżkę kosztu odzysku własnego sztyletu Linką z Hakiem z 20% do 60%: 10 PP i 10% PA","","",4,2,1),
+        new Node("blade_dancer","accurate_throw","Zabójczy Dystans","Zwiększa obrażenia o 2%/4% za każde pole odległości od celu","","",4,3,2),
         new Node("blade_dancer","poison_master","Mistrz Trucizny","Zwiększa siłę wszystkich zatruć o 10%/20%[p]","","",4,4,2),
         new Node("blade_dancer","spare_daggers","Zapasowe Sztylety","Zwiększa maksymalną ilość sztyletów o 1/2","","",4,5,2),
     };
@@ -74,10 +92,10 @@ public static partial class VS07ScoutSetup
                 Set(range.FindPropertyRelative("minRange"),1); Set(range.FindPropertyRelative("maxRange"),2);
                 Effect(so,0,EffectType.DealDamage);
             },TargetType.Chain);
-        skills["weak_point"]=Skill("SD_ScoutWeakPoint","skill.scout.weak_point","Słaby Punkt",80,55,0,8,100,
+        skills["weak_point"]=Skill("SD_ScoutWeakPoint","skill.scout.weak_point","Słaby Punkt",50,55,0,8,100,
             "95% szansy na oznaczenie wroga na 5 tur. Ataki przeciw niemu mają +10% szansy na kryt i +20% obrażeń krytycznych.",so=>
                 Effect(so,0,EffectType.MarkWeakPoint,p=>{Set(p.FindPropertyRelative("baseChance"),.95f);Set(p.FindPropertyRelative("durationTurns"),5);}));
-        skills["shadow"]=Skill("SD_ScoutShadow","skill.scout.shadow","Wojownik Cieni",50,70,0,1,100,
+        skills["shadow"]=Skill("SD_ScoutShadow","skill.scout.shadow","Krok w Cie\u0144",50,70,0,1,100,
             "Przemieszcza na sąsiednie wolne pole i daje niewidzialność na 3 tury.",so=>{
                 Field(so,"RequiresLineOfSight",true);
                 Effect(so,0,EffectType.Teleport,p=>{
@@ -90,8 +108,8 @@ public static partial class VS07ScoutSetup
                     Set(p.FindPropertyRelative("statusId"),StatusEffectIds.Invisibility);Set(p.FindPropertyRelative("durationTurns"),3);
                 });
             },TargetType.Caster);
-        skills["poisoned_dagger"]=Skill("SD_ScoutPoisonedDagger","skill.scout.poisoned_dagger","Zatruty Sztylet",25,65,1,4,81,
-            "Zadaje minimalne obrażenia fizyczne. Po trafieniu: 65% szansy na zatrucie o sile 90% na 3 tury.",so=>{
+        skills["poisoned_dagger"]=Skill("SD_ScoutPoisonedDagger","skill.scout.poisoned_dagger","Zatruty Sztylet",40,65,1,4,81,
+            "Zadaje minimalne obrażenia fizyczne. Po trafieniu: 65% szansy na zatrucie o sile 40% średniego ataku na turę przez 3 tury.",so=>{
                 Effect(so,0,EffectType.DealDamage,p=>Set(p.FindPropertyRelative("damageValueSource"),DamageValueSource.MinAttack));
                 Effect(so,1,EffectType.ModifyResistance,p=>{
                     Set(p.FindPropertyRelative("resistanceType"),ResistanceType.Poison);Set(p.FindPropertyRelative("durationTurns"),3);
@@ -99,7 +117,7 @@ public static partial class VS07ScoutSetup
                 });
                 Effect(so,2,EffectType.ApplyStatus,p=>{
                     Set(p.FindPropertyRelative("statusId"),StatusEffectIds.Poison);Set(p.FindPropertyRelative("durationTurns"),3);
-                    Set(p.FindPropertyRelative("baseChance"),.65f);Set(p.FindPropertyRelative("statusDamageMultiplier"),.9f);RequireHit(p);
+                    Set(p.FindPropertyRelative("baseChance"),.65f);Set(p.FindPropertyRelative("statusDamageMultiplier"),.4f);RequireHit(p);
                 });
             });
         skills["quick_strikes"]=Skill("SD_ScoutQuickStrikes","skill.scout.quick_strikes","Szybkie Ciosy",30,70,3,4,74,
@@ -149,8 +167,9 @@ public static partial class VS07ScoutSetup
                 Set(p.FindPropertyRelative(F("Id")),"node.scout."+treeName+"."+node.Id);
                 Set(p.FindPropertyRelative(F("DisplayName")),node.Name);Set(p.FindPropertyRelative(F("Description")),node.Description);
                 Set(p.FindPropertyRelative(F("Tier")),node.Tier);Set(p.FindPropertyRelative(F("Column")),node.Column);Set(p.FindPropertyRelative(F("MaxRanks")),node.Ranks);
-                p.FindPropertyRelative(F("GrantedSkill")).objectReferenceValue=node.Skill.Length>0?skills[node.Skill]:null;
-                p.FindPropertyRelative(F("Icon")).objectReferenceValue=node.Skill.Length>0?skills[node.Skill].Icon:Load<SkillData>("Skills/SD_KnifeToss.asset").Icon;
+                var grantedSkill=node.Skill.Length>0?skills[node.Skill]:null;
+                p.FindPropertyRelative(F("GrantedSkill")).objectReferenceValue=grantedSkill;
+                p.FindPropertyRelative(F("Icon")).objectReferenceValue=NodeIcon(treeName,node.Id,grantedSkill,Load<SkillData>("Skills/SD_KnifeToss.asset").Icon);
                 p.FindPropertyRelative(F("PassiveEffects")).ClearArray();
                 var req=p.FindPropertyRelative(F("Requirements"));req.ClearArray();
                 if(node.Requirement.Length>0) {req.arraySize=1;Set(req.GetArrayElementAtIndex(0).FindPropertyRelative(F("NodeId")),"node.scout."+treeName+"."+node.Requirement);Set(req.GetArrayElementAtIndex(0).FindPropertyRelative(F("MinimumRanks")),1);}

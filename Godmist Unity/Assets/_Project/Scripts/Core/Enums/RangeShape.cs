@@ -12,6 +12,7 @@ namespace Godmist.Core.Enums
         Custom = 7,
         Rectangle = 8,
         TwoSidedLine = 9,
-        ThreeRays = 10
+        ThreeRays = 10,
+        Cone = 11
     }
 }

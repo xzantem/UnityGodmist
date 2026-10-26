@@ -31,6 +31,9 @@ namespace Godmist.Runtime.Combat
     {
         public string OwnerCharacterId = string.Empty;
         public int KnifeCount = 1;
+        // One-shot presentation hint; never part of persistent/save state.
+        [NonSerialized] public GridPosition? LandingOrigin;
+        [NonSerialized] public bool LandingFromHit;
         public override CombatMapObjectType ObjectType => CombatMapObjectType.Knife;
 
         public KnifeCombatMapObject() { }

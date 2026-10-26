@@ -12,12 +12,36 @@ namespace Godmist.Systems.Combat
 {
     public sealed partial class PassiveEffectCombatExecutionSystem
     {
+        public static float ResolveConditionalPenetration(BattleUnit source, BattleUnit target, DamageType type)
+        {
+            if (source == null || target == null || type != DamageType.Physical && type != DamageType.Magical) return 0;
+            var stat = type == DamageType.Physical ? CharacterStatType.PhysicalDefensePenetration : CharacterStatType.MagicalDefensePenetration;
+            var context = new PassiveEffectCombatContext(source: source, target: target, damageType: type);
+            float value = 0;
+            foreach (var match in FindMatchesForOwner(source, PassiveEffectTriggerType.OnAttack, context))
+                foreach (var op in match.Operations)
+                    if (op.Type == PassiveEffectOperationType.ModifyStat && op.StatType == stat && TargetsOwner(op.Target))
+                        value += ResolveValue(op.Value, match.Runtime);
+            return Mathf.Max(0, value);
+        }
+        public static bool TryPreventStatus(BattleUnit source, BattleUnit target, string statusId)
+        {
+            if (target == null) return false;
+            var context = new PassiveEffectCombatContext(source: source, target: target);
+            foreach (var match in FindMatchesForOwner(target, PassiveEffectTriggerType.OnStatusApplied, context))
+                foreach (var op in match.Operations)
+                    if (op.Type == PassiveEffectOperationType.PreventStatus && op.ReferenceId == statusId
+                        && UnityEngine.Random.value < Mathf.Clamp01(ResolveValue(op.Value, match.Runtime))) return true;
+            return false;
+        }
         // Pure queries: never roll a proc, spend resources or mutate a shared SkillData.
-        public static int ResolveResourceCost(BattleUnit owner, SkillData skill)
+        public static int ResolveResourceCost(BattleUnit owner, SkillData skill, bool recoveringKnife = false)
         {
             if (skill == null) return 0;
-            return Mathf.CeilToInt((1 - Mathf.Clamp01(EquipmentEffectSystem.Sum(owner?.Character, GalduryteEffectType.ResourceCostReduction))) * MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
+            if (skill.SkillId == WarriorDischargeRules.SkillId) return WarriorDischargeRules.Cost(owner);
+            var cost = Mathf.CeilToInt((1 - Mathf.Clamp01(EquipmentEffectSystem.Sum(owner?.Character, GalduryteEffectType.ResourceCostReduction))) * MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
                 "resource_cost", skill.ResourceCost) - .00001f)))));
+            return ScoutCombatSystem.KnifeRecoveryCost(owner, skill, cost, recoveringKnife);
         }
 
         public static SkillEffectData ResolveEffect(BattleUnit owner, SkillData skill, SkillEffectData effect)
@@ -85,11 +109,26 @@ namespace Godmist.Systems.Combat
             return Mathf.Max(0, (baseValue + flat) * Mathf.Max(0, 1 + percent) * multiplier);
         }
         public static bool IsOffensiveSkill(SkillData skill) => skill?.Effects != null
-            && skill.TargetModes != null && skill.Effects.Any(e => e != null
-                && e.TargetModeIndex >= 0 && e.TargetModeIndex < skill.TargetModes.Count
-                && skill.TargetModes[e.TargetModeIndex] != null
-                && skill.TargetModes[e.TargetModeIndex].TargetType != TargetType.Caster
-                && skill.TargetModes[e.TargetModeIndex].TargetingType == TargetingType.Enemies);
+            && skill.Effects.Any(e => IsEnemyTargetedEffect(skill, e));
+
+        // Cast intent, not actual HP loss: missed, absorbed and delayed damage
+        // still qualifies, while pure control/debuffs only prevent Rage decay.
+        public static bool IsDamagingOffensiveSkill(SkillData skill) => skill?.Effects != null
+            && skill.Effects.Any(e => IsEnemyTargetedEffect(skill, e)
+                && (e.EffectType == EffectType.DealDamage
+                    || e.EffectType == EffectType.ApplyStatus
+                    && StatusEffectSystem.IsDamageOverTimeStatus(e.StatusId)
+                    && e.StatusDamageMultiplier > 0f
+                    // The boss owner resolves this charged attack after two turns;
+                    // the authored effect only roots the target while it charges.
+                    || skill.SkillId == SkeletonSlayerBossSystem.HammerId));
+
+        private static bool IsEnemyTargetedEffect(SkillData skill, SkillEffectData effect) => effect != null
+            && skill?.TargetModes != null
+            && effect.TargetModeIndex >= 0 && effect.TargetModeIndex < skill.TargetModes.Count
+            && skill.TargetModes[effect.TargetModeIndex] != null
+            && skill.TargetModes[effect.TargetModeIndex].TargetType != TargetType.Caster
+            && skill.TargetModes[effect.TargetModeIndex].TargetingType == TargetingType.Enemies;
 
         private static bool MatchesIndex(PassiveEffectOperationDefinition operation, string key, int actual)
         {

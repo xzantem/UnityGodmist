@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.bone_fervor
   <DisplayName>k__BackingField: "Ko\u015Bciany Zapa\u0142"
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: f1eb19f2f5a8a8441857985ff28e7ff7, type: 3}
   <TooltipDescription>k__BackingField: "Sojusznicy zadaj\u0105 o 6% wi\u0119cej obra\u017Ce\u0144
     i maj\u0105 +4 szybko\u015Bci przez 2 tury; ich nast\u0119pny ruch przyspiesza
     o 15%."
@@ -22,8 +22,8 @@ MonoBehaviour:
   <AttackType>k__BackingField: 0
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 30
-  <ResourceCost>k__BackingField: 20
-  <ResourceType>k__BackingField: 3
+  <ResourceCost>k__BackingField: 10
+  <ResourceType>k__BackingField: 1
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -31,6 +31,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 0
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -49,14 +50,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 7
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -85,6 +89,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -126,13 +131,20 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -161,6 +173,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -202,13 +215,20 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 15
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -237,6 +257,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -278,3 +299,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

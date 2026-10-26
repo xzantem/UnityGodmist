@@ -15,20 +15,15 @@ MonoBehaviour:
   <Id>k__BackingField: character.paladin
   <DisplayName>k__BackingField: Reimond
   <Tags>k__BackingField: 
-  <VisualSprite>k__BackingField: {fileID: 3261425101470169824, guid: 75c3d2c65cbed6e4181f48966c34f0f0, type: 3}
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 21300000, guid: 2a3b8deef04d8a84c906ab888f40b049, type: 3}
   <IdleAnimationFrames>k__BackingField:
-  - {fileID: 3261425101470169824, guid: 75c3d2c65cbed6e4181f48966c34f0f0, type: 3}
-  - {fileID: 6013681791082000132, guid: e8096701493353c43b05871b930af62c, type: 3}
-  - {fileID: 8619676705467170851, guid: fbe3737d140af85448ebaead1649f69b, type: 3}
-  - {fileID: 2815480276518151938, guid: 67cccca3ebe8502448e877b97a6e2d38, type: 3}
+  - {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
   <RunAnimationFrames>k__BackingField:
-  - {fileID: 5125671427089947431, guid: 1638aff3c5f6fb343bf68dadc9da0f46, type: 3}
-  - {fileID: -530023332127105682, guid: 6ea3dda09789156418c999e30e1a3aa8, type: 3}
-  - {fileID: -1630697224496750118, guid: 4f42a2d2b9288cd43aa170998441e440, type: 3}
-  - {fileID: 5599070229058350798, guid: dee794b670f35c94988c60a29d54b071, type: 3}
+  - {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 9184878491582785732, guid: f04f854f0d988ee46a90a776fe087e66, type: 3}
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
   <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0

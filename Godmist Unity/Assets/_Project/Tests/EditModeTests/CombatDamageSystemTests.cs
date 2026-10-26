@@ -14,6 +14,23 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<CharacterDefinition> createdDefinitions = new();
 
+        [TestCase(DamageType.Physical)]
+        [TestCase(DamageType.Direct)]
+        [TestCase(DamageType.Bleed)]
+        [TestCase(DamageType.Poison)]
+        [TestCase(DamageType.Burn)]
+        public void DamageHitMissAndPeriodicDamageCannotGenerateBaseRage(DamageType type)
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Character.ResourcePool = new ResourcePool(ResourceType.Rage, 0, 50, 0);
+            var damage = new CombatDamageSystem();
+            damage.ResolveAndApplyDamage(session, source, target, 10, type, wasHit: false);
+            damage.ResolveAndApplyDamage(session, source, target, 10, type, wasHit: true);
+            damage.ApplyDamage(session, source, target, 10, type);
+            Assert.That(source.Character.ResourcePool.CurrentValue, Is.Zero,
+                "Base Rage belongs to a committed offensive skill, never to its individual damage events.");
+            Assert.That(source.Character.ResourcePool.HasGainedResourceSinceLastTurn, Is.False);
+        }
         [TearDown]
         public void TearDown()
         {
@@ -75,6 +92,21 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 enemy.Character.CurrentHealth,
                 Is.EqualTo(80));
+        }
+
+        [Test]
+        public void DamageFeedbackCarriesSourceAndImmutableImpactPositions()
+        {
+            var session = CreateSession(out var source, out var target);
+            source.Position = new GridPosition(1, 1); target.Position = new GridPosition(2, 1);
+            var bus = new CombatFeedbackBus(); CombatFeedbackEvent? damage = null;
+            bus.Published += feedback => { if (feedback.Type == CombatFeedbackType.Damage) damage = feedback; };
+            new CombatDamageSystem(feedbackBus: bus).ApplyDamage(session, source, target, 20, DamageType.Physical);
+            Assert.That(damage.HasValue, Is.True);
+            source.Position = new GridPosition(3,3); target.Position = new GridPosition(0,0);
+            Assert.That(damage.Value.Source, Is.SameAs(source));
+            Assert.That(damage.Value.SourcePosition, Is.EqualTo(new GridPosition(1,1)));
+            Assert.That(damage.Value.Position, Is.EqualTo(new GridPosition(2,1)));
         }
 
         [Test]

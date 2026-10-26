@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.scout.quick_strikes
   <DisplayName>k__BackingField: Szybkie Ciosy
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 02119f31c79a0b644807a46a3d5251f2, type: 3}
   <TooltipDescription>k__BackingField: "3 ciosy po 50% losowych obra\u017Ce\u0144
     fizycznych. Ka\u017Cdy ma 35% szansy na podw\xF3jne obra\u017Cenia. W zwarciu
     nie zu\u017Cywa sztylet\xF3w."
@@ -29,6 +29,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 1
@@ -62,10 +63,11 @@ MonoBehaviour:
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0.35
     bonusDamageMultiplier: 2
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -83,6 +85,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -93,7 +96,7 @@ MonoBehaviour:
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 1
-    statusId:
+    statusId: 
     durationTurns: 1
     stacks: 1
     statusDamageMultiplier: 0

@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.mage.shield
   <DisplayName>k__BackingField: Magiczna Tarcza
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
-  <TooltipDescription>k__BackingField: "Tarcza o warto\u015Bci 400% \u015Bredniego
-    ataku."
+  <Icon>k__BackingField: {fileID: 21300000, guid: f8b905a11dc50564294350a46eb9085e, type: 3}
+  <TooltipDescription>k__BackingField: "Tarcza o warto\u015Bci 250% \u015Bredniego
+    ataku na 3 w\u0142asne tury odbiorcy. Ponowne rzucenie zast\u0119puje poprzedni\u0105
+    Magiczn\u0105 Tarcz\u0119 i odnawia czas."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
@@ -28,7 +29,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -47,14 +50,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 5
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -65,6 +71,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +89,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -93,7 +101,7 @@ MonoBehaviour:
     summonPercentMaxHealth: 0
     baseChance: 1
     statusId: 
-    durationTurns: 1
+    durationTurns: 3
     stacks: 1
     statusDamageMultiplier: 0
     statusHealPercent: 0
@@ -121,5 +129,10 @@ MonoBehaviour:
     auraRadius: 0
     auraIncludesCaster: 0
     auraTargetingType: 0
-    shieldAverageAttackMultiplier: 4
+    shieldAverageAttackMultiplier: 2.5
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

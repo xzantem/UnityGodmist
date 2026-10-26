@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.battle_cry
   <DisplayName>k__BackingField: Okrzyk Wojenny
-  <Icon>k__BackingField: {fileID: 6381842218762271717, guid: e50a9a373b731ad4c8bd6eba24879974, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 8dfe4f63e84fdd247930f6b0d22e1b15, type: 3}
   <TooltipDescription>k__BackingField: "Ca\u0142a dru\u017Cyna zadaje 15% wi\u0119cej
     obra\u017Ce\u0144 przez 3 tury."
   <SkillAccuracy>k__BackingField: 100
@@ -28,7 +28,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -61,10 +63,11 @@ MonoBehaviour:
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +85,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -92,7 +96,7 @@ MonoBehaviour:
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 1
-    statusId:
+    statusId: 
     durationTurns: 3
     stacks: 1
     statusDamageMultiplier: 0

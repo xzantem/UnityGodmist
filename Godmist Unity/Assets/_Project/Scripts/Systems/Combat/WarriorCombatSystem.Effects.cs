@@ -15,10 +15,9 @@ namespace Godmist.Systems.Combat
             var hits=e.DamageHitCount;var turns=e.DurationTurns;var chance=e.BaseChance;var dot=e.StatusDamageMultiplier;var value=e.ModifierValue;
             switch(skill?.SkillId)
             {
-                case "skill.warrior.bleeding_destruction":
-                    chance+=.0005f*B(u,"wounding")*(u.Character.ResourcePool?.CurrentValue??0);dot+=.15f*B(u,"larger_wound");break;
+                // The former bleed talents now belong to Discharge; the starter bleed has its authored values.
                 case "skill.warrior.immobilize":turns+=2*C(u,"broken_bones");break;
-                case "skill.warrior.shout":turns=u.LastSkillResourceSpent>=50?3:1;break;
+                case "skill.warrior.shout":turns=u.LastSkillResourceSpent>=50?2:1;break;
                 case "skill.warrior.whirlwind":hits+=B(u,"force_moment");break;
                 case DeathWish:value+=.25f*B(u,"desperation");break;
             }
@@ -74,7 +73,7 @@ namespace Godmist.Systems.Combat
         }
         public static void DamageDealt(BattleUnit source,BattleUnit target,PassiveEffectCombatContext ctx)
         {
-            if(!IsRage(source) || GainBlocked(source))return;
+            if(!IsRage(source) || GainBlocked(source) || ctx?.SkillId == WarriorDischargeRules.SkillId)return;
             var gain=ctx?.SkillId==Cut?5*B(source,"rage"):0;
             if(StatusEffectSystem.HasStatus(target,StatusEffectIds.Stun))gain+=Mathf.RoundToInt(Godmist.Data.Configuration.GameDefinesRuntime.GetInt(Godmist.Data.Configuration.GameDefineIds.RagePerHit,10)*.5f*B(source,"unawareness"));
             if(gain>0)source.Character.ResourcePool.Restore(gain);Refresh(source);

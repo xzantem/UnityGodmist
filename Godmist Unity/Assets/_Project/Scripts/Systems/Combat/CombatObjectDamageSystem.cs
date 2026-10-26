@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
@@ -38,8 +39,13 @@ namespace Godmist.Systems.Combat
             }
             var sight = new CombatLineOfSightService();
             foreach (var obj in session.MapObjects.OfType<ObstacleCombatMapObject>())
-                if (CanDamage(obj) && area.Contains(obj.Position)
-                    && (!skill.RequiresLineOfSight || sight.HasLineOfSight(session, caster.Position, obj.Position, obj))) result.Add(obj);
+                if (CanDamage(obj) && area.Any(obj.Occupies)
+                    && (!skill.RequiresLineOfSight
+                        || sight.HasLineOfSight(
+                            session,
+                            caster.Position,
+                            selected.HasValue && obj.Occupies(selected.Value) ? selected.Value : obj.Position,
+                            obj))) result.Add(obj);
             return result;
         }
         public static bool ApplyDamage(CombatSession session, ObstacleCombatMapObject obj, int hits)
@@ -51,13 +57,38 @@ namespace Godmist.Systems.Combat
             if (changed) session.ObjectDurabilityChanged?.Invoke(obj);
             return changed;
         }
+        // An action's barriers retain their original footprint after an earlier
+        // effect destroys the source. Live Occupies() intentionally hides inactive props.
         public static bool IsCollisionBarrier(CombatSession session, GridPosition position)
-            => session.ObjectDamageAction?.Barriers.Any(o => o.Position == position) == true;
+            => session.ObjectDamageAction?.Barriers.Any(o => o.EnumerateOccupiedPositions().Contains(position)) == true;
         public static bool Impact(CombatSession session, GridPosition from, GridPosition to)
         {
-            if (session?.Grid == null || session.Grid.HasBlockedEdge(from, to)) return false;
-            var obj = session.ObjectDamageAction?.Barriers.FirstOrDefault(o => o.Position == to)
-                ?? session.MapObjects.OfType<ObstacleCombatMapObject>().FirstOrDefault(o => o.Position == to && o.BlocksMovement);
+            if (session?.Grid == null || from.Level != to.Level) return false;
+            var dx = to.X - from.X;
+            var dy = to.Y - from.Y;
+            if (Math.Max(Math.Abs(dx), Math.Abs(dy)) != 1) return false;
+            if (dx == 0 || dy == 0)
+            {
+                if (session.Grid.HasBlockedEdge(from, to)) return false;
+            }
+            else
+            {
+                // A diagonal charge touches a corner, not a BattleCellEdge. The
+                // impact can reach the obstacle through either open orthogonal side.
+                var horizontal = new GridPosition(from.X + dx, from.Y, from.Level);
+                var vertical = new GridPosition(from.X, from.Y + dy, from.Level);
+                var throughHorizontal = session.Grid.IsWalkable(horizontal)
+                    && !session.Grid.IsBlocked(horizontal)
+                    && !session.Grid.HasBlockedEdge(from, horizontal)
+                    && !session.Grid.HasBlockedEdge(horizontal, to);
+                var throughVertical = session.Grid.IsWalkable(vertical)
+                    && !session.Grid.IsBlocked(vertical)
+                    && !session.Grid.HasBlockedEdge(from, vertical)
+                    && !session.Grid.HasBlockedEdge(vertical, to);
+                if (!throughHorizontal && !throughVertical) return false;
+            }
+            var obj = session.ObjectDamageAction?.Barriers.FirstOrDefault(o => o.EnumerateOccupiedPositions().Contains(to))
+                ?? session.MapObjects.OfType<ObstacleCombatMapObject>().FirstOrDefault(o => o.Occupies(to) && o.BlocksMovement);
             if (obj == null || !CanDamage(obj)) return false;
             var scope = session.ObjectDamageAction;
             if (scope != null && (!scope.Collisions.Add(obj.ObjectId) || scope.Direct.Contains(obj.ObjectId))) return false;

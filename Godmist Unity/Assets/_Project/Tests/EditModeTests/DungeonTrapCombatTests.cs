@@ -30,12 +30,30 @@ namespace Godmist.Tests.EditMode
         [TearDown] public void Cleanup() => Object.DestroyImmediate(definition);
         private void Set(string field, object value) => typeof(SpikeTrapDungeonObjectDefinition)
             .GetField("<"+field+">k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(definition,value);
-        private static BattleUnit Unit(string id, bool player=true) => new() { IsPlayerSide=player,CurrentActionPoints=20,
+        private static BattleUnit Unit(string id, bool player=true) => new() { IsPlayerSide=player,CurrentActionPoints=2000,
             Character=new CharacterInstance { CharacterId=id,CurrentHealth=100,LifeState=CharacterLifeState.Alive,
                 Stats=new CharacterStats { Speed=new Stat(20),PhysicalDefense=new Stat(0),MagicalDefense=new Stat(0) },
                 Resistances=new ResistanceSet { BleedResistance=.5f,PoisonResistance=.5f },ShieldPool=new ShieldPool() } };
         private SpikeTrapDungeonObjectInstance Trap(string id,int x,string group=null)
         { var trap=new SpikeTrapDungeonObjectInstance(id,definition,new Vector2Int(x,0),group);Assert.That(floor.TryAddObject(trap),Is.True);return trap; }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LethalExplorationTrapOrDotWaitsForManualRescue(bool dot)
+        {
+            Set("DealsImmediateDamage", !dot); Set("StatusId", dot ? StatusEffectIds.Poison : ""); Set("StatusDamage", 4);
+            Trap("lethal", 1);
+            var unit = Unit("victim"); unit.Character.CurrentHealth = 1; unit.Character.Resistances.PoisonResistance = 0;
+            var outside = new[] { new DungeonTrapOccupant(unit, null, new Vector2Int(1, 0)) };
+            system.EnterCell(new Vector2Int(1, 0), outside);
+            if (dot) system.AdvanceExploration(6f, outside);
+            Assert.That(unit.Character.LifeState, Is.EqualTo(CharacterLifeState.Downed));
+            system.AdvanceExploration(60f, outside);
+            Assert.That(unit.Character.LifeState, Is.EqualTo(CharacterLifeState.Downed));
+            Assert.That(new CombatReviveSystem().TryReviveExploration(Unit("rescuer").Character, unit.Character), Is.True);
+            Assert.That(unit.Character.LifeState, Is.EqualTo(CharacterLifeState.Alive));
+            Assert.That(unit.Character.CurrentHealth, Is.GreaterThan(0));
+        }
+
         [Test] public void Group_HitsBothSidesAcrossSessionsOnlyOnce()
         {
             var a=Trap("a",1,"group");var b=Trap("b",2,"group");var player=Unit("player");var enemy=Unit("enemy",false);
@@ -63,7 +81,7 @@ namespace Godmist.Tests.EditMode
             Set("Damage",200);Trap("lethal",1);var unit=Unit("player");var session=new CombatSession {Grid=new BattleGrid(5,3)};session.Units.Add(unit);session.ActiveUnit=unit;
             session.UnitEnteredCell=u=>system.EnterCell(new Vector2Int(u.Position.X,u.Position.Y),new[] {new DungeonTrapOccupant(u,session,new Vector2Int(u.Position.X,u.Position.Y))});
             new CombatMovementSystem().TryMoveAlongPath(session,unit,new[] {new GridPosition(1,0),new GridPosition(2,0)},out var completed);
-            Assert.That(completed.Count,Is.EqualTo(1));Assert.That(unit.CurrentActionPoints,Is.EqualTo(19));
+            Assert.That(completed.Count,Is.EqualTo(1));Assert.That(unit.CurrentActionPoints,Is.EqualTo(1900));
             Assert.That(unit.Character.LifeState,Is.EqualTo(CharacterLifeState.Downed));
         }
         [Test] public void Teleport_OnlyTriggersDestination()
@@ -134,7 +152,7 @@ namespace Godmist.Tests.EditMode
             Trap("spikes",1);var enemy=Unit("enemy",false);var player=Unit("player");player.Position=new GridPosition(3,0);
             var session=new CombatSession {Grid=new BattleGrid(5,3),ActiveUnit=enemy};session.Units.Add(enemy);session.Units.Add(player);
             session.EvaluateTrapRisk=(unit,path)=>system.EstimateRisk(unit,System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(path,p=>new Vector2Int(p.X,p.Y))));
-            enemy.CurrentActionPoints=1;
+            enemy.CurrentActionPoints=100;
             Assert.That(new SimpleCombatAiSystem().TryMoveAiTowardsTarget(session,enemy,player),Is.True);
             Assert.That(enemy.Position,Is.EqualTo(new GridPosition(0,1)));
         }

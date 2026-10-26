@@ -20,9 +20,40 @@ namespace Godmist.Tests.EditMode
    public string suffix;
    public string[] rows;
    public string[] structuralEdges;
+   public string obstacle;
   }
   const string Root="Assets/_Project/ScriptableObjects/Dungeons/";
   static readonly Vector2Int[] Directions={Vector2Int.up,Vector2Int.right,Vector2Int.down,Vector2Int.left};
+  [TestCase("Ossuary")][TestCase("SarcophagusHall")]
+  [TestCase("Optional_Condition_Production")][TestCase("Tactical_CryptL_Production")]
+  [TestCase("Tactical_Corridor")][TestCase("Tactical_CryptL")][TestCase("Tactical_Passages")]
+  public void SarcophagusFootprintsFitWithoutAnchorOverlapInEveryAllowedRotation(string suffix)
+  {
+   var template=AssetDatabase.LoadAssetAtPath<DungeonRoomTemplateDefinition>(Root+"RoomTemplates/DRT_Catacombs_"+suffix+".asset");
+   foreach(var rotation in template.GetAllowedRotationDegrees())
+   {
+    Vector2Int World(Vector2Int cell)=>DungeonRoomTransformUtility.TransformCell(cell,template.SizeInCells,rotation);
+    var floor=template.Footprint.Enumerate(template.SizeInCells).Select(World).ToHashSet();
+    var reserved=template.SemanticAnchors.Where(a=>a.ObjectDefinition?.Id!="object.obstacle.sarcophagus")
+     .Select(a=>World(a.LocalCell)).ToHashSet();
+    foreach(var anchor in template.SemanticAnchors.Where(a=>a.ObjectDefinition?.Id=="object.obstacle.sarcophagus"))
+    {
+     var occupied=((ObstacleDungeonObjectDefinition)anchor.ObjectDefinition).EnumerateOccupiedCells(World(anchor.LocalCell)).ToArray();
+     Assert.That(occupied.Length,Is.EqualTo(2));
+     foreach(var cell in occupied)
+     {
+      Assert.That(floor.Contains(cell),Is.True,template.name+" outside floor at "+rotation+": "+cell);
+      Assert.That(reserved.Add(cell),Is.True,template.name+" overlapping anchor at "+rotation+": "+cell);
+     }
+     foreach(var wall in template.StructuralAnchors.Where(a=>a.Type==DungeonStructuralAnchorType.Wall))
+     {
+      var first=World(wall.LocalCell);
+      var second=first+DungeonRoomTransformUtility.GetDirectionOffset(DungeonRoomTransformUtility.TransformDirection(wall.Direction,rotation));
+      Assert.That(occupied.Contains(first)&&occupied.Contains(second),Is.False,template.name+" crosses wall at "+rotation);
+     }
+    }
+   }
+  }
   [TestCase("Corridor")][TestCase("Pillars")][TestCase("CryptL")][TestCase("Ritual")][TestCase("Passages")]
   public void ScenarioUsesProductionTemplateAndRemainsTraversable(string name)
   {
@@ -46,7 +77,7 @@ namespace Godmist.Tests.EditMode
     foreach(var room in rooms)
     {
      var cells=new HashSet<Vector2Int>(floor.Map.FloorCells.Where(c=>floor.Map.TryGetRoomId(c,out var id)&&id==room.RoomId));
-     var obstacles=floor.Objects.OfType<ObstacleDungeonObjectInstance>().Where(o=>o.BlocksMovement).Select(o=>o.Position).ToHashSet();
+     var obstacles=floor.Objects.OfType<ObstacleDungeonObjectInstance>().Where(o=>o.BlocksMovement).SelectMany(o=>o.EnumerateOccupiedCells()).ToHashSet();
      var traps=floor.Objects.OfType<SpikeTrapDungeonObjectInstance>().Select(o=>o.Position).ToHashSet();
      cells.ExceptWith(obstacles);cells.ExceptWith(traps);
      Assert.That(cells.Count,Is.GreaterThanOrEqualTo(12));
@@ -202,6 +233,7 @@ namespace Godmist.Tests.EditMode
      Assert.That(floor.Rooms.Any(room=>room.RoomType==DungeonRoomType.Final&&visited.Contains(room.RoomId)),Is.True);
      foreach(var chest in floor.Objects.OfType<ChestDungeonObjectInstance>())
      {
+      Assert.That(chest.Gold,Is.GreaterThan(0),"Chest has no encounter-scaled gold, seed "+seed);
       Assert.That(floor.Map.TryGetRoomId(chest.Position,out var roomId),Is.True,
        "Chest outside room, seed "+seed);
       Assert.That(visited.Contains(roomId),Is.True,"Unreachable chest room, seed "+seed);
@@ -270,7 +302,8 @@ namespace Godmist.Tests.EditMode
     Assert.That(room.Stairs,Is.Empty,room.name);
     var walkable=room.Footprint.Enumerate(room.SizeInCells).ToHashSet();
     walkable.ExceptWith(room.SemanticAnchors.Where(a=>a.Type==DungeonSemanticAnchorType.Obstacle)
-     .Select(a=>a.LocalCell));
+     .SelectMany(a=>a.ObjectDefinition is ObstacleDungeonObjectDefinition obstacle
+      ? obstacle.EnumerateOccupiedCells(a.LocalCell) : new[]{a.LocalCell}));
     var seen=new HashSet<Vector2Int>();
     var queue=new Queue<Vector2Int>();
     foreach(var edge in room.AllowedBoundaryEdges)
@@ -349,8 +382,10 @@ namespace Godmist.Tests.EditMode
      "Optional_Lever","Optional_Condition","Final"}.Contains(blueprint.suffix))
      Assert.That(room.SemanticAnchors.Count(anchor=>anchor.Type==DungeonSemanticAnchorType.Enemy),
       Is.EqualTo(4),room.name+" must author all four enemy positions");
-    Assert.That(room.StructuralAnchors.Count,
+    Assert.That(room.StructuralAnchors.Count(anchor=>anchor.Type==DungeonStructuralAnchorType.Wall),
      Is.EqualTo(blueprint.structuralEdges?.Length??0),room.name+" structural edges");
+    Assert.That(blueprint.rows.Select(row=>row.Length).Distinct().Count(),Is.EqualTo(1),
+     blueprint.suffix+" blueprint rows must have matching widths and valid UTF-8 symbols");
     var sourceRows=blueprint.rows.Select(row=>row.ToCharArray()).ToArray();
     var expandedRows=new List<char[]>();
     for(var y=0;y<sourceRows.Length;y++)
@@ -360,11 +395,11 @@ namespace Godmist.Tests.EditMode
      {
       row.Add(sourceRows[y][x]);
       if(x==2||x==sourceRows[y].Length-3)
-       row.Add("EXWSB".Contains(sourceRows[y][x])?'.':sourceRows[y][x]);
+       row.Add(("EXWSBC".Contains(sourceRows[y][x]) || blueprint.obstacle=="Sarcophagus"&&sourceRows[y][x]=='■')?'.':sourceRows[y][x]);
      }
      expandedRows.Add(row.ToArray());
      if(y==2||y==sourceRows.Length-3)
-      expandedRows.Add(row.Select(c=>"EXWSB".Contains(c)?'.':c).ToArray());
+      expandedRows.Add(row.Select(c=>("EXWSBC".Contains(c) || blueprint.obstacle=="Sarcophagus"&&c=='■')?'.':c).ToArray());
     }
     Assert.That(room.SizeInCells,
      Is.EqualTo(new Vector2Int(expandedRows[0].Length,expandedRows.Count)),room.name);
@@ -387,6 +422,7 @@ namespace Godmist.Tests.EditMode
       '■'=>DungeonSemanticAnchorType.Obstacle,
       '!'=>DungeonSemanticAnchorType.Trap,
       'W' or 'B'=>DungeonSemanticAnchorType.Enemy,
+      'C'=>DungeonSemanticAnchorType.Chest,
       'S'=>room.RoomType==DungeonRoomType.Optional
        ? blueprint.suffix=="Optional"?DungeonSemanticAnchorType.Chest
         : blueprint.suffix=="Optional_Lever"?DungeonSemanticAnchorType.Lever
@@ -394,10 +430,13 @@ namespace Godmist.Tests.EditMode
        : null,
       _=>null
      };
+     // Door authoring moves this trap beyond both interaction cells.
+     var anchorCell=blueprint.suffix=="Tactical_Corridor_Production"
+      &&c=='!'&&cell==new Vector2Int(6,4)?new Vector2Int(6,5):cell;
      if(expectedAnchor.HasValue)
-      Assert.That(room.SemanticAnchors.Any(anchor=>anchor.LocalCell==cell
+      Assert.That(room.SemanticAnchors.Any(anchor=>anchor.LocalCell==anchorCell
        &&anchor.Type==expectedAnchor.Value),Is.True,
-       room.name+" missing concept object "+c+" at "+cell);
+       room.name+" missing concept object "+c+" at "+anchorCell);
     }
     Assert.That(extra,Is.LessThanOrEqualTo(16),room.name+" alters too much wall geometry");
    }

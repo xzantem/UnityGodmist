@@ -152,6 +152,10 @@ namespace Godmist.Systems.Combat
                 case PassiveEffectConditionType.CasterHealthAbovePercent:
                     return CompareHealth(context.Source, condition, below: false, out result);
 
+                case PassiveEffectConditionType.TargetHasMoreMaxHealth:
+                    if (context.Source?.Character?.Stats == null || context.Target?.Character?.Stats == null) return false;
+                    result = context.Target.Character.Stats.MaxHealth.GetValue() > context.Source.Character.Stats.MaxHealth.GetValue();
+                    return true;
                 case PassiveEffectConditionType.TargetHasTag:
                     if (!CharacterTagUtility.TryParse(condition.ReferenceId, out var targetTag))
                         return false;

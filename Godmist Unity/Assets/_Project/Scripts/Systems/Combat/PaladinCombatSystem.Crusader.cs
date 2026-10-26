@@ -75,7 +75,7 @@ namespace Godmist.Systems.Combat
                 var dx=target.Position.X-source.Position.X;var dy=target.Position.Y-source.Position.Y;
                 var next=new GridPosition(target.Position.X+(Math.Abs(dx)>=Math.Abs(dy)?Math.Sign(dx):0),target.Position.Y+(Math.Abs(dy)>Math.Abs(dx)?Math.Sign(dy):0),target.Position.Level);
                 if(next==target.Position||!session.Grid.CanMoveBetween(target.Position,next)||session.IsPositionOccupied(next,target)||session.IsPositionOccupiedByMapObject(next))break;
-                target.Position=next;session.NotifyUnitEnteredCell(target);
+                target.Position=next;CombatCellEntrySystem.Notify(session, target);
             }
         }
         public static bool IsField(SummonedCombatMapObject field)=>field?.Definition?.ObjectId==FieldId;
@@ -85,7 +85,8 @@ namespace Godmist.Systems.Combat
             return CombatTargetingService.IsPositionWithinRelativeRange(field.Position,field.Position,position,new SkillRangeData(RangeShape.Square,1,2+C(source,"field_range")))
                 &&new CombatLineOfSightService().HasLineOfSight(session,field.Position,position);
         }
-        public static void FieldEffects(CombatSession session,SummonedCombatMapObject field,bool tick,CombatDamageSystem damage,StatusEffectSystem statuses)
+        public static void FieldEffects(CombatSession session,SummonedCombatMapObject field,bool tick,CombatDamageSystem damage,StatusEffectSystem statuses,
+            CombatFeedbackBus feedback = null)
         {
             var source=session.Units.FirstOrDefault(u=>u.Character.CharacterId==field.CreatorCharacterId);if(source==null)return;
             var radius=2+C(source,"field_range");
@@ -97,7 +98,10 @@ namespace Godmist.Systems.Combat
                 ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Speed,-5,9999,id);
                 if(!tick)continue;
                 var value=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,.5f);
+                var contact = target.Position;
                 damage.ApplyDamage(session,source,target,CombatDamageSystem.ApplyDefense(source,target,value,DamageType.Magical),DamageType.Magical,allowWarriorProcs:false);
+                feedback?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect,
+                    position: contact, source: source, targetVfx: CombatTargetVfxKind.HolyImpact));
                 if(field.RemainingDurationTurns==2&&C(source,"exhaustion")>0)statuses.ApplyStatus(source,target,StatusEffectIds.Stun,1,C(source,"exhaustion"),1,0,0,"paladin.exhaustion");
                 if(field.RemainingDurationTurns==1&&C(source,"judgement_release")>0)
                 {var burst=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,.5f*C(source,"judgement_release"));damage.ApplyDamage(session,source,target,CombatDamageSystem.ApplyDefense(source,target,burst,DamageType.Magical),DamageType.Magical,allowWarriorProcs:false);}

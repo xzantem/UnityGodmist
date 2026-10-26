@@ -14,6 +14,17 @@ namespace Godmist.Views.Dungeons
     public sealed partial class DungeonCombatCoordinator
     {
         private float detectionElapsed;
+        private readonly List<ExplorationCharacterView> detectionTargets = new(4), detectedTargets = new(4);
+        private readonly Dictionary<ExplorationCharacterView, DungeonTraversalPosition> detectionPositions = new();
+        public int DetectionPositionReadCount { get; private set; }
+
+        private DungeonTraversalPosition ReadDetectionPosition(ExplorationCharacterView view)
+        {
+            if (!detectionPositions.TryGetValue(view, out var position))
+            { position = view.DungeonPosition; detectionPositions.Add(view, position); DetectionPositionReadCount++; }
+            return position;
+        }
+        private static readonly Unity.Profiling.ProfilerMarker DetectionCombatSample = new("Godmist.Dungeon.Detection.CombatMembership");
         private float nextPreviewTime;
         private readonly Dictionary<ExplorationCharacterView, (DungeonTraversalPosition Position, Vector2 Facing, float Range, float Angle, List<DungeonTraversalPosition> Cells)> enemyPreviewCache = new();
         private readonly Dictionary<Vector2Int, List<DungeonTraversalPosition>> previewNodes = new();
@@ -36,49 +47,95 @@ namespace Godmist.Views.Dungeons
 
         private void UpdateDetection()
         {
+            using var sample = DetectionSample.Auto();
             detectionElapsed += Time.deltaTime;
             if (detectionElapsed < .1f) return;
             var elapsed = detectionElapsed;
             detectionElapsed = 0f;
-            var targets = party.ActiveMemberViews.Where(IsLiving).ToArray();
-            foreach (var trigger in encounters.Triggers)
-            foreach (var enemy in trigger.EnemyViews)
+            detectionTargets.Clear();
+            foreach (var target in party.ActiveMemberViews) if (IsLiving(target)) detectionTargets.Add(target);
+            detectionPositions.Clear();
+            try { UpdateDetectionCore(elapsed); }
+            finally { detectionPositions.Clear(); }
+        }
+
+        private void UpdateDetectionCore(float elapsed)
+        {
+            var triggers = encounters.Triggers;
+            if (game?.DebugEnemyAggroDisabled == true)
             {
-                if (enemy == null) continue;
-                var state = floor.GetEnemyAwareness(DungeonCombatMembershipSystem.EnemyKey(trigger.Encounter.InstanceId, enemy.EnemyInstanceId));
-                if (!IsLiving(enemy))
-                { state.TryRestore(0f); enemy.ShowAwareness(0f, false); continue; }
-                var seen = targets.Where(target => !enemy.IsCrossingLowWall && !target.IsCrossingLowWall && CanEnemyDetect(enemy, target)).ToArray();
-                var fighting = Owner(enemy) != null;
-                var detected = state.Advance(elapsed, seen.Length > 0, fighting);
-                enemy.ShowAwareness(state.Progress, !fighting && targets.Any(target => visibility.HasLineOfSight(floor, target.DungeonPosition, enemy.DungeonPosition)));
-                if (!detected) continue;
-                foreach (var target in seen)
+                foreach (var trigger in triggers)
+                foreach (var enemy in trigger.EnemyViews)
                 {
-                    var observerSession = Owner(enemy);
-                    var targetSession = Owner(target);
-                    if (observerSession != null && targetSession == observerSession) continue;
-                    if ((observerSession != null && observerSession.Outcome != CombatOutcomeState.Ongoing)
-                        || (targetSession != null && targetSession.Outcome != CombatOutcomeState.Ongoing)) continue;
-                    if (observerSession == null && targetSession == null)
-                    {
-                        TryStartSpottedEncounter(trigger, enemy, target);
-                    }
-                    else if (observerSession == null) TryJoinSpotted(targetSession, enemy, trigger);
-                    else if (targetSession == null) TryJoinSpotted(observerSession, target, null);
-                    else if (!pendingMerges.Any(pair => pair.First == observerSession && pair.Second == targetSession
-                        || pair.First == targetSession && pair.Second == observerSession))
-                    {
-                        observerSession.MembershipChangePending = targetSession.MembershipChangePending = true;
-                        pendingMerges.Add((observerSession, targetSession));
-                    }
+                    if (enemy == null) continue;
+                    if (Owner(enemy) == null) floor.GetEnemyAwareness(PatrolKey(trigger, enemy)).TryRestore(0f);
+                    enemy.ShowAwareness(0f, false);
                 }
-                if (Owner(enemy) != null) { state.TryRestore(0f); enemy.ShowAwareness(0f, false); }
+                return;
+            }
+            for (int triggerIndex = 0; triggerIndex < triggers.Count; triggerIndex++)
+            {
+                var trigger = triggers[triggerIndex];
+                var enemies = trigger.EnemyViews;
+                for (int enemyIndex = 0; enemyIndex < enemies.Count; enemyIndex++)
+                {
+                    var enemy = enemies[enemyIndex];
+                    if (enemy == null) continue;
+                    var state = floor.GetEnemyAwareness(PatrolKey(trigger, enemy));
+                    if (!IsLiving(enemy))
+                    { state.TryRestore(0f); enemy.ShowAwareness(0f, false); continue; }
+                    var fighting = Owner(enemy) != null;
+                    detectedTargets.Clear();
+                    if (!enemy.IsCrossingLowWall)
+                        foreach (var target in detectionTargets)
+                            if (!target.IsCrossingLowWall && (fighting
+                                ? visibility.CanObserveCombat(floor, ReadDetectionPosition(enemy), enemy.VisionRange, ReadDetectionPosition(target))
+                                : visibility.CanDetect(floor, ReadDetectionPosition(enemy), enemy.FacingDirection,
+                                    enemy.VisionRange, EnemyObservationAngle(enemy), ReadDetectionPosition(target))))
+                                detectedTargets.Add(target);
+                    var detected = state.Advance(elapsed, detectedTargets.Count > 0, fighting);
+                    // A zero-progress indicator is hidden regardless of party LOS.
+                    // Keep detection above live; avoid a map-wide presentation-only
+                    // ray query for every unaware enemy on every detection tick.
+                    bool showAwareness = false;
+                    if (!fighting && state.Progress > 0f)
+                        foreach (var target in detectionTargets)
+                            if (visibility.HasLineOfSight(floor, ReadDetectionPosition(target), ReadDetectionPosition(enemy))) { showAwareness = true; break; }
+                    enemy.ShowAwareness(state.Progress, showAwareness);
+                    if (!detected) continue;
+                    foreach (var target in detectedTargets)
+                    {
+                        using var membershipSample = DetectionCombatSample.Auto();
+                        var observerSession = Owner(enemy);
+                        var targetSession = Owner(target);
+                        if (observerSession != null && targetSession == observerSession) continue;
+                        if ((observerSession != null && observerSession.Outcome != CombatOutcomeState.Ongoing)
+                            || (targetSession != null && targetSession.Outcome != CombatOutcomeState.Ongoing)) continue;
+                        if (observerSession == null && targetSession == null)
+                        {
+                            TryStartSpottedEncounter(trigger, enemy, target);
+                        }
+                        else if (observerSession == null) TryJoinSpotted(targetSession, enemy, trigger);
+                        else if (targetSession == null) TryJoinSpotted(observerSession, target, null);
+                        else if (!pendingMerges.Any(pair => pair.First == observerSession && pair.Second == targetSession
+                            || pair.First == targetSession && pair.Second == observerSession))
+                        {
+                            observerSession.MembershipChangePending = targetSession.MembershipChangePending = true;
+                            pendingMerges.Add((observerSession, targetSession));
+                        }
+                    }
+                    // Starting/joining combat can snap actors to tactical cells.
+                    // The next observer must see their post-callback positions.
+                    if (detectedTargets.Count > 0) detectionPositions.Clear();
+                    if (Owner(enemy) != null) { state.TryRestore(0f); enemy.ShowAwareness(0f, false); }
+                }
             }
         }
 
         private void OnDisable()
         {
+            CancelOpeningPreparation(false);
+            CancelFogUpdate();
             detectionElapsed = 0f;
             pendingRoomAlerts.Clear();
             if (encounters != null)
@@ -89,21 +146,28 @@ namespace Godmist.Views.Dungeons
 
         private void QueueRoomAlert(ExplorationCharacterView observer, ExplorationCharacterView target)
         {
+            if (game?.DebugEnemyAggroDisabled == true || target.CombatUnit == null) return;
+            foreach (var (enemy, trigger) in RoomAlertCandidates(observer))
+                pendingRoomAlerts.Add((enemy, trigger, target.CombatUnit, target.CombatUnit.Position));
+        }
+
+        private IEnumerable<(ExplorationCharacterView Enemy, EncounterTriggerView Trigger)> RoomAlertCandidates(ExplorationCharacterView observer)
+        {
             var origin = observer.DungeonPosition;
-            if (target.CombatUnit == null || !floor.Map.TryGetRoomId(origin.IsOnStairs ? origin.Stair.First : origin.Surface, out var room)) return;
+            if (!floor.Map.TryGetRoomId(origin.IsOnStairs ? origin.Stair.First : origin.Surface, out var room)) yield break;
             foreach (var trigger in encounters.Triggers)
             foreach (var enemy in trigger.EnemyViews)
             {
                 if (enemy == observer || !IsLiving(enemy)) continue;
                 var position = enemy.DungeonPosition;
-                if (!floor.Map.TryGetRoomId(position.IsOnStairs ? position.Stair.First : position.Surface, out var otherRoom)
-                    || otherRoom != room) continue;
-                pendingRoomAlerts.Add((enemy, trigger, target.CombatUnit, target.CombatUnit.Position));
+                if (floor.Map.TryGetRoomId(position.IsOnStairs ? position.Stair.First : position.Surface, out var otherRoom)
+                    && otherRoom == room) yield return (enemy, trigger);
             }
         }
 
         private void ProcessRoomAlerts()
         {
+            if (game?.DebugEnemyAggroDisabled == true) { pendingRoomAlerts.Clear(); return; }
             for (var i = pendingRoomAlerts.Count - 1; i >= 0; i--)
             {
                 var alert = pendingRoomAlerts[i];
@@ -133,6 +197,7 @@ namespace Godmist.Views.Dungeons
 
         private bool TryJoinSpotted(CombatSession session, ExplorationCharacterView view, EncounterTriggerView source)
         {
+            if (game?.DebugEnemyAggroDisabled == true) return false;
             var driver = combatHost.GetDriver(session);
             if (driver == null || session.MembershipChangePending || driver.IsActionInProgress) return false;
             var position = DungeonBattleGridFactory.ToBattleTraversalPosition(session.DungeonContext, view.DungeonPosition);
@@ -156,6 +221,7 @@ namespace Godmist.Views.Dungeons
 
         private void ProcessPendingMerges()
         {
+            if (game?.DebugEnemyAggroDisabled == true) pendingMerges.Clear();
             foreach (var pair in pendingMerges.ToArray())
             {
                 var first = pair.First;
@@ -166,29 +232,35 @@ namespace Godmist.Views.Dungeons
                 var destination = first == focused || second != focused ? first : second;
                 var source = destination == first ? second : first;
                 if (combatHost.GetDriver(destination).IsActionInProgress || combatHost.GetDriver(source).IsActionInProgress) continue;
-                if (!DungeonCombatMembershipSystem.TryMerge(destination, source))
+                if (!MergeCombatSessions(destination, source))
                 { Debug.LogError("Nie można połączyć sesji na wspólnym piętrze."); pendingMerges.Remove(pair); continue; }
-                foreach (var binding in bindings.ToArray())
-                    if (bindingSessions[binding.Key] == source)
-                    { bindingSessions[binding.Key] = destination; unitViews.Borrow(destination, binding.Key, binding.Value); }
-                combatHost.End(source, true);
-                combatCamera.Forget(source);
-                game.TryRemoveCombat(source);
-                sources.Remove(source);
-                source.UnitEnteredCell = null; source.EvaluateTrapRisk = null; source.TrapRouteState = null;
-                source.ResumeTurn = null; source.TrySpawnReinforcements = null;
-                pendingMerges.Remove(pair);
-                for (var i = 0; i < pendingMerges.Count; i++)
-                {
-                    var other = pendingMerges[i];
-                    pendingMerges[i] = (other.First == source ? destination : other.First, other.Second == source ? destination : other.Second);
-                }
-                pendingMerges.RemoveAll(value => value.First == value.Second);
                 SetFocus(game.GetCombatForCharacter(game.PlayerParty.ActiveLeaderId), true);
             }
             foreach (var session in game.Combats)
                 session.MembershipChangePending = pendingMerges.Any(pair => pair.First == session || pair.Second == session);
         }
+
+        private bool MergeCombatSessions(CombatSession destination, CombatSession source)
+        {
+            if (!DungeonCombatMembershipSystem.TryMerge(destination, source)) return false;
+            foreach (var binding in bindings.ToArray())
+                if (bindingSessions[binding.Key] == source)
+                { bindingSessions[binding.Key] = destination; unitViews.Borrow(destination, binding.Key, binding.Value); }
+            combatHost.End(source, true);
+            combatCamera.Forget(source);
+            game.TryRemoveCombat(source);
+            sources.Remove(source);
+            source.UnitEnteredCell = null; source.EvaluateTrapRisk = null; source.TrapRouteState = null;
+            source.ResumeTurn = null; source.TrySpawnReinforcements = null;
+            for (var i = 0; i < pendingMerges.Count; i++)
+            {
+                var other = pendingMerges[i];
+                pendingMerges[i] = (other.First == source ? destination : other.First, other.Second == source ? destination : other.Second);
+            }
+            pendingMerges.RemoveAll(value => value.First == value.Second);
+            return true;
+        }
+
 
         private void InvalidateFovPreview() { previewRevision = -1; fogGeometryDirty = true; enemyPreviewCache.Clear(); }
 

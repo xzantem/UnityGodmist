@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: SD_WarriorShout
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.warrior.shout
-  <DisplayName>k__BackingField: Krzyk
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <DisplayName>k__BackingField: Og\u0142uszaj\u0105cy Okrzyk
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7f4e7cfc2371d2342b950e53cdb86417, type: 3}
   <TooltipDescription>k__BackingField: "Zu\u017Cywa ca\u0142\u0105 aktualn\u0105
     w\u015Bciek\u0142o\u015B\u0107. 90% szansy na og\u0142uszenie na 1 tur\u0119,
-    przy wydaniu co najmniej 50 PW: 3 tury."
+    przy wydaniu co najmniej 50 PW: 2 tury."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
@@ -29,7 +29,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,24 +50,28 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 2
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -83,6 +89,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -124,3 +131,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

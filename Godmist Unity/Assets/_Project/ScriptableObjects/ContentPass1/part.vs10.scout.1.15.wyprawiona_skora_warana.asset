@@ -17,7 +17,7 @@ MonoBehaviour:
     warana)"
   <Description>k__BackingField: "Jelce os\u0142aniaj\u0105ce d\u0142onie przy walce
     ostrzami."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 644bbf508a33ba94cb733b91cdf630aa, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 1

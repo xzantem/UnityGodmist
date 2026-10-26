@@ -373,6 +373,9 @@ namespace Godmist.Systems.Combat
                     ApplyStatus(owner, runtime, operation, context);
                     break;
                 case PassiveEffectOperationType.ModifyStat:
+                    // Instant penetration operations are contextual queries, never lasting stat buffs.
+                    if (operation.DurationTurns == 0 && operation.StatType is CharacterStatType.PhysicalDefensePenetration
+                        or CharacterStatType.MagicalDefensePenetration) break;
                     ApplyTimedStatModifier(owner, runtime, operation, context);
                     break;
                 case PassiveEffectOperationType.SetRuntimeFlag:
@@ -451,7 +454,7 @@ namespace Godmist.Systems.Combat
                         chance,
                         duration,
                         stacks: 1,
-                        statusDamageMultiplier: 0f,
+                        statusDamageMultiplier: TryGetParameter(operation,"status_damage_multiplier",out var dotMultiplier)?dotMultiplier:0f,
                         statusHealPercent: 0f,
                         sourceId: runtime?.EffectId ?? "passive.combat",
                         publishFeedback: true))
@@ -727,6 +730,14 @@ namespace Godmist.Systems.Combat
         {
             switch (targetType)
             {
+                case PassiveEffectTargetType.LowestHealthAlly:
+                    BattleUnit lowest = null;
+                    foreach (var ally in context?.Session?.Units ?? new List<BattleUnit>())
+                        if (ally?.Character?.LifeState == CharacterLifeState.Alive && ally.IsPlayerSide == owner?.IsPlayerSide
+                            && ally.Character.CurrentHealth < ally.Character.Stats.MaxHealth.GetValue()
+                            && (lowest == null || ally.Character.CurrentHealth < lowest.Character.CurrentHealth)) lowest = ally;
+                    if (lowest != null) yield return lowest;
+                    yield break;
                 case PassiveEffectTargetType.Self:
                 case PassiveEffectTargetType.Source:
                     if (owner != null) yield return owner;

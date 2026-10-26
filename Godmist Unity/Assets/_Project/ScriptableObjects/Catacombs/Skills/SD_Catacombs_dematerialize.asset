@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.dematerialize
   <DisplayName>k__BackingField: Dematerializacja
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: d5171807f69a4b743a400091774130ea, type: 3}
   <TooltipDescription>k__BackingField: "Staje si\u0119 niewidzialny na 3 tury."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 0
@@ -83,6 +83,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

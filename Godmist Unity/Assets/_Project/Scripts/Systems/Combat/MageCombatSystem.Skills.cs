@@ -13,7 +13,8 @@ namespace Godmist.Systems.Combat
     public static partial class MageCombatSystem
     {
         public static float OfferingBonus(BattleUnit u) => W(u, "superhuman_offering") switch { 1 => .35f, 2 => .4f, 3 => .5f, _ => .3f };
-        public static bool ExecuteSkill(CombatSession session, BattleUnit source, BattleUnit target, SkillData skill, SkillEffectData effect, StatusEffectSystem statuses)
+        public static bool ExecuteSkill(CombatSession session, BattleUnit source, BattleUnit target, SkillData skill, SkillEffectData effect, StatusEffectSystem statuses,
+            CombatFeedbackBus feedback = null, string actionId = null)
         {
             if (source?.Character == null || target?.Character == null) return false;
             switch (effect.EffectType)
@@ -27,6 +28,9 @@ namespace Godmist.Systems.Combat
                 case EffectType.MageRitual:
                     var cost = Mathf.Min(Mathf.FloorToInt(target.Character.Stats.MaxHealth.GetValue() * .1f), Math.Max(0, target.Character.CurrentHealth - 1));
                     target.Character.CurrentHealth -= cost;
+                    if (cost > 0)
+                        feedback?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect,
+                            source: source, targetVfx: CombatTargetVfxKind.Transfusion, actionId: actionId));
                     return statuses.ApplyPeriodicRecovery(source, target, skill, effect.WithPercentageValue(effect.PercentageValue / Math.Max(1, effect.DurationTurns)), 0, false);
                 case EffectType.MageFireAura:
                     if (!CombatAuraSystem.Register(target, skill, effect, 0)) return false;

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SD_PaladinGroundingWave
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.paladin.grounding_wave
-  <DisplayName>k__BackingField: "Fala Uziemiaj\u0105ca"
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <DisplayName>k__BackingField: "Fala Przyci\u0105gaj\u0105ca"
+  <Icon>k__BackingField: {fileID: 21300000, guid: 549587db403982e4c8d1f10edd7c5673, type: 3}
   <TooltipDescription>k__BackingField: "Przyci\u0105ga przeciwnik\xF3w o 1 pole ku
     \u015Brodkowi wybranego kwadratu o zasi\u0119gu 5."
   <SkillAccuracy>k__BackingField: 100
@@ -28,6 +28,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -65,6 +66,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

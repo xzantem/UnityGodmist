@@ -1,4 +1,5 @@
 using Godmist.Core.Enums;
+using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
 using UnityEngine;
 
@@ -6,13 +7,22 @@ namespace Godmist.Systems.Combat
 {
     public static class CombatDamageValueCalculator
     {
-        // Normal equipment reference, shared by all classes; never reads the equipped weapon.
-        private static readonly int[] ReferenceLevels = { 1, 5, 15, 25, 35, 45, 50 };
-        private static readonly float[] ReferenceAttacks = { 28f, 51.125f, 120.34375f, 248.625f, 440.5f, 709.5625f, 750.34375f };
+        // Class-independent alchemical power, anchored to the former normal-equipment
+        // reference through L30. Never reads the equipped weapon.
+        private static readonly int[] ReferenceLevels = { 1, 5, 15, 25, 30 };
+        private static readonly float[] ReferenceAttacks = { 28f, 51.125f, 120.34375f, 248.625f, 344.5625f };
 
         public static float GetAlchemicalReferenceAttack(int level)
         {
             level = Mathf.Clamp(level, 1, 50);
+            if (level > 30)
+            {
+                // Continue the L25–30 slope without a jump, then accelerate toward
+                // 1200 at L50. The old L45–50 segment almost stopped growing.
+                const float start = 344.5625f, slope = 19.1875f;
+                var delta = level - 30;
+                return start + slope * delta + (1200f - start - slope * 20f) * delta * delta / 400f;
+            }
             for (var i = 1; i < ReferenceLevels.Length; i++)
             {
                 if (level <= ReferenceLevels[i])
@@ -34,10 +44,24 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt(GetAlchemicalReferenceAttack(level) * rawRatio);
         }
 
+        // DoT already bypasses armor. Use the shared level power linearly;
+        // the inverse-armor calibration above is only for instant damage.
+        public static int CalculateAlchemicalPeriodicDamage(int level, float multiplier) =>
+            Mathf.CeilToInt(GetAlchemicalReferenceAttack(level) * Mathf.Max(0f, multiplier) - .00001f);
+
+        public static bool UsesAlchemicalPower(SkillData skill)
+        {
+            if (skill?.Effects == null) return false;
+            foreach (var effect in skill.Effects)
+                if (effect != null && effect.DamageValueSource == DamageValueSource.AlchemicalPower)
+                    return true;
+            return false;
+        }
+
         public static int CalculateDamageValue(
             BattleUnit source,
             DamageValueSource valueSource,
-            float multiplier)
+            float multiplier, WarriorDischargeCast dischargeCast = null)
         {
             if (source?.Character?.Stats == null)
             {
@@ -47,8 +71,8 @@ namespace Godmist.Systems.Combat
             {
                 return CalculateAlchemicalDamage(source.Character.Level, multiplier);
             }
-            var minAttack = Mathf.Max(0, Mathf.RoundToInt(source.Character.Stats.MinAttack.GetValue()));
-            var maxAttack = Mathf.Max(minAttack, Mathf.RoundToInt(source.Character.Stats.MaxAttack.GetValue()));
+            var minAttack = Mathf.Max(0, Mathf.RoundToInt(dischargeCast?.MinAttack ?? source.Character.Stats.MinAttack.GetValue()));
+            var maxAttack = Mathf.Max(minAttack, Mathf.RoundToInt(dischargeCast?.MaxAttack ?? source.Character.Stats.MaxAttack.GetValue()));
             var baseDamage = valueSource switch
             {
                 DamageValueSource.MinAttack => minAttack,

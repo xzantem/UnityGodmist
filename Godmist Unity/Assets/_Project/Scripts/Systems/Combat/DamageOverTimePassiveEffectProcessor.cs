@@ -114,29 +114,19 @@ namespace Godmist.Systems.Combat
             BattleUnit unit,
             string statusId)
         {
-            var resistances = unit?.Character?.Resistances;
-
             if (string.Equals(statusId, StatusEffectIds.Poison,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return Mathf.Clamp01((resistances?.PoisonResistance ?? 0f)
-                    + GetModifier(unit, ResistanceType.Poison));
+                return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Poison);
             }
 
             if (string.Equals(statusId, StatusEffectIds.Burn,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return Mathf.Clamp01((resistances?.FireResistance ?? 0f)
-                    + GetModifier(unit, ResistanceType.Fire));
+                return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Fire);
             }
 
-            return Mathf.Clamp01((resistances?.BleedResistance ?? 0f)
-                + GetModifier(unit, ResistanceType.Bleed));
-        }
-
-        private static float GetModifier(BattleUnit unit, ResistanceType type)
-        {
-            return ModifyResistanceSystem.GetModifier(unit, type);
+            return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Bleed);
         }
 
         public static float CalculateDamageMultiplier(float resistance)

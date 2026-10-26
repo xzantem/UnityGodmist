@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.scout.ricochet
   <DisplayName>k__BackingField: Rykoszet
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 35bd9a88d9b3b3e44adc00242ea615e0, type: 3}
   <TooltipDescription>k__BackingField: "Trafia do 3 r\xF3\u017Cnych wrog\xF3w. Ka\u017Cdy
     kolejny cel daje +10% szansy na kryt. Kolejny wr\xF3g musi by\u0107 w zasi\u0119gu
     2 od poprzedniego."
@@ -29,6 +29,7 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
@@ -62,10 +63,11 @@ MonoBehaviour:
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -83,6 +85,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -93,7 +96,7 @@ MonoBehaviour:
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
     baseChance: 1
-    statusId:
+    statusId: 
     durationTurns: 1
     stacks: 1
     statusDamageMultiplier: 0

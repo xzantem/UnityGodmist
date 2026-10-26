@@ -9,6 +9,9 @@ namespace Godmist.Systems.Combat
         private static int InteractionApPercent => GameDefinesRuntime.GetInt(
             GameDefineIds.InteractionActionPointPercent, 20);
 
+        public static int CalculateActionCost(BattleUnit actor) =>
+            CombatActionCostCalculator.CalculatePercentageCost(actor?.MaxActionPoints ?? 0, InteractionApPercent);
+
         private readonly Action<string> battleLog;
         private readonly Action<CombatMapObject> onObjectChanged;
         private readonly CombatFeedbackBus feedbackBus;
@@ -56,10 +59,17 @@ namespace Godmist.Systems.Combat
                 actor.Position,
                 targetPosition);
 
+            return TryInteractWithObject(session, actor, mapObject);
+        }
+
+        private bool TryInteractWithObject(CombatSession session, BattleUnit actor, CombatMapObject mapObject)
+        {
             if (mapObject == null)
             {
                 return false;
             }
+
+            if (mapObject is DoorCombatMapObject blockedDoor && !CanOperateDoor(session, blockedDoor)) return false;
 
             if (!mapObject.CanInteract())
             {
@@ -72,8 +82,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var actionCost = CombatActionCostCalculator
-                .CalculatePercentageCost(actor.MaxActionPoints, InteractionApPercent);
+            var actionCost = CalculateActionCost(actor);
 
             if (actor.CurrentActionPoints < actionCost)
             {
@@ -94,6 +103,37 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke($"{actor.Character.Definition.DisplayName} wykonuje interakcje z " +
                 $"{mapObject.ObjectId} za {actionCost} AP.");
 
+            return true;
+        }
+
+        public bool CanInteractWithDoor(CombatSession session, BattleUnit actor, string objectId)
+        {
+            if (session?.Grid == null || actor?.Character == null || session.ActiveUnit != actor
+                || actor.Character.LifeState != Core.Enums.CharacterLifeState.Alive
+                || session.GetMapObject(objectId) is not DoorCombatMapObject door
+                || !door.ContainsCell(actor.Position) || !door.CanInteract() || !CanOperateDoor(session, door)) return false;
+
+            return actor.CurrentActionPoints >= CalculateActionCost(actor);
+        }
+
+        public bool TryInteractWithDoor(CombatSession session, BattleUnit actor, string objectId)
+        {
+            if (!CanInteractWithDoor(session, actor, objectId)) return false;
+            var door = (DoorCombatMapObject)session.GetMapObject(objectId);
+            return TryInteractWithObject(session, actor, door);
+        }
+
+        private static bool CanOperateDoor(CombatSession session, DoorCombatMapObject door)
+        {
+            if (session.Grid.HasWallEdge(door.Edge.FirstCell, door.Edge.SecondCell)) return false;
+            var context = session.DungeonContext;
+            if (context?.SurfaceMap == null) return true;
+            var edge = new Godmist.Runtime.Dungeons.DungeonSurfaceEdge(
+                new Godmist.Runtime.Dungeons.DungeonCellEdge(
+                    DungeonBattleGridFactory.ToWorldPosition(context, door.Edge.FirstCell),
+                    DungeonBattleGridFactory.ToWorldPosition(context, door.Edge.SecondCell)), door.Edge.FirstCell.Level);
+            foreach (var gate in context.SurfaceMap.SurfaceClosedProgressionGateEdges)
+                if (gate.Equals(edge)) return false;
             return true;
         }
 

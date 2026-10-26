@@ -33,6 +33,8 @@ namespace Godmist.Systems.Combat
         public static int PreviewHealCost(CombatSession session,BattleUnit source,SkillData skill,BattleUnit hovered,int cost)
         {
             if(skill?.SkillId!="skill.paladin.heal"||session==null)return cost;
+            // Without this passive a target/LOS query cannot change the cost.
+            if(P(source,"persistent_healer")==0)return cost;
             if(hovered!=null)return HealCost(source,skill,hovered,cost);
             var targeting=new CombatTargetingService();
             foreach(var target in session.Units)
@@ -55,6 +57,21 @@ namespace Godmist.Systems.Combat
                 if(e.EffectId=="paladin.blessing" && PassiveEffectLifecycleSystem.IsActive(e))
                     e.SetStateValue(PassiveEffectRuntimeStateValue.Integer("grace",Math.Min(6,(e.GetStateValue("grace")?.IntegerValue??0)+1)));
         }
+        public static float CalculateHealing(BattleUnit source,SkillData skill,SkillEffectData effect)
+        {
+            var amount=Average(source)*(1+.01f*Points(source.Character,Priest))*effect.DamageMultiplier;
+            if(skill.SkillId is "skill.paladin.heal" or "skill.paladin.group_heal")amount*=1+.15f*P(source,"healing_power");
+            if(skill.SkillId=="skill.paladin.heal")amount*=1+.15f*P(source,"healer_focus");
+            return amount;
+        }
+        public const float HealingVariation = 1f / 6f;
+        public static int CalculateRegenerationUpfront(BattleUnit source,BattleUnit target,bool critical=false)
+        {
+            var total=Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()*.4f
+                *(critical?Mathf.Max(1,source.Character.Stats.CritDamage.GetValue()):1));
+            var front=P(source,"haste") switch{1=>.15f,2=>.25f,3=>.4f,_=>0};
+            return Mathf.FloorToInt(total*front);
+        }
         public static bool Execute(CombatSession session,BattleUnit source,BattleUnit target,SkillData skill,SkillEffectData effect,CombatRecoverySystem recovery)
         {
             switch(effect.EffectType)
@@ -62,13 +79,10 @@ namespace Godmist.Systems.Combat
                 case EffectType.PaladinHeal:
                     var single=skill.SkillId=="skill.paladin.heal";
                     if(single)target.PaladinState.HealingDiscount=false;
-                    var power=Average(source)*(1+.01f*Points(source.Character,Priest));
-                    var amount=power*effect.DamageMultiplier;
-                    if(single || skill.SkillId=="skill.paladin.group_heal")amount*=1+.15f*P(source,"healing_power");
-                    if(single)amount*=1+.15f*P(source,"healer_focus");
+                    var amount=CalculateHealing(source,skill,effect)*UnityEngine.Random.Range(1-HealingVariation,1+HealingVariation);
                     var critical=UnityEngine.Random.value<HealingCritChance(source,single || session.Units.Count(u=>Alive(u)&&u.IsPlayerSide==source.IsPlayerSide)==1);
                     if(critical)amount*=Mathf.Max(1,source.Character.Stats.CritDamage.GetValue());
-                    HealAndShare(source,target,Mathf.RoundToInt(amount),recovery);
+                    HealAndShare(source,target,Mathf.RoundToInt(amount),recovery,isCritical:critical);
                     if(critical && P(source,"anointed_warrior")>0)WarriorCombatSystem.Variable(source,target,GameplayVariableType.DamageDealtPercent,.1f*P(source,"anointed_warrior"),2,"paladin.anointed","Namaszczony Wojownik");
                     if(single && P(source,"encouragement")>0){target.CurrentActionValue=Mathf.Max(0,target.CurrentActionValue-.2f*CombatTurnSystem.CalculateBaseActionValue(target));CombatTurnSystem.ReorderParticipants(session);}
                     if(skill.SkillId=="skill.paladin.group_heal")
@@ -87,7 +101,7 @@ namespace Godmist.Systems.Combat
                     var total=Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()*.4f*(regenCritical?Mathf.Max(1,source.Character.Stats.CritDamage.GetValue()):1));
                     if(regenCritical&&P(source,"anointed_warrior")>0)WarriorCombatSystem.Variable(source,target,GameplayVariableType.DamageDealtPercent,.1f*P(source,"anointed_warrior"),2,"paladin.anointed","Namaszczony Wojownik");
                     var front=P(source,"haste") switch{1=>.15f,2=>.25f,3=>.4f,_=>0};
-                    var upfront=Mathf.FloorToInt(total*front);HealAndShare(source,target,upfront,recovery);
+                    var upfront=Mathf.FloorToInt(total*front);HealAndShare(source,target,upfront,recovery,isCritical:regenCritical);
                     var regen=Timed(source,"paladin.holy_regeneration","Święta Regeneracja",4);
                     regen.SetStateValue(PassiveEffectRuntimeStateValue.Integer("remaining",total-upfront));
                     regen.SetStateValue(PassiveEffectRuntimeStateValue.Integer("total",total));
@@ -96,6 +110,7 @@ namespace Godmist.Systems.Combat
                     // State values need replacement too when the same regeneration is recast.
                     var applied=target.Character.PassiveEffects.First(e=>e.EffectId==regen.EffectId);
                     applied.SetStateValue(PassiveEffectRuntimeStateValue.Integer("remaining",total-upfront));applied.SetStateValue(PassiveEffectRuntimeStateValue.Integer("total",total));applied.SetStateValue(PassiveEffectRuntimeStateValue.Integer("lasting",P(source,"lasting_effect")));applied.RemoveStateValue("tail");
+                    applied.SetStateValue(PassiveEffectRuntimeStateValue.Boolean("critical",regenCritical));
                     return true;
                 case EffectType.PaladinBlessing:
                     var blessing=Timed(source,"paladin.blessing","Błogosławieństwo",4);
@@ -107,10 +122,11 @@ namespace Godmist.Systems.Combat
             }
             return false;
         }
-        static void HealAndShare(BattleUnit source,BattleUnit target,int amount,CombatRecoverySystem recovery)
+        static void HealAndShare(BattleUnit source,BattleUnit target,int amount,CombatRecoverySystem recovery,
+            CombatTargetVfxKind? targetVfx = null, bool isCritical = false)
         {
-            var actual=recovery.Heal(target,amount);
-            recovery.Heal(source,Mathf.FloorToInt(actual*.01f*Points(source.Character,Priest)));
+            var actual=recovery.Heal(target,amount,targetVfx:targetVfx,isCritical:isCritical);
+            recovery.Heal(source,Mathf.FloorToInt(actual*.01f*Points(source.Character,Priest)),targetVfx:targetVfx);
         }
         static void ApplyStats(BattleUnit source,BattleUnit target,string id,int turns,float defense,int dodge)
         {
@@ -143,7 +159,8 @@ namespace Godmist.Systems.Combat
                 if(e.EffectId=="paladin.holy_regeneration" && e.RemainingDuration>0)
                 {
                     var remaining=e.GetStateValue("remaining")?.IntegerValue??0;var amount=Mathf.CeilToInt(remaining/(float)e.RemainingDuration);
-                    var healer=Creator(session,e);if(healer!=null)HealAndShare(healer,unit,amount,recovery);else recovery.Heal(unit,amount);e.SetStateValue(PassiveEffectRuntimeStateValue.Integer("remaining",remaining-amount));
+                    var critical=e.GetStateValue("critical")?.BooleanValue==true;
+                    var healer=Creator(session,e);if(healer!=null)HealAndShare(healer,unit,amount,recovery,CombatTargetVfxKind.Heal,critical);else recovery.Heal(unit,amount,targetVfx:CombatTargetVfxKind.Heal,isCritical:critical);e.SetStateValue(PassiveEffectRuntimeStateValue.Integer("remaining",remaining-amount));
                     var lasting=e.GetStateValue("lasting")?.IntegerValue??0;
                     if(e.RemainingDuration==1 && lasting>0 && e.GetStateValue("tail")?.BooleanValue!=true)
                     {e.SetStateValue(PassiveEffectRuntimeStateValue.Boolean("tail",true));e.SetStateValue(PassiveEffectRuntimeStateValue.Integer("remaining",Mathf.FloorToInt((e.GetStateValue("total")?.IntegerValue??0)*.25f)));e.RemainingDuration=(lasting==1?4:2)+1;}

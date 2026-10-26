@@ -32,6 +32,8 @@ namespace Godmist.Data.Skills
         {
             var copy=(SkillTargetModeData)MemberwiseClone(); copy.chainTargets=count; return copy;
         }
+        [SerializeField] private string requiredStatusId;
+        public string RequiredStatusId => requiredStatusId;
         public TargetType TargetType => targetType;
         public TargetingType TargetingType => targetingType;
         public bool IncludesCaster => includesCaster;

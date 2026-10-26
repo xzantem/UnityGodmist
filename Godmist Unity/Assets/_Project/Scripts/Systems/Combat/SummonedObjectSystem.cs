@@ -27,7 +27,8 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             SummonedCombatMapObject summonedObject)
         {
-            effectExecutor?.ExecuteTurn(session, summonedObject);
+            if (summonedObject?.Definition?.TriggersOnEntry != true)
+                effectExecutor?.ExecuteTurn(session, summonedObject);
         }
 
         public bool TryCreate(
@@ -48,6 +49,8 @@ namespace Godmist.Systems.Combat
             {
                 return false;
             }
+
+            if (effect.SummonedObjectDefinition.TriggersOnEntry && session.IsPositionOccupied(position)) return false;
 
             if (!session.Grid.IsWalkable(position)
                 || session.Grid.IsBlocked(position)
@@ -83,9 +86,12 @@ namespace Godmist.Systems.Combat
             session.MapObjects.Add(createdObject);
 
             // Aury statystyk i zmiennych zaczynają działać w chwili postawienia.
-            effectExecutor?.ApplyPersistentEffects(session, createdObject);
+            if (createdObject.Definition.TriggersOnEntry)
+                session.SummonedObjectEnteredCell = unit => TriggerEntry(session, unit);
+            else
+                effectExecutor?.ApplyPersistentEffects(session, createdObject);
 
-            if (session.TurnParticipants != null
+            if (!createdObject.Definition.TriggersOnEntry && session.TurnParticipants != null
                 && session.TurnParticipants.Count > 0)
             {
                 createdObject.CurrentActionValue =
@@ -103,6 +109,13 @@ namespace Godmist.Systems.Combat
             onMapObjectChanged?.Invoke(createdObject);
 
             return true;
+        }
+
+        private void TriggerEntry(CombatSession session, BattleUnit unit)
+        {
+            foreach (var trap in session.SummonedObjects.Where(item => item?.Definition?.TriggersOnEntry == true
+                         && item.Position == unit?.Position).ToArray())
+                if (effectExecutor.ExecuteEntry(session, trap, unit)) Remove(session, trap);
         }
 
         public bool TryApplyHitsAtPosition(

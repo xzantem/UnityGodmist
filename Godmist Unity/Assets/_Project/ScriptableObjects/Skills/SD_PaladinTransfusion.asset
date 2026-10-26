@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.paladin.transfusion
   <DisplayName>k__BackingField: "\u015Awi\u0119ta Transfuzja"
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 85e5cfd9fc8a91348a82a5f0dbae6d39, type: 3}
   <TooltipDescription>k__BackingField: "Losowe obra\u017Cenia magiczne; rzucaj\u0105cy
-    odzyskuje 100% faktycznie zadanych obra\u017Ce\u0144 jako HP."
+    odzyskuje 200% faktycznie zadanych obra\u017Ce\u0144 jako HP."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
@@ -28,7 +28,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -47,14 +49,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -64,7 +69,8 @@ MonoBehaviour:
     onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
-    lifeStealPercent: 1
+    lifeStealPercent: 2
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 1
     delayCasterTurns: 0
@@ -82,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -123,3 +130,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

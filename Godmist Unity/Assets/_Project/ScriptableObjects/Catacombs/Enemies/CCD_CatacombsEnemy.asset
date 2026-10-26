@@ -15,5 +15,6 @@ MonoBehaviour:
   <Id>k__BackingField: class.enemy.catacombs
   <ClassName>k__BackingField: "Nieumar\u0142y z Katakumb"
   <ResourceType>k__BackingField: 3
+  <StartingResourcePercent>k__BackingField: 100
   <BasicAttackSkill>k__BackingField: {fileID: 0}
   <SkillTrees>k__BackingField: []

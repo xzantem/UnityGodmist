@@ -171,7 +171,7 @@ namespace Godmist.Tests.EditMode
             var text = (string)method.Invoke(null, new object[] { definition });
 
             Assert.That(text, Does.Contain("cel jest typu człowiek"));
-            Assert.That(text, Does.Contain("theme lochu Catacombs"));
+            Assert.That(text, Does.Contain("walka toczy się w Katakumbach").And.Not.Contain("Catacombs"));
             Assert.That(text, Does.Contain(" i "));
         }
 

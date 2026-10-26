@@ -54,7 +54,7 @@ public static partial class VS07ScoutSetup
         Field(so,"AttackType",knives > 0 ? AttackType.Ranged : AttackType.Unknown);
         Field(so,"PointBlankAttackType",knives > 0 ? AttackType.Melee : AttackType.Unknown);
         Field(so,"PointBlankDamageMultiplier",1f); Field(so,"FreeKnivesInMelee",knives > 0);
-        Field(so,"GuaranteedCritical",false); Field(so,"CanRecoverKnives",false);
+        Field(so,"GuaranteedCritical",false); Field(so,"CanRecoverKnives",false); Field(so,"KnifeRecoveryCostMultiplier",1f);
         Field(so,"RequiresLineOfSight",target == TargetType.Single);
         if (skill.Icon == null) Field(so,"Icon",Load<SkillData>("Skills/SD_KnifeToss.asset").Icon);
         var modes = so.FindProperty("targetModes"); modes.ClearArray(); modes.arraySize = 1;
@@ -65,7 +65,7 @@ public static partial class VS07ScoutSetup
         Set(absolute.FindPropertyRelative("shape"),RangeShape.Square);
         Set(absolute.FindPropertyRelative("minRange"),1); Set(absolute.FindPropertyRelative("maxRange"),range);
         so.FindProperty("effects").ClearArray();
-        configure(so); so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(skill);
+        configure(so); Godmist.Editor.ContextualSkillHitSetup.Apply(so); so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(skill);
         var report = CombatDataValidator.ValidateSkill(skill);
         if (!report.IsValid) throw new InvalidOperationException(id + ": " + string.Join("; ",report.Errors));
         return skill;
@@ -78,7 +78,7 @@ public static partial class VS07ScoutSetup
         var basic = Skill("SD_KnifeToss","skill.knife_toss","Rzut Sztyletem",0,60,1,4,82,
             "Zadaje losowe obrażenia fizyczne. W zwarciu zadaje 60% obrażeń i nie zużywa sztyletu.", so => {
                 Field(so,"PointBlankDamageMultiplier",.6f); Effect(so,0,EffectType.DealDamage); });
-        var swap = Skill("SD_ScoutSwap","skill.scout.swap","Wymiana",20,20,0,1,100,
+        var swap = Skill("SD_ScoutSwap","skill.scout.swap","Zamiana Miejsc",20,20,0,1,100,
             "80% szansy na zamianę miejsc z sąsiadującym przeciwnikiem.", so => {
                 Set(so.FindProperty("targetModes").GetArrayElementAtIndex(0).FindPropertyRelative("absoluteRange").FindPropertyRelative("shape"),RangeShape.Radial);
                 Effect(so,0,EffectType.SwapPositions,p => Set(p.FindPropertyRelative("baseChance"),.8f)); });
@@ -90,14 +90,14 @@ public static partial class VS07ScoutSetup
                     Set(p.FindPropertyRelative("modifierOperation"),StatModifierOperation.FlatAbsolute);
                     Set(p.FindPropertyRelative("modifierValue"),-20f);
                 }),TargetType.All);
-        var hook = Skill("SD_ScoutHook","skill.scout.hook","Linka z Hakiem",25,30,0,6,100,
-            "75% szansy na przyciągnięcie wroga o 3 pola. Wskazany własny sztylet odzyskuje bez losowania.",so => {
-                Field(so,"CanRecoverKnives",true); Effect(so,0,EffectType.Pull,p => {
-                    Set(p.FindPropertyRelative("baseChance"),.75f); Set(p.FindPropertyRelative("displacementDistance"),3);
+        var hook = Skill("SD_ScoutHook","skill.scout.hook","Linka z Hakiem",25,25,0,6,100,
+            "80% szansy na przyciągnięcie wroga o 3 pola. Wskazany własny sztylet odzyskuje bez losowania.",so => {
+                Field(so,"CanRecoverKnives",true); Field(so,"KnifeRecoveryCostMultiplier",.8f); Effect(so,0,EffectType.Pull,p => {
+                    Set(p.FindPropertyRelative("baseChance"),.8f); Set(p.FindPropertyRelative("displacementDistance"),3);
                 }); });
-        var aimed = Skill("SD_ScoutAimedThrow","skill.scout.aimed_throw","Celny Rzut",50,70,1,4,85,
-            "Zadaje losowe obrażenia fizyczne. Trafienie jest zawsze krytyczne. W zwarciu nie zużywa sztyletu.",so => {
-                Field(so,"GuaranteedCritical",true); Effect(so,0,EffectType.DealDamage); });
+        var aimed = Skill("SD_ScoutAimedThrow","skill.scout.aimed_throw","Celny Rzut",50,70,1,4,120,
+            "Zadaje losowe obrażenia fizyczne. Trafienie jest zawsze krytyczne. W zwarciu zadaje 60% obrażeń i nie zużywa sztyletu.",so => {
+                Field(so,"GuaranteedCritical",true); Field(so,"PointBlankDamageMultiplier",.6f); Effect(so,0,EffectType.DealDamage); });
         var starters = new[] {basic,swap,smoke,hook,aimed};
         var character = new SerializedObject(Load<CharacterDefinition>("Characters/CD_Jerzy.asset"));
         Field(character,"BasicAttackSkill",basic);

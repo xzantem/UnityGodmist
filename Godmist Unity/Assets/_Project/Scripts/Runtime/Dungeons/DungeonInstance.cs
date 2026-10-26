@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Godmist.Data.Dungeons;
 using Godmist.Runtime.Combat;
+using Godmist.Core.Enums;
 
 namespace Godmist.Runtime.Dungeons
 {
@@ -12,6 +13,10 @@ namespace Godmist.Runtime.Dungeons
         public string DungeonId { get; }
         public int Seed { get; }
         public int DungeonLevel { get; }
+        public DungeonLength Length { get; }
+        public DungeonLengthProfile LengthProfile => Definition?.GetLengthProfile(Length);
+        public int CompletionRewardMultiplier => Length == DungeonLength.Unspecified ? 1 : (int)Length;
+        public int CampingKitAllowance => Length == DungeonLength.Unspecified ? floors.Count : (int)Length - 1;
         public float ItemDropChanceBonus;
         public int CurrentFloorIndex { get; private set; }
         public int HighestReachedFloorIndex { get; private set; }
@@ -24,6 +29,17 @@ namespace Godmist.Runtime.Dungeons
         // Generation is a whole-dungeon operation, including floors with zero objects.
         public bool HasPlacedContent { get; private set; }
         public void MarkContentPlaced() => HasPlacedContent = true;
+        public bool IsAssetAuditRoom { get; private set; }
+        public Vector2Int AssetAuditSpawnCell { get; private set; }
+        public Vector2Int AssetAuditDaggerCell { get; private set; }
+        public bool HasAssetAuditDagger { get; private set; }
+        public void MarkAssetAuditRoom() => IsAssetAuditRoom = true;
+        public void SetAssetAuditSpawnCell(Vector2Int cell) => AssetAuditSpawnCell = cell;
+        public void SetAssetAuditDaggerCell(Vector2Int cell)
+        {
+            AssetAuditDaggerCell = cell;
+            HasAssetAuditDagger = true;
+        }
 
         private readonly HashSet<string> clearedEncounterIds = new();
         private readonly Dictionary<string, CombatRewardResult> rewardsByEncounterId = new();
@@ -47,7 +63,7 @@ namespace Godmist.Runtime.Dungeons
         public DungeonInstance(
             DungeonDefinition definition,
             int seed,
-            int dungeonLevel)
+            int dungeonLevel, DungeonLength length = DungeonLength.Unspecified)
         {
             if (definition == null)
             {
@@ -63,12 +79,14 @@ namespace Godmist.Runtime.Dungeons
             DungeonId = definition.Id;
             Seed = seed;
             DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
+            if (!Enum.IsDefined(typeof(DungeonLength), length)) throw new ArgumentOutOfRangeException(nameof(length));
+            Length = length;
         }
 
         public DungeonInstance(
             string dungeonId,
             int seed,
-            int dungeonLevel = 1)
+            int dungeonLevel = 1, DungeonLength length = DungeonLength.Unspecified)
         {
             if (string.IsNullOrWhiteSpace(dungeonId))
             {
@@ -78,6 +96,8 @@ namespace Godmist.Runtime.Dungeons
             DungeonId = dungeonId;
             Seed = seed;
             DungeonLevel = Mathf.Clamp(dungeonLevel, 1, 50);
+            if (!Enum.IsDefined(typeof(DungeonLength), length)) throw new ArgumentOutOfRangeException(nameof(length));
+            Length = length;
         }
 
         public bool TrySetCurrentFloorIndex(int floorIndex)

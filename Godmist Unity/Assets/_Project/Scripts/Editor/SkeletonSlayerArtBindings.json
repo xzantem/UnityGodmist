@@ -1,0 +1,2492 @@
+{
+  "imports": [
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-idle-00-160.png",
+      "sha256": "c7283a122f256e9b1d9084881e85e92872cda9c08006b2ff74af9f9c9a46d079",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-idle-01-160.png",
+      "sha256": "b0db23c94c72b7e54a285a519d016c87d30610ecff4045482fbc4118b2778de5",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-idle-02-160.png",
+      "sha256": "04d71ff8d9aa33b26f18f490d7ea37f3064ea267233127f7ae1823c95ad17f03",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-idle-03-160.png",
+      "sha256": "9a9f8c1b03cc77bb5af13907810a010dac54123331f269899821c2313e94ade3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-walk-00-160.png",
+      "sha256": "936dcea4513e2a3c9d794931b209858848bebcb823c752f7949b49ae25c48d09",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-walk-01-160.png",
+      "sha256": "2adde7ffe830c58cbeece6f76ddf0d94d33e29f508b6f9f33d1e97ff586377fc",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-walk-02-160.png",
+      "sha256": "df35779c1bdd3da57f1d2c9265808228e72816ea7b54af9d1e1c590f982d3a76",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-walk-03-160.png",
+      "sha256": "fd1d3fbb7f92fc1d728e5a8577e0be49b89b52a700d205b8af06952b8a1a581e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-idle-00-160.png",
+      "sha256": "d1dd1a0772b72a5d2eead0c8b1ecca804485531556cd8c216c2ffb448c84163d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-idle-01-160.png",
+      "sha256": "2e1b9c6d60aff939a96559714392d3a3a3bc616ea774a2c313f6a93fd8e42c42",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-idle-02-160.png",
+      "sha256": "185a4b969de9cf38622d801f5e58d088fde0c218d9eb28c3a4242a6625d7f5f4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-idle-03-160.png",
+      "sha256": "196903565c1bc58b2e2a90bbacce5b0d1a862f08da049c65badf40075391e914",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-walk-00-160.png",
+      "sha256": "311133592846ca4acee0332a7f35f7f1eb1fdd8cbcef3fef6ed5a292bbd6f906",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-walk-01-160.png",
+      "sha256": "b1d484b2074c9bddff240c483255b0ae5ae577d51fb312d1a14782403eef9faf",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-walk-02-160.png",
+      "sha256": "27f86148c20031378e03bfc138feb39f4b7fd317047efbb6f32d2ab3617a29f6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-walk-03-160.png",
+      "sha256": "6886245475c98d56070a5b3b45c2a26ffe86b8f7a3d8d2c6cf60f1c0775b296e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-idle-00-160.png",
+      "sha256": "fad700f00fe7810e2018f0e8cf06087d90f5294514e1059ed664364167539e03",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-idle-01-160.png",
+      "sha256": "8901885aa75b3a125b99127a04568ed07226d793a80dc1ab43003416e596a241",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-idle-02-160.png",
+      "sha256": "1368036cbfeac8aff68d65392724cadd99a9502798fed15e54ee620926d275c5",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-idle-03-160.png",
+      "sha256": "8e908104db087137fd01669ff8092c209bc6bb36ee71641e816716a684f21cf0",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-walk-00-160.png",
+      "sha256": "72d6fd2257599312106457ce01d665f21bb886236ec6fc49a560f310abd67e78",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-walk-01-160.png",
+      "sha256": "fed84551f8a6eeb80d082f669a189310c7d2fd0556b7a236b3343c9aa7ffa269",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-walk-02-160.png",
+      "sha256": "af577b740a1e71735e1175dc9f9a5f730d102a4ebdb2d93b6f2495e63991507e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-walk-03-160.png",
+      "sha256": "f2400952b25a7d94c8e48b62394de9b1d995f315ae77898a70efb7003f0ecf54",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-idle-00-160.png",
+      "sha256": "f7d472ae4dea149c089d19c24838a067a096e80f3f8910f8f7474424e904c71f",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-idle-01-160.png",
+      "sha256": "688f1b503ffdbbdf08e049ce6cc08b51ae6efa5f10c0d5d00b791c3515f4da86",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-idle-02-160.png",
+      "sha256": "739a3b4c8a62cf072252cbd4a1df8b5033e27ae9a1fab72d91587b870849cf5d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-idle-03-160.png",
+      "sha256": "09cc6167a52cc50f3f61396829dcc61ec4c8c2f7eacb02095e146bd69032f1bb",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-walk-00-160.png",
+      "sha256": "ff69448fa36b01824aa20df8548b93d9fa4b1140d5911572b832c3580db696d7",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-walk-01-160.png",
+      "sha256": "2a6c7c7a53d4b805ee286c3c3e997cf9c99b5b5122a5da405249632a767f22a6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-walk-02-160.png",
+      "sha256": "281d6f6ff6f3a1b40d9f6b54642b8a24dddfc43a3d0ce7f0475a041c75942466",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-walk-03-160.png",
+      "sha256": "cbe8989e1e06c48215f245da97fd506bbf05cfc1ec52b8dc419ed0f777645d27",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-idle-00-160.png",
+      "sha256": "99486fd4920c3564a47eef9b6699587be1223cb3652e63ba26d2839cb0844150",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-idle-01-160.png",
+      "sha256": "3ed2bc34834c94bb80d49e5aea6d7d07e34e285bb70b94f3e513427816098639",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-idle-02-160.png",
+      "sha256": "04d8a3b1b390b8942276f5b5c9c778ffd4244d9de77a4f55a66404d9db847447",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-idle-03-160.png",
+      "sha256": "62aa0360fcfbe9c4edd29cf966067509c119c95b556795a0d9f6b9abd94c7937",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-walk-00-160.png",
+      "sha256": "5038d7d72d27cdcdf359a15182185d83b06f7439b9e7b8c3cc2012b08d434833",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-walk-01-160.png",
+      "sha256": "c3a9d0480413f10173fa16885a1299fe87d017c7298fe4f03d093a07a0f07d70",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-walk-02-160.png",
+      "sha256": "ad21cdba3385344bad28f5bde5aa91064bc81872027d67472043f506644234d1",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-walk-03-160.png",
+      "sha256": "f8da48221bd4dd0ce124f4777d46503b969de0b3ab0563fc0e981474e73f4ad9",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-idle-00-160.png",
+      "sha256": "d41041881529c62bd53500dc174577b24bf3eae6e18698805d87c762260194ec",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-idle-01-160.png",
+      "sha256": "ea38ab8954e6951df8cb1eca5bb109e23d5df34a4f29cbcd02f1f9a55d65c5c3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-idle-02-160.png",
+      "sha256": "951339101de10f5334784bf47be230702571977eb28d484960b3d0b89735bc2e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-idle-03-160.png",
+      "sha256": "9dba4b9b7e8fe786d9b0ef28a7a8fc69daf9025db9329c019024268be9819dd5",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-walk-00-160.png",
+      "sha256": "ec28405ad0818ecd36caa2cce3dd42b3bcb11dde279af8c7080c8ad037a05dd9",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-walk-01-160.png",
+      "sha256": "2c58eb74858f2dc82e99804f7f91575ff41949017a1b21a8dde749e344ddfaf3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-walk-02-160.png",
+      "sha256": "f8922c7a1e3ecc9213decd322aac648202e08fb83e0ca7062140d1d7ae6dd58a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-walk-03-160.png",
+      "sha256": "441b0818301e2aa9d7e403a547fe480efef0133ea453421dab05c9c7e8485f6c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-idle-00-160.png",
+      "sha256": "ce0283d34ca8e9f25909ee88575100d634deb4a796b9fef9eabb60d0c3619835",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-idle-01-160.png",
+      "sha256": "5287f6ae047ef0b714b840ac9829484c2c29ec2db513108f9daaf93f7e6ebccb",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-idle-02-160.png",
+      "sha256": "e566abc27b5a3436533369d61d7ccc243449e1dc62cc8ea839991213c9293113",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-idle-03-160.png",
+      "sha256": "086e80e6a58073012404d91759b856ddbb26fc10ed1ff9846959c96ad980a8fe",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-walk-00-160.png",
+      "sha256": "4ac417d5f316f8e58b87e1227bf0554bda1a2f23a5f13b579615c4d9272ee662",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-walk-01-160.png",
+      "sha256": "2732138c08216df585fdfa9900f60a420efdbb432fd0daeb39945d3c5dcc78fd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-walk-02-160.png",
+      "sha256": "054cab29fccf7ae8bee389e8584b238573f9db8f65f716db9bcb06ef780090d1",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-walk-03-160.png",
+      "sha256": "7cc0292633dc7cba797101999c497b22cf6e87944c071c850b64034d69717d90",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-idle-00-160.png",
+      "sha256": "9cb8c0db51efec403b0edeb5c8fb5c311ff7bf4df867967092545b8296d55aeb",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-idle-01-160.png",
+      "sha256": "191f87332477d7631fd723a07a3dd26826b7e43a0d227bd3680b91830b8bcaf4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-idle-02-160.png",
+      "sha256": "5ceb41e9a7ccb00ad738b2fb09803c7db8ca5627edf7c052d46dd63b11bf5e1d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-idle-03-160.png",
+      "sha256": "16c86bee98ec81b531c75770284fba0369725a9f9640968d8fe3470fea52c0c8",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-walk-00-160.png",
+      "sha256": "b009b8d8a3b2016e92a25cb8affa04d290c40f970f0d6d1728bb9df091bd5ae0",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-walk-01-160.png",
+      "sha256": "fff69655433d135a4740e9a730199d8f1cf7bec400fa0095ab05a8330cd3b096",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-walk-02-160.png",
+      "sha256": "861aaf64eee4b16e78e2071ea50fece730af27708f02cf016e4994d66628cb4a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-walk-03-160.png",
+      "sha256": "4ba77d5fc865c2ed9be544cc14d098f4e08a5fc9b760ef6cb048b2be900e7064",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-hit-160.png",
+      "sha256": "06ad34c39c95196b5e8cc9c02476d9f5f35012d231237ffb26dbab0691af58d2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-hit-160.png",
+      "sha256": "cae27f762f1fddce810160e954abecaa5a32acd560646284484b75a08b0706c2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-hit-160.png",
+      "sha256": "54d3d0276558e4215f2437068a10faf5abc98cd48f32a09f8646e8588c8a1632",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-hit-160.png",
+      "sha256": "4e02c7546e3250118988ae64ed70033eb51311190eb09a19ce4acf29e1b9bbee",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-hit-160.png",
+      "sha256": "5267840bb4c4f84701b543e50a44eb0709d8a9f92f3a74ca40a0a4406bd4f643",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-s-dodge-160.png",
+      "sha256": "e499d2556cb5c8be43c90c50b60f96d8c54d8331c5888d15cb01139879f10fd6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-se-dodge-160.png",
+      "sha256": "c79cd13cb08586785bc88f90455551d01a8deb67713c02d8d6bb0f8a5fa0b049",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-e-dodge-160.png",
+      "sha256": "186f8daf91693e4d9b99279d32043eb79a6512e5444803c38d0c5d980da9120c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-ne-dodge-160.png",
+      "sha256": "d2689f4ef7c5a0645ee766922bff57d5080860a0c91be85cd414ffe05e3bba4a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-n-dodge-160.png",
+      "sha256": "afa40ed20d72a327bc993de707ab40b5e9e304cfc81763c9ddcce1e3d50a19be",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-hit-160.png",
+      "sha256": "dacd3b0700e7eee2fd2eebe815b930fee5e2aea72d56c106ecb4ece8a11539aa",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-hit-160.png",
+      "sha256": "f9e23ac7b9e5a90dce6712d59512259d327a932c54369066c2966c5de50168bd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-hit-160.png",
+      "sha256": "3a0d5a3f5890946699bdf47832ab6775b7e2436184f492d75791f2d8b0e5ccb3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-sw-dodge-160.png",
+      "sha256": "13175ba3212ed12cf34d8f2600dfb70dd471f61daae0de1c5ff6dad99c938cb2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-w-dodge-160.png",
+      "sha256": "4d6a1095d50ed71653f4cc1dca286b509bb12b43ca7e52ae4ec37668d33ac361",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-nw-dodge-160.png",
+      "sha256": "352adecee1b56219a1639390afc0b428e757f224d5f453e106ecee1a9c959d2b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-base.png",
+      "sha256": "c7283a122f256e9b1d9084881e85e92872cda9c08006b2ff74af9f9c9a46d079",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-hit.png",
+      "sha256": "06ad34c39c95196b5e8cc9c02476d9f5f35012d231237ffb26dbab0691af58d2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-portrait.png",
+      "sha256": "445f47a4b28105ba0d71e45356af64d257ddee574d12939b06b4d49253f83a03",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-corpse.png",
+      "sha256": "22863b6cb3c0b7cf930e5635808a8c6e7fc39d76cac6a1fc018d12d01bd55326",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p1/skeleton-slayer-p1-corpse-192.png",
+      "sha256": "22863b6cb3c0b7cf930e5635808a8c6e7fc39d76cac6a1fc018d12d01bd55326",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-00.png",
+      "sha256": "c7283a122f256e9b1d9084881e85e92872cda9c08006b2ff74af9f9c9a46d079",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-01.png",
+      "sha256": "b0db23c94c72b7e54a285a519d016c87d30610ecff4045482fbc4118b2778de5",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-02.png",
+      "sha256": "04d71ff8d9aa33b26f18f490d7ea37f3064ea267233127f7ae1823c95ad17f03",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-03.png",
+      "sha256": "9a9f8c1b03cc77bb5af13907810a010dac54123331f269899821c2313e94ade3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-00.png",
+      "sha256": "936dcea4513e2a3c9d794931b209858848bebcb823c752f7949b49ae25c48d09",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-01.png",
+      "sha256": "2adde7ffe830c58cbeece6f76ddf0d94d33e29f508b6f9f33d1e97ff586377fc",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-02.png",
+      "sha256": "df35779c1bdd3da57f1d2c9265808228e72816ea7b54af9d1e1c590f982d3a76",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-03.png",
+      "sha256": "fd1d3fbb7f92fc1d728e5a8577e0be49b89b52a700d205b8af06952b8a1a581e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-idle-00-160.png",
+      "sha256": "27d8642a5f2ca99cfda16207d77b01e078ac44e9ef3bfc3fc36ef9c8217ac539",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-idle-01-160.png",
+      "sha256": "ecd16c7a37ff806a1026bbcebe1dcbbb6c638a31265d1f816cf731e75348c6b4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-idle-02-160.png",
+      "sha256": "b82b2fb4badc3d583f188fdb665400331d1fb1216041e45e3d05d96d9f4f477d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-idle-03-160.png",
+      "sha256": "f94c16061502b4305699d1a93cea3ebdcbbe9ceb8e71877a880b3a48c528042f",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-walk-00-160.png",
+      "sha256": "b461ff4f6015573c10ee4f0a55df0aca545ca4460d520c41f6e9f6ff499b8ef6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-walk-01-160.png",
+      "sha256": "6ee91b935dedcc6894aaec291a35708c63e237a884e0c3369b606f7d6c60c6d4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-walk-02-160.png",
+      "sha256": "aea765eebea043cb946d8484157786ac16a32a78ec5774d1334b03d955947f6e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-walk-03-160.png",
+      "sha256": "aa233f3833f29093b87547771abcadba528476e1641f31404ffecdfb91a7e52d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-idle-00-160.png",
+      "sha256": "63abb6b67d544c25b00380eeca84b52e56683e89e6ef764e33331f6f08e32b34",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-idle-01-160.png",
+      "sha256": "1388d5a47b266339ab068b96e0bbbfb19c6114d38c6541274d28d550e750e3ea",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-idle-02-160.png",
+      "sha256": "70742a34351374c79a18e9d4d385099be502ccfce6b46a5c6ebfc38fe3a87517",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-idle-03-160.png",
+      "sha256": "9c544ccb832f739ce075bcb1857c5076c50175c4b50a8edf7b75855611fbe10f",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-walk-00-160.png",
+      "sha256": "e7655842b60bb72e6fc8a2d1b6355b6e839432a6f317df67ee18eaaab636b4cd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-walk-01-160.png",
+      "sha256": "792c3e18168bb02b92ba9f2b6ae9b781916d3c04ed2313a18416d617f749b0a4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-walk-02-160.png",
+      "sha256": "cb72b4d25ac4b088fa45a89a50afaa7366e20688068546d796fda759c484c0ce",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-walk-03-160.png",
+      "sha256": "26d7a92c6748f226f4dcc9c618eb2e326ca65f3b74faf65c6ca41145517bc2c9",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-idle-00-160.png",
+      "sha256": "d76a3c1f900839afea83261d02f1616d2a76e2c7febdba170ad10c5f01b16874",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-idle-01-160.png",
+      "sha256": "1e49811143f2c3510792d526fa79a22dc89a2f124362fd49be83f87dc440cac2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-idle-02-160.png",
+      "sha256": "09c3698ce9391bccedcc199f0df28ccdcbfbd3677b7b62fa852c16fb45ff3c07",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-idle-03-160.png",
+      "sha256": "e4f0e4b1ccf1cca91643c8dee2775f3639d782f74f2e26fdcad1e554bf15689b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-walk-00-160.png",
+      "sha256": "c488fb740c3d717980a0b7692a2e04b363402e41b9c7d0806a5edb7b923c724b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-walk-01-160.png",
+      "sha256": "64b03738a1f2868bb9bb5d30a08e912a1dc9e58c145ccd54ee8a411950762762",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-walk-02-160.png",
+      "sha256": "d002d3c64bf71377ae02169caef3e35edc2a112f8050d203262ac248348f6374",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-walk-03-160.png",
+      "sha256": "7a6ec801d7b5d8e60abd1881d800b49ad8ff3a39f45bbf620d6fa5619eb835b7",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-idle-00-160.png",
+      "sha256": "cd4be4b59d7ca9ccd35df13adca745be46c214193ff442be97924304b2738d95",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-idle-01-160.png",
+      "sha256": "639b648a53bbaafc0f886e9a552e08dfd3a2b432a84a4de3c3452d75bf3591cd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-idle-02-160.png",
+      "sha256": "895431e1eb9d2a780ab6213dc411a052c380b060a7102cc533783c80f2cfaa73",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-idle-03-160.png",
+      "sha256": "99e024b42031af0d97ed011d67e5026b3a8ce2ff078ca74bcd6074111da4308a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-walk-00-160.png",
+      "sha256": "cea360de82f6d1c39fd84fddaa512bda1a21866799d25f1c40b9d3e94801fa2e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-walk-01-160.png",
+      "sha256": "a5a3ec96ff097cd0f601d78760153029e57565666817f38eecce10df3efd8ddd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-walk-02-160.png",
+      "sha256": "c1079055cc96238d8d475461e8dbd470b835433eaa6f21a7d9ab6d32e9fe5b8f",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-walk-03-160.png",
+      "sha256": "45f8abf79ad428d4f3604e9c6e31b034e10a2eac20b24bd3451f87e50b817faf",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-idle-00-160.png",
+      "sha256": "d0675ec93325e148a9cdaad494e7f3c31abb4e7bdeb3acff52db0440acdda4fd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-idle-01-160.png",
+      "sha256": "71ddc95ce48629a13eb5d16f988a98409622dfd3c88033c2dfc29871f4cfada3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-idle-02-160.png",
+      "sha256": "cb5d94dbae39bc1282c3a6f547b904ee3c61e41ce2d1e8defff2effbada0b3b4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-idle-03-160.png",
+      "sha256": "b77e4fefe8261ac3ec1f75fbfe80c7236c97485ffddd951eed17b454a6e88527",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-walk-00-160.png",
+      "sha256": "6f936e3e6e035fc5dc1796749688794a3fb6503efcbe2a22424bc4af91abdc13",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-walk-01-160.png",
+      "sha256": "0906424009d585b2e9f827f9f159cc2fb4036d04c236655c2e78381a05ac873b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-walk-02-160.png",
+      "sha256": "e82168b560735c96d90f2ed222baeaeb87a855b0bd5f393ab654bfeae81371aa",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-walk-03-160.png",
+      "sha256": "f0fd4c1f0d84fa09fcba8b29ef2c43549d33c1e49b39d1c8013a5bddf9437e14",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-idle-00-160.png",
+      "sha256": "c32eda485e557e51143b981e7650cebb9ba196046d5601be97fb3e9411244af3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-idle-01-160.png",
+      "sha256": "33659ec3d364ece277f138d066822a313c5a3b1694d63d4f22a3b418b4abd2b0",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-idle-02-160.png",
+      "sha256": "a54bde4c440939737f53790c182d120b82a2683ad739cf54a0c8e3102879da53",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-idle-03-160.png",
+      "sha256": "e43f7d6474d048f13d16d75962a2cc2179ac2ca7eff0c403658b8cc0f5aab2be",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-walk-00-160.png",
+      "sha256": "2dfe8f485ce0274943222eadc981569a923f49375c9d1c73db7ce408bbf32a7c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-walk-01-160.png",
+      "sha256": "60d7eec7b2e76b86a1987c566cd85be9b076873c55e787aa2c1a326907dd7d70",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-walk-02-160.png",
+      "sha256": "be5b9465e081ae1d31072d6f7481a55ceed7cb2e136ddb76d3c58a5f910b6c2c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-walk-03-160.png",
+      "sha256": "78352df574bf8eca1eeff735bcb757430eefd9951da0d71a586978ea1a4fe5ff",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-idle-00-160.png",
+      "sha256": "40303e7e5166d485af653ab34e0c6d4f4ff8f10a03d9cd2185ad1ff5375580df",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-idle-01-160.png",
+      "sha256": "c34697f05e709b99b70922fff8f2e912068025b76a14afc77656a9e1e9049060",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-idle-02-160.png",
+      "sha256": "cebb491ceeaf3fb444c104b5b30c423464fa989fd3fceade2019bec877b638df",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-idle-03-160.png",
+      "sha256": "694df9723b44f138d96db191dbe71106e829ac9be0bf23fe391ef2674ad3a48d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-walk-00-160.png",
+      "sha256": "8ce0d50aef0b814645c1ea1fdf936d4530aa8ba67d1c9ed63115f44ef0a99109",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-walk-01-160.png",
+      "sha256": "d5759837e915d9d5325fbdf1222939a3e271ba715ef9ef23c94943dc058689b3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-walk-02-160.png",
+      "sha256": "5515fba1f0276004df156d82591945c23bca5b63171613a3e735453c5e3c98e3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-walk-03-160.png",
+      "sha256": "de92dd4ca007f409ca5123c1865aef778640a5e2178e50d3e0824d1016f2c03a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-idle-00-160.png",
+      "sha256": "17b20d3d28efa796fd7151ffb844f25622d56901bb8f89b82a45fe3368cef451",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-idle-01-160.png",
+      "sha256": "31b31059c1a27a9685de4cdc07c19ce0dc03829923c470d5d5e94e1cd9a0220a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-idle-02-160.png",
+      "sha256": "f83ce6a69aec54c87d25906b6c62d0e1c8185044b57f355c0cfb08245494bb55",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-idle-03-160.png",
+      "sha256": "23fac1989838a49a340c13b720ba61553e68075501481179b32549012b71d5f4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-walk-00-160.png",
+      "sha256": "17a7612ee783f84e46a48e03c7ae665a9f56ce5d353d014bbfe28e1285703748",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-walk-01-160.png",
+      "sha256": "2686a043407021f8faa7b7a197caa5c91aa4f124e3bf8c079bd27dd0e35ae712",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-walk-02-160.png",
+      "sha256": "427cae48f26840a4a39ca8cd7eae4b6fbd3f0d7cf7ad9fba4cf4bc5e30f7ea88",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-walk-03-160.png",
+      "sha256": "39708f8153295729fa0055a97fb06e14434faf32ce74d7603f3b0dfb68467ad7",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-hit-160.png",
+      "sha256": "f4c55b01fd38f97a94e954df0ddb83d35bf8e84f2d4e2f14b084c6e0d45209f8",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-hit-160.png",
+      "sha256": "944078eff1a657db92c35de3fd8572cb3492693d7cef7440c0774dfa1b09947c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-hit-160.png",
+      "sha256": "437f16f0b1eb66ab2d1c4bd65ab8069da79742752323b04a57f8d1699ac1c57c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-hit-160.png",
+      "sha256": "e87e19f1d9454dd0914a54e5e84435f7476d59a3c377182e4d8ec943f7568cdc",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-hit-160.png",
+      "sha256": "0e15f3a4848259d1dc430c913a001f3b2c802d436ddf79655cd5618428f2d4c9",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-s-dodge-160.png",
+      "sha256": "55215bdbe38aad1a282d86e9dd6950d58723d0aeda81f050c5104f0ed97dd9d7",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-se-dodge-160.png",
+      "sha256": "75b1689d539149d5a85d455bad8549f3c057083a6807f63783cf0fbcd8be8dad",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-e-dodge-160.png",
+      "sha256": "e1f88dae3d7a54ab1bf0c4a0f1b5bd46deaf531271d8948051b344f64c03c20d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-ne-dodge-160.png",
+      "sha256": "e4f02647c319511c36d67b4bd19abca3fe67b9f2910d24b4fc3fa0165217a8cf",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-n-dodge-160.png",
+      "sha256": "5de1cd8a4de0cf23a2f156232d3b6f6059387c1fc3a1f8e1af61e51a10930dc1",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-hit-160.png",
+      "sha256": "8369aff47f65683df8611a2cd53699bbd2336795c3b29001106077b3b019de65",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-hit-160.png",
+      "sha256": "77b985456dd4a2b579c2eeba3cca031a579864b20c12698755fe7359750fc73d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-hit-160.png",
+      "sha256": "cde0cd25a6ed41d1a0717a8f9fceb1276085d3961540e36a16d8708a32450b27",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-sw-dodge-160.png",
+      "sha256": "e6f10e4c0d5a815d60a1403b921dc0fb70b37b27b12ad882ed6cedfd787f35ee",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-w-dodge-160.png",
+      "sha256": "1234d366e38025f063376bc2d4fe65f9012ff562111271957319f4036a77c10b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-nw-dodge-160.png",
+      "sha256": "077ca2380c58357f5e87f7430285352d8d300f66059ff08a60490149737b105a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-base.png",
+      "sha256": "27d8642a5f2ca99cfda16207d77b01e078ac44e9ef3bfc3fc36ef9c8217ac539",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-hit.png",
+      "sha256": "f4c55b01fd38f97a94e954df0ddb83d35bf8e84f2d4e2f14b084c6e0d45209f8",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-portrait.png",
+      "sha256": "ba184e4614b17c44e02af4674ad302013844f0f71fcc74b00a9a4c310dd0b8d7",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-corpse.png",
+      "sha256": "1613a86403659c9be8238ce81d92f8bb9f978657cab8959721f485460cfbb3f4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/skeleton-slayer-p2/skeleton-slayer-p2-corpse-192.png",
+      "sha256": "1613a86403659c9be8238ce81d92f8bb9f978657cab8959721f485460cfbb3f4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-00.png",
+      "sha256": "27d8642a5f2ca99cfda16207d77b01e078ac44e9ef3bfc3fc36ef9c8217ac539",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-01.png",
+      "sha256": "ecd16c7a37ff806a1026bbcebe1dcbbb6c638a31265d1f816cf731e75348c6b4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-02.png",
+      "sha256": "b82b2fb4badc3d583f188fdb665400331d1fb1216041e45e3d05d96d9f4f477d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-03.png",
+      "sha256": "f94c16061502b4305699d1a93cea3ebdcbbe9ceb8e71877a880b3a48c528042f",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-00.png",
+      "sha256": "b461ff4f6015573c10ee4f0a55df0aca545ca4460d520c41f6e9f6ff499b8ef6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-01.png",
+      "sha256": "6ee91b935dedcc6894aaec291a35708c63e237a884e0c3369b606f7d6c60c6d4",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-02.png",
+      "sha256": "aea765eebea043cb946d8484157786ac16a32a78ec5774d1334b03d955947f6e",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-03.png",
+      "sha256": "aa233f3833f29093b87547771abcadba528476e1641f31404ffecdfb91a7e52d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-00.png",
+      "sha256": "4ca32049c78a5db40c23d14bd70a3763c774cd14cc824ae2761f6ae7f5ccbc71",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-01.png",
+      "sha256": "8ac8bacccf1bf55c023f0a6a1d417f00605352ff982fa347846b51131c18cbd8",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-02.png",
+      "sha256": "d6538a56f65aa01dc01d5dcd2fabe81bde7fd895647547b1e469396586893ff9",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-03.png",
+      "sha256": "5418ebc7fda5ba699072b831ec3259fea737778628af32f398af022f640d324b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-04.png",
+      "sha256": "88349fb3769abe92142f183392e2a6ac7cc4d5cb428bbb577393214413d8b1a1",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-05.png",
+      "sha256": "941add4a94e9498824d391958af673768505df8cd288e9e2226609661d9e2f94",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-s-256.png",
+      "sha256": "9b147de5c3ecd3c1f68a9d621d609c9f566798a32263c68ea6d1a459d28d7f70",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-se-256.png",
+      "sha256": "64225459032de50e236bf8668f33512855f0b830e7d85479c88c930bacbb4d43",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-sw-256.png",
+      "sha256": "9530b11860ca7ab2d462a6415c031e4fc083266fd6da8c9282ed1d7ec25e8526",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-e-256.png",
+      "sha256": "a291028fec9f0904fb3b6e44088bdf77255fd9ee428caaef1dc1566630361d08",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-w-256.png",
+      "sha256": "647a978b185fe6a115866f040353eadb5b318d8b0d97ea5d474ec38ab15a2a8b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-ne-256.png",
+      "sha256": "30794e66dd8dcf75a394d052c4e375acced8ed917c5f7b20b65f1e5a06830464",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-nw-256.png",
+      "sha256": "501ab87e3c23e8ce9190547fdb7168d23216e1ac7ca8bdbd0ca9084fd5f9a877",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-n-256.png",
+      "sha256": "a00028fa773c3f66548886c2f99576a06fd67204f1095b35be9ecc97a0e31041",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-s-256.png",
+      "sha256": "47a204e62c3eb99f26eb66b32dd48642fb30b8b41238bf5d3aa1ad8bb961d3dc",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-se-256.png",
+      "sha256": "2459a6fcb236912370e00bd51887b80b3f490b750c9bd75def33866daa35ecb1",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-sw-256.png",
+      "sha256": "71416f4c3fec4c74f457eb80027f4a8d90b8b0d67ff6900a58c06e7893763749",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-e-256.png",
+      "sha256": "fa7b18b1653e35d0641f616b4256380b77e3d8650822ba90ba4765fec35eb2e2",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-w-256.png",
+      "sha256": "0f1b8a2246422895520b0ac88cc75a12b64156a3f9ad8ac603770f95260dab50",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-ne-256.png",
+      "sha256": "69e22db467db6229e5a4d9d29a590fa1ff33152a0f02ace401b08660d39ada63",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-nw-256.png",
+      "sha256": "71f72a035c104df246d7c0632fbdd09bbaf79dce040191abdd4da75f5bf4d887",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-tremors-n-256.png",
+      "sha256": "884fe2227ffe84f7eb023e8d7f4f3c3aefe13656042ed1bf35b34bbd3a67b48c",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-s-256.png",
+      "sha256": "d800338a85a32afcd2d952e03f2387839aa31ba6b2b5d9f3b753c5ee99e5156a",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-se-256.png",
+      "sha256": "ea36009970b45cfefc04a6a23aa710051a491cad0cb42efb78c4387a5c8a1da8",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-sw-256.png",
+      "sha256": "4f95e645b75bcf09d2d92ba102965eca4279ec3dfebe5c08a92a02d0f70ad18e",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-e-256.png",
+      "sha256": "3b85cfa3064dc762dd08ea766e888da6f5d60e0af38dfcfc5cf01f5bc6dff13b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-w-256.png",
+      "sha256": "e887506efb8dd5e4514183bcfb774545a5c4d4671d95fb920cbe99418f86f039",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-ne-256.png",
+      "sha256": "3311bb00fbb81f5c8b884b297c52b7deb98348c36622f00dedd3887d371efee1",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-nw-256.png",
+      "sha256": "505df71bbaa60df5b46cc23b8b3d54766b69105a16ebcc1c446c7a9af5b2ce2e",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-n-256.png",
+      "sha256": "d2baf8ffd2f936cb57f843925e21b795b72188a79c5de60c77d597aa0ad14a5d",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-s-256.png",
+      "sha256": "e1e481e882661fe09a3f4593e406de6982a0b425d36435acaeeae0f750daa67f",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-se-256.png",
+      "sha256": "eea91d5920961eb76aaef089ace21d7ce000e88e4034ba7fde28f1ecc9b1978e",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-sw-256.png",
+      "sha256": "9a8d434e28aa718ca3fff0658bb28ca69c45b69befc9027a2568bdda2c6709f1",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-e-256.png",
+      "sha256": "b8833177aaf3336c0d5fa771371c2694263be96829878ec4890aea463a003d3e",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-w-256.png",
+      "sha256": "112ab7318b1bbd67d9c1fb8b8cc5af6bddf942cac8d9e74ffe42d4d8751212ce",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-ne-256.png",
+      "sha256": "d99356d5c24dd643a01e2fc569087517e6a5464510697710e85730ab3d3ca3b9",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-nw-256.png",
+      "sha256": "54a269ff59861c7a08d9602c8bce7a6d73a1a458f35d00b3fa3d76d1cd5468a9",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-n-256.png",
+      "sha256": "0374f8687504209f21028b5c669bccdd2dabf08bdbe8285cecf2786126633c67",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-s-256.png",
+      "sha256": "7f66fd288f963d4b320041b86593c10dd7027f72ea6e8faff736f4a9a534f21f",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-se-256.png",
+      "sha256": "6a9f5e068eb3e5dd40558f59725d7f73e9a24e29e1c30ae8db68a8dcdb865ed3",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-sw-256.png",
+      "sha256": "7a1d0714a017d3058a47f3fd2566149dbd58794bf28e3bb0318771bb8fe0fd2c",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-e-256.png",
+      "sha256": "5fc511f34c16cb7ca4787f11ed3394681b7a9e594773552f6d4c64bb46209370",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-w-256.png",
+      "sha256": "c0f895db4e9adb2ef01f78e5ff58d6a08b8c20bbb6a8fd0f75f3ac238bd3a0ab",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-ne-256.png",
+      "sha256": "4a17dd6aa48f22a33645e9ce4cf0dfb65fd19f23cc4520ca77b056c99cfebce7",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-nw-256.png",
+      "sha256": "3d4156724a9003b84de88e5820122c4db76fd6aae9147ee7dd7628a764d1e696",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-n-256.png",
+      "sha256": "1fd2dd48dad55afee52c8366b8242dad8cf1ba938bb331a931fbbbfaead45d97",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-s-256.png",
+      "sha256": "086084ea10a5a405f6f82bf3c5d173aac4b64305a473320a35774ae85ecaa25a",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-se-256.png",
+      "sha256": "e2d814583d38790d1564c2df23afa0125c1a8953b1d4a2b0d036eaf3c1bf11e7",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-sw-256.png",
+      "sha256": "8ca8211b88a43238f3e004a360acc2899e0705c4a85c26813ca87fe7b522ac1d",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-e-256.png",
+      "sha256": "b23582c6e5b6311031e07129d6962281a1fd28491baa515eeb34d09af4ac9fa9",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-w-256.png",
+      "sha256": "4f006e4bbd677f6cb7908701978e9e2bc76542050202e2b466cae0da4ba6c67b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-ne-256.png",
+      "sha256": "dd485a8665040a34be6a5a1f1bb2483546cbd9c8d3021384d26d2c31d9ad671b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-nw-256.png",
+      "sha256": "fb416cca76d23cf13c6fcf66db0b24517e68a27f95d5d945507b53493808eba5",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-n-256.png",
+      "sha256": "7d6a10328245f05c922471ce1a37828ae93f6818d8804d31cb7ed23fda282f55",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-s-256.png",
+      "sha256": "d93d369a5bf2d07ae0cec301092daf1956253a23d4cb7b6af6c7ac0568e0899e",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-se-256.png",
+      "sha256": "084b45c7b6b0178f009da9753da51d166829009a640420f0381c1c231ca9933c",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-sw-256.png",
+      "sha256": "6e9e14c8586e91b162bab006ecb03ef5809ac8c0590254bf4fedd0c55debb3e7",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-e-256.png",
+      "sha256": "4855a3f6dd663544efb4a5048469e192c3d05b244bc52dfa9d696cc4ca91036a",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-w-256.png",
+      "sha256": "981e50c7f7861443b4d93290332e361213112a6a5d1463588da99d32074cdd7c",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-ne-256.png",
+      "sha256": "d0454bdffc63a7e013b975a46e48587d12fa17a1909e77e7be5d20ebd12bdbd2",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-nw-256.png",
+      "sha256": "2097a5e84e4d4bc13c036ece0e34b43111bc6f63edf0810f33fde338f6fcb17b",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-execute-task-n-256.png",
+      "sha256": "b71995f143a7e82b120e7797aa9090cd5b384dffcf2ccdb4f2bfbba86de7a145",
+      "pivotX": 0.5,
+      "pivotY": 0.25,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-s-fx-128.png",
+      "sha256": "296fd35a0138da7e434ee5cdc4615ee451f450aaecf7e6ec2f5dc45b21e05623",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-se-fx-128.png",
+      "sha256": "2a264cf2605aff407a9118ace71f7dd521e8e1470f102685686e3702a1e18fff",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-sw-fx-128.png",
+      "sha256": "ece2f21a981af5b40cc249d6fbbabe196bb869e6f08175a3244f3a932fe21ab2",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-e-fx-128.png",
+      "sha256": "a6e9a542bcbd399b8374453bf7c33514620703674e32185e5593e3f9d146afc7",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-w-fx-128.png",
+      "sha256": "ce5098ef8257223c3ba7cb911728e4cb1abd800a83f9fad1ab99d4ee535bece5",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-ne-fx-128.png",
+      "sha256": "113df45691e605f849bd1d4dd498876288f064b9dcb7650057f17b5b9af54e8a",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-nw-fx-128.png",
+      "sha256": "c892f3a97d8589a5d5139fc3efdad1e3925a8abb6a7567f673a34989b58efdf5",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-crushing-blow-n-fx-128.png",
+      "sha256": "1f1c8d9108df525fe6e83ecfc2f1bbf620d8d520c90411875be2891826d39c24",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160.png",
+      "sha256": "be0f4f7036a87735843d37bd59490bf6b7c96edcbbd98b3c8c4e6f7696401d72",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128.png",
+      "sha256": "7e25fc7ca73b00637b64d62570d1a83e24bc01682ed7aba218d48d7e3f0c7be3",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-s-fx-160.png",
+      "sha256": "8b92bd0ee9e1ae06d698d6b9ee1fb0479338017f972674e1bfb226ce3e8553e4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-se-fx-160.png",
+      "sha256": "a9ab898261453d85bf2ce7e4cf8955d8093a7f96a52fa2bffaad30af335f5bd8",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-sw-fx-160.png",
+      "sha256": "2cb41ed8ddc1d1d6ade300ca59329a10a87c1b3c43549f8da238728af84a04b0",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-e-fx-160.png",
+      "sha256": "def695dab72d548a3ac22397780a86a5ad65d5f6f19dec9e148c8726afbeba74",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-w-fx-160.png",
+      "sha256": "0598984b0bb4c3482d59eb2f670dd76578e606494d6e60f2079e687e453b0f01",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-ne-fx-160.png",
+      "sha256": "984f4acdb6c0e7551ecb917388e292b8119067668e9e0cbefc576b37a08a0b90",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-nw-fx-160.png",
+      "sha256": "01b457e79b667741f46dd20370b565a27ab0886adaa6fa8eded7fede859e9fa4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-bone-crush-n-fx-160.png",
+      "sha256": "2f38a43b576066fb47da73a39d30e283758bec471163bfea7f3751942c2b2eb8",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-s-fx-128.png",
+      "sha256": "5b3dca42776de5494b367857ffffb90718a41add84465d8d04b26cdc1ed2fc36",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-se-fx-128.png",
+      "sha256": "0d0e2e83de7fc66cca930dc2cf0db583bef117b9e3c5fc6e694b34c93d99214f",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-sw-fx-128.png",
+      "sha256": "d880814fa0f860b3ad9c5122b804a8ded1c50fb6e33675faa41dd8b845eedfb5",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-e-fx-128.png",
+      "sha256": "1e382b312d92693655358e6bbd58565f07ad0b22a74df5cc3407cb71be779f3a",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-w-fx-128.png",
+      "sha256": "0d10f8d304ea144abcd25d8aeaf0fb2d906fa5b26d1b30e24e665f148315afc8",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-ne-fx-128.png",
+      "sha256": "15ceb98a8bbe12349c99342a5074a9b07c779ab08b2f05f9726c03d4f2806f38",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-nw-fx-128.png",
+      "sha256": "53275759620bc86a5195bdb9c776477161f5f7bad965378457162197e6b1731b",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-charge-n-fx-128.png",
+      "sha256": "82e83eb2f86356199bd4aadd5ae88af655fa25d4e211462ae2d638ff074b9037",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-s-fx-160.png",
+      "sha256": "a94ff3e295cad14382a7b0e620aab8eb6dc985e326d750a2e0aeff7b7dea644e",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-se-fx-160.png",
+      "sha256": "0bb92bb8120cb5c4eb10d14467352a17027fd747ecc2d51f5ce32fd37ba8bbd5",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-sw-fx-160.png",
+      "sha256": "aae4a2e617f420ca3f1be2f08ca9bfc0ab55fcbe87b8ece3061990dbbd20ce47",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-e-fx-160.png",
+      "sha256": "7a6ca3ded1d2ca5e8897cedb56365234c1915de21237fd2df07b87905e38a565",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-w-fx-160.png",
+      "sha256": "998590c549d60ab5fc6f279f2da4f3813bdb4799f9d8de054d319937f892e535",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-ne-fx-160.png",
+      "sha256": "c7ef8e464076ae22019e302f6328e1fd2e042c17065f91cd0048856211def03e",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-nw-fx-160.png",
+      "sha256": "5dc6e6c8b342893a55325b202ae3eca14613912f43acb5df06d7980e719e055a",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-destruction-impact-n-fx-160.png",
+      "sha256": "d3a0e5cbc1c7662dc386a998b25661b6dc8de93f9c45560682f1ae1a7fd47f04",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96.png",
+      "sha256": "68425e87507333603ff4a8dcc341104aab8a9e6e9781c55fa1c09010980d0cf4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-fx/skeleton-slayer-momentum-field-shared-fx-64.png",
+      "sha256": "b53cba6dbbbb89570cee1d2ac067458223a7b3a301b91dde9cb0a542ff02f131",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/momentum-field.png",
+      "sha256": "b53cba6dbbbb89570cee1d2ac067458223a7b3a301b91dde9cb0a542ff02f131",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-crushing-blow-32.png",
+      "sha256": "0539464cdd42cfb148b9d2f13abeb036ad36316f0d593e8e351710d08a4d94bf",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-tremors-32.png",
+      "sha256": "95804e20bf65213fe8299b0ee607879a7ad2515a1eaddc822e395b8f60174df8",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-unyielding-defense-32.png",
+      "sha256": "2a08b285226b76ca3d4b12779591eff734451fb3d59646770b392d22c2346a26",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-bone-crush-32.png",
+      "sha256": "b79f0f069b7a48250814e9fb4f7b301fc59db8a4921185608f80924885a43220",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-destruction-32.png",
+      "sha256": "1f1cd50be487f02a6d49de13004eaca777929c7bc471324040f76052b2cc575d",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-execute-task-32.png",
+      "sha256": "4204895c3891532f93ee14fa8b2e649b671f249008271f76605147cc4055d669",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-bone-armor-32.png",
+      "sha256": "2e5901f025b1a42ea95c569ed1548bb1fdc60efae007189bf87f44c41daa7319",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-slayers-revenge-32.png",
+      "sha256": "6a619c6b7fe94172e742f7776243af2b5274599ce3789ba2ddc4485d2ced3c50",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-s-hit-160.png",
+      "sha256": "06ad34c39c95196b5e8cc9c02476d9f5f35012d231237ffb26dbab0691af58d2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-se-hit-160.png",
+      "sha256": "cae27f762f1fddce810160e954abecaa5a32acd560646284484b75a08b0706c2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-e-hit-160.png",
+      "sha256": "54d3d0276558e4215f2437068a10faf5abc98cd48f32a09f8646e8588c8a1632",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-ne-hit-160.png",
+      "sha256": "4e02c7546e3250118988ae64ed70033eb51311190eb09a19ce4acf29e1b9bbee",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-n-hit-160.png",
+      "sha256": "5267840bb4c4f84701b543e50a44eb0709d8a9f92f3a74ca40a0a4406bd4f643",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-s-dodge-160.png",
+      "sha256": "e499d2556cb5c8be43c90c50b60f96d8c54d8331c5888d15cb01139879f10fd6",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-se-dodge-160.png",
+      "sha256": "c79cd13cb08586785bc88f90455551d01a8deb67713c02d8d6bb0f8a5fa0b049",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-e-dodge-160.png",
+      "sha256": "186f8daf91693e4d9b99279d32043eb79a6512e5444803c38d0c5d980da9120c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-ne-dodge-160.png",
+      "sha256": "d2689f4ef7c5a0645ee766922bff57d5080860a0c91be85cd414ffe05e3bba4a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-n-dodge-160.png",
+      "sha256": "afa40ed20d72a327bc993de707ab40b5e9e304cfc81763c9ddcce1e3d50a19be",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-sw-hit-160.png",
+      "sha256": "dacd3b0700e7eee2fd2eebe815b930fee5e2aea72d56c106ecb4ece8a11539aa",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-w-hit-160.png",
+      "sha256": "f9e23ac7b9e5a90dce6712d59512259d327a932c54369066c2966c5de50168bd",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-nw-hit-160.png",
+      "sha256": "3a0d5a3f5890946699bdf47832ab6775b7e2436184f492d75791f2d8b0e5ccb3",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-sw-dodge-160.png",
+      "sha256": "13175ba3212ed12cf34d8f2600dfb70dd471f61daae0de1c5ff6dad99c938cb2",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-w-dodge-160.png",
+      "sha256": "4d6a1095d50ed71653f4cc1dca286b509bb12b43ca7e52ae4ec37668d33ac361",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p1/skeleton-slayer-p1-nw-dodge-160.png",
+      "sha256": "352adecee1b56219a1639390afc0b428e757f224d5f453e106ecee1a9c959d2b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-s-hit-160.png",
+      "sha256": "f4c55b01fd38f97a94e954df0ddb83d35bf8e84f2d4e2f14b084c6e0d45209f8",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-se-hit-160.png",
+      "sha256": "944078eff1a657db92c35de3fd8572cb3492693d7cef7440c0774dfa1b09947c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-e-hit-160.png",
+      "sha256": "437f16f0b1eb66ab2d1c4bd65ab8069da79742752323b04a57f8d1699ac1c57c",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-ne-hit-160.png",
+      "sha256": "e87e19f1d9454dd0914a54e5e84435f7476d59a3c377182e4d8ec943f7568cdc",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-n-hit-160.png",
+      "sha256": "0e15f3a4848259d1dc430c913a001f3b2c802d436ddf79655cd5618428f2d4c9",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-s-dodge-160.png",
+      "sha256": "55215bdbe38aad1a282d86e9dd6950d58723d0aeda81f050c5104f0ed97dd9d7",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-se-dodge-160.png",
+      "sha256": "75b1689d539149d5a85d455bad8549f3c057083a6807f63783cf0fbcd8be8dad",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-e-dodge-160.png",
+      "sha256": "e1f88dae3d7a54ab1bf0c4a0f1b5bd46deaf531271d8948051b344f64c03c20d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-ne-dodge-160.png",
+      "sha256": "e4f02647c319511c36d67b4bd19abca3fe67b9f2910d24b4fc3fa0165217a8cf",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-n-dodge-160.png",
+      "sha256": "5de1cd8a4de0cf23a2f156232d3b6f6059387c1fc3a1f8e1af61e51a10930dc1",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-sw-hit-160.png",
+      "sha256": "8369aff47f65683df8611a2cd53699bbd2336795c3b29001106077b3b019de65",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-w-hit-160.png",
+      "sha256": "77b985456dd4a2b579c2eeba3cca031a579864b20c12698755fe7359750fc73d",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-nw-hit-160.png",
+      "sha256": "cde0cd25a6ed41d1a0717a8f9fceb1276085d3961540e36a16d8708a32450b27",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-sw-dodge-160.png",
+      "sha256": "e6f10e4c0d5a815d60a1403b921dc0fb70b37b27b12ad882ed6cedfd787f35ee",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-w-dodge-160.png",
+      "sha256": "1234d366e38025f063376bc2d4fe65f9012ff562111271957319f4036a77c10b",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/skeleton-slayer-p2/skeleton-slayer-p2-nw-dodge-160.png",
+      "sha256": "077ca2380c58357f5e87f7430285352d8d300f66059ff08a60490149737b105a",
+      "pivotX": 0.5,
+      "pivotY": 0.1,
+      "texture": true
+    }
+  ],
+  "bindings": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-base.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-portrait.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-hit.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-corpse.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-00.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-01.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-02.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-idle-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-00.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-01.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-02.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p1-walk-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-base.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-portrait.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-hit.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-corpse.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-00.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-01.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-02.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-idle-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-00.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-01.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-02.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/p2-walk-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "TransformationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-00.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-01.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-02.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-03.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-04.png",
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/transform-s-05.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Objects/SO_SkeletonSlayerMomentum.asset",
+      "field": "worldSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/momentum-field.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_crushing.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-crushing-blow-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_tremors.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-tremors-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_defense.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-unyielding-defense-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_bone_crush.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-bone-crush-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_hammer.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-destruction-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_skeleton_slayer_task.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-execute-task-32.png"
+      ]
+    }
+  ],
+  "floats": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 3.3333333333333335
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 5.555555555555555
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 3.3333333333333335
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer_enraged.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 5.555555555555555
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_skeleton_slayer.asset",
+      "field": "TransformationFramesPerSecond",
+      "value": 5
+    }
+  ],
+  "glossary": [
+    {
+      "id": "catacombs.skeleton_slayer.armor",
+      "title": "Kościana Zbroja",
+      "sprite": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-bone-armor-32.png"
+    },
+    {
+      "id": "catacombs.skeleton_slayer.revenge",
+      "title": "Zemsta Zabójcy",
+      "sprite": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-slayers-revenge-32.png"
+    },
+    {
+      "id": "catacombs.skeleton_slayer.defense",
+      "title": "Nieugięta Obrona",
+      "sprite": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-unyielding-defense-32.png"
+    },
+    {
+      "id": "catacombs.skeleton_slayer.hammer",
+      "title": "Młot Zniszczenia",
+      "sprite": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-destruction-32.png"
+    },
+    {
+      "id": "catacombs.skeleton_slayer.retaliation",
+      "title": "Odwet",
+      "sprite": "Assets/_Project/Art/Bosses/SkeletonSlayer/skeleton-slayer-icon-unyielding-defense-32.png"
+    }
+  ]
+}

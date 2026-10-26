@@ -2,6 +2,7 @@ using System;
 using Godmist.Core.Enums;
 using Godmist.Data.Configuration;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Characters;
 
 namespace Godmist.Systems.Combat
 {
@@ -16,6 +17,23 @@ namespace Godmist.Systems.Combat
             Action<string> battleLog = null)
         {
             this.battleLog = battleLog;
+        }
+
+        public static bool StandUp(CharacterInstance character)
+        {
+            if (character?.LifeState != CharacterLifeState.Downed) return false;
+            character.CurrentHealth = Math.Max(1, ReviveHealth);
+            character.LifeState = CharacterLifeState.Alive;
+            character.ExplorationStatusElapsedSeconds = 0f;
+            return true;
+        }
+
+        public bool TryReviveExploration(CharacterInstance actor, CharacterInstance target)
+        {
+            if (actor == null || ReferenceEquals(actor, target)
+                || actor.LifeState != CharacterLifeState.Alive || !StandUp(target)) return false;
+            battleLog?.Invoke($"{target.Definition?.DisplayName ?? target.CharacterId} zostaje podniesiony.");
+            return true;
         }
 
         public bool TryRevive(
@@ -51,8 +69,10 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            target.Character.CurrentHealth = ReviveHealth;
-            target.Character.LifeState = CharacterLifeState.Alive;
+            if (!IsWithinInteractionRange(session, actor.Position, target.Position))
+                return false;
+
+            StandUp(target.Character);
             target.DownedTurnsRemaining = 0;
 
             battleLog?.Invoke(
@@ -60,6 +80,21 @@ namespace Godmist.Systems.Combat
                 "zostaje podniesiony.");
 
             return true;
+        }
+
+        private static bool IsWithinInteractionRange(CombatSession session, GridPosition from, GridPosition to)
+        {
+            if (Math.Max(Math.Abs((long)from.X - to.X), Math.Abs((long)from.Y - to.Y)) > 1)
+                return false;
+            if (from.Level == to.Level && !from.IsOnStairs && !to.IsOnStairs)
+                return true;
+
+            // Matching map coordinates on another surface are not adjacent.
+            // Stairs may connect surfaces, but only through a real neighbouring step.
+            if (session.Grid != null)
+                foreach (var neighbour in session.Grid.GetNeighbours(from))
+                    if (neighbour == to) return true;
+            return false;
         }
     }
 }

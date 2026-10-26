@@ -189,6 +189,16 @@ namespace Godmist.Systems.Combat
 
         private static void ValidateCapability(PassiveEffectOperationDefinition operation, List<string> errors)
         {
+            if (operation.Type is PassiveEffectOperationType.ReduceIncomingDamage or PassiveEffectOperationType.MaxHealthFromMaxResource
+                or PassiveEffectOperationType.LowHealthShield or PassiveEffectOperationType.OrderActionCostReduction)
+            {
+                if (operation.Target != PassiveEffectTargetType.Self || operation.Value?.Source != PassiveEffectValueSourceType.Constant)
+                    errors.Add($"Operacja {operation.Id} wymaga celu Self i stałej wartości.");
+                if (operation.Type == PassiveEffectOperationType.ReduceIncomingDamage
+                    && (operation.ReferenceId is not (UniqueEquipmentCombatRules.FirstPhysicalHit or UniqueEquipmentCombatRules.PhysicalRanged)
+                        || operation.Value?.NumberValue is < 0 or > 1))
+                    errors.Add($"Operacja {operation.Id}: nieprawidłowy zakres redukcji obrażeń.");
+            }
             if (operation.Type is PassiveEffectOperationType.ModifyStatus
                 or PassiveEffectOperationType.RedirectDamage
                 or PassiveEffectOperationType.ReflectDamage)

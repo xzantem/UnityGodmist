@@ -83,6 +83,7 @@ namespace Godmist.Systems.Characters
 
             if (character.Level == MaximumLevel) character.CurrentExperience = 0;
             if (levelsGained > 0) growthSystem.Apply(character, grantCurrentHealthGrowth: true);
+            character.NotifyExperienceGained(experienceAmount, levelsGained);
 
             return levelsGained;
         }

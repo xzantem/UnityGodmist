@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.burning_arrow
   <DisplayName>k__BackingField: "Podpalona Strza\u0142a"
-  <Icon>k__BackingField: {fileID: 0}
-  <TooltipDescription>k__BackingField: "Zadaje losowe obra\u017Cenia i ma 90% szansy
-    na podpalenie o sile 50% przez 3 tury."
+  <Icon>k__BackingField: {fileID: 21300000, guid: a2d4cea4ce398714f8960477ecbd73c7, type: 3}
+  <TooltipDescription>k__BackingField: "Losowe obra\u017Cenia fizyczne; po trafieniu
+    90% szansy na podpalenie 25% \u015Bredniego ataku na tur\u0119 przez 3 tury."
   <SkillAccuracy>k__BackingField: 92
   <AttackType>k__BackingField: 2
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 55
   <ResourceCost>k__BackingField: 30
-  <ResourceType>k__BackingField: 3
+  <ResourceType>k__BackingField: 2
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -30,6 +30,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 1
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,14 +49,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -84,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -125,13 +130,20 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 2
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -160,6 +172,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -173,7 +186,7 @@ MonoBehaviour:
     statusId: burn
     durationTurns: 3
     stacks: 1
-    statusDamageMultiplier: 0.5
+    statusDamageMultiplier: 0.25
     statusHealPercent: 0
     percentageValue: 0
     counterattackRange:
@@ -206,3 +219,8 @@ MonoBehaviour:
       statusId: 
       healthPercentThreshold: 0
       integerThreshold: 0
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

@@ -9,15 +9,16 @@ namespace Godmist.Systems.Combat
     {
         public static int CalculateSkillCost(
             BattleUnit unit, 
-            SkillData skill)
+            SkillData skill, bool recoveringKnife = false)
         {
             if (unit == null || skill == null)
             {
                 return 0;
             }
-            return CalculatePercentageCost(
+            return Mathf.Max(0,Mathf.RoundToInt(CalculatePercentageCost(
                 unit.MaxActionPoints, 
-                skill.ActionCost);
+                ScoutCombatSystem.KnifeRecoveryCost(unit, skill, skill.ActionCost, recoveringKnife))
+                * UniqueEquipmentCombatRules.OrderCostMultiplier(unit,skill)));
         }
         public static int CalculatePercentageCost(
             int maxActionPoints, 

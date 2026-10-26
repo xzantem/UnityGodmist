@@ -10,6 +10,7 @@ namespace Godmist.Systems.Combat
         private readonly Action<string> battleLog;
         private readonly ResourceRuleRegistry registry = new();
         private readonly CombatFeedbackBus feedbackBus;
+        private SkillExecutionSystem rageOpportunityValidator;
 
         public ResourceRuleSystem(
             Action<string> battleLog = null,
@@ -21,13 +22,17 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(BattleUnit unit)
         {
+            if (unit != null)
+            {
+                unit.WarriorState.RageOffensiveActionUsed = false;
+                unit.WarriorState.RageHadOffensiveOpportunity = false;
+                unit.WarriorState.RageControlBlocked = false;
+            }
             EquipmentEffectSystem.Tick(unit);
-            // Missing-mana regeneration must be recalculated for every tick, including exploration.
-            if (MageCombatSystem.W(unit, "energy_saving") > 0)
-                new Godmist.Systems.Characters.CharacterStatPipelineSystem().Refresh(unit.Character);
+            RefreshManaRegeneration(unit);
             var change = Execute(
                 unit,
-                (rule, pool) => rule.ProcessTurnStart(pool));
+                (rule, pool) => UsesActionPointManaRegeneration(unit) ? 0 : rule.ProcessTurnStart(pool));
 
             if (change > 0)
             {
@@ -39,15 +44,59 @@ namespace Godmist.Systems.Combat
             }
         }
 
+        public static bool UsesActionPointManaRegeneration(BattleUnit unit) =>
+            unit?.IsPlayerControlled == true
+            && unit.Character?.ResourcePool?.ResourceType == Core.Enums.ResourceType.Mana;
+
+        private static void RefreshManaRegeneration(BattleUnit unit)
+        {
+            if (MageCombatSystem.W(unit, "energy_saving") > 0)
+                new Godmist.Systems.Characters.CharacterStatPipelineSystem().Refresh(unit.Character);
+        }
+
+        public void ProcessTurnEnd(BattleUnit unit, CombatSession session = null)
+        {
+            if (unit?.Character?.LifeState == Core.Enums.CharacterLifeState.Alive
+                && unit.Character.ResourcePool?.ResourceType == Core.Enums.ResourceType.Rage)
+            {
+                RecordRageOffensiveOpportunity(session, unit);
+                var rageChange = new RageResourceRule().ProcessTurnEnd(unit.Character.ResourcePool, unit.WarriorState);
+                if (rageChange < 0) LogChange(unit, rageChange, "traci");
+                WarriorCombatSystem.Refresh(unit);
+            }
+            if (unit?.Character?.LifeState == Core.Enums.CharacterLifeState.Alive
+                && unit.Character.ResourcePool?.ResourceType == Core.Enums.ResourceType.Momentum
+                && unit.MovementStepsThisTurn == 0)
+            {
+                var previous = unit.Character.ResourcePool.CurrentValue;
+                var lost = unit.Character.ResourcePool.Drain(10);
+                if (lost > 0)
+                {
+                    MomentumResourceRule.RefreshSpeedAfterChange(unit.Character, previous);
+                    LogChange(unit, -lost, "traci");
+                }
+            }
+            if (!UsesActionPointManaRegeneration(unit)) return;
+            RefreshManaRegeneration(unit);
+            var change = Execute(unit, (rule, pool) => rule is ManaResourceRule mana
+                ? mana.ProcessTurnEnd(pool, unit.CurrentActionPoints, unit.MaxActionPoints) : 0);
+            if (change > 0) LogChange(unit, change, "regeneruje");
+        }
+
         public void ProcessExplorationTick(BattleUnit unit)
         {
             if (unit?.Character?.LifeState != Core.Enums.CharacterLifeState.Alive) return;
             var pool = unit.Character.ResourcePool;
             if (pool == null) return;
             if (pool.ResourceType == Core.Enums.ResourceType.Mana)
-                ProcessTurnStart(unit);
+            {
+                // Waiting outside combat cannot refill mana. Keep equipment HP
+                // recovery, while explicit consumable/camp recovery has its own owner.
+                EquipmentEffectSystem.Tick(unit, allowResourceRecovery: false);
+            }
             else if (pool.ResourceType == Core.Enums.ResourceType.Rage)
             {
+                unit.WarriorState.RageIdleTurns = 0;
                 var lost = pool.Drain(Godmist.Data.Configuration.GameDefinesRuntime.GetInt(
                     Godmist.Data.Configuration.GameDefineIds.RageDecayPerMissedTurn, 10));
                 pool.HasGainedResourceSinceLastTurn = false;
@@ -58,15 +107,16 @@ namespace Godmist.Systems.Combat
 
         public void ProcessUnitMoved(
             BattleUnit unit,
-            int spentActionPoints)
+            int spentActionPoints,
+            int completedSteps = 1)
         {
             if (IsResourceGainBlocked(unit)) return;
 
             var change = Execute(
                 unit,
-                (rule, pool) => rule.ProcessMovement(
-                    pool,
-                    spentActionPoints));
+                (rule, pool) => rule is MomentumResourceRule momentum
+                    ? momentum.ProcessMovementSteps(pool, unit.MovementStepsThisTurn, completedSteps)
+                    : rule.ProcessMovement(pool, spentActionPoints));
 
             if (change > 0)
             {
@@ -74,18 +124,39 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        public void ProcessDamageDealt(BattleUnit unit)
+        public void ProcessOffensiveSkillUsed(BattleUnit unit, bool generateResource = true)
         {
-            if (IsResourceGainBlocked(unit)) return;
+            // An attempted attack counts even when recovery is blocked or the
+            // resource pool is full. Resource generation is a separate rule.
+            if (unit?.Character?.ResourcePool?.ResourceType == Core.Enums.ResourceType.Rage)
+            {
+                unit.WarriorState.RageOffensiveActionUsed = true;
+                unit.WarriorState.RageIdleTurns = 0;
+            }
+            if (!generateResource || IsResourceGainBlocked(unit)) return;
 
             var change = Execute(
                 unit,
-                (rule, pool) => rule.ProcessDamageDealt(pool));
+                (rule, pool) => rule.ProcessOffensiveSkillUsed(pool));
 
             if (change > 0)
             {
                 LogChange(unit, change, "zyskuje");
             }
+            WarriorCombatSystem.Refresh(unit);
+        }
+
+        public void RecordRageOffensiveOpportunity(CombatSession session, BattleUnit unit)
+        {
+            if (unit?.Character?.ResourcePool?.ResourceType != Core.Enums.ResourceType.Rage
+                || unit.Character.LifeState != Core.Enums.CharacterLifeState.Alive) return;
+            var state = unit.WarriorState;
+            if (StatusEffectSystem.IsHardCrowdControlled(unit)) { state.RageControlBlocked = true; return; }
+            if (!StatusEffectSystem.IsImmobilized(unit)) { state.RageHadOffensiveOpportunity = true; return; }
+            state.RageControlBlocked = true;
+            if (state.RageHadOffensiveOpportunity || session == null) return;
+            rageOpportunityValidator ??= new SkillExecutionSystem(resourceRuleSystem: this);
+            state.RageHadOffensiveOpportunity = rageOpportunityValidator.HasAvailableOffensiveAction(session, unit);
         }
 
         private int Execute(
@@ -119,6 +190,7 @@ namespace Godmist.Systems.Combat
 
             if (change <= 0 || !IsResourceGainBlocked(unit))
             {
+                MomentumResourceRule.RefreshSpeedAfterChange(unit.Character, previousValue);
                 return change;
             }
 
@@ -133,10 +205,13 @@ namespace Godmist.Systems.Combat
             return 0;
         }
 
-        private static bool IsResourceGainBlocked(BattleUnit unit)
+        public static bool IsResourceGainBlocked(BattleUnit unit)
+            => IsResourceGainBlocked(unit?.Character);
+
+        public static bool IsResourceGainBlocked(Godmist.Runtime.Characters.CharacterInstance character)
         {
-            return unit?.Character?.PassiveEffects != null
-                && unit.Character.PassiveEffects.Exists(effect =>
+            return character?.PassiveEffects != null
+                && character.PassiveEffects.Exists(effect =>
                     PassiveEffectLifecycleSystem.IsActive(effect)
                     && effect.GetPayload<ResourceRegenerationBlockPayload>() != null);
         }

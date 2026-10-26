@@ -10,6 +10,6 @@ namespace Godmist.Systems.Combat
             ResourcePool pool,
             int spentActionPoints);
 
-        int ProcessDamageDealt(ResourcePool pool);
+        int ProcessOffensiveSkillUsed(ResourcePool pool);
     }
 }

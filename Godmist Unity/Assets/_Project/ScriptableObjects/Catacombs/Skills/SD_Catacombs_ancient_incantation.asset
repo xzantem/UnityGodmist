@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.ancient_incantation
   <DisplayName>k__BackingField: "Staro\u017Cytna Inkantacja"
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 2167bf1861fe0a242b20e70a14f85071, type: 3}
   <TooltipDescription>k__BackingField: "Zadaje losowe obra\u017Cenia magiczne i ma
     25% szansy na unieruchomienie na 1 tur\u0119."
   <SkillAccuracy>k__BackingField: 100
@@ -84,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -160,6 +161,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

@@ -1,4 +1,8 @@
 using System;
+using System.Linq;
+using Godmist.Data.Skills;
+using Godmist.Systems.Characters;
+using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
@@ -21,7 +25,7 @@ using Object = UnityEngine.Object;
 
 namespace Godmist.Tests.EditMode
 {
-    public class SeamlessDungeonCombatTests
+    public partial class SeamlessDungeonCombatTests
     {
         private static CombatSession Combat(string id, string room = null) => new()
         {
@@ -39,7 +43,7 @@ namespace Godmist.Tests.EditMode
         private static BattleUnit Unit(string id, bool player = true) => new()
         {
             IsPlayerSide = player, Position = new GridPosition(0, 0),
-            CurrentActionPoints = 7, AvailableKnives = 2,
+            CurrentActionPoints = 700, AvailableKnives = 2,
             Character = new CharacterInstance
             {
                 CharacterId = id, LifeState = CharacterLifeState.Alive,
@@ -66,17 +70,20 @@ namespace Godmist.Tests.EditMode
             var second = Combat("second"); second.IsDungeonWide = true;
             var a = Unit("a"); var b = Unit("b"); var waiting = Unit("waiting");
             a.CurrentActionValue = b.CurrentActionValue = 0;
-            a.CurrentActionPoints = 2; b.CurrentActionPoints = 3; waiting.CurrentActionValue = 123;
+            a.CurrentActionPoints = 200; b.CurrentActionPoints = 300; waiting.CurrentActionValue = 123;
             first.Units.Add(a); second.Units.AddRange(new[] { b, waiting });
             var pa = new CombatTurnParticipant(a); var pb = new CombatTurnParticipant(b);
             first.TurnParticipants.Add(pa); first.ActiveParticipant = pa; first.ActiveUnit = a;
             second.TurnParticipants.AddRange(new[] { pb, new CombatTurnParticipant(waiting) });
             second.ActiveParticipant = pb; second.ActiveUnit = b;
+            b.BanditLeaderState = new BanditLeaderCombatState {Session=second};
             var delayed = new ScheduledCombatEffect("b", null, null, 0, 2, "a", null);
             second.ScheduledEffects.Add(delayed);
             Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.True);
             Assert.That(first.ActiveUnit, Is.SameAs(a));
-            Assert.That(b.CurrentActionPoints, Is.EqualTo(3));
+            Assert.That(b.WarriorState.Session,Is.SameAs(first));
+            Assert.That(b.BanditLeaderState.Session,Is.SameAs(first));
+            Assert.That(b.CurrentActionPoints, Is.EqualTo(300));
             Assert.That(waiting.CurrentActionValue, Is.EqualTo(123));
             Assert.That(first.ScheduledEffects[0], Is.SameAs(delayed));
             Assert.That(first.SuspendedTurns, Does.Contain(pb));
@@ -86,7 +93,7 @@ namespace Godmist.Tests.EditMode
             first.ResumeTurn = participant => { Assert.That(participant, Is.SameAs(pb)); resumes++; };
             new CombatTurnSystem(onUnitTurnBegan: unit => starts++).AdvanceTurn(first);
             Assert.That(starts, Is.Zero); Assert.That(resumes, Is.EqualTo(1));
-            Assert.That(b.CurrentActionPoints, Is.EqualTo(3));
+            Assert.That(b.CurrentActionPoints, Is.EqualTo(300));
             Assert.That(waiting.CurrentActionValue, Is.EqualTo(123));
             Assert.That(first.SuspendedTurns, Is.Empty);
         }
@@ -116,8 +123,13 @@ namespace Godmist.Tests.EditMode
             DungeonCombatMembershipSystem.RegisterEnemy(first, "one", "guard", loot, a);
             DungeonCombatMembershipSystem.RegisterEnemy(second, "two", "guard", loot, b);
             Assert.That(a.Character.CharacterId, Is.Not.EqualTo(b.Character.CharacterId));
+            second.ExperienceGrantedEnemyIds.Add(b.Character.CharacterId);
             second.TryMarkEnemyDefeated(b.Character.CharacterId, new GridPosition(1, 1, 2));
+            var grantsOnMerge = 0;
+            first.EnemyDefeated = id => { if (!first.ExperienceGrantedEnemyIds.Contains(id)) grantsOnMerge++; };
             Assert.That(DungeonCombatMembershipSystem.TryMerge(first, second), Is.True);
+            Assert.That(first.ExperienceGrantedEnemyIds, Does.Contain(b.Character.CharacterId));
+            Assert.That(grantsOnMerge, Is.Zero, "Merging cannot repeat already awarded kill XP.");
             Assert.That(first.Rewards.EnemyRewards.Count, Is.EqualTo(2));
             Assert.That(first.TryGetEnemyDeathPosition(b.Character.CharacterId, out var death), Is.True);
             Assert.That(death, Is.EqualTo(new GridPosition(1, 1, 2)));
@@ -355,10 +367,10 @@ namespace Godmist.Tests.EditMode
             player.Position = new GridPosition(2, 0);
             session.Units.Add(enemy); session.Units.Add(player); session.ActiveUnit = enemy;
             session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
-            enemy.CurrentActionPoints = 2;
+            enemy.CurrentActionPoints = 200;
             var ai = new SimpleCombatAiSystem();
             Assert.That(ai.TryMoveAiTowardsTarget(session, enemy, player), Is.False);
-            enemy.CurrentActionPoints = 3;
+            enemy.CurrentActionPoints = 300;
             Assert.That(ai.TryMoveAiTowardsTarget(session, enemy, player), Is.True);
             Assert.That(enemy.CurrentActionPoints, Is.Zero);
             Assert.That(enemy.Position, Is.EqualTo(new GridPosition(1, 0)));
@@ -389,14 +401,14 @@ namespace Godmist.Tests.EditMode
             var session = Combat("one");
             var unit = Unit("player");
             session.Units.Add(unit);
-            unit.CurrentActionPoints = ap;
+            unit.CurrentActionPoints = ap * 100;
             unit.MovementStepsThisTurn = 2;
             session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
             var system = new CombatMovementSystem();
             var paths = system.CalculateReachablePaths(session, unit);
             Assert.That(paths.ContainsKey(new GridPosition(1, 0)), Is.EqualTo(succeeds));
             Assert.That(system.TryMoveOneStep(session, unit, 1, 0), Is.EqualTo(succeeds));
-            Assert.That(unit.CurrentActionPoints, Is.EqualTo(succeeds ? 0 : ap));
+            Assert.That(unit.CurrentActionPoints, Is.EqualTo(succeeds ? 0 : ap * 100));
             Assert.That(unit.MovementStepsThisTurn, Is.EqualTo(succeeds ? 3 : 2));
         }
 
@@ -406,12 +418,12 @@ namespace Godmist.Tests.EditMode
             var session = Combat("one");
             var unit = Unit("player");
             session.Units.Add(unit);
-            unit.CurrentActionPoints = 3;
+            unit.CurrentActionPoints = 300;
             session.Grid.SetWallEdge(new(0, 0), new(1, 0), DungeonWallType.Low);
             var paths = new CombatMovementSystem().CalculateReachablePaths(session, unit);
             Assert.That(paths[new GridPosition(1, 1)], Is.EqualTo(new[] { new GridPosition(0, 1), new GridPosition(1, 1) }));
             Assert.That(CombatMovementSystem.CalculatePathCost(session, unit.Position, 0,
-                paths[new GridPosition(1, 1)]), Is.EqualTo(3));
+                paths[new GridPosition(1, 1)]), Is.EqualTo(300));
         }
 
         [Test]
@@ -423,7 +435,7 @@ namespace Godmist.Tests.EditMode
             session.Grid.SetWallEdge(new(0, 0), new(-1, 0), DungeonWallType.Low);
             Assert.That(session.CanMoveBetween(unit, new(0, 0), new(-1, 0)), Is.False);
             session.OpenExitEdges.Add(new BattleCellEdge(new(0, 0), new(-1, 0)));
-            unit.CurrentActionPoints = 3;
+            unit.CurrentActionPoints = 300;
             Assert.That(new CombatMovementSystem().TryMoveOneStep(session, unit, -1, 0), Is.True);
             Assert.That(unit.CurrentActionPoints, Is.Zero);
         }
@@ -529,7 +541,7 @@ namespace Godmist.Tests.EditMode
             var paths = movement.CalculateReachablePaths(session, player);
             Assert.That(paths.ContainsKey(outside), Is.True);
             Assert.That(paths.ContainsKey(new GridPosition(-2, 0)), Is.False);
-            Assert.That(player.CurrentActionPoints, Is.EqualTo(7));
+            Assert.That(player.CurrentActionPoints, Is.EqualTo(700));
             Assert.That(session.CanMoveBetween(Unit("enemy", false), player.Position, outside), Is.False);
             Assert.That(session.Grid.IsWalkable(outside), Is.False, "Exit is not an extra arena tile for skills.");
         }
@@ -572,7 +584,7 @@ namespace Godmist.Tests.EditMode
             joining.CurrentActionValue = 750f;
             Assert.That(DungeonCombatParticipationSystem.TryJoin(session, joining, new(1, 0)), Is.True);
             Assert.That(joining.CurrentActionValue, Is.EqualTo(750f));
-            Assert.That(joining.CurrentActionPoints, Is.EqualTo(7));
+            Assert.That(joining.CurrentActionPoints, Is.EqualTo(700));
             Assert.That(joining.AvailableKnives, Is.EqualTo(2));
             Assert.That(session.ActiveUnit, Is.SameAs(actor));
             joining.Position = new(-1, 0);
@@ -726,6 +738,11 @@ namespace Godmist.Tests.EditMode
             }
         }
 
+        private static DungeonFloorInstance CreateSpawnFloor(DungeonFloorMap map)
+        {
+            var floor=new DungeonFloorInstance(0);floor.TrySetMap(map);return floor;
+        }
+
         private static void SetProperty(object target, string name, object value) =>
             target.GetType().GetField("<" + name + ">k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
 
@@ -766,7 +783,7 @@ namespace Godmist.Tests.EditMode
                 typeof(DungeonEncounterSpawner).GetField("floorMapView", flags).SetValue(spawner, mapView);
                 typeof(DungeonEncounterSpawner).GetField("enemyViewPrefab", flags).SetValue(spawner, prefab.AddComponent<ExplorationCharacterView>());
                 spawned = (List<ExplorationCharacterView>)typeof(DungeonEncounterSpawner)
-                    .GetMethod("SpawnEnemyViews", flags).Invoke(spawner, new object[] { encounter, map, 11 });
+                    .GetMethod("SpawnEnemyViews", flags).Invoke(spawner, new object[] { encounter, CreateSpawnFloor(map), 11 });
                 Assert.That(spawned.Count, Is.EqualTo(2));
                 for (var i = 0; i < spawned.Count; i++)
                 {
@@ -934,6 +951,99 @@ namespace Godmist.Tests.EditMode
             finally { Object.DestroyImmediate(actor); Object.DestroyImmediate(root); }
         }
 
+        [Test]
+        public void BorrowedCombatMovement_IgnoresExplorationCollisionGate()
+        {
+            var root = new GameObject("borrowed combat movement");
+            var actorObject = new GameObject("borrowed combat actor");
+            var obstacle = new GameObject("exploration obstacle");
+            try
+            {
+                var host = root.AddComponent<CombatSandboxBootstrap>();
+                var spawner = root.AddComponent<CombatUnitViewSpawner>();
+                var mapView = root.AddComponent<DungeonFloorMapView>();
+                typeof(CombatUnitViewSpawner).GetField("sandboxBootstrap", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(spawner, host);
+                typeof(CombatUnitViewSpawner).GetField("battleUnitPrefab", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(spawner, root.AddComponent<Godmist.Views.Characters.CharacterView>());
+                var terrainMap = new DungeonFloorMap();
+                terrainMap.TryAddFloorCell(Vector2Int.zero, "room");
+                terrainMap.TryAddFloorCell(Vector2Int.right, "room");
+                var actor = actorObject.AddComponent<ExplorationCharacterView>();
+                actor.ConfigureTerrain(terrainMap, mapView);
+                actorObject.transform.position = Vector2.zero;
+                var collider = obstacle.AddComponent<BoxCollider2D>();
+                collider.size = new Vector2(.2f, 1f);
+                obstacle.transform.position = new Vector2(.5f, 0f);
+                Physics2D.SyncTransforms();
+
+                Assert.That(actor.HasClearMovementSegment(Vector2.zero, Vector2.right), Is.False,
+                    "The fixture must exercise the exploration collision gate.");
+
+                var game = Game();
+                var session = Combat("borrowed-movement");
+                var unit = Unit("borrowed-movement-unit", player: false);
+                session.Units.Add(unit);
+                Assert.That(game.TryRegisterDungeonCombat(session), Is.True);
+                spawner.ConfigureDungeon(game, mapView);
+                spawner.Borrow(session, unit, actor);
+                Assert.That(actor.CombatUnit, Is.SameAs(unit));
+                Assert.That(spawner.TryBeginPresentationMovement(unit), Is.True);
+                Assert.That(spawner.TryMovePresentationStep(unit, new GridPosition(1, 0)), Is.True);
+
+                var synchronize = typeof(CombatUnitViewSpawner).GetMethod(
+                    "SynchronizeDungeon", BindingFlags.NonPublic | BindingFlags.Instance);
+                synchronize.Invoke(spawner, new object[] { .1f });
+                Assert.That(actor.Position.x, Is.EqualTo(.6f).Within(.001f));
+                synchronize.Invoke(spawner, new object[] { .1f });
+
+                Assert.That(actor.Position.x, Is.EqualTo(1f).Within(.001f),
+                    "The borrowed combat presentation must follow the already validated logical step.");
+                Assert.That(spawner.IsPresentationMovementInProgress(unit), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(actorObject);
+                Object.DestroyImmediate(obstacle);
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
+        public void InactiveBorrowedView_DoesNotKeepCombatMovementInProgress()
+        {
+            var root = new GameObject("inactive borrowed movement");
+            var actor = new GameObject("inactive borrowed actor");
+            try
+            {
+                var host = root.AddComponent<CombatSandboxBootstrap>();
+                var game = Game();
+                var session = Combat("inactive-borrowed-movement");
+                var unit = Unit("inactive-borrowed-movement-unit", player: false);
+                session.Units.Add(unit);
+                Assert.That(game.TryRegisterDungeonCombat(session), Is.True);
+
+                var spawner = root.AddComponent<CombatUnitViewSpawner>();
+                var mapView = root.AddComponent<DungeonFloorMapView>();
+                var view = actor.AddComponent<ExplorationCharacterView>();
+                typeof(CombatUnitViewSpawner).GetField("sandboxBootstrap", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(spawner, host);
+                spawner.ConfigureDungeon(game, mapView);
+                spawner.Borrow(session, unit, view);
+                Assert.That(spawner.TryBeginPresentationMovement(unit), Is.True);
+                Assert.That(spawner.TryMovePresentationStep(unit, new GridPosition(1, 0)), Is.True);
+
+                view.gameObject.SetActive(false);
+
+                Assert.That(spawner.IsPresentationMovementInProgress(unit), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(actor);
+                Object.DestroyImmediate(root);
+            }
+        }
+
         [TestCase("camera")]
         [TestCase("zoom")]
         [TestCase("unit")]
@@ -1022,6 +1132,411 @@ namespace Godmist.Tests.EditMode
                 Assert.That(host.TryBegin(Combat("third")), Is.True);
             }
             finally { Object.DestroyImmediate(root); }
+        }
+        private static BattleUnit OpeningMage(string id, bool player = true, int x = 1)
+        {
+            var definition = AssetDatabase.LoadAssetAtPath<CharacterDefinition>("Assets/_Project/ScriptableObjects/Characters/CD_Mage.asset");
+            var character = new CharacterInstanceFactory().Create(definition);
+            character.CharacterId = id; character.Stats.Speed = new Stat(50);
+            character.Stats.MaxHealth = new Stat(10000); character.CurrentHealth = 10000;
+            character.Stats.WeaponAccuracy = new Stat(10000); character.WeaponAccuracy = 10000;
+            return new BattleUnit { Character = character, IsPlayerSide = player, Position = new GridPosition(x, 2),
+                MaxActionPoints = 1250, CurrentActionPoints = 1250 };
+        }
+        private static SkillData OpeningSkill(string name) => AssetDatabase.LoadAssetAtPath<SkillData>(
+            "Assets/_Project/ScriptableObjects/Skills/SD_Mage" + name + ".asset");
+        private static CombatSession OpeningSession(params BattleUnit[] units) => new()
+        { IsSeamless = true, IsDungeonWide = true, CombatId = Guid.NewGuid().ToString(), Grid = new BattleGrid(12, 8), Units = units.ToList(), ActiveUnit = units[0], ActionPointsPerSpeed = .25f };
+        private static CombatSandboxBootstrap OpeningHost(GameObject root, bool real = false)
+        {
+            var host = root.AddComponent<CombatSandboxBootstrap>();
+            typeof(CombatSandboxBootstrap).GetField("seamlessDungeon", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, true);
+            if (real)
+            {
+                var spawner = root.AddComponent<CombatUnitViewSpawner>();
+                typeof(CombatSandboxBootstrap).GetField("unitViewSpawner", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(host, spawner);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/Characters/PF_BattleUnit.prefab");
+                typeof(CombatUnitViewSpawner).GetField("battleUnitPrefab", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .SetValue(spawner, prefab.GetComponent<Godmist.Views.Characters.CharacterView>());
+                typeof(CombatUnitViewSpawner).GetField("unitsRoot", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(spawner, root.transform);
+            }
+            return host;
+        }
+
+        [TestCase(0f, 400f)] [TestCase(.25f, 350f)] [TestCase(.75f, 250f)]
+        [TestCase(1f, 200f)] [TestCase(-1f, 400f)] [TestCase(2f, 200f)]
+        [TestCase(float.NaN, 200f)]
+        public void OpeningDelayUsesEachEnemyDetectionAndNeverChangesSpeed(float detection, float expected)
+        {
+            var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 4); var ally = OpeningMage("ally", true, 2);
+            var session = OpeningSession(actor, enemy, ally);
+            new CombatTurnSystem().InitializeTurnOrder(session, actor, new Dictionary<BattleUnit, float> { [enemy] = detection });
+            Assert.That(session.ActiveUnit, Is.SameAs(actor));
+            Assert.That(enemy.CurrentActionValue, Is.EqualTo(expected)); Assert.That(ally.CurrentActionValue, Is.EqualTo(200));
+            Assert.That(enemy.Character.Stats.Speed.GetValue(), Is.EqualTo(50));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(1250));
+        }
+        [Test]
+        public void OpeningMixedDetectionDoesNotDelayLaterArrivalsOrRepeatAfterEnemyTurn()
+        {
+            var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 4); var alert = OpeningMage("alert", false, 5);
+            var session = OpeningSession(actor, enemy, alert); var turns = new CombatTurnSystem();
+            turns.InitializeTurnOrder(session, actor, new Dictionary<BattleUnit, float> { [enemy] = 0, [alert] = .75f });
+            Assert.That(enemy.CurrentActionValue, Is.EqualTo(400)); Assert.That(alert.CurrentActionValue, Is.EqualTo(250));
+            var arrival = OpeningMage("arrival", false, 6);
+            Assert.That(DungeonCombatParticipationSystem.TryJoin(session, arrival, arrival.Position), Is.True);
+            Assert.That(arrival.CurrentActionValue, Is.EqualTo(200));
+            for (var i = 0; i < 12 && session.ActiveUnit != enemy; i++) turns.EndActiveTurn(session);
+            Assert.That(session.ActiveUnit, Is.SameAs(enemy));
+            turns.EndActiveTurn(session);
+            Assert.That(enemy.CurrentActionValue, Is.LessThanOrEqualTo(200));
+        }
+        [Test]
+        public void OpeningGroupingIncludesRoomAlarmAndVisiblePartyInsteadOfArtificialDuel()
+        {
+            var actor = OpeningMage("actor"); var ally = OpeningMage("ally", true, 2);
+            var third = OpeningMage("third", true, 3); var fourth = OpeningMage("fourth", true, 4);
+            var distant = OpeningMage("distant", true, 10); var anchor = OpeningMage("anchor", false, 5);
+            var peer = OpeningMage("peer", false, 6); var unrelated = OpeningMage("other-room", false, 11);
+            var session = OpeningSession(actor, ally, third, fourth, distant, anchor, peer, unrelated);
+            var group = DungeonCombatOpeningSystem.CollectParticipants(session, actor, new[] { anchor }, anchor,
+                u => new[] { anchor, peer }, (enemy, player) => player != distant);
+            Assert.That(group, Is.EquivalentTo(new[] { actor, ally, third, fourth, anchor, peer }));
+            Assert.That(group, Has.No.Member(unrelated)); Assert.That(group, Has.No.Member(distant));
+        }
+        [Test]
+        public void OpeningGroupIncludesSecondaryAreaVictimsAndTheirRoomAlerts()
+        {
+            var actor = OpeningMage("actor"); var first = OpeningMage("first", false, 3);
+            var second = OpeningMage("second", false, 4); var peer = OpeningMage("peer", false, 5);
+            var session = OpeningSession(actor, first, second, peer);
+            var group = DungeonCombatOpeningSystem.CollectParticipants(session, actor, new[] { first, second }, first,
+                u => u == second ? new[] { peer } : Array.Empty<BattleUnit>(), (e, a) => false);
+            Assert.That(group, Is.EquivalentTo(session.Units));
+        }
+        [TestCase("EnergyOrb")] [TestCase("Fireball")] [TestCase("Shield")]
+        public void OpeningPreviewUsesProductionSkillTargetingWithoutCostsTurnsOrCombatRegistration(string name)
+        {
+            var root = new GameObject("opening preview");
+            try
+            {
+                var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 3);
+                var session = OpeningSession(actor, enemy); var host = OpeningHost(root);
+                var commits = 0; var skill = OpeningSkill(name); var ap = actor.CurrentActionPoints;
+                var mana = actor.Character.ResourcePool.CurrentValue; var hp = enemy.Character.CurrentHealth;
+                Assert.That(host.BeginOpeningPreview(session, (s,p,t,o,r,c) => { commits++; return false; }, u => true), Is.True);
+                var positions = new Dictionary<int, GridPosition?> { [0] = name == "Shield" ? actor.Position : enemy.Position };
+                Assert.That(host.OpeningPreview.ValidateOpeningSkill(skill, positions, null, null, null, null, out var targets), Is.True);
+                Assert.That(targets.Values.SelectMany(v => v), Has.Member(name == "Shield" ? actor : enemy));
+                Assert.That(host.TryExecuteSkill(skill, positions), Is.False);
+                Assert.That(commits, Is.EqualTo(1)); Assert.That(host.Drivers, Is.Empty);
+                Assert.That(session.TurnParticipants, Is.Empty); Assert.That(session.ActiveTurnIndex, Is.Zero);
+                Assert.That(session.PassiveEffectEventDispatcher, Is.Null); Assert.That(session.EnemyHealthChanged, Is.Null);
+                Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap)); Assert.That(actor.Character.ResourcePool.CurrentValue, Is.EqualTo(mana));
+                Assert.That(enemy.Character.CurrentHealth, Is.EqualTo(hp));
+                Assert.That(host.CanEndTurn(), Is.False);
+                host.CancelOpeningPreview(); Assert.That(host.Session, Is.Null);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+        [TestCase("range")] [TestCase("LOS")] [TestCase("AP")] [TestCase("mana")] [TestCase("unknown")]
+        public void InvalidOpeningSelectionIsRejectedWithoutCosts(string reason)
+        {
+            var root = new GameObject("invalid opening");
+            try
+            {
+                var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 3);
+                var session = OpeningSession(actor, enemy); var host = OpeningHost(root); var skill = OpeningSkill("EnergyOrb");
+                if (reason == "range") enemy.Position = new GridPosition(11, 7);
+                if (reason == "LOS") session.EnvironmentBlocksLineOfSight = (a,b) => true;
+                if (reason == "AP") actor.CurrentActionPoints = 0;
+                if (reason == "mana") actor.Character.ResourcePool.CurrentValue = 0;
+                if (reason == "unknown") skill = OpeningSkill("FireAura");
+                var ap = actor.CurrentActionPoints; var mana = actor.Character.ResourcePool.CurrentValue;
+                host.BeginOpeningPreview(session, (s,p,t,o,r,c) => false, u => true);
+                Assert.That(host.OpeningPreview.ValidateOpeningSkill(skill,
+                    new Dictionary<int, GridPosition?> { [0] = enemy.Position }, null, null, null, null, out _), Is.False);
+                Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap)); Assert.That(actor.Character.ResourcePool.CurrentValue, Is.EqualTo(mana));
+                Assert.That(host.Drivers, Is.Empty);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+        [Test]
+        public void OpeningMissStillPaysTheRealFirstTurnCostsAndKeepsTheFight()
+        {
+            var root = new GameObject("opening miss");
+            try
+            {
+                var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 3);
+                enemy.Character.PassiveEffects.Add(new Godmist.Runtime.Effects.PassiveEffectRuntime { UniqueBuffType = UniqueBuffType.GuaranteedDodge });
+                var session = OpeningSession(actor, enemy); var host = OpeningHost(root, true); var skill = OpeningSkill("EnergyOrb");
+                var hp = enemy.Character.CurrentHealth;
+                Assert.That(host.TryBegin(session), Is.True);
+                var driver = host.GetDriver(session); driver.StartTurns(actor, new Dictionary<BattleUnit, float> { [enemy] = .25f });
+                var ap = actor.CurrentActionPoints; var mana = actor.Character.ResourcePool.CurrentValue;
+                var cost = CombatActionCostCalculator.CalculateSkillCost(actor, skill);
+                var resource = PassiveEffectCombatExecutionSystem.ResolveResourceCost(actor, skill);
+                Assert.That(driver.TryExecuteSkill(skill, enemy.Position), Is.True);
+                Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap - cost));
+                Assert.That(actor.Character.ResourcePool.CurrentValue, Is.EqualTo(mana - resource));
+                Assert.That(enemy.Character.CurrentHealth, Is.EqualTo(hp));
+                Assert.That(session.ActiveUnit, Is.SameAs(actor)); Assert.That(session.ActiveTurnIndex, Is.Zero);
+                Assert.That(session.Outcome, Is.EqualTo(CombatOutcomeState.Ongoing)); Assert.That(host.Drivers.Count, Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+        [TestCase("MultipleChosen")] [TestCase("Chain")] [TestCase("TwoModes")]
+        public void OpeningPreparationKeepsAdvancedTargetModesAndSelections(string kind)
+        {
+            var root = new GameObject("advanced opening"); var skill = Object.Instantiate(OpeningSkill("EnergyOrb"));
+            try
+            {
+                var actor = OpeningMage("actor"); var first = OpeningMage("first", false, 3); var second = OpeningMage("second", false, 4);
+                SetProperty(skill, "SkillId", "skill.test.opening." + kind);
+                var mode = JsonUtility.FromJson<SkillTargetModeData>(JsonUtility.ToJson(skill.TargetModes[0]));
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                typeof(SkillTargetModeData).GetField("absoluteRange", flags).SetValue(mode, new SkillRangeData(RangeShape.Square, 1, 8));
+                typeof(SkillTargetModeData).GetField("chainTargets", flags).SetValue(mode, 3);
+                if (kind != "TwoModes")
+                {
+                    typeof(SkillTargetModeData).GetField("targetType", flags).SetValue(mode,
+                        kind == "Chain" ? TargetType.Chain : TargetType.MultipleChosen);
+                    typeof(SkillTargetModeData).GetField("relativeRange", flags).SetValue(mode, new SkillRangeData(RangeShape.Square, 0, 3));
+                }
+                var modes = new List<SkillTargetModeData> { mode };
+                if (kind == "TwoModes")
+                {
+                    var casterMode = new SkillTargetModeData();
+                    typeof(SkillTargetModeData).GetField("targetType", flags).SetValue(casterMode, TargetType.Caster);
+                    modes.Add(casterMode);
+                }
+                typeof(SkillData).GetField("targetModes", flags).SetValue(skill, modes);
+                actor.Character.Skills.Add(skill);
+                Assert.That(actor.Character.ActiveSkillLoadout.TryInitialize(actor.Character.GetKnownSkills().Select(v => v.SkillId),
+                    actor.Character.GetBasicAttackSkill().SkillId, new[] { actor.Character.GetBasicAttackSkill().SkillId, skill.SkillId }), Is.True);
+                var session = OpeningSession(actor, first, second); var host = OpeningHost(root);
+                host.BeginOpeningPreview(session, (s,p,t,o,r,c) => false, u => true);
+                var positions = new Dictionary<int, GridPosition?> { [0] = first.Position };
+                if (kind == "TwoModes") positions[1] = null;
+                var chosen = kind == "MultipleChosen" ? new Dictionary<int, IReadOnlyList<GridPosition>>
+                    { [0] = new[] { first.Position, second.Position } } : null;
+                Assert.That(host.OpeningPreview.ValidateOpeningSkill(skill, positions, null, null, null, chosen, out var targets), Is.True);
+                Assert.That(targets[0], Has.Member(first));
+                if (kind == "TwoModes") Assert.That(targets[1], Is.EquivalentTo(new[] { actor }));
+                else Assert.That(targets[0], Is.EquivalentTo(new[] { first, second }));
+                Assert.That(actor.CurrentActionPoints, Is.EqualTo(1250)); Assert.That(first.Character.CurrentHealth, Is.EqualTo(10000));
+            }
+            finally { Object.DestroyImmediate(root); Object.DestroyImmediate(skill); }
+        }
+        [Test]
+        public void OpeningValidationSharesOwnedSummonRequirementWithExecution()
+        {
+            var root = new GameObject("summon prerequisite"); var skill = Object.Instantiate(OpeningSkill("EnergyOrb"));
+            try
+            {
+                var actor = OpeningMage("actor"); var enemy = OpeningMage("enemy", false, 3);
+                SetProperty(skill, "SkillId", "skill.test.opening.summon");
+                typeof(Godmist.Data.Effects.SkillEffectData).GetField("damagePerOwnedSummonGroup", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(skill.Effects[0], "required-summon");
+                actor.Character.Skills.Add(skill);
+                actor.Character.ActiveSkillLoadout.TryInitialize(actor.Character.GetKnownSkills().Select(v => v.SkillId),
+                    actor.Character.GetBasicAttackSkill().SkillId, new[] { actor.Character.GetBasicAttackSkill().SkillId, skill.SkillId });
+                var session = OpeningSession(actor, enemy); var host = OpeningHost(root);
+                host.BeginOpeningPreview(session, (s,p,t,o,r,c) => false, u => true);
+                Assert.That(host.OpeningPreview.ValidateOpeningSkill(skill, new Dictionary<int, GridPosition?> { [0] = enemy.Position },
+                    null, null, null, null, out _), Is.False);
+                Assert.That(actor.CurrentActionPoints, Is.EqualTo(1250)); Assert.That(actor.Character.ResourcePool.CurrentValue, Is.EqualTo(100));
+            }
+            finally { Object.DestroyImmediate(root); Object.DestroyImmediate(skill); }
+        }
+        [Test]
+        public void SceneOwnerShowsStartingKnivesBeforeFirstCombatAndPreservesRetainedSpentKnives()
+        {
+            var root=new GameObject("exploration scout HUD"); DungeonCombatCoordinator coordinator=null;
+            var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+            void Field(object owner,string name,object value)=>owner.GetType().GetField(name,flags).SetValue(owner,value);
+            try
+            {
+                var game=new GameSession(GameModeState.Exploration,"scout.hud");
+                var character=new CharacterInstanceFactory().Create(AssetDatabase.LoadAssetAtPath<CharacterDefinition>(
+                    "Assets/_Project/ScriptableObjects/Characters/CD_Jerzy.asset"));
+                game.TryRegisterCharacter(character);game.TryAddCharacterToActiveParty(character.CharacterId);game.TrySetActiveLeader(character.CharacterId);
+                var view=root.AddComponent<ExplorationCharacterView>();view.Bind(character);
+                var party=root.AddComponent<ExplorationPartyController>();party.Initialize(game,new List<ExplorationCharacterView>{view});
+                coordinator=root.AddComponent<DungeonCombatCoordinator>();Field(coordinator,"game",game);Field(coordinator,"party",party);Field(coordinator,"initialized",true);
+                var retained=new CombatSessionFactory().CreateJoiningUnit(character,new GridPosition(0,0));
+                ((Dictionary<string,BattleUnit>)typeof(DungeonCombatCoordinator).GetField("retainedPlayers",flags).GetValue(coordinator)).Add(character.CharacterId,retained);
+                var health=character.CurrentHealth;var resource=character.ResourcePool.CurrentValue;
+                var display=coordinator.GetExplorationSkillActor();
+                Assert.That(display.AvailableKnives,Is.GreaterThan(0));Assert.That(display.AvailableKnives,Is.EqualTo(display.MaxKnives));
+                Assert.That(retained.AvailableKnives,Is.Zero);Assert.That(retained.HasInitializedCombatResources,Is.False);
+                retained.HasInitializedCombatResources=true;retained.MaxKnives=7;retained.AvailableKnives=2;
+                Field(coordinator,"nextExplorationSkillRefresh",0f);
+                Assert.That(coordinator.GetExplorationSkillActor(),Is.SameAs(display));
+                Assert.That(display.MaxKnives,Is.EqualTo(7));Assert.That(display.AvailableKnives,Is.EqualTo(2));
+                Assert.That(character.CurrentHealth,Is.EqualTo(health));Assert.That(character.ResourcePool.CurrentValue,Is.EqualTo(resource));
+                Assert.That(game.Combats,Is.Empty);
+            }
+            finally{if(coordinator!=null)Field(coordinator,"initialized",false);Object.DestroyImmediate(root);}
+        }
+
+        [TestCase(false, false, false, false)] [TestCase(true, false, false, false)] [TestCase(true, true, false, false)]
+        [TestCase(false, false, true, false)] [TestCase(true, false, true, false)] [TestCase(true, true, true, false)]
+        [TestCase(true, false, true, true)]
+        public void SceneOwnerPreparesCancelsOrCommitsFullPartyRoomFight(bool commit, bool stackedFollowers, bool useSkillBar, bool differentTargetEncounter)
+        {
+            var root = new GameObject("opening scene owner"); var encounterDefinition = ScriptableObject.CreateInstance<EncounterDefinition>();
+            DungeonCombatCoordinator coordinator = null;
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            void Field(object owner, string name, object value) => owner.GetType().GetField(name, flags).SetValue(owner, value);
+            GameObject Child(string name) { var child = new GameObject(name); child.transform.SetParent(root.transform); return child; }
+            try
+            {
+                root.AddComponent<Camera>().orthographic = true;
+                var camera = root.AddComponent<CombatCameraFramer>();
+                var host = OpeningHost(root, true); var spawner = root.GetComponent<CombatUnitViewSpawner>();
+                var game = new GameSession(GameModeState.Exploration, "opening.scene");
+                var dungeon = new DungeonInstance("opening.dungeon", 7); var floor = new DungeonFloorInstance(0); var model = new DungeonFloorMap();
+                for (var x = 0; x < 8; x++) for (var y = 0; y < 8; y++) model.TryAddFloorCell(new Vector2Int(x, y), "room");
+                floor.TrySetMap(model); dungeon.TryAddFloor(floor); game.TrySetActiveDungeon(dungeon);
+                var map = root.AddComponent<DungeonFloorMapView>();
+                var gridRoot = Child("grid"); gridRoot.AddComponent<Grid>();
+                var tileObject = new GameObject("tilemap", typeof(UnityEngine.Tilemaps.Tilemap)); tileObject.transform.SetParent(gridRoot.transform);
+                Field(map, "floorTilemap", tileObject.GetComponent<UnityEngine.Tilemaps.Tilemap>());
+                spawner.ConfigureDungeon(game,map);
+                var party = root.AddComponent<ExplorationPartyController>();
+                var playerViews = new List<ExplorationCharacterView>();
+                for (var n = 0; n < 4; n++)
+                {
+                    var unit = OpeningMage("player" + n); game.TryRegisterCharacter(unit.Character); game.TryAddCharacterToActiveParty(unit.Character.CharacterId);
+                    var view = Child(unit.Character.CharacterId).AddComponent<ExplorationCharacterView>(); view.Bind(unit.Character);
+                    view.SetPosition(new Vector2(1.5f, stackedFollowers && n == 1 ? .5f : n + .5f)); playerViews.Add(view);
+                }
+                party.Initialize(game, playerViews);
+                var enemies = new List<ExplorationCharacterView>(); var entries = new List<EncounterEnemyData>();
+                foreach (var id in new[] { "guard", "peer" })
+                {
+                    var unit = OpeningMage(DungeonCombatMembershipSystem.EnemyKey("encounter", id), false);
+                    var view = Child(id).AddComponent<ExplorationCharacterView>(); view.Bind(unit.Character); view.SetEnemyInstanceId(id);
+                    view.SetPosition(new Vector2(3.5f, id == "guard" ? .5f : 1.5f)); enemies.Add(view);
+                    var entry = new EncounterEnemyData(); SetProperty(entry,"InstanceId",id); SetProperty(entry,"CharacterDefinition",unit.Character.Definition);
+                    SetProperty(entry,"ClassData",unit.Character.ClassData); entries.Add(entry);
+                }
+                SetProperty(encounterDefinition,"Enemies",entries);
+                var encounter = new DungeonEncounterInstance("encounter",encounterDefinition,"room",new RectInt(0,0,8,8));
+                dungeon.TryStorePreRolledRewards("encounter",new CombatRewardResult { EnemyRewards = new()
+                    { new CombatEnemyReward { EnemyInstanceId="guard", Gold=3 }, new CombatEnemyReward { EnemyInstanceId="peer", Gold=5 } } });
+                var trigger = Child("trigger").AddComponent<EncounterTriggerView>();
+                trigger.Initialize(party,model,map,encounter,differentTargetEncounter?new List<ExplorationCharacterView>{enemies[0]}:enemies);
+                var encounters = root.AddComponent<DungeonEncounterSpawner>();
+                var triggers=(List<EncounterTriggerView>)typeof(DungeonEncounterSpawner).GetField("spawnedTriggers",flags).GetValue(encounters);
+                triggers.Add(trigger);
+                if(differentTargetEncounter)
+                {
+                    var other=new DungeonEncounterInstance("other.encounter",encounterDefinition,"room",new RectInt(0,0,8,8));
+                    var otherTrigger=Child("other trigger").AddComponent<EncounterTriggerView>();
+                    otherTrigger.Initialize(party,model,map,other,new List<ExplorationCharacterView>{enemies[1]});triggers.Add(otherTrigger);
+                    dungeon.TryStorePreRolledRewards("other.encounter",new CombatRewardResult { EnemyRewards = new()
+                        { new CombatEnemyReward { EnemyInstanceId="peer", Gold=5 } } });
+                }
+                var targeting = root.AddComponent<CombatTargetSelectionController>(); Field(targeting,"sandboxBootstrap",host);
+                var movement = root.AddComponent<CombatMovementInputController>(); var inspect = root.AddComponent<CombatUnitInspectController>();
+                var feedback = root.AddComponent<CombatGridFeedbackRenderer>();
+                var follow = root.AddComponent<ExplorationCameraFollow>();
+                var hud = Child("combat HUD"); hud.SetActive(false);
+                coordinator = root.AddComponent<DungeonCombatCoordinator>();
+                foreach (var pair in new Dictionary<string,object> { ["game"]=game,["floor"]=floor,["map"]=map,["party"]=party,["encounters"]=encounters,
+                    ["combatHost"]=host,["unitViews"]=spawner,["targeting"]=targeting,["movementInput"]=movement,["inspectInput"]=inspect,
+                    ["gridFeedback"]=feedback,["combatHudRoot"]=hud,["explorationHudRoot"]=Child("exploration HUD"),["combatCamera"]=camera,
+                    ["explorationCamera"]=follow,["initialized"]=true }) Field(coordinator,pair.Key,pair.Value);
+                party.SetCombatCoordinator(coordinator);
+                var mana = playerViews[0].RuntimeCharacter.ResourcePool.CurrentValue;
+                floor.GetEnemyAwareness(DungeonCombatMembershipSystem.EnemyKey("encounter","guard")).TryRestore(.25f);
+                floor.GetEnemyAwareness(DungeonCombatMembershipSystem.EnemyKey(differentTargetEncounter?"other.encounter":"encounter","peer")).TryRestore(.75f);
+                Godmist.Views.UI.CombatSkillBarView skillBar = null;
+                Godmist.Views.UI.CombatSkillSlotView openingSlot = null;
+                if (useSkillBar)
+                {
+                    var barObject = new GameObject("exploration skills", typeof(RectTransform)); barObject.transform.SetParent(hud.transform);
+                    skillBar = barObject.AddComponent<Godmist.Views.UI.CombatSkillBarView>();
+                    var nativeBar = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CombatHud.prefab")
+                        .GetComponentInChildren<Godmist.Views.UI.CombatSkillBarView>(true);
+                    Field(skillBar,"skillSlotTemplate",new SerializedObject(nativeBar).FindProperty("skillSlotTemplate").objectReferenceValue);
+                    Field(skillBar,"skillBarRoot",barObject.GetComponent<RectTransform>());
+                    Field(skillBar,"sandboxBootstrap",host); Field(skillBar,"targetSelectionController",targeting);
+                    skillBar.BindExploration(coordinator.GetExplorationSkillActor, skill => coordinator.TrySelectOpeningSkill(skill));
+                    typeof(DungeonCombatCoordinator).GetMethod("SetFocus",flags).Invoke(coordinator,new object[]{null,true});
+                    var displayActor = coordinator.GetExplorationSkillActor();
+                    for(int i=0;i<100;i++) Assert.That(coordinator.GetExplorationSkillActor(),Is.SameAs(displayActor));
+                    Assert.That(host.Session,Is.Null); Assert.That(host.Drivers,Is.Empty); Assert.That(game.Combats,Is.Empty);
+                    Assert.That(playerViews[0].RuntimeCharacter.ResourcePool.CurrentValue,Is.EqualTo(mana));
+                    Assert.That(hud.activeSelf,Is.True);
+                    typeof(Godmist.Views.UI.CombatSkillBarView).GetMethod("Update",flags).Invoke(skillBar,null);
+                    var slots = skillBar.GetComponentsInChildren<Godmist.Views.UI.CombatSkillSlotView>();
+                    openingSlot = slots.First(slot => (SkillData)slot.GetType().GetField("skill",flags).GetValue(slot)==OpeningSkill("EnergyOrb"));
+                    Assert.That(openingSlot.TryActivate(),Is.True);
+                    Assert.That(targeting.SelectedSkill,Is.SameAs(OpeningSkill("EnergyOrb")));
+                    typeof(Godmist.Views.UI.CombatSkillBarView).GetMethod("Update",flags).Invoke(skillBar,null);
+                    Assert.That(targeting.SelectedSkill,Is.SameAs(OpeningSkill("EnergyOrb")),"Showing the preview must not rebuild/cancel the selected skill.");
+                    Assert.That(skillBar.GetComponentsInChildren<Godmist.Views.UI.CombatSkillSlotView>(),Is.EqualTo(slots));
+                    Assert.That(party.CanAcceptExplorationInput,Is.False);
+                    var position = playerViews[0].Position;
+                    typeof(ExplorationPartyController).GetMethod("FixedUpdateCore",flags).Invoke(party,null);
+                    Assert.That(playerViews[0].Position,Is.EqualTo(position));
+                }
+                else Assert.That(coordinator.TryPrepareOpening(enemies[0]),Is.True);
+                Assert.That(host.IsOpeningPreview,Is.True); Assert.That(hud.activeSelf,Is.True);
+                Assert.That(game.Combats,Is.Empty); Assert.That(host.Drivers,Is.Empty);
+                Assert.That(playerViews[0].RuntimeCharacter.ResourcePool.CurrentValue,Is.EqualTo(mana));
+                if (!commit)
+                {
+                    if(useSkillBar)
+                    {
+                        targeting.CancelTargetSelection();
+                        Field(targeting,"<ConsumedPrimaryClickThisFrame>k__BackingField",true);
+                        typeof(DungeonCombatCoordinator).GetMethod("UpdateOpeningPreparation",flags).Invoke(coordinator,null);
+                        Assert.That(party.IsWorldInteractionClaimedThisFrame,Is.True,"An attack click must not become a movement/interaction click after cancelling targeting.");
+                    }
+                    else typeof(DungeonCombatCoordinator).GetMethod("CancelOpeningPreparation",flags).Invoke(coordinator,new object[]{true});
+                    Assert.That(host.Session,Is.Null); Assert.That(game.Combats,Is.Empty); Assert.That(host.Drivers,Is.Empty);
+                    Assert.That(hud.activeSelf,Is.True); Assert.That(playerViews.All(v=>v.CombatUnit==null),Is.True);
+                    if(useSkillBar)
+                    {
+                        Assert.That(party.CanAcceptExplorationInput,Is.True);
+                        Assert.That(openingSlot.TryActivate(),Is.True);
+                        Assert.That(host.IsOpeningPreview,Is.True);
+                        game.TrySetActiveLeader(playerViews[1].CharacterId); Field(coordinator,"nextOpeningRefresh",0f);
+                        typeof(DungeonCombatCoordinator).GetMethod("UpdateOpeningPreparation",flags).Invoke(coordinator,null);
+                        Assert.That(host.Session,Is.Null);
+                        Assert.That(coordinator.GetExplorationSkillActor().Character,Is.SameAs(playerViews[1].RuntimeCharacter));
+                        Assert.That(coordinator.TrySelectOpeningSkill(OpeningSkill("EnergyOrb")),Is.True);
+                        game.TrySetMode(GameModeState.Menu);
+                        typeof(DungeonCombatCoordinator).GetMethod("UpdateOpeningPreparation",flags).Invoke(coordinator,null);
+                        Assert.That(host.Session,Is.Null); Assert.That(targeting.IsSelectingTarget,Is.False);
+                        Assert.That(movement.enabled,Is.False); Assert.That(game.CurrentMode,Is.EqualTo(GameModeState.Menu));
+                    }
+                    return;
+                }
+                var actor = host.Session.ActiveUnit; var target = host.Session.Units.First(u=>!u.IsPlayerSide && u.Character==enemies[useSkillBar?1:0].RuntimeCharacter);
+                Assert.That(host.TryExecuteSkill(OpeningSkill("EnergyOrb"),target.Position),Is.True);
+                Assert.That(host.IsOpeningPreview,Is.False); Assert.That(game.Combats.Count,Is.EqualTo(1));
+                var fight=game.Combats.Single(); Assert.That(fight.Units.Count,Is.EqualTo(6));
+                Assert.That(fight.DungeonContext.EncounterInstanceId,Is.EqualTo(differentTargetEncounter?"other.encounter":"encounter"));
+                Assert.That(fight.Units.Select(u=>u.Position).Distinct().Count(),Is.EqualTo(6));
+                Assert.That(fight.Units.Count(u=>u.IsPlayerSide),Is.EqualTo(4)); Assert.That(fight.EnemySources.Count,Is.EqualTo(2));
+                Assert.That(fight.Rewards.EnemyRewards.Sum(v=>v.Gold),Is.EqualTo(8));
+                Assert.That(fight.ActiveUnit.Character,Is.SameAs(actor.Character)); Assert.That(fight.ActiveUnit.CurrentActionPoints,Is.LessThan(fight.ActiveUnit.MaxActionPoints));
+                foreach (var enemy in fight.Units.Where(u=>!u.IsPlayerSide))
+                {
+                    var p=enemy.Character==enemies[0].RuntimeCharacter ? .25f : .75f;
+                    Assert.That(enemy.CurrentActionValue,Is.EqualTo(CombatTurnSystem.CalculateBaseActionValue(enemy)*(2-p)).Within(.01f));
+                }
+            }
+            finally
+            {
+                if(coordinator!=null) Field(coordinator,"initialized",false);
+                Object.DestroyImmediate(root); Object.DestroyImmediate(encounterDefinition);
+            }
         }
     }
 }

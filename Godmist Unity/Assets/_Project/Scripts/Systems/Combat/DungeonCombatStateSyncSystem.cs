@@ -8,6 +8,23 @@ namespace Godmist.Systems.Combat
 {
     public class DungeonCombatStateSyncSystem
     {
+        // Exploration and parallel combats share the floor, but own separate runtime door objects.
+        public void RefreshDoorsFromFloor(DungeonFloorInstance floor, CombatSession session)
+        {
+            if (floor?.Map == null || session?.Grid == null || session.DungeonContext?.FloorIndex != floor.FloorIndex) return;
+            foreach (var item in session.MapObjects)
+            {
+                if (item is not DoorCombatMapObject door) continue;
+                foreach (var source in floor.Objects)
+                {
+                    if (source is not DoorDungeonObjectInstance dungeonDoor || source.InstanceId != door.ObjectId) continue;
+                    door.IsOpen = !dungeonDoor.IsActive || dungeonDoor.IsOpen;
+                    session.Grid.SetBlockedEdge(door.Edge.FirstCell, door.Edge.SecondCell, door.BlocksMovement);
+                    break;
+                }
+            }
+        }
+
         public bool TrySyncDoorStates(
             GameSession gameSession,
             CombatSession combatSession)

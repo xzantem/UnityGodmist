@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: SD_Catacombs_disorienting_leap
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.disorienting_leap
-  <DisplayName>k__BackingField: "Dezorientuj\u0105cy Skok"
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: Zwodniczy Skok
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4308b034a885f2f4c9147f11609d8481, type: 3}
   <TooltipDescription>k__BackingField: "Doskok do wroga w zasi\u0119gu 2 i +12 uniku
     na 2 tury."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 30
-  <ResourceCost>k__BackingField: 40
-  <ResourceType>k__BackingField: 3
+  <ResourceCost>k__BackingField: 20
+  <ResourceType>k__BackingField: 1
   <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
@@ -30,6 +30,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 1
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -48,6 +49,7 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   - targetType: 9
     targetingType: 1
     includesCaster: 1
@@ -62,14 +64,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 10
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -98,6 +103,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -139,13 +145,20 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
   - effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 1
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -174,6 +187,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -215,3 +229,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

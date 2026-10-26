@@ -16,6 +16,7 @@ namespace Godmist.Systems.Combat
     public class StatusEffectSystem
     {
         public const string StunId = StatusEffectIds.Stun;
+        public const int CollisionStunDuration = 1;
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
         public static float ChillMaximumSpeed => GameDefinesRuntime.GetFloat(
             GameDefineIds.ChillMaximumSpeed, 20f);
@@ -93,6 +94,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, effect.StatusId)) return false;
             if (!PassesEffectChance(target, effect, source))
             {
                 battleLog?.Invoke(
@@ -426,6 +428,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, statusId)) return false;
             var chance = CalculateStatusApplicationChance(source, target, statusId, baseChance);
 
             if (chance <= 0f || (sharedRoll ?? UnityEngine.Random.value) > chance)
@@ -562,6 +565,20 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool ExtendStatusDuration(BattleUnit target, string statusId, int turns)
+        {
+            if (target?.Character?.PassiveEffects == null || string.IsNullOrWhiteSpace(statusId) || turns <= 0) return false;
+            var extended = false;
+            foreach (var effect in target.Character.PassiveEffects)
+                if (PassiveEffectLifecycleSystem.IsActive(effect) && effect.Lifetime == PassiveEffectLifetime.Timed
+                    && string.Equals(effect.EffectId, statusId, StringComparison.OrdinalIgnoreCase))
+                {
+                    effect.RemainingDuration += turns;
+                    extended = true;
+                }
+            return extended;
+        }
+
         public bool RemoveStatus(BattleUnit target, string statusId)
         {
             if (target?.Character == null)
@@ -669,8 +686,19 @@ namespace Godmist.Systems.Combat
 
         public static bool IsInvisible(BattleUnit unit)
         {
-            return HasStatus(unit, StatusEffectIds.Invisibility);
+            return BanditLeaderBossSystem.PermanentlyInvisible(unit) || HasStatus(unit, StatusEffectIds.Invisibility);
         }
+
+        // Exploration views keep the same character when combat bindings are released.
+        public static bool IsInvisible(CharacterInstance character)
+        {
+            return character != null && (character.LifeState == CharacterLifeState.Alive
+                && character.Definition?.Id == BanditLeaderBossSystem.BossId
+                || PassiveEffectLifecycleSystem.HasActiveEffect(character, StatusEffectIds.Invisibility));
+        }
+
+        public static bool IsInvisibleToPlayer(BattleUnit unit)
+            => unit != null && !unit.IsPlayerSide && IsInvisible(unit);
 
         public static bool TryGetTaunter(
             CombatSession session,
@@ -865,11 +893,29 @@ namespace Godmist.Systems.Combat
             passiveEffectLifecycleSystem.ProcessTurnStart(session, unit);
         }
 
+        public void ProcessDownedTurn(BattleUnit unit)
+        {
+            if (unit?.Character?.LifeState != CharacterLifeState.Downed) return;
+            passiveEffectLifecycleSystem.ProcessDownedTurn(unit);
+            // Timed shields use their own clock. Expiry is not a damage event.
+            unit.Character.ShieldPool?.AdvanceTurn();
+        }
+
         public void ProcessTurnEnd(BattleUnit unit)
         {
             if(unit?.Character?.LifeState==CharacterLifeState.Alive)PaladinCombatSystem.BeforeTurnEnd(unit.WarriorState.Session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
+            if (unit?.Character?.LifeState == CharacterLifeState.Alive)
+            {
+                var expiredShield = unit.Character.ShieldPool?.AdvanceTurn() ?? 0;
+                if (expiredShield > 0)
+                {
+                    battleLog?.Invoke($"{unit.Character.Definition.DisplayName} traci {expiredShield} wygasłej tarczy.");
+                    // Expiry is a self change, not an incoming hit reaction.
+                    feedbackBus?.Publish(new CombatFeedbackEvent(unit, CombatFeedbackType.ShieldLoss, expiredShield, source: unit));
+                }
+            }
             ScoutCombatSystem.TurnEnd(unit);
             WarriorCombatSystem.TurnEnd(unit);
             MageCombatSystem.TurnEnd(unit);
@@ -1041,16 +1087,13 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var baseResistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
-            var modifier = ModifyResistanceSystem.GetModifier(
-                target,
-                ResistanceType.Move);
-            var resistance = Mathf.Clamp01(baseResistance
-                + EquipmentEffectSystem.Resistance(target?.Character, ResistanceType.Move)
-                + modifier);
-            var finalChance = CalculateEffectChance(clampedChance, resistance);
+            return UnityEngine.Random.value <= CalculateMovementEffectChance(target, clampedChance);
+        }
 
-            return UnityEngine.Random.value <= finalChance;
+        public static float CalculateMovementEffectChance(BattleUnit target, float baseChance)
+        {
+            var resistance = ModifyResistanceSystem.GetEffectiveResistance(target, ResistanceType.Move);
+            return CalculateEffectChance(baseChance, resistance);
         }
 
         private bool PassesEffectChance(
@@ -1092,17 +1135,17 @@ namespace Godmist.Systems.Combat
         }
 
         public static float CalculateStatusApplicationChance(
-            BattleUnit source, BattleUnit target, string statusId, float baseChance)
+            BattleUnit source, BattleUnit target, string statusId, float baseChance, float additionalResistanceModifier = 0f)
         {
             if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
 
             var chance = Mathf.Clamp01(baseChance
                 + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
-            var naturalResistance = GetResistance(target, statusId, includeTolerance: false);
+            var naturalResistance = GetResistance(target, statusId, includeTolerance: false, additionalResistanceModifier);
             var naturalChance = CalculateEffectChance(chance, naturalResistance);
             var tolerance = target.GetStatusTolerance(statusId);
             if (!StatusEffectIds.UsesSuppressionResistance(statusId))
-                return CalculateEffectChance(chance, GetResistance(target, statusId));
+                return CalculateEffectChance(chance, GetResistance(target, statusId, additionalModifier: additionalResistanceModifier));
 
             return Mathf.Min(
                 CalculateEffectChance(chance, Mathf.Clamp01(naturalResistance + tolerance)),
@@ -1171,14 +1214,13 @@ namespace Godmist.Systems.Combat
         internal static float GetResistance(
             BattleUnit target,
             string statusId,
-            bool includeTolerance = true)
+            bool includeTolerance = true, float additionalModifier = 0f)
         {
             if (target?.Character == null)
             {
                 return 0f;
             }
 
-            var resistances = target.Character.Resistances;
             var resistanceType = StatusEffectIds.UsesSuppressionResistance(statusId)
                 ? ResistanceType.Suppression
                 : statusId.ToLowerInvariant() switch
@@ -1193,24 +1235,8 @@ namespace Godmist.Systems.Combat
 
             if (!resistanceType.HasValue) return 0f;
 
-            var baseResistance = resistanceType.Value switch
-            {
-                ResistanceType.Bleed => resistances?.BleedResistance ?? 0f,
-                ResistanceType.Poison => resistances?.PoisonResistance ?? 0f,
-                ResistanceType.Fire => resistances?.FireResistance ?? 0f,
-                ResistanceType.Weakening => resistances?.WeakeningResistance ?? 0f,
-                ResistanceType.Suppression => resistances?.SuppressionResistance ?? 0f,
-                ResistanceType.Move => resistances?.MoveResistance ?? 0f,
-                _ => 0f
-            };
-            var modifier = ModifyResistanceSystem.GetModifier(
-                target,
-                resistanceType.Value);
-            return Mathf.Clamp01(
-                baseResistance
-                + EquipmentEffectSystem.Resistance(target.Character, resistanceType.Value)
-                + modifier
-                + (includeTolerance ? target.GetStatusTolerance(statusId) : 0f));
+            return ModifyResistanceSystem.GetEffectiveResistance(target, resistanceType.Value,
+                additionalModifier + (includeTolerance ? target.GetStatusTolerance(statusId) : 0f));
         }
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)
@@ -1275,10 +1301,18 @@ namespace Godmist.Systems.Combat
                 : (int)total;
         }
 
-        private static int CalculateStatusDamagePerTurn(
+        public static int CalculateStatusDamagePerTurn(
             BattleUnit source,
             SkillEffectData effect)
         {
+            if (effect?.DamageValueSource == DamageValueSource.AlchemicalPower)
+            {
+                if (source?.Character == null || !IsDamageOverTimeStatus(effect.StatusId)) return 0;
+                var multiplier = effect.StatusDamageMultiplier
+                    * (effect.StatusId == StatusEffectIds.Poison ? ScoutCombatSystem.PoisonMultiplier(source) : 1f);
+                var damage = CombatDamageValueCalculator.CalculateAlchemicalPeriodicDamage(source.Character.Level, multiplier);
+                return HasStatus(source, StatusEffectIds.Weakening) ? Mathf.CeilToInt(damage * .8f) : damage;
+            }
             return effect == null
                 ? 0
                 : CalculateStatusDamagePerTurn(

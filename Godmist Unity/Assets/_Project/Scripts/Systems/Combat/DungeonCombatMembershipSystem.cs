@@ -25,7 +25,7 @@ namespace Godmist.Systems.Combat
         private static CombatEnemyReward CopyReward(CombatEnemyReward source, string id) => new()
         {
             EnemyInstanceId = id, ExperiencePerActiveCharacter = source.ExperiencePerActiveCharacter,
-            ExperienceLevel = source.ExperienceLevel, Gold = source.Gold, Items = new(source.Items)
+            ExperienceLevel = source.ExperienceLevel, IsBoss = source.IsBoss, Gold = source.Gold, Items = new(source.Items)
         };
 
         // Projection is only for the existing persistence/body owner, never another running battle.
@@ -54,18 +54,26 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        public static bool TryMerge(CombatSession destination, CombatSession source)
-        {
-            if (destination == null || source == null || destination == source
+        public static bool CanMerge(CombatSession destination, CombatSession source)
+            => !(destination == null || source == null || destination == source
                 || !destination.IsDungeonWide || !source.IsDungeonWide
                 || destination.Outcome != CombatOutcomeState.Ongoing || source.Outcome != CombatOutcomeState.Ongoing
                 || destination.DungeonContext?.DungeonId != source.DungeonContext?.DungeonId
                 || destination.DungeonContext?.FloorIndex != source.DungeonContext?.FloorIndex
                 || destination.DungeonContext == null || source.DungeonContext == null
                 || destination.DungeonContext.WorldBounds != source.DungeonContext.WorldBounds
-                || destination.Units.Any(unit => source.Units.Any(other => other.Character.CharacterId == unit.Character.CharacterId))) return false;
+                || destination.Units.Any(unit => source.Units.Any(other => other.Character.CharacterId == unit.Character.CharacterId)));
+
+        public static bool TryMerge(CombatSession destination, CombatSession source)
+        {
+            if (!CanMerge(destination, source)) return false;
 
             destination.Units.AddRange(source.Units);
+            foreach (var unit in source.Units)
+            {
+                unit.WarriorState.Session = destination;
+                if (unit.BanditLeaderState != null) unit.BanditLeaderState.Session = destination;
+            }
             destination.Contact?.Absorb(source.Contact);
             destination.TurnParticipants.AddRange(source.TurnParticipants);
             destination.Summons.AddRange(source.Summons);
@@ -75,6 +83,7 @@ namespace Godmist.Systems.Combat
                 if (!destination.MapObjects.Any(existing => existing.ObjectId == item.ObjectId)) destination.MapObjects.Add(item);
             foreach (var pair in source.EnemySources) destination.EnemySources.Add(pair.Key, pair.Value);
             destination.Rewards.EnemyRewards.AddRange(source.Rewards.EnemyRewards);
+            destination.ExperienceGrantedEnemyIds.UnionWith(source.ExperienceGrantedEnemyIds);
             foreach (var id in source.DefeatedEnemyInstanceIds)
             {
                 if (source.TryGetEnemyDeathPosition(id, out var position)) destination.TryMarkEnemyDefeated(id, position);

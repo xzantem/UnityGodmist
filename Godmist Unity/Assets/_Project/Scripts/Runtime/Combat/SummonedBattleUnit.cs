@@ -7,6 +7,7 @@ namespace Godmist.Runtime.Combat
     {
         public BattleUnit Unit;
         public string CreatorCharacterId = string.Empty;
+        public string GroupId = string.Empty;
         public string SourceSkillId = string.Empty;
         public int SourceEffectIndex;
         public int RemainingDurationTurns;

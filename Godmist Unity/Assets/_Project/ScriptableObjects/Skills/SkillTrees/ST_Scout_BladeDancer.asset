@@ -21,10 +21,10 @@ MonoBehaviour:
     <PassivesPerPoint>k__BackingField: []
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.scout.blade_dancer.viruses
-    <DisplayName>k__BackingField: "Wirusy Os\u0142abiaj\u0105ce"
+    <DisplayName>k__BackingField: "Prze\u0142amuj\u0105ca Toksyna"
     <Description>k__BackingField: "Zatruty Sztylet zmniejsza odporno\u015B\u0107
       na zatrucie o 15%/30% na 3 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b9f37ffb47d77ba47bb110367401c0e3, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -36,8 +36,8 @@ MonoBehaviour:
   - <Id>k__BackingField: node.scout.blade_dancer.poisoned_dagger
     <DisplayName>k__BackingField: Zatruty Sztylet
     <Description>k__BackingField: "Zadaje najmniejsze obra\u017Cenia fizyczne, [65%]
-      zatrucie 90% na 3 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+      zatrucie 40% na 3 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 09e5f040f9dc892468963b77dd08994c, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
@@ -48,7 +48,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Jad
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zatrucia Zatrutego
       Sztyletu o 10%/20%/30%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: a5e2c3797b709994e8e104960634137c, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 3
@@ -61,7 +61,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Silna Zniewaga
     <Description>k__BackingField: "Zwi\u0119ksza bonus obra\u017Ce\u0144 za ka\u017Cdy
       punkt Z\u0142o\u015Bci o 0.05%/0.1%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 405f89a05b42d564c90daaba9d561f4d, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -71,11 +71,11 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.anger
-    <DisplayName>k__BackingField: "Z\u0142o\u015B\u0107"
+    <DisplayName>k__BackingField: "Rozdra\u017Cnienie"
     <Description>k__BackingField: "Zadawanie obra\u017Ce\u0144 nak\u0142ada na przeciwnika
       10 punkt\xF3w Z\u0142o\u015Bci (max 100), ka\u017Cdy punkt zwi\u0119ksza otrzymywane
       obra\u017Cenia o 0.15%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 65bac7bba2ece42448945920e04f2d34, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
@@ -86,7 +86,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Rzut w Kolano
     <Description>k__BackingField: Rzut Sztyletem ma 10%/20%/30% na spowolnienie przeciwnika
       o 15 na 3 tury
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9822c9252e0dc854abc65201d65b84e1, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 3
@@ -94,9 +94,9 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.combo
-    <DisplayName>k__BackingField: Kombo
+    <DisplayName>k__BackingField: "Podw\xF3jny Rzut"
     <Description>k__BackingField: Daje 5%/10% szansy na podwojenie Rzutu Sztyletem
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b5980f92d8d40ea489434736003cbc54, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -107,7 +107,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Szybkie Ciosy
     <Description>k__BackingField: "Zadaje 50% losowych obra\u017Ce\u0144 fizycznych
       3 razy, ka\u017Cdy cios ma 35% na podw\xF3jne obra\u017Cenia"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 02119f31c79a0b644807a46a3d5251f2, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 1
@@ -119,7 +119,7 @@ MonoBehaviour:
     <Description>k__BackingField: "Po 3 bazowych ciosach Szybkich Cios\xF3w osobno
       losuje 50% na ka\u017Cdy z 1/2 dodatkowych cios\xF3w. Pora\u017Cka nie przerywa
       kolejnych losowa\u0144."
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0396f8ebabf27d24d9f27abca7ff3d68, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -132,7 +132,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Zemsta
     <Description>k__BackingField: "Otrzymywanie obra\u017Ce\u0144 od przeciwnik\xF3w
       nak\u0142ada na nich 10 punkt\xF3w Z\u0142o\u015Bci"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0deaf4664e60e28479d155ab46708590, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
@@ -145,7 +145,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Tonik Pobudzaj\u0105cy"
     <Description>k__BackingField: Przyspieszenie o 20 na 5 tur, po tym spowolnienie
       o 10 na 3 tury
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: c5c96b9f2ed48e34889cd12aeef320f9, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 1
@@ -153,9 +153,9 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.combo_master
-    <DisplayName>k__BackingField: Mistrz Kombo
+    <DisplayName>k__BackingField: Krwawa Seria
     <Description>k__BackingField: Kombo narzuca [80%] krwawienie 100%/120% na 3 tury
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: bd643ccc9d6d52246b4cb93b33921f4d, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -165,10 +165,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.fine_thrusts
-    <DisplayName>k__BackingField: "Finezyjne Pchni\u0119cia"
+    <DisplayName>k__BackingField: Finezyjne Trafienia
     <Description>k__BackingField: "Zwi\u0119ksza szanse na podw\xF3jne obra\u017Cenia
       Szybkich Cios\xF3w o 10%/20%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: df5007cd09f1d7245ae002d4bcba437e, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -181,7 +181,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Taniec Zag\u0142ady"
     <Description>k__BackingField: "Zwi\u0119ksza maksymaln\u0105 ilo\u015B\u0107
       dodatkowych cios\xF3w z Serii Cios\xF3w o 1/2"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 714a60a9e71a8554488b779d89716743, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -191,9 +191,9 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.mental_control
-    <DisplayName>k__BackingField: Kontrola Psychiczna
+    <DisplayName>k__BackingField: Gra na Nerwach
     <Description>k__BackingField: "Zwi\u0119ksza przyrost Z\u0142o\u015Bci o 1/3/5"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: dffee3031a954f6429372ce72391670b, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 3
@@ -206,7 +206,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Si\u0142a Naparu"
     <Description>k__BackingField: "Zwi\u0119ksza przyspieszenie Toniku Pobudzaj\u0105cego
       o 10 i spowolnienie o 5"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: f0808c676040a1b4888ccc3e4f0ebfea, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 1
@@ -215,24 +215,22 @@ MonoBehaviour:
     - <NodeId>k__BackingField: node.scout.blade_dancer.stimulating_tonic
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
-  - <Id>k__BackingField: node.scout.blade_dancer.strong_liver
-    <DisplayName>k__BackingField: "Mocna W\u0105troba"
-    <Description>k__BackingField: "Skraca spowolnienie Toniku Pobudzaj\u0105cego
-      o 1 tur\u0119"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+  - <Id>k__BackingField: node.scout.blade_dancer.efficient_recovery
+    <DisplayName>k__BackingField: Sprawny Odzysk
+    <Description>k__BackingField: "Zwi\u0119ksza zni\u017Ck\u0119 kosztu odzysku
+      w\u0142asnego sztyletu Link\u0105 z Hakiem z 20% do 60%: 10 PP i 10% PA"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 23081d047b5456f4184e373087028ad1, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
     <GrantedSkill>k__BackingField: {fileID: 0}
-    <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.scout.blade_dancer.brew_strength
-      <MinimumRanks>k__BackingField: 1
+    <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.accurate_throw
-    <DisplayName>k__BackingField: Celny Rzut
+    <DisplayName>k__BackingField: "Zab\xF3jczy Dystans"
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia o 2%/4% za ka\u017Cde
       pole odleg\u0142o\u015Bci od celu"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4b2afeed04249e44881891c074eb4b84, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -243,7 +241,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Mistrz Trucizny
     <Description>k__BackingField: "Zwi\u0119ksza si\u0142\u0119 wszystkich zatru\u0107
       o 10%/20%[p]"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: ee8bdf9753a6c22439e09d4b5fce1cb9, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -254,7 +252,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Zapasowe Sztylety
     <Description>k__BackingField: "Zwi\u0119ksza maksymaln\u0105 ilo\u015B\u0107
       sztylet\xF3w o 1/2"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 16ffce8e9d1c9f04c86e6e5524f9bc3a, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2

@@ -9,16 +9,20 @@ namespace Godmist.Runtime.Dungeons
         public int Seed { get; }
         public int LevelOffset { get; }
         public int FixedLevel { get; }
-        public DungeonExpeditionOffer(string definitionId, int seed, int levelOffset, int fixedLevel = 0)
-        { DefinitionId = definitionId; Seed = seed; LevelOffset = levelOffset; FixedLevel = fixedLevel; }
+        public DungeonLength Length { get; }
+        public DungeonExpeditionOffer(string definitionId, int seed, int levelOffset, int fixedLevel = 0,
+            DungeonLength length = DungeonLength.Unspecified)
+        { DefinitionId = definitionId; Seed = seed; LevelOffset = levelOffset; FixedLevel = fixedLevel; Length = length; }
     }
     public sealed class DungeonBossOpportunity
     {
         public DungeonTheme Theme { get; }
         public string DefinitionId { get; }
         public int Level { get; }
-        public DungeonBossOpportunity(DungeonTheme theme, string definitionId, int level)
-        { Theme = theme; DefinitionId = definitionId; Level = level; }
+        public DungeonLength Length { get; }
+        public DungeonBossOpportunity(DungeonTheme theme, string definitionId, int level,
+            DungeonLength length = DungeonLength.Unspecified)
+        { Theme = theme; DefinitionId = definitionId; Level = level; Length = length; }
     }
     public sealed class DungeonOfferBoard
     {
@@ -29,6 +33,9 @@ namespace Godmist.Runtime.Dungeons
         public IReadOnlyDictionary<DungeonTheme, int> DangerByTheme => dangerByTheme;
         public IReadOnlyList<DungeonBossOpportunity> BossOpportunities => bossOpportunities;
         public int Generation { get; private set; }
+        // Contract cycles advance on successful exits, not abandonment or offer repair.
+        public int CompletedExpeditions { get; private set; }
+        public void RecordCompletedExpedition() => CompletedExpeditions = (int)Math.Min(int.MaxValue, (long)CompletedExpeditions+1);
         public int SelectedIndex { get; private set; }
         public int HighestMilestoneProcessed { get; private set; }
         public int GetDanger(DungeonTheme theme) => dangerByTheme.TryGetValue(theme, out var value) ? value : 0;
@@ -37,13 +44,25 @@ namespace Godmist.Runtime.Dungeons
             if (theme == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), theme)) return;
             dangerByTheme[theme] = Math.Clamp(value, 0, 100);
         }
-        public bool QueueBoss(DungeonTheme theme, string definitionId, int level)
+        public bool QueueBoss(DungeonTheme theme, string definitionId, int level,
+            DungeonLength length = DungeonLength.Unspecified)
         {
             if (theme == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), theme)
                 || string.IsNullOrWhiteSpace(definitionId) || level < 1 || level > 50
+                || !Enum.IsDefined(typeof(DungeonLength), length)
                 || bossOpportunities.Exists(boss => boss.DefinitionId == definitionId && boss.Level == level))
                 return false;
-            bossOpportunities.Add(new DungeonBossOpportunity(theme, definitionId, level));
+            bossOpportunities.Add(new DungeonBossOpportunity(theme, definitionId, level, length));
+            return true;
+        }
+        public bool TryAssignLegacyBossLength(string definitionId, int level, DungeonLength length)
+        {
+            if (length < DungeonLength.Short || length > DungeonLength.Long) return false;
+            var index = bossOpportunities.FindIndex(boss => boss.DefinitionId == definitionId
+                && boss.Level == level && boss.Length == DungeonLength.Unspecified);
+            if (index < 0) return false;
+            var boss = bossOpportunities[index];
+            bossOpportunities[index] = new DungeonBossOpportunity(boss.Theme, definitionId, level, length);
             return true;
         }
         public bool CompleteBoss(string definitionId, int level)
@@ -73,6 +92,7 @@ namespace Godmist.Runtime.Dungeons
             {
                 var offer=next[i];
                 if (offer == null || string.IsNullOrWhiteSpace(offer.DefinitionId) || !seeds.Add(offer.Seed)
+                    || !Enum.IsDefined(typeof(DungeonLength), offer.Length)
                     || offer.FixedLevel < 0 || offer.FixedLevel > 50
                     || (offer.FixedLevel > 0 && offer.LevelOffset != 0)
                     || (offer.FixedLevel == 0 && (i == 0 || i == 1 && next[0].FixedLevel > 0
@@ -83,10 +103,10 @@ namespace Godmist.Runtime.Dungeons
         }
         public bool TryRestoreProgression(int highestMilestoneProcessed,
             IReadOnlyDictionary<DungeonTheme, int> nextDanger,
-            IReadOnlyList<DungeonBossOpportunity> nextBosses)
+            IReadOnlyList<DungeonBossOpportunity> nextBosses, int completedExpeditions = 0)
         {
             if (highestMilestoneProcessed < 0 || highestMilestoneProcessed > 50
-                || highestMilestoneProcessed % 10 != 0 || nextDanger == null || nextBosses == null)
+                || highestMilestoneProcessed % 10 != 0 || nextDanger == null || nextBosses == null || completedExpeditions < 0)
                 return false;
             foreach (var pair in nextDanger)
                 if (pair.Key == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), pair.Key)
@@ -95,12 +115,14 @@ namespace Godmist.Runtime.Dungeons
             foreach (var boss in nextBosses)
                 if (boss == null || boss.Theme == DungeonTheme.Story
                     || !Enum.IsDefined(typeof(DungeonTheme), boss.Theme)
+                    || !Enum.IsDefined(typeof(DungeonLength), boss.Length)
                     || string.IsNullOrWhiteSpace(boss.DefinitionId) || boss.Level < 1 || boss.Level > 50
                     || !keys.Add((boss.DefinitionId, boss.Level))) return false;
             dangerByTheme.Clear();
             foreach (var pair in nextDanger) dangerByTheme.Add(pair.Key, pair.Value);
             bossOpportunities.Clear(); bossOpportunities.AddRange(nextBosses);
             HighestMilestoneProcessed = highestMilestoneProcessed;
+            CompletedExpeditions = completedExpeditions;
             return true;
         }
     }

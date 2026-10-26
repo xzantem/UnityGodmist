@@ -25,11 +25,23 @@ namespace Godmist.Runtime.Characters
             }
         }
 
-        public void AddLayer(int value, string sourceId = null)
+        public void AddLayer(int value, string sourceId = null, int remainingTurns = 0)
         {
             if (value <= 0) return;
 
-            layers.Add(new ShieldLayer(value, sourceId));
+            layers.Add(new ShieldLayer(value, sourceId, remainingTurns));
+        }
+
+        public int AdvanceTurn()
+        {
+            var expiredValue = 0;
+            for (var index = layers.Count - 1; index >= 0; index--)
+            {
+                if (!layers[index].AdvanceTurn()) continue;
+                expiredValue += layers[index].CurrentValue;
+                layers.RemoveAt(index);
+            }
+            return expiredValue;
         }
 
         public int AbsorbDamage(int incomingDamage)

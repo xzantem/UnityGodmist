@@ -21,6 +21,13 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class BattleUnit
     {
+        [NonSerialized] public ForestEntCombatState ForestEntState;
+        [NonSerialized] public DeadKingCombatState DeadKingState;
+        [NonSerialized] public SkeletonSlayerCombatState SkeletonSlayerState;
+        [NonSerialized] public BanditLeaderCombatState BanditLeaderState;
+        public int DeadKingKnightHits;
+        [NonSerialized] public bool RibbedTunicProtectionUsed;
+        [NonSerialized] public int PoacherArmorCooldown, PoacherArmorShieldTurns;
         public CharacterInstance Character;
         public readonly ScoutTargetState ScoutState = new();
         public readonly WarriorCombatState WarriorState = new();
@@ -33,6 +40,8 @@ namespace Godmist.Runtime.Combat
         public int MaxActionPoints;
         public int MovementStepsThisTurn;
         public bool HasInitializedCombatResources;
+        // Survives departure/merge; cleared when the turn is consumed or the combat finishes.
+        [NonSerialized] public bool HasUnfinishedCombatTurn;
         public int MaxKnives;
         public int AvailableKnives;
         public float CurrentActionValue;
@@ -57,6 +66,7 @@ namespace Godmist.Runtime.Combat
         public bool IsReadyToEscape;
         public bool IsPlayerSide;
         public bool IsAiControlledSummon;
+        public bool IsStationarySummon;
         public float PendingEquipmentActionValueReduction;
         public bool IsPlayerControlled => IsPlayerSide && !IsAiControlledSummon;
         public bool IsBoss;
@@ -115,7 +125,7 @@ namespace Godmist.Runtime.Combat
         }
 
         public static int DownedTurnLimit => GameDefinesRuntime.GetInt(
-            GameDefineIds.DownedTurnLimit, 5);
+            GameDefineIds.DownedTurnLimit, 3);
     }
 
     [Serializable]

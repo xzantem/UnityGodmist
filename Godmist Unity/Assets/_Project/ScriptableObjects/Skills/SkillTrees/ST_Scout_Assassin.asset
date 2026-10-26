@@ -60,7 +60,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Cios w Plecy
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia zadawane od ty\u0142u
       o 10%/20%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 97fddb2c8c2d99a40ae4cdaa6e981726, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -71,7 +71,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Rykoszet
     <Description>k__BackingField: "Zadaje losowe obra\u017Cenia fizyczne, ka\u017Cde
       kolejne trafienie ma 10% wi\u0119ksz\u0105 szans\u0119 krytyczn\u0105"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 35bd9a88d9b3b3e44adc00242ea615e0, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1
@@ -79,10 +79,10 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.farsight
-    <DisplayName>k__BackingField: Dalekie Widzenie
+    <DisplayName>k__BackingField: Daleki Rykoszet
     <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g bezwzgl\u0119dny i wzgl\u0119dny
       Rykoszetu o 1/3"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4418e81f25984c842ba582c6803c4dc8, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -92,10 +92,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.critical_point
-    <DisplayName>k__BackingField: Krytyczny Punkt
+    <DisplayName>k__BackingField: "Wykorzystanie S\u0142abo\u015Bci"
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia krytyczne zyskane
       ze S\u0142abego Punktu o 5%/10%/15%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 5ec2a8d5189659942a44fb9e49810283, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 3
@@ -108,7 +108,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "S\u0142aby Punkt"
     <Description>k__BackingField: "[95%] Zwi\u0119ksza szans\u0119 krytyczn\u0105
       o 10% i obra\u017Cenia krytyczne o 20% na 5 tur wobec wroga"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 04c755debd654434fab4d0f3bc8b06ea, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 1
@@ -119,7 +119,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Podci\u0119cie N\xF3g"
     <Description>k__BackingField: "Atakowanie przeciwnik\xF3w od ty\u0142u po poruszaniu
       si\u0119 ma 25%/50% szansy na og\u0142uszenie na 1 tur\u0119"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 62be061e28e83b44289337508540faf5, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -129,10 +129,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.throw_power
-    <DisplayName>k__BackingField: "Si\u0142a Rzutu"
+    <DisplayName>k__BackingField: "Narastaj\u0105cy Impet"
     <Description>k__BackingField: "Ka\u017Cdy kolejny przeciwnik trafiony Rykoszetem
       otrzymuje 10%/20% wi\u0119cej obra\u017Ce\u0144"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 33b57aa315967fe4091dd93501eeebcc, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -142,10 +142,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.knife_bounce
-    <DisplayName>k__BackingField: Odbicie Sztyletu
+    <DisplayName>k__BackingField: Kolejne Odbicia
     <Description>k__BackingField: "Zwi\u0119ksza ilo\u015B\u0107 cel\xF3w trafianych
       przez Rykoszet o 2"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 5f72c924b7040ab4eac56a699a686494, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 1
@@ -155,10 +155,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.rapid_strikes
-    <DisplayName>k__BackingField: "Gwa\u0142towne Uderzenia"
+    <DisplayName>k__BackingField: Precyzja w Zwarciu
     <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 krytyczn\u0105 w walce
       wr\u0119cz o 5%/10%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 59255637a75349e4fb874f503a87a50b, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 2
@@ -170,7 +170,7 @@ MonoBehaviour:
     <Description>k__BackingField: "Ciosy krytyczne podczas dzia\u0142ania S\u0142abego
       Punktu daj\u0105 20%/30% penetracji fizycznej wobec ka\u017Cdego przeciwnika
       na 3 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: c789ebe81e2f93c4b8efbafd5e9d3b33, type: 3}
     <Tier>k__BackingField: 2
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2
@@ -183,7 +183,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Atak w Biegu
     <Description>k__BackingField: "Przechodzenie obok przeciwnik\xF3w zadaje im 25%/50%
       losowych obra\u017Ce\u0144 fizycznych z celno\u015Bci\u0105 77 (raz na tur\u0119)"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: be8b7ac65a881174fb89434bfb91c8fc, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -194,9 +194,9 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.surprise
     <DisplayName>k__BackingField: Zaskoczenie
-    <Description>k__BackingField: "Atak wyprowadzony podczas trwania Wojownika Cieni
+    <Description>k__BackingField: "Atak wyprowadzony podczas trwania Kroku w Cie\u0144
       ma 30%/60% wi\u0119ksze obra\u017Cenia"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 468b925bc5ba0dc43992a0f5b6ae6046, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -206,10 +206,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.shadow_warrior
-    <DisplayName>k__BackingField: Wojownik Cieni
+    <DisplayName>k__BackingField: "Krok w Cie\u0144"
     <Description>k__BackingField: "Daje niewidzialno\u015B\u0107 na 3 tury, Szar\u017Ca
       1"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b41e6a8364ea65843bf50fe93af65f2f, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 1
@@ -217,10 +217,10 @@ MonoBehaviour:
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.karambit_style
-    <DisplayName>k__BackingField: Styl Karambitowy
+    <DisplayName>k__BackingField: Mistrzostwo Zwarcia
     <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia w walce wr\u0119cz
       o 25%/60%/100%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 91192658115b00642a5f9b7bbf51920b, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 3
@@ -235,7 +235,7 @@ MonoBehaviour:
       ciosem wr\u0119cz przeciwnika, kt\xF3rego zabi\u0142aby pi\u0119ciokrotno\u015B\u0107
       zadanych obra\u017Ce\u0144. Bossy zamiast tego otrzymuj\u0105 100% obra\u017Ce\u0144
       wi\u0119cej"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8f106aa370285b54e98dfa7d3680cbdf, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 3
@@ -245,10 +245,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.keen_eye
-    <DisplayName>k__BackingField: Celny Wzrok
+    <DisplayName>k__BackingField: "Pewna R\u0119ka"
     <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na Ostry N\xF3\u017C
       o 5%/10%"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8f05ef1cd81bfa4418519a7e4ddd9d89, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 2
@@ -258,11 +258,11 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.sharp_knife
-    <DisplayName>k__BackingField: "Ostry N\xF3\u017C"
+    <DisplayName>k__BackingField: "G\u0142\u0119bokie Wbicie"
     <Description>k__BackingField: "Rzucone no\u017Ce maj\u0105 15% szansy na wbicie
       si\u0119 w przeciwnika. Klikni\u0119cie wyjmuje go rzucaj\u0105c [90%] krwawienie
       60%/90% na 3 tury"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 024633d61caafa648b69000151b52338, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 2
@@ -273,7 +273,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Lekki Krok
     <Description>k__BackingField: Zmniejsza wymagania ruchowe podczas trwania Wojownika
       Cieni o 1/3 punkty akcji
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b9d2da6d57ef7a94ba369e6a4558ae6a, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 2
@@ -283,10 +283,10 @@ MonoBehaviour:
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.precise_strike
-    <DisplayName>k__BackingField: Trafny Cios
+    <DisplayName>k__BackingField: "Og\u0142uszaj\u0105ca G\u0142owica"
     <Description>k__BackingField: "Zwi\u0119ksza czas trwania og\u0142uszenia Uderzenia
       G\u0142owic\u0105 do 2 tur"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 389cebd7378a3c54a9cafcd36725fce5, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
@@ -299,7 +299,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Uderzenie G\u0142owic\u0105"
     <Description>k__BackingField: "Daje 15%/30% na og\u0142uszenie przeciwnika na
       1 tur\u0119, je\u015Bli Podci\u0119cie Gard\u0142a nie powiedzie si\u0119"
-    <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: b93ec0db80821ea4b9c789426fdb9120, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 5
     <MaxRanks>k__BackingField: 2

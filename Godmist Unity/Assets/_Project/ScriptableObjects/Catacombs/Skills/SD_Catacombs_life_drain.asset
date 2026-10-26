@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.life_drain
   <DisplayName>k__BackingField: "Wyssanie \u017Bycia"
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 091aabdb134ea114abc0cd80d24f1c62, type: 3}
   <TooltipDescription>k__BackingField: "Zadaje 150% losowych obra\u017Ce\u0144 magicznych.
     Ka\u017Cdy sojusznik odzyskuje 30% zadanych obra\u017Ce\u0144 jako HP."
   <SkillAccuracy>k__BackingField: 100
@@ -84,6 +84,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0

@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: SD_MageTiringSpells
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.mage.tiring
-  <DisplayName>k__BackingField: "M\u0119cz\u0105ce Czary"
-  <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
-  <TooltipDescription>k__BackingField: "Zatrzymuje odzysk many. Ataki maj\u0105 70%
-    szansy na spowolnienie o 3 na 3 tury."
+  <DisplayName>k__BackingField: "Wycie\u0144czaj\u0105ce Zakl\u0119cia"
+  <Icon>k__BackingField: {fileID: 21300000, guid: f79fef7dab3d2c540b5ce70ef7d5792d, type: 3}
+  <TooltipDescription>k__BackingField: "Blokuje odzysk many. Trafienia skilli maj\u0105
+    70% szansy na \u22125 szybko\u015Bci na 3 tury, do 3 kumulacji (\u221215). Jeden
+    rzut na cel z u\u017Cycia skilla; udane na\u0142o\u017Cenie od\u015Bwie\u017Ca
+    czas ca\u0142ego efektu. DoT i dodatkowe obra\u017Cenia pasywek nie dok\u0142adaj\u0105
+    kumulacji."
   <SkillAccuracy>k__BackingField: 100
   <AttackType>k__BackingField: 1
   <PointBlankAttackType>k__BackingField: 0
@@ -28,7 +31,9 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
+  <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -47,14 +52,17 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
   - effectType: 22
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -65,6 +73,7 @@ MonoBehaviour:
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -82,6 +91,7 @@ MonoBehaviour:
       rectangleWidth: 0
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -123,3 +133,8 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

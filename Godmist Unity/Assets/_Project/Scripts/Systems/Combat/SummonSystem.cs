@@ -21,6 +21,14 @@ namespace Godmist.Systems.Combat
             this.battleLog = battleLog;
         }
 
+        public static int CountOwnedSummons(CombatSession session, BattleUnit caster, string groupId)
+            => session?.Summons?.Count(s => s?.Unit?.Character?.LifeState == CharacterLifeState.Alive
+                && s.CreatorCharacterId == caster?.Character?.CharacterId && s.GroupId == groupId) ?? 0;
+
+        public static float DamageScale(BattleUnit caster, SkillEffectData effect)
+            => string.IsNullOrWhiteSpace(effect?.DamagePerOwnedSummonGroup) ? 1f
+                : CountOwnedSummons(caster?.WarriorState.Session, caster, effect.DamagePerOwnedSummonGroup);
+
         public bool TrySummon(CombatSession session, BattleUnit caster,
             SkillData skill, SkillEffectData effect, int effectIndex,
             GridPosition position, out BattleUnit summonedUnit)
@@ -45,6 +53,15 @@ namespace Godmist.Systems.Combat
             character.CurrentHealth = Mathf.Max(1, Mathf.CeilToInt(
                 character.Stats.MaxHealth.GetValue() * effect.SummonPercentMaxHealth));
 
+            if (effect.SummonUsesCasterStats)
+            {
+                character.Stats.MaxHealth = new Godmist.Core.Types.Stat(Mathf.Max(1,
+                    Mathf.RoundToInt(caster.Character.Stats.MaxHealth.GetValue() * effect.SummonPercentMaxHealth)));
+                character.CurrentHealth = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+                character.Stats.MinAttack = new Godmist.Core.Types.Stat(caster.Character.Stats.MinAttack.GetValue());
+                character.Stats.MaxAttack = new Godmist.Core.Types.Stat(caster.Character.Stats.MaxAttack.GetValue());
+                character.Stats.Speed = new Godmist.Core.Types.Stat(caster.Character.Stats.Speed.GetValue());
+            }
             var speed = Mathf.Max(0.01f, character.Stats.Speed.GetValue());
             var maxAp = Mathf.Max(0, Mathf.RoundToInt(
                 speed * session.ActionPointsPerSpeed * ActionPointUnits.PerPoint));
@@ -53,6 +70,8 @@ namespace Godmist.Systems.Combat
                 Character = character,
                 Position = position,
                 IsPlayerSide = caster.IsPlayerSide,
+                IsAiControlledSummon = effect.SummonStationary,
+                IsStationarySummon = effect.SummonStationary,
                 CurrentActionPoints = maxAp,
                 MaxActionPoints = maxAp,
                 CurrentActionValue = CombatTurnSystem.BaseActionValue / speed
@@ -62,7 +81,8 @@ namespace Godmist.Systems.Combat
             session.Units.Add(summonedUnit);
             session.Summons.Add(new SummonedBattleUnit(summonedUnit,
                 caster.Character.CharacterId, skill.SkillId, effectIndex,
-                effect.SummonDurationTurns, nextCreationOrder));
+                effect.SummonPersistent ? -1 : effect.SummonDurationTurns, nextCreationOrder) { GroupId = effect.SummonGroupId });
+            summonedUnit.WarriorState.Session = session;
             session.TurnParticipants ??= new();
             session.TurnParticipants.Add(new CombatTurnParticipant(summonedUnit));
             battleLog?.Invoke($"{caster.Character.Definition.DisplayName} przyzywa {character.Definition.DisplayName}.");
@@ -165,7 +185,7 @@ namespace Godmist.Systems.Combat
         private static void ApplySummonHealth(Godmist.Runtime.Characters.CharacterInstance character, float fraction)
         {
             character.PassiveEffects.Add(new Godmist.Runtime.Effects.PassiveEffectRuntime {
-                EffectId = "summon.health", DefinitionId = "summon.health",
+                EffectId = "summon.health", DefinitionId = "summon.health", DisplayName = "Zdrowie przywołania",
                 Lifetime = Godmist.Core.Enums.PassiveEffectLifetime.CombatScoped,
                 StatModifiers = new System.Collections.Generic.List<Godmist.Core.Types.StatModifier> { new() {
                     StatType = Godmist.Core.Enums.CharacterStatType.MaxHealth,

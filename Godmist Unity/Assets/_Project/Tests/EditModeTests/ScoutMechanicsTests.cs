@@ -30,6 +30,151 @@ namespace Godmist.Tests.EditMode
             if(p==null){p=new(){TreeId=tree};u.Character.SkillTreeProgress.Add(p);}
             p.NodeInvestments.Add(new(){NodeId="node.scout."+(tree==ScoutCombatSystem.BladeTree?"blade_dancer.":"assassin.")+node,Ranks=rank});
         }
+
+        BattleUnit RecoveryUnit(int resource = 50)
+        {
+            var unit = Unit(true, 1);
+            // The speed-step refresh synchronizes the pool from runtime stats.
+            unit.Character.Stats.MaxResource = new Stat(200);
+            unit.Character.ResourcePool = new ResourcePool(ResourceType.Momentum, resource, 200, 0);
+            unit.MaxActionPoints = unit.CurrentActionPoints = 10000;
+            return unit;
+        }
+
+        [Test]
+        public void GroundRecoveryRewardsOnePickupRatherThanEveryKnifeAndCannotRepeat()
+        {
+            var owner = RecoveryUnit(); owner.AvailableKnives = 1;
+            var session = new CombatSession { Grid = new BattleGrid(10, 6), Units = new() { owner }, ActiveUnit = owner };
+            session.MapObjects.Add(new KnifeCombatMapObject("stack", owner.Position, owner.Character.CharacterId, 2));
+            session.MapObjects.Add(new KnifeCombatMapObject("single", owner.Position, owner.Character.CharacterId, 1));
+            var events = new List<CombatFeedbackEvent>(); var bus = new CombatFeedbackBus(); bus.Published += events.Add;
+            var recovery = new CombatRecoverySystem(feedbackBus: bus);
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner, recovery), Is.EqualTo(3));
+            Assert.That(owner.AvailableKnives, Is.EqualTo(4));
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+            Assert.That(events.Single().Amount, Is.EqualTo(8));
+            Assert.That(events[0].Type, Is.EqualTo(CombatFeedbackType.ResourceGain));
+            Assert.That(events[0].ResourceType, Is.EqualTo(ResourceType.Momentum));
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner, recovery), Is.Zero);
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58)); Assert.That(events.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void PartialGroundRecoveryKeepsTheRestOfTheStackAndFullInventoryCannotFarmMomentum()
+        {
+            var owner = RecoveryUnit();
+            var session = new CombatSession();
+            var knife = new KnifeCombatMapObject("stack", owner.Position, owner.Character.CharacterId, 3);
+            session.MapObjects.Add(knife);
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner), Is.EqualTo(1));
+            Assert.That(knife.KnifeCount, Is.EqualTo(2)); Assert.That(session.MapObjects, Contains.Item(knife));
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner), Is.Zero);
+            Assert.That(knife.KnifeCount, Is.EqualTo(2)); Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+        }
+
+        [TestCase(150, 158, 8)]
+        [TestCase(197, 200, 3)]
+        [TestCase(200, 200, 0)]
+        public void RecoveryIsFlatAboveOneHundredButClampedWithAccurateFeedback(int initial, int expected, int feedback)
+        {
+            var owner = RecoveryUnit(initial); var session = new CombatSession();
+            session.MapObjects.Add(new KnifeCombatMapObject("knife", owner.Position, owner.Character.CharacterId, 1));
+            var events = new List<CombatFeedbackEvent>(); var bus = new CombatFeedbackBus(); bus.Published += events.Add;
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner, new CombatRecoverySystem(feedbackBus: bus)), Is.EqualTo(1));
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(expected));
+            Assert.That(events.Sum(e => e.Amount), Is.EqualTo(feedback));
+            Assert.That(events.Count, Is.EqualTo(feedback > 0 ? 1 : 0));
+        }
+
+        [TestCase("ground")]
+        [TestCase("skill")]
+        [TestCase("extract")]
+        public void EveryRecoveryRouteRespectsResourceGainBlock(string route)
+        {
+            var owner = RecoveryUnit(); var enemy = Unit(false, 2);
+            owner.Character.PassiveEffects.Add(new Godmist.Runtime.Effects.PassiveEffectRuntime { BlocksResourceRegeneration = true });
+            var session = new CombatSession { Grid = new BattleGrid(10, 6), Units = new() { owner, enemy }, ActiveUnit = owner };
+            if (route == "ground")
+            {
+                session.MapObjects.Add(new KnifeCombatMapObject("knife", owner.Position, owner.Character.CharacterId, 1));
+                Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner), Is.EqualTo(1));
+            }
+            else if (route == "skill")
+            {
+                var position = new GridPosition(3, 1);
+                session.MapObjects.Add(new KnifeCombatMapObject("knife", position, owner.Character.CharacterId, 1));
+                var hook = AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_ScoutHook.asset");
+                Assert.That(ScoutCombatSystem.RecoverKnife(session, owner, hook, position), Is.True);
+            }
+            else
+            {
+                enemy.ScoutState.Knives.Add(new() { Owner = owner, BleedMultiplier = .6f });
+                Assert.That(ScoutCombatSystem.TryExtractKnife(session, owner, enemy, new StatusEffectSystem()), Is.True);
+            }
+            Assert.That(owner.AvailableKnives, Is.EqualTo(5)); Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(50));
+        }
+
+        [TestCase(ResourceType.Mana)]
+        [TestCase(ResourceType.Rage)]
+        [TestCase(ResourceType.None)]
+        public void KnifeRecoveryDoesNotAwardOtherResourceTypes(ResourceType type)
+        {
+            var owner = RecoveryUnit(); owner.Character.ResourcePool.ResourceType = type;
+            var session = new CombatSession(); session.MapObjects.Add(new KnifeCombatMapObject("knife", owner.Position, owner.Character.CharacterId, 1));
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner), Is.EqualTo(1));
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void GroundRecoveryRejectsForeignEmptyAndDistantKnivesWithoutReward()
+        {
+            var owner = RecoveryUnit(); var session = new CombatSession();
+            session.MapObjects.Add(new KnifeCombatMapObject("foreign", owner.Position, "other", 1));
+            session.MapObjects.Add(new KnifeCombatMapObject("distant", new GridPosition(4, 1), owner.Character.CharacterId, 1));
+            session.MapObjects.Add(new KnifeCombatMapObject("empty", owner.Position, owner.Character.CharacterId, 1) { KnifeCount = 0 });
+            Assert.That(ScoutKnifeSystem.RecoverAtPosition(session, owner), Is.Zero);
+            Assert.That(owner.AvailableKnives, Is.EqualTo(4)); Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void SkillRecoveryRewardsTheWholeStackOnceAndRejectsRepeat()
+        {
+            var owner = RecoveryUnit(); owner.AvailableKnives = 1;
+            var session = new CombatSession { Grid = new BattleGrid(10, 6), Units = new() { owner }, ActiveUnit = owner };
+            var position = new GridPosition(3, 1);
+            session.MapObjects.Add(new KnifeCombatMapObject("stack", position, owner.Character.CharacterId, 3));
+            var hook = AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_ScoutHook.asset");
+            Assert.That(ScoutCombatSystem.RecoverKnife(session, owner, hook, position), Is.True);
+            Assert.That(owner.AvailableKnives, Is.EqualTo(4)); Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+            Assert.That(ScoutCombatSystem.RecoverKnife(session, owner, hook, position), Is.False);
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+        }
+
+        [Test]
+        public void ExtractionRewardsOnlyOneActuallyRemovedKnife()
+        {
+            var owner = RecoveryUnit(); var enemy = Unit(false, 2);
+            var session = new CombatSession { Grid = new BattleGrid(6, 6), Units = new() { owner, enemy }, ActiveUnit = owner };
+            enemy.ScoutState.Knives.Add(new() { Owner = owner, BleedMultiplier = .6f });
+            Assert.That(ScoutCombatSystem.TryExtractKnife(session, owner, enemy, new StatusEffectSystem()), Is.True);
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+            Assert.That(ScoutCombatSystem.TryExtractKnife(session, owner, enemy, new StatusEffectSystem()), Is.False);
+            Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+        }
+
+        [Test]
+        public void RealMovementPickupPublishesRewardWithoutChangingActionPointCost()
+        {
+            var owner = RecoveryUnit(); var session = new CombatSession { Grid = new BattleGrid(6, 6), Units = new() { owner }, ActiveUnit = owner };
+            session.MapObjects.Add(new KnifeCombatMapObject("knife", new GridPosition(2, 1), owner.Character.CharacterId, 1));
+            var events = new List<CombatFeedbackEvent>(); var bus = new CombatFeedbackBus(); bus.Published += events.Add;
+            var expectedAp = owner.CurrentActionPoints - CombatActionCostCalculator.CalculateMovementCost(owner);
+            Assert.That(new CombatMovementSystem(feedbackBus: bus).TryMoveOneStep(session, owner, 1, 0), Is.True);
+            Assert.That(owner.CurrentActionPoints, Is.EqualTo(expectedAp)); Assert.That(owner.Character.ResourcePool.CurrentValue, Is.EqualTo(58));
+            Assert.That(events.Count(e => e.Type == CombatFeedbackType.ResourceGain && e.Amount == 8), Is.EqualTo(1));
+        }
         [TestCase(.9f,.9f,3)] [TestCase(.1f,.9f,4)] [TestCase(.9f,.1f,4)] [TestCase(.1f,.1f,5)]
         public void AdditionalHitsAreIndependent(float first,float second,int expected)
         {

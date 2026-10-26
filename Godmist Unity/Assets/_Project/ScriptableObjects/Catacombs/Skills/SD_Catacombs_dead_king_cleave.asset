@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.dead_king_cleave
   <DisplayName>k__BackingField: "Kr\xF3lewskie Ci\u0119cie"
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: b6bb6099986a7d145a8435c13fff89da, type: 3}
   <TooltipDescription>k__BackingField: "Tnie dwa pola przed sob\u0105, zadaj\u0105c
     losowe obra\u017Cenia fizyczne."
   <SkillAccuracy>k__BackingField: 100

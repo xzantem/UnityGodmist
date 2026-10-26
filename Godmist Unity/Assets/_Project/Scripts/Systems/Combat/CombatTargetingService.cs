@@ -126,11 +126,11 @@ namespace Godmist.Systems.Combat
                 case TargetType.All:
                     foreach (var unit in session.Units)
                     {
-                        if (StatusEffectSystem.IsInvisible(unit))
+                        if (IsInvisibleToEnemy(caster, unit))
                         {
                             continue;
                         }
-                        if (IsEligibleTarget(caster, unit, mode.TargetingType, includeDownedTargets))
+                        if (IsEligibleTarget(caster, unit, mode.TargetingType, includeDownedTargets, includesCaster: mode.IncludesCaster))
                         {
                             targets.Add(unit);
                         }
@@ -164,6 +164,9 @@ namespace Godmist.Systems.Combat
                     DungeonBattleGridFactory.ToDungeonTraversalPosition(context, unit.Position)));
             }
 
+            if (!string.IsNullOrWhiteSpace(mode.RequiredStatusId))
+                targets.RemoveAll(unit => !StatusEffectSystem.HasStatus(unit, mode.RequiredStatusId));
+
             if (requiredEnemyTarget != null
                 && mode.TargetingType == TargetingType.Enemies
                 && !targets.Contains(requiredEnemyTarget))
@@ -174,39 +177,72 @@ namespace Godmist.Systems.Combat
             return targets;
         }
 
-        public IReadOnlyList<GridPosition>
-            GetSelectablePositions(
-                CombatSession session,
-                BattleUnit caster,
-                SkillTargetModeData mode,
-                bool includeDownedTargets = false,
-                BattleUnit requiredEnemyTarget = null)
+        public IReadOnlyList<GridPosition> GetSelectablePositions(
+            CombatSession session, BattleUnit caster, SkillTargetModeData mode,
+            bool includeDownedTargets = false, BattleUnit requiredEnemyTarget = null)
         {
             var positions = new List<GridPosition>();
+            foreach (var candidate in EnumerateSelectablePositionWork(session, caster, mode,
+                         includeDownedTargets, requiredEnemyTarget))
+                if (candidate.HasValue) positions.Add(candidate.Value);
+            return positions;
+        }
 
+        internal IEnumerable<GridPosition?> EnumerateSelectablePositionWork(
+            CombatSession session, BattleUnit caster, SkillTargetModeData mode,
+            bool includeDownedTargets = false, BattleUnit requiredEnemyTarget = null)
+        {
             if (session?.Grid == null
                 || caster?.Character == null
                 || mode == null)
             {
-                return positions;
+                yield break;
             }
 
             if (IsDirectionalCasterArea(mode))
             {
-                foreach (var position in GetDirectionSelectionPositions(
-                             session,
-                             caster,
-                             mode.AbsoluteRange))
-                {
-                    positions.Add(position);
-                }
+                if (mode.AbsoluteRange == null) yield break;
+                for (var x = 0; x < session.Grid.Width; x++)
+                    for (var y = 0; y < session.Grid.Height; y++)
+                    {
+                        yield return null;
+                        foreach (var position in session.Grid.GetPositionsAt(x, y))
+                            if (position != caster.Position) yield return position;
+                    }
 
-                return positions;
+                yield break;
             }
 
             if (!RequiresTileSelection(mode))
             {
-                return positions;
+                yield break;
+            }
+
+            // Single/chain selection requires an occupied tile. Scanning every
+            // empty cell of a large range cannot produce another legal target.
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.Chain
+                || mode.TargetType == TargetType.MultipleChosen)
+            {
+                var limit = mode.AbsoluteRange?.MaxRange ?? 0;
+                var occupied = new HashSet<GridPosition>(session.Units.Where(unit => unit != null).Select(unit => unit.Position));
+                var positions = occupied
+                    .Distinct().Where(position => position.X >= 0 && position.X < session.Grid.Width
+                        && position.Y >= 0 && position.Y < session.Grid.Height
+                        && Math.Abs((long)position.X - caster.Position.X) <= limit
+                        && Math.Abs((long)position.Y - caster.Position.Y) <= limit)
+                    .Select(position => (position.X, position.Y)).Distinct()
+                    .OrderBy(column => column.X).ThenBy(column => column.Y)
+                    .SelectMany(column => session.Grid.GetPositionsAt(column.X, column.Y))
+                    .Where(occupied.Contains);
+                foreach (var position in positions)
+                {
+                    yield return null;
+                    if ((IsValidTargetPosition(session, caster, mode, position)
+                            || mode.IncludesCaster && position == caster.Position)
+                        && GetTargets(session, caster, mode, position, includeDownedTargets, requiredEnemyTarget).Count > 0)
+                        yield return position;
+                }
+                yield break;
             }
 
             for (var x = (int)Math.Max(0L, (long)caster.Position.X - (mode.AbsoluteRange?.MaxRange ?? 0));
@@ -215,28 +251,30 @@ namespace Godmist.Systems.Combat
                 for (var y = (int)Math.Max(0L, (long)caster.Position.Y - (mode.AbsoluteRange?.MaxRange ?? 0));
                      y <= Math.Min(session.Grid.Height - 1L, (long)caster.Position.Y + (mode.AbsoluteRange?.MaxRange ?? 0)); y++)
                 {
+                    yield return null;
                     foreach (var position in session.Grid.GetPositionsAt(x, y))
                     {
+                        yield return null;
 
-                    if (!IsValidTargetPosition(session, caster, mode, position)
-                        && !(mode.IncludesCaster && position == caster.Position))
-                    {
-                        continue;
+                        if (!IsValidTargetPosition(session, caster, mode, position)
+                            && !(mode.IncludesCaster && position == caster.Position))
+                        {
+                            continue;
+                        }
+
+                        var canTargetEmptyTile = mode.TargetType == TargetType.AreaAroundTile
+                            && requiredEnemyTarget == null;
+
+                        if (canTargetEmptyTile || GetTargets(session, caster, mode, position,
+                                includeDownedTargets, requiredEnemyTarget).Count > 0)
+                        {
+                            yield return position;
+                        }
                     }
-
-                    var canTargetEmptyTile = mode.TargetType == TargetType.AreaAroundTile
-                        && requiredEnemyTarget == null;
-
-                    if (canTargetEmptyTile || GetTargets(session, caster, mode, position,
-                            includeDownedTargets, requiredEnemyTarget).Count > 0)
-                    {
-                        positions.Add(position);
-                    }
-                }
                 }
             }
 
-            return positions;
+            yield break;
         }
 
         public IReadOnlyList<GridPosition> GetAbsoluteRangePositions(
@@ -446,7 +484,7 @@ namespace Godmist.Systems.Combat
                 return positions;
             }
 
-            if ((range.Shape == RangeShape.Diagonal || range.Shape == RangeShape.ThreeRays)
+            if ((range.Shape == RangeShape.Diagonal || range.Shape == RangeShape.ThreeRays || range.Shape == RangeShape.Cone)
                 && directionX != 0
                 && directionY != 0)
             {
@@ -471,6 +509,12 @@ namespace Godmist.Systems.Combat
             {
                 case RangeShape.Line:
                     AddRay(candidates, origin, directionX, directionY, range);
+                    break;
+                case RangeShape.Cone:
+                    for(var forward=Math.Max(1,range.MinRange);forward<=range.MaxRange;forward++)
+                        for(var lateral=1-forward;lateral<forward;lateral++)
+                            candidates.Add(new GridPosition(origin.X+directionX*forward-directionY*lateral,
+                                origin.Y+directionY*forward+directionX*lateral,origin.Level));
                     break;
 
                 case RangeShape.ThreeRays:
@@ -624,7 +668,7 @@ namespace Godmist.Systems.Combat
 
         public static bool IsDirectionalShape(RangeShape shape)
         {
-            return shape == RangeShape.ThreeRays || shape == RangeShape.Line
+            return shape == RangeShape.Cone || shape == RangeShape.ThreeRays || shape == RangeShape.Line
                 || shape == RangeShape.Diagonal
                 || shape == RangeShape.TwoSidedLine
                 || shape == RangeShape.Rectangle;

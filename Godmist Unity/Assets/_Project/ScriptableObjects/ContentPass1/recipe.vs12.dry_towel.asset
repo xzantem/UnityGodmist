@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Sucha szmatka
   <Description>k__BackingField: "Sucha szmatka do st\u0142umienia p\u0142omieni.
     Zwi\u0119ksza odporno\u015B\u0107 na ogie\u0144 o 30% na 3 tury."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 16a576cb8085cf84881c9c811765c7b4, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 0
