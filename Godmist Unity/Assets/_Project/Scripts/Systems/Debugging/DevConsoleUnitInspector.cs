@@ -85,7 +85,7 @@ namespace Godmist.Systems.Debugging
 
                 output.AppendLine(
                     $"Efekty {character.Resistances.WeakeningResistance:P0} | " +
-                    $"Ograniczenia {character.Resistances.SuppressionResistance:P0} | " +
+                    $"Kontrola {character.Resistances.SuppressionResistance:P0} | " +
                     $"Przesunięcia {character.Resistances.MoveResistance:P0}");
             }
 

@@ -27,7 +27,7 @@ namespace Godmist.Editor
             item.FindProperty("<Id>k__BackingField").stringValue = "CampingKit";
             item.FindProperty("<DisplayName>k__BackingField").stringValue = "Zestaw obozowy";
             item.FindProperty("<Description>k__BackingField").stringValue =
-                "PPM: rozbij obóz poza walką, przy zebranej drużynie. Odnawia 40% maksymalnego HP i many żywych członków drużyny. Zużywa jeden zestaw. Przy rozpoczęciu wyprawy otrzymujesz jeden zestaw na każde piętro; możesz zużyć je na dowolnym piętrze. Niewykorzystane zestawy znikają przy każdym wyjściu z lochu, również zwojem. Wznowienie wyprawy nie uzupełnia zapasu.";
+                "PPM: rozbij obóz poza walką, przy zebranej drużynie. Odnawia 60% maksymalnego HP i many żywych członków drużyny. Zużywa jeden zestaw. Przy rozpoczęciu wyprawy otrzymujesz jeden zestaw na każde piętro; możesz zużyć je na dowolnym piętrze. Niewykorzystane zestawy znikają przy każdym wyjściu z lochu, również zwojem. Wznowienie wyprawy nie uzupełnia zapasu.";
             item.FindProperty("<ItemType>k__BackingField").intValue = (int)ItemType.Tool;
             item.FindProperty("<BaseValue>k__BackingField").intValue = 0;
             item.FindProperty("<Weight>k__BackingField").floatValue = 0f;

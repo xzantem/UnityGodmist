@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -177,7 +177,7 @@ namespace Godmist.Tests.EditMode
             session.Units.AddRange(new[] { boss, hero });
             var feedback = new CombatFeedbackBus();
             CombatFeedbackEvent? skillUse = null;
-            feedback.Published += item => skillUse = item;
+            feedback.Published += item => { if (item.Type == CombatFeedbackType.SkillUsed) skillUse = item; };
             var system = new CatacombsBossSystem(new SummonedObjectSystem(),
                 new CombatDamageSystem(), feedbackBus: feedback);
             boss.Character.CurrentHealth = 70;
@@ -229,6 +229,9 @@ namespace Godmist.Tests.EditMode
                 CurrentActionPoints = 500,
                 MaxActionPoints = 500
             };
+            boss.Character.Skills = new List<SkillData> { AssetDatabase.LoadAssetAtPath<SkillData>(
+                "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_vengeance.asset") };
+            boss.Character.ActiveSkillLoadout.TryInitialize(boss.Character.Skills.Select(s => s.SkillId), boss.Character.Skills[0].SkillId);
             var hero = Unit("vengeance.target", true, 1000, new GridPosition(5, 4));
             var session = new CombatSession
             {
@@ -515,7 +518,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void BossUsesRoyalCleaveAgainstAdjacentHeroInEveryDirection()
+        public void BossUsesSpectralWaveAgainstAdjacentHeroInEveryDirection()
         {
             var bossDefinition = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(
                 "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king.asset");
@@ -531,7 +534,7 @@ namespace Godmist.Tests.EditMode
                     CurrentActionPoints = 500,
                     MaxActionPoints = 500
                 };
-                boss.Character.ResourcePool.Drain(100);
+                boss.Character.ResourcePool.CurrentValue = 5;
                 var hero = Unit("cleave.target", true, 500,
                     new GridPosition(2 + offset.X, 2 + offset.Y));
                 var session = new CombatSession
@@ -549,7 +552,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(action.Type, Is.EqualTo(SimpleCombatAiActionType.Skill),
                     offset.ToString());
                 Assert.That(action.Skill.SkillId, Is.EqualTo(
-                    "skill.enemy.catacombs.dead_king_cleave"), offset.ToString());
+                    "skill.enemy.catacombs.dead_king_wave"), offset.ToString());
                 Assert.That(boss.CurrentActionPoints, Is.LessThan(500),
                     offset.ToString());
             }
@@ -582,7 +585,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(ai.TryExecuteNextAction(session, boss,
                 ai.CreateTurnState(), out var action), Is.True);
             Assert.That(action.Skill.SkillId, Is.EqualTo(
-                "skill.enemy.catacombs.dead_king_cleave"));
+                "skill.enemy.catacombs.dead_king_wave"));
             Assert.That(boss.CurrentActionPoints, Is.LessThan(500));
         }
 

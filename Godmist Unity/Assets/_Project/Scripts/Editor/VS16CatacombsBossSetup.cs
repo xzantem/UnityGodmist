@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Godmist.Editor
 {
     /// <summary>Idempotent production authoring for the VS-16 Dead King encounter.</summary>
-    public static class VS16CatacombsBossSetup
+    public static partial class VS16CatacombsBossSetup
     {
         private const string Root = "Assets/_Project/ScriptableObjects/";
         private const string Catacombs = Root + "Catacombs/";
@@ -62,8 +62,13 @@ namespace Godmist.Editor
         private static void Raw(SerializedProperty property, string name, object value) => Set(property.FindPropertyRelative(name), value);
         private static void Save(SerializedObject so)
         {
+            ContextualSkillHitSetup.Apply(so);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(so.targetObject);
+            if (so.targetObject is CharacterDefinition definition) Godmist.Editor.EnemyResourceProfilesSetup.ApplyToDefinition(definition);
+            if (so.targetObject is CharacterDefinition balancedEnemy) Godmist.Editor.EnemyScalingBalanceSetup.ApplyToDefinition(balancedEnemy);
+            if (so.targetObject is EncounterDefinition encounter) Godmist.Editor.EnemyResourceProfilesSetup.ApplyToEncounter(encounter);
+            if (so.targetObject is Godmist.Data.Dungeons.DungeonDefinition dungeon) DungeonLengthSetup.Apply(dungeon);
         }
 
         private static void AddDistinct(SerializedProperty list, UnityEngine.Object asset)
@@ -179,7 +184,7 @@ namespace Godmist.Editor
             Save(runeData);
 
             var so = Skill("SD_Catacombs_dead_king_vengeance",
-                CatacombsBossSystem.VengeanceSkillId, "Zemsta Zaświatów",
+                CatacombsBossSystem.VengeanceSkillId, "Runy Zemsty",
                 "Przy 75%, 50% i 25% HP stawia pięć run. Wejście na runę ją rozbraja; w drugiej własnej turze runa uderza najbliższego wroga za 150% losowych obrażeń magicznych.",
                 0, 0, AttackType.Unknown);
             Mode(so, TargetType.Caster, TargetingType.Allies, RangeShape.Radial, 0);
@@ -301,8 +306,8 @@ namespace Godmist.Editor
             Field(ectoplasmData, "Id", "item.material.dead_king_ectoplasm");
             Field(ectoplasmData, "DisplayName", "Królewska ektoplazma");
             Field(ectoplasmData, "Description", "Gęsta esencja pozostała po zjawie Umarłego Króla.");
-            Field(ectoplasmData, "Icon", Require<ItemDefinition>(
-                Root + "Items/Materials/Runeforging/ID_GaldurytePowderPurple.asset").Icon);
+            Field(ectoplasmData, "Icon", Require<Sprite>(
+                "Assets/_Project/Art/Icons/Items/VS22/gem-powder-icons-gem-powder-purple-32.png"));
             Field(ectoplasmData, "ItemType", ItemType.Material);
             Field(ectoplasmData, "MaterialDiscipline", MaterialDiscipline.Alchemy);
             Field(ectoplasmData, "BaseRarity", RarityTier.Rare);
@@ -478,6 +483,7 @@ namespace Godmist.Editor
                 Require<ItemDefinition>(Loot + "ID_DeadKingEctoplasm.asset"));
             Save(catalog);
             AssetDatabase.SaveAssets();
+            ConfigureKingV2();
         }
     }
 }

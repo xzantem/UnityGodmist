@@ -9,6 +9,7 @@
         "Runtime",
         "Systems",
         "Views",
+        "Unity.TextMeshPro",
         "Editor"
     ],
     "includePlatforms": [

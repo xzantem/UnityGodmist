@@ -1,0 +1,105 @@
+{
+  "entries": [
+    {
+      "fullId": "node.scout.blade_dancer.viruses",
+      "slug": "viruses",
+      "outputPng": "viruses-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.venom",
+      "slug": "venom",
+      "outputPng": "venom-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.strong_insult",
+      "slug": "strong_insult",
+      "outputPng": "strong_insult-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.anger",
+      "slug": "anger",
+      "outputPng": "anger-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.knee_throw",
+      "slug": "knee_throw",
+      "outputPng": "knee_throw-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.combo",
+      "slug": "combo",
+      "outputPng": "combo-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.series",
+      "slug": "series",
+      "outputPng": "series-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.revenge",
+      "slug": "revenge",
+      "outputPng": "revenge-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.combo_master",
+      "slug": "combo_master",
+      "outputPng": "combo_master-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.fine_thrusts",
+      "slug": "fine_thrusts",
+      "outputPng": "fine_thrusts-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.dance_of_doom",
+      "slug": "dance_of_doom",
+      "outputPng": "dance_of_doom-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.mental_control",
+      "slug": "mental_control",
+      "outputPng": "mental_control-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.brew_strength",
+      "slug": "brew_strength",
+      "outputPng": "brew_strength-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.strong_liver",
+      "slug": "strong_liver",
+      "outputPng": "strong_liver-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.accurate_throw",
+      "slug": "accurate_throw",
+      "outputPng": "accurate_throw-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.poison_master",
+      "slug": "poison_master",
+      "outputPng": "poison_master-32.png"
+    },
+    {
+      "fullId": "node.scout.blade_dancer.spare_daggers",
+      "slug": "spare_daggers",
+      "outputPng": "spare_daggers-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.scout.blade_dancer",
+    "name": "Tancerz Ostrzy"
+  },
+  "scope": {
+    "entryCount": 17,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.scout.blade_dancer.poisoned_dagger",
+      "node.scout.blade_dancer.quick_strikes",
+      "node.scout.blade_dancer.stimulating_tonic"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

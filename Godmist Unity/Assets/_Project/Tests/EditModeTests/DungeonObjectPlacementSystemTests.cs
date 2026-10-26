@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Data.Combat;
@@ -92,6 +93,49 @@ namespace Godmist.Tests.EditMode
             var dungeon = Dungeon(roomCount: count);
             new DungeonObjectPlacementSystem().Place(dungeon);
             Assert.That(dungeon.Floors[0].Objects.Count, Is.EqualTo(count * 2));
+        }
+
+        [Test]
+        public void MatureTreesOccupyTheSameTwoByTwoFootprintTheyReserve()
+        {
+            definition.ObjectDefinitions.Clear();
+            var tree=Asset<ObstacleDungeonObjectDefinition>("object.forest.tree.prototype");definition.ObjectDefinitions.Add(tree);
+            Anchor("a",0,true,width:3);Anchor("b",1,true,width:2);
+            var dungeon=Dungeon();new DungeonObjectPlacementSystem().Place(dungeon);
+            var occupied=new HashSet<Vector2Int>();
+            var trees=dungeon.Floors[0].Objects.OfType<ObstacleDungeonObjectInstance>().ToArray();
+            Assert.That(trees.Length,Is.EqualTo(2));
+            foreach(var instance in trees)
+            {
+                Assert.That(instance.OccupiedSizeInCells,Is.EqualTo(new Vector2Int(2,2)));
+                Assert.That(instance.UsesPhysicalExplorationFootprint,Is.False,"Navigation must block all four logical cells.");
+                var reservation=tree.EnumeratePlacementReservationCells(instance.Position).ToArray();
+                Assert.That(reservation.Length,Is.EqualTo(4));
+                Assert.That(instance.EnumerateOccupiedCells(),Is.EquivalentTo(reservation));
+                foreach(var cell in reservation)Assert.That(occupied.Add(cell),Is.True);
+            }
+        }
+
+        [Test]
+        public void ExistingTreeReservationRejectsAnotherObjectInItsBuffer()
+        {
+            var dungeon=Dungeon();var floor=dungeon.Floors[0];
+            var tree=Asset<ObstacleDungeonObjectDefinition>("object.forest.tree.prototype");
+            floor.TryAddObject(new ObstacleDungeonObjectInstance("tree",tree,Vector2Int.zero));
+            var pillar=(ObstacleDungeonObjectDefinition)definition.ObjectDefinitions[0];
+            var method=typeof(DungeonObjectPlacementSystem).GetMethod("CanPlaceDungeonObject",BindingFlags.NonPublic|BindingFlags.Static);
+            bool CanPlace(Vector2Int cell)=>(bool)method.Invoke(null,new object[]{floor,new ObstacleDungeonObjectInstance("pillar",pillar,cell),null});
+            Assert.That(CanPlace(Vector2Int.one),Is.False);
+            Assert.That(CanPlace(new Vector2Int(2,1)),Is.True);
+        }
+
+        [Test]
+        public void MatureTreeReservationCannotStraddleAnInternalWall()
+        {
+            definition.ObjectDefinitions.Clear();definition.ObjectDefinitions.Add(Asset<ObstacleDungeonObjectDefinition>("object.forest.tree.prototype"));
+            Anchor("tree",0,true);
+            var dungeon=Dungeon();dungeon.Floors[0].Map.TryAddWall(Vector2Int.zero,Vector2Int.up);
+            Assert.Throws<InvalidOperationException>(()=>new DungeonObjectPlacementSystem().Place(dungeon));
         }
 
         [TestCase(DungeonRoomType.Start)]
@@ -405,6 +449,60 @@ namespace Godmist.Tests.EditMode
             Assert.That(DungeonRoomContentPlanner.TryAssign(candidates, new HashSet<Vector2Int> { Vector2Int.zero },
                 out var positions), Is.True);
             Assert.That(positions[candidates[0]], Is.EqualTo(new Vector2Int(1, 0)));
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public void SarcophagiReserveBothCellsAndRejectOverlappingOrOutOfRoomFootprints(int secondY)
+        {
+            var sarcophagus = Asset<ObstacleDungeonObjectDefinition>("object.obstacle.sarcophagus");
+            definition.ObjectDefinitions.Add(sarcophagus);
+            Set(template, "SizeInCells", new Vector2Int(1, 4));
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData(
+                "cover.0",
+                DungeonSemanticAnchorType.Obstacle,
+                new Vector2Int(0, 0),
+                Vector2Int.one,
+                isRequired: true,
+                objectDefinition: sarcophagus));
+            template.SemanticAnchors.Add(new DungeonSemanticAnchorData(
+                "cover.1",
+                DungeonSemanticAnchorType.Obstacle,
+                new Vector2Int(0, secondY),
+                Vector2Int.one,
+                isRequired: true,
+                objectDefinition: sarcophagus));
+
+            var dungeon = new DungeonInstance(definition, 42);
+            var floor = new DungeonFloorInstance(0);
+            floor.TryAddRoom(new DungeonRoomInstance(
+                "room.0", DungeonRoomType.Normal, template.Id, Vector2Int.zero));
+            var map = new DungeonFloorMap();
+            for (var y = 0; y < 4; y++)
+                Assert.That(map.TryAddFloorCell(new Vector2Int(0, y), "room.0"), Is.True);
+            Assert.That(floor.TrySetMap(map), Is.True);
+            Assert.That(dungeon.TryAddFloor(floor), Is.True);
+            if (secondY != 2)
+            {
+                Assert.Throws<InvalidOperationException>(() => new DungeonObjectPlacementSystem().Place(dungeon));
+                return;
+            }
+            new DungeonObjectPlacementSystem().Place(dungeon);
+
+            var objects = dungeon.Floors[0].Objects;
+            Assert.That(objects, Has.Count.EqualTo(2));
+            Assert.That(objects[0].Definition.Id, Is.EqualTo(sarcophagus.Id));
+            Assert.That(objects[1].Definition.Id, Is.EqualTo(sarcophagus.Id));
+            Assert.That(objects[0].Position, Is.EqualTo(new Vector2Int(0, 0)));
+            Assert.That(objects[1].Position, Is.EqualTo(new Vector2Int(0, 2)));
+            var first = (ObstacleDungeonObjectInstance)objects[0];
+            var second = (ObstacleDungeonObjectInstance)objects[1];
+            Assert.That(first.EnumerateOccupiedCells().Count(), Is.EqualTo(2));
+            Assert.That(second.EnumerateOccupiedCells().Count(), Is.EqualTo(2));
+            Assert.That(first.EnumeratePhysicalExplorationCells().Count(), Is.EqualTo(2));
+            Assert.That(first.OccupiesPhysicalExplorationCell(new Vector2Int(0, 1)), Is.True);
+            Assert.That(first.UsesPhysicalExplorationFootprint, Is.False);
         }
     }
 

@@ -12,6 +12,38 @@ namespace Godmist.Tests.EditMode
     {
         private const string Content = "Assets/_Project/ScriptableObjects/ContentPass1/";
 
+        [TestCase("Assets/_Project/ScriptableObjects/Items/Materials/Smithing/CID_IronIngot.asset", "Metale")]
+        [TestCase(Content + "item.vs10.sztabka_brazu.asset", "Metale")]
+        [TestCase(Content + "item.vs10.sproszkowana_miedz.asset", "Metale")]
+        [TestCase(Content + "item.vs10.paski_ze_skory_warana.asset", "Skóry")]
+        [TestCase(Content + "item.vs10.brzozowa_deska.asset", "Drewno")]
+        [TestCase(Content + "item.vs10.nitka_z_owczej_welny.asset", "Tkaniny")]
+        [TestCase(Content + "item.vs10.igla_do_nici.asset", "Narzędzia")]
+        public void AuthoredRecipesHaveFamiliesIndependentOfDisplayName(string path, string group)
+        {
+            var recipe = AssetDatabase.LoadAssetAtPath<CraftableItemDefinition>(path);
+            Assert.That(recipe, Is.Not.Null, path);
+            Assert.That(MaterialRecipePresentation.GroupLabel(MaterialRecipePresentation.GroupIndex(recipe)), Is.EqualTo(group));
+            // Do not persist asset changes: an instantiated copy represents another locale.
+            var copy = Object.Instantiate(recipe);
+            try
+            {
+                var translated = new SerializedObject(copy);
+                translated.FindProperty("<DisplayName>k__BackingField").stringValue = "Unrelated translation";
+                translated.ApplyModifiedPropertiesWithoutUndo();
+                Assert.That(MaterialRecipePresentation.GroupLabel(MaterialRecipePresentation.GroupIndex(copy)), Is.EqualTo(group));
+            }
+            finally { Object.DestroyImmediate(copy); }
+        }
+
+        [Test]
+        public void UnknownRecipeRemainsVisibleInOtherFamily()
+        {
+            var recipe = ScriptableObject.CreateInstance<CraftableItemDefinition>();
+            try { Assert.That(MaterialRecipePresentation.GroupLabel(MaterialRecipePresentation.GroupIndex(recipe)), Is.EqualTo("Pozostałe")); }
+            finally { Object.DestroyImmediate(recipe); }
+        }
+
         [Test]
         public void AntidoteUsesTwoHerbSelectorsForEveryAuthoredVariant()
         {

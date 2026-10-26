@@ -42,7 +42,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void SevenEnemiesHaveThreeUsableSkillsAndSharedManaPool()
+        public void SevenEnemiesHaveThreeUsableSkillsAndMatchingResourceProfiles()
         {
             var ids = new[] { "swordsman", "undead", "wraith", "occultist",
                 "archer", "ghoul", "defender" };
@@ -55,13 +55,13 @@ namespace Godmist.Tests.EditMode
                 Assert.That(enemy.StartingSkills, Has.All.Not.Null, id);
                 Assert.That(enemy.BasicAttackSkill, Is.SameAs(enemy.StartingSkills[0]), id);
                 Assert.That(catalog.CharacterDefinitions, Does.Contain(enemy), id);
-                Assert.That(enemy.BaseStats.MaxResource, Is.EqualTo(100), id);
-                Assert.That(enemy.BaseStats.ResourceRegeneration, Is.EqualTo(15), id);
+                Assert.That(enemy.BaseStats.MaxResource, Is.EqualTo(enemy.ClassData.ResourceType == ResourceType.Rage ? 50 : enemy.ClassData.ResourceType == ResourceType.Momentum ? 200 : 100), id);
+                Assert.That(enemy.BaseStats.ResourceRegeneration, Is.EqualTo(enemy.ClassData.ResourceType == ResourceType.Mana ? 15 : 0), id);
                 foreach (var skill in enemy.StartingSkills)
                 {
                     Assert.That(catalog.SkillDefinitions, Does.Contain(skill), skill.name);
                     Assert.That(skill.SkillId, Does.StartWith("skill.enemy.catacombs."), id);
-                    Assert.That(skill.ResourceType, Is.EqualTo(ResourceType.Mana), skill.name);
+                    Assert.That(skill.ResourceType, Is.EqualTo(enemy.ClassData.ResourceType), skill.name);
                     Assert.That(skill.TargetModes, Is.Not.Empty, skill.name);
                     Assert.That(skill.Effects, Is.Not.Empty, skill.name);
                 }
@@ -78,21 +78,7 @@ namespace Godmist.Tests.EditMode
                 var enemy = Load<CharacterDefinition>(
                     "Catacombs/Enemies/CD_Catacombs_" + id + ".asset");
                 Assert.That(enemy.VisualSprite, Is.Not.Null, id);
-                Assert.That(enemy.IdleAnimationFrames, Has.Count.EqualTo(4), id);
-                Assert.That(enemy.VisualSprite, Is.SameAs(enemy.IdleAnimationFrames[0]), id);
-                foreach (var sprite in enemy.IdleAnimationFrames.Concat(enemy.RunAnimationFrames))
-                {
-                    Assert.That(sprite, Is.Not.Null, id);
-                    var path = AssetDatabase.GetAssetPath(sprite);
-                    Assert.That(path, Does.Contain("/Core/frames/"), id);
-                    var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                    Assert.That(importer, Is.Not.Null, path);
-                    Assert.That(importer.spritePixelsPerUnit, Is.EqualTo(16f), path);
-                    Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point), path);
-                    Assert.That(importer.textureCompression,
-                        Is.EqualTo(TextureImporterCompression.Uncompressed), path);
-                    Assert.That(importer.mipmapEnabled, Is.False, path);
-                }
+                DirectionalAnimationAssertions.AssertComplete(enemy.Id);
             }
         }
 
@@ -131,8 +117,10 @@ namespace Godmist.Tests.EditMode
             var catalog = Load<DungeonLootTableCatalog>("Dungeons/DLC_Catacombs_Loot.asset");
             Assert.That(catalog.TryGetEnemyLootTable(DungeonTheme.Catacombs, 5, out var low), Is.True);
             Assert.That(catalog.TryGetEnemyLootTable(DungeonTheme.Catacombs, 15, out var high), Is.True);
-            Assert.That(low.Entries.Select(e => e.DropChance), Is.EquivalentTo(new[] { .5f, .02f, .02f }));
-            Assert.That(high.Entries.Select(e => e.DropChance), Is.EquivalentTo(new[] { .5f, .02f, .02f, .01f }));
+            Assert.That(low.Entries.Where(e => e.ItemDefinition.ItemType != ItemType.Food).Select(e => e.DropChance), Is.EquivalentTo(new[] { .5f }));
+            Assert.That(high.Entries.Where(e => e.ItemDefinition.ItemType != ItemType.Food).Select(e => e.DropChance), Is.EquivalentTo(new[] { .5f, .01f }));
+            foreach (var table in new[] { low, high })
+                Assert.That(table.Entries.Where(e => e.ItemDefinition.ItemType == ItemType.Food).Select(e => e.DropChance), Is.EquivalentTo(new[] { .35f }));
             Assert.That(low.Entries.Any(e => e.ItemDefinition.Id.Contains("galduryte")), Is.False);
             Assert.That(high.Entries.Any(e => e.ItemDefinition.Id.Contains("galduryte")), Is.True);
             var lowRoll = new LootTableSystem(new System.Random(15), null, lootLevel: 5);

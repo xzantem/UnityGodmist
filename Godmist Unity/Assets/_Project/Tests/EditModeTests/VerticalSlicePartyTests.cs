@@ -8,6 +8,8 @@ using Godmist.Systems.Combat;
 using Godmist.Systems.Items;
 using Godmist.Systems.SaveLoad;
 using NUnit.Framework;
+using UnityEngine;
+using Godmist.Views.Characters;
 using UnityEditor;
 
 namespace Godmist.Tests.EditMode
@@ -49,16 +51,18 @@ namespace Godmist.Tests.EditMode
             foreach(var c in chars)
             {
                 Assert.That(c.VisualSprite,Is.Not.Null,c.Id);
-                Assert.That(c.VisualSprite.pixelsPerUnit,Is.EqualTo(16f),c.Id);
-                foreach(var sprite in c.IdleAnimationFrames.Concat(c.RunAnimationFrames).Append(c.HitSprite))
+                Assert.That(c.HitSprite, Is.Not.Null, c.Id);
+                foreach (var sprite in c.IdleAnimationFrames.Concat(c.RunAnimationFrames).Append(c.HitSprite))
                 {
-                    var importer=(TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite));
-                    Assert.That(importer.filterMode,Is.EqualTo(UnityEngine.FilterMode.Point),sprite.name);
-                    Assert.That(importer.GetDefaultPlatformTextureSettings().textureCompression,Is.EqualTo(TextureImporterCompression.Uncompressed),sprite.name);
-                    Assert.That(importer.GetPlatformTextureSettings("Standalone").textureCompression,Is.EqualTo(TextureImporterCompression.Uncompressed),sprite.name);
-                }Assert.That(c.HitSprite,Is.Not.Null,c.Id);
-                Assert.That(c.IdleAnimationFrames.Count,Is.EqualTo(4),c.Id);Assert.That(c.RunAnimationFrames.Count,Is.EqualTo(4),c.Id);
-                Assert.That(c.IdleAnimationFrames.Concat(c.RunAnimationFrames).All(x=>x!=null),Is.True,c.Id);
+                    Assert.That(sprite == null, Is.False, c.Id);
+                    var importer = (TextureImporter)AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite));
+                    Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point), sprite.name);
+                    Assert.That(importer.GetDefaultPlatformTextureSettings().textureCompression,
+                        Is.EqualTo(TextureImporterCompression.Uncompressed), sprite.name);
+                    Assert.That(importer.GetPlatformTextureSettings("Standalone").textureCompression,
+                        Is.EqualTo(TextureImporterCompression.Uncompressed), sprite.name);
+                }
+                DirectionalAnimationAssertions.AssertComplete(c.Id);
             }
         }
         [TestCase(0,.5f,.7f,.4f,.5f,.35f)]
@@ -101,6 +105,36 @@ namespace Godmist.Tests.EditMode
                 Assert.That(after.Stats.MaxHealth.GetValue(),Is.EqualTo(before.Stats.MaxHealth.GetValue()));
                 Assert.That(after.ResourcePool.Regeneration,Is.EqualTo(before.ResourcePool.Regeneration));
                 Assert.That(after.Equipment.GetItem(EquipmentSlot.Weapon).InstanceId,Is.EqualTo(before.Equipment.GetItem(EquipmentSlot.Weapon).InstanceId));
+            }
+        }
+    }
+
+    internal static class DirectionalAnimationAssertions
+    {
+        public static void AssertComplete(string characterId)
+        {
+            var directions = new[] { Vector2.up, Vector2.one, Vector2.right, new Vector2(1, -1),
+                Vector2.down, -Vector2.one, Vector2.left, new Vector2(-1, 1) };
+            foreach (var direction in directions)
+            foreach (var state in new[] { CharacterAnimationState.Idle, CharacterAnimationState.Walk })
+            {
+                Assert.That(CharacterAnimationResolver.TryResolveCharacter(characterId, direction, state, out var clip),
+                    Is.True, $"{characterId} {direction} {state}");
+                Assert.That(clip.FrameCount, Is.EqualTo(4));
+                for (var index = 0; index < clip.FrameCount; index++)
+                {
+                    var sprite = clip.Frames[index];
+                    Assert.That(sprite == null, Is.False, characterId);
+                    Assert.That(sprite.pixelsPerUnit, Is.EqualTo(32f), sprite.name);
+                    Assert.That(sprite.rect.size, Is.EqualTo(new Vector2(64, 64)), sprite.name);
+                    var path = AssetDatabase.GetAssetPath(sprite.texture);
+                    var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                    Assert.That(importer, Is.Not.Null, sprite.name);
+                    Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point), path);
+                    Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed), path);
+                    Assert.That(importer.mipmapEnabled, Is.False, path);
+                    Assert.That(clip.GetFrameDuration(index), Is.GreaterThan(0));
+                }
             }
         }
     }

@@ -57,12 +57,12 @@ namespace Godmist.Tests.EditMode
             service.TryIssueSupplies(game, catalog);
             var floor = game.ActiveDungeon.Floors[0];
             Assert.That(service.TryCamp(game, floor, out _), Is.True);
-            Assert.That(mage.CurrentHealth, Is.EqualTo(50));
-            Assert.That(mage.ResourcePool.CurrentValue, Is.EqualTo(50));
-            Assert.That(warrior.CurrentHealth, Is.EqualTo(50));
+            Assert.That(mage.CurrentHealth, Is.EqualTo(70));
+            Assert.That(mage.ResourcePool.CurrentValue, Is.EqualTo(70));
+            Assert.That(warrior.CurrentHealth, Is.EqualTo(70));
             Assert.That(warrior.ResourcePool.CurrentValue, Is.EqualTo(10));
             Assert.That(service.TryCamp(game, floor, out _), Is.True);
-            Assert.That(mage.CurrentHealth, Is.EqualTo(90));
+            Assert.That(mage.CurrentHealth, Is.EqualTo(100));
             Assert.That(mage.Inventory.Items, Is.Empty);
             Assert.That(service.TryCamp(game, floor, out _), Is.False);
         }

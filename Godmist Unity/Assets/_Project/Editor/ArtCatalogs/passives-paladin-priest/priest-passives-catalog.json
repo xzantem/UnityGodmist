@@ -1,0 +1,105 @@
+{
+  "entries": [
+    {
+      "fullId": "node.paladin.priest.healing_power",
+      "slug": "healing_power",
+      "outputPng": "healing_power-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.healing_aura",
+      "slug": "healing_aura",
+      "outputPng": "healing_aura-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.healing_chain",
+      "slug": "healing_chain",
+      "outputPng": "healing_chain-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.holy_artifacts",
+      "slug": "holy_artifacts",
+      "outputPng": "holy_artifacts-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.battle_zeal",
+      "slug": "battle_zeal",
+      "outputPng": "battle_zeal-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.universal_grace",
+      "slug": "universal_grace",
+      "outputPng": "universal_grace-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.unexpected_grace",
+      "slug": "unexpected_grace",
+      "outputPng": "unexpected_grace-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.critical_focus",
+      "slug": "critical_focus",
+      "outputPng": "critical_focus-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.healer_focus",
+      "slug": "healer_focus",
+      "outputPng": "healer_focus-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.haste",
+      "slug": "haste",
+      "outputPng": "haste-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.anointed_warrior",
+      "slug": "anointed_warrior",
+      "outputPng": "anointed_warrior-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.persistent_healer",
+      "slug": "persistent_healer",
+      "outputPng": "persistent_healer-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.encouragement",
+      "slug": "encouragement",
+      "outputPng": "encouragement-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.lasting_effect",
+      "slug": "lasting_effect",
+      "outputPng": "lasting_effect-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.salvation",
+      "slug": "salvation",
+      "outputPng": "salvation-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.grace_collection",
+      "slug": "grace_collection",
+      "outputPng": "grace_collection-32.png"
+    },
+    {
+      "fullId": "node.paladin.priest.strong_blessing",
+      "slug": "strong_blessing",
+      "outputPng": "strong_blessing-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.paladin.priest",
+    "name": "Kapłan"
+  },
+  "scope": {
+    "entryCount": 17,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.paladin.priest.group_heal",
+      "node.paladin.priest.holy_regeneration",
+      "node.paladin.priest.blessing"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

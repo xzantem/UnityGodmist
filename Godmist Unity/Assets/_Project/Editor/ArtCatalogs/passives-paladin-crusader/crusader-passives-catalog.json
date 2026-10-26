@@ -1,0 +1,105 @@
+{
+  "entries": [
+    {
+      "fullId": "node.paladin.crusader.field_range",
+      "slug": "field_range",
+      "outputPng": "field_range-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.gravedigger",
+      "slug": "gravedigger",
+      "outputPng": "gravedigger-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.hatred",
+      "slug": "hatred",
+      "outputPng": "hatred-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.exorcist",
+      "slug": "exorcist",
+      "outputPng": "exorcist-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.judgement_release",
+      "slug": "judgement_release",
+      "outputPng": "judgement_release-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.expose",
+      "slug": "expose",
+      "outputPng": "expose-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.advantage",
+      "slug": "advantage",
+      "outputPng": "advantage-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.harsh_verdict",
+      "slug": "harsh_verdict",
+      "outputPng": "harsh_verdict-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.exhaustion",
+      "slug": "exhaustion",
+      "outputPng": "exhaustion-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.blinding",
+      "slug": "blinding",
+      "outputPng": "blinding-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.torment_max",
+      "slug": "torment_max",
+      "outputPng": "torment_max-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.torment",
+      "slug": "torment",
+      "outputPng": "torment-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.severe_judge",
+      "slug": "severe_judge",
+      "outputPng": "severe_judge-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.destruction_wave",
+      "slug": "destruction_wave",
+      "outputPng": "destruction_wave-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.kicking_downed",
+      "slug": "kicking_downed",
+      "outputPng": "kicking_downed-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.torment_damage",
+      "slug": "torment_damage",
+      "outputPng": "torment_damage-32.png"
+    },
+    {
+      "fullId": "node.paladin.crusader.control",
+      "slug": "control",
+      "outputPng": "control-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.paladin.crusader",
+    "name": "Krzyżowiec"
+  },
+  "scope": {
+    "entryCount": 17,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.paladin.crusader.judgement_field",
+      "node.paladin.crusader.blinding_light",
+      "node.paladin.crusader.grounding_wave"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

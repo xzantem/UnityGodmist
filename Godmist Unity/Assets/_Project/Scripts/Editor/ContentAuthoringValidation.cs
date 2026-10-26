@@ -244,6 +244,9 @@ namespace Godmist.Editor
             {
                 ValidatePassives(unique.Effects, "Effects", errors, warnings);
                 ValidatePassives(unique.EffectsLevel20, "EffectsLevel20", errors, warnings);
+                ValidatePassives(unique.EffectsLevel30, "EffectsLevel30", errors, warnings);
+                ValidatePassives(unique.EffectsLevel40, "EffectsLevel40", errors, warnings);
+                ValidatePassives(unique.EffectsLevel50, "EffectsLevel50", errors, warnings);
             }
         }
 

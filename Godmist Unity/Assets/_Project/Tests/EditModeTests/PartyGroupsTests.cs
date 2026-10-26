@@ -127,6 +127,8 @@ namespace Godmist.Tests.EditMode
                 Set("session",session);Set("portraitRoot",rect);Set("dropZone",rect);
                 Set("portraitTemplate",UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyMember.prefab").GetComponent<CharacterInfoPartyPortraitView>());
                 Set("groupTemplate",UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyGroup.prefab").GetComponent<PartyRailGroupView>());
+                // This fixture must contain three authored cards plus a detach drop area.
+                rect.sizeDelta = new Vector2(208, 3 * UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyMember.prefab").GetComponent<LayoutElement>().preferredHeight + 32);
                 typeof(CharacterInfoPartyRailView).GetMethod("Rebuild",flags).Invoke(rail,null);Canvas.ForceUpdateCanvases();LayoutRebuilder.ForceRebuildLayoutImmediate(rect);Canvas.ForceUpdateCanvases();
                 var rows=zone.GetComponentsInChildren<CharacterInfoPartyPortraitView>();var group=zone.GetComponentInChildren<PartyRailGroupView>();var corners=new Vector3[4];group.Rect.GetWorldCorners(corners);
                 var e=new UnityEngine.EventSystems.PointerEventData(null){position=new Vector2(-10000,-10000)};
@@ -188,11 +190,12 @@ namespace Godmist.Tests.EditMode
                     var row=Object.Instantiate(rowPrefab,group.MemberRoot).GetComponent<CharacterInfoPartyPortraitView>();
                     row.gameObject.SetActive(true);row.ConfigureRail(null,i==0,i==1);
                     var s=new UnityEditor.SerializedObject(row);
-                    Assert.That(((Image)s.FindProperty("groupLineTop").objectReferenceValue).enabled,Is.EqualTo(i!=0));
-                    Assert.That(((Image)s.FindProperty("groupLineBottom").objectReferenceValue).enabled,Is.EqualTo(i!=1));
+                    Assert.That(((Image)s.FindProperty("groupLineTop").objectReferenceValue).enabled,Is.False);
+                    Assert.That(((Image)s.FindProperty("groupLineBottom").objectReferenceValue).enabled,Is.False);
                 }
+                group.ConfigurePresentation(2, false);
                 LayoutRebuilder.ForceRebuildLayoutImmediate(group.Rect);
-                Assert.That(LayoutUtility.GetPreferredHeight(group.Rect),Is.GreaterThanOrEqualTo(192));
+                Assert.That(LayoutUtility.GetPreferredHeight(group.Rect),Is.EqualTo(410).Within(.01f));
             } finally{Object.DestroyImmediate(root);}
         }
     }

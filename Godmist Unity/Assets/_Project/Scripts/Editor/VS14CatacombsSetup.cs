@@ -199,6 +199,7 @@ namespace Godmist.Editor
             if (!hasBoss)
                 serialized.FindProperty(Field("BossEncounterDefinition")).objectReferenceValue = null;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            DungeonLengthSetup.Apply(definition);
         }
 
         [MenuItem("Godmist/Content/Configure VS-14 Catacombs")]

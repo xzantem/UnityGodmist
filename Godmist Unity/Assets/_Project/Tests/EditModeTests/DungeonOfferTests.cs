@@ -212,12 +212,14 @@ namespace Godmist.Tests.EditMode
    var hero=session.CharactersById.Values.First();
    Assert.That(new CharacterProgressionSystem().TrySetLevel(hero,10,out _),Is.True);
    Assert.That(DungeonOfferSystem.EnsureOffers(session,catalog.DungeonDefinitions),Is.True);
+    var pending=session.DungeonOffers.BossOpportunities.Single();
     var snapshot=new GameSessionSaveSnapshotFactory().CreateSnapshot(session,"danger");
     var json=new GameSaveJsonSerializer();
     Assert.That(json.TryDeserialize(json.Serialize(snapshot),out var decoded),Is.True);
     Assert.That(new GameSessionRestoreFactory().TryCreate(decoded,catalog,out var loaded),Is.True);
-    Assert.That(loaded.DungeonOffers.GetDanger(DungeonTheme.Catacombs),Is.EqualTo(100));
+    Assert.That(loaded.DungeonOffers.GetDanger(pending.Theme),Is.EqualTo(100));
     Assert.That(loaded.DungeonOffers.BossOpportunities.Single().Level,Is.EqualTo(10));
+    Assert.That(loaded.DungeonOffers.BossOpportunities.Single().DefinitionId,Is.EqualTo(pending.DefinitionId));
     var seed=loaded.DungeonOffers.Offers[0].Seed;
     Assert.That(DungeonOfferSystem.EnsureOffers(loaded,catalog.DungeonDefinitions),Is.True);
     Assert.That(loaded.DungeonOffers.Offers[0].Seed,Is.EqualTo(seed));

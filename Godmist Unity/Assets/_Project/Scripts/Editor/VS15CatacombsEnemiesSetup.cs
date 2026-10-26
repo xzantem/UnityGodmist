@@ -164,6 +164,7 @@ namespace Godmist.Editor
             so.FindProperty("effects").ClearArray();
             Mode(so, target, side, range, target == TargetType.Caster || target == TargetType.All);
             effects(so);
+            ContextualSkillHitSetup.Apply(so);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(skill);
             var report = CombatDataValidator.ValidateSkill(skill);
@@ -175,10 +176,10 @@ namespace Godmist.Editor
         private static string Description(string key) => key switch
         {
             "bone_sword" => "Zadaje losowe obrażenia fizyczne w zwarciu.",
-            "cross_cut" => "Dwa ciosy po 60% obrażeń. Każde trafienie osobno ma 60% szansy na krwawienie o sile 85% przez 3 tury.",
+            "cross_cut" => "Dwa ciosy po 60% obrażeń. Każde trafienie osobno ma 60% szansy na krwawienie o sile 30% średniego ataku na turę przez 3 tury.",
             "bone_fervor" => "Sojusznicy zadają o 6% więcej obrażeń i mają +4 szybkości przez 2 tury; ich następny ruch przyspiesza o 15%.",
             "manic_bite" => "Zadaje losowe obrażenia i ma 80% szansy na krwawienie o sile 30% przez 2 tury.",
-            "vomit" => "Ma 90% szansy na zatrucie o sile 75% i obniża szybkość celu o 8 na 3 tury.",
+            "vomit" => "Ma 90% szansy na zatrucie o sile 50% i obniża szybkość celu o 8 na 3 tury.",
             "blood_scent" => "Zwiększa szybkość o 16 na 2 tury, jeśli którykolwiek wróg krwawi; w przeciwnym razie o 4.",
             "fright" => "Doskok o 2 pola i losowe obrażenia magiczne.",
             "dematerialize" => "Staje się niewidzialny na 3 tury.",
@@ -187,7 +188,7 @@ namespace Godmist.Editor
             "life_drain" => "Zadaje 150% losowych obrażeń magicznych. Każdy sojusznik odzyskuje 30% zadanych obrażeń jako HP.",
             "ancient_whip" => "Odrzuca cel o 3 pola i ma 70% szansy na krwawienie o sile 90% przez 2 tury.",
             "bone_bow" => "Zadaje losowe obrażenia fizyczne z dystansu.",
-            "burning_arrow" => "Zadaje losowe obrażenia i ma 90% szansy na podpalenie o sile 100% przez 3 tury.",
+            "burning_arrow" => "Zadaje losowe obrażenia i ma 90% szansy na podpalenie o sile 25% średniego ataku na turę przez 3 tury.",
             "quiver_of_envy" => "Zwiększa szansę na trafienie krytyczne o 10% i obrażenia o 20% na 3 tury.",
             "rend" => "Zadaje 60% losowych obrażeń i ma 40% szansy na krwawienie o sile 65% przez 2 tury.",
             "savage_roar" => "Wrogowie w zasięgu 6: 40% szansy na ogłuszenie na 1 turę i 90% szansy na krwawienie o sile 80% przez 3 tury.",
@@ -203,7 +204,7 @@ namespace Godmist.Editor
             var skills = new Dictionary<string, SkillData[]>();
             skills["swordsman"] = new[]
             {
-                Skill("bone_sword", "Kościany Miecz", 0, 60, 79, TargetType.Single,
+                Skill("bone_sword", "Cięcie Kościanym Mieczem", 0, 60, 79, TargetType.Single,
                     TargetingType.Enemies, 1, s => Damage(s, DamageType.Physical), AttackType.Melee),
                 Skill("cross_cut", "Cięcie Krzyżowe", 50, 60, 72, TargetType.Single,
                     TargetingType.Enemies, 1, s => {
@@ -211,7 +212,7 @@ namespace Godmist.Editor
                         Raw(damage, "onHitStatusId", StatusEffectIds.Bleed);
                         Raw(damage, "onHitStatusChance", .6f);
                         Raw(damage, "onHitStatusDurationTurns", 3);
-                        Raw(damage, "statusDamageMultiplier", .85f);
+                        Raw(damage, "statusDamageMultiplier", .3f);
                     }, AttackType.Melee),
                 Skill("bone_fervor", "Kościany Zapał", 20, 30, 100, TargetType.All,
                     TargetingType.Allies, 0, s => {
@@ -223,15 +224,15 @@ namespace Godmist.Editor
             };
             skills["undead"] = new[]
             {
-                Skill("manic_bite", "Maniakalne Ugryzienie", 0, 65, 69, TargetType.Single,
+                Skill("manic_bite", "W\u015bciek\u0142e Ugryzienie", 0, 65, 69, TargetType.Single,
                     TargetingType.Enemies, 1, s => {
                         Damage(s, DamageType.Physical);
                         var bleed = Status(s, StatusEffectIds.Bleed, .8f, 2, .3f);
                         Condition(bleed, EffectConditionType.ReferencedEffectSucceeded, referencedEffect: 0);
                     }, AttackType.Melee),
-                Skill("vomit", "Wymiociny", 40, 60, 78, TargetType.Single,
+                Skill("vomit", "Toksyczne Wymioty", 40, 60, 78, TargetType.Single,
                     TargetingType.Enemies, 1, s => {
-                        var poison = Status(s, StatusEffectIds.Poison, .9f, 3, .75f);
+                        var poison = Status(s, StatusEffectIds.Poison, .9f, 3, .5f);
                         Raw(poison, "alwaysHits", false);
                         var slow = Stat(s, CharacterStatType.Speed, -8f, 3);
                         Raw(slow, "alwaysHits", false);
@@ -246,7 +247,7 @@ namespace Godmist.Editor
             };
             skills["wraith"] = new[]
             {
-                Skill("fright", "Nastraszenie", 5, 55, 100, TargetType.Single,
+                Skill("fright", "Upiorny Doskok", 5, 55, 100, TargetType.Single,
                     TargetingType.Enemies, 3, s => {
                         var charge = Effect(s, EffectType.Charge);
                         Raw(charge, "displacementDistance", 2);
@@ -285,15 +286,15 @@ namespace Godmist.Editor
             };
             skills["archer"] = new[]
             {
-                Skill("bone_bow", "Łuk z Kości", 0, 55, 95, TargetType.Single,
+                Skill("bone_bow", "Strzał z Kościanego Łuku", 0, 55, 95, TargetType.Single,
                     TargetingType.Enemies, 7, s => Damage(s, DamageType.Physical), AttackType.Ranged),
                 Skill("burning_arrow", "Podpalona Strzała", 30, 55, 92,
                     TargetType.Single, TargetingType.Enemies, 7, s => {
                         Damage(s, DamageType.Physical);
-                        var burn = Status(s, StatusEffectIds.Burn, .9f, 3, 1f);
+                        var burn = Status(s, StatusEffectIds.Burn, .9f, 3, .25f);
                         Condition(burn, EffectConditionType.ReferencedEffectSucceeded, referencedEffect: 0);
                     }, AttackType.Ranged),
-                Skill("quiver_of_envy", "Kołczan Zawiści", 65, 40, 100,
+                Skill("quiver_of_envy", "Zawistne Skupienie", 65, 40, 100,
                     TargetType.Caster, TargetingType.Allies, 0, s => {
                         Stat(s, CharacterStatType.CritChance, .1f, 3);
                         Variable(s, GameplayVariableType.DamageDealtPercent, .2f, 3);
@@ -312,7 +313,7 @@ namespace Godmist.Editor
                         Raw(Status(s, StatusEffectIds.Stun, .4f, 1), "alwaysHits", false);
                         Raw(Status(s, StatusEffectIds.Bleed, .9f, 3, .8f), "alwaysHits", false);
                     }),
-                Skill("disorienting_leap", "Dezorientujący Skok", 40, 30, 100,
+                Skill("disorienting_leap", "Zwodniczy Skok", 40, 30, 100,
                     TargetType.Single, TargetingType.Enemies, 2, s => {
                         var charge = Effect(s, EffectType.Charge);
                         Raw(charge, "displacementDistance", 2);
@@ -322,7 +323,7 @@ namespace Godmist.Editor
             };
             skills["defender"] = new[]
             {
-                Skill("bone_club", "Kościana Maczuga", 0, 65, 74, TargetType.Single,
+                Skill("bone_club", "Cios Kościaną Maczugą", 0, 65, 74, TargetType.Single,
                     TargetingType.Enemies, 1, s => {
                         Damage(s, DamageType.Physical);
                         var stun = Status(s, StatusEffectIds.Stun, .3f, 1);
@@ -334,7 +335,7 @@ namespace Godmist.Editor
                         var av = Effect(s, EffectType.ModifyActionValue);
                         Raw(av, "actionValuePercent", -.1f);
                     }),
-                Skill("bone_guardian", "Kościany Obrońca", 40, 50, 100,
+                Skill("bone_guardian", "Kościana Osłona", 40, 50, 100,
                     TargetType.AreaAroundCaster, TargetingType.Allies, 1, s => {
                         var guard = Effect(s, EffectType.ApplyUniqueBuff);
                         Raw(guard, "uniqueBuffType", UniqueBuffType.DamageRedirect);
@@ -463,6 +464,8 @@ namespace Godmist.Editor
             foreach (var skill in skills) Add(starters).objectReferenceValue = skill;
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(enemy);
+            Godmist.Editor.EnemyResourceProfilesSetup.ApplyToDefinition(enemy);
+            Godmist.Editor.EnemyScalingBalanceSetup.ApplyToDefinition(enemy);
             return enemy;
         }
 
@@ -505,6 +508,7 @@ namespace Godmist.Editor
                 }
                 so.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(encounter);
+                Godmist.Editor.EnemyResourceProfilesSetup.ApplyToEncounter(encounter);
                 result.Add(encounter);
             }
             return result;

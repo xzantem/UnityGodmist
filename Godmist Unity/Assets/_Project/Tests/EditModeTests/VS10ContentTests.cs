@@ -54,6 +54,27 @@ namespace Godmist.Tests.EditMode
                 foreach(var stat in row.stats)Assert.That((float)typeof(EquipmentPartStats).GetField(stat.name).GetValue(part.Stats),Is.EqualTo(stat.value).Within(.0001f),row.name+" "+stat.name);
             }
         }
+        [Test] public void EveryEquipmentRecipeHasMerchantSourcesForAllRawIngredients()
+        {
+            var available=new HashSet<ItemDefinition>();
+            foreach(var guid in AssetDatabase.FindAssets("t:TraderRoleData",new[]{Root+"NPC"}))
+            {
+                var trader=AssetDatabase.LoadAssetAtPath<Godmist.Data.NPC.TraderRoleData>(AssetDatabase.GUIDToAssetPath(guid));
+                foreach(var item in trader.InitialOffer)available.Add(item);
+                foreach(var entry in trader.LocalStock)available.Add(entry.Item);
+                foreach(var group in trader.RotatingStock)foreach(var entry in group.Candidates)available.Add(entry.Item);
+            }
+            var names=new HashSet<string>(Source().parts.Select(p=>p.name));
+            foreach(var part in Catalog().EquipmentPartDefinitions.Where(p=>p!=null&&names.Contains(p.DisplayName)))
+                foreach(var material in part.CraftingMaterials)Check(material.Material,new HashSet<string>());
+            void Check(ItemDefinition item,HashSet<string> path)
+            {
+                Assert.That(path.Add(item.Id),Is.True,"Recipe cycle: "+item.Id);
+                if(item is CraftableItemDefinition craftable)
+                    for(var v=0;v<craftable.RecipeVariantCount;v++)foreach(var ingredient in craftable.GetIngredients(v))Check(ingredient.Material,new HashSet<string>(path));
+                else Assert.That(available.Contains(item),Is.True,"No merchant source: "+item.DisplayName);
+            }
+        }
         [Test] public void NeedleUsesMinimumRecipePriceRegardlessOfMetal()
         {
             var items=Catalog().ItemDefinitions.OfType<CraftableItemDefinition>().ToList();
