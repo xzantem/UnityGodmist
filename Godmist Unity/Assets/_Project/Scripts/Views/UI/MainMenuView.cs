@@ -18,6 +18,7 @@ namespace Godmist.Views.UI
         [SerializeField] private MainMenuSettingsView settingsPanel;
         [SerializeField] private Image loadSelectionFrame;
         [SerializeField] private Image settingsSelectionFrame;
+        [SerializeField] private TextMeshProUGUI versionLabel;
         private bool wasBusy;
         private bool hasSaves;
 
@@ -36,7 +37,11 @@ namespace Godmist.Views.UI
             settingsPanel.Closed += SettingsClosed;
         }
 
-        private void Start() { if (enabled) RefreshSaveAvailability(); }
+        private void Start()
+        {
+            if (versionLabel != null) versionLabel.text = $"{Application.version} — Early Access";
+            if (enabled) RefreshSaveAvailability();
+        }
         private void Update()
         {
             var busy = GameBootstrap.Instance?.IsSceneLoading == true;

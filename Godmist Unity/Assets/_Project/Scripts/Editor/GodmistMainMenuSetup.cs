@@ -212,6 +212,7 @@ public static partial class GodmistMainMenuSetup
         ConfigureSaveAction(saves);
         panel.gameObject.SetActive(false);
         ConfigureSettings(menu);
+        ConfigureReleaseVersionLabel(menu, viewMenu);
         // Direct native property changes need explicit overrides on scene prefab instances.
         foreach(var component in menu.GetComponentsInChildren<Component>(true))
             if(component!=null&&PrefabUtility.IsPartOfPrefabInstance(component))PrefabUtility.RecordPrefabInstancePropertyModifications(component);

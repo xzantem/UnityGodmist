@@ -1,3 +1,31 @@
+## Finalny build Early Access 0.1.0 — 2026-10-27 — READY_FOR_SMOKE
+
+Ustawiono0.1.0 przez Editor API i zapisano etykietę0.1.0 — Early Access w Bootstrap. Windows x64 BuildOptions.None Succeeded/0errors/1247warnings. Nowa paczka75,1MB/206plików, ZIP integrity i SHA256 PASS. 9 ikon EXE zgodnych piksel w piksel z PNG. Start EXE z rozpakowanego ZIP odpowiada, brak wykrytych wyjątków; własny proces zamknięty. Dwa testy wersji/menu PASS, natywny render obejrzany. Dane finalnego buildu:136skilli/23505pól,0różnic względem zaakceptowanego audytu edytora; katalog i13plików binarnych ZIP zgodne. Znane1246ostrzeżenia rekurencyjnej serializacji oraz2przy starcie pozostają, bez wykrytej utraty obecnych danych. 724pliki zapisów SHA256 bez zmian. Save/restart/load oraz ruch wcześniej potwierdzone przez użytkownika na RC1, nie powtarzano gameplay smoke przy zmianie wersji/ikony.
+
+Serialized diff względem początku karty: bundleVersion; build-generated preloaded input settings; tekst etykiety i normalizacja TMP color/style cache. Brak ręcznych zmian YAML i migracji zapisów. Self-review i scoped whitespace PASS. Bez manualnego Editor wiring. Poprzednie paczki zachowane. Nie wykonano commit/push/tag/GitHub Release.
+
+Paczka: ../Builds/0.1.0/Godmist-0.1.0-Windows-x64.zip. Dowody: ../LocalHandoffs/ea-010-20261027/report.html, build-result.json, package-result.json, checks-version-menu.xml, comparison.json, exe-icon-verification.json i portable-startup.log.
+
+## Ikona aplikacji Ghorn — 2026-10-27 — READY_FOR_SMOKE
+
+Podpięto Ghorn w PlayerSettings default i Standalone przez Editor API. Baza rysunku64×64; 128/256/512/1024 wyłącznie nearest64. Mniejsze16/24/32/48 z pipeline BOX + paleta32 bez ditheringu; 96=32×3,192=64×3. Postprocessor Windows zachowuje przygotowane ICO zamiast interpolowanych slotów24/96/192 Unity. 9/9 rozmiarów odczytanych z EXE zgodnych piksel w piksel z PNG. Odczyt referencji i kontrola importów Editor PASS. Build0.1.0-rc.1 Succeeded,0errors,1247warnings (historyczna rekurencyjna serializacja pozostaje). EXE odpowiada, brak wykrytych wyjątków; zatrzymano wyłącznie własny proces testowy. ZIP sprawdzony,206plików; poprzednia paczka RC1 zachowana. Użytkownik wcześniej potwierdził zapis/restart/wczytanie; nie powtarzano ruchu ani save smoke przy zmianie graficznej. Brak manualnego wiring, zmian gameplay/save, commit/push/tag/publikacji.
+
+Nowa paczka: ../Builds/0.1.0-rc.1/Godmist-0.1.0-rc.1-Windows-x64-icon.zip. Dowody: ../LocalHandoffs/application-icon-20261027/configuration.json, build-result.json, exe-icon-verification.json, package-result.json i player-startup.log. Wyjątek whitespace dla pustego m_BuildTarget zapisanego przez Unity; bez ręcznych zmian YAML.
+
+## Audyt serializacji RC1 — 2026-10-26 — READY_FOR_SMOKE
+
+Audyt oryginalnego RC1: 136 skilli, 23 505 pól, 150 referencji i katalog 136 ID zgodne z edytorem; 0 różnic. 209 efektów wraz z reakcjami, maksymalna rzeczywista głębokość zagnieżdżenia 1. Cztery nieobecne assety to wyłącznie skill.test.*. 4/4 testy PASS. 13 plików binarnych zgodnych z ZIP; SHA-256 paczki bez zmian.
+
+Nie znaleziono uciętych danych skilli w obecnym RC1. Ostrzeżenia pozostają: rekurencyjna deklaracja SkillEffectData.counterattackEffects przekracza formalny limit Unity nawet dla pustych list. Nie zmieniano schematu, assetów, zapisów ani paczki i nie wyciszano ostrzeżeń. Głębsze przyszłe grafy wymagają osobnej zmiany reprezentacji i migracji; audyt dotyczy obecnej zawartości.
+
+Przed publikacją nadal do potwierdzenia: nowa gra → zapis → zamknięcie EXE → ponowne uruchomienie → wczytanie w rozpakowanej paczce. Testów ruchu nie powtarzać. Dowody: ../LocalHandoffs/serialization-audit-20261026/report.html, comparison.json i checks-final.xml. Brak manualnego setupu, commita i pusha.
+
+## Pierwszy kandydat Early Access — 0.1.0-rc.1 — 2026-10-26 — READY_FOR_SMOKE
+
+Windows x64 release BuildOptions.None, Succeeded/0 errors, ZIP 75,1 MB. Version label w natywnym menu; zachowane company/product i katalog zapisów. 44 testy menu/zapis/restore PASS, start EXE i EXE z ZIP odpowiadają bez wykrytych wyjątków; 723 pliki zapisów SHA-256 bez zmian. Testów poruszania nie powtarzano (potwierdzone przez użytkownika).
+
+Publikacja nadal OPEN: 1259 ostrzeżeń buildu, 1246 rekurencyjna serializacja efektów; 2 ostrzeżenia także w standalone. Nie migrowano danych ani nie wyciszano ostrzeżeń. Ręczny nowa gra/zapis/restart/wczytanie w EXE NOT RUN. Unity wygenerowało przy buildzie zmiany cache/prefilter URP, input preloaded assets, batching i fallback TMP; sprawdzić przed commitem. Brak ręcznej edycji serialized state. Szczegóły i dowody: ../LocalHandoffs/ea-rc1-20261026/status.md oraz report.html. Paczka: ../Builds/0.1.0-rc.1/Godmist-0.1.0-rc.1-Windows-x64.zip. Bez tagu, commit/push lub GitHub Release.
+
 ## Pierwsze Early Access — Windows / GitHub — 2026-10-26 — PREPARATION
 
 Dystrybucja: Windows x64, ZIP w GitHub Releases; bez Steam/itch w pierwszym wydaniu. Użytkownik potwierdził wykonanie testów poruszania po lochach — nie powtarzać tego smoke. Nadal osobno do sprawdzenia aktualny release build, zapisy/wczytanie poza edytorem, historyczne ostrzeżenia głębokości serializacji i packaging.
