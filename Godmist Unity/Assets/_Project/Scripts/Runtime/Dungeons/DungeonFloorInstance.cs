@@ -11,6 +11,8 @@ namespace Godmist.Runtime.Dungeons
         public DungeonFogState Fog { get; } = new();
         private readonly List<DungeonRoomInstance> rooms = new();
         private readonly List<DungeonRoomConnection> connections = new();
+        private readonly HashSet<Vector2Int> connectionCells = new();
+        public bool IsConnectionCell(Vector2Int cell) => connectionCells.Contains(cell);
         private readonly List<DungeonEncounterInstance> encounters = new();
         private readonly List<DungeonObjectInstance> objects = new();
         private readonly List<DungeonEnemyBodyInstance> enemyBodies = new();
@@ -116,6 +118,8 @@ namespace Godmist.Runtime.Dungeons
             if (map == null || Map != null) return false;
 
             Map = map;
+            connectionCells.Clear();
+            foreach (var connection in connections) connectionCells.UnionWith(connection.CorridorCells);
 
             foreach (var connection in connections)
             {
@@ -562,7 +566,10 @@ namespace Godmist.Runtime.Dungeons
 
             if (dungeonObject is ChestDungeonObjectInstance chest)
             {
-                if (isChest && !chest.TryRestoreUnlocked(isUnlocked))
+                // A content update may remove a lock before keys are available.
+                // Old saves keep their exact loot, but cannot relock a container
+                // whose current definition explicitly makes it unlocked.
+                if (isChest && !chest.TryRestoreUnlocked(isUnlocked || chest.LockType == Godmist.Core.Enums.ChestLockType.Unlocked))
                 {
                     return false;
                 }
@@ -624,6 +631,7 @@ namespace Godmist.Runtime.Dungeons
                 ? Vector2Int.up
                 : Vector2Int.right;
 
+            var edges=new DungeonSurfaceEdge[connection.DoorwayWidth];
             for (var offset = 0;
                 offset < connection.DoorwayWidth;
                 offset++)
@@ -632,15 +640,12 @@ namespace Godmist.Runtime.Dungeons
                     connection.FirstDoorCell + lateral * offset,
                     connection.SecondDoorCell + lateral * offset);
 
-                if (!Map.TrySetProgressionGateState(
-                        new DungeonSurfaceEdge(edge, connection.DoorwayLevel),
-                        connection.IsProgressionGateUnlocked))
-                {
-                    return false;
-                }
+                edges[offset]=new DungeonSurfaceEdge(edge,connection.DoorwayLevel);
             }
 
-            return true;
+            // A whole passage changes atomically: one view/shadow rebuild,
+            // rather than rebuilding the forest once for each doorway cell.
+            return Map.TrySetProgressionGateState(edges,connection.IsProgressionGateUnlocked);
         }
     }
 }

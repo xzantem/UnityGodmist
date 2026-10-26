@@ -9,15 +9,15 @@ namespace Godmist.Tests.EditMode
 {
     public class TacticalTerrainTests
     {
-        private static BattleUnit Unit() => new() { IsPlayerSide = true, CurrentActionPoints = 30,
+        private static BattleUnit Unit() => new() { IsPlayerSide = true, CurrentActionPoints = 3000,
             Character = new CharacterInstance { LifeState = CharacterLifeState.Alive, CurrentHealth = 100 } };
         [Test] public void TerrainAndWallAddToOnlyTheEnteredStep()
         {
             var grid = new BattleGrid(3, 1); var a = new GridPosition(0,0); var b = new GridPosition(1,0);
             grid.SetDifficultTerrain(b); grid.SetWallEdge(a,b,DungeonWallType.Low);
             var session = new CombatSession { Grid = grid };
-            Assert.That(CombatMovementSystem.CalculatePathCost(session,a,2,new[]{b}),Is.EqualTo(6));
-            Assert.That(CombatMovementSystem.CalculatePathCost(session,a,2,new[]{b,new GridPosition(2,0)}),Is.EqualTo(10));
+            Assert.That(CombatMovementSystem.CalculatePathCost(session,a,2,new[]{b}),Is.EqualTo(600));
+            Assert.That(CombatMovementSystem.CalculatePathCost(session,a,2,new[]{b,new GridPosition(2,0)}),Is.EqualTo(1000));
         }
         [Test] public void PlayerPrefersSafeRouteOverCheaperTrap()
         {
@@ -32,7 +32,7 @@ namespace Godmist.Tests.EditMode
             session.Grid.SetDifficultTerrain(new GridPosition(1,0));
             var path=new CombatMovementSystem().CalculateReachablePaths(session,unit)[new GridPosition(2,1)];
             Assert.That(path,Has.No.Member(new GridPosition(1,0)));
-            Assert.That(CombatMovementSystem.CalculatePathCost(session,unit.Position,0,path),Is.EqualTo(6));
+            Assert.That(CombatMovementSystem.CalculatePathCost(session,unit.Position,0,path),Is.EqualTo(600));
         }
         [Test] public void PlayerCanChooseLethalOnlyRoute()
         {

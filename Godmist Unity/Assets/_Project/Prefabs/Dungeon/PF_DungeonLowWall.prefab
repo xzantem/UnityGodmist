@@ -60,9 +60,17 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4380379578087483084, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
+      propertyPath: m_Sprite
+      value:
+      objectReference: {fileID: -6438638849891278220, guid: de29442712a4ba34e878bca3bb0f8281, type: 3}
     - target: {fileID: 5195768252353925608, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
       propertyPath: thickness
       value: 0.16
+      objectReference: {fileID: 0}
+    - target: {fileID: 5195768252353925608, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
+      propertyPath: useNativeWallCrossSection
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6688814970263678738, guid: 9924d7ef70a7af9439c7ceaa2f8fc88a, type: 3}
       propertyPath: m_Name

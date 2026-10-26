@@ -25,6 +25,9 @@ namespace Godmist.Views.Exploration
         private CameraMode currentMode = CameraMode.FollowLeader;
         private Vector3 previousMouseWorldPosition;
         private bool isPanning;
+        public const float RightDragThreshold = 6f;
+        private Vector2 panPressScreen;
+        private bool panDragged;
         public bool IsFollowingLeader => currentMode == CameraMode.FollowLeader;
 
         private bool combatSuspended;
@@ -78,6 +81,11 @@ namespace Godmist.Views.Exploration
                 worldBounds.size.y);
         }
 
+        public void SetCameraBounds(BoxCollider2D bounds)
+        {
+            cameraBounds = bounds;
+        }
+
         public void CenterOn(Vector3 position, bool followLeader = false)
         {
             currentMode = followLeader ? CameraMode.FollowLeader : CameraMode.FreeRoam;
@@ -101,6 +109,7 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
+            if(partyController!=null && partyController.IsMapOverviewBlockingInput){isPanning=false;return;}
             if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
@@ -119,8 +128,10 @@ namespace Godmist.Views.Exploration
             HandleFreeRoamPanning();
         }
 
+        private static readonly Unity.Profiling.ProfilerMarker CameraLateSample = new("Godmist.Exploration.CameraLate");
         private void LateUpdate()
         {
+            using var sample = CameraLateSample.Auto();
             TickZoom(Time.unscaledDeltaTime);
             if (currentMode != CameraMode.FollowLeader) return;
             if (partyController == null || partyController.ActiveLeaderTransform == null) return;
@@ -143,9 +154,7 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            var keyboardDirection = new Vector2(
-                Input.GetAxisRaw("Horizontal"),
-                Input.GetAxisRaw("Vertical"));
+            var keyboardDirection = ExplorationKeyboardInput.ReadMovement();
 
             if (keyboardDirection.sqrMagnitude > 1f)
             {
@@ -159,9 +168,13 @@ namespace Godmist.Views.Exploration
             }
 
             if (unitInteractions != null && unitInteractions.ConsumedSecondaryClickThisFrame) { isPanning = false; return; }
-            if (Input.GetMouseButtonDown(1) && !UIWorkspaceInputRouter.IsPointerOverUi())
+            if (Input.GetMouseButtonDown(1)
+                && !UIWorkspaceInputRouter.IsPointerOverUi()
+                && !UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
             {
                 previousMouseWorldPosition = GetMouseWorldPosition();
+                panPressScreen = Input.mousePosition;
+                panDragged = false;
                 isPanning = true;
             }
 
@@ -172,12 +185,18 @@ namespace Godmist.Views.Exploration
 
             if (!isPanning
                 || !Input.GetMouseButton(1)
-                || UIWorkspaceInputRouter.IsPointerOverUi())
+                || UIWorkspaceInputRouter.IsPointerOverUi()
+                || UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
             {
                 return;
             }
 
             var currentMouseWorldPosition = GetMouseWorldPosition();
+            if (!panDragged)
+            {
+                if (((Vector2)Input.mousePosition - panPressScreen).sqrMagnitude <= RightDragThreshold * RightDragThreshold) return;
+                panDragged = true;
+            }
             var dragOffset = previousMouseWorldPosition - currentMouseWorldPosition;
 
             transform.position = ClampToBounds(transform.position + dragOffset);

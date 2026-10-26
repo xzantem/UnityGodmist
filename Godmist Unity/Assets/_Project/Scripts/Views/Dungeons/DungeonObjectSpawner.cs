@@ -81,12 +81,20 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private Transform objectsRoot;
 
         private readonly List<DungeonObjectView> spawnedObjects = new();
+        public IReadOnlyList<DungeonObjectView> SpawnedObjects => spawnedObjects;
         private readonly List<GameObject> spawnedEnemyBodies = new();
         private readonly HashSet<string> spawnedBodyIds = new();
+        private bool catacombsAuditPresentationLogged;
         private DungeonFloorMapView elevationView;
         public void BindElevationView(DungeonFloorMapView view)
         {
             elevationView = view;
+            // Register every prop/door lane before binding any sorting group.
+            // Rebuilding all wall joins once per newly encountered baseline
+            // made large floors pay the same setup cost dozens of times.
+            // Native masonry still owns its immediate corner-overlay refresh.
+            // Forest has no such overlays and can reserve all lanes up front.
+            if (view?.UsesVegetationPresentation == true) view.ReserveObjectDepthBaselines(spawnedObjects);
             foreach (var item in spawnedObjects) item.BindElevationView(view);
             foreach (var item in spawnedEnemyBodies) if (item != null) item.GetComponent<DungeonEnemyBodyView>()?.BindElevationView(view);
         }
@@ -98,8 +106,13 @@ namespace Godmist.Views.Dungeons
 
         public bool Rebuild(
             DungeonFloorInstance floor,
-            ExplorationPartyController partyController, DungeonTheme theme = DungeonTheme.Story)
+            ExplorationPartyController partyController,
+            DungeonTheme theme = DungeonTheme.Story,
+            string dungeonId = null)
         {
+            var useCatacombsVisuals = theme == DungeonTheme.Catacombs;
+            var useForestVisuals = theme == DungeonTheme.Forest;
+            if (!useCatacombsVisuals) catacombsAuditPresentationLogged = false;
             if (!ValidateObstaclePrefabs(out var obstacleError))
             {
                 Debug.LogError("DungeonObjectSpawner: " + obstacleError);
@@ -197,6 +210,12 @@ namespace Godmist.Views.Dungeons
                     var obstacleView = Instantiate(selectedPrefab, parent);
 
                     obstacleView.name = $"Obstacle_{obstacle.InstanceId}";
+                    if (useCatacombsVisuals)
+                    {
+                        DungeonCatacombsObjectVisuals.TryApplyObstacle(
+                            obstacleView,
+                            obstacle.Definition as ObstacleDungeonObjectDefinition);
+                    }
                     obstacleView.Initialize(
                         obstacle,
                         worldPosition);
@@ -218,6 +237,13 @@ namespace Godmist.Views.Dungeons
                     var spikeTrapView = Instantiate(trapPrefab, parent);
 
                     spikeTrapView.name = $"SpikeTrap_{spikeTrap.InstanceId}";
+                    if (useCatacombsVisuals)
+                    {
+                        DungeonCatacombsObjectVisuals.TryApplyTrap(
+                            spikeTrapView,
+                            spikeTrap.Definition as SpikeTrapDungeonObjectDefinition);
+                    }
+                    if(useForestVisuals)DungeonForestObjectVisuals.TryApplyTrap(spikeTrapView,spikeTrap.Definition as SpikeTrapDungeonObjectDefinition);
                     spikeTrapView.Initialize(
                         partyController,
                         floor,
@@ -233,11 +259,20 @@ namespace Godmist.Views.Dungeons
 
                 if (dungeonObject is LeverDungeonObjectInstance lever)
                 {
-                    var leverView = leverPrefab != null
+                    var leverView = useForestVisuals ? DungeonForestObjectVisuals.CreateLeverView(parent,$"Lever_{lever.InstanceId}",lever.Definition as LeverDungeonObjectDefinition) : null;
+                    leverView ??= leverPrefab != null
                         ? Instantiate(leverPrefab, parent)
-                        : DungeonObjectView.CreateFallback<DungeonLeverView>(
+                        : useCatacombsVisuals
+                          ? DungeonCatacombsObjectVisuals.CreateLeverView(
                             parent,
-                            $"Lever_{lever.InstanceId}");
+                            $"Lever_{lever.InstanceId}",
+                            lever.Definition as LeverDungeonObjectDefinition)
+                          ?? DungeonObjectView.CreateFallback<DungeonLeverView>(
+                              parent,
+                              $"Lever_{lever.InstanceId}")
+                          : DungeonObjectView.CreateFallback<DungeonLeverView>(
+                              parent,
+                              $"Lever_{lever.InstanceId}");
 
                     leverView.name = $"Lever_{lever.InstanceId}";
                     leverView.Initialize(
@@ -255,11 +290,20 @@ namespace Godmist.Views.Dungeons
 
                 if (dungeonObject is ConditionDungeonObjectInstance condition)
                 {
-                    var conditionView = conditionPrefab != null
+                    var conditionView = useForestVisuals ? DungeonForestObjectVisuals.CreateConditionView(parent,$"Condition_{condition.InstanceId}",condition.Definition as ConditionDungeonObjectDefinition) : null;
+                    conditionView ??= conditionPrefab != null
                         ? Instantiate(conditionPrefab, parent)
-                        : DungeonObjectView.CreateFallback<DungeonConditionView>(
+                        : useCatacombsVisuals
+                          ? DungeonCatacombsObjectVisuals.CreateConditionView(
                             parent,
-                            $"Condition_{condition.InstanceId}");
+                            $"Condition_{condition.InstanceId}",
+                            condition.Definition as ConditionDungeonObjectDefinition)
+                          ?? DungeonObjectView.CreateFallback<DungeonConditionView>(
+                              parent,
+                              $"Condition_{condition.InstanceId}")
+                          : DungeonObjectView.CreateFallback<DungeonConditionView>(
+                              parent,
+                              $"Condition_{condition.InstanceId}");
 
                     conditionView.name = $"Condition_{condition.InstanceId}";
                     conditionView.Initialize(
@@ -276,7 +320,36 @@ namespace Godmist.Views.Dungeons
             }
 
             RefreshBodies(floor, partyController);
+            if (useCatacombsVisuals && !catacombsAuditPresentationLogged)
+            {
+                LogCatacombsAuditPresentation(floor);
+                catacombsAuditPresentationLogged = true;
+            }
             return true;
+        }
+
+        private void LogCatacombsAuditPresentation(DungeonFloorInstance floor)
+        {
+            foreach (var view in spawnedObjects)
+            {
+                if (view == null || !floor.TryGetObject(view.InstanceId, out var dungeonObject))
+                    continue;
+
+                foreach (var renderer in view.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    if (renderer == null || !renderer.enabled || renderer.sprite == null)
+                        continue;
+
+                    var bounds = renderer.bounds;
+                    Debug.Log(
+                        $"Catacombs audit binding objectId={dungeonObject.InstanceId} "
+                        + $"definition={dungeonObject.Definition?.Id} cell={dungeonObject.Position} "
+                        + $"view={view.name} sprite={renderer.sprite.name} "
+                        + $"texture={renderer.sprite.texture?.name} "
+                        + $"worldBoundsCenter={bounds.center} worldBoundsSize={bounds.size}",
+                        view);
+                }
+            }
         }
 
         public void RefreshBodies(DungeonFloorInstance floor, ExplorationPartyController partyController)
@@ -327,7 +400,7 @@ namespace Godmist.Views.Dungeons
             {
                 if (objectView != null)
                 {
-                    Destroy(objectView.gameObject);
+                    if (Application.isPlaying) Destroy(objectView.gameObject); else DestroyImmediate(objectView.gameObject);
                 }
             }
 
@@ -337,7 +410,7 @@ namespace Godmist.Views.Dungeons
             {
                 if (bodyObject != null)
                 {
-                    Destroy(bodyObject);
+                    if (Application.isPlaying) Destroy(bodyObject); else DestroyImmediate(bodyObject);
                 }
             }
 

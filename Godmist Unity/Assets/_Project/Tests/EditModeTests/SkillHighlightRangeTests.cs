@@ -9,6 +9,42 @@ using Godmist.Systems.Combat;
 using NUnit.Framework;
 public class SkillHighlightRangeTests
 {
+ [TestCase(false)] [TestCase(true)]
+ public void DriverRangeBatchPreservesDestructibleTargetsAndFreshSight(bool requiresSight)
+ {
+  var skill=UnityEngine.ScriptableObject.CreateInstance<SkillData>();
+  var definition=UnityEngine.ScriptableObject.CreateInstance<Godmist.Data.Dungeons.ObstacleDungeonObjectDefinition>();
+  var flags=BindingFlags.Instance|BindingFlags.NonPublic;
+  void Set(object target,string field,object value)=>target.GetType().GetField(field,flags).SetValue(target,value);
+  using var driver=new Godmist.Views.Combat.CombatExecutionDriver(null,null,null,null,null,null,null,8,8,0,0,0,null,null,new(),null,null,null);
+  try
+  {
+   Set(definition,"<IsDestructible>k__BackingField",true);
+   Set(skill,"<RequiresLineOfSight>k__BackingField",requiresSight);
+   var mode=new SkillTargetModeData();
+   Set(mode,"absoluteRange",new SkillRangeData(RangeShape.Square,0,6));
+   Set(mode,"targetType",TargetType.Single); Set(mode,"targetingType",TargetingType.Enemies);
+   Set(skill,"targetModes",new List<SkillTargetModeData>{mode});
+   var damage=new Godmist.Data.Effects.SkillEffectData(); Set(damage,"effectType",EffectType.DealDamage);
+   Set(skill,"effects",new List<Godmist.Data.Effects.SkillEffectData>{damage});
+   var caster=new BattleUnit{Character=new CharacterInstance{LifeState=CharacterLifeState.Alive},Position=new GridPosition(1,1),IsPlayerSide=true};
+   var enemy=new BattleUnit{Character=new CharacterInstance{LifeState=CharacterLifeState.Alive},Position=new GridPosition(5,1)};
+   var session=new CombatSession{Grid=new BattleGrid(8,8),ActiveUnit=caster}; session.Units.Add(caster); session.Units.Add(enemy);
+   var source=new Godmist.Runtime.Dungeons.ObstacleDungeonObjectInstance("blocker",definition,new UnityEngine.Vector2Int(3,1));
+   var blocker=new ObstacleCombatMapObject("blocker",new GridPosition(3,1),true,true,source); session.MapObjects.Add(blocker);
+   Set(driver,"<Session>k__BackingField",session); Set(driver,"targetingService",new CombatTargetingService());
+   Set(driver,"lineOfSightService",new CombatLineOfSightService());
+   Assert.That(driver.GetSelectableSkillPositions(skill,mode,0),Does.Contain(blocker.Position),"A destructible target must not occlude itself.");
+   Assert.That(driver.GetSelectableSkillPositions(skill,mode,0).Contains(enemy.Position),Is.EqualTo(!requiresSight));
+   var expected=new CombatTargetingService().GetAbsoluteRangePositions(session,caster,mode)
+    .Where(p=>!requiresSight||new CombatLineOfSightService().HasLineOfSight(session,caster.Position,p));
+   Assert.That(driver.GetAbsoluteSkillRangePositions(skill,mode),Is.EqualTo(expected));
+   source.TryDeactivate();
+   Assert.That(driver.GetSelectableSkillPositions(skill,mode,0),Does.Contain(enemy.Position),"Next query must observe destruction immediately.");
+  }
+  finally{UnityEngine.Object.DestroyImmediate(skill);UnityEngine.Object.DestroyImmediate(definition);}
+ }
+
  [TestCase(RangeShape.Square,0,0)]
  [TestCase(RangeShape.Radial,60,50)]
  [TestCase(RangeShape.Ring,119,99)]

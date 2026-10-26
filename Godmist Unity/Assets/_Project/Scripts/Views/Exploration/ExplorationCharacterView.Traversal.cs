@@ -15,6 +15,7 @@ namespace Godmist.Views.Exploration
         public bool UsesLayeredTraversal => terrainMap?.HasElevatedSurfaces == true && terrainView != null;
         public DungeonTraversalPosition? PreferredTraversalDestination { get; set; }
         public Func<DungeonTraversalPosition, bool> CanEnterTraversal { get; set; }
+        public Func<DungeonTraversalPosition, Vector2, bool> CanEnterTraversalAtWorld { get; set; }
         private string traversalActorKey;
         private string TraversalActorId => traversalActorKey ?? (string.IsNullOrEmpty(EnemyInstanceId) ? "player:" + CharacterId : "enemy:" + EnemyInstanceId);
 
@@ -25,9 +26,23 @@ namespace Godmist.Views.Exploration
                 if (CombatUnit != null && combatContext != null)
                     return DungeonBattleGridFactory.ToDungeonTraversalPosition(combatContext, CombatUnit.Position);
                 if (UsesLayeredTraversal && localTraversalPosition.HasValue) return localTraversalPosition.Value;
-                return new DungeonTraversalPosition(new DungeonSurfacePosition(terrainView != null ? terrainView.WorldToCell(Position) : Vector2Int.FloorToInt(Position)));
+                return ProjectTraversalPosition(Position);
             }
         }
+
+        // Persistence needs both representations of one pose. Capture the
+        // native position once while retaining logical combat/stair ownership.
+        public void ReadTraversalPosition(out Vector2 world, out DungeonTraversalPosition position)
+        {
+            world = Position;
+            if (CombatUnit != null && combatContext != null)
+                position = DungeonBattleGridFactory.ToDungeonTraversalPosition(combatContext, CombatUnit.Position);
+            else if (UsesLayeredTraversal && localTraversalPosition.HasValue) position = localTraversalPosition.Value;
+            else position = ProjectTraversalPosition(world);
+        }
+
+        private DungeonTraversalPosition ProjectTraversalPosition(Vector2 world)
+            => new(new DungeonSurfacePosition(terrainView != null ? terrainView.WorldToCell(world) : Vector2Int.FloorToInt(world)));
 
         public int PresentationLevel
         {
@@ -48,6 +63,7 @@ namespace Godmist.Views.Exploration
 
         private void RestoreTraversalPosition()
         {
+            ClearPendingExplorationMovement();
             localTraversalPosition = null;
             if (terrainMap == null || terrainView == null
                 || !UsesLayeredTraversal && !TraversalActorId.StartsWith("enemy:", StringComparison.Ordinal)) return;
@@ -106,10 +122,12 @@ namespace Godmist.Views.Exploration
             var cell = terrainView.WorldToCell(target);
             var current = DungeonPosition;
             if (!terrainMap.TryGetTraversalCell(current, out var previous)) return;
+            if (!noclipEnabled && !HasClearMovementSegment(Position, target)) return;
             if (!FitsTraversalCollider(current, target)) return;
             if (cell == previous) { transform.position = target; return; }
             DungeonTraversalPosition? selected = null;
-            foreach (var next in terrainMap.GetTraversalNeighbours(current))
+            terrainMap.CollectTraversalNeighbours(current, movementNeighbours);
+            foreach (var next in movementNeighbours)
             {
                 if (!terrainMap.TryGetTraversalCell(next, out var nextCell) || nextCell != cell) continue;
                 if (!selected.HasValue) selected = next;
@@ -117,12 +135,16 @@ namespace Godmist.Views.Exploration
                 // Authored stair landings choose the stair independent of the camera layer.
                 if (next.IsOnStairs || (!current.IsOnStairs && next.Surface.Level != current.Surface.Level)) selected = next;
             }
-            if (!selected.HasValue || CanEnterTraversal?.Invoke(selected.Value) == false) return;
+            if (!selected.HasValue
+                || (CanEnterTraversalAtWorld != null
+                    ? !CanEnterTraversalAtWorld(selected.Value, target)
+                    : CanEnterTraversal?.Invoke(selected.Value) == false)) return;
             var landing = !current.IsOnStairs ? current.Surface : !selected.Value.IsOnStairs ? selected.Value.Surface : (DungeonSurfacePosition?)null;
             if (landing.HasValue && terrainMap.GetWallType(new DungeonSurfaceEdge(new DungeonCellEdge(previous, cell), landing.Value.Level)) == Godmist.Core.Enums.DungeonWallType.Low)
             {
                 crossingStart = Position; crossingEnd = terrainView.CellToWorldCenter(cell); crossingElapsed = 0;
                 restoreBody = false; restoreCollider = false; IsCrossingLowWall = true;
+                crossingDepthEdge = new(new DungeonCellEdge(previous, cell), landing.Value.Level);
                 StoreTraversalPosition(selected.Value);
                 return;
             }
@@ -133,28 +155,35 @@ namespace Godmist.Views.Exploration
         private static readonly Vector2Int[] collisionDirections = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
         private readonly System.Collections.Generic.List<DungeonTraversalPosition> collisionNodes = new();
         private readonly System.Collections.Generic.List<DungeonTraversalPosition> collisionNeighbours = new();
+        private readonly System.Collections.Generic.List<DungeonTraversalPosition> movementNeighbours = new(16);
+        private static readonly Unity.Profiling.ProfilerMarker TraversalColliderSample = new("Godmist.Exploration.TraversalCollider");
         private bool FitsTraversalCollider(DungeonTraversalPosition current, Vector2 target)
         {
+            using var colliderSample = TraversalColliderSample.Auto();
             // The exploration prefab uses a circle. Read its authored footprint even while
             // its physics component is disabled: stacked levels share world X/Y.
             if (movementCollider is not CircleCollider2D circle) return true;
             var scale = circle.transform.lossyScale;
             var radius = circle.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
-            var origin = (Vector2)circle.transform.TransformPoint(circle.offset);
+            var origin = Position + MovementColliderCenterOffset;
             var proposed = origin + target - Position;
             collisionNodes.Clear(); collisionNodes.Add(current);
-            foreach (var neighbour in terrainMap.GetTraversalNeighbours(current))
+            terrainMap.CollectTraversalNeighbours(current, collisionNeighbours);
+            foreach (var neighbour in collisionNeighbours)
                 if (current.IsOnStairs || (!neighbour.IsOnStairs && neighbour.Surface.Level == current.Surface.Level)) collisionNodes.Add(neighbour);
             foreach (var node in collisionNodes)
             {
                 terrainMap.TryGetTraversalCell(node, out var at);
-                collisionNeighbours.Clear(); collisionNeighbours.AddRange(terrainMap.GetTraversalNeighbours(node));
+                terrainMap.CollectTraversalNeighbours(node, collisionNeighbours);
                 foreach (var direction in collisionDirections)
                 {
                     var beyond = at + direction;
                     var open = false;
                     foreach (var neighbour in collisionNeighbours)
-                        if (terrainMap.TryGetTraversalCell(neighbour, out var c) && c == beyond && CanEnterTraversal?.Invoke(neighbour) != false)
+                        if (terrainMap.TryGetTraversalCell(neighbour, out var c) && c == beyond
+                            && (CanEnterTraversalAtWorld != null && c == terrainView.WorldToCell(target)
+                                ? CanEnterTraversalAtWorld(neighbour, target)
+                                : CanEnterTraversal?.Invoke(neighbour) != false))
                         { open = true; break; }
                     if (open) continue;
                     var center = terrainView.CellToWorldCenter(at);

@@ -1,7 +1,9 @@
+using System.Linq;
 using System.Collections.Generic;
 using Godmist.Runtime.Dungeons;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
+using Godmist.Views.Characters;
 using UnityEngine;
 
 namespace Godmist.Views.Dungeons
@@ -22,12 +24,13 @@ namespace Godmist.Views.Dungeons
         public IReadOnlyList<ExplorationCharacterView> EnemyViews => spawnedEnemyViews;
         public IReadOnlyList<EncounterTriggerView> Triggers => spawnedTriggers;
         private readonly List<ExplorationCharacterView> spawnedEnemyViews = new();
+        private readonly HashSet<string> preparedAnimationUnits = new(System.StringComparer.Ordinal);
 
         public EncounterTriggerView SpawnAdditionalEncounter(DungeonEncounterInstance encounter,
             DungeonFloorInstance floor, ExplorationPartyController party, int level)
         {
             if (enemyViewPrefab == null || encounterTriggerPrefab == null || floorMapView == null) return null;
-            var views = SpawnEnemyViews(encounter, floor.Map, level);
+            var views = SpawnEnemyViews(encounter, floor, level);
             var trigger = Instantiate(encounterTriggerPrefab, encountersRoot != null ? encountersRoot : transform);
             trigger.name = "Reinforcements_" + encounter.InstanceId;
             trigger.Initialize(party, floor.Map, floorMapView, encounter, views);
@@ -84,7 +87,7 @@ namespace Godmist.Views.Dungeons
 
                 var enemyViews = SpawnEnemyViews(
                     encounterInstance,
-                    floor.Map, dungeonLevel);
+                    floor, dungeonLevel);
 
                 if (enemyViews.Count == 0)
                 {
@@ -117,8 +120,9 @@ namespace Godmist.Views.Dungeons
 
         private List<ExplorationCharacterView> SpawnEnemyViews(
             DungeonEncounterInstance encounterInstance,
-            DungeonFloorMap floorMap, int dungeonLevel)
+            DungeonFloorInstance spawnFloor, int dungeonLevel)
         {
+            var floorMap = spawnFloor.Map;
             var result = new List<ExplorationCharacterView>();
             var enemies = encounterInstance.Enemies;
 
@@ -160,6 +164,10 @@ namespace Godmist.Views.Dungeons
                     continue;
                 }
 
+                // Prepare each imported pack once while constructing the
+                // floor, before Bind/facing/patrols can request a cold clip.
+                // Additional encounters use the same path for new enemy types.
+                PrepareEnemyAnimationDirections(enemyData.CharacterDefinition.Id);
                 var enemyView = Instantiate(enemyViewPrefab, parent);
 
                 enemyView.name =
@@ -203,6 +211,37 @@ namespace Godmist.Views.Dungeons
                     occupiedEnemyCells.Add(cell);
                 }
 
+                if (floorMapView.UsesVegetationPresentation)
+                {
+                    var floor = spawnFloor;
+                    var ent = Godmist.Runtime.Dungeons.ForestEnemyNavigation.IsEnt(enemyData.CharacterDefinition.Id);
+                    bool Clear(Vector2Int c) => Godmist.Runtime.Dungeons.ForestEnemyNavigation.CanOccupy(floorMap,c,encounterInstance.RoomId,ent)
+                        && !floor.Objects.OfType<ObstacleDungeonObjectInstance>().Any(o => o.IsActive && o.BlocksMovement && o.OccupiesCell(c))
+                        && (c == cell || !occupiedEnemyCells.Contains(c));
+                    if (!Clear(cell))
+                    {
+                        var available = floorMap.FloorCells.Where(c => !floor.IsConnectionCell(c) && floorMap.TryGetRoomId(c,out var room)
+                            && room == encounterInstance.RoomId && Clear(c))
+                            .OrderBy(c => (c-cell).sqrMagnitude).ThenBy(c=>c.y).ThenBy(c=>c.x).ToArray();
+                        if (available.Length > 0) cell = available[0];
+                    }
+                    occupiedEnemyCells.Add(cell);
+                    encounterInstance.TrySetEnemyExplorationPosition(enemyData.InstanceId,cell);
+                    if (ent)
+                    {
+                        encounterInstance.StationaryEnemyHomes[enemyData.InstanceId] = cell;
+                        floor.Patrols.Remove(Godmist.Systems.Combat.DungeonCombatMembershipSystem.EnemyKey(encounterInstance.InstanceId,enemyData.InstanceId));
+                    }
+                    var key = "enemy:" + encounterInstance.InstanceId + ":" + enemyData.InstanceId;
+                    if (!floor.TryGetActorPosition(key,out var saved)
+                        || !floorMap.TryGetTraversalCell(saved,out var savedCell) || !Clear(savedCell)
+                        || floor.GetActorOffset(key).sqrMagnitude > .75f*.75f)
+                    {
+                        floor.TrySetActorPosition(key,new Godmist.Runtime.Dungeons.DungeonTraversalPosition(new Godmist.Runtime.Dungeons.DungeonSurfacePosition(cell)));
+                        floor.SetActorOffset(key,Vector2.zero);
+                        floor.Patrols.Remove(Godmist.Systems.Combat.DungeonCombatMembershipSystem.EnemyKey(encounterInstance.InstanceId,enemyData.InstanceId));
+                    }
+                }
                 enemyView.SetPosition(
                     floorMapView.CellToWorldCenter(cell));
 
@@ -213,6 +252,13 @@ namespace Godmist.Views.Dungeons
             }
 
             return result;
+        }
+
+        private void PrepareEnemyAnimationDirections(string characterId)
+        {
+            if (!CharacterAnimationResolver.TryGetCharacterUnit(characterId, out var unit)
+                || !preparedAnimationUnits.Add(unit)) return;
+            CharacterAnimationResolver.PrepareCharacterDirections(characterId);
         }
 
         private static Vector2Int GetFormationCell(
@@ -276,6 +322,7 @@ namespace Godmist.Views.Dungeons
 
         private void ClearSpawnedViews()
         {
+            preparedAnimationUnits.Clear();
             foreach (var triggerView in spawnedTriggers)
             {
                 if (triggerView != null)

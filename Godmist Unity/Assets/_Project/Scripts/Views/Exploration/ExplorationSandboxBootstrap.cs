@@ -92,6 +92,8 @@ namespace Godmist.Views.Exploration
                 session.TrySetExplorationPosition(
                     partyController.ActiveLeaderTransform.position);
             }
+
+            ArungardPresentationRuntimeSetup.ApplyIfPresent(partyBindings, npcBindings);
         }
 
         private void OnDestroy()
