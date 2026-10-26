@@ -20,28 +20,28 @@ MonoBehaviour:
   <Enemies>k__BackingField:
   - <InstanceId>k__BackingField: enemy.catacombs.undead_pack.1
     <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 3e097cd34ef21f844aa9bac5ee3ea41b, type: 2}
-    <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
     <SpawnPosition>k__BackingField: {x: 7, y: 3}
     <VisionRange>k__BackingField: 6
     <VisionAngle>k__BackingField: 110
     <InitialFacing>k__BackingField: {x: -1, y: 0}
   - <InstanceId>k__BackingField: enemy.catacombs.undead_pack.2
     <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: ba9ef817cab8c7c4d879a09c31065592, type: 2}
-    <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
     <SpawnPosition>k__BackingField: {x: 8, y: 5}
     <VisionRange>k__BackingField: 6
     <VisionAngle>k__BackingField: 110
     <InitialFacing>k__BackingField: {x: -1, y: 0}
   - <InstanceId>k__BackingField: enemy.catacombs.undead_pack.3
     <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
-    <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
     <SpawnPosition>k__BackingField: {x: 7, y: 7}
     <VisionRange>k__BackingField: 6
     <VisionAngle>k__BackingField: 110
     <InitialFacing>k__BackingField: {x: -1, y: 0}
   - <InstanceId>k__BackingField: enemy.catacombs.undead_pack.4
     <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: f2523f7760928ea489000fa70ed11b92, type: 2}
-    <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: db1aa950041be5f4b925186642363fe3, type: 2}
     <SpawnPosition>k__BackingField: {x: 8, y: 9}
     <VisionRange>k__BackingField: 8
     <VisionAngle>k__BackingField: 110

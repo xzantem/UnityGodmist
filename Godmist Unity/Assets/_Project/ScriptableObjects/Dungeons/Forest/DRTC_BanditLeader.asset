@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a98f1774ae40b044b953f05665485a2a, type: 3}
+  m_Name: DRTC_BanditLeader
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateCatalog
+  <Id>k__BackingField: rooms.forest.bandit_leader
+  <HasVegetationFringe>k__BackingField: 1
+  <Templates>k__BackingField:
+  - {fileID: 11400000, guid: 5396e5d8cc13e3b48b8c76d451904847, type: 2}
+  - {fileID: 11400000, guid: ad0c11fe6dd3f064eba406547deeb039, type: 2}
+  - {fileID: 11400000, guid: 96c7286f2e6b3164e8366816fe74f3be, type: 2}
+  - {fileID: 11400000, guid: d2440c6c362316043b039cb176f4785c, type: 2}
+  - {fileID: 11400000, guid: a6fe2cad42103c8469e562424c02d0b9, type: 2}
+  - {fileID: 11400000, guid: 11ec9fe39dc62d644b220e41436c2bd2, type: 2}
+  - {fileID: 11400000, guid: 773e776bf2698264d8f03d5bf26517bb, type: 2}
+  - {fileID: 11400000, guid: 3cd90cdeccf5e9e48ac4c98c0b8419b0, type: 2}
+  - {fileID: 11400000, guid: 0e2c760b4e82aae4c9d8eb2faa490e75, type: 2}
+  - {fileID: 11400000, guid: bdaa05c98026db44bb12c79d7bb3f452, type: 2}
+  - {fileID: 11400000, guid: 44697de6f634f9e4f88fb23f713cba37, type: 2}
+  - {fileID: 11400000, guid: 78c280aff87b11648ac0b40d3d44cfed, type: 2}
+  - {fileID: 11400000, guid: f674a4a596a72c243a9adb7939ec2b60, type: 2}
+  <ProductionTemplates>k__BackingField:
+  - {fileID: 11400000, guid: 30401383a1a58af45943df5e9f255eb9, type: 2}
+  - {fileID: 11400000, guid: 25ebfd44f83af4b418a355af3ca696f1, type: 2}
+  - {fileID: 11400000, guid: 57dc410d7ea66d44a873321044be8f74, type: 2}
+  - {fileID: 11400000, guid: b7fc92a58b7870f4084a04ad6d73e8fc, type: 2}
+  - {fileID: 11400000, guid: d4b389d93d8c0bf44b7a980dc3f2af78, type: 2}
+  - {fileID: 11400000, guid: 62fc59024c21a5449b9d9a732a593177, type: 2}
+  - {fileID: 11400000, guid: d1baaa82415ff3a4ba1fac348fb65451, type: 2}
+  - {fileID: 11400000, guid: 2c8f328136f025f4dbe26b5f40a42ced, type: 2}
+  - {fileID: 11400000, guid: 84bb974b001a4cf4aaf7fdec788b8a4f, type: 2}
+  - {fileID: 11400000, guid: 8f1953f0e308d7646b78ebbee55413f5, type: 2}
+  - {fileID: 11400000, guid: cd62e0b77a123bb43ba47530264181de, type: 2}
+  - {fileID: 11400000, guid: 9ffcc2cd97b1a154d92eecfb4e01fd77, type: 2}
+  - {fileID: 11400000, guid: 95931b721c268e54a80f7bb035359ac2, type: 2}
+  - {fileID: 11400000, guid: 4330bb6cb662fb64e85b8a86e36b9716, type: 2}
+  - {fileID: 11400000, guid: cd6043672aa2b33459656617a8ea7587, type: 2}
+  - {fileID: 11400000, guid: fafcd07c06f81174cacb5a18efffbe0d, type: 2}
+  <UseRoutedConnections>k__BackingField: 1

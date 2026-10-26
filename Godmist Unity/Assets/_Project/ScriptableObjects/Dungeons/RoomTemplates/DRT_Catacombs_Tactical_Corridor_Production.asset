@@ -104,7 +104,22 @@ MonoBehaviour:
     <Direction>k__BackingField: 0
     <Level>k__BackingField: 0
   <BoundaryEdgesConfigured>k__BackingField: 1
-  <StructuralAnchors>k__BackingField: []
+  <StructuralAnchors>k__BackingField:
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 5, y: 3}
+    <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 6, y: 3}
+    <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
+  - <Type>k__BackingField: 0
+    <LocalCell>k__BackingField: {x: 7, y: 3}
+    <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   <SemanticAnchors>k__BackingField:
   - <Id>k__BackingField: trap.0
     <Type>k__BackingField: 2
@@ -120,7 +135,7 @@ MonoBehaviour:
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: c93126558afb0664a82641061edc7b91, type: 2}
   - <Id>k__BackingField: trap.1
     <Type>k__BackingField: 2
-    <LocalCell>k__BackingField: {x: 6, y: 4}
+    <LocalCell>k__BackingField: {x: 6, y: 5}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: -1
     <PatrolMode>k__BackingField: 0

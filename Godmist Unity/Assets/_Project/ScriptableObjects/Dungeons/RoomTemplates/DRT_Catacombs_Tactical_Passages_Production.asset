@@ -162,6 +162,16 @@ MonoBehaviour:
     <Direction>k__BackingField: 0
     <WallType>k__BackingField: 0
     <Level>k__BackingField: 0
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 4, y: 5}
+    <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
+  - <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 7, y: 9}
+    <Direction>k__BackingField: 1
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   <SemanticAnchors>k__BackingField:
   - <Id>k__BackingField: trap.0
     <Type>k__BackingField: 2

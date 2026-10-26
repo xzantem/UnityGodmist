@@ -122,6 +122,44 @@ namespace Godmist.Editor
             return rooms;
         }
 
+        [MenuItem("Godmist/Content/Configure VS-18 Catacombs Chest Rewards")]
+        public static void ConfigureChestRewards()
+        {
+            var chestDefinition = LoadObjects().Chest;
+            foreach (var spec in LoadBlueprints().Where(spec =>
+                         spec.suffix is "Optional_Lever" or "Optional_Condition"))
+            {
+                var room = Require<DungeonRoomTemplateDefinition>(
+                    Rooms + "DRT_Catacombs_" + spec.suffix + "_Production.asset");
+                var rows = MakePlayableRows(spec.rows);
+                var cells = (from row in Enumerable.Range(0, rows.Length)
+                    from x in Enumerable.Range(0, rows[row].Length)
+                    where rows[row][x] == 'C'
+                    select new Vector2Int(x, rows.Length - 1 - row)).ToList();
+                if (cells.Count != 1)
+                    throw new InvalidOperationException(spec.suffix + ": expected one chest marker");
+                var existing = room.SemanticAnchors.Find(anchor => anchor.Id == "reward.vs18"
+                    || (anchor.Type == DungeonSemanticAnchorType.Chest && anchor.LocalCell == cells[0]));
+                if (existing != null)
+                {
+                    if (existing.Type != DungeonSemanticAnchorType.Chest
+                        || existing.LocalCell != cells[0]
+                        || existing.ObjectDefinition != chestDefinition)
+                        throw new InvalidOperationException(room.name + ": conflicting VS-18 chest anchor");
+                    continue;
+                }
+
+                room.SemanticAnchors.Add(new DungeonSemanticAnchorData("reward.vs18",
+                    DungeonSemanticAnchorType.Chest, cells[0], Vector2Int.one,
+                    isRequired: true, objectDefinition: chestDefinition));
+                var report = DungeonRoomTemplateEditorValidator.Validate(room);
+                if (!report.IsValid)
+                    throw new InvalidOperationException(room.name + ": " + string.Join("; ", report.Errors));
+                EditorUtility.SetDirty(room);
+            }
+            AssetDatabase.SaveAssets();
+        }
+
         public static void AddRequiredObjectDefinitions(DungeonDefinition definition)
         {
             if (definition == null) throw new ArgumentNullException(nameof(definition));
@@ -133,7 +171,7 @@ namespace Godmist.Editor
 
         private static void ConfigureRoom(DungeonRoomTemplateDefinition room, Blueprint spec, ObjectSet objects)
         {
-            var rows = MakePlayableRows(spec.rows);
+            var rows = MakePlayableRows(spec.rows, spec.obstacle == "Sarcophagus");
             OpenFramedDoorways(rows, spec.doors);
             var width = rows[0].Length;
             var height = rows.Length;
@@ -197,6 +235,9 @@ namespace Godmist.Editor
                 if (symbol == 'S')
                     room.SemanticAnchors.Add(Anchor("goal", room.SemanticAnchors.Count, cell,
                         ResolveTargetType(spec.target), ResolveTarget(spec.target, objects)));
+                if (symbol == 'C')
+                    room.SemanticAnchors.Add(Anchor("reward", room.SemanticAnchors.Count, cell,
+                        DungeonSemanticAnchorType.Chest, objects.Chest));
             }
 
             if (floor.Count != width * height)
@@ -285,7 +326,7 @@ namespace Godmist.Editor
             _ => throw new InvalidOperationException("VS-14: unknown goal " + name)
         };
 
-        private static char[][] MakePlayableRows(string[] authored)
+        private static char[][] MakePlayableRows(string[] authored, bool singleSarcophagusAnchors = false)
         {
             if (authored == null || authored.Length == 0)
                 throw new InvalidOperationException("VS-14: empty room footprint");
@@ -304,7 +345,7 @@ namespace Godmist.Editor
                 {
                     result.Add(row[x]);
                     if (xCopies.Contains(x))
-                        result.Add(CopyForExpansion(row[x]));
+                        result.Add(singleSarcophagusAnchors && row[x] == '■' ? '.' : CopyForExpansion(row[x]));
                 }
                 return result.ToArray();
             }).ToArray();
@@ -313,13 +354,14 @@ namespace Godmist.Editor
             {
                 output.Add(expanded[y]);
                 if (yCopies.Contains(y))
-                    output.Add(expanded[y].Select(CopyForExpansion).ToArray());
+                    output.Add(expanded[y].Select(symbol => singleSarcophagusAnchors && symbol == '■'
+                        ? '.' : CopyForExpansion(symbol)).ToArray());
             }
             return output.ToArray();
         }
 
         private static char CopyForExpansion(char symbol) =>
-            symbol is 'E' or 'X' or 'W' or 'S' or 'B' ? '.' : symbol;
+            symbol is 'E' or 'X' or 'W' or 'S' or 'B' or 'C' ? '.' : symbol;
 
         private static void OpenFramedDoorways(char[][] rows, string policy)
         {

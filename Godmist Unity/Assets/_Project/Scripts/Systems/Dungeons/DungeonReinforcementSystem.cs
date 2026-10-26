@@ -39,10 +39,11 @@ namespace Godmist.Systems.Dungeons
             var doors = floor.Connections.Where(c => c.HasGeometry && c.DoorwayLevel == 0
                     && (!c.HasProgressionGate || c.IsProgressionGateUnlocked)
                     && (c.FirstRoomId == roomId || c.SecondRoomId == roomId))
-                .Select(c => c.FirstRoomId == roomId ? c.FirstDoorCell : c.SecondDoorCell)
+                .Select(c => c.GetEntranceCell(roomId))
                 .Distinct().OrderBy(c => c.x).ThenBy(c => c.y).ToList();
             if (doors.Count == 0) return false;
-            var roomCells = floor.Map.FloorCells.Where(c => floor.Map.TryGetRoomId(c, out var id) && id == roomId).ToArray();
+            var roomCells = floor.Map.FloorCells.Where(c => !floor.IsConnectionCell(c)
+                && floor.Map.TryGetRoomId(c, out var id) && id == roomId).ToArray();
             if (roomCells.Length == 0) return false;
             var occupied = new HashSet<GridPosition>(session.Units.Select(u => u.Position));
             DungeonCombatParticipationSystem.AddExternalReservations(session, occupied);

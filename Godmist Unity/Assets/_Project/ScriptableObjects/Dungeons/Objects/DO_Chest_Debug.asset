@@ -16,5 +16,5 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Skrzynia
   <SpawnWeight>k__BackingField: 1
   <LootTable>k__BackingField: {fileID: 11400000, guid: a2c6e4f8b1d35790a5e9c3f7d2b6a180, type: 2}
-  <LockType>k__BackingField: 2
-  <RequiredKey>k__BackingField: {fileID: 11400000, guid: 7c8f8fc5cbb9452b8cb0f6d8e31745b1, type: 2}
+  <LockType>k__BackingField: 0
+  <RequiredKey>k__BackingField: {fileID: 0}

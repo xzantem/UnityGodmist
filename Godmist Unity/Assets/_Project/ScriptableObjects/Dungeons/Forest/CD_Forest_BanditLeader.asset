@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dee6cd9b98d0fa545a9ab04727ca3174, type: 3}
+  m_Name: CD_Forest_BanditThug
+  m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
+  <Id>k__BackingField: enemy.forest.bandit_leader
+  <DisplayName>k__BackingField: "Przyw\xF3dca Bandyt\xF3w"
+  <Tags>k__BackingField: 0000000004000000
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: fb714adf1271442488c57b4db53a4350, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 21300000, guid: d06d6bbd103439f438cfe238051b06b6, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: fb714adf1271442488c57b4db53a4350, type: 3}
+  - {fileID: 21300000, guid: d67d5b123d34f4c4aa3d45ea3d8fde7b, type: 3}
+  - {fileID: 21300000, guid: e7027666d53f7aa488a34c1c30ff09d3, type: 3}
+  - {fileID: 21300000, guid: 4a541cbc6b0a2784db83d68838fd9ebb, type: 3}
+  <IdleAnimationFramesPerSecond>k__BackingField: 3.3333333
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: 622268b5e3f3a9c4785ba712fadf0cae, type: 3}
+  - {fileID: 21300000, guid: f60511141a9c32144b119d32709372d5, type: 3}
+  - {fileID: 21300000, guid: b2e98858834635a43b830dfe6f8e1468, type: 3}
+  - {fileID: 21300000, guid: d6c0282bd42becb4ba87e8accebb7ca6, type: 3}
+  <RunAnimationFramesPerSecond>k__BackingField: 5.5555553
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: 35e93a89c0b34444eab2254cf90f45ad, type: 3}
+  <DeadSprite>k__BackingField: {fileID: 21300000, guid: 801adb89f27a96f49a1cf712bd8f68ab, type: 3}
+  <IsMainCharacter>k__BackingField: 0
+  <AiRole>k__BackingField: 4
+  <AiPersonality>k__BackingField: 1
+  <RecruitmentQuestId>k__BackingField: 
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+  <BaseStats>k__BackingField:
+    <MaxHealth>k__BackingField: 280
+    <MinAttack>k__BackingField: 55
+    <MaxAttack>k__BackingField: 76
+    <PhysicalDefense>k__BackingField: 10
+    <MagicalDefense>k__BackingField: 10
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
+    <Dodge>k__BackingField: 30
+    <CritChance>k__BackingField: 0.12
+    <CritDamage>k__BackingField: 2
+    <Speed>k__BackingField: 80
+    <WeaponAccuracy>k__BackingField: 100
+    <MaxResource>k__BackingField: 200
+    <ResourceRegeneration>k__BackingField: 0
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0.3
+    <PoisonResistance>k__BackingField: 0.5
+    <FireResistance>k__BackingField: 0.4
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0.5
+    <MoveResistance>k__BackingField: 0
+  <GrowthData>k__BackingField:
+    <MaxHealth>k__BackingField: 33
+    <MinAttack>k__BackingField: 4.23
+    <MaxAttack>k__BackingField: 5.85
+    <LateMaxHealth>k__BackingField: 51.007538
+    <LateMinAttack>k__BackingField: 0.76465327
+    <LateMaxAttack>k__BackingField: 1.0579046
+    <EarlyMaxHealth>k__BackingField: 0
+    <EarlyMinAttack>k__BackingField: -0.000000019073486
+    <EarlyMaxAttack>k__BackingField: 0.00000009536743
+    <LateMaxHealthOffset>k__BackingField: 0
+    <LateMinAttackOffset>k__BackingField: 0
+    <LateMaxAttackOffset>k__BackingField: 0
+    <PhysicalDefense>k__BackingField: 0
+    <MagicalDefense>k__BackingField: 0
+    <DefenseCurve>k__BackingField:
+    - <Level>k__BackingField: 1
+      <PhysicalDefense>k__BackingField: 10
+      <MagicalDefense>k__BackingField: 10
+    - <Level>k__BackingField: 10
+      <PhysicalDefense>k__BackingField: 16.25
+      <MagicalDefense>k__BackingField: 16
+    - <Level>k__BackingField: 20
+      <PhysicalDefense>k__BackingField: 40
+      <MagicalDefense>k__BackingField: 38
+    - <Level>k__BackingField: 30
+      <PhysicalDefense>k__BackingField: 80
+      <MagicalDefense>k__BackingField: 80
+    - <Level>k__BackingField: 40
+      <PhysicalDefense>k__BackingField: 137.5
+      <MagicalDefense>k__BackingField: 170
+    - <Level>k__BackingField: 50
+      <PhysicalDefense>k__BackingField: 350
+      <MagicalDefense>k__BackingField: 360
+    <Dodge>k__BackingField: 0.10050251
+    <CritChance>k__BackingField: 0.00020100502
+    <CritDamage>k__BackingField: 0
+    <Speed>k__BackingField: 0
+    <WeaponAccuracy>k__BackingField: 0
+    <MaxResource>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 0
+  <AttackMultiplier>k__BackingField: 0.85
+  <SecondPhaseDefinition>k__BackingField: {fileID: 11400000, guid: 8f97a0391ab933949b042aa7803b639d, type: 2}
+  <TransformationFramesPerSecond>k__BackingField: 5
+  <TransformationFrames>k__BackingField:
+  - {fileID: 21300000, guid: ba92493e20ec89348886526138e46aba, type: 3}
+  - {fileID: 21300000, guid: c54bfc2d81112844d84b0b62cc78db44, type: 3}
+  - {fileID: 21300000, guid: b1fb4b319c99b284bbef1afe63cea831, type: 3}
+  - {fileID: 21300000, guid: edd38078b2e98ba47b9fd10083c00660, type: 3}
+  - {fileID: 21300000, guid: fcfa92a15e299d7439431faa02e295cb, type: 3}
+  - {fileID: 21300000, guid: bae015d0209ae304ba1d3458f6261bab, type: 3}
+  <SanctuaryWarning>k__BackingField: {fileID: 0}
+  <SanctuaryFire>k__BackingField: {fileID: 0}
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: a2989b93f83c2314c82be6df7821ea41, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: a2989b93f83c2314c82be6df7821ea41, type: 2}
+  - {fileID: 11400000, guid: 9506e208ca07a1c428d879b65f06b110, type: 2}
+  - {fileID: 11400000, guid: 638374f3275b49d459e6e15a217bca5c, type: 2}
+  <ExperienceReward>k__BackingField: 0
+  <GoldReward>k__BackingField: 0
+  <LootTable>k__BackingField: {fileID: 0}

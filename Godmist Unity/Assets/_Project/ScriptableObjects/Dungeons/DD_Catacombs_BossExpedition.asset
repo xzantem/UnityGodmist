@@ -24,6 +24,44 @@ MonoBehaviour:
   <IsAvailableAsOffer>k__BackingField: 1
   <FixedOfferLevels>k__BackingField: 0a00000014000000
   <LayoutProfile>k__BackingField: {fileID: 11400000, guid: a069f73bf4317e7468c58e51242852ea, type: 2}
+  <LengthProfiles>k__BackingField:
+  - <Length>k__BackingField: 1
+    <FloorCount>k__BackingField: 1
+    <MinRoomsPerFloor>k__BackingField: 14
+    <MaxRoomsPerFloor>k__BackingField: 17
+    <MinEncountersPerFloor>k__BackingField: 5
+    <MaxEncountersPerFloor>k__BackingField: 6
+    <MinBranchCount>k__BackingField: 1
+    <MaxBranchCount>k__BackingField: 3
+    <MinBranchTransitRoomCount>k__BackingField: 2
+    <MaxBranchTransitRoomCount>k__BackingField: 3
+    <MinLoopArmRoomCount>k__BackingField: 2
+    <MaxLoopArmRoomCount>k__BackingField: 4
+  - <Length>k__BackingField: 2
+    <FloorCount>k__BackingField: 2
+    <MinRoomsPerFloor>k__BackingField: 14
+    <MaxRoomsPerFloor>k__BackingField: 17
+    <MinEncountersPerFloor>k__BackingField: 5
+    <MaxEncountersPerFloor>k__BackingField: 6
+    <MinBranchCount>k__BackingField: 2
+    <MaxBranchCount>k__BackingField: 4
+    <MinBranchTransitRoomCount>k__BackingField: 2
+    <MaxBranchTransitRoomCount>k__BackingField: 5
+    <MinLoopArmRoomCount>k__BackingField: 3
+    <MaxLoopArmRoomCount>k__BackingField: 5
+  - <Length>k__BackingField: 3
+    <FloorCount>k__BackingField: 3
+    <MinRoomsPerFloor>k__BackingField: 14
+    <MaxRoomsPerFloor>k__BackingField: 17
+    <MinEncountersPerFloor>k__BackingField: 5
+    <MaxEncountersPerFloor>k__BackingField: 6
+    <MinBranchCount>k__BackingField: 3
+    <MaxBranchCount>k__BackingField: 5
+    <MinBranchTransitRoomCount>k__BackingField: 3
+    <MaxBranchTransitRoomCount>k__BackingField: 8
+    <MinLoopArmRoomCount>k__BackingField: 4
+    <MaxLoopArmRoomCount>k__BackingField: 7
+  <VegetationPresentation>k__BackingField: {fileID: 0}
   <DungeonLevel>k__BackingField: 10
   <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: b3d7f5a9c2e46810a6c4e8f1d5b7a290, type: 2}
   <MinFloorCount>k__BackingField: 2

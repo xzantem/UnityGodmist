@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c9e2f7b1d34680a4e8c6f3d9b2a170, type: 3}
+  m_Name: DLC_Catacombs_SkeletonSlayer_Loot
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonLootTableCatalog
+  <Entries>k__BackingField:
+  - <Theme>k__BackingField: 0
+    <Bracket>k__BackingField: 0
+    <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: e4a919d79e912784eb382df47499e346, type: 2}
+    <ChestLootTable>k__BackingField: {fileID: 11400000, guid: a60787b84649920449f735937582b41a, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 1e40c64c935df054cbd43a1fef9785ec, type: 2}
+  - <Theme>k__BackingField: 0
+    <Bracket>k__BackingField: 1
+    <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: b36a91387e780bc438dbca88cee6691c, type: 2}
+    <ChestLootTable>k__BackingField: {fileID: 11400000, guid: e5765b67518b1df4a9a606bdbb52784e, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 8e628eddfbb75714aa4b532f74fce82a, type: 2}

@@ -14,6 +14,8 @@ namespace Godmist.Data.Dungeons
     {
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
+        [field: SerializeField] public string RoomFunction { get; private set; } = string.Empty;
+        [field: SerializeField] public int PreferredFloorIndex { get; private set; } = -1;
         [field: SerializeField] public DungeonRoomType RoomType { get; private set; }
 
         [field: Header("Encounter placement")]

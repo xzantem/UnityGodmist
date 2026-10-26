@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6700f722a8bcce4992915b695b7c0cd, type: 3}
+  m_Name: ED_Catacombs_skeleton_slayer
+  m_EditorClassIdentifier: Data::Godmist.Data.Combat.EncounterDefinition
+  <Id>k__BackingField: encounter.catacombs.skeleton_slayer
+  <DisplayName>k__BackingField: "Szkielet Zab\xF3jca"
+  <GridWidth>k__BackingField: 15
+  <GridHeight>k__BackingField: 15
+  <BossEnemyIndex>k__BackingField: 0
+  <Enemies>k__BackingField:
+  - <InstanceId>k__BackingField: enemy.catacombs.skeleton_slayer.boss
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 7370746888b73434d8bff2bff63e7c53, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 10}
+    <VisionRange>k__BackingField: 9
+    <VisionAngle>k__BackingField: 360
+    <InitialFacing>k__BackingField: {x: 0, y: -1}

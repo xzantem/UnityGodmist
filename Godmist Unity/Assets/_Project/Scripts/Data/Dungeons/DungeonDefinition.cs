@@ -26,6 +26,15 @@ namespace Godmist.Data.Dungeons
         [field: Tooltip("Optional fixed levels for offers of this expedition. Empty uses the party level.")]
         [field: SerializeField] public List<int> FixedOfferLevels { get; private set; } = new();
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
+        [field: SerializeField] public List<DungeonLengthProfile> LengthProfiles { get; private set; } = new();
+        public DungeonLengthProfile GetLengthProfile(DungeonLength length)
+        {
+            if (LengthProfiles == null) return null;
+            foreach (var profile in LengthProfiles)
+                if (profile != null && profile.Length == length) return profile;
+            return null;
+        }
+        [field: SerializeField] public DungeonVegetationPresentation VegetationPresentation { get; private set; }
 
         [field: Header("Rewards")]
         [field: SerializeField, Range(1, 50)]

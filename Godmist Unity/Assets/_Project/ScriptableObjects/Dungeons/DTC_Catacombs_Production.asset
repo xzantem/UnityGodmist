@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: DTC_Catacombs_Production
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateCatalog
   <Id>k__BackingField: dungeon.catacombs.templates.production
+  <HasVegetationFringe>k__BackingField: 0
   <Templates>k__BackingField:
   - {fileID: 11400000, guid: c81e0daa8c37f0343b9235f013a856ce, type: 2}
   - {fileID: 11400000, guid: 2b80e1b67a42fe143b97f7d627529651, type: 2}
@@ -30,3 +31,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 96adbba2d2c51b344b82f973beca8fbd, type: 2}
   - {fileID: 11400000, guid: 02649487b25555e48943223aacabaf63, type: 2}
   - {fileID: 11400000, guid: 2440976a18b56b44684594aced47c9b3, type: 2}
+  <ProductionTemplates>k__BackingField:
+  - {fileID: 11400000, guid: 24aecd64641cf9f4c883a50f5878418b, type: 2}
+  - {fileID: 11400000, guid: ae351d7099fdec2478fa4f286f948f04, type: 2}
+  - {fileID: 11400000, guid: fafbe3d5c708bfd44bdad60dd52a0d85, type: 2}
+  - {fileID: 11400000, guid: da976a55cfa840643b4ea0a4981275a9, type: 2}
+  - {fileID: 11400000, guid: 062c3e1305ddfd3439249dea7f9dfeaf, type: 2}
+  - {fileID: 11400000, guid: 4e4cf418240030748996e546c9490349, type: 2}
+  - {fileID: 11400000, guid: f274e9bf2b22c9b4d8f465c2eac027cd, type: 2}
+  - {fileID: 11400000, guid: 40b88fa44cdb62b40a9cf61a249269b9, type: 2}
+  - {fileID: 11400000, guid: d3c3b8a95f814c34ba01cc93650deb92, type: 2}
+  - {fileID: 11400000, guid: ac2a963b0ecd6944a921a46f67bef33b, type: 2}
+  - {fileID: 11400000, guid: 064c47048abffd94a882034188de0790, type: 2}
+  - {fileID: 11400000, guid: 8bf7f918473337f44955b45d2aac358d, type: 2}
+  - {fileID: 11400000, guid: 5de95e730e0e83541a5fdae95ac4632c, type: 2}
+  - {fileID: 11400000, guid: 3ddf96508b8b64b409aefa27dce0dbd0, type: 2}
+  - {fileID: 11400000, guid: b63eff29884c8b242acc2c04993cef12, type: 2}
+  - {fileID: 11400000, guid: b5752a308a1b7cb40a485f48a56736ba, type: 2}
+  - {fileID: 11400000, guid: f17ac0c157d4c3440b9b1098b836a47a, type: 2}
+  - {fileID: 11400000, guid: 9b62fe427597c0d4193addc7a0d2d6c7, type: 2}
+  <UseRoutedConnections>k__BackingField: 1

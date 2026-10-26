@@ -1329,7 +1329,7 @@ namespace Godmist.Editor
                 {
                     try
                     {
-                        if (validationDungeon.RoomTemplateCatalog == null || !validationDungeon.RoomTemplateCatalog.Templates.Contains(template))
+                        if (validationDungeon.RoomTemplateCatalog == null || !validationDungeon.RoomTemplateCatalog.AllTemplates.Contains(template))
                             throw new InvalidOperationException("Wybrany loch nie zawiera tego szablonu.");
                         DungeonObjectPlacementSystem.ValidateContentDefinitions(validationDungeon);
                         poolValidationMessage = "Pula: OK dla poziomu z definicji lochu. Runtime sprawdzi miejsca po wygenerowaniu drzwi i przeciwników.";

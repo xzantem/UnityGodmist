@@ -13,6 +13,7 @@ namespace Godmist.Runtime.Dungeons
         public Vector2Int LayoutPosition { get; }
         public int RotationDegrees { get; }
         public bool IsRequiredProgressionRoom { get; }
+        public bool IsBranchTransitRoom { get; }
         public bool IsProgressionRoomCompleted { get; private set; }
         public bool IsVisited { get; private set; }
 
@@ -22,7 +23,8 @@ namespace Godmist.Runtime.Dungeons
             string templateId = null,
             Vector2Int layoutPosition = default,
             bool isRequiredProgressionRoom = false,
-            int rotationDegrees = 0)
+            int rotationDegrees = 0,
+            bool isBranchTransitRoom = false)
         {
             if (string.IsNullOrWhiteSpace(roomId))
             {
@@ -32,10 +34,14 @@ namespace Godmist.Runtime.Dungeons
             }
 
             RoomId = roomId;
+            if (isBranchTransitRoom && (isRequiredProgressionRoom
+                || (roomType != DungeonRoomType.Normal && roomType != DungeonRoomType.Corridor)))
+                throw new ArgumentException("Branch transit rooms must be ordinary non-progression rooms.", nameof(isBranchTransitRoom));
             RoomType = roomType;
             TemplateId = templateId ?? string.Empty;
             LayoutPosition = layoutPosition;
             IsRequiredProgressionRoom = isRequiredProgressionRoom;
+            IsBranchTransitRoom = isBranchTransitRoom;
             RotationDegrees = DungeonRoomTransformUtility.NormalizeRotation(
                 rotationDegrees);
         }

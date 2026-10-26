@@ -12,7 +12,7 @@ namespace Godmist.Systems.Dungeons
     public sealed class DungeonCampService
     {
         public const string KitId = "CampingKit";
-        public const float RecoveryFraction = .4f;
+        public const float RecoveryFraction = .6f;
         public static bool IsCampingKit(ItemInstance item) => item?.Definition?.Id == KitId;
 
         public bool TryIssueSupplies(GameSession session, GameContentCatalog catalog)
@@ -23,7 +23,7 @@ namespace Godmist.Systems.Dungeons
                 || !session.CharactersById.TryGetValue(session.PlayerParty.ActiveLeaderId, out var leader)) return false;
             // Expedition supplies are weightless. Validate the content before committing the entire grant.
             if (definition.Weight != 0f) return false;
-            for (var i = 0; i < dungeon.Floors.Count; i++)
+            for (var i = 0; i < dungeon.CampingKitAllowance; i++)
                 leader.Inventory.Items.Add(new ItemInstance(definition));
             dungeon.MarkCampSuppliesIssued();
             return true;
@@ -64,7 +64,7 @@ namespace Godmist.Systems.Dungeons
                     .Where(c => c.LifeState == CharacterLifeState.Alive).ToArray();
                 if (living.Length == 0) reason = "Brak żywych członków drużyny.";
                 else if (!living.Any(c => c.Inventory.Items.Any(IsCampingKit)))
-                    reason = "Drużyna potrzebuje zestawu obozowego w ekwipunku.";
+                    reason = "Brak zestawów obozowych.";
                 else if (living.Any(c => !session.PlayerParty.AreGrouped(c.CharacterId, session.PlayerParty.ActiveLeaderId)))
                     reason = "Przed odpoczynkiem zbierz drużynę w jednej grupie.";
             }

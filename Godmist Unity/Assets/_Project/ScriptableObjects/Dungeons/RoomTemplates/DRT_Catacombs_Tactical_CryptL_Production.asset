@@ -184,33 +184,9 @@ MonoBehaviour:
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
-  - <Id>k__BackingField: cover.1
-    <Type>k__BackingField: 1
-    <LocalCell>k__BackingField: {x: 5, y: 6}
-    <AreaSize>k__BackingField: {x: 1, y: 1}
-    <EncounterEnemyIndex>k__BackingField: -1
-    <PatrolMode>k__BackingField: 0
-    <SpawnChance>k__BackingField: 1
-    <IsRequired>k__BackingField: 1
-    <DistributionKey>k__BackingField: 
-    <RequiresAnchorId>k__BackingField: 
-    <ActivationGroupId>k__BackingField: 
-    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
   - <Id>k__BackingField: cover.2
     <Type>k__BackingField: 1
     <LocalCell>k__BackingField: {x: 9, y: 6}
-    <AreaSize>k__BackingField: {x: 1, y: 1}
-    <EncounterEnemyIndex>k__BackingField: -1
-    <PatrolMode>k__BackingField: 0
-    <SpawnChance>k__BackingField: 1
-    <IsRequired>k__BackingField: 1
-    <DistributionKey>k__BackingField: 
-    <RequiresAnchorId>k__BackingField: 
-    <ActivationGroupId>k__BackingField: 
-    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
-  - <Id>k__BackingField: cover.3
-    <Type>k__BackingField: 1
-    <LocalCell>k__BackingField: {x: 10, y: 6}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: -1
     <PatrolMode>k__BackingField: 0
@@ -244,33 +220,9 @@ MonoBehaviour:
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
     <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
-  - <Id>k__BackingField: cover.6
-    <Type>k__BackingField: 1
-    <LocalCell>k__BackingField: {x: 5, y: 4}
-    <AreaSize>k__BackingField: {x: 1, y: 1}
-    <EncounterEnemyIndex>k__BackingField: -1
-    <PatrolMode>k__BackingField: 0
-    <SpawnChance>k__BackingField: 1
-    <IsRequired>k__BackingField: 1
-    <DistributionKey>k__BackingField: 
-    <RequiresAnchorId>k__BackingField: 
-    <ActivationGroupId>k__BackingField: 
-    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
   - <Id>k__BackingField: cover.7
     <Type>k__BackingField: 1
     <LocalCell>k__BackingField: {x: 9, y: 4}
-    <AreaSize>k__BackingField: {x: 1, y: 1}
-    <EncounterEnemyIndex>k__BackingField: -1
-    <PatrolMode>k__BackingField: 0
-    <SpawnChance>k__BackingField: 1
-    <IsRequired>k__BackingField: 1
-    <DistributionKey>k__BackingField: 
-    <RequiresAnchorId>k__BackingField: 
-    <ActivationGroupId>k__BackingField: 
-    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 2f728dcd182d1e24a8e3baa81983389d, type: 2}
-  - <Id>k__BackingField: cover.8
-    <Type>k__BackingField: 1
-    <LocalCell>k__BackingField: {x: 10, y: 4}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: -1
     <PatrolMode>k__BackingField: 0
