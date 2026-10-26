@@ -18,6 +18,27 @@
 *.csproj
 *.sln
 *.slnx
+*.csproj.user
+
+# Local verification, generated art sources and historical mirrors
+/output/
+/out/*
+!/out/seminarium/
+/LocalHandoffs/
+/Godmist_Unity_*Mirror/
+/*.xml
+/global.zip
+/Godmist Unity/output/
+/Godmist Unity/out/
+/Godmist Unity/TestResults/
+/Godmist Unity/ArtProposals/
+/Godmist Unity/LocalHandoffs/
+/Godmist Unity/_Project/
+/Godmist Unity/Godmist Unity/
+/Godmist Unity/UIElementsSchema/
+/Godmist Unity/ProfilerCaptures/
+/Godmist Unity/*.xml
+/Godmist Unity/project.zip
 
 # LaTeX build artifacts
 *.aux
@@ -37,3 +58,6 @@
 
 # Large generated conversion artifact from the LaTeX template
 WSIZLatex/figures/fig_0001.eps
+
+# Local Unity setup handoff (project AGENTS.md)
+/Godmist Unity/UNITY_HANDOFF.md
