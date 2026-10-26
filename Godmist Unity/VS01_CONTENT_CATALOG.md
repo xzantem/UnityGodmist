@@ -79,7 +79,7 @@ Prezentację wykonywać razem z contentem. VS-19–21 poza zakresem. Szczegóły
 | Jerzy | Rzut Sztyletem | 0 PP, 60% PA, 1sz./- | Startowe skille!F2 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
 | Jerzy | Wymiana | 20 PP, 20% PA | Startowe skille!G2 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
 | Jerzy | Chmura Dymu | 65 PP, 30% PA | Startowe skille!H2 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
-| Jerzy | Linka z Hakiem | 25 PP, 30% PA | Startowe skille!I2 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
+| Jerzy | Linka z Hakiem | 25 PP, 25% PA; odzysk sztyletu: 20 PP, 20% PA | Decyzja użytkownika 2026-10-09 (zastępuje Startowe skille!I2) | Przeciwnik: 80% przyciągnięcia o 3 pola; własny sztylet: odzysk bez losowania |
 | Jerzy | Celny Rzut | 50 PP, 70% PA, 1sz./ | Startowe skille!J2 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
 | Alison | Kula Energii | 5 MP, 75% PA | Startowe skille!A11 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
 | Alison | Kula Ognia | 40 MP, 75% PA | Startowe skille!B11 | Brak dopasowania nazwy; sprawdzić analog przed utworzeniem |
@@ -199,7 +199,7 @@ Pasyw drzewka: +1% Szans na niezużycie sztyletu. +1% Siły zatrucia
 | T3:4 | Taniec Zagłady [2] | Zwiększa maksymalną ilość dodatkowych ciosów z Serii Ciosów o 1/2 | Wymaga: T2:4 | Drzewka!A108:G108 |
 | T3:5 | Kontrola Psychiczna [3] | Zwiększa przyrost Złości o 1/3/5 | Wymaga: T2:5 | Drzewka!A109:G109 |
 | T4:1 | Siła Naparu [1] | Zwiększa przyspieszenie Toniku Pobudzającego o 10 i spowolnienie o 5 | Wymaga: T3:1 | Drzewka!A110:G110 |
-| T4:2 | Mocna Wątroba [1] | Skraca spowolnienie Toniku Pobudzającego o 1 turę | Wymaga: T4:1 | Drzewka!A111:G111 |
+| T4:2 | Sprawny Odzysk [1] | Zwiększa zniżkę odzysku własnych sztyletów Linką z Hakiem z 20% do 60%: 10 PP i 10% PA | Brak wymagania konkretnego węzła; standardowy próg T4 | Decyzja użytkownika 2026-10-09; zastępuje Mocną Wątrobę; ID efficient_recovery, migracja starego ID przy wczytywaniu |
 | T4:3 | Celny Rzut [2] | Zwiększa obrażenia o 2%/4% za każde pole odległości od celu |  | Drzewka!A112:G112 |
 | T4:4 | Mistrz Trucizny [2] | Zwiększa siłę wszystkich zatruć o 10%/20%[p] |  | Drzewka!A113:G113 |
 | T4:5 | Zapasowe Sztylety [2] | Zwiększa maksymalną ilość sztyletów o 1/2 |  | Drzewka!A114:G114 |

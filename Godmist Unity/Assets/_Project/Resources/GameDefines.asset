@@ -416,8 +416,8 @@ MonoBehaviour:
     Category: 1
     Unit: tury
     ValueType: 0
-    DefaultIntegerValue: 5
-    CurrentIntegerValue: 5
+    DefaultIntegerValue: 3
+    CurrentIntegerValue: 3
     MinimumIntegerValue: 1
     MaximumIntegerValue: 100
     DefaultFloatValue: 0
@@ -466,7 +466,7 @@ MonoBehaviour:
     CurrentStringValue: 
   - Id: combat.rage.decay_per_missed_turn
     DisplayName: Utrata Rage
-    Description: "Ilo\u015B\u0107 Rage tracona po turze bez wygenerowania Rage."
+    Description: "Furia tracona na końcu drugiej i kolejnych pełnych tur bez ofensywy. Tury zablokowane przez CC nie zwiększają licznika. Poza walką wartość tracona co 6 sekund."
     Category: 1
     Unit: Rage
     ValueType: 0
