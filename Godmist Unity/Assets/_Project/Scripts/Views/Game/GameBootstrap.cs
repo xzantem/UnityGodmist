@@ -24,6 +24,7 @@ namespace Godmist.Views.Game
     [RequireComponent(typeof(SceneLoader))]
     public class GameBootstrap : MonoBehaviour
     {
+        private static readonly Unity.Profiling.ProfilerMarker AutosaveSample = new("Godmist.Game.Autosave");
         [Header("Scene Flow")]
         [SerializeField] private string combatSceneName = "CombatSandbox";
         [SerializeField] private string explorationSceneName = "Arungard";
@@ -126,6 +127,14 @@ namespace Godmist.Views.Game
 
             autosaveRequested = false;
 
+            if (Session?.ActiveDungeon?.IsAssetAuditRoom == true)
+            {
+                Debug.Log("Autosave pominięty dla dev-only pokoju audytowego assetów.");
+                pendingAutosaveReason = string.Empty;
+                return;
+            }
+
+            using var autosaveSample = AutosaveSample.Auto();
             if (TrySaveAutosave(
                     pendingAutosaveReason,
                     out var message))
@@ -292,6 +301,13 @@ namespace Godmist.Views.Game
 
         public bool TrySaveQuick(out string message)
         {
+            if (Session?.ActiveDungeon?.IsAssetAuditRoom == true)
+            {
+                message = "Quicksave jest wyłączony w dev-only pokoju audytowym assetów.";
+                Debug.Log(message);
+                return false;
+            }
+
             if (SaveManager == null)
             {
                 message = "GameBootstrap: brak SaveManager.";
@@ -304,12 +320,6 @@ namespace Godmist.Views.Game
         public bool TryLoadQuick(out string message)
         {
             message = string.Empty;
-
-            if (Session?.HasCombat == true)
-            {
-                message = "Nie można wczytać gry podczas walki.";
-                return false;
-            }
 
             if (SaveManager == null)
             {
@@ -340,12 +350,6 @@ namespace Godmist.Views.Game
             out string message)
         {
             message = string.Empty;
-
-            if (Session?.HasCombat == true)
-            {
-                message = "Nie można wczytać gry podczas walki.";
-                return false;
-            }
 
             if (SaveManager == null)
             {
@@ -393,54 +397,47 @@ namespace Godmist.Views.Game
             int seed,
             int targetFloorIndex = 0,
             string targetRoomId = null,
-            int? offeredLevel = null)
+            int? offeredLevel = null, DungeonLength length = DungeonLength.Unspecified)
         {
-            if (Session?.HasCombat == true) return false;
+            if (Session == null || Session.HasCombat || IsSceneLoading || sceneLoader == null) return false;
             if (definition == null || !definition.IsProcedural)
             {
-                Debug.LogError(
-                    "GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
-
+                Debug.LogError("GameBootstrap: wejscie wymaga proceduralnego DungeonDefinition.");
                 return false;
             }
-
-            if (Session == null)
-            {
-                return false;
-            }
-
-            // A return scroll leaves the generated dungeon in the session so
-            // its cleared encounters, loot and party position can be resumed.
-            // The entrance must therefore reopen that same instance instead of
-            // rejecting it as if the player were trying to create a second
-            // dungeon. A different entrance remains blocked until the current
-            // dungeon is completed or otherwise cleared.
             if (Session.ActiveDungeon != null)
             {
-                if (!string.Equals(
-                        Session.ActiveDungeon.DungeonId,
-                        definition.Id,
-                        StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(Session.ActiveDungeon.DungeonId, definition.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    Debug.Log(
-                        "Najpierw zakończ lub wznow istniejący loch przed wejściem do innego.");
+                    Debug.Log("Najpierw zakończ lub wznow istniejący loch przed wejściem do innego.");
                     return false;
                 }
-
-                if (!sceneLoader.TryLoadScene(
-                        dungeonSceneName,
-                        GameModeState.Exploration))
-                {
-                    return false;
-                }
-
-                RequestAutosave("Wznowienie lochu");
-                return true;
+                return sceneLoader.TryLoadScene(dungeonSceneName, GameModeState.Exploration,
+                    message: "Wczytywanie lochu…", onLoaded: () => RequestAutosave("Wznowienie lochu"));
             }
+            DungeonInstance preparedDungeon = null;
+            return sceneLoader.TryLoadScene(dungeonSceneName, GameModeState.Exploration,
+                prepare: () =>
+                {
+                    if (!TryPrepareDungeon(definition, seed, targetFloorIndex, targetRoomId, offeredLevel, length)) return false;
+                    preparedDungeon = Session.ActiveDungeon;
+                    if (!new DungeonCampService().TryIssueSupplies(Session, contentCatalog))
+                        Debug.LogWarning("Nie przydzielono zestawów obozowych: sprawdź CampingKit w katalogu zawartości.");
+                    return true;
+                }, message: "Generowanie lochu…",
+                onLoaded: () => RequestAutosave("Wejście do lochu"),
+                onFailed: () =>
+                {
+                    if (preparedDungeon != null && Session.ActiveDungeon == preparedDungeon) Session.TryClearActiveDungeon();
+                });
+        }
 
+        private bool TryPrepareDungeon(DungeonDefinition definition, int seed, int targetFloorIndex,
+            string targetRoomId, int? offeredLevel, DungeonLength length)
+        {
             try
             {
-                var dungeon = dungeonGenerator.Generate(definition, seed, offeredLevel ?? definition.DungeonLevel);
+                var dungeon = dungeonGenerator.Generate(definition, seed, offeredLevel ?? definition.DungeonLevel, length);
                 var dropBonus = 0f; var dropMembers = 0;
                 foreach (var memberId in Session.PlayerParty.ActiveMemberIds)
                     if (Session.CharactersById.TryGetValue(memberId, out var member))
@@ -472,16 +469,51 @@ namespace Godmist.Views.Game
                     return false;
                 }
 
+                return true;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                return false;
+            }
+        }
+
+        public bool TryEnterCatacombsAssetAuditRoom(int seed)
+        {
+            if (Session == null || Session.HasCombat || Session.ActiveDungeon != null
+                || contentCatalog == null || sceneLoader == null)
+            {
+                return false;
+            }
+
+            if (!contentCatalog.TryGetDungeon(
+                    DungeonAssetAuditRoomBuilder.CatacombsDungeonId,
+                    out var definition))
+            {
+                return false;
+            }
+
+            try
+            {
+                var dungeon = DungeonAssetAuditRoomBuilder.Build(
+                    definition,
+                    contentCatalog,
+                    seed);
+                if (!Session.TrySetActiveDungeon(dungeon))
+                {
+                    return false;
+                }
+
+                autosaveRequested = false;
+                pendingAutosaveReason = string.Empty;
+
                 if (sceneLoader.TryLoadScene(
                         dungeonSceneName,
                         GameModeState.Exploration))
                 {
-                    if (!new DungeonCampService().TryIssueSupplies(Session, contentCatalog))
-                        Debug.LogWarning("Nie przydzielono zestawów obozowych: sprawdź CampingKit w katalogu zawartości.");
-                    RequestAutosave("Wejście do lochu");
                     return true;
                 }
-                
+
                 Session.TryClearActiveDungeon();
                 return false;
             }
@@ -509,7 +541,8 @@ namespace Godmist.Views.Game
             var definition=configuredDefinition!=null && configuredDefinition.Id==offer.DefinitionId ? configuredDefinition : null;
             if(definition==null && (contentCatalog==null || !contentCatalog.TryGetDungeon(offer.DefinitionId,out definition))) return false;
             return TryEnterDungeon(definition,offer.Seed,offeredLevel: Godmist.Systems.Dungeons.DungeonOfferSystem.OfferLevel(
-                Godmist.Systems.Dungeons.DungeonOfferSystem.PartyLevel(Session),offer));
+                Godmist.Systems.Dungeons.DungeonOfferSystem.PartyLevel(Session),offer),
+                length: offer.Length == DungeonLength.Unspecified ? DungeonOfferSystem.LengthForSeed(offer.Seed) : offer.Length);
         }
 
         public bool TryRestartAfterDefeat()
@@ -541,9 +574,24 @@ namespace Godmist.Views.Game
 
             var dungeon = Session.ActiveDungeon;
 
-            if (!AreFinalBossEncountersCleared(dungeon))
+            if (dungeon.IsAssetAuditRoom)
             {
-                Debug.Log("Nie można opuścić lochu przed pokonaniem bossa.");
+                if (!sceneLoader.TryLoadScene(
+                        explorationSceneName,
+                        GameModeState.Exploration))
+                {
+                    return false;
+                }
+
+                Session.TryClearActiveDungeon();
+                return true;
+            }
+
+            if (!AreFinalBossEncountersCleared(dungeon)
+                || !dungeon.TryGetCurrentFloor(out var exitFloor)
+                || !Godmist.Systems.Dungeons.DungeonExitRules.IsExitRoomCleared(dungeon, exitFloor))
+            {
+                Debug.Log("Nie można opuścić lochu przed oczyszczeniem pokoju wyjściowego.");
                 return false;
             }
 
@@ -570,6 +618,7 @@ namespace Godmist.Views.Game
             Session.TryClearActiveDungeon();
             Godmist.Systems.Dungeons.DungeonOfferSystem.CompleteExpedition(
                 Session, dungeon, contentCatalog?.DungeonDefinitions);
+            QuestService?.EnsureMissionBoard();
             RequestAutosave("Wyjście z lochu");
             return true;
         }
@@ -602,9 +651,11 @@ namespace Godmist.Views.Game
             return false;
         }
 
-        public bool TryReturnToArungardFromDungeon()
+    public bool TryReturnToArungardFromDungeon()
         {
             if (Session?.ActiveDungeon == null || Session.HasCombat) return false;
+
+            var isAssetAuditRoom = Session.ActiveDungeon.IsAssetAuditRoom;
 
             // Scene loading is asynchronous. Capture the live leader position
             // before the dungeon scene is destroyed so resuming the same
@@ -613,6 +664,12 @@ namespace Godmist.Views.Game
                 ?.PersistCurrentPosition();
 
             if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
+
+            if (isAssetAuditRoom)
+            {
+                Session.TryClearActiveDungeon();
+                return true;
+            }
 
             new DungeonCampService().RemoveSupplies(Session);
             new TraderStockService().TryRefreshAfterReturn(Session, Session.ActiveDungeon,
@@ -774,6 +831,12 @@ namespace Godmist.Views.Game
         {
             message = string.Empty;
 
+            if (Session?.ActiveDungeon?.IsAssetAuditRoom == true)
+            {
+                message = "Autosave pominięty dla dev-only pokoju audytowego assetów.";
+                return false;
+            }
+
             if (SaveManager == null)
             {
                 message = "GameBootstrap: brak SaveManager.";
@@ -795,6 +858,14 @@ namespace Godmist.Views.Game
 
         public void RequestAutosave(string reason)
         {
+            if (Session?.ActiveDungeon?.IsAssetAuditRoom == true)
+            {
+                autosaveRequested = false;
+                pendingAutosaveReason = string.Empty;
+                Debug.Log("Żądanie autosave pominięte dla dev-only pokoju audytowego assetów.");
+                return;
+            }
+
             autosaveRequested = true;
             pendingAutosaveReason = reason ?? string.Empty;
         }

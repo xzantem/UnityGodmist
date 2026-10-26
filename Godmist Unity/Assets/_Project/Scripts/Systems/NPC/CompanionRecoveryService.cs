@@ -51,7 +51,9 @@ namespace Godmist.Systems.NPC
             if (character.ResourcePool != null)
             {
                 character.ResourcePool.MaxValue = Math.Max(0, Mathf.RoundToInt(character.Stats.MaxResource.GetValue()));
+                var previousResource = character.ResourcePool.CurrentValue;
                 character.ResourcePool.CurrentValue = character.ResourcePool.MaxValue;
+                Godmist.Systems.Combat.MomentumResourceRule.RefreshSpeedAfterChange(character, previousResource);
                 character.ResourcePool.HasStartedTurn = character.ResourcePool.HasGainedResourceSinceLastTurn = false;
                 character.ResourcePool.FractionalGainRemainder = 0;
             }

@@ -40,6 +40,23 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void SummaryPreviewReadsExistingV1SnapshotWithoutRewritingSave()
+        {
+            var manager=new SaveManager(temporaryDirectoryPath);
+            var directory=manager.GetCampaignDirectoryPath(CampaignId);Directory.CreateDirectory(directory);
+            var data=GameSaveData.CreateNew("Test",CampaignId);data.Gold=456;
+            data.ActiveDungeon=new DungeonSaveData{DungeonId="dungeon.test",DungeonLevel=9,CurrentFloorIndex=2};
+            data.Party.ActiveMemberIds.Add("hero");data.Characters.Add(new CharacterSaveData{CharacterId="hero",Level=8});
+            var path=Path.Combine(directory,"manual_"+data.SaveId+".json");File.WriteAllText(path,new GameSaveJsonSerializer().Serialize(data));
+            var before=File.ReadAllBytes(path);
+            Assert.That(manager.TryGetSaveSummaries(out var summaries,out _),Is.True);
+            var preview=summaries.Single().Preview;
+            Assert.That(preview.Gold,Is.EqualTo(456));Assert.That(preview.Floor,Is.EqualTo(3));Assert.That(preview.DungeonLevel,Is.EqualTo(9));
+            Assert.That(preview.Party.Single().Level,Is.EqualTo(8));Assert.That(File.ReadAllBytes(path),Is.EqualTo(before));
+            Assert.That(data.SaveVersion,Is.EqualTo(1));
+        }
+
+        [Test]
         public void Summaries_ReuseUnchangedFilesAndDetectExternalEditsAndDeletion()
         {
             var manager = new SaveManager(temporaryDirectoryPath);

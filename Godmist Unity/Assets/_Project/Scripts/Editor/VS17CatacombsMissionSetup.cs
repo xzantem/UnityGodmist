@@ -15,6 +15,33 @@ namespace Godmist.Editor
         private const string QuestPath = Root + "Quests/";
         private static string F(string name) => "<" + name + ">k__BackingField";
 
+        [InitializeOnLoadMethod]
+        private static void ScheduleLegacyExpeditionDescriptionRefresh()
+        {
+            EditorApplication.delayCall += RefreshLegacyExpeditionDescription;
+            EditorApplication.playModeStateChanged += state =>
+            {
+                if (state == PlayModeStateChange.EnteredEditMode)
+                    RefreshLegacyExpeditionDescription();
+            };
+        }
+
+        private static void RefreshLegacyExpeditionDescription()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            var quest = AssetDatabase.LoadAssetAtPath<QuestDefinition>(
+                QuestPath + "QD_Catacombs_Radiant_Expedition.asset");
+            if (quest == null) return;
+            var so = new SerializedObject(quest);
+            var description = so.FindProperty(F("Description"));
+            var updated = description.stringValue.Replace(" oficjalnym wyjściem", "");
+            if (updated == description.stringValue) return;
+            description.stringValue = updated;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(quest);
+            AssetDatabase.SaveAssetIfDirty(quest);
+        }
+
         [MenuItem("Godmist/Content/VS-17/Configure Catacombs Missions")]
         public static void Configure()
         {
@@ -86,7 +113,7 @@ namespace Godmist.Editor
         private static QuestDefinition CreateExpedition() => Create(
             "QD_Catacombs_Radiant_Expedition", CatacombsMissionBoard.ExpeditionQuestId,
             "Ukończ Katakumby",
-            "Dotrzyj do końca wyprawy i opuść Katakumby oficjalnym wyjściem.",
+            "Dotrzyj do końca wyprawy i opuść Katakumby.",
             "Ukończ wyprawę w Katakumbach.",
             QuestObjectiveType.ExitDungeon, "dungeon.catacombs.expedition", 1);
 

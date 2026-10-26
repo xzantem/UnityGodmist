@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Quests;
 using Godmist.Runtime.Items;
@@ -42,6 +43,44 @@ namespace Godmist.Runtime.Quests
         public string CurrentStageId { get; private set; }
         public bool IsHidden { get; private set; }
         public RadiantRewardOffer RadiantRewardOffer { get; private set; }
+        public RadiantBoardContract BoardContract { get; private set; }
+        public string DisplayName => BoardContract?.DisplayName ?? Definition.DisplayName;
+        public string Description => BoardContract?.Description ?? Definition.Description;
+        public bool TrySetBoardContract(RadiantBoardContract contract)
+        {
+            if (contract==null || Definition.QuestType!=QuestType.Radiant
+                || Status is QuestStatus.Active or QuestStatus.Completed || contract.Stage.StageId!=Definition.StartStageId) return false;
+            BoardContract=contract; CurrentStageId=Definition.StartStageId; RadiantRewardOffer=null;
+            questFlags.Clear(); chosenBranchIds.Clear(); claimedRewardKeys.Clear(); progressByObjectiveId.Clear();
+            progressByObjectiveId.Add(RadiantBoardContract.ObjectiveId,new QuestObjectiveProgress(RadiantBoardContract.ObjectiveId));
+            Status=QuestStatus.Available;
+            return true;
+        }
+        public const string BoardClaimedCycleFlag = "missionboard.claimed_cycle";
+        public bool TryConsumeBoardReward(int cycle)
+        {
+            if (Status!=QuestStatus.Completed || Definition.QuestType!=QuestType.Radiant || cycle<0) return false;
+            Status=QuestStatus.TurnedIn;
+            questFlags[BoardClaimedCycleFlag]=cycle.ToString();
+            if (RadiantRewardOffer is { } offer)
+                RadiantRewardOffer=new RadiantRewardOffer(offer.Level,offer.Experience,offer.Gold,offer.Honor,null);
+            return true;
+        }
+        public const string CompletionLengthFlag = "radiant.completion_length_multiplier";
+        public bool UsesLengthReward => BoardContract == null && Definition?.QuestType == QuestType.Radiant
+            && Definition.Stages.Any(s => s?.Objectives?.Any(o => o?.ObjectiveType == QuestObjectiveType.ExitDungeon) == true);
+        public int CompletionLengthMultiplier => questFlags.TryGetValue(CompletionLengthFlag,out var value)
+            && int.TryParse(value,out var multiplier) && multiplier >= 1 && multiplier <= 3 ? multiplier : 1;
+        public RadiantRewardOffer EffectiveRadiantRewardOffer
+        {
+            get
+            {
+                var offer = RadiantRewardOffer;
+                if (offer == null || !UsesLengthReward || CompletionLengthMultiplier == 1) return offer;
+                int Scale(int amount) => (int)Math.Min(int.MaxValue,(long)amount*CompletionLengthMultiplier);
+                return new RadiantRewardOffer(offer.Level,Scale(offer.Experience),Scale(offer.Gold),Scale(offer.Honor),offer.BonusItem);
+            }
+        }
 
         public IReadOnlyDictionary<string, QuestObjectiveProgress>
             ProgressByObjectiveId => progressByObjectiveId;
@@ -51,7 +90,7 @@ namespace Godmist.Runtime.Quests
         public IReadOnlyCollection<string> ClaimedRewardKeys => claimedRewardKeys;
 
         public QuestStageDefinition CurrentStage =>
-            Definition?.FindStage(CurrentStageId);
+            BoardContract?.Stage ?? Definition?.FindStage(CurrentStageId);
 
         public QuestInstance(
             QuestDefinition definition,
@@ -147,6 +186,7 @@ namespace Godmist.Runtime.Quests
             questFlags.Remove("radiant.reward_level");
             questFlags.Remove("radiant.reward_variant");
             questFlags.Remove("radiant.boss_level");
+            questFlags.Remove(CompletionLengthFlag);
             RadiantRewardOffer = null;
             CurrentStageId = Definition.StartStageId;
             Status = QuestStatus.Available;
@@ -276,7 +316,8 @@ namespace Godmist.Runtime.Quests
             IEnumerable<string> restoredClaimedRewardKeys)
         {
             if (!Enum.IsDefined(typeof(QuestStatus), status)
-                || Definition.FindStage(currentStageId) == null)
+                || Definition.FindStage(currentStageId) == null
+                || BoardContract!=null && currentStageId!=BoardContract.Stage.StageId)
             {
                 return false;
             }
@@ -450,6 +491,7 @@ namespace Godmist.Runtime.Quests
 
         private int FindRequiredAmount(string objectiveId)
         {
+            if (BoardContract!=null) return BoardContract.Stage.FindObjective(objectiveId)?.RequiredAmount ?? 0;
             if (Definition.Stages == null)
             {
                 return 0;

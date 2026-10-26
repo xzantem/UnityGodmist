@@ -546,7 +546,8 @@ namespace Godmist.Systems.SaveLoad
                 saveData.DisplayName,
                 createdAtUtc,
                 updatedAtUtc,
-                GetSlotType(path));
+                GetSlotType(path),
+                new GameSavePreview(saveData));
 
             return true;
         }

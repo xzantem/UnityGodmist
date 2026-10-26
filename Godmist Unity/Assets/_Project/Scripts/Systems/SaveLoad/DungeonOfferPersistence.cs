@@ -10,12 +10,13 @@ namespace Godmist.Systems.SaveLoad
         public static DungeonOfferBoardSaveData Capture(DungeonOfferBoard board) => new()
         {
             Generation=board.Generation, SelectedIndex=board.SelectedIndex,
-            Offers=board.Offers.Select(o=>new DungeonOfferSaveData{DefinitionId=o.DefinitionId,Seed=o.Seed,LevelOffset=o.LevelOffset,FixedLevel=o.FixedLevel}).ToList(),
+            CompletedExpeditions=board.CompletedExpeditions,
+            Offers=board.Offers.Select(o=>new DungeonOfferSaveData{DefinitionId=o.DefinitionId,Seed=o.Seed,LevelOffset=o.LevelOffset,FixedLevel=o.FixedLevel,Length=o.Length}).ToList(),
             HighestMilestoneProcessed=board.HighestMilestoneProcessed,
             Danger=board.DangerByTheme.OrderBy(pair=>pair.Key)
                 .Select(pair=>new DungeonDangerSaveData{Theme=pair.Key,Value=pair.Value}).ToList(),
             BossOpportunities=board.BossOpportunities.Select(boss=>new DungeonBossOpportunitySaveData
-                {Theme=boss.Theme,DefinitionId=boss.DefinitionId,Level=boss.Level}).ToList()
+                {Theme=boss.Theme,DefinitionId=boss.DefinitionId,Level=boss.Level,Length=boss.Length}).ToList()
         };
         public static bool Restore(DungeonOfferBoardSaveData data, DungeonOfferBoard board)
         {
@@ -27,14 +28,14 @@ namespace Godmist.Systems.SaveLoad
             foreach(var entry in data.Danger ?? new List<DungeonDangerSaveData>())
                 if(!danger.TryAdd(entry.Theme,entry.Value)) return false;
             var bosses=(data.BossOpportunities ?? new List<DungeonBossOpportunitySaveData>())
-                .Select(entry=>new DungeonBossOpportunity(entry.Theme,entry.DefinitionId,entry.Level)).ToArray();
+                .Select(entry=>new DungeonBossOpportunity(entry.Theme,entry.DefinitionId,entry.Level,entry.Length)).ToArray();
             var offers=data.Offers.Select(o=>new DungeonExpeditionOffer(
-                o.DefinitionId,o.Seed,o.LevelOffset,o.FixedLevel)).ToArray();
+                o.DefinitionId,o.Seed,o.LevelOffset,o.FixedLevel,o.Length)).ToArray();
             var validated=new DungeonOfferBoard();
             if(!validated.TryRestore(data.Generation,data.SelectedIndex,offers)
-                || !validated.TryRestoreProgression(data.HighestMilestoneProcessed,danger,bosses)) return false;
+                || !validated.TryRestoreProgression(data.HighestMilestoneProcessed,danger,bosses,data.CompletedExpeditions)) return false;
             board.TryRestore(data.Generation,data.SelectedIndex,offers);
-            return board.TryRestoreProgression(data.HighestMilestoneProcessed,danger,bosses);
+            return board.TryRestoreProgression(data.HighestMilestoneProcessed,danger,bosses,data.CompletedExpeditions);
         }
     }
 }

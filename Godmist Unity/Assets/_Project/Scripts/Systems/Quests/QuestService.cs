@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Quests;
 using Godmist.Runtime.Game;
@@ -8,11 +9,12 @@ using Godmist.Systems.Dungeons;
 
 namespace Godmist.Systems.Quests
 {
-    public class QuestService
+    public partial class QuestService
     {
         private readonly GameSession gameSession;
         private readonly QuestRewardSystem questRewardSystem;
         private readonly Random random;
+        private readonly GameContentCatalog contentCatalog;
 
         public event Action<QuestInstance> QuestRegistered;
         public event Action<QuestInstance> QuestBecameAvailable;
@@ -34,6 +36,7 @@ namespace Godmist.Systems.Quests
                 ?? throw new ArgumentNullException(nameof(nextGameSession));
 
             random = nextRandom ?? new Random();
+            contentCatalog = nextContentCatalog;
             questRewardSystem = nextQuestRewardSystem
                 ?? new QuestRewardSystem(nextContentCatalog: nextContentCatalog,
                     nextRandom: random);
@@ -81,7 +84,7 @@ namespace Godmist.Systems.Quests
         {
             if (!gameSession.TryGetQuest(questId, out var quest)
                 || quest.Status != QuestStatus.Available
-                || (questId == CatacombsMissionBoard.BossQuestId
+                || (quest.BoardContract==null && questId == CatacombsMissionBoard.BossQuestId
                     && !CatacombsMissionBoard.HasBossOffer(gameSession))
                 || (quest.Definition.QuestType == QuestType.Radiant
                     && !EnsureRadiantRewardOffer(questId))
@@ -90,7 +93,7 @@ namespace Godmist.Systems.Quests
                 return false;
             }
 
-            if (questId == CatacombsMissionBoard.BossQuestId)
+            if (quest.BoardContract==null && questId == CatacombsMissionBoard.BossQuestId)
                 quest.TrySetQuestFlag("radiant.boss_level",
                     CatacombsMissionBoard.BossOfferLevel(gameSession).ToString());
 
@@ -103,6 +106,7 @@ namespace Godmist.Systems.Quests
             if (!gameSession.TryGetQuest(questId, out var quest)
                 || quest.Definition.QuestType != QuestType.Radiant) return false;
             if (quest.RadiantRewardOffer != null) return true;
+            if (quest.BoardContract!=null) return false; // Generated offers always persist their final reward.
 
             var isBoss = questId == CatacombsMissionBoard.BossQuestId;
             var level = 0;
@@ -210,11 +214,18 @@ namespace Godmist.Systems.Quests
                 return false;
 
             var rewards = questRewardSystem.GrantRadiantRewards(
-                gameSession, quest.RadiantRewardOffer);
-            if (!quest.TryResetRadiantQuest()) return false;
-            EnsureRadiantRewardOffer(questId);
+                gameSession, quest.EffectiveRadiantRewardOffer);
+            if (CatacombsMissionBoard.QuestIds.Contains(questId))
+            {
+                if (!quest.TryConsumeBoardReward(gameSession.DungeonOffers.CompletedExpeditions)) return false;
+            }
+            else
+            {
+                if (!quest.TryResetRadiantQuest()) return false;
+                EnsureRadiantRewardOffer(questId);
+            }
             QuestRewardsGranted?.Invoke(quest, rewards);
-            QuestBecameAvailable?.Invoke(quest);
+            if (quest.Status==QuestStatus.Available) QuestBecameAvailable?.Invoke(quest);
             return true;
         }
 

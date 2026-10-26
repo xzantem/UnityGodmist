@@ -35,102 +35,102 @@ MonoBehaviour:
     Slots: 3
     Candidates:
     - Item: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
-      Limit: 5
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
   - Id: monster-parts
     Slots: 3
     Candidates:
     - Item: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 07a8b9c0d1e2435678fa9b0c1d2e3456, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: b06728956bae1d44a95d64f5e95a17f5, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 4cd4729de69e1c241bae734f956c7a0b, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 330cbea92737edb4c81abbd9cd6a1cb3, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 97eba12ff57b1fd43b19a70af9acf830, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 49e78f973c2294949a3c1720b74bb54b, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 58a48c665bf433c4eae1b83af7f15baf, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 36e6802e276cb844ca42f512db228e82, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 4e8b2bbf887e9bb4a980961135b81142, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: ac12070a80631054ca63af439bd5bfba, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
     - Item: {fileID: 11400000, guid: 106af8131140b064b9a4d5d38292609a, type: 2}
-      Limit: 4
+      Limit: 1
       MinimumLevel: 1
       MaximumLevel: 20
   - Id: catalysts

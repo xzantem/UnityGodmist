@@ -209,7 +209,7 @@ namespace Godmist.Systems.SaveLoad
                     saveData.Quests,
                     contentCatalog,
                     itemsById,
-                    assignedItemIds))
+                    assignedItemIds, saveData.DungeonOffers?.CompletedExpeditions ?? 0))
             {
                 Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu questów.");
                 return false;
@@ -409,6 +409,7 @@ namespace Godmist.Systems.SaveLoad
                 item.CurrentRarity = itemSaveData.CurrentRarity;
                 item.ItemLevel = itemSaveData.ItemLevel;
                 item.CustomName = itemSaveData.CustomName ?? string.Empty;
+                item.IsSaleProtected = itemSaveData.IsSaleProtected;
 
                 if (item is ConsumableItemInstance consumableItem)
                 {
@@ -644,6 +645,9 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            var resolvedClass = CharacterInstanceFactory.ResolveClassData(definition, classData);
+            var migratedEnemyResource = resolvedClass != classData;
+            classData = resolvedClass;
             character = characterFactory.Create(definition, classData);
 
             character.Level = saveData.Level;
@@ -662,9 +666,11 @@ namespace Godmist.Systems.SaveLoad
             character.LifeState = saveData.LifeState;
             character.AvailabilityState = saveData.AvailabilityState;
 
-            RestoreResourcePool(
-                character.ResourcePool,
-                saveData.ResourcePool);
+            // Legacy enemy Mana cannot become a free full Rage/Momentum pool.
+            // New saves keep their exact resource state; only the old class alias
+            // adopts the authored initial profile during migration.
+            if (!migratedEnemyResource)
+                RestoreResourcePool(character.ResourcePool, saveData.ResourcePool);
 
             if (saveData.HasPersistentResistances)
             {
@@ -711,6 +717,9 @@ namespace Godmist.Systems.SaveLoad
             CharacterInstance character,
             CharacterSaveData saveData)
         {
+            var legacyWarrior = character.ClassData?.Id == "class.warrior" && saveData.SkillIds?.Contains("skill.warrior.bandage") == true;
+            string MigrateSkill(string id) => !legacyWarrior ? id : id == "skill.warrior.bandage" ? "skill.warrior.bleeding_destruction"
+                : id == "skill.warrior.bleeding_destruction" ? WarriorDischargeRules.SkillId : id;
             var knownSkillIds = GetSkillIds(character.GetKnownSkills());
             var basicAttackSkillId = ResolveRestoredBasicAttackSkillId(
                 character,
@@ -752,12 +761,12 @@ namespace Godmist.Systems.SaveLoad
                 ? character.ActiveSkillLoadout.TryInitializeSlots(
                     knownSkillIds,
                     basicAttackSkillId,
-                    saveData.ActiveSkillSlotIds,
+                    saveData.ActiveSkillSlotIds.Select(MigrateSkill),
                     modifiers)
                 : character.ActiveSkillLoadout.TryInitialize(
                     knownSkillIds,
                     basicAttackSkillId,
-                    saveData.ActiveSkillIds,
+                    saveData.ActiveSkillIds?.Select(MigrateSkill),
                     modifiers);
         }
 
@@ -893,14 +902,25 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var shieldLayer in shieldLayers)
             {
-                if (shieldLayer == null || shieldLayer.CurrentValue < 0)
+                if (shieldLayer == null || shieldLayer.CurrentValue < 0 || shieldLayer.RemainingTurns < 0)
                 {
                     return false;
                 }
 
+                var turns = shieldLayer.RemainingTurns;
+                if (string.Equals(shieldLayer.SourceId, CombatShieldSystem.MageShieldSourceId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Legacy saves have no duration and may contain stacked casts.
+                    // Keep the last surviving cast, with a bounded lifetime.
+                    turns = turns == 0 ? CombatShieldSystem.MageShieldDuration
+                        : System.Math.Min(turns, CombatShieldSystem.MageShieldDuration);
+                    character.ShieldPool.RemoveLayersBySourceId(shieldLayer.SourceId);
+                }
                 character.ShieldPool.AddLayer(
                     shieldLayer.CurrentValue,
-                    shieldLayer.SourceId);
+                    shieldLayer.SourceId,
+                    turns);
             }
 
             return true;
@@ -916,17 +936,13 @@ namespace Godmist.Systems.SaveLoad
             var restoredSkillIds = new HashSet<string>(
                 StringComparer.Ordinal);
 
-            foreach (var skillId in skillIds ?? new List<string>())
+            foreach (var savedSkillId in skillIds ?? new List<string>())
             {
+                var skillId = character.ClassData?.Id == "class.warrior" && savedSkillId == "skill.warrior.bandage"
+                    ? "skill.warrior.bleeding_destruction" : savedSkillId;
                 if (string.IsNullOrWhiteSpace(skillId)
                     || !restoredSkillIds.Add(skillId)
-                    || !contentCatalog.TryGetSkill(
-                        skillId,
-                        out var skill))
-                {
-                    return false;
-                }
-
+                    || !contentCatalog.TryGetSkill(skillId, out var skill)) return false;
                 character.Skills.Add(skill);
             }
 
@@ -1232,21 +1248,26 @@ namespace Godmist.Systems.SaveLoad
                 {
                     if (node == null
                         || string.IsNullOrWhiteSpace(node.NodeId)
-                        || node.Ranks <= 0
-                        || !nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(
-                            node.NodeId,
-                            out var nodeDefinition))
+                        || node.Ranks <= 0)
                     {
                         continue;
                     }
 
+                    // Strong Liver was replaced by Efficient Recovery. Canonicalize before
+                    // merging so a save containing both IDs cannot spend/count the point twice.
+                    var nodeId = tree.TreeId == "tree.scout.blade_dancer"
+                        && node.NodeId == "node.scout.blade_dancer.strong_liver"
+                        ? "node.scout.blade_dancer.efficient_recovery" : node.NodeId;
+                    if (!nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(nodeId, out var nodeDefinition))
+                        continue;
+
                     var ranks = Math.Min(node.Ranks, nodeDefinition.EffectiveMaxRanks);
                     if (!aggregatedRanks.TryGetValue(
-                            node.NodeId,
+                            nodeId,
                             out var existingRanks)
                         || ranks > existingRanks)
                     {
-                        aggregatedRanks[node.NodeId] = ranks;
+                        aggregatedRanks[nodeId] = ranks;
                     }
                 }
             }
@@ -1554,7 +1575,7 @@ namespace Godmist.Systems.SaveLoad
             List<QuestSaveData> questSaveDataList,
             GameContentCatalog contentCatalog,
             Dictionary<string, ItemInstance> itemsById,
-            HashSet<string> assignedItemIds)
+            HashSet<string> assignedItemIds, int completedExpeditions)
         {
             if (questSaveDataList == null)
             {
@@ -1582,6 +1603,19 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 var quest = new QuestInstance(definition);
+
+                if (questSaveData.HasBoardContract)
+                {
+                    var contract=questSaveData.BoardContract;
+                    if (contract==null || !Godmist.Systems.Quests.CatacombsMissionBoard.QuestIds.Contains(definition.Id)
+                        || questSaveData.RadiantRewardLevel!=contract.Level || contract.Cycle>completedExpeditions) return false;
+                    try
+                    {
+                        if (!quest.TrySetBoardContract(new RadiantBoardContract(definition.StartStageId,contract.ObjectiveType,
+                            contract.Theme,contract.Length,contract.Level,contract.RequiredAmount,contract.RewardMultiplier,contract.Cycle))) return false;
+                    }
+                    catch (ArgumentException) { return false; }
+                }
 
                 if (questSaveData.RadiantRewardLevel != 0)
                 {
@@ -1696,6 +1730,9 @@ namespace Godmist.Systems.SaveLoad
                     }
                 }
 
+                TraderStockService.RemoveInvalidEquipmentOffers(npc);
+                TraderStockService.EnforceAlchemyIngredientLimits(npc);
+
                 if (!session.TryRegisterNpc(npc))
                 {
                     return false;
@@ -1808,7 +1845,7 @@ namespace Godmist.Systems.SaveLoad
                         saveData.Seed,
                         saveData.DungeonLevel > 0
                             ? saveData.DungeonLevel
-                            : definition.DungeonLevel);
+                            : definition.DungeonLevel, saveData.Length);
 
                     encounterPlacementSystem.Place(dungeon);
                     objectPlacementSystem.PlaceLegacySave(dungeon, contentCatalog.EquipmentPartDefinitions);
@@ -2104,10 +2141,17 @@ namespace Godmist.Systems.SaveLoad
                             {
                                 if (restoredEncounter.IsEnemyDefeated(savedReward.EnemyId)
                                     || restoredEncounter.IsEnemyBodyGenerated(savedReward.EnemyId)) return false;
+                                bool isBoss = Godmist.Systems.Combat.ScoutCombatSystem.IsBoss(
+                                    dungeon, restoredEncounter.Definition, savedReward.EnemyId);
                                 rewards.EnemyRewards.Add(new CombatEnemyReward
                                 {
                                     EnemyInstanceId = savedReward.EnemyId, Gold = savedReward.Gold,
-                                    ExperiencePerActiveCharacter = savedReward.Experience, ExperienceLevel = savedReward.ExperienceLevel, Items = rewardItems
+                                    IsBoss = isBoss,
+                                    ExperiencePerActiveCharacter = savedReward.ExperienceLevel > 0
+                                        ? Godmist.Systems.Combat.CombatRewardSystem.CalculateEnemyExperience(
+                                            savedReward.ExperienceLevel, savedReward.ExperienceLevel, isBoss)
+                                        : savedReward.Experience,
+                                    ExperienceLevel = savedReward.ExperienceLevel, Items = rewardItems
                                 });
                             }
                         }

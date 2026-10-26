@@ -3,18 +3,15 @@ using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Items;
-using Godmist.Data.Quests;
 using Godmist.Data.World;
 using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using Godmist.Views.NPC;
-using Godmist.Views.UI;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 // Explicit authoring command, never runs when entering Play Mode.
 public static class VS05CampaignSetup
@@ -145,19 +142,7 @@ public static class VS05CampaignSetup
             marker.objectReferenceValue=copy.gameObject;so.ApplyModifiedPropertiesWithoutUndo();
             if(PrefabUtility.IsPartOfPrefabInstance(npc)) PrefabUtility.RecordPrefabInstancePropertyModifications(npc);
         }
-        var canvas=town.GetRootGameObjects().Single(g=>g.name=="ExplorationUI").GetComponent<Canvas>();
-        var hint=town.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<CampaignIntroductionView>(true)).SingleOrDefault()?.transform;
-        if(hint!=null) hint.SetParent(canvas.transform,false);
-        if(hint==null)
-        {
-            var go=new GameObject("CampaignIntroduction",typeof(RectTransform),typeof(CampaignIntroductionView));go.transform.SetParent(canvas.transform,false);hint=go.transform;
-            var rect=(RectTransform)hint;rect.anchorMin=rect.anchorMax=new Vector2(.5f,1);rect.pivot=new Vector2(.5f,1);rect.anchoredPosition=new Vector2(0,-16);rect.sizeDelta=new Vector2(680,64);
-            var label=new GameObject("Message",typeof(RectTransform),typeof(TextMeshProUGUI));label.transform.SetParent(hint,false);
-            var lr=(RectTransform)label.transform;lr.anchorMin=Vector2.zero;lr.anchorMax=Vector2.one;lr.offsetMin=lr.offsetMax=Vector2.zero;
-            var text=label.GetComponent<TextMeshProUGUI>();text.font=TMP_Settings.defaultFontAsset;text.fontSize=20;text.alignment=TextAlignmentOptions.Center;text.raycastTarget=false;
-            var view=go.GetComponent<CampaignIntroductionView>();Set(view,"panelRoot",label);Set(view,"messageText",text);Set(view,"firstQuest",Load<QuestDefinition>("Quests/QD_InvestigateCatacombs.asset"));
-        }
         EditorSceneManager.MarkSceneDirty(town); EditorSceneManager.SaveScene(town);AssetDatabase.SaveAssets();
-        Debug.Log("VS-05 campaign configured: 500 gold, 4 L1 loadouts, 24 starter-only parts, quest markers and introduction.");
+        Debug.Log("VS-05 campaign configured: 500 gold, 4 L1 loadouts, 24 starter-only parts and quest markers.");
     }
 }

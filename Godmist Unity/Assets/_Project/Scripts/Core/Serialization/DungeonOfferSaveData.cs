@@ -6,6 +6,7 @@ namespace Godmist.Core.Serialization
     [Serializable] public sealed class DungeonOfferBoardSaveData
     {
         public int Generation;
+        public int CompletedExpeditions;
         public int SelectedIndex;
         public List<DungeonOfferSaveData> Offers = new();
         public int HighestMilestoneProcessed;
@@ -18,6 +19,7 @@ namespace Godmist.Core.Serialization
         public int Seed;
         public int LevelOffset;
         public int FixedLevel;
+        public DungeonLength Length;
     }
     [Serializable] public sealed class DungeonDangerSaveData
     {
@@ -29,5 +31,6 @@ namespace Godmist.Core.Serialization
         public DungeonTheme Theme;
         public string DefinitionId;
         public int Level;
+        public DungeonLength Length;
     }
 }

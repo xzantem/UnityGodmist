@@ -30,13 +30,18 @@ namespace Godmist.Systems.Quests
                 || quest.Status is not (QuestStatus.Unavailable or QuestStatus.Available))
                 return false;
 
-            return questId != BossQuestId || HasBossOffer(session);
+            return quest.BoardContract!=null || questId != BossQuestId || HasBossOffer(session);
         }
 
-        public static bool HasAction(GameSession session) =>
+        public static bool HasOffer(GameSession session) =>
+            session != null && QuestIds.Any(id => CanOffer(session, id));
+
+        public static bool HasReward(GameSession session) =>
             session != null && QuestIds.Any(id =>
-                CanOffer(session, id)
-                || session.TryGetQuest(id, out var quest)
-                    && quest.Status == QuestStatus.Completed);
+                session.TryGetQuest(id, out var quest)
+                && quest.Status == QuestStatus.Completed);
+
+        public static bool HasAction(GameSession session) =>
+            HasOffer(session) || HasReward(session);
     }
 }

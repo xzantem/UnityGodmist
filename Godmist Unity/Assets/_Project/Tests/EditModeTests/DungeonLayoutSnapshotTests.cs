@@ -119,6 +119,24 @@ namespace Godmist.Tests.EditMode
             assets.Clear();
         }
 
+        [TestCase(true)] [TestCase(false)]
+        public void SarcophagusSnapshotPreservesAnchorIdentityAndTwoCellOccupancy(bool active)
+        {
+            Assert.That(floor.TryGetObject("obstacle.1", out var obj), Is.True);
+            Set(obj.Definition, "Id", "object.obstacle.sarcophagus");
+            Assert.That(floor.Map.TryAddFloorCell(obj.Position + Vector2Int.up, "room"), Is.True);
+            obj.TryRestoreIsActive(active);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].TryGetObject("obstacle.1", out var next), Is.True);
+            var obstacle = (ObstacleDungeonObjectInstance)next;
+            Assert.That(obstacle.Position, Is.EqualTo(obj.Position));
+            Assert.That(obstacle.EnumerateOccupiedCells(), Is.EquivalentTo(new[] { obj.Position, obj.Position + Vector2Int.up }));
+            Assert.That(obstacle.OccupiesCell(obj.Position), Is.EqualTo(active));
+            Assert.That(obstacle.OccupiesCell(obj.Position + Vector2Int.up), Is.EqualTo(active));
+        }
+
         [TestCase(2)] [TestCase(0)]
         public void ObstacleDurabilityRoundTripsWithoutResetFromChangedDefinition(int hits)
         {
@@ -285,7 +303,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(restored.ActiveDungeon.HasPlacedContent, Is.True);
             var restoredFloor = restored.ActiveDungeon.Floors[0];
             Assert.That(restoredFloor.Map.FloorCells, Is.EquivalentTo(floor.Map.FloorCells));
-            Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.True);
+            Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.False,
+                "Difficult terrain is disabled when restoring old layouts too.");
             Assert.That(restoredFloor.Map.GetWallType(new DungeonCellEdge(new Vector2Int(3, 0), new Vector2Int(4, 0))), Is.EqualTo(DungeonWallType.Low));
             Assert.That(restoredFloor.TryGetObject("door.1", out var door), Is.True);
             Assert.That(((DoorDungeonObjectInstance)door).IsOpen, Is.True);
@@ -328,8 +347,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(map.FloorCells.Count, Is.EqualTo(8));
         }
 
-        [Test]
-        public void UpperWallsAndPassageRoundTripWithGateOnCorrectLevel()
+        [TestCase(DungeonWallType.Railing)]
+        [TestCase(DungeonWallType.TreeTrunk)]
+        public void UpperWallsAndPassageRoundTripWithGateOnCorrectLevel(DungeonWallType wallType)
         {
             floor.TryAddRoom(new DungeonRoomInstance("upper", DungeonRoomType.Normal));
             var first = new DungeonSurfacePosition(Vector2Int.zero, 1);
@@ -337,7 +357,7 @@ namespace Godmist.Tests.EditMode
             floor.Map.TryAddFloorCell(first, "room");
             floor.Map.TryAddFloorCell(second, "upper");
             var edge = new DungeonSurfaceEdge(first, second);
-            floor.Map.SetWallType(edge, DungeonWallType.Railing);
+            floor.Map.SetWallType(edge, wallType);
             floor.TryAddConnection("room", "upper");
             var c = floor.Connections[0];
             c.TrySetDirectPassage(first, second, 1);
@@ -346,7 +366,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             var f = restored.ActiveDungeon.Floors[0];
-            Assert.That(f.Map.GetWallType(edge), Is.EqualTo(DungeonWallType.Railing));
+            Assert.That(f.Map.GetWallType(edge), Is.EqualTo(wallType));
             Assert.That(f.Map.WallEdges.Contains(edge.CellEdge), Is.False);
             Assert.That(f.Connections[0].DoorwayLevel, Is.EqualTo(1));
             Assert.That(f.Map.ClosedProgressionGateEdges, Is.Empty);

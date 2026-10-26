@@ -57,8 +57,11 @@ namespace Godmist.Views.Quests
             }
 
             if (gameBootstrap.Session.ActiveDungeon == null)
+            {
                 DungeonOfferSystem.EnsureOffers(gameBootstrap.Session,
                     gameBootstrap.ContentCatalog?.DungeonDefinitions);
+                gameBootstrap.QuestService.EnsureMissionBoard();
+            }
         }
     }
 }

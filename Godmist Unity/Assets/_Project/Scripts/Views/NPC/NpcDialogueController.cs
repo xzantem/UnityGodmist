@@ -20,14 +20,19 @@ namespace Godmist.Views.NPC
         [SerializeField] private TextMeshProUGUI dialogueText;
         [SerializeField] private Transform choicesContent;
         [SerializeField] private DialogueChoiceButtonView choiceButtonPrefab;
+        [SerializeField] private NpcDialoguePanelView dialoguePanel;
+        [SerializeField] private CombatEdgeDrawer partyDrawer;
+        [SerializeField] private GameObject partyDrawerToggle;
 
         [Header("NPC services")]
         // Kept only to hide the legacy scene objects while old scene data is
         // being migrated. No trade interaction is routed through these fields.
         [SerializeField] private Button tradeButton;
         [SerializeField] private TradePanelView tradePanel;
+        // Retained to hide the old authored footer button; services now live in the answer list.
         [SerializeField] private Button servicesButton;
         [SerializeField] private NpcServicesWindowView servicesWindowPrefab;
+        // Retained to hide the old footer; mission access now lives in the answer list.
         [SerializeField] private Button missionBoardButton;
         [SerializeField] private CatacombsMissionBoardView missionBoardPrefab;
 
@@ -35,6 +40,7 @@ namespace Godmist.Views.NPC
         private GameSession gameSession;
         private NpcServicesWindowView servicesWindow;
         private CatacombsMissionBoardView missionBoard;
+        private bool capturedHud, previousExpanded, previousToggleVisible;
 
         private void Start()
         {
@@ -59,26 +65,17 @@ namespace Godmist.Views.NPC
             dialogueService.DialogueNodeChanged += HandleDialogueNodeChanged;
             dialogueService.DialogueEnded += HandleDialogueEnded;
 
-            if (servicesButton != null)
-            {
-                servicesButton.onClick.AddListener(TryOpenServices);
-                servicesButton.gameObject.SetActive(false);
-            }
-
-            if (missionBoardButton != null)
-            {
-                missionBoardButton.onClick.AddListener(TryOpenMissionBoard);
-                missionBoardButton.gameObject.SetActive(false);
-            }
-
             if (tradeButton != null) tradeButton.gameObject.SetActive(false);
             if (tradePanel != null) tradePanel.gameObject.SetActive(false);
 
-            panelRoot.SetActive(false);
+            SetPanelVisible(false);
         }
+
+        private void OnDisable() => SetPanelVisible(false);
 
         private void OnDestroy()
         {
+            RestoreHud();
             if (gameSession != null)
             {
                 gameSession.NpcInteractionRequested -= HandleNpcInteractionRequested;
@@ -92,12 +89,6 @@ namespace Godmist.Views.NPC
                 dialogueService.DialogueEnded -= HandleDialogueEnded;
             }
 
-            if (servicesButton != null)
-            {
-                servicesButton.onClick.RemoveListener(TryOpenServices);
-            }
-            if (missionBoardButton != null)
-                missionBoardButton.onClick.RemoveListener(TryOpenMissionBoard);
         }
 
         private void HandleNpcInteractionRequested(NpcInstance npc)
@@ -129,9 +120,7 @@ namespace Godmist.Views.NPC
         private void HandleDialogueEnded(NpcInstance npc)
         {
             ClearChoices();
-            panelRoot.SetActive(false);
-            SetServicesButtonVisible(false);
-            SetMissionBoardButtonVisible(false);
+            SetPanelVisible(false);
 
             if (gameSession != null
                 && gameSession.CurrentMode == GameModeState.Dialogue)
@@ -153,25 +142,14 @@ namespace Godmist.Views.NPC
 
             if (gameSession == null || dialogue == null)
             {
-                panelRoot.SetActive(false);
-                SetServicesButtonVisible(false);
-                SetMissionBoardButtonVisible(false);
+                SetPanelVisible(false);
                 return;
             }
 
             var shouldShowDialogue = gameSession.PlayerParty.ActiveLeaderId
                 == dialogue.InitiatorCharacterId;
 
-            panelRoot.SetActive(shouldShowDialogue);
-
-            var definition = dialogue.Npc?.Definition;
-            var hasServices = definition?.GetRole<TraderRoleData>() != null
-                || definition?.GetRole<BlacksmithRoleData>() != null
-                || definition?.GetRole<AlchemistRoleData>() != null
-                || definition?.GetRole<PriestRoleData>() != null;
-            SetServicesButtonVisible(shouldShowDialogue && hasServices);
-            SetMissionBoardButtonVisible(shouldShowDialogue
-                && dialogue.Npc?.NpcId == "npc.arungard.questgiver_01");
+            SetPanelVisible(shouldShowDialogue);
 
             if (shouldShowDialogue)
             {
@@ -183,14 +161,51 @@ namespace Godmist.Views.NPC
         {
             speakerText.text = GetSpeakerName(dialogue);
             dialogueText.text = dialogue.CurrentNode.Text;
+            if (dialoguePanel != null) dialoguePanel.BindNpc(dialogue.Npc.Definition);
 
             ClearChoices();
+
+            if (dialogue.Npc?.NpcId == "npc.arungard.questgiver_01")
+            {
+                var missionsChoice = Instantiate(choiceButtonPrefab, choicesContent);
+                missionsChoice.BindAction("Masz dla mnie jakieś zlecenia?", TryOpenMissionBoard);
+            }
+
+            if (HasServices(dialogue.Npc?.Definition))
+            {
+                var servicesChoice = Instantiate(choiceButtonPrefab, choicesContent);
+                servicesChoice.BindAction("Chcę skorzystać z twoich usług", TryOpenServices);
+            }
 
             foreach (var choice in dialogue.CurrentNode.Choices)
             {
                 var choiceView = Instantiate(choiceButtonPrefab, choicesContent);
                 choiceView.Bind(choice, TrySelectChoice);
             }
+            if (dialoguePanel != null) dialoguePanel.RefreshLayout();
+        }
+
+        private void SetPanelVisible(bool visible)
+        {
+            if (servicesButton != null) servicesButton.gameObject.SetActive(false);
+            if (missionBoardButton != null) missionBoardButton.gameObject.SetActive(false);
+            if (visible && !capturedHud)
+            {
+                capturedHud = true;
+                if (partyDrawer != null) { previousExpanded = partyDrawer.IsExpanded; partyDrawer.SetExpanded(false, true); }
+                if (partyDrawerToggle != null) { previousToggleVisible = partyDrawerToggle.activeSelf; partyDrawerToggle.SetActive(false); }
+                if (UIWorkspaceTooltipView.ActiveInstance != null) UIWorkspaceTooltipView.ActiveInstance.Hide();
+            }
+            if (!visible) RestoreHud();
+            if (panelRoot != null) panelRoot.SetActive(visible);
+        }
+
+        private void RestoreHud()
+        {
+            if (!capturedHud) return;
+            if (partyDrawer != null) partyDrawer.SetExpanded(previousExpanded, true);
+            if (partyDrawerToggle != null) partyDrawerToggle.SetActive(previousToggleVisible);
+            capturedHud = false;
         }
 
         private void TrySelectChoice(string choiceId)
@@ -248,26 +263,30 @@ namespace Godmist.Views.NPC
             return missionBoard != null;
         }
 
-        private void SetMissionBoardButtonVisible(bool isVisible)
-        {
-            if (missionBoardButton != null) missionBoardButton.gameObject.SetActive(isVisible);
-        }
-
-        private void SetServicesButtonVisible(bool isVisible)
-        {
-            if (servicesButton != null) servicesButton.gameObject.SetActive(isVisible);
-        }
+        private static bool HasServices(NpcDefinition definition) => definition != null
+            && (definition.GetRole<TraderRoleData>() != null
+                || definition.GetRole<BlacksmithRoleData>() != null
+                || definition.GetRole<AlchemistRoleData>() != null
+                || definition.GetRole<EnchanterRoleData>() != null
+                || definition.GetRole<PriestRoleData>() != null);
 
         private void ClearChoices()
         {
             for (var index = choicesContent.childCount - 1; index >= 0; index--)
             {
-                Destroy(choicesContent.GetChild(index).gameObject);
+                var choice = choicesContent.GetChild(index).gameObject;
+                choice.SetActive(false);
+                if (Application.isPlaying) Destroy(choice);
+                else DestroyImmediate(choice);
             }
         }
 
-        private static string GetSpeakerName(DialogueSession dialogue)
+        private string GetSpeakerName(DialogueSession dialogue)
         {
+            var id = dialogue.CurrentNode?.SpeakerId;
+            if (!string.IsNullOrWhiteSpace(id) && gameSession != null
+                && gameSession.CharactersById.TryGetValue(id, out var character))
+                return character.Definition?.DisplayName ?? character.CharacterId;
             return dialogue.Npc.Definition.DisplayName;
         }
     }

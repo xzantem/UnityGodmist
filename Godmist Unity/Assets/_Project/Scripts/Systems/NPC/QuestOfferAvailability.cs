@@ -2,11 +2,28 @@ using System.Collections.Generic;
 using Godmist.Core.Enums;
 using Godmist.Data.NPC;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.NPC;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Systems.NPC
 {
+    public enum NpcQuestMarkerState { None, Offer, Reward }
+
     public static class QuestOfferAvailability
     {
+        public static NpcQuestMarkerState GetMarkerState(GameSession session, NpcInstance npc)
+        {
+            if (session == null || npc == null) return NpcQuestMarkerState.None;
+            // The guard's current job offers and turn-ins belong to the mission board.
+            // Its legacy introduction dialogue must not leave a permanent offer marker.
+            if (npc.NpcId == "npc.arungard.questgiver_01")
+            {
+                if (CatacombsMissionBoard.HasReward(session)) return NpcQuestMarkerState.Reward;
+                return CatacombsMissionBoard.HasOffer(session) ? NpcQuestMarkerState.Offer : NpcQuestMarkerState.None;
+            }
+            return HasOffer(session, npc.Definition?.BaseDialogue) ? NpcQuestMarkerState.Offer : NpcQuestMarkerState.None;
+        }
+
         public static bool HasOffer(GameSession session, DialogueDefinition dialogue)
         {
             if (session == null || dialogue == null) return false;

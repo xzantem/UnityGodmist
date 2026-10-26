@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: quest.catacombs.radiant.expedition
   <DisplayName>k__BackingField: "Uko\u0144cz Katakumby"
   <Description>k__BackingField: "Dotrzyj do ko\u0144ca wyprawy i opu\u015B\u0107
-    Katakumby oficjalnym wyj\u015Bciem."
+    Katakumby."
   <QuestType>k__BackingField: 4
   <StartStageId>k__BackingField: stage.contract
   <Stages>k__BackingField:

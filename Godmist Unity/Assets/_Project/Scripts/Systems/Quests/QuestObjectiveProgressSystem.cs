@@ -54,7 +54,8 @@ namespace Godmist.Systems.Quests
                                 bossDefeated = true;
                 if (!bossDefeated) return;
             }
-            ReportMatchingObjectives(QuestObjectiveType.ExitDungeon, dungeon.DungeonId, dungeon.DungeonLevel);
+            ReportMatchingObjectives(QuestObjectiveType.ExitDungeon, dungeon.DungeonId, dungeon.DungeonLevel,
+                completionMultiplier: dungeon.CompletionRewardMultiplier, completedDungeon: dungeon);
         }
 
         public void ReportEnemyDefeated(
@@ -71,7 +72,7 @@ namespace Godmist.Systems.Quests
             QuestObjectiveType objectiveType,
             string targetId,
             int dungeonLevel = 0,
-            string dungeonId = null)
+            string dungeonId = null, int completionMultiplier = 1, DungeonInstance completedDungeon = null)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -93,10 +94,12 @@ namespace Godmist.Systems.Quests
                     continue;
 
                 var progressedQuest = false;
+                var contract=quest.BoardContract;
+                if (contract!=null && !MatchesContract(contract,objectiveType,dungeonId,completedDungeon)) continue;
 
                 foreach (var objective in quest.CurrentStage.Objectives)
                 {
-                    if (!MatchesObjective(
+                    if (contract==null && !MatchesObjective(
                         objective,
                         objectiveType,
                         targetId,
@@ -115,9 +118,21 @@ namespace Godmist.Systems.Quests
 
                 if (progressedQuest)
                 {
+                    if (objectiveType == QuestObjectiveType.ExitDungeon && quest.UsesLengthReward)
+                        quest.TrySetQuestFlag(Godmist.Runtime.Quests.QuestInstance.CompletionLengthFlag,
+                            Math.Clamp(completionMultiplier,1,3).ToString());
                     questService.TryAdvanceQuestStage(quest.QuestId);
                 }
             }
+        }
+
+        private bool MatchesContract(Godmist.Runtime.Quests.RadiantBoardContract contract, QuestObjectiveType type,
+            string dungeonId, DungeonInstance completedDungeon)
+        {
+            if(contract.ObjectiveType!=type) return false;
+            if(type==QuestObjectiveType.ExitDungeon)
+                return completedDungeon?.Definition?.Theme==contract.Theme && completedDungeon.Length==contract.Length;
+            return questService.TryGetMissionDungeon(dungeonId,out var definition) && definition.Theme==contract.Theme;
         }
 
         private static bool MatchesObjective(

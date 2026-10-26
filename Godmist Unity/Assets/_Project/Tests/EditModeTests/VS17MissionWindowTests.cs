@@ -1,4 +1,17 @@
 using System.Linq;
+using System.Reflection;
+using Godmist.Core.Enums;
+using Godmist.Data.Quests;
+using Godmist.Data.Items;
+using Godmist.Runtime.Game;
+using Godmist.Runtime.Items;
+using Godmist.Runtime.Quests;
+using Godmist.Systems.Quests;
+using Godmist.Systems.NPC;
+using Godmist.Runtime.NPC;
+using Godmist.Data.NPC;
+using Godmist.Views.NPC;
+using TMPro;
 using Godmist.Views.UI.Workspace;
 using NUnit.Framework;
 using UnityEditor;
@@ -111,8 +124,6 @@ namespace Godmist.Tests.EditMode
             Assert.That(row.Find("Icon").gameObject.activeSelf, Is.False);
             Assert.That(row.Find("TextRoot/Title"), Is.Not.Null);
             Assert.That(row.Find("TextRoot/Detail"), Is.Not.Null);
-            Assert.That(row.Find("TextRoot").GetComponent<RectTransform>().sizeDelta.x,
-                Is.EqualTo(-24f));
             var board = prefab.GetComponent<CatacombsMissionBoardView>();
             Assert.That(board, Is.Not.Null);
             var boardFields = new SerializedObject(board);
@@ -120,17 +131,147 @@ namespace Godmist.Tests.EditMode
             Assert.That(boardFields.FindProperty("questButtonTemplate").objectReferenceValue,
                 Is.EqualTo(row.GetComponent<Button>()));
 
-            var details = detailsSection.Find("Content");
-            Assert.That(details, Is.Not.Null);
-            var title = details.Find("MissionTitle").GetComponent<RectTransform>();
-            var description = details.Find("MissionDescription").GetComponent<RectTransform>();
-            var reward = details.Find("MissionReward").GetComponent<RectTransform>();
-            var message = details.Find("MissionMessage").GetComponent<RectTransform>();
-            var action = details.Find("MissionActionButton").GetComponent<RectTransform>();
-            Assert.That(title.anchorMin.y, Is.GreaterThan(description.anchorMax.y));
-            Assert.That(description.anchorMin.y, Is.GreaterThan(reward.anchorMax.y));
-            Assert.That(reward.anchorMin.y, Is.GreaterThan(message.anchorMax.y));
-            Assert.That(message.anchorMin.y, Is.GreaterThan(action.anchorMax.y));
+            foreach(var field in new[]{"windowTitleText","titleText","metadataText","objectiveText","detailsText","progressRoot","progressText","progressFill","rewardsRoot","experienceText","goldText","honorText","rewardItem","messageText","actionButton","actionButtonText"})
+                Assert.That(boardFields.FindProperty(field).objectReferenceValue,Is.Not.Null,field);
+            Assert.That(prefab.transform.Find("Header/Title").GetComponent<TextMeshProUGUI>().text,Does.Contain("Katakumby"));
+            var action=(Button)boardFields.FindProperty("actionButton").objectReferenceValue;
+            Assert.That(action.GetComponent<Image>().sprite.name,Is.EqualTo("button_normal"));
+            Assert.That(action.transition,Is.EqualTo(Selectable.Transition.SpriteSwap));
+            Assert.That(detailsSection.Find("Content/MissionDetailScroll").GetComponent<ScrollRect>().content.GetComponent<VerticalLayoutGroup>(),Is.Not.Null);
+
+        }
+
+        const BindingFlags Private=BindingFlags.Instance|BindingFlags.NonPublic;
+        static T Ref<T>(CatacombsMissionBoardView view,string field) where T:UnityEngine.Object
+            =>new SerializedObject(view).FindProperty(field).objectReferenceValue as T;
+        static void Invoke(CatacombsMissionBoardView view,string method)=>typeof(CatacombsMissionBoardView).GetMethod(method,Private).Invoke(view,null);
+
+        static QuestInstance RegisterMission(GameSession session, string name, QuestStatus status)
+        {
+            var definition=AssetDatabase.LoadAssetAtPath<QuestDefinition>("Assets/_Project/ScriptableObjects/Quests/QD_Catacombs_Radiant_"+name+".asset");
+            var quest=new QuestInstance(definition,status);
+            quest.TrySetRadiantRewardOffer(new RadiantRewardOffer(1,1200,40,2,null));
+            Assert.That(session.TryRegisterQuest(quest),Is.True);
+            return quest;
+        }
+        static NpcInstance Guard()=>new NpcInstance {
+            NpcId="npc.arungard.questgiver_01",
+            Definition=AssetDatabase.LoadAssetAtPath<NpcDefinition>("Assets/_Project/ScriptableObjects/NPC/ND_Arungard_QuestGiver.asset")};
+
+        [Test]
+        public void GuardMarkerIgnoresLegacyIntroductionAfterAcceptingAllCurrentOffers()
+        {
+            var session=new GameSession(GameModeState.Exploration);var npc=Guard();
+            var legacy=AssetDatabase.LoadAssetAtPath<QuestDefinition>("Assets/_Project/ScriptableObjects/Quests/QD_InvestigateCatacombs.asset");
+            session.TryRegisterQuest(new QuestInstance(legacy,QuestStatus.Available));
+            Assert.That(QuestOfferAvailability.HasOffer(session,npc.Definition.BaseDialogue),Is.True,"Reproduce the old permanent marker.");
+            RegisterMission(session,"Kill",QuestStatus.Available);RegisterMission(session,"Expedition",QuestStatus.Available);
+            RegisterMission(session,"Boss",QuestStatus.Available);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.Offer));
+            var service=new QuestService(session);
+            Assert.That(service.TryStartQuest(CatacombsMissionBoard.KillQuestId),Is.True);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.Offer),"Another job is still available.");
+            Assert.That(service.TryStartQuest(CatacombsMissionBoard.ExpeditionQuestId),Is.True);
+            Assert.That(CatacombsMissionBoard.HasBossOffer(session),Is.False);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.None),"Active jobs and unavailable boss jobs must not show an offer marker.");
+            Assert.That(QuestOfferAvailability.GetMarkerState(null,npc),Is.EqualTo(NpcQuestMarkerState.None));
+        }
+
+        [Test]
+        public void GuardRewardMarkerTakesPriorityOverOffersAndClearsAfterClaim()
+        {
+            var session=new GameSession(GameModeState.Exploration);var npc=Guard();
+            RegisterMission(session,"Kill",QuestStatus.Completed);
+            RegisterMission(session,"Expedition",QuestStatus.Available);
+            Assert.That(CatacombsMissionBoard.HasOffer(session),Is.True);
+            Assert.That(CatacombsMissionBoard.HasReward(session),Is.True);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.Reward));
+            var service=new QuestService(session);
+            Assert.That(service.TryTurnInRadiantQuest(CatacombsMissionBoard.KillQuestId),Is.True);
+            Assert.That(CatacombsMissionBoard.HasReward(session),Is.False);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.Offer),"The other unaccepted job remains available.");
+            Assert.That(service.TryStartQuest(CatacombsMissionBoard.KillQuestId),Is.False,"The claimed slot waits for a completed expedition.");
+            Assert.That(service.TryStartQuest(CatacombsMissionBoard.ExpeditionQuestId),Is.True);
+            Assert.That(QuestOfferAvailability.GetMarkerState(session,npc),Is.EqualTo(NpcQuestMarkerState.None));
+        }
+
+        [TestCase(1f)][TestCase(1.75f)]
+        public void GuardMarkerUsesDistinctRewardSymbolAndStaysAboveWholeSprite(float scale)
+        {
+            var scene=EditorSceneManager.OpenScene("Assets/_Project/Scenes/City/Arungard.unity",OpenSceneMode.Additive);
+            try
+            {
+                var view=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<NpcView>(true)).Single(x=>x.name=="QuestGiver");
+                typeof(NpcView).GetMethod("Awake",Private).Invoke(view,null);
+                view.Initialize(null,Guard());view.transform.localScale*=scale;
+                var fields=new SerializedObject(view);
+                var marker=(GameObject)fields.FindProperty("questMarker").objectReferenceValue;
+                var body=(SpriteRenderer)fields.FindProperty("bodyRenderer").objectReferenceValue;
+                var text=marker.GetComponent<TextMeshPro>();
+                var session=new GameSession(GameModeState.Exploration);
+                var quest=RegisterMission(session,"Kill",QuestStatus.Available);
+                var refresh=typeof(NpcView).GetMethod("RefreshQuestMarker",Private);
+                var position=typeof(NpcView).GetMethod("PositionQuestMarker",Private);
+                refresh.Invoke(view,new object[]{session});position.Invoke(view,null);
+                Assert.That(marker.activeSelf,Is.True);Assert.That(text.text,Is.EqualTo("!"));var offerColour=text.color;
+                quest.TrySetStatus(QuestStatus.Completed);refresh.Invoke(view,new object[]{session});position.Invoke(view,null);
+                Assert.That(text.text,Is.EqualTo("?"));Assert.That(text.color,Is.Not.EqualTo(offerColour));
+                var lower=text.transform.TransformPoint(new Vector3(text.textBounds.center.x,text.textBounds.min.y,0));
+                Assert.That(lower.y,Is.EqualTo(body.bounds.max.y+.2f).Within(.001f));
+                Assert.That(lower.x,Is.EqualTo(body.bounds.center.x).Within(.001f));
+                var previous=marker.transform.position;position.Invoke(view,null);
+                Assert.That(Vector3.Distance(marker.transform.position,previous),Is.LessThan(.001f),"Repeated layout must not drift.");
+                quest.TrySetStatus(QuestStatus.Active);refresh.Invoke(view,new object[]{session});
+                Assert.That(marker.activeSelf,Is.False);
+            }
+            finally {EditorSceneManager.CloseScene(scene,true);}
+        }
+
+        [Test]
+        public void MissionBoard_AcceptsTracksClaimsAndPreservesExactRewardPreview()
+        {
+            var root=new GameObject("Mission canvas",typeof(RectTransform),typeof(Canvas));
+            try
+            {
+                var panel=Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CatacombsMissions.prefab"),root.transform);panel.SetActive(true);
+                var view=panel.GetComponent<CatacombsMissionBoardView>();var session=new GameSession(GameModeState.Exploration);var service=new QuestService(session,nextRandom:new System.Random(123));
+                var definition=AssetDatabase.LoadAssetAtPath<QuestDefinition>("Assets/_Project/ScriptableObjects/Quests/QD_Catacombs_Radiant_Kill.asset");
+                var quest=new QuestInstance(definition,QuestStatus.Available);var offer=new RadiantRewardOffer(1,1200,40,2,null);quest.TrySetRadiantRewardOffer(offer);session.TryRegisterQuest(quest);
+                foreach(var pair in new[]{("session",(object)session),("service",service),("selectedQuestId",quest.QuestId)})typeof(CatacombsMissionBoardView).GetField(pair.Item1,Private).SetValue(view,pair.Item2);
+                Invoke(view,"Awake");Invoke(view,"Refresh");
+                Assert.That(Ref<TextMeshProUGUI>(view,"experienceText").text,Is.EqualTo(offer.Experience.ToString("N0")));
+                Assert.That(Ref<GameObject>(view,"progressRoot").activeSelf,Is.False);
+                Assert.That(Ref<MissionRewardItemView>(view,"rewardItem").gameObject.activeSelf,Is.False);
+                var action=Ref<Button>(view,"actionButton");action.onClick.Invoke();
+                Assert.That(quest.Status,Is.EqualTo(QuestStatus.Active));Assert.That(action.interactable,Is.False);
+                Assert.That(Ref<TextMeshProUGUI>(view,"messageText").text,Is.Empty);
+                Assert.That(quest.RadiantRewardOffer,Is.SameAs(offer));
+                service.TryAddObjectiveProgress(quest.QuestId,"objective.contract",6);Invoke(view,"Refresh");
+                Assert.That(Ref<Image>(view,"progressFill").fillAmount,Is.EqualTo(.5f).Within(.001));
+                Assert.That(Ref<TextMeshProUGUI>(view,"progressText").text,Does.Contain("6/12"));
+                service.TryAddObjectiveProgress(quest.QuestId,"objective.contract",6);service.TryAdvanceQuestStage(quest.QuestId);Invoke(view,"Refresh");
+                Assert.That(quest.Status,Is.EqualTo(QuestStatus.Completed));Assert.That(action.interactable,Is.True);
+                Assert.That(Ref<TextMeshProUGUI>(view,"actionButtonText").text,Is.EqualTo("Odbierz nagrodę"));
+                action.onClick.Invoke();Assert.That(session.Gold,Is.EqualTo(offer.Gold));Assert.That(quest.Status,Is.EqualTo(QuestStatus.TurnedIn));
+                Assert.That(Ref<Transform>(view,"questList").GetComponentsInChildren<Button>().Length,Is.EqualTo(0),"Claimed slots wait for the next completed expedition; no duplicate or instant replacement row.");
+            }
+            finally{Object.DestroyImmediate(root);}
+        }
+        [Test]
+        public void MissionReward_UsesExactItemRarityAndClearsPreviewWhenAbsent()
+        {
+            var panel=Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CatacombsMissions.prefab"));
+            try
+            {
+                var view=Ref<MissionRewardItemView>(panel.GetComponent<CatacombsMissionBoardView>(),"rewardItem");
+                var definition=AssetDatabase.LoadAssetAtPath<EquipmentItemDefinition>("Assets/_Project/ScriptableObjects/StartingCampaign/EID_Start_ScoutArmor.asset");
+                var item=new EquipmentItemInstance(definition){CurrentRarity=RarityTier.Rare,ItemLevel=1};view.Bind(item);
+                Assert.That(view.Item,Is.SameAs(item));var fields=new SerializedObject(view);
+                Assert.That(((TextMeshProUGUI)fields.FindProperty("nameText").objectReferenceValue).text,Is.EqualTo(ItemRarityPresentation.Name(item)));
+                Assert.That(((Image)fields.FindProperty("rarityAccent").objectReferenceValue).color,Is.EqualTo(ItemRarityPresentation.Color(item.CurrentRarity)));
+                view.Bind(null);Assert.That(view.Item,Is.Null);Assert.That(view.gameObject.activeSelf,Is.False);
+            }
+            finally{Object.DestroyImmediate(panel);}
         }
     }
 }

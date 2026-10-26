@@ -9,6 +9,7 @@ namespace Godmist.Core.Serialization
         public string DungeonId = string.Empty;
         public int Seed;
         public int DungeonLevel = 1;
+        public Godmist.Core.Enums.DungeonLength Length;
         public float ItemDropChanceBonus;
         // Zero means the legacy seed-only format. Never fall back for a damaged snapshot.
         public int LayoutVersion;
@@ -123,6 +124,7 @@ namespace Godmist.Core.Serialization
         public string Id, TemplateId;
         public int Type, X, Y, Rotation;
         public bool Required, Completed;
+        public bool BranchTransit;
     }
 
     [Serializable]
@@ -134,6 +136,8 @@ namespace Godmist.Core.Serialization
         public int Level;
         public string GateId, ConditionId, BranchRoomId;
         public List<string> RequiredSources = new();
+        public int EndX, EndY;
+        public List<DungeonStairPathCellSaveData> CorridorCells = new();
     }
 
     [Serializable]
@@ -143,6 +147,7 @@ namespace Godmist.Core.Serialization
         public int Level;
         public string RoomId;
         public bool Difficult;
+        public bool VisualPath;
     }
 
     [Serializable]

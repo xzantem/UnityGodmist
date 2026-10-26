@@ -7,6 +7,10 @@ namespace Godmist.Data.Quests
     [Serializable]
     public class QuestObjectiveDefinition
     {
+        public QuestObjectiveDefinition() { }
+        public QuestObjectiveDefinition(string id, string description, QuestObjectiveType type, string targetId, int requiredAmount)
+        { ObjectiveId=id; Description=description; ObjectiveType=type; TargetId=targetId; RequiredAmount=requiredAmount; }
+
         [field: SerializeField]
         public string ObjectiveId { get; private set; } = string.Empty;
 

@@ -193,6 +193,15 @@ namespace Godmist.Systems.SaveLoad
                     ClaimedRewardKeys = new List<string>(quest.ClaimedRewardKeys)
                 };
 
+                if (quest.BoardContract is { } contract)
+                {
+                    questSaveData.HasBoardContract=true;
+                    questSaveData.BoardContract=new RadiantBoardContractSaveData
+                    {
+                        ObjectiveType=contract.ObjectiveType,Theme=contract.Theme,Length=contract.Length,
+                        Level=contract.Level,RequiredAmount=contract.RequiredAmount,RewardMultiplier=contract.RewardMultiplier,Cycle=contract.Cycle
+                    };
+                }
                 if (quest.RadiantRewardOffer != null)
                 {
                     var offer = quest.RadiantRewardOffer;
@@ -332,6 +341,7 @@ namespace Godmist.Systems.SaveLoad
                 DungeonId = dungeon.DungeonId,
                 Seed = dungeon.Seed,
                 DungeonLevel = dungeon.DungeonLevel,
+                Length = dungeon.Length,
                 ItemDropChanceBonus = dungeon.ItemDropChanceBonus,
                 LayoutVersion = DungeonLayoutSnapshot.CurrentVersion,
                 Layout = DungeonLayoutSnapshot.Capture(dungeon),
@@ -698,7 +708,8 @@ namespace Godmist.Systems.SaveLoad
                 shieldLayers.Add(new ShieldLayerSaveData
                 {
                     SourceId = layer.SourceId ?? string.Empty,
-                    CurrentValue = layer.CurrentValue
+                    CurrentValue = layer.CurrentValue,
+                    RemainingTurns = layer.RemainingTurns
                 });
             }
 
@@ -1059,7 +1070,8 @@ namespace Godmist.Systems.SaveLoad
                 ItemDefinitionId = item.Definition.Id,
                 CurrentRarity = item.CurrentRarity,
                 ItemLevel = item.ItemLevel,
-                CustomName = item.CustomName ?? string.Empty
+                CustomName = item.CustomName ?? string.Empty,
+                IsSaleProtected = item.IsSaleProtected
             };
 
             if (item is EquipmentItemInstance equipmentItem)

@@ -28,6 +28,18 @@ namespace Godmist.Core.Serialization
         public int RadiantRewardGold;
         public int RadiantRewardHonor;
         public string RadiantBonusItemInstanceId = string.Empty;
+        public RadiantBoardContractSaveData BoardContract;
+        // JsonUtility can materialize an absent/null nested object with default fields.
+        public bool HasBoardContract;
+    }
+
+    [Serializable]
+    public sealed class RadiantBoardContractSaveData
+    {
+        public QuestObjectiveType ObjectiveType;
+        public DungeonTheme Theme;
+        public DungeonLength Length;
+        public int Level, RequiredAmount, RewardMultiplier, Cycle;
     }
 
     [Serializable]

@@ -88,6 +88,7 @@ namespace Godmist.Core.Serialization
     {
         public string SourceId = string.Empty;
         public int CurrentValue;
+        public int RemainingTurns;
     }
 
     [Serializable]
