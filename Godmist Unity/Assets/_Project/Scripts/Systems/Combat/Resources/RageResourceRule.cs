@@ -1,11 +1,13 @@
 using Godmist.Runtime.Characters;
 using Godmist.Data.Configuration;
+using Godmist.Runtime.Combat;
 
 namespace Godmist.Systems.Combat
 {
     public class RageResourceRule : IResourceRule
     {
-        private static int RagePerHit => GameDefinesRuntime.GetInt(
+        // Keep the existing define ID for saved/user configuration compatibility.
+        private static int RagePerSkill => GameDefinesRuntime.GetInt(
             GameDefineIds.RagePerHit, 10);
         private static int RageDecayPerMissedTurn => GameDefinesRuntime.GetInt(
             GameDefineIds.RageDecayPerMissedTurn, 10);
@@ -17,24 +19,18 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            if (!pool.HasStartedTurn)
-            {
-                pool.HasStartedTurn = true;
-                pool.HasGainedResourceSinceLastTurn = false;
-
-                return 0;
-            }
-
-            var lostRage = 0;
-
-            if (!pool.HasGainedResourceSinceLastTurn)
-            {
-                lostRage = pool.Drain(RageDecayPerMissedTurn);
-            }
-
+            pool.HasStartedTurn = true;
             pool.HasGainedResourceSinceLastTurn = false;
+            return 0;
+        }
 
-            return -lostRage;
+        public int ProcessTurnEnd(ResourcePool pool, WarriorCombatState state)
+        {
+            if (pool == null || state == null) return 0;
+            if (state.RageOffensiveActionUsed) { state.RageIdleTurns = 0; return 0; }
+            if (state.RageControlBlocked && !state.RageHadOffensiveOpportunity) return 0;
+            state.RageIdleTurns = System.Math.Min(2, System.Math.Max(0, state.RageIdleTurns) + 1);
+            return state.RageIdleTurns < 2 ? 0 : -pool.Drain(RageDecayPerMissedTurn);
         }
 
         public int ProcessMovement(
@@ -44,17 +40,18 @@ namespace Godmist.Systems.Combat
             return 0;
         }
 
-        public int ProcessDamageDealt(ResourcePool pool)
+        public int ProcessOffensiveSkillUsed(ResourcePool pool)
         {
             if (pool == null)
             {
                 return 0;
             }
 
-            // Even at max Rage, a successful hit prevents next-turn decay.
+            // Preserve gain bookkeeping even at the cap; the combat-local state
+            // separately records offense for end-of-turn decay.
             pool.HasGainedResourceSinceLastTurn = true;
 
-            return pool.Restore(RagePerHit);
+            return pool.Restore(RagePerSkill);
         }
     }
 }

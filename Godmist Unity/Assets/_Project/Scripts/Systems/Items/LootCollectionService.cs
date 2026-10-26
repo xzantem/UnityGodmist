@@ -12,6 +12,34 @@ namespace Godmist.Systems.Items
     {
         private readonly InventoryService inventoryService = new();
 
+        public int ClaimAllDungeonLoot(GameSession gameSession, string sourceId, bool chestSource)
+        {
+            IReadOnlyList<ItemInstance> items;
+            if (chestSource)
+            {
+                if (!TryGetActiveFloorChest(gameSession, sourceId, out var chest)) return 0;
+                items = chest.Items;
+            }
+            else
+            {
+                if (!TryGetActiveFloorBody(gameSession, sourceId, out _, out var body)) return 0;
+                items = body.Items;
+            }
+
+            var claimed = 0;
+            // Work backwards: successful claims remove entries. A full inventory
+            // leaves the unclaimed loot in its source and does not prevent gold collection.
+            for (var i = items.Count - 1; i >= 0; i--)
+            {
+                var id = items[i]?.InstanceId;
+                if (chestSource ? TryClaimDungeonChestItem(gameSession, sourceId, id)
+                    : TryClaimDungeonBodyItem(gameSession, sourceId, id)) claimed++;
+            }
+            if (chestSource ? TryClaimDungeonChestGold(gameSession, sourceId, out _)
+                : TryClaimDungeonBodyGold(gameSession, sourceId, out _)) claimed++;
+            return claimed;
+        }
+
         public bool TryClaimPendingLoot(
             GameSession gameSession,
             string characterId,
@@ -288,6 +316,27 @@ namespace Godmist.Systems.Items
                 chestInstanceId,
                 characterId,
                 itemInstanceId);
+        }
+
+        public bool TryClaimDungeonChestGold(
+            GameSession gameSession,
+            string chestInstanceId,
+            out int claimedGold)
+        {
+            claimedGold = 0;
+            if (!TryGetActiveFloorChest(gameSession, chestInstanceId, out var chest)
+                || chest.Gold <= 0)
+            {
+                return false;
+            }
+
+            var grantedGold = ApplyActiveLeaderJewelryGoldBonus(gameSession, chest.Gold);
+            if (!gameSession.TryAddGold(grantedGold)) return false;
+            if (chest.TryClaimGold(out claimedGold)) return true;
+
+            gameSession.TrySpendGold(grantedGold);
+            claimedGold = 0;
+            return false;
         }
 
         public bool TryClaimDungeonChestItem(

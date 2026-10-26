@@ -1,0 +1,109 @@
+{
+  "entries": [
+    {
+      "fullId": "node.mage.fire.burning_aura",
+      "slug": "burning_aura",
+      "outputPng": "burning_aura-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.pyromania",
+      "slug": "pyromania",
+      "outputPng": "pyromania-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.distracting_fire",
+      "slug": "distracting_fire",
+      "outputPng": "distracting_fire-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.cauterize",
+      "slug": "cauterize",
+      "outputPng": "cauterize-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.adrenaline",
+      "slug": "adrenaline",
+      "outputPng": "adrenaline-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.protection",
+      "slug": "protection",
+      "outputPng": "protection-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.aggressive_fire",
+      "slug": "aggressive_fire",
+      "outputPng": "aggressive_fire-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.fire_feeding",
+      "slug": "fire_feeding",
+      "outputPng": "fire_feeding-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.arcana",
+      "slug": "arcana",
+      "outputPng": "arcana-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.fire_resistance",
+      "slug": "fire_resistance",
+      "outputPng": "fire_resistance-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.fire_offering",
+      "slug": "fire_offering",
+      "outputPng": "fire_offering-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.expansion",
+      "slug": "expansion",
+      "outputPng": "expansion-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.sanguine",
+      "slug": "sanguine",
+      "outputPng": "sanguine-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.choleric",
+      "slug": "choleric",
+      "outputPng": "choleric-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.piercing",
+      "slug": "piercing",
+      "outputPng": "piercing-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.conduction",
+      "slug": "conduction",
+      "outputPng": "conduction-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.weakness",
+      "slug": "weakness",
+      "outputPng": "weakness-32.png"
+    },
+    {
+      "fullId": "node.mage.fire.erosion",
+      "slug": "erosion",
+      "outputPng": "erosion-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.mage.fire",
+    "name": "Mag Ognia"
+  },
+  "scope": {
+    "entryCount": 18,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.mage.fire.fire_aura",
+      "node.mage.fire.fire_arrow"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

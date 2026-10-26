@@ -1,0 +1,104 @@
+{
+  "clips": [
+    {
+      "id": "toxic-splash",
+      "frames": [
+        "pass10-toxic-splash-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "root-contact",
+      "frames": [
+        "pass10-root-contact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.15,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "flare-flash",
+      "frames": [
+        "pass10-flare-flash-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625,
+      "aboveHead": true
+    },
+    {
+      "id": "growth-burst",
+      "frames": [
+        "pass10-growth-burst-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.15,
+      "contentHeight": 0.53125
+    },
+    {
+      "id": "trap-snap",
+      "frames": [
+        "pass10-trap-snap-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.1,
+      "contentHeight": 0.53125
+    },
+    {
+      "id": "toxic-ground",
+      "frames": [
+        "pass10-toxic-splash-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.5625,
+      "aboveHead": false
+    },
+    {
+      "id": "growth-ground",
+      "frames": [
+        "pass10-growth-burst-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.53125,
+      "aboveHead": false
+    },
+    {
+      "id": "flare-ground",
+      "frames": [
+        "pass10-flare-flash-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625,
+      "aboveHead": false
+    }
+  ]
+}

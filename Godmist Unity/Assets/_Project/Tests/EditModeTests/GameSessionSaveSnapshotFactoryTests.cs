@@ -113,6 +113,11 @@ namespace Godmist.Tests.EditMode
                     Value = .25f
                 }
             };
+            bleedEffect.SetPayload(new PeriodicRecoveryPayload
+            {
+                HealthPercent = .025f, ResourcePercent = .03f,
+                HealthRoundingCarry = -.5f, ResourceRoundingCarry = -.75f
+            });
             jerzy.PassiveEffects.Add(bleedEffect);
 
             var pendingLoot = new ItemInstance(
@@ -141,6 +146,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(saveData.Characters, Has.Count.EqualTo(1));
 
             var characterSaveData = saveData.Characters[0];
+            var periodicSaved = characterSaveData.PassiveEffects[0].Payloads.Find(p => p.Type == PassiveEffectPayloadType.PeriodicRecovery);
+            Assert.That(periodicSaved.HealthRoundingCarry, Is.EqualTo(-.5f));
+            Assert.That(periodicSaved.ResourceRoundingCarry, Is.EqualTo(-.75f));
 
             Assert.That(characterSaveData.CharacterId, Is.EqualTo("jerzy"));
             Assert.That(characterSaveData.ClassId, Is.EqualTo("class.scout"));
@@ -246,6 +254,7 @@ namespace Godmist.Tests.EditMode
                 TotalGoldReceived = 900,
                 TotalGoldSpent = 560,
                 GuildPayoutProgress = .6f,
+                RotatingStockItemIds = new List<string> { "sold.out.material" },
                 ShopInventory = new ShopInventory()
             };
 
@@ -294,6 +303,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(npcSaveData.TotalGoldReceived, Is.EqualTo(900));
             Assert.That(npcSaveData.TotalGoldSpent, Is.EqualTo(560));
             Assert.That(npcSaveData.GuildPayoutProgress, Is.EqualTo(.6f));
+            Assert.That(npcSaveData.RotatingStockItemIds, Is.EqualTo(new[] { "sold.out.material" }));
             Assert.That(
                 npcSaveData.ShopItemInstanceIds,
                 Is.EquivalentTo(new[] { "item.shop.01" }));

@@ -5,6 +5,7 @@ using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Dungeons;
 using Godmist.Views.Exploration;
+using Godmist.Views.Characters;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
@@ -21,13 +22,32 @@ namespace Godmist.Views.Dungeons
         private Color? fogBodyColor;
         public bool IsElevationVisible => elevationView == null
             || elevationView.IsTraversalVisible(BodyPosition);
-        private DungeonTraversalPosition BodyPosition => floor != null && body != null
-            && floor.TryGetActorPosition("body:" + body.InstanceId, out var position) ? position
-            : new DungeonTraversalPosition(new DungeonSurfacePosition(body?.Position ?? Vector2Int.zero));
+        private string bodyActorKey, bodyActorInstanceId;
+        private DungeonTraversalPosition BodyPosition
+        {
+            get
+            {
+                if (body != null && bodyActorInstanceId != body.InstanceId)
+                { bodyActorInstanceId = body.InstanceId; bodyActorKey = "body:" + bodyActorInstanceId; }
+                return floor != null && body != null && floor.TryGetActorPosition(bodyActorKey, out var position)
+                    ? position : new DungeonTraversalPosition(new DungeonSurfacePosition(body?.Position ?? Vector2Int.zero));
+            }
+        }
         public void BindElevationView(DungeonFloorMapView view)
-        { elevationView = view; elevationRenderers = GetComponentsInChildren<Renderer>(true); }
+        {
+            elevationView?.UnregisterLightingPresentation(bodyRenderer);
+            elevationView = view;
+            elevationRenderers = GetComponentsInChildren<Renderer>(true);
+            // A corpse is a ground prop, including its lighting. Reserve the
+            // existing outline lane so hovering cannot put it above actors.
+            elevationView?.RegisterGroundLightingPresentation(bodyRenderer, true, preserveDepthSorting: true);
+            RefreshGroundSorting();
+        }
+        private static readonly Unity.Profiling.ProfilerMarker BodyLateSample = new("Godmist.Dungeon.BodyLate");
         private void LateUpdate()
         {
+            using var sample = BodyLateSample.Auto();
+            RefreshGroundSorting();
             if (elevationRenderers == null) return;
             var remembered = elevationView?.FogFloor != null && body != null && elevationView.FogFloor.Fog.Bodies.Contains(body.InstanceId)
                 && elevationView.Knowledge(BodyPosition) != DungeonKnowledge.Unexplored
@@ -36,7 +56,8 @@ namespace Godmist.Views.Dungeons
             if (bodyRenderer != null)
             {
                 fogBodyColor ??= bodyRenderer.color;
-                if (!IsElevationVisible) bodyRenderer.color = DungeonFloorMapView.Dim(fogBodyColor.Value);
+                if (!IsElevationVisible && elevationView?.UsesVegetationPresentation != true)
+                    bodyRenderer.color = DungeonFloorMapView.Dim(fogBodyColor.Value);
                 else if (!isPointerHovered) bodyRenderer.color = fogBodyColor.Value;
             }
         }
@@ -211,9 +232,10 @@ namespace Godmist.Views.Dungeons
 
         private void OnDestroy()
         {
+            elevationView?.UnregisterLightingPresentation(bodyRenderer);
             if (outlineMaterial != null)
             {
-                Destroy(outlineMaterial);
+                if (Application.isPlaying) Destroy(outlineMaterial); else DestroyImmediate(outlineMaterial);
             }
         }
 
@@ -248,8 +270,8 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            bodyRenderer.sortingOrder = 9;
-            bodyRenderer.color = new Color(0.48f, 0.09f, 0.09f, 1f);
+            bodyRenderer.sortingOrder = 9; // Unbound legacy/sandbox presentation only.
+            var hasCorpseSprite = false;
 
             var definition = ResolveEnemyDefinition();
             if (definition == null)
@@ -260,15 +282,44 @@ namespace Godmist.Views.Dungeons
             }
             else
             {
-                bodyRenderer.sprite = definition.DeadSprite != null
-                    ? definition.DeadSprite
-                    : definition.VisualSprite;
+                var sprite = definition.DeadSprite;
+                hasCorpseSprite = sprite != null
+                    || CharacterAnimationResolver.TryResolveCorpse(definition.Id, out sprite);
+                if (!hasCorpseSprite)
+                {
+                    // Characters can have animation frames without a standalone VisualSprite.
+                    if (CharacterAnimationResolver.TryResolveCharacter(definition.Id, Vector2.down,
+                        CharacterAnimationState.Idle, out var idle))
+                        sprite = idle.Frames[0];
+                    if (sprite == null && definition.IdleAnimationFrames != null)
+                        sprite = definition.IdleAnimationFrames.Find(frame => frame != null);
+                    sprite ??= definition.VisualSprite;
+                }
+                bodyRenderer.sprite = sprite;
             }
 
-            transform.localRotation = Quaternion.Euler(0f, 0f, -90f);
+            bodyRenderer.color = hasCorpseSprite ? Color.white : new Color(0.48f, 0.09f, 0.09f, 1f);
+            fogBodyColor = bodyRenderer.color;
+            transform.localRotation = hasCorpseSprite ? Quaternion.identity : Quaternion.Euler(0f, 0f, -90f);
+            if (hasCorpseSprite && bodyRenderer.sprite != null && Mathf.Approximately(bodyRenderer.sprite.pixelsPerUnit, 32f))
+                transform.localScale = new Vector3(.7f, .7f, 1f);
             RebuildOutline();
+            RefreshGroundSorting();
             ConfigureInteractionCollider();
             RefreshHoverVisual();
+        }
+
+        private void RefreshGroundSorting()
+        {
+            if (elevationView == null || bodyRenderer == null) return;
+            bodyRenderer.sortingLayerID = elevationView.FloorFeedbackSortingLayerID;
+            bodyRenderer.sortingOrder = elevationView.GetDungeonObjectDepthSortingOrder();
+            foreach (var outline in outlineRenderers)
+                if (outline != null)
+                {
+                    outline.sortingLayerID = bodyRenderer.sortingLayerID;
+                    outline.sortingOrder = bodyRenderer.sortingOrder - 1;
+                }
         }
 
         private void RebuildOutline()
@@ -277,7 +328,7 @@ namespace Godmist.Views.Dungeons
             {
                 if (outlineRenderer != null)
                 {
-                    Destroy(outlineRenderer.gameObject);
+                    if (Application.isPlaying) Destroy(outlineRenderer.gameObject); else DestroyImmediate(outlineRenderer.gameObject);
                 }
             }
 
@@ -297,7 +348,7 @@ namespace Godmist.Views.Dungeons
 
             if (outlineMaterial != null)
             {
-                Destroy(outlineMaterial);
+                if (Application.isPlaying) Destroy(outlineMaterial); else DestroyImmediate(outlineMaterial);
             }
 
             outlineMaterial = new Material(shader);
@@ -356,6 +407,7 @@ namespace Godmist.Views.Dungeons
         private void RefreshHoverVisual()
         {
             var showOutline = isPointerHovered
+                && body is { IsEmpty: false }
                 && !DevConsoleView.IsOpen
                 && CanInteract();
 
@@ -398,12 +450,12 @@ namespace Godmist.Views.Dungeons
 
             foreach (var encounter in floor.Encounters)
             {
-                if (encounter?.Definition?.Enemies == null)
+                if (encounter?.Enemies == null)
                 {
                     continue;
                 }
 
-                foreach (var enemy in encounter.Definition.Enemies)
+                foreach (var enemy in encounter.Enemies)
                 {
                     if (enemy != null
                         && enemy.InstanceId == body.EnemyInstanceId)
@@ -434,6 +486,7 @@ namespace Godmist.Views.Dungeons
     public class DungeonLootFloatingText : MonoBehaviour
     {
         private TextMeshPro label;
+        private Material feedbackMaterial;
         private float startedAt;
 
         public void Initialize(string text)
@@ -445,11 +498,28 @@ namespace Godmist.Views.Dungeons
             label.fontStyle = FontStyles.Bold;
             label.alignment = TextAlignmentOptions.Center;
             label.color = new Color(0.88f, 0.78f, 0.3f, 1f);
-            label.outlineColor = new Color(0.06f, 0.03f, 0.02f, 1f);
-            label.outlineWidth = 0.22f;
+            ReleaseMaterial();
+            var sourceMaterial = label.font?.material;
+            if (sourceMaterial != null)
+            {
+                feedbackMaterial = new Material(sourceMaterial) { hideFlags = HideFlags.HideAndDontSave };
+                feedbackMaterial.EnableKeyword("OUTLINE_ON");
+                feedbackMaterial.SetColor("_OutlineColor", new Color(0.06f, 0.03f, 0.02f, 1f));
+                feedbackMaterial.SetFloat("_OutlineWidth", .22f);
+                label.fontSharedMaterial = feedbackMaterial;
+            }
             label.GetComponent<MeshRenderer>().sortingOrder = 12;
             transform.localScale = Vector3.one * 0.32f;
             startedAt = Time.unscaledTime;
+        }
+
+        private void OnDestroy() => ReleaseMaterial();
+
+        private void ReleaseMaterial()
+        {
+            if (feedbackMaterial == null) return;
+            if (Application.isPlaying) Destroy(feedbackMaterial); else DestroyImmediate(feedbackMaterial);
+            feedbackMaterial = null;
         }
 
         private void Update()

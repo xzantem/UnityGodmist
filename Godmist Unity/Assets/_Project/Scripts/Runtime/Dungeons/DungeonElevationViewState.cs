@@ -17,20 +17,44 @@ namespace Godmist.Runtime.Dungeons
         private Vector2Int focusCell;
         private IReadOnlyCollection<DungeonTraversalPosition> fogVisible;
         private readonly Dictionary<Vector2Int, float> fogLowest = new();
+        private bool structuralPreview;
+        private int projectionRevision = -1;
+        public bool IsStructuralPreview => structuralPreview;
+
+        /// <summary>
+        /// Shows the complete authored elevation gallery for a dev fixture while
+        /// retaining the local focus cutaway used when the party stands directly
+        /// below a higher surface. This is presentation-only and never changes
+        /// traversal or fog state.
+        /// </summary>
+        public void ConfigureStructuralPreview(bool enabled)
+        {
+            if (structuralPreview == enabled) return;
+            structuralPreview = enabled;
+            RebuildProjection();
+        }
+
         public void SetFogVisibility(IReadOnlyCollection<DungeonTraversalPosition> positions)
         {
             fogVisible = positions; fogLowest.Clear();
+            // On a flat floor fog never changes which surface owns a cell.
+            // Keep the existing projection until topology actually changes.
+            if (map != null && !map.HasElevatedSurfaces && !map.Stairs.Any()
+                && projectionRevision == map.TraversalRevision) return;
             if (map != null && positions != null)
                 foreach (var node in positions)
                     if (map.TryGetTraversalCell(node, out var cell) && map.TryGetTraversalHeight(node, out var height)
                         && (!fogLowest.TryGetValue(cell, out var previous) || height < previous)) fogLowest[cell] = height;
             RebuildProjection();
         }
-        public int ProjectionLevel => IsManual ? Level : levels.LastOrDefault();
+        public int ProjectionLevel => structuralPreview ? levels.LastOrDefault() : IsManual ? Level : levels.LastOrDefault();
         public IEnumerable<DungeonSurfacePosition> CutawaySurfaces => map == null ? System.Array.Empty<DungeonSurfacePosition>() : map.Surfaces.Where(IsCutAway);
         private bool IsCutAway(DungeonSurfacePosition surface)
         {
             if (IsManual) return false;
+            if (structuralPreview)
+                return focus.HasValue && cutAway && surface.Level > focusHeight
+                    && Mathf.Abs(surface.Cell.x - focusCell.x) <= 1 && Mathf.Abs(surface.Cell.y - focusCell.y) <= 1;
             if (fogVisible != null)
             {
                 return fogLowest.TryGetValue(surface.Cell, out var height) && height < surface.Level;
@@ -138,6 +162,7 @@ namespace Godmist.Runtime.Dungeons
 
         private void RebuildProjection()
         {
+            projectionRevision = map?.TraversalRevision ?? -1;
             visibleSurfaces.Clear();
             visiblePositions.Clear();
             if (map == null) return;
@@ -156,8 +181,8 @@ namespace Godmist.Runtime.Dungeons
                     var position = new DungeonTraversalPosition(stairs, i);
                     map.TryGetTraversalHeight(position, out var height);
                     if (Mathf.CeilToInt(height) > ProjectionLevel) continue;
-                    if (fogVisible != null && !IsManual && fogLowest.TryGetValue(path[i], out var lowest) && height > lowest) continue;
-                    if (fogVisible == null && focus.HasValue && !IsManual && cutAway && height > focusHeight
+                    if (!structuralPreview && fogVisible != null && !IsManual && fogLowest.TryGetValue(path[i], out var lowest) && height > lowest) continue;
+                    if (focus.HasValue && !IsManual && cutAway && height > focusHeight
                         && Mathf.Abs(path[i].x - focusCell.x) <= 1 && Mathf.Abs(path[i].y - focusCell.y) <= 1) continue;
                     if (visiblePositions.TryGetValue(path[i], out var existing))
                     {

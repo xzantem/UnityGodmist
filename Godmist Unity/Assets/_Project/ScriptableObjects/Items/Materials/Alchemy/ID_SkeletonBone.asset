@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: ID_SkeletonBone
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.skeleton_bone
-  <DisplayName>k__BackingField: Kość szkieleta
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Ko\u015B\u0107 szkieleta"
+  <Description>k__BackingField: "Zachowana ko\u015B\u0107 nieumar\u0142ego szkieletu,
+    u\u017Cywana w alchemii."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 219c5f7b616bdd94187794a51c82b0fc, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

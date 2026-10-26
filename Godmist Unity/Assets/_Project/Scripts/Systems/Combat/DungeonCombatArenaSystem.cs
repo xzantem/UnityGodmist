@@ -33,18 +33,22 @@ namespace Godmist.Systems.Combat
                             && !context.ContainsWorldCell(outsideDoor.Edge.SecondCell)
                             && DungeonFloorMap.SightCrossesEdge(start, end, new DungeonSurfaceEdge(outsideDoor.Edge))) return true;
                     }
-                    else if (!context.ContainsWorldCell(item.Position) && item is ObstacleDungeonObjectInstance outsideObstacle
-                        && outsideObstacle.BlocksLineOfSight && DungeonFloorMap.SightCrossesCell(start, end, new DungeonSurfacePosition(item.Position))) return true;
+                    else if (item is ObstacleDungeonObjectInstance outsideObstacle
+                        && outsideObstacle.BlocksLineOfSight)
+                    {
+                        foreach (var occupiedCell in outsideObstacle.EnumerateOccupiedCells())
+                            if (!context.ContainsWorldCell(occupiedCell)
+                                && DungeonFloorMap.SightCrossesCell(start, end, new DungeonSurfacePosition(occupiedCell))) return true;
+                    }
                 }
                 return false;
             }
             bool Crosses(DungeonCellEdge edge) => CombatLineOfSightService.CrossesEdge(from, to,
                 new BattleCellEdge(DungeonBattleGridFactory.ToBattlePosition(context, edge.FirstCell),
                     DungeonBattleGridFactory.ToBattlePosition(context, edge.SecondCell)));
-            foreach (var wall in floor.Map.WallEdges)
-                if (floor.Map.GetWallType(wall) == DungeonWallType.Full && Crosses(wall)) return true;
-            foreach (var gate in floor.Map.ClosedProgressionGateEdges)
-                if (Crosses(gate)) return true;
+            if (floor.Map.BlocksGroundSightStep(
+                DungeonBattleGridFactory.ToWorldPosition(context, from),
+                DungeonBattleGridFactory.ToWorldPosition(context, to))) return true;
             var world = DungeonBattleGridFactory.ToWorldPosition(context, to);
             foreach (var obj in floor.Objects)
             {
@@ -56,19 +60,30 @@ namespace Godmist.Systems.Combat
                         && !context.ContainsWorldCell(door.Edge.SecondCell)
                         && !door.IsOpen && Crosses(door.Edge)) return true;
                 }
-                else if (!context.ContainsWorldCell(obj.Position)
-                    && obj is ObstacleDungeonObjectInstance obstacle
-                    && obstacle.BlocksLineOfSight && obj.Position == world) return true;
+                else if (obj is ObstacleDungeonObjectInstance obstacle
+                    && obstacle.BlocksLineOfSight && obstacle.OccupiesCell(world)
+                    && !context.ContainsWorldCell(world)) return true;
             }
             return false;
         }
 
         public static void RefreshExits(CombatSession session, DungeonFloorInstance floor, ISet<Vector2Int> explorationCells, ISet<DungeonTraversalPosition> explorationPositions = null)
         {
+            // Build lookup tables once, rather than scanning every floor object
+            // separately for each door and each candidate boundary neighbour.
+            var doors = new Dictionary<string, DoorDungeonObjectInstance>();
+            var blockedCells = new HashSet<Vector2Int>();
+            foreach (var item in floor.Objects)
+            {
+                if (item is DoorDungeonObjectInstance door && !doors.ContainsKey(door.InstanceId))
+                    doors.Add(door.InstanceId, door);
+                if (!session.IsDungeonWide && item is ObstacleDungeonObjectInstance obstacle
+                    && obstacle.IsActive && obstacle.BlocksMovement)
+                    foreach (var occupiedCell in obstacle.EnumerateOccupiedCells()) blockedCells.Add(occupiedCell);
+            }
             foreach (var combatDoor in session.MapObjects.OfType<DoorCombatMapObject>())
             {
-                var door = floor.Objects.OfType<DoorDungeonObjectInstance>().FirstOrDefault(value => value.InstanceId == combatDoor.ObjectId);
-                if (door == null) continue;
+                if (!doors.TryGetValue(combatDoor.ObjectId, out var door)) continue;
                 combatDoor.IsOpen = door.IsOpen;
                 session.Grid.SetBlockedEdge(combatDoor.Edge.FirstCell, combatDoor.Edge.SecondCell, !door.IsOpen);
             }
@@ -86,8 +101,7 @@ namespace Godmist.Systems.Combat
                     floor.Map.TryGetTraversalCell(outside, out var cell);
                     if (!outside.IsOnStairs && outside.Surface.Level == 0
                         && (explorationPositions == null && explorationCells.Contains(cell)
-                            || floor.Objects.OfType<ObstacleDungeonObjectInstance>().Any(obstacle =>
-                                obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == cell))) continue;
+                            || blockedCells.Contains(cell))) continue;
                     session.OpenExitEdges.Add(new BattleCellEdge(inside, target));
                 }
                 return;
@@ -99,8 +113,7 @@ namespace Godmist.Systems.Combat
                 if (context.ContainsWorldCell(outside) || !floor.Map.CanMoveBetween(cell, outside)) continue;
                 if (session.IsPositionOccupied(DungeonBattleGridFactory.ToBattlePosition(context, outside))) continue;
                 if (explorationCells.Contains(outside)) continue;
-                if (floor.Objects.OfType<ObstacleDungeonObjectInstance>().Any(
-                    obstacle => obstacle.IsActive && obstacle.BlocksMovement && obstacle.Position == outside)) continue;
+                if (blockedCells.Contains(outside)) continue;
                 session.OpenExitEdges.Add(new BattleCellEdge(
                     DungeonBattleGridFactory.ToBattlePosition(context, cell),
                     DungeonBattleGridFactory.ToBattlePosition(context, outside)));

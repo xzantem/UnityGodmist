@@ -20,184 +20,287 @@ MonoBehaviour:
   <AllowedRotationDegrees>k__BackingField: 000000005a000000b40000000e010000
   <Footprint>k__BackingField:
     <FloorCellOffsets>k__BackingField: []
+  <Surfaces>k__BackingField: []
+  <Stairs>k__BackingField: []
   <AllowedBoundaryEdges>k__BackingField:
   - <LocalCell>k__BackingField: {x: 0, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 0}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 1}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 2}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 3}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 4}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 5}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 6}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 7}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 8}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 9}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 10}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 0, y: 11}
     <Direction>k__BackingField: 3
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 1, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 1, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 2, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 2, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 3, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 3, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 4, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 4, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 5, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 5, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 6, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 6, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 7, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 7, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 8, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 8, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 9, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 9, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 10, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 10, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 0}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 0}
     <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 1}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 2}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 3}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 4}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 5}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 6}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 7}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 8}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 9}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 10}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 11}
     <Direction>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <LocalCell>k__BackingField: {x: 11, y: 11}
     <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
   <BoundaryEdgesConfigured>k__BackingField: 1
   <StructuralAnchors>k__BackingField:
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 6, y: 11}
     <Direction>k__BackingField: 2
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 1
     <LocalCell>k__BackingField: {x: 7, y: 11}
     <Direction>k__BackingField: 2
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 8, y: 11}
     <Direction>k__BackingField: 2
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 5, y: 8}
     <Direction>k__BackingField: 1
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 5, y: 9}
     <Direction>k__BackingField: 1
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 5, y: 10}
     <Direction>k__BackingField: 1
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 9, y: 8}
     <Direction>k__BackingField: 3
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 9, y: 9}
     <Direction>k__BackingField: 3
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 9, y: 10}
     <Direction>k__BackingField: 3
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 6, y: 7}
     <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 7, y: 7}
     <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   - <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 8, y: 7}
     <Direction>k__BackingField: 0
+    <WallType>k__BackingField: 0
+    <Level>k__BackingField: 0
   <SemanticAnchors>k__BackingField:
   - <Id>k__BackingField: anchor.chest.01
     <Type>k__BackingField: 0
     <LocalCell>k__BackingField: {x: 7, y: 8}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: -1
+    <PatrolMode>k__BackingField: 0
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
   - <Id>k__BackingField: anchor.enemy.01
     <Type>k__BackingField: 6
     <LocalCell>k__BackingField: {x: 2, y: 2}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: 0
+    <PatrolMode>k__BackingField: 0
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
   - <Id>k__BackingField: anchor.enemy.02
     <Type>k__BackingField: 6
     <LocalCell>k__BackingField: {x: 3, y: 9}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: 1
+    <PatrolMode>k__BackingField: 0
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
   - <Id>k__BackingField: anchor.enemy.03
     <Type>k__BackingField: 6
     <LocalCell>k__BackingField: {x: 9, y: 7}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: 2
+    <PatrolMode>k__BackingField: 0
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
   - <Id>k__BackingField: anchor.enemy.04
     <Type>k__BackingField: 6
     <LocalCell>k__BackingField: {x: 6, y: 5}
     <AreaSize>k__BackingField: {x: 1, y: 1}
     <EncounterEnemyIndex>k__BackingField: 3
+    <PatrolMode>k__BackingField: 0
     <SpawnChance>k__BackingField: 1
     <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
     <RequiresAnchorId>k__BackingField: 
     <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
+  - <Id>k__BackingField: anchor.obstacle.01
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 5, y: 5}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 1
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 83fc9f89b5992cd46bc7b5aa83ca69ab, type: 2}
+  <ContentGroups>k__BackingField: []
+  <DifficultTerrainCells>k__BackingField: []

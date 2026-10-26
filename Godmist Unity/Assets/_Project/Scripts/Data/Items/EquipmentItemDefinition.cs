@@ -11,6 +11,7 @@ namespace Godmist.Data.Items
         menuName = "Godmist/Items/Equipment Item Definition")]
     public class EquipmentItemDefinition : ItemDefinition
     {
+        [field: SerializeField] public bool IsStarterEquipment { get; private set; }
         [field: SerializeField] public CharacterClassData RequiredClass { get; private set; }
 
         public virtual EquipmentSlot EquipmentSlot => ItemType switch

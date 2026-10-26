@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Godmist.Systems.Dungeons
 {
-    public class DungeonGeneratorService
+    public partial class DungeonGeneratorService
     {
         private const int MaxPlacementFallbackGap = 12;
         private const double CorridorRoomChance = 0.4;
@@ -126,6 +126,71 @@ namespace Godmist.Systems.Dungeons
             public LayoutAttemptFailedException(string message) : base(message) {}
         }
 
+        // Scoped to one generation call: templates can change between calls in
+        // the Editor, but every placement candidate shares their local edges.
+        private sealed class PassageLookup
+        {
+            private readonly Dictionary<(DungeonRoomTemplateDefinition, int, DungeonEdgeDirection),
+                HashSet<(Vector2Int cell, int level)>> cells = new();
+            private readonly Dictionary<DungeonRoomTemplateDefinition, SortedSet<int>> levels = new();
+
+            private SortedSet<int> GetLevels(DungeonRoomTemplateDefinition template)
+            {
+                if (levels.TryGetValue(template, out var result)) return result;
+                template.ValidateSurfaceGeometry();
+                result = new SortedSet<int>();
+                foreach (var surface in template.EnumerateSurfaces()) result.Add(surface.Level);
+                levels.Add(template, result);
+                return result;
+            }
+
+            public bool TryFindCommonLevel(DungeonRoomTemplateDefinition first, DungeonRoomTemplateDefinition second,
+                int firstRotation, int secondRotation, Vector2Int firstCell, Vector2Int secondCell,
+                int width, Vector2Int lateral, DungeonEdgeDirection firstDirection,
+                DungeonEdgeDirection secondDirection, out int level)
+            {
+                level = 0;
+                if (first == null || second == null || width < 1) return false;
+                var candidates = GetLevels(first);
+                GetLevels(second); // Validate both templates even when their exits do not match.
+                var firstCells = Get(first, firstRotation, firstDirection);
+                var secondCells = Get(second, secondRotation, secondDirection);
+                foreach (var candidate in candidates)
+                {
+                    var matches = true;
+                    for (var offset = 0; offset < width; offset++)
+                        if (!firstCells.Contains((firstCell + lateral * offset, candidate))
+                            || !secondCells.Contains((secondCell + lateral * offset, candidate)))
+                        { matches = false; break; }
+                    if (matches) { level = candidate; return true; }
+                }
+                return false;
+            }
+
+            public HashSet<(Vector2Int cell, int level)> Get(DungeonRoomTemplateDefinition template,
+                int rotation, DungeonEdgeDirection direction)
+            {
+                var key = (template, rotation, direction);
+                if (cells.TryGetValue(key, out var result)) return result;
+                result = new HashSet<(Vector2Int cell, int level)>();
+                var source = template.BoundaryEdgesConfigured ? template.AllowedBoundaryEdges
+                    : DungeonRoomBoundaryUtility.EnumerateExternalBoundaryEdges(template);
+                foreach (var edge in source)
+                {
+                    if (edge == null || DungeonRoomTransformUtility.TransformDirection(edge.Direction, rotation) != direction) continue;
+                    var blocked = false;
+                    if (template.StructuralAnchors != null)
+                        foreach (var anchor in template.StructuralAnchors)
+                            if (anchor != null && anchor.Type == DungeonStructuralAnchorType.Wall
+                                && anchor.LocalCell == edge.LocalCell && anchor.Level == edge.Level && anchor.Direction == edge.Direction)
+                            { blocked = true; break; }
+                    if (!blocked) result.Add((DungeonRoomTransformUtility.TransformCell(edge.LocalCell, template.SizeInCells, rotation), edge.Level));
+                }
+                cells.Add(key, result);
+                return result;
+            }
+        }
+
         public DungeonInstance Generate(
             DungeonDefinition definition,
             int seed)
@@ -139,26 +204,45 @@ namespace Godmist.Systems.Dungeons
         public DungeonInstance Generate(
             DungeonDefinition definition,
             int seed,
-            int dungeonLevel)
+            int dungeonLevel, DungeonLength length = DungeonLength.Unspecified)
         {
             ValidateDefinition(definition);
+            var lengthProfile = definition.GetLengthProfile(length);
+            if (length != DungeonLength.Unspecified && lengthProfile == null)
+                throw new ArgumentException($"Missing length profile {length} on {definition.Id}.", nameof(length));
+            if (lengthProfile != null && (lengthProfile.FloorCount < 1
+                || lengthProfile.MinRoomsPerFloor < 3 || lengthProfile.MaxRoomsPerFloor < lengthProfile.MinRoomsPerFloor
+                || lengthProfile.MinEncountersPerFloor < 0 || lengthProfile.MaxEncountersPerFloor < lengthProfile.MinEncountersPerFloor
+                || lengthProfile.MaxEncountersPerFloor > lengthProfile.MaxRoomsPerFloor
+                || lengthProfile.MinBranchCount < 0 || lengthProfile.MaxBranchCount < lengthProfile.MinBranchCount
+                || lengthProfile.MinBranchTransitRoomCount < 0
+                || lengthProfile.MaxBranchTransitRoomCount < lengthProfile.MinBranchTransitRoomCount
+                || (lengthProfile.MaxBranchTransitRoomCount > 0 && (lengthProfile.MinBranchCount < 1
+                    || lengthProfile.MaxBranchCount > lengthProfile.MinRoomsPerFloor - 3
+                    || lengthProfile.MaxBranchCount < lengthProfile.FloorCount * Math.Max(1, definition.MinProgressionGateCount)))))
+                throw new InvalidOperationException($"Invalid length profile {length} on {definition.Id}.");
 
             var random = new System.Random(seed);
+            var passages = new PassageLookup();
             var dungeon = new DungeonInstance(
                 definition,
                 seed,
-                dungeonLevel);
+                dungeonLevel, length);
 
             var floorCount = random.Next(
-                definition.MinFloorCount,
-                definition.MaxFloorCount + 1);
+                lengthProfile?.FloorCount ?? definition.MinFloorCount,
+                (lengthProfile?.FloorCount ?? definition.MaxFloorCount) + 1);
+
+            // Finish the topology of EVERY floor before selecting/placing a
+            // single room. Placement retries cannot reroll later floor graphs.
+            var routePlans = lengthProfile?.MaxBranchTransitRoomCount > 0
+                ? DungeonRoutePlanner.CreateExpedition(definition, lengthProfile, random) : null;
 
             for (var floorIndex = 0; floorIndex < floorCount; floorIndex++)
             {
-                var floor = GenerateFloor(
-                    definition,
-                    floorIndex,
-                    random);
+                var floor = routePlans != null
+                    ? GeneratePlannedFloor(definition, routePlans[floorIndex], random, passages)
+                    : GenerateFloor(definition, floorIndex, random, lengthProfile, passages);
 
                 if (!dungeon.TryAddFloor(floor))
                 {
@@ -173,7 +257,7 @@ namespace Godmist.Systems.Dungeons
         private static DungeonFloorInstance GenerateFloor(
             DungeonDefinition definition,
             int floorIndex,
-            System.Random random)
+            System.Random random, DungeonLengthProfile lengthProfile, PassageLookup passages)
         {
             var requestedLoopConnectionCount = GetRandomCount(
                 definition.MinLoopConnections,
@@ -186,6 +270,7 @@ namespace Godmist.Systems.Dungeons
                 random);
 
             GeneratedFloorAttempt? bestLoopFallback = null;
+            var failureCounts = new Dictionary<string, int>();
 
             for (var attempt = 1; attempt <= MaxFloorGenerationAttempts; attempt++)
             {
@@ -196,7 +281,7 @@ namespace Godmist.Systems.Dungeons
                         floorIndex,
                         random,
                         requestedLoopConnectionCount,
-                        requestedProgressionGateCount);
+                        requestedProgressionGateCount, lengthProfile, passages);
 
                     if (generated.LoopConnectionCount
                         >= requestedLoopConnectionCount)
@@ -211,9 +296,10 @@ namespace Godmist.Systems.Dungeons
                         bestLoopFallback = generated;
                     }
                 }
-                catch (LayoutAttemptFailedException)
+                catch (LayoutAttemptFailedException failure)
                 {
-                    // Ten wariant ułożenia pokoi nie pozwala spełnić wszystkich ograniczeń.
+                    failureCounts.TryGetValue(failure.Message, out var count);
+                    failureCounts[failure.Message] = count + 1;
                 }
             }
 
@@ -224,7 +310,8 @@ namespace Godmist.Systems.Dungeons
 
             throw new InvalidOperationException(
                 $"Nie udalo sie wygenerowac poprawnego ukladu pietra {floorIndex} "
-                + $"po {MaxFloorGenerationAttempts} probach.");
+                + $"po {MaxFloorGenerationAttempts} probach. Best loops: {bestLoopFallback?.LoopConnectionCount ?? -1}. "
+                + string.Join("; ", failureCounts));
         }
 
         private static GeneratedFloorAttempt GenerateFloorAttempt(
@@ -232,13 +319,13 @@ namespace Godmist.Systems.Dungeons
             int floorIndex,
             System.Random random,
             int requestedLoopConnectionCount,
-            int requestedProgressionGateCount)
+            int requestedProgressionGateCount, DungeonLengthProfile lengthProfile, PassageLookup passages)
         {
             var floor = new DungeonFloorInstance(floorIndex);
 
             var targetRoomCount = random.Next(
-                definition.MinRoomCountPerFloor,
-                definition.MaxRoomCountPerFloor + 1);
+                lengthProfile?.MinRoomsPerFloor ?? definition.MinRoomCountPerFloor,
+                (lengthProfile?.MaxRoomsPerFloor ?? definition.MaxRoomCountPerFloor) + 1);
 
             var optionalRoomCount = GetOptionalRoomCount(
                 definition,
@@ -288,31 +375,46 @@ namespace Godmist.Systems.Dungeons
                 else
                 {
                     var foundPlacement = false;
-
-                    foreach (var candidateRotation in rotationCandidates)
+                    if (definition.LayoutProfile.PreferCompactMainPath)
                     {
-                        var candidateSize = DungeonRoomTransformUtility.GetRotatedSize(
-                            template.SizeInCells,
-                            candidateRotation);
-
-                        if (!TryFindMainPathPosition(
-                                previousRoom.LayoutPosition,
-                                previousRoomSize,
-                                candidateSize,
-                                previousDirection,
-                                definition.LayoutProfile,
-                                occupiedAreas,
-                                random,
-                                out roomPosition,
-                                out chosenDirection))
+                        foundPlacement = TryFindCompactMainPathPosition(
+                            previousRoom.LayoutPosition, previousRoomSize,
+                            roomTemplatesById[previousRoom.RoomId],
+                            previousRoom.RotationDegrees, template, rotationCandidates,
+                            previousDirection, definition.LayoutProfile, occupiedAreas,
+                            random, passages, out roomPosition, out roomSize,
+                            out roomRotation, out chosenDirection);
+                    }
+                    else
+                    {
+                        foreach (var candidateRotation in rotationCandidates)
                         {
-                            continue;
-                        }
+                            var candidateSize = DungeonRoomTransformUtility.GetRotatedSize(
+                                template.SizeInCells,
+                                candidateRotation);
 
-                        roomSize = candidateSize;
-                        roomRotation = candidateRotation;
-                        foundPlacement = true;
-                        break;
+                            if (!TryFindMainPathPosition(
+                                    previousRoom.LayoutPosition,
+                                    previousRoomSize,
+                                    roomTemplatesById[previousRoom.RoomId],
+                                    previousRoom.RotationDegrees,
+                                    candidateSize,
+                                    template,
+                                    candidateRotation,
+                                    previousDirection,
+                                    definition.LayoutProfile,
+                                    occupiedAreas,
+                                    random,
+                                    passages,
+                                    out roomPosition,
+                                    out chosenDirection))
+                                continue;
+
+                            roomSize = candidateSize;
+                            roomRotation = candidateRotation;
+                            foundPlacement = true;
+                            break;
+                        }
                     }
 
                     if (!foundPlacement)
@@ -388,9 +490,13 @@ namespace Godmist.Systems.Dungeons
                     if (!TryFindOptionalRoomPosition(
                             optionalAnchorRooms,
                             candidateSize,
+                            template,
+                            candidateRotation,
+                            roomTemplatesById,
                             definition.LayoutProfile,
                             occupiedAreas,
                             random,
+                            passages,
                             out anchorRoom,
                             out roomPosition))
                     {
@@ -460,18 +566,21 @@ namespace Godmist.Systems.Dungeons
                     "Nie udalo sie utworzyc wymaganych odnóg progresji.");
             }
 
+            // Reserve the required route first. Optional shortcuts must use only
+            // doorways left available by those connections.
+            var doorwayReservations = BuildConnectionGeometry(
+                floor,
+                roomTemplatesById,
+                definition.LayoutProfile,
+                random, passages);
+
             var loopConnectionCount = TryAddLoopConnections(
                 floor,
                 roomTemplatesById,
                 definition.LayoutProfile,
                 requestedLoopConnectionCount,
-                random);
-
-            BuildConnectionGeometry(
-                floor,
-                roomTemplatesById,
-                definition.LayoutProfile,
-                random);
+                random,
+                doorwayReservations, passages);
 
             var floorMapBuilder = new DungeonFloorMapBuilder();
 
@@ -484,6 +593,7 @@ namespace Godmist.Systems.Dungeons
                     "Nie udalo sie przypisac mapy do pietra lochu.");
             }
 
+            ValidateForestTransitionBoundaries(definition, floor);
             ValidateFloorReachability(floor);
             ValidateProgressionGateSequence(floor);
 
@@ -584,7 +694,8 @@ namespace Godmist.Systems.Dungeons
             Dictionary<string, DungeonRoomTemplateDefinition> roomTemplatesById,
             DungeonLayoutProfile layoutProfile,
             int targetLoopConnectionCount,
-            System.Random random)
+            System.Random random,
+            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId, PassageLookup passages)
         {
             if (targetLoopConnectionCount <= 0) return 0;
 
@@ -650,12 +761,48 @@ namespace Godmist.Systems.Dungeons
                 if (WouldBypassProgressionGate(
                         floor,
                         candidate.FirstRoom.RoomId,
-                        candidate.SecondRoom.RoomId)
-                    || !floor.TryAddConnection(
-                        candidate.FirstRoom.RoomId,
                         candidate.SecondRoom.RoomId))
                 {
                     continue;
+                }
+
+                var firstRoom = candidate.FirstRoom;
+                var secondRoom = candidate.SecondRoom;
+                var firstTemplate = roomTemplatesById[firstRoom.RoomId];
+                var secondTemplate = roomTemplatesById[secondRoom.RoomId];
+                var passage = new DungeonRoomConnection(
+                    firstRoom.RoomId,
+                    secondRoom.RoomId);
+
+                if (!TrySetDirectPassageGeometry(
+                        passage,
+                        firstRoom.RoomId,
+                        secondRoom.RoomId,
+                        firstTemplate,
+                        secondTemplate,
+                        new RectInt(firstRoom.LayoutPosition,
+                            GetRoomSize(firstRoom, firstTemplate)),
+                        new RectInt(secondRoom.LayoutPosition,
+                            GetRoomSize(secondRoom, secondTemplate)),
+                        firstRoom.RotationDegrees,
+                        secondRoom.RotationDegrees,
+                        layoutProfile,
+                        random,
+                        reservationsByRoomId, passages))
+                {
+                    continue;
+                }
+
+                if (!floor.TryAddConnection(firstRoom.RoomId, secondRoom.RoomId)
+                    || !TryGetConnection(floor, firstRoom.RoomId,
+                        secondRoom.RoomId, out var connection)
+                    || !connection.TrySetDirectPassage(
+                        passage.FirstDoorSurface,
+                        passage.SecondDoorSurface,
+                        passage.DoorwayWidth))
+                {
+                    throw new InvalidOperationException(
+                        "Nie udalo sie zapisac zweryfikowanego polaczenia petli.");
                 }
 
                 addedCount++;
@@ -837,11 +984,11 @@ namespace Godmist.Systems.Dungeons
             }
         }
 
-        private static void BuildConnectionGeometry(
+        private static Dictionary<string, List<DoorwayReservation>> BuildConnectionGeometry(
             DungeonFloorInstance floor,
             Dictionary<string, DungeonRoomTemplateDefinition> roomTemplatesById,
             DungeonLayoutProfile layoutProfile,
-            System.Random random)
+            System.Random random, PassageLookup passages)
         {
             var reservationsByRoomId = new Dictionary<string, List<DoorwayReservation>>();
 
@@ -881,7 +1028,7 @@ namespace Godmist.Systems.Dungeons
                         secondRoom.RotationDegrees,
                         layoutProfile,
                         random,
-                        reservationsByRoomId))
+                        reservationsByRoomId, passages))
                 {
                     continue;
                 }
@@ -890,6 +1037,8 @@ namespace Godmist.Systems.Dungeons
                     $"Pokoje '{firstRoom.RoomId}' i '{secondRoom.RoomId}' "
                     + "nie maja kompatybilnych zewnetrznych krawedzi przejscia.");
             }
+
+            return reservationsByRoomId;
         }
 
         private static void ValidateFloorReachability(
@@ -1110,7 +1259,7 @@ namespace Godmist.Systems.Dungeons
             int secondRotation,
             DungeonLayoutProfile layoutProfile,
             System.Random random,
-            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId)
+            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId, PassageLookup passages)
         {
             if (firstRoomArea.xMax == secondRoomArea.xMin)
             {
@@ -1127,7 +1276,7 @@ namespace Godmist.Systems.Dungeons
                     true,
                     layoutProfile,
                     random,
-                    reservationsByRoomId);
+                    reservationsByRoomId, passages);
             }
 
             if (secondRoomArea.xMax == firstRoomArea.xMin)
@@ -1145,7 +1294,7 @@ namespace Godmist.Systems.Dungeons
                     false,
                     layoutProfile,
                     random,
-                    reservationsByRoomId);
+                    reservationsByRoomId, passages);
             }
 
             if (firstRoomArea.yMax == secondRoomArea.yMin)
@@ -1163,7 +1312,7 @@ namespace Godmist.Systems.Dungeons
                     true,
                     layoutProfile,
                     random,
-                    reservationsByRoomId);
+                    reservationsByRoomId, passages);
             }
 
             if (secondRoomArea.yMax == firstRoomArea.yMin)
@@ -1181,7 +1330,7 @@ namespace Godmist.Systems.Dungeons
                     false,
                     layoutProfile,
                     random,
-                    reservationsByRoomId);
+                    reservationsByRoomId, passages);
             }
 
             return false;
@@ -1200,7 +1349,7 @@ namespace Godmist.Systems.Dungeons
             bool firstRoomIsLeft,
             DungeonLayoutProfile layoutProfile,
             System.Random random,
-            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId)
+            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId, PassageLookup passages)
         {
             var overlapStart = Mathf.Max(
                 firstRoomArea.yMin,
@@ -1254,7 +1403,7 @@ namespace Godmist.Systems.Dungeons
                         doorwayWidth,
                         true,
                         firstDoorDirection,
-                        secondDoorDirection, out var doorwayLevel))
+                        secondDoorDirection, passages, out var doorwayLevel))
                 {
                     continue;
                 }
@@ -1294,7 +1443,7 @@ namespace Godmist.Systems.Dungeons
             bool firstRoomIsBelow,
             DungeonLayoutProfile layoutProfile,
             System.Random random,
-            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId)
+            Dictionary<string, List<DoorwayReservation>> reservationsByRoomId, PassageLookup passages)
         {
             var overlapStart = Mathf.Max(
                 firstRoomArea.xMin,
@@ -1348,7 +1497,7 @@ namespace Godmist.Systems.Dungeons
                         doorwayWidth,
                         false,
                         firstDoorDirection,
-                        secondDoorDirection, out var doorwayLevel))
+                        secondDoorDirection, passages, out var doorwayLevel))
                 {
                     continue;
                 }
@@ -1379,9 +1528,9 @@ namespace Godmist.Systems.Dungeons
             DungeonRoomTemplateDefinition firstTemplate, DungeonRoomTemplateDefinition secondTemplate,
             int firstRotation, int secondRotation, RectInt firstRoomArea, RectInt secondRoomArea,
             Vector2Int firstDoorCell, Vector2Int secondDoorCell, int doorwayWidth, bool isVertical,
-            LayoutDirection firstDirection, LayoutDirection secondDirection, out int level)
+            LayoutDirection firstDirection, LayoutDirection secondDirection, PassageLookup passages, out int level)
         {
-            return DungeonPassageGeometry.TryFindCommonLevel(firstTemplate, secondTemplate,
+            return passages.TryFindCommonLevel(firstTemplate, secondTemplate,
                 firstRotation, secondRotation, firstDoorCell - firstRoomArea.position,
                 secondDoorCell - secondRoomArea.position, doorwayWidth,
                 isVertical ? Vector2Int.up : Vector2Int.right,
@@ -1607,14 +1756,98 @@ namespace Godmist.Systems.Dungeons
             };
         }
 
-        private static bool TryFindMainPathPosition(
+        private static bool TryFindCompactMainPathPosition(
             Vector2Int previousPosition,
             Vector2Int previousSize,
-            Vector2Int nextSize,
+            DungeonRoomTemplateDefinition previousTemplate,
+            int previousRotation,
+            DungeonRoomTemplateDefinition nextTemplate,
+            IReadOnlyList<int> nextRotations,
             LayoutDirection previousDirection,
             DungeonLayoutProfile layoutProfile,
             List<RectInt> occupiedAreas,
             System.Random random,
+            PassageLookup passages,
+            out Vector2Int position,
+            out Vector2Int size,
+            out int rotation,
+            out LayoutDirection chosenDirection)
+        {
+            var candidates = new List<(Vector2Int position, Vector2Int size,
+                int rotation, LayoutDirection direction, long score)>();
+            var directions = GetMainPathDirections(previousDirection, layoutProfile, random);
+            for (var directionIndex = 0; directionIndex < directions.Length; directionIndex++)
+            {
+                var direction = directions[directionIndex];
+                foreach (var candidateRotation in nextRotations)
+                {
+                    var candidateSize = DungeonRoomTransformUtility.GetRotatedSize(
+                        nextTemplate.SizeInCells, candidateRotation);
+                    foreach (var offset in GetLateralOffsets(previousSize, candidateSize,
+                                 direction, layoutProfile, random))
+                    {
+                        var candidatePosition = GetConnectedPosition(previousPosition,
+                            previousSize, candidateSize, direction, offset);
+                        if (!IsAreaFree(candidatePosition, candidateSize, occupiedAreas))
+                            continue;
+                        var left = candidatePosition.x;
+                        var right = candidatePosition.x + candidateSize.x;
+                        var bottom = candidatePosition.y;
+                        var top = candidatePosition.y + candidateSize.y;
+                        foreach (var area in occupiedAreas)
+                        {
+                            left = Math.Min(left, area.xMin);
+                            right = Math.Max(right, area.xMax);
+                            bottom = Math.Min(bottom, area.yMin);
+                            top = Math.Max(top, area.yMax);
+                        }
+                        var width = right - left;
+                        var height = top - bottom;
+                        // Prefer a compact footprint first. Direction order remains
+                        // the tie-breaker, so MainPathTurnChance still has an effect.
+                        var score = (long)Math.Max(width, height) * 1000000
+                                    + (long)Math.Abs(width - height) * 10000
+                                    + (long)width * height * 100
+                                    + directionIndex;
+                        candidates.Add((candidatePosition, candidateSize,
+                            candidateRotation, direction, score));
+                    }
+                }
+            }
+            candidates.Sort((first, second) => first.score.CompareTo(second.score));
+            foreach (var candidate in candidates)
+            {
+                if (!HasCompatiblePassage(previousPosition, previousSize,
+                        previousTemplate, previousRotation, candidate.position,
+                        candidate.size, nextTemplate, candidate.rotation,
+                        candidate.direction, layoutProfile.MinDoorwayWidth, passages))
+                    continue;
+                position = candidate.position;
+                size = candidate.size;
+                rotation = candidate.rotation;
+                chosenDirection = candidate.direction;
+                return true;
+            }
+            position = default;
+            size = default;
+            rotation = default;
+            chosenDirection = previousDirection;
+            return false;
+        }
+
+        private static bool TryFindMainPathPosition(
+            Vector2Int previousPosition,
+            Vector2Int previousSize,
+            DungeonRoomTemplateDefinition previousTemplate,
+            int previousRotation,
+            Vector2Int nextSize,
+            DungeonRoomTemplateDefinition nextTemplate,
+            int nextRotation,
+            LayoutDirection previousDirection,
+            DungeonLayoutProfile layoutProfile,
+            List<RectInt> occupiedAreas,
+            System.Random random,
+            PassageLookup passages,
             out Vector2Int position,
             out LayoutDirection chosenDirection)
         {
@@ -1640,7 +1873,12 @@ namespace Godmist.Systems.Dungeons
                         if (!IsAreaFree(
                                 candidatePosition,
                                 nextSize,
-                                occupiedAreas))
+                                occupiedAreas)
+                            || !HasCompatiblePassage(
+                                previousPosition, previousSize, previousTemplate,
+                                previousRotation, candidatePosition, nextSize,
+                                nextTemplate, nextRotation, direction,
+                                layoutProfile.MinDoorwayWidth, passages))
                         {
                             continue;
                         }
@@ -1660,9 +1898,13 @@ namespace Godmist.Systems.Dungeons
         private static bool TryFindOptionalRoomPosition(
             List<PlacedRoom> optionalAnchorRooms,
             Vector2Int optionalRoomSize,
+            DungeonRoomTemplateDefinition optionalTemplate,
+            int optionalRotation,
+            Dictionary<string, DungeonRoomTemplateDefinition> roomTemplatesById,
             DungeonLayoutProfile layoutProfile,
             List<RectInt> occupiedAreas,
             System.Random random,
+            PassageLookup passages,
             out PlacedRoom anchorRoom,
             out Vector2Int position)
         {
@@ -1694,7 +1936,15 @@ namespace Godmist.Systems.Dungeons
                         if (!IsAreaFree(
                                 candidatePosition,
                                 optionalRoomSize,
-                                occupiedAreas))
+                                occupiedAreas)
+                            || !HasCompatiblePassage(
+                                candidateAnchor.Room.LayoutPosition,
+                                candidateAnchor.Size,
+                                roomTemplatesById[candidateAnchor.Room.RoomId],
+                                candidateAnchor.Room.RotationDegrees,
+                                candidatePosition, optionalRoomSize,
+                                optionalTemplate, optionalRotation, direction,
+                                layoutProfile.MinDoorwayWidth, passages))
                         {
                             continue;
                         }
@@ -1709,6 +1959,52 @@ namespace Godmist.Systems.Dungeons
             anchorRoom = default;
             position = default;
 
+            return false;
+        }
+
+        // Room placement must respect authored doorway edges. Checking only rectangle
+        // overlap can leave a whole floor impossible once passage geometry is built.
+        private static bool HasCompatiblePassage(
+            Vector2Int firstPosition, Vector2Int firstSize,
+            DungeonRoomTemplateDefinition firstTemplate, int firstRotation,
+            Vector2Int secondPosition, Vector2Int secondSize,
+            DungeonRoomTemplateDefinition secondTemplate, int secondRotation,
+            LayoutDirection direction, int doorwayWidth, PassageLookup passages)
+        {
+            var first = new RectInt(firstPosition, firstSize);
+            var second = new RectInt(secondPosition, secondSize);
+            var separated = direction switch
+                {
+                    LayoutDirection.Right => first.xMax != second.xMin,
+                    LayoutDirection.Left => first.xMin != second.xMax,
+                    LayoutDirection.Up => first.yMax != second.yMin,
+                    _ => first.yMin != second.yMax
+                };
+            if (doorwayWidth < 1 || separated) return false;
+
+            // Checking authored edges directly avoids rebuilding the entire footprint
+            // for every candidate offset. Passage geometry performs the full check
+            // again after all rooms have been positioned.
+            var firstDirection = ToEdgeDirection(direction);
+            var secondDirection = ToEdgeDirection(GetReverseDirection(direction));
+            var step = direction is LayoutDirection.Left or LayoutDirection.Right
+                ? Vector2Int.up : Vector2Int.right;
+            var neighbour = DungeonRoomTransformUtility.GetDirectionOffset(firstDirection);
+            var firstCells = passages.Get(firstTemplate, firstRotation, firstDirection);
+            var secondCells = passages.Get(secondTemplate, secondRotation, secondDirection);
+            foreach (var edge in firstCells)
+            {
+                var matches = true;
+                for (var offset = 0; offset < doorwayWidth; offset++)
+                {
+                    var cell = edge.cell + step * offset;
+                    if (firstCells.Contains((cell, edge.level))
+                        && secondCells.Contains((firstPosition + cell + neighbour - secondPosition, edge.level))) continue;
+                    matches = false;
+                    break;
+                }
+                if (matches) return true;
+            }
             return false;
         }
 

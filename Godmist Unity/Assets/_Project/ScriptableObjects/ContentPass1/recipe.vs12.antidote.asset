@@ -1,0 +1,630 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb82b87d42d94e4192692d17f69ed0c, type: 3}
+  m_Name: recipe.vs12.antidote
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
+  <Id>k__BackingField: recipe.vs12.antidote
+  <DisplayName>k__BackingField: Antidotum
+  <Description>k__BackingField: "Mieszanka zi\xF3\u0142 neutralizuj\u0105ca trucizn\u0119.
+    Zwi\u0119ksza odporno\u015B\u0107 na zatrucie o 30% na 3 tury."
+  <Icon>k__BackingField: {fileID: 21300000, guid: f55f2ff7d5fc8d84aaf03d7bf678da80, type: 3}
+  <ItemType>k__BackingField: 10
+  <MaterialDiscipline>k__BackingField: 2
+  <BaseRarity>k__BackingField: 0
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 0
+  <CraftingDiscipline>k__BackingField: 2
+  <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 11
+  <PrimaryVariantLabel>k__BackingField: Purchawka + Purchawka
+  <CraftedResult>k__BackingField: {fileID: 11400000, guid: 54da0d1357b1b1544aceea002cf434bc, type: 2}
+  <Ingredients>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+    <Amount>k__BackingField: 8
+  <AlternativeRecipes>k__BackingField:
+  - Label: Purchawka + Kosarz pospolity
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Szyszka
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Trawa dusicielska
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Wodorosty
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Purchawka + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Purchawka + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Purchawka + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Kosarz pospolity
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Kosarz pospolity + Szyszka
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Trawa dusicielska
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Wodorosty
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kosarz pospolity + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kosarz pospolity + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kosarz pospolity + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Szyszka
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Szyszka + Trawa dusicielska
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Wodorosty
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Szyszka + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Szyszka + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Szyszka + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Trawa dusicielska
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Trawa dusicielska + Wodorosty
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Trawa dusicielska + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Trawa dusicielska + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Trawa dusicielska + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: db7ea36818ebd314990e84e4fe77216a, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Wodorosty
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: "Wodorosty + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Wodorosty + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Wodorosty + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 743d2df52c360604d9346ca6c24cb35c, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Kwitn\u0105ca wi\u015Bnia"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Aloe meda"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Kwiat byliny"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Dmuchawiec tregandzki"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Sitowie"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Kwitn\u0105ca wi\u015Bnia + Mucha zwyczajna"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Aloe meda + Aloe meda
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: "Aloe meda + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Aloe meda + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Aloe meda + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Aloe meda + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Aloe meda + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95601836d0354c1489b57cb641a4b187, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Pn\u0105cza alzif + Pn\u0105cza alzif"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: "Pn\u0105cza alzif + Kwiat byliny"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Pn\u0105cza alzif + Dmuchawiec tregandzki"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Pn\u0105cza alzif + Sitowie"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: "Pn\u0105cza alzif + Mucha zwyczajna"
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 95a0f1456f0f0664086d3da18603286b, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kwiat byliny + Kwiat byliny
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Kwiat byliny + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kwiat byliny + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Kwiat byliny + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Dmuchawiec tregandzki + Dmuchawiec tregandzki
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Dmuchawiec tregandzki + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Dmuchawiec tregandzki + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 59ea31ce95042ee4684ee174d2ab5231, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Sitowie + Sitowie
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 8
+  - Label: Sitowie + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+      <Amount>k__BackingField: 4
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 4
+  - Label: Mucha zwyczajna + Mucha zwyczajna
+    Ingredients:
+    - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+      <Amount>k__BackingField: 1
+    - <Material>k__BackingField: {fileID: 11400000, guid: 17226b09ea9b26248b5ba8751c7f33d6, type: 2}
+      <Amount>k__BackingField: 8

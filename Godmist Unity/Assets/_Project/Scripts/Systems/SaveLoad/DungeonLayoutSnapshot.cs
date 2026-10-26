@@ -13,7 +13,7 @@ namespace Godmist.Systems.SaveLoad
     // Stores generated geometry and identities; mutable object state stays in the existing deltas.
     public static class DungeonLayoutSnapshot
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 5;
 
         public static List<DungeonFloorLayoutSaveData> Capture(DungeonInstance dungeon)
         {
@@ -26,7 +26,8 @@ namespace Godmist.Systems.SaveLoad
                     {
                         Id = room.RoomId, TemplateId = room.TemplateId, Type = (int)room.RoomType,
                         X = room.LayoutPosition.x, Y = room.LayoutPosition.y, Rotation = room.RotationDegrees,
-                        Required = room.IsRequiredProgressionRoom, Completed = room.IsProgressionRoomCompleted
+                        Required = room.IsRequiredProgressionRoom, Completed = room.IsProgressionRoomCompleted,
+                        BranchTransit = room.IsBranchTransitRoom
                     });
                 foreach (var connection in floor.Connections)
                     data.Connections.Add(new DungeonConnectionLayoutSaveData
@@ -37,7 +38,9 @@ namespace Godmist.Systems.SaveLoad
                         SecondY = connection.SecondDoorCell.y, Width = connection.DoorwayWidth, Level = connection.DoorwayLevel,
                         HasGate = connection.HasProgressionGate, GateId = connection.ProgressionGateId,
                         ConditionId = connection.ProgressionConditionId, BranchRoomId = connection.RequiredBranchRoomId,
-                        RequiredSources = new List<string>(connection.RequiredProgressionSourceIds)
+                        RequiredSources = new List<string>(connection.RequiredProgressionSourceIds),
+                        EndX = connection.EndDoorCell.x, EndY = connection.EndDoorCell.y,
+                        CorridorCells = connection.CorridorCells.Select(c => new DungeonStairPathCellSaveData { X = c.x, Y = c.y }).ToList()
                     });
                 if (floor.Map != null)
                 {
@@ -47,7 +50,8 @@ namespace Godmist.Systems.SaveLoad
                         floor.Map.TryGetRoomId(surface, out var roomId);
                         data.Cells.Add(new DungeonCellSaveData
                         { X = cell.x, Y = cell.y, Level = surface.Level, RoomId = roomId,
-                            Difficult = surface.Level == 0 && floor.Map.IsDifficultTerrain(cell) });
+                            Difficult = surface.Level == 0 && floor.Map.IsDifficultTerrain(cell),
+                            VisualPath = surface.Level == 0 && floor.Map.VisualPathCells.Contains(cell) });
                     }
                     foreach (var stair in floor.Map.Stairs)
                     {
@@ -101,6 +105,8 @@ namespace Godmist.Systems.SaveLoad
                     var entry = new DungeonEncounterLayoutSaveData
                     {
                         Id = encounter.InstanceId, DefinitionId = encounter.Definition.Id, RoomId = encounter.RoomId,
+                        IsReinforcement = encounter.IsReinforcement,
+                        ReinforcementEnemyIds = encounter.IsReinforcement ? encounter.Enemies.Select(enemy => enemy.InstanceId).ToList() : null,
                         X = encounter.TriggerArea.x, Y = encounter.TriggerArea.y,
                         Width = encounter.TriggerArea.width, Height = encounter.TriggerArea.height,
                         PositionX = encounter.ExplorationPosition.x, PositionY = encounter.ExplorationPosition.y,
@@ -125,7 +131,8 @@ namespace Godmist.Systems.SaveLoad
             dungeon = null;
             if (data == null || (data.LayoutVersion < 1 || data.LayoutVersion > CurrentVersion)
                 || data.Layout == null || data.Layout.Count == 0) return false;
-            var candidate = new DungeonInstance(definition, data.Seed, data.DungeonLevel);
+            if (!Enum.IsDefined(typeof(Godmist.Core.Enums.DungeonLength), data.Length)) return false;
+            var candidate = new DungeonInstance(definition, data.Seed, data.DungeonLevel, data.Length);
             var objectIds = new HashSet<string>(StringComparer.Ordinal);
             var encounterIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var saved in data.Layout)
@@ -140,9 +147,12 @@ namespace Godmist.Systems.SaveLoad
                 {
                     if (room == null || string.IsNullOrWhiteSpace(room.Id)
                         || !Enum.IsDefined(typeof(DungeonRoomType), room.Type)
-                        || (room.Rotation != 0 && room.Rotation != 90 && room.Rotation != 180 && room.Rotation != 270)) return false;
+                        || (room.Rotation != 0 && room.Rotation != 90 && room.Rotation != 180 && room.Rotation != 270)
+                        || (data.LayoutVersion >= 4 && room.BranchTransit && (room.Required
+                            || (room.Type != (int)DungeonRoomType.Normal && room.Type != (int)DungeonRoomType.Corridor)))) return false;
                     var restored = new DungeonRoomInstance(room.Id, (DungeonRoomType)room.Type, room.TemplateId,
-                        new Vector2Int(room.X, room.Y), room.Required, room.Rotation);
+                        new Vector2Int(room.X, room.Y), room.Required, room.Rotation,
+                        data.LayoutVersion >= 4 && room.BranchTransit);
                     if (!restored.TryRestoreProgressionRoomCompleted(room.Completed) || !floor.TryAddRoom(restored)) return false;
                 }
                 foreach (var connection in saved.Connections)
@@ -152,6 +162,15 @@ namespace Godmist.Systems.SaveLoad
                     if (connection.HasGeometry && !restored.TrySetDirectPassage(
                         new DungeonSurfacePosition(new Vector2Int(connection.FirstX, connection.FirstY), connection.Level),
                         new DungeonSurfacePosition(new Vector2Int(connection.SecondX, connection.SecondY), connection.Level), connection.Width)) return false;
+                    if (data.LayoutVersion < 5 && connection.CorridorCells?.Count > 0) return false;
+                    if (data.LayoutVersion >= 5)
+                    {
+                        if (connection.CorridorCells == null || connection.CorridorCells.Any(c => c == null)) return false;
+                        if (connection.CorridorCells.Count > 0 && (!connection.HasGeometry || connection.Level != 0
+                            || !restored.TrySetRoutedPassage(new Vector2Int(connection.FirstX, connection.FirstY),
+                                new Vector2Int(connection.SecondX, connection.SecondY), new Vector2Int(connection.EndX, connection.EndY),
+                                connection.Width, connection.CorridorCells.Select(c => new Vector2Int(c.X, c.Y))))) return false;
+                    }
                     if (connection.HasGate)
                     {
                         if (!connection.HasGeometry || !floor.TryGetRoom(connection.BranchRoomId, out _)
@@ -169,7 +188,13 @@ namespace Godmist.Systems.SaveLoad
                             || (data.LayoutVersion == 1 && cell.Level != 0)
                             || (cell.Level != 0 && cell.Difficult)
                             || !map.TryAddFloorCell(new DungeonSurfacePosition(new Vector2Int(cell.X, cell.Y), cell.Level), cell.RoomId)) return false;
-                        if (cell.Difficult) map.SetDifficultTerrain(new Vector2Int(cell.X, cell.Y));
+                        // Old saves may contain difficult terrain; the feature
+                        // is disabled for both restored and newly generated maps.
+                        if (cell.VisualPath)
+                        {
+                            if (data.LayoutVersion < 5 || cell.Level != 0) return false;
+                            map.AddVisualPathCell(new Vector2Int(cell.X, cell.Y));
+                        }
                     }
                     if (saved.Stairs != null)
                         foreach (var stair in saved.Stairs)
@@ -204,6 +229,15 @@ namespace Godmist.Systems.SaveLoad
                         for (var offset = 0; offset < connection.DoorwayWidth; offset++)
                             if (!map.IsWalkable(new DungeonSurfacePosition(connection.FirstDoorCell + lateral * offset, connection.DoorwayLevel))
                                 || !map.IsWalkable(new DungeonSurfacePosition(connection.SecondDoorCell + lateral * offset, connection.DoorwayLevel))) return false;
+                        if (connection.CorridorCells.Count > 0)
+                        {
+                            if (connection.CorridorCells.Any(c => !map.TryGetRoomId(c, out var owner) || owner != connection.SecondRoomId)) return false;
+                            var normal = connection.SecondDoorCell - connection.FirstDoorCell;
+                            for (var offset = 0; offset < connection.DoorwayWidth; offset++)
+                                if (!map.TryGetRoomId(connection.EndDoorCell + lateral * offset, out var owner) || owner != connection.SecondRoomId
+                                    || !map.CanMoveBetween(connection.EndDoorCell - normal + lateral * offset,
+                                        connection.EndDoorCell + lateral * offset, true)) return false;
+                        }
                     }
                     if (!floor.TrySetMap(map)) return false;
                 }
@@ -258,6 +292,9 @@ namespace Godmist.Systems.SaveLoad
                     if (encounterDefinition == null && !catalog.TryGetEncounter(encounter.DefinitionId, out encounterDefinition)) return false;
                     var restored = new DungeonEncounterInstance(encounter.Id, encounterDefinition, encounter.RoomId,
                         new RectInt(encounter.X, encounter.Y, encounter.Width, encounter.Height));
+                    // Unity JSON materializes null lists as empty lists. Identity needs an explicit flag.
+                    if (encounter.IsReinforcement && !restored.TryConfigureReinforcements(encounter.ReinforcementEnemyIds)) return false;
+                    if (!encounter.IsReinforcement && encounter.ReinforcementEnemyIds?.Count > 0) return false;
                     restored.TrySetExplorationPosition(new Vector2Int(encounter.PositionX, encounter.PositionY));
                     if (encounter.HasRetreat) restored.TrySetRetreatPosition(new Vector2Int(encounter.RetreatX, encounter.RetreatY));
                     var enemyIds = new HashSet<string>(StringComparer.Ordinal);

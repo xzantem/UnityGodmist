@@ -26,6 +26,9 @@ namespace Godmist.Data.Dungeons
         [field: SerializeField, Range(0f, 1f)]
         public float MainPathTurnChance { get; private set; } = 0.5f;
 
+        [field: SerializeField]
+        public bool PreferCompactMainPath { get; private set; }
+
         [field: Header("Doorways")]
         [field: SerializeField, Min(1)]
         public int MinDoorwayWidth { get; private set; } = 1;

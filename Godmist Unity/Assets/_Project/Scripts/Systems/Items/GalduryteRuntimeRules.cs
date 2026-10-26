@@ -21,9 +21,8 @@ namespace Godmist.Systems.Items
     }
 
     /// <summary>
-    /// Centralizes the rules for the first galduryte content slice. The pools
-    /// intentionally contain only three unique colors per target, so tiers 2
-    /// and 3 fail explicitly until their additional effects are authored.
+    /// Centralizes the approved content-pass effect pools. Each color contributes
+    /// at most one effect, selected uniformly within that color.
     /// </summary>
     public static class GalduryteRuntimeRules
     {
@@ -31,16 +30,63 @@ namespace Godmist.Systems.Items
             new List<GalduryteEffectDefinition>
             {
                 new(GalduryteEffectType.GeneralDamagePercent, GaldurytePowderColor.Red),
+                new(GalduryteEffectType.PhysicalDamagePercent, GaldurytePowderColor.Red),
+                new(GalduryteEffectType.MagicDamagePercent, GaldurytePowderColor.Red),
                 new(GalduryteEffectType.CriticalChancePercent, GaldurytePowderColor.Blue),
-                new(GalduryteEffectType.AccuracyPercent, GaldurytePowderColor.Purple)
+                new(GalduryteEffectType.CriticalDamageFlat, GaldurytePowderColor.Blue),
+                new(GalduryteEffectType.AccuracyPercent, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.SuppressionChance, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.DebuffChance, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.DotChance, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.BleedOnAttack, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.PoisonOnAttack, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.BurnOnAttack, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.HealOnAttack, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.ResourceOnAttack, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.ActionValueOnAttack, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.ItemDropChance, GaldurytePowderColor.Black),
+                new(GalduryteEffectType.ResourceGenerationPercent, GaldurytePowderColor.Black),
+                new(GalduryteEffectType.UndeadDamagePercent, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.HumanDamagePercent, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.BeastDamagePercent, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.DemonDamagePercent, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.StunOnAttack, GaldurytePowderColor.White),
+                new(GalduryteEffectType.FreezeOnAttack, GaldurytePowderColor.White),
+                new(GalduryteEffectType.SlowOnAttack, GaldurytePowderColor.White),
+                new(GalduryteEffectType.ExperiencePercent, GaldurytePowderColor.Gold),
+                new(GalduryteEffectType.GoldPercent, GaldurytePowderColor.Gold),
+                new(GalduryteEffectType.PhysicalPenetration, GaldurytePowderColor.Amber),
+                new(GalduryteEffectType.MagicPenetration, GaldurytePowderColor.Amber),
             };
 
         private static readonly IReadOnlyList<GalduryteEffectDefinition> ArmorPool =
             new List<GalduryteEffectDefinition>
             {
                 new(GalduryteEffectType.MaxHealthPercent, GaldurytePowderColor.Red),
+                new(GalduryteEffectType.DodgePercent, GaldurytePowderColor.Red),
                 new(GalduryteEffectType.PhysicalDefensePercent, GaldurytePowderColor.Blue),
-                new(GalduryteEffectType.SpeedPercent, GaldurytePowderColor.Purple)
+                new(GalduryteEffectType.MagicDefensePercent, GaldurytePowderColor.Blue),
+                new(GalduryteEffectType.AllDefensePercent, GaldurytePowderColor.Blue),
+                new(GalduryteEffectType.SpeedPercent, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.ActionPointsPercent, GaldurytePowderColor.Purple),
+                new(GalduryteEffectType.DotResistance, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.SuppressionResistance, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.DebuffResistance, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.AllResistance, GaldurytePowderColor.Lemon),
+                new(GalduryteEffectType.PhysicalDamageReduction, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.MagicDamageReduction, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.AllDamageReduction, GaldurytePowderColor.Emerald),
+                new(GalduryteEffectType.ItemDropChance, GaldurytePowderColor.Black),
+                new(GalduryteEffectType.MaxResourcePercent, GaldurytePowderColor.Black),
+                new(GalduryteEffectType.BleedDamageReduction, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.PoisonDamageReduction, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.BurnDamageReduction, GaldurytePowderColor.Pink),
+                new(GalduryteEffectType.ResourceCostReduction, GaldurytePowderColor.White),
+                new(GalduryteEffectType.CriticalAvoidance, GaldurytePowderColor.White),
+                new(GalduryteEffectType.GoldPercent, GaldurytePowderColor.Gold),
+                new(GalduryteEffectType.ExperiencePercent, GaldurytePowderColor.Gold),
+                new(GalduryteEffectType.HealthPerTurn, GaldurytePowderColor.Amber),
+                new(GalduryteEffectType.ResourcePerTurn, GaldurytePowderColor.Amber),
             };
 
         public static int GetLevel(GalduryteTier tier) => tier switch
@@ -158,9 +204,57 @@ namespace Godmist.Systems.Items
             var index = Math.Max(0, Math.Min(4, (int)grade));
             var values = effectType switch
             {
-                GalduryteEffectType.PhysicalDefensePercent => new[] { .03f, .036f, .042f, .048f, .06f },
-                GalduryteEffectType.CriticalChancePercent => new[] { .01f, .014f, .018f, .022f, .03f },
-                _ => new[] { .02f, .026f, .032f, .038f, .05f }
+                GalduryteEffectType.GeneralDamagePercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.PhysicalDamagePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.MagicDamagePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.CriticalChancePercent => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.CriticalDamageFlat => new[] { 0.1f, 0.13f, 0.16f, 0.19f, 0.25f },
+                GalduryteEffectType.AccuracyPercent => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.SuppressionChance => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.DebuffChance => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.DotChance => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.BleedOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.PoisonOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.BurnOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.HealOnAttack => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.ResourceOnAttack => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.ActionValueOnAttack => new[] { 2f, 2.5f, 3f, 3.5f, 4.5f },
+                GalduryteEffectType.ItemDropChance => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.ResourceGenerationPercent => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.UndeadDamagePercent => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.HumanDamagePercent => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.BeastDamagePercent => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.DemonDamagePercent => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.StunOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.FreezeOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.SlowOnAttack => new[] { 0.0075f, 0.01f, 0.0125f, 0.015f, 0.02f },
+                GalduryteEffectType.ExperiencePercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.GoldPercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.PhysicalPenetration => new[] { 0.05f, 0.06f, 0.07f, 0.08f, 0.1f },
+                GalduryteEffectType.MagicPenetration => new[] { 0.05f, 0.06f, 0.07f, 0.08f, 0.1f },
+                GalduryteEffectType.MaxHealthPercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.DodgePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.PhysicalDefensePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.MagicDefensePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.AllDefensePercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.SpeedPercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.ActionPointsPercent => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.DotResistance => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.SuppressionResistance => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.DebuffResistance => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.AllResistance => new[] { 0.01f, 0.014f, 0.018f, 0.022f, 0.03f },
+                GalduryteEffectType.PhysicalDamageReduction => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.MagicDamageReduction => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.AllDamageReduction => new[] { 0.015f, 0.02f, 0.025f, 0.03f, 0.04f },
+                GalduryteEffectType.MaxResourcePercent => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.BleedDamageReduction => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.PoisonDamageReduction => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.BurnDamageReduction => new[] { 0.04f, 0.048f, 0.056f, 0.064f, 0.08f },
+                GalduryteEffectType.ResourceCostReduction => new[] { 0.02f, 0.026f, 0.032f, 0.038f, 0.05f },
+                GalduryteEffectType.CriticalAvoidance => new[] { 0.03f, 0.036f, 0.042f, 0.048f, 0.06f },
+                GalduryteEffectType.HealthPerTurn => new[] { 0.004f, 0.0052f, 0.0064f, 0.0076f, 0.01f },
+                GalduryteEffectType.ResourcePerTurn => new[] { 0.005f, 0.008f, 0.011f, 0.014f, 0.02f },
+                _ => throw new ArgumentOutOfRangeException(nameof(effectType))
             };
             return values[index];
         }
@@ -182,7 +276,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            if (!TryGetEffectCountRange(itemLevel, out var minimum, out var maximum))
+            if ((itemLevel < 11 || itemLevel > 20) || !TryGetEffectCountRange(itemLevel, out var minimum, out var maximum))
             {
                 failureReason = $"Poziom galdurytu {itemLevel} nie ma skonfigurowanej liczby efektów.";
                 return false;
@@ -203,7 +297,8 @@ namespace Godmist.Systems.Items
 
             var effectCount = random.Next(minimum, maximum + 1);
 
-            var guaranteed = pool.FirstOrDefault(effect => effect.PowderColor == guaranteedColor);
+            var colorPool = pool.Where(effect => effect.PowderColor == guaranteedColor).ToList();
+            var guaranteed = colorPool.Count == 0 ? null : colorPool[random.Next(colorPool.Count)];
             if (guaranteed == null)
             {
                 failureReason = $"Proszek {guaranteedColor} nie ma efektu dla celu {targetType}.";
@@ -238,7 +333,7 @@ namespace Godmist.Systems.Items
             out string failureReason)
         {
             failureReason = string.Empty;
-            if (!TryGetEffectCountRange(itemLevel, out _, out var maximum))
+            if ((itemLevel < 11 || itemLevel > 20) || !TryGetEffectCountRange(itemLevel, out _, out var maximum))
             {
                 failureReason = $"Poziom galdurytu {itemLevel} nie ma skonfigurowanej liczby efektów.";
                 return false;

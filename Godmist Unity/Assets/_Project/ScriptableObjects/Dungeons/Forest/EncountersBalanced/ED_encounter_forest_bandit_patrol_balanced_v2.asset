@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6700f722a8bcce4992915b695b7c0cd, type: 3}
+  m_Name: ED_encounter_forest_bandit_patrol_balanced_v2
+  m_EditorClassIdentifier: Data::Godmist.Data.Combat.EncounterDefinition
+  <Id>k__BackingField: encounter.forest.bandit_patrol.balanced.v2
+  <DisplayName>k__BackingField: Bandycki patrol
+  <GridWidth>k__BackingField: 12
+  <GridHeight>k__BackingField: 12
+  <BossEnemyIndex>k__BackingField: 0
+  <Enemies>k__BackingField:
+  - <InstanceId>k__BackingField: encounter.forest.bandit_patrol.balanced.v2.0
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 5fd1345fd126fbf4f812aeda281b95d7, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 2}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 120
+    <InitialFacing>k__BackingField: {x: -1, y: 0}
+  - <InstanceId>k__BackingField: encounter.forest.bandit_patrol.balanced.v2.1
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 5fd1345fd126fbf4f812aeda281b95d7, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 4}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 120
+    <InitialFacing>k__BackingField: {x: -1, y: 0}
+  - <InstanceId>k__BackingField: encounter.forest.bandit_patrol.balanced.v2.2
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 669206c9b62d1154e89d2d213464a6b0, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 6}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 120
+    <InitialFacing>k__BackingField: {x: -1, y: 0}

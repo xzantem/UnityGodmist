@@ -14,6 +14,8 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI characterInfoText;
         [SerializeField] private Color normalColor = new(0.11f, 0.15f, 0.2f, 1f);
         [SerializeField] private Color selectedColor = new(0.35f, 0.28f, 0.12f, 1f);
+        [SerializeField] private Sprite normalBackground;
+        [SerializeField] private Sprite selectedBackground;
 
         private CharacterInstance character;
         private Action<CharacterInstance> selectionCallback;
@@ -36,7 +38,12 @@ namespace Godmist.Views.UI
 
             if (backgroundImage != null)
             {
-                backgroundImage.color = isSelected ? selectedColor : normalColor;
+                if (normalBackground != null && selectedBackground != null)
+                {
+                    backgroundImage.sprite = isSelected ? selectedBackground : normalBackground;
+                    backgroundImage.color = Color.white;
+                }
+                else backgroundImage.color = isSelected ? selectedColor : normalColor;
             }
 
             button.onClick.RemoveAllListeners();

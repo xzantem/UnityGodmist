@@ -2,11 +2,29 @@ using System;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Systems.Combat
 {
     public class DungeonCombatStateSyncSystem
     {
+        // Exploration and parallel combats share the floor, but own separate runtime door objects.
+        public void RefreshDoorsFromFloor(DungeonFloorInstance floor, CombatSession session)
+        {
+            if (floor?.Map == null || session?.Grid == null || session.DungeonContext?.FloorIndex != floor.FloorIndex) return;
+            foreach (var item in session.MapObjects)
+            {
+                if (item is not DoorCombatMapObject door) continue;
+                foreach (var source in floor.Objects)
+                {
+                    if (source is not DoorDungeonObjectInstance dungeonDoor || source.InstanceId != door.ObjectId) continue;
+                    door.IsOpen = !dungeonDoor.IsActive || dungeonDoor.IsOpen;
+                    session.Grid.SetBlockedEdge(door.Edge.FirstCell, door.Edge.SecondCell, door.BlocksMovement);
+                    break;
+                }
+            }
+        }
+
         public bool TrySyncDoorStates(
             GameSession gameSession,
             CombatSession combatSession)
@@ -82,7 +100,8 @@ namespace Godmist.Systems.Combat
 
         public bool TrySyncDefeatedEnemyStates(
             GameSession gameSession,
-            CombatSession combatSession)
+            CombatSession combatSession,
+            QuestObjectiveProgressSystem questProgress = null)
         {
             if (gameSession == null
                 || combatSession == null
@@ -95,7 +114,7 @@ namespace Godmist.Systems.Combat
             if (combatSession.IsDungeonWide)
             {
                 foreach (var result in DungeonCombatMembershipSystem.EncounterResults(gameSession.ActiveDungeon, combatSession))
-                    if (!TrySyncDefeatedEnemyStates(gameSession, result)) return false;
+                    if (!TrySyncDefeatedEnemyStates(gameSession, result, questProgress)) return false;
                 return true;
             }
 
@@ -130,6 +149,23 @@ namespace Godmist.Systems.Combat
                 if (!encounter.TryMarkEnemyDefeated(enemyInstanceId))
                 {
                     return false;
+                }
+
+                if (!encounter.IsReinforcement)
+                {
+                    foreach (var enemy in encounter.Enemies)
+                    {
+                        if (enemy?.InstanceId != enemyInstanceId
+                            || enemy.CharacterDefinition == null) continue;
+                        (questProgress ??= new QuestObjectiveProgressSystem(
+                            gameSession, new QuestService(gameSession)))
+                            .ReportEnemyDefeated(
+                                gameSession.ActiveDungeon.DungeonId,
+                                gameSession.ActiveDungeon.DungeonLevel,
+                                enemy.CharacterDefinition.Id,
+                                false);
+                        break;
+                    }
                 }
             }
 

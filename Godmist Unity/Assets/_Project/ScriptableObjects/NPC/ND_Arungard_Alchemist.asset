@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
   <Id>k__BackingField: npc.arungard.alchemist_01
   <DisplayName>k__BackingField: Alchemik
-  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <Portrait>k__BackingField: {fileID: 21300000, guid: 6abddf8471916a14cbbf6e800fe5336d, type: 3}
+  <DialoguePortrait>k__BackingField: {fileID: 6533000565815425487, guid: 78a74d41073ef284ba589642f50433f9, type: 3}
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: 9f0a1b2c3d4e56f7a8b9c0d1e2f3a4b5, type: 2}
   <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:

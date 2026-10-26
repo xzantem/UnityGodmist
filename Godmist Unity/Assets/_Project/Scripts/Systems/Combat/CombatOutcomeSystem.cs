@@ -15,10 +15,12 @@ namespace Godmist.Systems.Combat
 
         public void EvaluateCombatOutcome(CombatSession session)
         {
-            if (session == null || session.Outcome != CombatOutcomeState.Ongoing)
+            if (session?.Outcome == CombatOutcomeState.Victory)
             {
+                StandUpDownedAllies(session);
                 return;
             }
+            if (session == null || session.Outcome != CombatOutcomeState.Ongoing) return;
 
             EvaluateVictoryCondition(session);
             EvaluateDefeatCondition(session);
@@ -40,8 +42,17 @@ namespace Godmist.Systems.Combat
             if (!anyEnemiesLeft)
             {
                 session.Outcome = CombatOutcomeState.Victory;
+                StandUpDownedAllies(session);
                 battleLog?.Invoke("Zwyciestwo.");
             }
+        }
+
+        public static void StandUpDownedAllies(CombatSession session)
+        {
+            if (session?.Outcome != CombatOutcomeState.Victory) return;
+            foreach (var unit in session.Units)
+                if (unit?.IsPlayerSide == true && CombatReviveSystem.StandUp(unit.Character))
+                    unit.DownedTurnsRemaining = 0;
         }
 
         public void EvaluateDefeatCondition(CombatSession session)

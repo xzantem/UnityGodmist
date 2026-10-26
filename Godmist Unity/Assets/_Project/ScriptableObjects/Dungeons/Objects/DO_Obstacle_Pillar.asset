@@ -17,3 +17,5 @@ MonoBehaviour:
   <SpawnWeight>k__BackingField: 1
   <BlocksMovement>k__BackingField: 1
   <BlocksLineOfSight>k__BackingField: 1
+  <IsDestructible>k__BackingField: 1
+  <MaxHits>k__BackingField: 3

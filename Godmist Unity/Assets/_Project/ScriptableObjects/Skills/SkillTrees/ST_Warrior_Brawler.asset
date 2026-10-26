@@ -1,0 +1,267 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Warrior_Brawler
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.warrior.brawler
+  <DisplayName>k__BackingField: Awanturnik
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +1% maksymalnej w\u015Bciek\u0142o\u015Bci;
+      2% faktycznie wydanej w\u015Bciek\u0142o\u015Bci zamienia si\u0119 w zdrowie."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.warrior.brawler.bleeding_destruction
+    <DisplayName>k__BackingField: "Wy\u0142adowanie"
+    <Description>k__BackingField: "Zu\u017Cywa 20\u2013100 furii. Zadaje 100% ataku
+      +1% za ka\u017Cdy wydany punkt (maks. 200%)."
+    <Icon>k__BackingField: {fileID: 21300000, guid: c38cf37389e2b6047a3ffd4dd11fa278, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 26f24945ef34d9242b9a36e83e755724, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.wounding
+    <DisplayName>k__BackingField: "\u017B\u0105dza Zwyci\u0119stwa"
+    <Description>k__BackingField: "Zabicie celu Wy\u0142adowaniem zwraca 25%/50%
+      zu\u017Cytej furii."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 2f2b4fc84b5416b45ac29bb54f4ead24, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.bleeding_destruction
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.thirst_revenge
+    <DisplayName>k__BackingField: Pragnienie Zemsty
+    <Description>k__BackingField: "Przyjmowanie obra\u017Ce\u0144 generuje 1/2/3
+      w\u015Bciek\u0142o\u015Bci za ka\u017Cde utracone 5% maksymalnego zdrowia"
+    <Icon>k__BackingField: {fileID: 21300000, guid: a6ccd268b5738cb459d290f53a28f054, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.rage
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.rage
+    <DisplayName>k__BackingField: "Podsycanie W\u015Bciek\u0142o\u015Bci"
+    <Description>k__BackingField: "Zwi\u0119ksza ilo\u015B\u0107 w\u015Bciek\u0142o\u015Bci
+      generowanej przez Ci\u0119cie o 5 i zmniejsza efekt kary za niedob\xF3r w\u015Bciek\u0142o\u015Bci
+      o 50%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: fce05fecd2a7cd941a93a331468cced1, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.furious_strikes
+    <DisplayName>k__BackingField: "Oszcz\u0119dny Sza\u0142"
+    <Description>k__BackingField: "Zmniejsza koszt w\u015Bciek\u0142o\u015Bci umiej\u0119tno\u015Bci
+      ofensywnych o 10%/20%/30%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: dba5c7bb5cf48284cb90ecbcb2805e67, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.rage
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.larger_wound
+    <DisplayName>k__BackingField: "Prze\u0142amanie"
+    <Description>k__BackingField: "Wy\u0142adowanie ignoruje 20%/40% obrony fizycznej;
+      dwukrotnie wi\u0119cej przy zu\u017Cyciu co najmniej 50 furii."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7a56153d4921e1b47924fb5dd128bee9, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.bleeding_destruction
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.revenge
+    <DisplayName>k__BackingField: "Zab\xF3jczy Sza\u0142"
+    <Description>k__BackingField: "Ka\u017Cdy posiadany punkt w\u015Bciek\u0142o\u015Bci
+      zwi\u0119ksza szans\u0119 na obra\u017Cenia krytyczne o 0.05%/0.1%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: e5efdce1e3c25654dadc5a339a7354bb, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.wounding
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.release_rage
+    <DisplayName>k__BackingField: "Pok\u0142ady W\u015Bciek\u0142o\u015Bci"
+    <Description>k__BackingField: "Zwi\u0119ksza maksymaln\u0105 ilo\u015B\u0107
+      punkt\xF3w w\u015Bciek\u0142o\u015Bci o 10/20/30"
+    <Icon>k__BackingField: {fileID: 21300000, guid: c38cf37389e2b6047a3ffd4dd11fa278, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.shout
+    <DisplayName>k__BackingField: "Og\u0142uszaj\u0105cy Okrzyk"
+    <Description>k__BackingField: "[90%] Og\u0142usza na 1 tur\u0119, lub na 3 tury,
+      je\u015Bli zu\u017Cyje co najmniej 50 w\u015Bciek\u0142o\u015Bci"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7f4e7cfc2371d2342b950e53cdb86417, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: cf23f6786fea4c24db7d6538d445d5fc, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.spiked_armor
+    <DisplayName>k__BackingField: "Pancerna Si\u0142a"
+    <Description>k__BackingField: "Zwi\u0119ksza atak o 0.1 za ka\u017Cdy punkt obrony
+      fizycznej"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8ff33553de674f5418778b294964d0e7, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.whirlwind
+    <DisplayName>k__BackingField: "M\u0142yniec"
+    <Description>k__BackingField: "Zadaje 25% losowych obra\u017Ce\u0144 3 razy"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 377a1a6a1f405884782ef4d847b4cd55, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: b686cbbe524543d448ad9bbd058609a2, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.third_time
+    <DisplayName>k__BackingField: Do Trzech Razy Sztuka
+    <Description>k__BackingField: "Co trzecie Ci\u0119cie z rz\u0119du na tym samym
+      celu ma zwi\u0119kszone obra\u017Cenia o 0.25%/0.5% za ka\u017Cdy posiadany
+      punkt w\u015Bciek\u0142o\u015Bci"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 29dfbe81d66f2b245b77ce52a4f4e8d9, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.revenge
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.amok
+    <DisplayName>k__BackingField: Amok
+    <Description>k__BackingField: "Ciosy krytyczne zwi\u0119kszaj\u0105 maksymaln\u0105
+      w\u015Bciek\u0142o\u015B\u0107 o 20/30/40 na 5 tur"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 407bb25d932941c4ab961ea5eb534d29, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.release_rage
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.unawareness
+    <DisplayName>k__BackingField: Bezkarna Agresja
+    <Description>k__BackingField: "Ataki na celach og\u0142uszonych generuj\u0105
+      50%/100% wi\u0119cej w\u015Bciek\u0142o\u015Bci"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 42f385482897f4846a27602b66a6b34d, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.shout
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.aggressive_nature
+    <DisplayName>k__BackingField: Agresywna Natura
+    <Description>k__BackingField: "Pasywnie generuje 3 w\u015Bciek\u0142o\u015Bci
+      na tur\u0119"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7ca591f7c50f19840baab6106a728592, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.conflagration
+    <DisplayName>k__BackingField: "Centrum Po\u017Cogi"
+    <Description>k__BackingField: "Ka\u017Cdy cios zadany przez M\u0142yniec ma 15%
+      szansy na wyrz\u0105dzenie podpalenia 30%/50% na 2 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 522bd15c08fc81a419f380ee6e33d4c0, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.whirlwind
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.force_moment
+    <DisplayName>k__BackingField: "Moment Si\u0142y"
+    <Description>k__BackingField: "Zwi\u0119ksza ilo\u015B\u0107 cios\xF3w zadawanych
+      przez M\u0142yniec o 1/2"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0757947ae27314944bf0e72f44d869cc, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.conflagration
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.adrenaline
+    <DisplayName>k__BackingField: Adrenalina
+    <Description>k__BackingField: "Zwi\u0119ksza szybko\u015B\u0107 o 4 za ka\u017Cde
+      25 punkt\xF3w w\u015Bciek\u0142o\u015Bci"
+    <Icon>k__BackingField: {fileID: 21300000, guid: edf77a698a7397c44a3e5653af615456, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.death_wish
+    <DisplayName>k__BackingField: "Pragnienie \u015Amierci"
+    <Description>k__BackingField: "Zu\u017Cywa 25% maksymalnej lub 20 w\u015Bciek\u0142o\u015Bci
+      (wi\u0119ksze) na tur\u0119, zwi\u0119ksza zadawane i przyjmowane obra\u017Cenia
+      o 50%, ka\u017Cde \u015Bmiertelne obra\u017Cenia s\u0105 negowane, ko\u0144czy
+      efekt gdy braknie w\u015Bciek\u0142o\u015Bci"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 50b641a2142dc134aa7c4c1cbdc35653, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 15d4b41dc96b0c64cba48c00ec1bf28b, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.brawler.desperation
+    <DisplayName>k__BackingField: Desperacja
+    <Description>k__BackingField: "Zwi\u0119ksza bonus zadawanych i przyjmowanych
+      obra\u017Ce\u0144 Pragnienia \u015Amierci o 25%/50%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: c3473cbb7823f264cbba76634106a8df, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.brawler.death_wish
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

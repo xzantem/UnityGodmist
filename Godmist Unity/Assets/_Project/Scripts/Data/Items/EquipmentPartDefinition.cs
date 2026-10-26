@@ -16,6 +16,7 @@ namespace Godmist.Data.Items
         [field: SerializeField, TextArea(2, 4)] public string Description { get; private set; } = string.Empty;
         [field: SerializeField] public Sprite Icon { get; private set; }
         [field: SerializeField] public CharacterClassData RequiredClass { get; private set; }
+        [field: SerializeField] public bool IsStarterOnly { get; private set; }
         [field: SerializeField] public EquipmentPartKind Kind { get; private set; }
         [field: SerializeField] public EquipmentPartLevelBracket LevelBracket { get; private set; }
         [field: SerializeField] public EquipmentPartStats Stats { get; private set; } = new();

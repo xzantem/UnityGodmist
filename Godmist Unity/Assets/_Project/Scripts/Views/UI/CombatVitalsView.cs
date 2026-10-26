@@ -5,6 +5,98 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace Godmist.Views.UI
 {
+    internal static class CombatBarPresentation
+    {
+        public static void FitFrame(Slider slider)
+        {
+            // The authored fill area is inset 6px horizontally and 3px vertically.
+            // slider_track has 12/6px slice borders: at multiplier 1 the frame
+            // consumes a 12px bar's entire height and overlaps its fill.
+            var frame = slider != null ? slider.transform.Find("GothicBarFrame")?.GetComponent<Image>() : null;
+            if (frame?.sprite != null && frame.sprite.name == "slider_track")
+                frame.pixelsPerUnitMultiplier = 2f;
+        }
+    }
+
+    public static class CombatHealthPresentation
+    {
+        // Matches the authored shield fill in the combat vitals prefab.
+        private static readonly Color ShieldColor = new(105f / 255f, 201f / 255f, 1f);
+
+        public static string Format(float health, float maximum, int shield)
+        {
+            var value = $"{health:0}/{maximum:0}";
+            return shield > 0 ? $"{value} (+{shield})" : value;
+        }
+
+        public static string Format(Godmist.Runtime.Characters.CharacterInstance character)
+            => Format(character.CurrentHealth, Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f),
+                character.ShieldPool?.TotalShield ?? 0);
+
+        public static void UpdateShieldOverlay(ref Image overlay, Slider health, int shield, float maximum, float opacity = 1f)
+            => UpdateShieldOverlay(ref overlay, health?.fillRect?.GetComponent<Image>(), shield, maximum, opacity);
+
+        public static void UpdateShieldOverlay(ref Image overlay, Image healthFill, int shield, float maximum, float opacity = 1f)
+        {
+            if (healthFill == null || shield <= 0)
+            {
+                if (overlay != null) overlay.gameObject.SetActive(false);
+                return;
+            }
+
+            // This is a visual layer of the explicitly bound HP fill, independent
+            // of its current HP width. It introduces no prefab references.
+            var area = healthFill.rectTransform.parent as RectTransform;
+            if (area == null) return;
+            if (overlay == null)
+            {
+                var node = new GameObject("ShieldOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                node.layer = healthFill.gameObject.layer;
+                node.transform.SetParent(area, false);
+                overlay = node.GetComponent<Image>();
+                var layout = node.AddComponent<LayoutElement>();
+                layout.ignoreLayout = true;
+                overlay.raycastTarget = false;
+            }
+
+            overlay.gameObject.SetActive(true);
+            overlay.sprite = healthFill.sprite;
+            overlay.type = Image.Type.Simple;
+            overlay.color = new Color(ShieldColor.r, ShieldColor.g, ShieldColor.b, opacity);
+            overlay.maskable = healthFill.maskable;
+            var rect = overlay.rectTransform;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(Mathf.Clamp01(shield / Mathf.Max(1f, Mathf.Max(maximum, shield))), 1f);
+            rect.pivot = new Vector2(0f, 0f);
+            rect.sizeDelta = new Vector2(0f, Mathf.Clamp(area.rect.height * .25f, 1f, 2f));
+            rect.anchoredPosition = Vector2.zero;
+            rect.SetAsLastSibling();
+        }
+    }
+
+    public static class ActionPointPipPresentation
+    {
+        public static void Apply(Image image, int currentUnits, int index, Color available, Color spent, int remainingUnits = -1, Color? preview = null)
+        {
+            var fill = ActionPointUnits.PipFill(currentUnits, index);
+            var meshFill = image.GetComponent<ActionPointPipFill>();
+            if (meshFill != null)
+            {
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+                meshFill.SetFill(fill, remainingUnits < 0 ? fill : ActionPointUnits.PipFill(remainingUnits, index),
+                    available, preview ?? available, spent);
+                return;
+            }
+            image.type = Image.Type.Filled;
+            image.fillMethod = Image.FillMethod.Horizontal;
+            image.fillOrigin = (int)Image.OriginHorizontal.Left;
+            // Empty pips stay visible in the existing spent color.
+            image.fillAmount = fill > 0f ? fill : 1f;
+            image.color = fill > 0f ? available : spent;
+        }
+    }
+
     public sealed class CombatVitalsView : MonoBehaviour
     {
         [SerializeField] private Slider healthSlider, shieldSlider, resourceSlider;
@@ -20,21 +112,28 @@ namespace Godmist.Views.UI
         {
             if (unit?.Character == null) return;
             var c=unit.Character;
-            var maximum=Mathf.Max(1,Mathf.RoundToInt(c.Stats?.MaxHealth.GetValue()??1));
+            var maximum=Mathf.Max(1f,c.Stats?.MaxHealth.GetValue()??1f);
             var shield=c.ShieldPool?.TotalShield??0;
             Set(healthSlider,c.CurrentHealth,maximum);
-            if (healthValueText!=null) healthValueText.text=$"{c.CurrentHealth}/{maximum}"+(shield>0?$" (+{shield})":"");
+            CombatBarPresentation.FitFrame(healthSlider);
+            if (healthValueText!=null) healthValueText.text=CombatHealthPresentation.Format(c.CurrentHealth,maximum,shield);
             if(shieldSlider!=null){shieldSlider.gameObject.SetActive(shield>0);Set(shieldSlider,shield,Mathf.Max(maximum,shield));}
             var resource=c.ResourcePool;
             if(resourceSlider!=null){resourceSlider.gameObject.SetActive(resource!=null&&resource.MaxValue>0);Set(resourceSlider,resource?.CurrentValue??0,resource?.MaxValue??1);}
-            if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.Initialize(null,CombatResourceColors.ResourceName(resource.ResourceType),$"{resource.CurrentValue}/{resource.MaxValue}");}
+            if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);}
             if(resourceValueText!=null)resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";
             var remaining=RemainingAfterPreview(unit.CurrentActionPoints,previewCost);
-            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{unit.CurrentActionPoints}/{unit.MaxActionPoints} AP · potrzeba {previewCost}":previewCost>0?$"{unit.CurrentActionPoints} → {remaining} AP":$"{unit.CurrentActionPoints}/{unit.MaxActionPoints} AP";
+            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} AP":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP";
             if(actionPointPipTemplate==null||actionPointPipRoot==null)return;
             actionPointPipTemplate.gameObject.SetActive(false);
-            while(pips.Count<unit.MaxActionPoints)pips.Add(Instantiate(actionPointPipTemplate,actionPointPipRoot));
-            for(var i=0;i<pips.Count;i++){pips[i].gameObject.SetActive(i<unit.MaxActionPoints);pips[i].color=i>=unit.CurrentActionPoints?spentColor:i>=remaining?previewColor:availableColor;}
+            var count = ActionPointUnits.PipCount(Mathf.Max(unit.MaxActionPoints, unit.CurrentActionPoints));
+            while (pips.Count < count) pips.Add(Instantiate(actionPointPipTemplate, actionPointPipRoot));
+            for (var i = 0; i < pips.Count; i++)
+            {
+                pips[i].gameObject.SetActive(i < count);
+                ActionPointPipPresentation.Apply(pips[i], unit.CurrentActionPoints, i,
+                    availableColor, spentColor, remaining, previewColor);
+            }
         }
         private static void Set(Slider slider,float value,float maximum){if(slider==null)return;slider.minValue=0;slider.maxValue=Mathf.Max(1,maximum);slider.SetValueWithoutNotify(value);}
     }

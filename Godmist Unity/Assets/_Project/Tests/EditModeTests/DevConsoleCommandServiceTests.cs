@@ -22,6 +22,112 @@ namespace Godmist.Tests.EditMode
 {
     public class DevConsoleCommandServiceTests
     {
+        [TestCase(0)] [TestCase(-42)] [TestCase(int.MinValue)] [TestCase(int.MaxValue)]
+        public void SeedOverrideAcceptsEntireSignedGenerationRange(int seed)
+        {
+            var console=new DevConsoleCommandService();var oldRandom=Random.state;
+            try
+            {
+                var result=console.Execute("seed "+seed,null,null);
+                Assert.That(result.Success,Is.True,result.Message);
+                Assert.That(console.DebugSeed,Is.EqualTo(seed));
+            }
+            finally{Random.state=oldRandom;}
+        }
+
+        [TestCase(171026)] [TestCase(-2147483648)]
+        public void SeedWithoutArgumentReportsActualExpeditionAndPreservesRandomAndDebugOverride(int seed)
+        {
+            var oldRandom=Random.state;
+            try
+            {
+                var console=new DevConsoleCommandService();
+                Assert.That(console.Execute("seed 12345",null,null).Success,Is.True);
+                var session=new GameSession();
+                var dungeon=new Godmist.Runtime.Dungeons.DungeonInstance("dungeon.forest.expedition",seed,17,DungeonLength.Long);
+                dungeon.TryAddFloor(new Godmist.Runtime.Dungeons.DungeonFloorInstance(0));
+                dungeon.TryAddFloor(new Godmist.Runtime.Dungeons.DungeonFloorInstance(1));
+                dungeon.TrySetCurrentFloorIndex(1);dungeon.SetPlayerPosition(new Vector2(12.5f,-4.25f));
+                session.TrySetActiveDungeon(dungeon);
+                var before=Random.state;
+                var result=console.Execute("seed",session,null);
+                Assert.That(result.Success,Is.True,result.Message);
+                Assert.That(result.Message,Does.Contain("Seed wyprawy: "+seed));
+                Assert.That(result.Message,Does.Contain("dungeon.forest.expedition"));
+                Assert.That(result.Message,Does.Contain("Long").And.Contain("poziom: 17").And.Contain("Piętro: 1"));
+                Assert.That(result.Message,Does.Contain("(12.50, -4.25)"));
+                Assert.That(console.DebugSeed,Is.EqualTo(12345));
+                Assert.That(Random.state,Is.EqualTo(before),"Reading the current seed must not restart random generation.");
+                Assert.That(dungeon.Seed,Is.EqualTo(seed));
+            }
+            finally{Random.state=oldRandom;}
+        }
+
+        [Test]
+        public void SeedQueryWithoutExpeditionDoesNotPretendDebugSeedIsCurrentMapSeed()
+        {
+            var console=new DevConsoleCommandService();var oldRandom=Random.state;
+            try
+            {
+                Assert.That(console.Execute("seed",null,null).Success,Is.False);
+                console.Execute("seed 42",null,null);
+                var result=console.Execute("seed",new GameSession(),null);
+                Assert.That(result.Success,Is.False);Assert.That(result.Message,Does.Contain("Brak aktywnej wyprawy"));
+                Assert.That(result.Message,Does.Contain("Seed debugowy").And.Contain("42"));
+                Assert.That(console.Execute("help seed",null,null).Message,Does.Contain("seed [number]"));
+                Assert.That(DevConsoleSuggestionService.GetSuggestions("see",null,null,null),Does.Contain("seed"));
+            }
+            finally{Random.state=oldRandom;}
+        }
+
+        [TestCase("seed nope")] [TestCase("seed 1 2")] [TestCase("seed 2147483648")]
+        public void InvalidSeedArgumentsDoNotAlterRandomOrDebugOverride(string command)
+        {
+            var console=new DevConsoleCommandService();var oldRandom=Random.state;
+            try
+            {
+                console.Execute("seed -42",null,null);var before=Random.state;
+                Assert.That(console.Execute(command,new GameSession(),null).Success,Is.False);
+                Assert.That(console.DebugSeed,Is.EqualTo(-42));Assert.That(Random.state,Is.EqualTo(before));
+            }
+            finally{Random.state=oldRandom;}
+        }
+
+        [Test]
+        public void NoAggroSupportsToggleAndExplicitModesWithoutPersistingIntoNewSession()
+        {
+            var session=new GameSession();var console=new DevConsoleCommandService();
+            Assert.That(session.DebugEnemyAggroDisabled,Is.False);
+            Assert.That(console.Execute("noaggro",session,null).Success,Is.True);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.True);
+            Assert.That(console.Execute("noaggro on",session,null).Success,Is.True);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.True);
+            Assert.That(new DevConsoleCommandService().Execute("noaggro off",session,null).Success,Is.True);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.False);
+            console.Execute("noaggro ON",session,null);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.True);
+            console.Execute("noaggro",session,null);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.False);
+            Assert.That(new GameSession().DebugEnemyAggroDisabled,Is.False);
+        }
+
+        [TestCase("noaggro invalid")] [TestCase("noaggro on off")]
+        public void NoAggroRejectsInvalidArgumentsWithoutChangingState(string command)
+        {
+            var session=new GameSession{DebugEnemyAggroDisabled=true};
+            Assert.That(new DevConsoleCommandService().Execute(command,session,null).Success,Is.False);
+            Assert.That(session.DebugEnemyAggroDisabled,Is.True);
+        }
+
+        [Test]
+        public void NoAggroRequiresSessionAndAppearsInHelpAndAutocomplete()
+        {
+            var console=new DevConsoleCommandService();
+            Assert.That(console.Execute("noaggro",null,null).Success,Is.False);
+            Assert.That(console.Execute("help noaggro",null,null).Message,Does.Contain("noaggro [on|off]"));
+            Assert.That(DevConsoleSuggestionService.GetSuggestions("noa",null,null,null),Does.Contain("noaggro"));
+        }
+
         [TestCase("sethonor -125", -125)]
         [TestCase("sethonor jerzy 250", 250)]
         public void SetHonorSetsExactValue(string command, int expected)
@@ -604,8 +710,8 @@ namespace Godmist.Tests.EditMode
             {
                 Character = jerzy,
                 Position = new GridPosition(3, 4),
-                CurrentActionPoints = 12,
-                MaxActionPoints = 15,
+                CurrentActionPoints = 1200,
+                MaxActionPoints = 1500,
                 IsPlayerSide = true
             };
 

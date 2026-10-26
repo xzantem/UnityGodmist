@@ -19,6 +19,35 @@ namespace Godmist.Tests.EditMode
     public class TacticalObstacleTests
     {
         private const string Root = "Assets/_Project/";
+        [Test]
+        public void SarcophagusCombatSessionBlocksBothCellsAndReleasesBothOnDeactivation()
+        {
+            var definition = AssetDatabase.LoadAssetAtPath<ObstacleDungeonObjectDefinition>(
+                Root + "ScriptableObjects/Dungeons/Objects/DO_Obstacle_Sarcophagus.asset");
+            var source = new Godmist.Runtime.Dungeons.ObstacleDungeonObjectInstance("sarcophagus", definition, Vector2Int.right);
+            var cells = new List<Vector2Int>();
+            for (var x = 0; x < 4; x++) for (var y = 0; y < 3; y++) cells.Add(new Vector2Int(x, y));
+            var context = new DungeonCombatContext("dungeon", 0, "encounter", "room", Vector2Int.zero,
+                new Vector2Int(3, 0), cells, null, new[] {
+                    new DungeonCombatMapObjectSnapshot("sarcophagus", DungeonObjectType.Obstacle,
+                        source.Position, true, false, source) });
+            Assert.That(new DungeonBattleGridFactory().TryCreate(context, out var grid), Is.True);
+            var session = new CombatSession { Grid = grid, DungeonContext = context };
+            typeof(CombatSessionFactory).GetMethod("AddDungeonMapObjects", BindingFlags.NonPublic | BindingFlags.Static)
+                .Invoke(null, new object[] { session, context });
+            var obstacle = session.MapObjects.OfType<ObstacleCombatMapObject>().Single();
+            var south = DungeonBattleGridFactory.ToBattlePosition(context, Vector2Int.right);
+            var north = DungeonBattleGridFactory.ToBattlePosition(context, Vector2Int.one);
+            Assert.That(obstacle.EnumerateOccupiedPositions(), Is.EquivalentTo(new[] { south, north }));
+            Assert.That(obstacle.Occupies(south), Is.True);
+            Assert.That(obstacle.Occupies(north), Is.True);
+            Assert.That(obstacle.BlocksLineOfSight, Is.False);
+            source.TryDeactivate();
+            Assert.That(obstacle.Occupies(south), Is.False);
+            Assert.That(obstacle.Occupies(north), Is.False);
+            Assert.That(obstacle.BlocksMovement, Is.False);
+        }
+
         [TestCase("Sarcophagus", false)]
         [TestCase("Rubble", false)]
         [TestCase("Pillar", true)]
@@ -39,7 +68,7 @@ namespace Godmist.Tests.EditMode
             var session = new CombatSession { Grid = grid, DungeonContext = context };
             session.MapObjects.Add(new ObstacleCombatMapObject("obstacle",new GridPosition(1,0),true,blocksSight));
             var unit = new BattleUnit { Position = new GridPosition(0,0), IsPlayerSide = true,
-                CurrentActionPoints = 20, Character = new CharacterInstance { CharacterId = "unit",
+                CurrentActionPoints = 2000, Character = new CharacterInstance { CharacterId = "unit",
                     LifeState = CharacterLifeState.Alive, CurrentHealth = 10,
                     Stats = new CharacterStats { Speed = new Stat(20) } } };
             session.Units.Add(unit); session.ActiveUnit = unit;
@@ -58,7 +87,7 @@ namespace Godmist.Tests.EditMode
             var forced = typeof(SkillExecutionSystem).GetMethod("CanForcedDisplacementMove",BindingFlags.NonPublic|BindingFlags.Static);
             Assert.That((bool)forced.Invoke(null,new object[] { session,unit,new GridPosition(1,0),1,0 }),Is.False);
             Assert.That(unit.Position,Is.EqualTo(new GridPosition(0,0)),"Preview must not mutate the unit.");
-            Assert.That(unit.CurrentActionPoints,Is.EqualTo(20));
+            Assert.That(unit.CurrentActionPoints,Is.EqualTo(2000));
         }
 
         [Test]
@@ -84,6 +113,33 @@ namespace Godmist.Tests.EditMode
                 Assert.That(spawner.ValidateObstaclePrefabs(out _),Is.False);
             }
             finally { Object.DestroyImmediate(go);Object.DestroyImmediate(prefabGo);Object.DestroyImmediate(def); }
+        }
+
+        [Test]
+        public void RuntimeColliderGeometry_UsesColliderTransformAndPreservesWorldBottom()
+        {
+            var root = new GameObject("obstacle-root");
+            var colliderObject = new GameObject("child-collider");
+            colliderObject.transform.SetParent(root.transform, false);
+            var view = root.AddComponent<DungeonObstacleView>();
+            var collider = colliderObject.AddComponent<BoxCollider2D>();
+            colliderObject.transform.localPosition = new Vector3(.13f, .17f, 0f);
+            colliderObject.transform.localScale = new Vector3(.5f, .75f, 1f);
+            collider.size = new Vector2(1.4f, 1.2f);
+            typeof(DungeonObstacleView).GetField("blockingCollider", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(view, collider);
+            root.transform.localScale = new Vector3(1.8f, .7f, 1f);
+            var bottom = collider.bounds.min.y;
+
+            try
+            {
+                Assert.That(view.ConfigureRuntimeColliderGeometry(new Vector2(1f, .5f)), Is.True);
+                Physics2D.SyncTransforms();
+                Assert.That(collider.bounds.size.x, Is.EqualTo(1f).Within(.0001f));
+                Assert.That(collider.bounds.size.y, Is.EqualTo(.5f).Within(.0001f));
+                Assert.That(collider.bounds.min.y, Is.EqualTo(bottom).Within(.0001f));
+            }
+            finally { Object.DestroyImmediate(root); }
         }
 
         [Test]

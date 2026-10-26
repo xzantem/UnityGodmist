@@ -1,0 +1,524 @@
+{
+  "jewelry": [
+    {
+      "slot": "Ring",
+      "metals": [
+        {
+          "material": "Sztabka żelaza",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MinAttack",
+              "value": 2,
+              "operation": "FlatBase"
+            },
+            {
+              "target": "Stat",
+              "key": "MaxAttack",
+              "value": 2,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka niklu",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "CritChance",
+              "value": 0.01,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka miedzi",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "WeaponAccuracy",
+              "value": 2,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka cyny",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "CritDamage",
+              "value": 0.06,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka stali",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MinAttack",
+              "value": 9,
+              "operation": "FlatBase"
+            },
+            {
+              "target": "Stat",
+              "key": "MaxAttack",
+              "value": 9,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka inwaru",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "CritChance",
+              "value": 0.015,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka żelaza meteorytowego",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "WeaponAccuracy",
+              "value": 3,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka brązu",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "CritDamage",
+              "value": 0.08,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "Necklace",
+      "metals": [
+        {
+          "material": "Sztabka żelaza",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MaxHealth",
+              "value": 30,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka niklu",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "PhysicalDefense",
+              "value": 6,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka miedzi",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MagicalDefense",
+              "value": 5,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka cyny",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "Dodge",
+              "value": 1,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka stali",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MaxHealth",
+              "value": 125,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka inwaru",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "PhysicalDefense",
+              "value": 30,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka żelaza meteorytowego",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MagicalDefense",
+              "value": 25,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka brązu",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "Dodge",
+              "value": 2,
+              "operation": "FlatBase"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "Bracelet",
+      "metals": [
+        {
+          "material": "Sztabka żelaza",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Bleed",
+              "value": 0.02,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka niklu",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Poison",
+              "value": 0.02,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka miedzi",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Fire",
+              "value": 0.02,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka cyny",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Suppression",
+              "value": 0.01,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka stali",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Bleed",
+              "value": 0.03,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka inwaru",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Poison",
+              "value": 0.03,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka żelaza meteorytowego",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Fire",
+              "value": 0.03,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka brązu",
+          "modifiers": [
+            {
+              "target": "Resistance",
+              "key": "Suppression",
+              "value": 0.02,
+              "operation": "FlatAbsolute"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "slot": "Earrings",
+      "metals": [
+        {
+          "material": "Sztabka żelaza",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "HealingPower",
+              "value": 4,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka niklu",
+          "modifiers": [
+            {
+              "target": "GameplayVariable",
+              "key": "ResourceGenerationPercent",
+              "value": 0.05,
+              "reference": "",
+              "operation": "Percent"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka miedzi",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MaxResource",
+              "value": 0.1,
+              "operation": "Percent"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka cyny",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "Speed",
+              "value": 2,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka stali",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "HealingPower",
+              "value": 18,
+              "operation": "FlatBase"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka inwaru",
+          "modifiers": [
+            {
+              "target": "GameplayVariable",
+              "key": "ResourceGenerationPercent",
+              "value": 0.07,
+              "reference": "",
+              "operation": "Percent"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka żelaza meteorytowego",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "MaxResource",
+              "value": 0.12,
+              "operation": "Percent"
+            }
+          ]
+        },
+        {
+          "material": "Sztabka brązu",
+          "modifiers": [
+            {
+              "target": "Stat",
+              "key": "Speed",
+              "value": 4,
+              "operation": "FlatBase"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "gems": [
+    {
+      "material": "Granat",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageAgainstTag",
+          "value": 0.03,
+          "reference": "Undead",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Szafir",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageAgainstTag",
+          "value": 0.025,
+          "reference": "Beast",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Ametyst",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageInEnvironment",
+          "value": 0.025,
+          "reference": "Indoor",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Cytryn",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageInEnvironment",
+          "value": 0.02,
+          "reference": "Warm",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Szmaragd",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageAgainstTag",
+          "value": 0.015,
+          "reference": "Human",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Onyks",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageAgainstTag",
+          "value": 0.03,
+          "reference": "Demon",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Rubin",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageInEnvironment",
+          "value": 0.025,
+          "reference": "Outdoor",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Diament",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageInEnvironment",
+          "value": 0.03,
+          "reference": "Cold",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Topaz",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "ExperienceGainPercent",
+          "value": 0.01,
+          "reference": "",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Bursztyn",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "GoldGainPercent",
+          "value": 0.015,
+          "reference": "",
+          "operation": "Percent"
+        }
+      ]
+    },
+    {
+      "material": "Obsydian",
+      "modifiers": [
+        {
+          "target": "GameplayVariable",
+          "key": "DamageDealtPercentInDungeonTheme",
+          "value": 0.035,
+          "reference": "Catacombs",
+          "operation": "Percent"
+        }
+      ]
+    }
+  ]
+}

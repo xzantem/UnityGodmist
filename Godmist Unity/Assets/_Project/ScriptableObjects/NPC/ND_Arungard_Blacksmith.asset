@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
   <Id>k__BackingField: npc.arungard.blacksmith_01
   <DisplayName>k__BackingField: Kowal
-  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <Portrait>k__BackingField: {fileID: 21300000, guid: 276279f86fb1478408a5f0be54bbc244, type: 3}
+  <DialoguePortrait>k__BackingField: {fileID: 3115952456230702643, guid: c4d72ca5a8fb6204cbcdf54c008705fc, type: 3}
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: ebdb8afc304932946a12e6d4136facbc, type: 2}
+  <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:
   - {fileID: 11400000, guid: bb07dbf577b3d514cb3c7719fa21fc58, type: 2}
   - {fileID: 11400000, guid: 11f7d8f996f001a4d97ed3762c7c0dce, type: 2}

@@ -38,21 +38,51 @@ namespace Godmist.Systems.Dungeons
                 return;
             }
 
+            var reserveExit = dungeon.LengthProfile != null
+                && !(dungeon.Definition.BossEncounterDefinition != null && floor == dungeon.Floors[dungeon.Floors.Count-1]);
             var candidateRooms = GetCandidateRooms(
                 dungeon.Definition.RoomTemplateCatalog,
-                floor);
+                floor, reserveExit);
 
             var candidateDefinitions = GetCandidateDefinitions(
                 dungeon.Definition.EncounterDefinitions);
 
-            if (candidateRooms.Count == 0 || candidateDefinitions.Count == 0) return;
+            if (candidateRooms.Count == 0 || candidateDefinitions.Count == 0)
+            {
+                if (dungeon.LengthProfile != null)
+                    throw new InvalidOperationException($"Missing encounter rooms or definitions on {dungeon.DungeonId}/{floor.FloorIndex}.");
+                return;
+            }
 
             Shuffle(candidateRooms, random);
+            if (reserveExit)
+            {
+                var finalIndex = candidateRooms.FindIndex(r => r.RoomType == DungeonRoomType.Final);
+                if (finalIndex < 0) throw new InvalidOperationException("Missing final encounter room.");
+                var finalRoom = candidateRooms[finalIndex]; candidateRooms.RemoveAt(finalIndex); candidateRooms.Insert(0,finalRoom);
+            }
             Shuffle(candidateDefinitions, random);
 
             var maximumCount = Mathf.Min(
                 dungeon.Definition.MaxEncounterCountPerFloor,
                 candidateRooms.Count);
+            var requestedMinimum = dungeon.Definition.MinEncounterCountPerFloor;
+            if (dungeon.LengthProfile is { } lengthProfile)
+            {
+                var bossSlot = dungeon.Definition.BossEncounterDefinition != null
+                    && floor == dungeon.Floors[dungeon.Floors.Count-1] ? 1 : 0;
+                // Extra branch exploration must not silently expand the combat budget.
+                var budgetRooms = 0;
+                foreach (var room in floor.Rooms)
+                    if (!room.IsBranchTransitRoom) budgetRooms++;
+                requestedMinimum = Mathf.Max(lengthProfile.MinEncountersPerFloor,
+                    Mathf.CeilToInt(budgetRooms*.3f)) - bossSlot;
+                maximumCount = Mathf.Min(lengthProfile.MaxEncountersPerFloor,
+                    Mathf.FloorToInt(budgetRooms*.4f)) - bossSlot;
+                if (maximumCount < requestedMinimum || candidateRooms.Count < requestedMinimum)
+                    throw new InvalidOperationException($"Cannot meet encounter density on {dungeon.DungeonId}/{floor.FloorIndex}.");
+                maximumCount = Mathf.Min(maximumCount,candidateRooms.Count);
+            }
 
             if (!dungeon.Definition.AllowEncounterDefinitionRepeats)
             {
@@ -61,18 +91,25 @@ namespace Godmist.Systems.Dungeons
                     candidateDefinitions.Count);
             }
 
+            if (dungeon.LengthProfile != null && maximumCount < requestedMinimum)
+                throw new InvalidOperationException($"Insufficient distinct encounter definitions on {dungeon.DungeonId}/{floor.FloorIndex}.");
+
             if (maximumCount <= 0) return;
 
             var minimumCount = Mathf.Min(
-                dungeon.Definition.MinEncounterCountPerFloor,
+                requestedMinimum,
                 maximumCount);
 
             var encounterCount = minimumCount == maximumCount
                 ? minimumCount
                 : random.Next(minimumCount, maximumCount + 1);
+            if (dungeon.LengthProfile?.MaxBranchTransitRoomCount > 0)
+                DungeonEncounterRoomSelector.Prioritize(floor, candidateRooms, encounterCount,
+                    dungeon.Definition.BossEncounterDefinition != null && floor == dungeon.Floors[dungeon.Floors.Count - 1]);
             var enemyAnchorResolver = new DungeonEnemyAnchorResolver();
 
-            for (var index = 0; index < encounterCount; index++)
+            var placedCount = 0;
+            for (var index = 0; index < candidateRooms.Count && placedCount < encounterCount; index++)
             {
                 var room = candidateRooms[index];
                 var definition = GetEncounterDefinition(
@@ -107,11 +144,12 @@ namespace Godmist.Systems.Dungeons
                     instanceId,
                     enemyAnchorResolver);
 
-                if (encounter != null)
-                {
-                    floor.TryAddEncounter(encounter);
-                }
+                if (encounter != null && floor.TryAddEncounter(encounter)) placedCount++;
+                else if (reserveExit && room.RoomType == DungeonRoomType.Final)
+                    throw new InvalidOperationException("Cannot place required final encounter.");
             }
+            if (dungeon.LengthProfile != null && placedCount < minimumCount)
+                throw new InvalidOperationException($"Insufficient legal encounter anchors on {dungeon.DungeonId}/{floor.FloorIndex}.");
         }
 
         private static void PlaceBossEncounter(DungeonInstance dungeon)
@@ -337,15 +375,17 @@ namespace Godmist.Systems.Dungeons
 
         private static List<DungeonRoomInstance> GetCandidateRooms(
             DungeonRoomTemplateCatalog catalog,
-            DungeonFloorInstance floor)
+            DungeonFloorInstance floor, bool includeFinal)
         {
             var candidates = new List<DungeonRoomInstance>();
 
             foreach (var room in floor.Rooms)
             {
-                if (!IsEligibleRoomType(room.RoomType)) continue;
+                var final = includeFinal && room.RoomType == DungeonRoomType.Final;
+                if (!final && !IsEligibleRoomType(room.RoomType)) continue;
 
-                if (!TryGetTemplate(catalog, room.TemplateId, out _)) continue;
+                if (!TryGetTemplate(catalog, room.TemplateId, out var template)
+                    || !final && template.ExcludeFromRandomEncounters) continue;
 
                 candidates.Add(room);
             }
@@ -403,7 +443,7 @@ namespace Godmist.Systems.Dungeons
 
             if (catalog == null || string.IsNullOrWhiteSpace(templateId)) return false;
 
-            foreach (var candidate in catalog.Templates)
+            foreach (var candidate in catalog.AllTemplates)
             {
                 if (candidate == null
                     || !string.Equals(

@@ -17,7 +17,7 @@ namespace Godmist.Systems.Combat
     /// stats. Persistent always-active definitions are still handled by the stat
     /// pipeline; this system handles definitions that depend on a combat event.
     /// </summary>
-    public sealed class PassiveEffectCombatExecutionSystem : IDisposable
+    public sealed partial class PassiveEffectCombatExecutionSystem : IDisposable
     {
         private readonly CombatSession session;
         private readonly StatusEffectSystem statusEffectSystem;
@@ -59,7 +59,7 @@ namespace Godmist.Systems.Combat
             if (damage <= 0f || context?.Source == null)
                 return damage;
 
-            var multiplier = 1f;
+            var multiplier = ResolveParameter(context.Source, context.Skill, "damage_multiplier", 1f);
             foreach (var match in FindMatches(
                          session,
                          PassiveEffectTriggerType.OnAttack,
@@ -80,6 +80,7 @@ namespace Godmist.Systems.Combat
                             operation.ModifierStacking);
                     }
                     else if (operation.Type == PassiveEffectOperationType.ModifySkillParameter
+                        && !string.Equals(operation.ReferenceId, "damage_multiplier", StringComparison.OrdinalIgnoreCase)
                         && TryGetParameter(operation, "damage_multiplier", out var value))
                     {
                         multiplier = ApplyStacking(
@@ -141,7 +142,7 @@ namespace Godmist.Systems.Combat
                 source: unit,
                 target: unit,
                 movementSteps: unit.MovementStepsThisTurn,
-                movementCost: baseCost);
+                movementCost: ActionPointUnits.ToPoints(baseCost));
             var result = baseCost;
 
             foreach (var match in FindMatches(
@@ -166,7 +167,7 @@ namespace Godmist.Systems.Combat
                     }
                     else
                     {
-                        result += Mathf.RoundToInt(value);
+                        result += ActionPointUnits.FromPoints(value);
                     }
                 }
             }
@@ -278,6 +279,7 @@ namespace Godmist.Systems.Combat
             if (context == null || string.IsNullOrWhiteSpace(context.ActionId))
                 return;
 
+            queuedDuplicateKeys.RemoveWhere(key => key.EndsWith("|" + context.ActionId, StringComparison.Ordinal));
             for (var index = pendingDuplicateActions.Count - 1;
                 index >= 0;
                 index--)
@@ -300,7 +302,7 @@ namespace Godmist.Systems.Combat
 
         private void HandlePublishedEvent(PassiveEffectCombatEvent combatEvent)
         {
-            if (combatEvent?.Context == null || session?.Units == null)
+            if (combatEvent?.Context == null || session?.Units == null || combatEvent.Context.IsPassiveReaction)
                 return;
 
             var units = new List<BattleUnit>(session.Units);
@@ -359,10 +361,21 @@ namespace Godmist.Systems.Combat
 
             switch (operation.Type)
             {
+                case PassiveEffectOperationType.ModifyActionValue:
+                case PassiveEffectOperationType.GrantShield:
+                case PassiveEffectOperationType.GrantActionPoints:
+                case PassiveEffectOperationType.Heal:
+                case PassiveEffectOperationType.RestoreResource:
+                case PassiveEffectOperationType.DealDamage:
+                    ExecuteReaction(owner, runtime, operation, context);
+                    break;
                 case PassiveEffectOperationType.ApplyStatus:
                     ApplyStatus(owner, runtime, operation, context);
                     break;
                 case PassiveEffectOperationType.ModifyStat:
+                    // Instant penetration operations are contextual queries, never lasting stat buffs.
+                    if (operation.DurationTurns == 0 && operation.StatType is CharacterStatType.PhysicalDefensePenetration
+                        or CharacterStatType.MagicalDefensePenetration) break;
                     ApplyTimedStatModifier(owner, runtime, operation, context);
                     break;
                 case PassiveEffectOperationType.SetRuntimeFlag:
@@ -391,7 +404,6 @@ namespace Godmist.Systems.Combat
             var chance = Mathf.Clamp01(ResolveValue(operation.Value, runtime));
             if (UnityEngine.Random.value > chance)
             {
-                queuedDuplicateKeys.Remove(key);
                 return;
             }
 
@@ -409,6 +421,12 @@ namespace Godmist.Systems.Combat
             if (runtime == null || string.IsNullOrWhiteSpace(operation.ReferenceId))
                 return;
 
+            if (operation.ReferenceId == "summon.random-skeleton")
+            {
+                if (context == null || context.IsPassiveDuplicate || string.IsNullOrEmpty(context.ActionId)
+                    || !queuedDuplicateKeys.Add(runtime.EffectId + "|" + context.ActionId)
+                    || UnityEngine.Random.value >= Mathf.Clamp01(ResolveValue(operation.Value, runtime))) return;
+            }
             runtime.SetStateValue(
                 PassiveEffectRuntimeStateValue.Boolean(
                     operation.ReferenceId,
@@ -436,7 +454,7 @@ namespace Godmist.Systems.Combat
                         chance,
                         duration,
                         stacks: 1,
-                        statusDamageMultiplier: 0f,
+                        statusDamageMultiplier: TryGetParameter(operation,"status_damage_multiplier",out var dotMultiplier)?dotMultiplier:0f,
                         statusHealPercent: 0f,
                         sourceId: runtime?.EffectId ?? "passive.combat",
                         publishFeedback: true))
@@ -695,7 +713,7 @@ namespace Godmist.Systems.Combat
             foreach (var item in owner?.Character?.Equipment?.GetEquippedItems()
                          ?? Array.Empty<EquipmentItemInstance>())
             {
-                foreach (var definition in (item?.Definition as UniqueEquipmentDefinition)?.Effects
+                foreach (var definition in (item?.Definition as UniqueEquipmentDefinition)?.GetEffects(item.ItemLevel)
                              ?? new List<PassiveEffectDefinition>())
                     yield return definition;
 
@@ -712,6 +730,14 @@ namespace Godmist.Systems.Combat
         {
             switch (targetType)
             {
+                case PassiveEffectTargetType.LowestHealthAlly:
+                    BattleUnit lowest = null;
+                    foreach (var ally in context?.Session?.Units ?? new List<BattleUnit>())
+                        if (ally?.Character?.LifeState == CharacterLifeState.Alive && ally.IsPlayerSide == owner?.IsPlayerSide
+                            && ally.Character.CurrentHealth < ally.Character.Stats.MaxHealth.GetValue()
+                            && (lowest == null || ally.Character.CurrentHealth < lowest.Character.CurrentHealth)) lowest = ally;
+                    if (lowest != null) yield return lowest;
+                    yield break;
                 case PassiveEffectTargetType.Self:
                 case PassiveEffectTargetType.Source:
                     if (owner != null) yield return owner;

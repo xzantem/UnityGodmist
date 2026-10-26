@@ -25,11 +25,24 @@ namespace Godmist.Data.Skills
         [field: SerializeField, Min(0)] public int ToggleUpkeepFlatResourceCost { get; private set; }
         [field: SerializeField, Range(0f, 1f)] public float ToggleUpkeepMaxResourcePercent { get; private set; }
         [field: SerializeField] public bool RequiresLineOfSight { get; private set; }
+        [field: SerializeField] public string RequiredCasterStatusId { get; private set; } = string.Empty;
+        [field: SerializeField] public bool CanRecoverKnives { get; private set; }
+        [field: SerializeField, Range(0f, 1f)] public float KnifeRecoveryCostMultiplier { get; private set; } = 1f;
+        [field: SerializeField] public bool GuaranteedCritical { get; private set; }
+        [field: SerializeField] public bool FreeKnivesInMelee { get; private set; }
+        [field: SerializeField] public float PointBlankDamageMultiplier { get; private set; } = 1f;
         [SerializeField] private List<SkillTargetModeData> targetModes = new();
         [SerializeField] private List<SkillEffectData> effects = new();
 
         public IReadOnlyList<SkillTargetModeData> TargetModes => targetModes;
         public IReadOnlyList<SkillEffectData> Effects => effects;
+
+        // Point-blank combat includes all eight neighboring grid cells.
+        public static bool IsPointBlank(int offsetX, int offsetY) =>
+            Mathf.Max(Mathf.Abs(offsetX), Mathf.Abs(offsetY)) == 1;
+
+        public AttackType ResolveAttackType(int offsetX, int offsetY) =>
+            ResolveAttackType(IsPointBlank(offsetX, offsetY) ? 1 : -1);
 
         public AttackType ResolveAttackType(int distance)
         {
@@ -59,7 +72,8 @@ namespace Godmist.Data.Skills
             UniqueBuffType.ActionPointsNextTurn,
             UniqueBuffType.OnHitStatus,
             UniqueBuffType.DamageRedirect,
-            UniqueBuffType.AuraStatus
+            UniqueBuffType.AuraStatus,
+            UniqueBuffType.MageOffering
         };
 
         public static bool SupportsToggle(EffectType effectType)
@@ -83,7 +97,8 @@ namespace Godmist.Data.Skills
             return uniqueBuffType == UniqueBuffType.ActionPointsNextTurn
                 || uniqueBuffType == UniqueBuffType.OnHitStatus
                 || uniqueBuffType == UniqueBuffType.DamageRedirect
-                || uniqueBuffType == UniqueBuffType.AuraStatus;
+                || uniqueBuffType == UniqueBuffType.AuraStatus
+                || uniqueBuffType == UniqueBuffType.MageOffering;
         }
 
         public static bool IsValid(SkillData skill)

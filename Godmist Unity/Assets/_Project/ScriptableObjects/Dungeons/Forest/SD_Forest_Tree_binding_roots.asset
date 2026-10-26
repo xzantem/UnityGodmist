@@ -1,0 +1,210 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57a1aa6dfa4ff614099473e644dd70c5, type: 3}
+  m_Name: SD_Forest_Tree_binding_roots
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
+  <SkillId>k__BackingField: skill.enemy.forest.tree_binding_roots
+  <DisplayName>k__BackingField: "Zniewalaj\u0105ce Korzenie"
+  <Icon>k__BackingField: {fileID: 21300000, guid: cf51a0a4a966e044db7ae9ed56e63186, type: 3}
+  <TooltipDescription>k__BackingField: 
+  <SkillAccuracy>k__BackingField: 100
+  <AttackType>k__BackingField: 2
+  <PointBlankAttackType>k__BackingField: 0
+  <ActionCost>k__BackingField: 65
+  <ResourceCost>k__BackingField: 45
+  <ResourceType>k__BackingField: 3
+  <KnifeCost>k__BackingField: 0
+  <IsToggle>k__BackingField: 0
+  <ToggleUpkeepFlatResourceCost>k__BackingField: 0
+  <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
+  <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
+  <GuaranteedCritical>k__BackingField: 0
+  <FreeKnivesInMelee>k__BackingField: 0
+  <PointBlankDamageMultiplier>k__BackingField: 1
+  targetModes:
+  - targetType: 0
+    targetingType: 0
+    includesCaster: 0
+    absoluteRange:
+      shape: 1
+      minRange: 1
+      maxRange: 5
+      rectangleWidth: 0
+    relativeRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    chainTargets: 0
+    requiredStatusId: 
+  effects:
+  - effectType: 2
+    polarity: 0
+    alwaysHits: 1
+    targetModeIndex: 0
+    baseValue: 0
+    healAverageAttackMultiplier: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    rearAttackDamageBonus: 0
+    damageHitCount: 1
+    additionalHitTrials: 0
+    additionalHitChance: 0
+    bonusPenetration: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 0
+    onHitStatusId: 
+    onHitStatusChance: 0
+    onHitStatusDurationTurns: 0
+    lifeStealPercent: 0
+    allyLifeStealPercent: 0
+    resourceDrainPercent: 0
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    maxActiveObjects: 0
+    summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonDurationTurns: 0
+    maxActiveSummons: 0
+    summonPercentMaxHealth: 0
+    baseChance: 1
+    statusId: immobilize
+    durationTurns: 2
+    stacks: 1
+    statusDamageMultiplier: 0
+    statusHealPercent: 0
+    percentageValue: 0
+    counterattackRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    uniqueBuffType: 0
+    uniqueBuffStacks: 0
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 0
+    shieldAverageAttackMultiplier: 0
+    conditions: []
+  - effectType: 6
+    polarity: 0
+    alwaysHits: 1
+    targetModeIndex: 0
+    baseValue: 0
+    healAverageAttackMultiplier: 0
+    damageValueSource: 0
+    damageMultiplier: 1
+    rearAttackDamageBonus: 0
+    damageHitCount: 1
+    additionalHitTrials: 0
+    additionalHitChance: 0
+    bonusPenetration: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 0
+    onHitStatusId: 
+    onHitStatusChance: 0
+    onHitStatusDurationTurns: 0
+    lifeStealPercent: 0
+    allyLifeStealPercent: 0
+    resourceDrainPercent: 0
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    maxActiveObjects: 0
+    summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonDurationTurns: 0
+    maxActiveSummons: 0
+    summonPercentMaxHealth: 0
+    baseChance: 0.7
+    statusId: immobilize
+    durationTurns: 3
+    stacks: 1
+    statusDamageMultiplier: 0
+    statusHealPercent: 0
+    percentageValue: 0
+    counterattackRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    counterattackEffects: []
+    modifierStatType: 5
+    modifierVariableType: 0
+    modifierOperation: 1
+    modifierStacking: 0
+    modifierValue: -0.12
+    uniqueBuffType: 0
+    uniqueBuffStacks: 0
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 0
+    shieldAverageAttackMultiplier: 0
+    conditions: []

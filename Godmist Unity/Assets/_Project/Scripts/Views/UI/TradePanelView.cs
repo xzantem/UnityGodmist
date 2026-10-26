@@ -345,8 +345,8 @@ namespace Godmist.Views.UI
             var price = GetSelectedBuyOrSellPrice(out var priceLabel);
 
             detailsText.text =
-                $"{definition.DisplayName}\n" +
-                $"{definition.ItemType} | {selectedItem.CurrentRarity} | poziom {selectedItem.ItemLevel}\n" +
+                $"{Workspace.ItemRarityPresentation.Name(selectedItem)}\n" +
+                $"{definition.ItemType} | {Workspace.UIWorkspaceTooltipView.GetColoredRarityDisplayName(selectedItem.CurrentRarity)} | poziom {selectedItem.ItemLevel}\n" +
                 $"Waga: {definition.Weight:0.##} kg\n" +
                 $"{priceLabel}: {price} zl\n\n" +
                 definition.Description;

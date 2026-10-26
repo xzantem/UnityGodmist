@@ -14,32 +14,97 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
   <Id>k__BackingField: unique.deadking.dagger.scout
   <DisplayName>k__BackingField: Niematerialny Sztylet
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Sztylet, kt\xF3rego ostrze zdaje si\u0119 przenika\u0107
+    przez materi\u0119."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 644bbf508a33ba94cb733b91cdf630aa, type: 3}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 2
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
   <BaseDefinition>k__BackingField: {fileID: 11400000, guid: a185d9fada7ec1b4f9d119716d0a51f8, type: 2}
   <Effects>k__BackingField:
   - <Id>k__BackingField: unique.deadking.dagger.free-consume
-    <DisplayName>k__BackingField: "Niematerialność"
-    <Description>k__BackingField: "45% szansy na niezużycie sztyletu po ataku."
+    <DisplayName>k__BackingField: "Niematerialno\u015B\u0107"
+    <Description>k__BackingField: "45% szansy na niezu\u017Cycie sztyletu po ataku."
     <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
     <Triggers>k__BackingField:
     - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
       <Parameters>k__BackingField: []
     <Operations>k__BackingField:
     - <Id>k__BackingField: operation.prevent-dagger-consume
       <Type>k__BackingField: 18
       <Target>k__BackingField: 0
       <ReferenceId>k__BackingField: dagger.prevent-consume
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 1
+      <ModifierStacking>k__BackingField: 0
       <Value>k__BackingField:
         <Source>k__BackingField: 0
         <NumberValue>k__BackingField: 0.45
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
     <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: 
+      <ConditionText>k__BackingField: 
       <TriggerText>k__BackingField: Po ataku.
       <ShowRuntimeState>k__BackingField: 1
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: unique.deadking.dagger.free-consume
+    <DisplayName>k__BackingField: "Niematerialno\u015B\u0107"
+    <Description>k__BackingField: "50% szansy na niezu\u017Cycie sztyletu przy u\u017Cyciu
+      umiej\u0119tno\u015Bci."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.prevent-dagger-consume
+      <Type>k__BackingField: 18
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: dagger.prevent-consume
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 1
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.5
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: 
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: Po ataku.
+      <ShowRuntimeState>k__BackingField: 1
+  <SummonPool>k__BackingField: []

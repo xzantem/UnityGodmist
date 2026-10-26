@@ -23,17 +23,29 @@ namespace Godmist.Systems.Characters
             var baseStats = character.Definition.BaseStats ?? new CharacterBaseStatsData();
             var growth = character.Definition.GrowthData ?? new CharacterGrowthData();
             var multiplier = GetCumulativeGrowthMultiplier(character.Level);
+            var lateMultiplier = GetLateGrowthMultiplier(character.Level);
+            var earlyMultiplier = multiplier - lateMultiplier;
+            var lateBlend = multiplier > 0f ? lateMultiplier / multiplier : 0f;
             var previousMaxHealth = Mathf.Max(
                 1,
                 Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
 
-            character.Stats.MaxHealth.BaseValue = baseStats.MaxHealth + growth.MaxHealth * multiplier;
-            character.Stats.MinAttack.BaseValue = baseStats.MinAttack + growth.MinAttack * multiplier;
-            character.Stats.MaxAttack.BaseValue = baseStats.MaxAttack + growth.MaxAttack * multiplier;
+            // Restore the anchored base before accumulating growth. At full blend this
+            // preserves the previous floating-point operation order, not just its algebra.
+            character.Stats.MaxHealth.BaseValue = (baseStats.MaxHealth + growth.LateMaxHealthOffset * lateBlend) + growth.MaxHealth * multiplier + growth.LateMaxHealth * lateMultiplier + growth.EarlyMaxHealth * earlyMultiplier;
+            if (TryEvaluateHealthCurve(growth.HealthCurve, character.Level, multiplier, out var health))
+                character.Stats.MaxHealth.BaseValue = health;
+            character.Stats.MinAttack.BaseValue = (baseStats.MinAttack + growth.LateMinAttackOffset * lateBlend) + growth.MinAttack * multiplier + growth.LateMinAttack * lateMultiplier + growth.EarlyMinAttack * earlyMultiplier;
+            character.Stats.MaxAttack.BaseValue = (baseStats.MaxAttack + growth.LateMaxAttackOffset * lateBlend) + growth.MaxAttack * multiplier + growth.LateMaxAttack * lateMultiplier + growth.EarlyMaxAttack * earlyMultiplier;
             character.Stats.PhysicalDefense.BaseValue = baseStats.PhysicalDefense
                 + growth.PhysicalDefense * multiplier;
             character.Stats.MagicalDefense.BaseValue = baseStats.MagicalDefense
                 + growth.MagicalDefense * multiplier;
+            if (TryEvaluateDefenseCurve(growth.DefenseCurve, character.Level, multiplier, out var physical, out var magical))
+            {
+                character.Stats.PhysicalDefense.BaseValue = physical;
+                character.Stats.MagicalDefense.BaseValue = magical;
+            }
             character.Stats.PhysicalDefensePenetration.BaseValue =
                 baseStats.PhysicalDefensePenetration;
             character.Stats.MagicalDefensePenetration.BaseValue =
@@ -51,16 +63,8 @@ namespace Godmist.Systems.Characters
             character.Stats.MaxResource.BaseValue = baseStats.MaxResource
                 + growth.MaxResource * multiplier;
 
-            if (character.ResourcePool != null)
-            {
-                character.ResourcePool.MaxValue = Mathf.Max(0, Mathf.RoundToInt(
-                    character.Stats.MaxResource.GetValue()));
-                character.ResourcePool.CurrentValue = Mathf.Clamp(
-                    character.ResourcePool.CurrentValue,
-                    0,
-                    character.ResourcePool.MaxValue);
-            }
-
+            // Refresh computes the effective maximum and progression-derived recovery limit
+            // before clamping. An earlier nominal clamp would discard saved mana overflow.
             statPipeline.Refresh(character);
 
             if (!grantCurrentHealthGrowth) return;
@@ -73,6 +77,66 @@ namespace Godmist.Systems.Characters
                 0,
                 currentMaxHealth);
         }
+
+        bool TryEvaluateHealthCurve(CharacterHealthGrowthPoint[] points, int level, float units, out int health)
+        {
+            health = 0;
+            if (points == null || points.Length < 2) return false;
+            var previous = 0;
+            foreach (var point in points)
+            {
+                if (point == null || point.Level <= previous || point.Level < CharacterProgressionSystem.MinimumLevel
+                    || point.Level > CharacterProgressionSystem.MaximumLevel || point.MaxHealth < 1) return false;
+                previous = point.Level;
+            }
+            if (level <= points[0].Level) { health = points[0].MaxHealth; return true; }
+            for (var i = 1; i < points.Length; i++)
+            {
+                if (level > points[i].Level) continue;
+                var blend = Mathf.InverseLerp(GetCumulativeGrowthMultiplier(points[i - 1].Level), GetCumulativeGrowthMultiplier(points[i].Level), units);
+                health = Mathf.RoundToInt(Mathf.Lerp(points[i - 1].MaxHealth, points[i].MaxHealth, blend));
+                return true;
+            }
+            health = points[points.Length - 1].MaxHealth;
+            return true;
+        }
+
+        bool TryEvaluateDefenseCurve(CharacterDefenseGrowthPoint[] points, int level, float units,
+            out float physical, out float magical)
+        {
+            physical = magical = 0;
+            if (points == null || points.Length < 2) return false;
+            var previous = 0;
+            foreach (var point in points)
+            {
+                if (point == null || point.Level <= previous || point.Level < CharacterProgressionSystem.MinimumLevel
+                    || point.Level > CharacterProgressionSystem.MaximumLevel || point.PhysicalDefense < 0 || point.MagicalDefense < 0
+                    || float.IsNaN(point.PhysicalDefense) || float.IsInfinity(point.PhysicalDefense)
+                    || float.IsNaN(point.MagicalDefense) || float.IsInfinity(point.MagicalDefense)) return false;
+                previous = point.Level;
+            }
+            var first = points[0];
+            if (level <= first.Level)
+            { physical = Mathf.Round(first.PhysicalDefense); magical = Mathf.Round(first.MagicalDefense); return true; }
+            for (var i = 1; i < points.Length; i++)
+            {
+                if (level > points[i].Level) continue;
+                var blend = Mathf.InverseLerp(GetCumulativeGrowthMultiplier(points[i - 1].Level), GetCumulativeGrowthMultiplier(points[i].Level), units);
+                physical = Mathf.Round(Mathf.Lerp(points[i - 1].PhysicalDefense, points[i].PhysicalDefense, blend));
+                magical = Mathf.Round(Mathf.Lerp(points[i - 1].MagicalDefense, points[i].MagicalDefense, blend));
+                return true;
+            }
+            physical = Mathf.Round(points[points.Length - 1].PhysicalDefense);
+            magical = Mathf.Round(points[points.Length - 1].MagicalDefense);
+            return true;
+        }
+
+        // Optional content bonus; heroes/legacy definitions have zero late growth.
+        // Reach the full late bonus at the level48 baseline. Any optional early
+        // adjustment has the complementary weight and disappears at that point.
+        // The square root keeps the midgame from lagging behind equipment tiers.
+        public float GetLateGrowthMultiplier(int level) => GetCumulativeGrowthMultiplier(level)
+            * Mathf.Sqrt(Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(10f, 48f, level)));
 
         public float GetCumulativeGrowthMultiplier(int level)
         {

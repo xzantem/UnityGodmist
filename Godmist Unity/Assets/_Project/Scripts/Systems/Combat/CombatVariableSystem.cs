@@ -12,7 +12,7 @@ namespace Godmist.Systems.Combat
         public float GetMultiplier(
             CharacterInstance character,
             GameplayVariableType variableType,
-            string referenceId = null)
+            string referenceId = null, string excludedEffectId = null)
         {
             if (character?.PassiveEffects == null)
             {
@@ -24,7 +24,7 @@ namespace Godmist.Systems.Combat
 
             foreach (var effect in character.PassiveEffects)
             {
-                if (!PassiveEffectLifecycleSystem.IsActive(effect))
+                if ((excludedEffectId != null && effect?.EffectId==excludedEffectId) || !PassiveEffectLifecycleSystem.IsActive(effect))
                 {
                     continue;
                 }
@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
                 {
                     if (modifier == null
                         || modifier.VariableType != variableType
-                        || (variableType == GameplayVariableType.DamageDealtPercentInDungeonTheme
+                        || ((variableType == GameplayVariableType.DamageDealtPercentInDungeonTheme || variableType == GameplayVariableType.DamageAgainstTag || variableType == GameplayVariableType.DamageInEnvironment)
                             && !string.Equals(
                                 modifier.ReferenceId,
                                 referenceId,
@@ -97,6 +97,7 @@ namespace Godmist.Systems.Combat
                 source?.Character,
                 GameplayVariableType.DamageDealtPercent);
 
+            var angerMultiplier = ScoutCombatSystem.ReceivedDamageMultiplier(source, target);
             var receivedMultiplier = GetMultiplier(
                 target?.Character,
                 GameplayVariableType.DamageReceivedPercent);
@@ -104,7 +105,7 @@ namespace Godmist.Systems.Combat
             return Mathf.Max(
                 0,
                 Mathf.RoundToInt(
-                    requestedDamage * dealtMultiplier * receivedMultiplier));
+                    requestedDamage * dealtMultiplier * receivedMultiplier * angerMultiplier));
         }
     }
 }

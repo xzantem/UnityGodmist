@@ -1,0 +1,101 @@
+{
+  "entries": [
+    {
+      "fullId": "node.warrior.brawler.wounding",
+      "slug": "wounding",
+      "outputPng": "wounding-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.thirst_revenge",
+      "slug": "thirst_revenge",
+      "outputPng": "thirst_revenge-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.rage",
+      "slug": "rage",
+      "outputPng": "rage-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.furious_strikes",
+      "slug": "furious_strikes",
+      "outputPng": "furious_strikes-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.larger_wound",
+      "slug": "larger_wound",
+      "outputPng": "larger_wound-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.revenge",
+      "slug": "revenge",
+      "outputPng": "revenge-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.release_rage",
+      "slug": "release_rage",
+      "outputPng": "release_rage-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.spiked_armor",
+      "slug": "spiked_armor",
+      "outputPng": "spiked_armor-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.third_time",
+      "slug": "third_time",
+      "outputPng": "third_time-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.amok",
+      "slug": "amok",
+      "outputPng": "amok-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.unawareness",
+      "slug": "unawareness",
+      "outputPng": "unawareness-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.aggressive_nature",
+      "slug": "aggressive_nature",
+      "outputPng": "aggressive_nature-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.conflagration",
+      "slug": "conflagration",
+      "outputPng": "conflagration-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.force_moment",
+      "slug": "force_moment",
+      "outputPng": "force_moment-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.adrenaline",
+      "slug": "adrenaline",
+      "outputPng": "adrenaline-32.png"
+    },
+    {
+      "fullId": "node.warrior.brawler.desperation",
+      "slug": "desperation",
+      "outputPng": "desperation-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.warrior.brawler",
+    "name": "Awanturnik"
+  },
+  "scope": {
+    "entryCount": 16,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.warrior.brawler.bleeding_destruction",
+      "node.warrior.brawler.shout",
+      "node.warrior.brawler.whirlwind",
+      "node.warrior.brawler.death_wish"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

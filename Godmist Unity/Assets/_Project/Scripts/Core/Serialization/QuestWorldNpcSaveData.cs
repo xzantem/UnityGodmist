@@ -23,6 +23,23 @@ namespace Godmist.Core.Serialization
         public List<KeyValueSaveData> QuestFlags = new();
         public List<string> ChosenBranchIds = new();
         public List<string> ClaimedRewardKeys = new();
+        public int RadiantRewardLevel;
+        public int RadiantRewardExperience;
+        public int RadiantRewardGold;
+        public int RadiantRewardHonor;
+        public string RadiantBonusItemInstanceId = string.Empty;
+        public RadiantBoardContractSaveData BoardContract;
+        // JsonUtility can materialize an absent/null nested object with default fields.
+        public bool HasBoardContract;
+    }
+
+    [Serializable]
+    public sealed class RadiantBoardContractSaveData
+    {
+        public QuestObjectiveType ObjectiveType;
+        public DungeonTheme Theme;
+        public DungeonLength Length;
+        public int Level, RequiredAmount, RewardMultiplier, Cycle;
     }
 
     [Serializable]
@@ -44,6 +61,8 @@ namespace Godmist.Core.Serialization
         public long TotalGoldSpent;
         public float GuildPayoutProgress;
 
+        public List<string> RotatingStockItemIds = new();
+        public List<string> CraftedStockInstanceIds = new();
         public List<string> ShopItemInstanceIds = new();
         public List<BuybackEntrySaveData> BuybackEntries = new();
     }

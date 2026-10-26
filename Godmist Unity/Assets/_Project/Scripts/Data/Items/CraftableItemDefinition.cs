@@ -19,11 +19,34 @@ namespace Godmist.Data.Items
         [field: FormerlySerializedAs("<Discipline>k__BackingField"), SerializeField]
         public MaterialDiscipline CraftingDiscipline { get; private set; }
         [field: SerializeField, Min(1)] public int OutputAmount { get; private set; } = 1;
+        [field: SerializeField, Min(1)] public int ResultLevel { get; private set; } = 1;
+        [field: SerializeField] public string PrimaryVariantLabel { get; private set; } = string.Empty;
+        // Most material recipes are their own result. Fixed utility recipes use
+        // the same NPC crafting flow while producing a ConsumableItemInstance.
+        [field: SerializeField] public ItemDefinition CraftedResult { get; private set; }
+        public ItemDefinition ResultDefinition => CraftedResult != null ? CraftedResult : this;
         [field: SerializeField] public List<CraftingMaterialRequirement> Ingredients
         {
             get;
             private set;
         } = new();
+
+        [System.Serializable]
+        public sealed class RecipeVariant
+        {
+            public string Label = string.Empty;
+            public List<CraftingMaterialRequirement> Ingredients = new();
+        }
+        [field: SerializeField] public List<RecipeVariant> AlternativeRecipes { get; private set; } = new();
+        public int RecipeVariantCount => 1 + (AlternativeRecipes?.Count ?? 0);
+        public IReadOnlyList<CraftingMaterialRequirement> GetIngredients(int variantIndex = 0)
+            => variantIndex == 0 ? Ingredients : variantIndex > 0 && variantIndex < RecipeVariantCount
+                ? AlternativeRecipes[variantIndex - 1]?.Ingredients : null;
+        public string GetVariantLabel(int variantIndex = 0)
+            => variantIndex == 0 ? !string.IsNullOrWhiteSpace(PrimaryVariantLabel)
+                    ? PrimaryVariantLabel
+                    : string.Join(", ", Ingredients.Where(i => i?.Material != null).Select(i => i.Material.DisplayName))
+                : variantIndex > 0 && variantIndex < RecipeVariantCount ? AlternativeRecipes[variantIndex - 1]?.Label ?? string.Empty : string.Empty;
 
         /// <summary>
         /// Unit value inherited from the full cost of recipe ingredients. A CID
@@ -40,13 +63,18 @@ namespace Godmist.Data.Items
                 return 0;
             }
 
-            var total = Ingredients
-                .Where(requirement => requirement?.Material != null && requirement.Amount > 0)
-                .Sum(requirement => (long)requirement.Amount
-                    * GetIngredientBaseValue(requirement.Material, visiting));
+            long minimum = long.MaxValue;
+            for (var variant = 0; variant < RecipeVariantCount; variant++)
+            {
+                var ingredients = GetIngredients(variant);
+                if (ingredients == null || ingredients.Count == 0
+                    || ingredients.Any(i => i?.Material == null || i.Amount <= 0)) continue;
+                var total = ingredients.Sum(i => (long)i.Amount * GetIngredientBaseValue(i.Material, visiting));
+                minimum = System.Math.Min(minimum, total);
+            }
             visiting.Remove(this);
-
-            return total <= 0 ? 0 : (int)(total / OutputAmount);
+            return minimum == long.MaxValue || minimum <= 0 ? 0
+                : (int)System.Math.Min(int.MaxValue, minimum / OutputAmount);
         }
 
         private static int GetIngredientBaseValue(

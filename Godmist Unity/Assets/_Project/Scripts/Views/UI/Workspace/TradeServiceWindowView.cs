@@ -40,6 +40,9 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI messageText;
         [SerializeField] private Sprite goldIconSprite;
+        [SerializeField] private ItemActionPopupView itemActionPopupPrefab;
+        private ItemActionPopupView itemActionPopup;
+        private readonly TradeClickSequence clickSequence = new();
 
         private readonly List<TradeItemSlotView> spawnedSlots = new();
         private GameSession session;
@@ -55,15 +58,13 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button partialSaleCancelButton;
         [SerializeField] private TextMeshProUGUI playerGoldText;
         [SerializeField] private TextMeshProUGUI traderGoldText;
-        private ItemInstance pendingPartialSaleItem;
         private bool isShown;
 
         private bool IsShown => isShown && (serviceRoot == null || serviceRoot.activeSelf);
 
         private void Awake()
         {
-            partialSaleConfirmButton.onClick.AddListener(ConfirmPartialSale);
-            partialSaleCancelButton.onClick.AddListener(HidePartialSaleConfirmation);
+            HidePartialSaleConfirmation();
             if (itemSlotTemplate != null
                 && itemSlotTemplate.transform.IsChildOf(transform))
             {
@@ -85,6 +86,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDisable()
         {
+            itemActionPopup?.HideAll(); clickSequence.Reset();
             EndDrag(null, null);
             HidePartialSaleConfirmation();
             isShown = false;
@@ -109,17 +111,19 @@ namespace Godmist.Views.UI.Workspace
                 return false;
 
             trader = nextTrader;
+            itemActionPopup?.HideAll(); clickSequence.Reset();
             tradingCharacter = buyer;
             isShown = true;
             if (serviceRoot != null && serviceRoot != gameObject)
                 serviceRoot.SetActive(true);
-            SetMessage("Kliknij — kup/sprzedaj  •  Przeciągnij — przenieś");
+            SetMessage(null);
             Refresh();
             return true;
         }
 
         public void Hide()
         {
+            itemActionPopup?.HideAll(); clickSequence.Reset();
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             EndDrag(null, null);
             HidePartialSaleConfirmation();
@@ -131,27 +135,134 @@ namespace Godmist.Views.UI.Workspace
             ClearSlots();
         }
 
-        public void TryHandleClick(TradeItemSlotView slot)
+        public void TryHandleClick(TradeItemSlotView slot, PointerEventData eventData)
         {
-            if (!IsShown || slot?.Item == null) return;
+            if (!IsShown || slot?.Item == null || itemActionPopup?.IsModalOpen == true) return;
+            var ids = CaptureStack(slot.Item, slot.Source);
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            { clickSequence.Reset(); Transact(slot.Source, ids); }
+            else if (clickSequence.Click(slot.Source, slot.Item.InstanceId, ids, eventData.position, Time.unscaledTime))
+                Transact(slot.Source, ids.Take(1).ToArray());
+        }
 
-            switch (slot.Source)
+        private ItemActionPopupView Popup
+        {
+            get
             {
-                case TradeItemSlotSource.PlayerInventory:
-                    TrySell(slot.Item);
-                    break;
-                case TradeItemSlotSource.TraderOffer:
-                    TryBuy(slot.Item, null);
-                    break;
-                case TradeItemSlotSource.Buyback:
-                    TryBuy(slot.Item, slot.BuybackEntry);
-                    break;
+                if (itemActionPopup == null && itemActionPopupPrefab != null && ResolveWorkspaceRoot() != null)
+                    itemActionPopup = Instantiate(itemActionPopupPrefab, ResolveWorkspaceRoot());
+                return itemActionPopup;
             }
+        }
+
+        private void OnDestroy() { if (itemActionPopup != null) Destroy(itemActionPopup.gameObject); }
+
+        private List<string> CaptureStack(ItemInstance item, TradeItemSlotSource source)
+        {
+            var items = source == TradeItemSlotSource.PlayerInventory ? tradingCharacter.Inventory.Items
+                : source == TradeItemSlotSource.TraderOffer ? trader.ShopInventory.Items
+                : trader.ShopInventory.BuybackStock.Select(entry => entry.Item);
+            // Keep the first unit as the displayed stack's ordering anchor until it is exhausted.
+            // Restocks can append matching units after other types in the source inventory.
+            return items.Where(candidate => ReferenceEquals(candidate, item) || item.CanStackWith(candidate)).Reverse()
+                .Select(candidate => candidate.InstanceId).ToList();
+        }
+
+        public void ShowItemMenu(TradeItemSlotView slot, Vector2 position)
+        {
+            if (!IsShown || slot?.Item == null || Popup == null) return;
+            clickSequence.Reset();
+            var item = slot.Item; var source = slot.Source;
+            var ids = CaptureStack(item, source);
+            if (ids.Count == 0) return;
+            var sell = source == TradeItemSlotSource.PlayerInventory;
+            var verb = sell ? "Sprzedaj" : "Kup";
+            var allowed = !sell || tradeService.CanSellItem(trader, item, out _);
+            var entries = new List<PartyRailMenuView.Entry>
+            {
+                new($"{verb} 1", () => Transact(source, ids.Take(1).ToArray()), allowed),
+                new($"{verb} X…", () => Popup.RequestQuantity($"{verb} przedmioty", ids.Count,
+                    count => item.DisplayName + "\n" + DescribeTransaction(source, ids.Take(count).ToArray()),
+                    count => Transact(source, ids.Take(count).ToArray(), fromQuantity: true)), allowed && ids.Count > 1),
+                new($"{verb} cały stos ({ids.Count})", () => Transact(source, ids), allowed && ids.Count > 1)
+            };
+            if (sell) Popup.AddOwnedEntries(entries, session, tradingCharacter, item, null);
+            else Popup.AddCompare(entries, tradingCharacter, item);
+            Popup.ShowMenu(position, entries, item);
+        }
+
+        private string DescribeTransaction(TradeItemSlotSource source, IReadOnlyList<string> ids)
+        {
+            if (source == TradeItemSlotSource.PlayerInventory)
+                return tradeService.TryGetSellBatchQuote(trader, tradingCharacter, ids, out var price, out var payable, out var reason)
+                    ? $"{ids.Count} szt. • {price} złota" + (payable < price ? $"\nKupiec może zapłacić tylko {payable} złota." : "") : reason;
+            long total = 0;
+            foreach (var id in ids)
+            {
+                var item = source == TradeItemSlotSource.Buyback
+                    ? trader.ShopInventory.BuybackStock.FirstOrDefault(entry => entry.Item.InstanceId == id)?.Item
+                    : trader.ShopInventory.Items.FirstOrDefault(candidate => candidate.InstanceId == id);
+                if (item == null) return "Przedmiot nie jest już dostępny.";
+                total += tradeService.GetPriceToBuyFromTrader(trader, item);
+            }
+            return $"{ids.Count} szt. • {total} złota\nPosiadane złoto: {session.Gold}";
+        }
+
+        private string Transact(TradeItemSlotSource source, IReadOnlyList<string> ids, bool fromQuantity = false)
+        {
+            if (!IsShown) return "Okno handlu zostało zamknięte.";
+            if (source == TradeItemSlotSource.PlayerInventory)
+            {
+                if (!tradeService.TryGetSellBatchQuote(trader, tradingCharacter, ids, out var normal, out var payable, out var quoteReason))
+                { SetMessage(quoteReason); return quoteReason; }
+                if (payable < normal)
+                {
+                    ShowBatchPartialConfirmation(ids.ToArray(), normal, payable);
+                    // Retain the newly opened confirmation instead of closing it as the quantity callback returns.
+                    return fromQuantity ? "Potwierdź poniżej sprzedaż za mniejszą kwotę." : null;
+                }
+                return ExecuteBatchSell(ids, false);
+            }
+            var success = tradeService.TryBuyBatch(session, trader, tradingCharacter, ids,
+                source == TradeItemSlotSource.Buyback, out _, out var reason);
+            SetMessage(success ? null : reason);
+            if (success) RefreshAfterTransaction();
+            return success ? null : reason;
+        }
+
+        private string ExecuteBatchSell(IReadOnlyList<string> ids, bool partial)
+        {
+            var success = tradeService.TrySellBatch(session, trader, tradingCharacter, ids, partial, out _, out var reason);
+            SetMessage(success ? null : reason);
+            if (success) RefreshAfterTransaction();
+            return success ? null : reason;
+        }
+
+        private void ShowBatchPartialConfirmation(string[] ids, int normal, int payable)
+        {
+            clickSequence.Reset();
+            Popup.RequestConfirmation("Kupiec ma za mało złota",
+                $"Sprzedaż {ids.Length} szt. za {payable} złota.\nNormalna cena: {normal} złota.\nCzy chcesz sprzedać za mniejszą kwotę?", () =>
+                {
+                    if (!IsShown) return "Okno handlu zostało zamknięte.";
+                    if (!tradeService.TryGetSellBatchQuote(trader, tradingCharacter, ids, out var nextNormal, out var nextPayable, out var reason)) return reason;
+                    if (nextNormal != normal || nextPayable != payable)
+                    { ShowBatchPartialConfirmation(ids, nextNormal, nextPayable); return "Kwota się zmieniła. Potwierdź aktualną ofertę."; }
+                    return ExecuteBatchSell(ids, true);
+                });
+        }
+
+        private void RefreshAfterTransaction()
+        {
+            UIWorkspaceTooltipView.ActiveInstance?.Hide();
+            CharacterInfoWindowView.RefreshOpenWindows(session);
+            Refresh();
         }
 
         public void BeginDrag(TradeItemSlotView slot, PointerEventData eventData)
         {
             if (!IsShown || slot?.Item == null || eventData == null) return;
+            clickSequence.Reset();
 
             draggedSlot = slot;
             UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
@@ -243,87 +354,16 @@ namespace Godmist.Views.UI.Workspace
             dragGhost = null;
         }
 
-        private void TryBuy(ItemInstance item, BuybackEntry buybackEntry)
+        private void TryBuy(ItemInstance item, BuybackEntry entry)
         {
-            if (item == null || session == null || tradeService == null) return;
-
-            var success = buybackEntry != null
-                ? tradeService.TryBuyFromBuyback(
-                    session,
-                    trader,
-                    tradingCharacter,
-                    item.InstanceId,
-                    out var paidGold)
-                : tradeService.TryBuyFromTrader(
-                    session,
-                    trader,
-                    tradingCharacter,
-                    item.InstanceId,
-                    out paidGold);
-
-            if (!success)
-            {
-                var price = buybackEntry != null
-                    ? tradeService.GetPriceFromBuyback(trader, buybackEntry)
-                    : tradeService.GetPriceToBuyFromTrader(trader, item);
-                SetMessage(BuildBuyFailureMessage(item, price));
-                UIWorkspaceTooltipView.ActiveInstance?.Hide();
-                Refresh();
-                return;
-            }
-
-            SetMessage($"Kupiono przedmiot za {paidGold}.");
-            UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            Refresh();
+            var source = entry == null ? TradeItemSlotSource.TraderOffer : TradeItemSlotSource.Buyback;
+            if (item != null) Transact(source, CaptureStack(item, source).Take(1).ToArray());
         }
 
         private void TrySell(ItemInstance item)
         {
-            if (item == null || session == null || tradeService == null) return;
-
-            if (!tradeService.TryGetSellQuote(
-                    trader,
-                    item,
-                    out var normalPrice,
-                    out var payableGold,
-                    out var quoteFailureReason))
-            {
-                SetMessage(quoteFailureReason);
-                UIWorkspaceTooltipView.ActiveInstance?.Hide();
-                Refresh();
-                return;
-            }
-
-            if (payableGold < normalPrice)
-            {
-                ShowPartialSaleConfirmation(item, normalPrice, payableGold);
-                return;
-            }
-
-            ExecuteSell(item, acceptPartialPayment: false);
-        }
-
-        private void ExecuteSell(
-            ItemInstance item,
-            bool acceptPartialPayment)
-        {
-            if (!tradeService.TrySellToTrader(
-                    session,
-                    trader,
-                    tradingCharacter,
-                    item.InstanceId,
-                    acceptPartialPayment,
-                    out var receivedGold))
-            {
-                SetMessage(GetSellFailureReason(item));
-                UIWorkspaceTooltipView.ActiveInstance?.Hide();
-                Refresh();
-                return;
-            }
-
-            SetMessage($"Sprzedano przedmiot za {receivedGold}. Trafił do odkupu.");
-            UIWorkspaceTooltipView.ActiveInstance?.Hide();
-            Refresh();
+            if (item != null) Transact(TradeItemSlotSource.PlayerInventory,
+                CaptureStack(item, TradeItemSlotSource.PlayerInventory).Take(1).ToArray());
         }
 
         private void Refresh()
@@ -356,10 +396,10 @@ namespace Godmist.Views.UI.Workspace
                     stack.Count,
                     TradeItemSlotSource.PlayerInventory,
                     BuildSellPriceTooltip(stack.Representative, price),
-                    price <= 0,
+                    stack.Representative.IsSaleProtected || price <= 0 && !TradeService.IsFreeStarter(stack.Representative),
                     tradingCharacter,
                     null,
-                    price);
+                    stack.Representative.IsSaleProtected ? (int?)null : price);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.Items))
@@ -379,17 +419,17 @@ namespace Godmist.Views.UI.Workspace
                     price);
             }
 
-            foreach (var entry in trader?.ShopInventory?.BuybackStock ?? new List<BuybackEntry>())
+            foreach (var stack in BuildItemStacks(trader?.ShopInventory?.BuybackStock.Select(entry => entry.Item)))
             {
-                if (entry?.Item?.Definition == null) continue;
+                var entry = trader.ShopInventory.BuybackStock.First(value => value.Item == stack.Representative);
                 var price = tradeService.GetPriceFromBuyback(trader, entry);
                 SpawnSlot(
                     traderItemsContent,
                     entry.Item,
-                    1,
+                    stack.Count,
                     TradeItemSlotSource.Buyback,
                     BuildBuyPriceTooltip(entry.Item, price),
-                    price <= 0 || session != null && session.Gold < price,
+                    price <= 0 && !TradeService.IsFreeStarter(entry.Item) || session != null && session.Gold < price,
                     null,
                     entry,
                     price);
@@ -399,6 +439,8 @@ namespace Godmist.Views.UI.Workspace
             ForceRebuild(playerItemsContent);
             ForceRebuild(traderItemsContent);
         }
+
+        public void RefreshForSession(GameSession nextSession) { if (session == nextSession && IsShown) Refresh(); }
 
         private void SpawnSlot(
             RectTransform content,
@@ -452,6 +494,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildBuyPriceTooltip(ItemInstance item, int price)
         {
+            if (TradeService.IsFreeStarter(item)) return "Odkup wyposażenia startowego: 0 złota.";
             var result = price <= 0
                 ? "Kupno: brak poprawnej ceny."
                 : string.Empty;
@@ -466,6 +509,8 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildSellPriceTooltip(ItemInstance item, int price)
         {
+            if (item.IsSaleProtected) return string.Empty; // The shared item footer already displays protection.
+            if (TradeService.IsFreeStarter(item)) return "Wyposażenie startowe — sprzedaż za 0 złota.";
             var result = string.Empty;
             if (price <= 0)
             {
@@ -479,34 +524,10 @@ namespace Godmist.Views.UI.Workspace
             return result;
         }
 
-        private void ShowPartialSaleConfirmation(ItemInstance item, int normalPrice, int payableGold)
-        {
-            pendingPartialSaleItem = item;
-            partialSaleText.text = $"{trader?.Definition?.DisplayName ?? "NPC"} ma tylko {payableGold} g.\n"
-                + $"Czy na pewno chcesz sprzedać ten przedmiot za tę kwotę?\nNormalna cena: {normalPrice} g";
-            partialSaleConfirmationRoot.SetActive(true);
-        }
-
-        private void ConfirmPartialSale()
-        {
-            var item = pendingPartialSaleItem;
-            HidePartialSaleConfirmation();
-
-            if (item != null)
-            {
-                ExecuteSell(item, acceptPartialPayment: true);
-            }
-        }
-
         private void HidePartialSaleConfirmation()
         {
-            pendingPartialSaleItem = null;
             if (partialSaleConfirmationRoot != null) partialSaleConfirmationRoot.SetActive(false);
         }
-
-
-
-
 
         private void ConfigurePanelHeader(TextMeshProUGUI header, string displayName, long gold)
         {
@@ -530,7 +551,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildBuyFailureMessage(ItemInstance item, int price)
         {
-            if (price <= 0)
+            if (price <= 0 && !TradeService.IsFreeStarter(item))
                 return GetBuyRestrictionReason(item);
             if (session == null || session.Gold < price)
                 return "Brakuje złota na ten zakup.";
@@ -593,7 +614,7 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var slot in spawnedSlots)
             {
-                if (slot != null) Destroy(slot.gameObject);
+                if (slot != null) { slot.gameObject.SetActive(false); Destroy(slot.gameObject); }
             }
 
             spawnedSlots.Clear();
@@ -607,7 +628,9 @@ namespace Godmist.Views.UI.Workspace
 
         private void SetMessage(string message)
         {
-            if (messageText != null) messageText.text = message ?? string.Empty;
+            if (messageText == null) return;
+            messageText.text = message ?? string.Empty;
+            messageText.gameObject.SetActive(!string.IsNullOrEmpty(message));
         }
 
         private static List<ItemStackEntry> BuildItemStacks(IEnumerable<ItemInstance> items)

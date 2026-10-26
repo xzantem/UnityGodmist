@@ -18,6 +18,7 @@ namespace Godmist.Core.Enums
         OnResourceSpent = 13,
         OnDamageTaken = 14,
         OnDamageThresholdReached = 15,
-        OnItemPickup = 16
+        OnItemPickup = 16,
+        OnHeal = 17
     }
 }

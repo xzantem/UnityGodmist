@@ -10,6 +10,7 @@ using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Data.World;
 using Godmist.Runtime.Characters;
+using Godmist.Runtime.Effects;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Runtime.NPC;
@@ -22,6 +23,106 @@ namespace Godmist.Tests.EditMode
 {
     public sealed class CraftingUpgradingConsumablesAcceptanceTests
     {
+        [TestCase(0, 0L, "—", "")]
+        [TestCase(0, 100L, "—", "")]
+        [TestCase(7, 0L, "7", "Brakuje: 7 złota")]
+        [TestCase(7, 2L, "7", "Brakuje: 5 złota")]
+        [TestCase(7, 7L, "7", "")]
+        [TestCase(7, 100L, "7", "")]
+        public void UpgradeCostPresentationDoesNotInventAShortfallForBlockedEquipment(int cost, long gold, string price, string missing)
+        {
+            Assert.That(Godmist.Views.UI.Workspace.EquipmentUpgradePresentation.Cost(cost), Is.EqualTo(price));
+            Assert.That(Godmist.Views.UI.Workspace.EquipmentUpgradePresentation.Shortfall(cost, gold), Is.EqualTo(missing));
+        }
+
+        [Test]
+        public void BlacksmithPreviewBeforeEquipmentSelectionReturnsFailureWithoutMutation()
+        {
+            var npc=CreateBlacksmith();var character=new CharacterInstance{CharacterId="preview.owner"};
+            var session=new GameSession(GameModeState.Exploration,"preview.empty");
+            session.TryRegisterCharacter(character);session.TryAddCharacterToActiveParty(character.CharacterId);
+            var service=new BlacksmithCraftingService();
+            var request=new EquipmentCraftRequest{RecipientCharacterId=character.CharacterId,Quality=EquipmentQuality.Normal};
+            var preview=service.CreatePreview(session,npc,request);
+            Assert.That(preview.CanCraft,Is.False);Assert.That(preview.Result,Is.Null);
+            Assert.That(preview.FailureReason,Is.Not.Empty);Assert.That(preview.Materials,Is.Empty);
+            Assert.That(service.TryCraft(session,npc,request,out var result,out var reason),Is.False);
+            Assert.That(result,Is.Null);Assert.That(character.Inventory.Items,Is.Empty);
+            Assert.That(service.CreatePreview(session,npc,null).CanCraft,Is.False);
+        }
+
+        [Test]
+        public void QualityInitializationDoesNotInvokePreviewCallback()
+        {
+            var go=new GameObject("quality.init",typeof(RectTransform));
+            try
+            {
+                var dropdown=go.AddComponent(System.Type.GetType("TMPro.TMP_Dropdown, Unity.TextMeshPro",true));
+                var value=dropdown.GetType().GetProperty("value");
+                var changed=(UnityEngine.Events.UnityEvent<int>)dropdown.GetType().GetProperty("onValueChanged").GetValue(dropdown);
+                var view=go.AddComponent<Godmist.Views.UI.Workspace.BlacksmithCraftingWindowView>();
+                typeof(Godmist.Views.UI.Workspace.BlacksmithCraftingWindowView).GetField("qualityDropdown",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(view,dropdown);
+                var callbacks=0;changed.AddListener(_=>callbacks++);
+                var populate=view.GetType().GetMethod("PopulateQualityOptions",BindingFlags.Instance|BindingFlags.NonPublic);
+                populate.Invoke(view,null);populate.Invoke(view,null);
+                Assert.That(value.GetValue(dropdown),Is.EqualTo(1));Assert.That(callbacks,Is.Zero);
+                value.SetValue(dropdown,2);Assert.That(callbacks,Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
+        public void MaterialVariantsConsumeChosenMetalAndShareCheapestOutputValue()
+        {
+            var cheap=CreateItem("cheap",ItemType.Material,14);var costly=CreateItem("costly",ItemType.Material,20);
+            var recipe=CreateRecipe("needle",3,(cheap,1));
+            recipe.AlternativeRecipes.Add(new CraftableItemDefinition.RecipeVariant{Label="costly",Ingredients=new List<CraftingMaterialRequirement>{new(costly,1)}});
+            Assert.That(recipe.CalculatedBaseValue,Is.EqualTo(4));
+            var npc=CreateBlacksmith(recipe);var character=new CharacterInstance{CharacterId="variant.crafter"};
+            var session=new GameSession(GameModeState.Exploration,"variants");session.TryRegisterCharacter(character);session.TryAddCharacterToActiveParty(character.CharacterId);
+            character.Inventory.Items.Add(new ItemInstance(cheap,"cheap.one"));character.Inventory.Items.Add(new ItemInstance(costly,"costly.one"));
+            var service=new MaterialCraftingService();
+            var request=new MaterialCraftRequest{Recipe=recipe,RecipeVariantIndex=1,RecipientCharacterId=character.CharacterId};
+            Assert.That(service.TryCraft(session,npc,request,out var items,out var failure),Is.True,failure);
+            Assert.That(items.Count,Is.EqualTo(3));Assert.That(items.All(item=>item.Definition==recipe),Is.True);
+            Assert.That(character.Inventory.Items.Any(item=>item.Definition==cheap),Is.True);
+            Assert.That(character.Inventory.Items.Any(item=>item.Definition==costly),Is.False);
+            request.RecipeVariantIndex=99;Assert.That(service.CreatePreview(session,npc,request).CanCraft,Is.False);
+            request.RecipeVariantIndex=-1;Assert.That(service.CreatePreview(session,npc,request).CanCraft,Is.False);
+            request.RecipeVariantIndex=0;Assert.That(service.TryCraft(session,npc,request,out items,out failure),Is.True,failure);
+            Assert.That(character.Inventory.Items.Count(item=>item.Definition==recipe),Is.EqualTo(6));
+        }
+
+        [Test]
+        public void BlacksmithRejectsMixedTiersWithoutConsumingMaterials()
+        {
+            var ore = CreateItem("material.ore", ItemType.Material, 8);
+            var scout = CreateClass("class.scout");
+            var definition = CreateEquipmentDefinition("equipment.scout.weapon", scout);
+            var head = CreatePart("head", scout, ore, EquipmentPartKind.WeaponHead);
+            var binder = CreatePart("binder", scout, ore, EquipmentPartKind.WeaponBinder);
+            var handle = CreatePart("handle", scout, ore, EquipmentPartKind.WeaponHandle);
+            SetAutoProperty(head, "LevelBracket", EquipmentPartLevelBracket.Level15);
+            var character = new CharacterInstance { CharacterId = "crafter" };
+            var session = new GameSession(GameModeState.Exploration, "mixed.tiers");
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            var material = new ItemInstance(ore, "ore.01");
+            character.Inventory.Items.Add(material);
+            var request = new EquipmentCraftRequest { Definition = definition,
+                Parts = new[] { head, binder, handle }, Quality = EquipmentQuality.Normal,
+                RecipientCharacterId = character.CharacterId };
+            var service = new BlacksmithCraftingService();
+            var blacksmith = CreateBlacksmith();
+            var preview = service.CreatePreview(session, blacksmith, request);
+            Assert.That(preview.CanCraft, Is.False);
+            Assert.That(preview.FailureReason, Does.Contain("tego samego tieru"));
+            Assert.That(service.TryCraft(session, blacksmith, request, out var item, out var reason), Is.False);
+            Assert.That(item, Is.Null);
+            Assert.That(reason, Is.EqualTo(preview.FailureReason));
+            Assert.That(character.Inventory.Items, Is.EqualTo(new[] { material }));
+        }
+
         [Test]
         public void CraftableItemDefinition_CalculatesRecursiveUnitValue()
         {
@@ -90,35 +191,75 @@ namespace Godmist.Tests.EditMode
             var session = new GameSession(GameModeState.Exploration, "upgrade.acceptance");
             session.TryAddGold(100000);
 
-            var preview = new EquipmentUpgradeService().CreateUpgradePreview(
-                session,
-                blacksmith,
-                item,
-                1f,
-                .5f,
-                catalog);
-
+            var service = new EquipmentUpgradeService();
+            Assert.That(service.CreateUpgradePreview(session, blacksmith, item, 1f, .7f, catalog).CanExecute, Is.False);
+            Assert.That(service.CreateUpgradePreview(session, blacksmith, item, float.NaN, .7f, catalog).CanExecute, Is.False);
+            var preview = service.CreateUpgradePreview(session, blacksmith, item, .2f, .7f, catalog);
             Assert.That(preview.CanExecute, Is.True);
-            Assert.That(preview.SocketCapacity, Is.EqualTo(5));
-            var expectedGoldCost = Mathf.CeilToInt((float)(
-                EquipmentUpgradeService.UpgradeCost(30f, 1f, .5f)
-                - EquipmentUpgradeService.UpgradeCost(30f, 0f, .5f)));
-            Assert.That(preview.GoldCost, Is.EqualTo(expectedGoldCost));
-            foreach (var progress in new[] { .19f, .2f, .4f, .6f, .8f, 1f })
+            Assert.That(preview.GoldCost, Is.EqualTo(7));
+            item.CurrentRarity = RarityTier.Legendary;
+            item.UpgradeProgress = .4f;
+            var enhanced = service.CreateUpgradePreview(session, blacksmith, item, .6f, .7f, catalog);
+            Assert.That(enhanced.CurrentValue, Is.EqualTo(136.5f).Within(.001f));
+            var before = session.Gold;
+            Assert.That(new EquipmentUpgradeService(new AlwaysFailRandom()).TryUpgrade(
+                session, blacksmith, null, item, .6f, .7f, catalog, out var success, out var paid, out _), Is.True);
+            Assert.That(success, Is.False);
+            Assert.That(paid, Is.EqualTo(enhanced.GoldCost));
+            Assert.That(session.Gold, Is.EqualTo(before - paid));
+            Assert.That(item.UpgradeProgress, Is.InRange(.2f, .3f));
+            item.CurrentRarity = RarityTier.Common;
+            item.UpgradeProgress = 0f;
+            var total = 0;
+            for (var step = 1; step <= 5; step++)
             {
-                var boundary = new EquipmentUpgradeService().CreateUpgradePreview(
-                    session, blacksmith, item, progress, .5f, catalog);
-                var projected = new EquipmentItemInstance { UpgradeProgress = progress };
-                Assert.That(boundary.SocketCapacity, Is.EqualTo(projected.SocketCapacity));
-                Assert.That(boundary.SocketCapacity, Is.EqualTo(Mathf.FloorToInt(progress * 5f + .0001f)));
+                var target = step / 5f;
+                var next = service.CreateUpgradePreview(session, blacksmith, item, target, .7f, catalog);
+                Assert.That(next.CanExecute, Is.True);
+                total += next.GoldCost;
+                item.UpgradeProgress = target;
+                Assert.That(item.SocketCapacity, Is.EqualTo(step));
             }
-            item.UpgradeProgress = .8f;
-            var failed = new EquipmentUpgradeService(new AlwaysFailRandom());
-            Assert.That(failed.TryUpgrade(session, blacksmith, null, item, 1f, .5f, catalog,
-                out var succeeded, out _, out _), Is.True);
-            Assert.That(succeeded, Is.False);
-            Assert.That(item.UpgradeProgress, Is.EqualTo(.8f));
-            Assert.That(item.SocketCapacity, Is.EqualTo(4));
+            Assert.That(total, Is.EqualTo(System.Math.Ceiling(EquipmentUpgradeService.UpgradeCost(30, 1, .7f))));
+            item.UpgradeProgress = 0;
+            var commonCost = service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost;
+            Assert.That(commonCost, Is.EqualTo(8));
+            var rarities = new[] { RarityTier.Common, RarityTier.Uncommon, RarityTier.Rare, RarityTier.Ancient, RarityTier.Legendary, RarityTier.Mythic };
+            var costs = new[] { 8, 14, 21, 31, 45, 65 };
+            for (var index = 0; index < rarities.Length; index++)
+            {
+                item.CurrentRarity = rarities[index];
+                Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost, Is.EqualTo(costs[index]), rarities[index].ToString());
+            }
+            item.CurrentRarity = RarityTier.Mythic;
+            Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).GoldCost, Is.EqualTo(65));
+            item.Quality = EquipmentQuality.Excellent;
+            Assert.That(service.CreateReforgePreview(session, blacksmith, item, catalog).CurrentValue, Is.EqualTo(item.BaseValue).Within(1));
+        }
+
+        [Test]
+        public void EquipmentRarity_RebuildsFromBaselineWithoutCompounding()
+        {
+            var definition = CreateEquipmentDefinition("equipment.rarity", CreateClass("class.scout"));
+            var item = new EquipmentItemInstance(definition)
+            {
+                CurrentRarity = RarityTier.Godly, UpgradeProgress = .4f,
+                BaseStatModifiers = new List<StatModifier>
+                {
+                    new() { StatType = CharacterStatType.MinAttack, Value = 100 },
+                    new() { StatType = CharacterStatType.CritChance, Value = .1f },
+                    new() { StatType = CharacterStatType.CritDamage, Value = .5f },
+                    new() { StatType = CharacterStatType.WeaponAccuracy, Value = 100 },
+                    new() { StatType = CharacterStatType.MaxResource, Value = 100 }
+                }
+            };
+            item.RecalculateStatModifiers();
+            item.RecalculateStatModifiers();
+            Assert.That(item.StatModifiers.Select(x => x.Value), Is.EqualTo(new[] { 120f, .27f, .925f, 151f, 202f }).Within(.001f));
+            item.CurrentRarity = RarityTier.Common;
+            item.RecalculateStatModifiers();
+            Assert.That(item.StatModifiers[1].Value, Is.EqualTo(.1f).Within(.0001f));
+            Assert.That(item.BaseStatModifiers[0].Value, Is.EqualTo(100));
         }
 
         private sealed class AlwaysFailRandom : System.Random
@@ -205,6 +346,199 @@ namespace Godmist.Tests.EditMode
             Assert.That(effect, Is.EqualTo(ExplorationConsumableEffect.ReturnToArungard));
             Assert.That(character.Inventory.Items, Is.Empty);
             Assert.That(returnScroll.CurrentCharges, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Vs12UtilityItems_RemoveStatusAndGrantThreeTurnTypedResistance()
+        {
+            var cases = new[]
+            {
+                ("item.consumable.bandage", Godmist.Core.Constants.StatusEffectIds.Bleed, ResistanceType.Bleed),
+                ("item.consumable.antidote", Godmist.Core.Constants.StatusEffectIds.Poison, ResistanceType.Poison),
+                ("item.consumable.damp_towel", Godmist.Core.Constants.StatusEffectIds.Burn, ResistanceType.Fire)
+            };
+            foreach (var (id, statusId, resistanceType) in cases)
+            {
+                var definition = CreateConsumable(id, ConsumableUseType.Utility, 1);
+                var effects = ConsumableRuntimeRules.GetImpliedUtilityEffects(definition);
+                Assert.That(effects.Count, Is.EqualTo(2), id);
+                Assert.That(effects[0].EffectType, Is.EqualTo(ConsumableRuntimeEffectType.RemoveStatus), id);
+                Assert.That(effects[0].StatusId, Is.EqualTo(statusId), id);
+                Assert.That(effects[1].EffectType, Is.EqualTo(ConsumableRuntimeEffectType.ModifyResistance), id);
+                Assert.That(effects[1].ResistanceType, Is.EqualTo(resistanceType), id);
+                Assert.That(effects[1].Value, Is.EqualTo(.30f).Within(.0001f), id);
+                var skill = ConsumableRuntimeActionBuilder.Build(new ConsumableItemInstance(definition));
+                Assert.That(skill.Effects, Has.Count.EqualTo(2), id);
+                Assert.That(skill.Effects[1].DurationTurns, Is.EqualTo(3), id);
+                Assert.That(skill.Effects[1].ResistanceType, Is.EqualTo(resistanceType), id);
+            }
+        }
+
+        [Test]
+        public void CondensedPotion_AppliesSameDamageBuffInExplorationAndCombat()
+        {
+            var definition = CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 1);
+            var potion = new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDamage, Value = .1f, DurationTurns = 8
+            });
+            potion.ApplyCatalyst(ConsumableCatalystType.Condensation, 1);
+            var skill = ConsumableRuntimeActionBuilder.Build(potion);
+            try
+            {
+                var character = new CharacterInstance { CharacterId = "condensation.damage" };
+                character.Inventory.Items.Add(potion);
+                Assert.That(new ConsumableService().TryUseInExploration(character, potion, out _), Is.True);
+                var applied = character.PassiveEffects[0];
+                Assert.That(applied.RemainingDuration, Is.EqualTo(7));
+                var value = applied.GetPayload<VariableModifiersPayload>().Modifiers[0].Value;
+                Assert.That(value, Is.EqualTo(.1f * 8 / 7).Within(.00001f));
+                Assert.That(value, Is.EqualTo(skill.Effects[0].ModifierValue).Within(.00001f));
+                Assert.That(character.Inventory.Items, Is.Empty);
+            }
+            finally { Object.DestroyImmediate(skill); }
+        }
+
+        [Test]
+        public void Vs12ExplorationRegeneration_KeepsTotalRecoveryAcrossCondensedDuration()
+        {
+            var definition = CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 1);
+            var potion = new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.RegenHealth,
+                Value = .25f,
+                DurationTurns = 10
+            });
+            potion.CatalystDurationModifier = -2;
+            var character = new CharacterInstance { CharacterId = "vs12.regen" };
+            character.Inventory.Items.Add(potion);
+
+            Assert.That(new ConsumableService().TryUseInExploration(
+                character, potion, out var result), Is.True);
+            Assert.That(result, Is.EqualTo(ExplorationConsumableEffect.ApplyModifier));
+            Assert.That(character.PassiveEffects, Has.Count.EqualTo(1));
+            Assert.That(character.PassiveEffects[0].RemainingDuration, Is.EqualTo(8));
+            Assert.That(character.PassiveEffects[0].GetPayload<PeriodicRecoveryPayload>()
+                .HealthPercent * 8f, Is.EqualTo(.25f).Within(.0001f));
+            Assert.That(character.Inventory.Items, Is.Empty);
+
+            var cityPotion = new ConsumableItemInstance(definition);
+            cityPotion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.RegenHealth,
+                Value = .25f,
+                DurationTurns = 10
+            });
+            var cityCharacter = new CharacterInstance
+            {
+                CharacterId = "vs12.city.regen",
+                Stats = new CharacterStats { MaxHealth = new Stat(100) },
+                CurrentHealth = 50
+            };
+            cityCharacter.Inventory.Items.Add(cityPotion);
+            Assert.That(new ConsumableService().TryUseInExploration(
+                cityCharacter, cityPotion, out var cityResult,
+                returnTransition: null, passiveTicksActive: false), Is.True);
+            Assert.That(cityResult, Is.EqualTo(ExplorationConsumableEffect.RestoreHealthPercent));
+            Assert.That(cityCharacter.CurrentHealth, Is.EqualTo(75));
+            Assert.That(cityCharacter.PassiveEffects, Is.Empty);
+        }
+
+        [Test]
+        public void Vs12MaterialRecipe_ProducesUsableConsumableFromAlchemyAndFabric()
+        {
+            var alcohol = CreateItem("alcohol", ItemType.Material, 10);
+            SetAutoProperty(alcohol, "MaterialDiscipline", MaterialDiscipline.Alchemy);
+            var fabric = CreateItem("fabric", ItemType.Material, 5);
+            var product = CreateConsumable("item.consumable.bandage", ConsumableUseType.Utility, 1);
+            SetAutoProperty(product, "ItemType", ItemType.Tool);
+            var recipe = CreateRecipe("recipe.vs12.bandage", 1, (alcohol, 1), (fabric, 2));
+            SetAutoProperty(recipe, "CraftingDiscipline", MaterialDiscipline.Alchemy);
+            SetAutoProperty(recipe, "CraftedResult", product);
+            SetAutoProperty(recipe, "ResultLevel", 11);
+            SetAutoProperty(recipe, "PrimaryVariantLabel", "Jutowa tkanina");
+            Assert.That(recipe.GetVariantLabel(), Is.EqualTo("Jutowa tkanina"));
+            var role = ScriptableObject.CreateInstance<AlchemistRoleData>();
+            SetAutoProperty(role, "MaterialRecipes", new List<CraftableItemDefinition> { recipe });
+            var definition = ScriptableObject.CreateInstance<NpcDefinition>();
+            SetAutoProperty(definition, "Id", "npc.vs12.alchemist");
+            SetAutoProperty(definition, "Roles", new List<NpcRoleData> { role });
+            var npc = new NpcInstance { NpcId = definition.Id, Definition = definition, ShopInventory = new ShopInventory() };
+            var character = new CharacterInstance { CharacterId = "vs12.crafter" };
+            var session = new GameSession(GameModeState.Exploration, "vs12.crafting");
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            character.Inventory.Items.Add(new ItemInstance(alcohol));
+            character.Inventory.Items.Add(new ItemInstance(fabric));
+            character.Inventory.Items.Add(new ItemInstance(fabric));
+            var request = new MaterialCraftRequest { Recipe = recipe, RecipientCharacterId = character.CharacterId };
+            var service = new MaterialCraftingService();
+            Assert.That(service.CreatePreview(session, npc, request).Result, Is.SameAs(product));
+            Assert.That(service.TryCraft(session, npc, request, out var items, out var failure), Is.True, failure);
+            Assert.That(items, Has.Count.EqualTo(1));
+            Assert.That(items[0], Is.TypeOf<ConsumableItemInstance>());
+            Assert.That(items[0].Definition, Is.SameAs(product));
+            Assert.That(items[0].ItemLevel, Is.EqualTo(11));
+            Assert.That(items[0].BaseValue, Is.EqualTo(20));
+            Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void Vs12SharedIngredientsExpandDefenseAndAllResistances()
+        {
+            var potion = new ConsumableItemInstance(
+                CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 5));
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDefense,
+                Value = .1f,
+                DurationTurns = 8
+            });
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyAllResistances,
+                Value = .1f,
+                DurationTurns = 8,
+                ResistanceType = ResistanceType.Bleed
+            });
+            var skill = ConsumableRuntimeActionBuilder.Build(potion);
+            Assert.That(skill.Effects.Count(effect => effect.EffectType == EffectType.ModifyStat), Is.EqualTo(2));
+            Assert.That(skill.Effects.Where(effect => effect.EffectType == EffectType.ModifyStat)
+                .Select(effect => effect.ModifierStatType),
+                Is.EquivalentTo(new[] { CharacterStatType.PhysicalDefense, CharacterStatType.MagicalDefense }));
+            Assert.That(skill.Effects.Where(effect => effect.EffectType == EffectType.ModifyResistance)
+                .Select(effect => effect.ResistanceType),
+                Is.EquivalentTo(System.Enum.GetValues(typeof(ResistanceType)).Cast<ResistanceType>()));
+
+            var bomb = new ConsumableItemInstance(
+                CreateConsumable("item.consumable.bomb", ConsumableUseType.Bomb, 5));
+            bomb.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDodge,
+                Value = .1f,
+                DurationTurns = 3
+            });
+            var weakening = ConsumableRuntimeActionBuilder.Build(bomb).Effects.Single();
+            Assert.That(weakening.ModifierStatType, Is.EqualTo(CharacterStatType.Dodge));
+            Assert.That(weakening.ModifierOperation, Is.EqualTo(StatModifierOperation.Percent));
+            Assert.That(weakening.ModifierValue, Is.EqualTo(-.1f).Within(.0001f));
+        }
+
+        [Test]
+        public void Vs12Catalyst_PreservesLegacyBombTypeUntilConfigured()
+        {
+            var catalyst = new AlchemyCatalystData();
+            SetAutoProperty(catalyst, "CatalystType", ConsumableCatalystType.Strength);
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Bomb),
+                Is.EqualTo(ConsumableCatalystType.Strength));
+            SetAutoProperty(catalyst, "BombCatalystType", ConsumableCatalystType.Range);
+            SetAutoProperty(catalyst, "HasBombCatalystOverride", true);
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Bomb),
+                Is.EqualTo(ConsumableCatalystType.Range));
+            Assert.That(catalyst.GetTypeFor(ConsumableUseType.Potion),
+                Is.EqualTo(ConsumableCatalystType.Strength));
         }
 
         [Test]
@@ -299,7 +633,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredEquipment.CurrentRarity, Is.EqualTo(RarityTier.Rare));
             Assert.That(restoredEquipment.Quality, Is.EqualTo(EquipmentQuality.Excellent));
             Assert.That(restoredEquipment.UpgradeProgress, Is.EqualTo(.75f));
-            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(17.5f));
+            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(13.75f));
             Assert.That(restored.NpcsById[npcDefinition.Id].GoldBalance, Is.EqualTo(340));
             Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldReceived, Is.EqualTo(900));
             Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldSpent, Is.EqualTo(560));
@@ -440,5 +774,93 @@ namespace Godmist.Tests.EditMode
             Assert.That(field, Is.Not.Null, $"Nie znaleziono backing field dla '{propertyName}'.");
             field.SetValue(target, value);
         }
+        [TestCase(1, false)] [TestCase(3, false)] [TestCase(1, true)]
+        public void SharedCombatConsumableSpendsCarrierAndKeepsLimitOnOriginalCaster(int charges, bool endCombat)
+        {
+            var definition=CreateConsumable("shared.potion",ConsumableUseType.Potion,charges);
+            var potion=new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.RestoreHealth,Value=.25f});
+            var owner=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance {CharacterId="Jerzy"}};
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance {CharacterId="Wladimir"},CurrentActionPoints=1000,MaxActionPoints=1000};
+            owner.Character.Inventory.Items.Add(potion);
+            owner.Character.LifeState=CharacterLifeState.Downed;
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(owner);session.Units.Add(actor);
+            try
+            {
+                var signature=ConsumableService.CombatInventorySignature(session);
+                Assert.That(ConsumableService.GetCombatItems(session),Is.EquivalentTo(new[]{potion}));
+                Assert.That(ConsumableService.CanUseInCombat(session,actor,potion),Is.True);
+                var calls=0;
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,potion,()=>{
+                    calls++;actor.CurrentActionPoints-=200;
+                    if(endCombat){session.Outcome=CombatOutcomeState.Victory;session.ActiveUnit=owner;}
+                    return true;
+                }),Is.True);
+                Assert.That(calls,Is.EqualTo(1));Assert.That(actor.CurrentActionPoints,Is.EqualTo(800));
+                Assert.That(potion.CurrentCharges,Is.EqualTo(charges-1));
+                Assert.That(owner.Character.Inventory.Items.Contains(potion),Is.EqualTo(charges>1));
+                Assert.That(actor.Character.Inventory.Items,Is.Empty);
+                Assert.That(actor.ConsumableUseTypesUsedThisTurn,Does.Contain(ConsumableUseType.Potion));
+                Assert.That(owner.ConsumableUseTypesUsedThisTurn,Is.Empty);
+                Assert.That(ConsumableService.CombatInventorySignature(session),Is.Not.EqualTo(signature));
+                Assert.That(ConsumableService.CanUseInCombat(session,actor,potion),Is.False);
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
+        [TestCase("enemy")] [TestCase("absent")] [TestCase("impostor")]
+        [TestCase("turn")] [TestCase("ap")] [TestCase("used")]
+        [TestCase("empty")] [TestCase("finished")]
+        public void SharedCombatConsumableRejectsInvalidUseBeforeEffects(string reason)
+        {
+            var definition=CreateConsumable("shared.validation",ConsumableUseType.Potion,3);
+            var potion=new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.RestoreHealth,Value=.25f});
+            var owner=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance()};
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance(),CurrentActionPoints=1000,MaxActionPoints=1000};
+            owner.Character.Inventory.Items.Add(potion);
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(owner);session.Units.Add(actor);
+            var selected=potion;
+            switch(reason)
+            {
+                case "enemy":owner.IsPlayerSide=false;break;
+                case "absent":session.Units.Remove(owner);break;
+                case "impostor":selected=new ConsumableItemInstance(definition,potion.InstanceId);selected.RuntimeEffects.Add(potion.RuntimeEffects[0]);break;
+                case "turn":session.ActiveUnit=owner;break;
+                case "ap":actor.CurrentActionPoints=199;break;
+                case "used":actor.ConsumableUseTypesUsedThisTurn.Add(ConsumableUseType.Potion);break;
+                case "empty":potion.CurrentCharges=0;break;
+                case "finished":session.Outcome=CombatOutcomeState.Victory;break;
+            }
+            var initial=potion.CurrentCharges;
+            try
+            {
+                var executed=false;
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,selected,()=>{executed=true;return true;}),Is.False);
+                Assert.That(executed,Is.False);Assert.That(potion.CurrentCharges,Is.EqualTo(initial));
+                Assert.That(owner.Character.Inventory.Items,Does.Contain(potion));
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
+        [Test]
+        public void SharedCombatConsumableFailedActionDoesNotSpendOrConsumeTurnLimit()
+        {
+            var definition=CreateConsumable("shared.failed",ConsumableUseType.Bomb,1);
+            var item=new ConsumableItemInstance(definition);
+            item.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.DealPhysicalDamage,Value=10});
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance(),CurrentActionPoints=1000,MaxActionPoints=1000};
+            actor.Character.Inventory.Items.Add(item);
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(actor);session.Units.Add(actor);
+            try
+            {
+                Assert.That(ConsumableService.GetCombatItems(session).Count(),Is.EqualTo(1),"Duplicate participant references must not duplicate items.");
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,item,()=>false),Is.False);
+                Assert.That(item.CurrentCharges,Is.EqualTo(1));Assert.That(actor.CurrentActionPoints,Is.EqualTo(1000));
+                Assert.That(actor.ConsumableUseTypesUsedThisTurn,Is.Empty);
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
@@ -12,6 +13,51 @@ namespace Godmist.Views.UI.Workspace
         menuName = "Godmist/UI Workspace/Style Palette")]
     public sealed class UIWorkspaceStylePalette : ScriptableObject
     {
+        [Header("Optional skin artwork")]
+        [SerializeField] private Sprite[] artwork = System.Array.Empty<Sprite>();
+
+        public Sprite GetArtwork(string spriteName)
+        {
+            if (artwork == null) return null;
+            foreach (var sprite in artwork)
+                if (sprite != null && sprite.name == spriteName) return sprite;
+            return null;
+        }
+
+        public bool IsArtwork(Sprite sprite)
+        {
+            if (sprite == null || artwork == null) return false;
+            foreach (var entry in artwork)
+                if (entry == sprite) return true;
+            return false;
+        }
+
+        /// <summary>Keep semantic feedback without multiplying full-color frame art.</summary>
+        public void ApplyFrameAccent(Image image, UIWorkspaceAccentStyle style, bool disabled = false)
+        {
+            if (image == null) return;
+            if (!IsArtwork(image.sprite))
+            {
+                image.color = disabled ? GetTextColor(UIWorkspaceTextStyle.Disabled) : GetAccentColor(style);
+                return;
+            }
+
+            var name = style switch
+            {
+                UIWorkspaceAccentStyle.Hover => "slot_hover",
+                UIWorkspaceAccentStyle.Selected or UIWorkspaceAccentStyle.Warning => "slot_selected",
+                UIWorkspaceAccentStyle.Positive => "slot_valid",
+                UIWorkspaceAccentStyle.Negative => "slot_invalid",
+                _ => "item_frame"
+            };
+            var nextSprite = GetArtwork(name);
+            if (nextSprite != null) image.sprite = nextSprite;
+            image.color = disabled ? new Color(.55f, .55f, .55f, 1f) : Color.white;
+            // The normal frame is already part of the button/slot surface.
+            // This image is its independent semantic selection/availability layer.
+            image.enabled = disabled || style != UIWorkspaceAccentStyle.Neutral;
+        }
+
         [Header("Typography")]
         [SerializeField] private TMP_FontAsset font;
         [SerializeField, Min(8f)] private float titleFontSize = 24f;

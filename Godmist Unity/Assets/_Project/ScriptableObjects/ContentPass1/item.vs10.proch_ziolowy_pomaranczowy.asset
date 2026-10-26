@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb82b87d42d94e4192692d17f69ed0c, type: 3}
+  m_Name: item.vs10.proch_ziolowy_pomaranczowy
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
+  <Id>k__BackingField: item.vs10.proch_ziolowy_pomaranczowy
+  <DisplayName>k__BackingField: "Proch zio\u0142owy: Pomara\u0144czowy"
+  <Description>k__BackingField: "Mieszanina rozdrobnionych sk\u0142adnik\xF3w u\u017Cywana
+    do warzenia mikstur."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 24eb55589bd01444c9a2a7571d200f3b, type: 3}
+  <ItemType>k__BackingField: 3
+  <MaterialDiscipline>k__BackingField: 2
+  <BaseRarity>k__BackingField: 4
+  <BaseValue>k__BackingField: 370
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 2
+  <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
+  <Ingredients>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+    <Amount>k__BackingField: 2
+  - <Material>k__BackingField: {fileID: 11400000, guid: 507136bb0d9c9ae4db1ee7a33bec657f, type: 2}
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: c3d5e7f9a1b24680c2d4e6f8a0b1c3d5, type: 2}
+    <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

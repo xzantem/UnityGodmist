@@ -61,21 +61,25 @@ namespace Godmist.Systems.Combat
             var rawDamage = Mathf.CeilToInt(
                 payload.RemainingTotalDamage / (float)remainingTurns);
 
+            var adjustedDamage = MageCombatSystem.BeforeBurnTick(session, unit, effect, rawDamage);
             payload.RemainingTotalDamage = Mathf.Max(
                 0,
                 payload.RemainingTotalDamage - rawDamage);
 
-            var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, rawDamage);
+            var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, adjustedDamage);
 
-            damageSystem.ApplyDamage(
+            var actualDamage = damageSystem.ApplyDamage(
                 session,
                 source: null,
                 target: unit,
                 requestedDamage: finalDamage,
                 damageType: GetDamageType(effect.EffectId));
 
+            PaladinCombatSystem.RecordDamageDealt(MageCombatSystem.BurnSource(session,effect),actualDamage);
             shouldExpire = payload.RemainingTotalDamage <= 0;
+            MageCombatSystem.AfterBurnTick(session, effect, actualDamage, shouldExpire || effect.RemainingDuration <= 1);
 
+            if (unit.Character.LifeState != CharacterLifeState.Alive) MageCombatSystem.ExtinguishBurns(session, unit);
             return unit.Character.LifeState == CharacterLifeState.Alive;
         }
 
@@ -110,29 +114,19 @@ namespace Godmist.Systems.Combat
             BattleUnit unit,
             string statusId)
         {
-            var resistances = unit?.Character?.Resistances;
-
             if (string.Equals(statusId, StatusEffectIds.Poison,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return Mathf.Clamp01((resistances?.PoisonResistance ?? 0f)
-                    + GetModifier(unit, ResistanceType.Poison));
+                return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Poison);
             }
 
             if (string.Equals(statusId, StatusEffectIds.Burn,
                     StringComparison.OrdinalIgnoreCase))
             {
-                return Mathf.Clamp01((resistances?.FireResistance ?? 0f)
-                    + GetModifier(unit, ResistanceType.Fire));
+                return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Fire);
             }
 
-            return Mathf.Clamp01((resistances?.BleedResistance ?? 0f)
-                + GetModifier(unit, ResistanceType.Bleed));
-        }
-
-        private static float GetModifier(BattleUnit unit, ResistanceType type)
-        {
-            return ModifyResistanceSystem.GetModifier(unit, type);
+            return ModifyResistanceSystem.GetEffectiveResistance(unit, ResistanceType.Bleed);
         }
 
         public static float CalculateDamageMultiplier(float resistance)

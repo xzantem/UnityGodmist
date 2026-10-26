@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.goat_skin
   <DisplayName>k__BackingField: "Sk\xF3ra kozy"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Surowa sk\xF3ra zwierz\u0119ca wymagaj\u0105ca wyprawienia."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7b48f97b376d2204d8551c5ae4be8dcb, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3

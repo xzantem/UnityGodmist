@@ -15,8 +15,9 @@ MonoBehaviour:
   <Id>k__BackingField: item.lootbag.catacombs.test.01
   <DisplayName>k__BackingField: Catacombs Test Lootbag
   <Description>k__BackingField: Testowy lootbag zawierajacy wszystkie pule v1.
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7d1415f88fd296b4ca68fc7473eb31d3, type: 3}
   <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 1
@@ -30,28 +31,57 @@ MonoBehaviour:
         <Amount>k__BackingField:
           Min: 1
           Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: b6d1f8a3c5e74920a4d7b2f9c6e1a580, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 113f79a35da947e69b9a481f8b557001, type: 2}
-        <Amount>k__BackingField: { Min: 1, Max: 1 }
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 213f79a35da947e69b9a481f8b557002, type: 2}
-        <Amount>k__BackingField: { Min: 1, Max: 1 }
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 313f79a35da947e69b9a481f8b557003, type: 2}
-        <Amount>k__BackingField: { Min: 1, Max: 1 }
-    - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 413f79a35da947e69b9a481f8b557004, type: 2}
-        <Amount>k__BackingField: { Min: 1, Max: 1 }
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField: []
+      <DistinctSelectionGroup>k__BackingField: 
   <BossUniqueDrop>k__BackingField:
     <DropChance>k__BackingField: 0.3
     <EquipmentDefinitions>k__BackingField:

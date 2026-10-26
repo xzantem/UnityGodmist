@@ -1,0 +1,67 @@
+{
+  "clips": [
+    {
+      "id": "bark-ward",
+      "frames": [
+        "pass12-bark-ward-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.75
+    },
+    {
+      "id": "wood-impact",
+      "frames": [
+        "pass12-wood-impact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.625
+    },
+    {
+      "id": "mine-burst",
+      "frames": [
+        "pass12-mine-burst-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.59375
+    },
+    {
+      "id": "sanctuary-flame",
+      "frames": [
+        "pass12-sanctuary-flame-00",
+        "pass12-sanctuary-flame-01",
+        "pass12-sanctuary-flame-02",
+        "pass12-sanctuary-flame-03"
+      ],
+      "frameSeconds": 0.18,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "wood-ground",
+      "frames": [
+        "pass12-wood-impact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625
+    }
+  ]
+}

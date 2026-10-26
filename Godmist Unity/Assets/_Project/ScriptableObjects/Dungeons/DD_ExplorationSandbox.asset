@@ -12,8 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccca2633228553c44864ed1c20223033, type: 3}
   m_Name: DD_ExplorationSandbox
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonDefinition
+  <EnvironmentConfigured>k__BackingField: 1
+  <IsIndoor>k__BackingField: 1
+  <IsCold>k__BackingField: 1
+  <IsWarm>k__BackingField: 0
   <Id>k__BackingField: dungeon.sandbox.exploration
   <DisplayName>k__BackingField: Exploration Sandbox
   <Theme>k__BackingField: 0
   <IsProcedural>k__BackingField: 0
   <IsStoryDungeon>k__BackingField: 0
+  <LayoutProfile>k__BackingField: {fileID: 0}
+  <DungeonLevel>k__BackingField: 1
+  <LootTableCatalog>k__BackingField: {fileID: 0}
+  <MinFloorCount>k__BackingField: 1
+  <MaxFloorCount>k__BackingField: 1
+  <MinRoomCountPerFloor>k__BackingField: 6
+  <MaxRoomCountPerFloor>k__BackingField: 9
+  <MinOptionalRoomCount>k__BackingField: 0
+  <MaxOptionalRoomCount>k__BackingField: 0
+  <MinLoopConnections>k__BackingField: 0
+  <MaxLoopConnections>k__BackingField: 0
+  <MinProgressionGateCount>k__BackingField: 0
+  <MaxProgressionGateCount>k__BackingField: 0
+  <RoomTemplateCatalog>k__BackingField: {fileID: 0}
+  <EncounterDefinitions>k__BackingField: []
+  <BossEncounterDefinition>k__BackingField: {fileID: 0}
+  <MinEncounterCountPerFloor>k__BackingField: 1
+  <MaxEncounterCountPerFloor>k__BackingField: 3
+  <AllowEncounterDefinitionRepeats>k__BackingField: 1
+  <ObjectDefinitions>k__BackingField: []
+  <MinObjectCountPerFloor>k__BackingField: 1
+  <MaxObjectCountPerFloor>k__BackingField: 3

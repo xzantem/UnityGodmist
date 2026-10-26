@@ -39,6 +39,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private BlacksmithCraftingSlotView previewTooltipSlot;
         [SerializeField] private TextMeshProUGUI previewNameText;
         [SerializeField] private TextMeshProUGUI previewSummaryText;
+        [SerializeField] private TextMeshProUGUI previewStatsText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private Button craftButton;
         [SerializeField] private CraftingPartSelectionView[] partSelections;
@@ -111,7 +112,7 @@ namespace Godmist.Views.UI.Workspace
             qualityDropdown.ClearOptions();
             qualityDropdown.AddOptions(new List<string> { "Kiepska", "Normalna", "Doskonała" });
             selectedQuality = EquipmentQuality.Normal;
-            qualityDropdown.value = 1;
+            qualityDropdown.SetValueWithoutNotify(1);
         }
 
         private void PopulateEquipmentChoices()
@@ -149,7 +150,6 @@ namespace Godmist.Views.UI.Workspace
                     selectedDefinition = definition;
                     selectedParts.Clear();
                     PopulateEquipmentChoices();
-                    PopulatePartChoices();
                     RefreshPreview();
                 });
                 // A base choice is a crafting category, not an actual item instance.
@@ -163,37 +163,52 @@ namespace Godmist.Views.UI.Workspace
         private void PopulatePartChoices()
         {
             var catalog = GameBootstrap.Instance?.ContentCatalog;
+            var selectedTier = selectedParts.Values.FirstOrDefault()?.LevelBracket;
             foreach (var selection in partSelections ?? Array.Empty<CraftingPartSelectionView>())
             {
                 var isRequired = GetRequiredPartKinds(selectedDefinition?.ItemType)
                     .Contains(selection?.Kind ?? default);
+                var scroll = selection?.Content?.GetComponentInParent<ScrollRect>();
+                var scrollPosition = scroll != null && selection.Root != null && selection.Root.activeInHierarchy
+                    ? scroll.verticalNormalizedPosition : 1f;
                 if (selection?.Root != null) selection.Root.SetActive(isRequired);
                 ClearSlots(selection?.Content);
                 if (!isRequired || selection?.Content == null || selectedDefinition == null) continue;
 
                 foreach (var part in catalog?.EquipmentPartDefinitions
                              ?.Where(part => part != null
-                                 && part.RequiredClass == selectedDefinition.RequiredClass
+                                 && !part.IsStarterOnly && part.RequiredClass == selectedDefinition.RequiredClass
                                  && part.Kind == selection.Kind)
-                             .OrderBy(part => part.Id)
+                             .OrderBy(part => part.LevelBracket)
+                             .ThenBy(part => part.Id)
                          ?? Enumerable.Empty<EquipmentPartDefinition>())
                 {
+                    var canSelect = !selectedTier.HasValue || part.LevelBracket == selectedTier.Value;
                     var slot = CreateSlot(
                         partSlotTemplate,
                         selection.Content,
-                        part.Icon,
-                        string.IsNullOrWhiteSpace(part.DisplayName) ? part.Id : part.DisplayName,
+                        part.CraftingMaterials?.FirstOrDefault(requirement => requirement?.Material != null)?.Material.Icon,
+                        GetPartTooltipTitle(part),
                         BuildPartTooltip(part),
-                        string.Empty,
+                        $"{(int)part.LevelBracket}",
                         selectedParts.TryGetValue(selection.Kind, out var selectedPart)
                             && ReferenceEquals(selectedPart, part),
                         false,
-                        () =>
+                    () =>
                     {
-                        selectedParts[selection.Kind] = part;
+                        if (!canSelect) return;
+                        if (selectedParts.TryGetValue(selection.Kind, out var current) && ReferenceEquals(current, part))
+                            selectedParts.Remove(selection.Kind);
+                        else selectedParts[selection.Kind] = part;
                         PopulatePartChoices();
                         RefreshPreview();
                     });
+                    slot?.SetSelectionInteractable(canSelect);
+                }
+                if (scroll != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)scroll.transform);
+                    scroll.verticalNormalizedPosition = scrollPosition;
                 }
             }
         }
@@ -221,7 +236,7 @@ namespace Godmist.Views.UI.Workspace
                     material.MissingAmount > 0,
                     null,
                     canOfferPurchase
-                        ? $"{material.PurchasableAmount}× • {material.PurchasePrice}g"
+                        ? $"{material.PurchasePrice}"
                         : null,
                     canOfferPurchase ? () => BuyMissingMaterial(materialId) : null,
                     material.PurchaseState,
@@ -231,7 +246,8 @@ namespace Godmist.Views.UI.Workspace
             }
 
             if (craftButton != null) craftButton.interactable = preview.CanCraft;
-            SetStatus(preview.CanCraft ? "Gotowe do craftingu." : preview.FailureReason);
+            SetStatus(preview.CanCraft ? string.Empty : preview.Materials.Any(cost => cost.MissingAmount > 0)
+                ? "Brakuje materiałów." : preview.FailureReason);
         }
 
         private void BuyMissingMaterial(string materialId)
@@ -244,8 +260,8 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
-            SetStatus($"Kupiono materiały za {paidGold}.");
             RefreshPreview();
+            SetStatus($"Kupiono materiały za {paidGold} złota.");
         }
 
         private void TryCraft()
@@ -256,11 +272,11 @@ namespace Godmist.Views.UI.Workspace
                 return;
             }
 
+            RefreshPreview();
             SetStatus(
                 $"Wykuto: {item.DisplayName} "
                 + $"(Jakość: {GetQualityDisplayName(item.Quality)}, "
-                + $"Rzadkość: {item.CurrentRarity}).");
-            RefreshPreview();
+                + $"Rzadkość: {UIWorkspaceTooltipView.GetColoredRarityDisplayName(item.CurrentRarity)}).");
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
 
@@ -322,6 +338,8 @@ namespace Godmist.Views.UI.Workspace
                 if (child == null || child == equipmentSlotTemplate
                     || child == partSlotTemplate || child == materialSlotTemplate) continue;
                 spawnedSlots.Remove(child);
+                UIWorkspaceTooltipView.ActiveInstance?.NotifySourceExit(child);
+                child.gameObject.SetActive(false);
                 Destroy(child.gameObject);
             }
         }
@@ -341,11 +359,16 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildMaterialDescription(CraftingMaterialCost material)
         {
             if (material == null) return string.Empty;
-            if (string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
-                return material.Material?.Description ?? string.Empty;
-
-            return (material.Material?.Description ?? string.Empty)
-                + $"\n<color=#E06C75>{material.PurchaseFailureReason}</color>";
+            var lines = new List<string> { $"Posiadane: {material.OwnedAmount}/{material.RequiredAmount}" };
+            if (material.MissingAmount > 0)
+            {
+                lines.Add($"Brakuje: {material.MissingAmount} • W ofercie: {material.AvailableFromBlacksmith}");
+                if (material.PurchasableAmount > 0 && material.PurchasePrice > 0)
+                    lines.Add($"Zakup {material.PurchasableAmount} szt.: {material.PurchasePrice} złota");
+            }
+            if (!string.IsNullOrWhiteSpace(material.PurchaseFailureReason))
+                lines.Add($"<color=#E06C75>{material.PurchaseFailureReason}</color>");
+            return string.Join("\n", lines);
         }
 
         private void RefreshResultPreview(EquipmentItemInstance result)
@@ -367,7 +390,7 @@ namespace Godmist.Views.UI.Workspace
 
             if (previewTooltipSlot != null)
             {
-                previewTooltipSlot.SetIcon(result?.Definition?.Icon);
+                previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(result));
                 if (result != null)
                     previewTooltipSlot.SetItemTooltip(result, null);
                 else
@@ -378,6 +401,7 @@ namespace Godmist.Views.UI.Workspace
 
             SetPreviewLabel(previewNameText, result?.DisplayName);
             SetPreviewLabel(previewSummaryText, BuildPreviewSummary(result));
+            SetPreviewLabel(previewStatsText, result != null ? BuildStatsText(result) : string.Empty);
         }
 
         private static void SetPreviewLabel(TextMeshProUGUI label, string value)
@@ -403,20 +427,38 @@ namespace Godmist.Views.UI.Workspace
                 + BuildStatsText(result);
         }
 
-        private static string BuildPreviewSummary(EquipmentItemInstance result)
+        private string BuildPreviewSummary(EquipmentItemInstance result)
         {
-            if (result == null) return "Wybierz wyposażenie, aby zobaczyć podgląd.";
+            if (result == null) return $"Części: {selectedParts.Count}/3";
 
             var itemType = GetItemTypeDisplayName(result.Definition != null
                 ? result.Definition.ItemType
                 : default);
             var requiredClass = GetRequiredClassDisplayName(result);
-            return $"{itemType} • {requiredClass} • Poziom {result.ItemLevel}";
+            return $"{itemType} • {requiredClass} • Poziom {result.ItemLevel}\n{GetQualityDisplayName(result.Quality)} • Unikalność: losowana";
         }
 
         private static string GetRequiredClassDisplayName(EquipmentItemInstance result)
         {
             return result == null ? "dowolna" : UIWorkspaceTooltipView.GetRequiredClassDisplayName(result);
+        }
+
+        private static string GetPartTooltipTitle(EquipmentPartDefinition part)
+        {
+            var name = string.IsNullOrWhiteSpace(part?.DisplayName) ? part?.Id ?? string.Empty : part.DisplayName;
+            var materialStart = name.LastIndexOf(" (", StringComparison.Ordinal);
+            return materialStart >= 0 && name.EndsWith(")", StringComparison.Ordinal)
+                ? name.Substring(0, materialStart) : name;
+        }
+
+        private static string GetPartMaterialDisplayName(EquipmentPartDefinition part)
+        {
+            var material = part.CraftingMaterials?.FirstOrDefault(requirement => requirement?.Material != null)?.Material;
+            if (!string.IsNullOrWhiteSpace(material?.DisplayName)) return material.DisplayName;
+            var name = part.DisplayName ?? string.Empty;
+            var materialStart = name.LastIndexOf(" (", StringComparison.Ordinal);
+            return materialStart >= 0 && name.EndsWith(")", StringComparison.Ordinal)
+                ? name.Substring(materialStart + 2, name.Length - materialStart - 3) : string.Empty;
         }
 
         private static string BuildPartTooltip(EquipmentPartDefinition part)
@@ -425,23 +467,32 @@ namespace Godmist.Views.UI.Workspace
 
             var lines = new List<string>
             {
-                $"{GetPartKindDisplayName(part.Kind)} • "
-                + $"{GetPartRequiredClassDisplayName(part)} • "
-                + $"Poziom {(int)part.LevelBracket}"
+                $"<size=85%><color=#B7B09B>{GetPartKindDisplayName(part.Kind)}</color></size>"
             };
+            var materialName = GetPartMaterialDisplayName(part);
+            if (!string.IsNullOrWhiteSpace(materialName))
+                lines.Add($"<color=#DFD7B8>{materialName}</color>");
             if (!string.IsNullOrWhiteSpace(part.Description))
-            {
-                lines.Add(part.Description.Trim());
-            }
+                lines.Add($"<color=#B7B09B>{part.Description.Trim()}</color>");
 
-            AppendPartStats(lines, part.Stats);
+            AppendPartStats(lines, part.Stats, part.RequiredClass?.ResourceType ?? ResourceType.None);
+            lines.Add(ItemDetailsDividerView.MarkerLine);
+            lines.Add($"Poziom: {(int)part.LevelBracket}");
+            lines.Add($"Wymagana klasa: {GetPartRequiredClassDisplayName(part)}");
             return string.Join("\n", lines);
         }
 
         private static string GetPartRequiredClassDisplayName(EquipmentPartDefinition part)
         {
             var className = part?.RequiredClass?.ClassName;
-            return string.IsNullOrWhiteSpace(className) ? "dowolna klasa" : className;
+            return part?.RequiredClass?.Id switch
+            {
+                "class.warrior" => "Wojownik",
+                "class.scout" => "Zwiadowca",
+                "class.mage" => "Mag",
+                "class.paladin" => "Paladyn",
+                _ => string.IsNullOrWhiteSpace(className) ? "dowolna klasa" : className
+            };
         }
 
         private static string GetPartKindDisplayName(EquipmentPartKind kind)
@@ -458,63 +509,79 @@ namespace Godmist.Views.UI.Workspace
             };
         }
 
-        private static void AppendPartStats(List<string> lines, EquipmentPartStats stats)
+        private static void AppendPartStats(List<string> lines, EquipmentPartStats stats, ResourceType resourceType)
         {
             if (lines == null || stats == null) return;
 
+            var baseLines = new List<string>();
+            var percentLines = new List<string>();
             if (Mathf.Abs(stats.MinAttackBase) >= 0.0001f
                 || Mathf.Abs(stats.MaxAttackBase) >= 0.0001f)
             {
-                lines.Add($"Atak: {FormatValue(stats.MinAttackBase)}–{FormatValue(stats.MaxAttackBase)}");
+                baseLines.Add(ItemStatColumnsView.Marker + $"Atak: {FormatValue(stats.MinAttackBase)}–{FormatValue(stats.MaxAttackBase)}");
             }
 
-            AppendPartBaseStat(lines, CharacterStatType.CritChance, stats.CritChanceBase);
-            AppendPartBaseStat(lines, CharacterStatType.CritDamage, stats.CritDamageBase);
-            AppendPartBaseStat(lines, CharacterStatType.WeaponAccuracy, stats.WeaponAccuracyBase);
-            AppendPartBaseStat(lines, CharacterStatType.MaxResource, stats.MaxResourceBase);
-            AppendPartBaseStat(lines, CharacterStatType.ResourceRegeneration, stats.ResourceRegenerationBase);
-            AppendPartBaseStat(lines, CharacterStatType.MaxHealth, stats.MaxHealthBase);
-            AppendPartBaseStat(lines, CharacterStatType.Dodge, stats.DodgeBase);
-            AppendPartBaseStat(lines, CharacterStatType.PhysicalDefense, stats.PhysicalDefenseBase);
-            AppendPartBaseStat(lines, CharacterStatType.MagicalDefense, stats.MagicalDefenseBase);
+            AppendPartBaseStat(baseLines, CharacterStatType.CritChance, stats.CritChanceBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.CritDamage, stats.CritDamageBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.WeaponAccuracy, stats.WeaponAccuracyBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.MaxResource, stats.MaxResourceBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.ResourceRegeneration, stats.ResourceRegenerationBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.MaxHealth, stats.MaxHealthBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.Dodge, stats.DodgeBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.PhysicalDefense, stats.PhysicalDefenseBase, resourceType);
+            AppendPartBaseStat(baseLines, CharacterStatType.MagicalDefense, stats.MagicalDefenseBase, resourceType);
 
-            AppendPartPercentStat(lines, CharacterStatType.MinAttack, stats.MinAttackPercent);
-            AppendPartPercentStat(lines, CharacterStatType.MaxAttack, stats.MaxAttackPercent);
-            AppendPartPercentStat(lines, CharacterStatType.CritChance, stats.CritChancePercent);
-            AppendPartPercentStat(lines, CharacterStatType.CritDamage, stats.CritDamagePercent);
-            AppendPartPercentStat(lines, CharacterStatType.WeaponAccuracy, stats.WeaponAccuracyPercent);
-            AppendPartPercentStat(lines, CharacterStatType.MaxResource, stats.MaxResourcePercent);
-            AppendPartPercentStat(lines, CharacterStatType.ResourceRegeneration, stats.ResourceRegenerationPercent);
-            AppendPartPercentStat(lines, CharacterStatType.MaxHealth, stats.MaxHealthPercent);
-            AppendPartPercentStat(lines, CharacterStatType.Dodge, stats.DodgePercent);
-            AppendPartPercentStat(lines, CharacterStatType.PhysicalDefense, stats.PhysicalDefensePercent);
-            AppendPartPercentStat(lines, CharacterStatType.MagicalDefense, stats.MagicalDefensePercent);
+            if (Mathf.Abs(stats.MinAttackPercent - stats.MaxAttackPercent) < .0001f)
+                AppendPartPercentStat(percentLines, CharacterStatType.MinAttack, stats.MinAttackPercent, resourceType, "Atak");
+            else
+            {
+                AppendPartPercentStat(percentLines, CharacterStatType.MinAttack, stats.MinAttackPercent, resourceType);
+                AppendPartPercentStat(percentLines, CharacterStatType.MaxAttack, stats.MaxAttackPercent, resourceType);
+            }
+            AppendPartPercentStat(percentLines, CharacterStatType.CritChance, stats.CritChancePercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.CritDamage, stats.CritDamagePercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.WeaponAccuracy, stats.WeaponAccuracyPercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.MaxResource, stats.MaxResourcePercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.ResourceRegeneration, stats.ResourceRegenerationPercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.MaxHealth, stats.MaxHealthPercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.Dodge, stats.DodgePercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.PhysicalDefense, stats.PhysicalDefensePercent, resourceType);
+            AppendPartPercentStat(percentLines, CharacterStatType.MagicalDefense, stats.MagicalDefensePercent, resourceType);
+            if (baseLines.Count > 0)
+            {
+                lines.Add("\n<b>Statystyki bazowe</b>");
+                lines.AddRange(baseLines);
+            }
+            if (percentLines.Count > 0)
+            {
+                lines.Add("\n<b>Zmiany procentowe</b>");
+                lines.AddRange(percentLines);
+            }
         }
 
         private static void AppendPartBaseStat(
             List<string> lines,
             CharacterStatType stat,
-            float value)
+            float value,
+            ResourceType resourceType)
         {
             if (lines == null || Mathf.Abs(value) < 0.0001f) return;
 
-            lines.Add($"{GetStatDisplayName(stat)}: {FormatBaseStatValue(stat, value)}");
+            lines.Add(ItemStatColumnsView.Marker + $"{GetStatDisplayName(stat, resourceType)}: {(value > 0 ? "+" : string.Empty)}{FormatBaseStatValue(stat, value)}");
         }
 
         private static void AppendPartPercentStat(
             List<string> lines,
             CharacterStatType stat,
-            float value)
+            float value,
+            ResourceType resourceType,
+            string displayName = null)
         {
             if (lines == null || Mathf.Abs(value) < 0.0001f) return;
 
-            var arrow = value > 0f ? "↑" : "↓";
-            var formattedValue = stat == CharacterStatType.Dodge
-                ? $"{Mathf.RoundToInt(Mathf.Abs(value) * 100f)}%"
-                : stat == CharacterStatType.CritDamage
-                    ? $"{Mathf.Abs(value) * 100f:0.00}%"
-                    : $"{Mathf.Abs(value) * 100f:0.##}%";
-            lines.Add($"{GetStatDisplayName(stat)}: {arrow}{formattedValue}");
+            var color = value > 0f ? "#9BD37B" : "#E06C75";
+            var formattedValue = $"<color={color}>{value * 100f:+0.##;-0.##;0}%</color>";
+            lines.Add(ItemStatColumnsView.Marker + $"{displayName ?? GetStatDisplayName(stat, resourceType)}: {formattedValue}");
         }
 
         private static string FormatBaseStatValue(CharacterStatType stat, float value)
@@ -554,7 +621,7 @@ namespace Godmist.Views.UI.Workspace
                     || !values.TryGetValue(stat, out var value)
                     || Mathf.Abs(value) < 0.0001f) continue;
 
-                lines.Add($"{GetStatDisplayName(stat)}: {FormatStatValue(stat, value)}");
+                lines.Add($"{GetStatDisplayName(stat, result.EquipmentDefinition?.RequiredClass?.ResourceType ?? ResourceType.None)}: {FormatStatValue(stat, value)}");
             }
 
             return lines.Count == 0 ? "Brak dodatkowych statystyk." : string.Join("\n", lines);
@@ -580,7 +647,7 @@ namespace Godmist.Views.UI.Workspace
 
         private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
 
-        private static string GetStatDisplayName(CharacterStatType statType)
+        private static string GetStatDisplayName(CharacterStatType statType, ResourceType resourceType = ResourceType.None)
         {
             return statType switch
             {
@@ -593,9 +660,9 @@ namespace Godmist.Views.UI.Workspace
                 CharacterStatType.CritChance => "Szansa krytyczna",
                 CharacterStatType.CritDamage => "Obrażenia krytyczne",
                 CharacterStatType.Speed => "Szybkość",
-                CharacterStatType.ResourceRegeneration => "Regeneracja zasobu",
+                CharacterStatType.ResourceRegeneration => resourceType == ResourceType.Mana ? "Regeneracja many" : "Regeneracja zasobu",
                 CharacterStatType.WeaponAccuracy => "Celność",
-                CharacterStatType.MaxResource => "Maksymalny zasób",
+                CharacterStatType.MaxResource => resourceType == ResourceType.Mana ? "Maksymalna mana" : "Maksymalny zasób",
                 CharacterStatType.PhysicalDefensePenetration => "Przebicie obrony fizycznej",
                 CharacterStatType.MagicalDefensePenetration => "Przebicie obrony magicznej",
                 CharacterStatType.HealingPower => "Moc leczenia",

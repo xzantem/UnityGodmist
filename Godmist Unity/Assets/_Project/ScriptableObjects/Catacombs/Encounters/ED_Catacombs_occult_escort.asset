@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6700f722a8bcce4992915b695b7c0cd, type: 3}
+  m_Name: ED_Catacombs_occult_escort
+  m_EditorClassIdentifier: Data::Godmist.Data.Combat.EncounterDefinition
+  <Id>k__BackingField: encounter.catacombs.occult_escort
+  <DisplayName>k__BackingField: occult escort
+  <GridWidth>k__BackingField: 12
+  <GridHeight>k__BackingField: 12
+  <BossEnemyIndex>k__BackingField: 0
+  <Enemies>k__BackingField:
+  - <InstanceId>k__BackingField: enemy.catacombs.occult_escort.1
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: a4dbfe861e4138146953b384e6c0ace4, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 3}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 110
+    <InitialFacing>k__BackingField: {x: -1, y: 0}
+  - <InstanceId>k__BackingField: enemy.catacombs.occult_escort.2
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 32de042677ab0424b969626af8cc7c96, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
+    <SpawnPosition>k__BackingField: {x: 8, y: 5}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 110
+    <InitialFacing>k__BackingField: {x: -1, y: 0}
+  - <InstanceId>k__BackingField: enemy.catacombs.occult_escort.3
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 9897c8c329e29f948a010ed433309ea7, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 7, y: 7}
+    <VisionRange>k__BackingField: 6
+    <VisionAngle>k__BackingField: 110
+    <InitialFacing>k__BackingField: {x: -1, y: 0}

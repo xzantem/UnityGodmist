@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d317a5c94f4f7e896c21b0a57e3d42, type: 3}
   m_Name: CID_Bomb
   m_EditorClassIdentifier: Data::Godmist.Data.Items.AlchemyConsumableDefinition
-  <Id>k__BackingField: item.alchemy.bomb
+  <Id>k__BackingField: item.consumable.bomb
   <DisplayName>k__BackingField: Bomba
   <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 84000cdbeb8c37b46b9e40db24aa081b, type: 3}
   <ItemType>k__BackingField: 11
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

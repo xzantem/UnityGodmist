@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7b5d2c1a4e6f8093b5c7d1e2a4f608, type: 3}
+  m_Name: EID_SkeletonSlayer_PaladinHammer
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
+  <Id>k__BackingField: unique.skeleton_slayer.hammer.paladin
+  <DisplayName>k__BackingField: "M\u0142ot Zab\xF3jcy"
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 21300000, guid: 15483e50d1b773f499d5a4522f494724, type: 3}
+  <ItemType>k__BackingField: 0
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 6
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 2
+  <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+  <BaseDefinition>k__BackingField: {fileID: 11400000, guid: 89180bb0256616a42bc11777057d98cf, type: 2}
+  <Effects>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.hammer.paladin.effect
+    <DisplayName>k__BackingField: "M\u0142ot Zab\xF3jcy"
+    <Description>k__BackingField: "Przy trafieniu: 15% szansy na og\u0142uszenie
+      na 2 tury."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 3
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.hammer.paladin.operation
+      <Type>k__BackingField: 6
+      <Target>k__BackingField: 2
+      <ReferenceId>k__BackingField: stun
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.15
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 2
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Przy trafieniu: 15% szansy na og\u0142uszenie
+        na 2 tury."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.hammer.paladin.effect
+    <DisplayName>k__BackingField: "M\u0142ot Zab\xF3jcy"
+    <Description>k__BackingField: "Przy trafieniu: 18% szansy na og\u0142uszenie
+      na 2 tury."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 3
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.hammer.paladin.operation
+      <Type>k__BackingField: 6
+      <Target>k__BackingField: 2
+      <ReferenceId>k__BackingField: stun
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.18
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 2
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Przy trafieniu: 18% szansy na og\u0142uszenie
+        na 2 tury."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel30>k__BackingField: []
+  <EffectsLevel40>k__BackingField: []
+  <EffectsLevel50>k__BackingField: []
+  <SummonPool>k__BackingField: []

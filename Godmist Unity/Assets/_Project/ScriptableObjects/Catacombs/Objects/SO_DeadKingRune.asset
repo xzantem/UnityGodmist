@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eab7a936ca53d5340bb36b7cc35a6e63, type: 3}
+  m_Name: SO_DeadKingRune
+  m_EditorClassIdentifier: Data::Godmist.Data.Combat.SummonedObjectDefinition
+  objectId: object.catacombs.dead_king_rune
+  displayName: "Runa Zemsty Za\u015Bwiat\xF3w"
+  icon: {fileID: 21300000, guid: f18da7bdcfa811747adadd104b16c26a, type: 3}
+  worldSprite: {fileID: 21300000, guid: f18da7bdcfa811747adadd104b16c26a, type: 3}
+  maxHits: 1
+  defaultDurationTurns: 3
+  turnSpeed: 80
+  blocksMovement: 0
+  blocksLineOfSight: 0
+  effectTargetingType: 0
+  effectRange:
+    shape: 1
+    minRange: 0
+    maxRange: 1
+    rectangleWidth: 1
+  effectAccuracy: 100
+  effects: []

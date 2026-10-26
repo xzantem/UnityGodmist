@@ -9,13 +9,16 @@ namespace Godmist.Systems.Combat
         private readonly Action<string> battleLog;
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly StatusEffectSystem statusEffectSystem;
+        private readonly CombatRecoverySystem recoverySystem;
 
         public CombatTeleportSystem(
             Action<string> battleLog = null,
             CombatLineOfSightService lineOfSightService = null,
-            StatusEffectSystem statusEffectSystem = null)
+            StatusEffectSystem statusEffectSystem = null,
+            CombatRecoverySystem recoverySystem = null)
         {
             this.battleLog = battleLog;
+            this.recoverySystem = recoverySystem;
             this.lineOfSightService =
                 lineOfSightService ?? new CombatLineOfSightService();
             this.statusEffectSystem = statusEffectSystem;
@@ -82,7 +85,7 @@ namespace Godmist.Systems.Combat
             }
 
             target.Position = destination;
-            session.NotifyUnitEnteredCell(target);
+            CombatCellEntrySystem.Notify(session, target, recoverySystem);
 
             CombatAuraSystem.Refresh(session, statusEffectSystem);
 

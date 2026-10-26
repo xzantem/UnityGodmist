@@ -26,7 +26,7 @@ namespace Godmist.Systems.Dungeons
                 || floor.Map == null
                 || catalog == null
                 || encounter == null
-                || encounter.Definition?.Enemies == null)
+                || encounter.Enemies == null)
             {
                 return result;
             }
@@ -34,10 +34,10 @@ namespace Godmist.Systems.Dungeons
             var liveEnemyIdsByIndex = new Dictionary<int, string>();
 
             for (var enemyIndex = 0;
-                enemyIndex < encounter.Definition.Enemies.Count;
+                enemyIndex < encounter.Enemies.Count;
                 enemyIndex++)
             {
-                var enemy = encounter.Definition.Enemies[enemyIndex];
+                var enemy = encounter.Enemies[enemyIndex];
 
                 if (enemy == null
                     || string.IsNullOrWhiteSpace(enemy.InstanceId)
@@ -254,7 +254,7 @@ namespace Godmist.Systems.Dungeons
             foreach (var roomCandidates in candidates.GroupBy(c => c.Room.RoomId))
             {
                 var room = roomCandidates.First().Room;
-                var template = catalog.Templates.Single(t => t != null && t.Id == room.TemplateId);
+                var template = catalog.AllTemplates.Single(t => t != null && t.Id == room.TemplateId);
                 ValidateTemplate(template);
                 var byAnchor = new Dictionary<string, DungeonContentOpportunity>(StringComparer.Ordinal);
                 var byId = roomCandidates.ToDictionary(c => c.Anchor.Id, StringComparer.Ordinal);
@@ -656,7 +656,7 @@ namespace Godmist.Systems.Dungeons
             var result = new Dictionary<string, DungeonRoomTemplateDefinition>(
                 StringComparer.Ordinal);
 
-            foreach (var template in catalog.Templates)
+            foreach (var template in catalog.AllTemplates)
             {
                 if (template == null || string.IsNullOrWhiteSpace(template.Id))
                 {

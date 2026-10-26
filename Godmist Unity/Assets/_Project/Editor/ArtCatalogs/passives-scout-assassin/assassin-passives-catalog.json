@@ -1,0 +1,105 @@
+{
+  "entries": [
+    {
+      "fullId": "node.scout.assassin.backstab",
+      "slug": "backstab",
+      "outputPng": "backstab-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.farsight",
+      "slug": "farsight",
+      "outputPng": "farsight-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.critical_point",
+      "slug": "critical_point",
+      "outputPng": "critical_point-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.leg_sweep",
+      "slug": "leg_sweep",
+      "outputPng": "leg_sweep-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.throw_power",
+      "slug": "throw_power",
+      "outputPng": "throw_power-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.knife_bounce",
+      "slug": "knife_bounce",
+      "outputPng": "knife_bounce-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.rapid_strikes",
+      "slug": "rapid_strikes",
+      "outputPng": "rapid_strikes-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.deep_analysis",
+      "slug": "deep_analysis",
+      "outputPng": "deep_analysis-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.running_attack",
+      "slug": "running_attack",
+      "outputPng": "running_attack-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.surprise",
+      "slug": "surprise",
+      "outputPng": "surprise-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.karambit_style",
+      "slug": "karambit_style",
+      "outputPng": "karambit_style-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.throat_cut",
+      "slug": "throat_cut",
+      "outputPng": "throat_cut-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.keen_eye",
+      "slug": "keen_eye",
+      "outputPng": "keen_eye-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.sharp_knife",
+      "slug": "sharp_knife",
+      "outputPng": "sharp_knife-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.light_step",
+      "slug": "light_step",
+      "outputPng": "light_step-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.precise_strike",
+      "slug": "precise_strike",
+      "outputPng": "precise_strike-32.png"
+    },
+    {
+      "fullId": "node.scout.assassin.pommel_strike",
+      "slug": "pommel_strike",
+      "outputPng": "pommel_strike-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.scout.assassin",
+    "name": "Skrytobójca"
+  },
+  "scope": {
+    "entryCount": 17,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.scout.assassin.ricochet",
+      "node.scout.assassin.weak_point",
+      "node.scout.assassin.shadow_warrior"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

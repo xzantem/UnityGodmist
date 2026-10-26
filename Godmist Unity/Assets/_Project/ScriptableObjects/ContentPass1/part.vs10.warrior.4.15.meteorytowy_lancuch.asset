@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bed854cba69ff047a20780c3ff79586, type: 3}
+  m_Name: part.vs10.warrior.4.15.meteorytowy_lancuch
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
+  <Id>k__BackingField: part.vs10.warrior.4.15.meteorytowy_lancuch
+  <DisplayName>k__BackingField: "Kolczuga \u2014 Kolcza (Meteorytowy \u0142a\u0144cuch)"
+  <Description>k__BackingField: "Splot metalowych ogniw chroni\u0105cy cia\u0142o
+    wojownika."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 09c72e25731badc40a7c6d3096aed238, type: 3}
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+  <IsStarterOnly>k__BackingField: 0
+  <Kind>k__BackingField: 4
+  <LevelBracket>k__BackingField: 15
+  <Stats>k__BackingField:
+    MinAttackBase: 0
+    MaxAttackBase: 0
+    CritChanceBase: 0
+    CritDamageBase: 0
+    WeaponAccuracyBase: 0
+    MaxResourceBase: 0
+    ResourceRegenerationBase: 0
+    MaxHealthBase: 748
+    DodgeBase: 0
+    PhysicalDefenseBase: 0
+    MagicalDefenseBase: 0
+    MinAttackPercent: 0
+    MaxAttackPercent: 0
+    CritChancePercent: 0
+    CritDamagePercent: 0
+    WeaponAccuracyPercent: 0
+    MaxResourcePercent: 0
+    ResourceRegenerationPercent: 0
+    MaxHealthPercent: 0
+    DodgePercent: 0.2
+    PhysicalDefensePercent: -0.2
+    MagicalDefensePercent: -0.2
+  <CraftingMaterials>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 3e1eed00cf7703a47be85fd0b23a5922, type: 2}
+    <Amount>k__BackingField: 10

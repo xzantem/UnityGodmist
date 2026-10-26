@@ -580,7 +580,7 @@ namespace Godmist.Editor
             Collector collector)
         {
             RequireText(catalog.Id, catalog, "Id", collector);
-            var templates = catalog.Templates ?? new List<DungeonRoomTemplateDefinition>();
+            var templates = catalog.GenerationTemplates;
             var seen = new HashSet<DungeonRoomTemplateDefinition>(
                 new UnityObjectReferenceComparer<DungeonRoomTemplateDefinition>());
             for (var index = 0; index < templates.Count; index++)

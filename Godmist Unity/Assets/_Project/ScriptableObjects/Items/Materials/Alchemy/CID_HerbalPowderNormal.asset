@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.alchemy.herbal_powder_normal
   <DisplayName>k__BackingField: "Proch zio\u0142owy: Zwyk\u0142y"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Mieszanina rozdrobnionych sk\u0142adnik\xF3w u\u017Cywana
+    do warzenia mikstur."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 45a3b29c193305f4aa880d4a8f78722a, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3
@@ -24,8 +25,16 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 2
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: d4e6f8a0b2c94375a1d3e5f7b9c0a2d4, type: 2}
     <Amount>k__BackingField: 1
   - <Material>k__BackingField: {fileID: 11400000, guid: 8a1b3c5d7e9f42a6b8c0d1e3f5a7b9c2, type: 2}
-    <Amount>k__BackingField: 3
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: 3a7d8203a9335564da94d2d63e29297b, type: 2}
+    <Amount>k__BackingField: 1
+  - <Material>k__BackingField: {fileID: 11400000, guid: 74e6c88569d1f7641aae8d9bbbf87277, type: 2}
+    <Amount>k__BackingField: 1
+  <AlternativeRecipes>k__BackingField: []

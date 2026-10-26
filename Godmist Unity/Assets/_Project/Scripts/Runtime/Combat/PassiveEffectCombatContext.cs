@@ -13,6 +13,7 @@ namespace Godmist.Runtime.Combat
     /// </summary>
     public sealed class PassiveEffectCombatContext
     {
+        public WarriorDischargeCast DischargeCast { get; }
         public CombatSession Session { get; }
         public BattleUnit Source { get; }
         public BattleUnit Target { get; }
@@ -20,12 +21,16 @@ namespace Godmist.Runtime.Combat
         public SkillData Skill { get; }
         public IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> TargetsByModeIndex { get; }
         public string ActionId { get; }
+        // Visual timing of this resolved contact; gameplay action identity is separate.
+        public string PresentationActionId { get; }
+        public float PresentationDelaySeconds { get; }
         public bool IsPassiveDuplicate { get; }
+        public bool IsPassiveReaction { get; }
         public AttackType AttackType { get; }
         public AttackPosition AttackPosition { get; }
         public DamageType? DamageType { get; }
         public int Distance { get; }
-        public int MovementCost { get; }
+        public float MovementCost { get; }
         public int MovementSteps { get; }
         public ResourceType ResourceType { get; }
         public int ResourceAmount { get; }
@@ -56,7 +61,7 @@ namespace Godmist.Runtime.Combat
             AttackPosition attackPosition = AttackPosition.Unknown,
             DamageType? damageType = null,
             int distance = -1,
-            int movementCost = 0,
+            float movementCost = 0f,
             int movementSteps = 0,
             ResourceType resourceType = ResourceType.None,
             int resourceAmount = 0,
@@ -72,8 +77,11 @@ namespace Godmist.Runtime.Combat
             IReadOnlyCollection<string> targetTags = null,
             bool? referencedEffectSucceeded = null,
             bool? referencedEffectCrit = null,
-            bool? referencedEffectDodged = null)
+            bool? referencedEffectDodged = null,
+            bool isPassiveReaction = false,
+            string presentationActionId = null, float presentationDelaySeconds = 0, WarriorDischargeCast dischargeCast = null)
         {
+            DischargeCast = dischargeCast;
             Session = session;
             Source = source;
             Target = target;
@@ -81,7 +89,10 @@ namespace Godmist.Runtime.Combat
             Skill = skill;
             TargetsByModeIndex = targetsByModeIndex;
             ActionId = actionId ?? string.Empty;
+            PresentationActionId = presentationActionId ?? ActionId;
+            PresentationDelaySeconds = Math.Max(0, presentationDelaySeconds);
             IsPassiveDuplicate = isPassiveDuplicate;
+            IsPassiveReaction = isPassiveReaction;
             AttackType = attackType;
             AttackPosition = attackPosition;
             DamageType = damageType;
@@ -144,7 +155,7 @@ namespace Godmist.Runtime.Combat
                 TargetTags,
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,
-                ReferencedEffectDodged);
+                ReferencedEffectDodged, IsPassiveReaction, PresentationActionId, PresentationDelaySeconds, DischargeCast);
         }
 
         public PassiveEffectCombatContext AsPassiveDuplicate()
@@ -178,7 +189,7 @@ namespace Godmist.Runtime.Combat
                 TargetTags,
                 ReferencedEffectSucceeded,
                 ReferencedEffectCrit,
-                ReferencedEffectDodged);
+                ReferencedEffectDodged, IsPassiveReaction, PresentationActionId, PresentationDelaySeconds, DischargeCast);
         }
 
         private static IReadOnlyCollection<string> ResolveTargetTags(BattleUnit target)

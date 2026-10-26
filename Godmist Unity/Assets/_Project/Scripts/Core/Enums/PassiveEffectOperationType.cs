@@ -20,6 +20,12 @@ namespace Godmist.Core.Enums
         DuplicateAction = 15,
         GrantActionPoints = 16,
         ChangeHitResolution = 17,
-        SetRuntimeFlag = 18
+        SetRuntimeFlag = 18,
+        ModifyActionValue = 19,
+        PreventStatus = 20,
+        ReduceIncomingDamage = 21,
+        MaxHealthFromMaxResource = 22,
+        LowHealthShield = 23,
+        OrderActionCostReduction = 24
     }
 }

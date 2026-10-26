@@ -8,6 +8,7 @@ using Godmist.Data.Items;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Dungeons;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 
@@ -39,7 +40,8 @@ namespace Godmist.Systems.Combat
 
         public CombatRewardResult RollEncounterRewards(
             EncounterDefinition encounter,
-            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver, int enemyLevel = 1)
+            Func<EncounterEnemyData, LootTableData> encounterEnemyLootTableResolver, int enemyLevel = 1,
+            DungeonInstance dungeon = null)
         {
             var rewards = new CombatRewardResult();
 
@@ -53,12 +55,15 @@ namespace Godmist.Systems.Combat
 
                 if (string.IsNullOrWhiteSpace(enemyData.InstanceId)) continue;
 
+                bool isBoss = ScoutCombatSystem.IsBoss(dungeon, encounter, enemyData.InstanceId);
                 rewards.EnemyRewards.Add(new CombatEnemyReward
                 {
                     EnemyInstanceId = enemyData.InstanceId,
-                    ExperiencePerActiveCharacter = definition.ExperienceReward,
+                    ExperienceLevel = Math.Clamp(enemyLevel, 1, 50),
+                    IsBoss = isBoss,
+                    ExperiencePerActiveCharacter = CalculateEnemyExperience(enemyLevel, enemyLevel, isBoss),
                     Gold = CombatEconomyScaling.RollEnemyGold(enemyLevel, goldRandom()),
-                    Items = lootTableSystem.RollLoot(
+                    Items = lootTableSystem.RollDirectLoot(
                         encounterEnemyLootTableResolver?.Invoke(enemyData)
                         ?? lootTableResolver?.Invoke(definition)
                         ?? definition.LootTable)
@@ -81,12 +86,8 @@ namespace Godmist.Systems.Combat
                 rewards,
                 combatSession.DefeatedEnemyInstanceIds);
 
-            var experiencePerCharacter = 0;
-
-            foreach (var enemyReward in defeatedEnemyRewards)
-            {
-                experiencePerCharacter += enemyReward.ExperiencePerActiveCharacter;
-            }
+            foreach (var reward in defeatedEnemyRewards)
+                TryGrantDefeatExperience(gameSession, combatSession, reward.EnemyInstanceId);
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
@@ -102,10 +103,6 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                progressionSystem.AddExperience(
-                    character,
-                    ApplyExperiencePassive(character, experiencePerCharacter));
-
                 character.Honor += defeatedEnemyRewards.Count;
             }
 
@@ -114,6 +111,32 @@ namespace Godmist.Systems.Combat
             combatSession.RewardsGranted = true;
             return true;
         }
+
+        public bool TryGrantDefeatExperience(GameSession gameSession, CombatSession combatSession, string enemyId)
+        {
+            if (gameSession == null || combatSession == null
+                || !combatSession.DefeatedEnemyInstanceIds.Contains(enemyId)
+                || combatSession.ExperienceGrantedEnemyIds.Contains(enemyId)) return false;
+            CombatEnemyReward reward = null;
+            foreach (var candidate in combatSession.Rewards?.EnemyRewards ?? new())
+                if (candidate?.EnemyInstanceId == enemyId) { reward = candidate; break; }
+            // Summons and reinforcement enemies without authored rewards grant nothing.
+            if (reward == null) return false;
+            combatSession.ExperienceGrantedEnemyIds.Add(enemyId);
+            foreach (var id in gameSession.PlayerParty.ActiveMemberIds)
+            {
+                if (!gameSession.CharactersById.TryGetValue(id, out var character)
+                    || character.LifeState == CharacterLifeState.Dead) continue;
+                var amount = reward.ExperienceLevel > 0
+                    ? CalculateEnemyExperience(reward.ExperienceLevel, character.Level, reward.IsBoss)
+                    : reward.ExperiencePerActiveCharacter;
+                progressionSystem.AddExperience(character, ApplyExperiencePassive(character, amount));
+            }
+            return true;
+        }
+
+        public static int CalculateEnemyExperience(int enemyLevel, int characterLevel, bool isBoss)
+            => CharacterProgressionSystem.GetEnemyExperience(enemyLevel, characterLevel) * (isBoss ? 1 : 2);
 
         public bool TryApplyEscapePenalty(
             GameSession gameSession,

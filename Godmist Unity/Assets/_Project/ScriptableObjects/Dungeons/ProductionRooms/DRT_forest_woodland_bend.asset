@@ -1,0 +1,217 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc410525305dd84a8f71c3d39096c80, type: 3}
+  m_Name: DRT_forest_woodland_bend
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateDefinition
+  <Id>k__BackingField: room.forest.production.woodland_bend
+  <DisplayName>k__BackingField: "Le\u015Bny zakr\u0119t"
+  <RoomFunction>k__BackingField: trail
+  <PreferredFloorIndex>k__BackingField: -1
+  <RoomType>k__BackingField: 1
+  <ExcludeFromRandomEncounters>k__BackingField: 0
+  <CanBeRequiredProgressionBranch>k__BackingField: 0
+  <SizeInCells>k__BackingField: {x: 11, y: 13}
+  <AllowedRotationDegrees>k__BackingField: 000000005a000000b40000000e010000
+  <Footprint>k__BackingField:
+    <FloorCellOffsets>k__BackingField:
+    - {x: 1, y: 0}
+    - {x: 2, y: 0}
+    - {x: 3, y: 0}
+    - {x: 4, y: 0}
+    - {x: 5, y: 0}
+    - {x: 1, y: 1}
+    - {x: 2, y: 1}
+    - {x: 3, y: 1}
+    - {x: 4, y: 1}
+    - {x: 5, y: 1}
+    - {x: 1, y: 2}
+    - {x: 2, y: 2}
+    - {x: 3, y: 2}
+    - {x: 4, y: 2}
+    - {x: 5, y: 2}
+    - {x: 1, y: 3}
+    - {x: 2, y: 3}
+    - {x: 3, y: 3}
+    - {x: 4, y: 3}
+    - {x: 5, y: 3}
+    - {x: 1, y: 4}
+    - {x: 2, y: 4}
+    - {x: 3, y: 4}
+    - {x: 4, y: 4}
+    - {x: 5, y: 4}
+    - {x: 1, y: 5}
+    - {x: 2, y: 5}
+    - {x: 3, y: 5}
+    - {x: 4, y: 5}
+    - {x: 5, y: 5}
+    - {x: 1, y: 6}
+    - {x: 2, y: 6}
+    - {x: 3, y: 6}
+    - {x: 4, y: 6}
+    - {x: 5, y: 6}
+    - {x: 6, y: 6}
+    - {x: 1, y: 7}
+    - {x: 2, y: 7}
+    - {x: 3, y: 7}
+    - {x: 4, y: 7}
+    - {x: 5, y: 7}
+    - {x: 6, y: 7}
+    - {x: 7, y: 7}
+    - {x: 8, y: 7}
+    - {x: 9, y: 7}
+    - {x: 10, y: 7}
+    - {x: 1, y: 8}
+    - {x: 2, y: 8}
+    - {x: 3, y: 8}
+    - {x: 4, y: 8}
+    - {x: 5, y: 8}
+    - {x: 6, y: 8}
+    - {x: 7, y: 8}
+    - {x: 8, y: 8}
+    - {x: 9, y: 8}
+    - {x: 10, y: 8}
+    - {x: 2, y: 9}
+    - {x: 3, y: 9}
+    - {x: 4, y: 9}
+    - {x: 5, y: 9}
+    - {x: 6, y: 9}
+    - {x: 7, y: 9}
+    - {x: 8, y: 9}
+    - {x: 9, y: 9}
+    - {x: 10, y: 9}
+    - {x: 3, y: 10}
+    - {x: 4, y: 10}
+    - {x: 5, y: 10}
+    - {x: 6, y: 10}
+    - {x: 7, y: 10}
+    - {x: 8, y: 10}
+    - {x: 9, y: 10}
+    - {x: 10, y: 10}
+    - {x: 5, y: 11}
+    - {x: 6, y: 11}
+    - {x: 7, y: 11}
+    - {x: 8, y: 11}
+    - {x: 9, y: 11}
+    - {x: 10, y: 11}
+  <Surfaces>k__BackingField: []
+  <Stairs>k__BackingField: []
+  <AllowedBoundaryEdges>k__BackingField:
+  - <LocalCell>k__BackingField: {x: 2, y: 0}
+    <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 3, y: 0}
+    <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 4, y: 0}
+    <Direction>k__BackingField: 2
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 10, y: 8}
+    <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 10, y: 9}
+    <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
+  - <LocalCell>k__BackingField: {x: 10, y: 10}
+    <Direction>k__BackingField: 1
+    <Level>k__BackingField: 0
+  <BoundaryEdgesConfigured>k__BackingField: 1
+  <StructuralAnchors>k__BackingField: []
+  <SemanticAnchors>k__BackingField:
+  - <Id>k__BackingField: edgeprop.0
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 4, y: 3}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 1
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: d3fe3fa2e0856174892d5221589ab302, type: 2}
+  - <Id>k__BackingField: edgeprop.1
+    <Type>k__BackingField: 1
+    <LocalCell>k__BackingField: {x: 4, y: 4}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 1
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: 82b686822459ff84f9a14f7dfafe10a9, type: 2}
+  - <Id>k__BackingField: forest.wolf.0
+    <Type>k__BackingField: 6
+    <LocalCell>k__BackingField: {x: 5, y: 6}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: 0
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
+  - <Id>k__BackingField: forest.wolf.1
+    <Type>k__BackingField: 6
+    <LocalCell>k__BackingField: {x: 5, y: 7}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: 1
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
+  - <Id>k__BackingField: forest.wolf.2
+    <Type>k__BackingField: 6
+    <LocalCell>k__BackingField: {x: 4, y: 6}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: 2
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
+  - <Id>k__BackingField: forest.wolf.3
+    <Type>k__BackingField: 6
+    <LocalCell>k__BackingField: {x: 6, y: 7}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: 3
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 1
+    <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: 
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 0}
+  - <Id>k__BackingField: forest.trap.0
+    <Type>k__BackingField: 2
+    <LocalCell>k__BackingField: {x: 4, y: 5}
+    <AreaSize>k__BackingField: {x: 1, y: 1}
+    <EncounterEnemyIndex>k__BackingField: -1
+    <PatrolMode>k__BackingField: 0
+    <SpawnChance>k__BackingField: 0.35
+    <IsRequired>k__BackingField: 0
+    <DistributionKey>k__BackingField: forest.traps.0.glade
+    <RequiresAnchorId>k__BackingField: 
+    <ActivationGroupId>k__BackingField: 
+    <ObjectDefinition>k__BackingField: {fileID: 11400000, guid: a2819fe3f2a45ec49b835183543a935c, type: 2}
+  <ContentGroups>k__BackingField: []
+  <DifficultTerrainCells>k__BackingField:
+  - {x: 3, y: 9}
+  - {x: 3, y: 10}
+  - {x: 4, y: 9}

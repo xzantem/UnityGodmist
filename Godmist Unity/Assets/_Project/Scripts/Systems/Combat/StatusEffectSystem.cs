@@ -16,6 +16,7 @@ namespace Godmist.Systems.Combat
     public class StatusEffectSystem
     {
         public const string StunId = StatusEffectIds.Stun;
+        public const int CollisionStunDuration = 1;
         public const string ImmobilizeId = StatusEffectIds.Immobilize;
         public static float ChillMaximumSpeed => GameDefinesRuntime.GetFloat(
             GameDefineIds.ChillMaximumSpeed, 20f);
@@ -68,6 +69,8 @@ namespace Godmist.Systems.Combat
             this.feedbackBus = feedbackBus;
         }
 
+        internal CombatDamageSystem DamageSystem => damageSystem;
+
         public bool ApplyStatus(
             BattleUnit source,
             BattleUnit target,
@@ -91,7 +94,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (!PassesEffectChance(target, effect))
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, effect.StatusId)) return false;
+            if (!PassesEffectChance(target, effect, source))
             {
                 battleLog?.Invoke(
                     $"{target.Character.Definition.DisplayName} " +
@@ -101,6 +105,7 @@ namespace Godmist.Systems.Combat
             }
 
             var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
+            MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
 
             if (!TryApplySkillRuntimeEffect(
                     target.Character,
@@ -114,7 +119,8 @@ namespace Godmist.Systems.Combat
                 $"{target.Character.Definition.DisplayName} " +
                 $"otrzymuje status {effect.StatusId}.");
 
-            target.AddStatusTolerance(effect.StatusId);
+            target.AddStatusTolerance(effect.StatusId, effect.DurationTurns);
+            if (effect.StatusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
 
             PublishEffectFeedback(target, CombatFeedbackType.StatusApplied, effect.StatusId);
             PublishStatusEvent(source, target, skill?.SkillId, effect.StatusId,
@@ -211,14 +217,14 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var modifier = Mathf.CeilToInt(target.MaxActionPoints * effect.PercentageValue);
+            var modifier = ActionPointUnits.ToPoints(Mathf.RoundToInt(target.MaxActionPoints * effect.PercentageValue));
             return modifier > 0
                 && ApplyActionPointBuffInternal(
                     source, target, skill, effect, effectIndex, modifier);
         }
 
         private bool ApplyActionPointBuffInternal(BattleUnit source, BattleUnit target,
-            SkillData skill, SkillEffectData effect, int effectIndex, int modifier)
+            SkillData skill, SkillEffectData effect, int effectIndex, float modifier)
         {
             if (target?.Character == null || effect == null || modifier == 0) return false;
 
@@ -318,7 +324,7 @@ namespace Godmist.Systems.Combat
             }
 
             var appliedCount = 0;
-            foreach (var effect in source.Character.PassiveEffects)
+            foreach (var effect in source.Character.PassiveEffects.ToArray())
             {
                 var payload = effect.GetPayload<OnHitStatusPayload>();
                 if (!PassiveEffectLifecycleSystem.IsActive(effect)
@@ -413,7 +419,7 @@ namespace Godmist.Systems.Combat
             CombatFeedbackType feedbackType = CombatFeedbackType.StatusApplied,
             string feedbackLabel = null,
             bool publishFeedback = true,
-            int statusDamagePerTurnOverride = 0)
+            int statusDamagePerTurnOverride = 0, float? sharedRoll = null)
         {
             if (target?.Character == null
                 || target.Character.LifeState != CharacterLifeState.Alive
@@ -422,15 +428,15 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var clampedChance = Mathf.Clamp01(baseChance);
-            var resistance = GetResistance(target, statusId);
-            var chance = CalculateEffectChance(clampedChance, resistance);
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, statusId)) return false;
+            var chance = CalculateStatusApplicationChance(source, target, statusId, baseChance);
 
-            if (chance <= 0f || UnityEngine.Random.value > chance)
+            if (chance <= 0f || (sharedRoll ?? UnityEngine.Random.value) > chance)
             {
                 return false;
             }
 
+            if(statusId==StatusEffectIds.Stun && WarriorCombatSystem.AvoidStun(source,target,damageSystem))return false;
             var duration = Mathf.Max(1, durationTurns);
             var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
@@ -458,6 +464,11 @@ namespace Godmist.Systems.Combat
                 ResolveTickPhase(statusId),
                 statusHealPercent);
 
+            MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
+            if (statusId == StatusEffectIds.Slow)
+                runtimeEffect.StatModifiers = new List<StatModifier> { new() {
+                    StatType = CharacterStatType.Speed, Operation = StatModifierOperation.Percent,
+                    Stacking = StatModifierStacking.Additive, Value = -.2f } };
             if (!string.IsNullOrWhiteSpace(feedbackLabel)
                 && feedbackType == CombatFeedbackType.AuraApplied)
             {
@@ -476,7 +487,10 @@ namespace Godmist.Systems.Combat
             battleLog?.Invoke(
                 $"{target.Character.Definition.DisplayName} otrzymuje status {statusId}.");
 
-            target.AddStatusTolerance(statusId);
+            target.AddStatusTolerance(statusId, duration);
+            if (statusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
+            if(statusId==StatusEffectIds.Immobilize && sourceId?.StartsWith("skill.warrior.immobilize")==true && WarriorCombatSystem.C(source,"pinning")>0)
+                ScoutCombatSystem.TimedStat(source,target,CharacterStatType.Dodge,WarriorCombatSystem.C(source,"pinning")==1?-12:-20,duration,"warrior.pinning");
 
             if (publishFeedback)
             {
@@ -551,6 +565,20 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
+        public bool ExtendStatusDuration(BattleUnit target, string statusId, int turns)
+        {
+            if (target?.Character?.PassiveEffects == null || string.IsNullOrWhiteSpace(statusId) || turns <= 0) return false;
+            var extended = false;
+            foreach (var effect in target.Character.PassiveEffects)
+                if (PassiveEffectLifecycleSystem.IsActive(effect) && effect.Lifetime == PassiveEffectLifetime.Timed
+                    && string.Equals(effect.EffectId, statusId, StringComparison.OrdinalIgnoreCase))
+                {
+                    effect.RemainingDuration += turns;
+                    extended = true;
+                }
+            return extended;
+        }
+
         public bool RemoveStatus(BattleUnit target, string statusId)
         {
             if (target?.Character == null)
@@ -558,12 +586,16 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if (statusId == StatusEffectIds.Burn) MageCombatSystem.ExtinguishBurns(target.WarriorState.Session, target);
             var wasRemoved = passiveEffectLifecycleSystem.RemoveEffect(
                 target.Character,
                 statusId);
+            if (wasRemoved && statusId == StatusEffectIds.Burn)
+                while (passiveEffectLifecycleSystem.RemoveEffect(target.Character, statusId)) { }
 
             if (wasRemoved)
             {
+                if (statusId == StatusEffectIds.Burn) MageCombatSystem.RefreshConditionalStats(target);
                 battleLog?.Invoke(
                     $"{target.Character.Definition.DisplayName} " +
                     $"traci status {statusId}.");
@@ -599,6 +631,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                MageCombatSystem.AfterBurnTick(target.WarriorState.Session, effect, 0, true);
                 target.Character.PassiveEffects.RemoveAt(index);
                 removed++;
             }
@@ -653,8 +686,19 @@ namespace Godmist.Systems.Combat
 
         public static bool IsInvisible(BattleUnit unit)
         {
-            return HasStatus(unit, StatusEffectIds.Invisibility);
+            return BanditLeaderBossSystem.PermanentlyInvisible(unit) || HasStatus(unit, StatusEffectIds.Invisibility);
         }
+
+        // Exploration views keep the same character when combat bindings are released.
+        public static bool IsInvisible(CharacterInstance character)
+        {
+            return character != null && (character.LifeState == CharacterLifeState.Alive
+                && character.Definition?.Id == BanditLeaderBossSystem.BossId
+                || PassiveEffectLifecycleSystem.HasActiveEffect(character, StatusEffectIds.Invisibility));
+        }
+
+        public static bool IsInvisibleToPlayer(BattleUnit unit)
+            => unit != null && !unit.IsPlayerSide && IsInvisible(unit);
 
         public static bool TryGetTaunter(
             CombatSession session,
@@ -830,7 +874,7 @@ namespace Godmist.Systems.Combat
 
             return null;
         }
-        
+
         public static bool HasStatus(BattleUnit unit, string statusId)
         {
             return unit?.Character != null
@@ -841,13 +885,40 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnStart(CombatSession session, BattleUnit unit)
         {
+            if(unit!=null)unit.WarriorState.Session=session;
+            ScoutCombatSystem.TurnStart(unit);
+            WarriorCombatSystem.TurnStart(unit);
+            MageCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
+            if(unit?.Character!=null)PaladinCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             passiveEffectLifecycleSystem.ProcessTurnStart(session, unit);
+        }
+
+        public void ProcessDownedTurn(BattleUnit unit)
+        {
+            if (unit?.Character?.LifeState != CharacterLifeState.Downed) return;
+            passiveEffectLifecycleSystem.ProcessDownedTurn(unit);
+            // Timed shields use their own clock. Expiry is not a damage event.
+            unit.Character.ShieldPool?.AdvanceTurn();
         }
 
         public void ProcessTurnEnd(BattleUnit unit)
         {
+            if(unit?.Character?.LifeState==CharacterLifeState.Alive)PaladinCombatSystem.BeforeTurnEnd(unit.WarriorState.Session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);
+            if (unit?.Character?.LifeState == CharacterLifeState.Alive)
+            {
+                var expiredShield = unit.Character.ShieldPool?.AdvanceTurn() ?? 0;
+                if (expiredShield > 0)
+                {
+                    battleLog?.Invoke($"{unit.Character.Definition.DisplayName} traci {expiredShield} wygasłej tarczy.");
+                    // Expiry is a self change, not an incoming hit reaction.
+                    feedbackBus?.Publish(new CombatFeedbackEvent(unit, CombatFeedbackType.ShieldLoss, expiredShield, source: unit));
+                }
+            }
+            ScoutCombatSystem.TurnEnd(unit);
+            WarriorCombatSystem.TurnEnd(unit);
+            MageCombatSystem.TurnEnd(unit);
             unit?.AdvanceStatusTolerances();
             foreach (var statusId in activeStatusesBefore)
             {
@@ -1016,31 +1087,22 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var baseResistance = target?.Character?.Resistances?.MoveResistance ?? 0f;
-            var modifier = ModifyResistanceSystem.GetModifier(
-                target,
-                ResistanceType.Move);
-            var resistance = Mathf.Clamp01(baseResistance + modifier);
-            var finalChance = CalculateEffectChance(clampedChance, resistance);
+            return UnityEngine.Random.value <= CalculateMovementEffectChance(target, clampedChance);
+        }
 
-            return UnityEngine.Random.value <= finalChance;
+        public static float CalculateMovementEffectChance(BattleUnit target, float baseChance)
+        {
+            var resistance = ModifyResistanceSystem.GetEffectiveResistance(target, ResistanceType.Move);
+            return CalculateEffectChance(baseChance, resistance);
         }
 
         private bool PassesEffectChance(
             BattleUnit target,
-            SkillEffectData effect)
+            SkillEffectData effect, BattleUnit source)
         {
-            var baseChance = Mathf.Clamp01(effect.BaseChance);
+            var chance = CalculateStatusApplicationChance(source, target, effect.StatusId, effect.BaseChance);
 
-            if (baseChance <= 0f)
-            {
-                return false;
-            }
-
-            var resistance = GetResistance(target, effect.StatusId);
-            var chance = CalculateEffectChance(baseChance, resistance);
-
-            return UnityEngine.Random.value <= chance;
+            return chance > 0f && UnityEngine.Random.value <= chance;
         }
 
         public static float CalculateEffectChance(
@@ -1070,6 +1132,24 @@ namespace Godmist.Systems.Combat
             }
 
             return Mathf.Clamp01(resistanceMultiplier * (1f - r) * s);
+        }
+
+        public static float CalculateStatusApplicationChance(
+            BattleUnit source, BattleUnit target, string statusId, float baseChance, float additionalResistanceModifier = 0f)
+        {
+            if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
+
+            var chance = Mathf.Clamp01(baseChance
+                + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
+            var naturalResistance = GetResistance(target, statusId, includeTolerance: false, additionalResistanceModifier);
+            var naturalChance = CalculateEffectChance(chance, naturalResistance);
+            var tolerance = target.GetStatusTolerance(statusId);
+            if (!StatusEffectIds.UsesSuppressionResistance(statusId))
+                return CalculateEffectChance(chance, GetResistance(target, statusId, additionalModifier: additionalResistanceModifier));
+
+            return Mathf.Min(
+                CalculateEffectChance(chance, Mathf.Clamp01(naturalResistance + tolerance)),
+                naturalChance * (1f - tolerance));
         }
 
         private static float EvaluateChanceBonus(float baseChance)
@@ -1131,51 +1211,32 @@ namespace Godmist.Systems.Combat
                 (baseChance - input4) / Mathf.Max(.0001f, 1f - input4));
         }
 
-        private static float GetResistance(
+        internal static float GetResistance(
             BattleUnit target,
-            string statusId)
+            string statusId,
+            bool includeTolerance = true, float additionalModifier = 0f)
         {
             if (target?.Character == null)
             {
                 return 0f;
             }
 
-            var resistances = target.Character.Resistances;
-            var resistanceType = statusId.ToLowerInvariant() switch
+            var resistanceType = StatusEffectIds.UsesSuppressionResistance(statusId)
+                ? ResistanceType.Suppression
+                : statusId.ToLowerInvariant() switch
             {
                 StatusEffectIds.Weakening => ResistanceType.Weakening,
                 StatusEffectIds.Bleed => ResistanceType.Bleed,
                 StatusEffectIds.Poison => ResistanceType.Poison,
                 StatusEffectIds.Burn => ResistanceType.Fire,
-                StunId => ResistanceType.Suppression,
-                ImmobilizeId => ResistanceType.Suppression,
-                StatusEffectIds.Taunt => ResistanceType.Suppression,
-                StatusEffectIds.Freeze => ResistanceType.Suppression,
-                StatusEffectIds.Chill => ResistanceType.Suppression,
-                StatusEffectIds.Sleep => ResistanceType.Suppression,
-                StatusEffectIds.Paralysis => ResistanceType.Suppression,
+                StatusEffectIds.Slow => ResistanceType.Move,
                 _ => (ResistanceType?)null
             };
 
             if (!resistanceType.HasValue) return 0f;
 
-            var baseResistance = resistanceType.Value switch
-            {
-                ResistanceType.Bleed => resistances?.BleedResistance ?? 0f,
-                ResistanceType.Poison => resistances?.PoisonResistance ?? 0f,
-                ResistanceType.Fire => resistances?.FireResistance ?? 0f,
-                ResistanceType.Weakening => resistances?.WeakeningResistance ?? 0f,
-                ResistanceType.Suppression => resistances?.SuppressionResistance ?? 0f,
-                ResistanceType.Move => resistances?.MoveResistance ?? 0f,
-                _ => 0f
-            };
-            var modifier = ModifyResistanceSystem.GetModifier(
-                target,
-                resistanceType.Value);
-            return Mathf.Clamp01(
-                baseResistance
-                + modifier
-                + target.GetStatusTolerance(statusId));
+            return ModifyResistanceSystem.GetEffectiveResistance(target, resistanceType.Value,
+                additionalModifier + (includeTolerance ? target.GetStatusTolerance(statusId) : 0f));
         }
 
         private static PassiveEffectTickPhase ResolveTickPhase(string statusId)
@@ -1240,10 +1301,18 @@ namespace Godmist.Systems.Combat
                 : (int)total;
         }
 
-        private static int CalculateStatusDamagePerTurn(
+        public static int CalculateStatusDamagePerTurn(
             BattleUnit source,
             SkillEffectData effect)
         {
+            if (effect?.DamageValueSource == DamageValueSource.AlchemicalPower)
+            {
+                if (source?.Character == null || !IsDamageOverTimeStatus(effect.StatusId)) return 0;
+                var multiplier = effect.StatusDamageMultiplier
+                    * (effect.StatusId == StatusEffectIds.Poison ? ScoutCombatSystem.PoisonMultiplier(source) : 1f);
+                var damage = CombatDamageValueCalculator.CalculateAlchemicalPeriodicDamage(source.Character.Level, multiplier);
+                return HasStatus(source, StatusEffectIds.Weakening) ? Mathf.CeilToInt(damage * .8f) : damage;
+            }
             return effect == null
                 ? 0
                 : CalculateStatusDamagePerTurn(
@@ -1266,7 +1335,7 @@ namespace Godmist.Systems.Combat
             var damage = CombatDamageValueCalculator.CalculateDamageValue(
                 source,
                 DamageValueSource.AverageAttack,
-                statusDamageMultiplier);
+                statusDamageMultiplier * (statusId == StatusEffectIds.Poison ? ScoutCombatSystem.PoisonMultiplier(source) : 1f));
             return HasStatus(source, StatusEffectIds.Weakening) ? Mathf.CeilToInt(damage * .8f) : damage;
         }
     }

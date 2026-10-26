@@ -1,0 +1,265 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Warrior_Commander
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.warrior.commander
+  <DisplayName>k__BackingField: "Dow\xF3dca"
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +0,3% szansy krytycznej. Dodatkowe nieuchronne
+      obra\u017Cenia: 0,002% obra\u017Ce\u0144 trafienia za ka\u017Cdy procent ulepszenia
+      broni i punkt drzewka."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.warrior.commander.destruction
+    <DisplayName>k__BackingField: Rozkaz Unicestwienia
+    <Description>k__BackingField: "[90%] Zwi\u0119ksza obra\u017Cenia zadawane celowi
+      przez wszystkich sojusznik\xF3w o 20% na 3 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 64ab30a0f3aa7a14e8faf38c4ba41609, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: daecd2ff62d522c40b51d6262449fb87, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.marking
+    <DisplayName>k__BackingField: "Wskazanie S\u0142abo\u015Bci"
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na obra\u017Cenia krytyczne
+      przeciwko celowi obj\u0119temu Rozkazem Unicestwienia o 50%/100%[p]"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4c44cd6869d616646919eb4f7852a8b1, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.destruction
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.armor_shred
+    <DisplayName>k__BackingField: Przebijanie Pancerza
+    <Description>k__BackingField: "Zwi\u0119ksza penetracj\u0119 fizyczn\u0105 o
+      25%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: dcbc81cf89ad60240af42aaad6886272, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.armor_piercing
+    <DisplayName>k__BackingField: Silne Otwarcie
+    <Description>k__BackingField: "Ka\u017Cde obra\u017Cenia s\u0105 zwi\u0119kszone
+      o 0.15%/0.3% za ka\u017Cdy aktualny procent zdrowia przeciwnika"
+    <Icon>k__BackingField: {fileID: 21300000, guid: a90e4836354fe5c4b8b962c990317cf9, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.armor_shred
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.weapon_mastery
+    <DisplayName>k__BackingField: Mistrzostwo Broni
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 krytyczn\u0105 o 5%/10%/15%[p]"
+    <Icon>k__BackingField: {fileID: 21300000, guid: c3a824ba114305c44a7aa98bdc91daad, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.breakdown
+    <DisplayName>k__BackingField: Rozbicie
+    <Description>k__BackingField: "Zwi\u0119ksza bonus obra\u017Ce\u0144 Rozkazu
+      Unicestwienia o 5%/10%/15%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: aed86ad36714f6b4b973a218594d061b, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.destruction
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.immobilize
+    <DisplayName>k__BackingField: Unieruchomienie
+    <Description>k__BackingField: "Zadaje losowe obra\u017Cenia fizyczne, [90%] unieruchomienie
+      na 2 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 6749fddc1cc4cc14f86cf9599ce21a5e, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 596f33f19e53f814990ddf92873fbc12, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.broken_bones
+    <DisplayName>k__BackingField: "Po\u0142amane Ko\u015Bci"
+    <Description>k__BackingField: "Zwi\u0119ksza czas trwania Unieruchomienia o 2
+      tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: d00236aff6391214389162cbd4dd4db8, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.immobilize
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.piercing
+    <DisplayName>k__BackingField: "\u015Amiertelna Precyzja"
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia krytyczne o 20%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: e4c8921308a748f40a896c528231708b, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.deep_wounds
+    <DisplayName>k__BackingField: "G\u0142\u0119bokie Rany"
+    <Description>k__BackingField: "Obra\u017Cenia krytyczne maj\u0105 90% szansy
+      na wyrz\u0105dzenie krwawienia 45%/60%/75% na 3 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 3f15c4408bdb6c4499c8ede88d9793ee, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.weapon_mastery
+      <MinimumRanks>k__BackingField: 1
+    - <NodeId>k__BackingField: node.warrior.commander.piercing
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.flanking
+    <DisplayName>k__BackingField: Flankowanie
+    <Description>k__BackingField: "Zmniejsza obron\u0119 celu obj\u0119tego Rozkazem
+      Unicestwienia o 5%/10% za ka\u017Cdego przyleg\u0142ego sojusznika"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 376fcd618f57af147b1cb30ec9a90446, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.breakdown
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.pinning
+    <DisplayName>k__BackingField: "Przygwo\u017Cd\u017Cenie"
+    <Description>k__BackingField: Unieruchomienie zmniejsza unik przeciwnika o 12/20
+    <Icon>k__BackingField: {fileID: 21300000, guid: 3340f5ef8fb26c744b38af639ecde79e, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.immobilize
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.trauma
+    <DisplayName>k__BackingField: Trauma
+    <Description>k__BackingField: "[85%] Ciosy krytyczne zwi\u0119kszaj\u0105 obra\u017Cenia
+      DoT na przeciwniku o 30%/60% na 5 tur"
+    <Icon>k__BackingField: {fileID: 21300000, guid: b79a8bf5d28cca0439346a38ea5264da, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.protection
+    <DisplayName>k__BackingField: Rozkaz Ochrony
+    <Description>k__BackingField: "Zmniejsza przyjmowane obra\u017Cenia celu o 30%
+      i o dodatkowe 10% za ka\u017Cdego przyleg\u0142ego sojusznika na 3 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: f594762a7e56840439fe342ea86682a7, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: eacf3b47a8cc2ba41b55a3633e59cff6, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.renewal
+    <DisplayName>k__BackingField: "Niez\u0142omno\u015B\u0107"
+    <Description>k__BackingField: "Daje 5%/10%/15% szansy na unikni\u0119cie og\u0142uszenia
+      i odnow\u0119 10% maksymalnego zdrowia"
+    <Icon>k__BackingField: {fileID: 21300000, guid: a13a33f7a4dd607408162a58981f07bc, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.regroup
+    <DisplayName>k__BackingField: "Rozkaz Gotowo\u015Bci"
+    <Description>k__BackingField: "Przy\u015Bpiesza ruch celu do przodu o 100%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 31b0d35ff325cf24883d2e0f7ed4a7cc, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 92bde3b13c6a1a741a14c3a415313f2f, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.strategy
+    <DisplayName>k__BackingField: Marsz Taktyczny
+    <Description>k__BackingField: "Rozkaz Gotowo\u015Bci daje wszystkim sojusznikom
+      2 darmowe kroki w ka\u017Cdej turze przez 3 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: f432995e3705e724b867ee5d4107acc8, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.regroup
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.finisher
+    <DisplayName>k__BackingField: "P\u0142ynne Ci\u0119cie"
+    <Description>k__BackingField: "Ci\u0119cie ma 3%/6%/9% na niezu\u017Cycie punkt\xF3w
+      akcji"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 770c47854df145349b57e20f7330bf36, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.riposte
+    <DisplayName>k__BackingField: Riposta
+    <Description>k__BackingField: "Przeciwnicy cz\u0119\u015Bciej obieraj\u0105 za
+      cel osob\u0119 obj\u0119t\u0105 Rozkazem Ochrony, szansa zwi\u0119ksza si\u0119
+      za ka\u017Cd\u0105 przyleg\u0142\u0105 osob\u0119. Zwraca 30% obra\u017Ce\u0144
+      przedmitygacyjnych do atakuj\u0105cego"
+    <Icon>k__BackingField: {fileID: 21300000, guid: f56e89569209c4648a48f78d14442c1b, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.protection
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.furious_rising
+    <DisplayName>k__BackingField: Gniewny Odwet
+    <Description>k__BackingField: "Niez\u0142omno\u015B\u0107 zadaje przeciwnikowi,
+      kt\xF3ry chcia\u0142 wywo\u0142a\u0107 og\u0142uszenie obra\u017Cenia magiczne
+      r\xF3wne 3%/7% jego maksymalnego zdrowia ze zwi\u0119kszon\u0105 szans\u0105
+      na cios krytyczny o 10%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 08af438e0950e0e4a8f4d8ab96810d5f, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.renewal
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

@@ -7,12 +7,13 @@ namespace Godmist.Systems.Dungeons
     public static class DungeonPatrolPlanner
     {
         public static List<List<DungeonTraversalPosition>> Build(DungeonFloorMap map, string room,
-            IReadOnlyList<DungeonTraversalPosition> starts, System.Func<DungeonTraversalPosition, bool> canEnter)
-            => Build(map, room, starts, canEnter, out _);
+            IReadOnlyList<DungeonTraversalPosition> starts, System.Func<DungeonTraversalPosition, bool> canEnter,
+            System.Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
+            => Build(map, room, starts, canEnter, out _, canOpenDoor);
 
         public static List<List<DungeonTraversalPosition>> Build(DungeonFloorMap map, string room,
             IReadOnlyList<DungeonTraversalPosition> starts, System.Func<DungeonTraversalPosition, bool> canEnter,
-            out List<List<int>> stopIndices)
+            out List<List<int>> stopIndices, System.Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
         {
             stopIndices = starts.Select(_ => new List<int>()).ToList();
             var result = starts.Select(_ => new List<DungeonTraversalPosition>()).ToList();
@@ -23,7 +24,7 @@ namespace Godmist.Systems.Dungeons
                 if (!map.TryGetRoomId(surface, out var id) || id != room || !canEnter(p)) return false;
                 return !p.IsOnStairs || map.TryGetRoomId(p.Stair.Second, out var other) && other == room;
             }
-            // Discover only components reachable by at least one member, using physical open edges.
+            // Closed direct doors are traversable for actors which can open them.
             var reachable = new HashSet<DungeonTraversalPosition>();
             var queue = new Queue<DungeonTraversalPosition>();
             foreach (var start in starts) if (InRoom(start) && reachable.Add(start)) queue.Enqueue(start);
@@ -31,7 +32,7 @@ namespace Godmist.Systems.Dungeons
             while (queue.Count > 0)
             {
                 var at = queue.Dequeue(); ordered.Add(at);
-                foreach (var next in map.GetTraversalNeighbours(at)) if (InRoom(next) && reachable.Add(next)) queue.Enqueue(next);
+                foreach (var next in map.GetTraversalNeighbours(at, canOpenDoor)) if (InRoom(next) && reachable.Add(next)) queue.Enqueue(next);
             }
             if (ordered.Count == 0) return result;
             var seeds = new List<DungeonTraversalPosition>();
@@ -46,7 +47,7 @@ namespace Godmist.Systems.Dungeons
                 {
                     var at = queue.Dequeue();var distance = local[at];
                     if (!distances.TryGetValue(at, out var old) || distance < old) distances[at] = distance;
-                    foreach (var next in map.GetTraversalNeighbours(at))
+                    foreach (var next in map.GetTraversalNeighbours(at, canOpenDoor))
                         if (reachable.Contains(next) && !local.ContainsKey(next)) { local[next] = distance + 1;queue.Enqueue(next); }
                 }
             }
@@ -57,7 +58,7 @@ namespace Godmist.Systems.Dungeons
             {
                 var owner = -1;var shortest = int.MaxValue;
                 foreach (var index in available.OrderBy(i => i))
-                    if (DungeonExplorationPathfinder.TryFindPath(map, starts[index], seed, out var path, InRoom) && path.Count < shortest)
+                    if (DungeonExplorationPathfinder.TryFindPath(map, starts[index], seed, out var path, InRoom, canOpenDoor) && path.Count < shortest)
                     { owner = index; shortest = path.Count; }
                 seedOwners.Add(owner);if (owner >= 0) available.Remove(owner);
             }
@@ -66,7 +67,7 @@ namespace Godmist.Systems.Dungeons
             while (queue.Count > 0)
             {
                 var at = queue.Dequeue();
-                foreach (var next in map.GetTraversalNeighbours(at)) if (reachable.Contains(next) && !owners.ContainsKey(next))
+                foreach (var next in map.GetTraversalNeighbours(at, canOpenDoor)) if (reachable.Contains(next) && !owners.ContainsKey(next))
                 { owners[next] = owners[at];queue.Enqueue(next); }
             }
             for (var i = 0; i < seeds.Count; i++)
@@ -74,7 +75,7 @@ namespace Godmist.Systems.Dungeons
                 var owner = seedOwners[i];
                 if (owner < 0) continue;
                 var territory = ordered.Where(p => owners.TryGetValue(p, out var assigned) && assigned == owner).ToList();
-                BuildLoop(map, territory, seeds[i], result[owner], stopIndices[owner]);
+                BuildLoop(map, territory, seeds[i], result[owner], stopIndices[owner], canOpenDoor);
             }
             for (var i = 0; i < result.Count; i++)
                 if (result[i].Count == 0 && InRoom(starts[i]))
@@ -83,7 +84,8 @@ namespace Godmist.Systems.Dungeons
         }
 
         private static void BuildLoop(DungeonFloorMap map, List<DungeonTraversalPosition> territory,
-            DungeonTraversalPosition seed, List<DungeonTraversalPosition> route, List<int> stops)
+            DungeonTraversalPosition seed, List<DungeonTraversalPosition> route, List<int> stops,
+            System.Func<DungeonSurfaceEdge, bool> canOpenDoor)
         {
             var allowed = territory.ToHashSet();
             var paths = new Dictionary<DungeonTraversalPosition, Dictionary<DungeonTraversalPosition, List<DungeonTraversalPosition>>>();
@@ -95,7 +97,7 @@ namespace Godmist.Systems.Dungeons
                 while (queue.Count > 0)
                 {
                     var at = queue.Dequeue();
-                    foreach (var next in map.GetTraversalNeighbours(at))
+                    foreach (var next in map.GetTraversalNeighbours(at, canOpenDoor))
                         if (allowed.Contains(next) && !found.ContainsKey(next))
                         {
                             var path = new List<DungeonTraversalPosition>(found[at]) { next };

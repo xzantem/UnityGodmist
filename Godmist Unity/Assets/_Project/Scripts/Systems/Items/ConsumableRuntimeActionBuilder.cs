@@ -13,23 +13,21 @@ namespace Godmist.Systems.Items
     /// <summary>Builds a transient combat action from an instance payload.</summary>
     public static class ConsumableRuntimeActionBuilder
     {
+        public const int ActionCostPercent = 20;
         public static SkillData Build(ConsumableItemInstance item)
         {
-            if (item == null) return null;
+            if (item == null || item.IsFood) return null;
             var runtimeEffects = new List<ConsumableEffectRuntime>(item.RuntimeEffects ?? new List<ConsumableEffectRuntime>());
-            if (runtimeEffects.Count == 0
-                && ConsumableRuntimeRules.TryGetImpliedUtilityEffect(
-                    item.ConsumableDefinition,
-                    out var impliedUtilityEffect))
+            if (runtimeEffects.Count == 0)
             {
-                runtimeEffects.Add(impliedUtilityEffect);
+                runtimeEffects.AddRange(ConsumableRuntimeRules.GetImpliedUtilityEffects(item.ConsumableDefinition));
             }
             if (runtimeEffects.Count == 0) return null;
 
             var skill = ScriptableObject.CreateInstance<SkillData>();
             Set(skill, "skillId", $"runtime.consumable.{item.InstanceId}");
             Set(skill, "displayName", item.DisplayName);
-            Set(skill, "actionCost", 20);
+            Set(skill, "actionCost", ActionCostPercent);
             var modes = new List<SkillTargetModeData>();
             var firstEffect = runtimeEffects[0];
             var mode = new SkillTargetModeData();
@@ -104,8 +102,11 @@ namespace Godmist.Systems.Items
                     durationTurns = Mathf.Max(durationTurns, candidate.DurationTurns);
                 }
 
+                // All instant bomb damage shares diminishing returns. Splitting the
+                // recipe into physical/magical effects must not grant another budget.
                 var effectiveValue = rawValue
-                    * ConsumableRuntimeRules.GetDuplicateMultiplier(occurrenceCount)
+                    * ConsumableRuntimeRules.GetDuplicateMultiplier(item.IsBomb && IsInstantDamage(runtime.EffectType)
+                        ? CountInstantDamageIngredients(runtimeEffects, runtime) : occurrenceCount)
                     * Mathf.Max(0f, item.CatalystEffectMultiplier);
                 var effect = new SkillEffectData();
                 var skillEffectType = runtime.EffectType switch
@@ -116,6 +117,7 @@ namespace Godmist.Systems.Items
                     ConsumableRuntimeEffectType.RegenResource => EffectType.RestoreResourceOverTimePercent,
                     ConsumableRuntimeEffectType.ModifyActionPoints => EffectType.ModifyActionPointsPercent,
                     ConsumableRuntimeEffectType.ModifyDamage => EffectType.ModifyVar,
+                    ConsumableRuntimeEffectType.ModifyAllResistances => EffectType.ModifyResistance,
                     ConsumableRuntimeEffectType.DealPhysicalDamage
                         or ConsumableRuntimeEffectType.DealMagicalDamage
                         or ConsumableRuntimeEffectType.DealInevitableDamage => EffectType.DealDamage,
@@ -159,20 +161,14 @@ namespace Godmist.Systems.Items
                 {
                     duration = Mathf.Max(1, duration + item.CatalystDurationModifier);
                 }
+                effectiveValue *= ConsumableRuntimeRules.GetCondensationMultiplier(
+                    runtime.EffectType, baseDuration, duration);
 
-                // A duration catalyst is intentionally not a dilution mechanic for
-                // health regeneration: extending 6 turns to 7 raises 25% to
-                // 25% * 7 / 6 = 29.17%, as defined for alchemical regeneration.
-                if (runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth
-                    && baseDuration > 0
-                    && duration > 0)
-                {
-                    effectiveValue *= duration / (float)baseDuration;
-                }
-                // Regeneration values describe the total recovery over the full
-                // duration. Combat consumes the percentage once per turn, so it
-                // must receive the per-turn amount here.
-                var appliedValue = runtime.EffectType == ConsumableRuntimeEffectType.RegenHealth && duration > 0
+                // Ingredient regeneration strength is the TOTAL, for either resource.
+                // Duration catalysts redistribute that total rather than creating/removing recovery.
+                var isRegeneration = runtime.EffectType is ConsumableRuntimeEffectType.RegenHealth
+                    or ConsumableRuntimeEffectType.RegenResource;
+                var appliedValue = isRegeneration && duration > 0
                     ? effectiveValue / duration
                     : effectiveValue;
                 Set(effect, "baseValue", Mathf.CeilToInt(Mathf.Max(0f, appliedValue)));
@@ -188,11 +184,18 @@ namespace Godmist.Systems.Items
                 {
                     Set(effect, "damageType", GetDamageType(runtime.EffectType));
                     Set(effect, "damageMultiplier", Mathf.Max(0f, effectiveValue));
+                    if (item.IsBomb)
+                    {
+                        Set(effect, "damageValueSource", DamageValueSource.AlchemicalPower);
+                    }
                 }
                 if (skillEffectType == EffectType.ModifyStat)
                 {
                     Set(effect, "modifierStatType", GetModifierStat(runtime.EffectType));
-                    Set(effect, "modifierOperation", runtime.EffectType == ConsumableRuntimeEffectType.ModifyDodge
+                    Set(effect, "modifierOperation", runtime.EffectType is
+                        ConsumableRuntimeEffectType.ModifyAccuracy
+                        or ConsumableRuntimeEffectType.Slow
+                        || runtime.EffectType == ConsumableRuntimeEffectType.ModifyDodge && !item.IsBomb
                         ? StatModifierOperation.FlatAbsolute
                         : StatModifierOperation.Percent);
                     Set(effect, "modifierValue", GetSignedModifierValue(
@@ -218,8 +221,40 @@ namespace Godmist.Systems.Items
                             : runtime.StatusId))
                 {
                     Set(effect, "statusDamageMultiplier", Mathf.Max(0f, effectiveValue));
+                    if (item.IsBomb) Set(effect, "damageValueSource", DamageValueSource.AlchemicalPower);
                 }
                 effects.Add(effect);
+                if (runtime.EffectType == ConsumableRuntimeEffectType.ModifyDefense)
+                {
+                    var magicalDefense = new SkillEffectData();
+                    Set(magicalDefense, "effectType", EffectType.ModifyStat);
+                    Set(magicalDefense, "alwaysHits", true);
+                    Set(magicalDefense, "polarity", EffectPolarity.Positive);
+                    Set(magicalDefense, "targetModeIndex", Mathf.Max(0, runtime.TargetModeIndex));
+                    Set(magicalDefense, "durationTurns", duration);
+                    Set(magicalDefense, "baseChance", Mathf.Clamp01(runtime.Chance));
+                    Set(magicalDefense, "modifierStatType", CharacterStatType.MagicalDefense);
+                    Set(magicalDefense, "modifierOperation", StatModifierOperation.Percent);
+                    Set(magicalDefense, "modifierValue", effectiveValue);
+                    effects.Add(magicalDefense);
+                }
+                if (runtime.EffectType == ConsumableRuntimeEffectType.ModifyAllResistances)
+                {
+                    foreach (ResistanceType resistanceType in Enum.GetValues(typeof(ResistanceType)))
+                    {
+                        if (resistanceType == runtime.ResistanceType) continue;
+                        var resistance = new SkillEffectData();
+                        Set(resistance, "effectType", EffectType.ModifyResistance);
+                        Set(resistance, "alwaysHits", true);
+                        Set(resistance, "polarity", EffectPolarity.Positive);
+                        Set(resistance, "targetModeIndex", Mathf.Max(0, runtime.TargetModeIndex));
+                        Set(resistance, "durationTurns", duration);
+                        Set(resistance, "baseChance", Mathf.Clamp01(runtime.Chance));
+                        Set(resistance, "resistanceType", resistanceType);
+                        Set(resistance, "modifierValue", effectiveValue);
+                        effects.Add(resistance);
+                    }
+                }
             }
             Set(skill, "effects", effects);
             return skill;
@@ -234,6 +269,22 @@ namespace Godmist.Systems.Items
                 $"<{char.ToUpperInvariant(field[0])}{field.Substring(1)}>k__BackingField",
                 flags);
             info?.SetValue(target, value);
+        }
+
+        private static bool IsInstantDamage(ConsumableRuntimeEffectType type) => type is
+            ConsumableRuntimeEffectType.DealDamage or ConsumableRuntimeEffectType.DealPhysicalDamage
+            or ConsumableRuntimeEffectType.DealMagicalDamage or ConsumableRuntimeEffectType.DealInevitableDamage;
+
+        private static int CountInstantDamageIngredients(
+            IReadOnlyList<ConsumableEffectRuntime> effects, ConsumableEffectRuntime source)
+        {
+            var count = 0;
+            foreach (var effect in effects)
+                if (effect != null && IsInstantDamage(effect.EffectType)
+                    && effect.TargetModeIndex == source.TargetModeIndex
+                    && effect.TargetType == source.TargetType && effect.TargetingType == source.TargetingType)
+                    count++;
+            return count;
         }
 
         private static CharacterStatType GetModifierStat(ConsumableRuntimeEffectType effectType)

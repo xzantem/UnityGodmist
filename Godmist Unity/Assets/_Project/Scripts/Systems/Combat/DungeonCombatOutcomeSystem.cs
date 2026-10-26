@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Systems.Combat
 {
@@ -20,7 +21,8 @@ namespace Godmist.Systems.Combat
 
         public bool TryApplyOutcome(
             GameSession gameSession,
-            CombatSession combatSession)
+            CombatSession combatSession,
+            QuestObjectiveProgressSystem questProgress = null)
         {
             if (combatSession == null
                 || (combatSession.Outcome != CombatOutcomeState.Victory
@@ -48,7 +50,8 @@ namespace Godmist.Systems.Combat
             }
 
             if (!stateSyncSystem.TrySyncDoorStates(gameSession, combatSession)
-                || !stateSyncSystem.TrySyncDefeatedEnemyStates(gameSession, combatSession))
+                || !stateSyncSystem.TrySyncDefeatedEnemyStates(
+                    gameSession, combatSession, questProgress))
             {
                 return false;
             }
@@ -82,10 +85,11 @@ namespace Godmist.Systems.Combat
                 {
                     if (!dungeon.TryGetFloor(context.FloorIndex, out var floor)
                         || !floor.TryGetEncounter(result.CombatId, out var encounter)) return false;
-                    if (System.Linq.Enumerable.All(encounter.Definition.Enemies, enemy => encounter.IsEnemyDefeated(enemy.InstanceId))
+                    if (System.Linq.Enumerable.All(encounter.Enemies, enemy => encounter.IsEnemyDefeated(enemy.InstanceId))
                         && !dungeon.IsEncounterCleared(encounter.InstanceId)
                         && !dungeon.TryMarkEncounterCleared(encounter.InstanceId)) return false;
                 }
+                CombatOutcomeSystem.StandUpDownedAllies(combatSession);
                 return true;
             }
 
@@ -96,6 +100,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            CombatOutcomeSystem.StandUpDownedAllies(combatSession);
             return true;
         }
 
@@ -425,7 +430,7 @@ namespace Godmist.Systems.Combat
             {
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle
                     && obstacle.IsActive
-                    && obstacle.Position == position)
+                    && obstacle.OccupiesCell(position))
                 {
                     return false;
                 }

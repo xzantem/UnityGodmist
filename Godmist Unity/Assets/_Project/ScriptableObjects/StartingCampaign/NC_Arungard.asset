@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81a489d72c448b2469ea02129b6f25ea, type: 3}
+  m_Name: NC_Arungard
+  m_EditorClassIdentifier: Data::Godmist.Data.World.NewCampaignDefinition
+  StartingGold: 500
+  Characters:
+  - Character: {fileID: 11400000, guid: de6e9e26cd986e144b254dcc7b76b803, type: 2}
+    Class: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
+    Weapon: {fileID: 11400000, guid: 81cfe8161d002e34f9c1493ca20291fb, type: 2}
+    Armor: {fileID: 11400000, guid: 38e2ae7f43e3b204abcac1b8a42260e1, type: 2}
+    WeaponParts:
+    - {fileID: 11400000, guid: 63f5106c96d73954eb6903f926314640, type: 2}
+    - {fileID: 11400000, guid: 3b9241782a88c5b4b9eef681e0953de5, type: 2}
+    - {fileID: 11400000, guid: c5e6eb63ecf77074da54099c61c9b5c9, type: 2}
+    ArmorParts:
+    - {fileID: 11400000, guid: 25d74b0d6df8f8340a1c2b0711083a9c, type: 2}
+    - {fileID: 11400000, guid: 537ee7b22ba373740a465fffff406d64, type: 2}
+    - {fileID: 11400000, guid: 1f0b65215eb985b458f5539407624cda, type: 2}
+  - Character: {fileID: 11400000, guid: 28eba9f7a64e2ff45859b802054c5de2, type: 2}
+    Class: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+    Weapon: {fileID: 11400000, guid: 697beb7f2d0dbf249a13b76bfbc7ddfd, type: 2}
+    Armor: {fileID: 11400000, guid: f0315ef356794b242be544efb5546f81, type: 2}
+    WeaponParts:
+    - {fileID: 11400000, guid: e7fc2d0a3cd77a84b96485ba243f762e, type: 2}
+    - {fileID: 11400000, guid: c0b0b4696152a7741a1acfb568cce0a3, type: 2}
+    - {fileID: 11400000, guid: 49c1b02f4392bc146abc0c7938cb44d0, type: 2}
+    ArmorParts:
+    - {fileID: 11400000, guid: ad231b0f11610514ea4a6c7893ce5c96, type: 2}
+    - {fileID: 11400000, guid: 7b4d4750617958a438411f234ae6c371, type: 2}
+    - {fileID: 11400000, guid: e6d76eb6e5a05154fa3429cf8a6faed0, type: 2}
+  - Character: {fileID: 11400000, guid: a3f95d0951df4754a81093cab24afd04, type: 2}
+    Class: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+    Weapon: {fileID: 11400000, guid: 7b12d08747f67ac49af397c4135da10e, type: 2}
+    Armor: {fileID: 11400000, guid: 2471ccdf497328f4380680cb5ccb74f0, type: 2}
+    WeaponParts:
+    - {fileID: 11400000, guid: ae72302fcef67744eb97e37cf4258427, type: 2}
+    - {fileID: 11400000, guid: 17359fe6fe2854a40b4f9cb65499b0cc, type: 2}
+    - {fileID: 11400000, guid: 60f68b63efdbaa148a7f01c4a29850e5, type: 2}
+    ArmorParts:
+    - {fileID: 11400000, guid: 0722600d577326c42b63602a8b2cb5c0, type: 2}
+    - {fileID: 11400000, guid: 93aaa2cc091eaa2439779854341d783f, type: 2}
+    - {fileID: 11400000, guid: 3a8281ff17ae0ab479fc7860ded2c317, type: 2}
+  - Character: {fileID: 11400000, guid: 518f98ec8bf36724eb3b57b3250a7cdf, type: 2}
+    Class: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+    Weapon: {fileID: 11400000, guid: 982d07320ad36134ba3fe5d4a028fd81, type: 2}
+    Armor: {fileID: 11400000, guid: 0ef4d4d9a0f4a914987930a9834d81b9, type: 2}
+    WeaponParts:
+    - {fileID: 11400000, guid: c52dbd60b30467f4080fcbf667b665c2, type: 2}
+    - {fileID: 11400000, guid: 8d99d3e1fd4bb06459a60553039931b3, type: 2}
+    - {fileID: 11400000, guid: de170a05830f60a46b4c50a370fe33a6, type: 2}
+    ArmorParts:
+    - {fileID: 11400000, guid: a5fcc386efc306e429491f1478ecbd2e, type: 2}
+    - {fileID: 11400000, guid: 6869abfccf8699e4cbee6d627739910d, type: 2}
+    - {fileID: 11400000, guid: a17c24df317145b448e3a1323e2bc137, type: 2}

@@ -110,6 +110,7 @@ namespace Godmist.Systems.Combat
                 CombatId = combatId,
                 Outcome = CombatOutcomeState.Ongoing,
                 ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonDefinition = gameSession.ActiveDungeon?.Definition,
                 DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story,
                 Grid = battleGrid,
                 Units = new List<BattleUnit>(),
@@ -145,6 +146,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            foreach(var enemy in session.Units.Where(u=>!u.IsPlayerSide))
+                enemy.IsBoss=ScoutCombatSystem.IsBoss(gameSession.ActiveDungeon,encounter,enemy.Character.CharacterId);
             combatSession = session;
             return true;
         }
@@ -156,11 +159,11 @@ namespace Godmist.Systems.Combat
 
         public bool TryCreateSeamless(GameSession gameSession, DungeonEncounterInstance encounter,
             DungeonCombatContext context, IReadOnlyDictionary<string, Vector2Int> playerCells,
-            IReadOnlyDictionary<string, Vector2Int> enemyCells, out CombatSession result, out bool placementFailed, bool spottedOnly = false)
+            IReadOnlyDictionary<string, Vector2Int> enemyCells, out CombatSession result, out bool placementFailed, bool spottedOnly = false, bool allowEmptyEnemies = false)
         {
             result = null;
             placementFailed = false;
-            if (gameSession == null || encounter?.Definition?.Enemies == null || context == null
+            if (gameSession == null || encounter?.Enemies == null || context == null
                 || playerCells == null || enemyCells == null
                 || !dungeonBattleGridFactory.TryCreate(context, out var grid)) return false;
             var session = new CombatSession
@@ -168,6 +171,7 @@ namespace Godmist.Systems.Combat
                 CombatId = spottedOnly ? Guid.NewGuid().ToString("N") : encounter.InstanceId, DungeonContext = context, IsSeamless = true,
                 IsDungeonWide = spottedOnly,
                 Grid = grid, ActionPointsPerSpeed = actionPointsPerSpeed,
+                DungeonDefinition = gameSession.ActiveDungeon?.Definition,
                 DungeonTheme = gameSession.ActiveDungeon?.Definition?.Theme ?? DungeonTheme.Story
             };
             AddDungeonMapObjects(session, context);
@@ -175,6 +179,8 @@ namespace Godmist.Systems.Combat
                 session.EnvironmentBlocksLineOfSight = (from, to) =>
                     DungeonCombatArenaSystem.BlocksEnvironmentSight(floor, context, from, to);
             session.ExternalPositionOccupied = position => gameSession.IsOccupiedInOtherCombat(session, position);
+            session.IsUnitKnownForMovementPreview = unit => !StatusEffectSystem.IsInvisibleToPlayer(unit);
+            session.ExternalPreviewPositionOccupied = position => gameSession.IsOccupiedInOtherCombat(session, position, session.IsUnitKnownForMovementPreview);
             GridPosition ActorPosition(string key, Vector2Int fallback)
             {
                 if (gameSession.ActiveDungeon != null && gameSession.ActiveDungeon.TryGetCurrentFloor(out var actorFloor)
@@ -194,7 +200,7 @@ namespace Godmist.Systems.Combat
                     ActorPosition("player:" + id, cell), true));
             }
             if (session.Units.Count == 0) return false;
-            foreach (var data in encounter.Definition.Enemies)
+            foreach (var data in encounter.Enemies)
             {
                 if (data == null || string.IsNullOrWhiteSpace(data.InstanceId)) return false;
                 if (encounter.IsEnemyDefeated(data.InstanceId) || (spottedOnly && !enemyCells.ContainsKey(data.InstanceId))) continue;
@@ -205,7 +211,7 @@ namespace Godmist.Systems.Combat
                 session.Units.Add(CreateBattleUnit(character,
                     ActorPosition("enemy:" + encounter.InstanceId + ":" + data.InstanceId, cell), false));
             }
-            if (!session.Units.Any(unit => !unit.IsPlayerSide)) return false;
+            if (!allowEmptyEnemies && !session.Units.Any(unit => !unit.IsPlayerSide)) return false;
             if (!DungeonCombatPositionResolver.TryResolveGroup(grid,
                 session.Units.Select(unit => unit.Position).ToList(), occupied, out var positions))
             {
@@ -218,6 +224,8 @@ namespace Godmist.Systems.Combat
                 foreach (var unit in session.Units.Where(unit => !unit.IsPlayerSide))
                     DungeonCombatMembershipSystem.RegisterEnemy(session, encounter.InstanceId, unit.Character.CharacterId,
                         ResolveRewards(gameSession, encounter.Definition, encounter.InstanceId), unit);
+            foreach(var enemy in session.Units.Where(u=>!u.IsPlayerSide))
+                enemy.IsBoss=ScoutCombatSystem.IsBoss(gameSession.ActiveDungeon,encounter.Definition,enemy.Character.CharacterId);
             result = session;
             return true;
         }
@@ -449,19 +457,34 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             DungeonCombatContext context)
         {
-            session.Grid.DynamicBlocked = position => session.MapObjects.Exists(o => o is ObstacleCombatMapObject obstacle && obstacle.Source != null && obstacle.Position == position && obstacle.BlocksMovement);
+            session.Grid.DynamicBlocked = position =>
+            {
+                var worldCell = DungeonBattleGridFactory.ToWorldPosition(context, position);
+                return session.MapObjects.Exists(o =>
+                    o is ObstacleCombatMapObject obstacle
+                    && obstacle.Source != null
+                    && obstacle.Source.OccupiesCell(worldCell)
+                    && obstacle.BlocksMovement);
+            };
             foreach (var mapObject in context.MapObjects)
             {
                 if (mapObject.ObjectType
                     == Godmist.Core.Enums.DungeonObjectType.Obstacle)
                 {
+                    var battleOccupiedPositions = mapObject.Obstacle == null
+                        ? null
+                        : mapObject.Obstacle.EnumerateOccupiedCells()
+                            .Select(cell => DungeonBattleGridFactory.ToBattlePosition(context, cell))
+                            .ToArray();
                     session.MapObjects.Add(new ObstacleCombatMapObject(
                         mapObject.ObjectInstanceId,
                         DungeonBattleGridFactory.ToBattlePosition(
                             context,
                             mapObject.WorldPosition),
                         mapObject.BlocksMovement,
-                        mapObject.BlocksLineOfSight, mapObject.Obstacle));
+                        mapObject.BlocksLineOfSight,
+                        mapObject.Obstacle,
+                        battleOccupiedPositions));
 
                     continue;
                 }
@@ -513,7 +536,7 @@ namespace Godmist.Systems.Combat
 
             var maxActionPoints = Mathf.Max(
                 0,
-                Mathf.RoundToInt(speed * actionPointsPerSpeed));
+                Mathf.RoundToInt(speed * actionPointsPerSpeed * ActionPointUnits.PerPoint));
 
             return new BattleUnit
             {
@@ -524,6 +547,7 @@ namespace Godmist.Systems.Combat
                 CurrentActionValue = 0f,
                 HasReacted = false,
                 IsReadyToEscape = false,
+                DownedTurnsRemaining = character.LifeState == CharacterLifeState.Downed ? BattleUnit.DownedTurnLimit : 0,
                 IsPlayerSide = isPlayerSide
             };
         }
@@ -540,11 +564,28 @@ namespace Godmist.Systems.Combat
                     combatId,
                     out var rewards))
             {
+                foreach (var reward in rewards.EnemyRewards)
+                {
+                    reward.IsBoss = ScoutCombatSystem.IsBoss(dungeon, encounter, reward.EnemyInstanceId);
+                    if (reward.ExperienceLevel > 0)
+                        reward.ExperiencePerActiveCharacter = CombatRewardSystem.CalculateEnemyExperience(
+                            reward.ExperienceLevel, reward.ExperienceLevel, reward.IsBoss);
+                }
                 return rewards;
             }
 
+            // Reinforcement identity, not a missing reward cache, decides whether rewards exist.
+            if (dungeon != null)
+                foreach (var floor in dungeon.Floors)
+                    if (floor.TryGetEncounter(combatId, out var runtimeEncounter) && runtimeEncounter.IsReinforcement)
+                    {
+                        var empty = new CombatRewardResult();
+                        dungeon.TryStorePreRolledRewards(combatId, empty);
+                        return empty;
+                    }
+
             var rolledRewards = rewardSystem.RollEncounterRewards(
-                encounter, null, dungeon?.DungeonLevel ?? 1);
+                encounter, null, dungeon?.DungeonLevel ?? 1, dungeon);
 
             dungeon?.TryStorePreRolledRewards(
                 combatId,

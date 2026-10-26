@@ -956,7 +956,7 @@ namespace Godmist.Tests.EditMode
                 var unit = new Godmist.Runtime.Combat.BattleUnit
                 {
                     Character = new Godmist.Runtime.Characters.CharacterInstance { Definition = definition, CharacterId = "p", CurrentHealth = 10 },
-                    Position = new Godmist.Runtime.Combat.GridPosition(0, 0), CurrentActionPoints = 20, IsPlayerSide = true
+                    Position = new Godmist.Runtime.Combat.GridPosition(0, 0), CurrentActionPoints = 2000, IsPlayerSide = true
                 };
                 session.Units.Add(unit);
                 var stair = map.Stairs.Single();
@@ -965,7 +965,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(new Godmist.Systems.Combat.CombatMovementSystem().TryMoveAlongPath(session, unit, path), Is.True);
                 Assert.That(unit.Position, Is.EqualTo(path[2]));
                 Assert.That(unit.MovementStepsThisTurn, Is.EqualTo(3));
-                Assert.That(unit.CurrentActionPoints, Is.EqualTo(14));
+                Assert.That(unit.CurrentActionPoints, Is.EqualTo(1400));
             }
             finally { Object.DestroyImmediate(definition); }
         }

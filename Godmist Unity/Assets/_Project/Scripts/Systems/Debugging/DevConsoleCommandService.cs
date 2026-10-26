@@ -19,6 +19,7 @@ using Godmist.Runtime.Quests;
 using Godmist.Systems.Characters;
 using Godmist.Systems.Items;
 using Godmist.Systems.Combat;
+using Godmist.Systems.Dungeons;
 using Godmist.Systems.NPC;
 using UnityEngine;
 
@@ -63,7 +64,8 @@ namespace Godmist.Systems.Debugging
             Func<int, DevConsoleCommandResult> advanceHandler = null,
             Func<float, DevConsoleCommandResult> tickHandler = null,
             Func<CombatOutcomeState, DevConsoleCommandResult> forceCombatResultHandler = null,
-            Func<string, DevConsoleCommandResult> dialogueHandler = null)
+            Func<string, DevConsoleCommandResult> dialogueHandler = null,
+            Func<string, int, DevConsoleCommandResult> assetAuditRoomHandler = null)
         {
             if (string.IsNullOrWhiteSpace(commandLine))
             {
@@ -84,6 +86,7 @@ namespace Godmist.Systems.Debugging
             {
                 "help" => GetHelp(tokens),
                 "state" => GetState(gameSession, combatSession),
+                "combattrace" => CombatTrace(tokens, gameSession),
                 "characters" => GetCharacters(gameSession, combatSession),
                 "queststate" => GetQuestState(tokens, gameSession),
                 "worldflags" => GetWorldFlags(gameSession),
@@ -112,8 +115,10 @@ namespace Godmist.Systems.Debugging
                 "removeitem" => RemoveItem(tokens, gameSession),
                 "clearinventory" => ClearInventory(tokens, gameSession),
                 "setlevel" => SetLevel(tokens, gameSession),
+                "setdanger" => SetDanger(tokens, gameSession, contentCatalog),
                 "setloyalty" => SetLoyalty(tokens, gameSession),
                 "noclip" => SetNoclip(tokens, noclipHandler),
+                "noaggro" => SetNoAggro(tokens, gameSession),
                 "revealmap" => SetMapVisibility(gameSession, true),
                 "clearmap" => SetMapVisibility(gameSession, false),
                 "togglefog" => ToggleFog(gameSession),
@@ -124,14 +129,40 @@ namespace Godmist.Systems.Debugging
                 "applystatus" => ApplyStatus(tokens, gameSession, combatSession),
                 "clearstatuses" => ClearStatuses(tokens, gameSession, combatSession),
                 "forcecombatresult" => ForceCombatResult(tokens, combatSession, forceCombatResultHandler),
-                "seed" => SetSeed(tokens),
+                "seed" => SetSeed(tokens, gameSession),
                 "triggerdialogue" => TriggerDialogue(tokens, dialogueHandler),
+                "assetroom" => AssetAuditRoom(tokens, assetAuditRoomHandler),
                 "inspectdungeon" => InspectDungeon(gameSession),
                 "inspectroom" => InspectRoom(tokens, gameSession),
                 "spawnobject" => SpawnObject(tokens, gameSession),
                 "unit" => InspectUnit(tokens, gameSession, combatSession),
                 _ => Fail($"Nieznana komenda: {tokens[0]}. Użyj: help")
             };
+        }
+
+        private static DevConsoleCommandResult CombatTrace(IReadOnlyList<string> tokens, GameSession game)
+        {
+            if (game == null) return Fail("Brak aktywnej kampanii.");
+            var recorder = game.CombatDiagnostics;
+            foreach (var combat in game.Combats) combat.Diagnostics = recorder;
+            if (game.ActiveCombat != null) game.ActiveCombat.Diagnostics = recorder;
+            var mode = tokens.Count > 1 ? tokens[1].ToLowerInvariant() : "show";
+            switch (mode)
+            {
+                case "on": recorder.Clear(); recorder.Enabled = true;
+                    recorder.Record("start", null, null, $"dungeon={game.ActiveDungeon?.DungeonId};seed={game.ActiveDungeon?.Seed};floor={game.ActiveDungeon?.CurrentFloorIndex}");
+                    return Success("Diagnostyka walki włączona. combattrace export zapisuje decyzje AI i obrażenia.");
+                case "off": recorder.Enabled = false; return Success("Diagnostyka walki wyłączona; zapis zachowany.");
+                case "clear": recorder.Clear(); return Success("Wyczyszczono diagnostykę walki.");
+                case "show": return Success($"Wpisy: {recorder.Count}/{CombatDiagnosticRecorder.Capacity}; aktywna: {recorder.Enabled}\n" + recorder.Read(30));
+                case "export":
+                    var folder=System.IO.Path.Combine(Application.persistentDataPath,"CombatDiagnostics");
+                    System.IO.Directory.CreateDirectory(folder);
+                    var path=System.IO.Path.Combine(folder,"combat-"+DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff")+".log");
+                    System.IO.File.WriteAllText(path,recorder.Read(),Encoding.UTF8);
+                    return Success("Zapisano diagnostykę: " + path);
+                default: return Fail("Użycie: combattrace on|off|show|clear|export");
+            }
         }
 
         private static DevConsoleCommandResult GetHelp(IReadOnlyList<string> tokens)
@@ -246,6 +277,30 @@ namespace Godmist.Systems.Debugging
             return Success($"Ustawiono poziom {GetCharacterName(character)}: {previousLevel} -> {character.Level}.");
         }
 
+        private static DevConsoleCommandResult SetDanger(
+            IReadOnlyList<string> tokens,
+            GameSession gameSession,
+            GameContentCatalog contentCatalog)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: setdanger <theme> <0-100>");
+            if (gameSession == null) return Fail("Brak aktywnej kampanii.");
+            if (!Enum.TryParse(tokens[1], true, out DungeonTheme theme)
+                || !Enum.IsDefined(typeof(DungeonTheme), theme) || theme == DungeonTheme.Story)
+                return Fail($"Nieznany motyw lochu: {tokens[1]}.");
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)
+                || value < 0 || value > 100)
+                return Fail("Danger musi być liczbą całkowitą od 0 do 100.");
+
+            var board = gameSession.DungeonOffers;
+            var previous = board.GetDanger(theme);
+            board.SetDanger(theme, value);
+            if (value == 100 && contentCatalog != null)
+                DungeonOfferSystem.EnsureOffers(gameSession, contentCatalog.DungeonDefinitions);
+
+            return Success($"Danger {theme}: {previous}% -> {board.GetDanger(theme)}% "
+                + $"({DungeonOfferSystem.DangerBand(board.GetDanger(theme))}).");
+        }
+
         private DevConsoleCommandResult SetLoyalty(
             IReadOnlyList<string> tokens,
             GameSession gameSession)
@@ -295,6 +350,22 @@ namespace Godmist.Systems.Debugging
             foreach (var floor in dungeon.Floors) floor.Fog.ToggleDebugFog();
             return Success(dungeon.Floors.Count > 0 && dungeon.Floors[0].Fog.DebugFogDisabled
                 ? "Fog of War: wyłączony (debug, bez odkrywania mapy)." : "Fog of War: włączony.");
+        }
+
+        private static DevConsoleCommandResult SetNoAggro(IReadOnlyList<string> tokens, GameSession session)
+        {
+            if (session == null) return Fail("Brak aktywnej sesji gry.");
+            if (tokens.Count > 2) return Fail("Użycie: noaggro [on|off]");
+            var disabled = !session.DebugEnemyAggroDisabled;
+            if (tokens.Count == 2)
+            {
+                if (string.Equals(tokens[1], "on", StringComparison.OrdinalIgnoreCase)) disabled = true;
+                else if (string.Equals(tokens[1], "off", StringComparison.OrdinalIgnoreCase)) disabled = false;
+                else return Fail("Tryb noaggro musi mieć wartość on albo off.");
+            }
+            session.DebugEnemyAggroDisabled = disabled;
+            return Success(disabled ? "Noaggro: włączone — przeciwnicy nie wszczynają walki ani nie alarmują kolejnych mobów."
+                : "Noaggro: wyłączone — normalne aggro przeciwników.");
         }
 
         private static DevConsoleCommandResult SetMapVisibility(GameSession gameSession, bool visible)
@@ -428,10 +499,21 @@ namespace Godmist.Systems.Debugging
             return Success($"Wymuszono wynik walki: {result.Value}.");
         }
 
-        private DevConsoleCommandResult SetSeed(IReadOnlyList<string> tokens)
+        private DevConsoleCommandResult SetSeed(IReadOnlyList<string> tokens, GameSession gameSession)
         {
+            if (tokens.Count == 1)
+            {
+                var dungeon=gameSession?.ActiveDungeon;
+                if(dungeon==null)return Fail("Brak aktywnej wyprawy; nie można odczytać seeda mapy."
+                    +(debugSeed.HasValue?$" Seed debugowy dla nowego generowania: {debugSeed.Value}.":string.Empty));
+                var position=dungeon.HasPlayerPosition
+                    ? $"({dungeon.PlayerPosition.x.ToString("F2",CultureInfo.InvariantCulture)}, {dungeon.PlayerPosition.y.ToString("F2",CultureInfo.InvariantCulture)})"
+                    : "niezapisana";
+                return Success($"Seed wyprawy: {dungeon.Seed}\nDungeon: {dungeon.DungeonId} | długość: {dungeon.Length} | poziom: {dungeon.DungeonLevel}"
+                    +$"\nPiętro: {dungeon.CurrentFloorIndex} | ostatnia pozycja drużyny: {position}");
+            }
             if (tokens.Count != 2 || !int.TryParse(tokens[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var seed))
-                return Fail("Użycie: seed <liczba całkowita>");
+                return Fail("Użycie: seed [liczba całkowita]");
             debugSeed = seed;
             UnityEngine.Random.InitState(seed);
             return Success($"Ustawiono seed debugowy: {seed}. Nowe generowanie dungeonów użyje tego ziarna.");
@@ -443,6 +525,18 @@ namespace Godmist.Systems.Debugging
         {
             if (tokens.Count != 2) return Fail("Użycie: triggerdialogue <dialogueId>");
             return handler == null ? Fail("triggerdialogue jest dostępne tylko w scenie gry.") : handler(tokens[1]);
+        }
+
+        private static DevConsoleCommandResult AssetAuditRoom(
+            IReadOnlyList<string> tokens,
+            Func<string, int, DevConsoleCommandResult> handler)
+        {
+            if (tokens.Count != 3) return Fail("Użycie: assetroom <dungeonId> <seed>");
+            if (!int.TryParse(tokens[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out var seed))
+                return Fail("seed musi być liczbą całkowitą.");
+            return handler == null
+                ? Fail("assetroom jest dostępne tylko w scenie gry.")
+                : handler(tokens[1], seed);
         }
 
         private static DevConsoleCommandResult InspectDungeon(GameSession gameSession)
@@ -965,7 +1059,9 @@ namespace Godmist.Systems.Debugging
                 return Fail("Postać nie ma ResourcePool.");
             }
 
+            var previousResource = target.ResourcePool.CurrentValue;
             var restored = target.ResourcePool.Restore(amount);
+            Godmist.Systems.Combat.MomentumResourceRule.RefreshSpeedAfterChange(target, previousResource);
 
             return Success(
                 $"Przywrócono {GetCharacterName(target)} " +
@@ -1077,9 +1173,11 @@ namespace Godmist.Systems.Debugging
                 return Fail("Postać nie ma ResourcePool.");
             }
 
+            var previousResource = target.ResourcePool.CurrentValue;
             target.ResourcePool.CurrentValue = Math.Min(
                 value,
                 target.ResourcePool.MaxValue);
+            Godmist.Systems.Combat.MomentumResourceRule.RefreshSpeedAfterChange(target, previousResource);
 
             return Success(
                 $"Ustawiono zasób {GetCharacterName(target)}: " +

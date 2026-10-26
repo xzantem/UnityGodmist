@@ -9,6 +9,7 @@ namespace Godmist.Views.Combat
     public class CombatMovementInputController : MonoBehaviour
     {
         public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
+        public System.Func<bool> IsWorldInteractionClaimedThisFrame { get; set; }
 
         public void SetGridMapping(Vector2 origin, float size)
         {
@@ -49,6 +50,11 @@ namespace Godmist.Views.Combat
         private bool inspectedRangeVisible;
 
         public bool ConsumedPrimaryClickThisFrame { get; private set; }
+        public bool IsMovementRangeInspectionAvailable =>
+            isActiveAndEnabled
+            && HasControllableUnit()
+            && sandboxBootstrap?.Session?.IsDungeonWide != true
+            && inspectController?.HoveredUnit != null;
 
         private void Awake()
         {
@@ -66,6 +72,14 @@ namespace Godmist.Views.Combat
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
+            if (sandboxBootstrap?.IsGameplaySuspended == true) { ClearHighlights(); cacheValid = false; return; }
+            if (IsWorldInteractionClaimedThisFrame?.Invoke() == true)
+            {
+                ConsumedPrimaryClickThisFrame = true;
+                ClearHighlights();
+                cacheValid = false;
+                return;
+            }
             if (sandboxBootstrap?.Session?.IsSeamless == true)
             {
                 if (!sandboxBootstrap.Session.IsDungeonWide) cacheValid = false;
@@ -77,7 +91,7 @@ namespace Godmist.Views.Combat
                 }
             }
 
-            if (DevConsoleView.IsOpen)
+            if (DevConsoleView.IsOpen || Godmist.Views.UI.Workspace.UIWorkspaceInputRouter.HasFocusedContextMenu())
             {
                 ClearHighlights();
                 cacheValid = false;
@@ -119,6 +133,15 @@ namespace Godmist.Views.Combat
             if (EventSystem.current != null
                 && EventSystem.current.IsPointerOverGameObject())
             {
+                return;
+            }
+
+            // Door art sits between cells; rounding (or fog hiding the far cell) cannot
+            // identify the opposite endpoint reliably. Resolve the actual threshold first.
+            if (TryInteractWithDoorUnderMouse())
+            {
+                cacheValid = false;
+                ConsumedPrimaryClickThisFrame = true;
                 return;
             }
 
@@ -359,6 +382,28 @@ namespace Godmist.Views.Combat
                 ? ResolvePointerPosition(worldPosition) : new GridPosition(gridX, gridY);
             position = resolved.GetValueOrDefault();
             return resolved.HasValue;
+        }
+
+        private bool TryInteractWithDoorUnderMouse()
+        {
+            if (worldCamera == null || sandboxBootstrap?.Session?.ActiveUnit == null) return false;
+            var screen = Input.mousePosition;
+            screen.z = Mathf.Abs(worldCamera.transform.position.z);
+            var world = worldCamera.ScreenToWorldPoint(screen);
+            var point = new Vector2((world.x - gridOrigin.x) / cellSize, (world.y - gridOrigin.y) / cellSize);
+            var actor = sandboxBootstrap.Session.ActiveUnit;
+            foreach (var item in sandboxBootstrap.Session.MapObjects)
+            {
+                if (item is not DoorCombatMapObject door || !door.ContainsCell(actor.Position)) continue;
+                var center = new Vector2((door.Edge.FirstCell.X + door.Edge.SecondCell.X) * .5f,
+                    (door.Edge.FirstCell.Y + door.Edge.SecondCell.Y) * .5f);
+                var offset = point - center;
+                var vertical = door.Edge.FirstCell.X != door.Edge.SecondCell.X;
+                if (Mathf.Abs(vertical ? offset.x : offset.y) > .2f
+                    || Mathf.Abs(vertical ? offset.y : offset.x) > .5f) continue;
+                if (sandboxBootstrap.TryInteractWithDoor(door.ObjectId)) return true;
+            }
+            return false;
         }
 
         private Color ShadeForSurcharge(Color baseColor, int surcharge)

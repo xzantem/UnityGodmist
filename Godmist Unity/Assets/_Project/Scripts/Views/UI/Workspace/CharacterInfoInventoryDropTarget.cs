@@ -36,7 +36,7 @@ namespace Godmist.Views.UI.Workspace
             var storageItemView = eventData.pointerDrag?.GetComponentInParent<CampaignStorageItemView>();
             if (storageItemView?.Owner != null && storageItemView.Item != null)
             {
-                storageItemView.Owner.TryWithdraw(
+                if (storageItemView.IsStashItem) storageItemView.Owner.TryWithdraw(
                     owner.Character,
                     storageItemView.Item,
                     Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));

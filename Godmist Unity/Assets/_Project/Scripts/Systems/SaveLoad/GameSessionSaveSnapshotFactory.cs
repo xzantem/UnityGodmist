@@ -110,7 +110,7 @@ namespace Godmist.Systems.SaveLoad
             }
 
             if (!TryCaptureWorldFlags(session, saveData)
-                || !TryCaptureQuests(session, saveData)
+                || !TryCaptureQuests(session, saveData, capturedItemIds)
                 || !TryCaptureNpcs(session, saveData, capturedItemIds))
             {
                 ClearRuntimePayload(saveData);
@@ -168,7 +168,8 @@ namespace Godmist.Systems.SaveLoad
 
         private static bool TryCaptureQuests(
             GameSession session,
-            GameSaveData saveData)
+            GameSaveData saveData,
+            HashSet<string> capturedItemIds)
         {
             var questIds = new List<string>(session.QuestsById.Keys);
             questIds.Sort(StringComparer.Ordinal);
@@ -191,6 +192,30 @@ namespace Godmist.Systems.SaveLoad
                     ChosenBranchIds = new List<string>(quest.ChosenBranchIds),
                     ClaimedRewardKeys = new List<string>(quest.ClaimedRewardKeys)
                 };
+
+                if (quest.BoardContract is { } contract)
+                {
+                    questSaveData.HasBoardContract=true;
+                    questSaveData.BoardContract=new RadiantBoardContractSaveData
+                    {
+                        ObjectiveType=contract.ObjectiveType,Theme=contract.Theme,Length=contract.Length,
+                        Level=contract.Level,RequiredAmount=contract.RequiredAmount,RewardMultiplier=contract.RewardMultiplier,Cycle=contract.Cycle
+                    };
+                }
+                if (quest.RadiantRewardOffer != null)
+                {
+                    var offer = quest.RadiantRewardOffer;
+                    questSaveData.RadiantRewardLevel = offer.Level;
+                    questSaveData.RadiantRewardExperience = offer.Experience;
+                    questSaveData.RadiantRewardGold = offer.Gold;
+                    questSaveData.RadiantRewardHonor = offer.Honor;
+                    if (offer.BonusItem != null)
+                    {
+                        if (!TryCaptureItem(offer.BonusItem, saveData, capturedItemIds))
+                            return false;
+                        questSaveData.RadiantBonusItemInstanceId = offer.BonusItem.InstanceId;
+                    }
+                }
 
                 foreach (var pair in quest.QuestFlags)
                 {
@@ -250,6 +275,9 @@ namespace Godmist.Systems.SaveLoad
                     GoldBalance = npc.GoldBalance,
                     TotalGoldReceived = npc.TotalGoldReceived,
                     TotalGoldSpent = npc.TotalGoldSpent,
+                    RotatingStockItemIds = new System.Collections.Generic.List<string>(npc.RotatingStockItemIds),
+                    CraftedStockInstanceIds = new System.Collections.Generic.List<string>(
+                        npc.CraftedStockInstanceIds ?? new System.Collections.Generic.List<string>()),
                     GuildPayoutProgress = npc.GuildPayoutProgress
                 };
 
@@ -313,11 +341,15 @@ namespace Godmist.Systems.SaveLoad
                 DungeonId = dungeon.DungeonId,
                 Seed = dungeon.Seed,
                 DungeonLevel = dungeon.DungeonLevel,
+                Length = dungeon.Length,
+                ItemDropChanceBonus = dungeon.ItemDropChanceBonus,
                 LayoutVersion = DungeonLayoutSnapshot.CurrentVersion,
                 Layout = DungeonLayoutSnapshot.Capture(dungeon),
                 CurrentFloorIndex = dungeon.CurrentFloorIndex,
                 HighestReachedFloorIndex = dungeon.HighestReachedFloorIndex,
                 GuildProgressCreditedFloorCount = dungeon.GuildProgressCreditedFloorCount,
+                TraderStockRefreshed = dungeon.TraderStockRefreshed,
+                CampSuppliesIssued = dungeon.CampSuppliesIssued,
                 IsCompleted = dungeon.IsCompleted,
                 HasPlayerPosition = dungeon.HasPlayerPosition,
                 PlayerPositionX = dungeon.PlayerPosition.x,
@@ -386,6 +418,8 @@ namespace Godmist.Systems.SaveLoad
                         objectDelta.IsChest = true;
                         objectDelta.IsUnlocked = chest.IsUnlocked;
                         objectDelta.HasChestLootState = true;
+                        objectDelta.HasChestGoldState = true;
+                        objectDelta.ChestGold = chest.Gold;
 
                         foreach (var item in chest.Items)
                         {
@@ -516,7 +550,7 @@ namespace Godmist.Systems.SaveLoad
                                 if (encounter.IsEnemyDefeated(reward.EnemyInstanceId)
                                     || encounter.IsEnemyBodyGenerated(reward.EnemyInstanceId)) continue;
                                 if (!TryCaptureDungeonReward(encounterDelta, reward.EnemyInstanceId, reward.ExperiencePerActiveCharacter,
-                                    reward.Gold, reward.Items, saveData, capturedItemIds)) return false;
+                                    reward.Gold, reward.Items, saveData, capturedItemIds, reward.ExperienceLevel)) return false;
                             }
                         }
                     }
@@ -531,10 +565,11 @@ namespace Godmist.Systems.SaveLoad
         }
 
         private static bool TryCaptureDungeonReward(DungeonEncounterDeltaSaveData encounter, string enemyId,
-            int experience, int gold, List<ItemInstance> items, GameSaveData saveData, HashSet<string> capturedItemIds)
+            int experience, int gold, List<ItemInstance> items, GameSaveData saveData, HashSet<string> capturedItemIds, int experienceLevel = 0)
         {
+            if (experienceLevel < 0 || experienceLevel > 50) return false;
             if (experience < 0 || gold < 0 || items == null) return false;
-            var reward = new DungeonEnemyRewardSaveData { EnemyId = enemyId, Experience = experience, Gold = gold };
+            var reward = new DungeonEnemyRewardSaveData { EnemyId = enemyId, Experience = experience, Gold = gold, ExperienceLevel = experienceLevel };
             foreach (var item in items)
             {
                 if (!TryCaptureItem(item, saveData, capturedItemIds)) return false;
@@ -584,6 +619,9 @@ namespace Godmist.Systems.SaveLoad
                 CurrentExperience = character.CurrentExperience,
                 AvailableSkillPoints = character.AvailableSkillPoints,
                 CurrentHealth = character.CurrentHealth,
+                EquipmentHealthCarry = character.EquipmentHealthCarry,
+                EquipmentResourceCarry = character.EquipmentResourceCarry,
+                EquipmentGenerationCarry = character.EquipmentGenerationCarry,
                 Honor = character.Honor,
                 WeaponAccuracy = character.WeaponAccuracy,
                 LifeState = character.LifeState,
@@ -670,7 +708,8 @@ namespace Godmist.Systems.SaveLoad
                 shieldLayers.Add(new ShieldLayerSaveData
                 {
                     SourceId = layer.SourceId ?? string.Empty,
-                    CurrentValue = layer.CurrentValue
+                    CurrentValue = layer.CurrentValue,
+                    RemainingTurns = layer.RemainingTurns
                 });
             }
 
@@ -907,7 +946,9 @@ namespace Godmist.Systems.SaveLoad
                         {
                             Type = payload.Type,
                             HealthPercent = periodicRecovery.HealthPercent,
-                            ResourcePercent = periodicRecovery.ResourcePercent
+                            ResourcePercent = periodicRecovery.ResourcePercent,
+                            HealthRoundingCarry = periodicRecovery.HealthRoundingCarry,
+                            ResourceRoundingCarry = periodicRecovery.ResourceRoundingCarry
                         });
                         break;
                 }
@@ -1029,7 +1070,8 @@ namespace Godmist.Systems.SaveLoad
                 ItemDefinitionId = item.Definition.Id,
                 CurrentRarity = item.CurrentRarity,
                 ItemLevel = item.ItemLevel,
-                CustomName = item.CustomName ?? string.Empty
+                CustomName = item.CustomName ?? string.Empty,
+                IsSaleProtected = item.IsSaleProtected
             };
 
             if (item is EquipmentItemInstance equipmentItem)

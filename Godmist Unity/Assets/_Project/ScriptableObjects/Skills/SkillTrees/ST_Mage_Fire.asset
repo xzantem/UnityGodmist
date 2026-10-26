@@ -1,0 +1,266 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Mage_Fire
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.mage.fire
+  <DisplayName>k__BackingField: Mag Ognia
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +2% obra\u017Ce\u0144 ognia, +1% odporno\u015Bci
+      na ogie\u0144."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.mage.fire.burning_aura
+    <DisplayName>k__BackingField: "Pal\u0105ca Aura"
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia Ognistej Aury o 15%/30%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0b2ed291fef0e1c4d8d218ec89f3bf88, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.fire_aura
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.fire_aura
+    <DisplayName>k__BackingField: Ognista Aura
+    <Description>k__BackingField: "Tworzy aur\u0119 ognia o zasi\u0119gu 1 wok\xF3\u0142
+      celu z [50%] podpalenie 90%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: db072fc2e5c6b174a90b790f1921d7f3, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: a9a49360504c85248bbef856a4a23179, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.pyromania
+    <DisplayName>k__BackingField: Podstawy Piromancji
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na podpalenie od Ognistej
+      Aury i Kuli Ognia o 10%/25%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 52271a5e654f8674383bebaf5b100e05, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.fire_aura
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.distracting_fire
+    <DisplayName>k__BackingField: "Rozpraszaj\u0105cy Ogie\u0144"
+    <Description>k__BackingField: "Podpaleni przeciwnicy zadaj\u0105 o 10%/20% mniej
+      obra\u017Ce\u0144"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 132045cc93cf33542b1d6d6b89138e2e, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.cauterize
+    <DisplayName>k__BackingField: Dotkliwe Oparzenia
+    <Description>k__BackingField: "Podpalanie przeciwnik\xF3w zwi\u0119ksza zadawane
+      im obra\u017Cenia o 10%/20%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: df1bf2bbdb0fd5b45b0ddb4757845f54, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.adrenaline
+    <DisplayName>k__BackingField: Ognista Adrenalina
+    <Description>k__BackingField: "Zwi\u0119ksza szybko\u015B\u0107 podczas bycia
+      podpalonym o 15"
+    <Icon>k__BackingField: {fileID: 21300000, guid: e375aa0e791934e429be7a323813927c, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.protection
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.protection
+    <DisplayName>k__BackingField: Ognista Ochrona
+    <Description>k__BackingField: "Zwi\u0119ksza obron\u0119 fizyczn\u0105 oraz magiczn\u0105
+      podczas bycia podpalonym o 20%/50%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 29a5ad93ff561de4abfe66fa46e710e4, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.aggressive_fire
+    <DisplayName>k__BackingField: "Rozprzestrzenianie P\u0142omieni"
+    <Description>k__BackingField: "Podpalenia maj\u0105 50% na zduplikowanie si\u0119
+      na przeciwnikach w zasi\u0119gu 1 od podpalonego z 50% si\u0142y pierwotnego
+      podpalenia, maksymalnie do trzech pokole\u0144 kopii"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7faba9362a6ba9c4583e68f39295f72a, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.fire_feeding
+    <DisplayName>k__BackingField: "\u017Bywienie si\u0119 Ogniem"
+    <Description>k__BackingField: "Ka\u017Cde gasn\u0105ce podpalenie na polu bitwy
+      przywraca 10%/20% zadanych obra\u017Ce\u0144 jako zdrowie"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0e9e8790e9137c8489a5c2c20e86d3a2, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.arcana
+    <DisplayName>k__BackingField: Arkana Ognia
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia wszystkich podpale\u0144
+      o 10%/20%/30%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: c8a3e0fea584363488b5a2a1084f7284, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.fire_resistance
+    <DisplayName>k__BackingField: "Odporno\u015B\u0107 na Podpalenie"
+    <Description>k__BackingField: "Zmniejsza obra\u017Cenia otrzymywane od podpale\u0144
+      o 25% i samopodpale\u0144 o 50%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: b4112ece3f069f348bc11653b09a44d2, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.fire_offering
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.fire_offering
+    <DisplayName>k__BackingField: Ognista Ofiara
+    <Description>k__BackingField: "Podpalanie przeciwnik\xF3w daje 15%/30%/50% szansy
+      na samopodpalenie (niepomniejszona przez odporno\u015B\u0107 na ogie\u0144)"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8e0612bb7afb1f34999f1ed482f1538e, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.protection
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.expansion
+    <DisplayName>k__BackingField: "Zasi\u0119g Po\u017Caru"
+    <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g Agresywnego Ognia do
+      3"
+    <Icon>k__BackingField: {fileID: 21300000, guid: baec279e1d8331447a997350c6e89cc5, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.aggressive_fire
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.sanguine
+    <DisplayName>k__BackingField: "Podsycanie \u017Baru"
+    <Description>k__BackingField: "Je\u015Bli podpalenie zadaje mniej ni\u017C 10%
+      maksymalnego zdrowia przeciwnika na tur\u0119, jego si\u0142a zwi\u0119ksza
+      si\u0119 o 15%/30% (mo\u017Ce po tym na\u0142o\u017Cy\u0107 si\u0119 Choleryzm
+      je\u015Bli si\u0142a wzro\u015Bnie powy\u017Cej 10% maksymalnego zdrowia)"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 18b1222d60190a246960e9f68d78888d, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.choleric
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.choleric
+    <DisplayName>k__BackingField: "Obezw\u0142adniaj\u0105cy \u017Bar"
+    <Description>k__BackingField: "Je\u015Bli podpalenie zadaje wi\u0119cej ni\u017C
+      10% maksymalnego zdrowia przeciwnika na tur\u0119, ma 10%/25% szansy na og\u0142uszenie
+      na 2 tury w ka\u017Cdej turze"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9178a463797d79749976f9d172aec55d, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.arcana
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.fire_arrow
+    <DisplayName>k__BackingField: "Ognista Strza\u0142a"
+    <Description>k__BackingField: "Zadaje losowe obra\u017Cenia magiczne z penetracj\u0105
+      magiczn\u0105 30%, [70%] podpalenie 30% na 2 tury, zmniejsza obra\u017Cenia
+      o 15% na 4 tury"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 394984926e55ad145b8321331ad71ff0, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: d884c71c676f2774781f64dd2cb8c1fa, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.piercing
+    <DisplayName>k__BackingField: "Przeszywaj\u0105cy P\u0142omie\u0144"
+    <Description>k__BackingField: "Zwi\u0119ksza magiczn\u0105 penetracj\u0119 Ognistej
+      Strza\u0142y do 50%/70%"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 78583712962d39d4bbca81773091e122, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.fire_arrow
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.conduction
+    <DisplayName>k__BackingField: "Nieuchronny \u017Bar"
+    <Description>k__BackingField: "Podpaleni przeciwnicy otrzymuj\u0105 7%/15% dodatkowych
+      obra\u017Ce\u0144 nieuchronnych"
+    <Icon>k__BackingField: {fileID: 21300000, guid: b5a04767909032147ba693bd3b1a12ee, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.weakness
+    <DisplayName>k__BackingField: "Ods\u0142aniaj\u0105cy \u017Bar"
+    <Description>k__BackingField: "Podpaleni przeciwnicy maj\u0105 15%/40% na otrzymanie
+      obra\u017Ce\u0144 krytycznych"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4a14fc7a4d7ff014ab7f4b739786d647, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.conduction
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.erosion
+    <DisplayName>k__BackingField: "Wypalanie Odporno\u015Bci"
+    <Description>k__BackingField: "Atakowanie przeciwnik\xF3w zmniejsza ich odporno\u015B\u0107
+      na ogie\u0144 o 5%/10% do ko\u0144ca bitwy, nak\u0142ada si\u0119 do 5 razy"
+    <Icon>k__BackingField: {fileID: 21300000, guid: 844b2cf1be78c5440b76c32ccafde426, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []

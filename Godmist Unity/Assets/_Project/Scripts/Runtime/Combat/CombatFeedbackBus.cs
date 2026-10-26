@@ -8,7 +8,8 @@ namespace Godmist.Runtime.Combat
 
         public void Publish(CombatFeedbackEvent feedbackEvent)
         {
-            if (feedbackEvent.Target != null)
+            if (feedbackEvent.Target != null
+                || feedbackEvent.Type == CombatFeedbackType.MapObjectTriggered && feedbackEvent.MapObject != null)
             {
                 Published?.Invoke(feedbackEvent);
             }

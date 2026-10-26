@@ -16,6 +16,9 @@ namespace Godmist.Data.Combat
         [SerializeField] private string displayName = string.Empty;
         [SerializeField] private Sprite icon;
         [SerializeField] private Sprite worldSprite;
+        [SerializeField] private Vector2 worldSpriteOffset;
+        [SerializeField] private Sprite triggerSprite;
+        [SerializeField] private Vector2 triggerSpriteOffset;
 
         [Header("Lifetime")]
         [SerializeField, Min(1)] private int maxHits = 1;
@@ -23,6 +26,9 @@ namespace Godmist.Data.Combat
         [SerializeField, Min(0.01f)] private float turnSpeed = 10f;
 
         [Header("Map Rules")]
+        [SerializeField] private bool triggersOnEntry;
+        [SerializeField] private bool entryAffectsArea;
+        [SerializeField] private bool hiddenUntilTriggered;
         [SerializeField] private bool blocksMovement = true;
         [SerializeField] private bool blocksLineOfSight;
 
@@ -41,9 +47,15 @@ namespace Godmist.Data.Combat
         public string DisplayName => displayName;
         public Sprite Icon => icon;
         public Sprite WorldSprite => worldSprite;
+        public Vector2 WorldSpriteOffset => worldSpriteOffset;
+        public Sprite TriggerSprite => triggerSprite;
+        public Vector2 TriggerSpriteOffset => triggerSpriteOffset;
         public int MaxHits => Mathf.Max(1, maxHits);
         public int DefaultDurationTurns => Mathf.Max(1, defaultDurationTurns);
         public float TurnSpeed => Mathf.Max(0.01f, turnSpeed);
+        public bool TriggersOnEntry => triggersOnEntry;
+        public bool EntryAffectsArea => entryAffectsArea;
+        public bool HiddenUntilTriggered => hiddenUntilTriggered;
         public bool BlocksMovement => blocksMovement;
         public bool BlocksLineOfSight => blocksLineOfSight;
         public TargetingType EffectTargetingType => effectTargetingType;

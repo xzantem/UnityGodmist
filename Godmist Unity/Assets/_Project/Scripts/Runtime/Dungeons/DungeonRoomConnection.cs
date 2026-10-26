@@ -16,6 +16,11 @@ namespace Godmist.Runtime.Dungeons
         public int DoorwayLevel { get; private set; }
         public DungeonSurfacePosition FirstDoorSurface => new(FirstDoorCell, DoorwayLevel);
         public DungeonSurfacePosition SecondDoorSurface => new(SecondDoorCell, DoorwayLevel);
+        private readonly List<Vector2Int> corridorCells = new();
+        public IReadOnlyList<Vector2Int> CorridorCells => corridorCells;
+        public Vector2Int EndDoorCell { get; private set; }
+        public Vector2Int GetEntranceCell(string roomId) => roomId == FirstRoomId
+            ? FirstDoorCell : corridorCells.Count > 0 ? EndDoorCell : SecondDoorCell;
 
         public bool HasProgressionGate { get; private set; }
         public string ProgressionGateId { get; private set; } = string.Empty;
@@ -74,6 +79,43 @@ namespace Godmist.Runtime.Dungeons
             DoorwayLevel = first.Level;
             DoorwayWidth = doorwayWidth;
             HasGeometry = true;
+            corridorCells.Clear();
+            EndDoorCell = second.Cell;
+            return true;
+        }
+
+        public bool TrySetRoutedPassage(Vector2Int first, Vector2Int firstApproach,
+            Vector2Int endDoor, int width, IEnumerable<Vector2Int> cells)
+        {
+            if (cells == null || width < 1 || width > 8) return false;
+            var footprint = new HashSet<Vector2Int>();
+            foreach (var cell in cells)
+                if (footprint.Count >= 4096 || !footprint.Add(cell)) return false;
+            if (footprint.Count == 0 || footprint.Count > 4096 || footprint.Contains(first)
+                || footprint.Contains(endDoor) || !footprint.Contains(firstApproach)) return false;
+            var normal = firstApproach - first;
+            if (Math.Abs(normal.x) + Math.Abs(normal.y) != 1) return false;
+            var lateral = normal.x != 0 ? Vector2Int.up : Vector2Int.right;
+            for (var i = 0; i < width; i++)
+                if (!footprint.Contains(firstApproach + lateral * i)
+                    || !footprint.Contains(endDoor - normal + lateral * i)
+                    || footprint.Contains(first + lateral * i) || footprint.Contains(endDoor + lateral * i)) return false;
+            var visited = new HashSet<Vector2Int> { firstApproach };
+            var pending = new Queue<Vector2Int>(); pending.Enqueue(firstApproach);
+            var directions = new[] { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
+            while (pending.Count > 0)
+            {
+                var cell = pending.Dequeue();
+                foreach (var direction in directions)
+                {
+                    var next = cell + direction;
+                    if (footprint.Contains(next) && visited.Add(next)) pending.Enqueue(next);
+                }
+            }
+            if (visited.Count != footprint.Count || !TrySetDirectPassage(first, firstApproach, width)) return false;
+            EndDoorCell = endDoor;
+            corridorCells.AddRange(footprint);
+            corridorCells.Sort((a, b) => a.y != b.y ? a.y.CompareTo(b.y) : a.x.CompareTo(b.x));
             return true;
         }
 

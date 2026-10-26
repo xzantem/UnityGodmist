@@ -11,6 +11,7 @@ namespace Godmist.Core.Enums
         Attacker = 6,
         ProtectedAlly = 7,
         NearestTarget = 8,
-        Area = 9
+        Area = 9,
+        LowestHealthAlly = 10
     }
 }

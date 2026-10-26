@@ -14,6 +14,47 @@ namespace Godmist.Tests.EditMode
 {
     public class CombatRewardSystemTests
     {
+        [TestCase(CombatOutcomeState.Victory)]
+        [TestCase(CombatOutcomeState.Escaped)]
+        public void DefeatExperienceIsImmediateAndNeverGrantedAgain(CombatOutcomeState outcome)
+        {
+            var game = new GameSession();
+            var hero = CreateCharacter("immediate-xp");
+            game.TryRegisterCharacter(hero); game.TryAddCharacterToActiveParty(hero.CharacterId);
+            var combat = new CombatSession { Outcome = CombatOutcomeState.Ongoing };
+            combat.Rewards.EnemyRewards.Add(new CombatEnemyReward { EnemyInstanceId = "enemy", ExperienceLevel = 1 });
+            var system = new CombatRewardSystem();
+            combat.EnemyDefeated = id => system.TryGrantDefeatExperience(game, combat, id);
+            Assert.That(system.TryGrantDefeatExperience(game, combat, "enemy"), Is.False);
+            Assert.That(combat.TryMarkEnemyDefeated("enemy"), Is.True);
+            var awarded = hero.CurrentExperience;
+            Assert.That(awarded, Is.GreaterThan(0));
+            Assert.That(combat.TryMarkEnemyDefeated("enemy"), Is.False);
+            combat.Outcome = outcome;
+            if (outcome == CombatOutcomeState.Victory) system.TryGrantVictoryRewards(game, combat);
+            Assert.That(hero.CurrentExperience, Is.EqualTo(awarded));
+            Assert.That(system.TryGrantDefeatExperience(game, combat, "enemy"), Is.False);
+        }
+        [Test]
+        public void VictoryExperience_UsesEachCharactersLevelAndGrantsOnlyOnce()
+        {
+            var session = new GameSession();
+            var low = CreateCharacter("low");
+            var high = CreateCharacter("high");
+            high.Level = 7;
+            session.TryRegisterCharacter(low); session.TryRegisterCharacter(high);
+            session.TryAddCharacterToActiveParty(low.CharacterId); session.TryAddCharacterToActiveParty(high.CharacterId);
+            var combat = new CombatSession { Outcome = CombatOutcomeState.Victory };
+            combat.Rewards.EnemyRewards.Add(new CombatEnemyReward { EnemyInstanceId = "enemy", ExperienceLevel = 1, ExperiencePerActiveCharacter = 60 });
+            combat.TryMarkEnemyDefeated("enemy");
+            var system = new CombatRewardSystem();
+            Assert.That(system.TryGrantVictoryRewards(session, combat), Is.True);
+            Assert.That(low.CurrentExperience, Is.EqualTo(120));
+            Assert.That(high.CurrentExperience, Is.EqualTo(12));
+            Assert.That(system.TryGrantVictoryRewards(session, combat), Is.False);
+            Assert.That(high.CurrentExperience, Is.EqualTo(12));
+        }
+
         [Test]
         public void TryGrantVictoryRewards_RewardsOnlyLivingAndDownedActivePartyForDefeatedEnemies()
         {
@@ -52,14 +93,14 @@ namespace Godmist.Tests.EditMode
                         new CombatEnemyReward
                         {
                             EnemyInstanceId = "enemy.defeated",
-                            ExperiencePerActiveCharacter = 24,
+                            ExperiencePerActiveCharacter = 2400,
                             Gold = 15,
                             Items = { droppedItem }
                         },
                         new CombatEnemyReward
                         {
                             EnemyInstanceId = "enemy.not_defeated",
-                            ExperiencePerActiveCharacter = 24,
+                            ExperiencePerActiveCharacter = 2400,
                             Gold = 15
                         }
                     }
@@ -121,7 +162,7 @@ namespace Godmist.Tests.EditMode
                 Outcome = CombatOutcomeState.Escaped,
                 Rewards = new CombatRewardResult
                 {
-                    ExperiencePerActiveCharacter = 24,
+                    ExperiencePerActiveCharacter = 2400,
                     Gold = 15
                 }
             };

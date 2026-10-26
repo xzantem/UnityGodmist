@@ -6,6 +6,44 @@ namespace Godmist.Runtime.Dungeons
 {
     public partial class DungeonFloorMap
     {
+        /// <summary>Detached numeric geometry for a visibility worker. Never mutate this copy.</summary>
+        public DungeonFloorMap CreateSightSnapshot()
+        {
+            var copy = new DungeonFloorMap();
+            copy.floorCells.UnionWith(floorCells);
+            foreach (var pair in surfaceRooms) copy.surfaceRooms.Add(pair.Key, pair.Value);
+            copy.hasElevatedSurfaces = hasElevatedSurfaces;
+            copy.stairs.UnionWith(stairs);
+            // Paths are read-only arrays created by TryAddStairs; their contents never change.
+            foreach (var pair in stairPaths) copy.stairPaths.Add(pair.Key, pair.Value);
+            copy.wallEdges.UnionWith(wallEdges);
+            foreach (var pair in wallTypes) copy.wallTypes.Add(pair.Key, pair.Value);
+            copy.closedProgressionGateEdges.UnionWith(closedProgressionGateEdges);
+            copy.TraversalRevision = TraversalRevision;
+            copy.StaticGeometryRevision = StaticGeometryRevision;
+            return copy;
+        }
+
+        // Same closed-corner rule as combat's raster ray, without scanning every
+        // wall/gate on the floor for each individual step. Ground plane only.
+        public bool BlocksGroundSightStep(Vector2Int from, Vector2Int to)
+        {
+            if (from == to) return false;
+            if (Blocked(from, to)) return true;
+            var horizontal = new Vector2Int(to.x, from.y);
+            var vertical = new Vector2Int(from.x, to.y);
+            return Blocked(from, horizontal) || Blocked(horizontal, to)
+                || Blocked(from, vertical) || Blocked(vertical, to);
+
+            bool Blocked(Vector2Int first, Vector2Int second)
+            {
+                if (Mathf.Abs(first.x - second.x) + Mathf.Abs(first.y - second.y) != 1) return false;
+                var edge = new DungeonSurfaceEdge(new DungeonCellEdge(first, second));
+                return wallEdges.Contains(edge) && GetWallType(edge) == DungeonWallType.Full
+                    || closedProgressionGateEdges.Contains(edge);
+            }
+        }
+
         public bool TryGetTraversalHeight(DungeonTraversalPosition position, out float height)
         {
             height = 0;

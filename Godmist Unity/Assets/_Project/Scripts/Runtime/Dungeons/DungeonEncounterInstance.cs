@@ -9,6 +9,25 @@ namespace Godmist.Runtime.Dungeons
     {
         public string InstanceId { get; }
         public EncounterDefinition Definition { get; }
+        private List<EncounterEnemyData> reinforcementEnemies;
+        public bool IsReinforcement => reinforcementEnemies != null;
+        public IReadOnlyList<EncounterEnemyData> Enemies => reinforcementEnemies ?? Definition.Enemies;
+        public bool TryConfigureReinforcements(IEnumerable<string> enemyIds)
+        {
+            if (IsReinforcement || enemyIds == null) return false;
+            var selected = new List<EncounterEnemyData>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var id in enemyIds)
+            {
+                if (string.IsNullOrWhiteSpace(id) || !seen.Add(id)) return false;
+                var enemy = Definition.Enemies.Find(candidate => candidate?.InstanceId == id);
+                if (enemy?.CharacterDefinition == null || enemy.ClassData == null) return false;
+                selected.Add(enemy);
+            }
+            if (selected.Count == 0) return false;
+            reinforcementEnemies = selected;
+            return true;
+        }
         public string RoomId { get; }
         public RectInt TriggerArea { get; }
 

@@ -14,6 +14,14 @@ namespace Godmist.Systems.Combat
             this.recoverySystem = recoverySystem;
         }
 
+        public static int GetRecoveryAmount(float exactAmount, ref float carry)
+        {
+            var exact = System.Math.Round(System.Math.Max(0, exactAmount) + carry, 6);
+            var amount = System.Math.Max(0, (int)System.Math.Ceiling(exact - .00001d));
+            carry = (float)System.Math.Min(0, exact - amount);
+            return amount;
+        }
+
         public bool CanProcess(
             PassiveEffectRuntime effect,
             PassiveEffectTickPhase tickPhase)
@@ -41,15 +49,16 @@ namespace Godmist.Systems.Combat
                     unit.Character.Stats?.MaxHealth.GetValue() ?? 0f));
                 recoverySystem?.Heal(
                     unit,
-                    Mathf.CeilToInt(maxHealth * payload.HealthPercent));
+                    GetRecoveryAmount(maxHealth * payload.HealthPercent, ref payload.HealthRoundingCarry),
+                    targetVfx: effect.EffectId?.StartsWith("skill.mage.ritual.periodic_recovery.", System.StringComparison.Ordinal) == true
+                        ? CombatTargetVfxKind.Heal : null);
             }
 
             if (payload.ResourcePercent > 0f && unit.Character.ResourcePool != null)
             {
                 recoverySystem?.RestoreResource(
                     unit,
-                    Mathf.CeilToInt(
-                        unit.Character.ResourcePool.MaxValue * payload.ResourcePercent));
+                    GetRecoveryAmount(unit.Character.ResourcePool.MaxValue * payload.ResourcePercent, ref payload.ResourceRoundingCarry));
             }
 
             return true;

@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.strong_alcohol
   <DisplayName>k__BackingField: Mocny alkohol
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Alkohol stanowi\u0105cy baz\u0119 do przygotowania
+    mikstur."
+  <Icon>k__BackingField: {fileID: 21300000, guid: c411ad32697029c4ca4b19cb1ee33b08, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 6

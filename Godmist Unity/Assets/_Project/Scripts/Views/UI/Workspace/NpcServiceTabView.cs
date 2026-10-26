@@ -32,6 +32,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button button;
         [SerializeField] private Image icon;
         [SerializeField] private Image selectedBorder;
+        [SerializeField] private UIWorkspaceStylePalette palette;
 
         private Action selectAction;
         private string tooltipTitle = string.Empty;
@@ -53,9 +54,19 @@ namespace Godmist.Views.UI.Workspace
             Action nextSelectAction)
         {
             if (icon != null) icon.sprite = nextIcon;
-            if (selectedBorder != null) selectedBorder.enabled = isSelected;
+            if (selectedBorder != null)
+            {
+                if (palette != null) palette.ApplyFrameAccent(selectedBorder,
+                    isSelected ? UIWorkspaceAccentStyle.Selected : UIWorkspaceAccentStyle.Neutral);
+                else selectedBorder.enabled = isSelected;
+            }
             tooltipTitle = nextTooltipTitle ?? string.Empty;
             selectAction = nextSelectAction;
+        }
+
+        public void SetAvailable(bool available)
+        {
+            if (button != null) button.interactable = available;
         }
 
         public void OnPointerEnter(PointerEventData eventData)

@@ -4,6 +4,7 @@ using Godmist.Core.Enums;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
+using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
 
@@ -245,19 +246,14 @@ namespace Godmist.Systems.Combat
         }
 
         /// <summary>
-        /// Returns the effective combat-scoped contribution of a resistance type.
+        /// Returns raw typed and legacy modifiers, excluding base/class/equipment
+        /// resistance. Use GetEffectiveResistance for gameplay calculations.
         /// The dictionary remains supported for legacy callers, while new skill
         /// effects are read directly from their active typed payloads.
         /// </summary>
         public static float GetModifier(BattleUnit unit, ResistanceType resistanceType)
         {
-            var result = 0f;
-
-            if (unit?.ResistanceModifiers != null
-                && unit.ResistanceModifiers.TryGetValue(resistanceType, out var legacyValue))
-            {
-                result += legacyValue;
-            }
+            var result = GetLegacyModifier(unit, resistanceType);
 
             foreach (var effect in unit?.Character?.PassiveEffects
                 ?? new List<PassiveEffectRuntime>())
@@ -268,12 +264,75 @@ namespace Godmist.Systems.Combat
                 }
 
                 var payload = effect.GetPayload<ResistanceModifierPayload>();
-                if (payload != null && payload.ResistanceType == resistanceType)
+                if (payload != null && (payload.ResistanceType == resistanceType || payload.ResistanceType == ResistanceType.All))
                 {
                     result += payload.Value;
                 }
             }
 
+            return result;
+        }
+
+        // Character.Resistances is an already-derived display snapshot. Resolve
+        // from the immutable base and clamp the complete contribution only once.
+        public static float GetEffectiveResistance(
+            BattleUnit unit,
+            ResistanceType type,
+            float additionalModifier = 0f)
+        {
+            return CalculateResistance(
+                unit?.Character,
+                type,
+                GetLegacyModifier(unit, type) + additionalModifier);
+        }
+
+        public static float CalculateResistance(
+            CharacterInstance character,
+            ResistanceType type,
+            float combatModifier = 0f)
+        {
+            if (character == null) return 0f;
+
+            var values = character.BaseResistances ?? character.Resistances;
+            var result = type switch
+            {
+                ResistanceType.Bleed => values?.BleedResistance ?? 0f,
+                ResistanceType.Poison => values?.PoisonResistance ?? 0f,
+                ResistanceType.Fire => values?.FireResistance ?? 0f,
+                ResistanceType.Weakening => values?.WeakeningResistance ?? 0f,
+                ResistanceType.Suppression => values?.SuppressionResistance ?? 0f,
+                ResistanceType.Move => values?.MoveResistance ?? 0f,
+                _ => 0f
+            };
+            if (character.PassiveEffects != null)
+            {
+                foreach (var effect in character.PassiveEffects)
+                {
+                    if (!PassiveEffectLifecycleSystem.IsActive(effect)) continue;
+
+                    var payload = effect.GetPayload<ResistanceModifierPayload>();
+                    if (payload != null && (payload.ResistanceType == type
+                        || payload.ResistanceType == ResistanceType.All))
+                    {
+                        result += payload.Value;
+                    }
+                }
+            }
+
+            if (type == ResistanceType.Fire)
+            {
+                result += .01f * MageCombatSystem.Points(character, MageCombatSystem.Fire);
+            }
+
+            return UnityEngine.Mathf.Clamp01(result + EquipmentEffectSystem.Resistance(character, type) + combatModifier);
+        }
+
+        private static float GetLegacyModifier(BattleUnit unit, ResistanceType type)
+        {
+            var result = 0f;
+            if (unit?.ResistanceModifiers == null) return result;
+            if (unit.ResistanceModifiers.TryGetValue(type, out var specific)) result += specific;
+            if (type != ResistanceType.All && unit.ResistanceModifiers.TryGetValue(ResistanceType.All, out var all)) result += all;
             return result;
         }
 
@@ -314,8 +373,11 @@ namespace Godmist.Systems.Combat
             return runtimeEffect;
         }
 
-        private static string BuildEffectId(string skillId, int effectIndex)
+        public static string BuildEffectId(string skillId, int effectIndex)
         {
+            // Crushing Blow's suppression debuff historically occupied slot 2.
+            // Preserve its identity when moving it before stun, including saved effects.
+            if (skillId == "skill.paladin.crushing_blow") effectIndex = 2;
             return $"{skillId}.modify_resistance.{effectIndex}";
         }
     }

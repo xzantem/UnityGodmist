@@ -10,6 +10,7 @@ namespace Godmist.Core.Enums
         Human = 0,
         Beast = 1,
         Undead = 2,
-        Demon = 3
+        Demon = 3,
+        Giant = 4
     }
 }

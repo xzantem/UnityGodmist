@@ -35,7 +35,7 @@ namespace Godmist.Runtime.Effects
     public sealed class UniqueCombatBuffPayload : PassiveEffectPayloadRuntime
     {
         public UniqueBuffType BuffType;
-        public int ActionPointModifier;
+        public float ActionPointModifier;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.UniqueCombatBuff;
     }
 
@@ -103,6 +103,8 @@ namespace Godmist.Runtime.Effects
     {
         public float HealthPercent;
         public float ResourcePercent;
+        public float HealthRoundingCarry;
+        public float ResourceRoundingCarry;
         public override PassiveEffectPayloadType Type => PassiveEffectPayloadType.PeriodicRecovery;
     }
 }

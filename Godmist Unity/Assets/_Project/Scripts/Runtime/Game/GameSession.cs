@@ -38,6 +38,11 @@ namespace Godmist.Runtime.Game
         public IReadOnlyList<CombatSession> Combats => combats;
         public bool HasCombat => combats.Count > 0;
         public bool IsDefeated { get; private set; }
+        // Runtime debug switch; intentionally absent from save DTOs.
+        public bool DebugEnemyAggroDisabled { get; set; }
+        [field: NonSerialized] public CombatDiagnosticRecorder CombatDiagnostics { get; } = new();
+        public event Action<string> CharacterProgressionChanged;
+        public void NotifyCharacterProgressionChanged(string characterId) => CharacterProgressionChanged?.Invoke(characterId);
         public event Action PartyRosterChanged;
         public void NotifyPartyRosterChanged() => PartyRosterChanged?.Invoke();
         public void MarkDefeated() { IsDefeated = true; TrySetMode(GameModeState.Menu); }
@@ -64,10 +69,11 @@ namespace Godmist.Runtime.Game
                     return false;
             combats.Add(combat);
             combat.ExternalPositionOccupied = position => IsOccupiedInOtherCombat(combat, position);
+            combat.ExternalPreviewPositionOccupied = position => IsOccupiedInOtherCombat(combat, position, combat.IsUnitKnownForMovementPreview);
             return true;
         }
 
-        public bool IsOccupiedInOtherCombat(CombatSession source, GridPosition position)
+        public bool IsOccupiedInOtherCombat(CombatSession source, GridPosition position, Func<BattleUnit, bool> includeUnit = null)
         {
             var origin = source.DungeonContext.WorldBounds.min;
             var world = new Vector2Int(origin.x + position.X, origin.y + position.Y);
@@ -76,6 +82,7 @@ namespace Godmist.Runtime.Game
                 if (other == source || other.DungeonContext == null || other.DungeonContext.FloorIndex != source.DungeonContext.FloorIndex) continue;
                 var otherOrigin = other.DungeonContext.WorldBounds.min;
                 if (other.Units.Exists(unit => unit != null
+                    && (includeUnit == null || includeUnit(unit))
                     && otherOrigin.x + unit.Position.X == world.x
                     && otherOrigin.y + unit.Position.Y == world.y
                     && unit.Position.Level == position.Level && unit.Position.StairStep == position.StairStep
@@ -96,6 +103,7 @@ namespace Godmist.Runtime.Game
         {
             if (combat == null || !combats.Remove(combat)) return false;
             combat.ExternalPositionOccupied = null;
+            combat.ExternalPreviewPositionOccupied = null;
             if (ActiveCombat == combat) TryFocusCombat(null);
             return true;
         }
@@ -342,6 +350,7 @@ namespace Godmist.Runtime.Game
             if (ActiveCombat == null) return false;
 
             ActiveCombat.ExternalPositionOccupied = null;
+            ActiveCombat.ExternalPreviewPositionOccupied = null;
             combats.Remove(ActiveCombat);
             ActiveCombat = null;
             TryClearActiveDungeonCombatContext();

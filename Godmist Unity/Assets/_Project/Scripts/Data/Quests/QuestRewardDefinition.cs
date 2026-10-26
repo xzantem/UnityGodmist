@@ -23,6 +23,10 @@ namespace Godmist.Data.Quests
         [SerializeField]
         private string worldFlagValue = "true";
 
+        [SerializeField, Range(0, 50), Tooltip("0: fixed Amount. 1-50: standard mission XP worth 20 enemies of this level.")]
+        private int standardExperienceLevel;
+
+        public int StandardExperienceLevel => standardExperienceLevel;
         public QuestRewardType RewardType => rewardType;
         public int Amount => amount;
         public ItemDefinition ItemDefinition => itemDefinition;

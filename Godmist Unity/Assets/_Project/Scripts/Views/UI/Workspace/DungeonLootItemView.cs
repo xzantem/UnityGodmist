@@ -13,6 +13,7 @@ namespace Godmist.Views.UI.Workspace
         IPointerEnterHandler,
         IPointerExitHandler
     {
+        private ItemRarityBorderGraphic rarityBorder;
         [SerializeField] private Image icon;
         [SerializeField] private TMPro.TextMeshProUGUI countText;
 
@@ -29,12 +30,13 @@ namespace Godmist.Views.UI.Workspace
         {
             item = nextItem;
             owner = nextOwner;
+            ItemRarityPresentation.ApplyBorder(ref rarityBorder, transform as RectTransform, item);
             icon ??= transform.Find("Icon")?.GetComponent<Image>();
             countText ??= transform.Find("CountLabel")?.GetComponent<TMPro.TextMeshProUGUI>();
 
             if (icon != null)
             {
-                icon.sprite = item?.Definition?.Icon;
+                icon.sprite = ItemIconPresentation.GetIcon(item);
                 icon.preserveAspect = true;
                 icon.enabled = icon.sprite != null;
             }

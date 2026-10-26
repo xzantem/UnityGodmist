@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
   <Id>k__BackingField: npc.arungard.questgiver_01
   <DisplayName>k__BackingField: "Stra\u017Cnik Katakumb"
-  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <Portrait>k__BackingField: {fileID: 21300000, guid: d5a90224dbe383747b50859b04f55fd5, type: 3}
+  <DialoguePortrait>k__BackingField: {fileID: -9094586570317372721, guid: cddd8741584baf84d99346ce52564cf7, type: 3}
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: a3412699bad779a48b2c95267fc9ea43, type: 2}
+  <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:
   - {fileID: 11400000, guid: 4b7697cbb566c4644ba41fa18eaff1f7, type: 2}

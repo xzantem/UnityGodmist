@@ -9,6 +9,12 @@ public class ResourcePool
     public int MaxValue;
     public int Regeneration;
 
+    // Derived from progression, not a second maximum for percentage-based costs.
+    [NonSerialized] public int ManaOverflowPercent;
+    public int RecoveryLimit => (int)Math.Min(int.MaxValue,
+        Math.Max(0L, MaxValue) * (100L + (ResourceType == ResourceType.Mana
+            ? Math.Max(0, ManaOverflowPercent) : 0)) / 100L);
+
     // Used by resource rules that need to remember the previous turn.
     public bool HasStartedTurn;
     public bool HasGainedResourceSinceLastTurn;
@@ -42,8 +48,8 @@ public class ResourcePool
         var previousValue = CurrentValue;
 
         CurrentValue = Math.Min(
-            MaxValue,
-            CurrentValue + amount);
+            RecoveryLimit,
+            (int)Math.Min(int.MaxValue, (long)CurrentValue + amount));
 
         return CurrentValue - previousValue;
     }

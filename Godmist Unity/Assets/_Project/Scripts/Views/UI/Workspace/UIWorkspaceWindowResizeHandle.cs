@@ -5,7 +5,8 @@ namespace Godmist.Views.UI.Workspace
 {
     public sealed class UIWorkspaceWindowResizeHandle : MonoBehaviour,
         IBeginDragHandler,
-        IDragHandler
+        IDragHandler,
+        IEndDragHandler
     {
         [SerializeField] private UIWorkspaceWindow window;
 
@@ -20,6 +21,7 @@ namespace Godmist.Views.UI.Workspace
         public void OnBeginDrag(PointerEventData eventData)
         {
             window?.Focus();
+            window?.BeginResize();
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -33,5 +35,9 @@ namespace Godmist.Views.UI.Workspace
             var scaleFactor = canvas != null ? canvas.scaleFactor : 1f;
             window.ResizeFromBottomRight(eventData.delta / scaleFactor);
         }
+
+        public void OnEndDrag(PointerEventData eventData) => window?.EndResize();
+
+        private void OnDisable() => window?.EndResize();
     }
 }

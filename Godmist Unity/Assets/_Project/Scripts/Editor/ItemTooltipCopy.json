@@ -1,0 +1,2179 @@
+{
+  "entries": [
+    {
+      "id": "equipment.mage.robe",
+      "kind": "item",
+      "description": "Szata chroniąca maga bez ograniczania swobody ruchów."
+    },
+    {
+      "id": "equipment.mage.wand",
+      "kind": "item",
+      "description": "Różdżka służąca magowi do kierowania zaklęciami."
+    },
+    {
+      "id": "equipment.paladin.hammer",
+      "kind": "item",
+      "description": "Ciężki młot do walki w zwarciu."
+    },
+    {
+      "id": "equipment.paladin.plate_armor",
+      "kind": "item",
+      "description": "Płytowa zbroja osłaniająca paladyna w walce."
+    },
+    {
+      "id": "equipment.scout.sword_dagger",
+      "kind": "item",
+      "description": "Para ostrzy do szybkiej walki wręcz."
+    },
+    {
+      "id": "equipment.scout.tunic",
+      "kind": "item",
+      "description": "Lekka tunika pozwalająca na swobodne uniki."
+    },
+    {
+      "id": "equipment.start.mage.armor",
+      "kind": "item",
+      "description": "Wytarta szata, która zapewnia magowi podstawową ochronę."
+    },
+    {
+      "id": "equipment.start.mage.weapon",
+      "kind": "item",
+      "description": "Drzazgowata różdżka do kierowania prostymi zaklęciami."
+    },
+    {
+      "id": "equipment.start.paladin.armor",
+      "kind": "item",
+      "description": "Uszkodzony pancerz zapewniający podstawową ochronę."
+    },
+    {
+      "id": "equipment.start.paladin.weapon",
+      "kind": "item",
+      "description": "Zniekształcony młot, którym nadal można walczyć."
+    },
+    {
+      "id": "equipment.start.scout.armor",
+      "kind": "item",
+      "description": "Dziurawy pancerz pozwalający zachować swobodę ruchu."
+    },
+    {
+      "id": "equipment.start.scout.weapon",
+      "kind": "item",
+      "description": "Zardzewiałe ostrza do walki wręcz."
+    },
+    {
+      "id": "equipment.start.warrior.armor",
+      "kind": "item",
+      "description": "Porysowany pancerz zapewniający podstawową ochronę."
+    },
+    {
+      "id": "equipment.start.warrior.weapon",
+      "kind": "item",
+      "description": "Uszkodzona broń do walki wręcz."
+    },
+    {
+      "id": "equipment.warrior.hauberk",
+      "kind": "item",
+      "description": "Kolczuga chroniąca wojownika przed ciosami."
+    },
+    {
+      "id": "equipment.warrior.longsword",
+      "kind": "item",
+      "description": "Długi miecz do walki w zwarciu."
+    },
+    {
+      "id": "item.alchemy.alcohol",
+      "kind": "item",
+      "description": "Alkohol stanowiący bazę do przygotowania mikstur."
+    },
+    {
+      "id": "item.alchemy.common_reaper",
+      "kind": "item",
+      "description": "Niewielki pajęczak używany jako składnik alchemiczny."
+    },
+    {
+      "id": "item.alchemy.good_alcohol",
+      "kind": "item",
+      "description": "Alkohol stanowiący bazę do przygotowania mikstur."
+    },
+    {
+      "id": "item.alchemy.good_gunpowder",
+      "kind": "item",
+      "description": "Łatwopalna mieszanina używana do przygotowania bomb."
+    },
+    {
+      "id": "item.alchemy.gunpowder",
+      "kind": "item",
+      "description": "Łatwopalna mieszanina używana do przygotowania bomb."
+    },
+    {
+      "id": "item.alchemy.herbal_powder_normal",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.alchemy.perfect_alcohol",
+      "kind": "item",
+      "description": "Alkohol stanowiący bazę do przygotowania mikstur."
+    },
+    {
+      "id": "item.alchemy.perfect_gunpowder",
+      "kind": "item",
+      "description": "Łatwopalna mieszanina używana do przygotowania bomb."
+    },
+    {
+      "id": "item.alchemy.puffball",
+      "kind": "item",
+      "description": "Grzyb, którego zarodniki nadają się do alchemicznych mieszanin."
+    },
+    {
+      "id": "item.alchemy.skeleton_bone",
+      "kind": "item",
+      "description": "Zachowana kość nieumarłego szkieletu, używana w alchemii."
+    },
+    {
+      "id": "item.alchemy.strong_alcohol",
+      "kind": "item",
+      "description": "Alkohol stanowiący bazę do przygotowania mikstur."
+    },
+    {
+      "id": "item.alchemy.strong_gunpowder",
+      "kind": "item",
+      "description": "Łatwopalna mieszanina używana do przygotowania bomb."
+    },
+    {
+      "id": "item.alchemy.undead_brain",
+      "kind": "item",
+      "description": "Tkanka pozyskana z nieumarłego, używana w alchemii."
+    },
+    {
+      "id": "item.alchemy.weak_alcohol",
+      "kind": "item",
+      "description": "Alkohol stanowiący bazę do przygotowania mikstur."
+    },
+    {
+      "id": "item.alchemy.weak_gunpowder",
+      "kind": "item",
+      "description": "Łatwopalna mieszanina używana do przygotowania bomb."
+    },
+    {
+      "id": "item.galduryte.generic",
+      "kind": "item",
+      "description": "Kamień runiczny, który można osadzić w wyposażeniu, aby nadać mu dodatkowe właściwości."
+    },
+    {
+      "id": "item.runic.amber",
+      "kind": "item",
+      "description": "Skamieniała żywica używana do zdobienia biżuterii i pracy z galdurytem."
+    },
+    {
+      "id": "item.runic.galduryte_powder.blue",
+      "kind": "item",
+      "description": "Barwny proszek nakładany na kamień galdurytu podczas zaklinania."
+    },
+    {
+      "id": "item.runic.galduryte_powder.purple",
+      "kind": "item",
+      "description": "Barwny proszek nakładany na kamień galdurytu podczas zaklinania."
+    },
+    {
+      "id": "item.runic.galduryte_powder.red",
+      "kind": "item",
+      "description": "Barwny proszek nakładany na kamień galdurytu podczas zaklinania."
+    },
+    {
+      "id": "item.runic.galduryte_stone.granite",
+      "kind": "item",
+      "description": "Obrobiony kamień gotowy do zaklęcia i osadzenia w wyposażeniu."
+    },
+    {
+      "id": "item.runic.galduryte_stone.limestone",
+      "kind": "item",
+      "description": "Obrobiony kamień gotowy do zaklęcia i osadzenia w wyposażeniu."
+    },
+    {
+      "id": "item.runic.galduryte_stone.marble",
+      "kind": "item",
+      "description": "Obrobiony kamień gotowy do zaklęcia i osadzenia w wyposażeniu."
+    },
+    {
+      "id": "item.runic.obsidian",
+      "kind": "item",
+      "description": "Czarne szkło wulkaniczne używane do zdobienia biżuterii i pracy z galdurytem."
+    },
+    {
+      "id": "item.runic.solid_granite",
+      "kind": "item",
+      "description": "Twardy blok granitu, z którego wyrabia się kamienie galdurytu."
+    },
+    {
+      "id": "item.runic.solid_limestone",
+      "kind": "item",
+      "description": "Twardy blok wapienia, z którego wyrabia się kamienie galdurytu."
+    },
+    {
+      "id": "item.runic.solid_marble",
+      "kind": "item",
+      "description": "Twardy blok marmuru, z którego wyrabia się kamienie galdurytu."
+    },
+    {
+      "id": "item.runic.topaz",
+      "kind": "item",
+      "description": "Kamień szlachetny używany do zdobienia biżuterii i pracy z galdurytem."
+    },
+    {
+      "id": "item.smithing.alder_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.birch_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.boar_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.bukomina_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.cedar_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.chromium",
+      "kind": "item",
+      "description": "Twardy metal dodawany do stopów kowalskich."
+    },
+    {
+      "id": "item.smithing.coal",
+      "kind": "item",
+      "description": "Paliwo do pieca kowalskiego i składnik wyrobu stali."
+    },
+    {
+      "id": "item.smithing.copper_ore",
+      "kind": "item",
+      "description": "Surowa bryła metalu przeznaczona do przetopienia w kuźni."
+    },
+    {
+      "id": "item.smithing.cotton_fabric",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.smithing.cotton_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.cotton_thread",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.smithing.cypress_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.deer_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.fox_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.goat_hide",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.smithing.goat_hide_strips",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.smithing.goat_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.goat_wool_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.hawthorn_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.huge_iron_ingot",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.smithing.iron_chain",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.smithing.iron_ingot",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.smithing.iron_ore",
+      "kind": "item",
+      "description": "Surowa bryła metalu przeznaczona do przetopienia w kuźni."
+    },
+    {
+      "id": "item.smithing.iron_plate",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.smithing.jute_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.larch_plank",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.smithing.larch_stick",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.smithing.larch_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.linden_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.llama_wool_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.meteorite_shard",
+      "kind": "item",
+      "description": "Fragment meteorytu zawierający metal do wyrobu specjalnych stopów."
+    },
+    {
+      "id": "item.smithing.monitor_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.nickel_ore",
+      "kind": "item",
+      "description": "Surowa bryła metalu przeznaczona do przetopienia w kuźni."
+    },
+    {
+      "id": "item.smithing.palm_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.poplar_wood",
+      "kind": "item",
+      "description": "Surowe drewno do obróbki w warsztacie kowala."
+    },
+    {
+      "id": "item.smithing.rabbit_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.sheep_wool_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.tiger_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.tin_ore",
+      "kind": "item",
+      "description": "Surowa bryła metalu przeznaczona do przetopienia w kuźni."
+    },
+    {
+      "id": "item.smithing.wasmina_fibre",
+      "kind": "item",
+      "description": "Surowe włókna do przędzenia nici i wyrobu tkanin."
+    },
+    {
+      "id": "item.smithing.weak_thread_needle",
+      "kind": "item",
+      "description": "Prosta metalowa igła do zszywania tkanin i skór."
+    },
+    {
+      "id": "item.smithing.wild_dog_skin",
+      "kind": "item",
+      "description": "Surowa skóra zwierzęca wymagająca wyprawienia."
+    },
+    {
+      "id": "item.smithing.zinc_piece",
+      "kind": "item",
+      "description": "Porcja cynku używana przez kowala do przygotowania stopów."
+    },
+    {
+      "id": "item.vs10.aloe_meda",
+      "kind": "item",
+      "description": "Mięsiste liście rośliny wykorzystywanej w alchemii."
+    },
+    {
+      "id": "item.vs10.ametyst",
+      "kind": "item",
+      "description": "Fioletowy kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.bialy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.brazowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.brazowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.brzozowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.brzozowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.bukominowa_nitka",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.bukominowa_tkanina",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.bursztynowy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.cedrowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.cedrowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.cynowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.cynowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.cyprysowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.cyprysowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.cytryn",
+      "kind": "item",
+      "description": "Żółty kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.cytrynowy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.czarny_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.czerwony_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.diament",
+      "kind": "item",
+      "description": "Twardy, przejrzysty kamień szlachetny używany w rzemiośle."
+    },
+    {
+      "id": "item.vs10.dmuchawiec_tregandzki",
+      "kind": "item",
+      "description": "Polny kwiat zbierany do alchemicznych mieszanek."
+    },
+    {
+      "id": "item.vs10.glogowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.glogowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.granat",
+      "kind": "item",
+      "description": "Czerwony kamień szlachetny używany do zdobienia biżuterii i wyrobu proszku."
+    },
+    {
+      "id": "item.vs10.igla_do_nici",
+      "kind": "item",
+      "description": "Cienka metalowa igła do zszywania tkanin i skór."
+    },
+    {
+      "id": "item.vs10.inwarowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.inwarowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.jutowa_nitka",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.jutowa_tkanina",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.kiel_aligatora",
+      "kind": "item",
+      "description": "Twardy kieł drapieżnika, używany jako składnik alchemiczny."
+    },
+    {
+      "id": "item.vs10.kwiat_byliny",
+      "kind": "item",
+      "description": "Kwiat wieloletniej rośliny używany przez alchemików."
+    },
+    {
+      "id": "item.vs10.kwitnaca_wisnia",
+      "kind": "item",
+      "description": "Kwiaty wiśni wykorzystywane w alchemicznych mieszaninach."
+    },
+    {
+      "id": "item.vs10.lipowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.lipowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.meteorytowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.meteorytowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.miedziana_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.miedziany_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.mucha_zwyczajna",
+      "kind": "item",
+      "description": "Pospolity owad używany jako składnik alchemiczny."
+    },
+    {
+      "id": "item.vs10.nerka_trolla",
+      "kind": "item",
+      "description": "Organ trolla wykorzystywany w alchemicznych mieszaninach."
+    },
+    {
+      "id": "item.vs10.niebieski_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.niklowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.niklowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.nitka_z_koziej_welny",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.nitka_z_lamiej_welny",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.nitka_z_owczej_welny",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.oko_pirata",
+      "kind": "item",
+      "description": "Makabryczny składnik pochodzący od pirata, używany w alchemii."
+    },
+    {
+      "id": "item.vs10.olchowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.olchowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.onyks",
+      "kind": "item",
+      "description": "Czarny kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.owoc_kaktusa",
+      "kind": "item",
+      "description": "Mięsisty owoc pustynnej rośliny używany w alchemii."
+    },
+    {
+      "id": "item.vs10.palmowa_nitka",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.palmowa_tkanina",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_dzika",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_dzikiego_psa",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_jelenia",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_krolika",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_lisa",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_tygrysa",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.paski_ze_skory_warana",
+      "kind": "item",
+      "description": "Wąskie paski wyprawionej skóry do łączenia części wyposażenia."
+    },
+    {
+      "id": "item.vs10.pioro_ptaka",
+      "kind": "item",
+      "description": "Pióro wykorzystywane jako lekki składnik alchemiczny."
+    },
+    {
+      "id": "item.vs10.pnacza_alzif",
+      "kind": "item",
+      "description": "Giętkie pnącza rośliny używanej w alchemii."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_grudkowaty",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_lepki",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_luzny",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_pomaranczowy",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_rozowy",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_zielony",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.proch_ziolowy_zolty",
+      "kind": "item",
+      "description": "Mieszanina rozdrobnionych składników używana do warzenia mikstur."
+    },
+    {
+      "id": "item.vs10.purpurowy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.rog_demona",
+      "kind": "item",
+      "description": "Twardy fragment rogu demona, używany w alchemii."
+    },
+    {
+      "id": "item.vs10.rozowy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.rubin",
+      "kind": "item",
+      "description": "Czerwony kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.sitowie",
+      "kind": "item",
+      "description": "Łodygi rośliny rosnącej przy wodzie, używane w alchemii."
+    },
+    {
+      "id": "item.vs10.skruszona_czaszka",
+      "kind": "item",
+      "description": "Odłamek czaszki używany jako składnik alchemiczny."
+    },
+    {
+      "id": "item.vs10.spaczone_serce",
+      "kind": "item",
+      "description": "Serce skażone mroczną energią, używane w alchemii."
+    },
+    {
+      "id": "item.vs10.sproszkowana_cyna",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowana_miedz",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowana_stal",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowane_zelazo",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowane_zelazo_meteorytowe",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowany_braz",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowany_inwar",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.sproszkowany_nikiel",
+      "kind": "item",
+      "description": "Drobno zmielony metal używany w rzemiośle runicznym."
+    },
+    {
+      "id": "item.vs10.stalowa_blacha",
+      "kind": "item",
+      "description": "Cienka płyta metalu, z której powstają osłony i części pancerza."
+    },
+    {
+      "id": "item.vs10.stalowy_lancuch",
+      "kind": "item",
+      "description": "Połączone metalowe ogniwa używane do wyrobu kolczug."
+    },
+    {
+      "id": "item.vs10.szafir",
+      "kind": "item",
+      "description": "Niebieski kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.szmaragd",
+      "kind": "item",
+      "description": "Zielony kamień szlachetny, który można rozdrobnić na magiczny proszek."
+    },
+    {
+      "id": "item.vs10.szmaragdowy_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.sztabka_brazu",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_cyny",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_inwaru",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_miedzi",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_niklu",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_stali",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.sztabka_zelaza_meteorytowego",
+      "kind": "item",
+      "description": "Przetopiony metal gotowy do dalszej obróbki w kuźni."
+    },
+    {
+      "id": "item.vs10.szyszka",
+      "kind": "item",
+      "description": "Dojrzała szyszka z nasionami, używana w alchemii."
+    },
+    {
+      "id": "item.vs10.tkanina_z_koziej_welny",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.tkanina_z_lamiej_welny",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.tkanina_z_owczej_welny",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.topolowa_deska",
+      "kind": "item",
+      "description": "Obrobiona deska używana do wyrobu drewnianych części wyposażenia."
+    },
+    {
+      "id": "item.vs10.topolowy_patyk",
+      "kind": "item",
+      "description": "Przycięty kawałek drewna na trzon lub rękojeść broni."
+    },
+    {
+      "id": "item.vs10.trawa_dusicielska",
+      "kind": "item",
+      "description": "Splątane źdźbła rośliny używanej w alchemii."
+    },
+    {
+      "id": "item.vs10.ucho_elfa",
+      "kind": "item",
+      "description": "Osobliwy składnik pochodzący od elfa, używany w alchemii."
+    },
+    {
+      "id": "item.vs10.wasminowa_nitka",
+      "kind": "item",
+      "description": "Skręcone włókna do zszywania i tkania."
+    },
+    {
+      "id": "item.vs10.wasminowa_tkanina",
+      "kind": "item",
+      "description": "Tkany materiał do szycia lekkiego wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_brazu",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_cyny",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_inwaru",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_miedzi",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_niklu",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_stali",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wielka_sztabka_zelaza_meteorytowego",
+      "kind": "item",
+      "description": "Duża porcja przetopionego metalu do wyrobu ciężkich części wyposażenia."
+    },
+    {
+      "id": "item.vs10.wodorosty",
+      "kind": "item",
+      "description": "Rośliny wodne używane w alchemicznych mieszaninach."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_dzika",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_dzikiego_psa",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_jelenia",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_krolika",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_lisa",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_tygrysa",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.wyprawiona_skora_warana",
+      "kind": "item",
+      "description": "Oczyszczona i utrwalona skóra gotowa do szycia wyposażenia."
+    },
+    {
+      "id": "item.vs10.zloty_proszek",
+      "kind": "item",
+      "description": "Drobny barwny pył uzyskany ze zmielonego kamienia szlachetnego."
+    },
+    {
+      "id": "item.vs10.zyjacy_lisc",
+      "kind": "item",
+      "description": "Liść zachowujący oznaki życia po zerwaniu, używany w alchemii."
+    },
+    {
+      "id": "jewelry.bracelet",
+      "kind": "item",
+      "description": "Bransoleta z metalu i kamienia szlachetnego."
+    },
+    {
+      "id": "jewelry.earrings",
+      "kind": "item",
+      "description": "Kolczyki z metalu i kamienia szlachetnego."
+    },
+    {
+      "id": "jewelry.necklace",
+      "kind": "item",
+      "description": "Naszyjnik z metalu i kamienia szlachetnego."
+    },
+    {
+      "id": "jewelry.ring",
+      "kind": "item",
+      "description": "Pierścień z metalu i kamienia szlachetnego."
+    },
+    {
+      "id": "unique.deadking.armor.paladin",
+      "kind": "item",
+      "description": "Ciężka zbroja nosząca ślady władzy Umarłego Króla."
+    },
+    {
+      "id": "unique.deadking.dagger.scout",
+      "kind": "item",
+      "description": "Sztylet, którego ostrze zdaje się przenikać przez materię."
+    },
+    {
+      "id": "unique.deadking.staff.mage",
+      "kind": "item",
+      "description": "Kostur związany z magią nieumarłych."
+    },
+    {
+      "id": "unique.deadking.sword.warrior",
+      "kind": "item",
+      "description": "Miecz niegdyś noszony przez żołnierzy nieumarłego legionu."
+    },
+    {
+      "id": "part.mage.armor.base.common.goat_leather",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.mage.armor.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.mage.armor.plate.common.cotton",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.mage.weapon.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.mage.weapon.handle.common.larch",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.mage.weapon.head.common.iron",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.paladin.armor.base.common.goat_leather",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.paladin.armor.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.paladin.armor.plate.common.iron",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.paladin.weapon.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.paladin.weapon.handle.common.larch",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.paladin.weapon.head.common.iron",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.scout.armor.base.common.iron",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.scout.armor.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.scout.armor.plate.common.goat_leathe",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.scout.weapon.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.scout.weapon.handle.common.larch",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.scout.weapon.head.common.iron",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.start.mage.armorbase",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.start.mage.armorbinder",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.start.mage.armorplate",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.start.mage.weaponbinder",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.start.mage.weaponhandle",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.start.mage.weaponhead",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.start.paladin.armorbase",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.start.paladin.armorbinder",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.start.paladin.armorplate",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.start.paladin.weaponbinder",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.start.paladin.weaponhandle",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.start.paladin.weaponhead",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.start.scout.armorbase",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.start.scout.armorbinder",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.start.scout.armorplate",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.start.scout.weaponbinder",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.start.scout.weaponhandle",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.start.scout.weaponhead",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.start.warrior.armorbase",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.start.warrior.armorbinder",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.start.warrior.armorplate",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.start.warrior.weaponbinder",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.start.warrior.weaponhandle",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.start.warrior.weaponhead",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.mage.0.15.sztabka_brazu",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.15.sztabka_inwaru",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.15.sztabka_stali",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.15.sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.5.sztabka_cyny",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.5.sztabka_miedzi",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.0.5.sztabka_niklu",
+      "kind": "part",
+      "description": "Katalizator osadzany na końcu kostura, skupiający moc zaklęć."
+    },
+    {
+      "id": "part.vs10.mage.1.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.1.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Osłona stabilizująca połączenie katalizatora z trzonem kostura."
+    },
+    {
+      "id": "part.vs10.mage.2.15.brzozowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.15.cedrowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.15.cyprysowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.15.glogowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.5.lipowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.5.olchowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.2.5.topolowy_patyk",
+      "kind": "part",
+      "description": "Trzon kostura przenoszący energię zaklęcia."
+    },
+    {
+      "id": "part.vs10.mage.3.15.palmowa_tkanina",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.15.tkanina_z_lamiej_welny",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.15.tkanina_z_owczej_welny",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.15.wasminowa_tkanina",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.5.bukominowa_tkanina",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.5.jutowa_tkanina",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.3.5.tkanina_z_koziej_welny",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa szaty osłaniająca maga."
+    },
+    {
+      "id": "part.vs10.mage.4.15.paski_ze_skory_dzika",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.15.paski_ze_skory_jelenia",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.15.paski_ze_skory_tygrysa",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.15.paski_ze_skory_warana",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.5.paski_ze_skory_dzikiego_psa",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.5.paski_ze_skory_krolika",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.4.5.paski_ze_skory_lisa",
+      "kind": "part",
+      "description": "Pas spinający warstwy szaty."
+    },
+    {
+      "id": "part.vs10.mage.5.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.mage.5.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Podszewka szaty przylegająca do ciała."
+    },
+    {
+      "id": "part.vs10.paladin.0.15.wielka_sztabka_brazu",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.15.wielka_sztabka_inwaru",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.15.wielka_sztabka_stali",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.15.wielka_sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.5.wielka_sztabka_cyny",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.5.wielka_sztabka_miedzi",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.0.5.wielka_sztabka_niklu",
+      "kind": "part",
+      "description": "Głowica młota nadająca ciężar uderzeniu."
+    },
+    {
+      "id": "part.vs10.paladin.1.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.1.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Owicie poprawiające chwyt młota."
+    },
+    {
+      "id": "part.vs10.paladin.2.15.brzozowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.15.cedrowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.15.cyprysowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.15.glogowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.5.lipowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.5.olchowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.2.5.topolowy_patyk",
+      "kind": "part",
+      "description": "Trzon młota przenoszący siłę uderzenia."
+    },
+    {
+      "id": "part.vs10.paladin.3.15.brazowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.15.inwarowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.15.meteorytowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.15.stalowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.5.cynowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.5.miedziana_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.3.5.niklowa_blacha",
+      "kind": "part",
+      "description": "Przednia płyta kirysu chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.paladin.4.15.paski_ze_skory_dzika",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.15.paski_ze_skory_jelenia",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.15.paski_ze_skory_tygrysa",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.15.paski_ze_skory_warana",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.5.paski_ze_skory_dzikiego_psa",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.5.paski_ze_skory_krolika",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.4.5.paski_ze_skory_lisa",
+      "kind": "part",
+      "description": "Rzemienie łączące płyty kirysu."
+    },
+    {
+      "id": "part.vs10.paladin.5.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.paladin.5.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Tylna część kirysu chroniąca plecy."
+    },
+    {
+      "id": "part.vs10.scout.0.15.sztabka_brazu",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.15.sztabka_inwaru",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.15.sztabka_stali",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.15.sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.5.sztabka_cyny",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.5.sztabka_miedzi",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.0.5.sztabka_niklu",
+      "kind": "part",
+      "description": "Ostrza miecza i sztyletu służące do szybkich cięć."
+    },
+    {
+      "id": "part.vs10.scout.1.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.1.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Jelce osłaniające dłonie przy walce ostrzami."
+    },
+    {
+      "id": "part.vs10.scout.2.15.brzozowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.15.cedrowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.15.cyprysowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.15.glogowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.5.lipowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.5.olchowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.2.5.topolowy_patyk",
+      "kind": "part",
+      "description": "Rękojeści ułatwiające szybkie prowadzenie obu ostrzy."
+    },
+    {
+      "id": "part.vs10.scout.3.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.3.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Zewnętrzna warstwa tuniki osłaniająca przed ciosami."
+    },
+    {
+      "id": "part.vs10.scout.4.15.paski_ze_skory_dzika",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.15.paski_ze_skory_jelenia",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.15.paski_ze_skory_tygrysa",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.15.paski_ze_skory_warana",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.5.paski_ze_skory_dzikiego_psa",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.5.paski_ze_skory_krolika",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.4.5.paski_ze_skory_lisa",
+      "kind": "part",
+      "description": "Rzemienie utrzymujące tunikę na miejscu podczas ruchu."
+    },
+    {
+      "id": "part.vs10.scout.5.15.sztabka_brazu",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.15.sztabka_inwaru",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.15.sztabka_stali",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.15.sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.5.sztabka_cyny",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.5.sztabka_miedzi",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.scout.5.5.sztabka_niklu",
+      "kind": "part",
+      "description": "Wzmocnienia tuniki chroniące najbardziej narażone miejsca."
+    },
+    {
+      "id": "part.vs10.warrior.0.15.sztabka_brazu",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.15.sztabka_inwaru",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.15.sztabka_stali",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.15.sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.5.sztabka_cyny",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.5.sztabka_miedzi",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.0.5.sztabka_niklu",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    },
+    {
+      "id": "part.vs10.warrior.1.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.1.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.vs10.warrior.2.15.brzozowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.15.cedrowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.15.cyprysowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.15.glogowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.5.lipowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.5.olchowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.2.5.topolowy_patyk",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.vs10.warrior.3.15.sztabka_brazu",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.15.sztabka_inwaru",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.15.sztabka_stali",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.15.sztabka_zelaza_meteorytowego",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.5.sztabka_cyny",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.5.sztabka_miedzi",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.3.5.sztabka_niklu",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.vs10.warrior.4.15.brazowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.15.inwarowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.15.meteorytowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.15.stalowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.5.cynowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.5.miedziany_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.4.5.niklowy_lancuch",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.vs10.warrior.5.15.wyprawiona_skora_dzika",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.15.wyprawiona_skora_jelenia",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.15.wyprawiona_skora_tygrysa",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.15.wyprawiona_skora_warana",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.5.wyprawiona_skora_dzikiego_psa",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.5.wyprawiona_skora_krolika",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.vs10.warrior.5.5.wyprawiona_skora_lisa",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.warrior.armor.base.common.goat_leather",
+      "kind": "part",
+      "description": "Skórzany spód kolczugi oddzielający metal od ciała."
+    },
+    {
+      "id": "part.warrior.armor.binder.common.iron",
+      "kind": "part",
+      "description": "Splot metalowych ogniw chroniący ciało wojownika."
+    },
+    {
+      "id": "part.warrior.armor.plate.common.iron",
+      "kind": "part",
+      "description": "Przednia osłona kolczugi chroniąca pierś."
+    },
+    {
+      "id": "part.warrior.weapon.binder.common.goat_leather",
+      "kind": "part",
+      "description": "Jelec chroniący dłoń i łączący ostrze z rękojeścią."
+    },
+    {
+      "id": "part.warrior.weapon.handle.common.larch",
+      "kind": "part",
+      "description": "Rękojeść pozwalająca pewnie prowadzić długi miecz."
+    },
+    {
+      "id": "part.warrior.weapon.head.common.iron",
+      "kind": "part",
+      "description": "Ostrze długiego miecza przenoszące siłę cięcia."
+    }
+  ]
+}

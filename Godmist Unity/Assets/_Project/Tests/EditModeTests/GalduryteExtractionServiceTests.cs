@@ -3,6 +3,8 @@ using System.Linq;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Serialization;
+using Godmist.Data.Configuration;
+using Godmist.Data.Characters;
 using Godmist.Data.Items;
 using Godmist.Data.NPC;
 using Godmist.Data.World;
@@ -22,6 +24,8 @@ namespace Godmist.Tests.EditMode
     {
         private readonly List<ScriptableObject> assets = new();
         private GameSession session;
+        private CharacterDefinition unlockerDefinition;
+        private CharacterClassData unlockerClass;
         private NpcInstance npc;
         private EquipmentItemInstance equipment;
         private GalduryteItemInstance galduryte;
@@ -36,7 +40,13 @@ namespace Godmist.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
+            GameDefinesRuntime.Configure(null);
             session = new GameSession();
+            unlockerDefinition = Asset<CharacterDefinition>();
+            unlockerClass = Asset<CharacterClassData>();
+            typeof(CharacterDefinition).GetField("<Id>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unlockerDefinition,"unlocked.reserve");
+            typeof(CharacterClassData).GetField("<Id>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unlockerClass,"class.test");
+            session.TryRegisterCharacter(new CharacterInstanceFactory().Create(unlockerDefinition,unlockerClass,11));
             session.TryAddGold(10000);
             var definition = Asset<NpcDefinition>();
             definition.Roles.Add(Asset<EnchanterRoleData>());
@@ -76,18 +86,18 @@ namespace Godmist.Tests.EditMode
             var service = new GalduryteExtractionService(new FixedRandom());
             Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var result, out var reason), Is.True, reason);
             Assert.That(result.Succeeded, Is.True);
-            Assert.That(result.PaidGold, Is.EqualTo(120));
-            Assert.That(npc.GoldBalance, Is.EqualTo(120));
-            Assert.That(npc.TotalGoldReceived, Is.EqualTo(120));
-            Assert.That(session.Gold, Is.EqualTo(9880));
-            Assert.That(npc.SpentGoldTotal, Is.EqualTo(120));
+            Assert.That(result.PaidGold, Is.EqualTo(70));
+            Assert.That(npc.GoldBalance, Is.EqualTo(70));
+            Assert.That(npc.TotalGoldReceived, Is.EqualTo(70));
+            Assert.That(session.Gold, Is.EqualTo(9930));
+            Assert.That(npc.SpentGoldTotal, Is.EqualTo(70));
             Assert.That(equipment.SocketedGaldurytes, Is.Empty);
             Assert.That(session.Stash.Items.Last(), Is.SameAs(galduryte));
             Assert.That(galduryte.Effects, Has.Count.EqualTo(1));
         }
 
         [Test]
-        public void Failure_DisablesEquippedEffectsAndPreservesOccupiedSocket()
+        public void Failure_DisablesEquippedEffectsAndFreesSocket()
         {
             var owner = MoveToCharacter(true);
             new CharacterStatPipelineSystem().Refresh(owner);
@@ -95,14 +105,32 @@ namespace Godmist.Tests.EditMode
             var service = new GalduryteExtractionService(new FixedRandom { Value = .99 });
             Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var result, out _), Is.True);
             Assert.That(result.Succeeded, Is.False);
-            Assert.That(npc.GoldBalance, Is.EqualTo(120));
-            Assert.That(npc.TotalGoldReceived, Is.EqualTo(120));
+            Assert.That(npc.GoldBalance, Is.EqualTo(70));
+            Assert.That(npc.TotalGoldReceived, Is.EqualTo(70));
             Assert.That(galduryte.IsDestroyed, Is.True);
-            Assert.That(equipment.SocketedGaldurytes.Single(), Is.SameAs(galduryte));
+            Assert.That(equipment.SocketedGaldurytes, Is.Empty);
             Assert.That(owner.PassiveEffects.Any(effect => effect.DefinitionId == "equipment.socketed_galduryte"), Is.False);
             Assert.That(owner.Inventory.Items, Is.Empty);
-            Assert.That(session.Gold, Is.EqualTo(9880));
-            Assert.That(npc.SpentGoldTotal, Is.EqualTo(120));
+            Assert.That(session.Gold, Is.EqualTo(9930));
+            Assert.That(npc.SpentGoldTotal, Is.EqualTo(70));
+        }
+
+        [Test]
+        public void LostSocket_DisablesAndRestoresEffectsWithoutDestroyingStone()
+        {
+            var owner = MoveToCharacter(true);
+            var pipeline = new CharacterStatPipelineSystem();
+            equipment.UpgradeProgress = .2f;
+            pipeline.Refresh(owner);
+            Assert.That(owner.PassiveEffects.Any(x => x.DefinitionId == "equipment.socketed_galduryte"), Is.True);
+            equipment.UpgradeProgress = .1f;
+            pipeline.Refresh(owner);
+            Assert.That(owner.PassiveEffects.Any(x => x.DefinitionId == "equipment.socketed_galduryte"), Is.False);
+            Assert.That(equipment.SocketedGaldurytes, Does.Contain(galduryte));
+            Assert.That(galduryte.IsDestroyed, Is.False);
+            equipment.UpgradeProgress = .2f;
+            pipeline.Refresh(owner);
+            Assert.That(owner.PassiveEffects.Count(x => x.DefinitionId == "equipment.socketed_galduryte"), Is.EqualTo(1));
         }
 
         [TestCase(true)]
@@ -110,30 +138,27 @@ namespace Godmist.Tests.EditMode
         public void Success_ReturnsToEquipmentOwner(bool equipped)
         {
             var owner = MoveToCharacter(equipped);
+            equipment.UpgradeProgress = 0f; // Inactive stones can still be extracted.
             Assert.That(new GalduryteExtractionService(new FixedRandom()).TryExtract(session, npc, equipment, galduryte, out _, out _), Is.True);
             Assert.That(owner.Inventory.Items, Does.Contain(galduryte));
             Assert.That(session.Stash.Items, Has.No.Member(galduryte));
         }
 
-        [Test]
-        public void Destroyed_RetryCostsDoNotCompound_AndSuccessDeletesWithoutReturnCapacity()
+        [TestCase(0d)]
+        [TestCase(.99d)]
+        public void LegacyDestroyedStone_IsRemovedWithoutReturnCapacity(double roll)
         {
-            var rng = new FixedRandom { Value = .99 };
+            var rng = new FixedRandom { Value = roll };
             var service = new GalduryteExtractionService(rng);
             galduryte.IsDestroyed = true;
             session.Stash.MaxWeight = 0;
-            for (var i = 0; i < 2; i++)
-            {
-                Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var failed, out _), Is.True);
-                Assert.That(failed.Succeeded, Is.False);
-                Assert.That(failed.PaidGold, Is.EqualTo(180));
-            }
-            rng.Value = 0;
             Assert.That(service.TryExtract(session, npc, equipment, galduryte, out var result, out _), Is.True);
             Assert.That(result.RemovedDestroyedGalduryte, Is.True);
-            Assert.That(result.PaidGold, Is.EqualTo(180));
+            Assert.That(result.PaidGold, Is.EqualTo(105));
             Assert.That(equipment.SocketedGaldurytes, Is.Empty);
             Assert.That(session.Stash.Items, Has.No.Member(galduryte));
+            Assert.That(service.TryExtract(session, npc, equipment, galduryte, out _, out _), Is.False);
+            Assert.That(session.Gold, Is.EqualTo(9895));
         }
 
         [TestCase("capacity")]
@@ -169,7 +194,13 @@ namespace Godmist.Tests.EditMode
         public void SaveRoundTrip_PreservesSocketOwnershipAndDestroyedState(bool destroyed)
         {
             galduryte.IsDestroyed = destroyed;
+            equipment.UpgradeProgress = 0f; // Save an owned stone in an inactive overflow slot.
+            equipment.CurrentRarity = RarityTier.Legendary;
+            equipment.BaseStatModifiers = new() { new Godmist.Core.Types.StatModifier { StatType = CharacterStatType.MaxHealth, Value = 100 } };
+            equipment.RecalculateStatModifiers();
             var catalog = Asset<GameContentCatalog>();
+            catalog.CharacterDefinitions.Add(unlockerDefinition);
+            catalog.CharacterClasses.Add(unlockerClass);
             catalog.ItemDefinitions.Add(equipment.Definition);
             catalog.ItemDefinitions.Add(galduryte.Definition);
             var snapshot = new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "extraction");
@@ -178,6 +209,10 @@ namespace Godmist.Tests.EditMode
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             var restoredEquipment = (EquipmentItemInstance)restored.Stash.Items.Single();
             var restoredStone = restoredEquipment.SocketedGaldurytes.Single();
+            Assert.That(restoredEquipment.IsSocketActive(0), Is.False);
+            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(175f));
+            restoredEquipment.RecalculateStatModifiers();
+            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(175f));
             Assert.That(restoredStone.IsDestroyed, Is.EqualTo(destroyed));
             Assert.That(restoredStone.InstanceId, Is.EqualTo(galduryte.InstanceId));
             Assert.That(restoredStone.Effects.Single().Value, Is.EqualTo(.02f));
@@ -196,6 +231,24 @@ namespace Godmist.Tests.EditMode
             Assert.That(npc.GoldBalance, Is.EqualTo(paid));
             Assert.That(npc.TotalGoldReceived, Is.EqualTo(paid));
             Assert.That(npc.SpentGoldTotal, Is.EqualTo(paid));
+        }
+
+        [TestCase(12, RarityTier.Common, .2f, true)]
+        [TestCase(11, RarityTier.Common, .2f, false)]
+        [TestCase(10, RarityTier.Common, .2f, false)]
+        [TestCase(12, RarityTier.Damaged, .2f, false)]
+        [TestCase(12, RarityTier.Common, 0f, false)]
+        public void SocketingCompatibility_UsesExistingLevelRarityAndSocketRules(
+            int level, RarityTier rarity, float progress, bool expected)
+        {
+            equipment.SocketedGaldurytes.Clear();
+            equipment.ItemLevel = level; equipment.CurrentRarity = rarity; equipment.UpgradeProgress = progress;
+            session.Stash.Items.Add(galduryte);
+            session.TrySpendGold(session.Gold);
+            Assert.That(GalduryteSocketingService.CanSocketPair(equipment, galduryte, out _), Is.EqualTo(expected));
+            Assert.That(new GalduryteSocketingService().CreatePreview(session, npc, equipment, galduryte).CanSocket, Is.False);
+            Assert.That(galduryte.IsIdentified, Is.True);
+            Assert.That(equipment.SocketedGaldurytes, Is.Empty);
         }
 
         [Test]

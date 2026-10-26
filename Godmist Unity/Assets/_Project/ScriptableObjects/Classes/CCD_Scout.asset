@@ -19,4 +19,3 @@ MonoBehaviour:
   <SkillTrees>k__BackingField:
   - {fileID: 11400000, guid: 165610000538ae54a9fe65bd6f8e2e60, type: 2}
   - {fileID: 11400000, guid: 3d896b3d60bbbee478375cef8e63925a, type: 2}
-  - {fileID: 11400000, guid: cbe42e95243928f4b89965baac833cdc, type: 2}

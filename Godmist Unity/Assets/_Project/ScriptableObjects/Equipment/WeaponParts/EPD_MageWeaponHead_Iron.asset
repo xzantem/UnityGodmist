@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: EPD_MageWeaponHead_Iron
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.mage.weapon.head.common.iron
-  <DisplayName>k__BackingField: "Katalizator z \u017Celaza"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Kostur \u2014 Katalizator (Sztabka \u017Celaza)"
+  <Description>k__BackingField: "Katalizator osadzany na ko\u0144cu kostura, skupiaj\u0105cy
+    moc zakl\u0119\u0107."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6759e4b8582426c4aacd220d45e948d5, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 02fe5e4428ed4d44d88c3289b1e4a77d, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 0
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:
@@ -35,7 +37,7 @@ MonoBehaviour:
     MaxAttackPercent: 0
     CritChancePercent: 0
     CritDamagePercent: 0
-    WeaponAccuracyPercent: 0.2
+    WeaponAccuracyPercent: 0
     MaxResourcePercent: 0.2
     ResourceRegenerationPercent: -0.2
     MaxHealthPercent: 0

@@ -14,71 +14,80 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: wladimir
   <DisplayName>k__BackingField: Wladimir
-  <VisualSprite>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <Tags>k__BackingField: 
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: 4230b8c4010562d4cade306786bb3bf7, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 21300000, guid: 72040eb5940e4454c9c2314b0cdfa1a0, type: 3}
   <IdleAnimationFrames>k__BackingField:
-  - {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
-  - {fileID: 3142486352412476369, guid: c05a800a628c3024181df9c5c424f4b6, type: 3}
-  - {fileID: 5311782179231711814, guid: f328fee5d66084f4080f1251536000fc, type: 3}
-  - {fileID: 430475065234430554, guid: 9c4d8b8306bff944aa5ce252be7e653d, type: 3}
+  - {fileID: 21300000, guid: 4230b8c4010562d4cade306786bb3bf7, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
   <RunAnimationFrames>k__BackingField:
-  - {fileID: -6918904722710735950, guid: 8c80a77d999c981409732e93de04f471, type: 3}
-  - {fileID: -1824817003286416738, guid: 2429203248e46da4c823483ab0df394c, type: 3}
-  - {fileID: 2388322067273261879, guid: c4d18c04d8e61d44a9a6008084f36163, type: 3}
-  - {fileID: 5928817031311551676, guid: 870894bddc802a54f988b4c9965a8baa, type: 3}
+  - {fileID: 21300000, guid: 4230b8c4010562d4cade306786bb3bf7, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 2380540920117777034, guid: adba2cf0ab753f44b97680b8b6f07933, type: 3}
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: 4230b8c4010562d4cade306786bb3bf7, type: 3}
   <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
   <AiPersonality>k__BackingField: 0
   <RecruitmentQuestId>k__BackingField: quest.companion.wladimir_01
-  <ClassData>k__BackingField: {fileID: 0}
+  <ClassData>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 300
-    <MinAttack>k__BackingField: 18
-    <MaxAttack>k__BackingField: 36
-    <PhysicalDefense>k__BackingField: 8
-    <MagicalDefense>k__BackingField: 4
+    <MaxHealth>k__BackingField: 375
+    <MinAttack>k__BackingField: 24
+    <MaxAttack>k__BackingField: 32
+    <PhysicalDefense>k__BackingField: 12
+    <MagicalDefense>k__BackingField: 8
     <PhysicalDefensePenetration>k__BackingField: 0
     <MagicalDefensePenetration>k__BackingField: 0
-    <Dodge>k__BackingField: 17
+    <Dodge>k__BackingField: 10
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 1
-    <Speed>k__BackingField: 55
+    <Speed>k__BackingField: 40
     <WeaponAccuracy>k__BackingField: 0
-    <MaxResource>k__BackingField: 200
+    <MaxResource>k__BackingField: 50
     <ResourceRegeneration>k__BackingField: 0
     <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
-    <BleedResistance>k__BackingField: 0.5
-    <PoisonResistance>k__BackingField: 0.7
+    <BleedResistance>k__BackingField: 0.7
+    <PoisonResistance>k__BackingField: 0.5
     <FireResistance>k__BackingField: 0.4
-    <WeakeningResistance>k__BackingField: 0.5
-    <SuppressionResistance>k__BackingField: 0.35
-    <MoveResistance>k__BackingField: 0.35
+    <WeakeningResistance>k__BackingField: 0.6
+    <SuppressionResistance>k__BackingField: 0.6
+    <MoveResistance>k__BackingField: 0.6
   <GrowthData>k__BackingField:
-    <MaxHealth>k__BackingField: 10
-    <MinAttack>k__BackingField: 0.8
-    <MaxAttack>k__BackingField: 1.1
-    <PhysicalDefense>k__BackingField: 0.33
-    <MagicalDefense>k__BackingField: 0.2
-    <Dodge>k__BackingField: 0.08
+    <MaxHealth>k__BackingField: 12.5
+    <MinAttack>k__BackingField: 0.7
+    <MaxAttack>k__BackingField: 0.95
+    <LateMaxHealth>k__BackingField: 0
+    <LateMinAttack>k__BackingField: 0
+    <LateMaxAttack>k__BackingField: 0
+    <EarlyMaxHealth>k__BackingField: 0
+    <EarlyMinAttack>k__BackingField: 0
+    <EarlyMaxAttack>k__BackingField: 0
+    <LateMaxHealthOffset>k__BackingField: 0
+    <LateMinAttackOffset>k__BackingField: 0
+    <LateMaxAttackOffset>k__BackingField: 0
+    <PhysicalDefense>k__BackingField: 0.45
+    <MagicalDefense>k__BackingField: 0.3
+    <Dodge>k__BackingField: 0.05
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 0
     <Speed>k__BackingField: 0
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 53035920567f9104185f48b41f1b279e, type: 2}
+  <AttackMultiplier>k__BackingField: 1
+  <SecondPhaseDefinition>k__BackingField: {fileID: 0}
+  <TransformationFramesPerSecond>k__BackingField: 8
+  <TransformationFrames>k__BackingField: []
+  <SanctuaryWarning>k__BackingField: {fileID: 0}
+  <SanctuaryFire>k__BackingField: {fileID: 0}
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 91a3831f8ee75d84dbd4aede7c347668, type: 2}
   <StartingSkills>k__BackingField:
-  - {fileID: 11400000, guid: 64e146db57fc17b40b8130ac11514293, type: 2}
-  - {fileID: 11400000, guid: 64476796537f2e2468b46fae9a0ad962, type: 2}
+  - {fileID: 11400000, guid: 91a3831f8ee75d84dbd4aede7c347668, type: 2}
+  - {fileID: 11400000, guid: 9e3b167b21c2c9641b933174fe4356a2, type: 2}
   - {fileID: 11400000, guid: d6241d822d494444a9920cb900389578, type: 2}
-  - {fileID: 11400000, guid: 7e460c15d4989af40bc79434f56e6519, type: 2}
-  - {fileID: 11400000, guid: c14c208428aa07949be900a800b8b55a, type: 2}
-  - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
-  - {fileID: 11400000, guid: 1364ed49bef02874bab3effcf50e7b78, type: 2}
+  - {fileID: 11400000, guid: 7090fdadf4421c44d898d6d484a9ffe1, type: 2}
+  - {fileID: 11400000, guid: b8bd78d8166cd1049aace72cf05dd440, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

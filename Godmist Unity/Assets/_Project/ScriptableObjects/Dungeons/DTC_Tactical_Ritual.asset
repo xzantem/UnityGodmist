@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: DTC_Tactical_Ritual
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonRoomTemplateCatalog
   <Id>k__BackingField: rooms.catacombs.tactical.ritual
+  <HasVegetationFringe>k__BackingField: 0
   <Templates>k__BackingField:
   - {fileID: 11400000, guid: 62c97963f13476548bb26614efda70e6, type: 2}
   - {fileID: 11400000, guid: 04bcab2509379674a8bac83b99abe76c, type: 2}
   - {fileID: 11400000, guid: 404ea4966bb83ea4e80f786d3064cd04, type: 2}
   - {fileID: 11400000, guid: dd87fc626f0d4b4ab8a3ef28bccff85d, type: 2}
+  <ProductionTemplates>k__BackingField: []
+  <UseRoutedConnections>k__BackingField: 0

@@ -1,0 +1,6 @@
+# Unity serializes intentionally empty component/string fields with a trailing space.
+Godmist?Unity/Assets/_Project/Scenes/City/Arungard.unity whitespace=-blank-at-eol
+Godmist?Unity/Assets/_Project/Scenes/Bootstrap/Bootstrap.unity whitespace=-blank-at-eol
+Godmist?Unity/ProjectSettings/ProjectSettings.asset whitespace=-blank-at-eol
+Godmist?Unity/Assets/_Project/Art/Icons/Application.meta whitespace=-blank-at-eol
+Godmist?Unity/Assets/_Project/Art/Icons/Application/**/*.meta whitespace=-blank-at-eol

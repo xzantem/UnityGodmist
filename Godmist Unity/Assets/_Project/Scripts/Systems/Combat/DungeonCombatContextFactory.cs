@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Dungeons;
 using UnityEngine;
@@ -7,11 +8,13 @@ namespace Godmist.Systems.Combat
 {
     public class DungeonCombatContextFactory
     {
+        private static readonly Unity.Profiling.ProfilerMarker CreateSample = new("Godmist.Combat.CreateContext");
         public bool TryCreate(
             DungeonInstance dungeon,
             DungeonEncounterInstance encounter,
             out DungeonCombatContext context, bool wholeFloor = false)
         {
+            using var sample = CreateSample.Auto();
             context = null;
 
             if (dungeon == null || encounter == null)
@@ -63,6 +66,7 @@ namespace Godmist.Systems.Combat
             string roomId)
         {
             var cells = new List<Vector2Int>();
+            var uniqueCells = new HashSet<Vector2Int>();
 
             foreach (var surface in map.Surfaces)
             {
@@ -73,13 +77,13 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (!cells.Contains(cell)) cells.Add(cell);
+                if (uniqueCells.Add(cell)) cells.Add(cell);
             }
             foreach (var stairs in map.Stairs)
                 if ((roomId == null || (map.TryGetRoomId(stairs.First, out var firstRoom) && firstRoom == roomId
                     && map.TryGetRoomId(stairs.Second, out var secondRoom) && secondRoom == roomId))
                     && map.TryGetStairPath(stairs, out var path))
-                    foreach (var cell in path) if (!cells.Contains(cell)) cells.Add(cell);
+                    foreach (var cell in path) if (uniqueCells.Add(cell)) cells.Add(cell);
 
             return cells;
         }
@@ -137,12 +141,13 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (!combatCells.Contains(dungeonObject.Position)) continue;
                 if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
                 {
+                    if (!combatCells.Any(obstacle.OccupiesCell)) continue;
                     blocksMovement = obstacle.BlocksMovement;
                     blocksLineOfSight = obstacle.BlocksLineOfSight;
                 }
+                else if (!combatCells.Contains(dungeonObject.Position)) continue;
 
                 snapshots.Add(new DungeonCombatMapObjectSnapshot(
                     dungeonObject.InstanceId,

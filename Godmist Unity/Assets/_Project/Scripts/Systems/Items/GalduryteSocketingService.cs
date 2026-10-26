@@ -140,6 +140,8 @@ namespace Godmist.Systems.Items
             GalduryteSocketingPreview preview,
             out string reason)
         {
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { reason = GalduryteServiceAccess.LockedMessage; return false; }
             if (session == null || enchanter?.Definition?.GetRole<EnchanterRoleData>() == null)
             {
                 reason = "Brak aktywnej usługi Zaklinacza.";
@@ -161,7 +163,23 @@ namespace Godmist.Systems.Items
                 reason = "Wybrany galduryt nie należy do gracza.";
                 return false;
             }
-            if (preview.FreeSockets <= 0)
+            if (!CanSocketPair(equipment, galduryte, out reason)) return false;
+            if (session.Gold < preview.GoldCost)
+            {
+                reason = "Brakuje złota na osadzenie galdurytu.";
+                return false;
+            }
+            reason = string.Empty;
+            return true;
+        }
+
+        /// <summary>Item compatibility only; ownership, access and payment are validated by the operation.</summary>
+        public static bool CanSocketPair(EquipmentItemInstance equipment, GalduryteItemInstance galduryte,
+            out string reason)
+        {
+            if (!IsWeaponOrArmor(equipment) || galduryte == null || !galduryte.IsIdentified || galduryte.IsDestroyed)
+            { reason = "Brak odpowiednich przedmiotów."; return false; }
+            if (GetFreeSockets(equipment) <= 0)
             {
                 reason = "Wybrane wyposażenie nie ma wolnego socketu.";
                 return false;
@@ -184,11 +202,6 @@ namespace Godmist.Systems.Items
             if (equipment.ItemLevel <= galduryte.ItemLevel)
             {
                 reason = "Poziom wyposażenia musi być wyższy od poziomu galdurytu.";
-                return false;
-            }
-            if (session.Gold < preview.GoldCost)
-            {
-                reason = "Brakuje złota na osadzenie galdurytu.";
                 return false;
             }
             reason = string.Empty;

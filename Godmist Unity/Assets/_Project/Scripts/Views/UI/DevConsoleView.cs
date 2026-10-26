@@ -247,7 +247,8 @@ namespace Godmist.Views.UI
                 HandleAdvance,
                 HandleTick,
                 HandleForceCombatResult,
-                HandleTriggerDialogue);
+                HandleTriggerDialogue,
+                HandleAssetAuditRoom);
 
             var prefix = result.Success ? "OK" : "BLAD";
             AppendOutput($"{prefix}: {result.Message}");
@@ -743,6 +744,28 @@ namespace Godmist.Views.UI
                 : new DevConsoleCommandResult(false, "Nie udało się zmienić piętra.");
         }
 
+        private static DevConsoleCommandResult HandleAssetAuditRoom(string dungeonId, int seed)
+        {
+            if (!string.Equals(dungeonId, "catacombs", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(
+                    Godmist.Systems.Dungeons.DungeonAssetAuditRoomBuilder.CatacombsDungeonId,
+                    dungeonId,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return new DevConsoleCommandResult(false, "assetroom obsługuje tylko catacombs.");
+            }
+
+            var bootstrap = GameBootstrap.Instance;
+            if (bootstrap == null)
+            {
+                return new DevConsoleCommandResult(false, "Brak GameBootstrap.");
+            }
+
+            return bootstrap.TryEnterCatacombsAssetAuditRoom(seed)
+                ? new DevConsoleCommandResult(true, $"Pokój audytowy Katakumb seed={seed} rozpoczęty.")
+                : new DevConsoleCommandResult(false, "Nie udało się otworzyć pokoju audytowego Katakumb.");
+        }
+
         private static DevConsoleCommandResult HandleAdvance(int turns)
         {
             var sandbox = FindAnyObjectByType<CombatSandboxBootstrap>();
@@ -785,7 +808,13 @@ namespace Godmist.Views.UI
             var controller = FindAnyObjectByType<ExplorationPartyController>();
             var spawner = FindAnyObjectByType<DungeonObjectSpawner>();
             if (bootstrap?.Session?.ActiveDungeon == null || controller == null || spawner == null) return;
-            if (bootstrap.Session.ActiveDungeon.TryGetCurrentFloor(out var floor)) spawner.Rebuild(floor, controller);
+            if (bootstrap.Session.ActiveDungeon.TryGetCurrentFloor(out var floor))
+            {
+                spawner.Rebuild(
+                    floor,
+                    controller,
+                    dungeonId: bootstrap.Session.ActiveDungeon.Definition?.Id);
+            }
         }
 
         private void AppendOutput(string message)

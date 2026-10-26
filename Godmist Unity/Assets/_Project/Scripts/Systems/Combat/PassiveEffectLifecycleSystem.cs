@@ -138,7 +138,8 @@ namespace Godmist.Systems.Combat
 
             incomingEffect.Stacks = Math.Max(1, incomingEffect.Stacks);
 
-            var existingEffect = FindEffect(
+            // Fire generations must retain independent lifetimes, damage and first-tick state.
+            var existingEffect = incomingEffect.GetStateValue("mage.burn.generation") != null ? null : FindEffect(
                 character.PassiveEffects,
                 incomingEffect.EffectId);
 
@@ -339,7 +340,9 @@ namespace Godmist.Systems.Combat
                         copied.Add(new PeriodicRecoveryPayload
                         {
                             HealthPercent = value.HealthPercent,
-                            ResourcePercent = value.ResourcePercent
+                            ResourcePercent = value.ResourcePercent,
+                            HealthRoundingCarry = value.HealthRoundingCarry,
+                            ResourceRoundingCarry = value.ResourceRoundingCarry
                         });
                         break;
                 }
@@ -362,6 +365,32 @@ namespace Godmist.Systems.Combat
                 null,
                 unit,
                 PassiveEffectTickPhase.TurnEnd);
+        }
+
+        // A skipped downed turn advances clocks, not processors or combat triggers.
+        // Consume the missed DoT budget as well, so revival cannot concentrate it
+        // into the remaining ticks. Persistent/combat-scoped effects stay intact.
+        public void ProcessDownedTurn(BattleUnit unit)
+        {
+            if (unit?.Character?.LifeState != CharacterLifeState.Downed
+                || unit.Character.PassiveEffects == null) return;
+
+            var character = unit.Character;
+            RemoveExpiredEffects(character);
+            foreach (var effect in new List<PassiveEffectRuntime>(character.PassiveEffects))
+            {
+                if (!IsActive(effect) || effect.Lifetime != PassiveEffectLifetime.Timed) continue;
+
+                var damage = effect.GetPayload<DamageOverTimePayload>();
+                if (damage != null)
+                {
+                    var missedTick = (int)Math.Ceiling(damage.RemainingTotalDamage
+                        / (double)Math.Max(1, effect.RemainingDuration));
+                    damage.RemainingTotalDamage = Math.Max(0, damage.RemainingTotalDamage - missedTick);
+                }
+
+                if (AdvanceDurationAndRemoveIfExpired(character, effect)) LogExpiration(unit, effect);
+            }
         }
 
         public IReadOnlyList<PassiveEffectRuntime> GetEffectsForTick(
@@ -843,7 +872,8 @@ namespace Godmist.Systems.Combat
 
         private static bool HasStatModifiers(PassiveEffectRuntime effect)
         {
-            return effect?.GetPayload<StatModifiersPayload>()?.Modifiers?.Count > 0;
+            return effect?.GetPayload<StatModifiersPayload>()?.Modifiers?.Count > 0
+                || effect?.GetPayload<ResistanceModifierPayload>() != null;
         }
 
         private void RefreshStats(CharacterInstance character)

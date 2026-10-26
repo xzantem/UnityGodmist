@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "packs": [
+    {
+      "unit": "jerzy",
+      "actorSize": 64,
+      "pivotBottomPixels": 3,
+      "skills": [],
+      "frames": [
+        { "action": "front-knockdown", "direction": "s", "layers": [{ "resource": "jerzy/jerzy-front-knockdown-s-64", "actor": true, "canvasSize": 64, "opaquePixelRect": [13, 2, 37, 36] }] },
+        { "action": "help-up", "direction": "s", "layers": [{ "resource": "jerzy/jerzy-help-up-s-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "sw", "layers": [{ "resource": "jerzy/jerzy-help-up-sw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "w", "layers": [{ "resource": "jerzy/jerzy-help-up-w-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "nw", "layers": [{ "resource": "jerzy/jerzy-help-up-nw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "n", "layers": [{ "resource": "jerzy/jerzy-help-up-n-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "ne", "layers": [{ "resource": "jerzy/jerzy-help-up-ne-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "e", "layers": [{ "resource": "jerzy/jerzy-help-up-e-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "se", "layers": [{ "resource": "jerzy/jerzy-help-up-se-64", "actor": true, "canvasSize": 64 }] }
+      ]
+    },
+    {
+      "unit": "wladimir",
+      "actorSize": 64,
+      "pivotBottomPixels": 4,
+      "skills": [],
+      "frames": [
+        { "action": "front-knockdown", "direction": "s", "layers": [{ "resource": "wladimir/wladimir-front-knockdown-s-64", "actor": true, "canvasSize": 64, "opaquePixelRect": [15, 2, 33, 41] }] },
+        { "action": "help-up", "direction": "s", "layers": [{ "resource": "wladimir/wladimir-help-up-s-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "sw", "layers": [{ "resource": "wladimir/wladimir-help-up-sw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "w", "layers": [{ "resource": "wladimir/wladimir-help-up-w-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "nw", "layers": [{ "resource": "wladimir/wladimir-help-up-nw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "n", "layers": [{ "resource": "wladimir/wladimir-help-up-n-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "ne", "layers": [{ "resource": "wladimir/wladimir-help-up-ne-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "e", "layers": [{ "resource": "wladimir/wladimir-help-up-e-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "se", "layers": [{ "resource": "wladimir/wladimir-help-up-se-64", "actor": true, "canvasSize": 64 }] }
+      ]
+    },
+    {
+      "unit": "alison",
+      "actorSize": 68,
+      "pivotBottomPixels": 3,
+      "skills": [],
+      "frames": [
+        { "action": "front-knockdown", "direction": "s", "layers": [{ "resource": "alison/alison-front-knockdown-s-64", "actor": true, "canvasSize": 68, "opaquePixelRect": [9, 2, 49, 37] }] },
+        { "action": "help-up", "direction": "s", "layers": [{ "resource": "alison/alison-help-up-s-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "sw", "layers": [{ "resource": "alison/alison-help-up-sw-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "w", "layers": [{ "resource": "alison/alison-help-up-w-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "nw", "layers": [{ "resource": "alison/alison-help-up-nw-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "n", "layers": [{ "resource": "alison/alison-help-up-n-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "ne", "layers": [{ "resource": "alison/alison-help-up-ne-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "e", "layers": [{ "resource": "alison/alison-help-up-e-64", "actor": true, "canvasSize": 68 }] },
+        { "action": "help-up", "direction": "se", "layers": [{ "resource": "alison/alison-help-up-se-64", "actor": true, "canvasSize": 68 }] }
+      ]
+    },
+    {
+      "unit": "reimond",
+      "actorSize": 64,
+      "pivotBottomPixels": 4,
+      "skills": [],
+      "frames": [
+        { "action": "front-knockdown", "direction": "s", "layers": [{ "resource": "reimond/reimond-front-knockdown-s-64", "actor": true, "canvasSize": 64, "opaquePixelRect": [12, 2, 39, 40] }] },
+        { "action": "help-up", "direction": "s", "layers": [{ "resource": "reimond/reimond-help-up-s-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "sw", "layers": [{ "resource": "reimond/reimond-help-up-sw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "w", "layers": [{ "resource": "reimond/reimond-help-up-w-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "nw", "layers": [{ "resource": "reimond/reimond-help-up-nw-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "n", "layers": [{ "resource": "reimond/reimond-help-up-n-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "ne", "layers": [{ "resource": "reimond/reimond-help-up-ne-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "e", "layers": [{ "resource": "reimond/reimond-help-up-e-64", "actor": true, "canvasSize": 64 }] },
+        { "action": "help-up", "direction": "se", "layers": [{ "resource": "reimond/reimond-help-up-se-64", "actor": true, "canvasSize": 64 }] }
+      ]
+    }
+  ]
+}

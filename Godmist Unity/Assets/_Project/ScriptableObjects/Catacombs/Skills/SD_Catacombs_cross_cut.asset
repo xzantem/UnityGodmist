@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57a1aa6dfa4ff614099473e644dd70c5, type: 3}
+  m_Name: SD_Catacombs_cross_cut
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
+  <SkillId>k__BackingField: skill.enemy.catacombs.cross_cut
+  <DisplayName>k__BackingField: "Ci\u0119cie Krzy\u017Cowe"
+  <Icon>k__BackingField: {fileID: 21300000, guid: e84cf72d39b9e7f44a768b24026ca94b, type: 3}
+  <TooltipDescription>k__BackingField: "Dwa ciosy po 60% obra\u017Ce\u0144. Ka\u017Cde
+    trafienie osobno ma 60% szansy na krwawienie 30% \u015Bredniego ataku na tur\u0119
+    przez 3 tury."
+  <SkillAccuracy>k__BackingField: 72
+  <AttackType>k__BackingField: 1
+  <PointBlankAttackType>k__BackingField: 0
+  <ActionCost>k__BackingField: 60
+  <ResourceCost>k__BackingField: 25
+  <ResourceType>k__BackingField: 1
+  <KnifeCost>k__BackingField: 0
+  <IsToggle>k__BackingField: 0
+  <ToggleUpkeepFlatResourceCost>k__BackingField: 0
+  <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
+  <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
+  <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
+  <GuaranteedCritical>k__BackingField: 0
+  <FreeKnivesInMelee>k__BackingField: 0
+  <PointBlankDamageMultiplier>k__BackingField: 1
+  targetModes:
+  - targetType: 0
+    targetingType: 0
+    includesCaster: 0
+    absoluteRange:
+      shape: 2
+      minRange: 1
+      maxRange: 1
+      rectangleWidth: 0
+    relativeRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    chainTargets: 0
+    requiredStatusId: 
+  effects:
+  - effectType: 0
+    polarity: 0
+    alwaysHits: 0
+    targetModeIndex: 0
+    baseValue: 0
+    healAverageAttackMultiplier: 0
+    damageValueSource: 0
+    damageMultiplier: 0.6
+    rearAttackDamageBonus: 0
+    damageHitCount: 2
+    additionalHitTrials: 0
+    additionalHitChance: 0
+    bonusPenetration: 0
+    bonusDamageMultiplierChance: 0
+    bonusDamageMultiplier: 0
+    onHitStatusId: bleed
+    onHitStatusChance: 0.6
+    onHitStatusDurationTurns: 3
+    lifeStealPercent: 0
+    allyLifeStealPercent: 0
+    resourceDrainPercent: 0
+    damageType: 0
+    delayCasterTurns: 0
+    displacementDistance: 0
+    teleportDestinationRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonedObjectDefinition: {fileID: 0}
+    objectPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    maxActiveObjects: 0
+    summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
+    summonedClassData: {fileID: 0}
+    summonPlacementRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    summonDurationTurns: 0
+    maxActiveSummons: 0
+    summonPercentMaxHealth: 0
+    baseChance: 1
+    statusId: 
+    durationTurns: 1
+    stacks: 1
+    statusDamageMultiplier: 0.3
+    statusHealPercent: 0
+    percentageValue: 0
+    counterattackRange:
+      shape: 0
+      minRange: 0
+      maxRange: 0
+      rectangleWidth: 0
+    counterattackEffects: []
+    modifierStatType: 0
+    modifierVariableType: 0
+    modifierOperation: 0
+    modifierStacking: 0
+    modifierValue: 0
+    uniqueBuffType: 0
+    uniqueBuffStacks: 0
+    resistanceType: 0
+    actionPointModifier: 0
+    actionValuePercent: 0
+    resourceRegenerationBlockTurns: 0
+    healthSacrificePercent: 0
+    resourceRestorePerSacrificedHealth: 0
+    redirectedDamagePercent: 0
+    auraRadius: 0
+    auraIncludesCaster: 0
+    auraTargetingType: 0
+    shieldAverageAttackMultiplier: 0
+    conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 

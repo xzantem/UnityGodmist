@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -6438638849891278220, guid: de29442712a4ba34e878bca3bb0f8281, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1710bdc673cc4d48a647792cd6452fab, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -131,7 +131,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.25, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -152,4 +152,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Dungeons.DungeonWallSegmentView
   movementCollider: {fileID: 7356106466946371252}
-  thickness: 0.4
+  verticalWallSprite: {fileID: 21300000, guid: 1710bdc673cc4d48a647792cd6452fab, type: 3}
+  horizontalWallSprite: {fileID: 21300000, guid: ef568cc499174fc3b74fbe1516b528b3, type: 3}
+  sideWallSprite: {fileID: 21300000, guid: 7b7a3cd9b1724da38990c56f4badea3c, type: 3}
+  northWallSprite: {fileID: 21300000, guid: a9dc929f02cd469eaa5b41b2b369c08c, type: 3}
+  southWallSprite: {fileID: 21300000, guid: d92d88dd4c6a454ca6b9e5739b870d52, type: 3}
+  thickness: 0.25
+  useNativeWallCrossSection: 1

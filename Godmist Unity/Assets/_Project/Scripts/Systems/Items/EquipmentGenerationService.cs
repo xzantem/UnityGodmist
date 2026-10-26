@@ -31,6 +31,14 @@ namespace Godmist.Systems.Items
         public EquipmentItemInstance Generate(
             EquipmentItemDefinition definition,
             IReadOnlyList<EquipmentPartDefinition> availableParts,
+            EquipmentQuality quality)
+        {
+            return Generate(definition, availableParts, quality, RollRarity());
+        }
+
+        public EquipmentItemInstance Generate(
+            EquipmentItemDefinition definition,
+            IReadOnlyList<EquipmentPartDefinition> availableParts,
             EquipmentQuality quality,
             RarityTier rarity)
         {
@@ -45,23 +53,32 @@ namespace Godmist.Systems.Items
                 return null;
             }
 
+            if (definition.IsStarterEquipment) return null;
+
             var kinds = GetRequiredKinds(definition);
             if (kinds == null) return null;
 
+            var tierPools = availableParts.Where(part => part != null && !part.IsStarterOnly
+                && part.RequiredClass == definition.RequiredClass
+                && !string.IsNullOrWhiteSpace(part.Id) && part.Stats != null)
+                .GroupBy(part => part.LevelBracket)
+                .Where(group => kinds.All(kind => group.Any(part => part.Kind == kind)))
+                .ToList();
+            if (tierPools.Count == 0) return null;
+            var pool = tierPools[random.Next(tierPools.Count)];
             var selected = new List<EquipmentPartDefinition>(3);
             foreach (var kind in kinds)
             {
-                var candidates = availableParts.Where(part => part != null
-                    && part.Kind == kind
-                    && part.RequiredClass == definition.RequiredClass
-                    && !string.IsNullOrWhiteSpace(part.Id)
-                    && part.Stats != null).ToList();
-                if (candidates.Count == 0) return null;
+                var candidates = pool.Where(part => part.Kind == kind).ToList();
                 selected.Add(candidates[random.Next(candidates.Count)]);
             }
 
             return GenerateFromSelectedParts(definition, selected, quality, rarity);
         }
+
+        public static bool HasMixedPartTiers(IReadOnlyList<EquipmentPartDefinition> parts) =>
+            parts != null && parts.Where(part => part != null)
+                .Select(part => part.LevelBracket).Distinct().Take(2).Count() > 1;
 
         public EquipmentItemInstance GenerateUnique(
             EquipmentItemDefinition definition,
@@ -110,7 +127,8 @@ namespace Godmist.Systems.Items
             }
 
             var kinds = GetRequiredKinds(definition);
-            if (kinds == null || selectedParts.Count != kinds.Length) return null;
+            if (kinds == null || selectedParts.Count != kinds.Length
+                || HasMixedPartTiers(selectedParts)) return null;
 
             var selected = new List<EquipmentPartDefinition>(selectedParts);
 
@@ -134,7 +152,7 @@ namespace Godmist.Systems.Items
             item.PrimaryPartDisplayName = selected[0].DisplayName;
             item.PrimaryMaterialId = selected[0].CraftingMaterials?
                 .FirstOrDefault(requirement => requirement?.Material != null)?.Material?.Id ?? string.Empty;
-            var bracket = selected.Max(part => (int)part.LevelBracket);
+            var bracket = (int)selected[0].LevelBracket;
             item.ItemLevel = Math.Max(1, bracket + GetQualityLevelAdjustment(quality));
             item.RequiredLevel = item.ItemLevel;
             item.CraftedBaseValue = Math.Max(0, selected.Sum(part =>
@@ -154,6 +172,7 @@ namespace Godmist.Systems.Items
                 Stacking = modifier.Stacking,
                 Value = modifier.Value
             }).ToList();
+            item.RecalculateStatModifiers();
             return item;
         }
 

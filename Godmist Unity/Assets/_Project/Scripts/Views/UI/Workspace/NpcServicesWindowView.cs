@@ -56,6 +56,8 @@ namespace Godmist.Views.UI.Workspace
         private NpcServiceKind? selectedService;
         private bool isServiceSessionOpen;
         [SerializeField] private NpcLoyaltyHeaderView loyaltyHeader;
+        [SerializeField] private Transform loyaltyTradeHost;
+        [SerializeField] private Transform loyaltyServiceHost;
         private int lastDisplayedLoyaltyLevel = -1;
         private long lastDisplayedGoldSpent = -1;
 
@@ -119,10 +121,6 @@ namespace Godmist.Views.UI.Workspace
             if (!session.TrySetMode(GameModeState.Menu)) return false;
 
             isServiceSessionOpen = true;
-            if (titleText != null)
-            {
-                titleText.text = $"Usługi: {npc.Definition.DisplayName}";
-            }
             UpdateLoyaltyHeader();
             window?.Open();
             SelectService(GetDefaultService());
@@ -139,9 +137,10 @@ namespace Godmist.Views.UI.Workspace
                 tab.gameObject.SetActive(true);
                 tab.Bind(
                     GetTabDefinition(kind)?.Icon,
-                    GetServiceDisplayName(kind),
+                    GetServiceDisplayName(kind) + (IsServiceUnlocked(kind) ? string.Empty : " — od poziomu " + GalduryteServiceAccess.RequiredLevel),
                     selectedService == kind,
                     () => SelectService(kind));
+                tab.SetAvailable(IsServiceUnlocked(kind));
                 spawnedTabs.Add(tab);
             }
         }
@@ -188,8 +187,13 @@ namespace Godmist.Views.UI.Workspace
             return NpcServiceKind.EquipmentCrafting;
         }
 
+        private bool IsServiceUnlocked(NpcServiceKind kind) => kind != NpcServiceKind.GalduryteCrafting
+            && kind != NpcServiceKind.GalduryteIdentification && kind != NpcServiceKind.GalduryteSocketing
+            && kind != NpcServiceKind.GalduryteExtraction || GalduryteServiceAccess.IsUnlocked(session);
+
         private void SelectService(NpcServiceKind kind)
         {
+            if (!IsServiceUnlocked(kind)) return;
             HideSelectedService();
             selectedService = kind;
 
@@ -234,6 +238,11 @@ namespace Godmist.Views.UI.Workspace
             }
 
             RefreshTabSelection();
+            var loyaltyHost = kind == NpcServiceKind.Trade ? loyaltyTradeHost : loyaltyServiceHost;
+            if (loyaltyHeader != null && loyaltyHost != null && loyaltyHeader.transform.parent != loyaltyHost)
+                loyaltyHeader.transform.SetParent(loyaltyHost, false);
+            if (titleText != null)
+                titleText.text = $"{GetServiceDisplayName(kind)} — {npc.Definition.DisplayName}";
         }
 
         private void HideSelectedService()
@@ -293,7 +302,7 @@ namespace Godmist.Views.UI.Workspace
                 var kind = GetAvailableServiceAt(index);
                 spawnedTabs[index].Bind(
                     GetTabDefinition(kind)?.Icon,
-                    GetServiceDisplayName(kind),
+                    GetServiceDisplayName(kind) + (IsServiceUnlocked(kind) ? string.Empty : " — od poziomu " + GalduryteServiceAccess.RequiredLevel),
                     selectedService == kind,
                     () => SelectService(kind));
             }
@@ -354,7 +363,11 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var tab in spawnedTabs)
             {
-                if (tab != null) Destroy(tab.gameObject);
+                if (tab != null)
+                {
+                    tab.gameObject.SetActive(false);
+                    Destroy(tab.gameObject);
+                }
             }
             spawnedTabs.Clear();
         }
@@ -412,7 +425,8 @@ namespace Godmist.Views.UI.Workspace
                 loyaltyService.GetDiscountPercent(targetNpc),
                 loyaltyService.GetGoldSpentTowardNextLevel(targetNpc),
                 loyaltyService.GetGoldRequiredForNextLevel(targetNpc),
-                breakpoints);
+                breakpoints,
+                targetNpc.Definition?.DisplayName);
         }
 
         private static void AppendBlacksmithSpecialEffectLabel(

@@ -88,6 +88,8 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(resourceCost, new GUIContent("Resource Cost"));
             EditorGUILayout.PropertyField(resourceType, new GUIContent("Resource Type"));
             EditorGUILayout.PropertyField(knifeCost, new GUIContent("Knife Cost"));
+            foreach(var field in new[]{"FreeKnivesInMelee","CanRecoverKnives","GuaranteedCritical","PointBlankDamageMultiplier"})
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("<"+field+">k__BackingField"));
 
             EditorGUILayout.Space(4);
             EditorGUILayout.LabelField("Combat Classification", EditorStyles.boldLabel);

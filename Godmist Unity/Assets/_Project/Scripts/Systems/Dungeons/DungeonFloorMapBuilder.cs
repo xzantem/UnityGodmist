@@ -36,13 +36,111 @@ namespace Godmist.Systems.Dungeons
             var map = new DungeonFloorMap();
 
             AddRoomFloorCells(floor, templatesById, map);
+            foreach (var connection in floor.Connections)
+                foreach (var cell in connection.CorridorCells)
+                    if (!map.TryAddFloorCell(cell, connection.SecondRoomId))
+                        throw new InvalidOperationException($"Corridor overlaps room or corridor at {cell}.");
+            if (catalog.HasVegetationFringe) AddVegetationFringe(map);
 
             var openEdges = BuildOpenEdges(floor, map);
 
             AddWallEdges(map, openEdges);
             AddStructuralWalls(floor, templatesById, map);
+            if (catalog.HasVegetationFringe && catalog.UseRoutedConnections)
+                AddForestPaths(floor, templatesById, map);
 
             return map;
+        }
+
+        private static void AddForestPaths(DungeonFloorInstance floor,
+            Dictionary<string, DungeonRoomTemplateDefinition> templates, DungeonFloorMap map)
+        {
+            foreach (var connection in floor.Connections)
+                foreach (var cell in connection.CorridorCells) map.AddVisualPathCell(cell);
+            foreach (var room in floor.Rooms)
+            {
+                var template = templates[room.TemplateId];
+                Vector2Int Transform(Vector2Int cell) => room.LayoutPosition +
+                    DungeonRoomTransformUtility.TransformCell(cell, template.SizeInCells, room.RotationDegrees);
+                var cells = template.EnumerateSurfaces().Where(s => s.Level == 0).Select(s => Transform(s.LocalCell)).ToHashSet();
+                // Physical props are authored around this access network. Keep
+                // their complete footprint out of the worn ground beneath them.
+                foreach (var anchor in template.SemanticAnchors)
+                    if (anchor.ObjectDefinition is ObstacleDungeonObjectDefinition obstacle && obstacle.BlocksMovement)
+                        foreach (var cell in obstacle.EnumerateOccupiedCells(Transform(anchor.LocalCell))) cells.Remove(cell);
+                var targets = floor.Connections.Where(c => c.FirstRoomId == room.RoomId || c.SecondRoomId == room.RoomId)
+                    .Select(c => c.GetEntranceCell(room.RoomId) +
+                        (c.SecondDoorCell.x != c.FirstDoorCell.x ? Vector2Int.up : Vector2Int.right) * (c.DoorwayWidth / 2))
+                    .Where(cells.Contains).Distinct().ToList();
+                if (targets.Count == 0) continue;
+                var network = new HashSet<Vector2Int> { targets[0] };
+                // Join entrances directly, then grow only short spurs towards
+                // actual interaction targets. No compulsory room-centre hub.
+                targets = targets.Skip(1).OrderByDescending(c => (c - network.First()).sqrMagnitude).ToList();
+                foreach (var anchor in template.SemanticAnchors.Where(a => a.Type == DungeonSemanticAnchorType.Chest
+                    || a.Type == DungeonSemanticAnchorType.Lever || a.Type == DungeonSemanticAnchorType.Condition))
+                    if (cells.Contains(Transform(anchor.LocalCell))) targets.Add(Transform(anchor.LocalCell));
+                foreach (var target in targets)
+                {
+                    var parents = new Dictionary<Vector2Int, Vector2Int> { [target] = target };
+                    var queue = new Queue<Vector2Int>(); queue.Enqueue(target);
+                    Vector2Int? joined = null;
+                    while (queue.Count > 0)
+                    {
+                        var cell = queue.Dequeue();
+                        if (network.Contains(cell)) { joined = cell; break; }
+                        var turn = (int)((uint)(cell.x * 73856093 ^ cell.y * 19349663) % 4);
+                        for (var i = 0; i < 4; i++)
+                        {
+                            var next = cell + CardinalDirections[(i + turn) % 4];
+                            if (cells.Contains(next) && map.CanMoveBetween(cell, next, true) && parents.TryAdd(next, cell)) queue.Enqueue(next);
+                        }
+                    }
+                    if (!joined.HasValue) throw new InvalidOperationException($"Authored props block the forest path in {room.TemplateId}.");
+                    var step = joined.Value;
+                    while (true) { network.Add(step); if (step == target) break; step = parents[step]; }
+                }
+                foreach (var cell in network) map.AddVisualPathCell(cell);
+            }
+        }
+
+        private static void AddVegetationFringe(DungeonFloorMap map)
+        {
+            // One shallow, non-recursive fringe. Never bridge different rooms,
+            // corridors or narrow islands; the added cells belong to their glade
+            // and therefore participate in every grid/nav/combat query and save.
+            var original = new HashSet<Vector2Int>(map.FloorCells);
+            if (original.Count == 0) return;
+            var minX = original.Min(c => c.x) - 1;
+            var maxX = original.Max(c => c.x) + 1;
+            var minY = original.Min(c => c.y) - 1;
+            var maxY = original.Max(c => c.y) + 1;
+            var exterior = new HashSet<Vector2Int>();
+            var pending = new Queue<Vector2Int>();
+            pending.Enqueue(new Vector2Int(minX, minY));
+            while (pending.Count > 0)
+            {
+                var cell = pending.Dequeue();
+                if (cell.x < minX || cell.x > maxX || cell.y < minY || cell.y > maxY
+                    || original.Contains(cell) || !exterior.Add(cell)) continue;
+                foreach (var direction in CardinalDirections) pending.Enqueue(cell + direction);
+            }
+            var candidates = original.SelectMany(c => CardinalDirections.Select(d => c + d))
+                .Where(exterior.Contains).Distinct().OrderBy(c => c.y).ThenBy(c => c.x).ToArray();
+            foreach (var cell in candidates)
+            {
+                var neighbours = CardinalDirections.Select(d => cell + d).Where(original.Contains).ToArray();
+                if (neighbours.Length == 0 || neighbours.Length > 2) continue;
+                var nearbyOwners = new HashSet<string>();
+                for (var y = -1; y <= 1; y++)
+                    for (var x = -1; x <= 1; x++)
+                        if (original.Contains(cell + new Vector2Int(x, y))
+                            && map.TryGetRoomId(cell + new Vector2Int(x, y), out var owner)) nearbyOwners.Add(owner);
+                if (nearbyOwners.Count != 1) continue;
+                map.TryAddFloorCell(cell, nearbyOwners.Single());
+                // These cells are part of the playable clearing. Mature trees
+                // belong beyond its final boundary, never on this walkable band.
+            }
         }
 
         private static Dictionary<string, DungeonRoomTemplateDefinition>
@@ -51,7 +149,7 @@ namespace Godmist.Systems.Dungeons
             var templatesById =
                 new Dictionary<string, DungeonRoomTemplateDefinition>();
 
-            foreach (var template in catalog.Templates)
+            foreach (var template in catalog.AllTemplates)
             {
                 if (template == null
                     || string.IsNullOrWhiteSpace(template.Id))
@@ -219,9 +317,8 @@ namespace Godmist.Systems.Dungeons
                         $"Brak szablonu '{room.TemplateId}' dla pokoju '{room.RoomId}'.");
                 }
 
-                foreach (var localCell in template.DifficultTerrainCells)
-                    map.SetDifficultTerrain(room.LayoutPosition + DungeonRoomTransformUtility.TransformCell(
-                        localCell, template.SizeInCells, room.RotationDegrees));
+                // Difficult terrain is currently disabled in playable dungeons.
+                // Low walls remain authored traversal edges with their own cost.
 
                 foreach (var anchor in template.StructuralAnchors)
                 {

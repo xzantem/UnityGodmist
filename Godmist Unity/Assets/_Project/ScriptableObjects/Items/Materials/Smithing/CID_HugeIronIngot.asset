@@ -14,16 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
   <Id>k__BackingField: item.smithing.huge_iron_ingot
   <DisplayName>k__BackingField: "Wielka sztabka \u017Celaza"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Du\u017Ca porcja przetopionego metalu do wyrobu
+    ci\u0119\u017Ckich cz\u0119\u015Bci wyposa\u017Cenia."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 33cfec22926eeee4f810aa97217c8a7f, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 42
   <Weight>k__BackingField: 0
   <IsStackable>k__BackingField: 1
-  <Discipline>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
     <Amount>k__BackingField: 6
+  <AlternativeRecipes>k__BackingField: []

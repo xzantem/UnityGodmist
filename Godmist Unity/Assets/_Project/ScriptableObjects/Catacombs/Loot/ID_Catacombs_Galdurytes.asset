@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Catacombs_Galdurytes
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.catacombs.galdurytes
+  <DisplayName>k__BackingField: Torba z galdurytami
+  <Description>k__BackingField: Worek z runicznymi kamieniami znalezionymi w katakumbach.
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7d1415f88fd296b4ca68fc7473eb31d3, type: 3}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.55
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.4
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.25
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField: []

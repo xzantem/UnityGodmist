@@ -78,6 +78,8 @@ namespace Godmist.Systems.Items
             GalduryteCraftRequest request)
         {
             var preview = new GalduryteCraftPreview();
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { preview.FailureReason = GalduryteServiceAccess.LockedMessage; return preview; }
             if (!TryGetRole(enchanter, out var role))
             {
                 preview.FailureReason = "Wybrany NPC nie oferuje usług galdurytowych.";
@@ -119,6 +121,20 @@ namespace Godmist.Systems.Items
 
             preview.CanCraft = true;
             return preview;
+        }
+
+        // Produce an actual crafted result for an NPC offer. Service access is
+        // gated by the caller's campaign level; no player inventory is spent.
+        public GalduryteItemInstance CreateForMerchantStock(
+            NpcInstance enchanter, GalduryteCraftRequest request)
+        {
+            if (!TryGetRole(enchanter, out var role)
+                || !TryResolveInputs(role, request, out var stone, out var powder,
+                    out var tier, out _)
+                || !TryBuildResult(role, stone, powder, tier,
+                    request.TargetType, out var result, out _))
+                return null;
+            return result;
         }
 
         public bool TryCraft(
@@ -172,6 +188,9 @@ namespace Godmist.Systems.Items
         {
             paidGold = 0;
             failureReason = string.Empty;
+
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { failureReason = GalduryteServiceAccess.LockedMessage; return false; }
 
             if (!TryGetRole(enchanter, out var role)
                 || enchanter.Definition.GetRole<TraderRoleData>() == null
@@ -255,6 +274,8 @@ namespace Godmist.Systems.Items
             GalduryteIdentificationRequest request)
         {
             var preview = new GalduryteIdentificationPreview();
+            if (!GalduryteServiceAccess.IsUnlocked(session))
+            { preview.FailureReason = GalduryteServiceAccess.LockedMessage; return preview; }
             if (!TryGetRole(enchanter, out _))
             {
                 preview.FailureReason = "Wybrany NPC nie oferuje identyfikowania galdurytów.";

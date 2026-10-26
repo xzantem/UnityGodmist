@@ -5,6 +5,9 @@ using Godmist.Runtime.Game;
 using Godmist.Runtime.Quests;
 using Godmist.Systems.Quests;
 using Godmist.Views.Game;
+using Godmist.Views.UI.Workspace;
+using Godmist.Data.Quests;
+using Godmist.Systems.Characters;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,17 +35,51 @@ namespace Godmist.Views.UI
         [SerializeField] private Button trackButton;
         [SerializeField] private TextMeshProUGUI trackButtonText;
 
+        [Header("Workspace journal")]
+        [SerializeField] private UIWorkspaceWindow window;
+        [SerializeField] private QuestJournalWindowVisibility visibility;
+        [SerializeField] private Button activeTab;
+        [SerializeField] private Button completedTab;
+        [SerializeField] private TextMeshProUGUI activeTabText;
+        [SerializeField] private TextMeshProUGUI completedTabText;
+        [SerializeField] private GameObject activeListRoot;
+        [SerializeField] private GameObject completedListRoot;
+        [SerializeField] private TextMeshProUGUI emptyListText;
+        [SerializeField] private TextMeshProUGUI metadataText;
+        [SerializeField] private GameObject stageRoot;
+        [SerializeField] private Transform objectivesContent;
+        [SerializeField] private QuestJournalObjectiveView objectivePrefab;
+        [SerializeField] private ScrollRect detailsScroll;
+        [SerializeField] private GameObject detailsContent;
+        [SerializeField] private GameObject rewardsRoot;
+        [SerializeField] private TextMeshProUGUI experienceText;
+        [SerializeField] private TextMeshProUGUI goldText;
+        [SerializeField] private TextMeshProUGUI honorText;
+        [SerializeField] private MissionRewardItemView rewardItem;
+
+        [SerializeField] private TrackedQuestHudView trackedQuestHudPrefab;
+        private TrackedQuestHudView trackedQuestHud;
         private GameSession gameSession;
         private QuestService questService;
         private string selectedQuestId = string.Empty;
         private GameModeState modeBeforeOpen;
+        private bool completedSelected;
+        private bool categoryInitialized;
 
         private bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
         private void Awake()
         {
+            if (trackedQuestHudPrefab != null && panelRoot != null)
+            {
+                trackedQuestHud = Instantiate(trackedQuestHudPrefab, panelRoot.transform.parent);
+                trackedQuestHud.transform.SetAsFirstSibling();
+            }
             closeButton.onClick.AddListener(Close);
             trackButton.onClick.AddListener(ToggleTracking);
+            if (activeTab != null) activeTab.onClick.AddListener(ShowActive);
+            if (completedTab != null) completedTab.onClick.AddListener(ShowCompleted);
+            if (visibility != null) visibility.Hidden += HandleWindowHidden;
 
             panelRoot.SetActive(false);
         }
@@ -63,6 +100,12 @@ namespace Godmist.Views.UI
         private void OnDestroy()
         {
             UnbindServices();
+            if (trackedQuestHud != null) Destroy(trackedQuestHud.gameObject);
+            if (visibility != null) visibility.Hidden -= HandleWindowHidden;
+            if (closeButton != null) closeButton.onClick.RemoveListener(Close);
+            if (trackButton != null) trackButton.onClick.RemoveListener(ToggleTracking);
+            if (activeTab != null) activeTab.onClick.RemoveListener(ShowActive);
+            if (completedTab != null) completedTab.onClick.RemoveListener(ShowCompleted);
         }
 
         public void Toggle()
@@ -93,14 +136,26 @@ namespace Godmist.Views.UI
 
             BindServices();
 
-            panelRoot.SetActive(true);
+            if (!categoryInitialized)
+            {
+                completedSelected = !HasQuests(false) && HasQuests(true);
+                categoryInitialized = true;
+            }
+            if (window != null) window.Open();
+            else panelRoot.SetActive(true);
             EnsureSelectedQuest();
             RefreshAll();
         }
 
         public void Close()
         {
-            panelRoot.SetActive(false);
+            if (window != null) window.Close();
+            else panelRoot.SetActive(false);
+            HandleWindowHidden();
+        }
+
+        private void HandleWindowHidden()
+        {
             UnbindServices();
 
             if (gameSession != null
@@ -110,6 +165,27 @@ namespace Godmist.Views.UI
                 gameSession.TrySetMode(GameModeState.Exploration);
             }
         }
+
+        private void ShowActive() => ShowCategory(false);
+        private void ShowCompleted() => ShowCategory(true);
+        private void ShowCategory(bool completed)
+        {
+            completedSelected = completed;
+            selectedQuestId = string.Empty;
+            EnsureSelectedQuest();
+            RefreshAll();
+            if (detailsScroll != null) detailsScroll.verticalNormalizedPosition = 1;
+        }
+
+        private bool HasQuests(bool completed)
+        {
+            foreach (var quest in gameSession.QuestsById.Values)
+                if (quest != null && (completed ? IsCompletedQuest(quest) : quest.Status == QuestStatus.Active)) return true;
+            return false;
+        }
+
+        private bool IsInSelectedCategory(QuestInstance quest) => quest != null
+            && (completedSelected ? IsCompletedQuest(quest) : quest.Status == QuestStatus.Active);
 
         private void BindServices()
         {
@@ -177,6 +253,7 @@ namespace Godmist.Views.UI
 
             selectedQuestId = questId;
             RefreshAll();
+            if (detailsScroll != null) detailsScroll.verticalNormalizedPosition = 1;
         }
 
         private void ToggleTracking()
@@ -211,7 +288,7 @@ namespace Godmist.Views.UI
         {
             if (!string.IsNullOrWhiteSpace(selectedQuestId)
                 && gameSession.TryGetQuest(selectedQuestId, out var selectedQuest)
-                && IsVisibleInJournal(selectedQuest))
+                && IsInSelectedCategory(selectedQuest))
             {
                 return;
             }
@@ -219,7 +296,8 @@ namespace Godmist.Views.UI
             if (!string.IsNullOrWhiteSpace(gameSession.TrackedQuestId)
                 && gameSession.TryGetQuest(
                     gameSession.TrackedQuestId,
-                    out var trackedQuest))
+                    out var trackedQuest)
+                && IsInSelectedCategory(trackedQuest))
             {
                 selectedQuestId = trackedQuest.QuestId;
                 return;
@@ -227,16 +305,7 @@ namespace Godmist.Views.UI
 
             foreach (var quest in gameSession.QuestsById.Values)
             {
-                if (quest?.Status == QuestStatus.Active)
-                {
-                    selectedQuestId = quest.QuestId;
-                    return;
-                }
-            }
-
-            foreach (var quest in gameSession.QuestsById.Values)
-            {
-                if (quest != null && IsCompletedQuest(quest))
+                if (IsInSelectedCategory(quest))
                 {
                     selectedQuestId = quest.QuestId;
                     return;
@@ -264,31 +333,86 @@ namespace Godmist.Views.UI
                 buttonView.Bind(
                     quest,
                     quest.QuestId == selectedQuestId,
-                    SelectQuest);
+                    SelectQuest,
+                    gameSession.TrackedQuestId == quest.QuestId);
+            }
+
+            if (activeListRoot != null) activeListRoot.SetActive(!completedSelected);
+            if (completedListRoot != null) completedListRoot.SetActive(completedSelected);
+            if (activeTabText != null) activeTabText.color = !completedSelected ? new Color32(225, 182, 61, 255) : QuestJournalPresentation.Cream;
+            if (completedTabText != null) completedTabText.color = completedSelected ? new Color32(225, 182, 61, 255) : QuestJournalPresentation.Cream;
+            if (emptyListText != null)
+            {
+                emptyListText.text = completedSelected ? "Brak zakończonych zadań" : "Brak aktywnych zadań";
+                emptyListText.gameObject.SetActive(!HasQuests(completedSelected));
             }
         }
 
         private void RefreshDetails()
         {
+            ClearContent(objectivesContent);
             if (!gameSession.TryGetQuest(selectedQuestId, out var quest))
             {
-                titleText.text = "Brak wybranego zadania";
-                descriptionText.text = "Przyjęte zadania pojawią się w dzienniku.";
+                if (detailsContent != null) detailsContent.SetActive(false);
+                titleText.text = string.Empty;
+                descriptionText.text = string.Empty;
                 stageText.text = string.Empty;
                 objectivesText.text = string.Empty;
+                if (metadataText != null) metadataText.text = string.Empty;
+                if (stageRoot != null) stageRoot.SetActive(false);
+                if (rewardsRoot != null) rewardsRoot.SetActive(false);
+                if (rewardItem != null) rewardItem.Bind(null);
                 return;
             }
 
-            titleText.text = quest.Definition?.DisplayName ?? quest.QuestId;
-            descriptionText.text = quest.Definition?.Description ?? string.Empty;
+            if (detailsContent != null) detailsContent.SetActive(true);
+            titleText.text = quest.DisplayName ?? quest.QuestId;
+            descriptionText.text = QuestJournalPresentation.Description(quest);
+            descriptionText.gameObject.SetActive(descriptionText.text.Length > 0);
+            if (metadataText != null) metadataText.text = (quest.RadiantRewardOffer != null
+                ? $"Poziom {quest.RadiantRewardOffer.Level} • " : string.Empty) + QuestJournalPresentation.Status(quest.Status);
 
             var stage = quest.CurrentStage;
 
-            stageText.text = stage == null
-                ? "Brak aktywnego etapu."
-                : stage.Description;
+            stageText.text = stage?.Description ?? string.Empty;
+            if (stageRoot != null) stageRoot.SetActive(QuestJournalPresentation.ShowStage(quest));
+            if (objectivesContent != null && objectivePrefab != null)
+            {
+                objectivesText.text = stage?.Objectives?.Count > 0 ? "Cele" : string.Empty;
+                foreach (var objective in stage?.Objectives ?? new List<QuestObjectiveDefinition>())
+                {
+                    if (objective == null) continue;
+                    quest.TryGetObjectiveProgress(objective.ObjectiveId, out var progress);
+                    Instantiate(objectivePrefab, objectivesContent).Bind(objective, progress);
+                }
+            }
+            else objectivesText.text = BuildObjectivesText(quest);
+            RefreshRewards(quest);
+        }
 
-            objectivesText.text = BuildObjectivesText(quest);
+        private void RefreshRewards(QuestInstance quest)
+        {
+            if (rewardsRoot == null) return;
+            var offer = quest.RadiantRewardOffer;
+            var xp = offer?.Experience ?? 0; var gold = offer?.Gold ?? 0; var honor = offer?.Honor ?? 0;
+            if (offer == null)
+                foreach (var reward in quest.CurrentStage?.CompletionRewards ?? new List<QuestRewardDefinition>())
+                {
+                    if (reward == null) continue;
+                    switch (reward.RewardType)
+                    {
+                        case QuestRewardType.Experience: xp += reward.StandardExperienceLevel > 0
+                            ? CharacterProgressionSystem.GetStandardMissionExperience(reward.StandardExperienceLevel) : reward.Amount; break;
+                        case QuestRewardType.Gold: gold += reward.Amount; break;
+                        case QuestRewardType.Honor: honor += reward.Amount; break;
+                    }
+                }
+            rewardsRoot.SetActive(xp > 0 || gold > 0 || honor > 0 || offer?.BonusItem != null);
+            experienceText.text = xp.ToString("N0"); goldText.text = gold.ToString("N0"); honorText.text = honor.ToString("N0");
+            experienceText.transform.parent.gameObject.SetActive(xp > 0);
+            goldText.transform.parent.gameObject.SetActive(gold > 0);
+            honorText.transform.parent.gameObject.SetActive(honor > 0);
+            rewardItem.Bind(offer?.BonusItem);
         }
 
         private void RefreshTrackingButton()
@@ -296,14 +420,14 @@ namespace Godmist.Views.UI
             if (!gameSession.TryGetQuest(selectedQuestId, out var quest)
                 || quest.Status != QuestStatus.Active)
             {
-                trackButton.interactable = false;
-                trackButtonText.text = "Nie można śledzić";
+                trackButton.gameObject.SetActive(false);
                 return;
             }
 
             var isTracked = gameSession.TrackedQuestId == quest.QuestId;
 
             trackButton.interactable = true;
+            trackButton.gameObject.SetActive(true);
             trackButtonText.text = isTracked
                 ? "Przestań śledzić"
                 : "Śledź zadanie";
@@ -368,7 +492,10 @@ namespace Godmist.Views.UI
 
             for (var index = content.childCount - 1; index >= 0; index--)
             {
-                Destroy(content.GetChild(index).gameObject);
+                var child = content.GetChild(index).gameObject;
+                child.SetActive(false);
+                if (Application.isPlaying) Destroy(child);
+                else DestroyImmediate(child);
             }
         }
     }

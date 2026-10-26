@@ -56,7 +56,9 @@ namespace Godmist.Systems.Items
         public static string GetConsumableNoun(ConsumableUseType useType) =>
             useType == ConsumableUseType.Bomb ? "bomba" : "mikstura";
 
-        public static string GetFallbackEffectAdjective(ConsumableRuntimeEffectType effectType)
+        public static string GetFallbackEffectAdjective(
+            ConsumableRuntimeEffectType effectType,
+            ConsumableUseType useType = ConsumableUseType.Potion)
         {
             return effectType switch
             {
@@ -66,15 +68,24 @@ namespace Godmist.Systems.Items
                     => "krzepiąca",
                 ConsumableRuntimeEffectType.ModifySpeed => "zwinna",
                 ConsumableRuntimeEffectType.ModifyDamage => "niszczycielska",
-                ConsumableRuntimeEffectType.ModifyDefense
-                    or ConsumableRuntimeEffectType.ModifyPhysicalDefense
-                    or ConsumableRuntimeEffectType.ModifyMagicalDefense => "ochronna",
+                ConsumableRuntimeEffectType.ModifyDefense => "ochronna",
+                ConsumableRuntimeEffectType.ModifyPhysicalDefense
+                    or ConsumableRuntimeEffectType.ModifyMagicalDefense =>
+                    useType == ConsumableUseType.Bomb ? "przełamująca" : "ochronna",
+                ConsumableRuntimeEffectType.ModifyAllResistances
+                    or ConsumableRuntimeEffectType.ModifyResistance => "odporna",
+                ConsumableRuntimeEffectType.ModifyDodge =>
+                    useType == ConsumableUseType.Bomb ? "dezorientująca" : "zwinna",
+                ConsumableRuntimeEffectType.ModifyAccuracy => "oślepiająca",
+                ConsumableRuntimeEffectType.ModifyActionPoints => "żwawa",
+                ConsumableRuntimeEffectType.ModifyMaxResource => "zasobna",
+                ConsumableRuntimeEffectType.Slow => "spowalniająca",
                 ConsumableRuntimeEffectType.ModifyCritChance => "precyzyjna",
                 ConsumableRuntimeEffectType.ApplyPoison => "zatruta",
                 ConsumableRuntimeEffectType.ApplyBurn => "płonąca",
                 ConsumableRuntimeEffectType.ApplyBleed => "krwawa",
-                ConsumableRuntimeEffectType.ApplyStun or ConsumableRuntimeEffectType.ApplyFreeze
-                    => "obezwładniająca",
+                ConsumableRuntimeEffectType.ApplyStun => "ogłuszająca",
+                ConsumableRuntimeEffectType.ApplyFreeze => "mrożąca",
                 _ => "alchemiczna"
             };
         }

@@ -42,6 +42,62 @@ namespace Godmist.Tests.EditMode
             createdSkills.Clear();
         }
 
+        [TestCase(0, 0, true)]
+        [TestCase(1, 0, true)]
+        [TestCase(-1, 0, true)]
+        [TestCase(0, 1, true)]
+        [TestCase(0, -1, true)]
+        [TestCase(1, 1, true)]
+        [TestCase(1, -1, true)]
+        [TestCase(-1, 1, true)]
+        [TestCase(-1, -1, true)]
+        [TestCase(2, 0, false)]
+        [TestCase(-2, 0, false)]
+        [TestCase(0, 2, false)]
+        [TestCase(0, -2, false)]
+        [TestCase(2, 1, false)]
+        [TestCase(-2, -1, false)]
+        [TestCase(1, 2, false)]
+        [TestCase(-1, -2, false)]
+        [TestCase(2, 2, false)]
+        public void ManualReviveRequiresAtMostOneTileIncludingDiagonals(int dx, int dy, bool expected)
+        {
+            var session = CreateSession(out var actor, out var target);
+            session.Grid = new BattleGrid(8, 8);
+            actor.Position = new GridPosition(3, 3);
+            target.Position = new GridPosition(3 + dx, 3 + dy);
+            target.Character.LifeState = CharacterLifeState.Downed;
+            target.Character.CurrentHealth = 0;
+            target.DownedTurnsRemaining = 2;
+            target.Character.ExplorationStatusElapsedSeconds = 15f;
+            var logs = new List<string>();
+
+            Assert.That(new CombatReviveSystem(logs.Add).TryRevive(session, actor, target), Is.EqualTo(expected));
+
+            Assert.That(target.Character.LifeState, Is.EqualTo(expected ? CharacterLifeState.Alive : CharacterLifeState.Downed));
+            Assert.That(target.Character.CurrentHealth, expected ? Is.GreaterThan(0) : Is.Zero);
+            Assert.That(target.DownedTurnsRemaining, Is.EqualTo(expected ? 0 : 2));
+            Assert.That(target.Character.ExplorationStatusElapsedSeconds, Is.EqualTo(expected ? 0f : 15f));
+            Assert.That(logs.Count, Is.EqualTo(expected ? 1 : 0));
+            Assert.That(session.ActiveUnit, Is.SameAs(actor));
+            Assert.That(actor.CurrentActionPoints, Is.EqualTo(10000));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ManualReviveCannotReachAnotherLevelWithoutAnAdjacentTraversalConnection(bool connected)
+        {
+            var session = CreateSession(out var actor, out var target);
+            target.Position = new GridPosition(2, 1, 1);
+            session.Grid.TraversalNeighbours = position => connected && position == actor.Position
+                ? new[] { target.Position } : System.Array.Empty<GridPosition>();
+            target.Character.LifeState = CharacterLifeState.Downed;
+            target.Character.CurrentHealth = 0;
+
+            Assert.That(new CombatReviveSystem().TryRevive(session, actor, target), Is.EqualTo(connected));
+            Assert.That(target.Character.LifeState, Is.EqualTo(connected ? CharacterLifeState.Alive : CharacterLifeState.Downed));
+        }
+
         [Test]
         public void Heal_ClampsHealthToMaximum()
         {
@@ -477,8 +533,8 @@ namespace Godmist.Tests.EditMode
                         MaxHealth = new Stat(maxHealth)
                     }
                 },
-                CurrentActionPoints = 100,
-                MaxActionPoints = 100,
+                CurrentActionPoints = 10000,
+                MaxActionPoints = 10000,
                 IsPlayerSide = isPlayerSide
             };
         }

@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7b5d2c1a4e6f8093b5c7d1e2a4f608, type: 3}
+  m_Name: EID_Forest_EntGlaive
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
+  <Id>k__BackingField: unique.forest.ent.glaive
+  <DisplayName>k__BackingField: Praelficka Glewia Wojenna
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 21300000, guid: 66bd38a6fd8b3014699afd3f43fac084, type: 3}
+  <ItemType>k__BackingField: 0
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 6
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+  <BaseDefinition>k__BackingField: {fileID: 11400000, guid: ea659bcfb2cf0b84f81cbe67e37a2e33, type: 2}
+  <Effects>k__BackingField:
+  - <Id>k__BackingField: passive.forest.ent.glaive
+    <DisplayName>k__BackingField: Praelficka Glewia Wojenna
+    <Description>k__BackingField: "20% przebicia obrony fizycznej przeciw celom z
+      wi\u0119kszym maksymalnym zdrowiem."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField:
+    - <Type>k__BackingField: 21
+      <Comparison>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 0
+        <Offset>k__BackingField: 0
+      <Negated>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.forest.ent.glaive
+      <Type>k__BackingField: 0
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 12
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 0
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.2
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "20% przebicia obrony fizycznej przeciw
+        celom z wi\u0119kszym maksymalnym zdrowiem."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: passive.forest.ent.glaive
+    <DisplayName>k__BackingField: Praelficka Glewia Wojenna
+    <Description>k__BackingField: "24% przebicia obrony fizycznej przeciw celom z
+      wi\u0119kszym maksymalnym zdrowiem."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField:
+    - <Type>k__BackingField: 21
+      <Comparison>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 0
+        <Offset>k__BackingField: 0
+      <Negated>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 2
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.forest.ent.glaive
+      <Type>k__BackingField: 0
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 12
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 0
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.24
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "24% przebicia obrony fizycznej przeciw
+        celom z wi\u0119kszym maksymalnym zdrowiem."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <SummonPool>k__BackingField: []

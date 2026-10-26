@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: CD_Paladin
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: character.paladin
-  <DisplayName>k__BackingField: Paladin
-  <VisualSprite>k__BackingField: {fileID: 0}
-  <IdleAnimationFrames>k__BackingField: []
+  <DisplayName>k__BackingField: Reimond
+  <Tags>k__BackingField: 
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 21300000, guid: 2a3b8deef04d8a84c906ab888f40b049, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
-  <RunAnimationFrames>k__BackingField: []
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 0}
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: 4c69cfb2aa27dd644a85044762279001, type: 3}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
   <AiPersonality>k__BackingField: 0
@@ -31,13 +36,23 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 30
     <PhysicalDefense>k__BackingField: 16
     <MagicalDefense>k__BackingField: 16
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 8
-    <CritChance>k__BackingField: 0.25
-    <CritDamage>k__BackingField: 1.5
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 1
     <Speed>k__BackingField: 35
-    <WeaponAccuracy>k__BackingField: 100
+    <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 100
-    <ResourceRegeneration>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 15
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0.3
+    <PoisonResistance>k__BackingField: 0.4
+    <FireResistance>k__BackingField: 0.5
+    <WeakeningResistance>k__BackingField: 0.25
+    <SuppressionResistance>k__BackingField: 0.75
+    <MoveResistance>k__BackingField: 0.75
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 20
     <MinAttack>k__BackingField: 0.6
@@ -51,7 +66,13 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <StartingSkills>k__BackingField: []
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}
+  - {fileID: 11400000, guid: 52e154cf9e0615e46bb3d5d24f216813, type: 2}
+  - {fileID: 11400000, guid: 8cdd20ae12e7a6747bb541c27edd6a35, type: 2}
+  - {fileID: 11400000, guid: 855057cf3664b6c49b30143389637e8d, type: 2}
+  - {fileID: 11400000, guid: 6d48434436eb3a84ea1946da02eaab13, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

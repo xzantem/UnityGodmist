@@ -7,6 +7,7 @@ using Godmist.Data.Items;
 using Godmist.Runtime.Dungeons;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Items;
+using Godmist.Systems.Combat;
 using UnityEngine;
 
 namespace Godmist.Systems.Dungeons
@@ -40,7 +41,7 @@ namespace Godmist.Systems.Dungeons
                 var catalog = dungeon.Definition.RoomTemplateCatalog;
                 var usedIds = dungeon.Floors.Where(f => f != null).SelectMany(f => f.Rooms)
                     .Select(r => r.TemplateId).Distinct(StringComparer.Ordinal).ToList();
-                var templates = usedIds.Select(id => catalog?.Templates.Find(t => t != null && t.Id == id)
+                var templates = usedIds.Select(id => catalog?.AllTemplates.FirstOrDefault(t => t != null && t.Id == id)
                     ?? throw new InvalidOperationException($"Brak szablonu '{id}'.")).ToList();
                 foreach (var template in templates) DungeonRoomContentPlanner.ValidateTemplate(template);
                 DungeonDistributionValidator.Validate(templates);
@@ -67,7 +68,7 @@ namespace Godmist.Systems.Dungeons
             var lootTableSystem = new LootTableSystem(
                 random,
                 equipmentParts,
-                lootLevel: dungeon.DungeonLevel);
+                lootLevel: dungeon.DungeonLevel, dropChanceBonus: dungeon.ItemDropChanceBonus);
 
             var distribution = legacy ? null : new DungeonContentDistribution(dungeon.Seed);
 
@@ -334,7 +335,7 @@ namespace Godmist.Systems.Dungeons
             LootTableData themedLoot = null;
             definition.LootTableCatalog?.TryGetChestLootTable(definition.Theme, definition.DungeonLevel, out themedLoot);
             var valid = GetValidObjectDefinitions(definition.ObjectDefinitions, themedLoot);
-            foreach (var template in definition.RoomTemplateCatalog.Templates)
+            foreach (var template in definition.RoomTemplateCatalog.GenerationTemplates)
             {
                 if (template == null) throw new InvalidOperationException($"Loch '{definition.Id}': pusta referencja szablonu.");
                 DungeonRoomContentPlanner.ValidateTemplate(template);
@@ -347,7 +348,7 @@ namespace Godmist.Systems.Dungeons
                             + "brak poprawnej definicji w puli (typ, waga, loot lub klucz).");
                 }
             }
-            DungeonDistributionValidator.Validate(definition.RoomTemplateCatalog.Templates);
+            DungeonDistributionValidator.Validate(definition.RoomTemplateCatalog.GenerationTemplates);
         }
 
         private static void PlaceCompleteObjects(DungeonInstance dungeon, DungeonFloorInstance floor,
@@ -359,7 +360,7 @@ namespace Godmist.Systems.Dungeons
                 throw new InvalidOperationException($"Pietro {floor.FloorIndex}: brak katalogu szablonow.");
             foreach (var room in floor.Rooms)
             {
-                var template = catalog.Templates.Find(t => t != null && t.Id == room.TemplateId);
+                var template = catalog.AllTemplates.FirstOrDefault(t => t != null && t.Id == room.TemplateId);
                 if (template == null)
                     throw new InvalidOperationException($"Pietro {floor.FloorIndex}, pokoj '{room.RoomId}': brak szablonu '{room.TemplateId}'.");
                 DungeonRoomContentPlanner.ValidateTemplate(template);
@@ -387,7 +388,13 @@ namespace Godmist.Systems.Dungeons
 
             var selected = opportunities.Where(o => o.IsRequired).ToList();
             var selectedAnchors = selected.SelectMany(o => o.Anchors).ToList();
-            if (!DungeonRoomContentPlanner.TryAssign(selectedAnchors, reserved, out var positions))
+            if (!TryAssignPlacementPlan(
+                    selectedAnchors,
+                    choices,
+                    floor,
+                    reserved,
+                    random: null,
+                    out _))
                 throw new InvalidOperationException($"Pietro {floor.FloorIndex}: brak miejsca na komplet wymaganego wyposazenia: "
                     + string.Join(", ", selected.Select(o => o.Id)) + ". Kotwy: "
                     + string.Join(", ", selectedAnchors.Select(a => a.Room.TemplateId + "/" + a.Anchor.Id)));
@@ -397,30 +404,279 @@ namespace Godmist.Systems.Dungeons
                 if (opportunity.IsRequired || opportunity.Dependencies.Any(d => !selected.Contains(d))) continue;
                 var trial = new List<DungeonSemanticAnchorPlacement>(selectedAnchors);
                 trial.AddRange(opportunity.Anchors);
-                if (!DungeonRoomContentPlanner.TryAssign(trial, reserved, out var trialPositions)) continue;
+                if (!TryAssignPlacementPlan(
+                        trial,
+                        choices,
+                        floor,
+                        reserved,
+                        random: null,
+                        out _)) continue;
                 // One draw only after dependencies and the complete group's space qualify.
                 if (!distribution.Roll(opportunity.DistributionKey, opportunity.SpawnChance)) continue;
                 selected.Add(opportunity);
                 selectedAnchors = trial;
-                positions = trialPositions;
+            }
+
+            if (!TryAssignPlacementPlan(
+                    selectedAnchors,
+                    choices,
+                    floor,
+                    reserved,
+                    random,
+                    out var placementPlan))
+            {
+                throw new InvalidOperationException($"Pietro {floor.FloorIndex}: brak miejsca na komplet wybranego wyposazenia "
+                    + "z uwzglednieniem zajetych komorek obiektow: "
+                    + string.Join(", ", selected.Select(o => o.Id)));
             }
 
             var instances = new List<DungeonObjectInstance>();
+            var pendingPlacementCells = new HashSet<Vector2Int>();
             for (var index = 0; index < selectedAnchors.Count; index++)
             {
                 var anchor = selectedAnchors[index];
-                var definition = SelectDefinition(choices[anchor], random);
+                var planned = placementPlan[anchor];
                 var instance = CreateObjectInstance(
-                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.object_{index:00}", definition,
-                    positions[anchor], lootTableSystem, themedChestLootTable, anchor.Anchor.ActivationGroupId,
+                    $"{dungeon.DungeonId}.floor_{floor.FloorIndex}.object_{index:00}", planned.Definition,
+                    planned.Position, lootTableSystem, themedChestLootTable, anchor.Anchor.ActivationGroupId,
                     anchor.Room.IsRequiredProgressionRoom && (anchor.Anchor.Type == DungeonSemanticAnchorType.Lever
-                        || anchor.Anchor.Type == DungeonSemanticAnchorType.Condition));
+                        || anchor.Anchor.Type == DungeonSemanticAnchorType.Condition), dungeon, floor, index,
+                    dungeon.Floors.Sum(f => f.Rooms.Count(r => r.RoomType == DungeonRoomType.Optional)));
                 if (instance == null) throw PlacementError(floor, anchor, "Nieobslugiwany typ definicji.");
+                if (!CanPlaceDungeonObject(floor, instance, pendingPlacementCells))
+                {
+                    throw PlacementError(floor, anchor,
+                        "Wybrane obiekty nachodza na zajety footprint (w tym obiekt wielokomorkowy).");
+                }
+
+                foreach (var cell in EnumeratePlacementCells(instance))
+                    pendingPlacementCells.Add(cell);
                 instances.Add(instance);
             }
             foreach (var instance in instances)
                 if (!floor.TryAddObject(instance))
                     throw new InvalidOperationException($"Pietro {floor.FloorIndex}: nie mozna dodac zaplanowanego obiektu '{instance.InstanceId}'.");
+        }
+
+        private static bool TryAssignPlacementPlan(
+            IReadOnlyList<DungeonSemanticAnchorPlacement> anchors,
+            IReadOnlyDictionary<DungeonSemanticAnchorPlacement, List<DungeonObjectDefinition>> choices,
+            DungeonFloorInstance floor,
+            ISet<Vector2Int> reserved,
+            System.Random random,
+            out Dictionary<DungeonSemanticAnchorPlacement, PlannedPlacement> placements)
+        {
+            placements = new Dictionary<DungeonSemanticAnchorPlacement, PlannedPlacement>();
+            if (anchors == null || anchors.Count == 0) return true;
+
+            var blocked = new HashSet<Vector2Int>(reserved ?? new HashSet<Vector2Int>());
+            AddExistingObjectFootprints(floor, blocked);
+
+            var optionsByAnchor = new Dictionary<
+                DungeonSemanticAnchorPlacement,
+                List<PlacementOption>>();
+
+            foreach (var anchor in anchors)
+            {
+                if (!choices.TryGetValue(anchor, out var definitions)
+                    || definitions == null
+                    || definitions.Count == 0)
+                {
+                    return false;
+                }
+
+                var options = BuildPlacementOptions(anchor, definitions, floor, blocked);
+                if (options.Count == 0) return false;
+                optionsByAnchor.Add(anchor, options);
+            }
+
+            var orderedAnchors = anchors
+                .OrderBy(anchor => optionsByAnchor[anchor].Count)
+                .ThenBy(anchor => anchor.Room.RoomId, StringComparer.Ordinal)
+                .ThenBy(anchor => anchor.Anchor.Id, StringComparer.Ordinal)
+                .ToList();
+
+            var occupied = new HashSet<Vector2Int>(blocked);
+            var assigned = new Dictionary<DungeonSemanticAnchorPlacement, PlannedPlacement>();
+            bool Assign(int anchorIndex)
+            {
+                if (anchorIndex >= orderedAnchors.Count) return true;
+
+                var anchor = orderedAnchors[anchorIndex];
+                var options = OrderPlacementOptions(optionsByAnchor[anchor], random);
+                foreach (var option in options)
+                {
+                    if (option.Cells.Any(occupied.Contains)) continue;
+
+                    foreach (var cell in option.Cells) occupied.Add(cell);
+                    assigned[anchor] = new PlannedPlacement(option.Definition, option.Position);
+
+                    if (Assign(anchorIndex + 1)) return true;
+
+                    assigned.Remove(anchor);
+                    foreach (var cell in option.Cells) occupied.Remove(cell);
+                }
+
+                return false;
+            }
+
+            if (Assign(0))
+            {
+                placements = assigned;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static List<PlacementOption> BuildPlacementOptions(
+            DungeonSemanticAnchorPlacement anchor,
+            IReadOnlyList<DungeonObjectDefinition> definitions,
+            DungeonFloorInstance floor,
+            ISet<Vector2Int> blocked)
+        {
+            var positions = anchor.Cells
+                .Distinct()
+                .OrderBy(position => position.y)
+                .ThenBy(position => position.x)
+                .ToList();
+            var orderedDefinitions = definitions
+                .Where(definition => definition != null)
+                .OrderBy(definition => definition.Id, StringComparer.Ordinal)
+                .ToList();
+            var result = new List<PlacementOption>();
+
+            foreach (var position in positions)
+            {
+                foreach (var definition in orderedDefinitions)
+                {
+                    var cells = EnumeratePlacementCells(definition, position).ToArray();
+                    if (cells.Any(blocked.Contains)
+                        || !IsValidPlacementFootprint(floor, anchor, cells)) continue;
+                    result.Add(new PlacementOption(definition, position, cells));
+                }
+            }
+
+            return result;
+        }
+
+        private static bool IsValidPlacementFootprint(
+            DungeonFloorInstance floor,
+            DungeonSemanticAnchorPlacement anchor,
+            IReadOnlyList<Vector2Int> cells)
+        {
+            if (floor?.Map == null || anchor?.Room == null || cells == null) return false;
+            return cells.All(cell =>
+                floor.Map.IsWalkable(cell)
+                && floor.Map.TryGetRoomId(cell, out var roomId)
+                && string.Equals(roomId, anchor.Room.RoomId, StringComparison.Ordinal))
+                // A 2x2 reservation includes a diagonal cell: validate its
+                // internal cardinal edges, rather than requiring a diagonal move.
+                && cells.All(cell => (!cells.Contains(cell + Vector2Int.right) || floor.Map.CanMoveBetween(cell, cell + Vector2Int.right))
+                    && (!cells.Contains(cell + Vector2Int.up) || floor.Map.CanMoveBetween(cell, cell + Vector2Int.up)));
+        }
+
+        private static List<PlacementOption> OrderPlacementOptions(
+            IReadOnlyList<PlacementOption> options,
+            System.Random random)
+        {
+            var result = options
+                .OrderBy(option => option.Position.y)
+                .ThenBy(option => option.Position.x)
+                .ThenBy(option => option.Definition.Id, StringComparer.Ordinal)
+                .ToList();
+            if (random == null) return result;
+
+            // Keep weighted definition selection while allowing the planner to
+            // try the next definition/position when occupancy conflicts.
+            var positions = result
+                .Select(option => option.Position)
+                .Distinct()
+                .ToList();
+            Shuffle(positions, random);
+
+            var weightedResult = new List<PlacementOption>(result.Count);
+            foreach (var position in positions)
+            {
+                var remaining = result
+                    .Where(option => option.Position == position)
+                    .ToList();
+                while (remaining.Count > 0)
+                {
+                    var definitions = remaining
+                        .Select(option => option.Definition)
+                        .ToList();
+                    var definition = SelectDefinition(definitions, random);
+                    var optionIndex = remaining.FindIndex(option => option.Definition == definition);
+                    weightedResult.Add(remaining[optionIndex]);
+                    remaining.RemoveAt(optionIndex);
+                }
+            }
+
+            return weightedResult;
+        }
+
+        private static void AddExistingObjectFootprints(
+            DungeonFloorInstance floor,
+            ISet<Vector2Int> blocked)
+        {
+            if (floor?.Objects == null) return;
+
+            foreach (var dungeonObject in floor.Objects)
+            {
+                if (dungeonObject == null
+                    || dungeonObject is ObstacleDungeonObjectInstance obstacle
+                        && !obstacle.IsActive)
+                {
+                    continue;
+                }
+
+                foreach (var cell in EnumeratePlacementCells(dungeonObject))
+                    blocked.Add(cell);
+            }
+        }
+
+        private static IEnumerable<Vector2Int> EnumeratePlacementCells(
+            DungeonObjectDefinition definition,
+            Vector2Int position)
+        {
+            if (definition is ObstacleDungeonObjectDefinition obstacle)
+            {
+                foreach (var cell in obstacle.EnumeratePlacementReservationCells(position)) yield return cell;
+                yield break;
+            }
+            yield return position;
+        }
+
+        private sealed class PlacementOption
+        {
+            public DungeonObjectDefinition Definition { get; }
+            public Vector2Int Position { get; }
+            public IReadOnlyList<Vector2Int> Cells { get; }
+
+            public PlacementOption(
+                DungeonObjectDefinition definition,
+                Vector2Int position,
+                IReadOnlyList<Vector2Int> cells)
+            {
+                Definition = definition;
+                Position = position;
+                Cells = cells;
+            }
+        }
+
+        private readonly struct PlannedPlacement
+        {
+            public DungeonObjectDefinition Definition { get; }
+            public Vector2Int Position { get; }
+
+            public PlannedPlacement(
+                DungeonObjectDefinition definition,
+                Vector2Int position)
+            {
+                Definition = definition;
+                Position = position;
+            }
         }
 
         private static InvalidOperationException PlacementError(DungeonFloorInstance floor,
@@ -567,10 +823,14 @@ namespace Godmist.Systems.Dungeons
                     && (selectedAnchor.Anchor.Type
                         == DungeonSemanticAnchorType.Lever
                         || selectedAnchor.Anchor.Type
-                           == DungeonSemanticAnchorType.Condition));
+                           == DungeonSemanticAnchorType.Condition),
+                    dungeon, floor, index);
 
                 if (dungeonObject != null)
                 {
+                    if (!CanPlaceDungeonObject(floor, dungeonObject))
+                        continue;
+
                     floor.TryAddObject(dungeonObject);
                 }
             }
@@ -690,7 +950,7 @@ namespace Godmist.Systems.Dungeons
             var result =
                 new Dictionary<string, DungeonRoomTemplateDefinition>();
 
-            foreach (var template in catalog.Templates)
+            foreach (var template in catalog.AllTemplates)
             {
                 if (template == null
                     || string.IsNullOrWhiteSpace(template.Id))
@@ -741,14 +1001,57 @@ namespace Godmist.Systems.Dungeons
                     continue;
                 }
 
-                if (dungeonObject != null
-                    && dungeonObject.Position == cell)
+                if ((dungeonObject is ObstacleDungeonObjectInstance obstacle
+                        && obstacle.IsActive && new RectInt(obstacle.Position, ((ObstacleDungeonObjectDefinition)obstacle.Definition).PlacementReservationSizeInCells).Contains(cell))
+                    || (dungeonObject != null
+                        && dungeonObject is not ObstacleDungeonObjectInstance
+                        && dungeonObject.Position == cell))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static bool CanPlaceDungeonObject(
+            DungeonFloorInstance floor,
+            DungeonObjectInstance dungeonObject,
+            ISet<Vector2Int> pendingPlacementCells = null)
+        {
+            if (floor == null || dungeonObject == null)
+                return false;
+
+            foreach (var cell in EnumeratePlacementCells(dungeonObject))
+            {
+                if (floor.Map == null || !floor.Map.IsWalkable(cell)) return false;
+                if (pendingPlacementCells != null && pendingPlacementCells.Contains(cell))
+                    return false;
+                if (IsOccupiedByDungeonObject(floor, cell))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static IEnumerable<Vector2Int> EnumeratePlacementCells(
+            DungeonObjectInstance dungeonObject)
+        {
+            if (dungeonObject is ObstacleDungeonObjectInstance obstacle)
+            {
+                foreach (var cell in ((ObstacleDungeonObjectDefinition)obstacle.Definition).EnumeratePlacementReservationCells(obstacle.Position))
+                    yield return cell;
+                yield break;
+            }
+
+            if (dungeonObject is DoorDungeonObjectInstance door)
+            {
+                yield return door.Edge.FirstCell;
+                yield return door.Edge.SecondCell;
+                yield break;
+            }
+
+            yield return dungeonObject.Position;
         }
 
         private static T SelectDefinition<T>(
@@ -787,18 +1090,23 @@ namespace Godmist.Systems.Dungeons
             LootTableSystem lootTableSystem,
             LootTableData themedChestLootTable,
             string activationGroupId,
-            bool isProgressionRequirement = false)
+            bool isProgressionRequirement,
+            DungeonInstance dungeon,
+            DungeonFloorInstance floor,
+            int objectIndex,
+            int equipmentChestCount = 0)
         {
             if (definition is ChestDungeonObjectDefinition chest)
             {
-                var items = lootTableSystem.RollLoot(
-                    themedChestLootTable ?? chest.LootTable);
+                var items = lootTableSystem.RollChestLoot(
+                    themedChestLootTable ?? chest.LootTable, equipmentChestCount);
 
                 return new ChestDungeonObjectInstance(
                     instanceId,
                     chest,
                     position,
-                    items);
+                    items,
+                    RollChestGold(dungeon, floor, objectIndex));
             }
 
             if (definition is ObstacleDungeonObjectDefinition obstacle)
@@ -837,6 +1145,34 @@ namespace Godmist.Systems.Dungeons
             }
 
             return null;
+        }
+
+        private static int RollChestGold(DungeonInstance dungeon, DungeonFloorInstance floor, int objectIndex)
+        {
+            var ordinaryEncounters = floor.Encounters.Where(encounter => encounter != null
+                && !encounter.IsReinforcement
+                && encounter.Definition != dungeon.Definition.BossEncounterDefinition).ToList();
+            if (ordinaryEncounters.Count == 0) return 0;
+
+            // Keep the currency roll independent of object/loot selection so an extra
+            // chest does not shift the contents or positions of other objects.
+            var seed = unchecked(dungeon.Seed ^ ObjectPlacementSeedSalt
+                ^ (floor.FloorIndex + 1) * 73856093 ^ (objectIndex + 1) * 19349663);
+            var goldRandom = new System.Random(seed);
+            var encounterCount = 2 + goldRandom.Next(2);
+            long gold = 0;
+            for (var encounterIndex = 0; encounterIndex < encounterCount; encounterIndex++)
+            {
+                var encounter = ordinaryEncounters[goldRandom.Next(ordinaryEncounters.Count)];
+                foreach (var enemy in encounter.Enemies)
+                {
+                    if (enemy?.CharacterDefinition == null) continue;
+                    gold += CombatEconomyScaling.RollEnemyGold(dungeon.DungeonLevel,
+                        goldRandom.NextDouble());
+                }
+            }
+
+            return (int)Math.Min(gold, int.MaxValue);
         }
 
         private static int ComparePositions(

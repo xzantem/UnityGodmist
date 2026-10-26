@@ -42,9 +42,17 @@ namespace Godmist.Systems.Items
                 }
             }
 
-            if (bag == null || bag.Contents == null || bag.IsEmpty)
+            if (bag == null)
             {
                 return false;
+            }
+
+            // Older saves may already contain a bag whose optional pools all
+            // missed. It has no contents to transfer, so discard it on opening.
+            if (bag.IsEmpty)
+            {
+                return inventoryService.TryRemoveItem(
+                    character.Inventory, bag.InstanceId, out _);
             }
 
             for (var index = bag.Contents.Count - 1; index >= 0; index--)

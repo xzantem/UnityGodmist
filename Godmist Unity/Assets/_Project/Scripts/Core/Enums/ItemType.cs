@@ -13,7 +13,8 @@ namespace Godmist.Core.Enums
         QuestItem = 8,
         Valuable = 9,
         Tool = 10,
-        Bomb = 11
+        Bomb = 11,
+        Food = 12
     }
 
     /// <summary>

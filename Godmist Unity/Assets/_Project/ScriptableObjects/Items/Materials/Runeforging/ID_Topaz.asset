@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.runic.topaz
   <DisplayName>k__BackingField: Topaz
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Kamie\u0144 szlachetny u\u017Cywany do zdobienia
+    bi\u017Cuterii i pracy z galdurytem."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 208d300183030d646b998e27349ac328, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4

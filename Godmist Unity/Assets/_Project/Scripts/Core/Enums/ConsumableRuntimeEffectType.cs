@@ -38,7 +38,8 @@ namespace Godmist.Core.Enums
         ModifyPhysicalDefense = 33,
         ModifyMagicalDefense = 34,
         ModifyAccuracy = 35,
-        Slow = 36
+        Slow = 36,
+        ModifyAllResistances = 37
     }
 
     public enum ConsumableCatalystType

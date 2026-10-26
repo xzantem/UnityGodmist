@@ -39,6 +39,10 @@ namespace Godmist.Editor
             switch (selectedRewardType)
             {
                 case QuestRewardType.Experience:
+                    DrawField(position, ref y, property.FindPropertyRelative("standardExperienceLevel"));
+                    if (property.FindPropertyRelative("standardExperienceLevel").intValue == 0)
+                        DrawField(position, ref y, amount);
+                    break;
                 case QuestRewardType.Gold:
                 case QuestRewardType.Honor:
                     DrawField(position, ref y, amount);
@@ -73,6 +77,10 @@ namespace Godmist.Editor
             switch (selectedRewardType)
             {
                 case QuestRewardType.Experience:
+                    AddHeight(ref height, property.FindPropertyRelative("standardExperienceLevel"));
+                    if (property.FindPropertyRelative("standardExperienceLevel").intValue == 0)
+                        AddHeight(ref height, property.FindPropertyRelative("amount"));
+                    break;
                 case QuestRewardType.Gold:
                 case QuestRewardType.Honor:
                     AddHeight(

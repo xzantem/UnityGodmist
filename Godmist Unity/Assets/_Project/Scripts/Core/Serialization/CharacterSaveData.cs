@@ -14,6 +14,7 @@ namespace Godmist.Core.Serialization
         public int CurrentExperience;
         public int AvailableSkillPoints;
         public int CurrentHealth;
+        public float EquipmentHealthCarry, EquipmentResourceCarry, EquipmentGenerationCarry;
         public int Honor;
         public float WeaponAccuracy;
 
@@ -87,6 +88,7 @@ namespace Godmist.Core.Serialization
     {
         public string SourceId = string.Empty;
         public int CurrentValue;
+        public int RemainingTurns;
     }
 
     [Serializable]
@@ -126,8 +128,10 @@ namespace Godmist.Core.Serialization
         public float MaxHealthPercent;
         public float HealthPercent;
         public float ResourcePercent;
+        public float HealthRoundingCarry;
+        public float ResourceRoundingCarry;
         public UniqueBuffType UniqueBuffType;
-        public int ActionPointModifier;
+        public float ActionPointModifier;
         public float DamageRedirectPercent;
         public string ProtectorCharacterId = string.Empty;
         public string ProtectorDisplayName = string.Empty;

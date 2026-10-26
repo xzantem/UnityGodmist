@@ -14,14 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: skeleton.test
   <DisplayName>k__BackingField: Skeleton Warrior
-  <Tags>k__BackingField:
-  - 2
-  <VisualSprite>k__BackingField: {fileID: -6290270615676213359, guid: c13f398b1233462438313c5bf813f405, type: 3}
-  <IdleAnimationFrames>k__BackingField: []
+  <Tags>k__BackingField: 02000000
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: 143f6647b79f5094d93c833ff651aaeb, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 0}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: 143f6647b79f5094d93c833ff651aaeb, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
-  <RunAnimationFrames>k__BackingField: []
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: 143f6647b79f5094d93c833ff651aaeb, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 0}
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: 143f6647b79f5094d93c833ff651aaeb, type: 3}
   <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
@@ -34,6 +36,8 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 12
     <PhysicalDefense>k__BackingField: 10
     <MagicalDefense>k__BackingField: 10
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 15
     <CritChance>k__BackingField: 0.25
     <CritDamage>k__BackingField: 1.5
@@ -41,6 +45,14 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 100
     <MaxResource>k__BackingField: 100
     <ResourceRegeneration>k__BackingField: 0
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0
+    <PoisonResistance>k__BackingField: 0
+    <FireResistance>k__BackingField: 0
+    <WeakeningResistance>k__BackingField: 0
+    <SuppressionResistance>k__BackingField: 0
+    <MoveResistance>k__BackingField: 0
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 0
     <MinAttack>k__BackingField: 0

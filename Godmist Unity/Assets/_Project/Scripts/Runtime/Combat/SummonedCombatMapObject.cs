@@ -48,7 +48,9 @@ namespace Godmist.Runtime.Combat
 
         public bool CanReceiveHit()
         {
-            return RemainingHits > 0;
+            return Definition?.HiddenUntilTriggered != true && Definition?.ObjectId != "paladin.judgement_field"
+                && Definition?.ObjectId != "object.forest.ent.warning"
+                && Definition?.ObjectId != "object.forest.ent.fire" && RemainingHits > 0;
         }
 
         public bool ApplyHits(int hitCount)

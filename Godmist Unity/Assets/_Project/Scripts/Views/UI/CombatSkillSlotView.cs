@@ -1,6 +1,7 @@
 using System;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
+using Godmist.Runtime.Items;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,12 +22,22 @@ namespace Godmist.Views.UI
         private string unavailableReason;
         [SerializeField] private TextMeshProUGUI shortcutText;
         private Action<bool> hoverChanged;
-        public void SetShortcut(int index) { if(shortcutText!=null)shortcutText.text=index>=0 && index<10?((index+1)%10).ToString():""; }
+        public static string GetShortcutLabel(int index) => index >= 0 && index < 10 ? ((index + 1) % 10).ToString() : string.Empty;
+        public void SetShortcut(int index)
+        {
+            if (shortcutText == null) return;
+            shortcutText.text = GetShortcutLabel(index);
+            ApplyShortcutLayout();
+        }
+        private ItemRarityBorderGraphic rarityBorder;
         private SkillData skill;
+        private ConsumableItemInstance consumable;
         private UIWorkspaceTooltipView tooltipView;
         private Func<BattleUnit> casterProvider;
         private int actionCost;
         private Color defaultIconColor = Color.white;
+        private bool capturedIconColor;
+        private int displayedActionCost = int.MinValue;
         private static readonly Color ActiveToggleColor = new(0.35f, 1f, 0.65f, 1f);
 
         public void Initialize(
@@ -37,13 +48,19 @@ namespace Godmist.Views.UI
             Action<bool> onHoverChanged = null)
         {
             hoverChanged = onHoverChanged;
+            consumable = null;
+            ItemRarityPresentation.ApplyBorder(ref rarityBorder, transform as RectTransform, (ItemInstance)null);
             skill = sourceSkill;
             tooltipView = sourceTooltipView;
             casterProvider = sourceCasterProvider;
+            if (shortcutText != null) shortcutText.gameObject.SetActive(true);
+            if (actionCostText != null) actionCostText.gameObject.SetActive(true);
+            ApplyShortcutLayout();
 
             if (icon != null)
             {
-                defaultIconColor = icon.color;
+                if (!capturedIconColor) { defaultIconColor = icon.color; capturedIconColor = true; }
+                icon.color = defaultIconColor;
                 icon.sprite = skill?.Icon;
                 icon.enabled = skill?.Icon != null;
             }
@@ -53,6 +70,28 @@ namespace Godmist.Views.UI
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => onClick?.Invoke());
             }
+        }
+
+        public void InitializeConsumable(ConsumableItemInstance item, UIWorkspaceTooltipView tooltip,
+            Action onClick, Func<BattleUnit> caster)
+        {
+            Initialize(null, tooltip, onClick, caster);
+            consumable = item;
+            ItemRarityPresentation.ApplyBorder(ref rarityBorder, transform as RectTransform, item);
+            if (icon != null)
+            {
+                icon.sprite = ItemIconPresentation.GetIcon(item);
+                icon.enabled = icon.sprite != null;
+                icon.preserveAspect = true;
+                icon.rectTransform.anchorMin = Vector2.zero;
+                icon.rectTransform.anchorMax = Vector2.one;
+                icon.rectTransform.offsetMin = new Vector2(5f, 5f);
+                icon.rectTransform.offsetMax = new Vector2(-5f, -5f);
+            }
+            if (shortcutText != null) shortcutText.gameObject.SetActive(false);
+            if (actionCostText != null) actionCostText.gameObject.SetActive(false);
+            if (hotkeyText != null) hotkeyText.gameObject.SetActive(true);
+            RestoreIconLayout();
         }
 
         public void RefreshAvailability(
@@ -65,7 +104,7 @@ namespace Godmist.Views.UI
         {
             actionCost = calculatedActionCost;
             unavailableReason = reason;
-            if (actionCostText != null) actionCostText.text = $"{actionCost} AP";
+            if (actionCostText != null && displayedActionCost != actionCost) { displayedActionCost = actionCost; actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP"; }
             if (selectedFrame != null) selectedFrame.enabled = selected;
             if (button != null)
             {
@@ -86,7 +125,8 @@ namespace Godmist.Views.UI
 
             if (hotkeyText != null)
             {
-                hotkeyText.text = knifeCount ?? string.Empty;
+                var label = knifeCount ?? string.Empty;
+                if (hotkeyText.text != label) hotkeyText.text = label;
                 hotkeyText.enabled = !string.IsNullOrWhiteSpace(knifeCount);
                 return;
             }
@@ -107,7 +147,10 @@ namespace Godmist.Views.UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             hoverChanged?.Invoke(true);
-            tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
+            if (consumable != null)
+                tooltipView?.ShowItemWithExtra(consumable, casterProvider?.Invoke()?.Character, this,
+                    $"Koszt: {ActionPointUnits.Format(actionCost)} AP" + (string.IsNullOrEmpty(unavailableReason) ? "" : "\n" + unavailableReason));
+            else tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
         }
 
         private void OnDisable(){hoverChanged?.Invoke(false);tooltipView?.NotifySourceExit(this);}
@@ -116,6 +159,41 @@ namespace Godmist.Views.UI
         {
             hoverChanged?.Invoke(false);
             tooltipView?.NotifySourceExit(this);
+        }
+
+        private void ApplyShortcutLayout()
+        {
+            if (shortcutText == null) return;
+
+            var shortcutRect = shortcutText.rectTransform;
+            shortcutRect.SetParent(transform, false);
+            shortcutRect.SetAsLastSibling();
+            shortcutRect.anchorMin = new Vector2(.5f, 1f);
+            shortcutRect.anchorMax = new Vector2(.5f, 1f);
+            shortcutRect.pivot = new Vector2(.5f, 1f);
+            shortcutRect.anchoredPosition = new Vector2(0f, 18f);
+            shortcutRect.sizeDelta = new Vector2(42f, 18f);
+            shortcutText.alignment = TextAlignmentOptions.Center;
+            shortcutText.fontStyle = FontStyles.Bold;
+            shortcutText.fontSize = Mathf.Max(14f, shortcutText.fontSize);
+            shortcutText.raycastTarget = false;
+
+            if (icon != null)
+            {
+                icon.rectTransform.anchorMin = Vector2.zero;
+                icon.rectTransform.anchorMax = Vector2.one;
+                icon.rectTransform.offsetMin = Vector2.zero;
+                icon.rectTransform.offsetMax = Vector2.zero;
+            }
+        }
+
+        private void RestoreIconLayout()
+        {
+            if (icon == null) return;
+            icon.rectTransform.anchorMin = Vector2.zero;
+            icon.rectTransform.anchorMax = Vector2.one;
+            icon.rectTransform.offsetMin = new Vector2(5f, 5f);
+            icon.rectTransform.offsetMax = new Vector2(-5f, -5f);
         }
     }
 }

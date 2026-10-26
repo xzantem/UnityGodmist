@@ -1,0 +1,101 @@
+{
+  "entries": [
+    {
+      "fullId": "node.warrior.commander.marking",
+      "slug": "marking",
+      "outputPng": "marking-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.armor_shred",
+      "slug": "armor_shred",
+      "outputPng": "armor_shred-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.armor_piercing",
+      "slug": "armor_piercing",
+      "outputPng": "armor_piercing-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.weapon_mastery",
+      "slug": "weapon_mastery",
+      "outputPng": "weapon_mastery-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.breakdown",
+      "slug": "breakdown",
+      "outputPng": "breakdown-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.broken_bones",
+      "slug": "broken_bones",
+      "outputPng": "broken_bones-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.piercing",
+      "slug": "piercing",
+      "outputPng": "piercing-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.deep_wounds",
+      "slug": "deep_wounds",
+      "outputPng": "deep_wounds-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.flanking",
+      "slug": "flanking",
+      "outputPng": "flanking-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.pinning",
+      "slug": "pinning",
+      "outputPng": "pinning-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.trauma",
+      "slug": "trauma",
+      "outputPng": "trauma-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.renewal",
+      "slug": "renewal",
+      "outputPng": "renewal-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.strategy",
+      "slug": "strategy",
+      "outputPng": "strategy-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.finisher",
+      "slug": "finisher",
+      "outputPng": "finisher-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.riposte",
+      "slug": "riposte",
+      "outputPng": "riposte-32.png"
+    },
+    {
+      "fullId": "node.warrior.commander.furious_rising",
+      "slug": "furious_rising",
+      "outputPng": "furious_rising-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.warrior.commander",
+    "name": "Dowódca"
+  },
+  "scope": {
+    "entryCount": 16,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.warrior.commander.destruction",
+      "node.warrior.commander.immobilize",
+      "node.warrior.commander.protection",
+      "node.warrior.commander.regroup"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

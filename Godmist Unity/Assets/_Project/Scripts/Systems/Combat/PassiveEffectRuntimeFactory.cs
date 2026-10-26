@@ -80,7 +80,7 @@ namespace Godmist.Systems.Combat
             {
                 if (operation == null
                     || operation.Value == null
-                    || operation.Value.Source != PassiveEffectValueSourceType.Constant
+                    || operation.Value.Source != PassiveEffectValueSourceType.Constant && materializePersistentPayloads
                     || requireStaticDefinition
                         && operation.Target != PassiveEffectTargetType.Self)
                 {

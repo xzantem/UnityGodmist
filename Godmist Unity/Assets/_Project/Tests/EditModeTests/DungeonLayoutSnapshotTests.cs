@@ -13,6 +13,7 @@ using Godmist.Runtime.Game;
 using Godmist.Runtime.Items;
 using Godmist.Systems.SaveLoad;
 using Godmist.Systems.Dungeons;
+using Godmist.Systems.Items;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -96,11 +97,44 @@ namespace Godmist.Tests.EditMode
             });
         }
 
+        [TestCase(true)] [TestCase(false)]
+        public void CampSuppliesIssueStateSurvivesSaveLoad(bool issued)
+        {
+            if (issued) session.ActiveDungeon.MarkCampSuppliesIssued();
+            var kit = Asset<ItemDefinition>(DungeonCampService.KitId);
+            catalog.ItemDefinitions.Add(kit);
+            session.Stash.Items.Add(new ItemInstance(kit, "remaining.camp.kit"));
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.CampSuppliesIssued, Is.EqualTo(issued));
+            Assert.That(restored.Stash.Items.Single().InstanceId, Is.EqualTo("remaining.camp.kit"));
+            Assert.That(DungeonCampService.IsCampingKit(restored.Stash.Items.Single()), Is.True);
+        }
+
         [TearDown]
         public void Cleanup()
         {
             foreach (var asset in assets) Object.DestroyImmediate(asset);
             assets.Clear();
+        }
+
+        [TestCase(true)] [TestCase(false)]
+        public void SarcophagusSnapshotPreservesAnchorIdentityAndTwoCellOccupancy(bool active)
+        {
+            Assert.That(floor.TryGetObject("obstacle.1", out var obj), Is.True);
+            Set(obj.Definition, "Id", "object.obstacle.sarcophagus");
+            Assert.That(floor.Map.TryAddFloorCell(obj.Position + Vector2Int.up, "room"), Is.True);
+            obj.TryRestoreIsActive(active);
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].TryGetObject("obstacle.1", out var next), Is.True);
+            var obstacle = (ObstacleDungeonObjectInstance)next;
+            Assert.That(obstacle.Position, Is.EqualTo(obj.Position));
+            Assert.That(obstacle.EnumerateOccupiedCells(), Is.EquivalentTo(new[] { obj.Position, obj.Position + Vector2Int.up }));
+            Assert.That(obstacle.OccupiesCell(obj.Position), Is.EqualTo(active));
+            Assert.That(obstacle.OccupiesCell(obj.Position + Vector2Int.up), Is.EqualTo(active));
         }
 
         [TestCase(2)] [TestCase(0)]
@@ -166,6 +200,20 @@ namespace Godmist.Tests.EditMode
                 { ActorId = "enemy", X = 0, Y = 0 });
             LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
             AssertRejected(saved);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TraderRestockMarkerSurvivesJsonRoundtrip(bool refreshed)
+        {
+            session.ActiveDungeon.TryMarkCompleted();
+            if (refreshed) session.ActiveDungeon.MarkTraderStockRefreshed();
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var data), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(data, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.TraderStockRefreshed, Is.EqualTo(refreshed));
+            Assert.That(new Godmist.Systems.NPC.TraderStockService().TryRefreshAfterReturn(
+                restored, restored.ActiveDungeon), Is.EqualTo(!refreshed));
         }
 
         private GameSaveData Snapshot() => new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "persistence");
@@ -255,7 +303,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(restored.ActiveDungeon.HasPlacedContent, Is.True);
             var restoredFloor = restored.ActiveDungeon.Floors[0];
             Assert.That(restoredFloor.Map.FloorCells, Is.EquivalentTo(floor.Map.FloorCells));
-            Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.True);
+            Assert.That(restoredFloor.Map.IsDifficultTerrain(new Vector2Int(3, 0)), Is.False,
+                "Difficult terrain is disabled when restoring old layouts too.");
             Assert.That(restoredFloor.Map.GetWallType(new DungeonCellEdge(new Vector2Int(3, 0), new Vector2Int(4, 0))), Is.EqualTo(DungeonWallType.Low));
             Assert.That(restoredFloor.TryGetObject("door.1", out var door), Is.True);
             Assert.That(((DoorDungeonObjectInstance)door).IsOpen, Is.True);
@@ -298,8 +347,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(map.FloorCells.Count, Is.EqualTo(8));
         }
 
-        [Test]
-        public void UpperWallsAndPassageRoundTripWithGateOnCorrectLevel()
+        [TestCase(DungeonWallType.Railing)]
+        [TestCase(DungeonWallType.TreeTrunk)]
+        public void UpperWallsAndPassageRoundTripWithGateOnCorrectLevel(DungeonWallType wallType)
         {
             floor.TryAddRoom(new DungeonRoomInstance("upper", DungeonRoomType.Normal));
             var first = new DungeonSurfacePosition(Vector2Int.zero, 1);
@@ -307,7 +357,7 @@ namespace Godmist.Tests.EditMode
             floor.Map.TryAddFloorCell(first, "room");
             floor.Map.TryAddFloorCell(second, "upper");
             var edge = new DungeonSurfaceEdge(first, second);
-            floor.Map.SetWallType(edge, DungeonWallType.Railing);
+            floor.Map.SetWallType(edge, wallType);
             floor.TryAddConnection("room", "upper");
             var c = floor.Connections[0];
             c.TrySetDirectPassage(first, second, 1);
@@ -316,7 +366,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             var f = restored.ActiveDungeon.Floors[0];
-            Assert.That(f.Map.GetWallType(edge), Is.EqualTo(DungeonWallType.Railing));
+            Assert.That(f.Map.GetWallType(edge), Is.EqualTo(wallType));
             Assert.That(f.Map.WallEdges.Contains(edge.CellEdge), Is.False);
             Assert.That(f.Connections[0].DoorwayLevel, Is.EqualTo(1));
             Assert.That(f.Map.ClosedProgressionGateEdges, Is.Empty);
@@ -483,16 +533,18 @@ namespace Godmist.Tests.EditMode
             AssertRejected(saved);
         }
 
-        [Test]
-        public void ChestAndUnclaimedRewardItemsRetainIdentityWithoutDuplicatingClaimedRewards()
+        [TestCase(0)]
+        [TestCase(15)]
+        public void ChestAndUnclaimedRewardItemsRetainIdentityWithoutDuplicatingClaimedRewards(int experienceLevel)
         {
             var itemDefinition = Asset<ItemDefinition>("item");
             catalog.ItemDefinitions.Add(itemDefinition);
             var chestDefinition = Asset<ChestDungeonObjectDefinition>("chest");
             definition.ObjectDefinitions.Add(chestDefinition);
             floor.TryAddObject(new ChestDungeonObjectInstance("chest.1", chestDefinition, new Vector2Int(1, 0),
-                new[] { new ItemInstance(itemDefinition, "chest.item") }));
+                new[] { new ItemInstance(itemDefinition, "chest.item") }, 67));
             session.ActiveDungeon.TryGetPreRolledRewards("encounter.1", out var rewards);
+            rewards.EnemyRewards[0].ExperienceLevel = experienceLevel;
             rewards.EnemyRewards[0].Items.Add(new ItemInstance(itemDefinition, "alive.item"));
             var claimed = new ItemInstance(itemDefinition, "dead.item");
             rewards.EnemyRewards[1].Items.Add(claimed);
@@ -501,10 +553,49 @@ namespace Godmist.Tests.EditMode
             Assert.That(saved.ItemInstances.Count, Is.EqualTo(3));
             Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
             Assert.That(restored.ActiveDungeon.TryGetPreRolledRewards("encounter.1", out var restoredRewards), Is.True);
+            Assert.That(restoredRewards.EnemyRewards[0].ExperienceLevel, Is.EqualTo(experienceLevel));
             Assert.That(restoredRewards.EnemyRewards[0].Items[0].InstanceId, Is.EqualTo("alive.item"));
             Assert.That(restored.ActiveDungeon.Floors[0].EnemyBodies[0].Items[0].InstanceId, Is.EqualTo("dead.item"));
             restored.ActiveDungeon.Floors[0].TryGetObject("chest.1", out var chest);
             Assert.That(((ChestDungeonObjectInstance)chest).Items[0].InstanceId, Is.EqualTo("chest.item"));
+            Assert.That(((ChestDungeonObjectInstance)chest).Gold, Is.EqualTo(67));
+        }
+
+        [Test]
+        public void ClaimedChestGoldDoesNotReappearAfterSaveLoad()
+        {
+            var chestDefinition = Asset<ChestDungeonObjectDefinition>("chest");
+            definition.ObjectDefinitions.Add(chestDefinition);
+            var chest = new ChestDungeonObjectInstance("chest.gold", chestDefinition,
+                new Vector2Int(1, 0), null, 67);
+            floor.TryAddObject(chest);
+            Assert.That(chest.TryClaimGold(out var amount), Is.True);
+            Assert.That(amount, Is.EqualTo(67));
+
+            var serializer = new GameSaveJsonSerializer();
+            Assert.That(serializer.TryDeserialize(serializer.Serialize(Snapshot()), out var saved), Is.True);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var restored), Is.True);
+            Assert.That(restored.ActiveDungeon.Floors[0].TryGetObject("chest.gold", out var restoredObject), Is.True);
+            var restoredChest = (ChestDungeonObjectInstance)restoredObject;
+            Assert.That(restoredChest.Gold, Is.Zero);
+            Assert.That(restoredChest.TryClaimGold(out _), Is.False);
+        }
+
+        [Test]
+        public void ChestGoldCanBeClaimedOnlyOnceIntoTheSharedPurse()
+        {
+            var chestDefinition = Asset<ChestDungeonObjectDefinition>("chest");
+            definition.ObjectDefinitions.Add(chestDefinition);
+            var chest = new ChestDungeonObjectInstance("chest.gold", chestDefinition,
+                new Vector2Int(1, 0), null, 67);
+            floor.TryAddObject(chest);
+
+            var service = new LootCollectionService();
+            Assert.That(service.TryClaimDungeonChestGold(session, "chest.gold", out var claimed), Is.True);
+            Assert.That(claimed, Is.EqualTo(67));
+            Assert.That(session.Gold, Is.EqualTo(67));
+            Assert.That(service.TryClaimDungeonChestGold(session, "chest.gold", out _), Is.False);
+            Assert.That(session.Gold, Is.EqualTo(67));
         }
 
         [Test]

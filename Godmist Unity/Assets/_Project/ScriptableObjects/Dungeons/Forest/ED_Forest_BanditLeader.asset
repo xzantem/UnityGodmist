@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6700f722a8bcce4992915b695b7c0cd, type: 3}
+  m_Name: ED_Forest_BanditLeader
+  m_EditorClassIdentifier: Data::Godmist.Data.Combat.EncounterDefinition
+  <Id>k__BackingField: encounter.forest.bandit_leader
+  <DisplayName>k__BackingField: "Przyw\xF3dca Bandyt\xF3w i obstawa"
+  <GridWidth>k__BackingField: 16
+  <GridHeight>k__BackingField: 16
+  <BossEnemyIndex>k__BackingField: 0
+  <Enemies>k__BackingField:
+  - <InstanceId>k__BackingField: enemy.forest.bandit_leader.0
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: e078700def057fc4f9b627aaec992929, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 8, y: 11}
+    <VisionRange>k__BackingField: 9
+    <VisionAngle>k__BackingField: 360
+    <InitialFacing>k__BackingField: {x: 0, y: -1}
+  - <InstanceId>k__BackingField: enemy.forest.bandit_leader.1
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 5fd1345fd126fbf4f812aeda281b95d7, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 6, y: 8}
+    <VisionRange>k__BackingField: 9
+    <VisionAngle>k__BackingField: 360
+    <InitialFacing>k__BackingField: {x: 0, y: -1}
+  - <InstanceId>k__BackingField: enemy.forest.bandit_leader.2
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 5fd1345fd126fbf4f812aeda281b95d7, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 10, y: 8}
+    <VisionRange>k__BackingField: 9
+    <VisionAngle>k__BackingField: 360
+    <InitialFacing>k__BackingField: {x: 0, y: -1}
+  - <InstanceId>k__BackingField: enemy.forest.bandit_leader.3
+    <CharacterDefinition>k__BackingField: {fileID: 11400000, guid: 669206c9b62d1154e89d2d213464a6b0, type: 2}
+    <ClassData>k__BackingField: {fileID: 11400000, guid: 3f0af976542ac0440a91e793ae4ed1a4, type: 2}
+    <SpawnPosition>k__BackingField: {x: 8, y: 9}
+    <VisionRange>k__BackingField: 9
+    <VisionAngle>k__BackingField: 360
+    <InitialFacing>k__BackingField: {x: 0, y: -1}

@@ -1,0 +1,1942 @@
+{
+  "packs": [
+    {
+      "unit": "bandit-leader-p1",
+      "actorSize": 128,
+      "pivotBottomPixels": 24,
+      "skills": [
+        {
+          "id": "skill.enemy.forest.bandit_leader_bear",
+          "action": "trap"
+        },
+        {
+          "id": "skill.enemy.forest.bandit_leader_mine",
+          "action": "trap"
+        },
+        {
+          "id": "skill.enemy.forest.bandit_leader_order",
+          "action": "order"
+        }
+      ],
+      "frames": [
+        {
+          "action": "trap",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                37,
+                47
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.1875,
+              "offsetY": 0.03125
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                22,
+                42,
+                46
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.125,
+              "offsetY": -0.0625
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                50,
+                24,
+                40,
+                47
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.75,
+              "offsetY": 0.0625
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                44,
+                24,
+                47,
+                47
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.78125,
+              "offsetY": 0.15625
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                45,
+                24,
+                43,
+                46
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.6875,
+              "offsetY": 0.125
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                47,
+                47
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.8125,
+              "offsetY": 0.15625
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                38,
+                24,
+                40,
+                47
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.78125,
+              "offsetY": 0.0625
+            }
+          ]
+        },
+        {
+          "action": "trap",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-trap-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                45,
+                22,
+                42,
+                46
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-trap-set-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.15625,
+              "offsetY": -0.0625
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                40,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                39,
+                60
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                51,
+                24,
+                40,
+                61
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                44,
+                58
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                43,
+                24,
+                40,
+                57
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                44,
+                58
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                40,
+                61
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "order",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-order-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                43,
+                24,
+                39,
+                60
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-order-shared-fx-64",
+              "actor": false,
+              "canvasSize": 64,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "targetHead": true,
+              "offsetX": 0.0,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                40,
+                57
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                35,
+                56
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                50,
+                24,
+                31,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                24,
+                39,
+                54
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                40,
+                53
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                48,
+                24,
+                39,
+                54
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                47,
+                24,
+                31,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-hurt-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                47,
+                24,
+                35,
+                56
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                35,
+                24,
+                51,
+                55
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                38,
+                24,
+                51,
+                55
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                48,
+                24,
+                35,
+                57
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                24,
+                50,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                50,
+                57
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                50,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                45,
+                24,
+                35,
+                57
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p1/bandit-leader-p1-dodge-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                39,
+                24,
+                51,
+                55
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit": "bandit-leader-p2",
+      "actorSize": 128,
+      "pivotBottomPixels": 24,
+      "skills": [
+        {
+          "id": "skill.enemy.forest.bandit_leader_cut",
+          "action": "cut"
+        },
+        {
+          "id": "skill.enemy.forest.bandit_leader_fire",
+          "action": "fire"
+        },
+        {
+          "id": "skill.enemy.forest.bandit_leader_strike",
+          "action": "strike"
+        }
+      ],
+      "frames": [
+        {
+          "action": "cut",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                47,
+                24,
+                56,
+                61
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-s-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.9375,
+              "offsetY": 1.65625
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                49,
+                24,
+                56,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-se-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.8125,
+              "offsetY": 1.59375
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                48,
+                24,
+                61,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-e-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.0,
+              "offsetY": 1.5
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                24,
+                64,
+                57
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-ne-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.9375,
+              "offsetY": 1.1875
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                62,
+                57
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-n-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.0625,
+              "offsetY": 1.15625
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                23,
+                24,
+                64,
+                57
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-nw-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.9375,
+              "offsetY": 1.1875
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                19,
+                24,
+                61,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-w-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.0,
+              "offsetY": 1.5
+            }
+          ]
+        },
+        {
+          "action": "cut",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-cut-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                23,
+                24,
+                56,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-cut-sw-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.8125,
+              "offsetY": 1.59375
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                47,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-s-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.71875,
+              "offsetY": 0.4375
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                55,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-se-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.6875,
+              "offsetY": 0.375
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                45,
+                24,
+                46,
+                60
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-e-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.6875,
+              "offsetY": 1.25
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-ne-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.40625,
+              "offsetY": 2.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                45,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-n-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.96875,
+              "offsetY": 2.46875
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                58,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-nw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -0.40625,
+              "offsetY": 2.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                45,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                46,
+                60
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-w-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.6875,
+              "offsetY": 1.25
+            }
+          ]
+        },
+        {
+          "action": "fire",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-fire-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                33,
+                24,
+                55,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-fire-sw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.6875,
+              "offsetY": 0.375
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                36,
+                24,
+                44,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-s-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.03125,
+              "offsetY": 0.0625
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                45,
+                24,
+                45,
+                55
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-se-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.0625,
+              "offsetY": 0.40625
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                42,
+                24,
+                76,
+                55
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-e-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 2.0625,
+              "offsetY": 1.3125
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                47,
+                24,
+                53,
+                58
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-ne-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.375,
+              "offsetY": 1.96875
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                48,
+                24,
+                54,
+                59
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-n-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 1.4375,
+              "offsetY": 1.875
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                28,
+                24,
+                53,
+                58
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-nw-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.375,
+              "offsetY": 1.96875
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                10,
+                24,
+                76,
+                55
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-w-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -2.0625,
+              "offsetY": 1.3125
+            }
+          ]
+        },
+        {
+          "action": "strike",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-strike-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                38,
+                24,
+                45,
+                55
+              ]
+            },
+            {
+              "resource": "bandit-leader-fx/bandit-leader-strike-sw-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": -1.0625,
+              "offsetY": 0.40625
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                52,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                51,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                24,
+                41,
+                61
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                59,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                63,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                59,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                41,
+                61
+              ]
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                51,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                66,
+                52
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                36,
+                24,
+                64,
+                53
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                49,
+                24,
+                47,
+                54
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                30,
+                24,
+                66,
+                52
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                29,
+                24,
+                70,
+                51
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                66,
+                52
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                47,
+                54
+              ]
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-dodge-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                28,
+                24,
+                64,
+                53
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-s-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                52,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-se-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                51,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-e-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                41,
+                24,
+                41,
+                61
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-ne-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                59,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-n-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                37,
+                24,
+                63,
+                58
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-nw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                32,
+                24,
+                59,
+                59
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-w-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                46,
+                24,
+                41,
+                61
+              ]
+            }
+          ]
+        },
+        {
+          "action": "conceal",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "bandit-leader-fx/bandit-leader-conceal-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "durationMs": 180,
+              "offsetX": 0.0,
+              "offsetY": 0.375
+            },
+            {
+              "resource": "bandit-leader-p2/bandit-leader-p2-hurt-sw-128",
+              "actor": true,
+              "canvasSize": 128,
+              "opaquePixelRect": [
+                40,
+                24,
+                51,
+                59
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

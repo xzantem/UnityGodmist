@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.alchemy.puffball
   <DisplayName>k__BackingField: Purchawka
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Grzyb, kt\xF3rego zarodniki nadaj\u0105 si\u0119
+    do alchemicznych mieszanin."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 3ad9047a176d83444ac4232c62b6e219, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

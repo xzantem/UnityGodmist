@@ -9,6 +9,8 @@ namespace Godmist.Core.Serialization
         public string DungeonId = string.Empty;
         public int Seed;
         public int DungeonLevel = 1;
+        public Godmist.Core.Enums.DungeonLength Length;
+        public float ItemDropChanceBonus;
         // Zero means the legacy seed-only format. Never fall back for a damaged snapshot.
         public int LayoutVersion;
         public List<DungeonFloorLayoutSaveData> Layout = new();
@@ -16,6 +18,8 @@ namespace Godmist.Core.Serialization
         public int HighestReachedFloorIndex = -1;
         public int GuildProgressCreditedFloorCount;
         public bool IsCompleted;
+        public bool TraderStockRefreshed;
+        public bool CampSuppliesIssued;
 
         public bool HasPlayerPosition;
         public float PlayerPositionX;
@@ -120,6 +124,7 @@ namespace Godmist.Core.Serialization
         public string Id, TemplateId;
         public int Type, X, Y, Rotation;
         public bool Required, Completed;
+        public bool BranchTransit;
     }
 
     [Serializable]
@@ -131,6 +136,8 @@ namespace Godmist.Core.Serialization
         public int Level;
         public string GateId, ConditionId, BranchRoomId;
         public List<string> RequiredSources = new();
+        public int EndX, EndY;
+        public List<DungeonStairPathCellSaveData> CorridorCells = new();
     }
 
     [Serializable]
@@ -140,6 +147,7 @@ namespace Godmist.Core.Serialization
         public int Level;
         public string RoomId;
         public bool Difficult;
+        public bool VisualPath;
     }
 
     [Serializable]
@@ -175,6 +183,8 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class DungeonEncounterLayoutSaveData
     {
+        public bool IsReinforcement;
+        public List<string> ReinforcementEnemyIds;
         public string Id, DefinitionId, RoomId;
         public int X, Y, Width, Height;
         public int PositionX, PositionY, RetreatX, RetreatY;
@@ -219,6 +229,8 @@ namespace Godmist.Core.Serialization
         public bool IsUnlocked;
         public bool HasChestLootState;
         public List<string> ChestItemInstanceIds = new();
+        public bool HasChestGoldState;
+        public int ChestGold;
         public bool IsDoor;
         public bool IsOpen;
         public bool IsTriggered;
@@ -242,6 +254,7 @@ namespace Godmist.Core.Serialization
         // Empty id denotes the legacy aggregate reward.
         public string EnemyId;
         public int Experience, Gold;
+        public int ExperienceLevel;
         public List<string> ItemIds = new();
     }
 }

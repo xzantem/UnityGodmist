@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.NPC.NpcDefinition
   <Id>k__BackingField: npc.arungard.enchanter_01
   <DisplayName>k__BackingField: Zaklinacz
-  <Portrait>k__BackingField: {fileID: 4171610428287715108, guid: c5d2a0d0cef00084f848c7899318fe5c, type: 3}
+  <Portrait>k__BackingField: {fileID: 21300000, guid: 5809fff39c347d34180207ccf3333c1d, type: 3}
+  <DialoguePortrait>k__BackingField: {fileID: 5540247500013255704, guid: 6df5f102dd26aab4d93fab3bf9856f25, type: 3}
   <BaseDialogue>k__BackingField: {fileID: 11400000, guid: ebdb8afc304932946a12e6d4136facbc, type: 2}
   <GuildPayoutBaseAmount>k__BackingField: 250
   <Roles>k__BackingField:

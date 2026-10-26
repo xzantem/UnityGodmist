@@ -373,8 +373,8 @@ namespace Godmist.Views.UI
                 : $"\nModyfikatory: {equipmentItem.StatModifiers.Count}";
 
             detailsText.text =
-                $"{definition.DisplayName}\n" +
-                $"{definition.ItemType} | {selectedItem.CurrentRarity} | poziom {selectedItem.ItemLevel}\n" +
+                $"{Workspace.ItemRarityPresentation.Name(selectedItem)}\n" +
+                $"{definition.ItemType} | {Workspace.UIWorkspaceTooltipView.GetColoredRarityDisplayName(selectedItem.CurrentRarity)} | poziom {selectedItem.ItemLevel}\n" +
                 $"Waga: {definition.Weight:0.##} kg\n\n" +
                 $"{definition.Description}" +
                 requirements +

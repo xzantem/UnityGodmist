@@ -50,9 +50,15 @@ MonoBehaviour:
   blockingCollider: {fileID: 824200270314163862}
   interactionRadius: 1.25
   thickness: 0.16
+  preserveSpriteProportions: 1
+  horizontalEdgeSprite: {fileID: 21300000, guid: b29276e63d350194fade69336c5e0da4, type: 3}
+  verticalEdgeSprite: {fileID: 21300000, guid: 59502ea42cddbe14fa16b6abb761e7ae, type: 3}
+  projectedHeight: 0
+  frontHeightRatio: 0.75
+  sideLengthRatio: 1.75
   interactionKey: 101
-  closedColor: {r: 0.45, g: 0.28, b: 0.12, a: 1}
-  openColor: {r: 0.45, g: 0.28, b: 0.12, a: 0.2}
+  closedColor: {r: 1, g: 1, b: 1, a: 1}
+  openColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!61 &824200270314163862
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -180,7 +186,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 822eb4712e57aab41b59374a4cad903f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b29276e63d350194fade69336c5e0da4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -189,4 +195,4 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1

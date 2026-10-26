@@ -1,0 +1,3484 @@
+[
+  {
+    "unit": "alison",
+    "source": "alison-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\alison-animations-v1\\manifest.json",
+    "sourceManifestSha256": "3fd95c44ba13ef2665a7ae773ce7bc81198f871fa8315fa9c9bf0700049642f9",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/alison",
+    "sourceFilesSha256": [
+      {
+        "name": "alison-e-idle-00-64.png",
+        "sha256": "7565de10ade36ec63f1622d1ff4a9a9a6586ca0680f4d09e10b412681cb8c51c"
+      },
+      {
+        "name": "alison-e-idle-01-64.png",
+        "sha256": "264d8b5f2a26142863c1a411cef8ea132f7600c3d765fe279895f9bb00412296"
+      },
+      {
+        "name": "alison-e-idle-02-64.png",
+        "sha256": "a4f466f1bce44dd819074348eefcf4ad14def694bd6ceceb136fea8ab9263d61"
+      },
+      {
+        "name": "alison-e-idle-03-64.png",
+        "sha256": "3ce4a71b67aca424a4d1901d87252a6f3894006e496e5da00e8f440c7f20f99c"
+      },
+      {
+        "name": "alison-e-walk-00-64.png",
+        "sha256": "738f2aff67a46fb885a9df64d0ce1f87ceda182cd2c76be7be86c8179f57ad71"
+      },
+      {
+        "name": "alison-e-walk-01-64.png",
+        "sha256": "c6275f08f600fc787305042bf6f7ea70be043d5ae2b8bdff432420fa650a100f"
+      },
+      {
+        "name": "alison-e-walk-02-64.png",
+        "sha256": "c14693e85ceb8a1cf1f20b051d31febf6e93de88eb7deeeb67f2256920edf74a"
+      },
+      {
+        "name": "alison-e-walk-03-64.png",
+        "sha256": "0c274c7fd19bc81a43cc79c7c09b430bf0c98b95df02788f60c0b790eb9edcb2"
+      },
+      {
+        "name": "alison-n-idle-00-64.png",
+        "sha256": "3c8335ac0f66baa4e3bddb7d805f68dd8e551da5579c628576c24d47bd0852cb"
+      },
+      {
+        "name": "alison-n-idle-01-64.png",
+        "sha256": "e8a8276469eb20a4a553764487ec935eca230b2aeb002e4f5dd28cdea3c4433b"
+      },
+      {
+        "name": "alison-n-idle-02-64.png",
+        "sha256": "1b4cac850b7b62c3dd096c09b19008a494112d40568347302d216af568ffccc3"
+      },
+      {
+        "name": "alison-n-idle-03-64.png",
+        "sha256": "fccea4b6583f4ea1cc81f27d29b5db70b3372053df63412fc664a1962ae1c1b4"
+      },
+      {
+        "name": "alison-n-walk-00-64.png",
+        "sha256": "dfb2ef443ec2db50a5859f7de4c9d984b50cb5516af45f52253284d07959b159"
+      },
+      {
+        "name": "alison-n-walk-01-64.png",
+        "sha256": "40cea6908aaf6b58bb79b492cf775f2e67121c634d02147a871e77244f427c23"
+      },
+      {
+        "name": "alison-n-walk-02-64.png",
+        "sha256": "43d785b8232c07191a35c3ed7b38b1d5c30e3a26855f0cd20106f17c016fbfd5"
+      },
+      {
+        "name": "alison-n-walk-03-64.png",
+        "sha256": "2826cb7b0508556be33b70b529a2b18a31424c35f3d96ce5e3b1729abe0de4de"
+      },
+      {
+        "name": "alison-ne-idle-00-64.png",
+        "sha256": "c1b75f528c4c0d7e78face9f2ee54bd4c93503c16aafb5c8503a586411133e86"
+      },
+      {
+        "name": "alison-ne-idle-01-64.png",
+        "sha256": "ac7b095b61a16e7be1c552a599c92394860534d3166bcd7cdb1edd28afcd9b37"
+      },
+      {
+        "name": "alison-ne-idle-02-64.png",
+        "sha256": "abcf6b40c5646d2f9465c81942b684bdcef5afed4a88a7b8404855e8b46166ba"
+      },
+      {
+        "name": "alison-ne-idle-03-64.png",
+        "sha256": "703cd0638ef0001fbc454a3cf3e5ee92098fbf4e8d6c6465aa33acbb2a1cd375"
+      },
+      {
+        "name": "alison-ne-walk-00-64.png",
+        "sha256": "1529ebb8f4082b381d6737e04182ced4ccc9f6a01c95645087abf68cc01a09d6"
+      },
+      {
+        "name": "alison-ne-walk-01-64.png",
+        "sha256": "876202a983200dca4aa11850287c1aabbb4113d723117a3d9bebbcbf73217474"
+      },
+      {
+        "name": "alison-ne-walk-02-64.png",
+        "sha256": "58b7fe8322d9dbc4dd4d23d0c7dff9c7721b1598c2ad3ce8376fbbf7565a8b58"
+      },
+      {
+        "name": "alison-ne-walk-03-64.png",
+        "sha256": "f5e259c621a2b5595aad7695a7d8e027ba4e89309e7e02add2b51f1f9adbcb52"
+      },
+      {
+        "name": "alison-nw-idle-00-64.png",
+        "sha256": "7508980fee0ad7d250ed8476b0271e9da4eb5a63512c6515c8479dfbe79ef276"
+      },
+      {
+        "name": "alison-nw-idle-01-64.png",
+        "sha256": "d293599619f5269e5bb611df80133bfe1c535d9175f973dbec2b531abac1b20a"
+      },
+      {
+        "name": "alison-nw-idle-02-64.png",
+        "sha256": "e5723b8eaeb04409e6aed4b4662d4ae7c7a5d03722df91a564143187d601e0db"
+      },
+      {
+        "name": "alison-nw-idle-03-64.png",
+        "sha256": "5494bac6202eb1c9f293fff90cc93d7fd4bdbf11126e80bab4f40ab6d1d382a6"
+      },
+      {
+        "name": "alison-nw-walk-00-64.png",
+        "sha256": "d17bba2833ecfc0f561b1d834a05ec8ae00e68a4f9c517eccb07f5835794619e"
+      },
+      {
+        "name": "alison-nw-walk-01-64.png",
+        "sha256": "6e7e3035ad0055a9ea36d010002952ce6c5c7d99cc8c787e1dc61b7c0c9b607c"
+      },
+      {
+        "name": "alison-nw-walk-02-64.png",
+        "sha256": "743754951c9a5f88ed78db859c9c63ed4a0b2705b65116f51ca12518c8dc6ad1"
+      },
+      {
+        "name": "alison-nw-walk-03-64.png",
+        "sha256": "8b8ed732e01b16ebd995883c0c65d63fa853727a402d156a96cec242372bcc1d"
+      },
+      {
+        "name": "alison-s-idle-00-64.png",
+        "sha256": "492633360dbea4ec3fc6bfc37c201a53aea0a2c58d465ddb8684604b5399eef6"
+      },
+      {
+        "name": "alison-s-idle-01-64.png",
+        "sha256": "75a932d43751372fe23c4cf36d7a6d18b8bd6b8a70d33a9ac6fede87a7589026"
+      },
+      {
+        "name": "alison-s-idle-02-64.png",
+        "sha256": "82b49fcff4fc516cb0afca7d13049d16a16c9df3a4c3150b954f27b78c132891"
+      },
+      {
+        "name": "alison-s-idle-03-64.png",
+        "sha256": "e613a359350090557f4646ca590c35e5eb11733e1bc2e34711f8223c5c0078e5"
+      },
+      {
+        "name": "alison-s-walk-00-64.png",
+        "sha256": "f1527ca79e6a6190f8de3ea2abe82b61a83ff6ebca80b1011533e03200cce82f"
+      },
+      {
+        "name": "alison-s-walk-01-64.png",
+        "sha256": "7419c1a03f6e3cf4d64362b4e62def2e7a5938f5989d80715702feb0c546e243"
+      },
+      {
+        "name": "alison-s-walk-02-64.png",
+        "sha256": "b7cbe53a04505e9420c6f9a87a6e969c7159474281eac20e3cda9979860a759d"
+      },
+      {
+        "name": "alison-s-walk-03-64.png",
+        "sha256": "2d85f8e25639f9191c21f2787da7d1b476ffb881f7a6bf84889895bce2f30ff2"
+      },
+      {
+        "name": "alison-se-idle-00-64.png",
+        "sha256": "92922541a71ed781ecdc80a5c702fb63dc6f78d9b986731a0c7c0411b97b6e19"
+      },
+      {
+        "name": "alison-se-idle-01-64.png",
+        "sha256": "ef7b647a9955fc0411d3bf3f71ddd058cdf0f064335c31d98bc3425b0a0c423f"
+      },
+      {
+        "name": "alison-se-idle-02-64.png",
+        "sha256": "dba4018957ed9450a774b120790f2b1e516bf3f8eb36253f8305d5c2e4327cb3"
+      },
+      {
+        "name": "alison-se-idle-03-64.png",
+        "sha256": "96cbc1407c24be59a4d81b6516248c590d70c30712fc33a756a2d656d4e8c22d"
+      },
+      {
+        "name": "alison-se-walk-00-64.png",
+        "sha256": "7d8a7549750bbd20574f19202b42f5edaf77dafdf7d53d6603456c4ab0f4593d"
+      },
+      {
+        "name": "alison-se-walk-01-64.png",
+        "sha256": "6f1c27db6cbb98ff0a8b4a76eea68cae28c6d36d0ea474ab685147ac3123d369"
+      },
+      {
+        "name": "alison-se-walk-02-64.png",
+        "sha256": "b5b119053ea3d2deb71918efc8d87362bd056c9fcefb668179a0700bd39ed5db"
+      },
+      {
+        "name": "alison-se-walk-03-64.png",
+        "sha256": "3e66a8c0f074fbb4c12c95ec7a2ef86bcbf3d6a82709214f1d03c4898ed9209a"
+      },
+      {
+        "name": "alison-sw-idle-00-64.png",
+        "sha256": "5e7b41bf507c4892d5dda503865f813ec7b08875288040e3d6c90f06218e92d2"
+      },
+      {
+        "name": "alison-sw-idle-01-64.png",
+        "sha256": "06c3060b1ae8e7f376a81de64d91489c7794a88c89d7ea579d21dc97412bf071"
+      },
+      {
+        "name": "alison-sw-idle-02-64.png",
+        "sha256": "11be2773c4e8d4178a22dccf9e51e52d6c9a7076a69ba77c46961d6fd188e9ff"
+      },
+      {
+        "name": "alison-sw-idle-03-64.png",
+        "sha256": "002df4a275ba2cd47b75d63bb8d2d1e362be8ce23d255b335ee5891f71887cb7"
+      },
+      {
+        "name": "alison-sw-walk-00-64.png",
+        "sha256": "5fff70fa1a610024094a216a4306cedafbf6140156e0bf81e0f5ac2d4baacc04"
+      },
+      {
+        "name": "alison-sw-walk-01-64.png",
+        "sha256": "a09bf23b4e0f4352031f60791286ffaad81819165f9a5cb8da6a0c0c32e82d14"
+      },
+      {
+        "name": "alison-sw-walk-02-64.png",
+        "sha256": "e95b602e95525254331d12e819f81a51c68db4788e962d7d36761d4b5848b37d"
+      },
+      {
+        "name": "alison-sw-walk-03-64.png",
+        "sha256": "4f3931994812803a81c1016a479c8cef293e0fc83f2d917b24fd5ada43cb8893"
+      },
+      {
+        "name": "alison-w-idle-00-64.png",
+        "sha256": "9d181231c8294135230a97bb4b43db70c47b106fca69e03d6f208557b33d3a13"
+      },
+      {
+        "name": "alison-w-idle-01-64.png",
+        "sha256": "7f10038a9afad87ab51785a4799a51ee901c0ff2a4f0c6fbce0cbeed11565957"
+      },
+      {
+        "name": "alison-w-idle-02-64.png",
+        "sha256": "d593879c5457091b87c4a89e9f883166b286887b6d07847430a7151f361dcdcd"
+      },
+      {
+        "name": "alison-w-idle-03-64.png",
+        "sha256": "26c30db0a2a3625c4cc66b18831f989231dac9c391f457c56d729fb4d00df843"
+      },
+      {
+        "name": "alison-w-walk-00-64.png",
+        "sha256": "e5a1f49e8377f31b79db52f7f82b9550263813606d498e6f0ca813bfc0e41e63"
+      },
+      {
+        "name": "alison-w-walk-01-64.png",
+        "sha256": "c71bffc74c42c0d4ca7b4e52f3eef27dcb9b1aae123bf428dfe88779f2657972"
+      },
+      {
+        "name": "alison-w-walk-02-64.png",
+        "sha256": "ef2fab3f213723cebeb1d93e9696271d37346c5c94ea32555260054b7edcc851"
+      },
+      {
+        "name": "alison-w-walk-03-64.png",
+        "sha256": "49ce04ed83a0b99930811a7b72e8a5aa66016387bc104aeb0059df90d220a849"
+      }
+    ]
+  },
+  {
+    "unit": "jerzy",
+    "source": "jerzy-animations-v7",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\jerzy-animations-v7\\manifest.json",
+    "sourceManifestSha256": "504fd0a587a507816de742581b587b338459c73281d1ec58ee544160583e5af9",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/jerzy",
+    "sourceFilesSha256": [
+      {
+        "name": "jerzy-e-idle-00-64.png",
+        "sha256": "9c73cca25b68d1980e03c0844c29bfd71207074f57ad37896e6dc3f392912550"
+      },
+      {
+        "name": "jerzy-e-idle-01-64.png",
+        "sha256": "1ac82dc2423342d812827b0c1c7d98f7109f4541c560efea0378726a58fb4fc5"
+      },
+      {
+        "name": "jerzy-e-idle-02-64.png",
+        "sha256": "a2273af301262e426289122eb4a03909849488ca69d2365f73a92ad5cab94b04"
+      },
+      {
+        "name": "jerzy-e-idle-03-64.png",
+        "sha256": "aaed1fbb1c03bc2ef26d0e764482302362727d5e7e93e4c6c008130e0b83096b"
+      },
+      {
+        "name": "jerzy-e-walk-00-64.png",
+        "sha256": "04aa49405eac5c91c2374a7c8da45d4bdfe2140105e02b176c79e7f4a6e48cd0"
+      },
+      {
+        "name": "jerzy-e-walk-01-64.png",
+        "sha256": "3e02b5624e8fb6813b3eaa4f68aad3c3f968dc1c6db612957ef055f03031866e"
+      },
+      {
+        "name": "jerzy-e-walk-02-64.png",
+        "sha256": "5917f25ff9a71329ce64e25683815a7c630019f36d19ff62b66739862200167e"
+      },
+      {
+        "name": "jerzy-e-walk-03-64.png",
+        "sha256": "3d31b988c0018c968b18fab09bb0093ff2257ea0fef2ae69c116de560c8aebb6"
+      },
+      {
+        "name": "jerzy-n-idle-00-64.png",
+        "sha256": "050cc9559ffb39652e69f6fb82c112f79cdd58578cf9d0919f29dbaa0efd02af"
+      },
+      {
+        "name": "jerzy-n-idle-01-64.png",
+        "sha256": "143a8585014936c963142de8e6e5a5e9825231f21fdf48b789d9a6bba8238966"
+      },
+      {
+        "name": "jerzy-n-idle-02-64.png",
+        "sha256": "b9864ddb69d4890c87de6f70938d2f5de574d78cd2a8b16c39747167848d4441"
+      },
+      {
+        "name": "jerzy-n-idle-03-64.png",
+        "sha256": "97ac75fe72d1cf6011d7eecfa08102b338b33d4876ee0856b00f282dbaefedcd"
+      },
+      {
+        "name": "jerzy-n-walk-00-64.png",
+        "sha256": "8f6dcaa069ca42013b43598d76917c587d511d91bc865c6b80f890c7cac7d004"
+      },
+      {
+        "name": "jerzy-n-walk-01-64.png",
+        "sha256": "af5f5e544d06ef0fa971f0d018e84793e3b8aabba5cd2a09d362727bedab0292"
+      },
+      {
+        "name": "jerzy-n-walk-02-64.png",
+        "sha256": "86fa6769a47988c77d8115a9279ccc0322a370ecf0945c9a91d595db3d4932c2"
+      },
+      {
+        "name": "jerzy-n-walk-03-64.png",
+        "sha256": "30551b3adce63c72b7d1df95495c184d4f70cfc9ca3af787b6a703b577649eb9"
+      },
+      {
+        "name": "jerzy-ne-idle-00-64.png",
+        "sha256": "be1cd5c0e423b5c4147d2f79e4c2d755acb85d0cfe8505f7f3efc0b9525100bb"
+      },
+      {
+        "name": "jerzy-ne-idle-01-64.png",
+        "sha256": "40cb55364dd1ce0399771115ca2a128324c3be2eff201248eab3776f477edfb7"
+      },
+      {
+        "name": "jerzy-ne-idle-02-64.png",
+        "sha256": "d504560cae5822e89562988e2d7516b1203edc4b1f753ee218f4cc3ad46e32e8"
+      },
+      {
+        "name": "jerzy-ne-idle-03-64.png",
+        "sha256": "1ea0126cf81d2d0826ce275b5fc32aa848754428263eedf61ee6963692f62d8d"
+      },
+      {
+        "name": "jerzy-ne-walk-00-64.png",
+        "sha256": "8117987e1bd9d7a13788df7b9c17f82dcbcf964c16f04ec56e6c5bfc0ea61b92"
+      },
+      {
+        "name": "jerzy-ne-walk-01-64.png",
+        "sha256": "cb0f0683ef54dccaecb50594aa0f6a5c1984ea7dd83a69169776ae2a50290de9"
+      },
+      {
+        "name": "jerzy-ne-walk-02-64.png",
+        "sha256": "900c580029a52a22fdbce0306c2bc3c3ee517dd0fffe4c23677f4aea3a37180b"
+      },
+      {
+        "name": "jerzy-ne-walk-03-64.png",
+        "sha256": "4e9f1e425e8d24dc49aedc7e800e7d31c16bb76f144af271ee32ebfb6d3a847f"
+      },
+      {
+        "name": "jerzy-nw-idle-00-64.png",
+        "sha256": "e586b5ef138f80a12c020b771668327850b6e9ea2eb7ff72e49c17be727ddc9f"
+      },
+      {
+        "name": "jerzy-nw-idle-01-64.png",
+        "sha256": "962fcec47dc4e2fbdad618061bc908f2ff26c88f509b06f41a4a335a6642ead0"
+      },
+      {
+        "name": "jerzy-nw-idle-02-64.png",
+        "sha256": "fcded006c7fdb764ae6a8be2ecd9fd94da1e96cd46205f41f143c36420af5745"
+      },
+      {
+        "name": "jerzy-nw-idle-03-64.png",
+        "sha256": "7add00e36de9f8aa2d48a9367b930934f8d57572a70b3ba5f8823e54640dea62"
+      },
+      {
+        "name": "jerzy-nw-walk-00-64.png",
+        "sha256": "356aaf2de65e0138311ef7bcb6e14d4150b13905f9917526e35c64026718dc2f"
+      },
+      {
+        "name": "jerzy-nw-walk-01-64.png",
+        "sha256": "cf448895b3b93cc396eac77c9f1cdb31a4faa3510cdf25c57b0e696792454978"
+      },
+      {
+        "name": "jerzy-nw-walk-02-64.png",
+        "sha256": "d43482671a59556fa35e9dfb73fe5ee3cb886445784c7e6488cd5105fe450166"
+      },
+      {
+        "name": "jerzy-nw-walk-03-64.png",
+        "sha256": "8a741bca54ea3602c645cc8d5645f1a2e2c225bc224bcfc895e6e75ce5357b1f"
+      },
+      {
+        "name": "jerzy-s-idle-00-64.png",
+        "sha256": "8020ee11fed0fa4fc2b3b0500687fdff4ab4d1fae51ecbb5fd355b87c6dbea13"
+      },
+      {
+        "name": "jerzy-s-idle-01-64.png",
+        "sha256": "a5df2ccc2515a7acaa37bf05a640fb08f05f92318b449e34e7ae35b1fe157b09"
+      },
+      {
+        "name": "jerzy-s-idle-02-64.png",
+        "sha256": "0a1f39e371e59c6d94c12e05af8454100fb6b4086ec0e908e0a0d5ec2e7c4178"
+      },
+      {
+        "name": "jerzy-s-idle-03-64.png",
+        "sha256": "9d5f52743cd211fb1f55313ebeee9a9f8d609cf0f4103912747a52d0d466a6b7"
+      },
+      {
+        "name": "jerzy-s-walk-00-64.png",
+        "sha256": "8658a111c3619e8227c0a2e4d35572069961548c398103668810e1cbba5dd8b2"
+      },
+      {
+        "name": "jerzy-s-walk-01-64.png",
+        "sha256": "2edcbdc4ad4967c1b7fc9db06691bcd2b61228da5bcfec238ec9308f4334b0ad"
+      },
+      {
+        "name": "jerzy-s-walk-02-64.png",
+        "sha256": "21c281fa4fc5912bd44ff7a3e3575d1567d3bb6a6a56d760e450438aeb286c21"
+      },
+      {
+        "name": "jerzy-s-walk-03-64.png",
+        "sha256": "f255fea75be092523e4f3405ab7d5ef61780009af6cac6695dced7bcecdc7a4e"
+      },
+      {
+        "name": "jerzy-se-idle-00-64.png",
+        "sha256": "cfe26471c8a6d0765d3e6007335fe6356b8d12c416489be6e9adf3f2a3d29e9d"
+      },
+      {
+        "name": "jerzy-se-idle-01-64.png",
+        "sha256": "f7b29d93472050a047cd00715bc8b755a808f8d28a0431de5611ad62141fa4b3"
+      },
+      {
+        "name": "jerzy-se-idle-02-64.png",
+        "sha256": "cd1dc0e29913864a24f3b3a4782adab041afd0ffc6f39b4ded19c04a76b7a0a3"
+      },
+      {
+        "name": "jerzy-se-idle-03-64.png",
+        "sha256": "d34565d4813af684e43e97f1350c56d2817e17e2cc08f7f56726f92dc2f76b50"
+      },
+      {
+        "name": "jerzy-se-walk-00-64.png",
+        "sha256": "ffa37fd73cfa441d1c897d5c11e27b2735a1b8e4e5abec68dcbd1b335c387490"
+      },
+      {
+        "name": "jerzy-se-walk-01-64.png",
+        "sha256": "b7e591ace5fa7166992767d786bc1a5d3a5b3c09e7b9ffa0cac084ffe9201ed1"
+      },
+      {
+        "name": "jerzy-se-walk-02-64.png",
+        "sha256": "6140c9ce87fbdff57f36339b23feb81403e7e141aa3a1040966c346634f00555"
+      },
+      {
+        "name": "jerzy-se-walk-03-64.png",
+        "sha256": "2409f1aa2d9b88792cb0f0b0efd61436e7c96ce8863552d767116d260ae5fd48"
+      },
+      {
+        "name": "jerzy-sw-idle-00-64.png",
+        "sha256": "abfe38664aa83c9305b18b339e979ca97d5b0960fed8dce2b72643588fef3494"
+      },
+      {
+        "name": "jerzy-sw-idle-01-64.png",
+        "sha256": "9e93b26de99cbc6df057de26b50c7e610e5b817b5e5fb30dbd741b816d9b98c2"
+      },
+      {
+        "name": "jerzy-sw-idle-02-64.png",
+        "sha256": "247b43058a08a459b41c3022b2a4711382631ea067702a06f337f8d9b278826a"
+      },
+      {
+        "name": "jerzy-sw-idle-03-64.png",
+        "sha256": "4fe8cb51307bf2dde83ac5469ea47e228d96232e70a5dc0dc10102c91c98a2dc"
+      },
+      {
+        "name": "jerzy-sw-walk-00-64.png",
+        "sha256": "a154398f4556c74403ddae9ce2d1f9c8a0652cbd5af8e036027660fcec8c8553"
+      },
+      {
+        "name": "jerzy-sw-walk-01-64.png",
+        "sha256": "c99de538a3dc0314ed5e9554989b7143d31bbe0dbd122f17da2d6902e45677cd"
+      },
+      {
+        "name": "jerzy-sw-walk-02-64.png",
+        "sha256": "d46ce6c7026348944874dea331900311a74ed19b655be169d13dd7749817e7ef"
+      },
+      {
+        "name": "jerzy-sw-walk-03-64.png",
+        "sha256": "8a6dd894e1b6a4bf5e14fba2ba854ab417a3731b840b587fca9971f0ccbe846a"
+      },
+      {
+        "name": "jerzy-w-idle-00-64.png",
+        "sha256": "9f2afcafd37b9af564ab6c75bc9cf72c3be69bac1863cfa7bac999c1d4794e02"
+      },
+      {
+        "name": "jerzy-w-idle-01-64.png",
+        "sha256": "032aeb7d82cf774aacc2c8bbc9a4f0db81a514d503268ad536ece653ca7a2158"
+      },
+      {
+        "name": "jerzy-w-idle-02-64.png",
+        "sha256": "e7a7b6be3ab90c084a371738e974cd319f6c215156ec76d6626e72568027e122"
+      },
+      {
+        "name": "jerzy-w-idle-03-64.png",
+        "sha256": "131d747e42bf9eb3a7bd5691e33ff4dd9814eb8b318a4f3f5d36a495eeaaa4b0"
+      },
+      {
+        "name": "jerzy-w-walk-00-64.png",
+        "sha256": "6e84fb1ef8d00b8432d5dcdff7994f5e05b43cd4f59b5ab9b436f2434bc424f4"
+      },
+      {
+        "name": "jerzy-w-walk-01-64.png",
+        "sha256": "ab0ac1f3b968e5833ebcf88db8041a1d0d1e78dfd9d212f0f685646a7d1a6507"
+      },
+      {
+        "name": "jerzy-w-walk-02-64.png",
+        "sha256": "cf313f7b1b4abd64d1a0a38e2b78d3de8ff9dbe50ffbdd58022f4de371db62f9"
+      },
+      {
+        "name": "jerzy-w-walk-03-64.png",
+        "sha256": "ecb593540e67c07526fd97f86ec532522daa12bf32db26933a47f5113c1722a8"
+      }
+    ]
+  },
+  {
+    "unit": "reimond",
+    "source": "reimond-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\reimond-animations-v1\\manifest.json",
+    "sourceManifestSha256": "1365ef2adb9659a41bf797426de7ea05e49b483bd59b6869ca7ac90c0891ea68",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/reimond",
+    "sourceFilesSha256": [
+      {
+        "name": "reimond-e-idle-00-64.png",
+        "sha256": "473db049ba7e96b26c7adaf17bb4e2edf10a3bc3266ce65fe56c4d8e388620ea"
+      },
+      {
+        "name": "reimond-e-idle-01-64.png",
+        "sha256": "74856a50723011f7ab76ccac281f344f6105a81938bda1e093182db451d068b6"
+      },
+      {
+        "name": "reimond-e-idle-02-64.png",
+        "sha256": "f1ba5088ed8dea01085b1b5c25199869cd6d41b45b7771071427c1fdff2430e6"
+      },
+      {
+        "name": "reimond-e-idle-03-64.png",
+        "sha256": "858ed04aa8eb92176a5918ada45b8ead7bc990d0918589031c4dcc35c1f7964b"
+      },
+      {
+        "name": "reimond-e-walk-00-64.png",
+        "sha256": "8cb98c013a8e398af1d2c8443ff596ccb4557c9cbdd040c4a851f7c01632408e"
+      },
+      {
+        "name": "reimond-e-walk-01-64.png",
+        "sha256": "79ccb9266064681447ccb51c85f9ccefdaeb0ebeeab12f041a6ff9435e9433fe"
+      },
+      {
+        "name": "reimond-e-walk-02-64.png",
+        "sha256": "2320ca49cbc4f22c8bd1ac1a83be8cc5f06aa848be18fde032273baccd529114"
+      },
+      {
+        "name": "reimond-e-walk-03-64.png",
+        "sha256": "5ccbd7b956e54f67f0915a3956021778c8d0fb518aa9ec9c358fe518e00d0a7f"
+      },
+      {
+        "name": "reimond-n-idle-00-64.png",
+        "sha256": "6ba7b5e32bee494e36abde93760dd3ef0f971169c660c63bf9fa206fa5df27a9"
+      },
+      {
+        "name": "reimond-n-idle-01-64.png",
+        "sha256": "028468b52294cd7339c9859724443151f649e1669e1aa31366a20eccc8adb0b3"
+      },
+      {
+        "name": "reimond-n-idle-02-64.png",
+        "sha256": "65af7b6fd8b441eef3faf5be52c7ecab208d01632fcad015e58abc6cfb065f1d"
+      },
+      {
+        "name": "reimond-n-idle-03-64.png",
+        "sha256": "40ad2f3db8646f813c9e4a77c2f0a636e5086fbd262289223241dd3cf4ea7855"
+      },
+      {
+        "name": "reimond-n-walk-00-64.png",
+        "sha256": "b1780f08be78758fce1bac196f6d3b88cd29739dac4355f592dac1e1c3181ebc"
+      },
+      {
+        "name": "reimond-n-walk-01-64.png",
+        "sha256": "5731d43be86f881e3ca95375ba6d922e659be2cbbc16c583da080f6b7ef926d2"
+      },
+      {
+        "name": "reimond-n-walk-02-64.png",
+        "sha256": "5d6244abd17e0aa0b7c4f2e241a749bf1287ac8f7723007cd81f79f9387f6b57"
+      },
+      {
+        "name": "reimond-n-walk-03-64.png",
+        "sha256": "3f1ba34037303df75fda05e2e1e553937f867b39ab2669660f8b6bc5d4d4ed5e"
+      },
+      {
+        "name": "reimond-ne-idle-00-64.png",
+        "sha256": "fd51e0ea545043e8042186c98270a28ef494bebb7ceee16f8e7ba73add6dc081"
+      },
+      {
+        "name": "reimond-ne-idle-01-64.png",
+        "sha256": "98e9318de24b5884808c0292df29a348722d1ba9d72d3db55fd0ef0f85856aa0"
+      },
+      {
+        "name": "reimond-ne-idle-02-64.png",
+        "sha256": "c02d0ad1090cb7def80846c6de88ce3e52765bf4a6d84f09cedd7ab313b368f5"
+      },
+      {
+        "name": "reimond-ne-idle-03-64.png",
+        "sha256": "4f6d6201bb93895ae2f6278787605cfad195a34a9b9eaa72dfeea529d4f4f409"
+      },
+      {
+        "name": "reimond-ne-walk-00-64.png",
+        "sha256": "23965a778c550ddc7825c1f1a39733283f49baeee120f0c3c3bda0516242c0da"
+      },
+      {
+        "name": "reimond-ne-walk-01-64.png",
+        "sha256": "b296614a44870ce3b950d4fae9a906d5f5d2dea7ae13fbf972b557068f062a36"
+      },
+      {
+        "name": "reimond-ne-walk-02-64.png",
+        "sha256": "f3a002c6a6ad1c3df99cf8742f11bd7f488136e408617f92dd3e33a2ea544191"
+      },
+      {
+        "name": "reimond-ne-walk-03-64.png",
+        "sha256": "12a45a0a6611355c3b5906ca734f8ca066ef99a573b9ec82aeb8483b31aec723"
+      },
+      {
+        "name": "reimond-nw-idle-00-64.png",
+        "sha256": "2b284d04e3a7a56c91d2d05fd818ba03fead49eda69f8d83553013dcc9878451"
+      },
+      {
+        "name": "reimond-nw-idle-01-64.png",
+        "sha256": "ab063febb7ee098a9e9de574995b34e105e0237e7b66ed03803a69b469582f0b"
+      },
+      {
+        "name": "reimond-nw-idle-02-64.png",
+        "sha256": "760fb6df78d0e30c69690f36055402632038bf25722071d51dfb48418e5b2a34"
+      },
+      {
+        "name": "reimond-nw-idle-03-64.png",
+        "sha256": "0b3878e9aa2bec3d7205742b5ac8997e3407aa3464ed5629579327d512db5ed4"
+      },
+      {
+        "name": "reimond-nw-walk-00-64.png",
+        "sha256": "c54282df093f39ab5fd0fa0f02d0f268797317562ccde71e8d0a3d4065f3a817"
+      },
+      {
+        "name": "reimond-nw-walk-01-64.png",
+        "sha256": "d03b2ecc0a89b586598b932ac0be55edbd1173318273c04b98356069df138cbb"
+      },
+      {
+        "name": "reimond-nw-walk-02-64.png",
+        "sha256": "c49354c7963d6e678ee1104ffdbd13debe02c96dd7509a19c47eb1bbb53627b0"
+      },
+      {
+        "name": "reimond-nw-walk-03-64.png",
+        "sha256": "28c0332664ad9317f6b9124bfd7e4ed783a1e93aa0842bb13a68627bce919710"
+      },
+      {
+        "name": "reimond-s-idle-00-64.png",
+        "sha256": "cb51d8a4390ee5f108996acb5cccb8119a12e6dfb15643d860c2e057088244be"
+      },
+      {
+        "name": "reimond-s-idle-01-64.png",
+        "sha256": "ede7e662883baf6b53fe7512275b280ac7bf182123b058deced5e428271713df"
+      },
+      {
+        "name": "reimond-s-idle-02-64.png",
+        "sha256": "78b481b1f66091a7cb742714a5f300dc1b3c30bfb922d8610ff2839b1ed62c3b"
+      },
+      {
+        "name": "reimond-s-idle-03-64.png",
+        "sha256": "ff980edf2415e9eb4755cf241935bbe15dfe97bd088d6342f0e233d35aaabafd"
+      },
+      {
+        "name": "reimond-s-walk-00-64.png",
+        "sha256": "81ab7d8083ce6718a512bcfab5c6674280969583576a163dd7a764fdbe2fadf3"
+      },
+      {
+        "name": "reimond-s-walk-01-64.png",
+        "sha256": "3e17b1ce1b303a92d8d781badaceaeffacc1b8db5982f6e3badd430a44948439"
+      },
+      {
+        "name": "reimond-s-walk-02-64.png",
+        "sha256": "a0c33c9d217e55a4754f840e0d4519eb80302fb9ee59cf78ea7bbae487dd7277"
+      },
+      {
+        "name": "reimond-s-walk-03-64.png",
+        "sha256": "e9432b3dbb0492813ec31116a5a48bf02737a050c5c8015e9912b7e6775d1a94"
+      },
+      {
+        "name": "reimond-se-idle-00-64.png",
+        "sha256": "f55367ca8fb3710727f234894bb0a9c98ba8977e8287ed4628e8bec186ea84ed"
+      },
+      {
+        "name": "reimond-se-idle-01-64.png",
+        "sha256": "81b542fe7791f47cf5bf40611c509b129122679a688f177326fbac7b5aa6b9e5"
+      },
+      {
+        "name": "reimond-se-idle-02-64.png",
+        "sha256": "70dbb5ce52163b5fb251f6d7b0c8cc699d3d1d91bda7bac6321cd71b21952834"
+      },
+      {
+        "name": "reimond-se-idle-03-64.png",
+        "sha256": "7e8493561e46f87b455aa6127c680a3bf3daf8bed364e477768cac1bba6ac650"
+      },
+      {
+        "name": "reimond-se-walk-00-64.png",
+        "sha256": "51341e0eae32536e94e49df39b011863cf1082f4544a41724534ebe9ebf44049"
+      },
+      {
+        "name": "reimond-se-walk-01-64.png",
+        "sha256": "8b1c55bfaf20234ca7c1bb3e7c7f9e7b7076722597c5598a227d70a666b8f998"
+      },
+      {
+        "name": "reimond-se-walk-02-64.png",
+        "sha256": "6bca441a4c61822e9b26fa657e967d5045238d40206ce045a829d4ca9fea0d53"
+      },
+      {
+        "name": "reimond-se-walk-03-64.png",
+        "sha256": "49d667c96d1dce3a98ec1852821a85db8332607c75410b56bfc78137af0cdae6"
+      },
+      {
+        "name": "reimond-sw-idle-00-64.png",
+        "sha256": "b4079e620256eba6f38353a4851d7775f24168feaa44ce1a60949e627a7d69d8"
+      },
+      {
+        "name": "reimond-sw-idle-01-64.png",
+        "sha256": "2b49f43fed1ebf759e0117025a8d502a5d84203f8a88b109df0e4f825fbcfdda"
+      },
+      {
+        "name": "reimond-sw-idle-02-64.png",
+        "sha256": "e3c72381ebc104d12da8c51d7b90f4927e19f6369fb4d45d1aeda4a6726f890e"
+      },
+      {
+        "name": "reimond-sw-idle-03-64.png",
+        "sha256": "e150d9da78f2197d7a231ad9bb1ef1dd599cbfe812d8b73a9f3f49d60a949fff"
+      },
+      {
+        "name": "reimond-sw-walk-00-64.png",
+        "sha256": "19f233ade783aa741b83d8f1ffcef6e9f2cc5a29eed37f047e5f58d2c9fad53e"
+      },
+      {
+        "name": "reimond-sw-walk-01-64.png",
+        "sha256": "49752b3db7f17ee56b25b7e9aef6452a5d164540d3449efbaa6c7d0b9a7a4bd8"
+      },
+      {
+        "name": "reimond-sw-walk-02-64.png",
+        "sha256": "492bd7bdbc21f00b8395d7eab0c36fdf82c6f69eeadd1020698c924d3b2c78c1"
+      },
+      {
+        "name": "reimond-sw-walk-03-64.png",
+        "sha256": "405ecc8f346a7788c429897487ced41309a30318aab4dd4bdfe276b28535cd73"
+      },
+      {
+        "name": "reimond-w-idle-00-64.png",
+        "sha256": "df2807064d8bc44ccf2e2428abaac9e736c4dbdb262b4ebf86a7f3724ac615be"
+      },
+      {
+        "name": "reimond-w-idle-01-64.png",
+        "sha256": "3cdc251fec66b98ef3ea9e654fef825060c57b57199fe955ff051d75998f6eaa"
+      },
+      {
+        "name": "reimond-w-idle-02-64.png",
+        "sha256": "e1b1931f0e456edfdb41ceb2fec99d8f43a3dd6bd913e39ba847b0b3f7c8a404"
+      },
+      {
+        "name": "reimond-w-idle-03-64.png",
+        "sha256": "da0c7246d0ae9bf931427acaf914edc4eb08000fa241e3c5b3d8cfaeff19a2b5"
+      },
+      {
+        "name": "reimond-w-walk-00-64.png",
+        "sha256": "b6bebea824b911e9b380a38d6d06994a9973e533e33cafd631440223a648a9bf"
+      },
+      {
+        "name": "reimond-w-walk-01-64.png",
+        "sha256": "86fbee563a4b30be5403da11396f094db916df4b196f3d2e6c3b75d0adbf78f0"
+      },
+      {
+        "name": "reimond-w-walk-02-64.png",
+        "sha256": "89d3c8e1ab1b40f9d4e35a95ece20b5105a51b9da884271198ecc3a51630a2a2"
+      },
+      {
+        "name": "reimond-w-walk-03-64.png",
+        "sha256": "05e1eb132a99344b454a9807fc0ac012228bd3b794561e57e992be6107874613"
+      }
+    ]
+  },
+  {
+    "unit": "wladimir",
+    "source": "wladimir-animations-v2",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\wladimir-animations-v2\\manifest.json",
+    "sourceManifestSha256": "1495e5c84be937db2743781036d6bad1a4d33825f57db93d1d5be4d380ee2589",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/wladimir",
+    "sourceFilesSha256": [
+      {
+        "name": "wladimir-e-idle-00-64.png",
+        "sha256": "ce7f977ab0c643b428e65e0dbff119542c0332a988cf60f31529e14d70daafa1"
+      },
+      {
+        "name": "wladimir-e-idle-01-64.png",
+        "sha256": "627051c75f3f6319675c598f6a6254995b25246de070904c19f0c9cfc25dcab1"
+      },
+      {
+        "name": "wladimir-e-idle-02-64.png",
+        "sha256": "35f1df93e73fd356b46ba71c45b72d48f8c22de0d47dfcce2ad99b0a51b97f8e"
+      },
+      {
+        "name": "wladimir-e-idle-03-64.png",
+        "sha256": "6db43612a82c3ed82d33c19bbbe1cfbd3523d13cc1042361edfff21fc5b762de"
+      },
+      {
+        "name": "wladimir-e-walk-00-64.png",
+        "sha256": "261ac28d731b4187063dac17d7191d9cbcfab2dfd3c5cd0353a570bec9b0290a"
+      },
+      {
+        "name": "wladimir-e-walk-01-64.png",
+        "sha256": "7b98dfce58789118b30e97bce379b98f88e1eb2b91c226b134c69af49c5c50a3"
+      },
+      {
+        "name": "wladimir-e-walk-02-64.png",
+        "sha256": "01b9dd4cbb62a2a71e45c8c86dd3e4246839e693cd78bd13167c7f8e6ccd5242"
+      },
+      {
+        "name": "wladimir-e-walk-03-64.png",
+        "sha256": "1fed7e45c966985178583d653a051e6eb109d94749016053b3772b1d17af41b0"
+      },
+      {
+        "name": "wladimir-n-idle-00-64.png",
+        "sha256": "31b638bc9acd9d2486e084a268217e936d319f0640377696a6ab26eb28745399"
+      },
+      {
+        "name": "wladimir-n-idle-01-64.png",
+        "sha256": "44d2db1c6ca794fa927365e5f4665e32b1c6b3f449d9908ceb61aee213b4089d"
+      },
+      {
+        "name": "wladimir-n-idle-02-64.png",
+        "sha256": "3fb638b3f5c94e994108ea139bac3560c3278de56f9b699f193a417a55c8156e"
+      },
+      {
+        "name": "wladimir-n-idle-03-64.png",
+        "sha256": "e6e48bc36b30c469da3852b2a0c41437468eb84395a12bee7ab4037a8c63acd8"
+      },
+      {
+        "name": "wladimir-n-walk-00-64.png",
+        "sha256": "46571234fd8288f074fe3067310216369a2a9f7e7624d7ccb2f666cfc3ad4578"
+      },
+      {
+        "name": "wladimir-n-walk-01-64.png",
+        "sha256": "e24dfb73405f0072944b7d04fe155568c63332d47d508e0eb5f9136f5856f3e3"
+      },
+      {
+        "name": "wladimir-n-walk-02-64.png",
+        "sha256": "c0bb7a0dd7efa36f33bf4b8a5be51a13d60966daf4acef3cc94e7f48973cd2b8"
+      },
+      {
+        "name": "wladimir-n-walk-03-64.png",
+        "sha256": "8ebc784966df07f312f30febf8e6027538d878424b41a285a6889c72e9d22577"
+      },
+      {
+        "name": "wladimir-ne-idle-00-64.png",
+        "sha256": "b39fe86aba570734a43d42b8f3b7c03d1d9c609bb0d44ee2ad15f5476f720192"
+      },
+      {
+        "name": "wladimir-ne-idle-01-64.png",
+        "sha256": "968b3ee651ba2d53f7e87d448684428b9cf5a39e78de8b8565c97bfaecebde68"
+      },
+      {
+        "name": "wladimir-ne-idle-02-64.png",
+        "sha256": "30f2614cfd49b8ebd5b41b1935b356f598666cc87c8ddaceb4d702874fe8828e"
+      },
+      {
+        "name": "wladimir-ne-idle-03-64.png",
+        "sha256": "b67bb561052bc8dbc5cab16ae53847e4040634499833401694e4e91f66651bf6"
+      },
+      {
+        "name": "wladimir-ne-walk-00-64.png",
+        "sha256": "debe7867bc25ded9e07160899af7124b3e85e123b6431ed4a9215d6c7fdd136e"
+      },
+      {
+        "name": "wladimir-ne-walk-01-64.png",
+        "sha256": "a8742ea0b348d5725371ebde6919023e379d936aba759fa795ea2fd0670cf03f"
+      },
+      {
+        "name": "wladimir-ne-walk-02-64.png",
+        "sha256": "ff0e1b78ec52f87d7c53c3bc0a9320fd5176ec7849792966e9f47b1c11e00184"
+      },
+      {
+        "name": "wladimir-ne-walk-03-64.png",
+        "sha256": "5d857f3793835980507050307c5bf7ac770af5cb34d2d1fddec4af7146818458"
+      },
+      {
+        "name": "wladimir-nw-idle-00-64.png",
+        "sha256": "4c25382e120ae11f2cdeb479feac9295ab88d89f85699d325052c7fabee7ba57"
+      },
+      {
+        "name": "wladimir-nw-idle-01-64.png",
+        "sha256": "0302d56191a9262963cdf09ec91d04b379fd42de106fbb64a6fbd0fd22e66d03"
+      },
+      {
+        "name": "wladimir-nw-idle-02-64.png",
+        "sha256": "e02d83111bb0d9d2f235e7fd360ced8a85f247ac1a6d7656474855657db2f199"
+      },
+      {
+        "name": "wladimir-nw-idle-03-64.png",
+        "sha256": "df6a732c81d84dc184d024aaa62b958e837ce7c1d05e5781e55f4078082efb12"
+      },
+      {
+        "name": "wladimir-nw-walk-00-64.png",
+        "sha256": "437a34155f5a0f3834243daef8563fc6725b913d779663a6b40f4511ee290aa6"
+      },
+      {
+        "name": "wladimir-nw-walk-01-64.png",
+        "sha256": "6aee080ee91a1b5064b72610387bc4e9e6fde3f0c457e89b25e74392d79e94f1"
+      },
+      {
+        "name": "wladimir-nw-walk-02-64.png",
+        "sha256": "fb7ca4d6f66ebd68c290beb8aa2807a9250633be91aea16144924980f7faba49"
+      },
+      {
+        "name": "wladimir-nw-walk-03-64.png",
+        "sha256": "372e2658b602faf1724d581ba8a98a55131764bcaa41857a3c2cd52241b0fc1f"
+      },
+      {
+        "name": "wladimir-s-idle-00-64.png",
+        "sha256": "de7501370a68ba2975875d824f6000db57f7c07d430268819fa9f5503d675259"
+      },
+      {
+        "name": "wladimir-s-idle-01-64.png",
+        "sha256": "a8ef6cc8cfe21f72179b4b5bed53403b5a0b4ce5f8264574234abeebfdeaac05"
+      },
+      {
+        "name": "wladimir-s-idle-02-64.png",
+        "sha256": "2e1fb2f8f9c166cbc63c1f29231cee1c73f8f7dc19eb3b15b045855b49bf7130"
+      },
+      {
+        "name": "wladimir-s-idle-03-64.png",
+        "sha256": "bedc55ed93c0b29e027239c0900c1008f8750b2d1a615ab30d1a6c5ed0f6ee52"
+      },
+      {
+        "name": "wladimir-s-walk-00-64.png",
+        "sha256": "f066f6b83bd289413025d3ea90019c86c457e1bdf62212da584609708e6c6fa7"
+      },
+      {
+        "name": "wladimir-s-walk-01-64.png",
+        "sha256": "00e1408772867bcd3e32548f30ff84068f025656f3e1f071538aa01edc44bad4"
+      },
+      {
+        "name": "wladimir-s-walk-02-64.png",
+        "sha256": "dee63cb0fb3349c8411cd875a72854261681ec9636b7ebabac11d03bde947445"
+      },
+      {
+        "name": "wladimir-s-walk-03-64.png",
+        "sha256": "daeda9a8b2658186063c6a5b23bc81a566b666895006e059099363ceff526971"
+      },
+      {
+        "name": "wladimir-se-idle-00-64.png",
+        "sha256": "77b84a03694f5e99e56b301efb867d361533be761294f8ddd343b3953bf4fa4b"
+      },
+      {
+        "name": "wladimir-se-idle-01-64.png",
+        "sha256": "b10144b68852abfa9719c79003404612874f37e3416389bd7968a2107b4e57df"
+      },
+      {
+        "name": "wladimir-se-idle-02-64.png",
+        "sha256": "88e7b9d500a1071e1970c854c0df4ba4d1b8f0b55142490d809e5041aebdd273"
+      },
+      {
+        "name": "wladimir-se-idle-03-64.png",
+        "sha256": "1fc854cd5da6bb90d0037ec4fc03a38ebc1195b145c8e211814b6132f33133b7"
+      },
+      {
+        "name": "wladimir-se-walk-00-64.png",
+        "sha256": "953ce9827ecb28d854dfb43a3f3b1931b06ccb97f11635df04bd13bd0fd7f813"
+      },
+      {
+        "name": "wladimir-se-walk-01-64.png",
+        "sha256": "fe1097759f8c5081b93c911ca5480e694b7c2428d50528d6d517bbaac6c1a774"
+      },
+      {
+        "name": "wladimir-se-walk-02-64.png",
+        "sha256": "47dee9d0e0880bb1360b25032c7598155d0f467a5766792e28a3796358c8b4e5"
+      },
+      {
+        "name": "wladimir-se-walk-03-64.png",
+        "sha256": "6d1d65534439aea502207e2226e69557910ba31de1f3fdd63087344507566b12"
+      },
+      {
+        "name": "wladimir-sw-idle-00-64.png",
+        "sha256": "1c1e2e0d63eadc773f9f03b793785a3dc672122db876337c5961a6174b362301"
+      },
+      {
+        "name": "wladimir-sw-idle-01-64.png",
+        "sha256": "f9f93ff57a0b8b762deba5e6ac47d494988c2376a52ede04d5fb4a439b067c2f"
+      },
+      {
+        "name": "wladimir-sw-idle-02-64.png",
+        "sha256": "73d9cd09aaac2fcc9095fbb673a4073cbd6c75f43c6737b5e7a1213cd1d3b394"
+      },
+      {
+        "name": "wladimir-sw-idle-03-64.png",
+        "sha256": "9ec7d05cdd0119682b5dd6607a6c5ca94d1caa632973c5f6dc528cff815322c9"
+      },
+      {
+        "name": "wladimir-sw-walk-00-64.png",
+        "sha256": "51e1ce8acb54a1f1f426b806848b2316b52d8d3909409f31ca7773fc96d6ab0c"
+      },
+      {
+        "name": "wladimir-sw-walk-01-64.png",
+        "sha256": "2d0113060ac249bbce4e8d0cf6cc9ebed1c2f7b935b61184b62694e702bc17b5"
+      },
+      {
+        "name": "wladimir-sw-walk-02-64.png",
+        "sha256": "569a345bfb7798abde33ebdb0c4dbc6c9301395ef5554f2e558945eafbf6b216"
+      },
+      {
+        "name": "wladimir-sw-walk-03-64.png",
+        "sha256": "c4edc28ac2fd7914a8f905dbe4fdc728edc6747dbeab095c8cc9d510938b3a5a"
+      },
+      {
+        "name": "wladimir-w-idle-00-64.png",
+        "sha256": "525c2282b75d386f298c0e3c4ff6365c9f68d068dbcaf82f970d3ee01ed39683"
+      },
+      {
+        "name": "wladimir-w-idle-01-64.png",
+        "sha256": "79f177e51bc767fb9fb538d013c86984a4ced6a8f109bc7227663666ff8f54d0"
+      },
+      {
+        "name": "wladimir-w-idle-02-64.png",
+        "sha256": "04d7cfe3dfa79d80d041fb35e74d3524dc93833c616265a8a8f5745addd47fec"
+      },
+      {
+        "name": "wladimir-w-idle-03-64.png",
+        "sha256": "fc14a374babfa9dd437b88b932a15caa86a7678c7d692c50e51e687034dba933"
+      },
+      {
+        "name": "wladimir-w-walk-00-64.png",
+        "sha256": "aca0dc7d2f75465064429ece3a345d4588967a3efa8b3591591f4092d73ffd3f"
+      },
+      {
+        "name": "wladimir-w-walk-01-64.png",
+        "sha256": "f7125cc2f4fb69593b2349a6f528802de02dc3105f590c8d24e8693910029ad3"
+      },
+      {
+        "name": "wladimir-w-walk-02-64.png",
+        "sha256": "0962747a8d6288e81bc7b253ad9c9c278a0c21f6847a4054ef9bd8d972e68a63"
+      },
+      {
+        "name": "wladimir-w-walk-03-64.png",
+        "sha256": "b9c6dbc79324c1ecf314469e3692aba75bf3fc3c5fa12040115fe79e4b59b179"
+      }
+    ]
+  },
+  {
+    "unit": "skeleton-archer",
+    "source": "skeleton-archer-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\skeleton-archer-animations-v1\\manifest.json",
+    "sourceManifestSha256": "d4b6de2620f81cc4935b9cce21526d4485daf444c57a8e80402d2a701ee0fec5",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/skeleton-archer",
+    "sourceFilesSha256": [
+      {
+        "name": "skeleton-archer-e-idle-00-64.png",
+        "sha256": "9fc0dced04ca4c000bf19c13ee9775bee09ea85330e8835d8cd8e8ebdd42314a"
+      },
+      {
+        "name": "skeleton-archer-e-idle-01-64.png",
+        "sha256": "90ac2d715b5394942735804b257427799fb87d06b61c5a98b55d854634da319f"
+      },
+      {
+        "name": "skeleton-archer-e-idle-02-64.png",
+        "sha256": "f163b93b5ae9895e251ec80ef40f14cea4531033b0cfaa4774f541fe731b50e0"
+      },
+      {
+        "name": "skeleton-archer-e-idle-03-64.png",
+        "sha256": "a85675a233916a10c1a2759bc44a0b0c9ba839075f5086019937ef316a91fc00"
+      },
+      {
+        "name": "skeleton-archer-e-walk-00-64.png",
+        "sha256": "4cf34ba40ea5ead941764fcc66fd647d8e3a55b35a5fdd240a09cbb199230c44"
+      },
+      {
+        "name": "skeleton-archer-e-walk-01-64.png",
+        "sha256": "75924a7ec236579b4ec5b7a2a1c116dfea245278291dc8c9490bacb1f5026cec"
+      },
+      {
+        "name": "skeleton-archer-e-walk-02-64.png",
+        "sha256": "6433f3ed5ac0313c2bf7ebaa405934782efbe68de0e4acd56f0b99c7c2d72c40"
+      },
+      {
+        "name": "skeleton-archer-e-walk-03-64.png",
+        "sha256": "44b939bb761268394574f9fbf498b2feb41c8d024ca0c839994822c3c322595a"
+      },
+      {
+        "name": "skeleton-archer-n-idle-00-64.png",
+        "sha256": "3a284e7b7e2176f84448fef4e48efac325b211921bf5abd3510fb53153735a7f"
+      },
+      {
+        "name": "skeleton-archer-n-idle-01-64.png",
+        "sha256": "6f06512cc92fd354631465d4892f6ab3fb5f28e93e93f757a093f191ec000c92"
+      },
+      {
+        "name": "skeleton-archer-n-idle-02-64.png",
+        "sha256": "c26818c40cf9a426d11af8a7c470f122cbf2ace939fd23182196e0eb6503e4c8"
+      },
+      {
+        "name": "skeleton-archer-n-idle-03-64.png",
+        "sha256": "df98dc1b9fe7c41faf710c38346d025d87ddce2601ae18d2fd681f22d84b27aa"
+      },
+      {
+        "name": "skeleton-archer-n-walk-00-64.png",
+        "sha256": "24ce82e003d789935d06b9ea3b08572cc1d30f23c83b902f806bfbbb9d049407"
+      },
+      {
+        "name": "skeleton-archer-n-walk-01-64.png",
+        "sha256": "4ac165105d2dae2fd62ee4ce101529e6c9042b66368c89b1fdabfe6db8e3ab55"
+      },
+      {
+        "name": "skeleton-archer-n-walk-02-64.png",
+        "sha256": "26c1eb3897dba54c3384f886729cb2a3e7249fea226915fb5a6eef1a8583f6c5"
+      },
+      {
+        "name": "skeleton-archer-n-walk-03-64.png",
+        "sha256": "941a3eddd35ffb5ec8b2baf5b8a0963358a62eefa4337437e791dbaeb6a3555f"
+      },
+      {
+        "name": "skeleton-archer-ne-idle-00-64.png",
+        "sha256": "79cb0e65cc45c50b50bb7b926f39e71213e269202be24adc520b8099eef3d3eb"
+      },
+      {
+        "name": "skeleton-archer-ne-idle-01-64.png",
+        "sha256": "523ede46f8f301df41962fe8841f678908efc6d5ae26b45fa0f590b0a8125acc"
+      },
+      {
+        "name": "skeleton-archer-ne-idle-02-64.png",
+        "sha256": "abcc0b8d69f78b0fd381b4ef1313427898ed4aa9fbf7dc10018c15fd59bd5e42"
+      },
+      {
+        "name": "skeleton-archer-ne-idle-03-64.png",
+        "sha256": "15c3a0480cb93b8592aec3aa5e2a6b5508493bd2f823f84da41580f657179c7c"
+      },
+      {
+        "name": "skeleton-archer-ne-walk-00-64.png",
+        "sha256": "cbb2d735a4e1e15c9ff8d7c6dd386ce8fadafb1f0dbc8fede1ba431398991cc9"
+      },
+      {
+        "name": "skeleton-archer-ne-walk-01-64.png",
+        "sha256": "193dc9af506113c086d196955d8a49e1ee04f289adb3476d4d1e33b3f450f1ba"
+      },
+      {
+        "name": "skeleton-archer-ne-walk-02-64.png",
+        "sha256": "8fbd73223e7a6481db96b5ca32253819dcc536f411d2712e9714ec3e7fe3aa6f"
+      },
+      {
+        "name": "skeleton-archer-ne-walk-03-64.png",
+        "sha256": "bd6dff5738c2674272be40e8f23f149f1d75ea8e1417f0313cf1828f82b82068"
+      },
+      {
+        "name": "skeleton-archer-nw-idle-00-64.png",
+        "sha256": "78a1e5637ac2c74225783c9523cb6c89d496b904023c6124c9e311a6e07e80d1"
+      },
+      {
+        "name": "skeleton-archer-nw-idle-01-64.png",
+        "sha256": "5dd2dbd4cc940989d666f7cc51b29a7ae4710f97dbce37872a62a70d3365e178"
+      },
+      {
+        "name": "skeleton-archer-nw-idle-02-64.png",
+        "sha256": "88f3d8cf9e95d6e2015a83c0f864d508352bf5d8d38621a3a0374e6e9f4082a1"
+      },
+      {
+        "name": "skeleton-archer-nw-idle-03-64.png",
+        "sha256": "cfcc8baad2799acde7901de6926a67bdd23236cd63cb76e6b03e3604c026a997"
+      },
+      {
+        "name": "skeleton-archer-nw-walk-00-64.png",
+        "sha256": "89f8e0cbac8cf3ecd3fe6269af32dc9141e758281ed00d207ff97d746829a7fc"
+      },
+      {
+        "name": "skeleton-archer-nw-walk-01-64.png",
+        "sha256": "d7764c47851ef1ee73708bb0a0f12ec4feb3afa77812d853b0c71a1d51b43bdd"
+      },
+      {
+        "name": "skeleton-archer-nw-walk-02-64.png",
+        "sha256": "8d461ea07f8daf6a30e85b4df12a6a8873f4cd21d49faeb0c83fab47a2a3d4f6"
+      },
+      {
+        "name": "skeleton-archer-nw-walk-03-64.png",
+        "sha256": "00895f848cf6c7a5c8eb8f4b4b66efe06051046ff39729af11892cbcae8d3663"
+      },
+      {
+        "name": "skeleton-archer-s-idle-00-64.png",
+        "sha256": "51f56ff80cb5aa634633ed7cbe4c02e4341c3952909d4f1af44a76b94d1675e9"
+      },
+      {
+        "name": "skeleton-archer-s-idle-01-64.png",
+        "sha256": "7695bd78bdf58849a5d002e9c4d54ae26c91818ca5e426e7eaa6bda05cf19d38"
+      },
+      {
+        "name": "skeleton-archer-s-idle-02-64.png",
+        "sha256": "05c53f15e7ca0339a9b4ab2172bf91bd7b174cbd860227fee0bd072d839d679c"
+      },
+      {
+        "name": "skeleton-archer-s-idle-03-64.png",
+        "sha256": "3369a10a60f7a95ed05692959202ab56bbb6de3b310cc223e40a8f51bf427969"
+      },
+      {
+        "name": "skeleton-archer-s-walk-00-64.png",
+        "sha256": "0ec33234d597c228a0fe100a6a11b123cb345a3ef4d40520bce8155f020cd12f"
+      },
+      {
+        "name": "skeleton-archer-s-walk-01-64.png",
+        "sha256": "1252eb48f0587a4bc7fadbc74cf91132cbf5eada7ff206193a3b81e3a9f08261"
+      },
+      {
+        "name": "skeleton-archer-s-walk-02-64.png",
+        "sha256": "8b41a968665ad648fc595c62cfcd115fd1331990e1ba70f902d9382e95f19cd7"
+      },
+      {
+        "name": "skeleton-archer-s-walk-03-64.png",
+        "sha256": "71572d12c5ea7acc316bc02586050cda92017d3df1aaa12fccc11d9bd30d3b00"
+      },
+      {
+        "name": "skeleton-archer-se-idle-00-64.png",
+        "sha256": "3581955a589b40cb74870ad366f480e03e9265074bf56db8c5110a9dd93b20ec"
+      },
+      {
+        "name": "skeleton-archer-se-idle-01-64.png",
+        "sha256": "a59cad884dea0c0b848c10e5bab2e8581630e81ac0507d00dd45589b8235f71b"
+      },
+      {
+        "name": "skeleton-archer-se-idle-02-64.png",
+        "sha256": "95e9e0bb4fc87de696ab3c9fb486cd777d712b522056b615723d319963dd4f23"
+      },
+      {
+        "name": "skeleton-archer-se-idle-03-64.png",
+        "sha256": "067ff069953631e35c15981522bbfe4945f2fb444344a245edace861c3587a92"
+      },
+      {
+        "name": "skeleton-archer-se-walk-00-64.png",
+        "sha256": "f0dd27f2b65d0be8e9c5dff23a8d278318eb89a74613a65abb327bf56585e91f"
+      },
+      {
+        "name": "skeleton-archer-se-walk-01-64.png",
+        "sha256": "bbd24f4aec8673ffe7adfafba568c9f0203f65085fdf3aa8c3a6eee530f0fe20"
+      },
+      {
+        "name": "skeleton-archer-se-walk-02-64.png",
+        "sha256": "6424395ea8a9509ad47c128eb40824a341659883efa097884ad687eddfb8476b"
+      },
+      {
+        "name": "skeleton-archer-se-walk-03-64.png",
+        "sha256": "7b761a2a7dba281e37b936e6d54c51ce752bc75cb404e884c6245a47e91e4bce"
+      },
+      {
+        "name": "skeleton-archer-sw-idle-00-64.png",
+        "sha256": "987c65cbd82f6aa57d89f7ed844400db7925c641884f1fc8158ac14dc946854b"
+      },
+      {
+        "name": "skeleton-archer-sw-idle-01-64.png",
+        "sha256": "afd0b8b243ef30e3e84eabea4bbf3d257528d770f8eada924ae7dcc20f8c50d0"
+      },
+      {
+        "name": "skeleton-archer-sw-idle-02-64.png",
+        "sha256": "8cc001f8eeb4130ebd32ff2afcb8839cc0540c06c07ee21b55285f7dccf25232"
+      },
+      {
+        "name": "skeleton-archer-sw-idle-03-64.png",
+        "sha256": "1cee28e8cf99ba4e18450cc05fbac456220fa9f37df9461a71e46e5546f410ec"
+      },
+      {
+        "name": "skeleton-archer-sw-walk-00-64.png",
+        "sha256": "d2737f207306645f825372e05ac2f5e144b611acc0161dc83e6bad40826ce089"
+      },
+      {
+        "name": "skeleton-archer-sw-walk-01-64.png",
+        "sha256": "32e22d61681712318eb936ee2cabd79a0e95d3ea969685c47288aa4987d76d50"
+      },
+      {
+        "name": "skeleton-archer-sw-walk-02-64.png",
+        "sha256": "0ca9cda203ccc71f9c57072b74c677369e1366879e775f57e56dec966cb9fa03"
+      },
+      {
+        "name": "skeleton-archer-sw-walk-03-64.png",
+        "sha256": "9a10ece43eee71d647b1823e4a8dc47617f8cc7662d641885b5457244ce26325"
+      },
+      {
+        "name": "skeleton-archer-w-idle-00-64.png",
+        "sha256": "a1861ee721b0e04fc15c4b6bdc0c90dee78ed4467d341f9cd4ff531080f82d7d"
+      },
+      {
+        "name": "skeleton-archer-w-idle-01-64.png",
+        "sha256": "a49640676b07a9d980dde5e93a6eabca4808b915e12dd4d3cf06bec7f54ab841"
+      },
+      {
+        "name": "skeleton-archer-w-idle-02-64.png",
+        "sha256": "045c9c5b2714f03e1253cb3527c8185383db5771c7aa5d5d469d2ab88f04f246"
+      },
+      {
+        "name": "skeleton-archer-w-idle-03-64.png",
+        "sha256": "a05bfca97c4248f63a733ff966573bae0e00dadf979721d8f81add0cadd29bd8"
+      },
+      {
+        "name": "skeleton-archer-w-walk-00-64.png",
+        "sha256": "7631e78c49df70234e256863d40189c66001f4d74252f34c8bf4939b3abfe0f3"
+      },
+      {
+        "name": "skeleton-archer-w-walk-01-64.png",
+        "sha256": "799d3d3670bdd6fe1d3bb49c243e1be296b3b6ec5e47af4e3362cee18460718c"
+      },
+      {
+        "name": "skeleton-archer-w-walk-02-64.png",
+        "sha256": "89acd793f5c1299cc82ceb4abee5350bffaf777639cbe6bb286af9478540bd39"
+      },
+      {
+        "name": "skeleton-archer-w-walk-03-64.png",
+        "sha256": "5f9fafe906d2d4caf94b36b0efe91a5ca50391e9652399d3a049c3c17f5791d4"
+      }
+    ]
+  },
+  {
+    "unit": "skeleton-defender",
+    "source": "skeleton-defender-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\skeleton-defender-animations-v1\\manifest.json",
+    "sourceManifestSha256": "1a5e738158d7f8a572291899cbbfb9673a7fdc0c2caa60f8232eefa73c10f91d",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/skeleton-defender",
+    "sourceFilesSha256": [
+      {
+        "name": "skeleton-defender-e-idle-00-64.png",
+        "sha256": "a48f57c1c28f1848ded74f9bb5b9812d3f950d149187b60b5954349992e22a81"
+      },
+      {
+        "name": "skeleton-defender-e-idle-01-64.png",
+        "sha256": "8beee7c8f708e72cca16cb7216e55ef55de2bd9e5d38a115871de265c17db368"
+      },
+      {
+        "name": "skeleton-defender-e-idle-02-64.png",
+        "sha256": "123aa26f4ba72b332e99d30d8123e997d7d31c3e7fd7a23d2b2c83550e517835"
+      },
+      {
+        "name": "skeleton-defender-e-idle-03-64.png",
+        "sha256": "cb8e04ba240e28982f42a0241ff08319584168e20ffec1297d6b559e42f74120"
+      },
+      {
+        "name": "skeleton-defender-e-walk-00-64.png",
+        "sha256": "096dde8e8bda90c277d75bf46d8db73b13c9d6b0f1101e70a447dfeb45fce55e"
+      },
+      {
+        "name": "skeleton-defender-e-walk-01-64.png",
+        "sha256": "7d7345f3aea4f3aa8107270a0f376421771bf7d225836d5c7a8f40002832ba3d"
+      },
+      {
+        "name": "skeleton-defender-e-walk-02-64.png",
+        "sha256": "a0be089fb47823d3b6a041d5f62c51cc556fbfd0a4a3e6620d34f286c2eacc3c"
+      },
+      {
+        "name": "skeleton-defender-e-walk-03-64.png",
+        "sha256": "979b7343fab267259fd390c8404e5e9a6b9acea579022921fae63c2667337797"
+      },
+      {
+        "name": "skeleton-defender-n-idle-00-64.png",
+        "sha256": "0252e9b4f0539cc112dddb22db84277e97b4d9f11db877aaaca000639b3c7c7b"
+      },
+      {
+        "name": "skeleton-defender-n-idle-01-64.png",
+        "sha256": "b8b5e85b34a47082225791e323d2fd8d0c376ad255b4387a309d57e6c746e58c"
+      },
+      {
+        "name": "skeleton-defender-n-idle-02-64.png",
+        "sha256": "7cdc30370417fce7fca842c2b3b55f3583f88a4e6a4454f8cfd6758f400dcfa7"
+      },
+      {
+        "name": "skeleton-defender-n-idle-03-64.png",
+        "sha256": "102c8a3aaba61607750f0ebeb7bf3b349af9bac5c3e385f7938a9762e28f77c3"
+      },
+      {
+        "name": "skeleton-defender-n-walk-00-64.png",
+        "sha256": "019dedbb301d0fd4ba2163a87847d694b2cff5a1dcce444033b2ca6d7fd3a061"
+      },
+      {
+        "name": "skeleton-defender-n-walk-01-64.png",
+        "sha256": "4a70bb8541213fd185027d1aaa9afeb829ff4b30f5cde01422f9b5f9f79befce"
+      },
+      {
+        "name": "skeleton-defender-n-walk-02-64.png",
+        "sha256": "73fef921a365cc64dbeeb2c5223c5e0115d9464bc87b2e91b391bd7512e105ca"
+      },
+      {
+        "name": "skeleton-defender-n-walk-03-64.png",
+        "sha256": "84cd37c0d5acf5dcbee6af8da4fb725e2ff4b90e445f0f2d6173be4ceb62dda3"
+      },
+      {
+        "name": "skeleton-defender-ne-idle-00-64.png",
+        "sha256": "e815060c38a9e6c67847f80b094bec66bd5fcba6fccd0a4120696a401a0482e9"
+      },
+      {
+        "name": "skeleton-defender-ne-idle-01-64.png",
+        "sha256": "e523f4ee3f317f0880c66404a732ff371cf2348c3fa4ee228765ec5c6867ea88"
+      },
+      {
+        "name": "skeleton-defender-ne-idle-02-64.png",
+        "sha256": "785b2760c7b747164443f0dfe41b6e24893293c752ce161d9c7d006eefbb2aa9"
+      },
+      {
+        "name": "skeleton-defender-ne-idle-03-64.png",
+        "sha256": "fbeb58b456e4d7d53e54c02f5fefba88a7e30cc993aa1dea0eb20198093a6711"
+      },
+      {
+        "name": "skeleton-defender-ne-walk-00-64.png",
+        "sha256": "c801c1c645930f77488996132e1d364151ef9fbd9933a715aeb9b880999d5460"
+      },
+      {
+        "name": "skeleton-defender-ne-walk-01-64.png",
+        "sha256": "c355fd0e40ce5f3e61f4a56b8f490000e96062ead73c6ca3db3b4afafc79a6d1"
+      },
+      {
+        "name": "skeleton-defender-ne-walk-02-64.png",
+        "sha256": "d1b1b6650c771c20062e58d089d7811afcca7b3f5be5ebaec8a66c4200717db1"
+      },
+      {
+        "name": "skeleton-defender-ne-walk-03-64.png",
+        "sha256": "d89c91cd8e64ab2a2cc3d46a4d016d097a57461db420826f1372b27a308ffdee"
+      },
+      {
+        "name": "skeleton-defender-nw-idle-00-64.png",
+        "sha256": "3ebd9c8ce1a0e78541d0d094a6096047dff2f37989f325d16a1998849a4dba3d"
+      },
+      {
+        "name": "skeleton-defender-nw-idle-01-64.png",
+        "sha256": "87ea83cec53611e2c1b91536c8a15c3775c1131f1977f3b7cf68e4418705673c"
+      },
+      {
+        "name": "skeleton-defender-nw-idle-02-64.png",
+        "sha256": "bc26b7c2b4de15cd801fdf0330de8b84960b805795843ca48396029f41462b00"
+      },
+      {
+        "name": "skeleton-defender-nw-idle-03-64.png",
+        "sha256": "c47fc715eac06c8d17a4ed882b1def7a78c07f5e329dd52824e5d426970437c7"
+      },
+      {
+        "name": "skeleton-defender-nw-walk-00-64.png",
+        "sha256": "5b31e1572c5647de62b255956f6417ab468c030b50eefe69c11029abd95f917c"
+      },
+      {
+        "name": "skeleton-defender-nw-walk-01-64.png",
+        "sha256": "67870bb49447ba515029d28399d7696516bb439a0e0b777afe472b5a53493355"
+      },
+      {
+        "name": "skeleton-defender-nw-walk-02-64.png",
+        "sha256": "73d0893c1999ca16d8b08741c433366547df283383955ac060e955add44c3db5"
+      },
+      {
+        "name": "skeleton-defender-nw-walk-03-64.png",
+        "sha256": "5f4fcaf23f291dc3e7e00f8405d24bb4793f2eaf2898fe8f4f925a21a5b4fe4d"
+      },
+      {
+        "name": "skeleton-defender-s-idle-00-64.png",
+        "sha256": "d1c62f23daa383730be7c7b74069acc79bec37b9d5fbb1db531faa05e4070168"
+      },
+      {
+        "name": "skeleton-defender-s-idle-01-64.png",
+        "sha256": "ee179679184e843e10dc5b10760e7d16b803430f49d755c58e7a8b140ab23562"
+      },
+      {
+        "name": "skeleton-defender-s-idle-02-64.png",
+        "sha256": "fb7588c5cc0828dc9d4f8f06085a18887ef9572c42efabae3bc2988efc513ccf"
+      },
+      {
+        "name": "skeleton-defender-s-idle-03-64.png",
+        "sha256": "faa527644898f6fb811e6ff1919beb033ffa0b41cbb4cf9637a14593c218da5f"
+      },
+      {
+        "name": "skeleton-defender-s-walk-00-64.png",
+        "sha256": "cab994a307fe8bbdb68e3fb0786024149ddd12239b886702d8941048ca18db0d"
+      },
+      {
+        "name": "skeleton-defender-s-walk-01-64.png",
+        "sha256": "ee66eff3cd90ae89bab7eee72e7f0f17af93a39153596b86b6ea7c553450e847"
+      },
+      {
+        "name": "skeleton-defender-s-walk-02-64.png",
+        "sha256": "c75a48bc163a829f7a6734b5d706a6e4a67c5511054f82ea638ae5530ac8b788"
+      },
+      {
+        "name": "skeleton-defender-s-walk-03-64.png",
+        "sha256": "f3c7a489e3efc971372260990ac73c0dc1eb8c467dea27c1f01e54dd0af17585"
+      },
+      {
+        "name": "skeleton-defender-se-idle-00-64.png",
+        "sha256": "2ce907eaf43ab1924046176f83ac735d9ce5fd8724dbaac9e25cf3d657a368cc"
+      },
+      {
+        "name": "skeleton-defender-se-idle-01-64.png",
+        "sha256": "8399fee0567222f8596fb3f25f06b6d596fc1f5f40bc2b77c89ced8512476502"
+      },
+      {
+        "name": "skeleton-defender-se-idle-02-64.png",
+        "sha256": "ed27bc44c0f2c5ee7a3124dc2f79f0e2644dc521ec6bf3a596dbe052cf22e403"
+      },
+      {
+        "name": "skeleton-defender-se-idle-03-64.png",
+        "sha256": "8be9aaf94e796464b1f42a544259e5ca6509226a1d1788564d86ecc39a67d547"
+      },
+      {
+        "name": "skeleton-defender-se-walk-00-64.png",
+        "sha256": "0900ac98f9ac3d76f72d8d609fba46769886dd648e4aa7b2ea37ad332e237e0b"
+      },
+      {
+        "name": "skeleton-defender-se-walk-01-64.png",
+        "sha256": "d1d55e626e92d5b908092465559af8126303d3f3e3f280e4a58f17ed5ee83f8e"
+      },
+      {
+        "name": "skeleton-defender-se-walk-02-64.png",
+        "sha256": "8d4e922d5abe628b974c840fe6d9fd0be52313d1ddbb5e22343287a37215e37f"
+      },
+      {
+        "name": "skeleton-defender-se-walk-03-64.png",
+        "sha256": "1719083d65fea8ee3b7675f5f2d87605e221274ae8a64c97782202db97c33d15"
+      },
+      {
+        "name": "skeleton-defender-sw-idle-00-64.png",
+        "sha256": "07dcff8698660871d2544173a42bb8934da62fec33f918c3c5c3f9f146768410"
+      },
+      {
+        "name": "skeleton-defender-sw-idle-01-64.png",
+        "sha256": "f5631053f596e8ffb630a74c739ba0d50f2304facce00b98511ccc4ce41a4b0c"
+      },
+      {
+        "name": "skeleton-defender-sw-idle-02-64.png",
+        "sha256": "b2995d0a9895bdaa5fa218bc37969c388b5d51a211a4c6cc2891a3ca1cf6317b"
+      },
+      {
+        "name": "skeleton-defender-sw-idle-03-64.png",
+        "sha256": "14d1525bfa567efc95cfd2fd537ab55f5adb8934cd084bd2c49f0b8db30735cc"
+      },
+      {
+        "name": "skeleton-defender-sw-walk-00-64.png",
+        "sha256": "89e21d1ef92928168579fe095e09c1148aa57401f6c34ecf230cd883b75c7ef1"
+      },
+      {
+        "name": "skeleton-defender-sw-walk-01-64.png",
+        "sha256": "c47118ebed84cfa91bf99c2bb1f44573d31fb30ed6993ef233bc9807de5b3a4a"
+      },
+      {
+        "name": "skeleton-defender-sw-walk-02-64.png",
+        "sha256": "4d0798607f93d680457674e4240671567b6a4e02c153852f92a390e92b81f683"
+      },
+      {
+        "name": "skeleton-defender-sw-walk-03-64.png",
+        "sha256": "2e790439dfebc0c9b8f1f31e9a407af8f8da3b0e029bcbcd20d0ce21d1012a10"
+      },
+      {
+        "name": "skeleton-defender-w-idle-00-64.png",
+        "sha256": "8eaddce0a14743e2ac1c628cf8d6d4c54fb54a73798fbf11fe4b5ef854de5b41"
+      },
+      {
+        "name": "skeleton-defender-w-idle-01-64.png",
+        "sha256": "82fd0a89c0e50a74907126c4f2a4cfcba9e7703bd75b120d1a5a12ebc407a7bc"
+      },
+      {
+        "name": "skeleton-defender-w-idle-02-64.png",
+        "sha256": "ee6a5c45c7946031f29be0a70a45d3eff98c19d80e28432dc038106cc9c139fd"
+      },
+      {
+        "name": "skeleton-defender-w-idle-03-64.png",
+        "sha256": "3cbc2e3b26532d7ac2a7ae7eae97b2cb2319d271474f0299d56de914b6ec3f63"
+      },
+      {
+        "name": "skeleton-defender-w-walk-00-64.png",
+        "sha256": "355efaa2e4f19aed57712a92a72a9b1e62a4cfee0a8bd715048bf382822a3d1a"
+      },
+      {
+        "name": "skeleton-defender-w-walk-01-64.png",
+        "sha256": "e279489558057d0a788cf7ee5347b7f727bad549b291cf564c4806408fc35e96"
+      },
+      {
+        "name": "skeleton-defender-w-walk-02-64.png",
+        "sha256": "07be49c6afd815e219a00b55b79fed8280dbd4e58389bfe9a70488cecd2e205f"
+      },
+      {
+        "name": "skeleton-defender-w-walk-03-64.png",
+        "sha256": "2d72ff9fa63db505fae817bde30dd487d13e0a0cbba5d729b9b2a77293488d16"
+      }
+    ]
+  },
+  {
+    "unit": "skeleton-occultist",
+    "source": "skeleton-occultist-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\skeleton-occultist-animations-v1\\manifest.json",
+    "sourceManifestSha256": "0317553e809178aa85317da95b094c9dd234340aa4cf9ab94c3ab2894f0cff6c",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/skeleton-occultist",
+    "sourceFilesSha256": [
+      {
+        "name": "skeleton-occultist-e-idle-00-64.png",
+        "sha256": "b4b3596c781c16ef85fbd55a57b8f1db0b3b9e8bb8a1b76121a4fce22b555b29"
+      },
+      {
+        "name": "skeleton-occultist-e-idle-01-64.png",
+        "sha256": "9635e59a8f0a1166a17b10e356c4b7b791c4d644e798129df298a4ce5ae80f07"
+      },
+      {
+        "name": "skeleton-occultist-e-idle-02-64.png",
+        "sha256": "4660ca808ccc85028e4bba62a329f9d415d1d0a1a58df58ba19225e4da8378bb"
+      },
+      {
+        "name": "skeleton-occultist-e-idle-03-64.png",
+        "sha256": "0af6b859c5cf46fb47178785839d8417255d4e503f7a66a3ad4bcf262b1cc42e"
+      },
+      {
+        "name": "skeleton-occultist-e-walk-00-64.png",
+        "sha256": "3271ec9d6c22f7e628e94a3afc1ef088fe58331d80369673146354676fc50342"
+      },
+      {
+        "name": "skeleton-occultist-e-walk-01-64.png",
+        "sha256": "87e7761e4798b2902fe90f22c3708c03f2617b318fd11b5794cc8587989dc89e"
+      },
+      {
+        "name": "skeleton-occultist-e-walk-02-64.png",
+        "sha256": "b68acd60ca65048356fcb1f4129254eafa7480e8ce7a0d5220bf66663e772bbb"
+      },
+      {
+        "name": "skeleton-occultist-e-walk-03-64.png",
+        "sha256": "42997400939219bee1f1304b06440a5d7452b2c78a516ba685eb4f5d30e27129"
+      },
+      {
+        "name": "skeleton-occultist-n-idle-00-64.png",
+        "sha256": "b1a13c9d80488beb6c35c00243faf514cb56c761946b4c210910a2446f6ec705"
+      },
+      {
+        "name": "skeleton-occultist-n-idle-01-64.png",
+        "sha256": "5f65173af6681dfcbaccbf4c4aa96b61944468dd1ade4f0a65b67738daa3798b"
+      },
+      {
+        "name": "skeleton-occultist-n-idle-02-64.png",
+        "sha256": "853333e092ae39d0daf4f05846845fd55ead94da06fa893fefc6cc194a4620fb"
+      },
+      {
+        "name": "skeleton-occultist-n-idle-03-64.png",
+        "sha256": "c61311783160c16f7d35cf67fa8a26a760ed8d275e8c95b0b259dda17f507d43"
+      },
+      {
+        "name": "skeleton-occultist-n-walk-00-64.png",
+        "sha256": "48447ff8bf0a04ece4d5dfa51cfbe096d2e727e8e7004e4d0cf157c9cab0f7a3"
+      },
+      {
+        "name": "skeleton-occultist-n-walk-01-64.png",
+        "sha256": "d2f71fcbe068a4c1082081762f2b39f2b2f7ef3539700e1842e7de0214b8755d"
+      },
+      {
+        "name": "skeleton-occultist-n-walk-02-64.png",
+        "sha256": "a3206693ed766620b4b4f02bc44e68d24f6c65ce5a18a15e01a9e3d603fc02be"
+      },
+      {
+        "name": "skeleton-occultist-n-walk-03-64.png",
+        "sha256": "ecd292dfa4ac2d436b2527305d90bb0616e2b46f0be104e2a524986d8c5a6867"
+      },
+      {
+        "name": "skeleton-occultist-ne-idle-00-64.png",
+        "sha256": "481b1a27678cdabb2201a076abb78cb0fa22dbe82cd7922bc03e3fc33d1a33a8"
+      },
+      {
+        "name": "skeleton-occultist-ne-idle-01-64.png",
+        "sha256": "d20ac8b77ec7ef6f7d0a2f76f04098bbc4526656d14198945ea6d2acd093dcef"
+      },
+      {
+        "name": "skeleton-occultist-ne-idle-02-64.png",
+        "sha256": "e47bfa977465af86ab95a593ca0b568e0fa52dfba4e96e5f37b1c36a9caf5ebd"
+      },
+      {
+        "name": "skeleton-occultist-ne-idle-03-64.png",
+        "sha256": "9edec6fbf1ebf806ec126575bc3727f34c0dc97619dde0b9e1dbb66fab6a2c16"
+      },
+      {
+        "name": "skeleton-occultist-ne-walk-00-64.png",
+        "sha256": "fce35b39b421ce87602ef4254962c097723c6a53156099c95eaa126542a46f9a"
+      },
+      {
+        "name": "skeleton-occultist-ne-walk-01-64.png",
+        "sha256": "a588d979e81ba140b35b8c6ef02113c8efaee5052f5bff9bb81a151a17d0ed14"
+      },
+      {
+        "name": "skeleton-occultist-ne-walk-02-64.png",
+        "sha256": "817c1460b66d622b816d39bf0b64a185ae43ec9330d9bab66e4f094865798b86"
+      },
+      {
+        "name": "skeleton-occultist-ne-walk-03-64.png",
+        "sha256": "0ffa83e282c5a5b0d8cce9293dc81b91d30412a5d17dc620bd15014d03d02973"
+      },
+      {
+        "name": "skeleton-occultist-nw-idle-00-64.png",
+        "sha256": "bc56076e7aa3548f63fd4d8497d312d9ab7e060e5f133bd24d0ae0992c47949d"
+      },
+      {
+        "name": "skeleton-occultist-nw-idle-01-64.png",
+        "sha256": "68bedcb443f38ee33852cdc77aca592639c99d19ba7c9d7ab35069f41211f445"
+      },
+      {
+        "name": "skeleton-occultist-nw-idle-02-64.png",
+        "sha256": "736b10f4e2b9bc7c1ebe23d1e963940e2472e32eb095a65b866483313cf625a8"
+      },
+      {
+        "name": "skeleton-occultist-nw-idle-03-64.png",
+        "sha256": "8f5968df4ee2bf521dfe51db732202dfc4e0d1ce861cd01d1df481e356aed24f"
+      },
+      {
+        "name": "skeleton-occultist-nw-walk-00-64.png",
+        "sha256": "76e473dddb00af6b85d5678ae8cce5dab3e15e8e27141edb052e029678ddb595"
+      },
+      {
+        "name": "skeleton-occultist-nw-walk-01-64.png",
+        "sha256": "34a5cfe8b6f9e27940680c6a4cc9ac26c3d0495e2ee4fbe0f6e257758bf52f3a"
+      },
+      {
+        "name": "skeleton-occultist-nw-walk-02-64.png",
+        "sha256": "bf129e18dfa3d06c753f693d8d325498722badb9ce96a9ffe4f728d251fa69a9"
+      },
+      {
+        "name": "skeleton-occultist-nw-walk-03-64.png",
+        "sha256": "24229553f5974ac962c53e89289068c1ada57a2db2876d4b00d1fe2b78e15274"
+      },
+      {
+        "name": "skeleton-occultist-s-idle-00-64.png",
+        "sha256": "79e45b45401a3a09f7bfd2ba47206d244eb80eb151e0f250ec3229202ac1c1d3"
+      },
+      {
+        "name": "skeleton-occultist-s-idle-01-64.png",
+        "sha256": "4347b6bab9f5bfac265abde0c91ee6d882479dbee667fb560ea3769692336195"
+      },
+      {
+        "name": "skeleton-occultist-s-idle-02-64.png",
+        "sha256": "ada99d5b9a20af29fb8d1054f19c9088dcd25afde85bb91ba94ca7500df20f20"
+      },
+      {
+        "name": "skeleton-occultist-s-idle-03-64.png",
+        "sha256": "b5dde8b15be9111c0beacac2931cad44a3cbb39d490beb0906be9de269580d27"
+      },
+      {
+        "name": "skeleton-occultist-s-walk-00-64.png",
+        "sha256": "0230b3604e60bdedcf21eeaf631cc8101bc6647e9b183f2053c817ff66bc050d"
+      },
+      {
+        "name": "skeleton-occultist-s-walk-01-64.png",
+        "sha256": "d4a2d7b846f92f3e0597fdc68287e36a914ed197d22a0622d6a3cfd1f25320d8"
+      },
+      {
+        "name": "skeleton-occultist-s-walk-02-64.png",
+        "sha256": "3d8bb09b694ad437427054ecfcd9c182e687e0b1060957203ebc44ec6cc1e641"
+      },
+      {
+        "name": "skeleton-occultist-s-walk-03-64.png",
+        "sha256": "fbe1b46a1fc099fbac32a1dd40f191371001f645fa2dc3486745537d10ee83fe"
+      },
+      {
+        "name": "skeleton-occultist-se-idle-00-64.png",
+        "sha256": "24613db0fd49cf0da20b1042e89277629f70c4e7e50560781b970667a5d369f5"
+      },
+      {
+        "name": "skeleton-occultist-se-idle-01-64.png",
+        "sha256": "7500fa7a74e52c8768370d5ebf88e29e672a43284df2ab001727f0f02d259642"
+      },
+      {
+        "name": "skeleton-occultist-se-idle-02-64.png",
+        "sha256": "0458838a891aa5121a0e72848e5c523399670fc076301dd65a2f471e2a9a0188"
+      },
+      {
+        "name": "skeleton-occultist-se-idle-03-64.png",
+        "sha256": "8dee62c04a3c5dbdabe17e1054f71a2231d4a56a8ce8d84438fecc25f3cb1a27"
+      },
+      {
+        "name": "skeleton-occultist-se-walk-00-64.png",
+        "sha256": "41dbab701c923f0085166c681fb553d7725a75af87d57e75423a7ff6ad4abc58"
+      },
+      {
+        "name": "skeleton-occultist-se-walk-01-64.png",
+        "sha256": "f363c0964cd7d76ce2973f467504ea0515b6167d79043ad43663089cef400d74"
+      },
+      {
+        "name": "skeleton-occultist-se-walk-02-64.png",
+        "sha256": "eaa87f9cc4eea941c27a3b25ec524570c76ed1a63b2a54f95d16b78aa80817e5"
+      },
+      {
+        "name": "skeleton-occultist-se-walk-03-64.png",
+        "sha256": "d6f318e397790fbbe1e1542622909e7c552c6c90f5d47ec7e2a018341fac5557"
+      },
+      {
+        "name": "skeleton-occultist-sw-idle-00-64.png",
+        "sha256": "34f2adaf6d8545a8369cdceb1d90f6dd57ba9aa3842853eb8301c1096be31423"
+      },
+      {
+        "name": "skeleton-occultist-sw-idle-01-64.png",
+        "sha256": "78e2e7d7ea1f6052b73430a6ead61be93b20c45ae592aa3ea770a2a23b5e8299"
+      },
+      {
+        "name": "skeleton-occultist-sw-idle-02-64.png",
+        "sha256": "20a3aab7834f51e75ec9e5d683cf5917316433ad2f1b29ab663c9bf63fc09ac6"
+      },
+      {
+        "name": "skeleton-occultist-sw-idle-03-64.png",
+        "sha256": "0c064e91684f546414458c78a56652c086dd6bbfa27a37691d75c1eb498cc45b"
+      },
+      {
+        "name": "skeleton-occultist-sw-walk-00-64.png",
+        "sha256": "5a6938ecd741b3d029f787a4a3b85b13570a365f55edd1d9b5f3507f3bc4a885"
+      },
+      {
+        "name": "skeleton-occultist-sw-walk-01-64.png",
+        "sha256": "7da7b4e11d4282206b2fc66577c4343c1741bfa58e7a6bebd1c35a38c1a33435"
+      },
+      {
+        "name": "skeleton-occultist-sw-walk-02-64.png",
+        "sha256": "a8fb600ce284ad17686f0bad0b49f373d0ab8147d05c41ce0059febaab4459ae"
+      },
+      {
+        "name": "skeleton-occultist-sw-walk-03-64.png",
+        "sha256": "639d88e3eeb4ca9efd8c9491393f94cc2ea31f402d35c3336d699ab26ab29ac8"
+      },
+      {
+        "name": "skeleton-occultist-w-idle-00-64.png",
+        "sha256": "124eb37fa7fba3b97da16caf7371de004b743cfc48ed5d6e6af565bb83f61af8"
+      },
+      {
+        "name": "skeleton-occultist-w-idle-01-64.png",
+        "sha256": "80bc2c1e87d1ab6f42b87961f0738666d6328095e6ce194d77a3340b8dc8af2a"
+      },
+      {
+        "name": "skeleton-occultist-w-idle-02-64.png",
+        "sha256": "839843eda24cd1efa17412df3a0e38ad6681f8150278b61113b2e0a01693a8e9"
+      },
+      {
+        "name": "skeleton-occultist-w-idle-03-64.png",
+        "sha256": "8356f2610d57b0e358741d1e2b3e56337753a8d69dc50e360c0f890e5fa810fe"
+      },
+      {
+        "name": "skeleton-occultist-w-walk-00-64.png",
+        "sha256": "51e6c077264de9ec2b30bb3ec13df6bda4967e35583821729252a3945537042d"
+      },
+      {
+        "name": "skeleton-occultist-w-walk-01-64.png",
+        "sha256": "229cc523659204da25847e949578da86be624ce7b045bea09277f1b123786387"
+      },
+      {
+        "name": "skeleton-occultist-w-walk-02-64.png",
+        "sha256": "84ac31f3663fa7b55e03348c0eff8eccbd381bc9b3b687107d97f2efb4584e20"
+      },
+      {
+        "name": "skeleton-occultist-w-walk-03-64.png",
+        "sha256": "427b4fdb6556f9c82412da5bafe16a18303b0a80ba9f8ffac86150603d07ddf4"
+      }
+    ]
+  },
+  {
+    "unit": "skeleton-swordsman",
+    "source": "skeleton-swordsman-animations-v4",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\skeleton-swordsman-animations-v4\\manifest.json",
+    "sourceManifestSha256": "b7eddb75bfa48886a244e62e36b8473acb1edd61f57f8aed9baadaab34911982",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/skeleton-swordsman",
+    "sourceFilesSha256": [
+      {
+        "name": "skeleton-swordsman-e-idle-00-64.png",
+        "sha256": "6040cc8361be0d54a18f605d6f2b81cf7ca1ccb09890a8433bea40ebb4225dc3"
+      },
+      {
+        "name": "skeleton-swordsman-e-idle-01-64.png",
+        "sha256": "e22ffaa38e6f86398b8a6be459d7a50fcf64ab3f07ed77928dbc60eaee36ee94"
+      },
+      {
+        "name": "skeleton-swordsman-e-idle-02-64.png",
+        "sha256": "44b2737651a4b7694587cdcd665a263f2ebf614e05d56217fd4004d5bd55ca82"
+      },
+      {
+        "name": "skeleton-swordsman-e-idle-03-64.png",
+        "sha256": "e2c33c461223476d440ac25d1ab653459e0efa523e06f0bdf6f296a09c2a767c"
+      },
+      {
+        "name": "skeleton-swordsman-e-walk-00-64.png",
+        "sha256": "0cc2ec082ea1bee73f29d682450ed2e477d6c6fe1c966f8741b0d26a24334d95"
+      },
+      {
+        "name": "skeleton-swordsman-e-walk-01-64.png",
+        "sha256": "6adf72bfd188182cba23e837486dcee8647815bd37cb9248f7aea3378b96be7b"
+      },
+      {
+        "name": "skeleton-swordsman-e-walk-02-64.png",
+        "sha256": "fac4f3969ebc9106a0cf6a96ddc97b53871ec89213564591835bf6a5e3177d0f"
+      },
+      {
+        "name": "skeleton-swordsman-e-walk-03-64.png",
+        "sha256": "f23ba68f155e02f25cbd322ea3c19c5241d21de4a9fd29a935865a5ab86c4b59"
+      },
+      {
+        "name": "skeleton-swordsman-n-idle-00-64.png",
+        "sha256": "2a04e50c9966a850f95544080c495c698bed99a2db662fbb45989a2eda0a00b9"
+      },
+      {
+        "name": "skeleton-swordsman-n-idle-01-64.png",
+        "sha256": "f0eabb171ace05c958f609f6d9422bbb7c71e91202bb280af9e5c56a3adc64eb"
+      },
+      {
+        "name": "skeleton-swordsman-n-idle-02-64.png",
+        "sha256": "7d1272421e205a6f1a5411c1601f7b5edf9c743fb4546302486a24dce7457fa2"
+      },
+      {
+        "name": "skeleton-swordsman-n-idle-03-64.png",
+        "sha256": "c5dff6213fd5d406ab659eb054a67056621a1269d509177226ee3878101cac32"
+      },
+      {
+        "name": "skeleton-swordsman-n-walk-00-64.png",
+        "sha256": "f7197c5bfbdcbdbdc94f745e91d1622ce66b0e379ba0853afa08907c2bfafd22"
+      },
+      {
+        "name": "skeleton-swordsman-n-walk-01-64.png",
+        "sha256": "b085a5966184b0508b850d2b25657ccf8a649e5c3341577d611db5b0031bec4d"
+      },
+      {
+        "name": "skeleton-swordsman-n-walk-02-64.png",
+        "sha256": "3b6433ca433bc4aa2684ca26b718caff009b2c2569d1f81e212d8c3e28a81d8c"
+      },
+      {
+        "name": "skeleton-swordsman-n-walk-03-64.png",
+        "sha256": "52ff507ff4febf6025b0f01cd5b8bc5518a64554ea4eb31a2946b7d41b20fa0a"
+      },
+      {
+        "name": "skeleton-swordsman-ne-idle-00-64.png",
+        "sha256": "6124d811fd6c11a72560cb67f266576c6190f3aa6318b5b3093ce0cd071e7c23"
+      },
+      {
+        "name": "skeleton-swordsman-ne-idle-01-64.png",
+        "sha256": "7f2ec4589a7f83cada5ae61153d62546c5f8c3a36474f6f0a4565568ebc5ada0"
+      },
+      {
+        "name": "skeleton-swordsman-ne-idle-02-64.png",
+        "sha256": "a24da8e6c22161e3d10c3249bd7e32d3e8d1c522a44d6aba2ba6d50687a3c3f4"
+      },
+      {
+        "name": "skeleton-swordsman-ne-idle-03-64.png",
+        "sha256": "a7583d875e525ae0b110352becd37d9298f43045ff7d9ecc2921a70d9820524a"
+      },
+      {
+        "name": "skeleton-swordsman-ne-walk-00-64.png",
+        "sha256": "11e007cd7edb38145343f1920e02a87b59f18bdce602b1747c949e2abf364483"
+      },
+      {
+        "name": "skeleton-swordsman-ne-walk-01-64.png",
+        "sha256": "cbde1474526c965ff6fb4cd4e162379e3370d96578cf16e2ba0db27f9e0e1ae4"
+      },
+      {
+        "name": "skeleton-swordsman-ne-walk-02-64.png",
+        "sha256": "73baa4498a87e4200b44de2354ad72df5f9afdf3d9459ade6458db07b094bdd5"
+      },
+      {
+        "name": "skeleton-swordsman-ne-walk-03-64.png",
+        "sha256": "b9c283ea99bd6abf179e2120d56d6700bc7644d47edf3563caca76de3cdb4f04"
+      },
+      {
+        "name": "skeleton-swordsman-nw-idle-00-64.png",
+        "sha256": "9b3616126ad4d492d56be788222961f9437a905b37af8428b02b25ff524319e4"
+      },
+      {
+        "name": "skeleton-swordsman-nw-idle-01-64.png",
+        "sha256": "6523fe8b08d2fe9a0bc757316527bb269514d8aa35a7dda4a49ec176a191b7a6"
+      },
+      {
+        "name": "skeleton-swordsman-nw-idle-02-64.png",
+        "sha256": "7c62f65a34eb2397c5847f50e7e02bab9ea0c8bb20973a6429b8f1c5a801adbc"
+      },
+      {
+        "name": "skeleton-swordsman-nw-idle-03-64.png",
+        "sha256": "a36f8415dd86a16541ce94cf2feba12f744ab4c54f4e59083d0a5a5c614f5170"
+      },
+      {
+        "name": "skeleton-swordsman-nw-walk-00-64.png",
+        "sha256": "32c5cb08d59aed28788c86a28b0b296cd4cd98aa0bd5e24be25eaf7d6c6b4225"
+      },
+      {
+        "name": "skeleton-swordsman-nw-walk-01-64.png",
+        "sha256": "b64a7fa659fd47d44a6fcee3dedb8c5caf2d36f2d3e13d59a17523b14b6786dc"
+      },
+      {
+        "name": "skeleton-swordsman-nw-walk-02-64.png",
+        "sha256": "3a5d8d29f839880139bc4cec125d51f1d28862398ce48192bc3f8ef6ea54d1fe"
+      },
+      {
+        "name": "skeleton-swordsman-nw-walk-03-64.png",
+        "sha256": "8925d95b5405f0d3fd97f4acb9f6c9189cf195248271849e31b22313b911d920"
+      },
+      {
+        "name": "skeleton-swordsman-s-idle-00-64.png",
+        "sha256": "42cf4e29d428d24a6d2909970bfb2daa3a3e1c9ffebdef3a0f77abf511a6acf1"
+      },
+      {
+        "name": "skeleton-swordsman-s-idle-01-64.png",
+        "sha256": "45d7aad9e457fa07ff62275b6f0f13199f7687d99a7b40e24cabd1e70d496df5"
+      },
+      {
+        "name": "skeleton-swordsman-s-idle-02-64.png",
+        "sha256": "5b35a81250cac70da9f041d3819c012f6713eb229066667ac176536e3a3164d1"
+      },
+      {
+        "name": "skeleton-swordsman-s-idle-03-64.png",
+        "sha256": "f1ac5b5623f1e42f1843b108f632f25ad4671db233916f8d5780e5dd3ddfb7bb"
+      },
+      {
+        "name": "skeleton-swordsman-s-walk-00-64.png",
+        "sha256": "91a2190a576d1e273c25adc468b62deb2ab8f0cf1ee677796e1628cf169b7b26"
+      },
+      {
+        "name": "skeleton-swordsman-s-walk-01-64.png",
+        "sha256": "03cde9e3cb2c401118b92e2eb7453dd66a86a87f7fd5c9c8ea74755dab999cce"
+      },
+      {
+        "name": "skeleton-swordsman-s-walk-02-64.png",
+        "sha256": "6faecb5b9d51a1f3efd8b7ca1dedfe38d3f89da164a3df227d6c935f6923babe"
+      },
+      {
+        "name": "skeleton-swordsman-s-walk-03-64.png",
+        "sha256": "9d1d21832bec8c82520b5b168321f39fae26f5cb2a056b36d86f146e7174dd20"
+      },
+      {
+        "name": "skeleton-swordsman-se-idle-00-64.png",
+        "sha256": "5506a4b9289efcd25e8f89724e90afeb5eb440cca86dcf11eafeaec9ffb48d7e"
+      },
+      {
+        "name": "skeleton-swordsman-se-idle-01-64.png",
+        "sha256": "a5713b993bf8d5602d04883e78f5d00cf5172a374e9d80fa205b59d695a8ae45"
+      },
+      {
+        "name": "skeleton-swordsman-se-idle-02-64.png",
+        "sha256": "68c5b5896d19b61a3657bf19dc846170f739a0dfd85485a2372ab0c301515594"
+      },
+      {
+        "name": "skeleton-swordsman-se-idle-03-64.png",
+        "sha256": "f2fee7ad77852fa129afce054347448eefee43078a0f04706f6af5ddd1a212db"
+      },
+      {
+        "name": "skeleton-swordsman-se-walk-00-64.png",
+        "sha256": "d33af60be524ed111c1b62d9294e06d8e93f4f2cee9db5c77be3ceacb1493b3d"
+      },
+      {
+        "name": "skeleton-swordsman-se-walk-01-64.png",
+        "sha256": "e13a5ee26e1254a99474502656ef71a84ca33a1f3cb33b5578f9162e04422f36"
+      },
+      {
+        "name": "skeleton-swordsman-se-walk-02-64.png",
+        "sha256": "634950d188a85048250e63f8f885c5a9063c20108d23e0c859cb7e8b45c76e1d"
+      },
+      {
+        "name": "skeleton-swordsman-se-walk-03-64.png",
+        "sha256": "f9caa01c9a9f55b7a76c9cc405b48b6b4211a6c1f4e452c24c7100dd70ef5db3"
+      },
+      {
+        "name": "skeleton-swordsman-sw-idle-00-64.png",
+        "sha256": "85d50066bb11eb8643164667143f1aacbf537b6f80b7154b2f99930944dc6345"
+      },
+      {
+        "name": "skeleton-swordsman-sw-idle-01-64.png",
+        "sha256": "9d5983adbf009256184eab7931e7cda997fa82d529cd990f2c506ff22dd62d44"
+      },
+      {
+        "name": "skeleton-swordsman-sw-idle-02-64.png",
+        "sha256": "6b319aa2d5472d084dc76ecc610833f7bf84bddcbca34e754ab95b624b8062d9"
+      },
+      {
+        "name": "skeleton-swordsman-sw-idle-03-64.png",
+        "sha256": "b57ae473d876676b1bff0bfe88371b19744a6ce1d60a4f5f3893e251dcaddbd6"
+      },
+      {
+        "name": "skeleton-swordsman-sw-walk-00-64.png",
+        "sha256": "39dadfa8ac8da5b2e2fc32d64aca1107d87b23e501f2b4f5ee35f0291fbf49c3"
+      },
+      {
+        "name": "skeleton-swordsman-sw-walk-01-64.png",
+        "sha256": "025374d46d775a4595f22f994ac784e33d06ddeeedd103e623e8ff1cc0733847"
+      },
+      {
+        "name": "skeleton-swordsman-sw-walk-02-64.png",
+        "sha256": "d0ffea00eac26438ad6b094a1856c3b2a9a5e97f40ec4b15c915f0e1d8f2c062"
+      },
+      {
+        "name": "skeleton-swordsman-sw-walk-03-64.png",
+        "sha256": "8603ce8e628655a92d0b6b2be48f6ad5998d8baccd4dfa272db28aa25bed8082"
+      },
+      {
+        "name": "skeleton-swordsman-w-idle-00-64.png",
+        "sha256": "1464c8dff661f045e69f5ce4023cb8806e8130c4fc6a0cce4f16388b9f54b9d5"
+      },
+      {
+        "name": "skeleton-swordsman-w-idle-01-64.png",
+        "sha256": "3e7711f40bae9aac09c22a6d589045f724ba75efb89c302e8888116e8d798a47"
+      },
+      {
+        "name": "skeleton-swordsman-w-idle-02-64.png",
+        "sha256": "3cbb619f07878cc81064c8956aa0a09f7c007c6a7d26e4fb4bb0200be9979165"
+      },
+      {
+        "name": "skeleton-swordsman-w-idle-03-64.png",
+        "sha256": "892d0868f01d7c81347f956b56242c8b165abf68031e9493dccfbfabe6cc6d66"
+      },
+      {
+        "name": "skeleton-swordsman-w-walk-00-64.png",
+        "sha256": "ff0db9ac7821cb3e27495ee5592898dc234ff2c1fced9a0efe036ff5083c3ad3"
+      },
+      {
+        "name": "skeleton-swordsman-w-walk-01-64.png",
+        "sha256": "bb2ebe7cdbfeb373f896f7a2d03491a14dba0bc72a2640ab35580de0bb2f8160"
+      },
+      {
+        "name": "skeleton-swordsman-w-walk-02-64.png",
+        "sha256": "563af2d9a69af0e30a0fb51f70ec096aa0fed3693e8e4c01a39f47cd0384c647"
+      },
+      {
+        "name": "skeleton-swordsman-w-walk-03-64.png",
+        "sha256": "07d264094f1b5302dafa243f8d2f0fc1dc57e0646acf0700e90cf358f97ce36d"
+      }
+    ]
+  },
+  {
+    "unit": "dead-king",
+    "source": "dead-king-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\dead-king-animations-v1\\manifest.json",
+    "sourceManifestSha256": "6418040297ad165fcf487a7c509256724f2444eefb707b5b44f2289154428b78",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/dead-king",
+    "sourceFilesSha256": [
+      {
+        "name": "dead-king-e-idle-00-128.png",
+        "sha256": "d07d9ed3eda233107ae3861cb43376c38bb63a53c18a209953837df823d8a852"
+      },
+      {
+        "name": "dead-king-e-idle-01-128.png",
+        "sha256": "1337b4b7ba314508aef6657574a2094821236f5d22c955d4d0026db93d226359"
+      },
+      {
+        "name": "dead-king-e-idle-02-128.png",
+        "sha256": "ee6b240607b715cfb98838ea5778c8d82e28cc71d7350186bbda8341aec3067c"
+      },
+      {
+        "name": "dead-king-e-idle-03-128.png",
+        "sha256": "841ae65edd6d0d061a02ddb2b5fcd5f9005c561f96e15ed1706007abf91c6f6c"
+      },
+      {
+        "name": "dead-king-e-walk-00-128.png",
+        "sha256": "0736a733002b0a086e23e03fa2331dac2ad754f651ac9448bd30c39cd779d300"
+      },
+      {
+        "name": "dead-king-e-walk-01-128.png",
+        "sha256": "8f821c78310f29a07ffd6400926402618f8192eb02ce8e5a7b2a0181c1939ae3"
+      },
+      {
+        "name": "dead-king-e-walk-02-128.png",
+        "sha256": "533be0714acc4fda7ea19b3a70a1ce281f32be7dda7933e39c0c8c998b6d4f5b"
+      },
+      {
+        "name": "dead-king-e-walk-03-128.png",
+        "sha256": "b1bb1a138aaa0ec559a76e8d7ab0b3ded160618442e1c43794e13bd560a26229"
+      },
+      {
+        "name": "dead-king-n-idle-00-128.png",
+        "sha256": "60f6b446ddccbaa261071c65710885d0a00fa2bf9c61c79b641b0062933b9a50"
+      },
+      {
+        "name": "dead-king-n-idle-01-128.png",
+        "sha256": "814dd870a23bee027f59ba41dd38836d7bc214bf935efd2bd4246d1c65109755"
+      },
+      {
+        "name": "dead-king-n-idle-02-128.png",
+        "sha256": "cfe5d8ae7c959b5ae13a8df91eca7c9b76be85e21551624ad3e9addcb903e3b4"
+      },
+      {
+        "name": "dead-king-n-idle-03-128.png",
+        "sha256": "0b3bded0d09742ef54ca712d80d6f1d5e90d4e1416f6db9c86422a624227e13a"
+      },
+      {
+        "name": "dead-king-n-walk-00-128.png",
+        "sha256": "0ccc927b8f4ff7f545304052c9c24dec9b45c4b90d8e476d8e4b75a3aa218215"
+      },
+      {
+        "name": "dead-king-n-walk-01-128.png",
+        "sha256": "a9d8b462826bd6b1060e39fec956c34d517e824ce94aa79a702f041fab11a190"
+      },
+      {
+        "name": "dead-king-n-walk-02-128.png",
+        "sha256": "35057b82b8075a79647eb7b17c49d6f11ae176db68c885d6ed0d6134b7e927ae"
+      },
+      {
+        "name": "dead-king-n-walk-03-128.png",
+        "sha256": "ee9e87d4c135d55959fc038ce15f6dc4ff79e437096cf0132c89b712f334083a"
+      },
+      {
+        "name": "dead-king-ne-idle-00-128.png",
+        "sha256": "73152a400e75fd834f0fc875456c55e0f84c420fb72a6c2a161939515f8aa191"
+      },
+      {
+        "name": "dead-king-ne-idle-01-128.png",
+        "sha256": "19570415a65f2e6561e18e9a1ca405e846c0ba8aa3420569b4895f1298b2ca7d"
+      },
+      {
+        "name": "dead-king-ne-idle-02-128.png",
+        "sha256": "9f74555ea4c30ef2a919163e5a229bdee8e40a3486e6ecbd69ca66162aeaef63"
+      },
+      {
+        "name": "dead-king-ne-idle-03-128.png",
+        "sha256": "d9a8e63b2867e603b92e58ae2f1910e075b51e02168546ebbe65e089e89b4f84"
+      },
+      {
+        "name": "dead-king-ne-walk-00-128.png",
+        "sha256": "5df69877c1e4746f9b24eb44ade9fdb3b343af3fe0fd4c1c14dd93d6b6860b4c"
+      },
+      {
+        "name": "dead-king-ne-walk-01-128.png",
+        "sha256": "2239ac62792398004cebae0a885dc3478f8db6bf34a96b46f7c23a1112186181"
+      },
+      {
+        "name": "dead-king-ne-walk-02-128.png",
+        "sha256": "24845ce3c7bddf032d8b79d829472dfbeee079e8380d8413f48e468ac18a8d13"
+      },
+      {
+        "name": "dead-king-ne-walk-03-128.png",
+        "sha256": "932a6ccb05c0a8d82548e5798d11fce85df82641b99536a2034deecac233dc02"
+      },
+      {
+        "name": "dead-king-nw-idle-00-128.png",
+        "sha256": "8282913addd52d5d925ce52c3fa2dbd46a4b8273f227626824bf99304bfd3a46"
+      },
+      {
+        "name": "dead-king-nw-idle-01-128.png",
+        "sha256": "06f86ca2d317311716122022900f47f4e9a07c4951853d97654ebeb58df92833"
+      },
+      {
+        "name": "dead-king-nw-idle-02-128.png",
+        "sha256": "70be19db77a657c3f6f4bc92549356693e0ce987f2571724e2e08a8d6c445796"
+      },
+      {
+        "name": "dead-king-nw-idle-03-128.png",
+        "sha256": "293817436dc40f9ebe197d19d9d42c3a0dc704d142e727c20e4ece2c1fbb5a20"
+      },
+      {
+        "name": "dead-king-nw-walk-00-128.png",
+        "sha256": "0b5d4872a245c3274835bad9396756867af446542bff75e34d86dd8e7301c908"
+      },
+      {
+        "name": "dead-king-nw-walk-01-128.png",
+        "sha256": "8a7b678694af335037e18624db93b97d3e89386b4c574e0ab5f6431d9dad24ac"
+      },
+      {
+        "name": "dead-king-nw-walk-02-128.png",
+        "sha256": "21a88a4ef96a66855ab9a52e7cb355f8f4fd1e59d9c44da5e84147b04afa9a23"
+      },
+      {
+        "name": "dead-king-nw-walk-03-128.png",
+        "sha256": "68cb18b90cd641fab73bdbd777f91d1c3ad200a614b26b4fb11063d0e1e4f4f5"
+      },
+      {
+        "name": "dead-king-s-idle-00-128.png",
+        "sha256": "1a49f6b4c83766619da1611f7343f043e0b833cb1574c3704864a212319d2ca6"
+      },
+      {
+        "name": "dead-king-s-idle-01-128.png",
+        "sha256": "2564ea2163617b5ea4da2c59773bad7b6b80caa7e1effc4af3efc0b3ecdf6bcb"
+      },
+      {
+        "name": "dead-king-s-idle-02-128.png",
+        "sha256": "cf37c30aa9b7889a4adde4219aaf377120288040093792badf8057406222ee47"
+      },
+      {
+        "name": "dead-king-s-idle-03-128.png",
+        "sha256": "0021a83ae75e2fd444039f3130d9073cfcd7222f26ddca476c65c3fa5560191f"
+      },
+      {
+        "name": "dead-king-s-walk-00-128.png",
+        "sha256": "7f25ce9aa3ab634d01177be7805858ca1516b11e413bf6e924888c8a8ab99d98"
+      },
+      {
+        "name": "dead-king-s-walk-01-128.png",
+        "sha256": "9aea6826c08c5c8b4b2856f026c50bdda15e505b970d89663a598f04687730aa"
+      },
+      {
+        "name": "dead-king-s-walk-02-128.png",
+        "sha256": "a26b7dcfd6607c9ccf4236596a0f9c04a1d134cf972dbd559ac13b257e77221b"
+      },
+      {
+        "name": "dead-king-s-walk-03-128.png",
+        "sha256": "8c443a9086542fe4b9a2dc661601188ec960ef815d0a7ea917d5027f81af696a"
+      },
+      {
+        "name": "dead-king-se-idle-00-128.png",
+        "sha256": "6d49f247bc511841139f9ea116868f0980e21f850ac9e169653a94e37ca7ed04"
+      },
+      {
+        "name": "dead-king-se-idle-01-128.png",
+        "sha256": "b56877033ba0871c5a09ca08de09cd0fb23813de1b543d640bbdd7e31d9ab934"
+      },
+      {
+        "name": "dead-king-se-idle-02-128.png",
+        "sha256": "ad4069cd645bd6985eacf47fddfce2a6ab9cc131df05c291835e57e5f67655e5"
+      },
+      {
+        "name": "dead-king-se-idle-03-128.png",
+        "sha256": "84066113d355d5b4ed736df6b34c087d3e1d2ee8e35507cdaccaa48e49593c8a"
+      },
+      {
+        "name": "dead-king-se-walk-00-128.png",
+        "sha256": "22f1b3f5f7fa61da8aa5670f3922f19178e22883cb6078e81d064cd76c11d55a"
+      },
+      {
+        "name": "dead-king-se-walk-01-128.png",
+        "sha256": "3d947c9ea21499f64f6eb6021aa2f73bc5c1c22b11d61a97952f58e804d4ffc6"
+      },
+      {
+        "name": "dead-king-se-walk-02-128.png",
+        "sha256": "7451610131bb824b799402a6e6e751ea7b3da20c14097a459443f9663168699e"
+      },
+      {
+        "name": "dead-king-se-walk-03-128.png",
+        "sha256": "c4bed18e5c3246fdf3c722adc8bdc572c6e7a8c82094b8ffafbef2fa755187cd"
+      },
+      {
+        "name": "dead-king-sw-idle-00-128.png",
+        "sha256": "52b56dee048ee823301e3ba8e44b138240fba637790c2229f6d65aa98880b851"
+      },
+      {
+        "name": "dead-king-sw-idle-01-128.png",
+        "sha256": "1f9a256d32bb3b016eef2325e9fc99360783bf947234b8e3975351930b73dc86"
+      },
+      {
+        "name": "dead-king-sw-idle-02-128.png",
+        "sha256": "70d03e52985c33c7b996f38b36099574115cb6164601513b42a9264e3570da88"
+      },
+      {
+        "name": "dead-king-sw-idle-03-128.png",
+        "sha256": "a16a9aa28093e78795515d06240c339a5a2bad265fa4db7cc00cec0ad0f4f064"
+      },
+      {
+        "name": "dead-king-sw-walk-00-128.png",
+        "sha256": "490c47c2936835606d7b287663152b8fb2ff7ddea2cfb2458eb81da95aced4c2"
+      },
+      {
+        "name": "dead-king-sw-walk-01-128.png",
+        "sha256": "894947f829474b30ef4d705fe6cce3e5820814834a63206da811427a341fcaeb"
+      },
+      {
+        "name": "dead-king-sw-walk-02-128.png",
+        "sha256": "6231df49f73ccafc68cf1d4180589a9768992abb33dddf9d8dc3d77f435c3b76"
+      },
+      {
+        "name": "dead-king-sw-walk-03-128.png",
+        "sha256": "f614eec64bcfcffc6da4115817cb1c407cc0d6be5d0d70089e356b91cb6764de"
+      },
+      {
+        "name": "dead-king-w-idle-00-128.png",
+        "sha256": "617e74e350aeb5c6faec5be90513167b2d951f8269b042c04bead33ed3661fd8"
+      },
+      {
+        "name": "dead-king-w-idle-01-128.png",
+        "sha256": "bec519655b5ecd422a9b86d8321e6208c245e3fbec1695d80ac4aac4ddfc88a3"
+      },
+      {
+        "name": "dead-king-w-idle-02-128.png",
+        "sha256": "825cb0e9577219b1bf291b0f7087572986d5d46d031530963bfffb57693a9d47"
+      },
+      {
+        "name": "dead-king-w-idle-03-128.png",
+        "sha256": "6889e0e9e671dfe3c2dfedc94a93c0096943b8c12ab523b769ec367a37f2beac"
+      },
+      {
+        "name": "dead-king-w-walk-00-128.png",
+        "sha256": "6a9029d0c82528b1d848e624077dd283fb0c5a75a4b6a7e5a6ffc90930984bfd"
+      },
+      {
+        "name": "dead-king-w-walk-01-128.png",
+        "sha256": "63caffb2986c5161376d70b4091b90b92d14c14ec8419b76b8ea3bb3a3aa6c30"
+      },
+      {
+        "name": "dead-king-w-walk-02-128.png",
+        "sha256": "df3d5db937aefdacaf8ca5e9d4ffe50100dec45f966550c1cf4280d75fa4decd"
+      },
+      {
+        "name": "dead-king-w-walk-03-128.png",
+        "sha256": "684da694d8c186ced72340a0cecdde7a7ddab6149d50db291cd55e6a7a9c1be3"
+      }
+    ]
+  },
+  {
+    "unit": "ghoul-humanoid",
+    "source": "ghoul-humanoid-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\ghoul-humanoid-animations-v1\\manifest.json",
+    "sourceManifestSha256": "d5a24959a647010b6dce8d201c4b53e2213b5b9638c66328c2628efc5267263c",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/ghoul-humanoid",
+    "sourceFilesSha256": [
+      {
+        "name": "ghoul-humanoid-e-idle-00-64.png",
+        "sha256": "2ce8550c4b6bd60793a49b8fe594ebb0a630ceb38b844aeb11bc8789d9788191"
+      },
+      {
+        "name": "ghoul-humanoid-e-idle-01-64.png",
+        "sha256": "12c7e7ba24adf227320868a96de4c9f7dfd4298609bdf4fa4f54bb1e664a35e0"
+      },
+      {
+        "name": "ghoul-humanoid-e-idle-02-64.png",
+        "sha256": "998c1ea9415cfd8c018ff26ba18b1c0424d8c3fc9e8ced93186bd3a10744a0f7"
+      },
+      {
+        "name": "ghoul-humanoid-e-idle-03-64.png",
+        "sha256": "aea868a608ce5a6057cf092d844ca7604c73e71edb1da26ec93933cd674160ff"
+      },
+      {
+        "name": "ghoul-humanoid-e-walk-00-64.png",
+        "sha256": "8d2d9a27990580f5255bf2f4a6b85bcd792b44d001abee323e8be00a3e1ef466"
+      },
+      {
+        "name": "ghoul-humanoid-e-walk-01-64.png",
+        "sha256": "804858792bc008a2615d0348344e1fc9fcbb319cd5210133168489f1793e87b3"
+      },
+      {
+        "name": "ghoul-humanoid-e-walk-02-64.png",
+        "sha256": "5296c4ba1fb093ee7622c5a2d0ee74fadb53ab381bea53905e716e1fb2baf091"
+      },
+      {
+        "name": "ghoul-humanoid-e-walk-03-64.png",
+        "sha256": "43fadd498bf4b607fb01f230d2f0bc42245599399903923dc4f37f8dc0e5f218"
+      },
+      {
+        "name": "ghoul-humanoid-n-idle-00-64.png",
+        "sha256": "3ff7cb524c49b18331320eefc6f5f68dd993227c7a0042ed2ea9c58500ba2846"
+      },
+      {
+        "name": "ghoul-humanoid-n-idle-01-64.png",
+        "sha256": "4d27a96fb4dbb3a6ffa51bf2cba6110795b5ae080b014c7868d160a4260b03f7"
+      },
+      {
+        "name": "ghoul-humanoid-n-idle-02-64.png",
+        "sha256": "a47454d04d3b05b178ed4f49c4e665f2f9af31bc325819892522267e01a199d4"
+      },
+      {
+        "name": "ghoul-humanoid-n-idle-03-64.png",
+        "sha256": "10cb194eb5ba02b3e16c57b47cb955437a0a0723a0385e70db1b1736543cb9cb"
+      },
+      {
+        "name": "ghoul-humanoid-n-walk-00-64.png",
+        "sha256": "9dcf1db0ea2551d94ee717949289dd14f18b2a677635beb31e16f3eaffd8dcf2"
+      },
+      {
+        "name": "ghoul-humanoid-n-walk-01-64.png",
+        "sha256": "3de978b4f1693aff12f7afe05aa581439cb0167e2555badeb809feaa5b121679"
+      },
+      {
+        "name": "ghoul-humanoid-n-walk-02-64.png",
+        "sha256": "281e21c162f7a0caf24e2aff06460f97e3fe49085509e8fbf76f27d09d029e38"
+      },
+      {
+        "name": "ghoul-humanoid-n-walk-03-64.png",
+        "sha256": "e1bb34d5c2d5f2be819310c4644b5f2ab58a57919933d3ae2727cd02e18b4d15"
+      },
+      {
+        "name": "ghoul-humanoid-ne-idle-00-64.png",
+        "sha256": "c44b5d5ad88c307307ac5bb5f6952f305e9c33d120562aad90bbcdd419151aa3"
+      },
+      {
+        "name": "ghoul-humanoid-ne-idle-01-64.png",
+        "sha256": "94ad35cd460a99511c00cb7cef2e557cdcee705f68611c6c4db9e3b26c707fff"
+      },
+      {
+        "name": "ghoul-humanoid-ne-idle-02-64.png",
+        "sha256": "5bed8eb95756e751e99fbe6e7825207c1e0dda95eda910d798fb89aa5564f6b8"
+      },
+      {
+        "name": "ghoul-humanoid-ne-idle-03-64.png",
+        "sha256": "69f02cc9e2c406b02d84dc06aa864ee2f67865f58a3e0a883ac897fddfcd3fc9"
+      },
+      {
+        "name": "ghoul-humanoid-ne-walk-00-64.png",
+        "sha256": "aa820a32569d4ef1cf7d802c56424a4ef05aec10a9cba8fdabd3421434f7e806"
+      },
+      {
+        "name": "ghoul-humanoid-ne-walk-01-64.png",
+        "sha256": "acc3d023a952abfd0f5c1e1aabb78523d1202cd4faf6803271bf10cebe215fe3"
+      },
+      {
+        "name": "ghoul-humanoid-ne-walk-02-64.png",
+        "sha256": "e91443c9b964ea6e966135e22190313995188240a64fa4bcc644996407ed81e0"
+      },
+      {
+        "name": "ghoul-humanoid-ne-walk-03-64.png",
+        "sha256": "4b09dc85b8fc13b74dec8a316619a39f3a551a5cabf08761976ff66cfc37d248"
+      },
+      {
+        "name": "ghoul-humanoid-nw-idle-00-64.png",
+        "sha256": "1a20372433e5f188a5b6d9006e95f54b5d412ee7fefce935be36ddc0dc077215"
+      },
+      {
+        "name": "ghoul-humanoid-nw-idle-01-64.png",
+        "sha256": "b7ea490c8202b474297f53f173df2f0895fba4eb13b232c0022e42049367af92"
+      },
+      {
+        "name": "ghoul-humanoid-nw-idle-02-64.png",
+        "sha256": "0dacb2df3859fc771d8c5c230d445bf600173c6411c14e36e857f576f6ffa537"
+      },
+      {
+        "name": "ghoul-humanoid-nw-idle-03-64.png",
+        "sha256": "99861263bb6c50b719da9d67eb780d4b536cecf84a9b008f5e6b7a0293746ff8"
+      },
+      {
+        "name": "ghoul-humanoid-nw-walk-00-64.png",
+        "sha256": "4458437950a62aadab938c0eb28e43a57cb6925eee21a72350c3842895f30a4c"
+      },
+      {
+        "name": "ghoul-humanoid-nw-walk-01-64.png",
+        "sha256": "73f63af2148f14559254d816d0e07baab8b4520648966ede08f35933c82f794a"
+      },
+      {
+        "name": "ghoul-humanoid-nw-walk-02-64.png",
+        "sha256": "67f6bf76b846f47b79d02fece6866e30103799041dafd10472ed387e59f2e4ac"
+      },
+      {
+        "name": "ghoul-humanoid-nw-walk-03-64.png",
+        "sha256": "314f688f73e889b1b8ee0d9169525adf2700ded5649c019ddd07de9579f1b96c"
+      },
+      {
+        "name": "ghoul-humanoid-s-idle-00-64.png",
+        "sha256": "84cfa36b67734a26eb7575b58d5d362952656943dc2a4f3ae62c67bc2bce9664"
+      },
+      {
+        "name": "ghoul-humanoid-s-idle-01-64.png",
+        "sha256": "7deeeb7d10f393acdb7a722702a9e4d075a1ae34646f619cef0336a81771ebe0"
+      },
+      {
+        "name": "ghoul-humanoid-s-idle-02-64.png",
+        "sha256": "c90e59dbade5bfeeeb530249b3eb0cab7a92e971868590bcd9099fc483f8214f"
+      },
+      {
+        "name": "ghoul-humanoid-s-idle-03-64.png",
+        "sha256": "538caf517bc2a693c45d920af89180ca038c9081932a6e26974b578084eaa5f3"
+      },
+      {
+        "name": "ghoul-humanoid-s-walk-00-64.png",
+        "sha256": "bcc35e5f663e6821f35e6d709b23bfe7f2ea912bfa44cb8fc0741052ac87a160"
+      },
+      {
+        "name": "ghoul-humanoid-s-walk-01-64.png",
+        "sha256": "078bf0d79950644f52324794326c0355276055ad259cdc4389029e5062e14baa"
+      },
+      {
+        "name": "ghoul-humanoid-s-walk-02-64.png",
+        "sha256": "f297a964b3bd76deac32e5be61017e8afb1e9ee1646c1d8a65b4b2f1c797662d"
+      },
+      {
+        "name": "ghoul-humanoid-s-walk-03-64.png",
+        "sha256": "f43b8c93e5c20ae7beb09532e2f2e2d917cfb78aff5109d74a38634e2315a5da"
+      },
+      {
+        "name": "ghoul-humanoid-se-idle-00-64.png",
+        "sha256": "e018725379b22139477db04f3679539211c7f7f480494543c9047198acfee9da"
+      },
+      {
+        "name": "ghoul-humanoid-se-idle-01-64.png",
+        "sha256": "be785358c2528fe8914dbfc75cabf53419df18da42d6357326d4136057b4177a"
+      },
+      {
+        "name": "ghoul-humanoid-se-idle-02-64.png",
+        "sha256": "cce280f05068d9c1284a81dd0a0280da129a557f5f83212fd64df730b93682bc"
+      },
+      {
+        "name": "ghoul-humanoid-se-idle-03-64.png",
+        "sha256": "9763648904d0632bc159d473faaf1f9076ee0b84e7621d479873ebe8dfe05335"
+      },
+      {
+        "name": "ghoul-humanoid-se-walk-00-64.png",
+        "sha256": "ca3ea3aa2fd35a46a668035d8a48ef112c64483847e164259314a711265a39de"
+      },
+      {
+        "name": "ghoul-humanoid-se-walk-01-64.png",
+        "sha256": "bbe252e546441ab5f74627f667b0857e94dbdf7bf1bf23fc16972fb1b1c4753c"
+      },
+      {
+        "name": "ghoul-humanoid-se-walk-02-64.png",
+        "sha256": "1437a354327833efb1166f3811d006b8e21334778afc3dede1814ce7a66566c2"
+      },
+      {
+        "name": "ghoul-humanoid-se-walk-03-64.png",
+        "sha256": "91fedb9160240a610464563e549503d1a4d74dcdfd67ad9f1e6df53184756731"
+      },
+      {
+        "name": "ghoul-humanoid-sw-idle-00-64.png",
+        "sha256": "1709e5a9bce48fec132038cc4db944c01cda617a0d06889b2c6189cd56a5f9bf"
+      },
+      {
+        "name": "ghoul-humanoid-sw-idle-01-64.png",
+        "sha256": "e27c9f8d48fd8004939c1b6c1269afc46bcc7319c9eb0922f0c7f1d42c8ff783"
+      },
+      {
+        "name": "ghoul-humanoid-sw-idle-02-64.png",
+        "sha256": "122f30911a21527276f482301e23a93c9e5d0eab9f040dfc77afe53c839a3fc8"
+      },
+      {
+        "name": "ghoul-humanoid-sw-idle-03-64.png",
+        "sha256": "8e73cebf84d7f5e312f5bdcba2534499e0ab6563bc60e7131af5e3fc98989129"
+      },
+      {
+        "name": "ghoul-humanoid-sw-walk-00-64.png",
+        "sha256": "8dc72398f48ce4ba68c2cf191264d67b2b088edf8f42cf116bd98418b6b23e22"
+      },
+      {
+        "name": "ghoul-humanoid-sw-walk-01-64.png",
+        "sha256": "05251294888d7baf227c647bc0b0b58332935cec1606f5ee98f4741c10d6a48b"
+      },
+      {
+        "name": "ghoul-humanoid-sw-walk-02-64.png",
+        "sha256": "fb111c17bcc85ffd8ea40a4f7857fa9fd0cc580f4fdc97d022310b09f21b32de"
+      },
+      {
+        "name": "ghoul-humanoid-sw-walk-03-64.png",
+        "sha256": "d0f407da3614595f490d11f0a3bb080a1e5b72e95621e3a632d16ef1683c2813"
+      },
+      {
+        "name": "ghoul-humanoid-w-idle-00-64.png",
+        "sha256": "d726080f0ba2a855524b1da103c468d2095f4da1a5bf9b87a6b15c0e332dc007"
+      },
+      {
+        "name": "ghoul-humanoid-w-idle-01-64.png",
+        "sha256": "314958d4f97f49e7c1c5476e1e7536a6c471028852fba9807267beb4b9f3587f"
+      },
+      {
+        "name": "ghoul-humanoid-w-idle-02-64.png",
+        "sha256": "4552804a69cc478939512b604a4cf2afefae8c15a02568d441701179c0e842ea"
+      },
+      {
+        "name": "ghoul-humanoid-w-idle-03-64.png",
+        "sha256": "b2c1602c641f788448d578b00b1da210cc1466f678801c5d9ec36cea7d00da22"
+      },
+      {
+        "name": "ghoul-humanoid-w-walk-00-64.png",
+        "sha256": "3bd701362616e15df0e570cd3000e3757af7b46893ec9bfe42725324c657399c"
+      },
+      {
+        "name": "ghoul-humanoid-w-walk-01-64.png",
+        "sha256": "6ab823e8f45686c8b56af0d5e60c6687f408dbd4ce7624ddac85fe2671b62f1b"
+      },
+      {
+        "name": "ghoul-humanoid-w-walk-02-64.png",
+        "sha256": "ba7ae4c14f34b059519325a4dd239b84b113d2397c386187c2604c5c5f464e29"
+      },
+      {
+        "name": "ghoul-humanoid-w-walk-03-64.png",
+        "sha256": "3ced4ed342516441d4d27e485583fda060fa58fa0936ada133cecc5e7a255cf3"
+      }
+    ]
+  },
+  {
+    "unit": "undead-fleshy",
+    "source": "undead-fleshy-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\undead-fleshy-animations-v1\\manifest.json",
+    "sourceManifestSha256": "1f42c9c9facaa364599a46f3d95f0f557d3fc01c385d278d0dca2d49f1c9b413",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/undead-fleshy",
+    "sourceFilesSha256": [
+      {
+        "name": "undead-fleshy-e-idle-00-64.png",
+        "sha256": "9cc561b6c72e995e7ed70925307ea44ab70422545a5bb30fbeb727163ed75a4d"
+      },
+      {
+        "name": "undead-fleshy-e-idle-01-64.png",
+        "sha256": "6b86a4ffe832671be57d437709fa335c8e90cde26a1d92d6f1e36c9b9a60a819"
+      },
+      {
+        "name": "undead-fleshy-e-idle-02-64.png",
+        "sha256": "10cb72f8aa362e0512928fff6473251cdc1407f3dc7199d3b30e3a47e7ccf395"
+      },
+      {
+        "name": "undead-fleshy-e-idle-03-64.png",
+        "sha256": "ac5455cf7d542b61697ec691865859cb2df21639f9f8b7fefb07a6c2da4e624e"
+      },
+      {
+        "name": "undead-fleshy-e-walk-00-64.png",
+        "sha256": "6e0151c944bf7ace2e75e0ea08def92be1266f3be2c144576ca4aa3d59fc8c2a"
+      },
+      {
+        "name": "undead-fleshy-e-walk-01-64.png",
+        "sha256": "b1511088d29777b585dd492be5bce59e24043477aa9d284726afa777d0e9b9a8"
+      },
+      {
+        "name": "undead-fleshy-e-walk-02-64.png",
+        "sha256": "08f2a3a0f9becd244991b84e4a7e75da30a29607ef632717207a6175585ed164"
+      },
+      {
+        "name": "undead-fleshy-e-walk-03-64.png",
+        "sha256": "53df3ea8ee4ab9e8794d77741e384384485d8fdc0468c730975f705b5833f845"
+      },
+      {
+        "name": "undead-fleshy-n-idle-00-64.png",
+        "sha256": "8d182c352a54ebfa3451910ee0d9b4c5dca5ec3479e13690a25fd8f9720a9299"
+      },
+      {
+        "name": "undead-fleshy-n-idle-01-64.png",
+        "sha256": "629a25269fc7f30ba46bf5c948b6b704ce0fa47ca5029c8749d40b6ce294380f"
+      },
+      {
+        "name": "undead-fleshy-n-idle-02-64.png",
+        "sha256": "d108199035988226500a78bddd476cbf15b056eb3467dc24f6cc496c2820b107"
+      },
+      {
+        "name": "undead-fleshy-n-idle-03-64.png",
+        "sha256": "b571f7de6f7a00a7238bc82643ff55765affee087cc52d73492d3f7f9ab93a15"
+      },
+      {
+        "name": "undead-fleshy-n-walk-00-64.png",
+        "sha256": "76ae84eab6b42ed732182ce13452dce401505c48cd0f5705bc05fdb84b368e64"
+      },
+      {
+        "name": "undead-fleshy-n-walk-01-64.png",
+        "sha256": "72f6456c1dd93bcd402e70fe7249beee6e1dca7452820dcb1b5d2c66cf4b56ea"
+      },
+      {
+        "name": "undead-fleshy-n-walk-02-64.png",
+        "sha256": "07f52e4aa57998d8b31630b13afe1d578b6c5ab22bb7a946ca3087627302b000"
+      },
+      {
+        "name": "undead-fleshy-n-walk-03-64.png",
+        "sha256": "878763bb758507f360c0ca54e7684177e159a0c4d7835206699e6cca494d8aef"
+      },
+      {
+        "name": "undead-fleshy-ne-idle-00-64.png",
+        "sha256": "d1d7b0f0312e188a4deecfd70b7d11d666ced72e8f8434a6f014a61ae8d94b43"
+      },
+      {
+        "name": "undead-fleshy-ne-idle-01-64.png",
+        "sha256": "35ba6d59bbbbcc34746219b71e9691fece715130332ac5387adcf8e233e62c74"
+      },
+      {
+        "name": "undead-fleshy-ne-idle-02-64.png",
+        "sha256": "878963bc73c8afc374819ecf481c62c47800c4850d27cec092aee48c3f9d4abe"
+      },
+      {
+        "name": "undead-fleshy-ne-idle-03-64.png",
+        "sha256": "bf831e4c64da5fc35c564619b7f17ed0bc8f5b06df8ab20bca7454b356e5d3a8"
+      },
+      {
+        "name": "undead-fleshy-ne-walk-00-64.png",
+        "sha256": "a8ad43ac7e159e49df8e5b2b89001c2959bbf65d0db93f6f094abb868d2bb565"
+      },
+      {
+        "name": "undead-fleshy-ne-walk-01-64.png",
+        "sha256": "70fcf704f8ca5a3b7888573ffc052e8a3c6f977459198ed7a58ab5d96447b868"
+      },
+      {
+        "name": "undead-fleshy-ne-walk-02-64.png",
+        "sha256": "c958486f4ab1c601994176c678bd7cd11afffc31d6283b07bddb3285ccb82011"
+      },
+      {
+        "name": "undead-fleshy-ne-walk-03-64.png",
+        "sha256": "a8cb2f1a65daa752a21ed8f25d795d3aa06dd2e793a2ba8976b1cc4e3dd8b100"
+      },
+      {
+        "name": "undead-fleshy-nw-idle-00-64.png",
+        "sha256": "f5ec547ba50ff1386dda675d6fe45a001e3ffa4ee5ddbeb5628a6d16d804ddb1"
+      },
+      {
+        "name": "undead-fleshy-nw-idle-01-64.png",
+        "sha256": "85f28dbf05f74670ac0c72c64d3a8fe9e4fb6391de08a00b425a162eb9ebf36c"
+      },
+      {
+        "name": "undead-fleshy-nw-idle-02-64.png",
+        "sha256": "c6b82a08a8a454487d4975d28ea4da6897257829edef3f0373e09e2c2555a808"
+      },
+      {
+        "name": "undead-fleshy-nw-idle-03-64.png",
+        "sha256": "a5f5475ab47f7234638f56458f043f2fbe2d16570183f52aa8f802843dd58b4a"
+      },
+      {
+        "name": "undead-fleshy-nw-walk-00-64.png",
+        "sha256": "ab10539a51005142736174d914d69dd7659e2bb762fe4ddef2ece9af855a19bb"
+      },
+      {
+        "name": "undead-fleshy-nw-walk-01-64.png",
+        "sha256": "188bee77808a9787daf2bec68c363faf9441f317c4b1e1eee96800a87751e7d4"
+      },
+      {
+        "name": "undead-fleshy-nw-walk-02-64.png",
+        "sha256": "72dc88a728f9511229feb7382fc10fede3c67c448b984d2ce2b332fe69c95875"
+      },
+      {
+        "name": "undead-fleshy-nw-walk-03-64.png",
+        "sha256": "74e5d459d8eadd3c40295e6e8ce77b193b0c281e96711f8b7e2442689a3d35a3"
+      },
+      {
+        "name": "undead-fleshy-s-idle-00-64.png",
+        "sha256": "08526f1150d002e8aed769f23ad9b0caada8708146faf9893c017e36c0a0eb23"
+      },
+      {
+        "name": "undead-fleshy-s-idle-01-64.png",
+        "sha256": "7eb298371c65416ee5096ceda6094076060dab0703a14bf51aea0058d2fe5673"
+      },
+      {
+        "name": "undead-fleshy-s-idle-02-64.png",
+        "sha256": "39ee1edbd0a86acfa718d25a6ca6ed3051a9e9e9d727ad3b40540f8920ab2b4a"
+      },
+      {
+        "name": "undead-fleshy-s-idle-03-64.png",
+        "sha256": "780fc30112eebedfa161593cc49fce62346b4fc7cf0a42d1d7be135b3b383f27"
+      },
+      {
+        "name": "undead-fleshy-s-walk-00-64.png",
+        "sha256": "0663691ce1584f473ad57170b969947b3b03cf5517618ecd4672aa741ad3b262"
+      },
+      {
+        "name": "undead-fleshy-s-walk-01-64.png",
+        "sha256": "724b5a412b23c70d99d4211f3c7660baad2474f3513c2b99fc0984543b318e54"
+      },
+      {
+        "name": "undead-fleshy-s-walk-02-64.png",
+        "sha256": "5b57ea66537a46a5d5637d28373ca054923590b6358f41a42d5e4e38df47010f"
+      },
+      {
+        "name": "undead-fleshy-s-walk-03-64.png",
+        "sha256": "372a2c3d0a83e0247e1a39e9bb2cf2ddd64fa0506d6da0ee8e8e747e5e70b757"
+      },
+      {
+        "name": "undead-fleshy-se-idle-00-64.png",
+        "sha256": "a40527a5e0640007289491afe8cc1faeae73ea9eab2d79d66560da9ca8cf0831"
+      },
+      {
+        "name": "undead-fleshy-se-idle-01-64.png",
+        "sha256": "178560e4dd314abb529a4cffef03701a95ed9272f721e8b2c6d0480e3c7c1143"
+      },
+      {
+        "name": "undead-fleshy-se-idle-02-64.png",
+        "sha256": "bf162b917d1248da32031c16a1f92cbcd8c26fa15697d0dd998a23e5156d5adb"
+      },
+      {
+        "name": "undead-fleshy-se-idle-03-64.png",
+        "sha256": "db361f8c14e844b51a5824dd65087c262cdd9fd5ad7b81503e1dc97ca95d072b"
+      },
+      {
+        "name": "undead-fleshy-se-walk-00-64.png",
+        "sha256": "f425c86475979e32f4cb39c6cbe5bd92d788766ecf41c8e4719743bc0768b632"
+      },
+      {
+        "name": "undead-fleshy-se-walk-01-64.png",
+        "sha256": "3b053ff3487b11d80bc30e1bfd235395a637ffc1039b50352bd2f2c39b8e9184"
+      },
+      {
+        "name": "undead-fleshy-se-walk-02-64.png",
+        "sha256": "b08159f84cf31a4a2da9eae539970c3b8984570553dd9591c09c647429e8d947"
+      },
+      {
+        "name": "undead-fleshy-se-walk-03-64.png",
+        "sha256": "622e284a98c7b10081eadb065ed6911bdce8fde05c3b1c47dc31050267837a27"
+      },
+      {
+        "name": "undead-fleshy-sw-idle-00-64.png",
+        "sha256": "781c844aaf7ce94d6a76fc6c6b694c064cfcac9136b22869ca4b8d7123455337"
+      },
+      {
+        "name": "undead-fleshy-sw-idle-01-64.png",
+        "sha256": "f9b66653a7ea9e3015c3c654fa310f8834444c030ee7daba2815ca43e6ef4065"
+      },
+      {
+        "name": "undead-fleshy-sw-idle-02-64.png",
+        "sha256": "df2e5cdd635e4c4c7b9ffb0a65b67ae09b1691587ed7ecaf7263d8137922ee2c"
+      },
+      {
+        "name": "undead-fleshy-sw-idle-03-64.png",
+        "sha256": "c8f1063e08984ecb8eaab9a39168192dc2a5a95ca9badebf733f12ce6156b264"
+      },
+      {
+        "name": "undead-fleshy-sw-walk-00-64.png",
+        "sha256": "ddac9bfcb1f08d9d12aba2969f36a0de6b7e71b85cd78580eb1007bd67405e1b"
+      },
+      {
+        "name": "undead-fleshy-sw-walk-01-64.png",
+        "sha256": "36cc279eb4d2e1a04d7324fe6900205acf6c848a506a4a4d3908ef541ee79b5d"
+      },
+      {
+        "name": "undead-fleshy-sw-walk-02-64.png",
+        "sha256": "7b31518229ec9ccf703a5638262ada1c413563ac9770503b71c8264433cb4054"
+      },
+      {
+        "name": "undead-fleshy-sw-walk-03-64.png",
+        "sha256": "bac1f6d0fce9f1bde678c1d69d0f94133568d87c56c0fd3ed9e2a435243bd665"
+      },
+      {
+        "name": "undead-fleshy-w-idle-00-64.png",
+        "sha256": "cdb072d59bafbc138e834723770e7f02c3f5e614fb8806d0c6eb437fcc7f9755"
+      },
+      {
+        "name": "undead-fleshy-w-idle-01-64.png",
+        "sha256": "46f32aeca9bb7bece323c202c62ac7c877e37131868a5924ec103b99ad30373b"
+      },
+      {
+        "name": "undead-fleshy-w-idle-02-64.png",
+        "sha256": "b69971c3fb6c1db3445458055e52c03acf1820ccb3645e69071800de048148ac"
+      },
+      {
+        "name": "undead-fleshy-w-idle-03-64.png",
+        "sha256": "c5c7d720c4a2eafc2f5063238763474b13fe75b9e5e50f668868417f68e43a48"
+      },
+      {
+        "name": "undead-fleshy-w-walk-00-64.png",
+        "sha256": "6a44fb66011804de15bd60577e7b5bacfc4c3f23c5493d59933cdeba43ef032d"
+      },
+      {
+        "name": "undead-fleshy-w-walk-01-64.png",
+        "sha256": "5106aeeab1361f39f63f315a88ac2196f7b85911ca39ded69d55c71acd3b65a3"
+      },
+      {
+        "name": "undead-fleshy-w-walk-02-64.png",
+        "sha256": "b46e763b3940828a9d92ada85435affaee637a68a99c8ae5e0bebcb80f65b370"
+      },
+      {
+        "name": "undead-fleshy-w-walk-03-64.png",
+        "sha256": "28dc55349f7ffaa3a329f91db73f4f7df566d5764d42ea2619f7c1629740be85"
+      }
+    ]
+  },
+  {
+    "unit": "wraith",
+    "source": "wraith-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\wraith-animations-v1\\manifest.json",
+    "sourceManifestSha256": "009a822a877aef77af566346a0d0903f65c5bb8b1dcf51e7e7d4074b7c641755",
+    "nativeCount": 64,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/wraith",
+    "sourceFilesSha256": [
+      {
+        "name": "wraith-e-idle-00-64.png",
+        "sha256": "692e2127b75f9c5328c9fbc063444b6de919c61ab480d9c1bdc7da3b0eb8d404"
+      },
+      {
+        "name": "wraith-e-idle-01-64.png",
+        "sha256": "3042c17ff9e2d7907cacd49ecdd06ae7a6e9bbcef1983930460fc8d8dd202b34"
+      },
+      {
+        "name": "wraith-e-idle-02-64.png",
+        "sha256": "5bd8f19dd4d623e24765a555e5a15d4a19323ed67889863980e5012c1c8cdc44"
+      },
+      {
+        "name": "wraith-e-idle-03-64.png",
+        "sha256": "f1889c2bbf12f11e05e7ddb046101f26518c6e23ab3d5fbd515f94a8ba394a85"
+      },
+      {
+        "name": "wraith-e-walk-00-64.png",
+        "sha256": "af45b4fa8046066f2d743f3c9684cd5fef93120cc541414fd586281d4c0c52bc"
+      },
+      {
+        "name": "wraith-e-walk-01-64.png",
+        "sha256": "4d465ffc3b4998f1bc323cb395e7fb29bed348d705acdf83a165f0b8260f9399"
+      },
+      {
+        "name": "wraith-e-walk-02-64.png",
+        "sha256": "f6a772a714724c12df0dfb41698e51b08276a747a136e02f1741249f5a6a5bdb"
+      },
+      {
+        "name": "wraith-e-walk-03-64.png",
+        "sha256": "c25b010cef19b8bb879c841ffb5f297f16d8120782b65c0e0f5bc17fe5eb1571"
+      },
+      {
+        "name": "wraith-n-idle-00-64.png",
+        "sha256": "6b36b842f2b38ca9be81e68b696f89e47fc8b47430d1841bbf97e715507f1d92"
+      },
+      {
+        "name": "wraith-n-idle-01-64.png",
+        "sha256": "09dccba9b57a43147a0c69fb2a40558df074ad84408fc75b8f8a7efdb58622a3"
+      },
+      {
+        "name": "wraith-n-idle-02-64.png",
+        "sha256": "59bd691b2772d67abf64b620d11315c16d3f279ff5ee059a3ef71c86ef7502c7"
+      },
+      {
+        "name": "wraith-n-idle-03-64.png",
+        "sha256": "dfd661abbe6fdf5472166b1686c719147cc7eb3915b1b860ecb8ea99836acf9c"
+      },
+      {
+        "name": "wraith-n-walk-00-64.png",
+        "sha256": "2061ef55bf2d8cb9ea31914759b9e7503d47ec4a996eb6203567cfc11550b4ff"
+      },
+      {
+        "name": "wraith-n-walk-01-64.png",
+        "sha256": "eb74790d9d5f8f7123d6a32e31087e87506e05f98c92bfa5a6593702697cf797"
+      },
+      {
+        "name": "wraith-n-walk-02-64.png",
+        "sha256": "706d5c70d0502614126399dea32ecc72aff08f9330995b081d60f996ddebce01"
+      },
+      {
+        "name": "wraith-n-walk-03-64.png",
+        "sha256": "17adc4632c60417dbce19e1777d8d4bdb4ae7f9f6a83a6afec4bfb4e09b36957"
+      },
+      {
+        "name": "wraith-ne-idle-00-64.png",
+        "sha256": "d28d422db11f20cb36084e4ab5c7b894f10c5cccba83af9a98b74fec1b080824"
+      },
+      {
+        "name": "wraith-ne-idle-01-64.png",
+        "sha256": "6a3bcdd3c207ac3f4555f5d64f3442a71a29890dfbc9150b6e3024b4a1226989"
+      },
+      {
+        "name": "wraith-ne-idle-02-64.png",
+        "sha256": "baec4ab908e5a5c6902b49f9660850f886d779e4bb1396987d080de9f5df5afb"
+      },
+      {
+        "name": "wraith-ne-idle-03-64.png",
+        "sha256": "0156ec80fbb33799db052b4c405a56c6d036f12e87aa19b4bf28b5a2697208c9"
+      },
+      {
+        "name": "wraith-ne-walk-00-64.png",
+        "sha256": "6eedd5845ce202aff4f2a30748a0f8e367541c20bc9ec802e000d2377968aa35"
+      },
+      {
+        "name": "wraith-ne-walk-01-64.png",
+        "sha256": "4d9cc8df2e57239f88dd8ed288eb7d78c55a673dfdc19eb47e5bea21d574d30d"
+      },
+      {
+        "name": "wraith-ne-walk-02-64.png",
+        "sha256": "ca2e1bfeaf7ade74ab017d82c74faeed2af62b58ffe03bf6557f37c4b9e9544d"
+      },
+      {
+        "name": "wraith-ne-walk-03-64.png",
+        "sha256": "360aad2bc160a08362514e73b1972f6538972abebcaa201874911440590a91a4"
+      },
+      {
+        "name": "wraith-nw-idle-00-64.png",
+        "sha256": "df0a70ecdf458d2b5d4816dad4ea25a45ba61d09f4343f27fbb3e37645a778f8"
+      },
+      {
+        "name": "wraith-nw-idle-01-64.png",
+        "sha256": "c99ad9fab5e1527d3ba18642add37d26a6677095d8b3fb40f28b7d7b6191795b"
+      },
+      {
+        "name": "wraith-nw-idle-02-64.png",
+        "sha256": "5a899a75629637cd55f34a117695048935c84f93599d3a690ff25b47661ec202"
+      },
+      {
+        "name": "wraith-nw-idle-03-64.png",
+        "sha256": "b55ba160ed995955b32a7fb73276f62b3bb989d0e320fb9fb70651a6ad63f9bd"
+      },
+      {
+        "name": "wraith-nw-walk-00-64.png",
+        "sha256": "0108c544013725363dd2719932689a7f7d67cbb2835b4e4f9411559a75db3f36"
+      },
+      {
+        "name": "wraith-nw-walk-01-64.png",
+        "sha256": "cbf5380127481dc317122a567ef88553ec7a759ef32b3b38751f9401dbe2a95b"
+      },
+      {
+        "name": "wraith-nw-walk-02-64.png",
+        "sha256": "5d256fe9d8edcada19f67e5944d1e71fbe6bcb359009c622b09f78c3351d6d0b"
+      },
+      {
+        "name": "wraith-nw-walk-03-64.png",
+        "sha256": "ebdcb39b00a43db31ea872586d69973678f6652f951632eb49dee8ddf0c0619b"
+      },
+      {
+        "name": "wraith-s-idle-00-64.png",
+        "sha256": "0a40ffdf9f2ed56c43472057db90f7870e8a5bc07c24abc2a04986264212d935"
+      },
+      {
+        "name": "wraith-s-idle-01-64.png",
+        "sha256": "7188e6473a94ce30a2bccc99359e637441c908ace505e7213b9b2a1109c24ada"
+      },
+      {
+        "name": "wraith-s-idle-02-64.png",
+        "sha256": "c5a300b3618100c377d57a836cd456851e47235711a61581fe7c69c8fff4207b"
+      },
+      {
+        "name": "wraith-s-idle-03-64.png",
+        "sha256": "8370dc4d12af2d250b27d774a4d7e556c97f2b98709340fb7ce9122af1a120aa"
+      },
+      {
+        "name": "wraith-s-walk-00-64.png",
+        "sha256": "2622581ff6cfe7b3276c8ef906aab31e8d52020a879fd29f7b8f13a119196a8d"
+      },
+      {
+        "name": "wraith-s-walk-01-64.png",
+        "sha256": "e50d936bd2165a839da07e4e8d739a24d186fa370cdb40e3248966d7abc91916"
+      },
+      {
+        "name": "wraith-s-walk-02-64.png",
+        "sha256": "b29820fc6aef74c82c916dc569d950c848ccbd5776656a5d25bcd885bc36dc85"
+      },
+      {
+        "name": "wraith-s-walk-03-64.png",
+        "sha256": "b7e440b164904d90c736013b8870bfab3a758031178f359066bbd6ef1607bdad"
+      },
+      {
+        "name": "wraith-se-idle-00-64.png",
+        "sha256": "8297c69181121dc24c88b2a6a93e5111900433e2025594be50b5b05b0535d9e3"
+      },
+      {
+        "name": "wraith-se-idle-01-64.png",
+        "sha256": "eb0a32db6997fa477c649a3c7a736d78dc391f47825ecb8ebdea94b1712498f0"
+      },
+      {
+        "name": "wraith-se-idle-02-64.png",
+        "sha256": "9593d9ec0854ebd01262fbe371080668ac7c28d9dae14608ab3718945e0dd58e"
+      },
+      {
+        "name": "wraith-se-idle-03-64.png",
+        "sha256": "46dcfc030e85f3bed3826895f880640884ae250baab7134afa2f27dceaca73c6"
+      },
+      {
+        "name": "wraith-se-walk-00-64.png",
+        "sha256": "a479d7d185e2dc636b14b4c3acafb4fee99a41d741e52f6d78031572c0e8b618"
+      },
+      {
+        "name": "wraith-se-walk-01-64.png",
+        "sha256": "b01022183629de12bf3b56c7a3e80e3941f0764679fdba9ae769cb4b180694e3"
+      },
+      {
+        "name": "wraith-se-walk-02-64.png",
+        "sha256": "c06e407750a2c196be1511424eb1aa0aaa5ce15f7ec8f4a35a5270e50a55c821"
+      },
+      {
+        "name": "wraith-se-walk-03-64.png",
+        "sha256": "4968bcf0c3f439e3fcc5e420e1c077c77169ca5b41d228e1a510ee2c99191d0d"
+      },
+      {
+        "name": "wraith-sw-idle-00-64.png",
+        "sha256": "791e470963b5a87ae74d00d7efca5ab29bcf49aa08eb7acd13ee2a644ff5a4a7"
+      },
+      {
+        "name": "wraith-sw-idle-01-64.png",
+        "sha256": "51a57600801d7d14d63abba49079c688bbd56495beab1ded108fd9268c13735f"
+      },
+      {
+        "name": "wraith-sw-idle-02-64.png",
+        "sha256": "725874736d1c32be7b030361ccd56f81bebe147295694be48d2d75af22fbc420"
+      },
+      {
+        "name": "wraith-sw-idle-03-64.png",
+        "sha256": "e57afc425499273c204e0416a654947903a2c9c8832d98a07ba5e67a6ecc6e74"
+      },
+      {
+        "name": "wraith-sw-walk-00-64.png",
+        "sha256": "a3feb9d68dea5e3e13b4eaa0a1218ce436d97fd8bc4029d6b306273ad7f6a1dd"
+      },
+      {
+        "name": "wraith-sw-walk-01-64.png",
+        "sha256": "4188699bb62cf5ba0f609dfb0c89c61e69a3d33854e8730791af3058ccc3b94d"
+      },
+      {
+        "name": "wraith-sw-walk-02-64.png",
+        "sha256": "a93b0c8c7ac8635b88d55e2c539fb51ea6d852e78f735b225798461efb24f3cf"
+      },
+      {
+        "name": "wraith-sw-walk-03-64.png",
+        "sha256": "7a9a8fa26fd1b9e4ab799e721665ab9b66bcbf42e68fc6907db2f8e3a3b2d7f4"
+      },
+      {
+        "name": "wraith-w-idle-00-64.png",
+        "sha256": "d0e2a0a813c5ac3e0677663c1982bee5ea7820aa42a8a1f17c921ef71b0942a9"
+      },
+      {
+        "name": "wraith-w-idle-01-64.png",
+        "sha256": "f581d625a08a13943b7fee64351e9766fd66dfa14467bb903b9bd4b8110fd67d"
+      },
+      {
+        "name": "wraith-w-idle-02-64.png",
+        "sha256": "a15e7d3a0cc0307bc564b05f9d0319002bb0e7241379109a738fd92ca482f79b"
+      },
+      {
+        "name": "wraith-w-idle-03-64.png",
+        "sha256": "b105726370c1bb7de3375fa65cfeaa6be488e384930d8ae95d29e39d3c324671"
+      },
+      {
+        "name": "wraith-w-walk-00-64.png",
+        "sha256": "b9a43e0f3c339d3cc1aab01c949c2f98294c3ab4faf2104ac8c209acf0999c78"
+      },
+      {
+        "name": "wraith-w-walk-01-64.png",
+        "sha256": "a0c05b561791be89ae02f53a0981313622db9ef8d2d317ed1b1e757cd9125752"
+      },
+      {
+        "name": "wraith-w-walk-02-64.png",
+        "sha256": "22f23256ce7ebc8228c61756ffca09b474697da5c80d6e27380872c972dc319f"
+      },
+      {
+        "name": "wraith-w-walk-03-64.png",
+        "sha256": "bcd20cfc43c27a66b172fc0ab78d6bcd44f38fd9ad994f17a913b4953239360d"
+      }
+    ]
+  },
+  {
+    "unit": "alchemist",
+    "source": "alchemist-npc-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\alchemist-npc-animations-v1\\manifest.json",
+    "sourceManifestSha256": "91f0fbe57c32a02f4a6c686c27354dc389afd132164ccb86dfb65bf775bccc2e",
+    "nativeCount": 12,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/alchemist",
+    "sourceFilesSha256": [
+      {
+        "name": "alchemist-conversation-idle-00-64.png",
+        "sha256": "b0bc6941339f51cfd541b041f9f9f46477a301ce50692bc6519b67b7210247e1"
+      },
+      {
+        "name": "alchemist-conversation-idle-01-64.png",
+        "sha256": "d73ddd88b863f7ce15c951f65e98e63ff6581dd82c72c39b3fdebb1610edac42"
+      },
+      {
+        "name": "alchemist-conversation-idle-02-64.png",
+        "sha256": "8efddc98c3ed79b7deff8fc1768071852954e96afb3b5acceae9215485513d6e"
+      },
+      {
+        "name": "alchemist-conversation-idle-03-64.png",
+        "sha256": "5ade15fba0c15ff232a4c3ea73f7595329f06be0a96629d8336f7c11fbe449db"
+      },
+      {
+        "name": "alchemist-work-00-64.png",
+        "sha256": "c14291a3094b03751be17388149a6d702f86c6e5bb73d592a627a624d05ad6b3"
+      },
+      {
+        "name": "alchemist-work-01-64.png",
+        "sha256": "7e93e9945ca1d67996e8815048beb5f13581a987a2b6eda5de674195523d156a"
+      },
+      {
+        "name": "alchemist-work-02-64.png",
+        "sha256": "926dacf2f750911b38f230952da726098a99878308e9b4d8930649ad0d3b1670"
+      },
+      {
+        "name": "alchemist-work-03-64.png",
+        "sha256": "509a2ad2fe4a790b6f798b23f365e3f6634fefab283a5e57a08046a688cf8b72"
+      },
+      {
+        "name": "alchemist-work-04-64.png",
+        "sha256": "7c93ba87c46c342b052273bdafff5ce20a62b138313665f7b6d118915b93422c"
+      },
+      {
+        "name": "alchemist-work-05-64.png",
+        "sha256": "d3151b3eb23db389a9fbc82afd9159347a7e775b09a85fa7c40f3e5c1bf43d42"
+      },
+      {
+        "name": "alchemist-work-06-64.png",
+        "sha256": "219385774972727c3fc827d1f66af14ddda0cd5c0c267e5585feae805f2b670e"
+      },
+      {
+        "name": "alchemist-work-07-64.png",
+        "sha256": "73c7647362fa4a5480c87eac9060cb18a8780a2aa10f928bdda9d5a6043c15ea"
+      }
+    ]
+  },
+  {
+    "unit": "blacksmith",
+    "source": "blacksmith-npc-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\blacksmith-npc-animations-v1\\manifest.json",
+    "sourceManifestSha256": "bfe3fe1001546130828af022cec2ba2bc1fffe73abd7f960eed96008a42ec3ad",
+    "nativeCount": 12,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/blacksmith",
+    "sourceFilesSha256": [
+      {
+        "name": "blacksmith-conversation-idle-00-64.png",
+        "sha256": "41b19ac820e4a58424fb0ef9ae86a08d36008ef2e8c5fce9622ae8009dfa353f"
+      },
+      {
+        "name": "blacksmith-conversation-idle-01-64.png",
+        "sha256": "345af0501d9b03a5d278b8f7ccc0ab2343ae6513f0a720a485e782913abba3a6"
+      },
+      {
+        "name": "blacksmith-conversation-idle-02-64.png",
+        "sha256": "387706df5d3313b46727eea2eb903530c78f7efe7dceb99e785161146bac0e59"
+      },
+      {
+        "name": "blacksmith-conversation-idle-03-64.png",
+        "sha256": "bdbaca15002edf0594aa79420a20059dd26043e0181d4ae76d3cfe8ce5b0126d"
+      },
+      {
+        "name": "blacksmith-work-00-64.png",
+        "sha256": "8ab2f1589f4ccc2e5adcd4fdf5d198e80d11868935ccfd0a39d869b1d08a4ffd"
+      },
+      {
+        "name": "blacksmith-work-01-64.png",
+        "sha256": "7325c85fdbaa4333889c93ee9145a7e3b754a5327185882a6de041d71b0701df"
+      },
+      {
+        "name": "blacksmith-work-02-64.png",
+        "sha256": "bc087225e2e7acb1b594c7bd31f5a35905319b2de113b4abb87d95396b075fdc"
+      },
+      {
+        "name": "blacksmith-work-03-64.png",
+        "sha256": "cfc2065c81e88d3cca01bc40094b98b35a9c8d4af1bcf43e0a0e72087b10f1ef"
+      },
+      {
+        "name": "blacksmith-work-04-64.png",
+        "sha256": "a064843c481feaac7bbd694d26cd9c60aaa391f4d22733035b81e86bc63b0d38"
+      },
+      {
+        "name": "blacksmith-work-05-64.png",
+        "sha256": "8746d85d8798e4c063482a110d06e1c6a216e4de6dd5079ca37da1cbde2959f1"
+      },
+      {
+        "name": "blacksmith-work-06-64.png",
+        "sha256": "6b2b3f71b44827b682f7851b3a9c2a93a77431b37a01ad571162484983319787"
+      },
+      {
+        "name": "blacksmith-work-07-64.png",
+        "sha256": "f0ec1583cd8460bd4499779ea8d9eba15e263abd4fe66ac8746ca9703fa84244"
+      }
+    ]
+  },
+  {
+    "unit": "enchanter",
+    "source": "enchanter-npc-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\enchanter-npc-animations-v1\\manifest.json",
+    "sourceManifestSha256": "2ae9c227cd6804acfbcc93a72d2dd6b6be2583b542f3a23b2784021beb21d025",
+    "nativeCount": 12,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/enchanter",
+    "sourceFilesSha256": [
+      {
+        "name": "enchanter-conversation-idle-00-64.png",
+        "sha256": "910d601f774fe0976c062a3c7ec1ddf9f70fe3ccbbdeef6d8d8bb8f1c1c6687e"
+      },
+      {
+        "name": "enchanter-conversation-idle-01-64.png",
+        "sha256": "20f2ec8cbb32700a634f2745b1eb9ff19b0458371bebf54c6b7170a2512b83f1"
+      },
+      {
+        "name": "enchanter-conversation-idle-02-64.png",
+        "sha256": "7a9a09ba30bff85908be14baa47378b4b35e8087d4f2a2e2027a3d4ec0975664"
+      },
+      {
+        "name": "enchanter-conversation-idle-03-64.png",
+        "sha256": "1ad0178e1efe829d78310f99ed7134d58364c0d32d21d4ae2e6a391c31432883"
+      },
+      {
+        "name": "enchanter-work-00-64.png",
+        "sha256": "16ca30dc83bba33fb98d0af1d2f4947456a55961e5bd6005d0ab77eeac5484c0"
+      },
+      {
+        "name": "enchanter-work-01-64.png",
+        "sha256": "418ec93c6a6573016ede4c7ff0d5ab724da9ea14e87d8a2c21b1c49f33cb0f67"
+      },
+      {
+        "name": "enchanter-work-02-64.png",
+        "sha256": "9679642f526d6af097f347208707d1eee7b670245fc522cf8e902193aad160b4"
+      },
+      {
+        "name": "enchanter-work-03-64.png",
+        "sha256": "2004e678aff0ac9c8dce301dbb69386a159422c1e1c7d46f2cf2a9f9cc01fc7d"
+      },
+      {
+        "name": "enchanter-work-04-64.png",
+        "sha256": "23c28360ef180bd016466786008946c9587de7fe5d5ccdb13cb7bd54c026bd31"
+      },
+      {
+        "name": "enchanter-work-05-64.png",
+        "sha256": "05435bdde41973d9c4a7cd333a53afe18283e607039d6db4e3a4df4f02e0a374"
+      },
+      {
+        "name": "enchanter-work-06-64.png",
+        "sha256": "4fcc2a2c9b74c08034908f07cb50830ab469a47e07d537b3543ff527692213ae"
+      },
+      {
+        "name": "enchanter-work-07-64.png",
+        "sha256": "c29fae9fbeab4d1ae59a9bdd4af6ed39d4d8e4081cb08c525bed89ba60ccf390"
+      }
+    ]
+  },
+  {
+    "unit": "priest",
+    "source": "priest-npc-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\priest-npc-animations-v1\\manifest.json",
+    "sourceManifestSha256": "dc0f4d540ae8e5eb88b00895b5725609056ea65fd075072ec3b96ae2267124e9",
+    "nativeCount": 12,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/priest",
+    "sourceFilesSha256": [
+      {
+        "name": "priest-conversation-idle-00-64.png",
+        "sha256": "c5c1877e5b4d1888a803200041a447054c727a95a9fc5620a09838f1a32cb246"
+      },
+      {
+        "name": "priest-conversation-idle-01-64.png",
+        "sha256": "211fb360dbdcdf969c55e5bfaa1f11d5ef4a0ce0258cb3f9c51f26a9afc70c07"
+      },
+      {
+        "name": "priest-conversation-idle-02-64.png",
+        "sha256": "8a2953f26dc2ac69119431c082f2b6b3245e1bdbc6ee632a3f1eb9782d8e8577"
+      },
+      {
+        "name": "priest-conversation-idle-03-64.png",
+        "sha256": "c5317b7dbf8a3f053c07635cac31ad9daa8cce969193daeba95dc6059fb8f424"
+      },
+      {
+        "name": "priest-work-00-64.png",
+        "sha256": "1e334441c457f6fcaedf932743e9e903a93bf688b71375662f2dd2715f8551d3"
+      },
+      {
+        "name": "priest-work-01-64.png",
+        "sha256": "e2c221cef444adab3f64e204c536f97a56f8dc8c136a847c9c37c895dce5eb66"
+      },
+      {
+        "name": "priest-work-02-64.png",
+        "sha256": "b6b6aa8829977cde60e4fa5cb5a785607472a1160440f743d427858257284851"
+      },
+      {
+        "name": "priest-work-03-64.png",
+        "sha256": "e93be57b9b694a7b951acdb8895d6f40e70ff9c7a5bca4265d06637b8b141ad4"
+      },
+      {
+        "name": "priest-work-04-64.png",
+        "sha256": "0ff59cadcf94876247b1babdc0e13f1f7fe161f791b0852a17c99e7cb0530a04"
+      },
+      {
+        "name": "priest-work-05-64.png",
+        "sha256": "6c093c0ecfc3dc64c65e8f1a9e9a950f207e2e2f63511fa4dac8759acacd22f0"
+      },
+      {
+        "name": "priest-work-06-64.png",
+        "sha256": "969af76e2bbf4c07040d8fc04bc77ca8d9b8f45f7b65b99e586ce3c702942473"
+      },
+      {
+        "name": "priest-work-07-64.png",
+        "sha256": "b8a51f2dbfef94c3d4d52cacb2f03fecc8e5d86e85a5f68474527c7bf9397546"
+      }
+    ]
+  },
+  {
+    "unit": "gate-guardian",
+    "source": "gate-guardian-npc-animations-v1",
+    "sourceManifest": "C:\\Users\\Patryczku\\Documents\\Godmist\\output\\imagegen\\gate-guardian-npc-animations-v1\\manifest.json",
+    "sourceManifestSha256": "0cfaab0ab770eefa7ed4648ee103ccff0140613ba9ebaeaecce1e5b3813763e0",
+    "nativeCount": 12,
+    "importedPath": "Assets/Resources/Godmist/CharacterAnimations/gate-guardian",
+    "sourceFilesSha256": [
+      {
+        "name": "gate-guardian-conversation-idle-00-64.png",
+        "sha256": "8ec3f89c4bac0bff73ddd86374237dd28804134f2de2cd600e5079dd425800ca"
+      },
+      {
+        "name": "gate-guardian-conversation-idle-01-64.png",
+        "sha256": "f444369cc1c1ef389d1020411f04da59b526fd9f885abd71f92572a698f6205d"
+      },
+      {
+        "name": "gate-guardian-conversation-idle-02-64.png",
+        "sha256": "e3be0f4f63799a28609b9bfb0ed0a69c3b189dacf9711c2a91e1acb90a2601c5"
+      },
+      {
+        "name": "gate-guardian-conversation-idle-03-64.png",
+        "sha256": "55ff5d12478465afba89cc4c0d3b4eeba4808e60aca87801309aa23d20df9aa7"
+      },
+      {
+        "name": "gate-guardian-work-00-64.png",
+        "sha256": "366323819d6fee25dbe6f78097b6d405019c5c97a43e52178ecc8f99a27e6625"
+      },
+      {
+        "name": "gate-guardian-work-01-64.png",
+        "sha256": "83be578347f95fab2a462a08052cb69c04c3f7a406849f2aed9eea0384b360cf"
+      },
+      {
+        "name": "gate-guardian-work-02-64.png",
+        "sha256": "63e3af0c487a59f77e7d79ba0dcfe9b9d955d1f78595a01548d765147868b792"
+      },
+      {
+        "name": "gate-guardian-work-03-64.png",
+        "sha256": "4392261d6ebb5efa1630b462d07427c09bac7195701a38e3d222d2877007e375"
+      },
+      {
+        "name": "gate-guardian-work-04-64.png",
+        "sha256": "d375d8843e24bce9c14d283b20db5251d67b28d1d4239a0b86c6db5ef5d48eb7"
+      },
+      {
+        "name": "gate-guardian-work-05-64.png",
+        "sha256": "0a3e17f5aaa0e4006beb5baf113f77a34a2781f1a54cced742f8ffb6a675a11b"
+      },
+      {
+        "name": "gate-guardian-work-06-64.png",
+        "sha256": "1c540150319ef8dbaf1a1f6d74ef64b60d59835287ba89583c14cdfc57156222"
+      },
+      {
+        "name": "gate-guardian-work-07-64.png",
+        "sha256": "36c691b716070486547c20fdeeda976ad5d6a0c4c06f22c53267b6059aba163a"
+      }
+    ]
+  }
+]

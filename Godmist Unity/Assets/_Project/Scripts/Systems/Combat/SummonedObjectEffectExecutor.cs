@@ -15,6 +15,7 @@ namespace Godmist.Systems.Combat
         private readonly StatusEffectSystem statusEffectSystem;
         private readonly ModifyStatSystem modifyStatSystem;
         private readonly ModifyVarSystem modifyVarSystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public SummonedObjectEffectExecutor(
             Action<string> battleLog = null,
@@ -23,7 +24,8 @@ namespace Godmist.Systems.Combat
             CombatShieldSystem shieldSystem = null,
             StatusEffectSystem statusEffectSystem = null,
             ModifyStatSystem modifyStatSystem = null,
-            ModifyVarSystem modifyVarSystem = null)
+            ModifyVarSystem modifyVarSystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
             this.damageSystem = damageSystem ?? new CombatDamageSystem(battleLog);
@@ -32,6 +34,7 @@ namespace Godmist.Systems.Combat
             this.statusEffectSystem = statusEffectSystem ?? new StatusEffectSystem(battleLog);
             this.modifyStatSystem = modifyStatSystem ?? new ModifyStatSystem(battleLog);
             this.modifyVarSystem = modifyVarSystem ?? new ModifyVarSystem(battleLog);
+            this.feedbackBus = feedbackBus;
         }
 
         public void ExecuteTurn(
@@ -45,15 +48,46 @@ namespace Godmist.Systems.Combat
                 includePersistentModifiers: true);
         }
 
+        public bool ExecuteEntry(CombatSession session, SummonedCombatMapObject trap, BattleUnit target)
+        {
+            if (session == null || trap?.Definition?.TriggersOnEntry != true || target?.Character == null
+                || target.Character.LifeState != CharacterLifeState.Alive || !session.SummonedObjects.Contains(trap)) return false;
+            var source = session.Units.FirstOrDefault(unit => unit?.Character?.CharacterId == trap.CreatorCharacterId);
+            if (source == null || trap.Definition.EffectTargetingType == TargetingType.Enemies && source.IsPlayerSide == target.IsPlayerSide
+                || trap.Definition.EffectTargetingType == TargetingType.Allies && source.IsPlayerSide != target.IsPlayerSide) return false;
+            if(trap.Definition.EntryAffectsArea){ExecuteDetonation(session,trap);return true;}
+            PublishTrigger(trap);
+            for (var i = 0; i < trap.Definition.Effects.Count; i++)
+                if (trap.Definition.Effects[i] != null)
+                    ExecuteEffect(session, source, trap, trap.Definition.Effects[i], i, target, BuildEffectSourceId(trap, i));
+            return true;
+        }
+
         public void ApplyPersistentEffects(
             CombatSession session,
             SummonedCombatMapObject summonedObject)
         {
-            ExecuteEffects(
-                session,
-                summonedObject,
-                includeTriggeredEffects: false,
-                includePersistentModifiers: true);
+            ExecuteEffects(session,summonedObject,includeTriggeredEffects:false,includePersistentModifiers:true);
+        }
+
+        public void ExecuteDetonation(CombatSession session,SummonedCombatMapObject trap)
+        {
+            if(session==null || trap?.Definition==null || !session.SummonedObjects.Contains(trap))return;
+            var source=session.Units.FirstOrDefault(u=>u?.Character?.CharacterId==trap.CreatorCharacterId);
+            if(source==null)return;
+            var presentationAction = CombatBossVfxFeedback.BeginTrapResolution(feedbackBus, source, trap);
+            PublishTrigger(trap);
+            foreach(var target in GetTargets(session,source,trap,trap.Definition.EffectTargetingType).ToArray())
+                for(var i=0;i<trap.Definition.Effects.Count;i++)
+                    if(trap.Definition.Effects[i]!=null)ExecuteEffect(session,source,trap,trap.Definition.Effects[i],i,target,BuildEffectSourceId(trap,i),presentationAction);
+            CombatBossVfxFeedback.PublishTrapArea(feedbackBus,session,source,trap,presentationAction);
+        }
+
+        private void PublishTrigger(SummonedCombatMapObject trap)
+        {
+            if (CombatTargetVfxFeedback.HasTriggerPresentation(trap))
+                feedbackBus?.Publish(new CombatFeedbackEvent(null, CombatFeedbackType.MapObjectTriggered,
+                    position: trap.Position, mapObject: trap));
         }
 
         private void ExecuteEffects(
@@ -69,6 +103,11 @@ namespace Godmist.Systems.Combat
                 return;
             }
 
+            if (PaladinCombatSystem.IsField(summonedObject))
+            {
+                PaladinCombatSystem.FieldEffects(session,summonedObject,includeTriggeredEffects,damageSystem,statusEffectSystem,feedbackBus);
+                return;
+            }
             var source = session.Units.FirstOrDefault(unit =>
                 unit?.Character != null
                 && string.Equals(
@@ -146,12 +185,15 @@ namespace Godmist.Systems.Combat
             SummonedObjectEffectData effect,
             int effectIndex,
             BattleUnit target,
-            string sourceId)
+            string sourceId, string presentationAction = null)
         {
             switch (effect.EffectType)
             {
                 case SummonedObjectEffectType.DealDamage:
-                    ExecuteDamage(session, source, target, effect);
+                    var position = target.Position;
+                    if (ExecuteDamage(session, source, target, effect) && presentationAction != null)
+                        feedbackBus.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect,
+                            source: source, position: position, targetVfx: CombatTargetVfxKind.Blunt, actionId: presentationAction));
                     break;
 
                 case SummonedObjectEffectType.Heal:
@@ -163,7 +205,9 @@ namespace Godmist.Systems.Combat
                     break;
 
                 case SummonedObjectEffectType.DrainResource:
+                    var previousResource = target?.Character?.ResourcePool?.CurrentValue ?? 0;
                     target?.Character?.ResourcePool?.Drain(effect.BaseValue);
+                    MomentumResourceRule.RefreshSpeedAfterChange(target?.Character, previousResource);
                     break;
 
                 case SummonedObjectEffectType.Shield:
@@ -171,7 +215,7 @@ namespace Godmist.Systems.Combat
                     break;
 
                 case SummonedObjectEffectType.ApplyStatus:
-                    statusEffectSystem.ApplyStatus(
+                    var applied = statusEffectSystem.ApplyStatus(
                         source,
                         target,
                         effect.StatusId,
@@ -181,6 +225,9 @@ namespace Godmist.Systems.Combat
                         effect.StatusDamageMultiplier,
                         effect.StatusHealPercent,
                         sourceId);
+                    if (applied && presentationAction != null)
+                        feedbackBus.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.TargetEffect,
+                            source: source, targetVfx: CombatTargetVfxKind.TrapContact, actionId: presentationAction));
                     break;
 
                 case SummonedObjectEffectType.ModifyStat:
@@ -299,7 +346,7 @@ namespace Godmist.Systems.Combat
             return $"summoned.{summonedObject.ObjectId}.effect.{effectIndex}";
         }
 
-        private void ExecuteDamage(
+        private bool ExecuteDamage(
             CombatSession session,
             BattleUnit source,
             BattleUnit target,
@@ -312,14 +359,16 @@ namespace Godmist.Systems.Combat
 
             if (damage <= 0)
             {
-                return;
+                return false;
             }
 
-            damageSystem.ApplySummonedObjectDamage(
+            var shieldBefore = target.Character.ShieldPool?.TotalShield ?? 0;
+            var healthDamage = damageSystem.ApplySummonedObjectDamage(
                 session,
                 target,
                 damage,
                 effect.DamageType);
+            return healthDamage > 0 || (target.Character.ShieldPool?.TotalShield ?? 0) < shieldBefore;
         }
 
         private static System.Collections.Generic.IReadOnlyList<BattleUnit> GetTargets(

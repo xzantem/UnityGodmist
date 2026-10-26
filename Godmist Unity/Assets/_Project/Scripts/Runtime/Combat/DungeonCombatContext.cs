@@ -10,6 +10,9 @@ namespace Godmist.Runtime.Combat
     {
         private readonly List<Vector2Int> worldCells;
         private readonly List<DungeonCellEdge> wallEdges;
+        private readonly HashSet<Vector2Int> worldCellSet;
+        private readonly HashSet<DungeonCellEdge> fullWallEdges;
+        public bool HasFullWall(DungeonCellEdge edge) => fullWallEdges.Contains(edge);
         private readonly List<DungeonCombatMapObjectSnapshot> mapObjects;
 
         public DungeonFloorMap SurfaceMap { get; }
@@ -82,6 +85,8 @@ namespace Godmist.Runtime.Combat
                     nameof(nextWorldCells));
             }
 
+            worldCellSet = new HashSet<Vector2Int>(worldCells);
+
             wallEdges = nextWallEdges != null
                 ? new List<DungeonCellEdge>(nextWallEdges)
                 : new List<DungeonCellEdge>();
@@ -89,6 +94,10 @@ namespace Godmist.Runtime.Combat
             wallTypes = new Dictionary<DungeonCellEdge, DungeonWallType>();
             foreach (var edge in wallEdges)
                 if (nextWallTypes != null && nextWallTypes.TryGetValue(edge, out var type)) wallTypes[edge] = type;
+
+            fullWallEdges = new HashSet<DungeonCellEdge>();
+            foreach (var edge in wallEdges)
+                if (GetWallType(edge) == DungeonWallType.Full) fullWallEdges.Add(edge);
 
             mapObjects = nextMapObjects != null
                 ? new List<DungeonCombatMapObjectSnapshot>(nextMapObjects)
@@ -109,7 +118,7 @@ namespace Godmist.Runtime.Combat
 
         public bool ContainsWorldCell(Vector2Int cell)
         {
-            return worldCells.Contains(cell);
+            return worldCellSet.Contains(cell);
         }
 
         private static RectInt CalculateBounds(

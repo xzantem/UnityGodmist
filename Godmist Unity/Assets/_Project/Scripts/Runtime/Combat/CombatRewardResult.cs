@@ -19,6 +19,11 @@ namespace Godmist.Runtime.Combat
     public class CombatEnemyReward
     {
         public string EnemyInstanceId = string.Empty;
+        // Zero denotes legacy fixed XP. Positive levels use the shared reward curve.
+        public int ExperienceLevel;
+        // Derived from encounter identity when rolling/loading rewards; save
+        // DTOs retain their existing shape and do not need this duplicate flag.
+        public bool IsBoss;
         public int ExperiencePerActiveCharacter;
         public int Gold;
         public List<ItemInstance> Items = new();

@@ -7,6 +7,10 @@ namespace Godmist.Data.Quests
     [Serializable]
     public class QuestStageDefinition
     {
+        public QuestStageDefinition() { }
+        public QuestStageDefinition(string id, string description, QuestObjectiveDefinition objective)
+        { StageId=id; Description=description; Objectives=new List<QuestObjectiveDefinition>{objective}; }
+
         [field: SerializeField]
         public string StageId { get; private set; } = string.Empty;
 

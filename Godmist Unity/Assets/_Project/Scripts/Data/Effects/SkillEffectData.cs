@@ -12,22 +12,37 @@ namespace Godmist.Data.Effects
     [Serializable]
     public class SkillEffectData
     {
+        public SkillEffectData WithRuntimeParameters(int hits, int duration, float chance)
+        {
+            if (hits == damageHitCount && duration == durationTurns && Mathf.Approximately(chance, baseChance)) return this;
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.damageHitCount = Mathf.Max(1, hits);
+            copy.durationTurns = Mathf.Max(0, duration);
+            copy.baseChance = Mathf.Clamp01(chance);
+            return copy;
+        }
+
         [SerializeField] private EffectType effectType = EffectType.DealDamage;
         [SerializeField] private EffectPolarity polarity = EffectPolarity.Negative;
         [SerializeField] private bool alwaysHits;
         [SerializeField, Min(0)] private int targetModeIndex;
         [SerializeField, Min(0)] private int baseValue;
+        [SerializeField, Min(0f)] private float healAverageAttackMultiplier;
         [SerializeField] private DamageValueSource damageValueSource =
             DamageValueSource.AttackRange;
         [SerializeField, Min(0f)] private float damageMultiplier = 1f;
+        [SerializeField, Min(0f)] private float rearAttackDamageBonus;
         [SerializeField, Min(1)] private int damageHitCount = 1;
-        [SerializeField, Range(0f, 1f)] private float bonusPenetration;
+        [SerializeField, Min(0)] private int additionalHitTrials;
+        [SerializeField, Range(0f, 1f)] private float additionalHitChance = .5f;
+        [SerializeField, Min(0f)] private float bonusPenetration;
         [SerializeField, Range(0f, 1f)] private float bonusDamageMultiplierChance;
         [SerializeField, Min(1f)] private float bonusDamageMultiplier = 1f;
         [SerializeField] private string onHitStatusId = string.Empty;
         [SerializeField, Range(0f, 1f)] private float onHitStatusChance = 1f;
         [SerializeField, Min(1)] private int onHitStatusDurationTurns = 1;
-        [SerializeField, Range(0f, 1f)] private float lifeStealPercent;
+        [SerializeField, Min(0f)] private float lifeStealPercent;
+        [SerializeField, Range(0f, 1f)] private float allyLifeStealPercent;
         [SerializeField, Range(0f, 1f)] private float resourceDrainPercent;
         [SerializeField] private DamageType damageType = DamageType.Physical;
 
@@ -50,6 +65,7 @@ namespace Godmist.Data.Effects
 
         [Header("Summon")]
         [SerializeField] private CharacterDefinition summonedCharacterDefinition;
+        [SerializeField] private List<CharacterDefinition> summonPool = new();
         [SerializeField] private CharacterClassData summonedClassData;
         [SerializeField] private SkillRangeData summonPlacementRange =
             new SkillRangeData(RangeShape.Square, 1, 2);
@@ -103,20 +119,53 @@ namespace Godmist.Data.Effects
         public bool AlwaysHits => alwaysHits;
         public int TargetModeIndex => targetModeIndex;
         public int BaseValue => baseValue;
+        public float HealAverageAttackMultiplier => Mathf.Max(0f, healAverageAttackMultiplier);
         public DamageType DamageType => damageType;
         public DamageValueSource DamageValueSource => damageValueSource;
         public float DamageMultiplier => damageMultiplier;
+        public float RearAttackDamageBonus => Mathf.Max(0f, rearAttackDamageBonus);
         public int DamageHitCount => Mathf.Max(1, damageHitCount);
-        public float BonusPenetration => Mathf.Clamp01(bonusPenetration);
+        public int AdditionalHitTrials => Mathf.Max(0, additionalHitTrials);
+        public float AdditionalHitChance => Mathf.Clamp01(additionalHitChance);
+        public float ExpectedHitCount => DamageHitCount + AdditionalHitTrials * AdditionalHitChance;
+        public int MaximumHitCount => DamageHitCount + (AdditionalHitChance > 0f ? AdditionalHitTrials : 0);
+
+        public SkillEffectData WithAdditionalHitTrials(int trials)
+        {
+            if (trials == additionalHitTrials) return this;
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.additionalHitTrials = Mathf.Max(0, trials);
+            return copy;
+        }
+        public SkillEffectData WithScoutParameters(int extraHits, float doubleChance, float dotMultiplier, float statValue, int turns)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.additionalHitTrials = Mathf.Max(0, extraHits);
+            copy.bonusDamageMultiplierChance = Mathf.Clamp01(doubleChance);
+            copy.statusDamageMultiplier = dotMultiplier;
+            copy.modifierValue = statValue;
+            copy.durationTurns = turns;
+            return copy;
+        }
+        public SkillEffectData WithBonusPenetration(float value)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.bonusPenetration = Mathf.Max(0, value);
+            return copy;
+        }
+        public float BonusPenetration => Mathf.Max(0f, bonusPenetration);
         public float BonusDamageMultiplierChance => Mathf.Clamp01(bonusDamageMultiplierChance);
         public float BonusDamageMultiplier => Mathf.Max(1f, bonusDamageMultiplier);
         public string OnHitStatusId => onHitStatusId;
         public float OnHitStatusChance => Mathf.Clamp01(onHitStatusChance);
         public int OnHitStatusDurationTurns => Mathf.Max(1, onHitStatusDurationTurns);
-        public float LifeStealPercent => Mathf.Clamp01(lifeStealPercent);
+        public float LifeStealPercent => Mathf.Max(0f, lifeStealPercent);
+        public float AllyLifeStealPercent => Mathf.Clamp01(allyLifeStealPercent);
         public float ResourceDrainPercent => Mathf.Clamp01(resourceDrainPercent);
         public int DelayCasterTurns => Mathf.Max(0, delayCasterTurns);
         public int DisplacementDistance => displacementDistance;
+        public SkillEffectData WithDisplacementDistance(int value)
+        { var copy=(SkillEffectData)MemberwiseClone();copy.displacementDistance=value;return copy; }
         public SkillRangeData TeleportDestinationRange => teleportDestinationRange;
         public SummonedObjectDefinition SummonedObjectDefinition =>
             summonedObjectDefinition;
@@ -125,7 +174,18 @@ namespace Godmist.Data.Effects
             objectPlacementRange;
 
         public int MaxActiveObjects => Mathf.Max(1, maxActiveObjects);
+        [SerializeField] private bool summonUsesCasterStats;
+        [SerializeField] private bool summonStationary;
+        [SerializeField] private bool summonPersistent;
+        [SerializeField] private string summonGroupId;
+        [SerializeField] private string damagePerOwnedSummonGroup;
+        public bool SummonUsesCasterStats => summonUsesCasterStats;
+        public bool SummonStationary => summonStationary;
+        public bool SummonPersistent => summonPersistent;
+        public string SummonGroupId => summonGroupId;
+        public string DamagePerOwnedSummonGroup => damagePerOwnedSummonGroup;
         public CharacterDefinition SummonedCharacterDefinition => summonedCharacterDefinition;
+        public IReadOnlyList<CharacterDefinition> SummonPool => summonPool;
         public CharacterClassData SummonedClassData => summonedClassData;
         public SkillRangeData SummonPlacementRange => summonPlacementRange;
         public int SummonDurationTurns => Mathf.Max(1, summonDurationTurns);
@@ -140,6 +200,12 @@ namespace Godmist.Data.Effects
         public float StatusDamageMultiplier => statusDamageMultiplier;
         public float StatusHealPercent => statusHealPercent;
         public float PercentageValue => Mathf.Clamp01(percentageValue);
+        public SkillEffectData WithPercentageValue(float value)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.percentageValue = Mathf.Clamp01(value);
+            return copy;
+        }
         public SkillRangeData CounterattackRange => counterattackRange;
         public IReadOnlyList<SkillEffectData> CounterattackEffects =>
             counterattackEffects;

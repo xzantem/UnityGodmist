@@ -42,6 +42,7 @@ namespace Godmist.Runtime.Dungeons
             // Preserve unresolved historical endpoints, but never expose them as traversable shortcuts.
             if (!resolved && authoredPath != null && authoredPath.Count != 0) return false;
             stairs.Add(stair);
+            TraversalRevision++;
             if (resolved)
             {
                 if (stair.First != first) Array.Reverse(path);
@@ -79,7 +80,7 @@ namespace Godmist.Runtime.Dungeons
                 && IsTraversalEdgeOpen(new DungeonSurfaceEdge(first, second), canOpenDoor);
 
         private bool IsTraversalEdgeOpen(DungeonSurfaceEdge edge, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
-            => (!wallEdges.Contains(edge) || GetWallType(edge) == DungeonWallType.Low)
+            => (!wallEdges.Contains(edge) || GetWallType(edge) is DungeonWallType.Low or DungeonWallType.TreeTrunk)
                 && (!closedDoorEdges.Contains(edge) || canOpenDoor?.Invoke(edge) == true) && !closedProgressionGateEdges.Contains(edge);
 
         private bool IsStairStepOpen(DungeonStairConnection stair, IReadOnlyList<Vector2Int> path, int from, int to, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
@@ -92,6 +93,38 @@ namespace Godmist.Runtime.Dungeons
         private static DungeonTraversalPosition StairPosition(DungeonStairConnection stair, int index, int count)
             => index == 0 ? new DungeonTraversalPosition(stair.First)
                 : index == count - 1 ? new DungeonTraversalPosition(stair.Second) : new DungeonTraversalPosition(stair, index);
+
+        /// <summary>Same ordered neighbours as GetTraversalNeighbours, in a caller-owned reusable buffer.</summary>
+        public void CollectTraversalNeighbours(DungeonTraversalPosition position, List<DungeonTraversalPosition> result,
+            Func<DungeonSurfaceEdge, bool> canOpenDoor = null)
+        {
+            result.Clear();
+            if (!TryGetTraversalCell(position, out _)) return;
+            if (position.IsOnStairs)
+            {
+                var path = stairPaths[position.Stair];
+                for (int direction = -1; direction <= 1; direction += 2)
+                {
+                    int next = position.StairStep + direction;
+                    if (IsStairStepOpen(position.Stair, path, position.StairStep, next, canOpenDoor))
+                        result.Add(StairPosition(position.Stair, next, path.Count));
+                }
+                return;
+            }
+            foreach (var direction in traversalDirections)
+            {
+                var next = new DungeonSurfacePosition(position.Surface.Cell + direction, position.Surface.Level);
+                if (CanTraverseBetweenSurfaces(position.Surface, next, canOpenDoor)) result.Add(new DungeonTraversalPosition(next));
+            }
+            if (!stairsByLanding.TryGetValue(position.Surface, out var routes)) return;
+            foreach (var stair in routes)
+            {
+                var path = stairPaths[stair];
+                int from = position.Surface == stair.First ? 0 : path.Count - 1;
+                int to = from == 0 ? 1 : from - 1;
+                if (IsStairStepOpen(stair, path, from, to, canOpenDoor)) result.Add(StairPosition(stair, to, path.Count));
+            }
+        }
 
         /// <summary>Each edge is one ordinary movement step. No implicit transitions between overlapping projections.</summary>
         public IEnumerable<DungeonTraversalPosition> GetTraversalNeighbours(DungeonTraversalPosition position, Func<DungeonSurfaceEdge, bool> canOpenDoor = null)

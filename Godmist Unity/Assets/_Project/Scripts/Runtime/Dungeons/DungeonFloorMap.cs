@@ -11,6 +11,7 @@ namespace Godmist.Runtime.Dungeons
         // Cached level-zero projection for existing 2D consumers; room ownership is surface-keyed.
         private readonly HashSet<Vector2Int> floorCells = new();
         private readonly Dictionary<DungeonSurfacePosition, string> surfaceRooms = new();
+        private bool hasElevatedSurfaces;
         private readonly HashSet<DungeonStairConnection> stairs = new();
 
         private readonly Dictionary<DungeonSurfaceEdge, DungeonWallType> wallTypes = new();
@@ -30,15 +31,18 @@ namespace Godmist.Runtime.Dungeons
         public IReadOnlyDictionary<DungeonSurfaceEdge, DungeonWallType> SurfaceWallTypes => wallTypes;
         public IEnumerable<DungeonSurfaceEdge> SurfaceWallEdges => wallEdges;
         public IEnumerable<DungeonSurfaceEdge> SurfaceClosedProgressionGateEdges => closedProgressionGateEdges;
+        public IEnumerable<DungeonSurfaceEdge> SurfaceClosedDoorEdges => closedDoorEdges;
         public DungeonWallType GetWallType(DungeonCellEdge edge) => GetWallType(new DungeonSurfaceEdge(edge));
         public DungeonWallType GetWallType(DungeonSurfaceEdge edge) => wallTypes.TryGetValue(edge, out var type) ? type : DungeonWallType.Full;
         public bool SetWallType(DungeonCellEdge edge, DungeonWallType type) => SetWallType(new DungeonSurfaceEdge(edge), type);
         public bool SetWallType(DungeonSurfaceEdge edge, DungeonWallType type)
         {
             if ((!IsWalkable(edge.First) && !IsWalkable(edge.Second)) || !Enum.IsDefined(typeof(DungeonWallType), type)) return false;
+            var changed = !wallTypes.TryGetValue(edge, out var previousType) || previousType != type || !wallEdges.Contains(edge);
             wallEdges.Add(edge);
             wallTypes[edge] = type;
             if (edge.Level == 0) { groundWallEdges = null; groundWallTypes = null; }
+            if (changed) { TraversalRevision++; StaticGeometryRevision++; }
             return true;
         }
         public bool TryAddWall(DungeonSurfacePosition first, DungeonSurfacePosition second)
@@ -46,14 +50,26 @@ namespace Godmist.Runtime.Dungeons
             if (first.Level != second.Level || !IsWalkable(first)) return false;
             var added = wallEdges.Add(new DungeonSurfaceEdge(first, second));
             if (added && first.Level == 0) groundWallEdges = null;
+            if (added) { TraversalRevision++; StaticGeometryRevision++; }
             return added;
         }
 
         private readonly HashSet<DungeonSurfaceEdge> wallEdges = new();
         private readonly HashSet<DungeonSurfaceEdge> closedDoorEdges = new();
         private readonly HashSet<DungeonSurfaceEdge> closedProgressionGateEdges = new();
+        public int TraversalRevision { get; private set; }
+        // Doors and progression gates change traversal, not the authored floor/walls.
+        // Presentation/navigation caches can retain that immutable geometry.
+        public int StaticGeometryRevision { get; private set; }
 
         public IReadOnlyCollection<Vector2Int> FloorCells => floorCells;
+        private readonly HashSet<Vector2Int> visualPathCells = new();
+        public IReadOnlyCollection<Vector2Int> VisualPathCells => visualPathCells;
+        public void AddVisualPathCell(Vector2Int cell)
+        {
+            if (!IsWalkable(cell)) throw new ArgumentException("Visual path must stay on the floor.");
+            visualPathCells.Add(cell);
+        }
         public IReadOnlyCollection<DungeonCellEdge> WallEdges => groundWallEdges ??= wallEdges.Where(e => e.Level == 0).Select(e => e.CellEdge).ToArray();
         public IReadOnlyCollection<DungeonCellEdge> ClosedProgressionGateEdges =>
             groundClosedGates ??= closedProgressionGateEdges.Where(e => e.Level == 0).Select(e => e.CellEdge).ToArray();
@@ -72,6 +88,8 @@ namespace Godmist.Runtime.Dungeons
 
             floorCells.Add(cell);
             surfaceRooms.Add(new DungeonSurfacePosition(cell), roomId);
+            StaticGeometryRevision++;
+            TraversalRevision++;
 
             return true;
         }
@@ -118,16 +136,31 @@ namespace Godmist.Runtime.Dungeons
 
             if (isOpen)
             {
-                closedDoorEdges.Remove(edge);
+                if (closedDoorEdges.Remove(edge)) TraversalRevision++;
                 return true;
             }
 
-            closedDoorEdges.Add(edge);
+            if (closedDoorEdges.Add(edge)) TraversalRevision++;
             return true;
         }
 
         public bool TrySetProgressionGateState(DungeonCellEdge edge, bool isOpen)
             => TrySetProgressionGateState(new DungeonSurfaceEdge(edge), isOpen);
+
+        public bool TrySetProgressionGateState(IEnumerable<DungeonSurfaceEdge> edges, bool isOpen)
+        {
+            if(edges==null)return false;
+            var batch=edges.ToArray();
+            if(batch.Any(edge=>!IsWalkable(edge.First)||!IsWalkable(edge.Second)))return false;
+            var changed=false;
+            foreach(var edge in batch)changed|=isOpen?closedProgressionGateEdges.Remove(edge):closedProgressionGateEdges.Add(edge);
+            if(changed)
+            {
+                if(batch.Any(edge=>edge.Level==0))groundClosedGates=null;
+                TraversalRevision++;ProgressionGateStateChanged?.Invoke();
+            }
+            return true;
+        }
 
         public bool TrySetProgressionGateState(DungeonSurfaceEdge edge, bool isOpen)
         {
@@ -142,6 +175,7 @@ namespace Godmist.Runtime.Dungeons
                 if (closedProgressionGateEdges.Remove(edge))
                 {
                     if (edge.Level == 0) groundClosedGates = null;
+                    TraversalRevision++;
                     ProgressionGateStateChanged?.Invoke();
                 }
 
@@ -151,6 +185,7 @@ namespace Godmist.Runtime.Dungeons
             if (closedProgressionGateEdges.Add(edge))
             {
                 if (edge.Level == 0) groundClosedGates = null;
+                TraversalRevision++;
                 ProgressionGateStateChanged?.Invoke();
             }
 
@@ -178,7 +213,7 @@ namespace Godmist.Runtime.Dungeons
             var edge = new DungeonSurfaceEdge(new DungeonCellEdge(firstCell, secondCell));
 
             return (!HasWallBetween(firstCell, secondCell)
-                    || GetWallType(new DungeonCellEdge(firstCell, secondCell)) == DungeonWallType.Low)
+                    || GetWallType(new DungeonCellEdge(firstCell, secondCell)) is DungeonWallType.Low or DungeonWallType.TreeTrunk)
                 && (ignoreClosedDoorEdges
                     || (!closedDoorEdges.Contains(edge)
                         && !closedProgressionGateEdges.Contains(edge)));
@@ -186,13 +221,28 @@ namespace Godmist.Runtime.Dungeons
         // Level-zero API above remains compatible; surfaces are owned by this same map.
         public IEnumerable<DungeonSurfacePosition> Surfaces => surfaceRooms.Keys;
         public IEnumerable<DungeonStairConnection> Stairs => stairs;
-        public bool HasElevatedSurfaces => surfaceRooms.Keys.Any(p => p.Level != 0);
+        // Topology only grows through TryAddFloorCell. Position/visibility queries
+        // ask this thousands of times per tick: never scan the entire floor.
+        public bool HasElevatedSurfaces => hasElevatedSurfaces;
+        public bool HasAssetAuditDagger { get; private set; }
+        public Vector2Int AssetAuditDaggerCell { get; private set; }
+
+        public void SetAssetAuditDaggerCell(Vector2Int cell)
+        {
+            if (!IsWalkable(cell))
+                throw new ArgumentException("Asset-audit dagger must be placed on a floor cell.", nameof(cell));
+            AssetAuditDaggerCell = cell;
+            HasAssetAuditDagger = true;
+        }
 
         public bool TryAddFloorCell(DungeonSurfacePosition position, string roomId)
         {
             if (string.IsNullOrWhiteSpace(roomId) || surfaceRooms.ContainsKey(position)) return false;
             if (position.Level == 0) floorCells.Add(position.Cell);
             surfaceRooms.Add(position, roomId);
+            hasElevatedSurfaces |= position.Level != 0;
+            StaticGeometryRevision++;
+            TraversalRevision++;
             return true;
         }
         public bool IsWalkable(DungeonSurfacePosition position) => surfaceRooms.ContainsKey(position);

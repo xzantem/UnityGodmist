@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Godmist.Core.Enums;
 using Godmist.Core.Types;
@@ -95,6 +96,23 @@ namespace Godmist.Tests.EditMode
             var equipmentItem = items[0] as EquipmentItemInstance;
 
             Assert.That(equipmentItem.EquipmentSlot, Is.EqualTo(EquipmentSlot.Weapon));
+        }
+
+        [Test]
+        public void RollLoot_EmptyOptionalBossBag_DoesNotAwardUnopenableBag()
+        {
+            var bagDefinition = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            SetAutoProperty(bagDefinition, "Id", "item.empty_boss_bag");
+            SetAutoProperty(bagDefinition, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(bagDefinition, "BaseRarity", RarityTier.Common);
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            bagDefinition.Brackets.Add(bracket);
+
+            var loot = new LootTableSystem(() => .5f, lootLevel: 10)
+                .RollLoot(CreateLootTable(bagDefinition, 1f, new IntRange(1, 1)));
+
+            Assert.That(loot, Is.Empty);
         }
 
         [Test]
@@ -235,6 +253,33 @@ namespace Godmist.Tests.EditMode
             Assert.That(
                 bag.Contents.FindAll(item => item.Definition == galduryte),
                 Has.Count.EqualTo(0));
+        }
+
+        [Test]
+        public void RollChestLoot_UnpacksEachResourceBagIntoDirectItems()
+        {
+            var material = CreateItemDefinition("item.chest_material");
+            var bagDefinition = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            SetAutoProperty(bagDefinition, "Id", "item.chest_resource_bag");
+            SetAutoProperty(bagDefinition, "ItemType", ItemType.Lootbag);
+            var bracket = new LootBagBracketData();
+            SetAutoProperty(bracket, "Bracket", LootLevelBracket.Level1To10);
+            bracket.Pools.Add(CreatePool(1f,
+                CreatePoolEntry(material, new IntRange(2, 2))));
+            bagDefinition.Brackets.Add(bracket);
+            var table = CreateLootTable(bagDefinition, 1f, new IntRange(3, 3));
+
+            var items = new LootTableSystem(() => 0f, lootLevel: 5)
+                .RollChestLoot(table);
+
+            Assert.That(items, Has.Count.EqualTo(6));
+            Assert.That(items.All(item => item.Definition == material), Is.True);
+            Assert.That(items.Any(item => item is LootBagItemInstance), Is.False);
+            Assert.That(items.Select(item => item.InstanceId).Distinct().Count(), Is.EqualTo(6));
+
+            Object.DestroyImmediate(bagDefinition);
+            Object.DestroyImmediate(material);
+            Object.DestroyImmediate(table);
         }
 
         [Test]
@@ -432,6 +477,34 @@ namespace Godmist.Tests.EditMode
             Assert.That(opened, Is.True);
             Assert.That(openedItemCount, Is.EqualTo(1));
             Assert.That(character.Inventory.Items.Contains(item), Is.True);
+            Assert.That(character.Inventory.Items.Contains(bag), Is.False);
+        }
+
+        [Test]
+        public void LootBagService_DiscardsEmptyBagFromExistingSave()
+        {
+            var session = new GameSession(GameModeState.Exploration);
+            var character = new CharacterInstance
+            {
+                CharacterId = "character.stale_bag",
+                LifeState = CharacterLifeState.Alive,
+                AvailabilityState = CharacterAvailabilityState.Available,
+                Inventory = new Inventory { MaxWeight = 1f }
+            };
+            session.TryRegisterCharacter(character);
+            session.TryAddCharacterToActiveParty(character.CharacterId);
+            var definition = ScriptableObject.CreateInstance<LootBagItemDefinition>();
+            SetAutoProperty(definition, "Id", "item.stale_bag");
+            SetAutoProperty(definition, "ItemType", ItemType.Lootbag);
+            SetAutoProperty(definition, "BaseRarity", RarityTier.Common);
+            var bag = new LootBagItemInstance(definition, "bag.stale.01");
+            character.Inventory.Items.Add(bag);
+
+            var opened = new LootBagService().TryOpenLootBag(
+                session, character.CharacterId, bag.InstanceId, out var openedItemCount);
+
+            Assert.That(opened, Is.True);
+            Assert.That(openedItemCount, Is.Zero);
             Assert.That(character.Inventory.Items.Contains(bag), Is.False);
         }
 

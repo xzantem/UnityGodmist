@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: CD_Mage
   m_EditorClassIdentifier: Data::Godmist.Data.Characters.CharacterDefinition
   <Id>k__BackingField: character.mage
-  <DisplayName>k__BackingField: Mage
-  <VisualSprite>k__BackingField: {fileID: 0}
-  <IdleAnimationFrames>k__BackingField: []
+  <DisplayName>k__BackingField: Alison
+  <Tags>k__BackingField: 
+  <VisualSprite>k__BackingField: {fileID: 21300000, guid: fe409c757a39f3b4c89f967067fd93d7, type: 3}
+  <PortraitSprite>k__BackingField: {fileID: 21300000, guid: f8ccab3028fb5344b82f563360a71550, type: 3}
+  <IdleAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: fe409c757a39f3b4c89f967067fd93d7, type: 3}
   <IdleAnimationFramesPerSecond>k__BackingField: 4
-  <RunAnimationFrames>k__BackingField: []
+  <RunAnimationFrames>k__BackingField:
+  - {fileID: 21300000, guid: fe409c757a39f3b4c89f967067fd93d7, type: 3}
   <RunAnimationFramesPerSecond>k__BackingField: 8
-  <HitSprite>k__BackingField: {fileID: 0}
+  <HitSprite>k__BackingField: {fileID: 21300000, guid: fe409c757a39f3b4c89f967067fd93d7, type: 3}
+  <DeadSprite>k__BackingField: {fileID: 0}
   <IsMainCharacter>k__BackingField: 0
   <AiRole>k__BackingField: 0
   <AiPersonality>k__BackingField: 0
@@ -31,17 +36,36 @@ MonoBehaviour:
     <MaxAttack>k__BackingField: 36
     <PhysicalDefense>k__BackingField: 6
     <MagicalDefense>k__BackingField: 12
+    <PhysicalDefensePenetration>k__BackingField: 0
+    <MagicalDefensePenetration>k__BackingField: 0
     <Dodge>k__BackingField: 6
-    <CritChance>k__BackingField: 0.25
-    <CritDamage>k__BackingField: 1.5
+    <CritChance>k__BackingField: 0
+    <CritDamage>k__BackingField: 1
     <Speed>k__BackingField: 45
-    <WeaponAccuracy>k__BackingField: 100
+    <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 100
-    <ResourceRegeneration>k__BackingField: 0
+    <ResourceRegeneration>k__BackingField: 15
+    <HealingPower>k__BackingField: 0
+  <BaseResistances>k__BackingField:
+    <BleedResistance>k__BackingField: 0.25
+    <PoisonResistance>k__BackingField: 0.25
+    <FireResistance>k__BackingField: 0.8
+    <WeakeningResistance>k__BackingField: 0.7
+    <SuppressionResistance>k__BackingField: 0.3
+    <MoveResistance>k__BackingField: 0.3
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 7.5
     <MinAttack>k__BackingField: 1
     <MaxAttack>k__BackingField: 1.3
+    <LateMaxHealth>k__BackingField: 0
+    <LateMinAttack>k__BackingField: 0
+    <LateMaxAttack>k__BackingField: 0
+    <EarlyMaxHealth>k__BackingField: 0
+    <EarlyMinAttack>k__BackingField: 0
+    <EarlyMaxAttack>k__BackingField: 0
+    <LateMaxHealthOffset>k__BackingField: 0
+    <LateMinAttackOffset>k__BackingField: 0
+    <LateMaxAttackOffset>k__BackingField: 0
     <PhysicalDefense>k__BackingField: 0.25
     <MagicalDefense>k__BackingField: 0.5
     <Dodge>k__BackingField: 0.04
@@ -51,7 +75,18 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <StartingSkills>k__BackingField: []
+  <SecondPhaseDefinition>k__BackingField: {fileID: 0}
+  <TransformationFramesPerSecond>k__BackingField: 8
+  <TransformationFrames>k__BackingField: []
+  <SanctuaryWarning>k__BackingField: {fileID: 0}
+  <SanctuaryFire>k__BackingField: {fileID: 0}
+  <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
+  <StartingSkills>k__BackingField:
+  - {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
+  - {fileID: 11400000, guid: 32caa44ec27ebfb47a3dbecab2f8a007, type: 2}
+  - {fileID: 11400000, guid: 862ba81cbc158ff42bea7e9a3dc84b0d, type: 2}
+  - {fileID: 11400000, guid: 77944366a93a6d8468a805ff40de1a2a, type: 2}
+  - {fileID: 11400000, guid: 9d0b1b9de781aed41983e8ebb4649d2f, type: 2}
   <ExperienceReward>k__BackingField: 0
   <GoldReward>k__BackingField: 0
   <LootTable>k__BackingField: {fileID: 0}

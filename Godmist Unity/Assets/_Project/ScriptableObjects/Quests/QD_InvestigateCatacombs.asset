@@ -25,7 +25,7 @@ MonoBehaviour:
     - <ObjectiveId>k__BackingField: objective.exit_catacombs
       <Description>k__BackingField: "Opu\u015B\u0107 Katakumby."
       <ObjectiveType>k__BackingField: 5
-      <TargetId>k__BackingField: dungeon.catacombs.procedural.v1
+      <TargetId>k__BackingField: dungeon.catacombs.expedition
       <RequiredAmount>k__BackingField: 1
       <IsOptional>k__BackingField: 0
     <CompletionRewards>k__BackingField:
@@ -34,19 +34,23 @@ MonoBehaviour:
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
+      standardExperienceLevel: 1
     - rewardType: 1
       amount: 25
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
+      standardExperienceLevel: 0
     - rewardType: 3
       amount: 2
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
+      standardExperienceLevel: 0
     - rewardType: 4
       amount: 1
       itemDefinition: {fileID: 0}
       worldFlagId: world.quest.investigate_catacombs.completed
       worldFlagValue: true
+      standardExperienceLevel: 0
     <Transitions>k__BackingField: []

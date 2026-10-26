@@ -9,10 +9,12 @@ namespace Godmist.Systems.Combat
     public static class DungeonCombatParticipationSystem
     {
         public static bool TryJoin(CombatSession session, BattleUnit unit, GridPosition preferred,
-            ISet<GridPosition> reservedArrivals = null)
+            ISet<GridPosition> reservedArrivals = null, bool allowDowned = false)
         {
             if (session?.IsSeamless != true || session.Outcome != CombatOutcomeState.Ongoing
-                || unit?.Character?.LifeState != CharacterLifeState.Alive || session.Units.Contains(unit)) return false;
+                || unit?.Character == null || (unit.Character.LifeState != CharacterLifeState.Alive
+                    && !(allowDowned && unit.IsPlayerSide && unit.Character.LifeState == CharacterLifeState.Downed))
+                || session.Units.Contains(unit)) return false;
             var occupied = new HashSet<GridPosition>(session.Units.Select(value => value.Position));
             if (reservedArrivals != null) occupied.UnionWith(reservedArrivals);
             AddExternalReservations(session, occupied);

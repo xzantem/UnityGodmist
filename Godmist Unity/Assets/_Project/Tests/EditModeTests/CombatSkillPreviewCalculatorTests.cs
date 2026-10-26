@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Godmist.Core.Enums;
+using Godmist.Core.Constants;
 using Godmist.Core.Types;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
@@ -26,6 +27,25 @@ namespace Godmist.Tests.EditMode
             }
 
             createdAssets.Clear();
+        }
+
+        [Test]
+        public void HealingPreviewCapsAtMissingHealthAndDoesNotMutateOrConsumeRandom()
+        {
+            var caster = CreateUnit(8, 12, 1f);
+            var target = CreateUnit(1, 1, 0f);
+            target.Character.Stats.MaxHealth = new Stat(100);
+            target.Character.CurrentHealth = 75;
+            var effect = new SkillEffectData();
+            SetField(effect, "effectType", EffectType.Heal);
+            SetField(effect, "baseValue", 40);
+            var skill = CreateSkill(effect);
+            var random = Random.state;
+            var preview = CombatSkillPreviewCalculator.CalculateTargetPreview(caster, target, skill);
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(preview.Healing, Is.EqualTo(25));
+            Assert.That(target.Character.CurrentHealth, Is.EqualTo(75));
+            Assert.That(Random.state, Is.EqualTo(random));
         }
 
         [Test]
@@ -63,6 +83,29 @@ namespace Godmist.Tests.EditMode
             Assert.That(preview.Damage.Minimum, Is.EqualTo(8));
             Assert.That(preview.Damage.Maximum, Is.EqualTo(14));
             Assert.That(preview.HitChance, Is.EqualTo(1f).Within(0.0001f));
+        }
+
+        [Test]
+        public void CalculateTargetPreview_ShowsFinalStatusChanceWithoutDamage()
+        {
+            var caster = CreateUnit(8, 12, 0f);
+            caster.IsPlayerSide = true;
+            var target = CreateUnit(1, 1, 0f);
+            target.Character.Resistances.SuppressionResistance = .5f;
+            target.AddStatusTolerance(StatusEffectIds.Stun);
+            var effect = new SkillEffectData();
+            SetField(effect, "effectType", EffectType.ApplyStatus);
+            SetField(effect, "statusId", StatusEffectIds.Stun);
+            SetField(effect, "baseChance", .8f);
+            SetField(effect, "alwaysHits", true);
+
+            var preview = CombatSkillPreviewCalculator.CalculateTargetPreview(
+                caster, target, CreateSkill(effect));
+
+            Assert.That(preview.IsValid, Is.True);
+            Assert.That(preview.Damage.HasDamage, Is.False);
+            Assert.That(preview.StatusId, Is.EqualTo(StatusEffectIds.Stun));
+            Assert.That(preview.StatusChance, Is.EqualTo(.4f).Within(.0001f));
         }
 
         [Test]
@@ -114,6 +157,7 @@ namespace Godmist.Tests.EditMode
                 {
                     WeaponAccuracy = 100f,
                     LifeState = CharacterLifeState.Alive,
+                    Resistances = new ResistanceSet(),
                     Stats = new CharacterStats
                     {
                         MinAttack = new Stat(minAttack),

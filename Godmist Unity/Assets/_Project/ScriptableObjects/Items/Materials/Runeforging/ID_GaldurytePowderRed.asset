@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.runic.galduryte_powder.red
   <DisplayName>k__BackingField: Czerwony proszek galdurytu
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Barwny proszek nak\u0142adany na kamie\u0144 galdurytu
+    podczas zaklinania."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 759b393a4bdddc44691b1afcb4123828, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 3

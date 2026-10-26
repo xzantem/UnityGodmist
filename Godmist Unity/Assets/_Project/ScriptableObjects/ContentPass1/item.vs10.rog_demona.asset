@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dbe6bdc53b6c9749b7f8cba3f277e54, type: 3}
+  m_Name: item.vs10.rog_demona
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
+  <Id>k__BackingField: item.vs10.rog_demona
+  <DisplayName>k__BackingField: "R\xF3g demona"
+  <Description>k__BackingField: "Twardy fragment rogu demona, u\u017Cywany w alchemii."
+  <Icon>k__BackingField: {fileID: 21300000, guid: df24bd9da79dc704faa3f89c9a101eab, type: 3}
+  <ItemType>k__BackingField: 3
+  <MaterialDiscipline>k__BackingField: 2
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 21
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 1

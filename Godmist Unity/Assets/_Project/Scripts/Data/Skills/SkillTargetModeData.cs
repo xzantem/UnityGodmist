@@ -26,6 +26,14 @@ namespace Godmist.Data.Skills
         [SerializeField] private SkillRangeData relativeRange =
             new();
 
+        [SerializeField, Min(1)] private int chainTargets = 3;
+        public int ChainTargets => Math.Max(1, chainTargets);
+        public SkillTargetModeData WithChainTargets(int count)
+        {
+            var copy=(SkillTargetModeData)MemberwiseClone(); copy.chainTargets=count; return copy;
+        }
+        [SerializeField] private string requiredStatusId;
+        public string RequiredStatusId => requiredStatusId;
         public TargetType TargetType => targetType;
         public TargetingType TargetingType => targetingType;
         public bool IncludesCaster => includesCaster;
@@ -33,9 +41,18 @@ namespace Godmist.Data.Skills
         public bool UseRelativeRange => SupportsRelativeRange(TargetType);
         public SkillRangeData RelativeRange => relativeRange;
 
+        public SkillTargetModeData WithRuntimeRanges(int absoluteMaximum, int relativeMaximum)
+        {
+            if (absoluteMaximum == absoluteRange.MaxRange && relativeMaximum == relativeRange.MaxRange) return this;
+            var copy = (SkillTargetModeData)MemberwiseClone();
+            copy.absoluteRange = new SkillRangeData(absoluteRange.Shape, absoluteRange.MinRange, absoluteMaximum, absoluteRange.RectangleWidth);
+            copy.relativeRange = new SkillRangeData(relativeRange.Shape, relativeRange.MinRange, relativeMaximum, relativeRange.RectangleWidth);
+            return copy;
+        }
+
         public static bool SupportsRelativeRange(TargetType targetType)
         {
-            return targetType == TargetType.AreaAroundTile;
+            return targetType == TargetType.AreaAroundTile || targetType == TargetType.Chain;
         }
     }
 }

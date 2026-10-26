@@ -9,6 +9,8 @@ namespace Godmist.Runtime.Combat
     {
         public int Width;
         public int Height;
+        [NonSerialized] private int navigationRevision;
+        public int NavigationRevision => navigationRevision;
         [NonSerialized] public Func<GridPosition, IEnumerable<GridPosition>> TraversalNeighbours;
         public IEnumerable<GridPosition> Positions
         {
@@ -22,7 +24,8 @@ namespace Godmist.Runtime.Combat
         public IEnumerable<GridPosition> GetPositionsAt(int x, int y)
         {
             if (TraversalNeighbours == null) { yield return new GridPosition(x, y); yield break; }
-            foreach (var position in walkablePositions) if (position.X == x && position.Y == y) yield return position;
+            if (positionsByColumn.TryGetValue((x, y), out var column))
+                foreach (var position in column) yield return position;
         }
         public IEnumerable<GridPosition> GetNeighbours(GridPosition origin)
         {
@@ -35,12 +38,19 @@ namespace Godmist.Runtime.Combat
         }
 
         private readonly HashSet<GridPosition> walkablePositions = new();
+        private readonly Dictionary<(int X, int Y), HashSet<GridPosition>> positionsByColumn = new();
         private readonly HashSet<GridPosition> blockedPositions = new();
         private readonly Dictionary<BattleCellEdge, DungeonWallType> wallTypes = new();
         public void SetWallEdge(GridPosition from, GridPosition to, DungeonWallType type)
-            => wallTypes[new BattleCellEdge(from, to)] = type;
+        {
+            var edge = new BattleCellEdge(from, to);
+            if (!wallTypes.TryGetValue(edge, out var previous) || previous != type) navigationRevision++;
+            wallTypes[edge] = type;
+        }
+        public bool HasWallEdge(GridPosition from, GridPosition to)
+            => wallTypes.ContainsKey(new BattleCellEdge(from, to));
         private readonly HashSet<GridPosition> difficultTerrain = new();
-        public void SetDifficultTerrain(GridPosition cell) => difficultTerrain.Add(cell);
+        public void SetDifficultTerrain(GridPosition cell) { if (difficultTerrain.Add(cell)) navigationRevision++; }
         public bool IsDifficultTerrain(GridPosition cell) => difficultTerrain.Contains(cell);
         public int GetTerrainMovementSurcharge(GridPosition cell) => IsDifficultTerrain(cell) ? 1 : 0;
         public int GetMovementSurcharge(GridPosition from, GridPosition to)
@@ -61,6 +71,20 @@ namespace Godmist.Runtime.Combat
         {
             Width = width;
             Height = height;
+        }
+
+        // Geometry is read-only during an AI query; only door edges need an overlay.
+        public BattleGrid CopyForPlanning()
+        {
+            var copy = new BattleGrid(Width, Height, usesExplicitWalkablePositions)
+            { TraversalNeighbours = TraversalNeighbours, DynamicBlocked = DynamicBlocked };
+            foreach (var cell in walkablePositions) copy.SetWalkable(cell);
+            copy.blockedPositions.UnionWith(blockedPositions);
+            copy.blockedEdges.UnionWith(blockedEdges);
+            copy.difficultTerrain.UnionWith(difficultTerrain);
+            foreach (var wall in wallTypes) copy.wallTypes.Add(wall.Key, wall.Value);
+            copy.navigationRevision = navigationRevision;
+            return copy;
         }
 
         public BattleGrid(
@@ -105,11 +129,24 @@ namespace Godmist.Runtime.Combat
 
             if (isWalkable)
             {
-                walkablePositions.Add(position);
+                if (walkablePositions.Add(position))
+                {
+                    navigationRevision++;
+                    var key = (position.X, position.Y);
+                    if (!positionsByColumn.TryGetValue(key, out var column))
+                        positionsByColumn[key] = column = new HashSet<GridPosition>();
+                    column.Add(position);
+                }
                 return;
             }
 
-            walkablePositions.Remove(position);
+            if (walkablePositions.Remove(position)
+                && positionsByColumn.TryGetValue((position.X, position.Y), out var remainingColumn))
+            {
+                navigationRevision++;
+                remainingColumn.Remove(position);
+                if (remainingColumn.Count == 0) positionsByColumn.Remove((position.X, position.Y));
+            }
         }
 
         public void SetBlocked(
@@ -120,11 +157,11 @@ namespace Godmist.Runtime.Combat
 
             if (isBlocked)
             {
-                blockedPositions.Add(position);
+                if (blockedPositions.Add(position)) navigationRevision++;
                 return;
             }
 
-            blockedPositions.Remove(position);
+            if (blockedPositions.Remove(position)) navigationRevision++;
         }
 
         public void SetBlockedEdge(
@@ -142,11 +179,11 @@ namespace Godmist.Runtime.Combat
 
             if (isBlocked)
             {
-                blockedEdges.Add(edge);
+                if (blockedEdges.Add(edge)) navigationRevision++;
                 return;
             }
 
-            blockedEdges.Remove(edge);
+            if (blockedEdges.Remove(edge)) navigationRevision++;
         }
 
         public bool HasBlockedEdge(

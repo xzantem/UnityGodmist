@@ -28,6 +28,9 @@ namespace Godmist.Systems.SaveLoad
 {
     public class GameSessionRestoreFactory
     {
+        private static float SafeEquipmentCarry(float value) =>
+            float.IsNaN(value) || float.IsInfinity(value) ? 0 : Mathf.Clamp(value, -1, 0);
+
         private readonly CharacterInstanceFactory characterFactory;
         private readonly ItemInstanceFactory itemFactory;
         private readonly NpcInstanceFactory npcFactory;
@@ -204,7 +207,9 @@ namespace Godmist.Systems.SaveLoad
             if (!TryRestoreQuests(
                     restoredSession,
                     saveData.Quests,
-                    contentCatalog))
+                    contentCatalog,
+                    itemsById,
+                    assignedItemIds, saveData.DungeonOffers?.CompletedExpeditions ?? 0))
             {
                 Debug.LogError("Odtwarzanie GameSession odrzucone przy odtwarzaniu questów.");
                 return false;
@@ -334,7 +339,7 @@ namespace Godmist.Systems.SaveLoad
                     if (!TryTakeItem(id, itemsById, assignedItemIds, out var socketed)
                         || socketed is not GalduryteItemInstance galduryte
                         || !galduryte.IsIdentified
-                        || equipment.SocketedGaldurytes.Count >= equipment.SocketCapacity)
+                        || equipment.SocketedGaldurytes.Count >= EquipmentItemInstance.GetSocketCapacity(1f))
                         return false;
                     equipment.SocketedGaldurytes.Add(galduryte);
                 }
@@ -404,6 +409,7 @@ namespace Godmist.Systems.SaveLoad
                 item.CurrentRarity = itemSaveData.CurrentRarity;
                 item.ItemLevel = itemSaveData.ItemLevel;
                 item.CustomName = itemSaveData.CustomName ?? string.Empty;
+                item.IsSaleProtected = itemSaveData.IsSaleProtected;
 
                 if (item is ConsumableItemInstance consumableItem)
                 {
@@ -551,11 +557,10 @@ namespace Godmist.Systems.SaveLoad
                     equipmentItem.PrimaryPartDisplayName = itemSaveData.PrimaryPartDisplayName ?? string.Empty;
                     equipmentItem.PrimaryMaterialId = itemSaveData.PrimaryMaterialId ?? string.Empty;
                     equipmentItem.CraftedBaseValue = itemSaveData.EquipmentCraftedBaseValue;
-                    equipmentItem.BaseStatModifiers = baseModifiers.Count > 0
-                        ? baseModifiers
-                        : new List<StatModifier>(modifiers);
+                    equipmentItem.BaseStatModifiers = baseModifiers;
                     equipmentItem.StatModifiers = modifiers;
                     equipmentItem.UpgradeProgress = itemSaveData.UpgradeProgress;
+                    equipmentItem.RecalculateStatModifiers();
 
                     if (equipmentItem is JewelryItemInstance jewelryItem)
                     {
@@ -640,6 +645,9 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            var resolvedClass = CharacterInstanceFactory.ResolveClassData(definition, classData);
+            var migratedEnemyResource = resolvedClass != classData;
+            classData = resolvedClass;
             character = characterFactory.Create(definition, classData);
 
             character.Level = saveData.Level;
@@ -650,14 +658,19 @@ namespace Godmist.Systems.SaveLoad
                 classData);
             CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character);
             character.CurrentHealth = saveData.CurrentHealth;
+            character.EquipmentHealthCarry = SafeEquipmentCarry(saveData.EquipmentHealthCarry);
+            character.EquipmentResourceCarry = SafeEquipmentCarry(saveData.EquipmentResourceCarry);
+            character.EquipmentGenerationCarry = SafeEquipmentCarry(saveData.EquipmentGenerationCarry);
             character.Honor = saveData.Honor;
             character.WeaponAccuracy = saveData.WeaponAccuracy;
             character.LifeState = saveData.LifeState;
             character.AvailabilityState = saveData.AvailabilityState;
 
-            RestoreResourcePool(
-                character.ResourcePool,
-                saveData.ResourcePool);
+            // Legacy enemy Mana cannot become a free full Rage/Momentum pool.
+            // New saves keep their exact resource state; only the old class alias
+            // adopts the authored initial profile during migration.
+            if (!migratedEnemyResource)
+                RestoreResourcePool(character.ResourcePool, saveData.ResourcePool);
 
             if (saveData.HasPersistentResistances)
             {
@@ -704,7 +717,10 @@ namespace Godmist.Systems.SaveLoad
             CharacterInstance character,
             CharacterSaveData saveData)
         {
-            var knownSkillIds = GetSkillIds(character.Skills);
+            var legacyWarrior = character.ClassData?.Id == "class.warrior" && saveData.SkillIds?.Contains("skill.warrior.bandage") == true;
+            string MigrateSkill(string id) => !legacyWarrior ? id : id == "skill.warrior.bandage" ? "skill.warrior.bleeding_destruction"
+                : id == "skill.warrior.bleeding_destruction" ? WarriorDischargeRules.SkillId : id;
+            var knownSkillIds = GetSkillIds(character.GetKnownSkills());
             var basicAttackSkillId = ResolveRestoredBasicAttackSkillId(
                 character,
                 saveData,
@@ -745,12 +761,12 @@ namespace Godmist.Systems.SaveLoad
                 ? character.ActiveSkillLoadout.TryInitializeSlots(
                     knownSkillIds,
                     basicAttackSkillId,
-                    saveData.ActiveSkillSlotIds,
+                    saveData.ActiveSkillSlotIds.Select(MigrateSkill),
                     modifiers)
                 : character.ActiveSkillLoadout.TryInitialize(
                     knownSkillIds,
                     basicAttackSkillId,
-                    saveData.ActiveSkillIds,
+                    saveData.ActiveSkillIds?.Select(MigrateSkill),
                     modifiers);
         }
 
@@ -813,7 +829,7 @@ namespace Godmist.Systems.SaveLoad
         }
 
         private static List<string> GetSkillIds(
-            List<SkillData> skills)
+            IReadOnlyList<SkillData> skills)
         {
             var result = new List<string>();
             var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -886,14 +902,25 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var shieldLayer in shieldLayers)
             {
-                if (shieldLayer == null || shieldLayer.CurrentValue < 0)
+                if (shieldLayer == null || shieldLayer.CurrentValue < 0 || shieldLayer.RemainingTurns < 0)
                 {
                     return false;
                 }
 
+                var turns = shieldLayer.RemainingTurns;
+                if (string.Equals(shieldLayer.SourceId, CombatShieldSystem.MageShieldSourceId,
+                        System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Legacy saves have no duration and may contain stacked casts.
+                    // Keep the last surviving cast, with a bounded lifetime.
+                    turns = turns == 0 ? CombatShieldSystem.MageShieldDuration
+                        : System.Math.Min(turns, CombatShieldSystem.MageShieldDuration);
+                    character.ShieldPool.RemoveLayersBySourceId(shieldLayer.SourceId);
+                }
                 character.ShieldPool.AddLayer(
                     shieldLayer.CurrentValue,
-                    shieldLayer.SourceId);
+                    shieldLayer.SourceId,
+                    turns);
             }
 
             return true;
@@ -909,17 +936,13 @@ namespace Godmist.Systems.SaveLoad
             var restoredSkillIds = new HashSet<string>(
                 StringComparer.Ordinal);
 
-            foreach (var skillId in skillIds ?? new List<string>())
+            foreach (var savedSkillId in skillIds ?? new List<string>())
             {
+                var skillId = character.ClassData?.Id == "class.warrior" && savedSkillId == "skill.warrior.bandage"
+                    ? "skill.warrior.bleeding_destruction" : savedSkillId;
                 if (string.IsNullOrWhiteSpace(skillId)
                     || !restoredSkillIds.Add(skillId)
-                    || !contentCatalog.TryGetSkill(
-                        skillId,
-                        out var skill))
-                {
-                    return false;
-                }
-
+                    || !contentCatalog.TryGetSkill(skillId, out var skill)) return false;
                 character.Skills.Add(skill);
             }
 
@@ -1150,7 +1173,9 @@ namespace Godmist.Systems.SaveLoad
                         });
                         break;
                     case PassiveEffectPayloadType.PeriodicRecovery:
-                        if (saveData.HealthPercent < 0f
+                        if (float.IsNaN(saveData.HealthRoundingCarry) || saveData.HealthRoundingCarry < -1f || saveData.HealthRoundingCarry > 0f
+                            || float.IsNaN(saveData.ResourceRoundingCarry) || saveData.ResourceRoundingCarry < -1f || saveData.ResourceRoundingCarry > 0f
+                            || saveData.HealthPercent < 0f
                             || saveData.HealthPercent > 1f
                             || saveData.ResourcePercent < 0f
                             || saveData.ResourcePercent > 1f)
@@ -1160,7 +1185,9 @@ namespace Godmist.Systems.SaveLoad
                         payloads.Add(new PeriodicRecoveryPayload
                         {
                             HealthPercent = saveData.HealthPercent,
-                            ResourcePercent = saveData.ResourcePercent
+                            ResourcePercent = saveData.ResourcePercent,
+                            HealthRoundingCarry = saveData.HealthRoundingCarry,
+                            ResourceRoundingCarry = saveData.ResourceRoundingCarry
                         });
                         break;
                 }
@@ -1221,21 +1248,26 @@ namespace Godmist.Systems.SaveLoad
                 {
                     if (node == null
                         || string.IsNullOrWhiteSpace(node.NodeId)
-                        || node.Ranks <= 0
-                        || !nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(
-                            node.NodeId,
-                            out var nodeDefinition))
+                        || node.Ranks <= 0)
                     {
                         continue;
                     }
 
+                    // Strong Liver was replaced by Efficient Recovery. Canonicalize before
+                    // merging so a save containing both IDs cannot spend/count the point twice.
+                    var nodeId = tree.TreeId == "tree.scout.blade_dancer"
+                        && node.NodeId == "node.scout.blade_dancer.strong_liver"
+                        ? "node.scout.blade_dancer.efficient_recovery" : node.NodeId;
+                    if (!nodeDefinitionsByTreeId[tree.TreeId].TryGetValue(nodeId, out var nodeDefinition))
+                        continue;
+
                     var ranks = Math.Min(node.Ranks, nodeDefinition.EffectiveMaxRanks);
                     if (!aggregatedRanks.TryGetValue(
-                            node.NodeId,
+                            nodeId,
                             out var existingRanks)
                         || ranks > existingRanks)
                     {
-                        aggregatedRanks[node.NodeId] = ranks;
+                        aggregatedRanks[nodeId] = ranks;
                     }
                 }
             }
@@ -1541,7 +1573,9 @@ namespace Godmist.Systems.SaveLoad
         private static bool TryRestoreQuests(
             GameSession session,
             List<QuestSaveData> questSaveDataList,
-            GameContentCatalog contentCatalog)
+            GameContentCatalog contentCatalog,
+            Dictionary<string, ItemInstance> itemsById,
+            HashSet<string> assignedItemIds, int completedExpeditions)
         {
             if (questSaveDataList == null)
             {
@@ -1569,6 +1603,40 @@ namespace Godmist.Systems.SaveLoad
                 }
 
                 var quest = new QuestInstance(definition);
+
+                if (questSaveData.HasBoardContract)
+                {
+                    var contract=questSaveData.BoardContract;
+                    if (contract==null || !Godmist.Systems.Quests.CatacombsMissionBoard.QuestIds.Contains(definition.Id)
+                        || questSaveData.RadiantRewardLevel!=contract.Level || contract.Cycle>completedExpeditions) return false;
+                    try
+                    {
+                        if (!quest.TrySetBoardContract(new RadiantBoardContract(definition.StartStageId,contract.ObjectiveType,
+                            contract.Theme,contract.Length,contract.Level,contract.RequiredAmount,contract.RewardMultiplier,contract.Cycle))) return false;
+                    }
+                    catch (ArgumentException) { return false; }
+                }
+
+                if (questSaveData.RadiantRewardLevel != 0)
+                {
+                    if (questSaveData.RadiantRewardLevel < 1
+                        || questSaveData.RadiantRewardLevel > 50
+                        || questSaveData.RadiantRewardExperience < 0
+                        || questSaveData.RadiantRewardGold < 0
+                        || questSaveData.RadiantRewardHonor < 0) return false;
+                    ItemInstance bonusItem = null;
+                    if (!string.IsNullOrWhiteSpace(questSaveData.RadiantBonusItemInstanceId)
+                        && !TryTakeItem(questSaveData.RadiantBonusItemInstanceId,
+                            itemsById, assignedItemIds, out bonusItem)) return false;
+                    if (!quest.TrySetRadiantRewardOffer(new RadiantRewardOffer(
+                        questSaveData.RadiantRewardLevel,
+                        questSaveData.RadiantRewardExperience,
+                        questSaveData.RadiantRewardGold,
+                        questSaveData.RadiantRewardHonor,
+                        bonusItem))) return false;
+                }
+                else if (!string.IsNullOrWhiteSpace(questSaveData.RadiantBonusItemInstanceId))
+                    return false;
 
                 if (!quest.TryRestoreState(
                         questSaveData.Status,
@@ -1627,6 +1695,12 @@ namespace Godmist.Systems.SaveLoad
                 npc.TotalGoldReceived = npcSaveData.TotalGoldReceived;
                 npc.TotalGoldSpent = npcSaveData.TotalGoldSpent;
                 npc.GuildPayoutProgress = npcSaveData.GuildPayoutProgress;
+                npc.RotatingStockItemIds = npcSaveData.RotatingStockItemIds == null
+                    ? new System.Collections.Generic.List<string>()
+                    : new System.Collections.Generic.List<string>(npcSaveData.RotatingStockItemIds);
+                npc.CraftedStockInstanceIds = npcSaveData.CraftedStockInstanceIds == null
+                    ? new System.Collections.Generic.List<string>()
+                    : new System.Collections.Generic.List<string>(npcSaveData.CraftedStockInstanceIds);
 
                 if (npc.ShopInventory == null)
                 {
@@ -1655,6 +1729,9 @@ namespace Godmist.Systems.SaveLoad
                         return false;
                     }
                 }
+
+                TraderStockService.RemoveInvalidEquipmentOffers(npc);
+                TraderStockService.EnforceAlchemyIngredientLimits(npc);
 
                 if (!session.TryRegisterNpc(npc))
                 {
@@ -1768,7 +1845,7 @@ namespace Godmist.Systems.SaveLoad
                         saveData.Seed,
                         saveData.DungeonLevel > 0
                             ? saveData.DungeonLevel
-                            : definition.DungeonLevel);
+                            : definition.DungeonLevel, saveData.Length);
 
                     encounterPlacementSystem.Place(dungeon);
                     objectPlacementSystem.PlaceLegacySave(dungeon, contentCatalog.EquipmentPartDefinitions);
@@ -1781,6 +1858,7 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            dungeon.ItemDropChanceBonus = float.IsNaN(saveData.ItemDropChanceBonus) || float.IsInfinity(saveData.ItemDropChanceBonus) ? 0 : Mathf.Clamp01(saveData.ItemDropChanceBonus);
             if (!dungeon.TryRestoreState(
                     saveData.CurrentFloorIndex,
                     saveData.IsCompleted,
@@ -1798,6 +1876,9 @@ namespace Godmist.Systems.SaveLoad
                     + $"{saveData.CurrentFloorIndex}.");
                 return false;
             }
+
+            if (saveData.TraderStockRefreshed) dungeon.MarkTraderStockRefreshed();
+            if (saveData.CampSuppliesIssued) dungeon.MarkCampSuppliesIssued();
 
             if (!TryRestoreDungeonFloorDeltas(
                     dungeon,
@@ -1954,6 +2035,13 @@ namespace Godmist.Systems.SaveLoad
                                     return false;
                                 }
                             }
+                            if (objectDelta.IsChest && objectDelta.HasChestGoldState
+                                && (!floor.TryGetObject(objectDelta.ObjectInstanceId, out var restoredGoldObject)
+                                    || restoredGoldObject is not ChestDungeonObjectInstance restoredGoldChest
+                                    || !restoredGoldChest.TryRestoreGold(objectDelta.ChestGold)))
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -2034,6 +2122,7 @@ namespace Godmist.Systems.SaveLoad
                         foreach (var savedReward in encounterDelta.Rewards)
                         {
                             if (savedReward == null || savedReward.Gold < 0 || savedReward.Experience < 0
+                                || savedReward.ExperienceLevel < 0 || savedReward.ExperienceLevel > 50
                                 || savedReward.ItemIds == null || !rewardIds.Add(savedReward.EnemyId ?? string.Empty)) return false;
                             var rewardItems = new List<ItemInstance>();
                             foreach (var itemId in savedReward.ItemIds)
@@ -2052,10 +2141,17 @@ namespace Godmist.Systems.SaveLoad
                             {
                                 if (restoredEncounter.IsEnemyDefeated(savedReward.EnemyId)
                                     || restoredEncounter.IsEnemyBodyGenerated(savedReward.EnemyId)) return false;
+                                bool isBoss = Godmist.Systems.Combat.ScoutCombatSystem.IsBoss(
+                                    dungeon, restoredEncounter.Definition, savedReward.EnemyId);
                                 rewards.EnemyRewards.Add(new CombatEnemyReward
                                 {
                                     EnemyInstanceId = savedReward.EnemyId, Gold = savedReward.Gold,
-                                    ExperiencePerActiveCharacter = savedReward.Experience, Items = rewardItems
+                                    IsBoss = isBoss,
+                                    ExperiencePerActiveCharacter = savedReward.ExperienceLevel > 0
+                                        ? Godmist.Systems.Combat.CombatRewardSystem.CalculateEnemyExperience(
+                                            savedReward.ExperienceLevel, savedReward.ExperienceLevel, isBoss)
+                                        : savedReward.Experience,
+                                    ExperienceLevel = savedReward.ExperienceLevel, Items = rewardItems
                                 });
                             }
                         }

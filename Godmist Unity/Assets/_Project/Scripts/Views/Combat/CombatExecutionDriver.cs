@@ -14,15 +14,19 @@ using Godmist.Runtime.Effects;
 using Godmist.Runtime.Items;
 using Godmist.Systems.Combat;
 using Godmist.Views.UI;
+using Godmist.Views.Characters;
 using Godmist.Views.Game;
 using UnityEngine;
 using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
+using Godmist.Systems.Quests;
 
 namespace Godmist.Views.Combat
 {
     public sealed class CombatExecutionDriver : IDisposable
     {
+        private static readonly Unity.Profiling.ProfilerMarker SelectablePositionsSample = new("Godmist.Targeting.SelectablePositions");
+        private static readonly Unity.Profiling.ProfilerMarker AbsoluteRangeSample = new("Godmist.Targeting.AbsoluteRange");
         private readonly CharacterDefinition jerzyDefinition;
         private readonly CharacterDefinition allyDefinition;
         private readonly CharacterDefinition enemyDefinition;
@@ -69,19 +73,23 @@ namespace Godmist.Views.Combat
             battleLog?.ClearLog();
             foreach (var entry in logEntries) battleLog?.AddEntry(entry);
         }
-        public bool TryJoin(BattleUnit unit, GridPosition position, ISet<GridPosition> reservedArrivals = null)
+        public bool TryJoin(BattleUnit unit, GridPosition position, ISet<GridPosition> reservedArrivals = null, bool beginIfIdle = true, bool allowDowned = false)
         {
-            if (!DungeonCombatParticipationSystem.TryJoin(Session, unit, position, reservedArrivals)) return false;
+            if (!DungeonCombatParticipationSystem.TryJoin(Session, unit, position, reservedArrivals, allowDowned)) return false;
             ScoutKnifeSystem.ResetForCombat(Session, true);
-            if (Session.ActiveParticipant == null) turnSystem.AdvanceTurn(Session);
+            if (beginIfIdle && Session.ActiveParticipant == null) turnSystem.AdvanceTurn(Session);
             return true;
         }
         public bool TryLeave(BattleUnit unit)
         {
-            if (IsActionInProgress || Session.MembershipChangePending) return false;
+            if (Session == null || IsActionInProgress || Session.MembershipChangePending) return false;
             if (!DungeonCombatParticipationSystem.TryLeave(Session, unit)) return false;
             summonSystem?.RemoveSummonsCreatedBy(Session, unit.Character.CharacterId);
             skillExecutionSystem?.CancelScheduledEffectsByCaster(Session, unit.Character.CharacterId);
+            Session.HasEscapePenaltyEligibleCharacters = true;
+            Session.EscapePenaltyEligibleCharacterIds.Add(unit.Character.CharacterId);
+            // Release the borrowed exploration view before advancing the next turn.
+            UnitLeftCombat?.Invoke(Session, unit);
             outcomeSystem.EvaluateCombatOutcome(Session);
             if (Session.Outcome == CombatOutcomeState.Ongoing && Session.ActiveParticipant == null)
                 turnSystem.AdvanceTurn(Session);
@@ -94,6 +102,17 @@ namespace Godmist.Views.Combat
         private SimpleCombatAiSystem aiSystem;
         private SkillExecutionSystem skillExecutionSystem;
         private StatusEffectSystem statusEffectSystem;
+
+        public bool TryExtractScoutKnife(BattleUnit owner, BattleUnit target)
+        {
+            if (Session == null || IsActionInProgress || Session.MembershipChangePending
+                || !ScoutCombatSystem.TryExtractKnife(Session, owner, target, statusEffectSystem, recoverySystem)) return false;
+            var direction = new Vector2(target.Position.X - owner.Position.X, target.Position.Y - owner.Position.Y);
+            if (CombatPoseResolver.TryResolveAction(owner.Character.Definition.Id, "extract", direction, out var pose))
+                PresentPose(owner, pose, direction, SkillPoseDuration);
+            return true;
+        }
+
         private CombatMovementSystem movementSystem;
         private CombatDamageSystem damageSystem;
         private CombatShieldSystem shieldSystem;
@@ -106,6 +125,11 @@ namespace Godmist.Views.Combat
         private CombatEscapeSystem escapeSystem;
         private CombatLineOfSightService lineOfSightService;
         private SummonedObjectSystem summonedObjectSystem;
+        private CatacombsBossSystem catacombsBossSystem;
+        private ForestEntBossSystem forestEntBossSystem;
+        private DeadKingBossSystem deadKingBossSystem;
+        private SkeletonSlayerBossSystem skeletonSlayerBossSystem;
+        private BanditLeaderBossSystem banditLeaderBossSystem;
         private SummonSystem summonSystem;
         private CharacterStatPipelineSystem statPipeline;
         private PassiveEffectLifecycleSystem passiveEffectLifecycleSystem;
@@ -124,6 +148,7 @@ namespace Godmist.Views.Combat
         private Coroutine activePlayerMovementPresentationCoroutine;
         private CombatUnitViewSpawner unitViewSpawner;
         public event Action<CombatMapObject> CombatMapObjectChanged;
+        public event Action<CombatSession, BattleUnit> UnitLeftCombat;
         public bool IsPlayerMovementPresentationInProgress =>
             activePlayerMovementPresentationCoroutine != null;
 
@@ -132,6 +157,9 @@ namespace Godmist.Views.Combat
         public void Initialize(CombatSession suppliedSession = null)
         {
             passiveEffectEventDispatcher = new PassiveEffectCombatEventDispatcher();
+            feedbackBus = new CombatFeedbackBus();
+            feedbackBus.Published += HandlePoseFeedback;
+            resourceRuleSystem = new ResourceRuleSystem(AddBattleLog, feedbackBus);
             turnSystem = new CombatTurnSystem(
                 AddBattleLog,
                 HandleUnitTurnBegan,
@@ -139,8 +167,12 @@ namespace Godmist.Views.Combat
                 HandleSummonedObjectTurnBegan,
                 HandleSummonedObjectTurnEnded,
                 HandleUnitDied,
-                passiveEffectEventDispatcher);
+                passiveEffectEventDispatcher,
+                onUnitDownedTurn: unit => statusEffectSystem.ProcessDownedTurn(unit),
+                resourceRuleSystem: resourceRuleSystem);
             Session = suppliedSession ?? CreateInitialSession();
+            Session.Diagnostics = GameBootstrap.Instance?.Session?.CombatDiagnostics;
+            Session.EnemyDefeated = id => rewardSystem.TryGrantDefeatExperience(GameBootstrap.Instance?.Session, Session, id);
             if (Session != null) Session.ResumeTurn = ResumeSuspendedTurn;
             usesGameSessionCombat = suppliedSession != null || usesGameSessionCombat;
             Session.PassiveEffectEventDispatcher = passiveEffectEventDispatcher;
@@ -148,15 +180,12 @@ namespace Godmist.Views.Combat
             RebuildDungeonCombatArea();
             outcomeSystem = new CombatOutcomeSystem(AddBattleLog);
             escapeSystem = new CombatEscapeSystem(AddBattleLog);
-            feedbackBus = new CombatFeedbackBus();
             if (!Session.IsSeamless) floatingFeedback?.Bind(feedbackBus);
-            resourceRuleSystem = new ResourceRuleSystem(AddBattleLog, feedbackBus);
             combatVariableSystem = new CombatVariableSystem();
             damageSystem = new CombatDamageSystem(
                 AddBattleLog,
                 session => outcomeSystem.EvaluateCombatOutcome(session),
                 RemoveUnitFromCombat,
-                resourceRuleSystem,
                 combatVariableSystem,
                 feedbackBus,
                 passiveEffectEventDispatcher);
@@ -197,6 +226,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 passiveEffectLifecycleSystem,
                 AddBattleLog);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             lineOfSightService = new CombatLineOfSightService();
             summonedObjectSystem = new SummonedObjectSystem(
                 AddBattleLog,
@@ -208,7 +238,19 @@ namespace Godmist.Views.Combat
                     shieldSystem,
                     statusEffectSystem,
                     modifyStatSystem,
-                    modifyVarSystem));
+                    modifyVarSystem,
+                    feedbackBus));
+            catacombsBossSystem = new CatacombsBossSystem(
+                summonedObjectSystem, damageSystem, AddBattleLog, feedbackBus);
+            Session.EnemyHealthChanged = (enemy, previousHealth) =>
+                catacombsBossSystem.OnEnemyHealthChanged(Session, enemy, previousHealth);
+            Session.BossRuneEnteredCell = unit =>
+                catacombsBossSystem.OnUnitEnteredCell(Session, unit);
+            forestEntBossSystem = new ForestEntBossSystem(Session, damageSystem, statusEffectSystem,
+                recoverySystem, HandleCombatMapObjectChanged, AddBattleLog, feedbackBus);
+            deadKingBossSystem = new DeadKingBossSystem(Session, damageSystem, statusEffectSystem, HandleCombatMapObjectChanged, AddBattleLog, feedbackBus);
+            skeletonSlayerBossSystem = new SkeletonSlayerBossSystem(Session, damageSystem, statusEffectSystem, HandleCombatMapObjectChanged, AddBattleLog, feedbackBus);
+            banditLeaderBossSystem = new BanditLeaderBossSystem(Session,damageSystem,statusEffectSystem,recoverySystem,summonedObjectSystem,AddBattleLog,feedbackBus);
             summonSystem = new SummonSystem(AddBattleLog);
             skillExecutionSystem = new SkillExecutionSystem(
                 AddBattleLog,
@@ -225,7 +267,9 @@ namespace Godmist.Views.Combat
                 summonSystem: summonSystem,
                 feedbackBus: feedbackBus,
                 modifyResistanceSystem: modifyResistanceSystem,
-                passiveEffectEventDispatcher: passiveEffectEventDispatcher);
+                passiveEffectEventDispatcher: passiveEffectEventDispatcher,
+                resourceRuleSystem: resourceRuleSystem);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             ConfigurePassiveEffectExecutionCallbacks();
             movementSystem = new CombatMovementSystem(
                 AddBattleLog,
@@ -244,7 +288,7 @@ namespace Godmist.Views.Combat
                 evaluateOutcome: session => outcomeSystem.EvaluateCombatOutcome(session),
                 skillExecutionSystem: skillExecutionSystem, targetingService: targetingService,
                 movementSystem: movementSystem, lineOfSightService: lineOfSightService,
-                interactionSystem: interactionSystem);
+                interactionSystem: interactionSystem, catacombsBossSystem: catacombsBossSystem);
             if (!Session.IsSeamless) battleLog?.ClearLog();
             AddBattleLog("Walka rozpoczęta.");
 
@@ -252,25 +296,258 @@ namespace Godmist.Views.Combat
         }
 
         private bool aiActionInProgress;
-        public bool IsActionInProgress => IsPlayerMovementPresentationInProgress || aiActionInProgress;
-        public void ResumeSuspendedTurn(CombatTurnParticipant participant)
+        public const float SkillPoseDuration = 2f;
+        private const float RevivePoseDuration = 1.25f;
+        private float skillPresentationEnds;
+        private readonly Dictionary<string, float> skillVfxDeadlines = new();
+        public bool IsSkillPresentationInProgress => Time.time < skillPresentationEnds;
+        public bool IsActionInProgress => IsPlayerMovementPresentationInProgress || aiActionInProgress || IsSkillPresentationInProgress;
+
+        // Pure presentation for an executed non-combat support action; no turn ownership or engine initialization.
+        public void PresentExplorationSupportFeedback(CombatFeedbackEvent feedback) => HandlePoseFeedback(feedback);
+        private void HandlePoseFeedback(CombatFeedbackEvent feedback)
         {
-            if (participant?.Unit != null && !participant.Unit.IsPlayerSide)
-                activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(participant.Unit));
+            if (feedback.Type == CombatFeedbackType.ProcTriggered && feedback.EffectName == CombatBossVfxFeedback.TrapResolutionCue)
+            { RegisterSkillVfxDeadline(feedback.ActionId); return; }
+            if (feedback.Type == CombatFeedbackType.TargetEffect)
+            {
+                float? deadline = feedback.ActionId != null && skillVfxDeadlines.TryGetValue(feedback.ActionId, out var end)
+                    && end > Time.time ? end : null;
+                unitViewSpawner?.TryPlayTargetVfx(Session, feedback, deadline);
+                return;
+            }
+            if(feedback.Type==CombatFeedbackType.MapObjectTriggered)
+            {
+                // Leader traps already publish their resolved floor and victim cues.
+                // Preserve the activation notification without rendering a second central burst.
+                if (!CombatBossVfxFeedback.IsLeaderTrap(feedback.MapObject))
+                    unitViewSpawner?.TryPlayMapObjectTrigger(Session,feedback.MapObject);
+                return;
+            }
+            if(feedback.Type==CombatFeedbackType.VisualCue)
+            {
+                var unit=feedback.Target;
+                if(feedback.EffectName==BanditLeaderBossSystem.ConcealCue && unit?.Character?.Definition!=null
+                    && unitViewSpawner?.IsUnitVisible(unit)==true
+                    && CombatPoseResolver.TryResolveAction(unit.Character.Definition.Id,"conceal",Vector2.down,out var cue))
+                    for(var i=0;i<cue.Effects.Length;i++)unitViewSpawner.TryPlayWorldEffect(Session,unit.Position,cue.Effects[i],cue.EffectOffsets[i],.18f);
+                return;
+            }
+            if(feedback.Type==CombatFeedbackType.ProcTriggered && feedback.EffectName=="Nieugięty Dowódca"
+                && feedback.Target?.BanditLeaderState is {PhaseTwo:true} bandit)
+            {PresentTransformation(feedback.Target,bandit.OriginalDefinition);return;}
+            if(feedback.Type==CombatFeedbackType.ProcTriggered && feedback.Target?.SkeletonSlayerState is { } slayer)
+            {
+                if(feedback.EffectName=="Zemsta Zabójcy" && slayer.PhaseTwo)
+                {PresentTransformation(feedback.Target,slayer.OriginalDefinition);return;}
+                if(feedback.EffectName=="Uderzenie Młota Zniszczenia")
+                {
+                    RegisterSkillVfxDeadline(feedback.ActionId);
+                    var unit=feedback.Target;
+                    var facing=new Vector2(slayer.HammerCenter.X-unit.Position.X,slayer.HammerCenter.Y-unit.Position.Y);
+                    if(CombatPoseResolver.TryResolveAction(unit.Character.Definition.Id,"destruction-impact",facing,out var impact))
+                        PresentPose(unit,impact,facing,SkillPoseDuration,false);
+                    return;
+                }
+            }
+            if (feedback.Type == CombatFeedbackType.ProcTriggered && feedback.EffectName == DeadKingBossSystem.ShadowImpactCue)
+            {
+                RegisterSkillVfxDeadline(feedback.ActionId);
+                var unit = feedback.Target;
+                if (unit?.Character?.Definition != null && CombatPoseResolver.TryResolveSkill(unit.Character.Definition.Id,
+                    DeadKingBossSystem.ShadowId, Vector2.down, AttackType.Unknown, false, out var burst))
+                    PresentPose(unit, burst, Vector2.down, SkillPoseDuration, false);
+                return;
+            }
+            // The boss owner has already applied the existing phase/skillset rules.
+            // Reuse that one-shot notification to hold presentation for all six frames.
+            if (feedback.Type == CombatFeedbackType.ProcTriggered && feedback.EffectName == "Widmowy Szał"
+                && feedback.Target?.DeadKingState?.PhaseTwo == true)
+            {
+                PresentTransformation(feedback.Target, feedback.Target.DeadKingState.OriginalDefinition);
+                return;
+            }
+            if (feedback.SkillPresentation.HasValue)
+            {
+                var context = feedback.SkillPresentation.Value;
+                var unit = context.Caster;
+                if (unit?.Character?.Definition == null || context.Skill == null) return;
+                RegisterSkillVfxDeadline(feedback.ActionId);
+                var facing = CombatPoseResolver.Facing(context, unitViewSpawner?.GetFacing(unit) ?? Vector2.down);
+                if (CombatPoseResolver.TryResolveSkill(unit.Character.Definition.Id, context.Skill.SkillId,
+                        facing, context.AttackType, context.KnifeRecovery, out var pose))
+                {
+                    PresentPose(unit, pose, facing, SkillPoseDuration, false);
+                    if (pose.TargetHeadEffects.Length > 0 && context.Targets != null
+                        && context.Skill.SkillId != BanditLeaderBossSystem.OrderId)
+                        foreach (var markedTarget in context.Targets)
+                            unitViewSpawner?.TryPlayTargetHeadEffects(Session, markedTarget, pose.TargetHeadEffects,
+                                SkillPoseDuration,pose.TargetHeadOffsets);
+                }
+                BeginSkillCameraFocus(context);
+                return;
+            }
+            if (feedback.Type != CombatFeedbackType.Miss
+                && ((feedback.Type != CombatFeedbackType.Damage && feedback.Type != CombatFeedbackType.ShieldLoss)
+                    || feedback.Amount <= 0)) return;
+            if (feedback.DamageType == DamageType.Bleed || feedback.DamageType == DamageType.Poison
+                || feedback.DamageType == DamageType.Burn) return;
+            var target = feedback.Target;
+            if (target?.Character?.Definition == null) return;
+            if (feedback.Source == target) return; // HP conversion keeps its casting pose.
+            var direction = unitViewSpawner?.GetFacing(target) ?? Vector2.down;
+            if (feedback.SourcePosition.HasValue)
+            {
+                var source = feedback.SourcePosition.Value;
+                direction = new Vector2(source.X - feedback.Position.X, source.Y - feedback.Position.Y);
+            }
+            var action = feedback.Type == CombatFeedbackType.Miss ? "dodge" : "hit";
+            if (CombatPoseResolver.TryResolveAction(target.Character.Definition.Id, action, direction, out var reaction))
+                PresentPose(target, reaction, direction, Mathf.Max(.6f, skillPresentationEnds - Time.time), false);
         }
 
-        public void StartTurns()
+        private void RegisterSkillVfxDeadline(string actionId)
+        {
+            foreach (var expired in skillVfxDeadlines.Where(p => p.Value <= Time.time).Select(p => p.Key).ToArray())
+                skillVfxDeadlines.Remove(expired);
+            if (!string.IsNullOrEmpty(actionId)) skillVfxDeadlines[actionId] = Time.time + SkillPoseDuration;
+            skillPresentationEnds = Mathf.Max(skillPresentationEnds, Time.time + SkillPoseDuration);
+        }
+
+        private void PresentTransformation(BattleUnit unit,CharacterDefinition previousDefinition)
+        {
+            var frames=previousDefinition.TransformationFrames;
+            if(frames == null || frames.Count==0 || unitViewSpawner?.IsUnitVisible(unit)==false) return;
+            if(unitViewSpawner?.TryPlayTransformation(Session,unit,frames,previousDefinition.TransformationFramesPerSecond)!=true) return;
+            var duration=frames.Count/Mathf.Max(.01f,previousDefinition.TransformationFramesPerSecond);
+            skillPresentationEnds=Mathf.Max(skillPresentationEnds,Time.time+duration);
+            cameraFramer?.BeginActionFocus(Session,unit);
+        }
+        private void PresentPose(BattleUnit unit, CombatPose pose, Vector2 facing, float duration, bool focus = true)
+        {
+            if (unitViewSpawner?.TryPlayCombatPose(Session, unit, pose, facing, duration) != true) return;
+            skillPresentationEnds = Mathf.Max(skillPresentationEnds, Time.time + duration);
+            if (focus) cameraFramer?.BeginActionFocus(Session, unit);
+        }
+
+        private void BeginSkillCameraFocus(CombatSkillPresentation context)
+        {
+            if (cameraFramer == null || cameraFramer.FocusedSession != Session || unitViewSpawner == null
+                || !unitViewSpawner.TryGetPresentationBounds(context.Caster, out var casterBounds)) return;
+            var participants = new List<(BattleUnit Unit, Bounds KnownBounds)> { (context.Caster, casterBounds) };
+            if (context.Targets != null)
+                foreach (var target in context.Targets)
+                    if (target != context.Caster && unitViewSpawner.IsUnitVisible(target)
+                        && unitViewSpawner.TryGetPresentationBounds(target, out var bounds)) participants.Add((target, bounds));
+            Bounds? groundAim = null;
+            if ((context.Targets == null || context.Targets.Count == 0) && context.Aim.HasValue
+                && unitViewSpawner.TryGetWorldPosition(context.Aim.Value, out var aim))
+                groundAim = new Bounds(aim, Vector3.zero);
+            Bounds FrameBounds()
+            {
+                var result = casterBounds;
+                for (var i = 0; i < participants.Count; i++)
+                {
+                    var participant = participants[i];
+                    // Retain the last known frame after a killing hit or loss of
+                    // visibility, without following a newly hidden position.
+                    var bounds = unitViewSpawner.IsUnitVisible(participant.Unit)
+                        && unitViewSpawner.TryGetPresentationBounds(participant.Unit, out var current)
+                            ? current : participant.KnownBounds;
+                    participants[i] = (participant.Unit, bounds);
+                    result.Encapsulate(bounds);
+                }
+                if (groundAim.HasValue) result.Encapsulate(groundAim.Value);
+                result.Expand(new Vector3(.25f, .25f, 0)); // Silhouette clearance; text margins are in screen pixels.
+                return result;
+            }
+            skillPresentationEnds = Mathf.Max(skillPresentationEnds, Time.time + SkillPoseDuration);
+            cameraFramer.BeginActionFocus(Session, context.Caster, FrameBounds);
+        }
+        public void ResumeSuspendedTurn(CombatTurnParticipant participant)
+        {
+            if (participant?.Unit is not {} unit) return;
+            cameraFramer?.NotifyTurnBegan(Session, unit);
+            if (TryGetTurnBlockingStatus(unit, out var label))
+            {
+                feedbackBus?.Publish(new CombatFeedbackEvent(unit, CombatFeedbackType.TurnSkipped, effectName: label));
+                aiActionInProgress = true;
+                activeAiTurnCoroutine = host.StartCoroutine(PresentSkippedTurn(unit));
+            }
+            else if (!unit.IsPlayerControlled)
+                activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(unit));
+        }
+
+        // A targeting-only driver has no subscriptions, turn ticks, bosses or effects.
+        public void InitializeTargetingPreview(CombatSession session)
+        {
+            Session = session;
+            targetingService = new CombatTargetingService();
+            lineOfSightService = new CombatLineOfSightService();
+            skillExecutionSystem = new SkillExecutionSystem();
+        }
+
+        public bool ValidateOpeningSkill(SkillData skill, IReadOnlyDictionary<int, GridPosition?> positions,
+            GridPosition? teleport, GridPosition? placement, IReadOnlyDictionary<int, int> rotations,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosen,
+            out Dictionary<int, IReadOnlyList<BattleUnit>> targets)
+        {
+            targets = null;
+            return Session?.ActiveUnit?.Character?.GetActiveSkills()?.Contains(skill) == true
+                && TryBuildSkillTargetGroups(skill, positions, rotations, out targets, chosen)
+                && skillExecutionSystem.CanPreview(Session, Session.ActiveUnit, skill, targets, teleport, placement, positions);
+        }
+
+        public bool TryExecuteEntrySkill(BattleUnit actor, SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targets,
+            IReadOnlyDictionary<int, GridPosition?> positions, GridPosition? teleport, GridPosition? placement,
+            IReadOnlyDictionary<int, int> rotations = null)
+        {
+            if (host?.IsGameplaySuspended == true || Session?.IsSeamless != true || IsActionInProgress
+                || Session.MembershipChangePending || actor?.IsPlayerControlled != true
+                || !Session.Units.Contains(actor) || Session.EntryActionCaster != null) return false;
+            Session.EntryActionCaster = actor;
+            try
+            {
+                if (!skillExecutionSystem.CanPreview(Session, actor, skill, targets, teleport, placement, positions)) return false;
+                if (!turnSystem.BeginEntryTurn(Session, actor, ApplyUnitTurnStartEffects)) return false;
+                return skillExecutionSystem.TryExecute(Session, actor, skill, targets, teleport, placement, positions,
+                    rotationsByModeIndex: rotations);
+            }
+            finally
+            {
+                Session.EntryActionCaster = null;
+                if (Session.Outcome == CombatOutcomeState.Ongoing && Session.ActiveParticipant == null)
+                    turnSystem.AdvanceTurn(Session);
+            }
+        }
+
+        public void StartTurns(BattleUnit openingActor = null, IReadOnlyDictionary<BattleUnit, float> detection = null)
         {
             ScoutKnifeSystem.ResetForCombat(Session, Session.IsSeamless);
-            turnSystem.InitializeTurnOrder(Session);
+            turnSystem.InitializeTurnOrder(Session, openingActor, detection);
         }
 
         public void Dispose() => Dispose(false);
 
         public void Dispose(bool preserveCombatState)
         {
+            if (feedbackBus != null) feedbackBus.Published -= HandlePoseFeedback;
+            unitViewSpawner?.ClearCombatPoses(Session);
+            cameraFramer?.EndActionFocus(Session);
+            cameraFramer?.EndMovementFocus(Session);
+            skillPresentationEnds = 0f;
+            skillVfxDeadlines.Clear();
             if (!preserveCombatState) passiveEffectLifecycleSystem?.RemoveCombatScopedEffects(Session);
-            if (Session != null) { Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; }
+            banditLeaderBossSystem?.Dispose(preserveCombatState);
+            banditLeaderBossSystem=null;
+            skeletonSlayerBossSystem?.Dispose(preserveCombatState);
+            skeletonSlayerBossSystem = null;
+            deadKingBossSystem?.Dispose(preserveCombatState);
+            deadKingBossSystem = null;
+            forestEntBossSystem?.Dispose(preserveCombatState);
+            forestEntBossSystem = null;
+            if (Session != null) { Session.EnemyDefeated = null; Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; Session.EnemyHealthChanged = null; Session.BossRuneEnteredCell = null; }
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)
@@ -287,7 +564,10 @@ namespace Godmist.Views.Combat
         }
         public void Tick(bool acceptsInput)
         {
+            if (!IsSkillPresentationInProgress)
+                cameraFramer?.EndActionFocus(Session);
             ClearCombatScopedEffectsIfNeeded();
+            if (host.IsGameplaySuspended) return;
             if (Session?.IsSeamless == true) return;
             if (usesGameSessionCombat && TryReturnToExploration()) return;
             if (!acceptsInput) return;
@@ -398,8 +678,9 @@ namespace Godmist.Views.Combat
 
         public void SyncDebugConsumablesToActiveUnit()
         {
+            if (host.IsGameplaySuspended) return;
             if (Session?.IsSeamless == true) return;
-            if (Session?.ActiveUnit?.IsPlayerSide == true)
+            if (Session?.ActiveUnit?.IsPlayerControlled == true)
             {
                 CopyDebugConsumablesFromGameSession(Session.ActiveUnit.Character);
             }
@@ -487,6 +768,7 @@ namespace Godmist.Views.Combat
                 statusEffectSystem,
                 passiveEffectLifecycleSystem,
                 AddBattleLog);
+            passiveEffectCombatExecutionSystem.ReactionDamageSystem = damageSystem;
             ConfigurePassiveEffectExecutionCallbacks();
             ScoutKnifeSystem.ResetForCombat(Session, Session.IsSeamless);
             hasClearedCombatScopedEffects = false;
@@ -533,29 +815,23 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var skeletonDefinition = GameBootstrap.Instance?.ContentCatalog
-                ?.CharacterDefinitions?
-                .FirstOrDefault(definition => string.Equals(
-                    definition?.Id,
-                    "skeleton.test",
-                    System.StringComparison.OrdinalIgnoreCase));
-            if (skeletonDefinition == null)
-            {
-                Debug.LogWarning(
-                    "Nie znaleziono definicji skeleton.test dla pasywki summon.random-skeleton.");
-                return;
-            }
+            var staff = owner.Character.Equipment.GetEquippedItems().FirstOrDefault(i =>
+                i?.Definition is Godmist.Data.Items.UniqueEquipmentDefinition unique && unique.Id == "unique.deadking.staff.mage");
+            var definition = staff?.Definition as Godmist.Data.Items.UniqueEquipmentDefinition;
+            var pool = definition?.SummonPool?.Where(d => d != null && d.ClassData != null).ToList();
+            if (pool == null || pool.Count == 0) { AddBattleLog("Kostur Umarłych: pula szkieletów nie jest jeszcze skonfigurowana."); return; }
+            var skeletonDefinition = pool[UnityEngine.Random.Range(0, pool.Count)];
 
             if (!summonSystem.TrySummonAdjacent(
                     Session,
                     owner,
                     skeletonDefinition,
-                    owner.Character.ClassData,
-                    context?.SkillId ?? "passive-summon",
-                    durationTurns: 3,
+                    skeletonDefinition.ClassData,
+                    "unique.deadking.staff.skeleton",
+                    durationTurns: -1,
                     maxActiveSummons: 1,
-                    maxHealthPercent: .25f,
-                    out _))
+                    maxHealthPercent: staff.ItemLevel >= 20 ? .28f : .25f,
+                    out _, level: owner.Character.Level))
             {
                 AddBattleLog("Nie ma wolnego pola na przyzwanie szkieletu.");
             }
@@ -588,7 +864,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!Session.ActiveUnit.IsPlayerSide)
+            if (!Session.ActiveUnit.IsPlayerControlled)
             {
                 Debug.Log("Debug remove skipped: active unit is not on player side.");
                 return;
@@ -610,6 +886,10 @@ namespace Godmist.Views.Combat
 
             if (removedUnit.Character?.LifeState == CharacterLifeState.Dead)
             {
+                catacombsBossSystem?.OnBossDied(Session, removedUnit);
+                deadKingBossSystem?.OnBossDied(removedUnit);
+                skeletonSlayerBossSystem?.OnBossDied(removedUnit);
+                banditLeaderBossSystem?.OnBossDied(removedUnit);
                 summonSystem?.RemoveSummonsCreatedBy(
                     Session,
                     removedUnit.Character.CharacterId);
@@ -641,7 +921,7 @@ namespace Godmist.Views.Combat
                 Session.ActiveUnit = null;
                 Session.ActiveSummonedObject = null;
                 Session.ActiveTurnIndex = -1;
-                turnSystem.AdvanceTurn(Session);
+                if (Session.EntryActionCaster == null) turnSystem.AdvanceTurn(Session);
             }
             else
             {
@@ -668,6 +948,7 @@ namespace Godmist.Views.Combat
         }
         private void AddBattleLog(string message)
         {
+            if(Session?.Diagnostics?.Enabled == true) Session.Diagnostics.Record("combat",Session,Session.ActiveUnit,message);
             if (Session?.IsSeamless == true)
                 foreach (var unit in Session.Units)
                 {
@@ -685,20 +966,35 @@ namespace Godmist.Views.Combat
         {
             CombatMapObjectChanged?.Invoke(mapObject);
         }
+        private void ApplyUnitTurnStartEffects(BattleUnit unit)
+        {
+            Session.Contact?.BeginTurn(Session, unit);
+            resourceRuleSystem?.ProcessTurnStart(unit);
+            skillExecutionSystem?.ProcessToggleUpkeep(Session, unit);
+            deadKingBossSystem?.BeginTurn(unit);
+            skeletonSlayerBossSystem?.BeginTurn(unit);
+            banditLeaderBossSystem?.BeginTurn(unit);
+            var previousDefinition=unit.Character?.Definition;
+            forestEntBossSystem?.BeginTurn(unit);
+            if(previousDefinition != null && previousDefinition != unit.Character?.Definition
+                && forestEntBossSystem?.IsPhaseTwo(unit) == true)
+                PresentTransformation(unit,previousDefinition);
+            statusEffectSystem?.ProcessTurnStart(Session, unit);
+            forestEntBossSystem?.CheckPhases();
+            CombatTurnSystem.RefreshMaxActionPoints(
+                Session,
+                unit,
+                refillCurrentActionPoints: true);
+
+        }
+
         private void HandleUnitTurnBegan(BattleUnit unit)
         {
             if (unit == null || Session == null)
             {
                 return;
             }
-            Session.Contact?.BeginTurn(Session, unit);
-            resourceRuleSystem?.ProcessTurnStart(unit);
-            skillExecutionSystem?.ProcessToggleUpkeep(Session, unit);
-            statusEffectSystem?.ProcessTurnStart(Session, unit);
-            CombatTurnSystem.RefreshMaxActionPoints(
-                Session,
-                unit,
-                refillCurrentActionPoints: true);
+            ApplyUnitTurnStartEffects(unit);
 
             if (Session.Outcome != CombatOutcomeState.Ongoing
                 || !Session.Units.Contains(unit))
@@ -712,6 +1008,8 @@ namespace Godmist.Views.Combat
                 turnSystem.AdvanceTurn(Session);
                 return;
             }
+            resourceRuleSystem?.RecordRageOffensiveOpportunity(Session, unit);
+            cameraFramer?.NotifyTurnBegan(Session, unit);
             if (TryGetTurnBlockingStatus(unit, out var blockingStatusLabel))
             {
                 feedbackBus?.Publish(new CombatFeedbackEvent(
@@ -722,12 +1020,20 @@ namespace Godmist.Views.Combat
                     $"{unit.Character.Definition.DisplayName} " +
                     "jest pod wpływem twardej kontroli i traci turę.");
 
-                turnSystem.EndActiveTurn(Session);
+                aiActionInProgress = true;
+                activeAiTurnCoroutine = host.StartCoroutine(PresentSkippedTurn(unit));
                 return;
             }
-
-            cameraFramer?.NotifyTurnBegan(Session, unit);
-            if (!unit.IsPlayerSide)
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            unitViewSpawner?.LogPresentationSnapshot(
+                unit,
+                "turn-start",
+                "turn-start",
+                aiActionInProgress,
+                activeAiTurnCoroutine != null,
+                Session.MembershipChangePending);
+#endif
+            if (!unit.IsPlayerControlled)
             {
                 activeAiTurnCoroutine = host.StartCoroutine(ExecuteAiTurnVisually(unit));
             }
@@ -768,32 +1074,115 @@ namespace Godmist.Views.Combat
         private IEnumerator ExecuteAiTurnVisually(BattleUnit unit)
         {
             var turnState = aiSystem?.CreateTurnState();
+            var stalled = false;
+            var deadline = Time.timeAsDouble + SimpleCombatAiActionJob.DecisionTimeoutSeconds;
             while (Session != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && Session.ActiveUnit == unit
                 && unit?.Character?.LifeState == CharacterLifeState.Alive
-                && unit.CurrentActionPoints > 0
+                && (unit.CurrentActionPoints > 0
+                    || catacombsBossSystem?.CanCastVengeance(Session, unit) == true)
                 && turnState != null)
             {
                 yield return WaitForAiPresentation(aiDecisionDelay);
-                while (Session.MembershipChangePending) yield return null;
-
-                if (Session.Outcome != CombatOutcomeState.Ongoing
-                    || Session.ActiveUnit != unit
-                    || unit.Character.LifeState != CharacterLifeState.Alive)
-                {
-                    break;
-                }
-
-                aiActionInProgress = true;
-                if (!aiSystem.TryExecuteNextAction(
-                        Session,
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress)
+                    unitViewSpawner?.LogPresentationSnapshot(
                         unit,
-                        turnState,
-                        out var action))
+                        "ai-state-wait",
+                        "skill-presentation",
+                        aiActionInProgress,
+                        activeAiTurnCoroutine != null,
+                        Session.MembershipChangePending,
+                        aiJobState: "waiting",
+                        waitState: "skill-presentation",
+                        skillPresentationEnds: skillPresentationEnds);
+#endif
+                var waitDeadline = Time.timeAsDouble + SimpleCombatAiActionJob.DecisionTimeoutSeconds;
+                while (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress
+                    && Time.timeAsDouble < waitDeadline) yield return null;
+                if (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress) { stalled = true; break; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (IsAiTurnStillActive(unit) && Session.MembershipChangePending)
+                    unitViewSpawner?.LogPresentationSnapshot(
+                        unit,
+                        "ai-state-wait",
+                        "membership",
+                        aiActionInProgress,
+                        activeAiTurnCoroutine != null,
+                        Session.MembershipChangePending,
+                        aiJobState: "waiting",
+                        waitState: "membership",
+                        skillPresentationEnds: skillPresentationEnds);
+#endif
+                while (IsAiTurnStillActive(unit) && Session.MembershipChangePending
+                    && Time.timeAsDouble < deadline) yield return null;
+                if (IsAiTurnStillActive(unit) && Session.MembershipChangePending) stalled = true;
+
+                if (stalled || !IsAiTurnStillActive(unit))
                 {
                     break;
                 }
+
+                var decisionSecondsLeft = deadline - Time.timeAsDouble;
+                if (decisionSecondsLeft <= 0) { stalled = true; break; }
+                aiActionInProgress = true;
+                var thinkingSession = Session;
+                using var thinking = aiSystem.CreateNextActionJob(thinkingSession, unit, turnState,
+                    () => ReferenceEquals(Session, thinkingSession), timeoutSeconds: decisionSecondsLeft);
+                while (!thinking.IsComplete)
+                {
+                    thinking.SetPaused(host.IsGameplaySuspended);
+                    if (host.IsGameplaySuspended) { yield return null; continue; }
+                    thinking.AdvanceSlice();
+                    if (!thinking.IsComplete) yield return null;
+                }
+                if (thinking.IsCanceled)
+                {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    unitViewSpawner?.LogPresentationSnapshot(
+                        unit,
+                        "ai-job-canceled",
+                        "canceled",
+                        aiActionInProgress,
+                        activeAiTurnCoroutine != null,
+                        Session.MembershipChangePending,
+                        aiJobState: "canceled",
+                        skillPresentationEnds: skillPresentationEnds);
+#endif
+                    aiActionInProgress = false;
+                    if (thinking.HasTimedOut || Time.timeAsDouble >= deadline)
+                    { stalled = true; break; }
+                    continue;
+                }
+                var action = thinking.Action;
+                if (!thinking.Executed)
+                {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    unitViewSpawner?.LogPresentationSnapshot(
+                        unit,
+                        "ai-no-action",
+                        "no-action",
+                        aiActionInProgress,
+                        activeAiTurnCoroutine != null,
+                        Session.MembershipChangePending,
+                        aiJobState: "completed-no-action",
+                        skillPresentationEnds: skillPresentationEnds);
+#endif
+                    break;
+                }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                unitViewSpawner?.LogPresentationSnapshot(
+                    unit,
+                    "action-start",
+                    action.Type.ToString(),
+                    aiActionInProgress,
+                    activeAiTurnCoroutine != null,
+                    Session.MembershipChangePending,
+                    aiJobState: "executed",
+                    skillPresentationEnds: skillPresentationEnds);
+#endif
 
                 if (action.Type == SimpleCombatAiActionType.Movement)
                 {
@@ -804,30 +1193,128 @@ namespace Godmist.Views.Combat
                     ? aiSkillResultDelay
                     : aiMovementResultDelay;
                 yield return WaitForAiPresentation(resultDelay);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress)
+                    unitViewSpawner?.LogPresentationSnapshot(
+                        unit,
+                        "ai-state-wait",
+                        "skill-presentation",
+                        aiActionInProgress,
+                        activeAiTurnCoroutine != null,
+                        Session.MembershipChangePending,
+                        aiJobState: "executed",
+                        waitState: "skill-presentation",
+                        skillPresentationEnds: skillPresentationEnds);
+#endif
+                waitDeadline = Time.timeAsDouble + SimpleCombatAiActionJob.DecisionTimeoutSeconds;
+                while (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress
+                    && Time.timeAsDouble < waitDeadline) yield return null;
+                if (IsAiTurnStillActive(unit) && IsSkillPresentationInProgress) { stalled = true; break; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                unitViewSpawner?.LogPresentationSnapshot(
+                    unit,
+                    "action-post",
+                    action.Type.ToString(),
+                    aiActionInProgress,
+                    activeAiTurnCoroutine != null,
+                    Session.MembershipChangePending,
+                    aiJobState: "completed",
+                    skillPresentationEnds: skillPresentationEnds);
+#endif
                 aiActionInProgress = false;
+                deadline = Time.timeAsDouble + SimpleCombatAiActionJob.DecisionTimeoutSeconds;
             }
 
             aiActionInProgress = false;
-            while (Session != null && Session.MembershipChangePending) yield return null;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (IsAiTurnStillActive(unit) && Session.MembershipChangePending)
+                unitViewSpawner?.LogPresentationSnapshot(
+                    unit,
+                    "ai-state-wait",
+                    "membership",
+                    aiActionInProgress,
+                    activeAiTurnCoroutine != null,
+                    Session.MembershipChangePending,
+                    aiJobState: "completed",
+                    waitState: "membership",
+                    skillPresentationEnds: skillPresentationEnds);
+#endif
+            while (!stalled && IsAiTurnStillActive(unit) && Session.MembershipChangePending
+                && Time.timeAsDouble < deadline) yield return null;
+            stalled |= IsAiTurnStillActive(unit) && Session.MembershipChangePending;
+            if (stalled && IsAiTurnStillActive(unit))
+            {
+                skillPresentationEnds = 0;
+                unitViewSpawner?.ClearCombatPoses(Session);
+                AddBattleLog($"{unit.Character.Definition.DisplayName}: przekroczono limit oczekiwania AI (8 s), koniec tury.");
+                Debug.LogWarning($"AI_TURN_TIMEOUT: {unit.Character.CharacterId}; ending stalled turn.");
+            }
+            while (host.IsGameplaySuspended) yield return null;
             activeAiTurnCoroutine = null;
             if (Session != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
                 && Session.ActiveUnit == unit)
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                unitViewSpawner?.LogPresentationSnapshot(
+                    unit,
+                    "turn-end-before-advance",
+                    "end-turn",
+                    aiActionInProgress,
+                    true,
+                    Session.MembershipChangePending,
+                    aiJobState: "completed",
+                    skillPresentationEnds: skillPresentationEnds);
+#endif
                 turnSystem.EndActiveTurn(Session);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                unitViewSpawner?.LogPresentationSnapshot(
+                    unit,
+                    "turn-end-after-advance",
+                    "advanced",
+                    aiActionInProgress,
+                    activeAiTurnCoroutine != null,
+                    Session.MembershipChangePending,
+                    aiJobState: "advanced",
+                    skillPresentationEnds: skillPresentationEnds);
+#endif
             }
+        }
+
+        private bool IsAiTurnStillActive(BattleUnit unit)
+        {
+            return Session != null
+                && Session.Outcome == CombatOutcomeState.Ongoing
+                && Session.ActiveUnit == unit
+                && unit?.Character?.LifeState == CharacterLifeState.Alive;
+        }
+
+        private IEnumerator PresentSkippedTurn(BattleUnit unit)
+        {
+            var elapsed = 0f;
+            while (elapsed < .65f)
+            {
+                if (!host.IsGameplaySuspended) elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            activeAiTurnCoroutine = null;
+            aiActionInProgress = false;
+            if (Session?.Outcome == CombatOutcomeState.Ongoing && Session.ActiveUnit == unit)
+                turnSystem.EndActiveTurn(Session);
         }
 
         private static IEnumerator WaitForAiPresentation(float duration)
         {
             if (duration > 0f)
             {
-                yield return new WaitForSecondsRealtime(duration);
+                yield return new WaitForSeconds(duration);
             }
             else
             {
                 yield return null;
             }
+            while (GameBootstrap.Instance?.Session?.CurrentMode is GameModeState.Menu or GameModeState.Loading)
+                yield return null;
         }
 
         private IEnumerator PlayMovementPath(
@@ -842,22 +1329,29 @@ namespace Godmist.Views.Combat
                 yield break;
             }
 
-            foreach (var position in path)
+            var movementSession = Session;
+            var followEnemy = unit != null && !unit.IsPlayerSide;
+            if (followEnemy) cameraFramer?.BeginMovementFocus(movementSession,
+                () => unitViewSpawner.GetPresentationMovementPosition(unit), unit);
+            try
             {
-                if (Session == null
-                    || Session.Outcome != CombatOutcomeState.Ongoing
-                    || !unitViewSpawner.TryMovePresentationStep(unit, position))
+                foreach (var position in path)
                 {
-                    break;
-                }
+                    if (Session == null
+                        || Session.Outcome != CombatOutcomeState.Ongoing
+                        || !unitViewSpawner.TryMovePresentationStep(unit, position)) break;
 
-                while (unitViewSpawner.IsPresentationMovementInProgress(unit))
-                {
-                    yield return null;
+                    // Inactive hidden views finish their step immediately. Give
+                    // the camera a presentation frame without revealing the view.
+                    if (followEnemy && !unitViewSpawner.IsPresentationMovementInProgress(unit)) yield return null;
+                    while (unitViewSpawner.IsPresentationMovementInProgress(unit)) yield return null;
                 }
             }
-
-            unitViewSpawner.EndPresentationMovement(unit);
+            finally
+            {
+                if (followEnemy) cameraFramer?.EndMovementFocus(movementSession);
+                unitViewSpawner.EndPresentationMovement(unit);
+            }
         }
 
         private IEnumerator PlayPlayerMovementPath(
@@ -870,6 +1364,7 @@ namespace Godmist.Views.Combat
 
         private void HandleUnitTurnEnded(BattleUnit unit)
         {
+            forestEntBossSystem?.EndTurn(unit);
             statusEffectSystem?.ProcessTurnEnd(unit);
             skillExecutionSystem?.ProcessScheduledEffects(Session, unit);
             summonSystem?.AdvanceDurationAtTurnEnd(Session, unit);
@@ -883,6 +1378,10 @@ namespace Godmist.Views.Combat
             {
                 return;
             }
+            catacombsBossSystem?.OnBossDied(Session, unit);
+            deadKingBossSystem?.OnBossDied(unit);
+            skeletonSlayerBossSystem?.OnBossDied(unit);
+            banditLeaderBossSystem?.OnBossDied(unit);
 
             summonSystem?.RemoveSummonsCreatedBy(
                 Session,
@@ -905,9 +1404,10 @@ namespace Godmist.Views.Combat
                 $"{summonedObject.Definition?.DisplayName ?? summonedObject.ObjectId} " +
                 "wykonuje automatyczna ture.");
 
-            summonedObjectSystem.ExecuteTurnEffects(
-                Session,
-                summonedObject);
+            if (CatacombsBossSystem.IsRune(summonedObject))
+                catacombsBossSystem.ExecuteRuneTurn(Session, summonedObject);
+            else
+                summonedObjectSystem.ExecuteTurnEffects(Session, summonedObject);
 
             turnSystem.EndActiveTurn(Session);
         }
@@ -936,36 +1436,54 @@ namespace Godmist.Views.Combat
 
         public bool CanEndTurn()
         {
-            return Session != null
+            return host?.IsGameplaySuspended != true && Session != null
                 && Session.ActiveUnit != null
                 && Session.Outcome == CombatOutcomeState.Ongoing
-                && Session.ActiveUnit.IsPlayerSide
-                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
+                && Session.ActiveUnit.IsPlayerControlled
+                && !Session.MembershipChangePending && !IsActionInProgress;
         }
 
-        public bool CanEscape()
+        public bool CanEscape() => string.IsNullOrEmpty(GetEscapeBlockReason());
+
+        public string GetEscapeBlockReason()
         {
-            return Session != null && !Session.IsSeamless && Session.ActiveUnit != null && Session.ActiveUnit.IsPlayerSide 
-                && Session.ActiveUnit.Character != null 
-                && Session.ActiveUnit.Character.LifeState == CharacterLifeState.Alive
-                && Session.Outcome == CombatOutcomeState.Ongoing
-                && !Session.MembershipChangePending && !IsPlayerMovementPresentationInProgress;
+            if (host?.IsGameplaySuspended == true) return "Gra jest wstrzymana.";
+            var actor = Session?.ActiveUnit;
+            if (Session == null || Session.Outcome != CombatOutcomeState.Ongoing)
+                return "Nie jesteś w walce.";
+            if (actor?.IsPlayerControlled != true || !Session.Units.Contains(actor))
+                return "Zaczekaj na swoją turę.";
+            if (actor.Character?.LifeState != CharacterLifeState.Alive)
+                return "Najpierw musisz stanąć na nogi.";
+            if (Session.MembershipChangePending || IsActionInProgress)
+                return "Zaczekaj, aż skończy się akcja.";
+            if (IsActiveUnitHardCrowdControlled())
+                return "Nie możesz teraz uciec.";
+            if (!Session.IsSeamless) return string.Empty;
+            if (!Session.IsDungeonWide)
+                return Session.IsExitPosition(actor.Position) ? string.Empty : "Najpierw wydostań się z pola walki.";
+            if (Session.Contact == null) return "Nie możesz stąd uciec.";
+
+            // Both hover state and the click recheck current visibility. A cached
+            // ready button must never allow escape after contact is reacquired.
+            Session.Contact.Refresh(Session);
+            foreach (var enemy in Session.Units)
+                if (!enemy.IsPlayerSide && enemy.Character?.LifeState == CharacterLifeState.Alive
+                    && Session.Contact.Sees(enemy, actor)) return "Wrogowie wciąż cię widzą.";
+            return Session.Contact.CanLeave(Session, actor) ? string.Empty : "Wrogowie wciąż cię szukają.";
         }
 
         public void RequestEscape()
         {
-            if (!CanEscape() || escapeSystem == null) return;
+            if (!CanEscape()) return;
 
             var actor = Session.ActiveUnit;
-
-            if (IsActiveUnitHardCrowdControlled())
+            if (Session.IsSeamless)
             {
-                AddBattleLog(
-                    $"{actor.Character.Definition.DisplayName} " +
-                    "nie może uciec przez status kontroli.");
-
+                if (TryLeave(actor)) AddBattleLog($"{actor.Character.Definition?.DisplayName ?? actor.Character.CharacterId} wycofuje się z walki.");
                 return;
             }
+            if (escapeSystem == null) return;
 
             if (!escapeSystem.TryEscape(Session, actor)) return;
 
@@ -1003,7 +1521,7 @@ namespace Godmist.Views.Combat
         {
             if (Session == null
                 || Session.ActiveUnit == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return new Dictionary<
@@ -1013,7 +1531,7 @@ namespace Godmist.Views.Combat
 
             return movementSystem.CalculateReachablePaths(
                 Session,
-                Session.ActiveUnit);
+                Session.ActiveUnit, forPlayerPreview: true);
         }
 
         public Dictionary<GridPosition, List<GridPosition>>
@@ -1027,24 +1545,24 @@ namespace Godmist.Views.Combat
                 return new Dictionary<GridPosition, List<GridPosition>>();
             }
 
-            return movementSystem.CalculateReachablePathsForNextTurn(Session, unit);
+            return movementSystem.CalculateReachablePathsForNextTurn(Session, unit, forPlayerPreview: true);
         }
 
         public int GetActiveUnitMovementPathCost(IReadOnlyList<GridPosition> path)
         {
             if (path == null || Session?.ActiveUnit == null) return 0;
             return CombatMovementSystem.CalculatePathCost(Session, Session.ActiveUnit.Position,
-                Session.ActiveUnit.MovementStepsThisTurn, path);
+                Session.ActiveUnit.MovementStepsThisTurn, path, ScoutCombatSystem.MovementDiscount(Session.ActiveUnit), WarriorCombatSystem.FreeSteps(Session.ActiveUnit));
         }
 
         public bool TryMoveActiveUnitAlongPath(
             IReadOnlyList<GridPosition> path)
         {
-            if (Session == null
+            if (host?.IsGameplaySuspended == true || Session == null
                 || Session.ActiveUnit == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing
-                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsActionInProgress)
             {
                 return false;
             }
@@ -1112,11 +1630,12 @@ namespace Godmist.Views.Combat
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             GridPosition? teleportDestination,
             GridPosition? objectPlacementDestination,
-            IReadOnlyDictionary<int, int> rotationsByModeIndex = null)
+            IReadOnlyDictionary<int, int> rotationsByModeIndex = null,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = null)
         {
-            if (Session == null || Session.ActiveUnit == null
+            if (host?.IsGameplaySuspended == true || Session == null || Session.ActiveUnit == null
                 || skillExecutionSystem == null || targetingService == null
-                || Session.MembershipChangePending || IsPlayerMovementPresentationInProgress)
+                || Session.MembershipChangePending || IsActionInProgress)
             {
                 return false;
             }
@@ -1139,7 +1658,7 @@ namespace Godmist.Views.Combat
                     skill,
                     selectedPositionsByModeIndex,
                     rotationsByModeIndex,
-                    out var targetsByModeIndex))
+                    out var targetsByModeIndex, chosenPositionsByModeIndex))
             {
                 return false;
             }
@@ -1158,7 +1677,8 @@ namespace Godmist.Views.Combat
             SkillData skill,
             IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex,
             IReadOnlyDictionary<int, int> rotationsByModeIndex,
-            out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+            out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = null)
         {
             targetsByModeIndex =
                 new Dictionary<int, IReadOnlyList<BattleUnit>>();
@@ -1182,7 +1702,7 @@ namespace Godmist.Views.Combat
                 targetModeIndex < skill.TargetModes.Count;
                 targetModeIndex++)
             {
-                var targetMode = skill.TargetModes[targetModeIndex];
+                var targetMode = PassiveEffectCombatExecutionSystem.ResolveMode(Session.ActiveUnit, skill, skill.TargetModes[targetModeIndex]);
 
                 if (targetMode == null)
                 {
@@ -1211,7 +1731,20 @@ namespace Godmist.Views.Combat
                         ? rotation
                         : 0);
 
+                if (targetMode.TargetType == TargetType.MultipleChosen && chosenPositionsByModeIndex != null
+                    && chosenPositionsByModeIndex.TryGetValue(targetModeIndex, out var chosen))
+                {
+                    var resolved = new List<BattleUnit>();
+                    foreach (var position in chosen)
+                    {
+                        var group = GetSkillTargets(skill, targetMode, targetModeIndex, position, 0);
+                        if (group.Count != 1 || resolved.Contains(group[0])) return false;
+                        resolved.Add(group[0]);
+                    }
+                    targets = resolved;
+                }
                 if (targets.Count == 0
+                    && !(targetModeIndex == 0 && ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,selectedPosition)!=null)
                     && !(CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex)
                         && CombatObjectDamageSystem.Targets(Session, Session.ActiveUnit, skill, targetModeIndex, selectedPosition).Count > 0)
                     && targetMode.TargetType != TargetType.AreaAroundTile
@@ -1226,11 +1759,24 @@ namespace Godmist.Views.Combat
             return true;
         }
 
+        public bool CanInteractWithDoor(string objectId) => Session?.MembershipChangePending != true
+            && !IsActionInProgress && Session?.ActiveUnit?.IsPlayerControlled == true
+            && Session.Outcome == CombatOutcomeState.Ongoing && !IsActiveUnitHardCrowdControlled()
+            && interactionSystem?.CanInteractWithDoor(Session, Session.ActiveUnit, objectId) == true;
+
+        public bool TryInteractWithDoor(string objectId)
+        {
+            if (!CanInteractWithDoor(objectId)) return false;
+            if (!interactionSystem.TryInteractWithDoor(Session, Session.ActiveUnit, objectId)) return false;
+            turnSystem.EndActiveTurn(Session);
+            return true;
+        }
+
         public bool TryInteractAt(GridPosition position)
         {
-            if (Session?.MembershipChangePending == true) return false;
+            if (Session?.MembershipChangePending == true || IsActionInProgress) return false;
             if (Session == null || Session.ActiveUnit == null || interactionSystem == null 
-                || !Session.ActiveUnit.IsPlayerSide || Session.Outcome != CombatOutcomeState.Ongoing) return false;
+                || !Session.ActiveUnit.IsPlayerControlled || Session.Outcome != CombatOutcomeState.Ongoing) return false;
 
             if (IsActiveUnitHardCrowdControlled())
             {
@@ -1252,11 +1798,11 @@ namespace Godmist.Views.Combat
 
         public bool TryReviveAt(GridPosition position)
         {
-            if (Session?.MembershipChangePending == true) return false;
+            if (Session?.MembershipChangePending == true || IsActionInProgress) return false;
             if (Session == null
                 || Session.ActiveUnit == null
                 || reviveSystem == null
-                || !Session.ActiveUnit.IsPlayerSide
+                || !Session.ActiveUnit.IsPlayerControlled
                 || Session.Outcome != CombatOutcomeState.Ongoing)
             {
                 return false;
@@ -1291,6 +1837,8 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
+            if (unitViewSpawner?.TryPlayHelpUpPose(Session, Session.ActiveUnit, target, RevivePoseDuration) == true)
+                skillPresentationEnds = Mathf.Max(skillPresentationEnds, Time.time + RevivePoseDuration);
             turnSystem.EndActiveTurn(Session);
             return true;
         }
@@ -1335,6 +1883,7 @@ namespace Godmist.Views.Combat
             {
                 return Array.Empty<BattleUnit>();
             }
+            if (!ScoutCombatSystem.CanPayHookCost(Session.ActiveUnit,skill)) return Array.Empty<BattleUnit>();
 
             var includeDownedTargets =
                 CanTargetModeIncludeDownedTargets(
@@ -1353,6 +1902,11 @@ namespace Godmist.Views.Combat
                 requiredEnemyTarget,
                 rotationQuarterTurns);
 
+            if (skill.KnifeCost > 0 && Session.ActiveUnit.AvailableKnives < skill.KnifeCost)
+                targets = targets.Where(target => ScoutKnifeSystem.CanTargetPosition(Session.ActiveUnit, skill, target.Position)).ToArray();
+            if(targetMode.TargetType==TargetType.Chain)
+                return targets.Count>0 && skill.RequiresLineOfSight && !lineOfSightService.HasLineOfSight(Session,Session.ActiveUnit.Position,targets[0].Position)
+                    ? Array.Empty<BattleUnit>() : targets;
             return FilterTargetsByLineOfSight(skill, targets);
         }
         public IReadOnlyList<GridPosition> GetSelectableSkillPositions(
@@ -1360,6 +1914,7 @@ namespace Godmist.Views.Combat
             SkillTargetModeData targetMode,
             int targetModeIndex)
         {
+            using var sample = SelectablePositionsSample.Auto();
             if (Session == null || Session.ActiveUnit == null
                 || skill == null || targetMode == null
                 || targetingService == null)
@@ -1381,6 +1936,14 @@ namespace Godmist.Views.Combat
                 targetMode,
                 includeDownedTargets,
                 requiredEnemyTarget);
+            if (skill.KnifeCost > 0 && Session.ActiveUnit.AvailableKnives < skill.KnifeCost)
+                positions = positions.Where(position => ScoutKnifeSystem.CanTargetPosition(Session.ActiveUnit, skill, position)).ToArray();
+            if (!ScoutCombatSystem.CanPayHookCost(Session.ActiveUnit,skill)) positions=Array.Empty<GridPosition>();
+            if (requiredEnemyTarget == null && targetModeIndex == 0 && skill.CanRecoverKnives
+                && ScoutCombatSystem.CanPayHookCost(Session.ActiveUnit,skill,true))
+                positions = positions.Concat(Session.MapObjects.OfType<KnifeCombatMapObject>()
+                    .Where(k=>ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,k.Position)!=null)
+                    .Select(k=>k.Position)).Distinct().ToList();
 
             if (requiredEnemyTarget == null && CombatObjectDamageSystem.SkillDamagesMode(skill, targetModeIndex))
             {
@@ -1389,11 +1952,11 @@ namespace Godmist.Views.Combat
                     if (CombatObjectDamageSystem.CanDamage(obj)
                         && targetMode.TargetType == TargetType.Single
                         && CombatTargetingService.IsPositionWithinRange(Session.ActiveUnit.Position, obj.Position, targetMode.AbsoluteRange)
+                        && ScoutKnifeSystem.CanTargetPosition(Session.ActiveUnit, skill, obj.Position)
                         && !expanded.Contains(obj.Position)) expanded.Add(obj.Position);
                 if (targetMode.TargetType == TargetType.AreaAroundCaster
                     && CombatTargetingService.IsDirectionalShape(targetMode.AbsoluteRange?.Shape ?? RangeShape.None)) return expanded;
-                return expanded.Where(p => !skill.RequiresLineOfSight || lineOfSightService.HasLineOfSight(Session,
-                    Session.ActiveUnit.Position, p, CombatObjectDamageSystem.CanDamage(Session.GetMapObjectAt(p)) ? Session.GetMapObjectAt(p) : null)).ToList();
+                return FilterPositionsByLineOfSight(skill, expanded, ignoreDamageableObjects: true);
             }
 
             if (targetMode.TargetType == TargetType.AreaAroundCaster
@@ -1408,6 +1971,7 @@ namespace Godmist.Views.Combat
         public IReadOnlyList<GridPosition> GetAbsoluteSkillRangePositions(SkillData skill, 
             SkillTargetModeData targetMode)
         {
+            using var sample = AbsoluteRangeSample.Auto();
             if (Session == null || Session.ActiveUnit == null || skill == null
                 || targetMode == null || targetingService == null) return Array.Empty<GridPosition>();
 
@@ -1488,6 +2052,7 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
+                if(skill.SkillId=="skill.scout.shadow" && !Session.Grid.CanMoveBetween(selectedTargetPosition,position))continue;
                 validPositions.Add(position);
             }
 
@@ -1525,7 +2090,7 @@ namespace Godmist.Views.Combat
                     || Session.Grid.IsBlocked(position)
                     || (createObjectEffect.EffectType == EffectType.Summon
                         && Session.IsPositionOccupied(position))
-                    || Session.IsPositionOccupiedByMapObject(position))
+                    || Session.IsPositionOccupiedByMapObject(position, createObjectEffect.SummonedObjectDefinition?.ObjectId==PaladinCombatSystem.FieldId ? Session.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField) : null))
                 {
                     continue;
                 }
@@ -1610,6 +2175,12 @@ namespace Godmist.Views.Combat
                 includeDownedTargets,
                 requiredEnemyTarget);
 
+            if (!ScoutCombatSystem.CanPayHookCost(Session.ActiveUnit,skill)) positions=Array.Empty<GridPosition>();
+            if (requiredEnemyTarget == null && targetModeIndex == 0 && skill.CanRecoverKnives
+                && ScoutCombatSystem.CanPayHookCost(Session.ActiveUnit,skill,true))
+                positions = positions.Concat(Session.MapObjects.OfType<KnifeCombatMapObject>()
+                    .Where(k=>ScoutCombatSystem.RecoverableKnife(Session,Session.ActiveUnit,skill,k.Position)!=null)
+                    .Select(k=>k.Position)).Distinct().ToList();
             return FilterPositionsByLineOfSight(skill, positions);
         }
 
@@ -1630,7 +2201,8 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
-                if (effect.EffectType == EffectType.Heal
+                if (effect.EffectType == EffectType.PaladinHeal
+                    || effect.EffectType == EffectType.Heal
                     || effect.EffectType == EffectType.HealPercent
                     || effect.EffectType == EffectType.Teleport)
                 {
@@ -1667,12 +2239,17 @@ namespace Godmist.Views.Combat
         }
 
         private IReadOnlyList<GridPosition> FilterPositionsByLineOfSight(SkillData skill,
-            IReadOnlyList<GridPosition> positions)
+            IReadOnlyList<GridPosition> positions, bool ignoreDamageableObjects = false)
         {
             if (skill == null || !skill.RequiresLineOfSight || Session?.ActiveUnit == null) return positions;
 
-            return positions.Where(position => 
-                lineOfSightService.HasLineOfSight(Session, Session.ActiveUnit.Position, position)).ToList();
+            CombatMapObject IgnoredObject(GridPosition position)
+            {
+                var obj = Session.GetMapObjectAt(position);
+                return CombatObjectDamageSystem.CanDamage(obj) ? obj : null;
+            }
+            return lineOfSightService.FilterVisiblePositions(Session, Session.ActiveUnit.Position, positions,
+                ignoreDamageableObjects ? IgnoredObject : null);
         }
 
         private CombatSession CreateInitialSession()
@@ -1737,7 +2314,7 @@ namespace Godmist.Views.Combat
 
         private bool TryReturnToExploration()
         {
-            if (hasRequestedExplorationReturn || Session == null)
+            if (hasRequestedExplorationReturn || Session == null || IsSkillPresentationInProgress)
             {
                 return false;
             }
@@ -1787,7 +2364,9 @@ namespace Godmist.Views.Combat
 
             if (!dungeonCombatOutcomeSystem.TryApplyOutcome(
                     gameSession,
-                    Session))
+                    Session,
+                    gameBootstrap?.QuestService == null ? null
+                        : new QuestObjectiveProgressSystem(gameSession, gameBootstrap.QuestService)))
             {
                 Debug.LogError(
                     "CombatSandboxBootstrap: nie udalo sie zapisac wyniku walki w stanie lochu.");

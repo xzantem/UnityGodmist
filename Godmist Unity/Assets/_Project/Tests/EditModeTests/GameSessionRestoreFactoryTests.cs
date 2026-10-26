@@ -143,6 +143,47 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TryCreate_RoundTripsManaAboveNominalMaximum()
+        {
+            var definition = ScriptableObject.CreateInstance<CharacterDefinition>();
+            var cls = ScriptableObject.CreateInstance<CharacterClassData>();
+            var tree = CreateSkillTree("tree.mage.warlock", "node.mage.warlock.beyond_limits", maxRanks: 2);
+            var catalog = ScriptableObject.CreateInstance<GameContentCatalog>();
+            try
+            {
+                SetAutoProperty(definition, "Id", "character.overflow");
+                SetAutoProperty(cls, "Id", "class.overflow");
+                SetAutoProperty(cls, "ResourceType", ResourceType.Mana);
+                cls.SkillTrees.Add(tree);
+                catalog.CharacterDefinitions.Add(definition);
+                catalog.CharacterClasses.Add(cls);
+                var character = new CharacterInstanceFactory().Create(definition, cls);
+                character.AvailableSkillPoints = 2;
+                var progression = new SkillTreeProgressionSystem();
+                Assert.That(progression.TryInvest(character, tree.Id, tree.Nodes[0].Id), Is.True);
+                Assert.That(progression.TryInvest(character, tree.Id, tree.Nodes[0].Id), Is.True);
+                character.ResourcePool.Restore(1000);
+                Assert.That(character.ResourcePool.CurrentValue, Is.EqualTo(130));
+                var session = new GameSession(GameModeState.Exploration);
+                session.TryRegisterCharacter(character);
+                session.TryAddCharacterToActiveParty(character.CharacterId);
+                var snapshot = new GameSessionSaveSnapshotFactory().CreateSnapshot(session, "Overflow");
+                var serializer = new GameSaveJsonSerializer();
+                Assert.That(serializer.TryDeserialize(serializer.Serialize(snapshot), out var data), Is.True);
+                Assert.That(new GameSessionRestoreFactory().TryCreate(data, catalog, out var restored), Is.True);
+                var pool = restored.CharactersById[character.CharacterId].ResourcePool;
+                Assert.That(pool.MaxValue, Is.EqualTo(100));
+                Assert.That(pool.RecoveryLimit, Is.EqualTo(130));
+                Assert.That(pool.CurrentValue, Is.EqualTo(130));
+            }
+            finally
+            {
+                Object.DestroyImmediate(catalog); Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(cls); Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
         public void TryCreate_RoundTripsSkillTreeInvestmentsThroughJson()
         {
             var characterDefinition = ScriptableObject.CreateInstance<CharacterDefinition>();

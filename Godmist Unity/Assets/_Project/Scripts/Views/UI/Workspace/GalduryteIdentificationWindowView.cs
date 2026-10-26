@@ -27,6 +27,17 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private Button identifyButton;
 
+        [SerializeField] private ScrollRect identificationScroll;
+        [SerializeField] private TextMeshProUGUI itemCountText;
+        [SerializeField] private TextMeshProUGUI emptyText;
+        [SerializeField] private TextMeshProUGUI walletText;
+        [SerializeField] private TextMeshProUGUI revealedEffectsText;
+        [SerializeField] private GameObject previewSection;
+        [SerializeField] private GameObject costSection;
+        [SerializeField] private GameObject effectsSection;
+        [SerializeField] private GameObject summarySpacer;
+
+        private GalduryteItemInstance identifiedResult;
         private readonly GalduryteCraftingService service = new();
         private readonly List<BlacksmithCraftingSlotView> slots = new();
         private GameSession session;
@@ -56,19 +67,26 @@ namespace Godmist.Views.UI.Workspace
 
             enchanter = nextEnchanter;
             isVisible = true;
+            identifiedResult = null;
             serviceRoot?.SetActive(true);
-            PopulateOptions();
+            PopulateOptions(false);
             return true;
         }
 
-        public void Hide() => serviceRoot?.SetActive(false);
-
-        private void PopulateOptions()
+        public void Hide()
         {
+            isVisible = false;
+            serviceRoot?.SetActive(false);
+        }
+
+        private void PopulateOptions(bool preserveScroll = true)
+        {
+            var position = preserveScroll && identificationScroll != null
+                ? identificationScroll.verticalNormalizedPosition : 1f;
             ClearSlots();
             var options = GetPartyGaldurytes().ToList();
-            if (selectedGalduryte == null
-                || options.All(option => option.InstanceId != selectedGalduryte.InstanceId))
+            if (identifiedResult == null && (selectedGalduryte == null
+                || options.All(option => option.InstanceId != selectedGalduryte.InstanceId)))
             {
                 selectedGalduryte = options.FirstOrDefault();
             }
@@ -77,13 +95,14 @@ namespace Godmist.Views.UI.Workspace
             {
                 var captured = option;
                 var slot = CreateSlot(
-                    captured.Definition?.Icon,
-                    captured.DisplayName,
+                    ItemIconPresentation.GetIcon(captured),
+                    ItemRarityPresentation.Name(captured),
                     string.Empty,
                     string.Empty,
                     selectedGalduryte?.InstanceId == captured.InstanceId,
                     () =>
                     {
+                        identifiedResult = null;
                         selectedGalduryte = captured;
                         PopulateOptions();
                     });
@@ -96,50 +115,77 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
 
+            if (itemCountText != null) itemCountText.text = options.Count.ToString();
+            if (emptyText != null)
+            {
+                emptyText.text = "Brak niezidentyfikowanych galdurytów.";
+                emptyText.gameObject.SetActive(options.Count == 0);
+            }
+            Canvas.ForceUpdateCanvases();
+            if (identificationScroll != null)
+            {
+                identificationScroll.StopMovement();
+                identificationScroll.verticalNormalizedPosition = position;
+            }
             RefreshPreview();
         }
 
         private void RefreshPreview()
         {
-            var preview = service.CreateIdentificationPreview(
-                session,
-                enchanter,
-                new GalduryteIdentificationRequest
-                {
-                    GalduryteInstanceId = selectedGalduryte?.InstanceId ?? string.Empty
-                });
-
+            var preview = identifiedResult != null ? null : service.CreateIdentificationPreview(
+                session, enchanter, new GalduryteIdentificationRequest
+                { GalduryteInstanceId = selectedGalduryte?.InstanceId ?? string.Empty });
+            var item = identifiedResult ?? preview?.Galduryte;
+            var revealed = identifiedResult != null && identifiedResult.IsIdentified;
+            var hasItem = item != null;
+            previewSection?.SetActive(hasItem);
+            costSection?.SetActive(hasItem && !revealed);
+            effectsSection?.SetActive(revealed);
+            summarySpacer?.SetActive(!revealed);
+            if (identifyButton != null)
+            {
+                identifyButton.gameObject.SetActive(hasItem && !revealed);
+                identifyButton.interactable = preview?.CanIdentify == true;
+            }
             if (previewTooltipSlot != null)
             {
-                previewTooltipSlot.SetIcon(preview.Galduryte?.Definition?.Icon);
-                if (preview.Galduryte != null)
-                    previewTooltipSlot.SetItemTooltip(preview.Galduryte, null);
-                else
-                    previewTooltipSlot.SetTooltip(
-                        "Identyfikacja galdurytu",
-                        "Wybierz niezidentyfikowany galduryt.");
+                previewTooltipSlot.SetIcon(ItemIconPresentation.GetIcon(item));
+                if (hasItem) previewTooltipSlot.SetItemTooltip(item, null);
+                else previewTooltipSlot.SetTooltip(string.Empty, string.Empty);
             }
-
-            if (previewNameText != null)
-                previewNameText.text = preview.Galduryte?.DisplayName ?? "Wybierz galduryt";
+            if (previewNameText != null) previewNameText.text = ItemRarityPresentation.Name(item);
             if (previewSummaryText != null)
-            {
-                previewSummaryText.text = preview.Galduryte == null
-                    ? "Wybierz niezidentyfikowany galduryt z ekwipunku."
-                    : $"{GetTargetName(preview.Galduryte.TargetType)} • "
-                        + $"Poziom {preview.Galduryte.ItemLevel}";
-            }
+                previewSummaryText.text = hasItem
+                    ? $"{GetTargetName(item.TargetType)} • Poziom {item.ItemLevel}\n"
+                        + UIWorkspaceTooltipView.GetColoredRarityDisplayName(item.CurrentRarity)
+                        + (revealed ? "\nZidentyfikowany" : "\nEfekty: nieznane")
+                    : string.Empty;
+            // The existing item owns the rolled effects; never reveal them before payment.
+            if (revealedEffectsText != null)
+                revealedEffectsText.text = revealed ? GetRevealedEffects(item) : string.Empty;
+            if (walletText != null) walletText.text = $"Posiadane złoto: {session?.Gold ?? 0:N0}";
+            var missingGold = preview == null ? 0 : Mathf.Max(0, preview.GoldCost - (session?.Gold ?? 0));
             if (costText != null)
             {
-                var missingGold = Mathf.Max(0, preview.GoldCost - (session?.Gold ?? 0));
-                costText.text = preview.Galduryte == null ? "Koszt: —" : missingGold == 0
-                    ? $"<color=#F2C14E>Koszt: {preview.GoldCost} g</color>"
-                    : $"<color=#E06C75>Koszt: {preview.GoldCost} g • Brakuje {missingGold} g</color>";
+                costText.text = preview?.GoldCost.ToString("N0") ?? string.Empty;
+                costText.color = missingGold > 0 ? new Color32(224,108,117,255) : new Color32(242,193,78,255);
             }
-            if (identifyButton != null) identifyButton.interactable = preview.CanIdentify;
-            if (statusText != null)
-                statusText.text = preview.Galduryte == null ? "Brak niezidentyfikowanych galdurytów."
-                    : preview.CanIdentify ? string.Empty : preview.FailureReason;
+            SetStatus(!hasItem || revealed || preview?.CanIdentify == true ? string.Empty
+                : missingGold > 0 ? $"Brakuje: {missingGold:N0} złota." : preview?.FailureReason);
+        }
+
+        private static string GetRevealedEffects(GalduryteItemInstance item)
+        {
+            var summary = item.GetEffectSummary();
+            return item.IsDestroyed || !item.IsIdentified ? summary
+                : "• " + summary.Replace("\n", "\n• ");
+        }
+
+        private void SetStatus(string message)
+        {
+            if (statusText == null) return;
+            statusText.text = message ?? string.Empty;
+            statusText.gameObject.SetActive(!string.IsNullOrWhiteSpace(message));
         }
 
         private static string GetTargetName(GalduryteTargetType targetType) => targetType switch
@@ -163,14 +209,13 @@ namespace Godmist.Views.UI.Workspace
                     out var paidGold,
                     out var failureReason))
             {
-                if (statusText != null) statusText.text = failureReason;
+                SetStatus(failureReason);
                 return;
             }
 
+            identifiedResult = identified;
             selectedGalduryte = null;
             PopulateOptions();
-            if (statusText != null)
-                statusText.text = $"Zidentyfikowano: {identified.DisplayName} za {paidGold}g.";
             CharacterInfoWindowView.RefreshOpenWindows(session);
         }
 
@@ -210,7 +255,11 @@ namespace Godmist.Views.UI.Workspace
 
         private void ClearSlots()
         {
-            foreach (var slot in slots.Where(slot => slot != null)) Destroy(slot.gameObject);
+            foreach (var slot in slots.Where(slot => slot != null))
+            {
+                slot.gameObject.SetActive(false);
+                Destroy(slot.gameObject);
+            }
             slots.Clear();
         }
 

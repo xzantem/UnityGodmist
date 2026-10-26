@@ -22,7 +22,7 @@ namespace Godmist.Systems.Dungeons
             var lootTableSystem = new LootTableSystem(
                 random,
                 equipmentParts,
-                lootLevel: dungeon.DungeonLevel);
+                lootLevel: dungeon.DungeonLevel, dropChanceBonus: dungeon.ItemDropChanceBonus);
 
             var lootCatalog = dungeon.Definition?.LootTableCatalog;
             var bossDefinition = dungeon.Definition?.BossEncounterDefinition;
@@ -62,6 +62,12 @@ namespace Godmist.Systems.Dungeons
                         continue;
                     }
 
+                    if (encounterInstance.IsReinforcement)
+                    {
+                        dungeon.TryStorePreRolledRewards(encounterInstance.InstanceId, new Godmist.Runtime.Combat.CombatRewardResult());
+                        continue;
+                    }
+
                     var rewards = rewardSystem.RollEncounterRewards(
                         encounterInstance.Definition,
                         enemyData => ResolveLootTable(
@@ -69,7 +75,22 @@ namespace Godmist.Systems.Dungeons
                             lootCatalog,
                             bossDefinition,
                             encounterInstance,
-                            enemyData), dungeon.DungeonLevel);
+                            enemyData), dungeon.DungeonLevel, dungeon);
+
+                    // Theme bags are common to the dungeon, while bones and brains
+                    // belong to specific enemy species. Both must be pre-rolled so
+                    // saving and reloading cannot change the reward.
+                    foreach (var enemyReward in rewards.EnemyRewards)
+                    {
+                        var enemy = encounterInstance.Definition.Enemies.Find(data =>
+                            data != null && data.InstanceId == enemyReward.EnemyInstanceId);
+                        var speciesLoot = enemy?.CharacterDefinition?.LootTable;
+                        if (speciesLoot != null
+                            && lootCatalog != null
+                            && lootCatalog.TryGetEnemyLootTable(dungeon.Definition.Theme,
+                                dungeon.DungeonLevel, out _))
+                            enemyReward.Items.AddRange(lootTableSystem.RollDirectLoot(speciesLoot));
+                    }
 
                     dungeon.TryStorePreRolledRewards(
                         encounterInstance.InstanceId,

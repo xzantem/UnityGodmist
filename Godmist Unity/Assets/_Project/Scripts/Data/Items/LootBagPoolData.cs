@@ -12,5 +12,8 @@ namespace Godmist.Data.Items
 
         [field: SerializeField]
         public List<LootBagPoolEntryData> Entries { get; private set; } = new();
+
+        [field: SerializeField]
+        public string DistinctSelectionGroup { get; private set; } = string.Empty;
     }
 }

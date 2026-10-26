@@ -14,17 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.JewelryItemDefinition
   <Id>k__BackingField: jewelry.ring
   <DisplayName>k__BackingField: 
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Pier\u015Bcie\u0144 z metalu i kamienia szlachetnego."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 1eb973bac79ec0d4da0ee2a5f0e6fb07, type: 3}
   <ItemType>k__BackingField: 2
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 0.1
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 0}
   <Metals>k__BackingField:
-  - <Material>k__BackingField: {fileID: 11400000, guid: 310c3cc8bb820f240a080021196d3d89, type: 2}
+  - <Material>k__BackingField: {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
     <Amount>k__BackingField: 1
     <Modifiers>k__BackingField:
     - <Target>k__BackingField: 0
@@ -41,7 +42,92 @@ MonoBehaviour:
       <ReferenceId>k__BackingField: 
       <Operation>k__BackingField: 0
       <Value>k__BackingField: 2
+  - <Material>k__BackingField: {fileID: 11400000, guid: 8c62958fe5c4eff44a68f4f99dc61b5e, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 6
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 2
+      <Value>k__BackingField: 0.01
+  - <Material>k__BackingField: {fileID: 11400000, guid: ff95c6fce5a60c545be90ffe7561299e, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 10
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 0
+      <Value>k__BackingField: 2
+  - <Material>k__BackingField: {fileID: 11400000, guid: 9a4453b23cf1a6047980898f7088c49b, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 7
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 2
+      <Value>k__BackingField: 0.06
+  - <Material>k__BackingField: {fileID: 11400000, guid: af20630e76146b741837affd9793360c, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 1
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 0
+      <Value>k__BackingField: 9
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 2
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 0
+      <Value>k__BackingField: 9
+  - <Material>k__BackingField: {fileID: 11400000, guid: c019209280da1154caecc1e15f60d320, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 6
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 2
+      <Value>k__BackingField: 0.015
+  - <Material>k__BackingField: {fileID: 11400000, guid: ec432222b9f2a9740a00acf707518ba4, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 10
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 0
+      <Value>k__BackingField: 3
+  - <Material>k__BackingField: {fileID: 11400000, guid: 713780daaaece6b4ea7b0491ea721ca0, type: 2}
+    <Amount>k__BackingField: 1
+    <Modifiers>k__BackingField:
+    - <Target>k__BackingField: 0
+      <StatType>k__BackingField: 7
+      <ResistanceType>k__BackingField: 2
+      <GameplayVariable>k__BackingField: 0
+      <ReferenceId>k__BackingField: 
+      <Operation>k__BackingField: 2
+      <Value>k__BackingField: 0.08
   <Gems>k__BackingField:
+  - {fileID: 11400000, guid: dfed8f569d0340e4492df52643e855ef, type: 2}
+  - {fileID: 11400000, guid: e615b469d40f73746b20aaae1c8828aa, type: 2}
+  - {fileID: 11400000, guid: f3ac20e4e2fdad548bd450e09feb7877, type: 2}
+  - {fileID: 11400000, guid: 5dee2c0c3e8454a48acd9e4a13ddfe34, type: 2}
+  - {fileID: 11400000, guid: 0e47126bcc4a6c64ebf93d55ee69fcbb, type: 2}
+  - {fileID: 11400000, guid: 223eeccd8dbe2624bad734128ecd65f3, type: 2}
+  - {fileID: 11400000, guid: 24dd02bbb5fd0914c9d50ec0640019ad, type: 2}
+  - {fileID: 11400000, guid: 17ce9e7a8cb609c47876ea75ae40c96f, type: 2}
   - {fileID: 11400000, guid: 841b5ce6294a4077ae6d9317c70c4ff9, type: 2}
   - {fileID: 11400000, guid: b01e4f61caed4fe395dca4b06a0891f0, type: 2}
   - {fileID: 11400000, guid: a93637ea96b24fc58f9ce19f254e506b, type: 2}

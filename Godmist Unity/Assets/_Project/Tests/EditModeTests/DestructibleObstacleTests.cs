@@ -34,7 +34,7 @@ namespace Godmist.Tests.EditMode
             session.MapObjects.Add(obstacle);
             session.Grid.DynamicBlocked = p => session.MapObjects.Any(o => o.Position == p && o.BlocksMovement);
             var def = Asset<CharacterDefinition>(); Set(def,"<DisplayName>k__BackingField","test");
-            var unit = new BattleUnit { Position = new GridPosition(0,0), CurrentActionPoints = 100, IsPlayerSide = true,
+            var unit = new BattleUnit { Position = new GridPosition(0,0), CurrentActionPoints = 10000, IsPlayerSide = true,
                 Character = new CharacterInstance { Definition = def, CharacterId = "player", LifeState = CharacterLifeState.Alive,
                     CurrentHealth = 100, Stats = new CharacterStats { MaxHealth = new Stat(100), Speed = new Stat(100), MinAttack = new Stat(10), MaxAttack = new Stat(10) } } };
             session.Units.Add(unit); session.ActiveUnit = unit; return session;
@@ -71,6 +71,44 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.ObjectDamageAction, Is.Null);
         }
         [Test]
+        public void DiagonalChargeImpactDamagesReachableObstacleWithoutCreatingDiagonalEdge()
+        {
+            var definition = Asset<ObstacleDungeonObjectDefinition>();
+            var source = new ObstacleDungeonObjectInstance("diagonal", definition, new Vector2Int(2, 2));
+            source.RestoreDurability(true, 3, 3);
+            var obstacle = new ObstacleCombatMapObject(source.InstanceId, new GridPosition(2, 2), true, true, source);
+            var session = Session(obstacle);
+            var enemy = Session(Obstacle(3, 6)).ActiveUnit;
+            enemy.IsPlayerSide = false;
+            enemy.Character.CharacterId = "enemy.diagonal";
+            enemy.Position = new GridPosition(1, 1);
+            session.Units.Add(enemy);
+            var charge = Skill(EffectType.Charge);
+            Set(charge.Effects[0], "baseChance", 1f);
+            Set(charge.Effects[0], "displacementDistance", 3);
+
+            using (new CombatObjectDamageAction(session))
+                Assert.DoesNotThrow(() => new CombatChargeSystem().TryCharge(
+                    session, session.ActiveUnit, enemy, charge, charge.Effects[0], 0));
+
+            Assert.That(source.RemainingHits, Is.EqualTo(2));
+            Assert.That(enemy.Position, Is.EqualTo(new GridPosition(1, 1)));
+        }
+        [Test]
+        public void DiagonalImpactCannotPassThroughTwoBlockedSides()
+        {
+            var definition = Asset<ObstacleDungeonObjectDefinition>();
+            var source = new ObstacleDungeonObjectInstance("corner", definition, new Vector2Int(2, 1));
+            source.RestoreDurability(true, 3, 3);
+            var obstacle = new ObstacleCombatMapObject(source.InstanceId, new GridPosition(2, 1), true, true, source);
+            var session = Session(obstacle);
+            session.Grid.SetBlockedEdge(new GridPosition(1, 0), new GridPosition(2, 0));
+            session.Grid.SetBlockedEdge(new GridPosition(1, 0), new GridPosition(1, 1));
+
+            Assert.That(CombatObjectDamageSystem.Impact(session, new GridPosition(1, 0), obstacle.Position), Is.False);
+            Assert.That(source.RemainingHits, Is.EqualTo(3));
+        }
+        [Test]
         public void DestroyedSharedSourceUnblocksAllSessionsAndSight()
         {
             var a = Obstacle(1); var first = Session(a);
@@ -105,6 +143,22 @@ namespace Godmist.Tests.EditMode
             Assert.That(session.ActiveUnit.Position, Is.EqualTo(new GridPosition(1,0)));
         }
         [Test]
+        public void PushIntoStructuralWallStunsWithoutDamagingObstacleBehindIt()
+        {
+            var obj = Obstacle(3, 3); var session = Session(obj); var skill = Skill(EffectType.Push);
+            var enemy = Session(Obstacle(3, 6)).ActiveUnit;
+            enemy.IsPlayerSide = false; enemy.Character.CharacterId = "enemy"; enemy.Position = new GridPosition(1, 0);
+            session.Units.Add(enemy);
+            session.Grid.SetWallEdge(enemy.Position, new GridPosition(2, 0), DungeonWallType.Full);
+            Assert.That(new SkillExecutionSystem().TryExecute(session, session.ActiveUnit, skill,
+                new Dictionary<int,IReadOnlyList<BattleUnit>> { [0] = new List<BattleUnit> { enemy } },null,null,
+                new Dictionary<int,GridPosition?> { [0] = enemy.Position }), Is.True);
+            Assert.That(enemy.Position, Is.EqualTo(new GridPosition(1,0)));
+            Assert.That(StatusEffectSystem.HasStatus(enemy, Godmist.Core.Constants.StatusEffectIds.Stun), Is.True);
+            Assert.That(obj.Source.RemainingHits, Is.EqualTo(3));
+        }
+
+        [Test]
         public void PushedEnemyStopsEvenWhenCollisionDestroysObstacle()
         {
             var obj = Obstacle(1); var session = Session(obj); var skill = Skill(EffectType.Push);
@@ -116,6 +170,7 @@ namespace Godmist.Tests.EditMode
                 new Dictionary<int,GridPosition?> { [0] = enemy.Position }), Is.True);
             Assert.That(obj.Source.IsActive, Is.False);
             Assert.That(enemy.Position, Is.EqualTo(new GridPosition(1,0)));
+            Assert.That(StatusEffectSystem.HasStatus(enemy, Godmist.Core.Constants.StatusEffectIds.Stun), Is.True);
         }
         [TestCase(false)] [TestCase(true)]
         public void ExplorationApproachesStrikesAndMovementCancelsFurtherHits(bool noclip)

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 104b7618b2b2a4b4792b4d15034466cc, type: 3}
+  m_Name: EID_ScoutTunic
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
+  <Id>k__BackingField: equipment.start.scout.armor
+  <DisplayName>k__BackingField: Dziurawy pancerz
+  <Description>k__BackingField: "Dziurawy pancerz pozwalaj\u0105cy zachowa\u0107
+    swobod\u0119 ruchu."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9f974de090e215442852ca7e61b1d975, type: 3}
+  <ItemType>k__BackingField: 1
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 5
+  <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 1
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}

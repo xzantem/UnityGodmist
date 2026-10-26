@@ -26,11 +26,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5571172062495445976, guid: c56b957fafcd88a4a8383fe111e2bfc8, type: 3}
       propertyPath: m_fontSize
-      value: 15
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 5571172062495445976, guid: c56b957fafcd88a4a8383fe111e2bfc8, type: 3}
       propertyPath: m_fontSizeBase
-      value: 15
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 5571172062495445976, guid: c56b957fafcd88a4a8383fe111e2bfc8, type: 3}
       propertyPath: m_RaycastTarget

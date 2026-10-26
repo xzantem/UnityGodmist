@@ -1,0 +1,78 @@
+{
+  "clips": [
+    {
+      "id": "arcane-ward",
+      "frames": [
+        "pass4-arcane-ward-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 1.125
+    },
+    {
+      "id": "holy-grace",
+      "frames": [
+        "pass4-holy-grace-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.71875
+    },
+    {
+      "id": "rally",
+      "frames": [
+        "pass4-rally-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.75
+    },
+    {
+      "id": "holy-impact",
+      "frames": [
+        "pass4-holy-impact-00"
+      ],
+      "frameSeconds": 0.36,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.59375
+    },
+    {
+      "id": "holy-blind",
+      "frames": [
+        "pass4-holy-impact-00"
+      ],
+      "frameSeconds": 0.36,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.59375,
+      "aboveHead": true
+    },
+    {
+      "id": "arcane-focus",
+      "frames": [
+        "pass3-energy-impact-00"
+      ],
+      "frameSeconds": 0.44,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.53125,
+      "aboveHead": true
+    }
+  ]
+}

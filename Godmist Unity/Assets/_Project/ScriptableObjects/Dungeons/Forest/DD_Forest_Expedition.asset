@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccca2633228553c44864ed1c20223033, type: 3}
+  m_Name: DD_Forest_Expedition
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonDefinition
+  <EnvironmentConfigured>k__BackingField: 1
+  <IsIndoor>k__BackingField: 0
+  <IsCold>k__BackingField: 0
+  <IsWarm>k__BackingField: 0
+  <Id>k__BackingField: dungeon.forest.expedition
+  <DisplayName>k__BackingField: "Ska\u017Cony Las \u2014 wyprawa"
+  <Theme>k__BackingField: 1
+  <IsProcedural>k__BackingField: 1
+  <IsStoryDungeon>k__BackingField: 0
+  <IsAvailableAsOffer>k__BackingField: 1
+  <FixedOfferLevels>k__BackingField: 
+  <LayoutProfile>k__BackingField: {fileID: 11400000, guid: 78e2358938e8073458a3633d1f39de1d, type: 2}
+  <LengthProfiles>k__BackingField:
+  - <Length>k__BackingField: 1
+    <FloorCount>k__BackingField: 1
+    <MinRoomsPerFloor>k__BackingField: 14
+    <MaxRoomsPerFloor>k__BackingField: 17
+    <MinEncountersPerFloor>k__BackingField: 5
+    <MaxEncountersPerFloor>k__BackingField: 6
+    <MinBranchCount>k__BackingField: 1
+    <MaxBranchCount>k__BackingField: 3
+    <MinBranchTransitRoomCount>k__BackingField: 2
+    <MaxBranchTransitRoomCount>k__BackingField: 3
+    <MinLoopArmRoomCount>k__BackingField: 2
+    <MaxLoopArmRoomCount>k__BackingField: 4
+  - <Length>k__BackingField: 2
+    <FloorCount>k__BackingField: 1
+    <MinRoomsPerFloor>k__BackingField: 28
+    <MaxRoomsPerFloor>k__BackingField: 34
+    <MinEncountersPerFloor>k__BackingField: 9
+    <MaxEncountersPerFloor>k__BackingField: 11
+    <MinBranchCount>k__BackingField: 2
+    <MaxBranchCount>k__BackingField: 4
+    <MinBranchTransitRoomCount>k__BackingField: 2
+    <MaxBranchTransitRoomCount>k__BackingField: 5
+    <MinLoopArmRoomCount>k__BackingField: 3
+    <MaxLoopArmRoomCount>k__BackingField: 5
+  - <Length>k__BackingField: 3
+    <FloorCount>k__BackingField: 1
+    <MinRoomsPerFloor>k__BackingField: 42
+    <MaxRoomsPerFloor>k__BackingField: 51
+    <MinEncountersPerFloor>k__BackingField: 14
+    <MaxEncountersPerFloor>k__BackingField: 17
+    <MinBranchCount>k__BackingField: 3
+    <MaxBranchCount>k__BackingField: 5
+    <MinBranchTransitRoomCount>k__BackingField: 3
+    <MaxBranchTransitRoomCount>k__BackingField: 8
+    <MinLoopArmRoomCount>k__BackingField: 4
+    <MaxLoopArmRoomCount>k__BackingField: 7
+  <VegetationPresentation>k__BackingField: {fileID: 11400000, guid: c981988ca4cb4f548a44e3ef78cf8c2c, type: 2}
+  <DungeonLevel>k__BackingField: 1
+  <LootTableCatalog>k__BackingField: {fileID: 11400000, guid: 69c3a39da70b7714f9919e3250c7f09c, type: 2}
+  <MinFloorCount>k__BackingField: 1
+  <MaxFloorCount>k__BackingField: 1
+  <MinRoomCountPerFloor>k__BackingField: 10
+  <MaxRoomCountPerFloor>k__BackingField: 13
+  <MinOptionalRoomCount>k__BackingField: 3
+  <MaxOptionalRoomCount>k__BackingField: 4
+  <MinLoopConnections>k__BackingField: 0
+  <MaxLoopConnections>k__BackingField: 0
+  <MinProgressionGateCount>k__BackingField: 1
+  <MaxProgressionGateCount>k__BackingField: 2
+  <RoomTemplateCatalog>k__BackingField: {fileID: 11400000, guid: 5beff9efa5b062442b9d01b89e11ad02, type: 2}
+  <EncounterDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: a74bf8fb5a80f4d46909a8e44ae5405d, type: 2}
+  - {fileID: 11400000, guid: 1af9fed4cfea3fb4ebd95cef0d75453c, type: 2}
+  - {fileID: 11400000, guid: e7aa2db6dcb47b349add89080e51838b, type: 2}
+  - {fileID: 11400000, guid: 5c1d1d12602b9254f9c426f46bfc23b5, type: 2}
+  - {fileID: 11400000, guid: 624b0fbca02c23249b6a6e1e3c36746d, type: 2}
+  - {fileID: 11400000, guid: 39ea36997228a5f4187c3633080c822a, type: 2}
+  - {fileID: 11400000, guid: bb7aef3f9f5593a43b03da601ceacdb9, type: 2}
+  <BossEncounterDefinition>k__BackingField: {fileID: 0}
+  <MinEncounterCountPerFloor>k__BackingField: 1
+  <MaxEncounterCountPerFloor>k__BackingField: 2
+  <AllowEncounterDefinitionRepeats>k__BackingField: 1
+  <ObjectDefinitions>k__BackingField:
+  - {fileID: 11400000, guid: f157d8b362203c64dbd2d1d554941de9, type: 2}
+  - {fileID: 11400000, guid: d3fe3fa2e0856174892d5221589ab302, type: 2}
+  - {fileID: 11400000, guid: 82b686822459ff84f9a14f7dfafe10a9, type: 2}
+  - {fileID: 11400000, guid: daf3b21a5c218434e95a182559649a11, type: 2}
+  - {fileID: 11400000, guid: 2a951d43ecc59b747bc8eba3516176e7, type: 2}
+  - {fileID: 11400000, guid: b3376b25f8348a24eb697720ed5b8cc3, type: 2}
+  - {fileID: 11400000, guid: 4db1384be030b5a4195448a3fa12d880, type: 2}
+  - {fileID: 11400000, guid: 45e72b6f6d343b441a6053f03b381f98, type: 2}
+  - {fileID: 11400000, guid: 85620843a03ba6a4493ae6f700f39373, type: 2}
+  - {fileID: 11400000, guid: e40da8975f64ab045b6b044ef25823f7, type: 2}
+  - {fileID: 11400000, guid: a2819fe3f2a45ec49b835183543a935c, type: 2}
+  - {fileID: 11400000, guid: be578d4d7d4434645ba1438dea648b73, type: 2}
+  - {fileID: 11400000, guid: 44439466fdb4b2b45841bf238e888cc9, type: 2}
+  - {fileID: 11400000, guid: 89ab30d4d388d044c863305822a2af74, type: 2}
+  - {fileID: 11400000, guid: cd626ba8b21d1e54ca26bf51ae835466, type: 2}
+  <MinObjectCountPerFloor>k__BackingField: 0
+  <MaxObjectCountPerFloor>k__BackingField: 0

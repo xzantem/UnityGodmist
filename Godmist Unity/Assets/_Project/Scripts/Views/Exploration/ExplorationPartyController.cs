@@ -1,7 +1,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
+using Godmist.Core.Interfaces;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Dungeons;
 using Godmist.Views.Dungeons;
 using Godmist.Views.Game;
 using Godmist.Views.UI;
@@ -18,12 +20,20 @@ namespace Godmist.Views.Exploration
         [SerializeField] private InventoryEquipmentPanelView inventoryEquipmentPanel;
 
         private readonly Dictionary<string, ExplorationCharacterView> viewsById = new();
+        private readonly HashSet<IInteractable> registeredInteractions = new();
 
         private GameSession gameSession;
         public GameSession Session => gameSession;
+        public DungeonMinimapView DungeonMinimap { get; private set; }
+        private int mapOverviewInputFrame=-1;
+        public bool IsMapOverviewBlockingInput => DungeonMinimap!=null && DungeonMinimap.IsOverviewOpen || mapOverviewInputFrame==Time.frameCount;
+        public void BindDungeonMinimap(DungeonMinimapView view) => DungeonMinimap=view;
+        public void ConsumeMapOverviewInput() => mapOverviewInputFrame=Time.frameCount;
         private int claimedPrimaryFrame = -1;
         public bool IsWorldPrimaryClickClaimed => claimedPrimaryFrame == Time.frameCount
             || unitInteractions != null && (unitInteractions.ConsumedPrimaryClickThisFrame || unitInteractions.HasWorldUnitHover);
+        public bool IsWorldInteractionClaimedThisFrame => claimedPrimaryFrame == Time.frameCount
+            || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame;
         public void ClaimWorldPrimaryClick() => claimedPrimaryFrame = Time.frameCount;
         public bool TryGetPointerWorldPosition(out Vector2 position)
         {
@@ -39,18 +49,52 @@ namespace Godmist.Views.Exploration
         private Vector2? movementDestination;
         private Godmist.Views.Dungeons.DungeonCombatCoordinator combatCoordinator;
         public bool CanAcceptExplorationInput => gameSession != null && !gameSession.IsDefeated
+            && !IsMapOverviewBlockingInput
             && gameSession.CurrentMode == GameModeState.Exploration
+            && combatCoordinator?.IsPreparingOpening != true
             && (inventoryEquipmentPanel == null || !inventoryEquipmentPanel.IsOpen)
             && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput();
+        public bool CanCycleLeader => gameSession?.PlayerParty?.ActiveMemberIds?.Count >= 2;
+        public bool HasAvailableInteraction
+        {
+            get
+            {
+                if (!CanAcceptExplorationInput) return false;
+
+                foreach (var interaction in registeredInteractions)
+                {
+                    if (interaction is Object unityObject && unityObject == null) continue;
+                    if (interaction.CanInteract()) return true;
+                }
+
+                return false;
+            }
+        }
+
+        public void RegisterInteraction(IInteractable interaction)
+        {
+            if (interaction != null) registeredInteractions.Add(interaction);
+        }
+
+        public void UnregisterInteraction(IInteractable interaction)
+        {
+            if (interaction != null) registeredInteractions.Remove(interaction);
+        }
         public bool IsSeparated { get; private set; }
         public void SetCombatCoordinator(Godmist.Views.Dungeons.DungeonCombatCoordinator value) => combatCoordinator = value;
+        public bool CanPrepareAttack(ExplorationCharacterView enemy) => combatCoordinator?.CanPrepareOpening(enemy) == true;
+        public void PrepareAttack(ExplorationCharacterView enemy) => combatCoordinator?.TryPrepareOpening(enemy);
+        public bool CanInteractWithCombatDoor(string objectId) => combatCoordinator != null
+            && combatCoordinator.CanInteractWithDoor(objectId);
+        public bool TryInteractWithCombatDoor(string objectId) => combatCoordinator != null
+            && combatCoordinator.TryInteractWithDoor(objectId);
         public void RejoinAfterCombat() { IsSeparated = false; CancelMovement(); }
         public void SeparateForCombat()
         {
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { pendingNpc = null; pendingEntrance = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { meshRoutes.Clear(); pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -117,11 +161,16 @@ namespace Godmist.Views.Exploration
             gameSession.PlayerParty.GroupsChanged += CancelMovement;
 
             RefreshLeaderVisuals();
+
+            var canvas = inventoryEquipmentPanel?.GetComponentInParent<Canvas>();
+            ContextualInputHintsView.Ensure(canvas)?.BindExploration(this, cameraController);
         }
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) { return; }
+            if(IsMapOverviewBlockingInput)return;
+            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()
+                || (UIWorkspaceInputRouter.HasFocusedContextMenu() && Input.GetKeyDown(KeyCode.Tab))) { return; }
 
             if (gameSession == null || gameSession.IsDefeated)
             {
@@ -134,7 +183,8 @@ namespace Godmist.Views.Exploration
                 combatCoordinator.RefreshFocus();
                 return;
             }
-            if (gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) { return; }
+            if (gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null
+                || combatCoordinator?.IsPreparingOpening == true) { return; }
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
@@ -170,7 +220,7 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            pendingNpc = null; pendingEntrance = null;
+            pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;
             var point = (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition);
             foreach (var view in viewsById.Values)
                 if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
@@ -198,13 +248,32 @@ namespace Godmist.Views.Exploration
 
         private void FixedUpdate()
         {
-            if (DevConsoleView.IsOpen) return;
+#if UNITY_EDITOR
+            var started = System.Diagnostics.Stopwatch.GetTimestamp();
+            try
+            {
+                FixedUpdateCore();
+            }
+            finally
+            {
+                RecordPerformanceSample("PartyFixedUpdate", started, null);
+            }
+#else
+            FixedUpdateCore();
+#endif
+        }
+
+        private void FixedUpdateCore()
+        {
+            if(IsMapOverviewBlockingInput)return;
+            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
 
             if (gameSession == null
                 || gameSession.CurrentMode != GameModeState.Exploration
+                || combatCoordinator?.IsPreparingOpening == true
                 || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
-                destroyTarget = null; pendingNpc = null; pendingEntrance = null;
+                destroyTarget = null; pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;
                 return;
             }
 
@@ -213,11 +282,15 @@ namespace Godmist.Views.Exploration
             var leaderView = GetActiveLeaderView();
 
             if (leaderView == null) return;
+            if (TickReviveApproach()) return;
+            if (leaderView.RuntimeCharacter != null && leaderView.RuntimeCharacter.LifeState != CharacterLifeState.Alive) { CancelMovement(); return; }
+            if (TickChestApproach()) return;
+            if (TickWorldObjectApproach()) return;
             if (traversalFloor?.Map != null && !IsNoclipEnabled)
             {
-                TickTraversalMovement(leaderView);
-                MoveFollowers(leaderView);
-                PersistCurrentPosition(leaderView);
+                using (LeaderTickSample.Auto()) TickTraversalMovement(leaderView);
+                using (FollowersTickSample.Auto()) MoveFollowers(leaderView);
+                using (PersistPositionSample.Auto()) PersistCurrentPosition(leaderView);
                 return;
             }
 
@@ -244,19 +317,61 @@ namespace Godmist.Views.Exploration
             PersistCurrentPosition(leaderView);
         }
 
+#if UNITY_EDITOR
+        private static int performanceSamplesLogged;
+        private static double performanceLogWindowStartedAt = -1d;
+
+        private static bool ShouldRecordPerformanceSample(long started)
+            => (System.Diagnostics.Stopwatch.GetTimestamp() - started)
+                * 1000d / System.Diagnostics.Stopwatch.Frequency >= 50d;
+
+        private static void RecordPerformanceSample(string operation, long started, string context)
+        {
+            var elapsedMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started)
+                                      * 1000d / System.Diagnostics.Stopwatch.Frequency;
+            if (elapsedMilliseconds < 50d)
+                return;
+
+            var now = Time.realtimeSinceStartup;
+            if (performanceLogWindowStartedAt < 0d || now - performanceLogWindowStartedAt >= 60d)
+            {
+                performanceLogWindowStartedAt = now;
+                performanceSamplesLogged = 0;
+            }
+
+            if (performanceSamplesLogged >= 10)
+                return;
+
+            performanceSamplesLogged++;
+            var suffix = string.IsNullOrEmpty(context) ? string.Empty : " " + context;
+            UnityEngine.Debug.LogWarning(
+                $"[ExplorationPerf] {operation} {elapsedMilliseconds:F1}ms{suffix}");
+        }
+
+        private static string FormatTraversalPosition(DungeonTraversalPosition position)
+        {
+            if (position.IsOnStairs)
+                return "stairs";
+
+            return $"({position.Surface.Cell.x},{position.Surface.Cell.y})@{position.Surface.Level}";
+        }
+#endif
+
         private void OnDestroy()
         {
+            DisposeNavigationMeshes();
             if (gameSession == null) return;
 
             gameSession.PlayerParty.ActiveLeaderChanged -= HandleActiveLeaderChanged;
             gameSession.PlayerParty.GroupsChanged -= CancelMovement;
+            registeredInteractions.Clear();
         }
 
         private void MoveFollowers(ExplorationCharacterView leaderView)
         {
             if (gameSession.GetCombatForCharacter(leaderView.CharacterId) != null) return;
+            using var navigationBatch = BeginTraversalQueryBatch();
             var previousView = leaderView;
-
             foreach (var characterId in gameSession.PlayerParty.GetGroup(gameSession.PlayerParty.GetGroupIndex(leaderView.CharacterId)))
             {
                 if (characterId == gameSession.PlayerParty.ActiveLeaderId
@@ -334,9 +449,7 @@ namespace Godmist.Views.Exploration
         {
             if (cameraController == null || cameraController.IsFollowingLeader)
             {
-                var keyboardMovement = new Vector2(
-                    Input.GetAxisRaw("Horizontal"),
-                    Input.GetAxisRaw("Vertical"));
+                var keyboardMovement = ExplorationKeyboardInput.ReadMovement();
 
                 if (keyboardMovement.sqrMagnitude > 1f)
                 {
@@ -345,23 +458,35 @@ namespace Godmist.Views.Exploration
 
                 if (keyboardMovement.sqrMagnitude > 0f)
                 {
-                    pendingNpc = null; pendingEntrance = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
+                    pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
                     return keyboardMovement;
                 }
             }
 
             if (!movementDestination.HasValue) return Vector2.zero;
 
-            var destination = IsNoclipEnabled ? movementDestination.Value : CityWaypoint(leaderView, cityLeaderRoute, movementDestination.Value);
+            var destination = IsNoclipEnabled
+                ? movementDestination.Value
+                : CityWaypoint(leaderView, cityLeaderRoute, movementDestination.Value);
             var offset = destination - leaderView.Position;
+            var finalOffset = movementDestination.Value - leaderView.Position;
 
-            if (offset.sqrMagnitude <= arrivalDistance * arrivalDistance)
+            // Arrival is defined by the requested final goal. CityWaypoint can
+            // temporarily return the actor position while a blocked city route
+            // is being replanned; that is not completion and must preserve the
+            // pending NPC/entrance interaction.
+            if (finalOffset.sqrMagnitude <= arrivalDistance * arrivalDistance)
             {
                 movementDestination = null;
+                cityLeaderRoute.Clear();
                 return Vector2.zero;
             }
 
-            return offset.normalized;
+            if (offset.sqrMagnitude <= arrivalDistance * arrivalDistance)
+                return Vector2.zero;
+
+            var movementStep = Mathf.Max(.0001f, movementSpeed * Time.fixedDeltaTime);
+            return offset.normalized * Mathf.Min(1f, offset.magnitude / movementStep);
         }
 
         public void RestorePartyFormation(Vector2 leaderPosition)
@@ -370,22 +495,57 @@ namespace Godmist.Views.Exploration
 
             if (leaderView == null) return;
 
+            if (GameBootstrap.Instance?.IsDungeonScene == true
+                && TryFindSafeDungeonFormationPosition(leaderView, leaderPosition, null, out var safeLeaderPosition))
+                leaderPosition = safeLeaderPosition;
             leaderView.SetPosition(leaderPosition);
+            Physics2D.SyncTransforms();
 
             var previousView = leaderView;
+            var placed = new List<Vector2> { leaderPosition };
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
                 if (characterId == gameSession.PlayerParty.ActiveLeaderId) continue;
                 if (!viewsById.TryGetValue(characterId, out var followerView)) continue;
 
-                var followerPosition = previousView.Position + Vector2.left * followerDistance;
+                var followerPosition = GameBootstrap.Instance?.IsDungeonScene == true
+                    ? previousView.Position + Vector2.left * followerDistance
+                    : FindOpenCityFormationPosition(followerView, previousView.Position, placed);
+                if (GameBootstrap.Instance?.IsDungeonScene == true
+                    && TryFindSafeDungeonFormationPosition(followerView, followerPosition, placed, out var safeFollowerPosition))
+                    followerPosition = safeFollowerPosition;
 
                 followerView.SetPosition(followerPosition);
+                placed.Add(followerPosition);
                 previousView = followerView;
             }
 
             Physics2D.SyncTransforms();
+        }
+
+        private Vector2 FindOpenCityFormationPosition(
+            ExplorationCharacterView follower, Vector2 anchor, IReadOnlyList<Vector2> placed)
+        {
+            var directions = new[]
+            {
+                Vector2.left, Vector2.down, Vector2.up, Vector2.right,
+                new Vector2(-1f, -1f).normalized, new Vector2(-1f, 1f).normalized,
+                new Vector2(1f, -1f).normalized, new Vector2(1f, 1f).normalized
+            };
+            for (var ring = 1; ring <= 4; ring++)
+            {
+                foreach (var direction in directions)
+                {
+                    var candidate = anchor + direction * followerDistance * ring;
+                    if (placed.Any(position => Vector2.Distance(position, candidate) < followerDistance * .7f)
+                        || !follower.CanStandAt(candidate)
+                        || !follower.HasClearMovementSegment(anchor, candidate)) continue;
+                    return candidate;
+                }
+            }
+
+            return anchor;
         }
 
         public IReadOnlyCollection<ExplorationCharacterView> ActiveMemberViews =>
@@ -459,7 +619,11 @@ namespace Godmist.Views.Exploration
                 leaderPosition = storedLeaderPosition;
             }
 
+            if (GameBootstrap.Instance?.IsDungeonScene == true
+                && TryFindSafeDungeonFormationPosition(leaderView, leaderPosition, null, out var safeLeaderPosition))
+                leaderPosition = safeLeaderPosition;
             leaderView.SetPosition(leaderPosition);
+            var placed = new List<Vector2> { leaderPosition };
 
             foreach (var characterId in gameSession.PlayerParty.ActiveMemberIds)
             {
@@ -475,7 +639,11 @@ namespace Godmist.Views.Exploration
                     continue;
                 }
 
+                if (GameBootstrap.Instance?.IsDungeonScene == true
+                    && TryFindSafeDungeonFormationPosition(characterView, characterPosition, placed, out var safeCharacterPosition))
+                    characterPosition = safeCharacterPosition;
                 characterView.SetPosition(characterPosition);
+                placed.Add(characterPosition);
             }
 
             Physics2D.SyncTransforms();

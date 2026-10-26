@@ -1,0 +1,3159 @@
+{
+  "rooms": [
+    {
+      "id": "entry",
+      "name": "Skraj lasu",
+      "source": "room.forest.entrance",
+      "biome": "forest",
+      "type": "Start",
+      "doors": "ULDR",
+      "function": "entry",
+      "zone": -1,
+      "rows": [
+        "#######....##",
+        "######.......",
+        "#####........",
+        "#####........",
+        ".............",
+        ".............",
+        "..........###",
+        "........#####",
+        ".......######"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 1
+        },
+        {
+          "direction": "R",
+          "x": 12,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 8
+        },
+        {
+          "direction": "D",
+          "x": 2,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "clearing_wide",
+      "name": "Rozległa polana",
+      "source": "room.forest.long_glade",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "clearing",
+      "zone": -1,
+      "rows": [
+        "#######......######",
+        "#####............##",
+        "##.................",
+        "#..................",
+        "...................",
+        "...................",
+        ".......########....",
+        ".......############",
+        "...#...############"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 1
+        },
+        {
+          "direction": "R",
+          "x": 18,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 8
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 5,
+          "y": 5
+        },
+        {
+          "x": 5,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "clearing_sloped",
+      "name": "Pochyła polana",
+      "source": "room.forest.crooked",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "LDR",
+      "function": "clearing",
+      "zone": -1,
+      "rows": [
+        "#.....###",
+        "#......##",
+        "#......##",
+        "#.......#",
+        "........#",
+        ".........",
+        ".........",
+        "###......",
+        "##.......",
+        "##......#",
+        "#......##",
+        "#........",
+        "#........",
+        "#........",
+        "#.....###",
+        "#.....###",
+        "#.....###"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "direction": "R",
+          "x": 8,
+          "y": 3
+        },
+        {
+          "direction": "D",
+          "x": 2,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 3,
+          "y": 12
+        },
+        {
+          "x": 3,
+          "y": 13
+        },
+        {
+          "x": 4,
+          "y": 12
+        },
+        {
+          "x": 4,
+          "y": 13
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 6
+        }
+      ],
+      "lowWallPurpose": "Żywopłot obrysowuje kieszeń skały i pnia przy wschodnim wejściu; można przeciąć krzaki lub obejść je dołem polany.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 3,
+          "y": 4
+        },
+        "to": {
+          "x": 6,
+          "y": 4
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "grove",
+      "name": "Zaciszny zagajnik",
+      "source": "room.forest.roots",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "UDR",
+      "function": "grove",
+      "zone": -1,
+      "rows": [
+        "######.....##",
+        "####.........",
+        "###..........",
+        "##...........",
+        "#............",
+        ".............",
+        ".............",
+        ".............",
+        "#...........#",
+        "##........###",
+        "##.....######"
+      ],
+      "ports": [
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 10
+        },
+        {
+          "direction": "D",
+          "x": 2,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 12,
+          "y": 3
+        }
+      ],
+      "difficult": [
+        {
+          "x": 3,
+          "y": 7
+        },
+        {
+          "x": 3,
+          "y": 8
+        },
+        {
+          "x": 4,
+          "y": 7
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 8
+        }
+      ],
+      "lowWallPurpose": "Krzaki osłaniają podmokłą północno-zachodnią kieszeń; główny trakt pozostaje po stronie wschodniej.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 4,
+          "y": 7
+        },
+        "to": {
+          "x": 6,
+          "y": 7
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "crossroads",
+      "name": "Rozstaj przy starym pniu",
+      "source": "room.forest.fork",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "junction",
+      "zone": -1,
+      "rows": [
+        "####...##########",
+        ".......##########",
+        "........#########",
+        ".........########",
+        "...........######",
+        ".................",
+        "#####............",
+        "######...........",
+        "######...........",
+        "#######..........",
+        "########.....####"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 16,
+          "y": 2
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 10
+        },
+        {
+          "direction": "D",
+          "x": 10,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "hollow",
+      "name": "Leśne obniżenie",
+      "source": "room.forest.hollow",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "grove",
+      "zone": -1,
+      "rows": [
+        "###.....#",
+        "###.....#",
+        "###......",
+        "###......",
+        "...#.....",
+        "...#.....",
+        ".........",
+        "#........",
+        "#.......#",
+        "........#",
+        ".........",
+        ".....#...",
+        ".....#...",
+        ".....####",
+        ".....####",
+        ".....####",
+        ".....####"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 10
+        },
+        {
+          "direction": "R",
+          "x": 8,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 16
+        },
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 3,
+          "y": 13
+        },
+        {
+          "x": 3,
+          "y": 14
+        },
+        {
+          "x": 4,
+          "y": 13
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 9
+        }
+      ],
+      "lowWallPurpose": "Lewe stanowisko zasadzki jest osłonięte pasem krzaków wychodzącym od istniejącej skały; footprint skały pozostaje bez krzaków.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 4,
+          "y": 8
+        },
+        "to": {
+          "x": 6,
+          "y": 8
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "ruin_court",
+      "name": "Dziedziniec ruin",
+      "source": "room.forest.overgrown_ruins",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "ULD",
+      "function": "ruins",
+      "zone": -1,
+      "rows": [
+        "###............",
+        "##.............",
+        "##.............",
+        "...............",
+        "........#######",
+        ".......########",
+        ".......########",
+        "......#########",
+        "###...#########"
+      ],
+      "ports": [
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 8
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 2
+        },
+        {
+          "direction": "D",
+          "x": 3,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 2,
+          "y": 5
+        },
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "woodland_bend",
+      "name": "Leśny zakręt",
+      "source": "room.forest.crooked",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "DR",
+      "function": "trail",
+      "zone": -1,
+      "rows": [
+        "###########",
+        "#####......",
+        "###........",
+        "##.........",
+        "#..........",
+        "#..........",
+        "#......####",
+        "#.....#####",
+        "#.....#####",
+        "#.....#####",
+        "#.....#####",
+        "#.....#####",
+        "#.....#####"
+      ],
+      "ports": [
+        {
+          "direction": "D",
+          "x": 2,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 10,
+          "y": 8
+        }
+      ],
+      "difficult": [
+        {
+          "x": 3,
+          "y": 9
+        },
+        {
+          "x": 3,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "trail_broad",
+      "name": "Kręta przesieka",
+      "source": "room.forest.winding_path",
+      "biome": "forest",
+      "type": "Normal",
+      "doors": "UD",
+      "function": "trail",
+      "zone": -1,
+      "rows": [
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "#......",
+        "#......",
+        "......#",
+        "......#",
+        ".....##",
+        ".....##",
+        ".....##",
+        ".....##",
+        ".....##"
+      ],
+      "ports": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 14
+        },
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 2,
+          "y": 10
+        },
+        {
+          "x": 2,
+          "y": 11
+        },
+        {
+          "x": 3,
+          "y": 10
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 10
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 11
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 12
+        }
+      ],
+      "lowWallPurpose": "Zarośnięta podmokła łacha przy wewnętrznym łuku ścieżki; trzy pola suchego obejścia po prawej.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 3,
+          "y": 11
+        },
+        "to": {
+          "x": 5,
+          "y": 11
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "trail",
+      "name": "Wąska przesieka",
+      "source": "room.forest.long_path",
+      "biome": "forest",
+      "type": "Corridor",
+      "doors": "UD",
+      "function": "trail",
+      "zone": -1,
+      "rows": [
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "##.....",
+        "#......",
+        "#......",
+        "#.....#",
+        "......#",
+        "......#",
+        ".....##",
+        ".....##",
+        ".....##",
+        ".....##",
+        ".....##",
+        ".....##"
+      ],
+      "ports": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 18
+        },
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "trail_junction",
+      "name": "Skrzyżowanie ścieżek",
+      "source": "room.forest.winding_path",
+      "biome": "forest",
+      "type": "Corridor",
+      "doors": "UDR",
+      "function": "junction",
+      "zone": -1,
+      "rows": [
+        "########.......",
+        "########.......",
+        "#####..........",
+        "##.............",
+        "#..............",
+        "#..........####",
+        "..........#####",
+        ".......########",
+        ".....##########"
+      ],
+      "ports": [
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 8
+        },
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 14,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "camp",
+      "name": "Porzucone obozowisko",
+      "source": "room.forest.blind_glade",
+      "biome": "forest",
+      "type": "Optional",
+      "doors": "D",
+      "function": "camp",
+      "zone": -1,
+      "rows": [
+        "#######......",
+        "######.......",
+        "######.......",
+        "##...........",
+        "#............",
+        "#...........#",
+        "#...........#",
+        "#..........##",
+        "#.....#...###"
+      ],
+      "ports": [
+        {
+          "direction": "D",
+          "x": 2,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 7,
+          "y": 7
+        },
+        {
+          "x": 7,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 7
+        }
+      ]
+    },
+    {
+      "id": "treasure_ruins",
+      "name": "Skarbiec w ruinach",
+      "source": "room.forest.overgrown_ruins",
+      "biome": "forest",
+      "type": "Optional",
+      "doors": "L",
+      "function": "ruins",
+      "zone": -1,
+      "rows": [
+        "########.......",
+        "######.........",
+        "...............",
+        "...............",
+        "...............",
+        "............###",
+        "........#######"
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 1
+        }
+      ],
+      "difficult": [
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 5
+        },
+        {
+          "x": 13,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "winch_camp",
+      "name": "Obóz przy kołowrocie",
+      "source": "room.forest.winch_camp",
+      "biome": "forest",
+      "type": "Optional",
+      "doors": "D",
+      "function": "camp",
+      "zone": -1,
+      "rows": [
+        "###.....#",
+        "###.....#",
+        "###......",
+        "###......",
+        "####.....",
+        "###......",
+        "##.......",
+        "##......#",
+        "#......##",
+        ".......##",
+        "......###",
+        ".....####",
+        ".....####",
+        ".....####",
+        ".....####"
+      ],
+      "ports": [
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "cleansing_ruins",
+      "name": "Krąg oczyszczenia",
+      "source": "room.forest.cleansing_ruins",
+      "biome": "forest",
+      "type": "Optional",
+      "doors": "L",
+      "function": "ruins",
+      "zone": -1,
+      "rows": [
+        "###############",
+        "......#########",
+        "........#######",
+        "..........#####",
+        "...............",
+        "...............",
+        "####...........",
+        "#####..........",
+        "######........."
+      ],
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 4
+        }
+      ],
+      "difficult": [
+        {
+          "x": 12,
+          "y": 3
+        },
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 13,
+          "y": 3
+        },
+        {
+          "x": 13,
+          "y": 4
+        }
+      ]
+    },
+    {
+      "id": "arena",
+      "name": "Serce skażonego lasu",
+      "source": "room.forest.ent_arena",
+      "biome": "forest",
+      "type": "Final",
+      "doors": "ULDR",
+      "function": "arena",
+      "zone": -1,
+      "rows": [
+        "#####.......#######",
+        "####.........######",
+        "###...........#####",
+        "##.............####",
+        "#...............###",
+        ".................##",
+        "#.................#",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "#.................#",
+        "##.................",
+        "###...............#",
+        "####.............##",
+        "#####...........###",
+        "######.........####",
+        "#######.......#####"
+      ]
+    },
+    {
+      "id": "entry",
+      "name": "Przedsionek katakumb",
+      "source": "room.catacombs.start.production",
+      "biome": "catacombs",
+      "type": "Start",
+      "doors": "ULDR",
+      "function": "entry",
+      "zone": -1,
+      "rows": [
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        ".........."
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 7
+        }
+      ],
+      "enemies": [
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 6,
+          "y": 3
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 5,
+        "y": 6
+      },
+      "reward": {
+        "x": 7,
+        "y": 6
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "direction": "D",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 9,
+          "y": 3
+        }
+      ]
+    },
+    {
+      "id": "crypt",
+      "name": "Mała krypta",
+      "source": "room.catacombs.normal.small.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "UD",
+      "function": "crypt",
+      "zone": 0,
+      "rows": [
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        ".........."
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 6
+        }
+      ],
+      "enemies": [
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 4
+        },
+        {
+          "x": 6,
+          "y": 6
+        }
+      ],
+      "traps": [
+        {
+          "x": 4,
+          "y": 2
+        }
+      ],
+      "goal": {
+        "x": 6,
+        "y": 6
+      },
+      "reward": {
+        "x": 5,
+        "y": 5
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "D",
+          "x": 5,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 0,
+          "y": 5
+        },
+        {
+          "x": 0,
+          "y": 6
+        },
+        {
+          "x": 1,
+          "y": 5
+        },
+        {
+          "x": 1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "burial_gallery",
+      "name": "Galeria grobowa",
+      "source": "room.catacombs.normal.large.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "LUR",
+      "function": "gallery",
+      "zone": 0,
+      "rows": [
+        "##..........##",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "##..........##"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 11,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 7
+        },
+        {
+          "x": 11,
+          "y": 7
+        }
+      ],
+      "enemies": [
+        {
+          "x": 5,
+          "y": 6
+        },
+        {
+          "x": 8,
+          "y": 6
+        },
+        {
+          "x": 5,
+          "y": 3
+        },
+        {
+          "x": 8,
+          "y": 3
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 7,
+        "y": 6
+      },
+      "reward": {
+        "x": 11,
+        "y": 6
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 13,
+          "y": 4
+        }
+      ],
+      "difficult": [
+        {
+          "x": 4,
+          "y": 8
+        },
+        {
+          "x": 4,
+          "y": 9
+        },
+        {
+          "x": 5,
+          "y": 8
+        }
+      ]
+    },
+    {
+      "id": "crypt_bend",
+      "name": "Krypta narożna",
+      "source": "room.catacombs.tactical.cryptl.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "LD",
+      "function": "crypt",
+      "zone": 0,
+      "rows": [
+        ".......#####",
+        ".......#####",
+        ".......#####",
+        ".......#####",
+        ".......#####",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 8,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "enemies": [
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 7
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 6,
+        "y": 8
+      },
+      "reward": {
+        "x": 5,
+        "y": 7
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 5,
+          "y": 7
+        },
+        {
+          "x": 5,
+          "y": 8
+        },
+        {
+          "x": 6,
+          "y": 7
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 0,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 8
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 11,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 4
+        }
+      ],
+      "lowWallPurpose": "Dwie wnęki grobowe przy sarkofagach, z otwartym obejściem od centralnego zakrętu.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 3,
+          "y": 7
+        },
+        "to": {
+          "x": 5,
+          "y": 7
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "ossuary",
+      "name": "Ossuarium z niszami",
+      "source": "room.catacombs.ossuary",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "ossuary",
+      "zone": 1,
+      "rows": [
+        "#..........#",
+        "#..........#",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "#..........#",
+        "#..........#"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 9,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 7
+        },
+        {
+          "x": 9,
+          "y": 7
+        }
+      ],
+      "enemies": [
+        {
+          "x": 4,
+          "y": 6
+        },
+        {
+          "x": 7,
+          "y": 6
+        },
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "traps": [
+        {
+          "x": 4,
+          "y": 2
+        }
+      ],
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "reward": {
+        "x": 8,
+        "y": 7
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 9
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 11,
+          "y": 4
+        }
+      ],
+      "difficult": [
+        {
+          "x": 6,
+          "y": 0
+        },
+        {
+          "x": 6,
+          "y": 1
+        },
+        {
+          "x": 7,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "sarcophagus",
+      "name": "Sala sarkofagów",
+      "source": "room.catacombs.sarcophagus_hall",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "LUD",
+      "function": "sarcophagus",
+      "zone": 1,
+      "rows": [
+        "##......##",
+        "##......##",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "##......##",
+        "##......##"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 9
+        },
+        {
+          "x": 7,
+          "y": 9
+        }
+      ],
+      "enemies": [
+        {
+          "x": 4,
+          "y": 5
+        },
+        {
+          "x": 5,
+          "y": 8
+        },
+        {
+          "x": 3,
+          "y": 10
+        },
+        {
+          "x": 6,
+          "y": 10
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 6,
+        "y": 11
+      },
+      "reward": {
+        "x": 7,
+        "y": 11
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 13
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 0,
+          "y": 10
+        },
+        {
+          "x": 0,
+          "y": 11
+        },
+        {
+          "x": 1,
+          "y": 10
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 10
+        },
+        {
+          "direction": "U",
+          "x": 0,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 5,
+          "y": 10
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 6
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 6
+        }
+      ],
+      "lowWallPurpose": "Cztery zatoki grobowe i dwukratkowa nawa środkiem; wejście boczne pozostaje pomiędzy zatokami.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 3,
+          "y": 8
+        },
+        "to": {
+          "x": 5,
+          "y": 8
+        },
+        "minDetour": 2
+      },
+      "repositionFurniture": true
+    },
+    {
+      "id": "pillar_hall",
+      "name": "Sala filarów",
+      "source": "room.catacombs.tactical.pillars.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "hall",
+      "zone": 1,
+      "rows": [
+        "##............##",
+        "##............##",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+        "##............##",
+        "##............##"
+      ],
+      "props": [
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 11,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 11,
+          "y": 10
+        }
+      ],
+      "enemies": [
+        {
+          "x": 6,
+          "y": 9
+        },
+        {
+          "x": 9,
+          "y": 9
+        },
+        {
+          "x": 6,
+          "y": 4
+        },
+        {
+          "x": 9,
+          "y": 4
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 9,
+        "y": 10
+      },
+      "reward": {
+        "x": 12,
+        "y": 10
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 13
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "direction": "D",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 15,
+          "y": 5
+        }
+      ],
+      "difficult": [
+        {
+          "x": 5,
+          "y": 6
+        },
+        {
+          "x": 5,
+          "y": 7
+        },
+        {
+          "x": 6,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 7
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 10,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 10,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 11,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 12,
+          "y": 5
+        },
+        {
+          "direction": "R",
+          "x": 10,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 10,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 11,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 12,
+          "y": 7
+        }
+      ],
+      "lowWallPurpose": "Balustrady T przy czterech filarach wyznaczają boczne stanowiska; środkowa nawa i poprzeczne przejście pozostają otwarte.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 4,
+          "y": 5
+        },
+        "to": {
+          "x": 6,
+          "y": 5
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "burial_crossing",
+      "name": "Skrzyżowanie galerii",
+      "source": "room.catacombs.normal.large.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "gallery",
+      "zone": 0,
+      "rows": [
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 9,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 7
+        },
+        {
+          "x": 9,
+          "y": 7
+        }
+      ],
+      "enemies": [
+        {
+          "x": 4,
+          "y": 6
+        },
+        {
+          "x": 7,
+          "y": 6
+        },
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 7,
+        "y": 7
+      },
+      "reward": {
+        "x": 8,
+        "y": 7
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "direction": "D",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 11,
+          "y": 5
+        }
+      ],
+      "difficult": [
+        {
+          "x": 5,
+          "y": 8
+        },
+        {
+          "x": 5,
+          "y": 9
+        },
+        {
+          "x": 6,
+          "y": 8
+        },
+        {
+          "x": 6,
+          "y": 9
+        }
+      ]
+    },
+    {
+      "id": "ritual",
+      "name": "Komnata rytuału",
+      "source": "room.catacombs.tactical.ritual.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "ritual",
+      "zone": 2,
+      "rows": [
+        "##..........##",
+        "##..........##",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "##..........##",
+        "##..........##"
+      ],
+      "props": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 10,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 12
+        },
+        {
+          "x": 10,
+          "y": 12
+        }
+      ],
+      "enemies": [
+        {
+          "x": 5,
+          "y": 10
+        },
+        {
+          "x": 8,
+          "y": 10
+        },
+        {
+          "x": 5,
+          "y": 6
+        },
+        {
+          "x": 8,
+          "y": 6
+        }
+      ],
+      "traps": [
+        {
+          "x": 6,
+          "y": 8
+        }
+      ],
+      "goal": {
+        "x": 8,
+        "y": 12
+      },
+      "reward": {
+        "x": 9,
+        "y": 12
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 15
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 9
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 13,
+          "y": 5
+        }
+      ],
+      "difficult": [
+        {
+          "x": 5,
+          "y": 12
+        },
+        {
+          "x": 5,
+          "y": 13
+        },
+        {
+          "x": 6,
+          "y": 12
+        },
+        {
+          "x": 6,
+          "y": 13
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 9
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 9,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 9,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 9,
+          "y": 9
+        }
+      ],
+      "lowWallPurpose": "Otwarta od południa przegroda U obrysowuje pole rytuału i pułapkę; gardziści stoją po zewnętrznej stronie północnej nakrywy.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 6,
+          "y": 9
+        },
+        "to": {
+          "x": 6,
+          "y": 10
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "vault",
+      "name": "Sklepiona sala",
+      "source": "room.catacombs.normal.large.production",
+      "biome": "catacombs",
+      "type": "Normal",
+      "doors": "ULDR",
+      "function": "hall",
+      "zone": 2,
+      "rows": [
+        "##..........##",
+        "##..........##",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "..............",
+        "##..........##",
+        "##..........##"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 3
+        },
+        {
+          "x": 11,
+          "y": 3
+        },
+        {
+          "x": 2,
+          "y": 8
+        },
+        {
+          "x": 11,
+          "y": 8
+        }
+      ],
+      "enemies": [
+        {
+          "x": 5,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 8
+        },
+        {
+          "x": 5,
+          "y": 3
+        },
+        {
+          "x": 8,
+          "y": 3
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 7,
+        "y": 8
+      },
+      "reward": {
+        "x": 10,
+        "y": 8
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 11
+        },
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "direction": "D",
+          "x": 4,
+          "y": 0
+        },
+        {
+          "direction": "R",
+          "x": 13,
+          "y": 6
+        }
+      ],
+      "difficult": [
+        {
+          "x": 4,
+          "y": 5
+        },
+        {
+          "x": 4,
+          "y": 6
+        },
+        {
+          "x": 5,
+          "y": 5
+        },
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 7
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 3
+        },
+        {
+          "direction": "U",
+          "x": 10,
+          "y": 3
+        }
+      ],
+      "lowWallPurpose": "Galeria między północnymi filarami i dwa południowe stanowiska, z dwukratkową przerwą w osi nawy.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 7,
+          "y": 7
+        },
+        "to": {
+          "x": 7,
+          "y": 8
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "passage",
+      "name": "Prosta galeria",
+      "source": "room.catacombs.corridor.tactical.production",
+      "biome": "catacombs",
+      "type": "Corridor",
+      "doors": "UD",
+      "function": "passage",
+      "zone": -1,
+      "rows": [
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......",
+        "......"
+      ],
+      "props": [],
+      "enemies": [
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 2,
+          "y": 8
+        },
+        {
+          "x": 3,
+          "y": 8
+        }
+      ],
+      "traps": [
+        {
+          "x": 1,
+          "y": 2
+        }
+      ],
+      "goal": {
+        "x": 4,
+        "y": 9
+      },
+      "reward": {
+        "x": 1,
+        "y": 9
+      },
+      "ports": [
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 11
+        },
+        {
+          "direction": "D",
+          "x": 1,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "turn",
+      "name": "Zakręt galerii",
+      "source": "room.catacombs.corridor.production",
+      "biome": "catacombs",
+      "type": "Corridor",
+      "doors": "LD",
+      "function": "passage",
+      "zone": -1,
+      "rows": [
+        "......####",
+        "......####",
+        "......####",
+        "......####",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        ".........."
+      ],
+      "props": [],
+      "enemies": [
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 7
+        },
+        {
+          "x": 6,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 2
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 6,
+        "y": 6
+      },
+      "reward": {
+        "x": 5,
+        "y": 5
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "direction": "D",
+          "x": 3,
+          "y": 0
+        }
+      ]
+    },
+    {
+      "id": "junction",
+      "name": "Rozwidlenie galerii",
+      "source": "room.catacombs.normal.small.production",
+      "biome": "catacombs",
+      "type": "Corridor",
+      "doors": "LUR",
+      "function": "junction",
+      "zone": -1,
+      "rows": [
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "###....###",
+        "###....###",
+        "###....###",
+        "###....###"
+      ],
+      "props": [],
+      "enemies": [
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": 7,
+          "y": 6
+        },
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 5,
+          "y": 6
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 6,
+        "y": 6
+      },
+      "reward": {
+        "x": 5,
+        "y": 5
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 9
+        },
+        {
+          "direction": "R",
+          "x": 9,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "reliquary",
+      "name": "Boczny relikwiarz",
+      "source": "room.catacombs.optional.production",
+      "biome": "catacombs",
+      "type": "Optional",
+      "doors": "D",
+      "function": "reliquary",
+      "zone": -1,
+      "rows": [
+        "##......##",
+        "##......##",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "##......##",
+        "##......##"
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 2
+        }
+      ],
+      "enemies": [
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 6,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 7
+        },
+        {
+          "x": 6,
+          "y": 7
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 5,
+        "y": 7
+      },
+      "reward": {
+        "x": 4,
+        "y": 6
+      },
+      "ports": [
+        {
+          "direction": "D",
+          "x": 3,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 0,
+          "y": 5
+        },
+        {
+          "x": 0,
+          "y": 6
+        },
+        {
+          "x": 1,
+          "y": 5
+        },
+        {
+          "x": 1,
+          "y": 6
+        }
+      ]
+    },
+    {
+      "id": "winch",
+      "name": "Komnata mechanizmu",
+      "source": "room.catacombs.optional.lever.production",
+      "biome": "catacombs",
+      "type": "Optional",
+      "doors": "L",
+      "function": "mechanism",
+      "zone": -1,
+      "rows": [
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        "..........",
+        ".........."
+      ],
+      "props": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 7,
+          "y": 9
+        }
+      ],
+      "enemies": [
+        {
+          "x": 4,
+          "y": 3
+        },
+        {
+          "x": 7,
+          "y": 3
+        },
+        {
+          "x": 4,
+          "y": 8
+        },
+        {
+          "x": 7,
+          "y": 8
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 6,
+        "y": 8
+      },
+      "reward": {
+        "x": 7,
+        "y": 7
+      },
+      "ports": [
+        {
+          "direction": "L",
+          "x": 0,
+          "y": 6
+        }
+      ],
+      "difficult": [
+        {
+          "x": 3,
+          "y": 5
+        },
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 4,
+          "y": 5
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "U",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 5
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 7
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 8
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 9
+        }
+      ],
+      "lowWallPurpose": "Narożnik warsztatu odcina stanowisko dźwigni i skrzyni od wejścia; dojście górą ma dwa pola szerokości.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 4,
+          "y": 8
+        },
+        "to": {
+          "x": 6,
+          "y": 8
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "seal",
+      "name": "Komnata pieczęci",
+      "source": "room.catacombs.optional.condition.production",
+      "biome": "catacombs",
+      "type": "Optional",
+      "doors": "D",
+      "function": "ritual",
+      "zone": -1,
+      "rows": [
+        "##........##",
+        "##........##",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............",
+        "##........##",
+        "##........##"
+      ],
+      "props": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 8,
+          "y": 3
+        }
+      ],
+      "enemies": [
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 8,
+          "y": 6
+        },
+        {
+          "x": 3,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 8
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 7,
+        "y": 8
+      },
+      "reward": {
+        "x": 6,
+        "y": 7
+      },
+      "ports": [
+        {
+          "direction": "D",
+          "x": 6,
+          "y": 0
+        }
+      ],
+      "difficult": [
+        {
+          "x": 4,
+          "y": 10
+        },
+        {
+          "x": 4,
+          "y": 11
+        },
+        {
+          "x": 5,
+          "y": 10
+        }
+      ],
+      "lowWalls": [
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "direction": "R",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "direction": "R",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "direction": "R",
+          "x": 6,
+          "y": 4
+        },
+        {
+          "direction": "R",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 7,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 8,
+          "y": 5
+        },
+        {
+          "direction": "U",
+          "x": 9,
+          "y": 5
+        }
+      ],
+      "lowWallPurpose": "Dwie grobowe przegrody L przy filarach pilnujących wejścia, z otwartym dojściem pomiędzy nimi do pieczęci.",
+      "lowWallRouteProbe": {
+        "from": {
+          "x": 3,
+          "y": 5
+        },
+        "to": {
+          "x": 6,
+          "y": 5
+        },
+        "minDetour": 2
+      }
+    },
+    {
+      "id": "final",
+      "name": "Główna krypta",
+      "source": "room.catacombs.final.production",
+      "biome": "catacombs",
+      "type": "Final",
+      "doors": "ULDR",
+      "function": "arena",
+      "zone": -1,
+      "rows": [
+        "##................##",
+        "##................##",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "....................",
+        "##................##",
+        "##................##"
+      ],
+      "props": [
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 15,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 13
+        },
+        {
+          "x": 15,
+          "y": 13
+        }
+      ],
+      "enemies": [
+        {
+          "x": 8,
+          "y": 11
+        },
+        {
+          "x": 11,
+          "y": 11
+        },
+        {
+          "x": 8,
+          "y": 7
+        },
+        {
+          "x": 11,
+          "y": 7
+        }
+      ],
+      "traps": [],
+      "goal": {
+        "x": 11,
+        "y": 14
+      },
+      "reward": {
+        "x": 16,
+        "y": 14
+      }
+    }
+  ],
+  "authoredRooms": [
+    {
+      "biome": "catacombs",
+      "path": "Assets/_Project/ScriptableObjects/Dungeons/RoomTemplates/DRT_Catacombs_4wayTomb.asset",
+      "productionPath": "Assets/_Project/ScriptableObjects/Dungeons/ProductionRooms/DRT_catacombs_4way_tomb.asset",
+      "function": "sarcophagus"
+    }
+  ]
+}

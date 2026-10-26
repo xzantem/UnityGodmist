@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
   <Id>k__BackingField: item.smithing.larch_wood
   <DisplayName>k__BackingField: Drewno modrzewiowe
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 691a3e464de1886419dac84efe85d7a1, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3

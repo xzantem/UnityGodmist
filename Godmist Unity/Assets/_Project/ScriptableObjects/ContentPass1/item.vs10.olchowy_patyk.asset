@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb82b87d42d94e4192692d17f69ed0c, type: 3}
+  m_Name: item.vs10.olchowy_patyk
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.CraftableItemDefinition
+  <Id>k__BackingField: item.vs10.olchowy_patyk
+  <DisplayName>k__BackingField: Olchowy patyk
+  <Description>k__BackingField: "Przyci\u0119ty kawa\u0142ek drewna na trzon lub
+    r\u0119koje\u015B\u0107 broni."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 850067c54566b04439100f2d6318a16b, type: 3}
+  <ItemType>k__BackingField: 3
+  <MaterialDiscipline>k__BackingField: 1
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 13
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 1
+  <CraftingDiscipline>k__BackingField: 1
+  <OutputAmount>k__BackingField: 8
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
+  <Ingredients>k__BackingField:
+  - <Material>k__BackingField: {fileID: 11400000, guid: 1ab95e084f78ffd46892dc0b97bd247c, type: 2}
+    <Amount>k__BackingField: 3
+  <AlternativeRecipes>k__BackingField: []

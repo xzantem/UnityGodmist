@@ -16,11 +16,16 @@ namespace Godmist.Core.Constants
         public const string Paralysis = "paralysis";
         public const string Immobilize = "immobilize";
         public const string Chill = "chill";
+        public const string Slow = "slow";
 
         public const string Taunt = "taunt";
         public const string Invisibility = "invisibility";
         public const string Regeneration = "regeneration";
         public const string Counterattack = "counterattack";
+
+        public static bool UsesSuppressionResistance(string statusId) =>
+            statusId?.ToLowerInvariant() is Stun or Freeze or Sleep or Paralysis
+                or Immobilize or Chill or Taunt;
 
         public static readonly IReadOnlyList<string> KnownIds =
             new[]
@@ -35,6 +40,7 @@ namespace Godmist.Core.Constants
                 Paralysis,
                 Immobilize,
                 Chill,
+                Slow,
                 Taunt,
                 Invisibility,
                 Regeneration,

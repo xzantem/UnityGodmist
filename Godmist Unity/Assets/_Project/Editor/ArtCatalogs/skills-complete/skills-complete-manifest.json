@@ -1,0 +1,430 @@
+{
+  "entries": [
+    {
+      "skillId": "skill.warrior.cut",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorCut.asset",
+      "file": "cut-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.bandage",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorBandage.asset",
+      "file": "bandage-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.bleeding_destruction",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorBleedingDestruction.asset",
+      "file": "bleeding-destruction-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.death_wish",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorDeathWish.asset",
+      "file": "death-wish-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.destruction",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorDestruction.asset",
+      "file": "destruction-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.immobilize",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorImmobilize.asset",
+      "file": "immobilize-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.kick",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorKick.asset",
+      "file": "kick-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.protection",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorProtection.asset",
+      "file": "protection-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.regroup",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorRegroup.asset",
+      "file": "regroup-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.right_hook",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorRightHook.asset",
+      "file": "right-hook-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.shout",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorShout.asset",
+      "file": "shout-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.warrior.whirlwind",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_WarriorWhirlwind.asset",
+      "file": "whirlwind-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.battle_cry",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_BattleCry.asset",
+      "file": "battle-cry-32.png",
+      "group": "warrior"
+    },
+    {
+      "skillId": "skill.scout.aimed_throw",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutAimedThrow.asset",
+      "file": "scout-aimed-throw-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.hook",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutHook.asset",
+      "file": "scout-hook-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.poisoned_dagger",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutPoisonedDagger.asset",
+      "file": "scout-poisoned-dagger-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.quick_strikes",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutQuickStrikes.asset",
+      "file": "scout-quick-strikes-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.ricochet",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutRicochet.asset",
+      "file": "scout-ricochet-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.shadow",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutShadow.asset",
+      "file": "scout-shadow-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.smoke",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutSmoke.asset",
+      "file": "scout-smoke-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.swap",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutSwap.asset",
+      "file": "scout-swap-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.tonic",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutTonic.asset",
+      "file": "scout-tonic-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.scout.weak_point",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_ScoutWeakPoint.asset",
+      "file": "scout-weak-point-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.knife_toss",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_KnifeToss.asset",
+      "file": "knife-toss-32.png",
+      "group": "scout"
+    },
+    {
+      "skillId": "skill.mage.energy_orb",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageEnergyOrb.asset",
+      "file": "skill-mage-energy-orb-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.energy_split",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageEnergySplit.asset",
+      "file": "skill-mage-energy-split-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.fire_arrow",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageFireArrow.asset",
+      "file": "skill-mage-fire-arrow-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.fire_aura",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageFireAura.asset",
+      "file": "skill-mage-fire-aura-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.fireball",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageFireball.asset",
+      "file": "skill-mage-fireball-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.focus",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageFocus.asset",
+      "file": "skill-mage-focus-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.magic_focus",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageMagicFocus.asset",
+      "file": "skill-mage-magic-focus-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.offering",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageOffering.asset",
+      "file": "skill-mage-offering-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.ritual",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageRitual.asset",
+      "file": "skill-mage-ritual-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.sacrifice",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageSacrifice.asset",
+      "file": "skill-mage-sacrifice-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.shield",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageShield.asset",
+      "file": "skill-mage-shield-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.mage.tiring",
+      "assetPath": "Assets/_Project/ScriptableObjects/Skills/SD_MageTiringSpells.asset",
+      "file": "skill-mage-tiring-32.png",
+      "group": "mage"
+    },
+    {
+      "skillId": "skill.paladin.blessing",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinBlessing.asset",
+      "file": "skill-paladin-blessing-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.blinding_light",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinBlindingLight.asset",
+      "file": "skill-paladin-blinding-light-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.crushing_blow",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinCrushingBlow.asset",
+      "file": "skill-paladin-crushing-blow-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.grounding_wave",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinGroundingWave.asset",
+      "file": "skill-paladin-grounding-wave-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.heal",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinHeal.asset",
+      "file": "skill-paladin-heal-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.holy_regeneration",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinHolyRegeneration.asset",
+      "file": "skill-paladin-holy-regeneration-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.judgement_field",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinJudgementField.asset",
+      "file": "skill-paladin-judgement-field-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.reflection_shield",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinReflectionShield.asset",
+      "file": "skill-paladin-reflection-shield-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.transfusion",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinTransfusion.asset",
+      "file": "skill-paladin-transfusion-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.verdict",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinVerdict.asset",
+      "file": "skill-paladin-verdict-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.paladin.group_heal",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SD_PaladinGroupHeal.asset",
+      "file": "group-heal-b-v2-32.png",
+      "group": "paladin"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.ancient_incantation",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_ancient_incantation.asset",
+      "file": "ancient-incantation-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.ancient_whip",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_ancient_whip.asset",
+      "file": "ancient-whip-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.battle_fervor",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_battle_fervor.asset",
+      "file": "battle-fervor-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.blood_scent",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_blood_scent.asset",
+      "file": "blood-scent-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.bone_bow",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_bone_bow.asset",
+      "file": "bone-bow-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.bone_club",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_bone_club.asset",
+      "file": "bone-club-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.bone_fervor",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_bone_fervor.asset",
+      "file": "bone-fervor-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.bone_guardian",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_bone_guardian.asset",
+      "file": "bone-guardian-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.bone_sword",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_bone_sword.asset",
+      "file": "bone-sword-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.burning_arrow",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_burning_arrow.asset",
+      "file": "burning-arrow-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.cross_cut",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_cross_cut.asset",
+      "file": "cross-cut-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.dead_king_cleave",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_cleave.asset",
+      "file": "dead-king-cleave-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.dead_king_guard",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_guard.asset",
+      "file": "skill-enemy-catacombs-dead-king-guard-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.dead_king_vengeance",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_vengeance.asset",
+      "file": "skill-enemy-catacombs-dead-king-vengeance-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.dematerialize",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dematerialize.asset",
+      "file": "skill-enemy-catacombs-dematerialize-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.disorienting_leap",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_disorienting_leap.asset",
+      "file": "skill-enemy-catacombs-disorienting-leap-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.fright",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_fright.asset",
+      "file": "skill-enemy-catacombs-fright-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.life_drain",
+      "assetPath": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_life_drain.asset",
+      "file": "skill-enemy-catacombs-life-drain-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.manic_bite",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_manic_bite.asset",
+      "file": "skill-enemy-catacombs-manic-bite-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.materialize",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_materialize.asset",
+      "file": "skill-enemy-catacombs-materialize-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.quiver_of_envy",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_quiver_of_envy.asset",
+      "file": "skill-enemy-catacombs-quiver-of-envy-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.rend",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_rend.asset",
+      "file": "skill-enemy-catacombs-rend-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.savage_roar",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_savage_roar.asset",
+      "file": "skill-enemy-catacombs-savage-roar-32.png",
+      "group": "enemy"
+    },
+    {
+      "skillId": "skill.enemy.catacombs.vomit",
+      "assetPath": "Godmist Unity/Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_vomit.asset",
+      "file": "skill-enemy-catacombs-vomit-32.png",
+      "group": "enemy"
+    }
+  ]
+}

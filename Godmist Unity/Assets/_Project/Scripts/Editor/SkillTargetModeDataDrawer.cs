@@ -47,7 +47,7 @@ namespace Godmist.Editor
             }
 
             var showsAbsoluteRange =
-                selectedType == TargetType.Single
+                selectedType == TargetType.Single || selectedType == TargetType.Chain
                 || selectedType == TargetType.AreaAroundCaster
                 || selectedType == TargetType.AreaAroundTile;
 
@@ -73,6 +73,7 @@ namespace Godmist.Editor
                     "Relative Range");
             }
 
+            if(selectedType==TargetType.Chain)DrawField(position,ref y,property.FindPropertyRelative("chainTargets"));
             EditorGUI.EndProperty();
         }
 
@@ -87,7 +88,7 @@ namespace Godmist.Editor
                 (TargetType)targetType.enumValueIndex;
 
             var showsAbsoluteRange =
-                selectedType == TargetType.Single
+                selectedType == TargetType.Single || selectedType == TargetType.Chain
                 || selectedType == TargetType.AreaAroundCaster
                 || selectedType == TargetType.AreaAroundTile;
 
@@ -124,6 +125,7 @@ namespace Godmist.Editor
                     true);
             }
 
+            if(selectedType==TargetType.Chain)AddHeight(ref height,property.FindPropertyRelative("chainTargets"));
             return height;
         }
 

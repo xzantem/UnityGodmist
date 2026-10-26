@@ -38,9 +38,10 @@ namespace Godmist.Systems.Combat
     public sealed class SimpleCombatAiTurnState
     {
         internal readonly HashSet<SkillData> UsedZeroActionSkills = new();
+        internal bool MomentumRepositioned;
     }
 
-    public class SimpleCombatAiSystem
+    public partial class SimpleCombatAiSystem
     {
         private readonly Action<string> battleLog;
         private readonly Action<CombatSession> endTurn;
@@ -51,6 +52,7 @@ namespace Godmist.Systems.Combat
         private readonly CombatMovementSystem movementSystem;
         private readonly CombatLineOfSightService lineOfSightService;
         private readonly CombatInteractionSystem interactionSystem;
+        private readonly CatacombsBossSystem catacombsBossSystem;
         private static readonly Vector2Int[] MovementDirections =
         {
             new(1, 0),
@@ -67,16 +69,19 @@ namespace Godmist.Systems.Combat
             CombatTargetingService targetingService = null,
             CombatMovementSystem movementSystem = null,
             CombatLineOfSightService lineOfSightService = null,
-            CombatInteractionSystem interactionSystem = null)
+            CombatInteractionSystem interactionSystem = null,
+            CatacombsBossSystem catacombsBossSystem = null)
         {
             this.battleLog = battleLog;
             this.endTurn = endTurn;
             this.evaluateOutcome = evaluateOutcome;
             this.skillExecutionSystem = skillExecutionSystem;
             this.targetingService = targetingService ?? new CombatTargetingService();
-            this.movementSystem = movementSystem ?? new CombatMovementSystem(battleLog);
+            this.movementSystem = movementSystem ?? new CombatMovementSystem(battleLog,
+                resourceRuleSystem: new ResourceRuleSystem(battleLog));
             this.lineOfSightService = lineOfSightService ?? new CombatLineOfSightService();
             this.interactionSystem = interactionSystem ?? new CombatInteractionSystem(battleLog);
+            this.catacombsBossSystem = catacombsBossSystem;
         }
 
         public void ExecuteSimpleAiTurn(CombatSession session, BattleUnit aiUnit)
@@ -98,113 +103,48 @@ namespace Godmist.Systems.Combat
         }
 
         public bool TryExecuteNextAction(
-            CombatSession session,
-            BattleUnit aiUnit,
-            SimpleCombatAiTurnState turnState,
+            CombatSession session, BattleUnit aiUnit, SimpleCombatAiTurnState turnState,
             out SimpleCombatAiAction action)
         {
-            action = default;
-            if (session == null || session.Outcome != CombatOutcomeState.Ongoing
-                || aiUnit?.Character == null
-                || aiUnit.Character.LifeState != CharacterLifeState.Alive
-                || aiUnit.CurrentActionPoints <= 0)
-            {
-                return false;
-            }
-
-            session.Contact?.Refresh(session);
-            turnState ??= CreateTurnState();
-            if (TryExecuteBestSkill(
-                    session,
-                    aiUnit,
-                    turnState.UsedZeroActionSkills,
-                    out var executedSkill))
-            {
-                if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, executedSkill) == 0)
-                {
-                    turnState.UsedZeroActionSkills.Add(executedSkill);
-                }
-
-                action = new SimpleCombatAiAction(
-                    SimpleCombatAiActionType.Skill,
-                    executedSkill);
-                return true;
-            }
-
-            var hasTaunter = StatusEffectSystem.TryGetTaunter(
-                session,
-                aiUnit,
-                out var taunter);
-            var target = hasTaunter && (session.Contact == null || session.Contact.Sees(aiUnit, taunter))
-                ? taunter : FindClosestPlayerUnit(session, aiUnit);
-            if (target == null)
-            {
-                if (session.Contact != null && session.Contact.TryGetSearchPosition(session, aiUnit, out var last)
-                    && TryFindPathToPosition(session, aiUnit, last, session.IsPositionOccupied(last, aiUnit), out var searchPath)
-                    && TryExecuteMovementPath(session, aiUnit, searchPath, out var completed, searching: true))
-                {
-                    action = new SimpleCombatAiAction(completed == null ? SimpleCombatAiActionType.Interaction
-                        : SimpleCombatAiActionType.Movement, movementPath: completed);
-                    return true;
-                }
-                evaluateOutcome?.Invoke(session);
-                return false;
-            }
-
-            if (!TryMoveAiForRole(session, aiUnit, target, out var movementPath))
-            {
-                return false;
-            }
-
-            action = new SimpleCombatAiAction(
-                movementPath == null ? SimpleCombatAiActionType.Interaction : SimpleCombatAiActionType.Movement,
-                movementPath: movementPath);
-            return true;
+            var result = new AiActionResult();
+            foreach (var step in ExecuteNextActionWork(session, aiUnit, turnState, result)) { }
+            action = result.Action;
+            return result.Executed;
         }
 
-        private bool TryExecuteBestSkill(
-            CombatSession session,
-            BattleUnit aiUnit,
-            ISet<SkillData> excludedZeroActionSkills,
-            out SkillData executedSkill)
-        {
-            executedSkill = null;
 
-            if (skillExecutionSystem == null) return false;
-
-            var selection = FindBestSkillSelection(session, aiUnit, excludedZeroActionSkills);
-
-            if (selection == null) return false;
-
-            var wasExecuted = skillExecutionSystem.TryExecute(
-                session,
-                aiUnit,
-                selection.Skill,
-                selection.TargetsByModeIndex,
-                teleportDestination: null,
-                objectPlacementDestination: selection.SummonPlacementDestination);
-
-            if (wasExecuted)
-            {
-                executedSkill = selection.Skill;
-            }
-
-            return wasExecuted;
-        }
 
         private AiSkillSelection FindBestSkillSelection(
-            CombatSession session,
-            BattleUnit aiUnit,
-            ISet<SkillData> excludedZeroActionSkills)
+            CombatSession session, BattleUnit aiUnit, ISet<SkillData> excludedZeroActionSkills)
         {
-            var activeSkills = aiUnit?.Character?.GetActiveSkills();
-            if (activeSkills == null) return null;
+            var result = new AiResult<AiSkillSelection>();
+            foreach (var step in FindBestSkillSelectionWork(session, aiUnit, excludedZeroActionSkills, result)) { }
+            return result.Value;
+        }
+
+        private IEnumerable<bool> FindBestSkillSelectionWork(
+            CombatSession session, BattleUnit aiUnit, ISet<SkillData> excludedZeroActionSkills,
+            AiResult<AiSkillSelection> result, List<AiSkillSelection> candidates = null,
+            IReadOnlyList<SkillData> planningSkills = null, Func<BattleUnit, bool> targetFilter = null)
+        {
+            if (aiUnit != null) aiUnit.WarriorState.Session = session;
+            var activeSkills = planningSkills ?? aiUnit?.Character?.GetActiveSkills();
+            if (activeSkills == null) yield break;
+            var preparations = FindConditionalStatusPreparations(aiUnit, activeSkills);
 
             AiSkillSelection bestSelection = null;
 
             foreach (var skill in activeSkills)
             {
-                if (!CanAffordSkill(aiUnit, skill)) continue;
+                yield return false;
+                // Threshold charges are executed before ordinary skill selection.
+                if (skill?.SkillId == CatacombsBossSystem.VengeanceSkillId) continue;
+                if (skill?.SkillId == CatacombsBossSystem.GuardSkillId
+                    && session.Summons.Count(item => item?.CreatorCharacterId
+                        == aiUnit.Character.CharacterId
+                        && item.SourceSkillId == CatacombsBossSystem.GuardSkillId) >= 3)
+                    continue;
+                if (session.CanUseBossSkill?.Invoke(aiUnit, skill) == false || !CanAffordSkill(aiUnit, skill)) continue;
 
                 if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, skill) == 0
                     && excludedZeroActionSkills != null
@@ -216,35 +156,61 @@ namespace Godmist.Systems.Combat
                 GridPosition? summonPlacementDestination = null;
                 Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex;
 
-                if (IsSummonOnlySkill(skill))
+                if (IsEntryTrapSkill(skill))
                 {
-                    if (!TryFindSummonPlacement(
-                            session,
-                            aiUnit,
-                            skill.Effects[0],
-                            skill.RequiresLineOfSight,
-                            out var placement))
-                    {
-                        continue;
-                    }
-
-                    summonPlacementDestination = placement;
+                    var placement = new AiResult<GridPosition?>();
+                    foreach (var step in FindTrapPlacementWork(session, aiUnit, skill, placement)) yield return step;
+                    if (!placement.Value.HasValue) continue;
+                    summonPlacementDestination = placement.Value;
+                    targetsByModeIndex = new Dictionary<int, IReadOnlyList<BattleUnit>>();
+                }
+                else if (IsSummonOnlySkill(skill))
+                {
+                    var placement = new AiResult<GridPosition?>();
+                    foreach (var step in FindSummonPlacementWork(session, aiUnit, skill.Effects[0],
+                                 skill.RequiresLineOfSight, placement)) yield return step;
+                    if (!placement.Value.HasValue) continue;
+                    summonPlacementDestination = placement.Value;
                     targetsByModeIndex = new Dictionary<
                         int,
                         IReadOnlyList<BattleUnit>>();
                 }
-                else if (!TryBuildTargets(
-                             session,
-                             aiUnit,
-                             skill,
-                             out targetsByModeIndex))
+                else
                 {
+                    var targets = new AiResult<Dictionary<int, IReadOnlyList<BattleUnit>>>();
+                    foreach (var step in BuildTargetsWork(session, aiUnit, skill, targets, targetFilter)) yield return step;
+                    if (targets.Value == null) continue;
+                    targetsByModeIndex = targets.Value;
+                }
+
+                if (IsRedundantBuff(session, aiUnit, skill, targetsByModeIndex)) continue;
+
+                if (!ShouldUseTimedPreparationSkill(session, aiUnit, skill)) continue;
+                if (ShouldDeferConditionalPreparation(session, aiUnit, skill, preparations)) continue;
+
+                var score = IsEntryTrapSkill(skill) && summonPlacementDestination.HasValue
+                    ? TrapPlacementValue(session,aiUnit,skill,summonPlacementDestination.Value)
+                    : IsSummonOnlySkill(skill) && skill.Effects[0].SummonStationary && summonPlacementDestination.HasValue
+                    ? StationarySummonPlacementScore(session, aiUnit, skill.Effects[0], summonPlacementDestination.Value)
+                    : CalculateSkillScore(session, aiUnit, skill, targetsByModeIndex);
+
+                if (skill.SkillId == ForestEntBossSystem.SanctuarySkillId) score = 200f;
+                if (skill.SkillId == DeadKingBossSystem.ShadowId) score = 2000f;
+                if (skill.SkillId == SkeletonSlayerBossSystem.DefenseId) score = 150f;
+                if (skill.SkillId == SkeletonSlayerBossSystem.HammerId) score = 250f;
+                if (skill.SkillId == SkeletonSlayerBossSystem.TaskId) score = 100f;
+                if(skill.SkillId==BanditLeaderBossSystem.OrderId)score=180f;
+                score += ConditionalStatusPreparationBonus(session, aiUnit, skill, targetsByModeIndex, preparations);
+                score += SetupOpportunity(session,aiUnit,skill);
+                if (score <= 0f)
+                {
+                    if(candidates != null && SupportsTurnProjection(skill) && IsOffensivePreparation(skill))
+                        candidates.Add(new AiSkillSelection { Skill=skill,TargetsByModeIndex=targetsByModeIndex,Score=0 });
                     continue;
                 }
 
-                var score = CalculateSkillScore(aiUnit, skill, targetsByModeIndex);
-
-                if (score <= 0f) continue;
+                candidates?.Add(new AiSkillSelection { Skill = skill, TargetsByModeIndex = targetsByModeIndex,
+                    SummonPlacementDestination = summonPlacementDestination, Score = score });
 
                 if (bestSelection == null || score > bestSelection.Score)
                 {
@@ -257,28 +223,66 @@ namespace Godmist.Systems.Combat
                     };
                 }
             }
-            return bestSelection;
+            result.Value = bestSelection;
         }
 
-        private bool TryFindSummonPlacement(
-            CombatSession session,
-            BattleUnit caster,
-            SkillEffectData effect,
-            bool requiresLineOfSight,
-            out GridPosition position)
+        private static bool IsRedundantBuff(
+            CombatSession session, BattleUnit caster,
+            SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
-            position = default;
+            if (skill?.Effects == null || skill.Effects.Count == 0) return false;
+            for (var index = 0; index < skill.Effects.Count; index++)
+            {
+                var effect = skill.Effects[index];
+                if (effect == null || !targetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets)
+                    || targets.Count == 0) return false;
+                targets = targets.Where(target => SkillExecutionSystem.CanPlanEffect(session, effect, caster, target)).ToArray();
+                if (targets.Count == 0) continue;
+                if (effect.EffectType == EffectType.ApplyStatus)
+                {
+                    if (string.IsNullOrWhiteSpace(effect.StatusId)
+                        || StatusEffectSystem.IsDamageOverTimeStatus(effect.StatusId)
+                        || targets.Any(target => target?.Character == null))
+                        return false;
+                    if (targets.Any(target => !StatusEffectSystem.HasStatus(target, effect.StatusId)
+                        && StatusEffectSystem.CalculateStatusApplicationChance(
+                            caster, target, effect.StatusId, effect.BaseChance) > 0f))
+                        return false;
+                    continue;
+                }
+                var suffix = effect.EffectType switch
+                {
+                    EffectType.ModifyStat => "modify_stat",
+                    EffectType.ModifyVar => "modify_var",
+                    _ => null
+                };
+                if (suffix == null || targets.Any(target => target?.Character?.PassiveEffects == null
+                    || !target.Character.PassiveEffects.Exists(active => active != null
+                        && active.EffectId == $"{skill.SkillId}.{suffix}.{index}"
+                        && PassiveEffectLifecycleSystem.IsActive(active)))) return false;
+            }
+            return true;
+        }
+
+        private IEnumerable<bool> FindSummonPlacementWork(
+            CombatSession session, BattleUnit caster, SkillEffectData effect,
+            bool requiresLineOfSight, AiResult<GridPosition?> result)
+        {
+
 
             if (session?.Grid == null || caster == null || effect == null)
             {
-                return false;
+                yield break;
             }
 
             foreach (var candidate in targetingService.GetPositionsInRange(
                 session,
                 caster.Position,
-                effect.SummonPlacementRange))
+                effect.SummonPlacementRange).OrderByDescending(cell => effect.SummonStationary
+                    ? StationarySummonPlacementScore(session, caster, effect, cell) : 0f))
             {
+                yield return false;
                 if (!session.Grid.IsWalkable(candidate)
                     || session.Grid.IsBlocked(candidate)
                     || session.IsPositionOccupied(candidate)
@@ -289,11 +293,54 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                position = candidate;
-                return true;
+                if (effect.SummonStationary && StationarySummonPlacementScore(session, caster, effect, candidate) <= 0f) continue;
+                result.Value = candidate;
+                yield break;
             }
 
-            return false;
+            yield break;
+        }
+
+        private static float StationarySummonPlacementScore(CombatSession session, BattleUnit caster, SkillEffectData effect, GridPosition cell)
+        {
+            var pulse = effect.SummonedCharacterDefinition?.BasicAttackSkill;
+            if (pulse?.Effects == null || pulse.TargetModes.Count == 0) return 0f;
+            var mode = pulse.TargetModes[0];
+            var score = 0f;
+            foreach (var unit in session.Units)
+            {
+                if (unit?.Character?.LifeState != CharacterLifeState.Alive
+                    || session.Contact != null && !session.Contact.Sees(caster, unit) && unit.IsPlayerSide != caster.IsPlayerSide
+                    || !CombatTargetingService.IsPositionWithinRange(cell, unit.Position, mode.AbsoluteRange)
+                    || !new CombatLineOfSightService().HasLineOfSight(session, cell, unit.Position)) continue;
+                if (mode.TargetingType == TargetingType.Enemies && unit.IsPlayerSide != caster.IsPlayerSide) score += 100f;
+                if (mode.TargetingType == TargetingType.Allies && unit.IsPlayerSide == caster.IsPlayerSide)
+                    score += Mathf.Min(GetMissingHealth(unit), CombatRecoverySystem.CalculateSkillHealing(caster, pulse.Effects[0])) * 4f;
+            }
+            return score;
+        }
+
+        private static bool IsEntryTrapSkill(SkillData skill) => skill?.Effects?.Count == 1
+            && skill.Effects[0]?.EffectType == EffectType.CreateObject
+            && skill.Effects[0].SummonedObjectDefinition?.TriggersOnEntry == true;
+
+        private IEnumerable<bool> FindTrapPlacementWork(CombatSession session, BattleUnit caster,
+            SkillData skill, AiResult<GridPosition?> result)
+        {
+            var effect = skill.Effects[0];
+            if (session.SummonedObjects.Count(item => item.CreatorCharacterId == caster.Character.CharacterId
+                    && item.SourceSkillId == skill.SkillId) >= effect.MaxActiveObjects) yield break;
+            var best=0f;
+            foreach(var cell in targetingService.GetPositionsInRange(session,caster.Position,effect.ObjectPlacementRange))
+            {
+                yield return false;
+                if(!session.Grid.IsWalkable(cell) || session.Grid.IsBlocked(cell) || session.IsPositionOccupied(cell)
+                    || session.IsPositionOccupiedByMapObject(cell) || skill.RequiresLineOfSight && !lineOfSightService.HasLineOfSight(session,caster.Position,cell))continue;
+                var value=TrapPlacementValue(session,caster,skill,cell)
+                    -ActionPointUnits.ToPoints(CombatActionCostCalculator.CalculateSkillCost(caster,skill))*.35f
+                    -PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill)*.1f;
+                if(value>best){best=value;result.Value=cell;}
+            }
         }
 
         private static bool IsSummonOnlySkill(SkillData skill)
@@ -309,33 +356,40 @@ namespace Godmist.Systems.Combat
         private bool CanAffordSkill(BattleUnit unit, SkillData skill)
         {
             if (unit?.Character == null || skill == null) return false;
+            if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId)
+                && !StatusEffectSystem.HasStatus(unit, skill.RequiredCasterStatusId)) return false;
 
+            if (skill.Effects.Any(effect => effect != null && !string.IsNullOrWhiteSpace(effect.DamagePerOwnedSummonGroup)
+                && SummonSystem.DamageScale(unit, effect) == 0)) return false;
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(unit, skill);
 
-            if (unit.CurrentActionPoints < actionCost) return false;
+            if (unit.CurrentActionPoints < actionCost || !WarriorCombatSystem.CanActivate(unit,skill)) return false;
 
-            if (skill.ResourceCost <= 0) return true;
+            if (PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill) <= 0) return true;
 
             var resourcePool = unit.Character.ResourcePool;
 
             return resourcePool != null
                 && resourcePool.ResourceType == skill.ResourceType
-                && resourcePool.CurrentValue >= skill.ResourceCost;
+                && (resourcePool.CurrentValue >= PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit, skill)
+                    || WarriorCombatSystem.CanOverspend(unit,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(unit,skill)));
         }
 
-        private bool TryBuildTargets(CombatSession session, BattleUnit caster, 
-            SkillData skill, out Dictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
+        private IEnumerable<bool> BuildTargetsWork(CombatSession session, BattleUnit caster,
+            SkillData skill, AiResult<Dictionary<int, IReadOnlyList<BattleUnit>>> result,
+            Func<BattleUnit, bool> targetFilter = null)
         {
-            targetsByModeIndex = new Dictionary<int, IReadOnlyList<BattleUnit>>();
+            var targetsByModeIndex = new Dictionary<int, IReadOnlyList<BattleUnit>>();
 
-            if (skill?.TargetModes == null || skill.TargetModes.Count == 0 
-                || skill.Effects == null || skill.Effects.Count == 0) return false;
+            if (skill?.TargetModes == null || skill.TargetModes.Count == 0
+                || skill.Effects == null || skill.Effects.Count == 0) yield break;
 
             for (var index = 0; index < skill.TargetModes.Count; index++)
             {
-                var mode = skill.TargetModes[index];
+                yield return false;
+                var mode = PassiveEffectCombatExecutionSystem.ResolveMode(caster, skill, skill.TargetModes[index]);
 
-                if (mode == null) return false;
+                if (mode == null) yield break;
 
                 var requiredEnemyTarget = mode.TargetingType == TargetingType.Enemies
                     && StatusEffectSystem.TryGetTaunter(
@@ -347,23 +401,26 @@ namespace Godmist.Systems.Combat
 
                 IReadOnlyList<BattleUnit> targets;
 
-                if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.AreaAroundTile)
+                if (mode.TargetType == TargetType.Single
+                    || mode.TargetType == TargetType.AreaAroundTile
+                    || (mode.TargetType == TargetType.AreaAroundCaster
+                        && CombatTargetingService.IsDirectionalShape(mode.AbsoluteRange.Shape)))
                 {
-                    if (!TryFindBestTargetPosition(
-                            session,
-                            caster,
-                            skill,
-                            mode,
-                            index,
-                            requiredEnemyTarget,
-                            out var selectedPosition)) return false;
+                    var selection = new AiResult<(bool Found, GridPosition Position, int Rotation)>();
+                    foreach (var step in FindBestTargetPositionWork(session, caster, skill, mode,
+                                 index, requiredEnemyTarget, selection, targetFilter)) yield return step;
+                    if (!selection.Value.Found) yield break;
+                    var selectedPosition = selection.Value.Position;
+                    var selectedRotation = selection.Value.Rotation;
 
                     targets = targetingService.GetTargets(
                         session,
                         caster,
                         mode,
                         selectedPosition,
-                        requiredEnemyTarget: requiredEnemyTarget);
+                        includeDownedTargets: SkillExecutionSystem.CanTargetModeIncludeDownedTargets(skill,index),
+                        requiredEnemyTarget: requiredEnemyTarget,
+                        rotationQuarterTurns: selectedRotation);
                 }
                 else
                 {
@@ -372,87 +429,125 @@ namespace Godmist.Systems.Combat
                         caster,
                         mode,
                         null,
+                        includeDownedTargets: SkillExecutionSystem.CanTargetModeIncludeDownedTargets(skill,index),
                         requiredEnemyTarget: requiredEnemyTarget);
                 }
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
+                if (targetFilter != null) targets = targets.Where(targetFilter).ToArray();
+                if (skill.SkillId == DeadKingBossSystem.BladeId) targets = targets.Where(t => DeadKingBossSystem.CanBladeTarget(session,caster,t)).ToList();
+                if(skill.SkillId==BanditLeaderBossSystem.OrderId)targets=targets.Where(t=>BanditLeaderBossSystem.CanOrderTarget(caster,t)).ToList();
 
-                if (targets.Count == 0) return false;
+                if (targets.Count == 0) yield break;
 
                 targetsByModeIndex[index] = targets;
             }
 
-            return true;
+            result.Value = targetsByModeIndex;
         }
 
-        private bool TryFindBestTargetPosition(
-            CombatSession session,
-            BattleUnit caster,
-            SkillData skill,
-            SkillTargetModeData mode,
-            int targetModeIndex,
-            BattleUnit requiredEnemyTarget,
-            out GridPosition selectedPosition)
+        private IEnumerable<bool> FindBestTargetPositionWork(
+            CombatSession session, BattleUnit caster, SkillData skill, SkillTargetModeData mode,
+            int targetModeIndex, BattleUnit requiredEnemyTarget,
+            AiResult<(bool Found, GridPosition Position, int Rotation)> result, Func<BattleUnit, bool> targetFilter = null)
         {
-            selectedPosition = default;
+            var selectedPosition = default(GridPosition);
+            var selectedRotation = 0;
 
-            var selectablePositions = targetingService.GetSelectablePositions(
-                    session,
-                    caster,
-                    mode,
-                    requiredEnemyTarget: requiredEnemyTarget)
-                .Where(position => !skill.RequiresLineOfSight 
-                || lineOfSightService.HasLineOfSight(session, caster.Position, position));
+            // A rectangle is authored facing +X; choosing a tile alone does not
+            // rotate it. Evaluate its four actual orientations instead of
+            // repeatedly scoring the same +X area for every tile on the grid.
+            var isRectangle = mode.TargetType == TargetType.AreaAroundCaster
+                && mode.AbsoluteRange.Shape == RangeShape.Rectangle;
+            IEnumerable<(GridPosition? position, int rotation)> choices;
+            if (isRectangle)
+            {
+                var origin = caster.Position;
+                choices = new[]
+                {
+                    (new GridPosition(origin.X + 1, origin.Y, origin.Level), 0),
+                    (new GridPosition(origin.X, origin.Y + 1, origin.Level), 1),
+                    (new GridPosition(origin.X - 1, origin.Y, origin.Level), 2),
+                    (new GridPosition(origin.X, origin.Y - 1, origin.Level), 3)
+                }.Where(choice => session.Grid.IsWithinBounds(choice.Item1))
+                    .Select(choice => ((GridPosition?)choice.Item1, choice.Item2));
+            }
+            else
+            {
+                choices = targetingService.EnumerateSelectablePositionWork(session, caster,
+                        mode, includeDownedTargets: SkillExecutionSystem.CanTargetModeIncludeDownedTargets(skill,targetModeIndex), requiredEnemyTarget: requiredEnemyTarget)
+                    .Select(position => (position, 0));
+            }
 
             var bestScore = float.MinValue;
             var foundPosition = false;
 
-            foreach (var position in selectablePositions)
+            foreach (var (candidate, rotation) in choices)
             {
+                yield return false;
+                if (!candidate.HasValue) continue;
+                var position = candidate.Value;
+                if (skill.RequiresLineOfSight
+                    && !lineOfSightService.HasLineOfSight(
+                        session, caster.Position, position)) continue;
                 var targets = targetingService.GetTargets(
                     session,
                     caster,
                     mode,
                     position,
-                    requiredEnemyTarget: requiredEnemyTarget);
+                    includeDownedTargets: SkillExecutionSystem.CanTargetModeIncludeDownedTargets(skill,targetModeIndex),
+                    requiredEnemyTarget: requiredEnemyTarget,
+                    rotationQuarterTurns: rotation);
 
                 targets = FilterTargetsByLineOfSight(session, caster, skill, targets);
+                if (targetFilter != null) targets = targets.Where(targetFilter).ToArray();
+                if (skill.SkillId == DeadKingBossSystem.BladeId) targets = targets.Where(t => DeadKingBossSystem.CanBladeTarget(session,caster,t)).ToList();
+
+                if (skill.Effects.Any(effect => effect?.EffectType == EffectType.Charge && effect.TargetModeIndex == targetModeIndex
+                    && !targets.Any(target => preparationChargePreview.CanStartCharge(session, caster, target, effect)))) continue;
 
                 var score = CalculateTargetGroupScore(
-                    caster,
+                    session, caster,
                     skill,
                     targetModeIndex,
                     targets);
+                if(mode.TargetingType==TargetingType.Enemies && targets.Count>0)score*=targets.Average(t=>WarriorCombatSystem.TargetPriority(session,t));
 
                 if (!foundPosition || score > bestScore)
                 {
                     selectedPosition = position;
+                    selectedRotation = rotation;
                     bestScore = score;
                     foundPosition = true;
                 }
             }
 
-            return foundPosition;
+            result.Value = (foundPosition, selectedPosition, selectedRotation);
         }
 
         private static float CalculateTargetGroupScore(
-            BattleUnit caster,
+            CombatSession session, BattleUnit caster,
             SkillData skill,
             int targetModeIndex,
             IReadOnlyList<BattleUnit> targets)
         {
             if (skill == null || targets == null || targets.Count == 0) return float.MinValue;
 
-            return CalculateEffectsScore(caster, skill, targetModeIndex, targets);
+            return CalculateEffectsScore(session, caster, skill, targetModeIndex, targets);
         }
 
-        private static float CalculateSkillScore(BattleUnit caster, SkillData skill,
+        private static float CalculateSkillScore(CombatSession session, BattleUnit caster, SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
             var score = 0f;
 
             foreach (var effect in skill.Effects)
             {
+                if (effect?.EffectType == EffectType.CreateObject && effect.SummonedObjectDefinition?.TriggersOnEntry == true)
+                {
+                    score += Ai(GameDefineIds.AiHardControlBonus, 300f) * .5f;
+                    continue;
+                }
                 if (effect?.EffectType == EffectType.Summon)
                 {
                     score += Ai(GameDefineIds.AiSummonScore, 75f);
@@ -462,7 +557,7 @@ namespace Godmist.Systems.Combat
                 if (effect == null || !targetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets))
                     continue;
 
-                score += CalculateEffectsScore(caster, skill, effect.TargetModeIndex, targets, effect);
+                score += CalculateEffectsScore(session, caster, skill, effect.TargetModeIndex, targets, effect);
 
                 if (effect.DelayCasterTurns > 0)
                 {
@@ -472,10 +567,11 @@ namespace Godmist.Systems.Combat
 
             var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
 
-            return score + CalculateRoleBonus(caster, skill, targetsByModeIndex)
-                + CalculatePersonalityBonus(caster, skill, targetsByModeIndex)
-                - actionCost * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f)
-                - skill.ResourceCost * Ai(GameDefineIds.AiResourceCostPenaltyPerPoint, .1f);
+            var preference = score > 0f ? Mathf.Min(score*.15f,
+                CalculateRoleBonus(caster,skill,targetsByModeIndex)+CalculatePersonalityBonus(caster,skill,targetsByModeIndex)) : 0f;
+            return score + preference
+                - ActionPointUnits.ToPoints(actionCost)*Ai(GameDefineIds.AiActionCostPenaltyPerPoint,.35f)
+                - PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill)*Ai(GameDefineIds.AiResourceCostPenaltyPerPoint,.1f);
         }
 
         private static float CalculatePersonalityBonus(
@@ -563,36 +659,40 @@ namespace Godmist.Systems.Combat
             return bonus;
         }
 
-        private bool TryMoveAiForRole(
-            CombatSession session,
-            BattleUnit aiUnit,
-            BattleUnit target,
-            out List<GridPosition> movementPath)
+
+
+        private List<(SkillRangeData Range, bool RequiresLineOfSight)> GetAvailableRangedAttacks(BattleUnit unit)
         {
-            movementPath = null;
-            var role = aiUnit?.Character?.Definition?.AiRole ?? CombatAiRole.Balanced;
-            var personality = aiUnit?.Character?.Definition?.AiPersonality
-                ?? CombatAiPersonality.Neutral;
-            var desiredRange = GetPreferredCombatRange(aiUnit);
-            var distance = GetManhattanDistance(aiUnit.Position, target.Position);
-            var isSquishyRangedRole = role == CombatAiRole.Dps
-                || role == CombatAiRole.Healer;
-
-            if (personality != CombatAiPersonality.Aggressive
-                && isSquishyRangedRole && desiredRange > 1
-                && distance <= desiredRange
-                && lineOfSightService.HasLineOfSight(session, aiUnit.Position, target.Position))
+            var attacks = new List<(SkillRangeData, bool)>();
+            foreach (var skill in unit.Character.GetActiveSkills())
             {
-                return distance < desiredRange
-                    && TryMoveAiAwayFromTarget(
-                        session,
-                        aiUnit,
-                        target,
-                        desiredRange,
-                        out movementPath);
+                if (!CanAffordSkill(unit, skill) || skill.TargetModes == null || skill.Effects == null
+                    || skill.Effects.Any(effect => effect?.EffectType == EffectType.Charge)) continue;
+                foreach (var effect in skill.Effects)
+                {
+                    if (effect?.EffectType != EffectType.DealDamage) continue;
+                    if (effect.TargetModeIndex < 0 || effect.TargetModeIndex >= skill.TargetModes.Count) continue;
+                    var mode = PassiveEffectCombatExecutionSystem.ResolveMode(unit, skill,
+                        skill.TargetModes[effect.TargetModeIndex]);
+                    if (mode?.TargetingType == TargetingType.Enemies
+                        && (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.AreaAroundTile)
+                        && mode.AbsoluteRange?.MaxRange > 1)
+                        attacks.Add((mode.AbsoluteRange, skill.RequiresLineOfSight));
+                }
             }
+            return attacks;
+        }
 
-            return TryMoveAiTowardsTarget(session, aiUnit, target, out movementPath);
+        private bool CanUseRangedSkillAgainst(CombatSession session, BattleUnit target,
+            GridPosition position, IReadOnlyList<(SkillRangeData Range, bool RequiresLineOfSight)> attacks)
+        {
+            if (GetManhattanDistance(position, target.Position) < 2) return false;
+            foreach (var attack in attacks)
+                if (CombatTargetingService.IsPositionWithinRange(position, target.Position, attack.Range)
+                    && (!attack.RequiresLineOfSight
+                        || lineOfSightService.HasLineOfSight(session, position, target.Position)))
+                    return true;
+            return false;
         }
 
         private static int GetPreferredCombatRange(BattleUnit unit)
@@ -611,7 +711,7 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    var mode = skill.TargetModes[effect.TargetModeIndex];
+                    var mode = PassiveEffectCombatExecutionSystem.ResolveMode(unit, skill, skill.TargetModes[effect.TargetModeIndex]);
                     if (mode?.TargetingType == TargetingType.Enemies
                         && mode.TargetType != TargetType.Caster
                         && mode.AbsoluteRange != null)
@@ -626,46 +726,8 @@ namespace Godmist.Systems.Combat
             return maxRange;
         }
 
-        private bool TryMoveAiAwayFromTarget(
-            CombatSession session,
-            BattleUnit aiUnit,
-            BattleUnit target,
-            int desiredRange,
-            out List<GridPosition> movementPath)
-        {
-            movementPath = null;
-            GridPosition? bestPosition = null;
-            var bestDistance = GetManhattanDistance(aiUnit.Position, target.Position);
-
-            foreach (var candidate in session.Grid.GetNeighbours(aiUnit.Position))
-            {
-                var candidateDistance = GetManhattanDistance(candidate, target.Position);
-                if ((session.EvaluateTrapRisk?.Invoke(aiUnit, new[] { candidate }) ?? 0f) > 0f
-                    || candidateDistance <= bestDistance || candidateDistance > desiredRange
-                    || session?.Grid == null || !session.Grid.IsWithinBounds(candidate)
-                    || session.Grid.IsBlocked(candidate)
-                    || !session.CanMoveBetween(aiUnit, aiUnit.Position, candidate)
-                    || session.IsPositionOccupied(candidate, aiUnit)
-                    || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate)))
-                {
-                    continue;
-                }
-
-                bestPosition = candidate;
-                bestDistance = candidateDistance;
-            }
-
-            if (!bestPosition.HasValue)
-            {
-                return false;
-            }
-
-            movementPath = new List<GridPosition> { bestPosition.Value };
-            return movementSystem.TryMoveAlongPath(session, aiUnit, movementPath);
-        }
-
         private static float CalculateEffectsScore(
-            BattleUnit caster,
+            CombatSession session, BattleUnit caster,
             SkillData skill,
             int targetModeIndex,
             IReadOnlyList<BattleUnit> targets,
@@ -673,57 +735,71 @@ namespace Godmist.Systems.Combat
         {
             var score = 0f;
 
-            foreach (var effect in skill.Effects)
+            for (var effectIndex = 0; effectIndex < skill.Effects.Count; effectIndex++)
             {
-                if (effect == null || effect.TargetModeIndex != targetModeIndex
-                    || singleEffect != null && effect != singleEffect)
+                var authoredEffect = skill.Effects[effectIndex];
+                if (authoredEffect == null || authoredEffect.TargetModeIndex != targetModeIndex
+                    || singleEffect != null && authoredEffect != singleEffect)
                 {
                     continue;
                 }
 
+                var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, authoredEffect);
                 foreach (var target in targets)
                 {
-                    if (target?.Character == null) continue;
+                    if (target?.Character == null || !SkillExecutionSystem.CanPlanEffect(session, effect, caster, target)) continue;
 
                     switch (effect.EffectType)
                     {
                         case EffectType.DealDamage:
                         {
-                            var expectedDamage = CalculateExpectedDamage(caster, effect);
-                            score += expectedDamage;
-                            if (expectedDamage >= target.Character.CurrentHealth)
-                            {
-                                score += Ai(GameDefineIds.AiLethalDamageBonus, 10000f);
-                            }
+                            score += DamageUtility(session, caster, target, skill, authoredEffect);
                             break;
                         }
                         case EffectType.ApplyStatus:
-                            score += IsHardControl(effect.StatusId)
-                                ? Ai(GameDefineIds.AiHardControlBonus, 300f)
-                                : Ai(GameDefineIds.AiSoftControlBonus, 100f);
+                            if (string.IsNullOrWhiteSpace(effect.StatusId)) break;
+                            if (!StatusEffectSystem.IsDamageOverTimeStatus(effect.StatusId)
+                                && StatusEffectSystem.HasStatus(target, effect.StatusId)) break;
+                            score += StatusUtility(session, caster, target, skill, effect);
+                            break;
+                        case EffectType.ApplyUniqueBuff:
+                            if (effect.UniqueBuffType == UniqueBuffType.Hawkeye
+                                && !CombatDamageSystem.HasUniqueBuff(target, UniqueBuffType.Hawkeye))
+                                score += Ai(GameDefineIds.AiModifyBonus, 40f) * effect.DurationTurns;
+                            break;
+                        case EffectType.ExtendStatusDuration:
+                            if (target.IsPlayerSide != caster.IsPlayerSide && StatusEffectSystem.HasStatus(target, effect.StatusId))
+                                score += Ai(GameDefineIds.AiSoftControlBonus, 100f) * effect.DurationTurns;
+                            break;
+                        case EffectType.RemoveStatus:
+                            score += CleanseUtility(session, caster, target, effect.StatusId);
                             break;
                         case EffectType.Heal:
-                            score += GetMissingHealth(target);
-                            if (target.Character.LifeState == CharacterLifeState.Downed)
-                            {
-                                score += Ai(GameDefineIds.AiDownedRecoveryBonus, 5000f);
-                            }
+                        case EffectType.HealPercent:
+                        case EffectType.HealMissingHealthPercent:
+                            score += HealingUtility(session,caster,target,HealingAmount(caster,target,effect));
                             break;
                         case EffectType.RestoreResource:
-                            var resourcePool = target.Character.ResourcePool;
-                            if (resourcePool != null)
+                        case EffectType.RestoreResourcePercent:
+                            var pool = target.Character.ResourcePool;
+                            if (pool != null && !ResourceRuleSystem.IsResourceGainBlocked(target))
                             {
-                                score += Mathf.Min(effect.BaseValue,
-                                    Mathf.Max(0, resourcePool.MaxValue - resourcePool.CurrentValue));
+                                var amount = effect.EffectType == EffectType.RestoreResource ? effect.BaseValue : Mathf.CeilToInt(pool.MaxValue*effect.PercentageValue);
+                                score += Mathf.Max(0,Mathf.Min(amount,pool.RecoveryLimit-pool.CurrentValue))*(target.IsPlayerSide==caster.IsPlayerSide?1f:-1f);
                             }
                             break;
                         case EffectType.Shield:
-                            score += Mathf.Max(0, effect.BaseValue)
-                                * Ai(GameDefineIds.AiShieldValueMultiplier, .5f);
+                            score += ShieldUtility(session,caster,target,effect);
                             break;
                         case EffectType.ModifyStat:
                         case EffectType.ModifyVar:
-                            score += Ai(GameDefineIds.AiModifyBonus, 40f);
+                            var suffix = effect.EffectType == EffectType.ModifyStat
+                                ? "modify_stat" : "modify_var";
+                            if (target.Character.PassiveEffects == null
+                                || !target.Character.PassiveEffects.Exists(active => active != null
+                                    && active.EffectId == $"{skill.SkillId}.{suffix}.{effectIndex}"
+                                    && PassiveEffectLifecycleSystem.IsActive(active)))
+                                score += DefensiveModifierUtility(session,caster,target,effect)*Mathf.Clamp01(effect.BaseChance);
                             break;
                         case EffectType.Push:
                         case EffectType.Pull:
@@ -743,6 +819,9 @@ namespace Godmist.Systems.Combat
         {
             if (caster?.Character?.Stats == null || effect == null) return 0f;
 
+            if (effect.DamageValueSource == DamageValueSource.AlchemicalPower)
+                return CombatDamageValueCalculator.CalculateAlchemicalDamage(caster.Character.Level, effect.DamageMultiplier);
+
             var minAttack = caster.Character.Stats.MinAttack.GetValue();
             var maxAttack = caster.Character.Stats.MaxAttack.GetValue();
             var attackValue = effect.DamageValueSource switch
@@ -753,7 +832,7 @@ namespace Godmist.Systems.Combat
                 _ => (minAttack + maxAttack) * 0.5f
             };
 
-            return Mathf.Max(0f, attackValue * effect.DamageMultiplier);
+            return Mathf.Max(0f, attackValue * effect.DamageMultiplier * SummonSystem.DamageScale(caster, effect));
         }
 
         private static float GetMissingHealth(BattleUnit target)
@@ -786,7 +865,7 @@ namespace Godmist.Systems.Combat
 
             foreach (var unit in session.Units)
             {
-                if (!unit.IsPlayerSide)
+                if (unit == null || unit.IsPlayerSide == aiUnit.IsPlayerSide)
                 {
                     continue;
                 }
@@ -845,7 +924,7 @@ namespace Godmist.Systems.Combat
             // before movement. Never toggle an already-open door.
             var firstDoor = FindClosedDirectDoor(session, aiUnit.Position, path[0]);
             if (firstDoor != null)
-                return interactionSystem.TryInteract(session, aiUnit, path[0]);
+                return interactionSystem.TryInteractWithDoor(session, aiUnit, firstDoor.ObjectId);
 
             var movementSegment = new List<GridPosition>();
             var previous = aiUnit.Position;
@@ -882,26 +961,52 @@ namespace Godmist.Systems.Combat
         }
 
         private bool TryFindPathToPosition(CombatSession session, BattleUnit aiUnit, GridPosition destination,
-            bool stopAdjacent, out List<GridPosition> path)
+            bool stopAdjacent, out List<GridPosition> path, Func<GridPosition, bool> goal = null)
         {
-            path = null;
+            var result = new AiResult<List<GridPosition>>();
+            foreach (var step in FindPathWork(session, aiUnit, destination, stopAdjacent, result, goal)) { }
+            path = result.Value;
+            return path != null;
+        }
+
+        private IEnumerable<bool> FindPathWork(CombatSession session, BattleUnit aiUnit, GridPosition destination,
+            bool stopAdjacent, AiResult<List<GridPosition>> result, Func<GridPosition, bool> goal = null, int maximumSteps = int.MaxValue, Func<GridPosition, IReadOnlyList<GridPosition>, bool> routeGoal = null)
+        {
+
             var start = aiUnit.Position;
-            var pending = new List<(GridPosition cell, List<GridPosition> path, float risk)> { (start, new(), 0f) };
+            // Cache route costs and order incrementally: sorting every frontier while
+            // recalculating every full path stalls large/disconnected layered rooms.
+            var order = Comparer<(GridPosition cell, List<GridPosition> path, float risk, int cost, string traps, int serial)>.Create((a, b) =>
+            {
+                var result = a.risk.CompareTo(b.risk);
+                if (result == 0) result = a.cost.CompareTo(b.cost);
+                return result != 0 ? result : a.serial.CompareTo(b.serial);
+            });
+            var pending = new SortedSet<(GridPosition cell, List<GridPosition> path, float risk, int cost, string traps, int serial)>(order);
+            var serial = 0;
+            pending.Add((start, new List<GridPosition>(), 0f, 0, "", serial++));
             var best = new Dictionary<(GridPosition, string), (float risk, int cost)> { [(start, "")] = (0f, 0) };
             while (pending.Count > 0)
             {
-                pending.Sort((a, b) => a.risk != b.risk ? a.risk.CompareTo(b.risk) : CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, a.path).CompareTo(CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, b.path)));
-                var node = pending[0]; pending.RemoveAt(0);
+                yield return false;
+                var node = pending.Min;
+                pending.Remove(node);
                 var current = node.cell;
-                if (stopAdjacent ? IsAdjacent(current, destination) && CanPlanAcross(session, aiUnit, current, destination)
-                    : current == destination)
+                if (best.TryGetValue((current, node.traps), out var known)
+                    && (known.risk < node.risk || known.risk == node.risk && known.cost < node.cost)) continue;
+                if ((routeGoal != null ? routeGoal(current,node.path) : goal?.Invoke(current) == true || goal == null && (stopAdjacent
+                    ? IsAdjacent(current, destination) && CanPlanAcross(session, aiUnit, current, destination)
+                    : current == destination)))
                 {
-                    path = node.path;
+                    var path = node.path;
                     if (stopAdjacent && FindClosedDirectDoor(session, current, destination) != null) path.Add(destination);
-                    return true;
+                    result.Value = path;
+                    yield break;
                 }
+                if (node.path.Count >= maximumSteps) continue;
                 foreach (var candidate in PlanningNeighbours(session, current))
                 {
+                    yield return false;
                     if (candidate == start || node.path.Contains(candidate) || session.IsPositionOccupied(candidate, aiUnit)
                         || session.DoesObjectBlockMovement(session.GetMapObjectAt(candidate))
                         || !CanPlanAcross(session, aiUnit, current, candidate)) continue;
@@ -909,25 +1014,18 @@ namespace Godmist.Systems.Combat
                     var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
                     if (!float.IsFinite(risk)) continue;
                     var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
-                    var cost = CombatMovementSystem.CalculatePathCost(session, start, aiUnit.MovementStepsThisTurn, next);
+                    var cost = node.cost + (aiUnit.MovementStepsThisTurn + next.Count
+                        + session.Grid.GetMovementSurcharge(current, candidate)) * ActionPointUnits.PerPoint;
                     if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.cost <= cost)) continue;
                     best[key] = (risk, cost);
-                    pending.Add((candidate, next, risk));
+                    pending.Add((candidate, next, risk, cost, key.Item2, serial++));
                 }
             }
-            return false;
+            yield break;
         }
 
         private static IEnumerable<GridPosition> PlanningNeighbours(CombatSession session, GridPosition current)
-        {
-            var candidates = new HashSet<GridPosition>(session.Grid.GetNeighbours(current));
-            foreach (var door in session.MapObjects.OfType<DoorCombatMapObject>())
-            {
-                if (door.Edge.FirstCell == current) candidates.Add(door.Edge.SecondCell);
-                else if (door.Edge.SecondCell == current) candidates.Add(door.Edge.FirstCell);
-            }
-            return candidates;
-        }
+            => session.GetNavigationNeighbours(current);
 
         private static bool CanPlanAcross(
             CombatSession session, BattleUnit unit, GridPosition from, GridPosition to)
@@ -941,21 +1039,7 @@ namespace Godmist.Systems.Combat
 
         private static DoorCombatMapObject FindClosedDirectDoor(
             CombatSession session, GridPosition from, GridPosition to)
-        {
-            var edge = new BattleCellEdge(from, to);
-            // A door must not turn a solid dungeon wall into a planned passage.
-            if (session.DungeonContext != null)
-                foreach (var wall in session.DungeonContext.WallEdges)
-                    if (new BattleCellEdge(
-                            DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.FirstCell),
-                            DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, wall.SecondCell))
-                        .Equals(edge)) return null;
-
-            foreach (var mapObject in session.MapObjects)
-                if (mapObject is DoorCombatMapObject door && !door.IsOpen
-                    && door.CanInteract() && door.Edge.Equals(edge)) return door;
-            return null;
-        }
+            => session.FindClosedDirectDoor(from, to);
 
         private static List<GridPosition> BuildPath(
             IReadOnlyDictionary<GridPosition, GridPosition> previous,
@@ -996,7 +1080,7 @@ namespace Godmist.Systems.Combat
                 return targets ?? new List<BattleUnit>();
             }
 
-            return targets.Where(target => target != null 
+            return targets.Where(target => target != null
                 && lineOfSightService.HasLineOfSight(session, caster.Position, target.Position)).ToList();
         }
 

@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: EPD_ScoutArmorBase_Iron
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.scout.armor.base.common.iron
-  <DisplayName>k__BackingField: "Umocnienia z \u017Celaza"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "Tunika \u2014 Umocnienia (Sztabka \u017Celaza)"
+  <Description>k__BackingField: "Wzmocnienia tuniki chroni\u0105ce najbardziej nara\u017Cone
+    miejsca."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9f974de090e215442852ca7e61b1d975, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 5
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:

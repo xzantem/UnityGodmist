@@ -11,12 +11,30 @@ namespace Godmist.Data.Dungeons
         menuName = "Godmist/Dungeons/Dungeon Definition")]
     public class DungeonDefinition : ScriptableObject, IIdentifiable
     {
+        [field: SerializeField] public bool EnvironmentConfigured { get; private set; }
+        [field: SerializeField] public bool IsIndoor { get; private set; }
+        [field: SerializeField] public bool IsCold { get; private set; }
+        [field: SerializeField] public bool IsWarm { get; private set; }
+
         [field: SerializeField] public string Id { get; private set; } = string.Empty;
         [field: SerializeField] public string DisplayName { get; private set; } = string.Empty;
         [field: SerializeField] public DungeonTheme Theme { get; private set; }
         [field: SerializeField] public bool IsProcedural { get; private set; }
         [field: SerializeField] public bool IsStoryDungeon { get; private set; }
+        [field: Tooltip("Only authored expedition definitions appear on the city offer board. Test and demo dungeons remain loadable by ID.")]
+        [field: SerializeField] public bool IsAvailableAsOffer { get; private set; }
+        [field: Tooltip("Optional fixed levels for offers of this expedition. Empty uses the party level.")]
+        [field: SerializeField] public List<int> FixedOfferLevels { get; private set; } = new();
         [field: SerializeField] public DungeonLayoutProfile LayoutProfile { get; private set; }
+        [field: SerializeField] public List<DungeonLengthProfile> LengthProfiles { get; private set; } = new();
+        public DungeonLengthProfile GetLengthProfile(DungeonLength length)
+        {
+            if (LengthProfiles == null) return null;
+            foreach (var profile in LengthProfiles)
+                if (profile != null && profile.Length == length) return profile;
+            return null;
+        }
+        [field: SerializeField] public DungeonVegetationPresentation VegetationPresentation { get; private set; }
 
         [field: Header("Rewards")]
         [field: SerializeField, Range(1, 50)]

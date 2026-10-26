@@ -12,6 +12,7 @@ namespace Godmist.Editor
         private SerializedProperty isProceduralProperty;
         private SerializedProperty isStoryDungeonProperty;
         private SerializedProperty layoutProfileProperty;
+        private SerializedProperty vegetationPresentationProperty;
         private SerializedProperty minFloorCountProperty;
         private SerializedProperty maxFloorCountProperty;
         private SerializedProperty minRoomCountProperty;
@@ -40,6 +41,7 @@ namespace Godmist.Editor
             isProceduralProperty = serializedObject.FindProperty("<IsProcedural>k__BackingField");
             isStoryDungeonProperty = serializedObject.FindProperty("<IsStoryDungeon>k__BackingField");
             layoutProfileProperty = serializedObject.FindProperty("<LayoutProfile>k__BackingField");
+            vegetationPresentationProperty = serializedObject.FindProperty("<VegetationPresentation>k__BackingField");
             minFloorCountProperty = serializedObject.FindProperty("<MinFloorCount>k__BackingField");
             maxFloorCountProperty = serializedObject.FindProperty("<MaxFloorCount>k__BackingField");
             minRoomCountProperty = serializedObject.FindProperty("<MinRoomCountPerFloor>k__BackingField");
@@ -72,6 +74,7 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(isProceduralProperty);
             EditorGUILayout.PropertyField(isStoryDungeonProperty);
             EditorGUILayout.PropertyField(layoutProfileProperty);
+            EditorGUILayout.PropertyField(vegetationPresentationProperty);
 
             if (isProceduralProperty.boolValue)
             {
@@ -81,6 +84,7 @@ namespace Godmist.Editor
                     EditorStyles.boldLabel);
 
                 EditorGUILayout.PropertyField(roomTemplateCatalogProperty);
+                EditorGUILayout.PropertyField(serializedObject.FindProperty("<LengthProfiles>k__BackingField"), true);
                 EditorGUILayout.PropertyField(minFloorCountProperty);
                 EditorGUILayout.PropertyField(maxFloorCountProperty);
                 EditorGUILayout.PropertyField(minRoomCountProperty);
@@ -108,6 +112,21 @@ namespace Godmist.Editor
             EditorGUILayout.PropertyField(objectDefinitionsProperty);
 
             serializedObject.ApplyModifiedProperties();
+
+            if (((DungeonDefinition)target).VegetationPresentation != null)
+            {
+                EditorGUILayout.Space();
+                using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying
+                    || Godmist.Views.Game.GameBootstrap.Instance == null))
+                    if (UnityEngine.GUILayout.Button("Wejdź do prototypu (seed 42)"))
+                    {
+                        var definition = (DungeonDefinition)target;
+                        if (definition.Id == "dungeon.forest.prototype")
+                            definition = ForestPrototypeSetup.LoadImportedPrototype();
+                        if (!Godmist.Views.Game.GameBootstrap.Instance.TryEnterDungeon(definition, 42))
+                            UnityEngine.Debug.LogWarning("Nie można wejść do prototypu: zakończ aktywny loch lub walkę i poczekaj na zakończenie ładowania.");
+                    }
+            }
         }
     }
 }

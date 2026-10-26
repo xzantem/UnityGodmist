@@ -12,6 +12,7 @@ namespace Godmist.Runtime.Items
         public RarityTier CurrentRarity;
         public int ItemLevel;
         public string CustomName = string.Empty;
+        public bool IsSaleProtected;
 
         public virtual string DisplayName => !string.IsNullOrWhiteSpace(CustomName)
             ? CustomName
@@ -50,6 +51,7 @@ namespace Godmist.Runtime.Items
             if (!Definition.IsStackable || !other.Definition.IsStackable) return false;
 
             return Definition.Id == other.Definition.Id
+                && IsSaleProtected == other.IsSaleProtected
                 && CurrentRarity == other.CurrentRarity
                 && ItemLevel == other.ItemLevel;
         }

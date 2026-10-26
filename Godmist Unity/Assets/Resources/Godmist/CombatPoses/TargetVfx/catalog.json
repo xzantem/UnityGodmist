@@ -1,0 +1,87 @@
+{
+  "clips": [
+    {
+      "id": "heal",
+      "frames": [
+        "heal-01"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": 0.0,
+      "offsetY": 0.0
+    },
+    {
+      "id": "cut",
+      "frames": [
+        "cut-01"
+      ],
+      "frameSeconds": 0.44,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0.0,
+      "offsetY": 0.7
+    },
+    {
+      "id": "fragments",
+      "frames": [
+        "fragments-00"
+      ],
+      "frameSeconds": 0.44,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0.0,
+      "offsetY": 0.7
+    },
+    {
+      "id": "fire",
+      "frames": [
+        "fire-01"
+      ],
+      "frameSeconds": 0.56,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": 0.0,
+      "offsetY": 0.0
+    },
+    {
+      "id": "tremor",
+      "frames": [
+        "tremor-02"
+      ],
+      "frameSeconds": 0.64,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0.0,
+      "offsetY": 0.0
+    },
+    {
+      "id": "burn",
+      "frames": [
+        "burn-00",
+        "burn-01",
+        "burn-02",
+        "burn-03"
+      ],
+      "frameSeconds": 0.18,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": 0.0,
+      "offsetY": 0.0
+    },
+    {
+      "id": "bleed",
+      "frames": [
+        "bleed-00",
+        "bleed-01",
+        "bleed-02",
+        "bleed-03"
+      ],
+      "frameSeconds": 0.22,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": -0.32,
+      "offsetY": 0.0
+    }
+  ]
+}

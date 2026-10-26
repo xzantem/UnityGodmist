@@ -6,26 +6,63 @@ namespace Godmist.Systems.Dungeons
     public sealed class DungeonFogSystem
     {
         private readonly DungeonVisibilitySystem visibility = new();
-        private readonly HashSet<DungeonTraversalPosition> visible = new();
-        private readonly HashSet<DungeonTraversalPosition> discovered = new();
-        public const float DiscoveryRadius = 5f;
+        private DungeonFloorMap snapshotSource, sightSnapshot;
+        private int snapshotRevision = -1;
+        private DungeonFloorMap rememberedBoundaryMap;
+        private int rememberedBoundaryRevision = -1;
+        private readonly HashSet<DungeonSurfacePosition> staticBoundaryCells = new();
+        public const float DiscoveryRadius = 20f;
         public void Update(DungeonFloorInstance floor, IReadOnlyList<DungeonTraversalPosition> observers)
         {
             if (floor?.Map == null) return;
-            if (floor.Fog.RevealLegacyMap) RevealMap(floor);
-            visibility.CollectPartyVisible(floor, observers, visible);
-            discovered.Clear();
-            foreach (var position in visible)
+            var visible = new HashSet<DungeonTraversalPosition>();
+            var discovered = new HashSet<DungeonTraversalPosition>();
+            visibility.CollectPartyVisibleAndDiscovered(floor, observers, visible, discovered);
+            ApplyVisibility(floor, visible, discovered);
+        }
+
+        public DungeonFogUpdateJob CreateUpdateJob(DungeonFloorInstance floor,
+            IReadOnlyList<DungeonTraversalPosition> observers, System.Func<bool> canContinue = null,
+            bool background = false)
+        {
+            DungeonVisibilitySystem.VisibilityInput input = null;
+            if (background && floor?.Map != null)
             {
-                if (!floor.Map.TryGetTraversalCell(position, out var cell)) continue;
-                foreach (var observer in observers)
-                    if (floor.Map.TryGetTraversalCell(observer, out var origin)
-                        && (cell - origin).sqrMagnitude <= DiscoveryRadius * DiscoveryRadius
-                        && visibility.HasLineOfSight(floor, observer, position))
-                    { discovered.Add(position); break; }
+                if (!ReferenceEquals(snapshotSource, floor.Map) || snapshotRevision != floor.Map.TraversalRevision)
+                {
+                    snapshotSource = floor.Map;
+                    snapshotRevision = floor.Map.TraversalRevision;
+                    sightSnapshot = floor.Map.CreateSightSnapshot();
+                }
+                input = DungeonVisibilitySystem.CaptureInput(floor, sightSnapshot);
             }
+            return new(floor, observers, visibility, ApplyVisibility, canContinue, input);
+        }
+
+        private void ApplyVisibility(DungeonFloorInstance floor,
+            HashSet<DungeonTraversalPosition> visible, HashSet<DungeonTraversalPosition> discovered)
+        {
+            if (floor.Fog.RevealLegacyMap) RevealMap(floor);
             floor.Fog.SetVisible(visible, discovered);
-            foreach (var obj in floor.Objects) if (IsObjectVisible(floor, obj)) Remember(floor, obj);
+            // A seen immovable boundary remains known even when it was first
+            // observed beyond the ordinary terrain discovery radius.
+            if (!ReferenceEquals(rememberedBoundaryMap, floor.Map) || rememberedBoundaryRevision != floor.Map.TraversalRevision)
+            {
+                staticBoundaryCells.Clear();
+                foreach (var edge in floor.Map.SurfaceWallEdges)
+                { staticBoundaryCells.Add(edge.First); staticBoundaryCells.Add(edge.Second); }
+                rememberedBoundaryMap = floor.Map; rememberedBoundaryRevision = floor.Map.TraversalRevision;
+            }
+            foreach (var position in visible)
+                if (!position.IsOnStairs && staticBoundaryCells.Contains(position.Surface))
+                    floor.Fog.RestoreDiscovered(floor.Map, position);
+            foreach (var obj in floor.Objects)
+            {
+                if (IsObjectVisible(floor, obj)) Remember(floor, obj);
+                else if (obj is ObstacleDungeonObjectInstance obstacle
+                    && floor.Fog.Objects.TryGetValue(obj.InstanceId, out var known) && known.Active)
+                    RememberStaticFootprint(floor, obstacle);
+            }
             foreach (var body in floor.EnemyBodies)
             {
                 var position = floor.TryGetActorPosition("body:" + body.InstanceId, out var stored) ? stored
@@ -53,10 +90,19 @@ namespace Godmist.Systems.Dungeons
             => floor.Fog.IsVisible(new DungeonTraversalPosition(edge.First)) || floor.Fog.IsVisible(new DungeonTraversalPosition(edge.Second));
 
         public static bool IsObjectVisible(DungeonFloorInstance floor, DungeonObjectInstance obj)
-            => obj is DoorDungeonObjectInstance door
+        {
+            if (obj is ObstacleDungeonObjectInstance obstacle)
+            {
+                var size = obstacle.OccupiedSizeInCells;
+                for (int y = 0; y < size.y; y++) for (int x = 0; x < size.x; x++)
+                    if (floor.Fog.IsVisible(new DungeonTraversalPosition(new DungeonSurfacePosition(obstacle.Position + new UnityEngine.Vector2Int(x, y))))) return true;
+                return false;
+            }
+            return obj is DoorDungeonObjectInstance door
                 ? floor.Fog.IsVisible(new DungeonTraversalPosition(new DungeonSurfacePosition(door.Edge.FirstCell)))
                     || floor.Fog.IsVisible(new DungeonTraversalPosition(new DungeonSurfacePosition(door.Edge.SecondCell)))
                 : floor.Fog.IsVisible(new DungeonTraversalPosition(new DungeonSurfacePosition(obj.Position)));
+        }
 
         public static bool ReadState(DungeonObjectInstance obj) => obj switch
         {
@@ -74,6 +120,13 @@ namespace Godmist.Systems.Dungeons
                 floor.Fog.Objects.Add(obj.InstanceId, known = new DungeonObjectKnowledge());
             known.Active = obj.IsActive;
             known.State = ReadState(obj);
+            if (obj is ObstacleDungeonObjectInstance obstacle) RememberStaticFootprint(floor, obstacle);
+        }
+        private static void RememberStaticFootprint(DungeonFloorInstance floor, ObstacleDungeonObjectInstance obstacle)
+        {
+            var size = obstacle.OccupiedSizeInCells;
+            for (int y = 0; y < size.y; y++) for (int x = 0; x < size.x; x++)
+                floor.Fog.RestoreDiscovered(floor.Map, new DungeonTraversalPosition(new DungeonSurfacePosition(obstacle.Position + new UnityEngine.Vector2Int(x, y))));
         }
     }
 }

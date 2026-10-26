@@ -9,5 +9,7 @@ public enum EffectConditionType
         CasterHealthBelowPercent = 6,
         MinimumAdjacentAllies = 7,
         MinimumResourceSpent = 8,
-        TargetHasActiveShield = 9
+        TargetHasActiveShield = 9,
+        AnyOpponentHasStatus = 10,
+        NoOpponentHasStatus = 11
 }

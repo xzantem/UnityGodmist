@@ -31,7 +31,7 @@ namespace Godmist.Editor
             {
                 DungeonObjectPlacementSystem.ValidateContentDefinitions(definition);
                 var errors = new List<string>();
-                foreach (var template in definition.RoomTemplateCatalog.Templates)
+                foreach (var template in definition.RoomTemplateCatalog.GenerationTemplates)
                     foreach (var error in Validate(template).Errors) errors.Add($"{template.Id}: {error}");
                 if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n", errors));
                 Debug.Log($"Room Content: PASS ({definition.Id}). Konflikty z wygenerowanymi drzwiami sprawdza placement.", definition);

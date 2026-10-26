@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: EPD_WarriorWeaponHandle_Larch
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentPartDefinition
   <Id>k__BackingField: part.warrior.weapon.handle.common.larch
-  <DisplayName>k__BackingField: "R\u0119koje\u015B\u0107 z modrzewia"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <DisplayName>k__BackingField: "D\u0142ugi Miecz \u2014 R\u0119koje\u015B\u0107
+    (Modrzewiowy patyk)"
+  <Description>k__BackingField: "R\u0119koje\u015B\u0107 pozwalaj\u0105ca pewnie
+    prowadzi\u0107 d\u0142ugi miecz."
+  <Icon>k__BackingField: {fileID: 21300000, guid: bd2b432c335c60b439723adedd68ffe9, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
+  <IsStarterOnly>k__BackingField: 0
   <Kind>k__BackingField: 2
   <LevelBracket>k__BackingField: 5
   <Stats>k__BackingField:

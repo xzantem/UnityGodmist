@@ -1,0 +1,3420 @@
+{
+  "imports": [
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-s-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "23122941c68c348ca8d89b27dacbdffd3cf2280bd99e1f9eec0b9b4baf2884f8"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-se-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "3cd796a1a7a41f336f1bb9ba6489cb2ed3e7448b1451593ec0805eb9c3046bba"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-sw-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "433b2f5c1a018284968971a649c75eac19fcda7423ee300e793d03c54a37a34d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-e-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "499a948dc53fb3b87c7785083709c8e4fef658c69587506a7697823df4eed88d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-w-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "f911263e7a88dc88d38596e15725f75342af9abdf5180690de1edfce753d36e1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-ne-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "5fed21a9aafbfc8fe453fb0549660d65db9fbddf16c0e9a85116017c6c56b216"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-nw-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "5bc9b19cfa38e5f6649dc8843a186ee96acfa7be790a5c6768d267ab62168d5f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-n-base-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": false,
+      "sha256": "a59f290330b0804e4c45d56895f5a3254640ccf3ad16df5e26124faa131c3e1e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-s-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "fbf49bab02c78a7d4f93f29e951dcc9d11b7d3f423c706302a8a4231d4875a91"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-se-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "c249dafea9a01bcd3881fe05213d16c9ac67fff8015c1b953bad4310f19289c0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-sw-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "43f1cba6b03545a92cb56023d51acf27efa92fa68441e764761afea41f7929e6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-e-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "3b761f6e9f67cdaa18f9e8f4c58c7c940c4f466b587d69c2a7f21233ee932a59"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-w-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "f9b26ce399ac9e039e63b23f3db36b17292314757dde5d82280ddf9e30eb5f27"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-ne-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "e286c086e32e965eece544f7644425547709e40bf0d08ddc0bc74cdbd7156da0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-nw-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "00c4293e6a5755248d12fde601244f8b2deb3733a8f5f5f73ce3c0cdbb4100b5"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-n-base-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "b43ce7d3b249159ba7ecf7e3b89eeebef64731460868b5a7a5227f6ce631fe28"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "addc7504e13cbabcaf3e4c011f654448e359dd5ea65254dc17191f95aa5aec08"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "983048b6037d8859540caf70a87aadbddb3416a32ec46e748eaa102a88221875"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "2fb6ceaa4e12f465e2ff7dcc81100d17f6a18aa466d8399596f2d31f0a4fd200"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "c70d68aa4d1ff661abfc90cab4199a320a2c6bc190ba2780ca5d77f505e80300"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "4a4bebf990206d9f1f9b54a5b3c4fba78a68227ffee8e67427e9d5466716733a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "ea03a41674e3486effbf4700e04268bcb5549e0143803b90609b52ac1fa56f37"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "15bc77e72b7e95d93f1ed41a157953bd64ac9a61f0f91f0627dc5760fb744919"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "8aedd457b2eddd9b195b4f9e6961ed4a03144c1dafc0d69f17adadf9f2d3ba91"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0354e5704923e943a240b06ae4c8272a21ae02f2a23db4687a8927a2716af93a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "73f45d0ff9ebbe82c48686fe2d3a9177217e54fe1524eedf26399a46825982cf"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "46a1029448ae545e9b95f47d52af38e1ccca6ba0ca70a1167c5f997198c3e080"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "ad2024c824b2c5b73984ab6bdce9e326cb31737fb262eed72f839a8b12369462"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "958209144c7060948384806bf0e0a0a96dc22849a45c8b3a80bb14606000454d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "fd45107a18329ae9f04b93bb2bee81e06bf7ab4979cc369e79ea7d47d021f8aa"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "71e0125360ceeadee18b6dc4836f42c99e42b2568c055bb32030a9e3f3a8e874"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "034ee9babf43efad8fa4aca07fb65c5056cf2097d27913833c95678c683d5634"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0d447a162bd75c48848d6a513d14f3db717dd26b302fdae75f61fa194e3f9ec8"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0ae19448d5819202e08861a395699b15358a4b4f44f6df25b16feccc9a8b698b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "1b8045cb8d3cfd700f68abaf03ec280404f6710685ebd5a458cc7e55c8a287ea"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b4e19002558f22d71bc7985df63ca1f1483ebf0a0a4661e991f354ca313052d0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "f326d15ee37871f6dd3b028d25cf7da2588010d86ec9e65805c499b968b94918"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "fa227234f604734cad7b72b534f6991c1cb681c3e4d8d1598b081d342e8394d5"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "fc011bfc1db94d856c14d87cee7c2c9fbcfa4e12f42afde6351297f0eee428d3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "7374ff433a90e961bf53b8e9dad3ffc1514cbcb727c7db71d16267a0edfb7b00"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "52fecce6ad82c97545937103ceda9ae747568d7e9bc20ad623afc20b10695ec6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "7b423d82564e65b7dbcfd2e2f4a393b8093bd8097298dc917a44f7537a766b2f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "9ac3003e8f29f563f9973988b119cbc2804d1b692bf8a14f63785f5a14bbb5c1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "9364bb416b633b29b31f80eb9520f8ffcbc5a5c382067ca900b245800c073b45"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "c21dee8cca2328cf9a649f0a83d00df529bdaf72e390a664807ca723e259475b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "a51e4c47628e4401a63dd711ca77389b3de188436278a8c140b60d06a03f7242"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "7f486294d426cf9ec90201aec7d34630177e54d185791a36acfd7f5542e37df6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "fda2c1ecf7d758ffea67817273f3f73156dca9fa91c3e6e90e95f110d61d8a82"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "ecaa923ab4ef1e5feb89cc946c64a539d6dccf38140dc51fbcab196e448b46c3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "7bb84c2e803a682a0eb1ead458899cf44e9310eff096d487ea807dec35137fa6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "10c9b585df472f3b4bebea7a6fb0b4fc1405d8beb74b36ece04d91d3e970dab1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b78ffaf50794e6a954fada2bf186a2bade38f935ef705399f3d845b1afa773b8"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "bf66150dd01078b84bea56581d65b1699321533d8a37c1dd3a55a31df263c37a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b91cf8202815851f379061e2c9961c6c432f9100cbefc1df4f7be96e71e5c8f1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "548e4e10e133bce4a14ecc4f35bb0c77666e0670f84758a7233e03057971a987"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "c6343888113838769b0bb97607142e6bf5658d3e78ab4d7a2373c21b5e588fa7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "dc96f379f0392b2632dad8d010f0f477e1f24aca9a3a72e8e1bd0960d0f00ae6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "5c2dd17730abb2ce4d3eb555623bf9228e71a9e76d61d1279c32a152b26db284"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "d31587ac2d222843b8eee7c3254d07040da67f0f6d46e2607e30c0a688f89b34"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "4977a84a35d37bbf4191eded0bb88295da8f558ddea4190d469c779e36442c00"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "cc972d87df86acd3e46c407c5e87b811576bc3f2deaf5bd40530d106891fbc39"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "d1c40c39a181756b29bb8e236c2a57596706f29a755ad8613abcbc6a70171d19"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "6e70e135dc52a42a6cb936290e75d01f56bb51191ee4f6600b0d20ceee6d32d4"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "3e973ee1b1cc2d5ee290b3cd5019acb8ab6cd4a71bfd5d1478763df7fe8b4c19"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "30e7e9ad932f0bbc408a9e89517a2971b4e5792cbfc8398103acd2cc5770d09d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "21b6401b04cb50bcf93948a3b46ca4b3de0172a94574f9a45d05e5a0adc47663"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "944cc11e2cf39709e23d61d1da77776583ec19cbfe678b8d43265e2f77d4d0f7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "6b307fd23c504fcc299c55944f8dbf7a1185a9674ec97020650786f50a61c61d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "2c40a0356604427fbe7e863f0259c937608feb02d62e7da2691eeae7e6599ad3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0536919cf11126b289279d448dd151d69ee340c4bcee79ed8e8ed5c80dfdf100"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "aa9278addbbad96037a9cb62645f3072018e8823f358b02ee37c668a51fbb826"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b2bf04cbc71e910737507b391963e9c0cf102a5a1d06b800278cc78bbbeda986"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "e689ae825ba922a17c5eed6de7c50995b7f7b941456de8221ff04c9e2f972267"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "fe84a65ca155b9f3d7fff24b973c833e8e8833583025606ce10264e94ef310c7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "dfef71966520fe4883972c695bb0aec8678b9aa9679cc0817c44c3e8e3985014"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "2c61fe59cba2313609a9c4c5564bb394508ad5829c06b6362c751e45a11bbef9"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "447b8074e06bfe4c5d776cd0f8778622584b4e9d28f71b120569a2e9ab087db4"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "d6742e724f62ad853bf24b5030f38700c39434745e9f4c43f7873046a428cfaf"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "8d3670e0d08e455374c81a9b64817efa1a0ca8e894a39b1828fd6a81d8df9a7a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "5a0bf65b8411bf64983d1e36832a6a8e0a2277d1ca49cfb0ee0a1efe7560cb14"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3b64691f0371fcf431b71bbee1b6bcafccae9d580fba298502c7a2566d093362"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "bda344c9e8a640e2d6195bc10bd0f4f1e8e02a9abd48e7120cfab7ff0021df2c"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "efc708be663205b8e45c5d8f8e8edee8d2a73183774edd8b16bf73c1cb01e93e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "a454debf262dd7f40a0b07fb7245290ada44a1f417f7c351b71671ae4c3a0a24"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "b7c93c8c76bdc69d0582464689a400af924444ab57d59a57bda8b7c5fbdf9b32"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "85d5beb63695f0773a1e9ed60319c9fafd2861e93255933a79d1d66f2e36f39f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "dc7ab08e75ba8230c74bd29f7cf0ef4126e9c6ce6fe50ed1a0301da054ee8316"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "6d01b28ce3c22d3fdc8ae6d7ae512e908c2837c45cb48a23094abf51a4e7bc37"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "cf9ed073862334f6c4f3f0282418a8a248f3e1c33d1a46e5127f06bdb93a6f0d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "bd300e9dd9192a5ee0833c91e7d931efe39d6fb6c4a767fe60cd2aea759e2151"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "217f515bf4ef43f1dea0c8ef2e67d39b3c81a6dc57f529002edc244c03bc003e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "40666af5b1cb47130acef6a22b3d44c21ccf289cc71ff3bec78884db0f913a47"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "e2746d54adda090055d7b32efed4e1e24f2e544ca8d23e99d6db29e142bab854"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3a0022d93883eb54bcc0ce1df4fe924b8d6a6890ff95a9119e17dd55fca39e02"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "e572874cadcbbd02de506f10a340a287049f0498e64b0495c6b2ce2abf0f0699"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "0267659cd7a1c43ed41aedcfad85dbe54416a64bdb58e6d24213112ec6a8740f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "83993e9485b73c0e7b20f15593078abab74cd04e1c64abdbd0816ee4c51ece33"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "e988a7ea12671ca32aceffacc21383be6d17d50674aafd12a28e22d5b2baa9b7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "216d2c6347c8491a025c9025a9f4c3c91811bcfa543f28ca5d6d729a34aa9831"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "b710a1d7e6b71e8d38f42a989722813718100507f2052840defd77d48b79afed"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "0dc54e3d264501ce6a0acb6cb2f74c80ee537e8c7f6c238da8ad38fa0efeb14a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "f1e4ef026c2ede1195eee5081d7cd7320367274fe4500a74f240eb8b4cdf03d5"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "073be786fea962ef937a78589a1e0f66c902902765538511e1272474c4612f5a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "46d027829213ff288d0ae6ffca266ae8291d1b34e7288d01e5522d4cfa37e686"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "6a487136c097db60549ea861ee59697993f82fd58a87245b29fd8d763885440c"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "5bf0ca557c5c8b28c8c85ed1bf519066566a78783a3a5010b17c0da4d5a587d5"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3e941ae5799c37f9adb09bb7b42f7cc1cabc9a1d358fd6c328f0963496ab1fc2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "82b4fcea915ef8fe874c6ecab9571ad01e1d9dd543eb64766aff56fd201b6fbd"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "d1aa09af9713c20993f3d4ff639928a50763cb6204259d2501ded351c0017d12"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3de60437058bd92d1584cbeeb08d7c7b444929ddd04b5aeb497785b0839b14ef"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3860c2ab6c56aee64e9a96bb2fe80b729820c74b8ad0b398112189600bd0afe1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "fc5634b50a0c3c8cd5f8172907522be8f0e9d7c8815e4ebceb96dcdf374bd971"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "afed3186e81c57afaf22374de99ecd3700f699cc80e889c902107923162afabb"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "bef574bc794f7b7724a37cc121c4abb6d4ad4a9d606c85b3c45f315d2ba63742"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "8238e07b8e3c422ac7837fcfe06a7f6ea960607ce66bb6608be5af5fe046c44d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "c8cb9b0dfa7993dc87cd4f254ebb4735936f4e68cd5fe7ef86caa22db26e538f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "673c7b986ec23d785dec948b08844f0baa31ed862509749d29fa8ceabd5fee12"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "0097b35f6239404b29e9269fd1ff102fc7d8d3e6510b1248f5d8caeb4c5a9d2e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "f1d5ad4a0a78fdebcc05c0a035623d22d4030bc687254cabffc9c5a8246ed4ab"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "164e866851c83cb53ff569262eed34e2b84c4007bbdd79e337189a3e891957c2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "f9d31d3dfa48ef613daf9873029dbf32c3f761960be8fbeb2fb97768b363bb41"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "a93db38cbe1c9c36cc45c7bf96a176af55e45046df502f1c3acbcc660e20b0db"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "4ce2af2e13413fca0f9766b36db3877161ff803f9cb6a59d4900c4f894dbef16"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "2c290c90628ae9b18fd919a2b6931624b60c65b0a61c7ca4b65897178d0a5f97"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "3b1198419eaf820737a1ec7e929a4cd270327d3bdb01dfc483afc6b8320b95fc"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "bf832f381a140ec206118189f7d2fd6498b62665f26954d636f4478c24770670"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "939f16c8b00ade3458fc94adaaa60fb627425c83dc5b4a22a2fc5034bdbe57b0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "6abdc3433928ce2332ad512d6d65b13ffa91eee636b773b22e59744b049aaafd"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "61ff829476960a43b48b3554a483621eb02433dd7c1196d1fbe1b213a3b45f43"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "2d7fbb606d84077ef38d504745e95b4d3cc6e8f8e83932ec7ec731bb58c90405"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "32a1d22e0c72463f60cf2df2c19c75460767a215cd31988de42f0b1c32b5c817"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "f57c35b60ef1b41545b4ba37b51870ca68dfff81fdcbb1743d201231ca7fed9a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "b6989ebb2657e5be830e34b025008b81356046590f2b92f98373358e3bb05be2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "ad10768d874d5e627d27e3c09e177eb9cb3a84569b5674afd2a6d1a889628a3e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "b471f46d88b7f1f09877fc2801ca41e9221e5f7274a8a10847becaeb8441dbd3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "a181b42ec9d23859941437cbdd4dddf76abfa91597c0c84a1f9330a786bf5199"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "a9fb95eb061082e8b3602decf838b152c88c3834c378a6cf1b7188e6c1dec624"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "a81f6e9cb92f9862d81d2f8e0131eeba9b9014f7f88e03144643e89eb81dbb8e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "cb3e2298ef4f0729c2fa4117f8551cc88f8898ae6df0043c16b059e0bd2e287e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "2adddbe37ab4caebd483d4407b90187c7eb936e1d808204a57e2e46c8e495462"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "e673c5ebcff9d22a04bb84186e984e998584b585cd0d3eb92375dab23d233835"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "d3dd6fbfedca9cab3d98b0a23b155e6f921001ae1601c94c650ef02be9aa7e1a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "142f0dd7744747171a7f5e4aacb3c669b7251dfc3c0d9c441e03bd0840fc4044"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": true,
+      "sha256": "2adaf23bc2845e4cb80981a9655b5519dc140015a2518a112dcf9acf5a0b5254"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "486ffc8cb6c0fdef0d176e31a50bb90c0b94b5767d005d9cf241a28a2b0b9ca9"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-se-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "67f64871f209f5ca37f6072d4a64a769a4841fb50f5ea8fbd93e2d5b8876bd35"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-sw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "9a51333d82037af66c0fdc1723824c26ef257c881156281491018654b8938978"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-e-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "e4710a327a16a79e7836e8e3e8af7942ac9210d24d5bfa39187d00928a3f68c0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-w-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "95668910a226907470883457df7f08c6d50d288c48abd0f1a5f82506d24e4c31"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-ne-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "554b17c457d691c7cb298c87fe849e9932e40d3830931910f3805571afe06abb"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-nw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "918c33354fb4c8abafe59e42b72af2d4e11a278ff346c91abd69e6d38d5d0799"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-n-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0a897fda296ac1c8d58b1d4443c643200fca454d1cc2c4e6b6cef3e3bf5b3cc6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-command-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "3e1a6044f80dcd3dec315d6bcafa99cf09bcabe85b95242bcca26af844ff4d10"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b8893f2265ffd60aaf40c94e1fd1d73bab01391c04fc154b22da7827ca3a58e8"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-se-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "f12f56e8979e16a9ad75ae6266d6187ec637db4987e639e5ac5882f59d5bfe72"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-sw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "631f97dba60c028f2caeeebd3528fea3ed227160fb2a5c8f45fa4faf83bef77f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-e-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b15443dd765f2116edca5eeafb70d73c940c631d807c0b2fc88a38bf7cae2d0b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-w-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "bb611cd0d750db8657df99be239e1d256a36e9b945775767ba3bb1c740bab00f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-ne-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "1f78ed63ea595caed9df30e7a362fe99287f890ee7176ccf5f7bd70477216861"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-nw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "eba711ac3714aee276e096965eb67aea6f080b02ed5ce74d39eefc873b358346"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-n-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "3aef846ba5fea42ea04ab135b9bb8d5e7bf9f32cc1639b67c3611e2c763ff3cf"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-scream-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "938c8d549534fd61ede81800123357bce01de2114f68054535388b090a017c09"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-shadow-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "e2441da7337bff0afe945cd7dc077894346ed46f4617d5e6e1d34f42a0b1ce89"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-s-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "cb0a4637470a14eddfba6bf17f46bdb557cea22e3544f9ce16a22c778a0fc3d4"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-se-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "be00ea9ad355e8eb80a830bab5ca9d459216382d72a07601a20b824b0fdeaa5a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-sw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "ce1239261237904b3c4ef7839056d2425c7e1a352053d9754672a2d2399a03fb"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-e-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "c4ac7d425ffc1e747b7a887f6e7bc7d83231c5d3bab922104f79aa685e9ecbbe"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-w-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "024681c395b96046947a6688c23fffca4e3a1bde2583c0cd7bf211cea4433eaf"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-ne-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "46df97628c3af48f382e40e4501aa78ed9a86e61ae1f3fe574152f4cb25069b1"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-nw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "513f0c809cd49e0734e0792bea800a1a25e2deadf12944bc34ad09290e4bb6b5"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-n-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "37f81f358d2c449fd8b66619525d3f8d530f1e6414eff3a1691108762ef9fdd7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "cdf8e8b314adfca4d0f5006cb4d3445a1ff9687882f3c67d18f4dc2ba4dbf3ce"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-se-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "97a1b2a64ebf0f4c38b64de0c76a1e2837d2f7691cacb2c3ed32cb8a6a87be97"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-sw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0e501a2c76a5cbb565b77bd8dcea69515a1b50bac0f4872d4295fb24724a6268"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-e-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "bf860b182b55780b960bb133ded3a2cbb5089b20b2125230003b0b8a789d42be"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-w-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "2eab0c14862358dd7269f57903e5c40d2ab21ff4cc88ff7ad011195b857dac70"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-ne-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "577a9f9059a7d4699a5fd867ff0b609bf17040bbbc4ac8de919bcbea7597788f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-nw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "c0cb2935a8aed082b42dbda4e003be4aee2e7eb332126d392cbb4145431c98a2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-n-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "082548f48e722ca5503883137b6a38be9dfd516cbed75c0e738a2ab0d304a4b2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "f0ea2c73b3edac83c8da2492c22d11eed361340d18095aad8f36a04520f3fe01"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-se-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "57a4f3a8b0924a918f69e66fd891db0bd8cfee12f8083a9e83e04ea0efe8c38e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-sw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "64020297d38eeeed11b80b29a51600aa2ed36adeda0767dafc3bf22ef028ae9b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-e-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "0a27cfe4c1dafd1e2b91f65b90ec021e9cc2b85ebe296dfaefba6cb7bebcd50b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-w-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "6d863ee0783d45f579c60ef06e5383f47fb4f8ff2c748703e7cdf04d062f66db"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-ne-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "9894c4ce244b9d5170e39f1024f543d029a5fe34c0f17308ff3d05c137ac1584"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-nw-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "458ad2f2e50d3abe9a27e02bb12a0d93242e2ead0e73749cc6949541f192bb49"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-n-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "1ae91ffa1a3dd9ea54dd64a27fcd8f65ab4c8c0c19520d4c654b472739ecde87"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-s-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "5ebc1520b506dcf200526ed26d5c480c00754bf39dd9c812e56954dfe2ffc987"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-se-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "35e3e48c44eb16d9ec7232dddaa7d4291519f6b63d6e1cd9c89f4bb462dbbb7a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-sw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "8524c19b1b00ef04b41e869b05c29525723afff7ea81033b1ca07694fd37662d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-e-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "be8bd3fc0215de66d991f836f3bd6140895f685f36c9d417264db5021414fab6"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-w-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "df59278df749c4d37f36f928e2e992f8e717530bffcf02f99fdeec5c7b110800"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-ne-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "935f9bf8a685997939da24a8d643ca8880fa99a60fac1fb5593f22dcc244ca21"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-nw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "8ea21a76c5dd16d1466c1549d13bd5a30ecb9d4f80d0b5da90705faad9dd803f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-n-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "f8673635d1c5257a97e3d331809f929a5e913822ab877338db54b578915a5f92"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-s-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "57d1d92d8de97f72c85fa5407f1b79c8205be7b565d57e95e4a3194769ecf5c3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-se-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "da89d252397a582c5b0df38ede52e8275d9d41539ed845d537b2c3ffb8a16239"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-sw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "d68e6f11b3e28d83e6f39224acfa4f76707fb410e933b83229f3b2c038fff719"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-e-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "5609b3db1da1eff6ec925e11b79e8b244952e028b4fd67a099e1a74b70581fa0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-w-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "02fdd767756cc161c08c4d99ee2eac8024bfaaec86284ee63d03d861b9021135"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-ne-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "09d12f869c3b55d30c932d2a64bbdfd2144ca823e2c047e41230a08b74dda774"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-nw-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "dd8ef2f8754cd269569aecda2f6dae9d4c01e18a858a2d7d35ecc7cba03e65b9"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-n-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": true,
+      "sha256": "06968f7caa808026c076d489161a29b7a5225ebd0c7a144ba49b0ed347235ff7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-enraged-corpse-s-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "4e3f6b71ff65f1b944e555c2b14b48f98bf744e49685a4ff5c5986b51a133340"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/spectral-knight-corpse-s-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "f45a0874454aadf2ed5421196fab60dec46aa13c36bd799017193ac779db7f8b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Portraits/dead-king-enraged-portrait-s-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "fc3f4a57d091826c8c73965b0fcf35168a4c5c20ce53634c1990f876a85bf227"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Portraits/spectral-knight-portrait-s-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "3c9776f243bcfe0d8f6d3391e22d02e2e84da88fc48a6bab4a044cf3461d7271"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-s-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "444c312ba3a196fea645108ed97fb3c8dcba779410a6de9d7b0fda3f8280c16b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-se-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "1ebfe2d6406be30ee6cb209ad05801cd826bf6167266f0baa1ec09590f610ca9"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-sw-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "e87a3d8a45689f6bba5305390b9aada92ee7129d8983d335ab8cbea27882630e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-e-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "464d4bf75e0c76810bcf31ce61ec9b2adf96edb8a08382fb69d4e5c0622c0616"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-w-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "509c8593e6d3d4f0ae2f5e447ad6823ae399fa005cbedb6f8d1b6967ff65c578"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-ne-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "067c37643757ae48861c9ca0d806a5e81877d59eeda3d093ac7945c6ead63f72"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-nw-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "5e08b9b4ced9db327fae4f269ae80a19650c433c6f437dcbe96ef30da8183ed0"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-n-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "4a1187a9d9264b87083acfbb57a95bd1862cbe8754c9108ecc2ce713e5a96435"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-command-s-fx-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "c9bf544db69457a513f0ea7ac25a9b9b37efa3919ab161fb97f85e93fee7065b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-s-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "dd35f4d3d5c5f0aff44c9514ad6a8a111f7c4e182719f067edc8de318e7f669a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-se-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "ee9a00db1a37e48bcbb5bb8981f57fa3c8e114f484f97e8a6ed7669bd3dc3987"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-sw-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "8d466b0a846a7e2c72ec66e5c9a4685a07d9b0e085c67b06357ccf177b57c62b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-e-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "aae1287930343618408ab06337d93c84b8c158a0f064b3a60484fa553cfc8a1f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-w-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "b9aa49c0395e456e3ebe5e895e3e831d720b02b23e48c6cc3715f1aa9f79fc65"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-ne-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "0139b48516b97b4a718c4f19117c14e6b55f3a7c1c9e065d71178a8f8e372c25"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-nw-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "daf937ee76818afee1bb587f1117a77038e215f953265c893fcaf0097949ba49"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-n-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "565a84c6cfa60c668dfbc33538fdfe56e44d3f0b7b9c25f75050b248a650cb3e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-scream-s-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "b13be3c12c3ecca20cfcc61ef560b0fcf63a88bbf4c40b54885228eaceb30eb9"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-shadow-s-fx-256.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "da6202e24198b7a2df7bd9d31abe5e32bbae6891a903ad89a12870ac2b3df0ca"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-s-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "ba49d3f24549c1ce9f92cb6ff98ca23d2b209876507b12af1015e2cdc3f314a8"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-se-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "095c629b194a99730667fe1e4dee338a30eba22abc616830d185c163524610be"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-sw-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "074adfcda78f194e1f1b4a5010499a055337cfa77ca67422820d1e068f29be27"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-e-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "e115006ead71a1eb687ab7576f17215abafe3db2d9f68a780108a3c4a744efc2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-w-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "47841c6f32ab2e52daecc212b2b4cd8af3401029f40245075b43af2bc01206cf"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-ne-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "48870cc3f4cb2ea12818cfda9d8300fd291bf3d318e90c2bc7b39f17d6b248fd"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-nw-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "499fd415c29457cb399b176334d1cdc93ce6ae7893d77dbb5305b34d2748bcd3"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-n-fx-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "e500a1db126c7746c73c176c0fbb59731467a5e2df9712e1c8b07f01569b7f6f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-safe-s-fx-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "7e459321c013684a6a68f47b10554685b456bb24ac99e1ed71186708050b0945"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-dark-s-fx-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "c47b6df88231bcfef8fe1e66d2cae0360c48b03918bce17377e797c9e40246da"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-wave-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "3aeb4f5d848d78c94447523848199bad15aa141923dff975ab6d0d57178f0f2e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-command-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "9e3eadbe79c4b7da66f8fb628fd327d4d4197055ac4c294a259c8bbe7045acb2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-guard-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "df64f22c8a1d059bbe07a06e2303d3b0484372068f2196cbf9c64bd646c4480e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-blade-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "2c75d6d2fc1d677692cc5db2c437d4ddb0fee6fb7feef12ecaf8c298f945681e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-scream-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "f59565fc6b4d0b6133541e58a24c9d120da3a19863db1ddf857c8329693417af"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-shadow-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "0893a9d07b82aa17cdf4a91a189fd59ed00f41e066abb28290b4eb961c9ecf17"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-knight-strike-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "daa9f6884e83d1ec011a55e7b89fe092b45dcdbf4b5d103c8b4e9e1bd5fe6bd7"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-aura-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "5b62e7be1126d0062397601ed2025cafd357d8604fad8f250a86b8312b060b5d"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-rage-32.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "4f7391d19eae6810041d24bb55345cb5a030d70ab5de36efdfe7eabf010bc8f2"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "9627a8624fc770b82913950edd9883dd34d8b15227b5f2a9208b397670dfce49"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "e20c5dc4422137ffb4a2e21445833cff9b98ebbe26b7242c526c9f3239e0b08b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "b9eca8d198375e6a596d563e56eb1381eef62f9910700f5590c5103a1f393e08"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "ddd4e14a8b6344e8c7caf06d417fea3f61ef3b3a12dbf74fc87f28f0b59a3398"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-04-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "4d419f6e10ba79d7916474874aa0fbf7bdebf6cfcb4028b761566b21500d80ff"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-05-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "e0abab1b5b907a3d6e2f1d3b6eae2b4a5dbd9de8898bb4ddba8c44e52de18e07"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-guard-s-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.09375,
+      "texture": true,
+      "sha256": "bc414794df3ad74d072b7265d110a6e4ff58b84c46a78107402b968b85df7f0b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-guard-s-fx-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": true,
+      "sha256": "b402e53047b815d2a0665501dddb7c8fbc262af99e301c712bec109d236db20f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-corpse-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false,
+      "sha256": "c35e8a9593d5c116512cc5539508279c158689ff1002ed26eb94c308d7b2926c"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "addc7504e13cbabcaf3e4c011f654448e359dd5ea65254dc17191f95aa5aec08"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "983048b6037d8859540caf70a87aadbddb3416a32ec46e748eaa102a88221875"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "2fb6ceaa4e12f465e2ff7dcc81100d17f6a18aa466d8399596f2d31f0a4fd200"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "c70d68aa4d1ff661abfc90cab4199a320a2c6bc190ba2780ca5d77f505e80300"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-00-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "4a4bebf990206d9f1f9b54a5b3c4fba78a68227ffee8e67427e9d5466716733a"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-01-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "ea03a41674e3486effbf4700e04268bcb5549e0143803b90609b52ac1fa56f37"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-02-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "15bc77e72b7e95d93f1ed41a157953bd64ac9a61f0f91f0627dc5760fb744919"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-03-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "8aedd457b2eddd9b195b4f9e6961ed4a03144c1dafc0d69f17adadf9f2d3ba91"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Hit/dead-king-enraged-hit-s-192.png",
+      "pivotX": 0.5,
+      "pivotY": 0.22916666666666666,
+      "texture": false,
+      "sha256": "cdf8e8b314adfca4d0f5006cb4d3445a1ff9687882f3c67d18f4dc2ba4dbf3ce"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "3b64691f0371fcf431b71bbee1b6bcafccae9d580fba298502c7a2566d093362"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "bda344c9e8a640e2d6195bc10bd0f4f1e8e02a9abd48e7120cfab7ff0021df2c"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "efc708be663205b8e45c5d8f8e8edee8d2a73183774edd8b16bf73c1cb01e93e"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "a454debf262dd7f40a0b07fb7245290ada44a1f417f7c351b71671ae4c3a0a24"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-00-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "b7c93c8c76bdc69d0582464689a400af924444ab57d59a57bda8b7c5fbdf9b32"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-01-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "85d5beb63695f0773a1e9ed60319c9fafd2861e93255933a79d1d66f2e36f39f"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-02-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "dc7ab08e75ba8230c74bd29f7cf0ef4126e9c6ce6fe50ed1a0301da054ee8316"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-03-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.0625,
+      "texture": false,
+      "sha256": "6d01b28ce3c22d3fdc8ae6d7ae512e908c2837c45cb48a23094abf51a4e7bc37"
+    },
+    {
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Hit/spectral-knight-hit-s-96.png",
+      "pivotX": 0.5,
+      "pivotY": 0.20833333333333334,
+      "texture": false,
+      "sha256": "5ebc1520b506dcf200526ed26d5c480c00754bf39dd9c812e56954dfe2ffc987"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-corpse-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "4e3f6b71ff65f1b944e555c2b14b48f98bf744e49685a4ff5c5986b51a133340"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-corpse-64.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "f45a0874454aadf2ed5421196fab60dec46aa13c36bd799017193ac779db7f8b"
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king/dead-king-corpse-128.png",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true,
+      "sha256": "c35e8a9593d5c116512cc5539508279c158689ff1002ed26eb94c308d7b2926c"
+    }
+  ],
+  "bindings": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-s-base-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-00-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-01-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-02-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-idle-03-192.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-00-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-01-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-02-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/dead-king-enraged-s-walk-03-192.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Portraits/dead-king-enraged-portrait-s-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Hit/dead-king-enraged-hit-s-192.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-s-base-64.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-00-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-01-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-02-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-idle-03-64.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-00-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-01-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-02-64.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/FallbackFrames/spectral-knight-s-walk-03-64.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Portraits/spectral-knight-portrait-s-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Hit/spectral-knight-hit-s-96.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-enraged-corpse-s-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Corpses/spectral-knight-corpse-s-64.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-corpse-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king.asset",
+      "field": "TransformationFrames",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-00-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-01-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-02-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-03-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-04-192.png",
+        "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-05-192.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_wave.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-wave-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_command.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-command-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_guard.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-guard-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_blade.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-blade-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_scream.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-scream-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_dead_king_shadow.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-shadow-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Skills/SD_Catacombs_spectral_knight_strike.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-knight-strike-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Objects/SO_DeadKingSafe.asset",
+      "field": "worldSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-safe-s-fx-64.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Objects/SO_DeadKingDark.asset",
+      "field": "worldSprite",
+      "sprites": [
+        "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-dark-s-fx-64.png"
+      ]
+    }
+  ],
+  "floats": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 2.0
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king_enraged.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 3.3333333333333335
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 4.0
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_spectral_knight.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 8.0
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Catacombs/Enemies/CD_Catacombs_dead_king.asset",
+      "field": "TransformationFramesPerSecond",
+      "value": 5
+    }
+  ],
+  "glossary": [
+    {
+      "id": "catacombs.dead_king.despair",
+      "title": "Aura Rozpaczy",
+      "sprite": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-aura-32.png"
+    },
+    {
+      "id": "catacombs.dead_king.rage",
+      "title": "Widmowy Szał",
+      "sprite": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-rage-32.png"
+    }
+  ],
+  "nativeMappings": [
+    {
+      "file": "native/dead-king-enraged-s-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-s-base-128.png",
+      "sha256": "23122941c68c348ca8d89b27dacbdffd3cf2280bd99e1f9eec0b9b4baf2884f8"
+    },
+    {
+      "file": "native/dead-king-enraged-se-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-se-base-128.png",
+      "sha256": "3cd796a1a7a41f336f1bb9ba6489cb2ed3e7448b1451593ec0805eb9c3046bba"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-sw-base-128.png",
+      "sha256": "433b2f5c1a018284968971a649c75eac19fcda7423ee300e793d03c54a37a34d"
+    },
+    {
+      "file": "native/dead-king-enraged-e-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-e-base-128.png",
+      "sha256": "499a948dc53fb3b87c7785083709c8e4fef658c69587506a7697823df4eed88d"
+    },
+    {
+      "file": "native/dead-king-enraged-w-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-w-base-128.png",
+      "sha256": "f911263e7a88dc88d38596e15725f75342af9abdf5180690de1edfce753d36e1"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-ne-base-128.png",
+      "sha256": "5fed21a9aafbfc8fe453fb0549660d65db9fbddf16c0e9a85116017c6c56b216"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-nw-base-128.png",
+      "sha256": "5bc9b19cfa38e5f6649dc8843a186ee96acfa7be790a5c6768d267ab62168d5f"
+    },
+    {
+      "file": "native/dead-king-enraged-n-base-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/dead-king-enraged-n-base-128.png",
+      "sha256": "a59f290330b0804e4c45d56895f5a3254640ccf3ad16df5e26124faa131c3e1e"
+    },
+    {
+      "file": "native/spectral-knight-s-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-s-base-64.png",
+      "sha256": "fbf49bab02c78a7d4f93f29e951dcc9d11b7d3f423c706302a8a4231d4875a91"
+    },
+    {
+      "file": "native/spectral-knight-se-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-se-base-64.png",
+      "sha256": "c249dafea9a01bcd3881fe05213d16c9ac67fff8015c1b953bad4310f19289c0"
+    },
+    {
+      "file": "native/spectral-knight-sw-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-sw-base-64.png",
+      "sha256": "43f1cba6b03545a92cb56023d51acf27efa92fa68441e764761afea41f7929e6"
+    },
+    {
+      "file": "native/spectral-knight-e-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-e-base-64.png",
+      "sha256": "3b761f6e9f67cdaa18f9e8f4c58c7c940c4f466b587d69c2a7f21233ee932a59"
+    },
+    {
+      "file": "native/spectral-knight-w-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-w-base-64.png",
+      "sha256": "f9b26ce399ac9e039e63b23f3db36b17292314757dde5d82280ddf9e30eb5f27"
+    },
+    {
+      "file": "native/spectral-knight-ne-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-ne-base-64.png",
+      "sha256": "e286c086e32e965eece544f7644425547709e40bf0d08ddc0bc74cdbd7156da0"
+    },
+    {
+      "file": "native/spectral-knight-nw-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-nw-base-64.png",
+      "sha256": "00c4293e6a5755248d12fde601244f8b2deb3733a8f5f5f73ce3c0cdbb4100b5"
+    },
+    {
+      "file": "native/spectral-knight-n-base-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Bases/spectral-knight-n-base-64.png",
+      "sha256": "b43ce7d3b249159ba7ecf7e3b89eeebef64731460868b5a7a5227f6ce631fe28"
+    },
+    {
+      "file": "native/dead-king-enraged-s-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-00-192.png",
+      "sha256": "addc7504e13cbabcaf3e4c011f654448e359dd5ea65254dc17191f95aa5aec08"
+    },
+    {
+      "file": "native/dead-king-enraged-s-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-01-192.png",
+      "sha256": "983048b6037d8859540caf70a87aadbddb3416a32ec46e748eaa102a88221875"
+    },
+    {
+      "file": "native/dead-king-enraged-s-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-02-192.png",
+      "sha256": "2fb6ceaa4e12f465e2ff7dcc81100d17f6a18aa466d8399596f2d31f0a4fd200"
+    },
+    {
+      "file": "native/dead-king-enraged-s-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-idle-03-192.png",
+      "sha256": "c70d68aa4d1ff661abfc90cab4199a320a2c6bc190ba2780ca5d77f505e80300"
+    },
+    {
+      "file": "native/dead-king-enraged-s-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-00-192.png",
+      "sha256": "4a4bebf990206d9f1f9b54a5b3c4fba78a68227ffee8e67427e9d5466716733a"
+    },
+    {
+      "file": "native/dead-king-enraged-s-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-01-192.png",
+      "sha256": "ea03a41674e3486effbf4700e04268bcb5549e0143803b90609b52ac1fa56f37"
+    },
+    {
+      "file": "native/dead-king-enraged-s-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-02-192.png",
+      "sha256": "15bc77e72b7e95d93f1ed41a157953bd64ac9a61f0f91f0627dc5760fb744919"
+    },
+    {
+      "file": "native/dead-king-enraged-s-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-s-walk-03-192.png",
+      "sha256": "8aedd457b2eddd9b195b4f9e6961ed4a03144c1dafc0d69f17adadf9f2d3ba91"
+    },
+    {
+      "file": "native/dead-king-enraged-se-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-00-192.png",
+      "sha256": "0354e5704923e943a240b06ae4c8272a21ae02f2a23db4687a8927a2716af93a"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-00-192.png",
+      "sha256": "73f45d0ff9ebbe82c48686fe2d3a9177217e54fe1524eedf26399a46825982cf"
+    },
+    {
+      "file": "native/dead-king-enraged-se-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-01-192.png",
+      "sha256": "46a1029448ae545e9b95f47d52af38e1ccca6ba0ca70a1167c5f997198c3e080"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-01-192.png",
+      "sha256": "ad2024c824b2c5b73984ab6bdce9e326cb31737fb262eed72f839a8b12369462"
+    },
+    {
+      "file": "native/dead-king-enraged-se-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-02-192.png",
+      "sha256": "958209144c7060948384806bf0e0a0a96dc22849a45c8b3a80bb14606000454d"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-02-192.png",
+      "sha256": "fd45107a18329ae9f04b93bb2bee81e06bf7ab4979cc369e79ea7d47d021f8aa"
+    },
+    {
+      "file": "native/dead-king-enraged-se-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-idle-03-192.png",
+      "sha256": "71e0125360ceeadee18b6dc4836f42c99e42b2568c055bb32030a9e3f3a8e874"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-idle-03-192.png",
+      "sha256": "034ee9babf43efad8fa4aca07fb65c5056cf2097d27913833c95678c683d5634"
+    },
+    {
+      "file": "native/dead-king-enraged-se-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-00-192.png",
+      "sha256": "0d447a162bd75c48848d6a513d14f3db717dd26b302fdae75f61fa194e3f9ec8"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-00-192.png",
+      "sha256": "0ae19448d5819202e08861a395699b15358a4b4f44f6df25b16feccc9a8b698b"
+    },
+    {
+      "file": "native/dead-king-enraged-se-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-01-192.png",
+      "sha256": "1b8045cb8d3cfd700f68abaf03ec280404f6710685ebd5a458cc7e55c8a287ea"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-01-192.png",
+      "sha256": "b4e19002558f22d71bc7985df63ca1f1483ebf0a0a4661e991f354ca313052d0"
+    },
+    {
+      "file": "native/dead-king-enraged-se-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-02-192.png",
+      "sha256": "f326d15ee37871f6dd3b028d25cf7da2588010d86ec9e65805c499b968b94918"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-02-192.png",
+      "sha256": "fa227234f604734cad7b72b534f6991c1cb681c3e4d8d1598b081d342e8394d5"
+    },
+    {
+      "file": "native/dead-king-enraged-se-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-se-walk-03-192.png",
+      "sha256": "fc011bfc1db94d856c14d87cee7c2c9fbcfa4e12f42afde6351297f0eee428d3"
+    },
+    {
+      "file": "native/dead-king-enraged-sw-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-sw-walk-03-192.png",
+      "sha256": "7374ff433a90e961bf53b8e9dad3ffc1514cbcb727c7db71d16267a0edfb7b00"
+    },
+    {
+      "file": "native/dead-king-enraged-e-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-00-192.png",
+      "sha256": "52fecce6ad82c97545937103ceda9ae747568d7e9bc20ad623afc20b10695ec6"
+    },
+    {
+      "file": "native/dead-king-enraged-w-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-00-192.png",
+      "sha256": "7b423d82564e65b7dbcfd2e2f4a393b8093bd8097298dc917a44f7537a766b2f"
+    },
+    {
+      "file": "native/dead-king-enraged-e-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-01-192.png",
+      "sha256": "9ac3003e8f29f563f9973988b119cbc2804d1b692bf8a14f63785f5a14bbb5c1"
+    },
+    {
+      "file": "native/dead-king-enraged-w-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-01-192.png",
+      "sha256": "9364bb416b633b29b31f80eb9520f8ffcbc5a5c382067ca900b245800c073b45"
+    },
+    {
+      "file": "native/dead-king-enraged-e-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-02-192.png",
+      "sha256": "c21dee8cca2328cf9a649f0a83d00df529bdaf72e390a664807ca723e259475b"
+    },
+    {
+      "file": "native/dead-king-enraged-w-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-02-192.png",
+      "sha256": "a51e4c47628e4401a63dd711ca77389b3de188436278a8c140b60d06a03f7242"
+    },
+    {
+      "file": "native/dead-king-enraged-e-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-idle-03-192.png",
+      "sha256": "7f486294d426cf9ec90201aec7d34630177e54d185791a36acfd7f5542e37df6"
+    },
+    {
+      "file": "native/dead-king-enraged-w-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-idle-03-192.png",
+      "sha256": "fda2c1ecf7d758ffea67817273f3f73156dca9fa91c3e6e90e95f110d61d8a82"
+    },
+    {
+      "file": "native/dead-king-enraged-e-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-00-192.png",
+      "sha256": "ecaa923ab4ef1e5feb89cc946c64a539d6dccf38140dc51fbcab196e448b46c3"
+    },
+    {
+      "file": "native/dead-king-enraged-w-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-00-192.png",
+      "sha256": "7bb84c2e803a682a0eb1ead458899cf44e9310eff096d487ea807dec35137fa6"
+    },
+    {
+      "file": "native/dead-king-enraged-e-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-01-192.png",
+      "sha256": "10c9b585df472f3b4bebea7a6fb0b4fc1405d8beb74b36ece04d91d3e970dab1"
+    },
+    {
+      "file": "native/dead-king-enraged-w-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-01-192.png",
+      "sha256": "b78ffaf50794e6a954fada2bf186a2bade38f935ef705399f3d845b1afa773b8"
+    },
+    {
+      "file": "native/dead-king-enraged-e-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-02-192.png",
+      "sha256": "bf66150dd01078b84bea56581d65b1699321533d8a37c1dd3a55a31df263c37a"
+    },
+    {
+      "file": "native/dead-king-enraged-w-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-02-192.png",
+      "sha256": "b91cf8202815851f379061e2c9961c6c432f9100cbefc1df4f7be96e71e5c8f1"
+    },
+    {
+      "file": "native/dead-king-enraged-e-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-e-walk-03-192.png",
+      "sha256": "548e4e10e133bce4a14ecc4f35bb0c77666e0670f84758a7233e03057971a987"
+    },
+    {
+      "file": "native/dead-king-enraged-w-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-w-walk-03-192.png",
+      "sha256": "c6343888113838769b0bb97607142e6bf5658d3e78ab4d7a2373c21b5e588fa7"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-00-192.png",
+      "sha256": "dc96f379f0392b2632dad8d010f0f477e1f24aca9a3a72e8e1bd0960d0f00ae6"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-00-192.png",
+      "sha256": "5c2dd17730abb2ce4d3eb555623bf9228e71a9e76d61d1279c32a152b26db284"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-01-192.png",
+      "sha256": "d31587ac2d222843b8eee7c3254d07040da67f0f6d46e2607e30c0a688f89b34"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-01-192.png",
+      "sha256": "4977a84a35d37bbf4191eded0bb88295da8f558ddea4190d469c779e36442c00"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-02-192.png",
+      "sha256": "cc972d87df86acd3e46c407c5e87b811576bc3f2deaf5bd40530d106891fbc39"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-02-192.png",
+      "sha256": "d1c40c39a181756b29bb8e236c2a57596706f29a755ad8613abcbc6a70171d19"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-idle-03-192.png",
+      "sha256": "6e70e135dc52a42a6cb936290e75d01f56bb51191ee4f6600b0d20ceee6d32d4"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-idle-03-192.png",
+      "sha256": "3e973ee1b1cc2d5ee290b3cd5019acb8ab6cd4a71bfd5d1478763df7fe8b4c19"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-00-192.png",
+      "sha256": "30e7e9ad932f0bbc408a9e89517a2971b4e5792cbfc8398103acd2cc5770d09d"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-00-192.png",
+      "sha256": "21b6401b04cb50bcf93948a3b46ca4b3de0172a94574f9a45d05e5a0adc47663"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-01-192.png",
+      "sha256": "944cc11e2cf39709e23d61d1da77776583ec19cbfe678b8d43265e2f77d4d0f7"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-01-192.png",
+      "sha256": "6b307fd23c504fcc299c55944f8dbf7a1185a9674ec97020650786f50a61c61d"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-02-192.png",
+      "sha256": "2c40a0356604427fbe7e863f0259c937608feb02d62e7da2691eeae7e6599ad3"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-02-192.png",
+      "sha256": "0536919cf11126b289279d448dd151d69ee340c4bcee79ed8e8ed5c80dfdf100"
+    },
+    {
+      "file": "native/dead-king-enraged-ne-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-ne-walk-03-192.png",
+      "sha256": "aa9278addbbad96037a9cb62645f3072018e8823f358b02ee37c668a51fbb826"
+    },
+    {
+      "file": "native/dead-king-enraged-nw-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-nw-walk-03-192.png",
+      "sha256": "b2bf04cbc71e910737507b391963e9c0cf102a5a1d06b800278cc78bbbeda986"
+    },
+    {
+      "file": "native/dead-king-enraged-n-idle-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-00-192.png",
+      "sha256": "e689ae825ba922a17c5eed6de7c50995b7f7b941456de8221ff04c9e2f972267"
+    },
+    {
+      "file": "native/dead-king-enraged-n-idle-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-01-192.png",
+      "sha256": "fe84a65ca155b9f3d7fff24b973c833e8e8833583025606ce10264e94ef310c7"
+    },
+    {
+      "file": "native/dead-king-enraged-n-idle-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-02-192.png",
+      "sha256": "dfef71966520fe4883972c695bb0aec8678b9aa9679cc0817c44c3e8e3985014"
+    },
+    {
+      "file": "native/dead-king-enraged-n-idle-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-idle-03-192.png",
+      "sha256": "2c61fe59cba2313609a9c4c5564bb394508ad5829c06b6362c751e45a11bbef9"
+    },
+    {
+      "file": "native/dead-king-enraged-n-walk-00-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-00-192.png",
+      "sha256": "447b8074e06bfe4c5d776cd0f8778622584b4e9d28f71b120569a2e9ab087db4"
+    },
+    {
+      "file": "native/dead-king-enraged-n-walk-01-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-01-192.png",
+      "sha256": "d6742e724f62ad853bf24b5030f38700c39434745e9f4c43f7873046a428cfaf"
+    },
+    {
+      "file": "native/dead-king-enraged-n-walk-02-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-02-192.png",
+      "sha256": "8d3670e0d08e455374c81a9b64817efa1a0ca8e894a39b1828fd6a81d8df9a7a"
+    },
+    {
+      "file": "native/dead-king-enraged-n-walk-03-192.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/dead-king-enraged/dead-king-enraged-n-walk-03-192.png",
+      "sha256": "5a0bf65b8411bf64983d1e36832a6a8e0a2277d1ca49cfb0ee0a1efe7560cb14"
+    },
+    {
+      "file": "native/spectral-knight-s-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-00-64.png",
+      "sha256": "3b64691f0371fcf431b71bbee1b6bcafccae9d580fba298502c7a2566d093362"
+    },
+    {
+      "file": "native/spectral-knight-s-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-01-64.png",
+      "sha256": "bda344c9e8a640e2d6195bc10bd0f4f1e8e02a9abd48e7120cfab7ff0021df2c"
+    },
+    {
+      "file": "native/spectral-knight-s-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-02-64.png",
+      "sha256": "efc708be663205b8e45c5d8f8e8edee8d2a73183774edd8b16bf73c1cb01e93e"
+    },
+    {
+      "file": "native/spectral-knight-s-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-idle-03-64.png",
+      "sha256": "a454debf262dd7f40a0b07fb7245290ada44a1f417f7c351b71671ae4c3a0a24"
+    },
+    {
+      "file": "native/spectral-knight-s-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-00-64.png",
+      "sha256": "b7c93c8c76bdc69d0582464689a400af924444ab57d59a57bda8b7c5fbdf9b32"
+    },
+    {
+      "file": "native/spectral-knight-s-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-01-64.png",
+      "sha256": "85d5beb63695f0773a1e9ed60319c9fafd2861e93255933a79d1d66f2e36f39f"
+    },
+    {
+      "file": "native/spectral-knight-s-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-02-64.png",
+      "sha256": "dc7ab08e75ba8230c74bd29f7cf0ef4126e9c6ce6fe50ed1a0301da054ee8316"
+    },
+    {
+      "file": "native/spectral-knight-s-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-s-walk-03-64.png",
+      "sha256": "6d01b28ce3c22d3fdc8ae6d7ae512e908c2837c45cb48a23094abf51a4e7bc37"
+    },
+    {
+      "file": "native/spectral-knight-se-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-00-64.png",
+      "sha256": "cf9ed073862334f6c4f3f0282418a8a248f3e1c33d1a46e5127f06bdb93a6f0d"
+    },
+    {
+      "file": "native/spectral-knight-sw-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-00-64.png",
+      "sha256": "bd300e9dd9192a5ee0833c91e7d931efe39d6fb6c4a767fe60cd2aea759e2151"
+    },
+    {
+      "file": "native/spectral-knight-se-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-01-64.png",
+      "sha256": "217f515bf4ef43f1dea0c8ef2e67d39b3c81a6dc57f529002edc244c03bc003e"
+    },
+    {
+      "file": "native/spectral-knight-sw-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-01-64.png",
+      "sha256": "40666af5b1cb47130acef6a22b3d44c21ccf289cc71ff3bec78884db0f913a47"
+    },
+    {
+      "file": "native/spectral-knight-se-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-02-64.png",
+      "sha256": "e2746d54adda090055d7b32efed4e1e24f2e544ca8d23e99d6db29e142bab854"
+    },
+    {
+      "file": "native/spectral-knight-sw-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-02-64.png",
+      "sha256": "3a0022d93883eb54bcc0ce1df4fe924b8d6a6890ff95a9119e17dd55fca39e02"
+    },
+    {
+      "file": "native/spectral-knight-se-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-idle-03-64.png",
+      "sha256": "e572874cadcbbd02de506f10a340a287049f0498e64b0495c6b2ce2abf0f0699"
+    },
+    {
+      "file": "native/spectral-knight-sw-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-idle-03-64.png",
+      "sha256": "0267659cd7a1c43ed41aedcfad85dbe54416a64bdb58e6d24213112ec6a8740f"
+    },
+    {
+      "file": "native/spectral-knight-se-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-00-64.png",
+      "sha256": "83993e9485b73c0e7b20f15593078abab74cd04e1c64abdbd0816ee4c51ece33"
+    },
+    {
+      "file": "native/spectral-knight-sw-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-00-64.png",
+      "sha256": "e988a7ea12671ca32aceffacc21383be6d17d50674aafd12a28e22d5b2baa9b7"
+    },
+    {
+      "file": "native/spectral-knight-se-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-01-64.png",
+      "sha256": "216d2c6347c8491a025c9025a9f4c3c91811bcfa543f28ca5d6d729a34aa9831"
+    },
+    {
+      "file": "native/spectral-knight-sw-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-01-64.png",
+      "sha256": "b710a1d7e6b71e8d38f42a989722813718100507f2052840defd77d48b79afed"
+    },
+    {
+      "file": "native/spectral-knight-se-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-02-64.png",
+      "sha256": "0dc54e3d264501ce6a0acb6cb2f74c80ee537e8c7f6c238da8ad38fa0efeb14a"
+    },
+    {
+      "file": "native/spectral-knight-sw-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-02-64.png",
+      "sha256": "f1e4ef026c2ede1195eee5081d7cd7320367274fe4500a74f240eb8b4cdf03d5"
+    },
+    {
+      "file": "native/spectral-knight-se-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-se-walk-03-64.png",
+      "sha256": "073be786fea962ef937a78589a1e0f66c902902765538511e1272474c4612f5a"
+    },
+    {
+      "file": "native/spectral-knight-sw-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-sw-walk-03-64.png",
+      "sha256": "46d027829213ff288d0ae6ffca266ae8291d1b34e7288d01e5522d4cfa37e686"
+    },
+    {
+      "file": "native/spectral-knight-e-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-00-64.png",
+      "sha256": "6a487136c097db60549ea861ee59697993f82fd58a87245b29fd8d763885440c"
+    },
+    {
+      "file": "native/spectral-knight-w-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-00-64.png",
+      "sha256": "5bf0ca557c5c8b28c8c85ed1bf519066566a78783a3a5010b17c0da4d5a587d5"
+    },
+    {
+      "file": "native/spectral-knight-e-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-01-64.png",
+      "sha256": "3e941ae5799c37f9adb09bb7b42f7cc1cabc9a1d358fd6c328f0963496ab1fc2"
+    },
+    {
+      "file": "native/spectral-knight-w-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-01-64.png",
+      "sha256": "82b4fcea915ef8fe874c6ecab9571ad01e1d9dd543eb64766aff56fd201b6fbd"
+    },
+    {
+      "file": "native/spectral-knight-e-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-02-64.png",
+      "sha256": "d1aa09af9713c20993f3d4ff639928a50763cb6204259d2501ded351c0017d12"
+    },
+    {
+      "file": "native/spectral-knight-w-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-02-64.png",
+      "sha256": "3de60437058bd92d1584cbeeb08d7c7b444929ddd04b5aeb497785b0839b14ef"
+    },
+    {
+      "file": "native/spectral-knight-e-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-idle-03-64.png",
+      "sha256": "3860c2ab6c56aee64e9a96bb2fe80b729820c74b8ad0b398112189600bd0afe1"
+    },
+    {
+      "file": "native/spectral-knight-w-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-idle-03-64.png",
+      "sha256": "fc5634b50a0c3c8cd5f8172907522be8f0e9d7c8815e4ebceb96dcdf374bd971"
+    },
+    {
+      "file": "native/spectral-knight-e-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-00-64.png",
+      "sha256": "afed3186e81c57afaf22374de99ecd3700f699cc80e889c902107923162afabb"
+    },
+    {
+      "file": "native/spectral-knight-w-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-00-64.png",
+      "sha256": "bef574bc794f7b7724a37cc121c4abb6d4ad4a9d606c85b3c45f315d2ba63742"
+    },
+    {
+      "file": "native/spectral-knight-e-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-01-64.png",
+      "sha256": "8238e07b8e3c422ac7837fcfe06a7f6ea960607ce66bb6608be5af5fe046c44d"
+    },
+    {
+      "file": "native/spectral-knight-w-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-01-64.png",
+      "sha256": "c8cb9b0dfa7993dc87cd4f254ebb4735936f4e68cd5fe7ef86caa22db26e538f"
+    },
+    {
+      "file": "native/spectral-knight-e-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-02-64.png",
+      "sha256": "673c7b986ec23d785dec948b08844f0baa31ed862509749d29fa8ceabd5fee12"
+    },
+    {
+      "file": "native/spectral-knight-w-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-02-64.png",
+      "sha256": "0097b35f6239404b29e9269fd1ff102fc7d8d3e6510b1248f5d8caeb4c5a9d2e"
+    },
+    {
+      "file": "native/spectral-knight-e-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-e-walk-03-64.png",
+      "sha256": "f1d5ad4a0a78fdebcc05c0a035623d22d4030bc687254cabffc9c5a8246ed4ab"
+    },
+    {
+      "file": "native/spectral-knight-w-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-w-walk-03-64.png",
+      "sha256": "164e866851c83cb53ff569262eed34e2b84c4007bbdd79e337189a3e891957c2"
+    },
+    {
+      "file": "native/spectral-knight-ne-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-00-64.png",
+      "sha256": "f9d31d3dfa48ef613daf9873029dbf32c3f761960be8fbeb2fb97768b363bb41"
+    },
+    {
+      "file": "native/spectral-knight-nw-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-00-64.png",
+      "sha256": "a93db38cbe1c9c36cc45c7bf96a176af55e45046df502f1c3acbcc660e20b0db"
+    },
+    {
+      "file": "native/spectral-knight-ne-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-01-64.png",
+      "sha256": "4ce2af2e13413fca0f9766b36db3877161ff803f9cb6a59d4900c4f894dbef16"
+    },
+    {
+      "file": "native/spectral-knight-nw-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-01-64.png",
+      "sha256": "2c290c90628ae9b18fd919a2b6931624b60c65b0a61c7ca4b65897178d0a5f97"
+    },
+    {
+      "file": "native/spectral-knight-ne-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-02-64.png",
+      "sha256": "3b1198419eaf820737a1ec7e929a4cd270327d3bdb01dfc483afc6b8320b95fc"
+    },
+    {
+      "file": "native/spectral-knight-nw-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-02-64.png",
+      "sha256": "bf832f381a140ec206118189f7d2fd6498b62665f26954d636f4478c24770670"
+    },
+    {
+      "file": "native/spectral-knight-ne-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-idle-03-64.png",
+      "sha256": "939f16c8b00ade3458fc94adaaa60fb627425c83dc5b4a22a2fc5034bdbe57b0"
+    },
+    {
+      "file": "native/spectral-knight-nw-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-idle-03-64.png",
+      "sha256": "6abdc3433928ce2332ad512d6d65b13ffa91eee636b773b22e59744b049aaafd"
+    },
+    {
+      "file": "native/spectral-knight-ne-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-00-64.png",
+      "sha256": "61ff829476960a43b48b3554a483621eb02433dd7c1196d1fbe1b213a3b45f43"
+    },
+    {
+      "file": "native/spectral-knight-nw-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-00-64.png",
+      "sha256": "2d7fbb606d84077ef38d504745e95b4d3cc6e8f8e83932ec7ec731bb58c90405"
+    },
+    {
+      "file": "native/spectral-knight-ne-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-01-64.png",
+      "sha256": "32a1d22e0c72463f60cf2df2c19c75460767a215cd31988de42f0b1c32b5c817"
+    },
+    {
+      "file": "native/spectral-knight-nw-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-01-64.png",
+      "sha256": "f57c35b60ef1b41545b4ba37b51870ca68dfff81fdcbb1743d201231ca7fed9a"
+    },
+    {
+      "file": "native/spectral-knight-ne-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-02-64.png",
+      "sha256": "b6989ebb2657e5be830e34b025008b81356046590f2b92f98373358e3bb05be2"
+    },
+    {
+      "file": "native/spectral-knight-nw-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-02-64.png",
+      "sha256": "ad10768d874d5e627d27e3c09e177eb9cb3a84569b5674afd2a6d1a889628a3e"
+    },
+    {
+      "file": "native/spectral-knight-ne-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-ne-walk-03-64.png",
+      "sha256": "b471f46d88b7f1f09877fc2801ca41e9221e5f7274a8a10847becaeb8441dbd3"
+    },
+    {
+      "file": "native/spectral-knight-nw-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-nw-walk-03-64.png",
+      "sha256": "a181b42ec9d23859941437cbdd4dddf76abfa91597c0c84a1f9330a786bf5199"
+    },
+    {
+      "file": "native/spectral-knight-n-idle-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-00-64.png",
+      "sha256": "a9fb95eb061082e8b3602decf838b152c88c3834c378a6cf1b7188e6c1dec624"
+    },
+    {
+      "file": "native/spectral-knight-n-idle-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-01-64.png",
+      "sha256": "a81f6e9cb92f9862d81d2f8e0131eeba9b9014f7f88e03144643e89eb81dbb8e"
+    },
+    {
+      "file": "native/spectral-knight-n-idle-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-02-64.png",
+      "sha256": "cb3e2298ef4f0729c2fa4117f8551cc88f8898ae6df0043c16b059e0bd2e287e"
+    },
+    {
+      "file": "native/spectral-knight-n-idle-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-idle-03-64.png",
+      "sha256": "2adddbe37ab4caebd483d4407b90187c7eb936e1d808204a57e2e46c8e495462"
+    },
+    {
+      "file": "native/spectral-knight-n-walk-00-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-00-64.png",
+      "sha256": "e673c5ebcff9d22a04bb84186e984e998584b585cd0d3eb92375dab23d233835"
+    },
+    {
+      "file": "native/spectral-knight-n-walk-01-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-01-64.png",
+      "sha256": "d3dd6fbfedca9cab3d98b0a23b155e6f921001ae1601c94c650ef02be9aa7e1a"
+    },
+    {
+      "file": "native/spectral-knight-n-walk-02-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-02-64.png",
+      "sha256": "142f0dd7744747171a7f5e4aacb3c669b7251dfc3c0d9c441e03bd0840fc4044"
+    },
+    {
+      "file": "native/spectral-knight-n-walk-03-64.png",
+      "path": "Assets/Resources/Godmist/CharacterAnimations/spectral-knight/spectral-knight-n-walk-03-64.png",
+      "sha256": "2adaf23bc2845e4cb80981a9655b5519dc140015a2518a112dcf9acf5a0b5254"
+    },
+    {
+      "file": "native/dead-king-wave-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-s-192.png",
+      "sha256": "486ffc8cb6c0fdef0d176e31a50bb90c0b94b5767d005d9cf241a28a2b0b9ca9"
+    },
+    {
+      "file": "native/dead-king-wave-se-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-se-192.png",
+      "sha256": "67f64871f209f5ca37f6072d4a64a769a4841fb50f5ea8fbd93e2d5b8876bd35"
+    },
+    {
+      "file": "native/dead-king-wave-sw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-sw-192.png",
+      "sha256": "9a51333d82037af66c0fdc1723824c26ef257c881156281491018654b8938978"
+    },
+    {
+      "file": "native/dead-king-wave-e-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-e-192.png",
+      "sha256": "e4710a327a16a79e7836e8e3e8af7942ac9210d24d5bfa39187d00928a3f68c0"
+    },
+    {
+      "file": "native/dead-king-wave-w-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-w-192.png",
+      "sha256": "95668910a226907470883457df7f08c6d50d288c48abd0f1a5f82506d24e4c31"
+    },
+    {
+      "file": "native/dead-king-wave-ne-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-ne-192.png",
+      "sha256": "554b17c457d691c7cb298c87fe849e9932e40d3830931910f3805571afe06abb"
+    },
+    {
+      "file": "native/dead-king-wave-nw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-nw-192.png",
+      "sha256": "918c33354fb4c8abafe59e42b72af2d4e11a278ff346c91abd69e6d38d5d0799"
+    },
+    {
+      "file": "native/dead-king-wave-n-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-wave-n-192.png",
+      "sha256": "0a897fda296ac1c8d58b1d4443c643200fca454d1cc2c4e6b6cef3e3bf5b3cc6"
+    },
+    {
+      "file": "native/dead-king-command-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-command-s-192.png",
+      "sha256": "3e1a6044f80dcd3dec315d6bcafa99cf09bcabe85b95242bcca26af844ff4d10"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-s-192.png",
+      "sha256": "b8893f2265ffd60aaf40c94e1fd1d73bab01391c04fc154b22da7827ca3a58e8"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-se-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-se-192.png",
+      "sha256": "f12f56e8979e16a9ad75ae6266d6187ec637db4987e639e5ac5882f59d5bfe72"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-sw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-sw-192.png",
+      "sha256": "631f97dba60c028f2caeeebd3528fea3ed227160fb2a5c8f45fa4faf83bef77f"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-e-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-e-192.png",
+      "sha256": "b15443dd765f2116edca5eeafb70d73c940c631d807c0b2fc88a38bf7cae2d0b"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-w-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-w-192.png",
+      "sha256": "bb611cd0d750db8657df99be239e1d256a36e9b945775767ba3bb1c740bab00f"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-ne-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-ne-192.png",
+      "sha256": "1f78ed63ea595caed9df30e7a362fe99287f890ee7176ccf5f7bd70477216861"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-nw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-nw-192.png",
+      "sha256": "eba711ac3714aee276e096965eb67aea6f080b02ed5ce74d39eefc873b358346"
+    },
+    {
+      "file": "native/dead-king-enraged-blade-n-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-blade-n-192.png",
+      "sha256": "3aef846ba5fea42ea04ab135b9bb8d5e7bf9f32cc1639b67c3611e2c763ff3cf"
+    },
+    {
+      "file": "native/dead-king-enraged-scream-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-scream-s-192.png",
+      "sha256": "938c8d549534fd61ede81800123357bce01de2114f68054535388b090a017c09"
+    },
+    {
+      "file": "native/dead-king-enraged-shadow-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-shadow-s-192.png",
+      "sha256": "e2441da7337bff0afe945cd7dc077894346ed46f4617d5e6e1d34f42a0b1ce89"
+    },
+    {
+      "file": "native/spectral-knight-strike-s-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-s-96.png",
+      "sha256": "cb0a4637470a14eddfba6bf17f46bdb557cea22e3544f9ce16a22c778a0fc3d4"
+    },
+    {
+      "file": "native/spectral-knight-strike-se-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-se-96.png",
+      "sha256": "be00ea9ad355e8eb80a830bab5ca9d459216382d72a07601a20b824b0fdeaa5a"
+    },
+    {
+      "file": "native/spectral-knight-strike-sw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-sw-96.png",
+      "sha256": "ce1239261237904b3c4ef7839056d2425c7e1a352053d9754672a2d2399a03fb"
+    },
+    {
+      "file": "native/spectral-knight-strike-e-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-e-96.png",
+      "sha256": "c4ac7d425ffc1e747b7a887f6e7bc7d83231c5d3bab922104f79aa685e9ecbbe"
+    },
+    {
+      "file": "native/spectral-knight-strike-w-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-w-96.png",
+      "sha256": "024681c395b96046947a6688c23fffca4e3a1bde2583c0cd7bf211cea4433eaf"
+    },
+    {
+      "file": "native/spectral-knight-strike-ne-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-ne-96.png",
+      "sha256": "46df97628c3af48f382e40e4501aa78ed9a86e61ae1f3fe574152f4cb25069b1"
+    },
+    {
+      "file": "native/spectral-knight-strike-nw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-nw-96.png",
+      "sha256": "513f0c809cd49e0734e0792bea800a1a25e2deadf12944bc34ad09290e4bb6b5"
+    },
+    {
+      "file": "native/spectral-knight-strike-n-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-strike-n-96.png",
+      "sha256": "37f81f358d2c449fd8b66619525d3f8d530f1e6414eff3a1691108762ef9fdd7"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-s-192.png",
+      "sha256": "cdf8e8b314adfca4d0f5006cb4d3445a1ff9687882f3c67d18f4dc2ba4dbf3ce"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-se-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-se-192.png",
+      "sha256": "97a1b2a64ebf0f4c38b64de0c76a1e2837d2f7691cacb2c3ed32cb8a6a87be97"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-sw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-sw-192.png",
+      "sha256": "0e501a2c76a5cbb565b77bd8dcea69515a1b50bac0f4872d4295fb24724a6268"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-e-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-e-192.png",
+      "sha256": "bf860b182b55780b960bb133ded3a2cbb5089b20b2125230003b0b8a789d42be"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-w-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-w-192.png",
+      "sha256": "2eab0c14862358dd7269f57903e5c40d2ab21ff4cc88ff7ad011195b857dac70"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-ne-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-ne-192.png",
+      "sha256": "577a9f9059a7d4699a5fd867ff0b609bf17040bbbc4ac8de919bcbea7597788f"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-nw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-nw-192.png",
+      "sha256": "c0cb2935a8aed082b42dbda4e003be4aee2e7eb332126d392cbb4145431c98a2"
+    },
+    {
+      "file": "native/dead-king-enraged-hit-n-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-hit-n-192.png",
+      "sha256": "082548f48e722ca5503883137b6a38be9dfd516cbed75c0e738a2ab0d304a4b2"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-s-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-s-192.png",
+      "sha256": "f0ea2c73b3edac83c8da2492c22d11eed361340d18095aad8f36a04520f3fe01"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-se-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-se-192.png",
+      "sha256": "57a4f3a8b0924a918f69e66fd891db0bd8cfee12f8083a9e83e04ea0efe8c38e"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-sw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-sw-192.png",
+      "sha256": "64020297d38eeeed11b80b29a51600aa2ed36adeda0767dafc3bf22ef028ae9b"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-e-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-e-192.png",
+      "sha256": "0a27cfe4c1dafd1e2b91f65b90ec021e9cc2b85ebe296dfaefba6cb7bebcd50b"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-w-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-w-192.png",
+      "sha256": "6d863ee0783d45f579c60ef06e5383f47fb4f8ff2c748703e7cdf04d062f66db"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-ne-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-ne-192.png",
+      "sha256": "9894c4ce244b9d5170e39f1024f543d029a5fe34c0f17308ff3d05c137ac1584"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-nw-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-nw-192.png",
+      "sha256": "458ad2f2e50d3abe9a27e02bb12a0d93242e2ead0e73749cc6949541f192bb49"
+    },
+    {
+      "file": "native/dead-king-enraged-dodge-n-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-enraged-dodge-n-192.png",
+      "sha256": "1ae91ffa1a3dd9ea54dd64a27fcd8f65ab4c8c0c19520d4c654b472739ecde87"
+    },
+    {
+      "file": "native/spectral-knight-hit-s-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-s-96.png",
+      "sha256": "5ebc1520b506dcf200526ed26d5c480c00754bf39dd9c812e56954dfe2ffc987"
+    },
+    {
+      "file": "native/spectral-knight-hit-se-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-se-96.png",
+      "sha256": "35e3e48c44eb16d9ec7232dddaa7d4291519f6b63d6e1cd9c89f4bb462dbbb7a"
+    },
+    {
+      "file": "native/spectral-knight-hit-sw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-sw-96.png",
+      "sha256": "8524c19b1b00ef04b41e869b05c29525723afff7ea81033b1ca07694fd37662d"
+    },
+    {
+      "file": "native/spectral-knight-hit-e-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-e-96.png",
+      "sha256": "be8bd3fc0215de66d991f836f3bd6140895f685f36c9d417264db5021414fab6"
+    },
+    {
+      "file": "native/spectral-knight-hit-w-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-w-96.png",
+      "sha256": "df59278df749c4d37f36f928e2e992f8e717530bffcf02f99fdeec5c7b110800"
+    },
+    {
+      "file": "native/spectral-knight-hit-ne-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-ne-96.png",
+      "sha256": "935f9bf8a685997939da24a8d643ca8880fa99a60fac1fb5593f22dcc244ca21"
+    },
+    {
+      "file": "native/spectral-knight-hit-nw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-nw-96.png",
+      "sha256": "8ea21a76c5dd16d1466c1549d13bd5a30ecb9d4f80d0b5da90705faad9dd803f"
+    },
+    {
+      "file": "native/spectral-knight-hit-n-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-hit-n-96.png",
+      "sha256": "f8673635d1c5257a97e3d331809f929a5e913822ab877338db54b578915a5f92"
+    },
+    {
+      "file": "native/spectral-knight-dodge-s-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-s-96.png",
+      "sha256": "57d1d92d8de97f72c85fa5407f1b79c8205be7b565d57e95e4a3194769ecf5c3"
+    },
+    {
+      "file": "native/spectral-knight-dodge-se-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-se-96.png",
+      "sha256": "da89d252397a582c5b0df38ede52e8275d9d41539ed845d537b2c3ffb8a16239"
+    },
+    {
+      "file": "native/spectral-knight-dodge-sw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-sw-96.png",
+      "sha256": "d68e6f11b3e28d83e6f39224acfa4f76707fb410e933b83229f3b2c038fff719"
+    },
+    {
+      "file": "native/spectral-knight-dodge-e-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-e-96.png",
+      "sha256": "5609b3db1da1eff6ec925e11b79e8b244952e028b4fd67a099e1a74b70581fa0"
+    },
+    {
+      "file": "native/spectral-knight-dodge-w-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-w-96.png",
+      "sha256": "02fdd767756cc161c08c4d99ee2eac8024bfaaec86284ee63d03d861b9021135"
+    },
+    {
+      "file": "native/spectral-knight-dodge-ne-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-ne-96.png",
+      "sha256": "09d12f869c3b55d30c932d2a64bbdfd2144ca823e2c047e41230a08b74dda774"
+    },
+    {
+      "file": "native/spectral-knight-dodge-nw-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-nw-96.png",
+      "sha256": "dd8ef2f8754cd269569aecda2f6dae9d4c01e18a858a2d7d35ecc7cba03e65b9"
+    },
+    {
+      "file": "native/spectral-knight-dodge-n-96.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/spectral-knight-dodge-n-96.png",
+      "sha256": "06968f7caa808026c076d489161a29b7a5225ebd0c7a144ba49b0ed347235ff7"
+    },
+    {
+      "file": "native/dead-king-enraged-corpse-s-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-enraged-corpse-s-128.png",
+      "sha256": "4e3f6b71ff65f1b944e555c2b14b48f98bf744e49685a4ff5c5986b51a133340"
+    },
+    {
+      "file": "native/spectral-knight-corpse-s-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/spectral-knight-corpse-s-64.png",
+      "sha256": "f45a0874454aadf2ed5421196fab60dec46aa13c36bd799017193ac779db7f8b"
+    },
+    {
+      "file": "native/dead-king-enraged-portrait-s-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Portraits/dead-king-enraged-portrait-s-128.png",
+      "sha256": "fc3f4a57d091826c8c73965b0fcf35168a4c5c20ce53634c1990f876a85bf227"
+    },
+    {
+      "file": "native/spectral-knight-portrait-s-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Portraits/spectral-knight-portrait-s-128.png",
+      "sha256": "3c9776f243bcfe0d8f6d3391e22d02e2e84da88fc48a6bab4a044cf3461d7271"
+    },
+    {
+      "file": "native/dead-king-2-wave-s-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-s-fx-256.png",
+      "sha256": "444c312ba3a196fea645108ed97fb3c8dcba779410a6de9d7b0fda3f8280c16b"
+    },
+    {
+      "file": "native/dead-king-2-wave-se-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-se-fx-256.png",
+      "sha256": "1ebfe2d6406be30ee6cb209ad05801cd826bf6167266f0baa1ec09590f610ca9"
+    },
+    {
+      "file": "native/dead-king-2-wave-sw-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-sw-fx-256.png",
+      "sha256": "e87a3d8a45689f6bba5305390b9aada92ee7129d8983d335ab8cbea27882630e"
+    },
+    {
+      "file": "native/dead-king-2-wave-e-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-e-fx-256.png",
+      "sha256": "464d4bf75e0c76810bcf31ce61ec9b2adf96edb8a08382fb69d4e5c0622c0616"
+    },
+    {
+      "file": "native/dead-king-2-wave-w-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-w-fx-256.png",
+      "sha256": "509c8593e6d3d4f0ae2f5e447ad6823ae399fa005cbedb6f8d1b6967ff65c578"
+    },
+    {
+      "file": "native/dead-king-2-wave-ne-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-ne-fx-256.png",
+      "sha256": "067c37643757ae48861c9ca0d806a5e81877d59eeda3d093ac7945c6ead63f72"
+    },
+    {
+      "file": "native/dead-king-2-wave-nw-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-nw-fx-256.png",
+      "sha256": "5e08b9b4ced9db327fae4f269ae80a19650c433c6f437dcbe96ef30da8183ed0"
+    },
+    {
+      "file": "native/dead-king-2-wave-n-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-wave-n-fx-256.png",
+      "sha256": "4a1187a9d9264b87083acfbb57a95bd1862cbe8754c9108ecc2ce713e5a96435"
+    },
+    {
+      "file": "native/dead-king-2-command-s-fx-64.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-2-command-s-fx-64.png",
+      "sha256": "c9bf544db69457a513f0ea7ac25a9b9b37efa3919ab161fb97f85e93fee7065b"
+    },
+    {
+      "file": "native/dead-king-2-blade-s-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-s-fx-256.png",
+      "sha256": "dd35f4d3d5c5f0aff44c9514ad6a8a111f7c4e182719f067edc8de318e7f669a"
+    },
+    {
+      "file": "native/dead-king-2-blade-se-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-se-fx-256.png",
+      "sha256": "ee9a00db1a37e48bcbb5bb8981f57fa3c8e114f484f97e8a6ed7669bd3dc3987"
+    },
+    {
+      "file": "native/dead-king-2-blade-sw-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-sw-fx-256.png",
+      "sha256": "8d466b0a846a7e2c72ec66e5c9a4685a07d9b0e085c67b06357ccf177b57c62b"
+    },
+    {
+      "file": "native/dead-king-2-blade-e-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-e-fx-256.png",
+      "sha256": "aae1287930343618408ab06337d93c84b8c158a0f064b3a60484fa553cfc8a1f"
+    },
+    {
+      "file": "native/dead-king-2-blade-w-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-w-fx-256.png",
+      "sha256": "b9aa49c0395e456e3ebe5e895e3e831d720b02b23e48c6cc3715f1aa9f79fc65"
+    },
+    {
+      "file": "native/dead-king-2-blade-ne-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-ne-fx-256.png",
+      "sha256": "0139b48516b97b4a718c4f19117c14e6b55f3a7c1c9e065d71178a8f8e372c25"
+    },
+    {
+      "file": "native/dead-king-2-blade-nw-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-nw-fx-256.png",
+      "sha256": "daf937ee76818afee1bb587f1117a77038e215f953265c893fcaf0097949ba49"
+    },
+    {
+      "file": "native/dead-king-2-blade-n-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-blade-n-fx-256.png",
+      "sha256": "565a84c6cfa60c668dfbc33538fdfe56e44d3f0b7b9c25f75050b248a650cb3e"
+    },
+    {
+      "file": "native/dead-king-2-scream-s-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-scream-s-fx-256.png",
+      "sha256": "b13be3c12c3ecca20cfcc61ef560b0fcf63a88bbf4c40b54885228eaceb30eb9"
+    },
+    {
+      "file": "native/dead-king-2-shadow-s-fx-256.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king-enraged/dead-king-2-shadow-s-fx-256.png",
+      "sha256": "da6202e24198b7a2df7bd9d31abe5e32bbae6891a903ad89a12870ac2b3df0ca"
+    },
+    {
+      "file": "native/dead-king-2-strike-s-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-s-fx-128.png",
+      "sha256": "ba49d3f24549c1ce9f92cb6ff98ca23d2b209876507b12af1015e2cdc3f314a8"
+    },
+    {
+      "file": "native/dead-king-2-strike-se-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-se-fx-128.png",
+      "sha256": "095c629b194a99730667fe1e4dee338a30eba22abc616830d185c163524610be"
+    },
+    {
+      "file": "native/dead-king-2-strike-sw-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-sw-fx-128.png",
+      "sha256": "074adfcda78f194e1f1b4a5010499a055337cfa77ca67422820d1e068f29be27"
+    },
+    {
+      "file": "native/dead-king-2-strike-e-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-e-fx-128.png",
+      "sha256": "e115006ead71a1eb687ab7576f17215abafe3db2d9f68a780108a3c4a744efc2"
+    },
+    {
+      "file": "native/dead-king-2-strike-w-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-w-fx-128.png",
+      "sha256": "47841c6f32ab2e52daecc212b2b4cd8af3401029f40245075b43af2bc01206cf"
+    },
+    {
+      "file": "native/dead-king-2-strike-ne-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-ne-fx-128.png",
+      "sha256": "48870cc3f4cb2ea12818cfda9d8300fd291bf3d318e90c2bc7b39f17d6b248fd"
+    },
+    {
+      "file": "native/dead-king-2-strike-nw-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-nw-fx-128.png",
+      "sha256": "499fd415c29457cb399b176334d1cdc93ce6ae7893d77dbb5305b34d2748bcd3"
+    },
+    {
+      "file": "native/dead-king-2-strike-n-fx-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/spectral-knight/dead-king-2-strike-n-fx-128.png",
+      "sha256": "e500a1db126c7746c73c176c0fbb59731467a5e2df9712e1c8b07f01569b7f6f"
+    },
+    {
+      "file": "native/dead-king-2-safe-s-fx-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-safe-s-fx-64.png",
+      "sha256": "7e459321c013684a6a68f47b10554685b456bb24ac99e1ed71186708050b0945"
+    },
+    {
+      "file": "native/dead-king-2-dark-s-fx-64.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Markers/dead-king-2-dark-s-fx-64.png",
+      "sha256": "c47b6df88231bcfef8fe1e66d2cae0360c48b03918bce17377e797c9e40246da"
+    },
+    {
+      "file": "native/dead-king-2-icon-wave-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-wave-32.png",
+      "sha256": "3aeb4f5d848d78c94447523848199bad15aa141923dff975ab6d0d57178f0f2e"
+    },
+    {
+      "file": "native/dead-king-2-icon-command-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-command-32.png",
+      "sha256": "9e3eadbe79c4b7da66f8fb628fd327d4d4197055ac4c294a259c8bbe7045acb2"
+    },
+    {
+      "file": "native/dead-king-2-icon-guard-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-guard-32.png",
+      "sha256": "df64f22c8a1d059bbe07a06e2303d3b0484372068f2196cbf9c64bd646c4480e"
+    },
+    {
+      "file": "native/dead-king-2-icon-blade-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-blade-32.png",
+      "sha256": "2c75d6d2fc1d677692cc5db2c437d4ddb0fee6fb7feef12ecaf8c298f945681e"
+    },
+    {
+      "file": "native/dead-king-2-icon-scream-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-scream-32.png",
+      "sha256": "f59565fc6b4d0b6133541e58a24c9d120da3a19863db1ddf857c8329693417af"
+    },
+    {
+      "file": "native/dead-king-2-icon-shadow-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-shadow-32.png",
+      "sha256": "0893a9d07b82aa17cdf4a91a189fd59ed00f41e066abb28290b4eb961c9ecf17"
+    },
+    {
+      "file": "native/dead-king-2-icon-knight-strike-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-knight-strike-32.png",
+      "sha256": "daa9f6884e83d1ec011a55e7b89fe092b45dcdbf4b5d103c8b4e9e1bd5fe6bd7"
+    },
+    {
+      "file": "native/dead-king-2-icon-aura-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-aura-32.png",
+      "sha256": "5b62e7be1126d0062397601ed2025cafd357d8604fad8f250a86b8312b060b5d"
+    },
+    {
+      "file": "native/dead-king-2-icon-rage-32.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Icons/dead-king-2-icon-rage-32.png",
+      "sha256": "4f7391d19eae6810041d24bb55345cb5a030d70ab5de36efdfe7eabf010bc8f2"
+    },
+    {
+      "file": "native/dead-king-transform-s-00-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-00-192.png",
+      "sha256": "9627a8624fc770b82913950edd9883dd34d8b15227b5f2a9208b397670dfce49"
+    },
+    {
+      "file": "native/dead-king-transform-s-01-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-01-192.png",
+      "sha256": "e20c5dc4422137ffb4a2e21445833cff9b98ebbe26b7242c526c9f3239e0b08b"
+    },
+    {
+      "file": "native/dead-king-transform-s-02-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-02-192.png",
+      "sha256": "b9eca8d198375e6a596d563e56eb1381eef62f9910700f5590c5103a1f393e08"
+    },
+    {
+      "file": "native/dead-king-transform-s-03-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-03-192.png",
+      "sha256": "ddd4e14a8b6344e8c7caf06d417fea3f61ef3b3a12dbf74fc87f28f0b59a3398"
+    },
+    {
+      "file": "native/dead-king-transform-s-04-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-04-192.png",
+      "sha256": "4d419f6e10ba79d7916474874aa0fbf7bdebf6cfcb4028b761566b21500d80ff"
+    },
+    {
+      "file": "native/dead-king-transform-s-05-192.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Transition/dead-king-transform-s-05-192.png",
+      "sha256": "e0abab1b5b907a3d6e2f1d3b6eae2b4a5dbd9de8898bb4ddba8c44e52de18e07"
+    },
+    {
+      "file": "native/dead-king-guard-s-128.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-guard-s-128.png",
+      "sha256": "bc414794df3ad74d072b7265d110a6e4ff58b84c46a78107402b968b85df7f0b"
+    },
+    {
+      "file": "native/dead-king-guard-s-fx-192.png",
+      "path": "Assets/Resources/Godmist/CombatPoses/dead-king/dead-king-guard-s-fx-192.png",
+      "sha256": "b402e53047b815d2a0665501dddb7c8fbc262af99e301c712bec109d236db20f"
+    },
+    {
+      "file": "native/dead-king-corpse-128.png",
+      "path": "Assets/Resources/Godmist/DeadKingArtV2/Corpses/dead-king-corpse-128.png",
+      "sha256": "c35e8a9593d5c116512cc5539508279c158689ff1002ed26eb94c308d7b2926c"
+    }
+  ]
+}

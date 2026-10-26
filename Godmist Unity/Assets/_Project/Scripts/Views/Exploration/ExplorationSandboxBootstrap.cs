@@ -6,6 +6,7 @@ using Godmist.Runtime.Game;
 using Godmist.Systems.Characters;
 using Godmist.Views.Game;
 using Godmist.Data.NPC;
+using Godmist.Data.World;
 using Godmist.Runtime.NPC;
 using Godmist.Systems.NPC;
 using Godmist.Views.NPC;
@@ -16,6 +17,7 @@ namespace Godmist.Views.Exploration
     public class ExplorationSandboxBootstrap : MonoBehaviour
     {
         [SerializeField] private ExplorationPartyController partyController;
+        [SerializeField] private bool createMissingCharacters = true;
         [SerializeField] private List<ExplorationCharacterBinding> partyBindings = new();
         [SerializeField] private List<NpcSceneBinding> npcBindings = new();
         private readonly CharacterInstanceFactory characterFactory = new();
@@ -40,7 +42,8 @@ namespace Godmist.Views.Exploration
             {
                 var character = GetOrCreateCharacter(session, binding);
 
-                if (character == null) continue;
+                if (character == null)
+                { if (binding?.CharacterView != null) binding.CharacterView.gameObject.SetActive(false); continue; }
 
                 if (!session.PlayerParty.ContainsMember(character.CharacterId))
                 {
@@ -57,7 +60,7 @@ namespace Godmist.Views.Exploration
 
             foreach (var binding in npcBindings)
             {
-                var npc = GetOrCreateNpc(session, binding);
+                var npc = GetOrCreateNpc(session, binding, gameBootstrap.ContentCatalog);
 
                 if (npc == null)
                 {
@@ -89,6 +92,8 @@ namespace Godmist.Views.Exploration
                 session.TrySetExplorationPosition(
                     partyController.ActiveLeaderTransform.position);
             }
+
+            ArungardPresentationRuntimeSetup.ApplyIfPresent(partyBindings, npcBindings);
         }
 
         private void OnDestroy()
@@ -131,6 +136,8 @@ namespace Godmist.Views.Exploration
             if (session.CharactersById
                 .TryGetValue(characterId, out var existingCharacter)) return existingCharacter;
 
+            if (!createMissingCharacters) return null;
+
             if (binding.ClassData == null)
             {
                 Debug.LogError("ExplorationSandboxBootstrap: brak CharacterClassData.");
@@ -144,7 +151,8 @@ namespace Godmist.Views.Exploration
 
         private NpcInstance GetOrCreateNpc(
             GameSession session,
-            NpcSceneBinding binding)
+            NpcSceneBinding binding,
+            GameContentCatalog catalog)
         {
             if (binding == null || binding.Definition == null || binding.NpcView == null)
             {
@@ -166,24 +174,19 @@ namespace Godmist.Views.Exploration
 
             var npc = npcFactory.Create(
                 binding.Definition,
-                GetHighestActivePartyLevel(session));
+                GetHighestRosterLevel(session),
+                catalog);
 
             return session.TryRegisterNpc(npc) ? npc : null;
         }
 
-        private static int GetHighestActivePartyLevel(GameSession session)
+        private static int GetHighestRosterLevel(GameSession session)
         {
             var highestLevel = 1;
 
-            foreach (var characterId in session.PlayerParty.ActiveMemberIds)
-            {
-                if (session.CharactersById.TryGetValue(
-                        characterId,
-                        out var character))
-                {
+            foreach (var character in session.CharactersById.Values)
+                if (character != null)
                     highestLevel = Mathf.Max(highestLevel, character.Level);
-                }
-            }
 
             return highestLevel;
         }

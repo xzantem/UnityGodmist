@@ -1,0 +1,97 @@
+{
+  "entries": [
+    {
+      "fullId": "node.mage.warlock.dispersion",
+      "slug": "dispersion",
+      "outputPng": "dispersion-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.mastery",
+      "slug": "mastery",
+      "outputPng": "mastery-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.defensive_power",
+      "slug": "defensive_power",
+      "outputPng": "defensive_power-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.superhuman_offering",
+      "slug": "superhuman_offering",
+      "outputPng": "superhuman_offering-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.magic_saving",
+      "slug": "magic_saving",
+      "outputPng": "magic_saving-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.energy_saving",
+      "slug": "energy_saving",
+      "outputPng": "energy_saving-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.calm",
+      "slug": "calm",
+      "outputPng": "calm-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.energy_sense",
+      "slug": "energy_sense",
+      "outputPng": "energy_sense-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.beyond_limits",
+      "slug": "beyond_limits",
+      "outputPng": "beyond_limits-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.master_concentration",
+      "slug": "master_concentration",
+      "outputPng": "master_concentration-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.memory",
+      "slug": "memory",
+      "outputPng": "memory-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.mass_sacrifice",
+      "slug": "mass_sacrifice",
+      "outputPng": "mass_sacrifice-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.adaptation",
+      "slug": "adaptation",
+      "outputPng": "adaptation-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.energy_discharge",
+      "slug": "energy_discharge",
+      "outputPng": "energy_discharge-32.png"
+    },
+    {
+      "fullId": "node.mage.warlock.power_saving",
+      "slug": "power_saving",
+      "outputPng": "power_saving-32.png"
+    }
+  ],
+  "format": "godmist.passive-icons-review.v1",
+  "tree": {
+    "fullId": "tree.mage.warlock",
+    "name": "Czarnoksiężnik"
+  },
+  "scope": {
+    "entryCount": 15,
+    "productionScope": "review-only",
+    "sourcePolicy": "ImageGen source/raw/{slug}-source-raw.png; full canvas is sampled without crop",
+    "excludedGrantedSkillNodes": [
+      "node.mage.warlock.offering",
+      "node.mage.warlock.magic_focus",
+      "node.mage.warlock.sacrifice",
+      "node.mage.warlock.energy_split",
+      "node.mage.warlock.ritual"
+    ],
+    "activeSkillReuse": "Excluded from this passive review; reuse existing active skill icons in a future pass."
+  }
+}

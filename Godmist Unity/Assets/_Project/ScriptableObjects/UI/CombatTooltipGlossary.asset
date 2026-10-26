@@ -14,142 +14,763 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views:Godmist.Views.UI:CombatTooltipGlossary
   entries:
   - Id: bleed
-    Icon: {fileID: -8977030866347272107, guid: cc446a5296d6e834ba4a2ebd9e754059, type: 3}
+    Icon: {fileID: 21300000, guid: be96840310fe8dc429c95a429c88e540, type: 3}
     Title: Krwawienie
     Aliases: []
-    Description: Krwawienie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+    Description: "Zadaje obra\u017Cenia na pocz\u0105tku ka\u017Cdej tury."
   - Id: poison
-    Icon: {fileID: -1962003045453014807, guid: 8febb3fcc11f718498e6a79a1fadfaec, type: 3}
+    Icon: {fileID: 21300000, guid: 8dbe88f29229e3542b4b0ee9850e1345, type: 3}
     Title: Zatrucie
     Aliases: []
-    Description: Zatrucie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+    Description: "Zadaje obra\u017Cenia na pocz\u0105tku ka\u017Cdej tury."
   - Id: burn
-    Icon: {fileID: 9206062532604854254, guid: 9838a85236ad74e4d86db72a9ace7f6c, type: 3}
-    Title: Płonięcie
+    Icon: {fileID: 21300000, guid: 8bdc5f27e1af8f742be172b2424838fb, type: 3}
+    Title: "P\u0142oni\u0119cie"
     Aliases: []
-    Description: Płonięcie to efekt statusu, który zadaje obrażenia na początku każdej tury.
+    Description: "Zadaje obra\u017Cenia na pocz\u0105tku ka\u017Cdej tury."
   - Id: stun
-    Icon: {fileID: -1841844980337568747, guid: 53d61e6c06482264989a77a73a2b3fac, type: 3}
-    Title: Ogłuszenie
+    Icon: {fileID: 21300000, guid: 1a992472121ad4c449d67bffc9e24301, type: 3}
+    Title: "Og\u0142uszenie"
     Aliases: []
-    Description: Ogłuszona jednostka nie może wykonywać akcji ani ruchu podczas swojej tury.
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107."
   - Id: immobilize
-    Icon: {fileID: 8035106746801144967, guid: 33835a7c4fca6ed45912ef422d5652f8, type: 3}
+    Icon: {fileID: 21300000, guid: 0af145c2bbf721348982fe900e05669a, type: 3}
     Title: Unieruchomienie
     Aliases: []
-    Description: Unieruchomiona jednostka nie może się poruszać ani teleportować, ale nadal może wykonywać inne akcje.
+    Description: "Nie mo\u017Ce si\u0119 porusza\u0107 ani u\u017Cywa\u0107 umiej\u0119tno\u015Bci
+      przemieszczaj\u0105cych."
   - Id: sleep
-    Icon: {fileID: -7687043325529549478, guid: 1fab65309337c674ebea421dd7638472, type: 3}
+    Icon: {fileID: 21300000, guid: 11d81cea021ca2d41be4ba7ee887463d, type: 3}
     Title: Sen
     Aliases: []
-    Description: Śpiąca jednostka nie używa akcji. Poruszenie jej budzi ją ze snu.
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji. Ruch budzi posta\u0107 i ko\u0144czy
+      ten efekt."
   - Id: freeze
-    Icon: {fileID: 3924247579675412406, guid: b2a30de09579cff4296cf6ee8b07c9f3, type: 3}
-    Title: Zamrożenie
+    Icon: {fileID: 21300000, guid: e587759a6dde5654e839509295caea53, type: 3}
+    Title: "Zamro\u017Cenie"
     Aliases: []
-    Description: Zamrożona jednostka nie wykonuje akcji. Pierwsze trafienie zdejmuje Zamrożenie i zadaje większe obrażenia.
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107.
+      Pierwszy bezpo\u015Bredni cios przerywa zamro\u017Cenie i otrzymuje bazowo
+      +50% obra\u017Ce\u0144 za ka\u017Cd\u0105 pozosta\u0142\u0105 tur\u0119 zamro\u017Cenia."
   - Id: paralysis
-    Icon: {fileID: -5169877425815873276, guid: 787b26a5a1df78b45ba9a33bfe0a9d2c, type: 3}
-    Title: Paraliż
+    Icon: {fileID: 21300000, guid: 798670bbcf360b04cbc906adc932cc65, type: 3}
+    Title: "Parali\u017C"
     Aliases: []
-    Description: Sparaliżowana jednostka nie może działać ani się poruszać. Nie otrzymuje również obrażeń.
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107.
+      Nie mo\u017Ce by\u0107 celem umiej\u0119tno\u015Bci i nie otrzymuje obra\u017Ce\u0144."
   - Id: chill
     Icon: {fileID: 8878405948326257296, guid: 8cd14814c75b4d04ba4326c557962c40, type: 3}
-    Title: Oziębienie
+    Title: "Ozi\u0119bienie"
     Aliases: []
-    Description: Oziębienie ogranicza szybkość jednostki. Wolniejsze jednostki później dochodzą do swojej tury.
+    Description: "Ogranicza szybko\u015B\u0107 do 20, je\u015Bli by\u0142a wy\u017Csza.
+      Wp\u0142ywa przez to zar\xF3wno na cz\u0119stotliwo\u015B\u0107 tur, jak i
+      pul\u0119 AP."
   - Id: taunt
     Icon: {fileID: 9221536177141706121, guid: 8309f9247a66f9446beb99da21065710, type: 3}
     Title: Prowokacja
     Aliases: []
-    Description: Sprowokowana jednostka musi wybierać prowokującego przeciwnika jako cel, jeśli umiejętność na to pozwala.
+    Description: "Umiej\u0119tno\u015Bci ofensywne mog\u0105 celowa\u0107 wy\u0142\u0105cznie
+      w posta\u0107, kt\xF3ra na\u0142o\u017Cy\u0142a Prowokacj\u0119."
   - Id: regeneration
     Icon: {fileID: 3811811448232223554, guid: 5a1017da506026c42a88947b9fe1e6b7, type: 3}
-    Title: Regeneracja
-    Aliases: []
-    Description: Regeneracja przywraca jednostce zdrowie, jeśli efekt ma przypisaną wartość leczenia.
+    Title: Regeneracja zdrowia
+    Aliases:
+    - regeneracja
+    - regeneracji zdrowia
+    Description: "Efekt przywracaj\u0105cy zdrowie na ko\u0144cu w\u0142asnej tury.
+      To inna mechanika ni\u017C regeneracja many lub generowanie furii i impetu."
   - Id: invisibility
-    Icon: {fileID: -1149020217273240737, guid: 6826eed0b64508847a92332e21376d49, type: 3}
-    Title: Niewidzialność
+    Icon: {fileID: 21300000, guid: e83090966fae7cb45b74101c69bf35d1, type: 3}
+    Title: "Niewidzialno\u015B\u0107"
     Aliases: []
-    Description: Niewidzialna jednostka nie może być wybrana jako cel przez wrogie umiejętności.
+    Description: "Ukryta przed wrogami. Nie mo\u017Ce by\u0107 bezpo\u015Brednio
+      wybrana ani obj\u0119ta automatycznym obszarowym celowaniem. Efekty kierowane
+      w teren nadal mog\u0105 j\u0105 trafi\u0107."
   - Id: counterattack
     Icon: {fileID: 7794683972811129947, guid: 00a085e03d4f462488322d5ff202e226, type: 3}
     Title: Kontratak
     Aliases: []
-    Description: Gdy przeciwnik zaatakuje jednostkę będącą w zasięgu, odpowiada ona własną akcją przeciw temu celowi.
+    Description: Wykonuje kontratak po ataku przeciwnika.
   - Id: status-effect
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Efekt statusu
-    Aliases: [efekt statusu, efektu statusu, efekty statusu, efektów statusu]
-    Description: Tymczasowy stan jednostki. Może być korzystnym wzmocnieniem albo szkodliwym osłabieniem. Ikona pokazuje pozostałe tury, a czasem także stosy.
+    Aliases:
+    - efekt statusu
+    - efektu statusu
+    - efekty statusu
+    - "efekt\xF3w statusu"
+    Description: "Tymczasowy stan jednostki. Mo\u017Ce by\u0107 korzystnym wzmocnieniem
+      albo szkodliwym os\u0142abieniem."
   - Id: turn
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Tura
-    Aliases: [tura, tury, turze, turę, tur]
-    Description: Kolej jednostki na działanie. W turze można wykonywać akcje; na jej początku i końcu mogą uruchomić się efekty statusu.
+    Aliases:
+    - tura
+    - tury
+    - turze
+    - "tur\u0119"
+    - tur
+    Description: "Kolej jednostki na dzia\u0142anie. Efekty statusu mog\u0105 uruchamia\u0107
+      si\u0119 na pocz\u0105tku lub ko\u0144cu tury."
   - Id: damage
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
-    Title: Obrażenia
-    Aliases: [obrażenia, obrażeń, obrażeniami]
-    Description: Zmniejszają zdrowie celu. Najpierw są pochłaniane przez tarczę, jeśli cel ją ma.
+    Title: "Obra\u017Cenia"
+    Aliases:
+    - "obra\u017Cenia"
+    - "obra\u017Ce\u0144"
+    - "obra\u017Ceniami"
+    Description: "Zmniejszaj\u0105 zdrowie celu. Tarcza poch\u0142ania obra\u017Cenia,
+      je\u015Bli cel j\u0105 ma."
   - Id: action
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Akcja
-    Aliases: [akcja, akcji, akcje, akcję, akcją]
-    Description: Działanie wykonywane przez jednostkę podczas tury, na przykład ruch albo użycie umiejętności. Zwykle kosztuje Punkty Akcji.
+    Aliases:
+    - akcja
+    - akcji
+    - akcje
+    - "akcj\u0119"
+    - "akcj\u0105"
+    Description: "Dzia\u0142anie wykonywane przez jednostk\u0119 podczas tury, na
+      przyk\u0142ad ruch albo u\u017Cycie umiej\u0119tno\u015Bci."
   - Id: movement
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Ruch
-    Aliases: [ruch, ruchu]
-    Description: Zmiana pola zajmowanego przez jednostkę. Ruch jest akcją i zwykle kosztuje Punkty Akcji.
+    Aliases:
+    - ruch
+    - ruchu
+    - ruchem
+    Description: "Zmiana pola zajmowanego przez jednostk\u0119. Ruch jest akcj\u0105."
   - Id: shield
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Tarcza
-    Aliases: [tarcza, tarczy, tarczę, tarczą]
-    Description: Dodatkowa ochrona jednostki. Pochłania obrażenia, zanim zmniejszą one zdrowie.
+    Aliases:
+    - tarcza
+    - tarczy
+    - "tarcz\u0119"
+    - "tarcz\u0105"
+    Description: "Poch\u0142ania obra\u017Cenia przed zdrowiem. Mo\u017Ce sk\u0142ada\u0107
+      si\u0119 z warstw o r\xF3\u017Cnych \u017Ar\xF3d\u0142ach i czasach trwania;
+      ponowne u\u017Cycie tego samego skilla mo\u017Ce zast\u0105pi\u0107 jego warstw\u0119
+      zamiast dodawa\u0107 kolejn\u0105."
   - Id: ap
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Punkty Akcji
-    Aliases: [Punkty Akcji, Punktów Akcji]
-    Description: Punkty wydawane przez jednostkę na akcje. Nie są tym samym co Energia.
+    Aliases:
+    - Punkty Akcji
+    - "Punkt\xF3w Akcji"
+    - "punkt\xF3w akcji"
+    - AP
+    Description: "Bud\u017Cet w\u0142asnej tury, odnawiany na jej pocz\u0105tku.
+      Maksymalna pula zale\u017Cy od szybko\u015Bci. Koszt skilla podany w % AP odnosi
+      si\u0119 do maksymalnej puli, nie do pozosta\u0142ych AP. Ruch tak\u017Ce zu\u017Cywa
+      AP. Niewydane AP wp\u0142ywaj\u0105 na naturaln\u0105 regeneracj\u0119 many
+      bohater\xF3w."
   - Id: energy
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Energia
-    Aliases: [energia, energii, energię, energią]
-    Description: Klasowy zasób zużywany przez niektóre umiejętności. Energia i Punkty Akcji są niezależne.
+    Aliases:
+    - energia
+    - energii
+    - "energi\u0119"
+    - "energi\u0105"
+    Description: "Niezale\u017Cny od Punkt\xF3w Akcji zas\xF3b u\u017Cywany przez
+      niekt\xF3re umiej\u0119tno\u015Bci."
   - Id: duration
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Czas trwania
-    Aliases: [czas trwania, czasu trwania]
-    Description: Liczba tur, przez które efekt statusu pozostanie aktywny.
+    Aliases:
+    - czas trwania
+    - czasu trwania
+    Description: "Liczony wed\u0142ug w\u0142asnych tur jednostki maj\u0105cej efekt,
+      nie wsp\xF3lnej rundy wszystkich postaci. Obra\u017Cenia okresowe zwykle dzia\u0142aj\u0105
+      na pocz\u0105tku, a leczenie okresowe na ko\u0144cu tury. Podczas powalenia
+      czas efekt\xF3w nadal up\u0142ywa bez wykonywania ich tick\xF3w."
   - Id: stacks
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Stosy
-    Aliases: [stosy, stosów]
-    Description: Liczba nałożeń tego samego efektu statusu. Zależnie od efektu stosy zwiększają jego siłę albo łączną wartość.
+    Aliases:
+    - stosy
+    - "stos\xF3w"
+    - stos
+    Description: "Liczba na\u0142o\u017Ce\u0144 lub \u0142adunk\xF3w efektu. Nie
+      ka\u017Cdy status sumuje si\u0119 tak samo: zale\u017Cnie od efektu kolejne
+      na\u0142o\u017Cenie od\u015Bwie\u017Ca czas, \u0142\u0105czy obra\u017Cenia
+      albo tworzy niezale\u017Cny efekt. Zgrupowana ikona DoT mo\u017Ce przedstawia\u0107
+      kilka efekt\xF3w o r\xF3\u017Cnych pozosta\u0142ych czasach."
   - Id: buff
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Wzmocnienie
-    Aliases: [wzmocnienie, wzmocnieniem, wzmocnienia]
-    Description: Korzystny efekt statusu działający na jednostkę.
+    Aliases:
+    - wzmocnienie
+    - wzmocnieniem
+    - wzmocnienia
+    Description: "Korzystny efekt statusu dzia\u0142aj\u0105cy na jednostk\u0119."
   - Id: debuff
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
-    Title: Osłabienie
-    Aliases: [osłabienie, osłabieniem, osłabienia]
-    Description: Szkodliwy efekt statusu działający na jednostkę.
+    Title: "Os\u0142abienie"
+    Aliases:
+    - "os\u0142abienie"
+    - "os\u0142abieniem"
+    - "os\u0142abienia"
+    Description: "Szkodliwy efekt statusu dzia\u0142aj\u0105cy na jednostk\u0119."
   - Id: target
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Cel
-    Aliases: [cel, celu, celem]
-    Description: Jednostka lub obiekt wybrany przez akcję.
+    Aliases:
+    - cel
+    - celu
+    - celem
+    Description: "Jednostka lub obiekt wybrany przez akcj\u0119."
   - Id: unit
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Jednostka
-    Aliases: [jednostka, jednostki, jednostce, jednostkę, jednostką, jednostek]
-    Description: Każda postać albo przeciwnik na polu walki. Jednostka ma zdrowie, wykonuje tury i może otrzymywać efekty statusu.
+    Aliases:
+    - jednostka
+    - jednostki
+    - jednostce
+    - "jednostk\u0119"
+    - "jednostk\u0105"
+    - jednostek
+    Description: "Ka\u017Cda posta\u0107 albo przeciwnik na polu walki."
   - Id: health
     Icon: {fileID: -3363477124987820856, guid: ca60009161b5c514f9fc1a7305b9c663, type: 3}
     Title: Zdrowie
-    Aliases: [zdrowie, zdrowia, zdrowiu, zdrowiem]
-    Description: Gdy zdrowie jednostki spadnie do zera, zostaje ona pokonana. Tarcza pochłania obrażenia przed zdrowiem.
+    Aliases:
+    - zdrowie
+    - zdrowia
+    - zdrowiu
+    - zdrowiem
+    - HP
+    Description: "Obra\u017Cenia najpierw poch\u0142ania tarcza. Przy 0 HP bohater
+      zostaje powalony; powalenie i \u015Bmier\u0107 to r\xF3\u017Cne stany."
+  - Id: paladin.holy_regeneration
+    Icon: {fileID: 21300000, guid: 4dc56fff5c34ee8458f2d5582359883e, type: 3}
+    Title: "\u015Awi\u0119ta Regeneracja"
+    Aliases: []
+    Description: Okresowo przywraca zdrowie przez czas trwania efektu.
+  - Id: paladin.blessing
+    Icon: {fileID: 21300000, guid: e984c0658a356f6438dc241cc4594f7b, type: 3}
+    Title: "B\u0142ogos\u0142awie\u0144stwo"
+    Aliases: []
+    Description: "Zwi\u0119ksza zadawane i ogranicza otrzymywane obra\u017Cenia."
+  - Id: warrior.order
+    Icon: {fileID: 21300000, guid: 7a7a7b0d936402646be9d749768abd77, type: 3}
+    Title: Rozkaz Unicestwienia
+    Aliases: []
+    Description: "Zwi\u0119ksza podatno\u015B\u0107 oznaczonego celu na obra\u017Cenia."
+  - Id: warrior.protection
+    Icon: {fileID: 21300000, guid: 5cc1c3de4f737774bb1fe5f5a91546b3, type: 3}
+    Title: Rozkaz Ochrony
+    Aliases: []
+    Description: "Ogranicza otrzymywane obra\u017Cenia."
+  - Id: warrior.trauma
+    Icon: {fileID: 21300000, guid: 71777197f47b62a4292be7b0cf597037, type: 3}
+    Title: Trauma
+    Aliases: []
+    Description: "Zwi\u0119ksza obra\u017Cenia okresowe otrzymywane przez cel."
+  - Id: warrior.strategy
+    Icon: {fileID: 21300000, guid: 6961de730d2efea4caa456e625b9e0b7, type: 3}
+    Title: Strategia
+    Aliases: []
+    Description: "Umo\u017Cliwia wykonanie darmowych krok\xF3w."
+  - Id: scout.anger
+    Icon: {fileID: 21300000, guid: 4e1b9794c5efc1b498f9993edb8cfb81, type: 3}
+    Title: "Z\u0142o\u015B\u0107"
+    Aliases: []
+    Description: "Z\u0142o\u015B\u0107 zwiadowcy narasta przeciwko oznaczonemu celowi."
+  - Id: scout.weak_point
+    Icon: {fileID: 21300000, guid: 5c49e2c7794ba9a4bb88b4207a2c869e, type: 3}
+    Title: "S\u0142aby Punkt"
+    Aliases: []
+    Description: "Zwi\u0119ksza podatno\u015B\u0107 celu na trafienia krytyczne."
+  - Id: scout.embedded_knives
+    Icon: {fileID: 21300000, guid: 5979edb259dcdd04ba16acbe2ace332f, type: 3}
+    Title: Wbite sztylety
+    Aliases: []
+    Description: "Sztylety wbite w cel; liczba stos\xF3w oznacza ich liczb\u0119."
+  - Id: scout.analysis
+    Icon: {fileID: 21300000, guid: 3d6c9dc6ee888184b8ab3587f61d4ac9, type: 3}
+    Title: "Dog\u0142\u0119bna Analiza"
+    Aliases: []
+    Description: "Zwi\u0119ksza penetracj\u0119 dzi\u0119ki analizie przeciwnika."
+  - Id: weakening
+    Icon: {fileID: 21300000, guid: 1568935c917d0f340bf672f444aa5441, type: 3}
+    Title: "Os\u0142abienie"
+    Aliases: []
+    Description: "Zmniejsza zadawane obra\u017Cenia."
+  - Id: status.forest.demonic_plague
+    Icon: {fileID: 21300000, guid: 9dbe3fb46a2603240aeda85a6325c4d4, type: 3}
+    Title: Demoniczna Zaraza
+    Aliases: []
+    Description: "W fazie II obra\u017Cenia enta nak\u0142adaj\u0105 zaraz\u0119,
+      maksymalnie 5 stos\xF3w. Na pocz\u0105tku w\u0142asnej tury celu ka\u017Cdy
+      stos zadaje 0,5% jego maksymalnego HP jako obra\u017Cenia bezpo\u015Brednie
+      i odnawia entowi 0,5 many; u\u0142amki many s\u0105 zachowywane. Znika po zako\u0144czeniu
+      dzia\u0142ania \u017Ar\xF3d\u0142a."
+  - Id: forest.rotten_aura
+    Icon: {fileID: 21300000, guid: c3391b2ee0f43f64b9b1207f790af6dd, type: 3}
+    Title: "Zgni\u0142a Aura"
+    Aliases: []
+    Description: "Na pocz\u0105tku w\u0142asnej tury ent pr\xF3buje zatru\u0107 przeciwnik\xF3w
+      do 3 p\xF3l od siebie na tym samym poziomie. Bazowa szansa wynosi 50%; odporno\u015B\u0107
+      celu mo\u017Ce j\u0105 zmieni\u0107."
+  - Id: forest.demonic_plague
+    Icon: {fileID: 21300000, guid: 32424fc98199dcf41afecb54f8542f63, type: 3}
+    Title: Demoniczna Zaraza
+    Aliases: []
+    Description: "W fazie II ent nak\u0142ada stosy Demonicznej Zarazy swoimi obra\u017Ceniami.
+      Do 5 stos\xF3w; ka\u017Cdy zadaje 0,5% maksymalnego HP celu na pocz\u0105tku
+      jego tury i odnawia entowi 0,5 many."
+  - Id: catacombs.dead_king.despair
+    Icon: {fileID: 21300000, guid: 5adf94cc092e9c74cbedcabcf7ea9026, type: 3}
+    Title: Aura Rozpaczy
+    Aliases: []
+    Description: "W fazie I Kr\xF3l i jego sojusznicy otrzymuj\u0105 o 25% mniej
+      obra\u017Ce\u0144 od atak\xF3w dystansowych."
+  - Id: catacombs.dead_king.rage
+    Icon: {fileID: 21300000, guid: c31ad38bac41c904b9c9a0db54fac067, type: 3}
+    Title: "Widmowy Sza\u0142"
+    Aliases: []
+    Description: "W fazie II Kr\xF3l zadaje o 30% wi\u0119cej obra\u017Ce\u0144 i
+      otrzymuje o 50% wi\u0119cej obra\u017Ce\u0144."
+  - Id: catacombs.skeleton_slayer.armor
+    Icon: {fileID: 21300000, guid: ce9c1e4e83b824e43a6da2d48383e31d, type: 3}
+    Title: "Ko\u015Bciana Zbroja"
+    Aliases: []
+    Description: "Ogranicza otrzymywane obra\u017Cenia fizyczne o 35%."
+  - Id: catacombs.skeleton_slayer.revenge
+    Icon: {fileID: 21300000, guid: c7c771b14c4feba46b78ca02e805b802, type: 3}
+    Title: "Zemsta Zab\xF3jcy"
+    Aliases: []
+    Description: "Ka\u017Cde otrzymane obra\u017Cenia zwi\u0119kszaj\u0105 regeneracj\u0119
+      AP o 3%, do 160% podstawowego limitu."
+  - Id: catacombs.skeleton_slayer.defense
+    Icon: {fileID: 21300000, guid: 971731a9d93af744887cad487fae7d38, type: 3}
+    Title: "Nieugi\u0119ta Obrona"
+    Aliases: []
+    Description: "Ogranicza otrzymywane obra\u017Cenia o 50% i gromadzi obra\u017Cenia
+      przed obron\u0105 na nast\u0119pny atak. Brak obra\u017Ce\u0144 powoduje og\u0142uszenie
+      na 2 tury."
+  - Id: catacombs.skeleton_slayer.hammer
+    Icon: {fileID: 21300000, guid: 7e61fa3be6ceeb04d8e1bc97e81efc80, type: 3}
+    Title: "M\u0142ot Zniszczenia"
+    Aliases: []
+    Description: "Po przygotowaniu wykonuje 5 trafie\u0144 we wrog\xF3w na Polu Impetu,
+      ignoruj\u0105c obron\u0119. Otrzymanie 10% maksymalnego HP obra\u017Ce\u0144
+      przerywa przygotowanie."
+  - Id: catacombs.skeleton_slayer.retaliation
+    Icon: {fileID: 21300000, guid: 971731a9d93af744887cad487fae7d38, type: 3}
+    Title: Odwet
+    Aliases: []
+    Description: "Nast\u0119pny atak zadaje dodatkowe obra\u017Cenia zgromadzone
+      przez Nieugi\u0119t\u0105 Obron\u0119."
+  - Id: forest.bandit_leader.hidden_hand
+    Icon: {fileID: 21300000, guid: 4a0e9fe8376d1a746a8887398cc6a716, type: 3}
+    Title: "Niewidzialna R\u0119ka"
+    Aliases: []
+    Description: "Sta\u0142a niewidzialno\u015B\u0107 w fazie I. Pokonanie obstawy
+      przygotowuje faz\u0119 II na w\u0142asn\u0105 tur\u0119; pu\u0142apki dow\xF3dcy
+      wtedy detonuj\u0105."
+  - Id: forest.bandit_leader.commander
+    Icon: {fileID: 21300000, guid: bf9ef9df5d1a5d84989d1c3e88b37a53, type: 3}
+    Title: "Nieugi\u0119ty Dow\xF3dca"
+    Aliases: []
+    Description: "Na pocz\u0105tku w\u0142asnej tury, je\u015Bli od poprzedniej straci\u0142
+      mniej ni\u017C 20% maksymalnego HP, regeneruje 10% maksymalnego HP i uzyskuje
+      niewidzialno\u015B\u0107."
+  - Id: slow
+    Icon: {fileID: 0}
+    Title: Spowolnienie
+    Aliases:
+    - spowolnienie
+    - spowolnienia
+    - spowolnieniem
+    Description: "Zmniejsza szybko\u015B\u0107 o 20%."
+  - Id: mana
+    Icon: {fileID: 0}
+    Title: Mana
+    Aliases:
+    - mana
+    - many
+    - "man\u0119"
+    - "man\u0105"
+    Description: "Zas\xF3b maga, paladyna i cz\u0119\u015Bci przeciwnik\xF3w. Bohaterowie
+      odzyskuj\u0105 naturaln\u0105 man\u0119 na ko\u0144cu w\u0142asnej tury: 100%/50%/0%
+      AP daje odpowiednio 200%/100%/25% regeneracji. Pomi\u0119dzy tymi progami odzysk
+      ro\u015Bnie liniowo. NPC i przywo\u0142ania sterowane przez AI odzyskuj\u0105
+      zwyk\u0142\u0105 regeneracj\u0119 na pocz\u0105tku tury. Poza walk\u0105 mana
+      nie odnawia si\u0119 automatycznie. Mikstury i odpoczynek w obozie nadal j\u0105
+      przywracaj\u0105. Bezpo\u015Bredni odzysk ze skilli i odr\u0119bne efekty EQ
+      nie korzystaj\u0105 z mno\u017Cnika AP."
+  - Id: rage
+    Icon: {fileID: 0}
+    Title: Furia
+    Aliases:
+    - furia
+    - furii
+    - "furi\u0119"
+    - "furi\u0105"
+    Description: "Bazowo +10 za u\u017Cycie ofensywnej umiej\u0119tno\u015Bci zadaj\u0105cej
+      obra\u017Cenia bezpo\u015Brednie lub okresowe, tak\u017Ce przy pudle, raz za
+      u\u017Cycie niezale\u017Cnie od liczby cel\xF3w i trafie\u0144; kolejne ticki
+      nie generuj\u0105 furii. Wy\u0142adowanie nie generuje bazowej furii. Pierwsza
+      pe\u0142na w\u0142asna tura bez ofensywy nie powoduje straty; na ko\u0144cu
+      drugiej i ka\u017Cdej kolejnej traci 10. Ka\u017Cda akcja ofensywna resetuje
+      licznik, r\xF3wnie\u017C samo odepchni\u0119cie, og\u0142uszenie lub os\u0142abienie
+      bez obra\u017Ce\u0144. Tura odebrana przez og\u0142uszenie, zamro\u017Cenie,
+      parali\u017C lub sen nie zwi\u0119ksza licznika. Dotyczy to te\u017C unieruchomienia,
+      je\u015Bli nie by\u0142o dost\u0119pnego ataku na przeciwnika. Poza walk\u0105
+      traci 10 co 6 sekund. Brak zwyk\u0142ej pasywnej regeneracji jak przy manie."
+  - Id: momentum
+    Icon: {fileID: 0}
+    Title: Impet
+    Aliases:
+    - impet
+    - impetu
+    - impetem
+    - stamina
+    - staminy
+    Description: "Ruch daje kolejno +2, +4, +6 impetu i o 2 wi\u0119cej za ka\u017Cd\u0105
+      nast\u0119pn\u0105 kratk\u0119, niezale\u017Cnie od kosztu AP. W walce seria
+      zaczyna si\u0119 od nowa w ka\u017Cdej turze; tura bez ruchu odbiera 10 impetu.
+      Poza walk\u0105 mo\u017Cna zgromadzi\u0107 maksymalnie 50 impetu. Ka\u017Cde
+      6 sekund bez ruchu odbiera 10 impetu i resetuje seri\u0119. Ponad 100 impetu
+      generacja z ruchu dzia\u0142a z po\u0142ow\u0105 wydajno\u015Bci. Ka\u017Cde
+      pe\u0142ne 25 impetu ponad 100 daje +4 szybko\u015Bci. Udany odzysk sztylet\xF3w
+      daje dodatkowo +8, raz za odzysk niezale\u017Cnie od liczby sztylet\xF3w."
+  - Id: damage.physical
+    Icon: {fileID: 0}
+    Title: "Obra\u017Cenia fizyczne"
+    Aliases:
+    - "obra\u017Cenia fizyczne"
+    - "obra\u017Ce\u0144 fizycznych"
+    - "obra\u017Ceniami fizycznymi"
+    Description: "Zwykle wymagaj\u0105 testu trafienia z celno\u015Bci broni, celno\u015Bci
+      skilla i uniku celu. Po trafieniu obra\u017Cenia ogranicza obrona fizyczna.
+      Efekt mo\u017Ce ignorowa\u0107 obron\u0119 fizyczn\u0105."
+  - Id: damage.magical
+    Icon: {fileID: 0}
+    Title: "Obra\u017Cenia magiczne"
+    Aliases:
+    - "obra\u017Cenia magiczne"
+    - "obra\u017Ce\u0144 magicznych"
+    - "obra\u017Ceniami magicznymi"
+    Description: "Nie korzystaj\u0105 ze zwyk\u0142ego testu celno\u015Bci fizycznej
+      i uniku. Podlegaj\u0105 obronie magicznej, chyba \u017Ce efekt j\u0105 ignoruje.
+      Szansa na do\u0142\u0105czony status jest rozpatrywana osobno."
+  - Id: speed
+    Icon: {fileID: 0}
+    Title: "Szybko\u015B\u0107"
+    Aliases:
+    - "szybko\u015B\u0107"
+    - "szybko\u015Bci"
+    - "szybko\u015Bci\u0105"
+    Description: "Wp\u0142ywa na cz\u0119stotliwo\u015B\u0107 w\u0142asnych tur i
+      maksymaln\u0105 pul\u0119 AP. Wi\u0119ksza szybko\u015B\u0107 oznacza cz\u0119stsze
+      dzia\u0142anie, nie tylko wcze\u015Bniejsze miejsce w kolejce. Bazowy odst\u0119p
+      tur to AV / szybko\u015B\u0107; maksymalne AP wynosz\u0105 bazowo 0,25 \xD7
+      szybko\u015B\u0107, przed dodatkowymi modyfikatorami."
+  - Id: armor
+    Icon: {fileID: 0}
+    Title: Pancerz
+    Aliases:
+    - pancerz
+    - pancerza
+    - pancerzem
+    Description: "Pancerz opisuje ochron\u0119 wynikaj\u0105c\u0105 z obrony fizycznej
+      lub magicznej."
+  - Id: defense.physical
+    Icon: {fileID: 0}
+    Title: Obrona fizyczna
+    Aliases:
+    - obrona fizyczna
+    - obrony fizycznej
+    - "obron\u0119 fizyczn\u0105"
+    Description: "Zmniejsza obra\u017Cenia fizyczne wed\u0142ug zale\u017Cno\u015Bci:
+      obra\u017Cenia\xB2 / (obra\u017Cenia + skuteczna obrona). 100 obrony nie oznacza
+      100% redukcji. Wi\u0119ksze pojedyncze uderzenia przebijaj\u0105 t\u0119 sam\u0105
+      obron\u0119 skuteczniej."
+  - Id: defense.magical
+    Icon: {fileID: 0}
+    Title: Obrona magiczna
+    Aliases:
+    - obrona magiczna
+    - obrony magicznej
+    - "obron\u0119 magiczn\u0105"
+    Description: "Zmniejsza obra\u017Cenia magiczne wed\u0142ug zale\u017Cno\u015Bci:
+      obra\u017Cenia\xB2 / (obra\u017Cenia + skuteczna obrona). Jest niezale\u017Cna
+      od obrony fizycznej. Nie jest odporno\u015Bci\u0105 na statusy ani DoT."
+  - Id: resistance
+    Icon: {fileID: 0}
+    Title: "Odporno\u015B\u0107"
+    Aliases:
+    - "odporno\u015B\u0107"
+    - "odporno\u015Bci"
+    - "odporno\u015B\u0107 na"
+    Description: "Rodzaje odporno\u015Bci maj\u0105 r\xF3\u017Cne zastosowania. Odporno\u015B\u0107
+      na kontrol\u0119 wp\u0142ywa na szans\u0119 status\xF3w kontroli. Odporno\u015Bci
+      na krwawienie, zatrucie i ogie\u0144 wp\u0142ywaj\u0105 r\xF3wnie\u017C na
+      obra\u017Cenia odpowiednich DoT. Obrona fizyczna i magiczna to odr\u0119bne
+      statystyki. Zale\u017Cno\u015Bci nie s\u0105 prostym odj\u0119ciem procent\xF3w
+      od szansy skilla."
+  - Id: control
+    Icon: {fileID: 0}
+    Title: Kontrola
+    Aliases:
+    - kontrola
+    - "kontrol\u0119"
+    - kontroli
+    Description: "Og\u0142uszenie, zamro\u017Cenie, sen, parali\u017C, unieruchomienie,
+      ozi\u0119bienie i prowokacja. Odporno\u015B\u0107 na kontrol\u0119 zmienia
+      szans\u0119 ich na\u0142o\u017Cenia. Statusy kontroli korzystaj\u0105 ze wsp\xF3lnej
+      tolerancji, wi\u0119c zmiana og\u0142uszenia na inny rodzaj kontroli nie omija
+      jej."
+  - Id: penetration
+    Icon: {fileID: 0}
+    Title: Penetracja
+    Aliases:
+    - penetracja
+    - penetracji
+    - przebicie
+    - przebicia
+    Description: "Ogranicza skuteczn\u0105 obron\u0119: obrona / (1 + penetracja).
+      Przyk\u0142ad: +100% penetracji zmniejsza obron\u0119 do po\u0142owy, nie ignoruje
+      jej ca\u0142kowicie. Efekt ignoruj\u0105cy obron\u0119 jest odr\u0119bn\u0105
+      mechanik\u0105."
+  - Id: critical
+    Icon: {fileID: 0}
+    Title: Trafienie krytyczne
+    Aliases:
+    - trafienie krytyczne
+    - trafienia krytyczne
+    - krytycznie
+    - krytyczny
+    Description: "Trafienie krytyczne zadaje zwi\u0119kszone obra\u017Cenia zgodnie
+      ze statystyk\u0105 Obra\u017Cenia krytyczne."
+  - Id: crit-chance
+    Icon: {fileID: 0}
+    Title: Szansa krytyczna
+    Aliases:
+    - szansa krytyczna
+    - szansy krytycznej
+    - "szans\u0119 krytyczn\u0105"
+    Description: "Szansa krytyczna okre\u015Bla mo\u017Cliwo\u015B\u0107 wykonania
+      trafienia krytycznego."
+  - Id: crit-damage
+    Icon: {fileID: 0}
+    Title: "Obra\u017Cenia krytyczne"
+    Aliases:
+    - "obra\u017Cenia krytyczne"
+    - "obra\u017Ce\u0144 krytycznych"
+    Description: "Mno\u017Cnik obra\u017Ce\u0144 po trafieniu krytycznym. Warto\u015B\u0107
+      \xD71,5 oznacza 150% zwyk\u0142ych obra\u017Ce\u0144, czyli premi\u0119 +50%,
+      a nie +150%."
+  - Id: dodge
+    Icon: {fileID: 0}
+    Title: Unik
+    Aliases:
+    - unik
+    - uniku
+    - uniki
+    - "unik\xF3w"
+    Description: "Zmniejsza szans\u0119 zwyk\u0142ego trafienia fizycznego w zale\u017Cno\u015Bci
+      od celno\u015Bci napastnika. 20 uniku nie oznacza sta\u0142ej 20% szansy unikni\u0119cia
+      ka\u017Cdego ataku. Zwyk\u0142y unik nie chroni przed obra\u017Ceniami magicznymi."
+  - Id: accuracy
+    Icon: {fileID: 0}
+    Title: "Celno\u015B\u0107"
+    Aliases:
+    - "celno\u015B\u0107"
+    - "celno\u015Bci"
+    Description: "Dla zwyk\u0142ego trafienia fizycznego najpierw u\u015Brednia si\u0119
+      celno\u015B\u0107 broni i skilla. Szansa trafienia wynosi celno\u015B\u0107\xB2
+      / (celno\u015B\u0107 + unik), w procentach, ograniczona do 0\u2013100%. Premie
+      do trafienia mog\u0105 j\u0105 nast\u0119pnie zmieni\u0107. Nie jest to prosty
+      wynik celno\u015B\u0107 minus unik."
+  - Id: range
+    Icon: {fileID: 0}
+    Title: "Zasi\u0119g"
+    Aliases:
+    - "zasi\u0119g"
+    - "zasi\u0119gu"
+    - "zasi\u0119giem"
+    Description: "Zasi\u0119g okre\u015Bla odleg\u0142o\u015B\u0107, w kt\xF3rej
+      akcja mo\u017Ce wybra\u0107 cel lub pole."
+  - Id: line-of-sight
+    Icon: {fileID: 0}
+    Title: Linia wzroku
+    Aliases:
+    - linia wzroku
+    - linii wzroku
+    Description: "Linia wzroku okre\u015Bla, czy mi\u0119dzy rzucaj\u0105cym a celem
+      nie ma przeszkody."
+  - Id: area
+    Icon: {fileID: 0}
+    Title: Obszar
+    Aliases:
+    - obszar
+    - obszaru
+    - obszarze
+    Description: "Obszar obejmuje wiele p\xF3l lub jednostek zgodnie z dzia\u0142aniem
+      umiej\u0119tno\u015Bci."
+  - Id: healing
+    Icon: {fileID: 0}
+    Title: Leczenie
+    Aliases:
+    - leczenie
+    - leczenia
+    - leczy
+    Description: Leczenie przywraca zdrowie jednostki.
+  - Id: resource
+    Icon: {fileID: 0}
+    Title: "Zas\xF3b"
+    Aliases:
+    - "zas\xF3b"
+    - zasobu
+    - zasobem
+    - zasoby
+    Description: "Zas\xF3b klasowy jest niezale\u017Cny od Punkt\xF3w Akcji i mo\u017Ce
+      by\u0107 zu\u017Cywany przez umiej\u0119tno\u015Bci."
+  - Id: resource-regeneration
+    Icon: {fileID: 0}
+    Title: Regeneracja zasobu
+    Aliases:
+    - regeneracja many
+    - regeneracji many
+    - regeneracji zasobu
+    Description: "Statystyka okre\u015Blaj\u0105ca naturalny odzysk, przede wszystkim
+      many. Bohater w walce otrzymuje j\u0105 z mno\u017Cnikiem pozosta\u0142ych
+      AP na ko\u0144cu tury. Nie oznacza automatycznej regeneracji furii ani impetu."
+  - Id: resource-recovery
+    Icon: {fileID: 0}
+    Title: Odzysk zasobu
+    Aliases:
+    - odzysk many
+    - odzyskiwanie zasobu
+    Description: "Bezpo\u015Brednie przywr\xF3cenie zasobu przez umiej\u0119tno\u015B\u0107
+      lub efekt EQ. To nie naturalna regeneracja na ko\u0144cu tury; mno\u017Cnik
+      pozosta\u0142ych AP nie powi\u0119ksza go automatycznie. Blokada odzysku i
+      limit puli nadal obowi\u0105zuj\u0105."
+  - Id: downed
+    Icon: {fileID: 0}
+    Title: Powalenie
+    Aliases:
+    - powalony
+    - powalonego
+    - powalona
+    Description: "Bohater z 0 HP nie wykonuje akcji. Bazowo ma 3 w\u0142asne tury
+      do \u015Bmierci; mo\u017Cna go podnie\u015B\u0107 odpowiedni\u0105 akcj\u0105.
+      Bazowe podniesienie przywraca 1 HP, wi\u0119c nie gwarantuje bezpiecze\u0144stwa.
+      Statusy czasowe wygasaj\u0105 podczas powalenia, ale nie zadaj\u0105 kolejnych
+      tick\xF3w DoT."
+  - Id: death
+    Icon: {fileID: 0}
+    Title: "\u015Amier\u0107"
+    Aliases:
+    - martwy
+    - martwej
+    Description: "Stan odr\u0119bny od powalenia. Zwyk\u0142e podniesienie powalonej
+      postaci nie wskrzesza martwej. Mo\u017Cliwo\u015B\u0107 przywr\xF3cenia zale\u017Cy
+      od odpowiedniej mechaniki wskrzeszenia."
+  - Id: rear-attack
+    Icon: {fileID: 0}
+    Title: "Atak od ty\u0142u"
+    Aliases:
+    - cios w plecy
+    - za plecami
+    - "od ty\u0142u"
+    Description: "Napastnik musi znajdowa\u0107 si\u0119 w tylnej po\u0142owie wzgl\u0119dem
+      kierunku, w kt\xF3rym patrzy cel: k\u0105t wi\u0119kszy ni\u017C 90\xB0 od
+      jego przodu. Pozycja dok\u0142adnie z boku nie jest ty\u0142em. Samo zaj\u015Bcie
+      od ty\u0142u nie daje ka\u017Cdemu atakowi premii \u2014 musi j\u0105 zapewnia\u0107
+      skill lub talent."
+  - Id: status-tolerance
+    Icon: {fileID: 0}
+    Title: Tolerancja statusu
+    Aliases:
+    - tolerancja
+    - tolerancji
+    Description: "Udane na\u0142o\u017Cenie statusu buduje czasow\u0105 tolerancj\u0119.
+      Og\u0142uszenie, zamro\u017Cenie, sen, parali\u017C, unieruchomienie, ozi\u0119bienie
+      i prowokacja wsp\xF3\u0142dziel\u0105 jedn\u0105 pul\u0119: zmiana rodzaju
+      kontroli nie omija ochrony. Bazowo ka\u017Cdy stos dodaje 25 punkt\xF3w procentowych
+      tolerancji, do 100%. Dla kontroli pierwszy efekt daje dodatkowe 2 tury ochrony,
+      a kolejne wyd\u0142u\u017Caj\u0105 j\u0105 o sw\xF3j czas. Pozosta\u0142e statusy
+      maj\u0105 osobne pule."
+  - Id: dot
+    Icon: {fileID: 0}
+    Title: "Obra\u017Cenia okresowe"
+    Aliases:
+    - DoT
+    - "obra\u017Ce\u0144 okresowych"
+    - "obra\u017Cenia w czasie"
+    Description: "Krwawienie, zatrucie i p\u0142oni\u0119cie zadaj\u0105 obra\u017Cenia
+      w kolejnych tickach, zwykle na pocz\u0105tku w\u0142asnej tury celu. Pokazana
+      \u0142\u0105czna pula obra\u017Ce\u0144 efektu nie oznacza takiej warto\u015Bci
+      przy ka\u017Cdym ticku. Rodzaj odporno\u015Bci celu wp\u0142ywa na skuteczno\u015B\u0107
+      DoT."
+  - Id: upkeep
+    Icon: {fileID: 0}
+    Title: Utrzymanie
+    Aliases:
+    - utrzymanie
+    - utrzymania
+    Description: "Odr\u0119bny koszt aktywnej umiej\u0119tno\u015Bci prze\u0142\u0105czanej.
+      Mo\u017Ce by\u0107 pobierany cyklicznie, gdy efekt pozostaje w\u0142\u0105czony.
+      Nie jest kosztem samego w\u0142\u0105czenia; szczeg\xF3\u0142y i warto\u015B\u0107
+      zale\u017C\u0105 od skilla."
+  - Id: control-resistance
+    Icon: {fileID: 0}
+    Title: "Odporno\u015B\u0107 na kontrol\u0119"
+    Aliases:
+    - "odporno\u015Bci na kontrol\u0119"
+    - "odporno\u015B\u0107 na kontrol\u0119"
+    Description: "Zmienia szans\u0119 na\u0142o\u017Cenia status\xF3w kontroli. Dodatkowo
+      dzia\u0142a wsp\xF3lna tolerancja narastaj\u0105ca po udanych na\u0142o\u017Ceniach.
+      Warto\u015B\u0107 nie oznacza prostego odj\u0119cia tylu punkt\xF3w od szansy
+      skilla."
+  - Id: dot-resistance
+    Icon: {fileID: 0}
+    Title: "Odporno\u015B\u0107 na DoT"
+    Aliases:
+    - "odporno\u015Bci na DoT"
+    - "odporno\u015B\u0107 na obra\u017Cenia okresowe"
+    Description: "Odporno\u015Bci na krwawienie, zatrucie i ogie\u0144 zmieniaj\u0105
+      obra\u017Cenia w\u0142a\u015Bciwych efekt\xF3w okresowych. Bazowa krzywa daje
+      \xD72 obra\u017Ce\u0144 przy 0% odporno\u015Bci, \xD71 przy 50% i \xD70,5 przy
+      100%. Osobne premie zmniejszaj\u0105ce otrzymywane obra\u017Cenia DoT dzia\u0142aj\u0105
+      dodatkowo."
+  - Id: fire-resistance
+    Icon: {fileID: 0}
+    Title: "Odporno\u015B\u0107 na ogie\u0144"
+    Aliases:
+    - "odporno\u015Bci na ogie\u0144"
+    Description: "Wp\u0142ywa na szans\u0119 p\u0142oni\u0119cia i obra\u017Cenia
+      okresowe p\u0142oni\u0119cia. Bezpo\u015Brednia magiczna cz\u0119\u015B\u0107
+      Kuli Ognia podlega obronie magicznej; nie nale\u017Cy uto\u017Csamia\u0107
+      jej z DoT p\u0142oni\u0119cia."
+  - Id: mana-overflow
+    Icon: {fileID: 0}
+    Title: Nadmiar many
+    Aliases:
+    - nadmiaru many
+    Description: "Odpowiedni talent pozwala odzyskiwa\u0107 man\u0119 ponad zwyk\u0142e
+      maksimum. Ten dodatkowy zapas nie zwi\u0119ksza podstawy koszt\xF3w wyra\u017Conych
+      w % maksymalnej many. Zwi\u0105zane z nim premie i zu\u017Cycie nadmiaru zale\u017C\u0105
+      od talentu."
+  - Id: rage-shortage
+    Icon: {fileID: 0}
+    Title: "Niedob\xF3r furii"
+    Aliases:
+    - "niedob\xF3r w\u015Bciek\u0142o\u015Bci"
+    - niedoboru furii
+    Description: "Skill dro\u017Cszy od maksymalnej puli furii mo\u017Cna uruchomi\u0107
+      dopiero z pe\u0142n\u0105 pul\u0105. Brakuj\u0105ca cz\u0119\u015B\u0107 kosztu
+      powoduje czasow\u0105 kar\u0119 do obra\u017Ce\u0144; nie daje darmowego u\u017Cycia
+      przy dowolnie niskiej furii."
+  - Id: catacombs.spectral_knight.shell
+    Icon: {fileID: 21300000, guid: a12d8cb558028524fae64b54b15cde2a, type: 3}
+    Title: "Widmowa pow\u0142oka"
+    Aliases: []
+    Description: "Ka\u017Cde bezpo\u015Brednie trafienie odbiera 1 HP. Trzecie trafienie
+      niszczy Rycerza. Krwawienie, trucizna i podpalenie nie zadaj\u0105 mu obra\u017Ce\u0144."

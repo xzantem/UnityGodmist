@@ -94,6 +94,19 @@ namespace Godmist.Systems.Items
                 .ToList()
                 ?? Enumerable.Empty<AlchemyCatalystData>().ToList();
 
+        // Merchant stock uses the same recipe resolver and result builder as
+        // player crafting, without consuming the player's materials or gold.
+        public ConsumableItemInstance CreateForMerchantStock(
+            NpcInstance alchemist, AlchemyCraftRequest request)
+        {
+            if (!TryGetRole(alchemist, out var role)
+                || !AlchemyRuntimeRules.IsValidConsumableType(request?.UseType
+                    ?? ConsumableUseType.Utility)
+                || !TryResolveConfiguration(role, request, out var configuration, out _))
+                return null;
+            return BuildResult(role, request, configuration);
+        }
+
         public AlchemyCraftPreview CreatePreview(
             GameSession session,
             NpcInstance alchemist,
@@ -494,7 +507,7 @@ namespace Godmist.Systems.Items
 
             if (configuration.Catalyst != null)
             {
-                result.ApplyCatalyst(configuration.Catalyst.CatalystType, configuration.Catalyst.Tier);
+                result.ApplyCatalyst(configuration.Catalyst.GetTypeFor(request.UseType), configuration.Catalyst.Tier);
                 result.CatalystDisplayName = GetCatalystShortName(configuration.Catalyst.Material?.DisplayName);
             }
 
@@ -530,7 +543,7 @@ namespace Godmist.Systems.Items
                 .Select(option => new { Option = option, Effect = option.GetEffect(useType) })
                 .Where(pair => pair.Effect != null)
                 .Select(pair => string.IsNullOrWhiteSpace(pair.Option.EffectAdjective)
-                    ? AlchemyRuntimeRules.GetFallbackEffectAdjective(pair.Effect.EffectType)
+                    ? AlchemyRuntimeRules.GetFallbackEffectAdjective(pair.Effect.EffectType, useType)
                     : pair.Option.EffectAdjective.Trim())
                 .Where(value => !string.IsNullOrWhiteSpace(value))
                 .Distinct(StringComparer.OrdinalIgnoreCase)

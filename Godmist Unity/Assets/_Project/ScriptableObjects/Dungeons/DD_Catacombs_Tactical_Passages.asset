@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccca2633228553c44864ed1c20223033, type: 3}
   m_Name: DD_Catacombs_Tactical_Passages
   m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonDefinition
+  <EnvironmentConfigured>k__BackingField: 1
+  <IsIndoor>k__BackingField: 1
+  <IsCold>k__BackingField: 1
+  <IsWarm>k__BackingField: 0
   <Id>k__BackingField: dungeon.catacombs.tactical.passages
-  <DisplayName>k__BackingField: "Komnata przejść — scenariusz Combat v4"
+  <DisplayName>k__BackingField: "Komnata przej\u015B\u0107 \u2014 scenariusz Combat
+    v4"
   <Theme>k__BackingField: 0
   <IsProcedural>k__BackingField: 1
   <IsStoryDungeon>k__BackingField: 0

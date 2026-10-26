@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Forest_BanditLeaderBag
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.forest.bandit_leader
+  <DisplayName>k__BackingField: "Torba Przyw\xF3dcy Bandyt\xF3w"
+  <Description>k__BackingField: "\u0141upy wyniesione z obozowiska bandyt\xF3w."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6871b086c31bebd45a67ff977616ace1, type: 3}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField: []
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.75
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2568c39fcd0b33b428a09bed66a03b31, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.6
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 180b7fa9c58bb9640895d031d9149758, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e85e27d821b3c439c70bef9426a5ee, type: 2}
+        <Amount>k__BackingField:
+          Min: 2
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 5
+        <FixedGalduryteLevel>k__BackingField: 20
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField:
+    - {fileID: 11400000, guid: ed857cf4a32ea224f99ac3f135b987e6, type: 2}
+    - {fileID: 11400000, guid: b93f8a283db5c9145980384619fce639, type: 2}
+    - {fileID: 11400000, guid: afbf66c6e1033b14fb27445520dedf0f, type: 2}
+    - {fileID: 11400000, guid: e0cfd539f100b4545a3916470bae2135, type: 2}

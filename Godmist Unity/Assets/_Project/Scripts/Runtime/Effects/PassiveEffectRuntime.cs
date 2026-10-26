@@ -103,7 +103,7 @@ namespace Godmist.Runtime.Effects
             }
         }
 
-        public int ActionPointModifier
+        public float ActionPointModifier
         {
             get => GetPayload<UniqueCombatBuffPayload>()?.ActionPointModifier ?? 0;
             set

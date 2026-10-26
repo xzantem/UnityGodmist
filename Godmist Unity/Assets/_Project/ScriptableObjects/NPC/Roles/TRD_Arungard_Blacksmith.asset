@@ -21,3 +21,148 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
   - {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
   <RelevantItemTypes>k__BackingField: 00000000010000000200000003000000090000000a000000
+  <LocalStock>k__BackingField:
+  - Item: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+    Limit: 20
+    MinimumLevel: 1
+    MaximumLevel: 50
+  - Item: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+    Limit: 6
+    MinimumLevel: 1
+    MaximumLevel: 10
+  - Item: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+    Limit: 3
+    MinimumLevel: 1
+    MaximumLevel: 10
+  - Item: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+    Limit: 12
+    MinimumLevel: 1
+    MaximumLevel: 10
+  - Item: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+    Limit: 3
+    MinimumLevel: 11
+    MaximumLevel: 20
+  - Item: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+    Limit: 3
+    MinimumLevel: 11
+    MaximumLevel: 20
+  - Item: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+    Limit: 12
+    MinimumLevel: 11
+    MaximumLevel: 20
+  - Item: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+    Limit: 10
+    MinimumLevel: 11
+    MaximumLevel: 20
+  <RotatingStock>k__BackingField:
+  - Id: ores
+    Slots: 2
+    Candidates:
+    - Item: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+      Limit: 10
+      MinimumLevel: 1
+      MaximumLevel: 50
+    - Item: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+      Limit: 10
+      MinimumLevel: 1
+      MaximumLevel: 50
+    - Item: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+      Limit: 10
+      MinimumLevel: 1
+      MaximumLevel: 50
+  - Id: skins
+    Slots: 1
+    Candidates:
+    - Item: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+      Limit: 4
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+      Limit: 4
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+      Limit: 4
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+      Limit: 2
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+      Limit: 2
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+      Limit: 2
+      MinimumLevel: 11
+      MaximumLevel: 20
+  - Id: woods
+    Slots: 1
+    Candidates:
+    - Item: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+      Limit: 3
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+      Limit: 3
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+      Limit: 3
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+      Limit: 3
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+      Limit: 3
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+      Limit: 3
+      MinimumLevel: 11
+      MaximumLevel: 20
+  - Id: fibres
+    Slots: 1
+    Candidates:
+    - Item: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+      Limit: 8
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+      Limit: 8
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+      Limit: 8
+      MinimumLevel: 1
+      MaximumLevel: 10
+    - Item: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+      Limit: 8
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+      Limit: 8
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+      Limit: 8
+      MinimumLevel: 11
+      MaximumLevel: 20
+  - Id: additives
+    Slots: 1
+    Candidates:
+    - Item: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+      Limit: 5
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+      Limit: 5
+      MinimumLevel: 11
+      MaximumLevel: 20
+    - Item: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+      Limit: 5
+      MinimumLevel: 11
+      MaximumLevel: 20

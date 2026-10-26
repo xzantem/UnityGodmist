@@ -1,0 +1,739 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96151b88d8080574c87c285a2eaae973, type: 3}
+  m_Name: ItemIconLibrary
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemIconLibrary
+  entries:
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.granat
+    Icon: {fileID: 21300000, guid: e191a8f1e6ccfbc49960e08ce0bbcddc, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: e8aa5f4c98ed377478145a3bd9d1dee1, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: f9b4403dc22f6824f8d5f61b6683dea7, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 59720de094d21b14d9c22cc175074d16, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: f8fc4b2a74a0b8d4391843187fb9e13a, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: a9b016f27b102174d8daaad1b14891ac, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 46d4074833a6972429aa255b596e350a, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.vs10.diament
+    Icon: {fileID: 21300000, guid: bde5b0554b7e0264592fb642e96f6272, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.runic.topaz
+    Icon: {fileID: 21300000, guid: e7f5dc712770cbe4394a27e8cb0263fb, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.runic.amber
+    Icon: {fileID: 21300000, guid: 4aa80783947c8334d86700837423b26b, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: db8bbc8a24212bf41be136daf79de012, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: e66d924302883aa48859127d8dceb5b9, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 253aada5e9926c945939ad5e3074303b, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 8423674fbf16467479074e36f042b0b3, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 4c5541ab47973a246af278c3f79fc77f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 4613de83b65746a408db981a39679a9b, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 78bc8de82572feb4bae6d8a19968be52, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: f305f21b50fa36b49be4021ef75632b3, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: ca5f005b71d983b4790c68e403faab41, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 0a2122e55b274b2469983f1bb3607627, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.runic.amber
+    Icon: {fileID: 21300000, guid: 34eabc068e0ab8d4db0aada9402ccd7e, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 62e883ca695da9c45bf7146750cb1712, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 08d8ff4bca14b284bbc2eb4980f2fe2d, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 38fe79c852b9e3a498ac922156780dcc, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 62f14da2c198b8248a4bfddbf6a6d768, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 9df374bfdf4b7d448bb2f0a953975471, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 4e90f3db3d76cae49a4f8cb616da6fce, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 4cebf41df0c8e0543aa459342158251b, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 42d72aa2f8ec4a643ae72bcfac33818f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 5ff92a56cb6513a4cbbd6cf5eea176e8, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 7c5a8c851d77bf64c9512379393b90d6, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.runic.amber
+    Icon: {fileID: 21300000, guid: 336a7913154c8e14792933ffc0f8bf88, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 562dcac3744e04946993921afa32b141, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 6d8ca2a6ed9b876439dbcc15aa23f9b6, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 2b75650cdbe070e49b5ce461b7ae5a8b, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 472a8430f19b1cd488c75f7e3406cc71, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 89d1297673034854e8f20f66504a554f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: eb0ee70e82202374c9b30125525b5c11, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 57ecd3043a3bd3446a646e27a0956af0, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 8e3685472aacb6849a807aff18ace9f8, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 94689eaee6e456b44bb1b097884ecaa4, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.runic.topaz
+    Icon: {fileID: 21300000, guid: c6ff491cb9e5bd345b5c26425ce2d480, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.runic.amber
+    Icon: {fileID: 21300000, guid: 8de131f661186324f93ec855dd2108a4, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 8ffe5884517d46447a10fbf51967180a, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 9101c7e2e05d3a942b289a7e7cd229e3, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: a31177dbdb91aac40b7dc2f6d84f5655, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 5fb61a054e7b8cc4c996a1f8e9fa6674, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 52d9fb6ac3a63f44b9e79434c9b775b8, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 815e3e5980654914789148e48a5c4529, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 57e5c3e16bff27643b2a99fecbc6f629, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: a85f8dc2986c65b4dbafef247d198e8f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.vs10.diament
+    Icon: {fileID: 21300000, guid: bde53989c35d8b14eaae2b5df7c1d693, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.runic.topaz
+    Icon: {fileID: 21300000, guid: f6f21f50c81612147b665bd431902944, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.runic.amber
+    Icon: {fileID: 21300000, guid: fcc85814100ba1a478cdf2046838ded2, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: cfe26453244f4ac4fa27bab5b2694dca, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 161e9bf93f9c4614b82754e77d35b70c, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 2026b32138f34b1449efd75ff5a43b91, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: c8a9727992695234b98bb14ecb5dc914, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 6ab25696bca8e924585925fca9747098, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 31222e5ba6a4c4a43a16aa8b1e1843b4, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 2e1a1b78b46654449927fb7912c46508, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 5334e6c5dc1260b46a9e9d4f2fa537fa, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 4da972861c825784095fafd68bf0ff3b, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 70590ec863f5b104082c303a117c322a, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.runic.amber
+    Icon: {fileID: 21300000, guid: 17f75069ddc87fc4eaeb6aae8907cc28, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 55e547c4d5376d14386d550031c74b71, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 81516b3366375684db41bc2cfa3cbcd1, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 096b8bfd2a5c57842910f16b72fd0b70, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: bbc9719dcf88951459fdc52d99e66d69, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 42559d993cb63b247ad19b1bb3824aba, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: b47bf47b97f8d0247bbd6f5cb07ba675, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 70e213dcc36f69145be4c11ebea83261, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 583d65191c5f81a40af1cda346790b72, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 5bafc37f8b5b1524aa46af97eaf29c34, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 72aa2c4077b3a4745a36fedbbdf31e4f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.runic.amber
+    Icon: {fileID: 21300000, guid: 16700986ff2657641be3e6a6c5d8478d, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 425e081b3baa1bd4a875699bfb742dd1, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 332b0d9877b67aa479291d5f8e6906c1, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: c068863a8fa1374408eb9dc3366e7ccf, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 4e3551dffb813ec40886f12dfb764e15, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 381294932fafb51408de2e7bed15a864, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 8bef5fe624e796f4c9b247f55aff71be, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 4d898941013654b4e99eec9de56760f7, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 8f187d04ed01d95478e09a8cb40f0b0f, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: c762c4c3ece643d46813a08acad3dd26, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 51438ddfe1601614e99e17e0be6f6c78, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.runic.amber
+    Icon: {fileID: 21300000, guid: 745e569e462b0c340881f5357a430288, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: a1b92e798ed675f43bfab613cda748c7, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 995d17920db74da479ae17a16765abfe, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 7c078d43cc9a2b1449de524c292cc902, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: af334dcd5b7f89a47ad0644987592240, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 3bb12ff7d7f75d7488ff5e19684b309a, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 1edc4736199c12640af914caf1a5410b, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: eebeac8103e5ef547ac2b6fc6bc61d0e, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 325ac5b440571a046a9c1f25d9b2d1dd, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.vs10.diament
+    Icon: {fileID: 21300000, guid: aeb231857592937458d54dd8a968430a, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.runic.topaz
+    Icon: {fileID: 21300000, guid: b13772eb45d63d94da07da0983785e62, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.runic.amber
+    Icon: {fileID: 21300000, guid: fab37f05f819e02458cb4c0d7082e830, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 36b33100d5ee5854f85d11be5516ea60, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 897fefc61150d54439062cb8d71bf997, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 67cfe7a595532634e9cc4e0c29b43a3b, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 70bd9aadb3795884a9a418fcbeffc34c, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 06d08910c3191d64382cd4e39ab1254f, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 97f32574c36e7944e9b944fa209e8762, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: d6ff2e5bbbb44cd4b9c3f21142c49d31, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 314dc49b47b320143b9ef0a18172c020, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 7c7813a8756a40746961911e91b34fb4, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 45318c2bc7728e74195c53801f4cd34d, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.runic.amber
+    Icon: {fileID: 21300000, guid: ec568804da13f624fa842cc1cbdb18d8, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 7fc634843e4209a49b8ee7e33e217ae3, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.granat
+    Icon: {fileID: 21300000, guid: c6472eee676c01645b63ae99a0411d54, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 9aa35f04707e169408662dc311384ab5, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 5b2bf6797bd3434488959dac1f565ac1, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 38e914086a81fcb45ba6029f507dafa4, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 6b17a6a95ee893a4e9f0347c99f80abe, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 8b50046db187d7848bc9c6d1a15dbe19, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 1180b2b19f3ada54dbc0c75c852aebc9, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.vs10.diament
+    Icon: {fileID: 21300000, guid: a5e3f9c19a6c3fe49aa055b55d6e1871, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.runic.topaz
+    Icon: {fileID: 21300000, guid: e6250aa59fdd8e347be68755d6f19a5f, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.runic.amber
+    Icon: {fileID: 21300000, guid: 3890bacc78547d6488cd5dacbb89f08e, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: f35dafee5fa7e5c41a7342589b5656fb, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 2ddc9d1cfbb1ff14f9d99bc1e9cc8393, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 2e921038fb8b62244a636183d8ef86c5, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 161838fc9c0e67e4da2a92f9f49db875, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 6b81c62c989b93a41935fcedec224ac3, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: ff5c10c533da7124f88b0acb02990ec8, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: f5284c491f8c0424195eee9636c261f6, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 00575060447b27f48994fee2f62cab17, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 4ee3bb52446a66947981c636f04a9386, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.runic.topaz
+    Icon: {fileID: 21300000, guid: c03d37dd32f2b0642a346e7473b0482d, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.runic.amber
+    Icon: {fileID: 21300000, guid: 1726f9730dce48f41a66ef32889dd19d, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 67ebdd54b48c341438070a5b83e9558d, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 9039f37020d7d5f4493d91578a98f651, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: eece3bbb0db333b478264a95732e1ba8, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 3955f5d2d421bd84585654c64ceddd3a, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: ac5c51951ca3f2b418ae1ea99297c5e0, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: c965d73f586a402438d18caf09de6d41, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 71710676a42198d40ad32ea0406b4f1a, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: b50e48ae2787ba445b6594ee8724d3fc, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 0cb3f105678c31c48b26797abc11809c, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 66a837a8df06c2f488ebc2e24f3da781, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.runic.amber
+    Icon: {fileID: 21300000, guid: 2b5c4e80147f6c347bdc32fa0cac2ea1, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 425bcb483d2487544a45a3322168fc5e, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 950d1a5219418ea46b648efb5f3465f7, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: edf84cc8794e5fc4bb97cbe2800ac187, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: a060fee37d5fa664fb3ec1b81e4e4626, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 50ec1622c341fba49a876f4619525a16, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 2d3524e15e853224b94dcae2766a080a, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 05131e910eed7dd41a337c48a0e86c20, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 980047a03c2e0a449aaab7083a32a132, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 1c419484dd9cd1746979f7586f59e17a, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 9718d727d5378e145a48090db10b9fef, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.runic.amber
+    Icon: {fileID: 21300000, guid: 9e6a608d82c50564493f65c1a74a9719, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: ebdafa5d5c01729419e564dd7acbe1ab, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 38f11c0d5c9752a45ad338d62b016f83, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 4ef18aee5d5106846a3bbb21542f6a65, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 9e112056914405d44948a03394217857, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 137de4af7e20d764f8dedbce0248a305, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: cbb1be0533c257d48934708139736aa2, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: e31929562d08e4541b345551e055a4ec, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: c150816c4061fec4e92df8dc143105bb, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.diament
+    Icon: {fileID: 21300000, guid: b99d2abc89df3bc4ea00cde5c36baf67, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.runic.topaz
+    Icon: {fileID: 21300000, guid: ce87fbb3919723a4e9af527e251afd8d, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.runic.amber
+    Icon: {fileID: 21300000, guid: c2842816deac47441944feb2dc380438, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 17d42892ee6171d4e82abfb1aa0f785f, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 2a6f62bbe2014234ba2d6225d72fe69f, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 8dd1afd8abff9cd4890da3b9edb34482, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 34bc4574895d2b549b82e41c32b64f55, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: a76f33c417973744eb1e672c6be6fed7, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: ead535ff5614efe499776a894f8edf77, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: ad2d97d0b795107489e2677337541fe5, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: eb6cd3c1441f6e34ba88892c372c8b75, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: d4fe30df2032c354d9ae909829847366, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: ef3309da4f0255446845ef03019a1bc9, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.runic.amber
+    Icon: {fileID: 21300000, guid: 469f427e915e38b43af82003450c7c82, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 2a4c8f9c3fd76c846a1548c76d60f745, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 4fb73884ae74e034689c1a3cd7873e8f, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 80538645caf6aed4592d2ff8116d5805, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 10131f4a6db9bdb448bd7a2c031ce9ff, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 06fdb0f2a0e9af74eb22749d85c6b55c, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 8b86e155e6cb9be4dbb484de64cb00d8, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: dc974396efa635449aca467d55d38968, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 22c0342d9292dfb4b9704b366e1dd920, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 37487994b6023a24291f5c2d11b750e2, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 3e1748f1e87f34a4b9eaaab88afbb41b, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.runic.amber
+    Icon: {fileID: 21300000, guid: 0f7cf9235852d714c8aeda18865e6d6c, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 44e10bd9b5544b44da8830388779fe57, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 0010af5af48bd13468fa67dd867d71a8, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: bea96926741956842b2aeae0767739be, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 9e72f7f45b61e5d4ab854481c7e5a1f2, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: bf78255ae8b04894ea42d7a34627303e, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 8360a599b9c19384c8502510d260e0ea, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: aeaee0476f5bda54b86663470179cc61, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: fee40ff54ecf0b24eb7d03135722bf2c, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: bcdbb5221c6be8f4091b3f7225dc3cce, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 4c3bc907d752e1341a80fa144953afb6, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.runic.amber
+    Icon: {fileID: 21300000, guid: e268e08bd8b5db043b59fb7dddbe8600, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: f06e2d8e8c2b98a4c9bece76f5609bfc, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.granat
+    Icon: {fileID: 21300000, guid: ec3778fac55cfb54dbc32f5ec94df449, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: cd96f34088174d047bfe08ca4067e0a4, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 5e9b6f8ce632a30418b24d0a348c9de7, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 5b1d6063fb03f9e4e985985779b2b847, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 9ea91a4cdbd29b84d96bea4f3df29e3e, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 1da95073ac9c2f742b959b4e4745a0fc, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 42da78982c382294b8159deccd399260, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 0d1b945c683687640ae8990dae34fcd6, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 976e51dcc197bcb41b99ba477e124c43, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.runic.amber
+    Icon: {fileID: 21300000, guid: dcc82f181c998614fa04859d579ed386, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: ad5c048099fd0da4e94ad5013b69dba3, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.granat
+    Icon: {fileID: 21300000, guid: b5311156fe965fc4d9007ad132aa159b, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 79eb80e77f86aa343817079ac7feeba5, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 07b465ec3bb9e184eb5fe5cb902adc82, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: b15d7a950e94c7c49afacba574fcd850, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: a4a1dcd1a79188d4ca952173fcbde3e3, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 805617e05e8272740b08fa8e72e704d1, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 76fd148e643ddd54991b9c54ac0f5f47, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 433823e2daafe5f4cb2477df856b502d, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.runic.topaz
+    Icon: {fileID: 21300000, guid: bd3deab202b11dd43bd0477696b808d2, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.runic.amber
+    Icon: {fileID: 21300000, guid: bbe8eb0ce0bf4e649b74b9e6258b2723, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: a8077f0fd74bc12419ca6811673d0a56, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 2cd05a30ab30aee4e9bafb74a4affcfc, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 0dba140411cf56b4c817572dc87efab2, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 5687a5e3e1ede7448a446ec4b8b0bb3b, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: d204df39fc659bd44b55c8132f938562, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 121d6200989790f4fb43d772ee83e180, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 0062aaa469ab6f6439a752458d5824c7, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 49461f0ac3ea2924b8cb74c9b37abbab, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 76b3ef770425ff14c94a3c7f2d25bea9, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 6a6061dd774432f4c99609e7b045639b, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.runic.amber
+    Icon: {fileID: 21300000, guid: 9e3911e5a316ed1408430e4d95fc8cdf, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: b5da409e4c31fa84292765978e612b43, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 93d53863ac8269a49b1b43b14970da26, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 7a9a20ad96453934f9a63448dfe61ff2, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 894ac4197a31aa74aa658782fdd8e767, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 774356bf90ad5ae48ad85522ba839cc1, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: fb9e3251a0b5507408755e2c2b9843be, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 1a95eca49a06dd94eab23d11f6ee1349, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 527fdef6482aac64f9454527960a5af7, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.vs10.diament
+    Icon: {fileID: 21300000, guid: e6615a2ae7cb562489baa235505b89cc, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.runic.topaz
+    Icon: {fileID: 21300000, guid: f130be33d8fe9dd448768c9dea21b681, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.runic.amber
+    Icon: {fileID: 21300000, guid: 3a0449efb2f8cd54aaf27d29608340ee, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 310d6a9b0be86a944bdd494e2dfe6e4d, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.granat
+    Icon: {fileID: 21300000, guid: fe7ccfe265190a14fae327f33a87bb94, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 78676bad46c452a4f8b148413a942bc9, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: baee8266ce0410a4ea96b4b389dcda7e, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: dc97fd8511482a04a8e5a0481c53e428, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 3f398f98f5879dd4f899bdf3fcee587d, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 368b277ce798fec448a8dfe47905f747, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: caaed2a7a37c964458b3db6c9d5225c2, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 47dec9ef818920c45b4401a992ebf4ff, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 4f4f6ed67bcf1e943a48969c76ad70dd, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.runic.amber
+    Icon: {fileID: 21300000, guid: 336e5714fe8dd5b4984905f70411017f, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: c39514ba75b4e0644aaca459d0ab032f, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 8a11a2f4e7d6c2245a3d7896f0f0674b, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: c6b9f95d48c0538498bfb3cf23780700, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 6181271250b01e04fbfbf88101065ed5, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: ec2dd536aed8f9d43aab961059b15ccf, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 8489cf908fd3b7840aee5729eb0993da, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: f96c75a11fe4f2c4a93d329426b0481a, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: a41002af94950d6499771d72b6058a10, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 7a55adaa390f0e94f84ea28258cf7304, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: e771383e8269db849ba8399212eff892, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.runic.amber
+    Icon: {fileID: 21300000, guid: 01d2f9ee6ec255b42917b5d118f77813, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 1c3cc4fd564008e46b3e9fbb56806921, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.granat
+    Icon: {fileID: 21300000, guid: abd9344d2a6d87042a4f4c57d067381c, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: ca1799b524aa23945bf4c53a475d9915, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: b068ebd59cba1644f946b3d73f51d77f, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: b6697904f89211744bb1b49852df8f80, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 072538bdf69a38a43b0e8df966f06379, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 88c26d16ddcd32941819555fa8750920, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: c771cdd32967fc24da82c29d5dfd89e3, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.vs10.diament
+    Icon: {fileID: 21300000, guid: b24c49852fce6f24c92e4b22e7d29f72, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.runic.topaz
+    Icon: {fileID: 21300000, guid: c3d6afda159d38d42945544a1f4425cc, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.runic.amber
+    Icon: {fileID: 21300000, guid: 38b69e11e959138468faa35eee8ed404, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 288dbab46caa0f24ebc453f11ac16c23, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 18543c1115cf04b44886a450c351da8e, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 5aac0c2f30e873a48a8c889af56a4f9f, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 2e5da70c2ba85bb49a8b9ec20c9623d1, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: a1bead981aa2dfc42a9e405d3a0d726a, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 73d8ee62480d83446a459676d552895f, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 45d2bc2bf4a49554d9d6b355bea9c9d5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: b20f02c896afdfb44a890798204527cb, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 82a3c62670c8b114fafddfa9e642557a, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 8502861df10e50f4aa229665b15ec9a4, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.runic.amber
+    Icon: {fileID: 21300000, guid: bd491dad5dcd75b41961a1c24c994950, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: f83edc17911359942b9b158a6c8ce362, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 2eb7da22b2f45144b86001292e1f7b79, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 807514c1f4ad5d741af2593f407da249, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 17db6550b42e0694a93349623109fc25, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 6bfb98fb6fd930348bd364e7f26fba5b, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 7150ce74665c26a48af18b6d58265582, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 2ee54d690f510e147951a7fdab3fb645, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 855174b141289b34b999e3447141e812, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 6e997de9805b2ca4f987bc4901e836a5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 627512f84eee40649acb8011b17d457b, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.runic.amber
+    Icon: {fileID: 21300000, guid: 108491c7460092c49b3eb38cce7ea949, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 2125e792793ec854da707bbd2e6a5602, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 43ff8ea15a9d313409d704d610427b91, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 1d4b4ae425ed01043a4c5af2489b0efc, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 77fbdf5408c7e994697b4fdef1a12966, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: b51f45691a57a824195dfc4b6139d750, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: b614c46527816f940958b7725a5288bd, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 049b503c8b5fd4342a4e701029d00924, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: f7754953d8af83844a88214fe5e88e70, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 6f4a8b3e8c7603e42a8ab45647e3a0f5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 411bd0d157294bb4b828508c2baae5da, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.runic.amber
+    Icon: {fileID: 21300000, guid: 8cfefbfb7e2bc9441be7e3c671fa7af0, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: a2cbc368a8ca0bc4d8d985b482e19e60, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 9529125d84dd70341ae6d4191402c0bd, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 8d95560ed6587e7469363da0332efed6, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 190c3aec2de443e47b9fdc58480f0dd1, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: f35b758d00ae9fb49aca892bec4d7d9f, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: c9187266e8647e24986b576aa5ddee4c, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 98a1e481f38676f48b8d6e05f3320e7b, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: 4cd498a8f43d1384c88a8a5b9752880b, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 472d9670816df6c45913ec60067a1139, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 8ca87d10aeea8354a93f31b26ff37dad, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.runic.amber
+    Icon: {fileID: 21300000, guid: dfe7e3f6b00827a4d93592a3961dfe17, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: efe4b1927bb41b146accb84aabfc298c, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 07b0ce538d4bcc745ae4fe1943e17337, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: e0ac6b8dd50f8654a8633aaa97792cb0, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: b7eb7a8048a06be41806aefd0e308080, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: ad98b5fd0d617e440a015012e97a028c, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: 4c105f0a57f6e6e49b8bda9ad42ff55c, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 4f51c3a5e1b0fcd449c1efa2262c380f, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: adbcd1a68c6b0c34bbdad50e530dbcec, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 05b2d9ad830a43f459974dcb49d2577e, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.runic.topaz
+    Icon: {fileID: 21300000, guid: be171d3acf5b314479619943c273b430, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.runic.amber
+    Icon: {fileID: 21300000, guid: b96d32b3a0c2c0944a407987f08ddca3, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: 8641f0a5e71b74a44a3fa4105e462b3e, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 8e0dcb823ae69174a92be48cf3cbe086, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 2cf283f586effea4bbd4da765144dfc0, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 0f1b155bd8a1d9a48aab7b54497c925a, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: e955cc0d42d849041a70c82f87346a5d, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: f7d1d560d204bd448ac05688e1a33566, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 9f1ee1109373cea478d85d875d1e8570, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: acfb40e40e09a5a47ac4a8772ea79154, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 3bea558f2ef162b4982aa5637c38d7dc, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 27458110d388e2b42882bf69c35c6d1d, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.runic.amber
+    Icon: {fileID: 21300000, guid: 9cd948cd88282994fa6f98e88114ac9f, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: aaed6bae17723eb42915c5c58c3eec83, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.granat
+    Icon: {fileID: 21300000, guid: 61543be7c00ad6148ad03ca024cf2bc5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.szafir
+    Icon: {fileID: 21300000, guid: 4c0a47126992c224fa84e0345550bca5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.ametyst
+    Icon: {fileID: 21300000, guid: 8e17201190b32564885321cbe2084c11, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.cytryn
+    Icon: {fileID: 21300000, guid: 67e039b06e6595f459d1fcdf8fd6b7dc, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.szmaragd
+    Icon: {fileID: 21300000, guid: c23142bdc25612149aaf96829d4f6d62, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.onyks
+    Icon: {fileID: 21300000, guid: 29e24bdb71172da48897a2a27d9a46f5, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.rubin
+    Icon: {fileID: 21300000, guid: a46bc42d23f91934db99555493fdb77a, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.vs10.diament
+    Icon: {fileID: 21300000, guid: 570884078dd5aa641b93baf7b3a2be8d, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.runic.topaz
+    Icon: {fileID: 21300000, guid: 25080a9d8796f4940b68cd9191cde1ed, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.runic.amber
+    Icon: {fileID: 21300000, guid: 3889fd5195f4a2a4186d7c1c35d9c52c, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.runic.obsidian
+    Icon: {fileID: 21300000, guid: cd90964e4c56fd54a8850d087a2f12bb, type: 3}
+  galduryteBase: {fileID: 2800000, guid: 7e8510d3f85882e4d9e43c6499bfb23b, type: 3}
+  galdurytePanels:
+  - {fileID: 2800000, guid: 19d9189ad5ad7dc408a6cd8bef784313, type: 3}
+  - {fileID: 2800000, guid: 23f3b891c2e902440a157788ce9d54c3, type: 3}
+  - {fileID: 2800000, guid: 0d0391f2b8dba3843a33a5306dc4e3d2, type: 3}
+  - {fileID: 2800000, guid: 38e29460b434e9340af5cb806c62eb2e, type: 3}
+  - {fileID: 2800000, guid: 8dbc10754268685458efd124ce578da4, type: 3}
+  - {fileID: 2800000, guid: c4603fbd60245f74599e1d4db328ac20, type: 3}
+  potionWeights:
+  - {fileID: 2800000, guid: cfdf70e31fe3de543bbec327fdc800d2, type: 3}
+  - {fileID: 2800000, guid: 6d6c2216a29ac5840bb12e9e037837ea, type: 3}
+  - {fileID: 2800000, guid: e8eb7d99ae4062d4dac10e98c97a8732, type: 3}
+  potionShading: {fileID: 2800000, guid: 91a5918bfa94dbf478d277312cd1ca81, type: 3}
+  potionOverlay: {fileID: 2800000, guid: 329079da1e7f1a64c8e8cc423a07d59b, type: 3}
+  bombWeights:
+  - {fileID: 2800000, guid: 186c5b04b2c66204f9a26e4e2c554afd, type: 3}
+  - {fileID: 2800000, guid: 4a3a56f4d17c35a4fb41ec522fa578f0, type: 3}
+  - {fileID: 2800000, guid: feb62832513ec704591ac7634c8a0cbc, type: 3}
+  bombShading: {fileID: 2800000, guid: 367bd6ca49d297d4da2e2a5519f44051, type: 3}
+  bombOverlay: {fileID: 2800000, guid: 0f3a17b49e3524744b0d2f485df50ed1, type: 3}

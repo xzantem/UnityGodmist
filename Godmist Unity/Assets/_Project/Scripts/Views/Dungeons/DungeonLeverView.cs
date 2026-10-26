@@ -10,18 +10,38 @@ using UnityEngine.Tilemaps;
 
 namespace Godmist.Views.Dungeons
 {
-    public class DungeonLeverView : DungeonObjectView, IInteractable
+    public class DungeonLeverView : DungeonObjectView, IExplorationWorldInteraction
     {
         [SerializeField] private SpriteRenderer visualRenderer;
         [SerializeField] private float interactionRadius = 1.25f;
         [SerializeField] private KeyCode interactionKey = KeyCode.E;
         [SerializeField] private Color inactiveColor = new(1f, 0.15f, 0.8f, 1f);
         [SerializeField] private Color activeColor = new(0.3f, 0.9f, 0.35f, 1f);
+        private bool mirrorHandleWhenActive;
 
         private ExplorationPartyController partyController;
+        private ExplorationPartyController registeredPartyController;
         private DungeonFloorInstance floor;
         private Tilemap floorTilemap;
         private LeverDungeonObjectInstance lever;
+
+        public void ConfigureRuntimePresentation(
+            Color nextInactiveColor,
+            Color nextActiveColor,
+            bool nextMirrorHandleWhenActive)
+        {
+            inactiveColor = nextInactiveColor;
+            activeColor = nextActiveColor;
+            mirrorHandleWhenActive = nextMirrorHandleWhenActive;
+            RefreshVisual();
+        }
+
+        public ExplorationPartyController InteractionParty => partyController;
+        public DungeonFloorInstance InteractionFloor => floor;
+        public float InteractionRadius => interactionRadius;
+        public KeyCode InteractionKey => interactionKey;
+        public bool CanRequestInteraction => isActiveAndEnabled && IsElevationVisible && lever?.IsActive == true
+            && floor != null && ReferenceEquals(floor, partyController?.InteractionFloor) && floorTilemap != null && partyController?.CanRequestWorldInteraction == true && (lever.IsReversible || !lever.IsActivated);
 
         public void Initialize(
             ExplorationPartyController nextPartyController,
@@ -32,7 +52,10 @@ namespace Godmist.Views.Dungeons
         {
             if (!TryBind(nextLever, worldPosition)) return;
 
+            registeredPartyController?.UnregisterInteraction(this);
             partyController = nextPartyController;
+            registeredPartyController = nextPartyController;
+            registeredPartyController?.RegisterInteraction(this);
             floor = nextFloor;
             floorTilemap = nextFloorTilemap;
             lever = nextLever;
@@ -44,40 +67,23 @@ namespace Godmist.Views.Dungeons
                     6);
             }
             RefreshVisual();
+            ExplorationWorldObjectInteraction.Attach(this, this);
         }
 
-        private void Update()
+        protected override int ResolveDepthSortingOrder(DungeonFloorMapView view)
+            => view.GetStandingObjectDepthSortingOrder(transform.position.y);
+
+        private void OnDestroy()
         {
-            if (DevConsoleView.IsOpen || !Input.GetKeyDown(interactionKey)) return;
-            if (CanInteract()) Interact();
+            registeredPartyController?.UnregisterInteraction(this);
         }
 
-        public bool CanInteract()
-        {
-            if (!IsElevationVisible || partyController?.CanInteractWithGroundObjects != true) return false;
-            var session = GameBootstrap.Instance?.Session;
-            if (lever == null
-                || floor == null
-                || floorTilemap == null
-                || partyController?.ActiveLeaderTransform == null)
-            {
-                return false;
-            }
-
-            if (session == null || session.CurrentMode != GameModeState.Exploration)
-            {
-                return false;
-            }
-
-            return (partyController.ActiveLeaderTransform.position - transform.position)
-                       .sqrMagnitude <= interactionRadius * interactionRadius
-                   && DungeonExplorationInteractionUtility.HasDirectAccess(
-                       floor,
-                       ToDungeonCell(
-                           floorTilemap.WorldToCell(
-                               partyController.ActiveLeaderTransform.position)),
-                       lever.Position);
-        }
+        public bool CanInteract() => CanRequestInteraction && partyController.CanInteractWithGroundObjects
+            && partyController.ActiveLeaderTransform != null && CanInteractFrom(partyController.ActiveLeaderTransform.position);
+        public bool CanInteractFrom(Vector2 position) => CanRequestInteraction
+            && (position-(Vector2)transform.position).sqrMagnitude <= interactionRadius*interactionRadius
+            && DungeonExplorationInteractionUtility.HasDirectAccess(floor,
+                ToDungeonCell(floorTilemap.WorldToCell(position)), lever.Position);
 
         private static Vector2Int ToDungeonCell(Vector3Int cell)
         {
@@ -103,9 +109,11 @@ namespace Godmist.Views.Dungeons
         {
             if (visualRenderer != null)
             {
-                visualRenderer.color = PresentationState(lever != null && lever.IsActivated)
+                var isActive = PresentationState(lever != null && lever.IsActivated);
+                visualRenderer.color = isActive
                     ? activeColor
                     : inactiveColor;
+                if (mirrorHandleWhenActive) visualRenderer.flipX = isActive;
             }
         }
         protected override void RefreshFogVisual() => RefreshVisual();

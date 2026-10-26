@@ -14,12 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.EquipmentItemDefinition
   <Id>k__BackingField: equipment.paladin.plate_armor
   <DisplayName>k__BackingField: "Zbroja P\u0142ytowa"
-  <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Description>k__BackingField: "P\u0142ytowa zbroja os\u0142aniaj\u0105ca paladyna
+    w walce."
+  <Icon>k__BackingField: {fileID: 21300000, guid: de88186e1b260804ea336947424bd1d3, type: 3}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
   <BaseValue>k__BackingField: 0
   <Weight>k__BackingField: 5
   <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}

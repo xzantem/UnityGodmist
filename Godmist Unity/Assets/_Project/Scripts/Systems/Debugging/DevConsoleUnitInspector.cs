@@ -85,7 +85,7 @@ namespace Godmist.Systems.Debugging
 
                 output.AppendLine(
                     $"Efekty {character.Resistances.WeakeningResistance:P0} | " +
-                    $"Ograniczenia {character.Resistances.SuppressionResistance:P0} | " +
+                    $"Kontrola {character.Resistances.SuppressionResistance:P0} | " +
                     $"Przesunięcia {character.Resistances.MoveResistance:P0}");
             }
 
@@ -111,7 +111,7 @@ namespace Godmist.Systems.Debugging
             output.AppendLine(
                 $"Walka: {(battleUnit.IsPlayerSide ? "sojusznik" : "wróg")} | " +
                 $"Pozycja: {battleUnit.Position.X}, {battleUnit.Position.Y} | " +
-                $"AP: {battleUnit.CurrentActionPoints}/{battleUnit.MaxActionPoints}");
+                $"AP: {Godmist.Runtime.Combat.ActionPointUnits.Format(battleUnit.CurrentActionPoints)}/{Godmist.Runtime.Combat.ActionPointUnits.Format(battleUnit.MaxActionPoints)}");
 
             output.AppendLine(
                 $"AV: {battleUnit.CurrentActionValue} | " +

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godmist.Data.Items;
 using Godmist.Data.Configuration;
 using Godmist.Data.NPC;
@@ -74,7 +76,7 @@ namespace Godmist.Systems.NPC
             }
 
             normalPrice = GetPriceWhenSellingToTrader(trader, item);
-            if (normalPrice <= 0)
+            if (normalPrice <= 0 && !IsFreeStarter(item))
             {
                 failureReason = "Nie można ustalić poprawnej ceny sprzedaży.";
                 return false;
@@ -101,7 +103,13 @@ namespace Godmist.Systems.NPC
             ItemInstance item,
             out string failureReason)
         {
-            return CanTradeItem(trader, item, out failureReason);
+            if (!CanTradeItem(trader, item, out failureReason)) return false;
+            if (item.IsSaleProtected)
+            {
+                failureReason = "Przedmiot jest zablokowany przed sprzedażą. Odblokuj go w menu PPM.";
+                return false;
+            }
+            return true;
         }
 
         private bool CanTradeItem(
@@ -186,8 +194,12 @@ namespace Godmist.Systems.NPC
             return true;
         }
 
+        public static bool IsFreeStarter(ItemInstance item) =>
+            item?.Definition is EquipmentItemDefinition { IsStarterEquipment: true };
+
         private static int GetBaseValue(ItemInstance item)
         {
+            if (IsFreeStarter(item)) return 0;
             var runtimeValue = Mathf.Max(0, item?.BaseValue ?? 0);
             if (runtimeValue > 0)
             {
@@ -219,7 +231,7 @@ namespace Godmist.Systems.NPC
             var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
             var price = GetPriceFromBuyback(trader, entry);
 
-            if (entry == null || price <= 0 || session.Gold < price) return false;
+            if (entry == null || price <= 0 && !IsFreeStarter(entry.Item) || session.Gold < price) return false;
 
             trader.ShopInventory.BuybackStock.Remove(entry);
 
@@ -229,7 +241,7 @@ namespace Godmist.Systems.NPC
                 return false;
             }
 
-            if (!session.TrySpendGold(price))
+            if (price > 0 && !session.TrySpendGold(price))
             {
                 inventoryService.TryRemoveItem(
                     buyer.Inventory,
@@ -280,9 +292,10 @@ namespace Godmist.Systems.NPC
             }
 
             var item = FindItem(seller.Inventory, itemInstanceId);
+            if (!CanSellItem(trader, item, out _)) return false;
             var price = GetPriceWhenSellingToTrader(trader, item);
 
-            if (price <= 0
+            if (price <= 0 && !IsFreeStarter(item)
                 || !acceptPartialPayment && trader.GoldBalance < price)
             {
                 return false;
@@ -326,6 +339,108 @@ namespace Godmist.Systems.NPC
 
             receivedGold = payableGold;
             return true;
+        }
+
+        public bool TryGetSellBatchQuote(NpcInstance trader, CharacterInstance seller,
+            IReadOnlyList<string> ids, out int normalPrice, out int payableGold, out string reason)
+        {
+            normalPrice = payableGold = 0;
+            reason = "Wybrane przedmioty nie są już dostępne.";
+            if (!TryResolveItems(seller?.Inventory, ids, out var items)) return false;
+            long total = 0;
+            foreach (var item in items)
+            {
+                if (!TryGetSellQuote(trader, item, out var price, out _, out reason)) return false;
+                total += price;
+            }
+            if (total > int.MaxValue) { reason = "Zbyt duża wartość transakcji."; return false; }
+            normalPrice = (int)total;
+            payableGold = (int)Math.Min(trader.GoldBalance, total);
+            reason = string.Empty;
+            return true;
+        }
+
+        public bool TrySellBatch(GameSession session, NpcInstance trader, CharacterInstance seller,
+            IReadOnlyList<string> ids, bool acceptPartialPayment, out int receivedGold, out string reason)
+        {
+            receivedGold = 0;
+            if (!TryGetSellBatchQuote(trader, seller, ids, out var total, out var payable, out reason)) return false;
+            if (trader.ShopInventory.BuybackStock == null)
+            { reason = "Odkup kupca nie jest dostępny."; return false; }
+            if (session == null || session.IsCharacterInCombat(seller.CharacterId))
+            { reason = "Nie można handlować podczas walki."; return false; }
+            if (!acceptPartialPayment && payable < total)
+            { reason = "Kupiec nie ma wystarczającej ilości złota."; return false; }
+            if ((long)session.Gold + payable > int.MaxValue)
+            { reason = "Nie można przyjąć więcej złota."; return false; }
+            TryResolveItems(seller.Inventory, ids, out var items);
+            if (items.Any(item => FindBuybackEntry(trader.ShopInventory, item.InstanceId) != null
+                || FindItem(trader.ShopInventory, item.InstanceId) != null))
+            { reason = "Ten egzemplarz jest już w ofercie kupca."; return false; }
+            // All mutations below are synchronous and have been fully validated.
+            if (payable > 0 && !npcEconomyService.TrySpendGold(trader, payable)) return false;
+            if (payable > 0) session.TryAddGold(payable);
+            var remaining = payable;
+            foreach (var item in items)
+            {
+                var paid = Math.Min(remaining, GetPriceWhenSellingToTrader(trader, item));
+                remaining -= paid;
+                seller.Inventory.Items.Remove(item);
+                trader.ShopInventory.BuybackStock.Add(new BuybackEntry(item, paid));
+            }
+            receivedGold = payable;
+            reason = string.Empty;
+            return true;
+        }
+
+        public bool TryBuyBatch(GameSession session, NpcInstance trader, CharacterInstance buyer,
+            IReadOnlyList<string> ids, bool buyback, out int paidGold, out string reason)
+        {
+            paidGold = 0;
+            reason = "Wybrane przedmioty nie są już dostępne.";
+            if (!CanTrade(trader) || session == null || buyer?.Inventory == null
+                || ids == null || ids.Count == 0 || ids.Distinct().Count() != ids.Count) return false;
+            if (session.IsCharacterInCombat(buyer.CharacterId))
+            { reason = "Nie można handlować podczas walki."; return false; }
+            var items = ids.Select(id => buyback ? FindBuybackEntry(trader.ShopInventory, id)?.Item
+                : FindItem(trader.ShopInventory, id)).ToList();
+            long total = 0;
+            foreach (var item in items)
+            {
+                if (!CanBuyItem(trader, item, out reason)) return false;
+                var price = GetPriceToBuyFromTrader(trader, item);
+                if (price <= 0 && !(buyback && IsFreeStarter(item)))
+                { reason = "Brak poprawnej ceny zakupu."; return false; }
+                total += price;
+                if (FindItem(buyer.Inventory, item.InstanceId) != null)
+                { reason = "Ten egzemplarz jest już w plecaku."; return false; }
+            }
+            if (total > int.MaxValue || total > session.Gold)
+            { reason = "Brakuje złota na ten zakup."; return false; }
+            var weight = items.Sum(item => Mathf.Max(0, item.Definition.Weight));
+            if (buyer.Inventory.MaxWeight.HasValue
+                && inventoryService.GetCurrentWeight(buyer.Inventory) + weight > buyer.Inventory.MaxWeight.Value)
+            { reason = "Brak miejsca w plecaku. Sprawdź limit wagi."; return false; }
+            if (total > 0 && !session.TrySpendGold((int)total)) return false;
+            foreach (var item in items)
+            {
+                if (buyback) RemoveFromBuyback(trader.ShopInventory, item.InstanceId);
+                else trader.ShopInventory.Items.Remove(item);
+            }
+            buyer.Inventory.Items.AddRange(items);
+            if (!buyback && total > 0) npcLoyaltyService.TryRecordGoldSpent(trader, (int)total);
+            if (total > 0) npcEconomyService.TryReceiveGold(trader, total);
+            paidGold = (int)total;
+            reason = string.Empty;
+            return true;
+        }
+
+        private static bool TryResolveItems(Inventory inventory, IReadOnlyList<string> ids, out List<ItemInstance> items)
+        {
+            items = null;
+            if (inventory?.Items == null || ids == null || ids.Count == 0 || ids.Distinct().Count() != ids.Count) return false;
+            items = ids.Select(id => FindItem(inventory, id)).ToList();
+            return items.All(item => item?.Definition != null && !string.IsNullOrWhiteSpace(item.InstanceId));
         }
 
         private static bool CanTrade(NpcInstance trader)

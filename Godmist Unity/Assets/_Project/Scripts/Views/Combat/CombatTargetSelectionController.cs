@@ -16,8 +16,10 @@ using UnityEngine.EventSystems;
 
 namespace Godmist.Views.Combat
 {
-    public class CombatTargetSelectionController : MonoBehaviour
+    public partial class CombatTargetSelectionController : MonoBehaviour
     {
+        private static readonly Unity.Profiling.ProfilerMarker BeginSelectionSample = new("Godmist.Targeting.BeginSelection");
+        private static readonly Unity.Profiling.ProfilerMarker HighlightsSample = new("Godmist.Targeting.Highlights");
         public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
 
         public void SetGridMapping(Vector2 origin, float size)
@@ -50,11 +52,14 @@ namespace Godmist.Views.Combat
         private GridPosition? previewedRelativeCenter;
         private int directionalRotationQuarterTurns;
 
+        private string judgementFieldSignature;
         private SkillData selectedSkill;
         private ConsumableItemInstance selectedConsumable;
+        private BattleUnit selectedConsumableActor;
         private readonly ConsumableService consumableService = new();
         private readonly Dictionary<int, GridPosition?> selectedPositionsByModeIndex = new();
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
+        private readonly Dictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = new();
         private int currentTargetModeIndex;
         [System.NonSerialized] private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
@@ -62,13 +67,81 @@ namespace Godmist.Views.Combat
         private SkillEffectData selectedCreateObjectEffect;
         private bool isSelectingObjectPlacement;
         private CombatTargetPreviewView targetPreview;
-        private SkillTargetModeData CurrentTargetMode => selectedSkill.TargetModes[currentTargetModeIndex];
+        private CombatTargetPreviewView targetPreviewTemplate;
+        public void SetPreviewTemplate(CombatTargetPreviewView template) => targetPreviewTemplate = template;
+        private SkillTargetModeData CurrentTargetMode => PassiveEffectCombatExecutionSystem.ResolveMode(sandboxBootstrap.Session?.ActiveUnit, selectedSkill, selectedSkill.TargetModes[currentTargetModeIndex]);
 
         public bool IsSelectingTarget => selectedSkill != null;
         public bool ConsumedPrimaryClickThisFrame { get; private set; }
         public BattleUnit HoveredUnit { get; private set; }
+        public GridPosition? HoveredPosition { get; private set; }
         public SkillData SelectedSkill => selectedSkill;
         public int CurrentTargetModeIndex => currentTargetModeIndex;
+        public System.Func<Vector3, BattleUnit> ResolvePointerUnit { get; set; }
+        private SkillData hoveredSkill;
+        private BattleUnit hoverActor;
+        private GridPosition hoverOrigin;
+        private int hoverNavigation = -1;
+        public void SetHoveredSkill(SkillData skill)
+        {
+            hoveredSkill = skill; hoverActor = null;
+            if (skill == null) { PresentSkillHover(null); return; }
+            RefreshSkillHover();
+        }
+        public void PresentSkillHover(IEnumerable<GridPosition> positions)
+        {
+            if (feedbackRenderer == null) return;
+            feedbackRenderer.ClearOutline(CombatGridFeedbackLayer.SkillHover);
+            feedbackRenderer.ClearFill(CombatGridFeedbackLayer.SkillHover);
+            if (IsSelectingTarget || positions == null) return;
+            var cells = positions.ToArray();
+            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.SkillHover, cells, absoluteRangeHighlightColor);
+            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.SkillHover, cells, WithAlpha(absoluteRangeHighlightColor, .16f));
+        }
+        private void RefreshSkillHover()
+        {
+            var session = sandboxBootstrap?.Session;
+            var actor = session?.ActiveUnit;
+            if (hoveredSkill == null || actor == null || session.Grid == null || IsSelectingTarget || sandboxBootstrap.IsGameplaySuspended)
+            { hoverActor = null; if (hoveredSkill != null || IsSelectingTarget) PresentSkillHover(null); return; }
+            if (actor == hoverActor && actor.Position == hoverOrigin && session.Grid.NavigationRevision == hoverNavigation) return;
+            hoverActor = actor; hoverOrigin = actor.Position; hoverNavigation = session.Grid.NavigationRevision;
+            var positions = new HashSet<GridPosition>();
+            foreach (var authored in hoveredSkill.TargetModes)
+            {
+                var mode = PassiveEffectCombatExecutionSystem.ResolveMode(actor, hoveredSkill, authored);
+                if (mode != null) positions.UnionWith(sandboxBootstrap.GetAbsoluteSkillRangePositions(hoveredSkill, mode));
+            }
+            PresentSkillHover(positions);
+        }
+        public bool CanRotateCurrentSelection
+        {
+            get
+            {
+                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                    return false;
+
+                var mode = CurrentTargetMode;
+                return IsDirectionalCasterArea(mode)
+                    || mode.UseRelativeRange
+                    && CombatTargetingService.IsRotatableRelativeShape(
+                        mode.RelativeRange?.Shape ?? RangeShape.None);
+            }
+        }
+
+        public bool CanConfirmMultipleTargetSelection
+        {
+            get
+            {
+                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                    return false;
+
+                var mode = CurrentTargetMode;
+                return mode.TargetType == TargetType.MultipleChosen
+                    && chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen)
+                    && chosen.Count > 0;
+            }
+        }
 
         private void Awake()
         {
@@ -86,6 +159,7 @@ namespace Godmist.Views.Combat
 
         public void BeginTargetSelection(SkillData skill)
         {
+            using var sample = BeginSelectionSample.Auto();
             if (skill != null && selectedSkill == skill)
             {
                 CancelTargetSelection();
@@ -144,6 +218,7 @@ namespace Godmist.Views.Combat
             selectedSkill = skill;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            chosenPositionsByModeIndex.Clear();
             rotationsByModeIndex.Clear();
             directionalRotationQuarterTurns = 0;
 
@@ -203,14 +278,8 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (sandboxBootstrap.TryExecuteSkill(
-                    selectedSkill,
-                    selectedPositionsByModeIndex,
-                    null,
-                    null,
-                    rotationsByModeIndex))
+            if (TryExecuteSelectedAction())
             {
-                SpendSelectedConsumable();
                 CancelTargetSelection();
                 return;
             }
@@ -222,8 +291,10 @@ namespace Godmist.Views.Combat
         {
             selectedSkill = null;
             selectedConsumable = null;
+            selectedConsumableActor = null;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
+            chosenPositionsByModeIndex.Clear();
             rotationsByModeIndex.Clear();
             directionalRotationQuarterTurns = 0;
 
@@ -234,21 +305,33 @@ namespace Godmist.Views.Combat
             selectedCreateObjectEffect = null;
             isSelectingObjectPlacement = false;
             HoveredUnit = null;
+            HoveredPosition = null;
 
             ClearAllHighlights();
 
             if (movementInputController != null)
             {
-                movementInputController.enabled = true;
+                movementInputController.enabled = sandboxBootstrap?.IsOpeningPreview != true;
             }
         }
 
         private void Update()
         {
             ConsumedPrimaryClickThisFrame = false;
+            if (sandboxBootstrap?.IsGameplaySuspended == true) { targetPreview?.Hide(); return; }
+            RefreshSkillHover();
+            RefreshJudgementField();
 
-            if (DevConsoleView.IsOpen || !IsSelectingTarget)
+            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedContextMenu() || !IsSelectingTarget)
             {
+                return;
+            }
+
+            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+            {
+                HoveredUnit = null;
+                HoveredPosition = null;
+                targetPreview?.Hide();
                 return;
             }
 
@@ -265,12 +348,7 @@ namespace Godmist.Views.Combat
             if (!isSelectingTeleportDestination
                 && !isSelectingObjectPlacement)
             {
-                if (Input.GetKeyDown(KeyCode.R)
-                    && (IsDirectionalCasterArea(CurrentTargetMode)
-                        || (CurrentTargetMode.UseRelativeRange
-                            && CombatTargetingService.IsRotatableRelativeShape(
-                                CurrentTargetMode.RelativeRange?.Shape
-                                ?? RangeShape.None))))
+                if (Input.GetKeyDown(KeyCode.R) && CanRotateCurrentSelection)
                 {
                     directionalRotationQuarterTurns =
                         (directionalRotationQuarterTurns + 1) % 4;
@@ -283,6 +361,7 @@ namespace Godmist.Views.Combat
             else
             {
                 HoveredUnit = null;
+                HoveredPosition = null;
                 targetPreview?.Hide();
             }
 
@@ -293,6 +372,15 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (!isSelectingTeleportDestination && !isSelectingObjectPlacement
+                && Input.GetKeyDown(KeyCode.Return)
+                && CurrentTargetMode.TargetType == TargetType.MultipleChosen
+                && chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var confirmed)
+                && confirmed.Count > 0)
+            {
+                AdvanceTargetMode();
+                return;
+            }
             if (!Input.GetMouseButtonDown(0)
                 || worldCamera == null)
             {
@@ -315,13 +403,8 @@ namespace Godmist.Views.Combat
                     return;
                 }
 
-                if (sandboxBootstrap.TryExecuteSkill(
-                        selectedSkill,
-                        selectedPositionsByModeIndex,
-                        targetPosition,
-                        null))
+                if (TryExecuteSelectedAction(teleportDestination: targetPosition))
                 {
-                    SpendSelectedConsumable();
                     CancelTargetSelection();
                 }
 
@@ -335,13 +418,8 @@ namespace Godmist.Views.Combat
                     return;
                 }
 
-                if (sandboxBootstrap.TryExecuteSkill(
-                        selectedSkill,
-                        selectedPositionsByModeIndex,
-                        null,
-                        targetPosition))
+                if (TryExecuteSelectedAction(objectPlacementDestination: targetPosition))
                 {
-                    SpendSelectedConsumable();
                     CancelTargetSelection();
                 }
 
@@ -368,6 +446,23 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (targetMode.TargetType == TargetType.MultipleChosen)
+            {
+                var chosen = chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var existing)
+                    ? existing.ToList() : new List<GridPosition>();
+                if (chosen.Contains(targetPosition)) return;
+                chosen.Add(targetPosition);
+                chosenPositionsByModeIndex[currentTargetModeIndex] = chosen;
+                selectedPositionsByModeIndex[currentTargetModeIndex] = chosen[0];
+                var available = sandboxBootstrap.GetEligibleSkillTargetPositions(selectedSkill, targetMode, currentTargetModeIndex).Count;
+                if (chosen.Count < Math.Min(targetMode.ChainTargets, available))
+                {
+                    RebuildTargetHighlights();
+                    return;
+                }
+                AdvanceTargetMode();
+                return;
+            }
             selectedPositionsByModeIndex[currentTargetModeIndex] =
                 IsCursorDirectedCasterArea(targetMode)
                     ? RotateDirectionReference(targetPosition)
@@ -381,8 +476,15 @@ namespace Godmist.Views.Combat
             AdvanceTargetMode();
         }
 
+        public void RefreshOpeningHighlights()
+        {
+            if (IsSelectingTarget && !isSelectingTeleportDestination && !isSelectingObjectPlacement
+                && currentTargetModeIndex < selectedSkill.TargetModes.Count) RebuildTargetHighlights();
+        }
+
         private void RebuildTargetHighlights()
         {
+            using var sample = HighlightsSample.Auto();
             ClearAllHighlights();
 
             if (feedbackRenderer == null
@@ -405,14 +507,8 @@ namespace Godmist.Views.Combat
                 IsCursorDirectedCasterArea(CurrentTargetMode);
             if (!usesRedDirectionalFootprintOnly)
             {
-                SpawnHighlights(
-                    absolutePositions,
-                    absoluteRangeHighlightColor,
-                    CombatGridFeedbackLayer.SkillRange);
-                feedbackRenderer.ShowFill(
-                    CombatGridFeedbackLayer.SkillRange,
-                    absolutePositions,
-                    WithAlpha(absoluteRangeHighlightColor, .24f));
+                SpawnHighlights(absolutePositions, absoluteRangeHighlightColor, CombatGridFeedbackLayer.SkillRange);
+                feedbackRenderer.ShowFill(CombatGridFeedbackLayer.SkillRange, absolutePositions, WithAlpha(absoluteRangeHighlightColor, .24f));
             }
 
             var selectable =
@@ -423,33 +519,56 @@ namespace Godmist.Views.Combat
 
             foreach (var position in selectable)
             {
-                selectablePositions.Add(position);
+                if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
+                    selectablePositions.Add(position);
             }
 
-            var eligibleTargets =
-                sandboxBootstrap.GetEligibleSkillTargetPositions(
-                    selectedSkill,
-                    CurrentTargetMode,
-                    currentTargetModeIndex);
-
-            foreach (var position in eligibleTargets)
+            if (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain)
             {
-                eligibleTargetPositions.Add(position);
+                foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
+                             selectedSkill, CurrentTargetMode, currentTargetModeIndex))
+                    eligibleTargetPositions.Add(position);
             }
 
+            if (chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var selectedCells))
+            {
+                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.9f));
+                feedbackRenderer.ShowFill(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.4f));
+            }
             if (!usesRedDirectionalFootprintOnly)
             {
                 SpawnHighlights(
-                    selectable,
+                    selectablePositions.ToList(),
                     targetHighlightColor,
                     CombatGridFeedbackLayer.SkillTarget);
                 feedbackRenderer.ShowFill(
                     CombatGridFeedbackLayer.SkillTarget,
-                    selectable,
+                    selectablePositions,
                     WithAlpha(targetHighlightColor, .28f));
             }
         }
 
+        private void RefreshJudgementField()
+        {
+            if(feedbackRenderer==null)return;
+            var session=sandboxBootstrap?.Session;
+            var field=session?.SummonedObjects.FirstOrDefault(PaladinCombatSystem.IsField);
+            var source=field==null?null:session.Units.FirstOrDefault(u=>u.Character.CharacterId==field.CreatorCharacterId);
+            var radius=source==null?0:2+PaladinCombatSystem.C(source,"field_range");
+            var signature=field==null?string.Empty:$"{session.CombatId}:{field.ObjectId}:{field.Position}:{radius}";
+            if(signature==judgementFieldSignature)return;
+            judgementFieldSignature=signature;
+            feedbackRenderer.ClearOutline(CombatGridFeedbackLayer.JudgementField);
+            feedbackRenderer.ClearFill(CombatGridFeedbackLayer.JudgementField);
+            if(field==null||session.Grid==null)return;
+            var cells=new List<GridPosition>();var sight=new CombatLineOfSightService();
+            for(var x=Math.Max(0,field.Position.X-radius);x<=Math.Min(session.Grid.Width-1,field.Position.X+radius);x++)
+                for(var y=Math.Max(0,field.Position.Y-radius);y<=Math.Min(session.Grid.Height-1,field.Position.Y+radius);y++)
+                    foreach(var cell in session.Grid.GetPositionsAt(x,y))
+                        if(PaladinCombatSystem.FieldContains(session,field,cell))cells.Add(cell);
+            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.8f));
+            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.12f));
+        }
         private void UpdateRelativeRangePreview()
         {
             if (selectedSkill == null || !HasRelativeRangePreview())
@@ -503,7 +622,8 @@ namespace Godmist.Views.Combat
                 directionReference,
                 IsRotatableShape(CurrentTargetMode)
                     ? directionalRotationQuarterTurns
-                    : 0)) affectedPositions.Add(target.Position);
+                    : 0))
+                if (sandboxBootstrap.IsUnitVisible(target)) affectedPositions.Add(target.Position);
 
             SpawnHighlights(affectedPositions, affectedTargetHighlightColor, CombatGridFeedbackLayer.AffectedArea);
             feedbackRenderer.ShowFill(
@@ -581,6 +701,7 @@ namespace Godmist.Views.Combat
 
                 foreach (var position in destinations)
                 {
+                    if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
                     selectablePositions.Add(position);
                 }
 
@@ -641,6 +762,7 @@ namespace Godmist.Views.Combat
 
                 foreach (var position in placements)
                 {
+                    if (!chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var chosen) || !chosen.Contains(position))
                     selectablePositions.Add(position);
                 }
 
@@ -675,6 +797,13 @@ namespace Godmist.Views.Combat
             var worldPosition =
                 worldCamera.ScreenToWorldPoint(screenPosition);
 
+            if (sandboxBootstrap?.IsOpeningPreview == true && !isSelectingTeleportDestination && !isSelectingObjectPlacement
+                && selectedSkill != null && currentTargetModeIndex >= 0 && currentTargetModeIndex < selectedSkill.TargetModes.Count
+                && CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain)
+            {
+                var unit=ResolvePointerUnit?.Invoke(worldPosition);
+                if(unit!=null) {position=unit.Position;return true;}
+            }
             var gridX = Mathf.RoundToInt(
                 (worldPosition.x - gridOrigin.x) / cellSize);
 
@@ -687,34 +816,34 @@ namespace Godmist.Views.Combat
             return resolved.HasValue;
         }
 
-        private void SpendSelectedConsumable()
+        private bool TryExecuteSelectedAction(GridPosition? teleportDestination = null,
+            GridPosition? objectPlacementDestination = null)
         {
-            var session = sandboxBootstrap?.Session;
-            var consumable = selectedConsumable;
-            var definition = consumable?.ConsumableDefinition;
-            if (session?.ActiveUnit?.Character == null || definition == null) return;
-            if (!consumableService.TrySpendCharge(session.ActiveUnit.Character, consumable)) return;
-            session.ActiveUnit.ConsumableUseTypesUsedThisTurn.Add(definition.UseType);
+            bool Execute() => sandboxBootstrap.TryExecuteSkill(selectedSkill, selectedPositionsByModeIndex,
+                teleportDestination, objectPlacementDestination, rotationsByModeIndex, chosenPositionsByModeIndex);
+            if (selectedConsumable == null) return Execute();
+            return consumableService.TryExecuteInCombat(sandboxBootstrap?.Session,
+                selectedConsumableActor, selectedConsumable, Execute);
         }
 
         public void BeginConsumableTargetSelection(ConsumableItemInstance consumable)
         {
             var session = sandboxBootstrap?.Session;
-            var definition = consumable?.ConsumableDefinition;
+            if (!ConsumableService.CanUseInCombat(session, session?.ActiveUnit, consumable)) return;
             var skill = ConsumableRuntimeActionBuilder.Build(consumable);
-            if (definition == null || skill == null || !consumable.HasCharges
-                || session?.ActiveUnit?.Character == null
-                || session.ActiveUnit.ConsumableUseTypesUsedThisTurn.Contains(definition.UseType))
-            {
-                return;
-            }
-
+            if (skill == null) return;
+            // Cancel the previous selection before storing the new item: BeginTargetSelection
+            // otherwise clears it while replacing an already selected action.
+            CancelTargetSelection();
             selectedConsumable = consumable;
+            selectedConsumableActor = session.ActiveUnit;
             BeginTargetSelection(skill);
+            if (!IsSelectingTarget) CancelTargetSelection();
         }
 
         private void UpdateHoveredUnit(CombatSession session)
         {
+            HoveredPosition = null;
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 HoveredUnit = null;
@@ -723,9 +852,12 @@ namespace Godmist.Views.Combat
 
             HoveredUnit = null;
             if (!TryGetGridPositionUnderMouse(out var position)) return;
+            HoveredPosition = position;
             foreach (var unit in session.Units)
             {
-                if (unit != null && unit.Position == position)
+                if (unit != null && unit.Position == position
+                    && !StatusEffectSystem.IsInvisibleToPlayer(unit)
+                    && (sandboxBootstrap == null || sandboxBootstrap.IsUnitVisible(unit)))
                 {
                     HoveredUnit = unit;
                     return;
@@ -773,25 +905,36 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            targetPreview ??= CombatTargetPreviewView.Create(
-                UIWorkspaceTooltipView.ActiveInstance?.transform.parent);
+            if (targetPreview == null) targetPreview = CombatTargetPreviewView.Create(
+                targetPreviewTemplate != null ? targetPreviewTemplate.transform.parent
+                    : UIWorkspaceTooltipView.ActiveInstance?.transform.parent, targetPreviewTemplate);
             if (targetPreview == null)
             {
                 return;
             }
 
-            var worldPosition = new Vector3(
-                gridOrigin.x + HoveredUnit.Position.X * cellSize,
-                gridOrigin.y + HoveredUnit.Position.Y * cellSize,
-                0f);
-            var screenPosition = worldCamera.WorldToScreenPoint(worldPosition);
-            var hitText = preview.HasHitChance
+            var hitText = preview.HasHitChance && preview.Damage.HasDamage
                 ? $"Trafienie: {preview.HitChance * 100f:0.#}%\n"
                 : string.Empty;
+            var damageText = preview.Damage.HasDamage
+                ? $"{hitText}Obrażenia: {preview.Damage.ToDisplayString()}"
+                : string.Empty;
+            if (preview.Healing.HasValue)
+            {
+                var heal=CombatSkillPreviewCalculator.CalculateHealingPreview(session,session.ActiveUnit,HoveredUnit,selectedSkill,currentTargetModeIndex);
+                string Range(int min,int max)=>min==max?min.ToString():$"{min}–{max}";
+                damageText += (damageText.Length > 0 ? "\n" : "") + $"Leczenie: +{Range(heal.Minimum,heal.Maximum)} HP";
+            }
+            var statusSprite = preview.HasStatusChance
+                ? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon(preview.StatusId)
+                    ?? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon("debuff")
+                : null;
             targetPreview.Show(
-                screenPosition,
-                $"{hitText}Obrażenia: {preview.Damage.Minimum}–{preview.Damage.Maximum}",
-                new Color(1f, 0.86f, 0.45f));
+                Input.mousePosition,
+                damageText,
+                new Color(1f, 0.86f, 0.45f),
+                statusSprite,
+                preview.StatusChance, HoveredUnit);
         }
 
         private GridPosition? GetPreviewSelectedPosition(
@@ -808,7 +951,7 @@ namespace Godmist.Views.Combat
                 return RotateDirectionReference(target.Position);
             }
 
-            return mode.TargetType == TargetType.Single
+            return mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain
                 || mode.TargetType == TargetType.AreaAroundTile
                 ? target.Position
                 : null;
@@ -816,6 +959,8 @@ namespace Godmist.Views.Combat
 
         private void ClearAllHighlights()
         {
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.ChosenSkillTargets);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.ChosenSkillTargets);
             targetPreview?.Hide();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillRange);
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.SkillTarget);
@@ -844,6 +989,11 @@ namespace Godmist.Views.Combat
 
         private void OnDisable()
         {
+            hoveredSkill = null;
+            PresentSkillHover(null);
+            judgementFieldSignature=null;
+            feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.JudgementField);
+            feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.JudgementField);
             ClearAllHighlights();
         }
 
@@ -877,6 +1027,8 @@ namespace Godmist.Views.Combat
             TargetType targetType)
         {
             return targetType == TargetType.Caster
+                || targetType == TargetType.Chain
+                || targetType == TargetType.MultipleChosen
                 || targetType == TargetType.Single
                 || targetType == TargetType.All
                 || targetType == TargetType.AreaAroundCaster
@@ -886,7 +1038,7 @@ namespace Godmist.Views.Combat
         {
             var mode = CurrentTargetMode;
 
-            if (mode.TargetType == TargetType.Single) return eligibleTargetPositions.Contains(position);
+            if (mode.TargetType == TargetType.Single || mode.TargetType == TargetType.MultipleChosen || mode.TargetType == TargetType.Chain) return eligibleTargetPositions.Contains(position);
 
             if (mode.TargetType == TargetType.AreaAroundTile) return absoluteRangePositions.Contains(position);
 
@@ -915,7 +1067,9 @@ namespace Godmist.Views.Combat
 
             var shape = mode.AbsoluteRange?.Shape ?? RangeShape.None;
             return shape == RangeShape.Line
+                || shape == RangeShape.Cone
                 || shape == RangeShape.Diagonal
+                || shape == RangeShape.ThreeRays
                 || shape == RangeShape.TwoSidedLine;
         }
 

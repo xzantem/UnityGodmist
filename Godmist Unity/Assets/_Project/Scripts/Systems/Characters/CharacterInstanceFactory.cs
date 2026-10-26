@@ -31,7 +31,7 @@ namespace Godmist.Systems.Characters
                 throw new ArgumentNullException(nameof(definition));
             }
 
-            classData ??= definition.ClassData;
+            classData = ResolveClassData(definition, classData);
 
             if (classData == null)
             {
@@ -106,15 +106,31 @@ namespace Godmist.Systems.Characters
 
             statPipeline.Refresh(character);
 
-            if (character.Level > CharacterProgressionSystem.MinimumLevel)
+            if (character.Level > CharacterProgressionSystem.MinimumLevel || definition.GrowthData?.HealthCurve?.Length > 0)
             {
                 new CharacterLevelGrowthSystem(statPipeline).Apply(
                     character,
                     grantCurrentHealthGrowth: true);
             }
 
+            if (classData.StartingResourcePercent >= 0)
+                character.ResourcePool.CurrentValue = Mathf.FloorToInt(character.ResourcePool.MaxValue
+                    * Mathf.Clamp(classData.StartingResourcePercent, 0, 100) / 100f);
             new SkillLoadoutSystem().TryInitialize(character);
             return character;
+        }
+
+        internal static CharacterClassData ResolveClassData(CharacterDefinition definition, CharacterClassData requested)
+        {
+            requested ??= definition?.ClassData;
+            var authored = definition?.ClassData;
+            // Older encounters/saves explicitly reference the shared Mana class.
+            // A resource-specific enemy class is authoritative for that same family.
+            if (definition?.Id?.StartsWith("enemy.", StringComparison.Ordinal) == true && authored != null
+                && (requested?.Id is "class.enemy.catacombs" or "class.enemy.forest")
+                && (authored.Id == requested.Id + ".rage" || authored.Id == requested.Id + ".momentum"))
+                return authored;
+            return requested;
         }
 
         private static SkillData ResolveBasicAttackSkill(
