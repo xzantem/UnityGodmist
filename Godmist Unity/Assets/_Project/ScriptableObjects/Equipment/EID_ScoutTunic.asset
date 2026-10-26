@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: equipment.scout.tunic
   <DisplayName>k__BackingField: Tunika
   <Description>k__BackingField: "Lekka tunika pozwalaj\u0105ca na swobodne uniki."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9f974de090e215442852ca7e61b1d975, type: 3}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

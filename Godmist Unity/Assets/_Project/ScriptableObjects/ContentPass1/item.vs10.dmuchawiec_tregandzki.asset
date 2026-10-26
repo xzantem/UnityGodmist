@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.vs10.dmuchawiec_tregandzki
   <DisplayName>k__BackingField: Dmuchawiec tregandzki
   <Description>k__BackingField: Polny kwiat zbierany do alchemicznych mieszanek.
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 3361f7da01c864c4b9aea9ef92e747eb, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

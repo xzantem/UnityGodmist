@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.vs10.bukominowa_nitka
   <DisplayName>k__BackingField: Bukominowa nitka
   <Description>k__BackingField: "Skr\u0119cone w\u0142\xF3kna do zszywania i tkania."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 5288f2ff0898a894ca36547051290d4a, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -24,6 +24,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
     <Amount>k__BackingField: 1

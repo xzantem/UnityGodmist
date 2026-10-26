@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.boar_skin
   <DisplayName>k__BackingField: "Sk\xF3ra dzika"
   <Description>k__BackingField: "Surowa sk\xF3ra zwierz\u0119ca wymagaj\u0105ca wyprawienia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: aaf4213280162ab41b7906c6b4feabf8, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

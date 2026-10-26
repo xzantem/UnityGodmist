@@ -75,7 +75,7 @@ namespace Godmist.Systems.Dungeons
                             lootCatalog,
                             bossDefinition,
                             encounterInstance,
-                            enemyData), dungeon.DungeonLevel);
+                            enemyData), dungeon.DungeonLevel, dungeon);
 
                     // Theme bags are common to the dungeon, while bones and brains
                     // belong to specific enemy species. Both must be pre-rolled so
@@ -89,7 +89,7 @@ namespace Godmist.Systems.Dungeons
                             && lootCatalog != null
                             && lootCatalog.TryGetEnemyLootTable(dungeon.Definition.Theme,
                                 dungeon.DungeonLevel, out _))
-                            enemyReward.Items.AddRange(lootTableSystem.RollLoot(speciesLoot));
+                            enemyReward.Items.AddRange(lootTableSystem.RollDirectLoot(speciesLoot));
                     }
 
                     dungeon.TryStorePreRolledRewards(

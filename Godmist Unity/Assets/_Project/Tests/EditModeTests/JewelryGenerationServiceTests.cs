@@ -51,6 +51,27 @@ namespace Godmist.Tests.EditMode
             Object.DestroyImmediate(definition);
         }
 
+        [TestCase(EquipmentSlot.Ring, "Sztabka żelaza", "Żelazny pierścień z granatem")]
+        [TestCase(EquipmentSlot.Necklace, "Sztabka niklu", "Niklowy naszyjnik z granatem")]
+        [TestCase(EquipmentSlot.Bracelet, "Sztabka miedzi", "Miedziana bransoleta z granatem")]
+        [TestCase(EquipmentSlot.Earrings, "Sztabka stali", "Stalowe kolczyki z granatem")]
+        public void GeneratedName_UsesMetalAndJewelryGender(EquipmentSlot slot, string metal, string expected)
+        {
+            var definition = ScriptableObject.CreateInstance<JewelryItemDefinition>();
+            try
+            {
+                Set(definition, "Id", "jewelry.naming.test");
+                Set(definition, "ItemType", ItemType.Jewelry);
+                Set(definition, "JewelrySlot", slot);
+                var item = new Godmist.Runtime.Items.JewelryItemInstance(definition)
+                    { MetalDisplayName = metal, GemDisplayName = "Granat" };
+                Assert.That(item.DisplayName, Is.EqualTo(expected));
+                item.CustomName = "Moja biżuteria";
+                Assert.That(item.DisplayName, Is.EqualTo("Moja biżuteria"));
+            }
+            finally { Object.DestroyImmediate(definition); }
+        }
+
         private static ItemDefinition CreateMaterial(string id, string displayName, int baseValue, RarityTier rarity)
         {
             var material = ScriptableObject.CreateInstance<ItemDefinition>();

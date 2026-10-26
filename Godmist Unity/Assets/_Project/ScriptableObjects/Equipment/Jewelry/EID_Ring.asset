@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: jewelry.ring
   <DisplayName>k__BackingField: 
   <Description>k__BackingField: "Pier\u015Bcie\u0144 z metalu i kamienia szlachetnego."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 1eb973bac79ec0d4da0ee2a5f0e6fb07, type: 3}
   <ItemType>k__BackingField: 2
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

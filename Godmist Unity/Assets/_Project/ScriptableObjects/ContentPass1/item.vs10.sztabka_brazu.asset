@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Sztabka br\u0105zu"
   <Description>k__BackingField: "Przetopiony metal gotowy do dalszej obr\xF3bki w
     ku\u017Ani."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 380fe97c0712d194298c8b744451c133, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
     <Amount>k__BackingField: 2

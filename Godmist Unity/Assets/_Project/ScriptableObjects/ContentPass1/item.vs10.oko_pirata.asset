@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Oko pirata
   <Description>k__BackingField: "Makabryczny sk\u0142adnik pochodz\u0105cy od pirata,
     u\u017Cywany w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 3455187e203f0cd4ab2723a38f76edbb, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

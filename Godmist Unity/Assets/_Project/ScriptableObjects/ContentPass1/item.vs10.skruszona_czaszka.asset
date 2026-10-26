@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Skruszona czaszka
   <Description>k__BackingField: "Od\u0142amek czaszki u\u017Cywany jako sk\u0142adnik
     alchemiczny."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: ca4c4142c33270e4bae812d056a9953a, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

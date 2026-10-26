@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Miecz Legionu Szkielet\xF3w"
   <Description>k__BackingField: "Miecz niegdy\u015B noszony przez \u017Co\u0142nierzy
     nieumar\u0142ego legionu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: bd2b432c335c60b439723adedd68ffe9, type: 3}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.LootTableData
   <Entries>k__BackingField:
   - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f7e9d3c1b5a742a6c8e0d2f4b6a8c9e1, type: 2}
-    <DropChance>k__BackingField: 0.1
+    <DropChance>k__BackingField: 0.05
     <Amount>k__BackingField:
       Min: 1
-      Max: 2
+      Max: 1
+  <ExpectedEquipmentPerDungeon>k__BackingField: 0

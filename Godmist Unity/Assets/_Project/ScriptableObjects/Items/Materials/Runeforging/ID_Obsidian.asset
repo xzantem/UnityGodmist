@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Obsydian
   <Description>k__BackingField: "Czarne szk\u0142o wulkaniczne u\u017Cywane do zdobienia
     bi\u017Cuterii i pracy z galdurytem."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 75cd79095b6e4f74f83c06ba82635b99, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 5

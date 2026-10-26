@@ -61,11 +61,11 @@ public static class VS13EconomySetup
 
     public static GroupSpec[] AlchemistRotating() => new[]
     {
-        new GroupSpec("herbs", 3, Stock(5, 1,
+        new GroupSpec("herbs", 3, Stock(1, 1,
             "Purchawka", "Kosarz pospolity", "Szyszka", "Trawa dusicielska",
             "Wodorosty", "Kwitnąca wiśnia", "Aloe meda", "Pnącza alzif",
             "Kwiat byliny", "Dmuchawiec tregandzki", "Sitowie", "Mucha zwyczajna")),
-        new GroupSpec("monster-parts", 3, Stock(4, 1,
+        new GroupSpec("monster-parts", 3, Stock(1, 1,
             "Kość szkieleta", "Mózg umarlaka", "Ucho elfa", "Róg demona",
             "Oko pirata", "Pióro ptaka", "Owoc kaktusa", "Spaczone serce",
             "Skruszona czaszka", "Nerka trolla", "Żyjący liść", "Kieł aligatora")),
@@ -102,6 +102,12 @@ public static class VS13EconomySetup
             "Różowy proszek", "Biały proszek", "Złoty proszek",
             "Bursztynowy proszek"))
     };
+
+    // The old forest sell-only ear and the configured alchemy ear share a label.
+    // Keep both catalog IDs for saved loot, but author the merchant with the
+    // craftable item rather than resolving that label ambiguously.
+    public static IEnumerable<ItemDefinition> StockCatalogItems(GameContentCatalog catalog) =>
+        catalog.ItemDefinitions.Where(item => item != null && item.Id != "item.material.elf_ear");
 
     private static string Field(string name) => $"<{name}>k__BackingField";
 
@@ -159,7 +165,7 @@ public static class VS13EconomySetup
     {
         var catalog = AssetDatabase.LoadAssetAtPath<GameContentCatalog>(CatalogPath);
         if (catalog == null) throw new InvalidOperationException("VS-13: brak katalogu treści.");
-        var grouped = catalog.ItemDefinitions.Where(item => item != null)
+        var grouped = StockCatalogItems(catalog)
             .ToLookup(item => item.DisplayName, StringComparer.Ordinal);
         var alchemistLocal = AlchemistLocal();
         var alchemistRotating = AlchemistRotating();

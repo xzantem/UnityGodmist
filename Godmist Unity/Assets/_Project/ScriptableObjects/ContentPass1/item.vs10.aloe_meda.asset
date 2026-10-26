@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Aloe meda
   <Description>k__BackingField: "Mi\u0119siste li\u015Bcie ro\u015Bliny wykorzystywanej
     w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: a53cf8f48bf41bb428b12f7b9c3997c8, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

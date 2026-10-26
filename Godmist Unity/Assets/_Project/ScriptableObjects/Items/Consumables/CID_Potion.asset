@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.consumable.potion
   <DisplayName>k__BackingField: Mikstura
   <Description>k__BackingField: 
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 021c9b732933ceb4f8cf5392d170cb4c, type: 3}
   <ItemType>k__BackingField: 4
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

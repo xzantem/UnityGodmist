@@ -28,3 +28,9 @@ MonoBehaviour:
     <Amount>k__BackingField:
       Min: 1
       Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 62dfbb7c1178ef5439c4b47733cbedfc, type: 2}
+    <DropChance>k__BackingField: 0.5
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  <ExpectedEquipmentPerDungeon>k__BackingField: 5

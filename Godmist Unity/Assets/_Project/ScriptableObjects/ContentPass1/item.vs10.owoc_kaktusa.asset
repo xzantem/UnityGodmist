@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Owoc kaktusa
   <Description>k__BackingField: "Mi\u0119sisty owoc pustynnej ro\u015Bliny u\u017Cywany
     w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 5bafe34ce1859f94b9dcee3ec65d240b, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

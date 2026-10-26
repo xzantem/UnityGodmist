@@ -100,8 +100,45 @@ namespace Godmist.Systems.NPC
                 for (var amount = existing; amount < entry.Limit; amount++)
                     npc.ShopInventory.Items.Add(factory.Create(entry.Item));
             }
+            RemoveInvalidEquipmentOffers(npc);
+            EnforceAlchemyIngredientLimits(npc);
             craftedStock.Refresh(npc, level, catalog, rotate);
             // BuybackStock deliberately has an independent lifecycle.
+        }
+
+        // Starter/base-definition instances are not crafted merchandise. Only
+        // the main offer is repaired; player buyback has a separate owner.
+        public static int RemoveInvalidEquipmentOffers(NpcInstance npc)
+        {
+            if (npc?.ShopInventory == null || npc.Definition?.GetRole<BlacksmithRoleData>() == null) return 0;
+            var removed = npc.ShopInventory.Items.RemoveAll(item => item is Godmist.Runtime.Items.EquipmentItemInstance gear
+                && gear.Definition.ItemType is Godmist.Core.Enums.ItemType.Weapon or Godmist.Core.Enums.ItemType.Armor
+                && (TradeService.IsFreeStarter(gear) || gear.BaseValue <= 0
+                    || gear.Definition is not Godmist.Data.Items.UniqueEquipmentDefinition && gear.PartIds.Count < 3));
+            if (removed > 0) npc.CraftedStockInstanceIds.RemoveAll(id => !npc.ShopInventory.Items.Any(item => item.InstanceId == id));
+            return removed;
+        }
+
+        // Apply authored limits to retained legacy stock without rotating/refilling
+        // it or touching player inventories and the independent buyback list.
+        public static int EnforceAlchemyIngredientLimits(NpcInstance npc)
+        {
+            var alchemist = npc?.Definition?.GetRole<AlchemistRoleData>();
+            var trader = npc?.Definition?.GetRole<TraderRoleData>();
+            if (alchemist == null || trader == null || npc.ShopInventory == null) return 0;
+            var ingredients = (alchemist.IngredientOptions ?? new()).Where(e => e?.Material != null)
+                .Select(e => e.Material.Id).ToHashSet();
+            var limits = (trader.LocalStock ?? new()).Concat((trader.RotatingStock ?? new())
+                    .Where(g => g != null).SelectMany(g => g.Candidates ?? new()))
+                .Where(e => e?.Item != null && ingredients.Contains(e.Item.Id))
+                .GroupBy(e => e.Item.Id).ToDictionary(g => g.Key, g => Math.Max(0, g.Min(e => e.Limit)));
+            var seen = new Dictionary<string, int>();
+            return npc.ShopInventory.Items.RemoveAll(item =>
+            {
+                if (item?.Definition == null || !limits.TryGetValue(item.Definition.Id, out var limit)) return false;
+                seen.TryGetValue(item.Definition.Id, out var count); seen[item.Definition.Id] = count + 1;
+                return count >= limit;
+            });
         }
     }
 }

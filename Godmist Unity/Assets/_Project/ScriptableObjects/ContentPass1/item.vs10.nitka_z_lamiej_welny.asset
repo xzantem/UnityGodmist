@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.vs10.nitka_z_lamiej_welny
   <DisplayName>k__BackingField: "Nitka z lamiej we\u0142ny"
   <Description>k__BackingField: "Skr\u0119cone w\u0142\xF3kna do zszywania i tkania."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: bf00cca3d788a1744ba780df52d04e79, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -24,6 +24,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
     <Amount>k__BackingField: 1

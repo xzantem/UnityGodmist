@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.vs10.mucha_zwyczajna
   <DisplayName>k__BackingField: Mucha zwyczajna
   <Description>k__BackingField: "Pospolity owad u\u017Cywany jako sk\u0142adnik alchemiczny."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6c97cb11d88d87e43aa3020a444820de, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

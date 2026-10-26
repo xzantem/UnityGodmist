@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Cyprysowy patyk
   <Description>k__BackingField: "Przyci\u0119ty kawa\u0142ek drewna na trzon lub
     r\u0119koje\u015B\u0107 broni."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: aa9ef947317416848979771517f61bf0, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 8
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 844de8837e52d9f4e98cce67a92f4a63, type: 2}
     <Amount>k__BackingField: 3

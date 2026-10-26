@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Brzozowa deska
   <Description>k__BackingField: "Obrobiona deska u\u017Cywana do wyrobu drewnianych
     cz\u0119\u015Bci wyposa\u017Cenia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: eaed6266607b765478ddb61ffca9f359, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
     <Amount>k__BackingField: 1

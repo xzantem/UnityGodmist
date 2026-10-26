@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Lity wapie\u0144"
   <Description>k__BackingField: "Twardy blok wapienia, z kt\xF3rego wyrabia si\u0119
     kamienie galdurytu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 897e5d66f430edf48ab0b9b26e3c80bd, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4

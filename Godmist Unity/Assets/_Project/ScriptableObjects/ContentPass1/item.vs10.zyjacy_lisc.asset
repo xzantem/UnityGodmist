@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "\u017Byj\u0105cy li\u015B\u0107"
   <Description>k__BackingField: "Li\u015B\u0107 zachowuj\u0105cy oznaki \u017Cycia
     po zerwaniu, u\u017Cywany w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 910e0f0dc6e2aa14f87f7986c399ab08, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.vs10.bukominowa_tkanina
   <DisplayName>k__BackingField: Bukominowa tkanina
   <Description>k__BackingField: "Tkany materia\u0142 do szycia lekkiego wyposa\u017Cenia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: b508df3b2c628fb4d8c12e29a6305b16, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -24,6 +24,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 3
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: e234ae3469aed734bac60c57bb01dda4, type: 2}
     <Amount>k__BackingField: 8

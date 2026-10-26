@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Szmaragdowy proszek
   <Description>k__BackingField: "Drobny barwny py\u0142 uzyskany ze zmielonego kamienia
     szlachetnego."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4b66389af8fccdb44bf0637b2c2810ad, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 3
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 180b7fa9c58bb9640895d031d9149758, type: 2}
     <Amount>k__BackingField: 1

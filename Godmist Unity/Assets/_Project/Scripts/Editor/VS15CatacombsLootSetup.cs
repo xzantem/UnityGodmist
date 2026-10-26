@@ -83,6 +83,7 @@ namespace Godmist.Editor
         {
             var entry = Add(entries);
             Sub(entry, "ItemDefinition", item);
+            Sub(entry, "SelectionWeight", 1f);
             var amount = entry.FindPropertyRelative(F("Amount"));
             Set(amount.FindPropertyRelative("Min"), min);
             Set(amount.FindPropertyRelative("Max"), max);
@@ -162,27 +163,30 @@ namespace Godmist.Editor
                 foreach (var chance in new[] { 1f, .7f, .3f })
                     Pool(pools, chance, "staples", Staples(high));
                 if (high) Pool(pools, .8f, (Item(items,"item.smithing.coal"),2,3));
-                var herbs = new[] {
-                    (Item(items,"item.alchemy.common_reaper"),1,3),
-                    (Item(items,"item.alchemy.puffball"),1,3) };
-                Pool(pools, 1f, "herbs", herbs);
-                Pool(pools, .4f, "herbs", herbs);
+                Pool(pools, .2f, "alchemy",
+                    (Item(items,"item.alchemy.common_reaper"),1,1),
+                    (Item(items,"item.alchemy.puffball"),1,1),
+                    (Item(items,"item.alchemy.skeleton_bone"),1,1),
+                    (Item(items,"item.alchemy.undead_brain"),1,1));
                 if (high)
                 {
                     Pool(pools, .6f, (Item(items,"item.runic.solid_limestone"),1,2));
                     Pool(pools, .3f, (Item(items,"item.vs10.granat"),1,2));
                     Pool(pools, .15f, (Item(items,"item.runic.amber"),1,1));
                 }
-                Pool(pools, .4f,
-                    (Item(items,"item.alchemy.skeleton_bone"),1,2),
-                    (Item(items,"item.alchemy.undead_brain"),1,2));
+
             }
 
-            return Bag("ID_Catacombs_Resources", "item.lootbag.catacombs.resources",
+            var bag = Bag("ID_Catacombs_Resources", "item.lootbag.catacombs.resources",
                 "Koścista torba zasobów", "Worek z materiałami zebranymi w katakumbach.", so => {
                     Bracket(so, LootLevelBracket.Level1To10, pools => ConfigureBracket(pools, false));
                     Bracket(so, LootLevelBracket.Level11To20, pools => ConfigureBracket(pools, true));
                 });
+            var calibrated = new SerializedObject(bag);
+            CraftingMaterialDropSetup.Configure(calibrated, false);
+            calibrated.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(bag);
+            return bag;
         }
 
         private static LootBagItemDefinition ConfigureEquipment(
@@ -279,9 +283,9 @@ namespace Godmist.Editor
         private static void ConfigureSpeciesDrops(IReadOnlyDictionary<string, ItemDefinition> items)
         {
             var bone = Table("LT_Catacombs_Skeleton",
-                (Item(items,"item.alchemy.skeleton_bone"),.1f,1,2));
+                (Item(items,"item.alchemy.skeleton_bone"),.05f,1,1));
             var brain = Table("LT_Catacombs_Undead",
-                (Item(items,"item.alchemy.undead_brain"),.3f,1,1));
+                (Item(items,"item.alchemy.undead_brain"),.1f,1,1));
             foreach (var key in new[] { "swordsman", "archer", "occultist", "defender",
                 "undead", "ghoul", "wraith" })
             {
@@ -321,16 +325,18 @@ namespace Godmist.Editor
             EditorUtility.SetDirty(galduryte);
 
             var enemyLow = Table("LT_Catacombs_Enemy_1_10_Production",
-                (resources,.5f,1,1), (weapons,.02f,1,1), (armor,.02f,1,1));
+                (resources,.5f,1,1));
             var enemyHigh = Table("LT_Catacombs_Enemy_11_20_Production",
-                (resources,.5f,1,1), (weapons,.02f,1,1),
-                (armor,.02f,1,1), (galdurytes,.01f,1,1));
+                (resources,.5f,1,1), (galdurytes,.01f,1,1));
             var chestLow = Table("LT_Catacombs_Chest_1_10_Production",
                 (resources,1f,2,3), (weapons,.04f,1,1), (armor,.04f,1,1));
             var chestHigh = Table("LT_Catacombs_Chest_11_20_Production",
                 (resources,1f,2,3), (weapons,.04f,1,1),
                 (armor,.04f,1,1), (galdurytes,.02f,1,1));
+            DungeonFoodSetup.ConfigureTables(enemyLow, enemyHigh, chestLow, chestHigh);
             ConfigureCatalog(enemyLow, enemyHigh, chestLow, chestHigh);
+            BranchEquipmentRewardsSetup.ConfigureBudget(chestLow);
+            BranchEquipmentRewardsSetup.ConfigureBudget(chestHigh);
             ConfigureSpeciesDrops(items);
 
             var content = Require<GameContentCatalog>(Root + "World/GC_MainContentCatalog.asset");

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ae6a33b1935874b95f4306f7e1c8fa, type: 3}
+  m_Name: LT_Forest_Boss_1_10_Production
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootTableData
+  <Entries>k__BackingField:
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e304045ad167c24c985a20b575cf2c0, type: 2}
+    <DropChance>k__BackingField: 1
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8749fcaf81c44a7479660fb420976197, type: 2}
+    <DropChance>k__BackingField: 0.15
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: dfbf033015e5b8e46af2a409a20a6437, type: 2}
+    <DropChance>k__BackingField: 0.08
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: dfbf033015e5b8e46af2a409a20a6437, type: 2}
+    <DropChance>k__BackingField: 0.08
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e3e1cb5bbb8b557478b6c0802a645507, type: 2}
+    <DropChance>k__BackingField: 0.06
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7c5eda04f1008d64ab0f6c2dc3db393a, type: 2}
+    <DropChance>k__BackingField: 0.06
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1

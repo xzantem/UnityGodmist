@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Spaczone serce
   <Description>k__BackingField: "Serce ska\u017Cone mroczn\u0105 energi\u0105, u\u017Cywane
     w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6b60fd3634d375c44bbe12ab2523c842, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

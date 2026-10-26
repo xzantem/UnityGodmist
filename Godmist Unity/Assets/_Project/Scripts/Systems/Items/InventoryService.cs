@@ -1,4 +1,6 @@
 using Godmist.Runtime.Items;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Godmist.Systems.Items
@@ -21,25 +23,18 @@ namespace Godmist.Systems.Items
             return currentWeight;
         }
 
-        public bool TryAddItem(Inventory inventory, ItemInstance item)
+        public bool CanAddItem(Inventory inventory, ItemInstance item)
         {
             if (inventory?.Items == null || item?.Definition == null
-                || string.IsNullOrWhiteSpace(item.InstanceId))
-            {
-                return false;
-            }
+                || string.IsNullOrWhiteSpace(item.InstanceId)
+                || ContainsInstanceId(inventory, item.InstanceId)) return false;
+            return !inventory.MaxWeight.HasValue
+                || GetCurrentWeight(inventory) + Mathf.Max(0f, item.Definition.Weight) <= inventory.MaxWeight.Value;
+        }
 
-            if (ContainsInstanceId(inventory, item.InstanceId)) return false;
-
-            var itemWeight = Mathf.Max(0f, item.Definition.Weight);
-            var currentWeight = GetCurrentWeight(inventory);
-
-            if (inventory.MaxWeight.HasValue
-                && currentWeight + itemWeight > inventory.MaxWeight.Value)
-            {
-                return false;
-            }
-
+        public bool TryAddItem(Inventory inventory, ItemInstance item)
+        {
+            if (!CanAddItem(inventory, item)) return false;
             inventory.Items.Add(item);
             return true;
         }
@@ -117,6 +112,21 @@ namespace Godmist.Systems.Items
 
             sourceInventory.Items.Add(removedItem);
             return false;
+        }
+
+        // Validate the entire selection before changing either inventory.
+        public bool TryTransferItems(Inventory source, Inventory destination, IReadOnlyList<string> ids)
+        {
+            if (source?.Items == null || destination?.Items == null || source == destination
+                || ids == null || ids.Count == 0 || ids.Distinct().Count() != ids.Count) return false;
+            var items = ids.Select(id => source.Items.FirstOrDefault(item => item?.InstanceId == id)).ToList();
+            if (items.Any(item => item?.Definition == null || string.IsNullOrWhiteSpace(item.InstanceId)
+                || ContainsInstanceId(destination, item.InstanceId))) return false;
+            var weight = items.Sum(item => Mathf.Max(0, item.Definition.Weight));
+            if (destination.MaxWeight.HasValue && GetCurrentWeight(destination) + weight > destination.MaxWeight.Value) return false;
+            foreach (var item in items) source.Items.Remove(item);
+            destination.Items.AddRange(items);
+            return true;
         }
 
         private static bool ContainsInstanceId(Inventory inventory, string instanceId)

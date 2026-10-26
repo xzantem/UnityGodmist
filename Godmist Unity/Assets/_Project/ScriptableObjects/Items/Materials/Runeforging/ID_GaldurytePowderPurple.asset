@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Purpurowy proszek galdurytu
   <Description>k__BackingField: "Barwny proszek nak\u0142adany na kamie\u0144 galdurytu
     podczas zaklinania."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c464d73700cf74a49a2922b71073b0b5, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 3

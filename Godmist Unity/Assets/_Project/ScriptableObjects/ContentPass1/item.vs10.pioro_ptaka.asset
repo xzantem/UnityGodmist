@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Pi\xF3ro ptaka"
   <Description>k__BackingField: "Pi\xF3ro wykorzystywane jako lekki sk\u0142adnik
     alchemiczny."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 370411a26e1f2da4eb45cb8f2f6daeba, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

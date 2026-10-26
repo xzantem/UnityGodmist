@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Miedziany \u0142a\u0144cuch"
   <Description>k__BackingField: "Po\u0142\u0105czone metalowe ogniwa u\u017Cywane
     do wyrobu kolczug."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 02ca67aec3b3b1c498ade54388dd64f7, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: ff95c6fce5a60c545be90ffe7561299e, type: 2}
     <Amount>k__BackingField: 1

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "W\u0119giel"
   <Description>k__BackingField: "Paliwo do pieca kowalskiego i sk\u0142adnik wyrobu
     stali."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 974833b1f733bd84a9b328195b4d2c0b, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "\u017Belazny \u0142a\u0144cuch"
   <Description>k__BackingField: "Po\u0142\u0105czone metalowe ogniwa u\u017Cywane
     do wyrobu kolczug."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 582c49f5a52c73448af50902944f5670, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: f91f18a2a49b4a74182286e1ee3602e4, type: 2}
     <Amount>k__BackingField: 1

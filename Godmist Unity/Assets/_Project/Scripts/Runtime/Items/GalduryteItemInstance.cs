@@ -67,15 +67,23 @@ namespace Godmist.Runtime.Items
 
         public override bool CanStackWith(ItemInstance other) => false;
 
-        public string GetEffectSummary()
+        public string GetEffectSummary() => GetEffects(false);
+
+        public string GetEffectDetails() => GetEffects(true);
+
+        private string GetEffects(bool detailed)
         {
             if (IsDestroyed) return "Zniszczony — nie daje efektów.";
             if (!IsIdentified) return "Niezidentyfikowany";
             if (Effects == null || Effects.Count == 0) return "Brak efektów";
 
-            var lines = Effects.ConvertAll(GalduryteRuntimeText.FormatEffect);
-            if (Effects.Exists(effect => effect != null && GalduryteRuntimeText.IsAttackTrigger(effect.EffectType)))
-                lines.Add("Efekty przy trafieniu działają raz na użycie umiejętności i nie są wyzwalane przez obrażenia okresowe. Udany efekt statusu obejmuje wszystkich trafionych wrogów.");
+            var lines = new List<string>();
+            foreach (var effect in Effects)
+                if (effect != null) lines.Add(detailed
+                    ? GalduryteRuntimeText.FormatEffect(effect) : GalduryteRuntimeText.FormatEffectSummary(effect));
+            if (lines.Count == 0) return "Brak efektów";
+            if (detailed && Effects.Exists(effect => effect != null && GalduryteRuntimeText.IsAttackTrigger(effect.EffectType)))
+                lines.Add(GalduryteRuntimeText.AttackTriggerRules);
             return string.Join("\n", lines);
         }
 
@@ -98,6 +106,8 @@ namespace Godmist.Runtime.Items
 
     public static class GalduryteRuntimeText
     {
+        public const string AttackTriggerRules = "Efekty przy trafieniu działają raz na użycie umiejętności i nie są wyzwalane przez obrażenia okresowe. Udany efekt statusu obejmuje wszystkich trafionych wrogów.";
+
         public static bool IsAttackTrigger(GalduryteEffectType type) => type is
             GalduryteEffectType.BleedOnAttack or GalduryteEffectType.PoisonOnAttack
             or GalduryteEffectType.BurnOnAttack or GalduryteEffectType.StunOnAttack
@@ -154,49 +164,59 @@ namespace Godmist.Runtime.Items
             };
         }
 
-        public static string FormatEffectRange(GalduryteEffectType type, float minimum, float maximum)
+        // All item surfaces share these names, signs and units. Detailed mechanics
+        // are separate explanatory content, never a window-specific effect list.
+        public static string FormatEffectSummary(GalduryteEffectInstance effect) => effect == null
+            ? string.Empty : $"{GetEffectName(effect.EffectType)}: {FormatEffectValue(effect.EffectType, effect.Value, effect.Value)}";
+
+        public static string FormatEffectRange(GalduryteEffectType type, float minimum, float maximum) =>
+            $"{GetEffectName(type)}: {FormatEffectValue(type, minimum, maximum)}";
+
+        private static string FormatEffectValue(GalduryteEffectType type, float minimum, float maximum)
         {
-            if (type == GalduryteEffectType.ActionValueOnAttack)
-                return $"{GetEffectName(type)}: {minimum:0.##}–{maximum:0.##} jednostki czasu";
-            if (type == GalduryteEffectType.CriticalDamageFlat)
-                return $"{GetEffectName(type)}: +{minimum:0.##}–{maximum:0.##}×";
-            var range = $"{FormatPercent(minimum)}–{FormatPercent(maximum)}";
-            if (type == GalduryteEffectType.HealthPerTurn)
-                return $"Na początku tury odnawia {range} maksymalnego zdrowia";
-            if (type == GalduryteEffectType.ResourcePerTurn)
-                return $"Na początku tury odnawia {range} maksymalnego surowca";
-            if (IsReduction(type)) return $"{GetEffectName(type)}: {range} mniej";
-            if (IsAttackChance(type) || type == GalduryteEffectType.CriticalAvoidance)
-                return $"{GetEffectName(type)}: {range}";
-            return $"{GetEffectName(type)}: +{range}";
+            var absolute = type is GalduryteEffectType.ActionValueOnAttack or GalduryteEffectType.CriticalDamageFlat;
+            var value = absolute ? $"{minimum:0.##}" : FormatPercent(minimum);
+            if (minimum != maximum) value += "–" + (absolute ? $"{maximum:0.##}" : FormatPercent(maximum));
+            if (type == GalduryteEffectType.ActionValueOnAttack) return value + " j. czasu";
+            if (type == GalduryteEffectType.CriticalDamageFlat) return "+" + value + "×";
+            if (type == GalduryteEffectType.HealOnAttack) return value + " obrażeń";
+            if (type == GalduryteEffectType.ResourceOnAttack) return value + " maks.";
+            if (type is GalduryteEffectType.HealthPerTurn or GalduryteEffectType.ResourcePerTurn)
+                return "+" + value + " maks.";
+            if (IsReduction(type)) return "−" + value;
+            return (IsAttackChance(type) || type == GalduryteEffectType.CriticalAvoidance ? "" : "+") + value;
         }
+
+        public static bool HasEffectDetails(GalduryteEffectType type) => IsAttackTrigger(type)
+            || type is GalduryteEffectType.ItemDropChance or GalduryteEffectType.HealthPerTurn
+                or GalduryteEffectType.ResourcePerTurn or GalduryteEffectType.CriticalAvoidance;
 
         public static string GetEffectName(GalduryteEffectType effectType) => effectType switch
         {
             GalduryteEffectType.GeneralDamagePercent => "Zadawane obrażenia",
             GalduryteEffectType.PhysicalDamagePercent => "Obrażenia fizyczne",
             GalduryteEffectType.MagicDamagePercent => "Obrażenia magiczne",
-            GalduryteEffectType.CriticalChancePercent => "Kryt",
+            GalduryteEffectType.CriticalChancePercent => "Szansa krytyczna",
             GalduryteEffectType.CriticalDamageFlat => "Mnożnik obrażeń krytycznych",
             GalduryteEffectType.AccuracyPercent => "Szansa na trafienie",
-            GalduryteEffectType.SuppressionChance => "Szansa na ogłuszenie, zamrożenie i podobne efekty",
+            GalduryteEffectType.SuppressionChance => "Szansa na kontrolę",
             GalduryteEffectType.DebuffChance => "Szansa na osłabienie",
             GalduryteEffectType.DotChance => "Szansa na krwawienie, zatrucie lub podpalenie",
-            GalduryteEffectType.BleedOnAttack => "Szansa na krwawienie przy trafieniu",
-            GalduryteEffectType.PoisonOnAttack => "Szansa na zatrucie przy trafieniu",
-            GalduryteEffectType.BurnOnAttack => "Szansa na podpalenie przy trafieniu",
-            GalduryteEffectType.HealOnAttack => "Zdrowie odnawiane po trafieniu",
-            GalduryteEffectType.ResourceOnAttack => "Surowiec odnawiany po trafieniu",
-            GalduryteEffectType.ActionValueOnAttack => "Przyspieszenie następnego ruchu po trafieniu",
-            GalduryteEffectType.ItemDropChance => "Szansa na znalezienie przedmiotu",
+            GalduryteEffectType.BleedOnAttack => "Krwawienie przy trafieniu",
+            GalduryteEffectType.PoisonOnAttack => "Zatrucie przy trafieniu",
+            GalduryteEffectType.BurnOnAttack => "Podpalenie przy trafieniu",
+            GalduryteEffectType.HealOnAttack => "Leczenie przy trafieniu",
+            GalduryteEffectType.ResourceOnAttack => "Surowiec przy trafieniu",
+            GalduryteEffectType.ActionValueOnAttack => "Przyspieszenie przy trafieniu",
+            GalduryteEffectType.ItemDropChance => "Znajdowanie przedmiotów",
             GalduryteEffectType.ResourceGenerationPercent => "Generacja surowca",
             GalduryteEffectType.UndeadDamagePercent => "Obrażenia przeciwko nieumarłym",
             GalduryteEffectType.HumanDamagePercent => "Obrażenia przeciwko ludziom",
             GalduryteEffectType.BeastDamagePercent => "Obrażenia przeciwko bestiom",
             GalduryteEffectType.DemonDamagePercent => "Obrażenia przeciwko demonom",
-            GalduryteEffectType.StunOnAttack => "Szansa na ogłuszenie przy trafieniu",
-            GalduryteEffectType.FreezeOnAttack => "Szansa na zamrożenie przy trafieniu",
-            GalduryteEffectType.SlowOnAttack => "Szansa na spowolnienie przy trafieniu",
+            GalduryteEffectType.StunOnAttack => "Ogłuszenie przy trafieniu",
+            GalduryteEffectType.FreezeOnAttack => "Zamrożenie przy trafieniu",
+            GalduryteEffectType.SlowOnAttack => "Spowolnienie przy trafieniu",
             GalduryteEffectType.ExperiencePercent => "Zdobywane doświadczenie",
             GalduryteEffectType.GoldPercent => "Zdobywane złoto",
             GalduryteEffectType.PhysicalPenetration => "Penetracja obrony fizycznej",
@@ -209,7 +229,7 @@ namespace Godmist.Runtime.Items
             GalduryteEffectType.SpeedPercent => "Szybkość",
             GalduryteEffectType.ActionPointsPercent => "Maksymalne punkty akcji",
             GalduryteEffectType.DotResistance => "Odporność na krwawienie, zatrucie i podpalenie",
-            GalduryteEffectType.SuppressionResistance => "Odporność na ogłuszenie, zamrożenie i podobne efekty",
+            GalduryteEffectType.SuppressionResistance => "Odporność na kontrolę",
             GalduryteEffectType.DebuffResistance => "Odporność na osłabienia",
             GalduryteEffectType.AllResistance => "Wszystkie odporności",
             GalduryteEffectType.PhysicalDamageReduction => "Otrzymywane obrażenia fizyczne",
@@ -220,9 +240,9 @@ namespace Godmist.Runtime.Items
             GalduryteEffectType.PoisonDamageReduction => "Otrzymywane obrażenia od zatrucia",
             GalduryteEffectType.BurnDamageReduction => "Otrzymywane obrażenia od podpalenia",
             GalduryteEffectType.ResourceCostReduction => "Koszt surowca umiejętności",
-            GalduryteEffectType.CriticalAvoidance => "Szansa na nieotrzymanie ciosu krytycznego",
-            GalduryteEffectType.HealthPerTurn => "Zdrowie odnawiane na początku tury",
-            GalduryteEffectType.ResourcePerTurn => "Surowiec odnawiany na początku tury",
+            GalduryteEffectType.CriticalAvoidance => "Uniknięcie krytyka",
+            GalduryteEffectType.HealthPerTurn => "Zdrowie na początku tury",
+            GalduryteEffectType.ResourcePerTurn => "Surowiec na początku tury",
             _ => effectType.ToString()
         };
 

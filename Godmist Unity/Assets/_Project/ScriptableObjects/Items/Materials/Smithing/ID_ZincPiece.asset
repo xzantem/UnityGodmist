@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Kawa\u0142ek cynku"
   <Description>k__BackingField: "Porcja cynku u\u017Cywana przez kowala do przygotowania
     stop\xF3w."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4eac7705501ffcf44946f819070ed6e6, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

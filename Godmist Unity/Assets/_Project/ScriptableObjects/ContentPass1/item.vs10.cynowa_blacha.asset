@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Cynowa blacha
   <Description>k__BackingField: "Cienka p\u0142yta metalu, z kt\xF3rej powstaj\u0105
     os\u0142ony i cz\u0119\u015Bci pancerza."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: a7257c0ff1665aa4798717726baf0169, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 9a4453b23cf1a6047980898f7088c49b, type: 2}
     <Amount>k__BackingField: 2

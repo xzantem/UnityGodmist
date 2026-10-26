@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Szmaragd
   <Description>k__BackingField: "Zielony kamie\u0144 szlachetny, kt\xF3ry mo\u017Cna
     rozdrobni\u0107 na magiczny proszek."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 1a2e91cc06fb90e4b9c79d0c30433ad2, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4

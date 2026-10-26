@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Br\u0105zowa blacha"
   <Description>k__BackingField: "Cienka p\u0142yta metalu, z kt\xF3rej powstaj\u0105
     os\u0142ony i cz\u0119\u015Bci pancerza."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 762a16a9fbe643e46841f1dafaf4817f, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 713780daaaece6b4ea7b0491ea721ca0, type: 2}
     <Amount>k__BackingField: 2

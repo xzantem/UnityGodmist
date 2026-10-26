@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: part.start.paladin.armorbinder
   <DisplayName>k__BackingField: Przebity pancerz
   <Description>k__BackingField: "Rzemienie \u0142\u0105cz\u0105ce p\u0142yty kirysu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: de88186e1b260804ea336947424bd1d3, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
   <IsStarterOnly>k__BackingField: 1
   <Kind>k__BackingField: 4

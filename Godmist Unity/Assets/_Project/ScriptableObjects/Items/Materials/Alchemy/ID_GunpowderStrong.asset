@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Mocny proch strzelniczy
   <Description>k__BackingField: "\u0141atwopalna mieszanina u\u017Cywana do przygotowania
     bomb."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4df57badf96df444bb532d753e92f9e1, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 6

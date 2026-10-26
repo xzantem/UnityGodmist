@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Niematerialny Sztylet
   <Description>k__BackingField: "Sztylet, kt\xF3rego ostrze zdaje si\u0119 przenika\u0107
     przez materi\u0119."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 644bbf508a33ba94cb733b91cdf630aa, type: 3}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

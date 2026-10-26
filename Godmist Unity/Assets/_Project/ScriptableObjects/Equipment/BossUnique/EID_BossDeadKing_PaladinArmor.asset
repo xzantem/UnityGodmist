@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Zbroja Umar\u0142ego Kr\xF3la"
   <Description>k__BackingField: "Ci\u0119\u017Cka zbroja nosz\u0105ca \u015Blady
     w\u0142adzy Umar\u0142ego Kr\xF3la."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: de88186e1b260804ea336947424bd1d3, type: 3}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

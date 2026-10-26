@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Cytryn
   <Description>k__BackingField: "\u017B\xF3\u0142ty kamie\u0144 szlachetny, kt\xF3ry
     mo\u017Cna rozdrobni\u0107 na magiczny proszek."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 2e753d56a978b964192756a5fe78a2be, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4

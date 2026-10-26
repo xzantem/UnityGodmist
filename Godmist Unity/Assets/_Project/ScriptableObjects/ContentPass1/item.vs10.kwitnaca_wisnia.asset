@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Kwitn\u0105ca wi\u015Bnia"
   <Description>k__BackingField: "Kwiaty wi\u015Bni wykorzystywane w alchemicznych
     mieszaninach."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: ce799586a073a2444b6f137fc89395ca, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

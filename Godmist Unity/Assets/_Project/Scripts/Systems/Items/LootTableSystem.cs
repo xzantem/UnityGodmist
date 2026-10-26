@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Godmist.Systems.Items
 {
-    public class LootTableSystem
+    public partial class LootTableSystem
     {
         private readonly Func<float> randomValue;
 
@@ -52,6 +52,11 @@ namespace Godmist.Systems.Items
         }
 
         public List<ItemInstance> RollLoot(LootTableData lootTable)
+            => RollLoot(lootTable, 1f);
+
+        public List<ItemInstance> RollDirectLoot(LootTableData lootTable) => RollLoot(lootTable, 1f, true);
+
+        private List<ItemInstance> RollLoot(LootTableData lootTable, float equipmentChanceScale, bool direct = false)
         {
             var items = new List<ItemInstance>();
 
@@ -61,7 +66,26 @@ namespace Godmist.Systems.Items
             {
                 if (entry?.ItemDefinition == null) continue;
 
-                var chance = Mathf.Clamp01(entry.DropChance + (entry.DropChance > 0 ? dropChanceBonus : 0));
+                var scale = ExpectedEquipmentCount(entry.ItemDefinition) > 0f ? equipmentChanceScale : 1f;
+                var chance = Mathf.Clamp01(entry.DropChance * scale + (entry.DropChance > 0 ? dropChanceBonus : 0));
+                if (direct && entry.ItemDefinition is LootBagItemDefinition equipmentBag
+                    && (equipmentBag.BossUniqueDrop?.EquipmentDefinitions?.Count ?? 0) == 0
+                    && ExpectedEquipmentCount(equipmentBag) > 0f)
+                {
+                    RollIndependentEquipment(equipmentBag, entry.Amount.Min, entry.Amount.Max, chance, items);
+                    continue;
+                }
+                if (direct && entry.ItemDefinition is EquipmentItemDefinition)
+                {
+                    var count = RollAmount(Mathf.Max(0, entry.Amount.Min), Mathf.Max(entry.Amount.Min, entry.Amount.Max));
+                    for (var i = 0; i < count; i++)
+                        if (PassesDrop(chance))
+                        {
+                            var equipment = CreateItem(entry.ItemDefinition);
+                            if (equipment != null) items.Add(equipment);
+                        }
+                    continue;
+                }
                 var roll = randomValue();
                 if (chance <= 0f || (chance < 1f && roll >= chance)) continue;
 
@@ -80,10 +104,19 @@ namespace Godmist.Systems.Items
             return items;
         }
 
-        public List<ItemInstance> RollChestLoot(LootTableData lootTable)
+        public List<ItemInstance> RollChestLoot(LootTableData lootTable, int equipmentChestCount = 0)
         {
             var contents = new List<ItemInstance>();
-            foreach (var item in RollLoot(lootTable))
+            var scale = 1f;
+            if (lootTable != null && lootTable.ExpectedEquipmentPerDungeon > 0f && equipmentChestCount > 0)
+            {
+                var expected = lootTable.Entries.Where(e => e?.ItemDefinition != null).Sum(e =>
+                    e.DropChance * (Mathf.Max(0, e.Amount.Min) + Mathf.Max(e.Amount.Min, e.Amount.Max)) * .5f
+                    * ExpectedEquipmentCount(e.ItemDefinition));
+                if (expected > 0f)
+                    scale = lootTable.ExpectedEquipmentPerDungeon / (equipmentChestCount * expected);
+            }
+            foreach (var item in RollLoot(lootTable, scale, true))
             {
                 if (item is LootBagItemInstance bag)
                     contents.AddRange(bag.Contents);
@@ -92,6 +125,28 @@ namespace Godmist.Systems.Items
             }
 
             return contents;
+        }
+
+        // Only pure equipment rewards participate; resource bags retain their own probabilities.
+        private float ExpectedEquipmentCount(ItemDefinition definition)
+        {
+            if (definition is EquipmentItemDefinition equipment
+                && equipment.ItemType is ItemType.Weapon or ItemType.Armor) return 1f;
+            if (definition is not LootBagItemDefinition bag
+                || !bag.TryGetBracket(LootLevelBracketResolver.Resolve(lootLevel), out var bracket)
+                || bracket.Pools == null) return 0f;
+            var expected = 0f;
+            foreach (var pool in bracket.Pools)
+            {
+                if (pool?.Entries == null) continue;
+                var entries = pool.Entries.Where(e => e?.ItemDefinition != null).ToArray();
+                if (entries.Length == 0) continue;
+                if (entries.Any(e => e.ItemDefinition is not EquipmentItemDefinition
+                    || e.ItemDefinition.ItemType is not (ItemType.Weapon or ItemType.Armor))) return 0f;
+                expected += pool.DropChance * entries.Average(e =>
+                    (Mathf.Max(0, e.Amount.Min) + Mathf.Max(e.Amount.Min, e.Amount.Max)) * .5f);
+            }
+            return expected;
         }
 
         public LootBagItemInstance CreateLootBag(
@@ -118,11 +173,11 @@ namespace Godmist.Systems.Items
 
         private ItemInstance CreateItem(ItemDefinition definition,
             EquipmentQuality? fixedEquipmentQuality = null,
-            RarityTier minimumGalduryteRarity = RarityTier.Common)
+            RarityTier minimumGalduryteRarity = RarityTier.Common, int fixedGalduryteLevel = 0)
         {
             if (definition is GalduryteItemDefinition galduryteDefinition)
             {
-                return CreateGalduryte(galduryteDefinition, minimumGalduryteRarity);
+                return CreateGalduryte(galduryteDefinition, minimumGalduryteRarity, fixedGalduryteLevel);
             }
 
             if (definition is JewelryItemDefinition jewelryDefinition)
@@ -158,7 +213,7 @@ namespace Godmist.Systems.Items
         }
 
         private GalduryteItemInstance CreateGalduryte(GalduryteItemDefinition definition,
-            RarityTier minimumRarity)
+            RarityTier minimumRarity, int fixedLevel = 0)
         {
             if (lootLevel < 11 || lootLevel > 20) return null;
             var random = galduryteRandom ??= new System.Random(
@@ -171,7 +226,7 @@ namespace Godmist.Systems.Items
                 return null;
             if (rarity < minimumRarity) rarity = minimumRarity;
             var color = colors[random.Next(colors.Length)];
-            const int itemLevel = 11;
+            var itemLevel = fixedLevel >= 11 && fixedLevel <= 20 ? fixedLevel : 11;
             if (!GalduryteRuntimeRules.TryRollEffects(targetType, color,
                     rarity, itemLevel, random, out var effects, out _))
                 return null;
@@ -240,9 +295,31 @@ namespace Godmist.Systems.Items
 
                 if (entries.Count == 0) continue;
 
-                var selectedIndex = Mathf.FloorToInt(
-                    Mathf.Clamp01(randomValue()) * entries.Count);
-                selectedIndex = Mathf.Min(selectedIndex, entries.Count - 1);
+                // Keep the uniform legacy path and its single RNG draw intact.
+                // Weighted pools use the same one draw after distinct filtering.
+                var rollSelection = Mathf.Clamp01(randomValue());
+                var totalWeight = 0d;
+                var weighted = false;
+                foreach (var entry in entries)
+                {
+                    var weight = SelectionWeight(entry);
+                    totalWeight += weight;
+                    weighted |= weight != 1f;
+                }
+                var selectedIndex = Mathf.Min(Mathf.FloorToInt(rollSelection * entries.Count), entries.Count - 1);
+                if (weighted)
+                {
+                    var threshold = rollSelection * totalWeight;
+                    var cumulative = 0d;
+                    selectedIndex = entries.Count - 1;
+                    for (var index = 0; index < entries.Count; index++)
+                    {
+                        cumulative += SelectionWeight(entries[index]);
+                        if (threshold >= cumulative) continue;
+                        selectedIndex = index;
+                        break;
+                    }
+                }
 
                 var selectedEntry = entries[selectedIndex];
                 if (!string.IsNullOrWhiteSpace(pool.DistinctSelectionGroup))
@@ -256,7 +333,7 @@ namespace Godmist.Systems.Items
                     var item = CreateItem(selectedEntry.ItemDefinition,
                         selectedEntry.HasFixedEquipmentQuality
                             ? selectedEntry.EquipmentQuality : null,
-                        selectedEntry.MinimumGalduryteRarity);
+                        selectedEntry.MinimumGalduryteRarity, selectedEntry.FixedGalduryteLevel);
                     if (item != null) contents.Add(item);
                 }
             }
@@ -268,6 +345,12 @@ namespace Godmist.Systems.Items
             }
 
             return contents;
+        }
+
+        private static float SelectionWeight(LootBagPoolEntryData entry)
+        {
+            var weight = entry.SelectionWeight;
+            return weight > 0f && !float.IsNaN(weight) && !float.IsInfinity(weight) ? weight : 1f;
         }
 
         private EquipmentItemInstance RollBossUniqueDrop(BossUniqueDropData data)

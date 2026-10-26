@@ -15,9 +15,9 @@ MonoBehaviour:
   <Id>k__BackingField: CampingKit
   <DisplayName>k__BackingField: Zestaw obozowy
   <Description>k__BackingField: "Zestaw do rozbicia obozu. U\u017Cyty poza walk\u0105
-    odnawia 40% maksymalnego zdrowia i many \u017Cywych cz\u0142onk\xF3w dru\u017Cyny.
+    odnawia 60% maksymalnego zdrowia i many \u017Cywych cz\u0142onk\xF3w dru\u017Cyny.
     Zu\u017Cywa si\u0119 po u\u017Cyciu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 22da89beb1e734b4aaeebc5c6a2f232e, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 0

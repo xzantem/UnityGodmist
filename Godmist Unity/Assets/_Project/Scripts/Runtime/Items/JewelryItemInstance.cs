@@ -22,7 +22,7 @@ namespace Godmist.Runtime.Items
             get
             {
                 var baseName = GetBaseName(EquipmentDefinition?.EquipmentSlot);
-                var metalDescriptor = GetMetalDescriptor(MetalDisplayName);
+                var metalDescriptor = GetMetalDescriptor(MetalDisplayName, EquipmentDefinition?.EquipmentSlot);
                 var prefix = string.IsNullOrWhiteSpace(metalDescriptor)
                     ? baseName
                     : $"{metalDescriptor} {baseName}";
@@ -50,12 +50,26 @@ namespace Godmist.Runtime.Items
             _ => "biżuteria"
         };
 
-        private static string GetMetalDescriptor(string metalName)
+        private static string GetMetalDescriptor(string metalName, EquipmentSlot? slot)
         {
             if (string.IsNullOrWhiteSpace(metalName)) return string.Empty;
-            return metalName.Trim()
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                .FirstOrDefault() ?? string.Empty;
+            var name = metalName.Trim();
+            var adjective = name.ToLowerInvariant() switch
+            {
+                "sztabka żelaza" => "żelazny",
+                "sztabka niklu" => "niklowy",
+                "sztabka miedzi" => "miedziany",
+                "sztabka cyny" => "cynowy",
+                "sztabka stali" => "stalowy",
+                "sztabka inwaru" => "inwarowy",
+                "sztabka żelaza meteorytowego" => "meteorytowy",
+                "sztabka brązu" => "brązowy",
+                _ => name.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty
+            };
+            if (adjective.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+                return adjective[..^1] + (slot == EquipmentSlot.Bracelet ? "a"
+                    : slot == EquipmentSlot.Earrings ? "e" : "y");
+            return adjective;
         }
 
         private static string GetGemInflectedName(string gemName)

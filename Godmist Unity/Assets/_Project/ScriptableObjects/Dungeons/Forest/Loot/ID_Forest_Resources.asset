@@ -1,0 +1,2297 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Forest_Resources
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.forest.resources
+  <DisplayName>k__BackingField: "Le\u015Bna torba zasob\xF3w"
+  <Description>k__BackingField: "Worek z materia\u0142ami zebranymi w lesie."
+  <Icon>k__BackingField: {fileID: 21300000, guid: b33541166d279b84a85ec0023702aa10, type: 3}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d4e6f8a0b2c94375a1d3e5f7b9c0a2d4, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.2
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: eaeb92d514dc4e64483009da5218a30f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: alchemy
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.5779271
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8fdd3eb789104e5d85f502fc266ef354, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.02831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f02440c22d24e158ca7e96210e0c25f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18478864
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.4884548
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 99f79fbd7bd88ff4799303e761cef3d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.09202772
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f5f0c325f2a24a3c98d5cb0803ed6c3a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.2831622
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1415811
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c522258cd44a45f98cb0dc12730e37cc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.19248816
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.48491526
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8c2019f781314039a265259339770c4e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.088488184
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.024776692
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 35769e19dd3a48d2b59b4993409b7f1e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.053314287
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0358205
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 929974d0531b4d72854826f49e857e1f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.060930613
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e11858191e94e9985a8666ef49b169e, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.822917
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.0586694
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 506ac2f1b808433cbbcfe224d5b1c3ba, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5372764
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.8
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.2
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7439a978d1053544490ba4294c6f2c59, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: eaeb92d514dc4e64483009da5218a30f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 0
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: alchemy
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 1
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.91021323
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3ff8b94c0cda4a488fa6dd3c604030cf, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3fd756e9606345c0b25450d09f50190f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.065017805
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 52f157ed44534b8882b5cd40017db577, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.025284702
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 881f300430ab4a7baee8a29409bb37df, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.21672602
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e14ee924af84eb79d6cbd3e9753f346, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.22033812
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e9e4011486c247e4aba92c7e5f844404, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.089786
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c9c915bd93b4495aa8db961a33050022, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f3071f48366148ee917ef6f4a2e602f2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.046957307
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.005910213
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5a0b15eb139e44c9bc3d89330af58f69, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.05745828
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 1.116139
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f9bc790560911dc4a91c4c3fbbd200fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.011820426
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 196b50932bfc4469904b045cfaa64932, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.1887915
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: aeec46caa7114455ac8862b728cf168d, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.51485956
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 7e5d627d6ebb44168c0b26c12d6d6d87, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.20685746
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 51d648f5e54e4d619bf9705c64d093d0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.08307831
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5731519530da449f9db91d3ab437ac9f, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.07946621
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 34a91ac03ec34b70b1d4889096a611d5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.14807427
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: d8982dd37a98450f8cc6180116760c86, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e46b8c70fe6244bfb18cfccb9fffbd80, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.18058318
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 4829978fa2204a5a9eb89f8cf76752b5, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.5234406
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.33233994
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2cb9d84ffaee40b44ab318adff4484ef, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: ded1996480ebefe48815f91170b77d82, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.018611038
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 76cd906d69c790f438f4ea525786807c, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.049850993
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 65e85e27d821b3c439c70bef9426a5ee, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: b38cee5cf3a7de646a0e63921c75fb44, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fd6a8987cc3e2944d810bcba0d06dd15, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026587196
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 763ca36c0c5f80444bdfaf4e72d7505a, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 6c3a52b4fd3ade94c836ef5a97d86181, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026587196
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e4a7efc79020a5e4da24ce9f7ce6f3b0, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026587196
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 0d0af5de77dd8534a81c6f67909bd6a7, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026587196
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: cb2b70459e141c041bb679edd6a027fc, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 180b7fa9c58bb9640895d031d9149758, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 1
+        <SelectionWeight>k__BackingField: 0.026254857
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField: []

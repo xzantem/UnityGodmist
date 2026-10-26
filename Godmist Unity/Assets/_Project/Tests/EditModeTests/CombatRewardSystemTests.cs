@@ -14,6 +14,27 @@ namespace Godmist.Tests.EditMode
 {
     public class CombatRewardSystemTests
     {
+        [TestCase(CombatOutcomeState.Victory)]
+        [TestCase(CombatOutcomeState.Escaped)]
+        public void DefeatExperienceIsImmediateAndNeverGrantedAgain(CombatOutcomeState outcome)
+        {
+            var game = new GameSession();
+            var hero = CreateCharacter("immediate-xp");
+            game.TryRegisterCharacter(hero); game.TryAddCharacterToActiveParty(hero.CharacterId);
+            var combat = new CombatSession { Outcome = CombatOutcomeState.Ongoing };
+            combat.Rewards.EnemyRewards.Add(new CombatEnemyReward { EnemyInstanceId = "enemy", ExperienceLevel = 1 });
+            var system = new CombatRewardSystem();
+            combat.EnemyDefeated = id => system.TryGrantDefeatExperience(game, combat, id);
+            Assert.That(system.TryGrantDefeatExperience(game, combat, "enemy"), Is.False);
+            Assert.That(combat.TryMarkEnemyDefeated("enemy"), Is.True);
+            var awarded = hero.CurrentExperience;
+            Assert.That(awarded, Is.GreaterThan(0));
+            Assert.That(combat.TryMarkEnemyDefeated("enemy"), Is.False);
+            combat.Outcome = outcome;
+            if (outcome == CombatOutcomeState.Victory) system.TryGrantVictoryRewards(game, combat);
+            Assert.That(hero.CurrentExperience, Is.EqualTo(awarded));
+            Assert.That(system.TryGrantDefeatExperience(game, combat, "enemy"), Is.False);
+        }
         [Test]
         public void VictoryExperience_UsesEachCharactersLevelAndGrantsOnlyOnce()
         {
@@ -28,10 +49,10 @@ namespace Godmist.Tests.EditMode
             combat.TryMarkEnemyDefeated("enemy");
             var system = new CombatRewardSystem();
             Assert.That(system.TryGrantVictoryRewards(session, combat), Is.True);
-            Assert.That(low.CurrentExperience, Is.EqualTo(60));
-            Assert.That(high.CurrentExperience, Is.EqualTo(6));
+            Assert.That(low.CurrentExperience, Is.EqualTo(120));
+            Assert.That(high.CurrentExperience, Is.EqualTo(12));
             Assert.That(system.TryGrantVictoryRewards(session, combat), Is.False);
-            Assert.That(high.CurrentExperience, Is.EqualTo(6));
+            Assert.That(high.CurrentExperience, Is.EqualTo(12));
         }
 
         [Test]

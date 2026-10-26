@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Banda\u017C"
   <Description>k__BackingField: "Opatrunek tamuj\u0105cy krwawienie. Zwi\u0119ksza
     odporno\u015B\u0107 na krwawienie o 30% na 3 tury."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 43c1f70227aaf64449b5aa5362341319, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

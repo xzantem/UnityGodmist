@@ -18,18 +18,14 @@ MonoBehaviour:
     <Amount>k__BackingField:
       Min: 1
       Max: 1
-  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: f53f6d28a7d0b024087384f6f7edb567, type: 2}
-    <DropChance>k__BackingField: 0.02
-    <Amount>k__BackingField:
-      Min: 1
-      Max: 1
-  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: eb712b0cd78b9f54cb2f113031b92750, type: 2}
-    <DropChance>k__BackingField: 0.02
-    <Amount>k__BackingField:
-      Min: 1
-      Max: 1
   - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 0a2940372a948dd449cc3465ee7769be, type: 2}
     <DropChance>k__BackingField: 0.01
     <Amount>k__BackingField:
       Min: 1
       Max: 1
+  - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 62dfbb7c1178ef5439c4b47733cbedfc, type: 2}
+    <DropChance>k__BackingField: 0.35
+    <Amount>k__BackingField:
+      Min: 1
+      Max: 1
+  <ExpectedEquipmentPerDungeon>k__BackingField: 0

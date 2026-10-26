@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Niklowy \u0142a\u0144cuch"
   <Description>k__BackingField: "Po\u0142\u0105czone metalowe ogniwa u\u017Cywane
     do wyrobu kolczug."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: f9741a16522c9b847a3cc1fbcc3a17d6, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 8c62958fe5c4eff44a68f4f99dc61b5e, type: 2}
     <Amount>k__BackingField: 1

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Kosarz pospolity
   <Description>k__BackingField: "Niewielki paj\u0119czak u\u017Cywany jako sk\u0142adnik
     alchemiczny."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 72d320149d8ecf44996e6c1bb9d97b6e, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

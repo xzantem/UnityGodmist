@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Granitowy kamie\u0144 galdurytu"
   <Description>k__BackingField: "Obrobiony kamie\u0144 gotowy do zakl\u0119cia i
     osadzenia w wyposa\u017Ceniu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: b3d842666cf0c5548a9d0d8213f6244f, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 5
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 3
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: ec649c5b33bf60548a2307f2e6db41f5, type: 2}
     <Amount>k__BackingField: 1

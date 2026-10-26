@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: equipment.warrior.hauberk
   <DisplayName>k__BackingField: Kolczuga
   <Description>k__BackingField: "Kolczuga chroni\u0105ca wojownika przed ciosami."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 09c72e25731badc40a7c6d3096aed238, type: 3}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

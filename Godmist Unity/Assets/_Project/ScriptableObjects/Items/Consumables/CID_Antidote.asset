@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Antidotum
   <Description>k__BackingField: "Mieszanka zi\xF3\u0142 neutralizuj\u0105ca trucizn\u0119.
     Zwi\u0119ksza odporno\u015B\u0107 na zatrucie o 30% na 3 tury."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: f55f2ff7d5fc8d84aaf03d7bf678da80, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

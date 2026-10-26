@@ -256,6 +256,29 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.Inventory.Items.Count(item => item.Definition == gunpowder), Is.EqualTo(0));
         }
 
+        [TestCase(0)] [TestCase(1)]
+        public void PotionRefillOrdinaryIngredientRestoresAllChargesButCannotRefillBomb(int initialCharges)
+        {
+            var herb=CreateMaterial("alchemy.refill.ordinary");
+            var potionDefinition=CreateConsumable("alchemy.refill.normal",ConsumableUseType.Potion);
+            var bombDefinition=CreateConsumable("alchemy.refill.bomb",ConsumableUseType.Bomb);
+            var role=CreateAlchemyRole(potionDefinition,bombDefinition,
+                new[]{CreateIngredient(herb,1,ConsumableRuntimeEffectType.Heal,10)},System.Array.Empty<AlchemyMediumData>());
+            var alchemist=CreateAlchemist(role);var character=new CharacterInstance{CharacterId="ordinary-refill"};
+            var session=CreateSession(character,"ordinary-refill");
+            var potion=new ConsumableItemInstance(potionDefinition,"potion"){ItemLevel=50,CurrentCharges=initialCharges};
+            var bomb=new ConsumableItemInstance(bombDefinition,"bomb"){ItemLevel=50,CurrentCharges=0};
+            character.Inventory.Items.AddRange(new ItemInstance[]{potion,bomb,new(herb,"herb1"),new(herb,"herb2")});
+            var service=new PotionRefillService();var request=new PotionRefillRequest{ConsumableInstanceId=potion.InstanceId,MediumDefinitionId=herb.Id};
+            Assert.That(service.TryRefill(session,alchemist,request,out var reason),Is.True,reason);
+            Assert.That(potion.CurrentCharges,Is.EqualTo(potion.MaxCharges));
+            Assert.That(character.Inventory.Items.Count(i=>i.Definition==herb),Is.EqualTo(1));
+            Assert.That(service.TryRefill(session,alchemist,request,out _),Is.False);
+            request.ConsumableInstanceId=bomb.InstanceId;
+            Assert.That(service.TryRefill(session,alchemist,request,out _),Is.False);
+            Assert.That(character.Inventory.Items.Count(i=>i.Definition==herb),Is.EqualTo(1));
+        }
+
         [Test]
         public void PotionRefill_ConsumesExactlyOneAlcoholAndFillsPotionRegardlessOfMissingCharges()
         {

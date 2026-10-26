@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: equipment.start.warrior.weapon
   <DisplayName>k__BackingField: "Z\u0142amana bro\u0144"
   <Description>k__BackingField: "Uszkodzona bro\u0144 do walki wr\u0119cz."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: bd2b432c335c60b439723adedd68ffe9, type: 3}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

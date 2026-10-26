@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Ruda niklu
   <Description>k__BackingField: "Surowa bry\u0142a metalu przeznaczona do przetopienia
     w ku\u017Ani."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 363658f40135b164f962fc169376235c, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3

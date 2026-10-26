@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Pn\u0105cza alzif"
   <Description>k__BackingField: "Gi\u0119tkie pn\u0105cza ro\u015Bliny u\u017Cywanej
     w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 178bc948c80ddea429c9c0b79a61a71a, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

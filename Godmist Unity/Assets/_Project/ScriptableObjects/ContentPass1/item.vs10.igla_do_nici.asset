@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Ig\u0142a do nici"
   <Description>k__BackingField: "Cienka metalowa ig\u0142a do zszywania tkanin i
     sk\xF3r."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c82d2efe161bd8d47a7190dd14516d2f, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 3
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: af20630e76146b741837affd9793360c, type: 2}
     <Amount>k__BackingField: 1

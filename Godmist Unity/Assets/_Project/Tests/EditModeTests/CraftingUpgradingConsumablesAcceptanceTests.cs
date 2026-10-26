@@ -23,6 +23,18 @@ namespace Godmist.Tests.EditMode
 {
     public sealed class CraftingUpgradingConsumablesAcceptanceTests
     {
+        [TestCase(0, 0L, "—", "")]
+        [TestCase(0, 100L, "—", "")]
+        [TestCase(7, 0L, "7", "Brakuje: 7 złota")]
+        [TestCase(7, 2L, "7", "Brakuje: 5 złota")]
+        [TestCase(7, 7L, "7", "")]
+        [TestCase(7, 100L, "7", "")]
+        public void UpgradeCostPresentationDoesNotInventAShortfallForBlockedEquipment(int cost, long gold, string price, string missing)
+        {
+            Assert.That(Godmist.Views.UI.Workspace.EquipmentUpgradePresentation.Cost(cost), Is.EqualTo(price));
+            Assert.That(Godmist.Views.UI.Workspace.EquipmentUpgradePresentation.Shortfall(cost, gold), Is.EqualTo(missing));
+        }
+
         [Test]
         public void BlacksmithPreviewBeforeEquipmentSelectionReturnsFailureWithoutMutation()
         {
@@ -243,7 +255,7 @@ namespace Godmist.Tests.EditMode
             };
             item.RecalculateStatModifiers();
             item.RecalculateStatModifiers();
-            Assert.That(item.StatModifiers.Select(x => x.Value), Is.EqualTo(new[] { 140f, .27f, 1.35f, 151f, 202f }).Within(.001f));
+            Assert.That(item.StatModifiers.Select(x => x.Value), Is.EqualTo(new[] { 120f, .27f, .925f, 151f, 202f }).Within(.001f));
             item.CurrentRarity = RarityTier.Common;
             item.RecalculateStatModifiers();
             Assert.That(item.StatModifiers[1].Value, Is.EqualTo(.1f).Within(.0001f));
@@ -360,6 +372,32 @@ namespace Godmist.Tests.EditMode
                 Assert.That(skill.Effects[1].DurationTurns, Is.EqualTo(3), id);
                 Assert.That(skill.Effects[1].ResistanceType, Is.EqualTo(resistanceType), id);
             }
+        }
+
+        [Test]
+        public void CondensedPotion_AppliesSameDamageBuffInExplorationAndCombat()
+        {
+            var definition = CreateConsumable("item.consumable.potion", ConsumableUseType.Potion, 1);
+            var potion = new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime
+            {
+                EffectType = ConsumableRuntimeEffectType.ModifyDamage, Value = .1f, DurationTurns = 8
+            });
+            potion.ApplyCatalyst(ConsumableCatalystType.Condensation, 1);
+            var skill = ConsumableRuntimeActionBuilder.Build(potion);
+            try
+            {
+                var character = new CharacterInstance { CharacterId = "condensation.damage" };
+                character.Inventory.Items.Add(potion);
+                Assert.That(new ConsumableService().TryUseInExploration(character, potion, out _), Is.True);
+                var applied = character.PassiveEffects[0];
+                Assert.That(applied.RemainingDuration, Is.EqualTo(7));
+                var value = applied.GetPayload<VariableModifiersPayload>().Modifiers[0].Value;
+                Assert.That(value, Is.EqualTo(.1f * 8 / 7).Within(.00001f));
+                Assert.That(value, Is.EqualTo(skill.Effects[0].ModifierValue).Within(.00001f));
+                Assert.That(character.Inventory.Items, Is.Empty);
+            }
+            finally { Object.DestroyImmediate(skill); }
         }
 
         [Test]
@@ -595,7 +633,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(restoredEquipment.CurrentRarity, Is.EqualTo(RarityTier.Rare));
             Assert.That(restoredEquipment.Quality, Is.EqualTo(EquipmentQuality.Excellent));
             Assert.That(restoredEquipment.UpgradeProgress, Is.EqualTo(.75f));
-            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(17.5f));
+            Assert.That(restoredEquipment.StatModifiers.Single().Value, Is.EqualTo(13.75f));
             Assert.That(restored.NpcsById[npcDefinition.Id].GoldBalance, Is.EqualTo(340));
             Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldReceived, Is.EqualTo(900));
             Assert.That(restored.NpcsById[npcDefinition.Id].TotalGoldSpent, Is.EqualTo(560));
@@ -736,5 +774,93 @@ namespace Godmist.Tests.EditMode
             Assert.That(field, Is.Not.Null, $"Nie znaleziono backing field dla '{propertyName}'.");
             field.SetValue(target, value);
         }
+        [TestCase(1, false)] [TestCase(3, false)] [TestCase(1, true)]
+        public void SharedCombatConsumableSpendsCarrierAndKeepsLimitOnOriginalCaster(int charges, bool endCombat)
+        {
+            var definition=CreateConsumable("shared.potion",ConsumableUseType.Potion,charges);
+            var potion=new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.RestoreHealth,Value=.25f});
+            var owner=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance {CharacterId="Jerzy"}};
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance {CharacterId="Wladimir"},CurrentActionPoints=1000,MaxActionPoints=1000};
+            owner.Character.Inventory.Items.Add(potion);
+            owner.Character.LifeState=CharacterLifeState.Downed;
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(owner);session.Units.Add(actor);
+            try
+            {
+                var signature=ConsumableService.CombatInventorySignature(session);
+                Assert.That(ConsumableService.GetCombatItems(session),Is.EquivalentTo(new[]{potion}));
+                Assert.That(ConsumableService.CanUseInCombat(session,actor,potion),Is.True);
+                var calls=0;
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,potion,()=>{
+                    calls++;actor.CurrentActionPoints-=200;
+                    if(endCombat){session.Outcome=CombatOutcomeState.Victory;session.ActiveUnit=owner;}
+                    return true;
+                }),Is.True);
+                Assert.That(calls,Is.EqualTo(1));Assert.That(actor.CurrentActionPoints,Is.EqualTo(800));
+                Assert.That(potion.CurrentCharges,Is.EqualTo(charges-1));
+                Assert.That(owner.Character.Inventory.Items.Contains(potion),Is.EqualTo(charges>1));
+                Assert.That(actor.Character.Inventory.Items,Is.Empty);
+                Assert.That(actor.ConsumableUseTypesUsedThisTurn,Does.Contain(ConsumableUseType.Potion));
+                Assert.That(owner.ConsumableUseTypesUsedThisTurn,Is.Empty);
+                Assert.That(ConsumableService.CombatInventorySignature(session),Is.Not.EqualTo(signature));
+                Assert.That(ConsumableService.CanUseInCombat(session,actor,potion),Is.False);
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
+        [TestCase("enemy")] [TestCase("absent")] [TestCase("impostor")]
+        [TestCase("turn")] [TestCase("ap")] [TestCase("used")]
+        [TestCase("empty")] [TestCase("finished")]
+        public void SharedCombatConsumableRejectsInvalidUseBeforeEffects(string reason)
+        {
+            var definition=CreateConsumable("shared.validation",ConsumableUseType.Potion,3);
+            var potion=new ConsumableItemInstance(definition);
+            potion.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.RestoreHealth,Value=.25f});
+            var owner=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance()};
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance(),CurrentActionPoints=1000,MaxActionPoints=1000};
+            owner.Character.Inventory.Items.Add(potion);
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(owner);session.Units.Add(actor);
+            var selected=potion;
+            switch(reason)
+            {
+                case "enemy":owner.IsPlayerSide=false;break;
+                case "absent":session.Units.Remove(owner);break;
+                case "impostor":selected=new ConsumableItemInstance(definition,potion.InstanceId);selected.RuntimeEffects.Add(potion.RuntimeEffects[0]);break;
+                case "turn":session.ActiveUnit=owner;break;
+                case "ap":actor.CurrentActionPoints=199;break;
+                case "used":actor.ConsumableUseTypesUsedThisTurn.Add(ConsumableUseType.Potion);break;
+                case "empty":potion.CurrentCharges=0;break;
+                case "finished":session.Outcome=CombatOutcomeState.Victory;break;
+            }
+            var initial=potion.CurrentCharges;
+            try
+            {
+                var executed=false;
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,selected,()=>{executed=true;return true;}),Is.False);
+                Assert.That(executed,Is.False);Assert.That(potion.CurrentCharges,Is.EqualTo(initial));
+                Assert.That(owner.Character.Inventory.Items,Does.Contain(potion));
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
+        [Test]
+        public void SharedCombatConsumableFailedActionDoesNotSpendOrConsumeTurnLimit()
+        {
+            var definition=CreateConsumable("shared.failed",ConsumableUseType.Bomb,1);
+            var item=new ConsumableItemInstance(definition);
+            item.RuntimeEffects.Add(new ConsumableEffectRuntime {EffectType=ConsumableRuntimeEffectType.DealPhysicalDamage,Value=10});
+            var actor=new Godmist.Runtime.Combat.BattleUnit {IsPlayerSide=true,Character=new CharacterInstance(),CurrentActionPoints=1000,MaxActionPoints=1000};
+            actor.Character.Inventory.Items.Add(item);
+            var session=new Godmist.Runtime.Combat.CombatSession {ActiveUnit=actor};session.Units.Add(actor);session.Units.Add(actor);
+            try
+            {
+                Assert.That(ConsumableService.GetCombatItems(session).Count(),Is.EqualTo(1),"Duplicate participant references must not duplicate items.");
+                Assert.That(new ConsumableService().TryExecuteInCombat(session,actor,item,()=>false),Is.False);
+                Assert.That(item.CurrentCharges,Is.EqualTo(1));Assert.That(actor.CurrentActionPoints,Is.EqualTo(1000));
+                Assert.That(actor.ConsumableUseTypesUsedThisTurn,Is.Empty);
+            }
+            finally {Object.DestroyImmediate(definition);}
+        }
+
     }
 }

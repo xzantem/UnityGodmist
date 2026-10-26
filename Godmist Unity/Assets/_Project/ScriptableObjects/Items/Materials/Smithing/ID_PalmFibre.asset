@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "W\u0142\xF3kno palmy"
   <Description>k__BackingField: "Surowe w\u0142\xF3kna do prz\u0119dzenia nici i
     wyrobu tkanin."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 36b75a13e5e4f17439754808e76d7656, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

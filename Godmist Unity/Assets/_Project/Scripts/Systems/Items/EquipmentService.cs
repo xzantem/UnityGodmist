@@ -57,6 +57,17 @@ namespace Godmist.Systems.Items
             return true;
         }
 
+        public bool TryTransferEquippedItem(CharacterInstance character, EquipmentSlot slot,
+            string expectedInstanceId, Inventory destination)
+        {
+            var item = character?.Equipment?.GetItem(slot);
+            if (item == null || item.InstanceId != expectedInstanceId
+                || !inventoryService.TryAddItem(destination, item)) return false;
+            character.Equipment.SetItem(slot, null);
+            statPipeline.Refresh(character);
+            return true;
+        }
+
         private static EquipmentItemInstance FindEquipmentItem(Inventory inventory, 
             string itemInstanceId)
         {

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Wyprawiona sk\xF3ra kozy"
   <Description>k__BackingField: "Oczyszczona i utrwalona sk\xF3ra gotowa do szycia
     wyposa\u017Cenia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c8862a20c7f76ec4582a4d1186091cff, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 65e5556a9206f72419707f3826d519e2, type: 2}
     <Amount>k__BackingField: 1

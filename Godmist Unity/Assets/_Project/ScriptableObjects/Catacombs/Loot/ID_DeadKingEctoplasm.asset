@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Kr\xF3lewska ektoplazma"
   <Description>k__BackingField: "G\u0119sta esencja pozosta\u0142a po zjawie Umar\u0142ego
     Kr\xF3la."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 4d3b76a0b5cc84443b9a76d8c1202ea3, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 5

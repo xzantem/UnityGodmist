@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.hawthorn_wood
   <DisplayName>k__BackingField: "Drewno g\u0142ogowe"
   <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 5ca31c25ccd4a2e44ab714c91134f27b, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

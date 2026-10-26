@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Podarta szata
   <Description>k__BackingField: "Wytarta szata, kt\xF3ra zapewnia magowi podstawow\u0105
     ochron\u0119."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c9bd799f3728de84f86f5cb51daca2dc, type: 3}
   <ItemType>k__BackingField: 1
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

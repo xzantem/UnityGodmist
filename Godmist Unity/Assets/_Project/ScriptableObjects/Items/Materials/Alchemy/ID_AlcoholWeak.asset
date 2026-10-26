@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "S\u0142aby alkohol"
   <Description>k__BackingField: "Alkohol stanowi\u0105cy baz\u0119 do przygotowania
     mikstur."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: fbf86d6d8a2efee4387bba1e95b725ff, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

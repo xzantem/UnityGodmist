@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Sztabka niklu
   <Description>k__BackingField: "Przetopiony metal gotowy do dalszej obr\xF3bki w
     ku\u017Ani."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9001c89315dc79b438453549a2b6f69d, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 47f6b92ecc4343b4bfe973f4f66c0943, type: 2}
     <Amount>k__BackingField: 2

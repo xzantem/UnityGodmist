@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Zw\xF3j powrotu"
   <Description>k__BackingField: "Jednorazowy zw\xF3j przenosz\u0105cy dru\u017Cyn\u0119
     z wyprawy do Arungardu."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 8c1fff2acf858324b9311719cbbd966e, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 5

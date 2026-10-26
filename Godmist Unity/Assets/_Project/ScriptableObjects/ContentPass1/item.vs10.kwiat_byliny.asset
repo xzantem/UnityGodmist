@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Kwiat byliny
   <Description>k__BackingField: "Kwiat wieloletniej ro\u015Bliny u\u017Cywany przez
     alchemik\xF3w."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9b1d39baac2f8a04ea5ee774b70c8d16, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

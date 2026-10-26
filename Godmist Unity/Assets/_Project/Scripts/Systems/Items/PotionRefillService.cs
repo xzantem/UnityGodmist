@@ -77,7 +77,7 @@ namespace Godmist.Systems.Items
             {
                 preview.FailureReason = consumable.IsBomb
                     ? "Wybierz dostępny proch strzelniczy."
-                    : "Wybierz dostępny alkohol.";
+                    : "Wybierz alkohol lub składnik alchemiczny.";
                 return preview;
             }
 
@@ -86,7 +86,7 @@ namespace Godmist.Systems.Items
             {
                 preview.FailureReason = consumable.IsBomb
                     ? "Brakuje wybranego prochu strzelniczego."
-                    : "Brakuje wybranego alkoholu.";
+                    : "Brakuje wybranego materiału do napełnienia.";
                 return preview;
             }
 
@@ -112,7 +112,7 @@ namespace Godmist.Systems.Items
             {
                 failureReason = preview.Consumable.IsBomb
                     ? "Nie udało się zużyć prochu strzelniczego do napełnienia."
-                    : "Nie udało się zużyć alkoholu do napełnienia.";
+                    : "Nie udało się zużyć materiału do napełnienia.";
                 return false;
             }
 
@@ -151,7 +151,7 @@ namespace Godmist.Systems.Items
             var candidates = consumable.IsBomb ? role.BombGunpowders : role.PotionAlcohols;
             var requiredTier = AlchemyRuntimeRules.GetRequiredMediumTier(consumable.ItemLevel);
             var costService = new AlchemyCraftingService();
-            return candidates?
+            var options = candidates?
                 .Where(option => option?.Material != null && option.Tier >= requiredTier)
                 .OrderBy(option => option.Tier)
                 .Select(option => new RefillMediumOption
@@ -165,6 +165,18 @@ namespace Godmist.Systems.Items
                 })
                 .ToList()
                 ?? new List<RefillMediumOption>();
+            if (!consumable.IsBomb)
+                foreach (var ingredient in costService.GetIngredientOptions(alchemist))
+                {
+                    if (options.Any(option => option.Medium.Id == ingredient.Material.Id)) continue;
+                    options.Add(new RefillMediumOption
+                    {
+                        Medium = ingredient.Material,
+                        Cost = costService.GetDraftMaterialCosts(session, alchemist, new AlchemyCraftRequest
+                        { Ingredients = new List<ItemDefinition> { ingredient.Material } }).FirstOrDefault()
+                    });
+                }
+            return options;
         }
 
         public bool TryBuyMedium(

@@ -16,10 +16,10 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Galduryt
   <Description>k__BackingField: "Kamie\u0144 runiczny, kt\xF3ry mo\u017Cna osadzi\u0107
     w wyposa\u017Ceniu, aby nada\u0107 mu dodatkowe w\u0142a\u015Bciwo\u015Bci."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 150a104fc16b05742bb2bc67bf518f26, type: 3}
   <ItemType>k__BackingField: 5
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 3
-  <BaseValue>k__BackingField: 1
+  <BaseValue>k__BackingField: 136
   <Weight>k__BackingField: 0.1
   <IsStackable>k__BackingField: 0

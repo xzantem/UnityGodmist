@@ -233,6 +233,24 @@ namespace Godmist.Tests.EditMode
             Assert.That(npc.SpentGoldTotal, Is.EqualTo(paid));
         }
 
+        [TestCase(12, RarityTier.Common, .2f, true)]
+        [TestCase(11, RarityTier.Common, .2f, false)]
+        [TestCase(10, RarityTier.Common, .2f, false)]
+        [TestCase(12, RarityTier.Damaged, .2f, false)]
+        [TestCase(12, RarityTier.Common, 0f, false)]
+        public void SocketingCompatibility_UsesExistingLevelRarityAndSocketRules(
+            int level, RarityTier rarity, float progress, bool expected)
+        {
+            equipment.SocketedGaldurytes.Clear();
+            equipment.ItemLevel = level; equipment.CurrentRarity = rarity; equipment.UpgradeProgress = progress;
+            session.Stash.Items.Add(galduryte);
+            session.TrySpendGold(session.Gold);
+            Assert.That(GalduryteSocketingService.CanSocketPair(equipment, galduryte, out _), Is.EqualTo(expected));
+            Assert.That(new GalduryteSocketingService().CreatePreview(session, npc, equipment, galduryte).CanSocket, Is.False);
+            Assert.That(galduryte.IsIdentified, Is.True);
+            Assert.That(equipment.SocketedGaldurytes, Is.Empty);
+        }
+
         [Test]
         public void Socketing_RejectsForeignEquipmentAndCopiedGalduryte()
         {

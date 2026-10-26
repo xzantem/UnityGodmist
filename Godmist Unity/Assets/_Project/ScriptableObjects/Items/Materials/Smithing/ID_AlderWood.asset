@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.alder_wood
   <DisplayName>k__BackingField: Drewno olchowe
   <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: e57168987eb90ea4e81f1d760e5238be, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3

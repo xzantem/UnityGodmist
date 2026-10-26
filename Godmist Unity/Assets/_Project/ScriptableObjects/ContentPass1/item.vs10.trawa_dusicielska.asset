@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Trawa dusicielska
   <Description>k__BackingField: "Spl\u0105tane \u017Ad\u017Ab\u0142a ro\u015Bliny
     u\u017Cywanej w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: cc0f7d9ab75139b4fb10f82febd62337, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

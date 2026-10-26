@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.fox_skin
   <DisplayName>k__BackingField: "Sk\xF3ra lisa"
   <Description>k__BackingField: "Surowa sk\xF3ra zwierz\u0119ca wymagaj\u0105ca wyprawienia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c2ba0be207a9a2245b6d8d47d13e4b31, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Sztabka \u017Celaza"
   <Description>k__BackingField: "Przetopiony metal gotowy do dalszej obr\xF3bki w
     ku\u017Ani."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 3b418966e5a627f4ca75543fb32d6801, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 3
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
     <Amount>k__BackingField: 2

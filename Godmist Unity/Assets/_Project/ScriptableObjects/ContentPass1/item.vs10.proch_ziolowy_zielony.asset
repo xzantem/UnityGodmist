@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Proch zio\u0142owy: Zielony"
   <Description>k__BackingField: "Mieszanina rozdrobnionych sk\u0142adnik\xF3w u\u017Cywana
     do warzenia mikstur."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: b9233200ac18c554285d8237bd3797a9, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 2
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 4f809ca8e3ad4df3a94d1c1c17b00521, type: 2}
     <Amount>k__BackingField: 2

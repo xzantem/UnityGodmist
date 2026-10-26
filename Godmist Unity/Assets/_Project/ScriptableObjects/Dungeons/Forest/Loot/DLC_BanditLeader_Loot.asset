@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c9e2f7b1d34680a4e8c6f3d9b2a170, type: 3}
+  m_Name: DLC_BanditLeader_Loot
+  m_EditorClassIdentifier: Data::Godmist.Data.Dungeons.DungeonLootTableCatalog
+  <Entries>k__BackingField:
+  - <Theme>k__BackingField: 1
+    <Bracket>k__BackingField: 0
+    <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: f36e51e45825edd48b4b1da0c379cd40, type: 2}
+    <ChestLootTable>k__BackingField: {fileID: 11400000, guid: 0cd806d1f9ad2d640aba65a659dc4d89, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 5389a1fc5f0d70e45a9f41ed35e52516, type: 2}
+  - <Theme>k__BackingField: 1
+    <Bracket>k__BackingField: 1
+    <EnemyLootTable>k__BackingField: {fileID: 11400000, guid: 23b7519e9dd21884cac29a691d4a8b4b, type: 2}
+    <ChestLootTable>k__BackingField: {fileID: 11400000, guid: 393418a6e3ab9bd45a359111db357724, type: 2}
+    <BossLootTable>k__BackingField: {fileID: 11400000, guid: 1914b0c39429ae841b6caa91f98403de, type: 2}

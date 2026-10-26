@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.birch_wood
   <DisplayName>k__BackingField: Drewno brzozowe
   <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 1ea788cdfd420e04abdf88929b1b240c, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

@@ -34,8 +34,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(all.Select(entry => entry.Name).Distinct().Count(), Is.EqualTo(all.Length));
                 foreach (var entry in all)
                 {
-                    Assert.That(catalog.ItemDefinitions.Count(item => item != null
-                        && item.DisplayName == entry.Name), Is.EqualTo(1), entry.Name);
+                    Assert.That(VS13EconomySetup.StockCatalogItems(catalog).Count(item => item.DisplayName == entry.Name), Is.EqualTo(1), entry.Name);
                     Assert.That(entry.Limit, Is.GreaterThan(0), entry.Name);
                     Assert.That(entry.From, Is.InRange(1, 20), entry.Name);
                     Assert.That(entry.Through, Is.GreaterThanOrEqualTo(entry.From), entry.Name);

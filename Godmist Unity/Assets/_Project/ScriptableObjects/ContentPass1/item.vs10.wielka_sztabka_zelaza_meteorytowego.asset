@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Wielka sztabka \u017Celaza meteorytowego"
   <Description>k__BackingField: "Du\u017Ca porcja przetopionego metalu do wyrobu
     ci\u0119\u017Ckich cz\u0119\u015Bci wyposa\u017Cenia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 80d836275447dc74880fa66f3b86fe28, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 1
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 8f66a0e30d622a14192d9cb2abadee8f, type: 2}
     <Amount>k__BackingField: 6

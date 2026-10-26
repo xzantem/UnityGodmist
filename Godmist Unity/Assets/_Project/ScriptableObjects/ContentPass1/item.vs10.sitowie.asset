@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Sitowie
   <Description>k__BackingField: "\u0141odygi ro\u015Bliny rosn\u0105cej przy wodzie,
     u\u017Cywane w alchemii."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: dda0a2df4df96674f93dc616f8b9ce01, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 2
   <BaseRarity>k__BackingField: 3

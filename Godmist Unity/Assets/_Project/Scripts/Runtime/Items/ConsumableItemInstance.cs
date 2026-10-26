@@ -36,6 +36,8 @@ namespace Godmist.Runtime.Items
                 ConsumableDefinition.MaxCharges + CatalystChargeBonus));
         public bool HasCharges => CurrentCharges > 0;
 
+        public bool IsFood => ConsumableDefinition?.UseType == ConsumableUseType.Food;
+
         public bool IsBomb => ConsumableDefinition?.UseType == ConsumableUseType.Bomb;
 
         public override int BaseValue => CraftedBaseValue > 0

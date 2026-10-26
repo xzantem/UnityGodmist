@@ -86,13 +86,13 @@ namespace Godmist.Systems.Combat
             1 + Sum(c, GalduryteEffectType.ResourceGenerationPercent)
                 + new CombatVariableSystem().GetMultiplier(c, GameplayVariableType.ResourceGenerationPercent) - 1;
 
-        public static void Tick(BattleUnit unit)
+        public static void Tick(BattleUnit unit, bool allowResourceRecovery = true)
         {
             if (unit?.Character?.LifeState != CharacterLifeState.Alive) return;
             var c = unit.Character;
             var recovery = new CombatRecoverySystem();
             recovery.Heal(unit, PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount((c.Stats?.MaxHealth.GetValue() ?? 0) * Sum(c, GalduryteEffectType.HealthPerTurn), ref c.EquipmentHealthCarry));
-            recovery.RestoreResource(unit, PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount((c.ResourcePool?.MaxValue ?? 0) * Sum(c, GalduryteEffectType.ResourcePerTurn), ref c.EquipmentResourceCarry));
+            if (allowResourceRecovery) recovery.RestoreResource(unit, PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount((c.ResourcePool?.MaxValue ?? 0) * Sum(c, GalduryteEffectType.ResourcePerTurn), ref c.EquipmentResourceCarry));
         }
     }
 }

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Paski ze sk\xF3ry tygrysa"
   <Description>k__BackingField: "W\u0105skie paski wyprawionej sk\xF3ry do \u0142\u0105czenia
     cz\u0119\u015Bci wyposa\u017Cenia."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: cd3b64f4caffef24ea0406bed5a0ea12, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 713e3afc128e05341ba457b9c318be39, type: 2}
     <Amount>k__BackingField: 1

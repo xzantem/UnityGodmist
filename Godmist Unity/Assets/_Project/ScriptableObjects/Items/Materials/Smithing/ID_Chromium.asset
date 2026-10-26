@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.chromium
   <DisplayName>k__BackingField: Chrom
   <Description>k__BackingField: "Twardy metal dodawany do stop\xF3w kowalskich."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: d5968e5ff4b0d324089cc5b00943b4d4, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

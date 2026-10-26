@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Sproszkowany inwar
   <Description>k__BackingField: "Drobno zmielony metal u\u017Cywany w rzemio\u015Ble
     runicznym."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: a7515a44a7d59304db8aa7df2de6faab, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: c019209280da1154caecc1e15f60d320, type: 2}
     <Amount>k__BackingField: 1

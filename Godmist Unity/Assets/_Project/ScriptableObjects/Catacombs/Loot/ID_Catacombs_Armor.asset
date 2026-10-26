@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.lootbag.catacombs.armor
   <DisplayName>k__BackingField: Torba z pancerzami
   <Description>k__BackingField: Worek z pancerzami znalezionymi w katakumbach.
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7d1415f88fd296b4ca68fc7473eb31d3, type: 3}
   <ItemType>k__BackingField: 6
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
@@ -33,72 +33,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
@@ -108,72 +120,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.8
       <Entries>k__BackingField:
@@ -183,72 +207,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.5
       <Entries>k__BackingField:
@@ -258,72 +294,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.25
       <Entries>k__BackingField:
@@ -333,72 +381,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
   - <Bracket>k__BackingField: 1
     <Pools>k__BackingField:
@@ -410,72 +470,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
@@ -485,72 +557,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.8
       <Entries>k__BackingField:
@@ -560,72 +644,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.5
       <Entries>k__BackingField:
@@ -635,72 +731,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.25
       <Entries>k__BackingField:
@@ -710,72 +818,84 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 5ff38f37cbeb7874492d7cacd74f97a8, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: fe9895b24f259d8469ef998dcb88b57a, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 1
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2aa3bf22fbc236f45aa597e248958fb4, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 1
         <EquipmentQuality>k__BackingField: 2
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
   <BossUniqueDrop>k__BackingField:
     <DropChance>k__BackingField: 0.3

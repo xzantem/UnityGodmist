@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: equipment.start.scout.weapon
   <DisplayName>k__BackingField: "Zardzewia\u0142a bro\u0144"
   <Description>k__BackingField: "Zardzewia\u0142e ostrza do walki wr\u0119cz."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 644bbf508a33ba94cb733b91cdf630aa, type: 3}
   <ItemType>k__BackingField: 0
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3

@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Porysowany pancerz
   <Description>k__BackingField: "Sk\xF3rzany sp\xF3d kolczugi oddzielaj\u0105cy metal
     od cia\u0142a."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 09c72e25731badc40a7c6d3096aed238, type: 3}
   <RequiredClass>k__BackingField: {fileID: 11400000, guid: 735a1b661f7564c4fbf0f861a9e97693, type: 2}
   <IsStarterOnly>k__BackingField: 1
   <Kind>k__BackingField: 5

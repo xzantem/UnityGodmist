@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7b5d2c1a4e6f8093b5c7d1e2a4f608, type: 3}
+  m_Name: EID_Forest_EntHammer
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
+  <Id>k__BackingField: unique.forest.ent.hammer
+  <DisplayName>k__BackingField: "Elficki M\u0142ot \u017Bycia"
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9bf4798dfad25e64c83794ba961164b9, type: 3}
+  <ItemType>k__BackingField: 0
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 6
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: a550a7c9ea771e6408cf288c17ca63a4, type: 2}
+  <BaseDefinition>k__BackingField: {fileID: 11400000, guid: 89180bb0256616a42bc11777057d98cf, type: 2}
+  <Effects>k__BackingField:
+  - <Id>k__BackingField: passive.forest.ent.hammer
+    <DisplayName>k__BackingField: "Elficki M\u0142ot \u017Bycia"
+    <Description>k__BackingField: "30% szansy na dodatkowe leczenie sojusznika o
+      najni\u017Cszym zdrowiu za 50% przywr\xF3conego zdrowia."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 17
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.forest.ent.hammer
+      <Type>k__BackingField: 9
+      <Target>k__BackingField: 10
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 12
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 0
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 9
+        <NumberValue>k__BackingField: 0
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 0.5
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField:
+      - <Key>k__BackingField: chance
+        <StringValue>k__BackingField: 
+        <NumberValue>k__BackingField: 0.3
+        <IntegerValue>k__BackingField: 0
+        <BooleanValue>k__BackingField: 0
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "30% szansy na dodatkowe leczenie sojusznika
+        o najni\u017Cszym zdrowiu za 50% przywr\xF3conego zdrowia."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: passive.forest.ent.hammer
+    <DisplayName>k__BackingField: "Elficki M\u0142ot \u017Bycia"
+    <Description>k__BackingField: "35% szansy na dodatkowe leczenie sojusznika o
+      najni\u017Cszym zdrowiu za 54% przywr\xF3conego zdrowia."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField:
+    - <Type>k__BackingField: 17
+      <EventId>k__BackingField: 
+      <Parameters>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: operation.forest.ent.hammer
+      <Type>k__BackingField: 9
+      <Target>k__BackingField: 10
+      <ReferenceId>k__BackingField: 
+      <StatType>k__BackingField: 12
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 0
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 9
+        <NumberValue>k__BackingField: 0
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 0.54
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField:
+      - <Key>k__BackingField: chance
+        <StringValue>k__BackingField: 
+        <NumberValue>k__BackingField: 0.35
+        <IntegerValue>k__BackingField: 0
+        <BooleanValue>k__BackingField: 0
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "35% szansy na dodatkowe leczenie sojusznika
+        o najni\u017Cszym zdrowiu za 54% przywr\xF3conego zdrowia."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <SummonPool>k__BackingField: []

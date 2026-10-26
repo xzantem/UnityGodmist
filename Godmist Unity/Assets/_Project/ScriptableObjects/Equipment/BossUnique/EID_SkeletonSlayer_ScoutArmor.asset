@@ -1,0 +1,238 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7b5d2c1a4e6f8093b5c7d1e2a4f608, type: 3}
+  m_Name: EID_SkeletonSlayer_ScoutArmor
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.UniqueEquipmentDefinition
+  <Id>k__BackingField: unique.skeleton_slayer.armor.scout
+  <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+  <Description>k__BackingField: 
+  <Icon>k__BackingField: {fileID: 21300000, guid: 9f974de090e215442852ca7e61b1d975, type: 3}
+  <ItemType>k__BackingField: 1
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 6
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 5
+  <IsStackable>k__BackingField: 0
+  <IsStarterEquipment>k__BackingField: 0
+  <RequiredClass>k__BackingField: {fileID: 11400000, guid: 5983b2663c69b9a4eab4b9aea172f033, type: 2}
+  <BaseDefinition>k__BackingField: {fileID: 11400000, guid: 541ce48b490026e41b5d8c656accc334, type: 2}
+  <Effects>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.effect
+    <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+    <Description>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy w\u0142asnymi
+      turami: \u221225% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia okresowe
+      i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105 ochrony."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.operation
+      <Type>k__BackingField: 21
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: first-physical-hit
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.25
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy
+        w\u0142asnymi turami: \u221225% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia
+        okresowe i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105
+        ochrony."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel20>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.effect
+    <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+    <Description>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy w\u0142asnymi
+      turami: \u221230% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia okresowe
+      i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105 ochrony."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.operation
+      <Type>k__BackingField: 21
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: first-physical-hit
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.3
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy
+        w\u0142asnymi turami: \u221230% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia
+        okresowe i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105
+        ochrony."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel30>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.effect
+    <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+    <Description>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy w\u0142asnymi
+      turami: \u221235% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia okresowe
+      i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105 ochrony."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.operation
+      <Type>k__BackingField: 21
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: first-physical-hit
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.35
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy
+        w\u0142asnymi turami: \u221235% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia
+        okresowe i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105
+        ochrony."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel40>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.effect
+    <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+    <Description>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy w\u0142asnymi
+      turami: \u221240% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia okresowe
+      i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105 ochrony."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.operation
+      <Type>k__BackingField: 21
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: first-physical-hit
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.4
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy
+        w\u0142asnymi turami: \u221240% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia
+        okresowe i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105
+        ochrony."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <EffectsLevel50>k__BackingField:
+  - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.effect
+    <DisplayName>k__BackingField: "\u017Bebrowana Tunika"
+    <Description>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy w\u0142asnymi
+      turami: \u221250% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia okresowe
+      i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105 ochrony."
+    <Lifetime>k__BackingField: 0
+    <DefaultDurationTurns>k__BackingField: 0
+    <TickPhase>k__BackingField: 0
+    <StackingRule>k__BackingField: 0
+    <ConditionCombination>k__BackingField: 0
+    <Conditions>k__BackingField: []
+    <Triggers>k__BackingField: []
+    <Operations>k__BackingField:
+    - <Id>k__BackingField: unique.skeleton_slayer.armor.scout.operation
+      <Type>k__BackingField: 21
+      <Target>k__BackingField: 0
+      <ReferenceId>k__BackingField: first-physical-hit
+      <StatType>k__BackingField: 0
+      <VariableType>k__BackingField: 0
+      <ResistanceType>k__BackingField: 0
+      <ModifierOperation>k__BackingField: 2
+      <ModifierStacking>k__BackingField: 0
+      <Value>k__BackingField:
+        <Source>k__BackingField: 0
+        <NumberValue>k__BackingField: 0.5
+        <RankValues>k__BackingField: []
+        <ReferenceId>k__BackingField: 
+        <StateKey>k__BackingField: 
+        <Scale>k__BackingField: 1
+        <Offset>k__BackingField: 0
+      <DurationTurns>k__BackingField: 0
+      <Parameters>k__BackingField: []
+    <Tooltip>k__BackingField:
+      <TitleOverride>k__BackingField: 
+      <DescriptionOverride>k__BackingField: "Pierwsze trafienie fizyczne mi\u0119dzy
+        w\u0142asnymi turami: \u221250% obra\u017Ce\u0144. Pud\u0142a, uniki, obra\u017Cenia
+        okresowe i trafienia ca\u0142kowicie poch\u0142oni\u0119te nie zu\u017Cywaj\u0105
+        ochrony."
+      <ConditionText>k__BackingField: 
+      <TriggerText>k__BackingField: 
+      <ShowRuntimeState>k__BackingField: 0
+  <SummonPool>k__BackingField: []

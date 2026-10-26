@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Diament
   <Description>k__BackingField: "Twardy, przejrzysty kamie\u0144 szlachetny u\u017Cywany
     w rzemio\u015Ble."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6e01f2307a90dd94994bd26d77ead3c9, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 3
   <BaseRarity>k__BackingField: 4

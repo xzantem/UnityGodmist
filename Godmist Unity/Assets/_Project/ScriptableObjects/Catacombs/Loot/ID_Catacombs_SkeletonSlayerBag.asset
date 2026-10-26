@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef0d4c5b7a9e1230468bd2f1c6a8e579, type: 3}
+  m_Name: ID_Catacombs_SkeletonSlayerBag
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.LootBagItemDefinition
+  <Id>k__BackingField: item.lootbag.catacombs.skeleton_slayer
+  <DisplayName>k__BackingField: "Torba Szkieleta Zab\xF3jcy"
+  <Description>k__BackingField: "\u0141upy wyniesione z komnaty Szkieleta Zab\xF3jcy."
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6bcf727d84b29434698478e362f89dd0, type: 3}
+  <ItemType>k__BackingField: 6
+  <MaterialDiscipline>k__BackingField: 0
+  <BaseRarity>k__BackingField: 3
+  <BaseValue>k__BackingField: 0
+  <Weight>k__BackingField: 1
+  <IsStackable>k__BackingField: 0
+  <Brackets>k__BackingField:
+  - <Bracket>k__BackingField: 0
+    <Pools>k__BackingField: []
+  - <Bracket>k__BackingField: 1
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.5
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 3e0f6aed4ad293e43a8f49497e348a72, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.6
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 6c3a52b4fd3ade94c836ef5a97d86181, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 5
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2cb9d84ffaee40b44ab318adff4484ef, type: 2}
+        <Amount>k__BackingField:
+          Min: 2
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.3
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: c2507737c1d1a374bb8b034a2be795f0, type: 2}
+        <Amount>k__BackingField:
+          Min: 3
+          Max: 3
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 5
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
+  <BossUniqueDrop>k__BackingField:
+    <DropChance>k__BackingField: 0.3
+    <EquipmentDefinitions>k__BackingField:
+    - {fileID: 11400000, guid: df6371a1e0a62cc4c85f36d9d0598e7c, type: 2}
+    - {fileID: 11400000, guid: 3b54965c62f7c0c4cb86956839438e3f, type: 2}
+    - {fileID: 11400000, guid: 2493857a0db4c3f4c935537c18736e93, type: 2}
+    - {fileID: 11400000, guid: ac3ff3a786fc3ed409a8d3e5e2aad551, type: 2}

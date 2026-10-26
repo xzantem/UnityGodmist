@@ -27,6 +27,14 @@ namespace Godmist.Systems.Items
         public static IReadOnlyList<ConsumableEffectRuntime> GetImpliedUtilityEffects(
             ConsumableItemDefinition definition)
         {
+            if (definition?.UseType == ConsumableUseType.Food)
+                return new[] { new ConsumableEffectRuntime
+                {
+                    EffectType = ConsumableRuntimeEffectType.RestoreHealth,
+                    Value = DungeonFoodRules.HealthFraction,
+                    TargetType = TargetType.Caster,
+                    TargetingType = TargetingType.Allies
+                } };
             if (definition == null || definition.UseType != ConsumableUseType.Utility)
             {
                 return Array.Empty<ConsumableEffectRuntime>();
@@ -113,6 +121,34 @@ namespace Godmist.Systems.Items
                         GameDefineIds.ConsumableDuplicateSecondMultiplier, .75f)
                     : GameDefinesRuntime.GetFloat(
                         GameDefineIds.ConsumableDuplicateThirdPlusMultiplier, .60f);
+        }
+
+        public static float GetCondensationMultiplier(
+            ConsumableRuntimeEffectType effectType, int baseDuration, int adjustedDuration)
+        {
+            // Buff values apply on every turn. Preserve their total potency when
+            // condensed, using the actual duration after the one-turn minimum.
+            // Regeneration already stores a total, and instant effects have no duration.
+            if (baseDuration <= 0 || adjustedDuration <= 0 || adjustedDuration >= baseDuration)
+                return 1f;
+
+            return effectType switch
+            {
+                ConsumableRuntimeEffectType.ModifyMaxResource
+                    or ConsumableRuntimeEffectType.ModifyDamage
+                    or ConsumableRuntimeEffectType.ModifyDefense
+                    or ConsumableRuntimeEffectType.ModifyPhysicalDefense
+                    or ConsumableRuntimeEffectType.ModifyMagicalDefense
+                    or ConsumableRuntimeEffectType.ModifyAllResistances
+                    or ConsumableRuntimeEffectType.ModifyResistance
+                    or ConsumableRuntimeEffectType.ModifySpeed
+                    or ConsumableRuntimeEffectType.ModifyCritChance
+                    or ConsumableRuntimeEffectType.ModifyDodge
+                    or ConsumableRuntimeEffectType.ModifyAccuracy
+                    or ConsumableRuntimeEffectType.ModifyActionPoints
+                    or ConsumableRuntimeEffectType.Slow => (float)baseDuration / adjustedDuration,
+                _ => 1f
+            };
         }
 
         public static string GetImpliedStatusId(ConsumableRuntimeEffectType effectType)

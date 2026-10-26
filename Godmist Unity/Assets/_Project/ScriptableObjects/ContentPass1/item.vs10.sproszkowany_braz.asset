@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Sproszkowany br\u0105z"
   <Description>k__BackingField: "Drobno zmielony metal u\u017Cywany w rzemio\u015Ble
     runicznym."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: d0819772af002b5418a9c67c885e0df6, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: 713780daaaece6b4ea7b0491ea721ca0, type: 2}
     <Amount>k__BackingField: 1

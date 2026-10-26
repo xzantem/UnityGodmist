@@ -52,7 +52,7 @@ namespace Godmist.Tests.EditMode
                     new(GalduryteEffectType.ActionValueOnAttack, GaldurytePowderColor.Blue, GalduryteEffectGrade.S, 4f)
                 }
             };
-            var summary = rune.GetEffectSummary();
+            var summary = rune.GetEffectDetails();
             Assert.That(summary, Does.Contain("20% szansy na podpalenie"));
             Assert.That(summary, Does.Contain("raz na użycie umiejętności"));
             Assert.That(summary, Does.Contain("wszystkich trafionych wrogów"));
@@ -61,7 +61,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(GalduryteRuntimeText.FormatEffectRange(GalduryteEffectType.CriticalDamageFlat, .1f, .25f),
                 Does.Contain("0,1–0,25×").Or.Contain("0.1–0.25×"));
             Assert.That(GalduryteRuntimeText.FormatEffectRange(GalduryteEffectType.HealthPerTurn, .005f, .01f),
-                Does.Contain("maksymalnego zdrowia"));
+                Does.Contain("Zdrowie na początku tury: +").And.Contain("maks."));
         }
 
         [Test] public void MaterialAndPartTooltipsDescribeTheItemInsteadOfLootSourcesOrSpreadsheetRows()

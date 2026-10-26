@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Sproszkowana stal
   <Description>k__BackingField: "Drobno zmielony metal u\u017Cywany w rzemio\u015Ble
     runicznym."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 0f703b4097c0c4d47b6ecd6e36c33515, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4
@@ -25,6 +25,9 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 1
   <CraftingDiscipline>k__BackingField: 1
   <OutputAmount>k__BackingField: 2
+  <ResultLevel>k__BackingField: 1
+  <PrimaryVariantLabel>k__BackingField: 
+  <CraftedResult>k__BackingField: {fileID: 0}
   <Ingredients>k__BackingField:
   - <Material>k__BackingField: {fileID: 11400000, guid: af20630e76146b741837affd9793360c, type: 2}
     <Amount>k__BackingField: 1

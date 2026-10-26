@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.smithing.cedar_wood
   <DisplayName>k__BackingField: Drewno cedrowe
   <Description>k__BackingField: "Surowe drewno do obr\xF3bki w warsztacie kowala."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: c46be6ecbc18252468f2ccefe49ca296, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

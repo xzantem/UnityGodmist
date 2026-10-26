@@ -16,7 +16,7 @@ MonoBehaviour:
   <DisplayName>k__BackingField: "Od\u0142amek meteorytu"
   <Description>k__BackingField: "Fragment meteorytu zawieraj\u0105cy metal do wyrobu
     specjalnych stop\xF3w."
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 6247212f582612842a70050dc4ad8fe2, type: 3}
   <ItemType>k__BackingField: 3
   <MaterialDiscipline>k__BackingField: 1
   <BaseRarity>k__BackingField: 4

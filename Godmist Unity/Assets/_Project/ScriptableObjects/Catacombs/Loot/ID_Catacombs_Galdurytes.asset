@@ -15,7 +15,7 @@ MonoBehaviour:
   <Id>k__BackingField: item.lootbag.catacombs.galdurytes
   <DisplayName>k__BackingField: Torba z galdurytami
   <Description>k__BackingField: Worek z runicznymi kamieniami znalezionymi w katakumbach.
-  <Icon>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 21300000, guid: 7d1415f88fd296b4ca68fc7473eb31d3, type: 3}
   <ItemType>k__BackingField: 6
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 3
@@ -33,6 +33,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
@@ -42,6 +43,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 1
       <Entries>k__BackingField:
@@ -51,6 +53,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.8
       <Entries>k__BackingField:
@@ -60,6 +63,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.55
       <Entries>k__BackingField:
@@ -69,6 +73,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.4
       <Entries>k__BackingField:
@@ -78,6 +83,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
     - <DropChance>k__BackingField: 0.25
       <Entries>k__BackingField:
@@ -87,6 +93,7 @@ MonoBehaviour:
           Max: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
       <DistinctSelectionGroup>k__BackingField: 
   <BossUniqueDrop>k__BackingField:
     <DropChance>k__BackingField: 0.3
