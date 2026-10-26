@@ -1,0 +1,41 @@
+{
+  "characters": [
+    {
+      "unit": "skeleton-slayer-p1",
+      "frameSize": 160,
+      "pivotBottomPixels": 16,
+      "corpseFrameSize": 192,
+      "idleDurationMs": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "walkDurationMs": [
+        180,
+        180,
+        180,
+        180
+      ]
+    },
+    {
+      "unit": "skeleton-slayer-p2",
+      "frameSize": 160,
+      "pivotBottomPixels": 16,
+      "corpseFrameSize": 192,
+      "idleDurationMs": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "walkDurationMs": [
+        180,
+        180,
+        180,
+        180
+      ]
+    }
+  ],
+  "npcs": []
+}

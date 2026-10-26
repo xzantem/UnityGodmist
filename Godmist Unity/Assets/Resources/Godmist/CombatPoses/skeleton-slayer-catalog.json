@@ -1,0 +1,2006 @@
+{
+  "packs": [
+    {
+      "unit": "skeleton-slayer-p1",
+      "actorSize": 256,
+      "pivotBottomPixels": 64,
+      "skills": [
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_crushing",
+          "action": "crushing-blow"
+        },
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_tremors",
+          "action": "tremors"
+        },
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_defense",
+          "action": "unyielding-defense"
+        }
+      ],
+      "frames": [
+        {
+          "action": "crushing-blow",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                99,
+                51,
+                59,
+                111
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-s-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": -0.1875
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                100,
+                58,
+                58,
+                107
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-se-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.34375,
+              "offsetY": 0.0625
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                98,
+                58,
+                58,
+                107
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-sw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.375,
+              "offsetY": 0.0625
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                109,
+                61,
+                52,
+                108
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-e-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.75,
+              "offsetY": 0.09375
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                95,
+                61,
+                52,
+                108
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-w-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.78125,
+              "offsetY": 0.09375
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                97,
+                64,
+                105,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-ne-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 1.875,
+              "offsetY": 0.5625
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                54,
+                64,
+                105,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-nw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -1.90625,
+              "offsetY": 0.5625
+            }
+          ]
+        },
+        {
+          "action": "crushing-blow",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-crushing-blow-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                100,
+                64,
+                56,
+                97
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-crushing-blow-n-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.28125
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                92,
+                57,
+                71,
+                105
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                62,
+                76,
+                105
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.03125,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                62,
+                76,
+                105
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                116,
+                64,
+                48,
+                106
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.03125,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                92,
+                64,
+                48,
+                106
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                106,
+                64,
+                65,
+                100
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.03125,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                85,
+                64,
+                65,
+                100
+              ]
+            }
+          ]
+        },
+        {
+          "action": "tremors",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-tremors-shared-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 0.0
+            },
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-tremors-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                93,
+                64,
+                70,
+                94
+              ]
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                99,
+                62,
+                57,
+                105
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                99,
+                61,
+                54,
+                103
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.15625,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                103,
+                61,
+                54,
+                103
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.1875,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                109,
+                63,
+                52,
+                101
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.40625,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                95,
+                63,
+                52,
+                101
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.4375,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                108,
+                64,
+                58,
+                99
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                64,
+                58,
+                99
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.03125,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "unyielding-defense",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-unyielding-defense-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                97,
+                64,
+                54,
+                99
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-unyielding-defense-shared-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.0625,
+              "offsetY": 1.8125
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-s-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-se-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-e-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-ne-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-n-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-s-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-se-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-e-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-ne-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-n-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-sw-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-w-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-nw-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-sw-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-w-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p1/skeleton-slayer-p1-nw-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "unit": "skeleton-slayer-p2",
+      "actorSize": 256,
+      "pivotBottomPixels": 64,
+      "skills": [
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_bone_crush",
+          "action": "bone-crush"
+        },
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_hammer",
+          "action": "destruction-charge"
+        },
+        {
+          "id": "skill.enemy.catacombs.skeleton_slayer_task",
+          "action": "execute-task"
+        }
+      ],
+      "frames": [
+        {
+          "action": "bone-crush",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                63,
+                64,
+                101,
+                102
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-s-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.5625,
+              "offsetY": 2.03125
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                55,
+                64,
+                116,
+                103
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-se-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.8125,
+              "offsetY": 2.28125
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                85,
+                64,
+                116,
+                103
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-sw-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.8125,
+              "offsetY": 2.28125
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                51,
+                64,
+                108,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-e-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.75,
+              "offsetY": 1.78125
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                97,
+                64,
+                108,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-w-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.75,
+              "offsetY": 1.78125
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                97,
+                64,
+                98,
+                89
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-ne-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.84375,
+              "offsetY": 1.09375
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                61,
+                64,
+                98,
+                89
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-nw-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.84375,
+              "offsetY": 1.09375
+            }
+          ]
+        },
+        {
+          "action": "bone-crush",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-bone-crush-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                94,
+                64,
+                105,
+                94
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-bone-crush-n-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 1.6875,
+              "offsetY": 0.6875
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                93,
+                64,
+                74,
+                150
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-s-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.6875,
+              "offsetY": 4.125
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                64,
+                78,
+                150
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-se-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.6875,
+              "offsetY": 4.15625
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                88,
+                64,
+                78,
+                150
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-sw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.71875,
+              "offsetY": 4.15625
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                89,
+                64,
+                71,
+                151
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-e-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.4375,
+              "offsetY": 4.21875
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                96,
+                64,
+                71,
+                151
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-w-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.46875,
+              "offsetY": 4.21875
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                96,
+                64,
+                73,
+                141
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-ne-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.71875,
+              "offsetY": 3.875
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                87,
+                64,
+                73,
+                141
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-nw-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.75,
+              "offsetY": 3.875
+            }
+          ]
+        },
+        {
+          "action": "destruction-charge",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-charge-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                94,
+                64,
+                66,
+                142
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-charge-n-fx-128",
+              "actor": false,
+              "canvasSize": 128,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.4375,
+              "offsetY": 3.9375
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                84,
+                52,
+                88,
+                110
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-s-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.0625,
+              "offsetY": -0.0625
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                85,
+                51,
+                101,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-se-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 1.53125,
+              "offsetY": -0.25
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                70,
+                51,
+                101,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-sw-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -1.53125,
+              "offsetY": -0.25
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                64,
+                123,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-e-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 2.40625,
+              "offsetY": 0.03125
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                43,
+                64,
+                123,
+                100
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-w-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -2.40625,
+              "offsetY": 0.03125
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                102,
+                64,
+                102,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-ne-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 2.0,
+              "offsetY": 0.84375
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                52,
+                64,
+                102,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-nw-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -2.0,
+              "offsetY": 0.84375
+            }
+          ]
+        },
+        {
+          "action": "destruction-impact",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-destruction-impact-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                87,
+                64,
+                82,
+                101
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-destruction-impact-n-fx-160",
+              "actor": false,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.09375,
+              "offsetY": 0.90625
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-s-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                104,
+                64,
+                65,
+                107
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-se-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                104,
+                64,
+                68,
+                108
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.09375,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-sw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                84,
+                64,
+                68,
+                108
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.125,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-e-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                109,
+                64,
+                57,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.15625,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-w-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                90,
+                64,
+                57,
+                104
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.1875,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-ne-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                84,
+                64,
+                65,
+                102
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.03125,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-nw-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                107,
+                64,
+                65,
+                102
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": -0.0625,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "execute-task",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-execute-task-n-256",
+              "actor": true,
+              "canvasSize": 256,
+              "opaquePixelRect": [
+                80,
+                64,
+                70,
+                99
+              ]
+            },
+            {
+              "resource": "skeleton-slayer-fx/skeleton-slayer-execute-task-shared-fx-96",
+              "actor": false,
+              "canvasSize": 96,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.5,
+              "offsetX": 0.0,
+              "offsetY": 1.9375
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-s-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-se-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-e-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-ne-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-n-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "s",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-s-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "se",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-se-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "e",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-e-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "ne",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-ne-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "n",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-n-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-sw-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-w-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "hit",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-nw-hit-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "sw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-sw-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "w",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-w-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        },
+        {
+          "action": "dodge",
+          "direction": "nw",
+          "layers": [
+            {
+              "resource": "skeleton-slayer-p2/skeleton-slayer-p2-nw-dodge-160",
+              "actor": true,
+              "canvasSize": 160,
+              "customPivot": true,
+              "pivotX": 0.5,
+              "pivotY": 0.1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

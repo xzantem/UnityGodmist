@@ -438,6 +438,7 @@ MonoBehaviour:
   nameLabel: {fileID: 6198129022348499675}
   awarenessRoot: {fileID: 853438723482793474}
   awarenessFill: {fileID: 1586415774083781925}
+  awarenessStyle: {fileID: 11400000, guid: ae51ce9f405130946b05d9d6c5237614, type: 2}
   awarenessLowColor: {r: 1, g: 0.8, b: 0.1, a: 1}
   awarenessHighColor: {r: 1, g: 0.12, b: 0.08, a: 1}
   body: {fileID: 2333303334119171999}
@@ -524,7 +525,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  - {fileID: -8384879772825197092, guid: b0366477598559848b91ffe6c1717e31, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -570,8 +571,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Sample Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: b0366477598559848b91ffe6c1717e31, type: 2}
+  m_sharedMaterial: {fileID: -8384879772825197092, guid: b0366477598559848b91ffe6c1717e31, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

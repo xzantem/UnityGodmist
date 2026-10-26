@@ -1,0 +1,52 @@
+{
+  "clips": [
+    {
+      "id": "fang-contact",
+      "frames": [
+        "pass8-fang-contact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.46875
+    },
+    {
+      "id": "spectral-contact",
+      "frames": [
+        "pass8-spectral-contact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.625
+    },
+    {
+      "id": "ancient-contact",
+      "frames": [
+        "pass8-ancient-contact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.625
+    },
+    {
+      "id": "spectral-landing",
+      "frames": [
+        "pass8-spectral-contact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625
+    }
+  ]
+}

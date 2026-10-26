@@ -1,0 +1,64 @@
+{
+  "clips": [
+    {
+      "id": "bone-ward",
+      "frames": [
+        "pass9-bone-ward-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.625
+    },
+    {
+      "id": "spectral-veil",
+      "frames": [
+        "pass9-spectral-veil-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.35,
+      "contentHeight": 0.75
+    },
+    {
+      "id": "life-siphon",
+      "frames": [
+        "pass9-life-siphon-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.6875
+    },
+    {
+      "id": "spectral-departure",
+      "frames": [
+        "pass9-spectral-veil-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.35,
+      "contentHeight": 0.75
+    },
+    {
+      "id": "spectral-reveal",
+      "frames": [
+        "pass9-spectral-veil-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.35,
+      "contentHeight": 0.75
+    }
+  ]
+}

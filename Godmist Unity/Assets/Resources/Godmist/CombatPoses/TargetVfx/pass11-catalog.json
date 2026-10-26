@@ -1,0 +1,123 @@
+{
+  "clips": [
+    {
+      "id": "royal-command",
+      "frames": [
+        "pass11-royal-command-00",
+        "pass11-royal-command-01",
+        "pass11-royal-command-02",
+        "pass11-royal-command-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625,
+      "aboveHead": true,
+      "repeatSeconds": 4.8,
+      "opacity": 0.7
+    },
+    {
+      "id": "slayer-ward",
+      "frames": [
+        "pass11-slayer-ward-00",
+        "pass11-slayer-ward-01",
+        "pass11-slayer-ward-02",
+        "pass11-slayer-ward-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.75,
+      "repeatSeconds": 4.8,
+      "opacity": 0.7
+    },
+    {
+      "id": "hammer-charge",
+      "frames": [
+        "pass11-hammer-charge-00",
+        "pass11-hammer-charge-01",
+        "pass11-hammer-charge-02",
+        "pass11-hammer-charge-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.2,
+      "contentHeight": 0.40625,
+      "repeatSeconds": 4.8,
+      "opacity": 0.7
+    },
+    {
+      "id": "shadow-impact",
+      "frames": [
+        "pass11-shadow-impact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "royal-command-hit",
+      "frames": [
+        "pass11-royal-command-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.625,
+      "aboveHead": true,
+      "repeatSeconds": 0,
+      "opacity": 1
+    },
+    {
+      "id": "slayer-ward-hit",
+      "frames": [
+        "pass11-slayer-ward-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.75,
+      "repeatSeconds": 0,
+      "opacity": 1
+    },
+    {
+      "id": "hammer-charge-hit",
+      "frames": [
+        "pass11-hammer-charge-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.2,
+      "contentHeight": 0.40625,
+      "repeatSeconds": 0,
+      "opacity": 1
+    },
+    {
+      "id": "shadow-ground",
+      "frames": [
+        "pass11-shadow-impact-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.5625
+    }
+  ]
+}

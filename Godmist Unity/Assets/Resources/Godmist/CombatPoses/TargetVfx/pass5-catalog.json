@@ -1,0 +1,71 @@
+{
+  "clips": [
+    {
+      "id": "judgement",
+      "frames": [
+        "pass5-judgement-00",
+        "pass5-judgement-01",
+        "pass5-judgement-02",
+        "pass5-judgement-03"
+      ],
+      "frameSeconds": 0.22,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "aura-embers",
+      "frames": [
+        "pass5-aura-embers-00",
+        "pass5-aura-embers-01",
+        "pass5-aura-embers-02",
+        "pass5-aura-embers-03"
+      ],
+      "frameSeconds": 0.24,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.375
+    },
+    {
+      "id": "pull-dust",
+      "frames": [
+        "pass5-pull-dust-00"
+      ],
+      "frameSeconds": 0.44,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.40625
+    },
+    {
+      "id": "shout",
+      "frames": [
+        "pass5-shout-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": -0.59375,
+      "contentHeight": 0.46875,
+      "aboveHead": true
+    },
+    {
+      "id": "knife-recover",
+      "frames": [
+        "pass4-holy-impact-00"
+      ],
+      "frameSeconds": 0.36,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.59375
+    }
+  ]
+}

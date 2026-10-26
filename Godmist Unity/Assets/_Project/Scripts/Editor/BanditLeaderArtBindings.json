@@ -1,0 +1,2165 @@
+{
+  "imports": [
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-idle-00-96.png",
+      "sha256": "ad2e101072b760512ca259565dc918b89529195f2c4d2dc4de99cab0856758a0",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-idle-01-96.png",
+      "sha256": "72cbd0676bbf80458796d7302c1e2405432065d67c833d6d85886a305c9d32d6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-idle-02-96.png",
+      "sha256": "d640992abdf47bda93afe1db5326ee3153facc3e0111a1df752d94486a5e121a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-idle-03-96.png",
+      "sha256": "41fb2b0db2159d87c272b1a922b0bf142d499c89cbd88be02ba64925baeb964b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-walk-00-96.png",
+      "sha256": "d99753c0c040b3911ff17e684b2eca426d9762f40a76855746feba064f19ac61",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-walk-01-96.png",
+      "sha256": "3437cd51bd6ce0d2330643186a19e8950b2dc2f517b9e33130add8c72e24ae35",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-walk-02-96.png",
+      "sha256": "696755368a8f87ebdd71f36754cb8b637f4255e6585d7187b904798516c38921",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-s-walk-03-96.png",
+      "sha256": "79f19f52cf443ad0cd472fd4bc0e21a2fd210ccdd40bf6f4f1704ef50626b96f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-idle-00-96.png",
+      "sha256": "c42597ed4feb926765f446ce2b476b6d936c4c8481e58d2a3a946e354df0b181",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-idle-01-96.png",
+      "sha256": "8a7cb88ad5d4e666057f5ba0c643a0dd63df4a1e98fae921379c07c93aadf999",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-idle-02-96.png",
+      "sha256": "75457c9f78dcdda9f3ba4957334fa4ff0f2359c4328361d526a07cb1ece12a3a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-idle-03-96.png",
+      "sha256": "754ba2857dcf3b2f252f1ba3906b9e067e3522a96733e34d2345822573089cc1",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-walk-00-96.png",
+      "sha256": "8571c761e22b888ac41452582f1a0dd2421a560d585de447ef14a5ae22deabcb",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-walk-01-96.png",
+      "sha256": "6f882afc3be0b4af96fda6985d544c49231cf09fe10f8793c6c2ba73c264ea73",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-walk-02-96.png",
+      "sha256": "939c5991e042c6f56b935f7b09d76d145a2d5623394d1b95a4cd1e9baeb6be86",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-se-walk-03-96.png",
+      "sha256": "302fc3ad4cc51373f1b8b8308cb91783773b83732a15e3233f3b930b368d20b8",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-idle-00-96.png",
+      "sha256": "192df37b1a3ff343a591e2eba0462c07ba206332d7a9b5c5bb050e0c92a7b73e",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-idle-01-96.png",
+      "sha256": "384ba140f678472b606aa725a99078198a1c3bb6a61ce13fb94b433bd1953296",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-idle-02-96.png",
+      "sha256": "d6af7f586bf206c151e9367c1ecd16d233b2a7dae7b6c91b7f24ba6d800dc5ff",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-idle-03-96.png",
+      "sha256": "6b5de2776e46a54533e9ad2b316af914f39b33bb10df9b3ce65f5d5343b51c87",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-walk-00-96.png",
+      "sha256": "cef1afbb46d57ee854dd4409b1cb1667a23f34afdc9a07e8fdeb254760362a13",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-walk-01-96.png",
+      "sha256": "0773271e500255579fcad29a3d31804983f0c4800be3c654e2b756ed4c9dade6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-walk-02-96.png",
+      "sha256": "4a0d3311d297b5634bdcd1d3ab941f696aeeb6497158f55250e23a2720fe6e73",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-e-walk-03-96.png",
+      "sha256": "fd4c8ace221aeb712d2086abbe781b0866ce88e4c5290ff2e0dcc08c5b5d338e",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-idle-00-96.png",
+      "sha256": "272dc8d615486b9554ef5921892f78dc2165ce0d2063fca4be121d72c3093645",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-idle-01-96.png",
+      "sha256": "624a1af5451d23bae0c8ed8d62a070cd9c80a0c5584881326a44ac8052a20db6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-idle-02-96.png",
+      "sha256": "7b89146e54247fbbf7e1a711bf495c7069c89a3d30a7a66259af903270afa52b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-idle-03-96.png",
+      "sha256": "0a9474353c8efbfaae099baaf1faf6c6845f5b14f9a09b48ea8b497d9dd26ce3",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-walk-00-96.png",
+      "sha256": "ce8fdc2d21d7e3f151d9545a9e6549fbdd01624ed2cb43c2b2646fad53f456c6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-walk-01-96.png",
+      "sha256": "d70722df25ef8a9443dc061ecc51665b2a99bf1bd46174b1b9a6aea41c3463f5",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-walk-02-96.png",
+      "sha256": "52ea597daa562e1a51253bb8c961d55d7f4538aeff065cc62e2517178d49696b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-ne-walk-03-96.png",
+      "sha256": "adac7caa239bd69447f64c6591f6f618c6443393e309b22869e4f22dc270d166",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-idle-00-96.png",
+      "sha256": "724ba9e9a5dc012692888b0f2c39ca49bdb97939b969b31a569120e36c1e5022",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-idle-01-96.png",
+      "sha256": "a5b914e187b314a26be2c45d2863bf1cf102479f071f45deeb0f0e22df168d7e",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-idle-02-96.png",
+      "sha256": "7bfcfe0dfa11c8591694d521a90540389e2ae03b4c0b95e95d3a27d88ebbe481",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-idle-03-96.png",
+      "sha256": "f54eea91f649d0eb1d4ad8d0f1f97c848886ff0e39116c2635512303709cec7a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-walk-00-96.png",
+      "sha256": "ead969ddc18563a80cc2236534287a732711ece7c5f994622c299173848ea60f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-walk-01-96.png",
+      "sha256": "09b3eff12a259c0191c8bd7229f0ff17fc625048e1ae6aeb49cf298d18ef2e67",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-walk-02-96.png",
+      "sha256": "30b3c9240b8ee6aecbfd17c086ed90a02ed692433c283d31f2fd40b0b67ae061",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-n-walk-03-96.png",
+      "sha256": "d3a61c428bda723d0ccf612458578333890f06c4ad38f60172fb52faf1b19509",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-idle-00-96.png",
+      "sha256": "69c31092914a00eb449ee2ebb183729df9546306352f205b15199530945f9d10",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-idle-01-96.png",
+      "sha256": "7c4803c60d5cec55081094f55c2b98d9bc91b8853290dca00faa1d55c46f6611",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-idle-02-96.png",
+      "sha256": "48b618fc31ea66f549ff9e3bf211c415c6bae29d386a7a2839b0ad3385c4f3ba",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-idle-03-96.png",
+      "sha256": "6df0caaf1d0c503acc815d2006408ee9b831d9d0fcd195a3b4f097f663b5a1fc",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-walk-00-96.png",
+      "sha256": "00d62bfd920819dd596784d5e31f8983fa2d1960f26aa98b7211073fff995fbb",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-walk-01-96.png",
+      "sha256": "4de9978ea139c0f36bd8e8d3156d62679b0a6cfc3ca99d714293c7ce517695c3",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-walk-02-96.png",
+      "sha256": "83f03863498ee58a06ce6216a0f3833f1f6808be1d43376e00a1f719a52548a1",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-nw-walk-03-96.png",
+      "sha256": "dd01b0ec5b1f9f7dbc6f833dada44dc0684620f2724ce7b53318e3777d727f03",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-idle-00-96.png",
+      "sha256": "0ef507ca390cbd5edd8841130a8632d1ad56dacebee71c1619fdb0dd05a4d1aa",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-idle-01-96.png",
+      "sha256": "e771ccd91e2c77d2ae909dbf715a12e188e09ea907fadd464065669a93960b9f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-idle-02-96.png",
+      "sha256": "6edef4d4f593ed149c039dc1b05041fc28b410522011551e99e8874caf4ca8b2",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-idle-03-96.png",
+      "sha256": "a6c0073579814bc65821c3d4e5619489d6c402e54e2e36aa75a6b7cbe346629f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-walk-00-96.png",
+      "sha256": "a9d77d4d82198de1c544871b82cf219ed7b85cedadbaf84d7dea1fa01cbf85ba",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-walk-01-96.png",
+      "sha256": "f3cdc4885683e13bbc15696a69affc9c1ba3d7be5337a679181c9f092b1d9055",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-walk-02-96.png",
+      "sha256": "e90103b849621d12c1d22085c7258408c5d88a3d913e296628f95947cd2fe7d1",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-w-walk-03-96.png",
+      "sha256": "3647beb59abc1bbcc138dd191975f23b8f0959802f24c682758f14573fd5fa3a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-idle-00-96.png",
+      "sha256": "677f8d8d1ca20234ce3a7985ffa5895164fb5f810284196e8b855832bfbbec29",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-idle-01-96.png",
+      "sha256": "afe1c3e82519f0ba199c44371b01b8fff71873b777cbb00219d616f0224fd730",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-idle-02-96.png",
+      "sha256": "1e71bb4ac823f6b7309d92cac6ae5a5a07ae58281593b8b6d46b59ccc106c367",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-idle-03-96.png",
+      "sha256": "96f1b6f1fc1c60210f6581c129107e606c2412de9366e8de8aed28dd0edcc9ed",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-walk-00-96.png",
+      "sha256": "038c7d5db63f7e3c26fec6b0ba24634dba7bd4d201f2a120d28b87d71982f041",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-walk-01-96.png",
+      "sha256": "9c038b5cbb4319a04641ab703215dcacd8a9912adfb1444d68ee4dc90c27864c",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-walk-02-96.png",
+      "sha256": "8df744c6e12c703c580face2ec9f36242156e1fd354ad6555681e77376811b3d",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-sw-walk-03-96.png",
+      "sha256": "21528de4ecbad4a3dd92cccabcb9468803ba45cc301b5085d0bda0f32bfb0061",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p1/bandit-leader-p1-corpse-128.png",
+      "sha256": "9851aab28b13dbcf4adeebdba6447d4d6fab6ea113485a72b6b0d4718dc53447",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-00.png",
+      "sha256": "ad2e101072b760512ca259565dc918b89529195f2c4d2dc4de99cab0856758a0",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-01.png",
+      "sha256": "72cbd0676bbf80458796d7302c1e2405432065d67c833d6d85886a305c9d32d6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-02.png",
+      "sha256": "d640992abdf47bda93afe1db5326ee3153facc3e0111a1df752d94486a5e121a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-03.png",
+      "sha256": "41fb2b0db2159d87c272b1a922b0bf142d499c89cbd88be02ba64925baeb964b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-00.png",
+      "sha256": "d99753c0c040b3911ff17e684b2eca426d9762f40a76855746feba064f19ac61",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-01.png",
+      "sha256": "3437cd51bd6ce0d2330643186a19e8950b2dc2f517b9e33130add8c72e24ae35",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-02.png",
+      "sha256": "696755368a8f87ebdd71f36754cb8b637f4255e6585d7187b904798516c38921",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-03.png",
+      "sha256": "79f19f52cf443ad0cd472fd4bc0e21a2fd210ccdd40bf6f4f1704ef50626b96f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-hurt.png",
+      "sha256": "45b8cfbe606ad87ab17c8e405bea6ab0840a54aacfb64ebf738ab4cf30bb34df",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p1-corpse.png",
+      "sha256": "9851aab28b13dbcf4adeebdba6447d4d6fab6ea113485a72b6b0d4718dc53447",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-p1-portrait-128.png",
+      "sha256": "ee84b84aac90123e9a8754cfbdbb750e6c94f85fd8b1ec38ecd830bb45d14942",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-idle-00-96.png",
+      "sha256": "3837d68f6ae86f77f424d6cb04a76d5507a37e96ffe286671fa335f944b1a6ff",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-idle-01-96.png",
+      "sha256": "6873e9e7a44439d105094f01d187be1b840f9442d6998a7cf5603d8f7d03930f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-idle-02-96.png",
+      "sha256": "04126e9e61971970ea7bcd1b9cb2f96cbeffcaa9de8ec525a6e2200beb2f7eeb",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-idle-03-96.png",
+      "sha256": "c3b4269c4d05f0d42a59c9e4547defd761dde5b89a0176da52faf844a186bf12",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-walk-00-96.png",
+      "sha256": "77510dfa6e3df5b8ae7a05415dfed61d952c867ab6fdcaf3d9ba2065a896baa6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-walk-01-96.png",
+      "sha256": "b73ae1f282484e818a92fff039a4d2a4d6a0378cebadb389d164a7bc7f7ae778",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-walk-02-96.png",
+      "sha256": "b628dea1740a2f17260f2478edebbb71694e874133301b792fbdc57e0f813013",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-s-walk-03-96.png",
+      "sha256": "9c4c2fcc88d6eb021242cc307dfa124e7b76123d69edb1bf0a4d59d41aa78a51",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-idle-00-96.png",
+      "sha256": "55054094d964f3755abcfc290883571fb87473f43cc4c39cda300bc8ad0d42ef",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-idle-01-96.png",
+      "sha256": "5ccdb06f072e5333bec7cb9519524549197c88dfae5e97f00ec0c43728b09c51",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-idle-02-96.png",
+      "sha256": "1d222156358cd68e24811fc825bbce0a48859aa15fc38563c42fab6047e7efcf",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-idle-03-96.png",
+      "sha256": "29b769b50a9f04730924f2fe2952f08cf2ae3d9c836120e1a3eb4788f4bb18e1",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-walk-00-96.png",
+      "sha256": "f6482efab90dbb97cf3a8cc247bcf9da896cfc9b67a4848cc4dfd0bff7a2101b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-walk-01-96.png",
+      "sha256": "f8e8833c78c0a64d86c5a15d247c4dc1b254e883d0e78d3d71ed7339889edd0b",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-walk-02-96.png",
+      "sha256": "8a21b7b292e02ce482c61b380144c7de816becfcf5e51ce518d413cb13169b9f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-se-walk-03-96.png",
+      "sha256": "63398dcd43679301551994aa1b674a9af547820be673daf555231754e2db38d4",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-idle-00-96.png",
+      "sha256": "54f6b204866dd17b4b6739e6ab919a669317f304a340f40b2c1663e4b4f9ff21",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-idle-01-96.png",
+      "sha256": "9c8442360c062b15ac7abf8b4e90ac3f803a8a4c2583f67374fd2814ab2b9265",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-idle-02-96.png",
+      "sha256": "01b41272176c5db3633c4eb71de1f283a4fa3f1ff397013c0a67c11ab77f64f1",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-idle-03-96.png",
+      "sha256": "9b80a7542cc91be8baa67633cb7fa7660149f89c8419ccb9f60005af8470eb25",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-walk-00-96.png",
+      "sha256": "9c0ae81fdac40858324eaf75f45e30d31cc12e38e52468a945f9d6919168d52a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-walk-01-96.png",
+      "sha256": "f679d9b20905e3999eca18a6da1a8528db693a1c7cb077268588264b35337669",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-walk-02-96.png",
+      "sha256": "aff66d9e956021ddfaf9fbcce7c9ecda1a59be7a49b61006c17aadfcca7fb3b7",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-e-walk-03-96.png",
+      "sha256": "7428330b63a9942ffc3f8c9ff44a28d5eff2e1aa90df68b7f4df0817bba28957",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-idle-00-96.png",
+      "sha256": "0f381d2888f5de4ddd1b4956b1e52519c06f11b61b2152738a3c0ddc5ff134b8",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-idle-01-96.png",
+      "sha256": "125d59f40567ad0354dd2328bc377f21bd0281c89aff8bdfe9bb834d0377274c",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-idle-02-96.png",
+      "sha256": "5cbaa8732fd08fc7aea420705feb259907a9a927965ed292240c9a4b753d514d",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-idle-03-96.png",
+      "sha256": "18f6f713ebedc87771b617e1159461c219b7bdeb4dccb3ecbd0ebf5ca94dc3a4",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-walk-00-96.png",
+      "sha256": "ec90d81c9dc00df586c2a4cd458b95900b1461b38b7433b3f2753363bc9c872a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-walk-01-96.png",
+      "sha256": "1a408fc4d4230853633b2cdfbf6e9165077915b980b2417d4579884b8e7d05c6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-walk-02-96.png",
+      "sha256": "8d0e7549e358470f41525c06f50ae7eabb12c176f66386a158ec5e9f1e1dbb52",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-ne-walk-03-96.png",
+      "sha256": "eef2badc2c76ecd9748b6c6e11df2e0d871e530a024543e78de890a90813cb0a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-idle-00-96.png",
+      "sha256": "0b4b799ec733b2cfd0519aa8bdd1a240ed06ce3e378373d38b66d8cb88335ee7",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-idle-01-96.png",
+      "sha256": "b6b3594db576eb97cf93c564630da848e3e17856bdf58af6f4d284434d1990d5",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-idle-02-96.png",
+      "sha256": "caa8371a99efd5fca8fd06b26b2cd1e2725afb616855bb1f5860cbaae97b9a73",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-idle-03-96.png",
+      "sha256": "86bda9802ce190b49d6f5199f730663383fa14b48caf90a62645ca1a6ec647fb",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-walk-00-96.png",
+      "sha256": "3d97add5647fedb36588e6373bc6fd81b981c8bac56ae976f7801aa2430e9f51",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-walk-01-96.png",
+      "sha256": "c26413784e6869e8960106f1d9dbc8740d1254a5287ea1dcbe5b52aed1d71d09",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-walk-02-96.png",
+      "sha256": "f14fc784ee9b674e37dfffdd34dcdf3ce1aa3bf92acc5f3fde039f0a4a4b0549",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-n-walk-03-96.png",
+      "sha256": "d915f32c845c0fbb9e8ba84da4fee78d376db92a175d024ff78f4eaa10b453af",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-idle-00-96.png",
+      "sha256": "d06dd6203d6982128da26c4145119ff6b43dcb69cb4b4518f00d0f1876d28098",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-idle-01-96.png",
+      "sha256": "f89a4960f457f8a76880d2d8672e12f8e6979f24d8e21ec62c5d1b86b3f670ac",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-idle-02-96.png",
+      "sha256": "ab93b8ef2f68cb84079be40be95354ec5420b67c8371b925fb9fc705905cf1f4",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-idle-03-96.png",
+      "sha256": "c9a0ac595df483e648fd8b15ca53790d459b7cbac170044ce9e22d387b06bcc2",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-walk-00-96.png",
+      "sha256": "c5e1387ccc6d2e5bb4d918e2cfa550f4bcf12b611540938f47f312ecd95ee201",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-walk-01-96.png",
+      "sha256": "23411c3edd2c1a9add29ae055ad61927eae1a025aa01d6cc834a39a1d7e0ea36",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-walk-02-96.png",
+      "sha256": "ad31be8b91c81fe82026cc5b37daa6f58df70dcdf754c4945cbb45f59f9d3e36",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-nw-walk-03-96.png",
+      "sha256": "d389a269788e41d4ed300ff784897192e83072787cbd71eafda0396060a344d2",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-idle-00-96.png",
+      "sha256": "26c1e63321f32a8a315611ee425d4c091d4952d103b4fe0c4f1dd1a742427ea8",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-idle-01-96.png",
+      "sha256": "744dc7f32fb8f96dce7b9249dddd928d629a0d2bdc26e4cff98db59a8e8e803a",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-idle-02-96.png",
+      "sha256": "964cb07ba6960674f4d6fd287660291fb807dbd2c21b75aa1d501e9e5c5f0833",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-idle-03-96.png",
+      "sha256": "03df67fe9374b44cd8bd9f70b81c5142e4b16762df9a1084afe05276989438d9",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-walk-00-96.png",
+      "sha256": "af3b61203cfc789c0bfff462c5bc5cd148c8e51bec63ed177da2bfc34234ef09",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-walk-01-96.png",
+      "sha256": "8cade94dc4019c67e9353ef53d9ab8a6071e9069999c6bfa2f945e8c5385a794",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-walk-02-96.png",
+      "sha256": "eaaecad6b501350324c2b4c031b0a4f0dd0bd3fae0f77f478b5f975d1e00d4b3",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-w-walk-03-96.png",
+      "sha256": "62d2d176590891e7a377e94131ca1f5956008773fdfa7280a5c81042036f61cf",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-idle-00-96.png",
+      "sha256": "5d13890dd5e751b8a4e64ff8dc8b8d3857d37783bfb5c4a46875f942bbfdd8b9",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-idle-01-96.png",
+      "sha256": "37d45db4cd432955cf81295118ba7f3918ff9ecfc8a81a5f99f60972aaafcf99",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-idle-02-96.png",
+      "sha256": "b41451fcfb2e15f36421b70e71ea7aed7970e16234b690df8fe8b4fd95d171cd",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-idle-03-96.png",
+      "sha256": "a880ac5527a5f2b106be70e72ec8e2aa9590c2abcb32cfb5496c0452007e6f73",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-walk-00-96.png",
+      "sha256": "0ba8ad2f6bda4346dc506f66a665d07cd4b26858a70efcb8033effaf3f7b5a30",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-walk-01-96.png",
+      "sha256": "1c048b4e269a5793ca02c7ccb1306b19c8a1bf413b91873cbf63d335c57d8a30",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-walk-02-96.png",
+      "sha256": "b8f3451631c2958cb847c7eba6d774ad355bd0675b6d43675000062595999193",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-sw-walk-03-96.png",
+      "sha256": "edd64cf4136e032052c612618582109dd11a5b118c8eb1932eac1046ca7cb6be",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CharacterAnimations/bandit-leader-p2/bandit-leader-p2-corpse-128.png",
+      "sha256": "9125b600adda5d59c69b7e4241550a4a2b431257240287836446a9f74a4d2110",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-00.png",
+      "sha256": "3837d68f6ae86f77f424d6cb04a76d5507a37e96ffe286671fa335f944b1a6ff",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-01.png",
+      "sha256": "6873e9e7a44439d105094f01d187be1b840f9442d6998a7cf5603d8f7d03930f",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-02.png",
+      "sha256": "04126e9e61971970ea7bcd1b9cb2f96cbeffcaa9de8ec525a6e2200beb2f7eeb",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-03.png",
+      "sha256": "c3b4269c4d05f0d42a59c9e4547defd761dde5b89a0176da52faf844a186bf12",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-00.png",
+      "sha256": "77510dfa6e3df5b8ae7a05415dfed61d952c867ab6fdcaf3d9ba2065a896baa6",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-01.png",
+      "sha256": "b73ae1f282484e818a92fff039a4d2a4d6a0378cebadb389d164a7bc7f7ae778",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-02.png",
+      "sha256": "b628dea1740a2f17260f2478edebbb71694e874133301b792fbdc57e0f813013",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-03.png",
+      "sha256": "9c4c2fcc88d6eb021242cc307dfa124e7b76123d69edb1bf0a4d59d41aa78a51",
+      "pivotX": 0.5,
+      "pivotY": 0.08333333333333333,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-hurt.png",
+      "sha256": "8ce942bc5d93dcc6db62dbadfbb1e36734d61b950478cedfa032e4c1fb887ebe",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/p2-corpse.png",
+      "sha256": "9125b600adda5d59c69b7e4241550a4a2b431257240287836446a9f74a4d2110",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-p2-portrait-128.png",
+      "sha256": "70abd434f9353655f11914a0e4fabc56656b4cb4af11132831de1367eb3d75ee",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-00.png",
+      "sha256": "d42f1a98c147575f5425f77ac3b1381393a2c0ad52beb99eb46b4ac61d021718",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-01.png",
+      "sha256": "f7d1c3e1c239e6eb48d03b2bca761bcf4f3ba4b2cf98de8b3b819cb14215b97a",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-02.png",
+      "sha256": "2d6033ebb52b3f84b7b06613bd3e2a3b2406e53dc723245f11c5a4eaee1b3b9c",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-03.png",
+      "sha256": "74bff0a2c2e248e9fc37e03b7884847de8a23601cd003201888c5092987cb503",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-04.png",
+      "sha256": "a35ac06bd1834d8ce6e81ec7b9003f89d33555501cf89076b8583cc0e6872d82",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/transform-s-05.png",
+      "sha256": "f7eed54574db185158c4186f75e0b57b4f7aa93f6849f0013a2605511c67899c",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": false
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-s-128.png",
+      "sha256": "6440c42cd611e1cbc6a5bcf84e0e555ec9db8ca0fa776f41287b3286b308d4fb",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-se-128.png",
+      "sha256": "e4fe56570d2ca21ad05f550a514a1c5efb70479f42ffa0e81e2c541cec6b5b02",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-e-128.png",
+      "sha256": "c2dee9fa77e20ee201af51b26413ffb0dbd89e6057393a352ce03610938f0b62",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-ne-128.png",
+      "sha256": "6186d97be6db3090789ae144e983d0a7617832924783e571b977a54a5b72dce1",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-n-128.png",
+      "sha256": "e17895fda092c2f79f7f2cab6e1705a6e1b8c6078754a02aa2e90cbf302346db",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-s-128.png",
+      "sha256": "2dcf82be89dc292e5efbac0b28cb12776aea2e6f62f6f82f68406bc884a479a7",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-se-128.png",
+      "sha256": "382a438a92dc3f83977307c16887d1f3936437ce02ac4968588c33cda6243d88",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-e-128.png",
+      "sha256": "1159b9813754484052567a08d503c44b3ef17dfcf25787cca32b4796b8398ad2",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-ne-128.png",
+      "sha256": "f18f47f904173d7677384c2e019d649eb0fcfa9d8e3211353582e1c208638329",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-n-128.png",
+      "sha256": "769ffff3fad967d8c684250cd08002aa4237b9477ccf5532c562244ebecdd2a3",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-s-128.png",
+      "sha256": "45b8cfbe606ad87ab17c8e405bea6ab0840a54aacfb64ebf738ab4cf30bb34df",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-se-128.png",
+      "sha256": "49dd36e3a52e9eed4cb4f4cc624e8060462bb712c6ba00fc73206f6461e1f2d3",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-e-128.png",
+      "sha256": "b15252e31f7bf467ad54502ca88713825a6f055a4e049a9fa3f7877c1bd217b8",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-ne-128.png",
+      "sha256": "9a6f63c8b8f1ca5a631c8b581309103895eeb40ec4fda879d20480193caff1e2",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-n-128.png",
+      "sha256": "6fc184d8bcc2ed9c233c8e832d2ee7821f3b0db150fee8292f4dccef940f02a6",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-s-128.png",
+      "sha256": "705c30d81d646f56b6b2a05c925d7d7ee36417ea74d8aba0305b06fd3ac057ed",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-se-128.png",
+      "sha256": "1a9caaef6deb703ee628a00d6be5c36b53c6fa89fd6b5962d0bf44d6f2295dc3",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-e-128.png",
+      "sha256": "257486646bfd35db53a833e30017082f0105d4b903822049337760e14c782d70",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-ne-128.png",
+      "sha256": "3c2fe8f8f965acb210f21f3c57c799c3b5495c7815fae305f7f1ef1eb8f03c05",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-n-128.png",
+      "sha256": "2cb478d89f1e2330ea8c6a39cae67568b56e70f4dabcd85e3ffd8d0748edc427",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-s-128.png",
+      "sha256": "0ccf777193a58da3e3604dc9067d1bb32915837588c70714adf5401931be8269",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-se-128.png",
+      "sha256": "5316fbd87a9f8f4b6c07b375eb47b2c79d2f4f2df72a810a91237bf812aaeb89",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-e-128.png",
+      "sha256": "b088f11b72da06aacdbbb171781d945cdd759d2165de38371bbe99e374ff3913",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-ne-128.png",
+      "sha256": "8a7a0569387b2ecf314515f90a44061a7be3b39f524538a794be59f91da142b5",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-n-128.png",
+      "sha256": "e1d04134f19aa9514b843db73bf6bfbf00750595cff98561e3620fb43a75890c",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-s-128.png",
+      "sha256": "963d8d569ad34c450b188eeb688f5fbee528f8e4433ce26db62b05b2bbebb4c6",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-se-128.png",
+      "sha256": "6d150a3e420ad00d14546ae185f24edef5e570b16cddbf500c9da07dcd3524b6",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-e-128.png",
+      "sha256": "10418cbab7522ac47e68eff0fca5957e62b3bd0f88939f193700ff0d19383dbc",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-ne-128.png",
+      "sha256": "38dcd026663754e4af435c1aa030230f2a328102daf6cfa14fd790a8c9d86962",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-n-128.png",
+      "sha256": "6e4de703cdf409fe63a3eaaf46b070bdd630ba4e23459a2d7747a2cb487005ba",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-s-128.png",
+      "sha256": "01519a0b203873ec03162cdfe4dd143f80ee4f275c79ba2de7ee6738fd6655a6",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-se-128.png",
+      "sha256": "4ca55fa66cc9b26eed6576ec350e4ba68bac103dec42ba6334044eff78a2108c",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-e-128.png",
+      "sha256": "cdc8ced0b055291a0290742c948991643ad73dbc23b938691db48dc73d90ff7d",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-ne-128.png",
+      "sha256": "58f4aff31268d3e08a918b6c18807e13db78a8648ee11f9797fe123b842500d4",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-n-128.png",
+      "sha256": "f7c748e1ee64f21b5e6a08ec8152fad3a5b34e7beb4e65d41bde06f2549c559d",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-s-128.png",
+      "sha256": "8ce942bc5d93dcc6db62dbadfbb1e36734d61b950478cedfa032e4c1fb887ebe",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-se-128.png",
+      "sha256": "fdb860d206f75e76a168c7113db42a2826c965822cac93412dfe990ce801067e",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-e-128.png",
+      "sha256": "d4b66aadcb2474d04bf6f5fb7cf08fcaff2fe51dd551b45f65e0035392a3e9cc",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-ne-128.png",
+      "sha256": "daebc1946ec1886e3d71f46e0198aaf36a61936487f172d8865f5e85512b765c",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-n-128.png",
+      "sha256": "ded0c11a3a2ff9d805fe8837ba829820bc43cde27d22f66511e3d683e4da2a90",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-s-128.png",
+      "sha256": "ff7d40d8fdaf3a716828e21909c8f816d4a4f01ec72f1570bcb37005180e26f5",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-se-128.png",
+      "sha256": "49c664064ff629d430d432070f50d6e5af50579844002ed9e3a3893231cf803e",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-e-128.png",
+      "sha256": "7edda1416232015f82dffad9ac8a681986878a727c1135c25cbb529a0e44839a",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-ne-128.png",
+      "sha256": "d66b6ac082a4b97db91008586d29af58f57c941fa59ea1dd0ad447ae897bfcf9",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-n-128.png",
+      "sha256": "220ce995b1096d1701d84863b0eba1ccb8a35ee422914355e3796d6f05459723",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-sw-128.png",
+      "sha256": "7866a842728e29a83484d639da40c354d3212b2ac7ae9c0f2b3ac0a70f8e48cc",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-w-128.png",
+      "sha256": "b47ea696c42279ad0885e04ad6160a7eeacf9b2f45d460e6d1593149a1bc52c0",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-trap-nw-128.png",
+      "sha256": "97a15e51aa6c626c86c5c8af15bffe3b0ddd225fabb2b86094e90710e55eab1f",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-sw-128.png",
+      "sha256": "bf244b88681b5fddf8af72e0d2967eb88bd6ae7bf2301a834c09aab150ffbbf2",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-w-128.png",
+      "sha256": "afa9bf215b94246fa03a5241604126e2ec618e0b2d5cab2d5b24a18a514a97fa",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-order-nw-128.png",
+      "sha256": "08556c496154d51b121d9d23b4045eb345983f093228416218886d60ca64dcc7",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-sw-128.png",
+      "sha256": "57ee1e54ffc3c17a89be16328cb1c85991dba195e33a11cd373e87588f277777",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-w-128.png",
+      "sha256": "a2ff02eace5caf2861bfe3ad9e106b995fe02774ba36a0b2b584e53b15e6b503",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-hurt-nw-128.png",
+      "sha256": "2f4f6ddb625bfa79cc1aa7bcf56421915f961ceb0243825c19ab327934124e42",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-sw-128.png",
+      "sha256": "5e6b6ba9a0db77d543d94e3ced52463d334bb98178749b6e9df9651e19f865bf",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-w-128.png",
+      "sha256": "7767a8086daa215dbd7f3518cfa169d31e80999bde7f3ffe4b9c960db55a4e0a",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p1/bandit-leader-p1-dodge-nw-128.png",
+      "sha256": "34823dbb72b9ed92b1cf254d371a8c7cce6ba1eb6ba9a4907d212c9bb38771f3",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-sw-128.png",
+      "sha256": "db778f7b48b3a39f3020e90bf92fa6bd2c9d01992655fb50eb4c019dbda08025",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-w-128.png",
+      "sha256": "9eacb7e664f35876d8fb38fbcdcd4061b29b5e17b51f9e3c561546a9602724b0",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-cut-nw-128.png",
+      "sha256": "c6ad8df5ce62d07074f35ce72941a60e02e172187e9c32641fcfbdb69cc32660",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-sw-128.png",
+      "sha256": "7eb128d6a827632d284494de8df0e0a7053685ccf8b6ff83fccaccf849d61397",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-w-128.png",
+      "sha256": "eb67b26dcdade89eb01cf542be8a29bc8c5441339dd44625eb5d1a8773ee6eb8",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-fire-nw-128.png",
+      "sha256": "6644458ffb33946238ac95c351f9d6d704635d67d339504ac16f73dc6dd0f715",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-sw-128.png",
+      "sha256": "e82ca170e4c718799b29f496cda7630e41e8a72e378928268806950e388adc3d",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-w-128.png",
+      "sha256": "f1d6b5642e1f4c5fba36a07275b87a17bc2541382a1a2e91d80303345153a037",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-strike-nw-128.png",
+      "sha256": "8365db24c2282f6e032a0211591ba1adb41c42a0def7ef6f7b0a441fd7a7a5fc",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-sw-128.png",
+      "sha256": "3d9646bb02a46847d4c4f621c63a5b3b970848f122a58d9fc5f829613d2db85a",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-w-128.png",
+      "sha256": "65ece989a212b35a8d981a32b4baea68a2caba82749ad39b2eb22301c898d872",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-hurt-nw-128.png",
+      "sha256": "c1af8ef80afaf633d34c5b1a0741f035bdad8b85acbb55dbc0592cf25ea648d9",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-sw-128.png",
+      "sha256": "34a6df005971d3ac0557b54c9c844fd72cb275c46465d6312690b23f50e10855",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-w-128.png",
+      "sha256": "3cd350ce28e461c3b438fffe408587f77c22f89b70efec413465a01967173bd1",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-p2/bandit-leader-p2-dodge-nw-128.png",
+      "sha256": "390e6d542bb4fdc4f972358834fce1f2ae9b234d70b9379019104c91d3e09a0d",
+      "pivotX": 0.5,
+      "pivotY": 0.1875,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-s-fx-128.png",
+      "sha256": "5c82afe395173c5bd1ffbc0a18437ccc9407967fea5936d807b04c8341ce748a",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-se-fx-128.png",
+      "sha256": "fc9b226128a7aa1e4d8f117fac711b0e44ce99b208496febcb030f74ced1ee32",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-e-fx-128.png",
+      "sha256": "45249a7b16fced47cca4bca37327313e22d9fd1767aaef960485cff696da278e",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-ne-fx-128.png",
+      "sha256": "c92ad733833ad81e3a7cd78e8397a2cd384809478d4d9d3792d71e71f1992ce5",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-n-fx-128.png",
+      "sha256": "b7b150622f55af0057d4fa45624617cff109915c2fb492b75323dcb93a01b3b3",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-s-fx-96.png",
+      "sha256": "b515ab7225d7146cafda1c6f0c8a58c85ac9a866ad19881354259a9233e05fe0",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-se-fx-96.png",
+      "sha256": "76ad8478248127bc5d613084edcf99807069396ab285ba86637b93a21cc2be0d",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-e-fx-96.png",
+      "sha256": "3ae751e1792dd1f5887b8580685f4d489d6f9fa9c4f0606f96c83bb9c261e6bc",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-ne-fx-96.png",
+      "sha256": "b01a891abf3f81d48e16239441c791f8ade12cdd163b480cb602d4d22d8c826d",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-n-fx-96.png",
+      "sha256": "c25a2d6bdef99b934abd63d30e3a36ed6a5558757161acc4309f1910c736cfbd",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-s-fx-96.png",
+      "sha256": "2b56607abbfa5f716788d7d28d5d1264c5d3f1be9faf57f903d76e050646696d",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-se-fx-96.png",
+      "sha256": "85b19e5d39889d255a0322437bbfabca4184a5154f4090ae060c543c0db61f81",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-e-fx-96.png",
+      "sha256": "7cf6c7bbe94bc0988bffd74386aa5027838d052c59349bcba8a78e30733b5688",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-ne-fx-96.png",
+      "sha256": "f5fa153d83e6cee93186e48663d6ebba016db5b35789c6cf9a9e72682e68a266",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-n-fx-96.png",
+      "sha256": "91bba4bf7695a9ca39b8565a9c133114e7d035fe8412828373cb3b58aa6e70dc",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-order-shared-fx-64.png",
+      "sha256": "4ab18806048ecb2edb60be3ba02018550334624e12bae087b0b2fcf8c4e5add2",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-trap-set-shared-fx-64.png",
+      "sha256": "8b62863a712eae550f2dcaf97e201b974efc1c2280780319d05eead5c9d22eb6",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-bear-trigger-shared-fx-64.png",
+      "sha256": "8b58dd09115ae7d4927e2810ffa9703fa69c35aea08c8a95e03ec3fd268483fb",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-mine-burst-shared-fx-96.png",
+      "sha256": "7ab9ea3b61ff8ed80860f7636e87040a1a1e1a879636e20ecd90bfddc99b1794",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-conceal-shared-fx-96.png",
+      "sha256": "f52a22b72d99eb525e4aa91fb060c474c1a9d636ca3590986e7ae15f31dfe500",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-sw-fx-128.png",
+      "sha256": "2167a5559a07f271a347e7ffc9279edc55b755f790efddc15161e2852a79255c",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-w-fx-128.png",
+      "sha256": "46e7c495736b5188036fe9a695d0be1b6bd14024468865fc594e12358546b0c3",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-fire-nw-fx-128.png",
+      "sha256": "2d732f45c4ecdf14f478cc74b27d4189359b6ab72b98187ae806c5e184419091",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-sw-fx-96.png",
+      "sha256": "36caf7b897d5b27c60133f3393ea54bd6cbb42d81275ebe493a0fb43b0929cc4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-w-fx-96.png",
+      "sha256": "64ea907583ba7de4e51ba31c261ae3cee131a2dfb7eeb7ad361d79faf3bb98ab",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-cut-nw-fx-96.png",
+      "sha256": "51b22a08cc647633010019ec4fcde1bb5329b8a6bae80484b14ea28b20b17996",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-sw-fx-96.png",
+      "sha256": "1544f1e49337ee40926a9ac9b432df9883deb13b7f7c637d02541a1a67382435",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-w-fx-96.png",
+      "sha256": "b29a4219e451e3fcecb52a1a9de268cec1e1c5a4ad0e176c83aa35643e02808f",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/Resources/Godmist/CombatPoses/bandit-leader-fx/bandit-leader-strike-nw-fx-96.png",
+      "sha256": "4166b8bded18f77cebd8650b13a911bfcc36f230487cedb499d7c122ab53bf0d",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": true
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-bear-32.png",
+      "sha256": "461400e698b020705c2bcad88221a3d8fd77366a9a08a3276f8ec6d93ce660c4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-mine-32.png",
+      "sha256": "4e72c324ffc32baef3b33a416d8f4f3a0dc32ff923c9343270c610d7b9ac97db",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-order-32.png",
+      "sha256": "7c1dd3ae88796da5f701db8124a5069b16202082586ae8b0e7aee5544a1cead4",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-cut-32.png",
+      "sha256": "97a81c9637bf5173e6ec8fe17c33dce671a886d5f3d76860b8e41dfa4bed4617",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-fire-32.png",
+      "sha256": "df800f79a592321ab9b5d228246d6843e073849c7078db71bb2e1d37b607cf81",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-strike-32.png",
+      "sha256": "c41ed51317e6758cb42772735900078fa945cab21ee8b415ef1281fb823a2415",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-hidden-hand-32.png",
+      "sha256": "a876680421b647f12976d1aa8981e2824735014f3b9f425b6447d6551c5d64c6",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-commander-32.png",
+      "sha256": "abc3a9275de95c79f3bccb6041bf25e9bbebafebf640d2c0361b5f6ba6da133c",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bear-world.png",
+      "sha256": "0d219c9e2d3d46fb428e6a78f318ca9f4b580c54368e855ad9d956541631fadb",
+      "pivotX": 0.5,
+      "pivotY": 0.046875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/bear-trigger.png",
+      "sha256": "8b58dd09115ae7d4927e2810ffa9703fa69c35aea08c8a95e03ec3fd268483fb",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/mine-world.png",
+      "sha256": "ca36b67473969f3c493b9f67349c80e0244904b25f5b20f83dcd00b721377065",
+      "pivotX": 0.5,
+      "pivotY": 0.046875,
+      "texture": false
+    },
+    {
+      "path": "Assets/_Project/Art/Bosses/BanditLeader/mine-trigger.png",
+      "sha256": "7ab9ea3b61ff8ed80860f7636e87040a1a1e1a879636e20ecd90bfddc99b1794",
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "texture": false
+    }
+  ],
+  "bindings": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-00.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-01.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-02.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-idle-00.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-00.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-01.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-02.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-walk-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-hurt.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p1-corpse.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-p1-portrait-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "IdleAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-00.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-01.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-02.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "VisualSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-idle-00.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "RunAnimationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-00.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-01.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-02.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-walk-03.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "HitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-hurt.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "DeadSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/p2-corpse.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "PortraitSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-p2-portrait-128.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "TransformationFrames",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-00.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-01.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-02.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-03.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-04.png",
+        "Assets/_Project/Art/Bosses/BanditLeader/transform-s-05.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "TransformationFrames",
+      "sprites": []
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_bear.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-bear-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_mine.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-mine-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_order.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-order-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_cut.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-cut-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_fire.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-fire-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_BanditLeader_strike.asset",
+      "field": "Icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-strike-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_bear.asset",
+      "field": "worldSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bear-world.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_bear.asset",
+      "field": "triggerSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bear-trigger.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_bear.asset",
+      "field": "icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-bear-32.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_mine.asset",
+      "field": "worldSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/mine-world.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_mine.asset",
+      "field": "triggerSprite",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/mine-trigger.png"
+      ]
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_mine.asset",
+      "field": "icon",
+      "sprites": [
+        "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-mine-32.png"
+      ]
+    }
+  ],
+  "floats": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 3.3333333333333335
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 5.555555555555555
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "IdleAnimationFramesPerSecond",
+      "value": 3.3333333333333335
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeaderRevealed.asset",
+      "field": "RunAnimationFramesPerSecond",
+      "value": 5.555555555555555
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditLeader.asset",
+      "field": "TransformationFramesPerSecond",
+      "value": 5
+    }
+  ],
+  "glossary": [
+    {
+      "id": "forest.bandit_leader.hidden_hand",
+      "title": "Niewidzialna Ręka",
+      "sprite": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-hidden-hand-32.png"
+    },
+    {
+      "id": "forest.bandit_leader.commander",
+      "title": "Nieugięty Dowódca",
+      "sprite": "Assets/_Project/Art/Bosses/BanditLeader/bandit-leader-icon-commander-32.png"
+    }
+  ],
+  "vectors": [
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_bear.asset",
+      "field": "worldSpriteOffset",
+      "x": 0.0,
+      "y": -0.90625
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_bear.asset",
+      "field": "triggerSpriteOffset",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_mine.asset",
+      "field": "worldSpriteOffset",
+      "x": 0.0,
+      "y": -0.21875
+    },
+    {
+      "asset": "Assets/_Project/ScriptableObjects/Dungeons/Forest/SO_BanditLeader_mine.asset",
+      "field": "triggerSpriteOffset",
+      "x": 0,
+      "y": 0
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "clips": [
+    {
+      "id": "destruction-mark",
+      "frames": [
+        "pass6-destruction-mark-00",
+        "pass6-destruction-mark-01",
+        "pass6-destruction-mark-02",
+        "pass6-destruction-mark-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.375,
+      "aboveHead": true
+    },
+    {
+      "id": "weakpoint-mark",
+      "frames": [
+        "pass6-weakpoint-mark-00",
+        "pass6-weakpoint-mark-01",
+        "pass6-weakpoint-mark-02",
+        "pass6-weakpoint-mark-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.375,
+      "aboveHead": true
+    },
+    {
+      "id": "sacrifice",
+      "frames": [
+        "pass6-sacrifice-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.625
+    },
+    {
+      "id": "transfusion",
+      "frames": [
+        "pass6-transfusion-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.5625
+    },
+    {
+      "id": "destruction-mark-hit",
+      "frames": [
+        "pass6-destruction-mark-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.375,
+      "aboveHead": true
+    },
+    {
+      "id": "weakpoint-mark-hit",
+      "frames": [
+        "pass6-weakpoint-mark-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.375,
+      "aboveHead": true
+    }
+  ]
+}

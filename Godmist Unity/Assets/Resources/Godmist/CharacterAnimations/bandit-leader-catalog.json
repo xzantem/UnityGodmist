@@ -1,0 +1,41 @@
+{
+  "characters": [
+    {
+      "unit": "bandit-leader-p1",
+      "frameSize": 96,
+      "pivotBottomPixels": 8,
+      "corpseFrameSize": 128,
+      "idleDurationMs": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "walkDurationMs": [
+        180,
+        180,
+        180,
+        180
+      ]
+    },
+    {
+      "unit": "bandit-leader-p2",
+      "frameSize": 96,
+      "pivotBottomPixels": 8,
+      "corpseFrameSize": 128,
+      "idleDurationMs": [
+        300,
+        300,
+        300,
+        300
+      ],
+      "walkDurationMs": [
+        180,
+        180,
+        180,
+        180
+      ]
+    }
+  ],
+  "npcs": []
+}

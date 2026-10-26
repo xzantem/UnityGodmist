@@ -1,0 +1,109 @@
+{
+  "clips": [
+    {
+      "id": "death-wish",
+      "frames": [
+        "pass7-death-wish-00",
+        "pass7-death-wish-01",
+        "pass7-death-wish-02",
+        "pass7-death-wish-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.4375,
+      "repeatSeconds": 6,
+      "opacity": 0.65
+    },
+    {
+      "id": "offering",
+      "frames": [
+        "pass7-offering-00",
+        "pass7-offering-01",
+        "pass7-offering-02",
+        "pass7-offering-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.75,
+      "repeatSeconds": 6,
+      "opacity": 0.65
+    },
+    {
+      "id": "fatigue",
+      "frames": [
+        "pass7-fatigue-00",
+        "pass7-fatigue-01",
+        "pass7-fatigue-02",
+        "pass7-fatigue-03"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.46875,
+      "repeatSeconds": 4.8,
+      "opacity": 0.65
+    },
+    {
+      "id": "tonic",
+      "frames": [
+        "pass7-tonic-00"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.5
+    },
+    {
+      "id": "death-wish-hit",
+      "frames": [
+        "pass7-death-wish-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.4375,
+      "repeatSeconds": 0,
+      "opacity": 1
+    },
+    {
+      "id": "offering-hit",
+      "frames": [
+        "pass7-offering-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.75,
+      "repeatSeconds": 0,
+      "opacity": 1
+    },
+    {
+      "id": "fatigue-hit",
+      "frames": [
+        "pass7-fatigue-02"
+      ],
+      "frameSeconds": 0.5,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.6,
+      "contentHeight": 0.46875,
+      "repeatSeconds": 0,
+      "opacity": 1
+    }
+  ]
+}

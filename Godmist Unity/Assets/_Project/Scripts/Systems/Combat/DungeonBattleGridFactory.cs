@@ -7,10 +7,12 @@ namespace Godmist.Systems.Combat
 {
     public class DungeonBattleGridFactory
     {
+        private static readonly Unity.Profiling.ProfilerMarker CreateSample = new("Godmist.Combat.CreateGrid");
         public bool TryCreate(
             DungeonCombatContext context,
             out BattleGrid battleGrid)
         {
+            using var sample = CreateSample.Auto();
             battleGrid = null;
 
             if (context == null

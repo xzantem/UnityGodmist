@@ -1,0 +1,89 @@
+{
+  "clips": [
+    {
+      "id": "energy-impact",
+      "frames": [
+        "pass3-energy-impact-00"
+      ],
+      "frameSeconds": 0.44,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.53125
+    },
+    {
+      "id": "energy-ground",
+      "frames": [
+        "pass3-energy-ground-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.28125
+    },
+    {
+      "id": "fire-ground",
+      "frames": [
+        "pass3-fire-ground-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.65625
+    },
+    {
+      "id": "pierce",
+      "frames": [
+        "pass3-pierce-00"
+      ],
+      "frameSeconds": 0.3,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0.7,
+      "contentHeight": 0.59375
+    },
+    {
+      "id": "smoke",
+      "frames": [
+        "pass3-smoke-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.34375
+    },
+    {
+      "id": "arrow-ground",
+      "frames": [
+        "pass3-arrow-ground-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.125,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.65625
+    },
+    {
+      "id": "smoke-hit",
+      "frames": [
+        "pass3-smoke-00"
+      ],
+      "frameSeconds": 0.6,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "contentHeight": 0.34375,
+      "aboveHead": true
+    }
+  ]
+}

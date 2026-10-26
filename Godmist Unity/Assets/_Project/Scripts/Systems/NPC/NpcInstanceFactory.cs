@@ -72,6 +72,10 @@ namespace Godmist.Systems.NPC
             foreach (var itemDefinition in traderRole.InitialOffer)
             {
                 if (itemDefinition == null) continue;
+                // Equipment offers are authored by the crafted-stock generator,
+                // not by instantiating a free starter or an empty base definition.
+                if (npc.Definition.GetRole<Godmist.Data.NPC.BlacksmithRoleData>() != null
+                    && itemDefinition is Godmist.Data.Items.EquipmentItemDefinition) continue;
 
                 var item = itemInstanceFactory.Create(itemDefinition);
                 inventoryService.TryAddItem(npc.ShopInventory, item);
